@@ -33,6 +33,14 @@ Decimal phases enable urgent work insertion without renumbering:
 Create an executable phase prompt (PLAN.md). PLAN.md IS the prompt that Claude executes - not a document that gets transformed.
 </purpose>
 
+<planning_principles>
+**Secure by design:** Assume hostile input on every boundary. Validate, parameterize, authenticate, fail closed.
+
+**Performance by design:** Assume production load, not demo conditions. Plan for efficient data access, appropriate caching, minimal round trips.
+
+**Observable by design:** Plan to debug your own work. Include meaningful error messages, appropriate logging, and clear failure states.
+</planning_principles>
+
 <process>
 
 <step name="load_project_state" priority="first">
