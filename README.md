@@ -334,6 +334,12 @@ You're never locked in. The system adapts.
 
 ---
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=date&legend=top-left)](https://www.star-history.com/#glittercowboy/get-shit-done&type=date&legend=top-left)
+
+---
+
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
