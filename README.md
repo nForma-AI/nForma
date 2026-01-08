@@ -88,16 +88,17 @@ Use `--global` (`-g`) or `--local` (`-l`) to skip the interactive prompt.
 </details>
 
 <details>
-<summary><strong>Manual Installation (for development)</strong></summary>
+<summary><strong>Development Installation</strong></summary>
 
-Clone the repository and tell Claude Code where to find it:
+Clone the repository and run the installer locally:
 
 ```bash
 git clone https://github.com/glittercowboy/get-shit-done.git
-claude --plugin-dir ./get-shit-done
+cd get-shit-done
+node bin/install.js --local
 ```
 
-Useful for development or testing modifications.
+Installs to `./.claude/` for testing modifications before contributing.
 
 </details>
 
