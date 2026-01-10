@@ -204,15 +204,48 @@ No segmentation benefit - execute entirely in main
 **For fully autonomous plans:**
 
 ```
-Use Task tool with subagent_type="general-purpose":
+1. Run init_agent_tracking step first (see step below)
 
-Prompt: "Execute plan at .planning/phases/{phase}-{plan}-PLAN.md
+2. Use Task tool with subagent_type="general-purpose":
 
-This is an autonomous plan (no checkpoints). Execute all tasks, create SUMMARY.md in phase directory, commit with message following plan's commit guidance.
+   Prompt: "Execute plan at .planning/phases/{phase}-{plan}-PLAN.md
 
-Follow all deviation rules and authentication gate protocols from the plan.
+   This is an autonomous plan (no checkpoints). Execute all tasks, create SUMMARY.md in phase directory, commit with message following plan's commit guidance.
 
-When complete, report: plan name, tasks completed, SUMMARY path, commit hash."
+   Follow all deviation rules and authentication gate protocols from the plan.
+
+   When complete, report: plan name, tasks completed, SUMMARY path, commit hash."
+
+3. After Task tool returns with agent_id:
+
+   a. Write agent_id to current-agent-id.txt:
+      echo "[agent_id]" > .planning/current-agent-id.txt
+
+   b. Append spawn entry to agent-history.json:
+      {
+        "agent_id": "[agent_id from Task response]",
+        "task_description": "Execute full plan {phase}-{plan} (autonomous)",
+        "phase": "{phase}",
+        "plan": "{plan}",
+        "segment": null,
+        "timestamp": "[ISO timestamp]",
+        "status": "spawned",
+        "completion_timestamp": null
+      }
+
+4. Wait for subagent to complete
+
+5. After subagent completes successfully:
+
+   a. Update agent-history.json entry:
+      - Find entry with matching agent_id
+      - Set status: "completed"
+      - Set completion_timestamp: "[ISO timestamp]"
+
+   b. Clear current-agent-id.txt:
+      rm .planning/current-agent-id.txt
+
+6. Report completion to user
 ```
 
 **For segmented plans (has verify-only checkpoints):**
@@ -245,6 +278,54 @@ Quality maintained through small scope (2-3 tasks per plan)
 ```
 
 See step name="segment_execution" for detailed segment execution loop.
+</step>
+
+<step name="init_agent_tracking">
+**Initialize agent tracking for subagent resume capability.**
+
+Before spawning any subagents, set up tracking infrastructure:
+
+**1. Create/verify tracking files:**
+
+```bash
+# Create agent history file if doesn't exist
+if [ ! -f .planning/agent-history.json ]; then
+  echo '{"version":"1.0","max_entries":50,"entries":[]}' > .planning/agent-history.json
+fi
+
+# Clear any stale current-agent-id (from interrupted sessions)
+# Will be populated when subagent spawns
+rm -f .planning/current-agent-id.txt
+```
+
+**2. Check for interrupted agents (resume detection):**
+
+```bash
+# Check if current-agent-id.txt exists from previous interrupted session
+if [ -f .planning/current-agent-id.txt ]; then
+  INTERRUPTED_ID=$(cat .planning/current-agent-id.txt)
+  echo "Found interrupted agent: $INTERRUPTED_ID"
+fi
+```
+
+**If interrupted agent found:**
+- The agent ID file exists from a previous session that didn't complete
+- This agent can potentially be resumed using Task tool's `resume` parameter
+- Present to user: "Previous session was interrupted. Resume agent [ID] or start fresh?"
+- If resume: Use Task tool with `resume` parameter set to the interrupted ID
+- If fresh: Clear the file and proceed normally
+
+**3. Prune old entries (housekeeping):**
+
+If agent-history.json has more than `max_entries`:
+- Remove oldest entries with status "completed"
+- Never remove entries with status "spawned" (may need resume)
+- Keep file under size limit for fast reads
+
+**When to run this step:**
+- Pattern A (fully autonomous): Before spawning the single subagent
+- Pattern B (segmented): Before the segment execution loop
+- Pattern C (main context): Skip - no subagents spawned
 </step>
 
 <step name="segment_execution">
@@ -299,8 +380,36 @@ For Pattern A (fully autonomous) and Pattern C (decision-dependent), skip this s
       - Deviations encountered
       - Any issues or blockers"
 
+      **After Task tool returns with agent_id:**
+
+      1. Write agent_id to current-agent-id.txt:
+         echo "[agent_id]" > .planning/current-agent-id.txt
+
+      2. Append spawn entry to agent-history.json:
+         {
+           "agent_id": "[agent_id from Task response]",
+           "task_description": "Execute tasks [X-Y] from plan {phase}-{plan}",
+           "phase": "{phase}",
+           "plan": "{plan}",
+           "segment": [segment_number],
+           "timestamp": "[ISO timestamp]",
+           "status": "spawned",
+           "completion_timestamp": null
+         }
+
       Wait for subagent to complete
       Capture results (files changed, deviations, etc.)
+
+      **After subagent completes successfully:**
+
+      1. Update agent-history.json entry:
+         - Find entry with matching agent_id
+         - Set status: "completed"
+         - Set completion_timestamp: "[ISO timestamp]"
+
+      2. Clear current-agent-id.txt:
+         rm .planning/current-agent-id.txt
+
       ```
 
    C. If routing = Main context:
