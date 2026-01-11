@@ -353,6 +353,14 @@ You're never locked in. The system adapts.
 npx get-shit-done-cc@latest
 ```
 
+**Using Docker or containerized environments?**
+
+If file reads fail with tilde paths (`~/.claude/...`), set `CLAUDE_CONFIG_DIR` before installing:
+```bash
+CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+```
+This ensures absolute paths are used instead of `~` which may not expand correctly in containers.
+
 ---
 
 ## Star History
