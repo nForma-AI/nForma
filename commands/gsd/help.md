@@ -225,6 +225,32 @@ Review deferred issues with codebase context.
 
 Usage: `/gsd:consider-issues`
 
+### Todo Management
+
+**`/gsd:add-todo [description]`**
+Capture idea or task as todo from current conversation.
+
+- Extracts context from conversation (or uses provided description)
+- Creates structured todo file in `.planning/todos/pending/`
+- Infers area from file paths for grouping
+- Checks for duplicates before creating
+- Updates STATE.md todo count
+
+Usage: `/gsd:add-todo` (infers from conversation)
+Usage: `/gsd:add-todo Add auth token refresh`
+
+**`/gsd:check-todos [area]`**
+List pending todos and select one to work on.
+
+- Lists all pending todos with title, area, age
+- Optional area filter (e.g., `/gsd:check-todos api`)
+- Loads full context for selected todo
+- Routes to appropriate action (work now, add to phase, brainstorm)
+- Moves todo to done/ when work begins
+
+Usage: `/gsd:check-todos`
+Usage: `/gsd:check-todos api`
+
 ### Utility Commands
 
 **`/gsd:help`**
@@ -239,6 +265,9 @@ Show this command reference.
 ├── STATE.md              # Project memory & context
 ├── ISSUES.md             # Deferred enhancements (created when needed)
 ├── config.json           # Workflow mode & gates
+├── todos/                # Captured ideas and tasks
+│   ├── pending/          # Todos waiting to be worked on
+│   └── done/             # Completed todos
 ├── codebase/             # Codebase map (brownfield projects)
 │   ├── STACK.md          # Languages, frameworks, dependencies
 │   ├── ARCHITECTURE.md   # Patterns, layers, data flow
@@ -304,6 +333,15 @@ Change anytime by editing `.planning/config.json`
 ```
 /gsd:complete-milestone 1.0.0
 /gsd:new-project  # Start next milestone
+```
+
+**Capturing ideas during work:**
+
+```
+/gsd:add-todo                    # Capture from conversation context
+/gsd:add-todo Fix modal z-index  # Capture with explicit description
+/gsd:check-todos                 # Review and work on todos
+/gsd:check-todos api             # Filter by area
 ```
 
 ## Getting Help

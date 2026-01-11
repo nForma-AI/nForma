@@ -243,6 +243,7 @@ GSD handles it for you:
 | `PLAN.md` | Atomic task with XML structure, verification steps |
 | `SUMMARY.md` | What happened, what changed, committed to history |
 | `ISSUES.md` | Deferred enhancements tracked across sessions |
+| `todos/` | Captured ideas and tasks for later work |
 
 Size limits based on where Claude's quality degrades. Stay under, get consistent excellence.
 
@@ -332,6 +333,8 @@ You're never locked in. The system adapts.
 | `/gsd:resume-work` | Restore from last session |
 | `/gsd:resume-task [id]` | Resume interrupted subagent execution |
 | `/gsd:consider-issues` | Review deferred issues, close resolved, identify urgent |
+| `/gsd:add-todo [desc]` | Capture idea or task from conversation for later |
+| `/gsd:check-todos [area]` | List pending todos, select one to work on |
 | `/gsd:help` | Show all commands and usage guide |
 
 <sup>¹ Contributed by reddit user OracleGreyBeard</sup>
