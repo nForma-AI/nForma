@@ -299,6 +299,52 @@ See `~/.claude/get-shit-done/references/tdd.md` for TDD plan structure.
 See ~/.claude/get-shit-done/references/checkpoints.md for checkpoint structure.
 </step>
 
+<step name="parallelization_aware">
+**Restructure task grouping for parallel execution when enabled.**
+
+**Skip if:** Parallelization disabled in config (from read_parallelization_config step).
+
+**If enabled, analyze task groupings:**
+
+1. **Identify file ownership per task group:**
+   - Extract all files from `<files>` elements
+   - Map each file to which plan(s) would modify it
+   - Flag overlaps as forced dependencies
+
+2. **Detect unnecessary dependencies:**
+   - Check if any plan references another plan's SUMMARY in @context
+   - If reference is NOT genuinely needed (no decision/output dependency), remove it
+   - Only keep SUMMARY references when later plan actually needs earlier plan's decisions
+
+3. **Restructure for vertical slices (if beneficial):**
+
+   | Sequential (current) | Parallel-aware |
+   |---------------------|----------------|
+   | Plan 01: All models | Plan 01: Feature A (model + API + UI) |
+   | Plan 02: All APIs | Plan 02: Feature B (model + API + UI) |
+   | Plan 03: All UIs | Plan 03: Feature C (model + API + UI) |
+
+   **When to restructure:**
+   - Multiple plans with same file types (all touching models, all touching APIs)
+   - No genuine data dependencies between features
+   - Each vertical slice is self-contained
+
+   **When NOT to restructure:**
+   - Genuine dependencies (Plan 02 uses types from Plan 01)
+   - Shared infrastructure (all features need auth setup first)
+   - Single-concern phases (all plans ARE vertical slices already)
+
+4. **Mark plans with parallelization frontmatter:**
+
+   For each plan, determine:
+   - `parallelizable: true` if no file overlap with siblings AND no depends_on
+   - `parallelizable: false` if has dependencies or file conflicts
+   - `depends_on: [plan-ids]` explicit dependencies from analysis
+   - `files_exclusive: [paths]` files only this plan touches
+
+**Output:** Task groupings optimized for independence, frontmatter values determined.
+</step>
+
 <step name="estimate_scope">
 After tasks, assess against quality degradation curve.
 
