@@ -69,8 +69,8 @@ cat .planning/config.json 2>/dev/null | jq '.parallelization'
 - If `parallelization.enabled && parallelization.plan_level`: Planning will optimize for independence
   - Group tasks by vertical slice (feature A, feature B) not workflow stage (setup → implement → test)
   - Avoid unnecessary inter-plan dependencies
-  - Mark explicit file ownership per plan via files_exclusive
-  - Set parallelizable: true when genuinely independent
+  - Track files each plan modifies via `files_modified`
+  - Keep `depends_on` empty when genuinely independent
 - If disabled: Planning proceeds with sequential assumptions (current behavior)
 
 **If config.json missing:** Assume parallelization enabled (new projects get it by default).
@@ -334,13 +334,13 @@ See ~/.claude/get-shit-done/references/checkpoints.md for checkpoint structure.
    - Shared infrastructure (all features need auth setup first)
    - Single-concern phases (all plans ARE vertical slices already)
 
-4. **Mark plans with parallelization frontmatter:**
+4. **Set plan frontmatter for parallelization:**
 
    For each plan, determine:
-   - `parallelizable: true` if no file overlap with siblings AND no depends_on
-   - `parallelizable: false` if has dependencies or file conflicts
-   - `depends_on: [plan-ids]` explicit dependencies from analysis
-   - `files_exclusive: [paths]` files only this plan touches
+   - `depends_on: [plan-ids]` — explicit dependencies (empty if independent)
+   - `files_modified: [paths]` — files this plan will modify
+
+   `/gsd:execute-phase` uses these to detect parallelization opportunities automatically.
 
 **Output:** Task groupings optimized for independence, frontmatter values determined.
 </step>
@@ -427,32 +427,27 @@ Use template from `~/.claude/get-shit-done/templates/phase-prompt.md`.
 **Multiple plans:** Write separate files ({phase}-01-PLAN.md, {phase}-02-PLAN.md, etc.)
 
 Each plan follows template structure with:
-- Frontmatter (phase, plan, type, parallelizable, depends_on, files_exclusive, domain)
+- Frontmatter (phase, plan, type, depends_on, files_modified, domain)
 - Objective (plan-specific goal, purpose, output)
 - Execution context (execute-plan.md, summary template, checkpoints.md if needed)
 - Context (@references to PROJECT, ROADMAP, STATE, codebase docs, RESEARCH/DISCOVERY/CONTEXT if exist, prior summaries, source files, prior decisions, deferred issues, concerns)
 - Tasks (XML format with types)
 - Verification, Success criteria, Output specification
 
-**Parallelization frontmatter (from parallelization_aware step):**
+**Plan frontmatter:**
 
 ```yaml
 ---
 phase: XX-name
 plan: NN
 type: execute
-parallelizable: [true if independent, false if has dependencies]
-depends_on: [plan IDs from analysis, or empty array]
-files_exclusive: [files only this plan modifies]
+depends_on: [plan IDs this plan requires, or empty array]
+files_modified: [files this plan will modify]
 domain: [optional]
 ---
 ```
 
-**Rules for parallelizable field:**
-- `true`: No file overlap with sibling plans, no depends_on entries, no SUMMARY references needed
-- `false`: Has dependencies, shares files, or requires sequential execution
-
-**If parallelization disabled in config:** Still include fields but set `parallelizable: false` for all plans.
+**Parallelization is automatic:** `/gsd:execute-phase` analyzes `depends_on` and `files_modified` to determine which plans can run in parallel. No explicit flag needed.
 
 **Context section population from frontmatter analysis:**
 

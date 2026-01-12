@@ -13,23 +13,10 @@ Template for `.planning/phases/XX-name/{phase}-{plan}-PLAN.md` - executable phas
 phase: XX-name
 plan: NN
 type: execute
-parallelizable: true|false  # Can run alongside other parallelizable plans
-depends_on: []              # Explicit plan dependencies (e.g., ["11-01", "11-02"])
-files_exclusive: []         # Files only this plan modifies (from <files> elements)
+depends_on: []              # Plan IDs this plan requires (e.g., ["01-01"]). Empty = independent.
+files_modified: []          # Files this plan modifies (from <files> elements)
 domain: [optional - if domain skill loaded]
 ---
-
-<frontmatter_guidance>
-**Parallelization fields:**
-- `parallelizable`: Set to true if plan has no dependencies and doesn't share files with sibling plans. Default false for safety.
-- `depends_on`: Array of plan IDs this plan requires (e.g., `["11-01", "11-02"]`). Empty array means independent.
-- `files_exclusive`: Files from `<files>` elements that no sibling plan touches. Used for conflict detection by execute-phase.
-
-**When to set parallelizable: true:**
-- Plan has no depends_on entries
-- All files in plan are in files_exclusive (no overlap with sibling plans)
-- Plan doesn't consume outputs from sibling plans in same phase
-</frontmatter_guidance>
 
 <objective>
 [What this phase accomplishes - from roadmap phase goal]
@@ -209,23 +196,21 @@ See `~/.claude/get-shit-done/references/tdd.md` for TDD plan structure.
 phase: 01-foundation
 plan: 02
 type: execute
-parallelizable: false
 depends_on: ["01-01"]
-files_exclusive: [src/app/api/auth/login/route.ts]
+files_modified: [src/app/api/auth/login/route.ts]
 domain: next-js
 ---
 ```
 
-**Parallel plan (independent):**
+**Independent plan (can run parallel):**
 
 ```markdown
 ---
 phase: 03-features
 plan: 02
 type: execute
-parallelizable: true
 depends_on: []
-files_exclusive: [src/components/Dashboard.tsx, src/hooks/useDashboard.ts]
+files_modified: [src/components/Dashboard.tsx, src/hooks/useDashboard.ts]
 ---
 ```
 
@@ -236,9 +221,8 @@ files_exclusive: [src/components/Dashboard.tsx, src/hooks/useDashboard.ts]
 phase: 01-foundation
 plan: 01
 type: execute
-parallelizable: true
 depends_on: []
-files_exclusive: [prisma/schema.prisma, src/lib/db.ts]
+files_modified: [prisma/schema.prisma, src/lib/db.ts]
 domain: next-js
 ---
 
@@ -301,16 +285,15 @@ After completion, create `.planning/phases/01-foundation/01-01-SUMMARY.md`
 </output>
 ```
 
-**Parallel-aware plan example (independent):**
+**Independent plan example:**
 
 ```markdown
 ---
 phase: 05-features
 plan: 01
 type: execute
-parallelizable: true
 depends_on: []
-files_exclusive: [src/features/user/model.ts, src/features/user/api.ts, src/features/user/UserList.tsx]
+files_modified: [src/features/user/model.ts, src/features/user/api.ts, src/features/user/UserList.tsx]
 ---
 
 <objective>
@@ -323,21 +306,19 @@ Output: User model, API endpoints, and UI components.
 <context>
 @.planning/PROJECT.md
 @.planning/ROADMAP.md
-# No SUMMARY references - this plan is independent
 </context>
 ...
 ```
 
-**Sequential plan example (has dependencies):**
+**Dependent plan example:**
 
 ```markdown
 ---
 phase: 06-integration
 plan: 02
 type: execute
-parallelizable: false
 depends_on: ["06-01"]
-files_exclusive: [src/integration/stripe.ts]
+files_modified: [src/integration/stripe.ts]
 ---
 
 <objective>
@@ -350,14 +331,15 @@ Output: Stripe integration with user-linked payments.
 <context>
 @.planning/PROJECT.md
 @.planning/ROADMAP.md
-@.planning/phases/06-integration/06-01-SUMMARY.md  # Needed: auth decisions
+@.planning/phases/06-integration/06-01-SUMMARY.md
 </context>
 ...
 ```
 
-**Key differences:**
-- Parallel: `parallelizable: true`, empty `depends_on`, no SUMMARY refs
-- Sequential: `parallelizable: false`, explicit `depends_on`, includes needed SUMMARY
+**Parallelization rules:**
+- Empty `depends_on` + no file conflicts with sibling plans = can run parallel
+- Non-empty `depends_on` OR shared files = must run sequentially
+- `/gsd:execute-phase` analyzes this automatically
 
 </good_examples>
 

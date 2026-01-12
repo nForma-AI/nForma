@@ -121,58 +121,43 @@ echo "Found ${#UNEXECUTED[@]} unexecuted plans"
 
 ```bash
 # Initialize associative arrays for tracking
-declare -A PLAN_REQUIRES      # plan -> required plans
+declare -A PLAN_REQUIRES      # plan -> required plans (from depends_on or inferred)
 declare -A PLAN_FILES         # plan -> files modified
 declare -A PLAN_CHECKPOINTS   # plan -> has checkpoints
-declare -A PLAN_PARALLELIZABLE # plan -> explicit parallelizable flag (Phase 11+)
-declare -A PLAN_DEPENDS_ON    # plan -> explicit depends_on list (Phase 11+)
-declare -A PLAN_FILES_EXCLUSIVE # plan -> explicit file ownership (Phase 11+)
-declare -A PLAN_HAS_FRONTMATTER # plan -> whether has new frontmatter
 
 for plan in "${UNEXECUTED[@]}"; do
   plan_id=$(basename "$plan" -PLAN.md)
 
-  # NEW: Check for parallelization frontmatter (Phase 11+)
-  PARALLELIZABLE=$(awk '/^---$/,/^---$/' "$plan" | grep "^parallelizable:" | awk '{print $2}')
+  # Check for depends_on frontmatter
   DEPENDS_ON=$(awk '/^---$/,/^---$/' "$plan" | grep "^depends_on:" | sed 's/depends_on: \[//' | sed 's/\]//' | tr -d ' "')
-  FILES_EXCLUSIVE=$(awk '/^---$/,/^---$/' "$plan" | grep "^files_exclusive:" | sed 's/files_exclusive: \[//' | sed 's/\]//' | tr -d ' "')
 
-  # If frontmatter fields exist, use them directly
-  if [ -n "$PARALLELIZABLE" ]; then
-    PLAN_HAS_FRONTMATTER["$plan_id"]="true"
-    PLAN_PARALLELIZABLE["$plan_id"]="$PARALLELIZABLE"
-    PLAN_DEPENDS_ON["$plan_id"]="$DEPENDS_ON"
-    PLAN_FILES_EXCLUSIVE["$plan_id"]="$FILES_EXCLUSIVE"
+  # Check for files_modified frontmatter
+  FILES_MODIFIED=$(awk '/^---$/,/^---$/' "$plan" | grep "^files_modified:" | sed 's/files_modified: \[//' | sed 's/\]//' | tr -d ' "')
 
-    # Use files_exclusive as PLAN_FILES when present
-    if [ -n "$FILES_EXCLUSIVE" ]; then
-      PLAN_FILES["$plan_id"]="$FILES_EXCLUSIVE"
-    fi
-
-    # Use depends_on as PLAN_REQUIRES when present
-    if [ -n "$DEPENDS_ON" ]; then
-      PLAN_REQUIRES["$plan_id"]="$DEPENDS_ON"
-    fi
+  # Use frontmatter if present
+  if [ -n "$DEPENDS_ON" ]; then
+    PLAN_REQUIRES["$plan_id"]="$DEPENDS_ON"
   else
-    PLAN_HAS_FRONTMATTER["$plan_id"]="false"
-
-    # Fall back to inference (existing logic)
-    # Extract frontmatter requires (handles YAML array syntax)
+    # Fall back to inference from old frontmatter format
     REQUIRES=$(awk '/^---$/,/^---$/' "$plan" | grep -E "^\s*-\s*phase:" | grep -oP '\d+' | tr '\n' ',')
     PLAN_REQUIRES["$plan_id"]="${REQUIRES%,}"
 
-    # Extract files from <files> elements (all occurrences)
-    FILES=$(grep -oP '(?<=<files>)[^<]+(?=</files>)' "$plan" | tr '\n' ',' | tr -d ' ')
-    PLAN_FILES["$plan_id"]="${FILES%,}"
-
-    # Check for SUMMARY references in @context
+    # Check for SUMMARY references in @context (implies dependency)
     SUMMARY_REFS=$(grep -oP '@[^@]*\d+-\d+-SUMMARY\.md' "$plan" | grep -oP '\d+-\d+' | tr '\n' ',')
     if [ -n "$SUMMARY_REFS" ]; then
       PLAN_REQUIRES["$plan_id"]="${PLAN_REQUIRES[$plan_id]},${SUMMARY_REFS%,}"
     fi
   fi
 
-  # Check for checkpoint tasks (always check, regardless of frontmatter)
+  # Use files_modified frontmatter if present, else extract from <files> elements
+  if [ -n "$FILES_MODIFIED" ]; then
+    PLAN_FILES["$plan_id"]="$FILES_MODIFIED"
+  else
+    FILES=$(grep -oP '(?<=<files>)[^<]+(?=</files>)' "$plan" | tr '\n' ',' | tr -d ' ')
+    PLAN_FILES["$plan_id"]="${FILES%,}"
+  fi
+
+  # Check for checkpoint tasks
   if grep -q 'type="checkpoint' "$plan"; then
     PLAN_CHECKPOINTS["$plan_id"]="true"
   else
@@ -181,14 +166,13 @@ for plan in "${UNEXECUTED[@]}"; do
 done
 ```
 
-**Dependency detection priority:**
+**Dependency detection:**
 
 1. **If `depends_on` frontmatter exists:** Use it directly
-2. **If `parallelizable: false` in frontmatter:** Mark as dependent (even without explicit depends_on)
-3. **If no frontmatter:** Fall back to inference:
+2. **If no frontmatter:** Fall back to inference:
    - Parse `requires` from old frontmatter format
-   - Detect file conflicts via `<files>` elements
    - Check for SUMMARY references in @context
+3. **File conflicts:** Detected separately in step 4
 
 **3. Build dependency graph:**
 
@@ -249,20 +233,15 @@ done
 - If Plan B reads file created by Plan A → B depends on A
 - If Plan B references Plan A's SUMMARY in @context → B depends on A
 
-**5. Categorize plans (frontmatter-aware):**
+**5. Categorize plans:**
 
 | Category | Criteria | Action |
 |----------|----------|--------|
-| independent | `parallelizable: true` in frontmatter OR (no frontmatter AND no inferred dependencies) | Can run in parallel (Wave 1) |
-| dependent | `parallelizable: false` OR has depends_on OR inferred dependencies | Wait for dependency |
+| independent | Empty `depends_on` AND no file conflicts | Can run in parallel (Wave 1) |
+| dependent | Has `depends_on` OR file conflicts with earlier plan | Wait for dependency |
 | has_checkpoints | Contains checkpoint tasks | Foreground or skip checkpoints |
 
-**Categorization priority:**
-1. If `parallelizable` frontmatter exists: Use it directly
-2. If no frontmatter: Use inferred category from file/SUMMARY analysis
-3. `has_checkpoints` applies regardless of frontmatter
-
-**6. Build execution waves (topological sort, frontmatter-aware):**
+**6. Build execution waves (topological sort):**
 
 ```bash
 # Calculate wave for each plan
@@ -274,29 +253,8 @@ calculate_wave() {
 
   local max_dep_wave=0
 
-  # Check for explicit parallelizable: false (force Wave 2+ even without deps)
-  if [ "${PLAN_HAS_FRONTMATTER[$plan]}" = "true" ]; then
-    if [ "${PLAN_PARALLELIZABLE[$plan]}" = "false" ] && [ -z "${PLAN_DEPENDS_ON[$plan]}" ]; then
-      # parallelizable: false without deps = Wave 2 (wait for all Wave 1)
-      max_dep_wave=1
-    fi
-  fi
-
-  # Check frontmatter depends_on first
-  if [ -n "${PLAN_DEPENDS_ON[$plan]}" ]; then
-    IFS=',' read -ra deps <<< "${PLAN_DEPENDS_ON[$plan]}"
-    for dep in "${deps[@]}"; do
-      [ -z "$dep" ] && continue
-      # Only consider deps in current phase (unexecuted)
-      if [[ " ${!PLAN_FILES[*]} " =~ " $dep " ]]; then
-        dep_wave=$(calculate_wave "$dep")
-        [ "$dep_wave" -gt "$max_dep_wave" ] && max_dep_wave="$dep_wave"
-      fi
-    done
-  fi
-
-  # Fall back to inferred requires if no frontmatter depends_on
-  if [ "${PLAN_HAS_FRONTMATTER[$plan]}" != "true" ] && [ -n "${PLAN_REQUIRES[$plan]}" ]; then
+  # Check depends_on (from frontmatter or inferred)
+  if [ -n "${PLAN_REQUIRES[$plan]}" ]; then
     IFS=',' read -ra dep_array <<< "${PLAN_REQUIRES[$plan]}"
     for dep in "${dep_array[@]}"; do
       [ -z "$dep" ] && continue
