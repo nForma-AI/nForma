@@ -87,6 +87,94 @@ See `~/.claude/get-shit-done/references/tdd.md` for TDD plan structure.
 **By verification:** Deploy → 01: Vercel setup (checkpoint), 02: Env config (auto), 03: CI/CD (checkpoint)
 </splitting_strategies>
 
+<parallel_aware_splitting>
+**When parallelization is enabled, optimize for plan independence.**
+
+<philosophy_shift>
+| Aspect | Sequential Planning | Parallel-Aware Planning |
+|--------|---------------------|------------------------|
+| Grouping | By workflow stage | By vertical slice |
+| Dependencies | Implicit (later plans reference earlier) | Explicit (only when genuinely needed) |
+| File ownership | Overlap acceptable | Exclusive where possible |
+| SUMMARY refs | Chain pattern (02 refs 01, 03 refs 02) | Minimal (only for real data deps) |
+| Wave result | Most plans in Wave 2+ | More plans in Wave 1 |
+</philosophy_shift>
+
+<vertical_slice_example>
+**Sequential (creates chain):**
+```
+Plan 01: Create User model, Product model, Order model
+Plan 02: Create /api/users, /api/products, /api/orders
+Plan 03: Create UserList UI, ProductList UI, OrderList UI
+```
+Result: 02 depends on 01 (needs models), 03 depends on 02 (needs APIs)
+Waves: [01] → [02] → [03] (fully sequential)
+
+**Parallel-aware (creates independence):**
+```
+Plan 01: User feature (model + API + UI)
+Plan 02: Product feature (model + API + UI)
+Plan 03: Order feature (model + API + UI)
+```
+Result: Each plan self-contained, no file overlap
+Waves: [01, 02, 03] (all parallel)
+</vertical_slice_example>
+
+<when_to_restructure>
+**Restructure for vertical slices when:**
+- Phase has 3+ features that are independent
+- No shared infrastructure requirements
+- Each feature touches different files
+- Features can be tested independently
+
+**Keep sequential when:**
+- Genuine data dependencies (Order needs User type)
+- Shared foundation required (auth setup before protected features)
+- Single feature being built incrementally
+- Phase is already a vertical slice
+</when_to_restructure>
+
+<file_ownership>
+**Explicit file ownership prevents conflicts:**
+
+```yaml
+# Plan 01 frontmatter
+files_exclusive: [src/models/user.ts, src/api/users.ts, src/components/UserList.tsx]
+
+# Plan 02 frontmatter
+files_exclusive: [src/models/product.ts, src/api/products.ts, src/components/ProductList.tsx]
+```
+
+**If file appears in multiple plans:** Later plan depends on earlier (by plan number).
+**If file cannot be split:** Plans must be sequential for that file.
+</file_ownership>
+
+<summary_references>
+**Minimize SUMMARY references when parallel-aware:**
+
+**Before (sequential habit):**
+```markdown
+<context>
+@.planning/phases/05-features/05-01-SUMMARY.md  # Always reference prior
+@.planning/phases/05-features/05-02-SUMMARY.md  # Chain continues
+</context>
+```
+
+**After (parallel-aware):**
+```markdown
+<context>
+# Only reference if this plan ACTUALLY needs decisions from prior plan
+# Most parallel plans don't need any SUMMARY references
+</context>
+```
+
+**Include SUMMARY only when:**
+- Prior plan made a decision that affects this plan's approach
+- Prior plan created types/interfaces this plan imports
+- Prior plan's output is input to this plan
+</summary_references>
+</parallel_aware_splitting>
+
 <anti_patterns>
 **Bad - Comprehensive plan:**
 ```
