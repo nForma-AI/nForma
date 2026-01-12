@@ -8,7 +8,7 @@ Template for `.planning/agent-history.json` - tracks subagent spawns during plan
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.2",
   "max_entries": 50,
   "entries": []
 }
@@ -27,7 +27,14 @@ Each entry tracks a subagent spawn or status change:
   "segment": 1,
   "timestamp": "2026-01-15T14:22:10Z",
   "status": "spawned",
-  "completion_timestamp": null
+  "completion_timestamp": null,
+  "execution_mode": "sequential",
+  "parallel_group": null,
+  "granularity": "plan",
+  "depends_on": null,
+  "files_modified": null,
+  "checkpoints_skipped": null,
+  "task_results": null
 }
 ```
 
@@ -39,24 +46,35 @@ Each entry tracks a subagent spawn or status change:
 | task_description | string | Brief description of what agent is executing |
 | phase | string | Phase number (e.g., "02", "02.1") |
 | plan | string | Plan number within phase |
-| segment | number | Segment number (1-based) for segmented plans, null for Pattern A |
+| segment | number/null | Segment number for segmented plans, null for full plan |
 | timestamp | string | ISO 8601 timestamp when agent was spawned |
-| status | string | Current status: spawned, completed, interrupted, resumed |
-| completion_timestamp | string/null | ISO 8601 timestamp when completed, null if pending |
+| status | string | spawned, completed, interrupted, resumed, queued, failed |
+| completion_timestamp | string/null | ISO timestamp when completed |
+| execution_mode | string | "sequential" or "parallel" |
+| parallel_group | string/null | Batch ID linking agents in same parallel execution |
+| granularity | string | "plan" or "task_group" |
+| depends_on | array/null | Agent IDs or plan refs this depends on |
+| files_modified | array/null | Files this agent created/modified |
+| checkpoints_skipped | number/null | Count of checkpoints skipped in background |
+| task_results | object/null | Per-task outcomes for task-level parallelization |
 
 ### Status Lifecycle
 
 ```
-spawned ──────────────────────────> completed
-    │                                   ^
-    │                                   │
-    └──> interrupted ──> resumed ───────┘
+queued ──> spawned ──────────────────> completed
+               │                           ^
+               │                           │
+               ├──> interrupted ──> resumed┘
+               │
+               └──> failed
 ```
 
+- **queued**: Waiting for dependency (parallel execution only)
 - **spawned**: Agent created via Task tool, execution in progress
 - **completed**: Agent finished successfully, results received
 - **interrupted**: Session ended before agent completed (detected on resume)
 - **resumed**: Previously interrupted agent resumed via resume parameter
+- **failed**: Agent execution failed (error during execution)
 
 ## Usage
 
