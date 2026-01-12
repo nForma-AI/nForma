@@ -130,6 +130,15 @@ Options (via `.planning/config.json` parallelization section):
 - `skip_checkpoints`: Skip human checkpoints in background (default: true)
 - `min_plans_for_parallel`: Minimum plans to trigger parallelization (default: 2)
 
+**`/gsd:status [--wait]`**
+Check status of background agents from parallel execution.
+
+- Shows running/completed agents from agent-history.json
+- Uses TaskOutput to poll agent status
+- With `--wait`: blocks until all agents complete
+
+Usage: `/gsd:status` or `/gsd:status --wait`
+
 ### Roadmap Management
 
 **`/gsd:add-phase <description>`**
