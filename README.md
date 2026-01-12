@@ -177,6 +177,13 @@ Produces:
 
 Each phase breaks into 2-3 atomic tasks. Each task runs in a fresh subagent context — 200k tokens purely for implementation, zero degradation.
 
+**For multi-plan phases:**
+```
+/gsd:execute-phase 1   # Run all plans in parallel, "walk away" execution
+```
+
+Use `/gsd:execute-plan` for interactive single-plan execution with checkpoints. Use `/gsd:execute-phase` when you have multiple plans and want parallel "walk away" automation.
+
 ### 4. Ship and iterate
 
 ```
@@ -316,7 +323,8 @@ You're never locked in. The system adapts.
 | `/gsd:create-roadmap` | Create roadmap and state tracking |
 | `/gsd:map-codebase` | Map existing codebase for brownfield projects |
 | `/gsd:plan-phase [N]` | Generate task plans for phase |
-| `/gsd:execute-plan` | Run plan via subagent |
+| `/gsd:execute-plan` | Run single plan via subagent |
+| `/gsd:execute-phase <N>` | Execute all plans in phase N with parallel agents |
 | `/gsd:progress` | Where am I? What's next? |
 | `/gsd:verify-work [N]` | User acceptance test of phase or plan ¹ |
 | `/gsd:plan-fix [plan]` | Plan fixes for UAT issues from verify-work |

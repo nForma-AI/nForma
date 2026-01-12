@@ -107,14 +107,28 @@ Result: Creates `.planning/phases/01-foundation/01-01-PLAN.md`
 ### Execution
 
 **`/gsd:execute-plan <path>`**
-Execute a PLAN.md file directly.
+Execute a single PLAN.md file.
 
 - Runs plan tasks sequentially
 - Creates SUMMARY.md after completion
 - Updates STATE.md with accumulated context
-- Fast execution without loading full skill context
+- Use for interactive execution with checkpoints
 
 Usage: `/gsd:execute-plan .planning/phases/01-foundation/01-01-PLAN.md`
+
+**`/gsd:execute-phase <phase-number>`**
+Execute all unexecuted plans in a phase with parallel background agents.
+
+- Analyzes plan dependencies and spawns independent plans concurrently
+- Use when phase has 2+ plans and you want "walk away" execution
+- Respects max_concurrent_agents from config.json
+
+Usage: `/gsd:execute-phase 5`
+
+Options (via `.planning/config.json` parallelization section):
+- `max_concurrent_agents`: Limit parallel agents (default: 3)
+- `skip_checkpoints`: Skip human checkpoints in background (default: true)
+- `min_plans_for_parallel`: Minimum plans to trigger parallelization (default: 2)
 
 ### Roadmap Management
 
