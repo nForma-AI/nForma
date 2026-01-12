@@ -177,7 +177,7 @@ Parallelization features (adapted from PR #43):
 
 Plans:
 - [x] 11-01: Update phase-prompt template - Add parallelization frontmatter fields (parallelizable, depends_on, files_exclusive)
-- [ ] 11-02: Add parallel-aware step to plan-phase workflow - Read config, restructure for vertical slices, document independence
+- [x] 11-02: Add parallel-aware step to plan-phase workflow - Read config, restructure for vertical slices, document independence
 - [ ] 11-03: Update execute-phase to use plan frontmatter - Use explicit markers instead of inference, backward compat
 - [ ] 11-04: Documentation and examples - Update references, add parallel vs sequential planning examples
 
@@ -207,4 +207,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 8. Improve Roadmap System | 1/1 | Complete | 2026-01-05 |
 | 9. Integrate Verify-Work | 1/1 | Complete | 2026-01-08 |
 | 10. Parallel Phase Execution | 4/4 | Complete | 2026-01-12 |
-| 11. Parallel-Aware Planning | 1/4 | In Progress | - |
+| 11. Parallel-Aware Planning | 2/4 | In Progress | - |
