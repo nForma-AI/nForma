@@ -19,6 +19,7 @@ None - this is internal GSD development following existing command/workflow/temp
 - [ ] **Phase 3: Integration** - Wire brownfield support into existing GSD workflows
 - [x] **Phase 10: Parallel Phase Execution** - Separate single-plan vs multi-plan execution with intelligent parallelization
 - [x] **Phase 11: Parallel-Aware Planning** - Update plan-phase.md to create parallelizable plans when config enables it
+- [x] **Phase 99: Test Parallel (THROWAWAY)** - Create 3 silly independent files to test parallel execution
 
 ## Phase Details
 
@@ -190,6 +191,22 @@ Current plan-phase.md has sequential execution bias - later plans reference earl
 
 This enables execute-phase to produce more Wave 1 plans (true independence) instead of sequential chains.
 
+### Phase 99: Test Parallel (THROWAWAY)
+
+**Goal:** Create 3 independent silly files to test parallel execution - DELETE AFTER TESTING
+**Depends on:** Nothing (independent test)
+**Research:** No
+**Plans:** 3 plans (all parallelizable)
+
+Plans:
+- [x] 99-01: Create animal-facts.md - A file with 5 animal facts
+- [x] 99-02: Create dad-jokes.md - A file with 5 dad jokes
+- [x] 99-03: Create random-numbers.md - A file with 5 random numbers
+
+**Details:**
+Each plan touches completely different files, no dependencies, perfect for testing Wave 1 parallel execution.
+Files go in: `test-output/` (gitignored throwaway directory)
+
 ## Progress
 
 **Execution Order:**
@@ -208,3 +225,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 9. Integrate Verify-Work | 1/1 | Complete | 2026-01-08 |
 | 10. Parallel Phase Execution | 4/4 | Complete | 2026-01-12 |
 | 11. Parallel-Aware Planning | 4/4 | Complete | 2026-01-12 |
+| 99. Test Parallel (THROWAWAY) | 3/3 | Complete | 2026-01-12 |

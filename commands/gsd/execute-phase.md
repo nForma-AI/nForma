@@ -21,6 +21,8 @@ Execute all unexecuted plans in a phase with parallel agent spawning.
 Analyzes plan dependencies to identify independent plans that can run concurrently.
 Spawns background agents for parallel execution, each agent commits its own tasks atomically.
 
+**Critical constraint:** One subagent per plan, always. This is for context isolation, not parallelization. Even strictly sequential plans spawn separate subagents so each starts with fresh 200k context at 0%.
+
 Use this command when:
 - Phase has 2+ unexecuted plans
 - Want "walk away, come back to completed work" execution

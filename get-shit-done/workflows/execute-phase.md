@@ -1,6 +1,8 @@
 <purpose>
 Execute all plans in a phase with intelligent parallelization.
 Analyzes plan dependencies to identify independent plans that can run in parallel.
+
+**Critical constraint:** One subagent per plan, always. This is for context isolation, not parallelization. Even strictly sequential plans spawn separate subagents so each starts with fresh 200k context at 0%. Quality degrades above 50% context - executing multiple plans in one subagent defeats the entire segmentation model.
 </purpose>
 
 <when_to_use>
