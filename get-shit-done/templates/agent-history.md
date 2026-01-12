@@ -209,6 +209,42 @@ Agent waiting for another to complete:
 
 Example: `phase-05-batch-1736676000` groups all agents executing Phase 5 plans in parallel.
 
+## Parallel Execution Resume
+
+When a session is interrupted during parallel execution:
+
+### Detection
+
+Check for entries with `status: "spawned"` and `parallel_group` set. These are agents that were running when session ended.
+
+```bash
+# Find interrupted parallel agents
+jq '.entries[] | select(.status == "spawned" and .parallel_group != null)' .planning/agent-history.json
+```
+
+### Resume Options
+
+1. **Resume batch:** Resume all interrupted agents in the parallel group
+2. **Resume single:** Resume a specific agent by ID
+3. **Start fresh:** Abandon interrupted batch, start new execution
+
+### Resume Command
+
+`/gsd:resume-task` accepts:
+- No argument: Resume most recent interrupted agent
+- Agent ID: Resume specific agent
+- `--batch`: Resume entire parallel group
+
+### Conflict Detection
+
+Before resuming, check for file modifications since spawn:
+
+```bash
+git diff --name-only ${SPAWN_COMMIT}..HEAD
+```
+
+If files modified by another agent conflict with files this agent modifies, warn user before proceeding. This prevents overwriting work done by other parallel agents that completed after the interruption.
+
 ## Related Files
 
 - `.planning/current-agent-id.txt`: Single line with currently active agent ID (for quick resume lookup)
