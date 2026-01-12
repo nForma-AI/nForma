@@ -18,7 +18,7 @@ None - this is internal GSD development following existing command/workflow/temp
 - [ ] **Phase 2: Map Codebase Command** - Build /gsd:map-codebase with parallel Explore agents
 - [ ] **Phase 3: Integration** - Wire brownfield support into existing GSD workflows
 - [x] **Phase 10: Parallel Phase Execution** - Separate single-plan vs multi-plan execution with intelligent parallelization
-- [ ] **Phase 11: Parallel-Aware Planning** - Update plan-phase.md to create parallelizable plans when config enables it
+- [x] **Phase 11: Parallel-Aware Planning** - Update plan-phase.md to create parallelizable plans when config enables it
 
 ## Phase Details
 
@@ -179,7 +179,7 @@ Plans:
 - [x] 11-01: Update phase-prompt template - Add parallelization frontmatter fields (parallelizable, depends_on, files_exclusive)
 - [x] 11-02: Add parallel-aware step to plan-phase workflow - Read config, restructure for vertical slices, document independence
 - [x] 11-03: Update execute-phase to use plan frontmatter - Use explicit markers instead of inference, backward compat
-- [ ] 11-04: Documentation and examples - Update references, add parallel vs sequential planning examples
+- [x] 11-04: Documentation and examples - Update references, add parallel vs sequential planning examples
 
 **Details:**
 Current plan-phase.md has sequential execution bias - later plans reference earlier SUMMARY.md, file overlap is acceptable, no independence markers. When parallelization enabled in config.json, planning should:
@@ -207,4 +207,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 8. Improve Roadmap System | 1/1 | Complete | 2026-01-05 |
 | 9. Integrate Verify-Work | 1/1 | Complete | 2026-01-08 |
 | 10. Parallel Phase Execution | 4/4 | Complete | 2026-01-12 |
-| 11. Parallel-Aware Planning | 3/4 | In Progress | - |
+| 11. Parallel-Aware Planning | 4/4 | Complete | 2026-01-12 |
