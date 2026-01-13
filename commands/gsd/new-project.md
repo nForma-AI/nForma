@@ -259,10 +259,10 @@ Use AskUserQuestion:
 - header: "Parallelization"
 - question: "Enable parallel phase execution?"
 - options:
-  - "Disabled" — Execute plans sequentially (Recommended)
-  - "Enabled" — Run independent plans in parallel (experimental, may not yield best results)
+  - "Enabled" — Run independent plans in parallel (Recommended)
+  - "Disabled" — Execute plans sequentially
 
-**Parallelization is experimental.** When enabled, `/gsd:execute-phase` spawns multiple agents for independent plans. Still being refined—sequential execution is more reliable. Can be changed later in config.json.
+**Parallelization** spawns multiple agents for independent plans within a phase. Wave-based execution handles dependencies automatically. Can be changed later in config.json.
 
 </step>
 
