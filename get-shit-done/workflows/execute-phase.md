@@ -211,55 +211,70 @@ Plans with `autonomous: false` require user interaction.
 
 2. **Agent runs until checkpoint:**
    - Executes auto tasks normally
-   - Reaches checkpoint task (e.g., `type="checkpoint:human-verify"`)
-   - Agent returns with checkpoint details in its response
+   - Reaches checkpoint task (e.g., `type="checkpoint:human-verify"`) or auth gate
+   - Agent returns with structured checkpoint (see checkpoint-return.md template)
 
-3. **Agent return includes:**
-   - Checkpoint type (human-verify, decision, human-action)
-   - Checkpoint details (what-built, options, instructions)
-   - Agent ID for resumption
-   - Progress so far (tasks completed)
+3. **Agent return includes (structured format):**
+   - Completed Tasks table with commit hashes and files
+   - Current task name and blocker
+   - Checkpoint type and details for user
+   - What's awaited from user
 
 4. **Orchestrator presents checkpoint to user:**
+
+   Extract and display the "Checkpoint Details" and "Awaiting" sections from agent return:
    ```
-   ## Checkpoint: Visual Verification Required
+   ## Checkpoint: [Type]
 
    **Plan:** 03-03 Dashboard Layout
    **Progress:** 2/3 tasks complete
 
-   **What was built:**
-   Responsive dashboard with sidebar navigation
+   [Checkpoint Details section from agent return]
 
-   **Please verify:**
-   1. Run: npm run dev
-   2. Visit: http://localhost:3000/dashboard
-   3. Desktop (>1024px): Verify sidebar left, content right
-   4. Mobile (375px): Verify single column layout
-
-   Type "approved" to continue, or describe issues to fix.
+   [Awaiting section from agent return]
    ```
 
 5. **User responds:**
-   - "approved" → resume agent
-   - Description of issues → resume agent with feedback
+   - "approved" / "done" → spawn continuation agent
+   - Description of issues → spawn continuation agent with feedback
+   - Decision selection → spawn continuation agent with choice
 
-6. **Resume agent:**
+6. **Spawn continuation agent (NOT resume):**
+
+   Use the continuation-prompt.md template:
    ```
-   Task(resume="{agent_id}", prompt="User response: {user_input}")
+   Task(
+     prompt=filled_continuation_template,
+     subagent_type="general-purpose"
+   )
    ```
 
-7. **Agent continues from checkpoint:**
-   - If approved: proceed to next task
-   - If issues: fix and re-present checkpoint, or ask for clarification
+   Fill template with:
+   - `{completed_tasks_table}`: From agent's checkpoint return
+   - `{resume_task_number}`: Current task from checkpoint
+   - `{resume_task_name}`: Current task name from checkpoint
+   - `{user_response}`: What user provided
+   - `{resume_instructions}`: Based on checkpoint type (see continuation-prompt.md)
+
+7. **Continuation agent executes:**
+   - Verifies previous commits exist
+   - Continues from resume point
+   - May hit another checkpoint (repeat from step 4)
+   - Or completes plan
 
 8. **Repeat until plan completes or user stops**
+
+**Why fresh agent instead of resume:**
+Resume relies on Claude Code's internal serialization which breaks with parallel tool calls.
+Fresh agents with explicit state are more reliable and maintain full context.
 
 **Checkpoint in parallel context:**
 If a plan in a parallel wave has a checkpoint:
 - Spawn as normal
-- Agent pauses at checkpoint and returns
+- Agent pauses at checkpoint and returns with structured state
 - Other parallel agents may complete while waiting
-- Handle checkpoint, resume agent
+- Present checkpoint to user
+- Spawn continuation agent with user response
 - Wait for all agents to finish before next wave
 </step>
 

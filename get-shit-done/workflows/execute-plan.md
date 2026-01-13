@@ -1155,36 +1155,72 @@ See ~/.claude/get-shit-done/references/checkpoints.md for complete checkpoint gu
 <step name="checkpoint_return_for_orchestrator">
 **When spawned by an orchestrator (execute-phase or execute-plan command):**
 
-If you were spawned via Task tool and hit a checkpoint, you cannot directly interact with the user. Instead, RETURN to the orchestrator with checkpoint details so it can present to the user and resume you.
+If you were spawned via Task tool and hit a checkpoint, you cannot directly interact with the user. Instead, RETURN to the orchestrator with structured checkpoint state so it can present to the user and spawn a fresh continuation agent.
 
 **Return format for checkpoints:**
+
+Use the structured format from:
+@~/.claude/get-shit-done/templates/checkpoint-return.md
+
+**Required in your return:**
+
+1. **Completed Tasks table** - Tasks done so far with commit hashes and files created
+2. **Current Task** - Which task you're on and what's blocking it
+3. **Checkpoint Details** - User-facing content (verification steps, decision options, or action instructions)
+4. **Awaiting** - What you need from the user
+
+**Example return:**
 
 ```
 ## CHECKPOINT REACHED
 
-**Type:** [human-verify | decision | human-action]
-**Plan:** {phase}-{plan}
-**Progress:** {completed}/{total} tasks complete
+**Type:** human-action
+**Plan:** 01-01
+**Progress:** 1/3 tasks complete
 
-[Checkpoint content - same as checkpoint_protocol display above]
+### Completed Tasks
 
-**Awaiting:** [Resume signal from the task]
+| Task | Name | Commit | Files |
+|------|------|--------|-------|
+| 1 | Initialize Next.js 15 project | d6fe73f | package.json, tsconfig.json, app/ |
+
+### Current Task
+
+**Task 2:** Initialize Convex backend
+**Status:** blocked
+**Blocked by:** Convex CLI authentication required
+
+### Checkpoint Details
+
+**Automation attempted:**
+Ran `npx convex dev` to initialize Convex backend
+
+**Error encountered:**
+"Error: Not authenticated. Run `npx convex login` first."
+
+**What you need to do:**
+1. Run: `npx convex login`
+2. Complete browser authentication
+3. Run: `npx convex dev`
+4. Create project when prompted
+
+**I'll verify after:**
+`cat .env.local | grep CONVEX` returns the Convex URL
+
+### Awaiting
+
+Type "done" when Convex is authenticated and project created.
 ```
 
+**After you return:**
+
 The orchestrator will:
-1. Parse your return
-2. Present the checkpoint to the user
+1. Parse your structured return
+2. Present checkpoint details to the user
 3. Collect user's response
-4. Resume you with: `Task(resume=your_agent_id, prompt="User response: {their_input}")`
+4. Spawn a FRESH continuation agent with your completed tasks state
 
-**When resumed after checkpoint:**
-
-You will receive a prompt like: `"User response: approved"` or `"User response: option-a"`
-
-- Parse the user's response
-- If approved/done: continue to next task
-- If issues described: address them, then continue or re-present checkpoint
-- If option selected: proceed with that choice
+You will NOT be resumed. A new agent continues from where you stopped, using your Completed Tasks table to know what's done.
 
 **How to know if you were spawned:**
 

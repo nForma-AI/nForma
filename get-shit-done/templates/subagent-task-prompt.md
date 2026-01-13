@@ -12,7 +12,7 @@ Execute plan {plan_number} of phase {phase_number}-{phase_name}.
 
 Commit each task atomically. Create SUMMARY.md. Update STATE.md.
 
-**Checkpoint handling:** If you hit a checkpoint task, STOP and return a checkpoint message (see checkpoint_behavior below). The orchestrator will present it to the user and resume you with their response.
+**Checkpoint handling:** If you hit a checkpoint task or auth gate, STOP and return a structured checkpoint message. The orchestrator will spawn a fresh agent to continue after the user responds.
 </objective>
 
 <execution_context>
@@ -29,21 +29,17 @@ Config: @.planning/config.json (if exists)
 </context>
 
 <checkpoint_behavior>
-When you encounter a checkpoint task (type="checkpoint:*"), STOP execution and return this format:
+When you encounter a checkpoint task (type="checkpoint:*") or auth gate, STOP execution and return using the structured format in:
 
-## CHECKPOINT REACHED
+@~/.claude/get-shit-done/templates/checkpoint-return.md
 
-**Type:** [human-verify | decision | human-action]
-**Plan:** {phase}-{plan}
-**Progress:** {completed}/{total} tasks complete
+**Required in your return:**
+1. Completed Tasks table with commit hashes and files
+2. Current task name and what's blocking it
+3. Checkpoint details for the user
+4. What you're awaiting from the user
 
-[Checkpoint content from checkpoint_protocol in execute-plan.md]
-
-**Awaiting:** [Resume signal from the task]
-
-The orchestrator will present this to the user and resume you with their response.
-When resumed, you'll receive: "User response: {their_input}"
-Parse and continue appropriately.
+The orchestrator will present this to the user. After they respond, a FRESH agent will continue from your checkpoint using the continuation-prompt template. You will NOT be resumed.
 </checkpoint_behavior>
 
 <completion_format>
@@ -61,7 +57,7 @@ When plan completes successfully, return:
 </completion_format>
 
 <success_criteria>
-- [ ] All tasks executed (or paused at checkpoint)
+- [ ] All tasks executed (or paused at checkpoint with full state returned)
 - [ ] Each task committed individually
 - [ ] SUMMARY.md created in plan directory
 - [ ] STATE.md updated with position and decisions
@@ -95,5 +91,5 @@ Task(
 Agent reads @-references, loads full workflow context, executes plan.
 
 When agent returns:
-- If contains "## CHECKPOINT REACHED": Parse and present to user, then resume
+- If contains "## CHECKPOINT REACHED": Parse checkpoint, present to user, spawn fresh agent with continuation-prompt.md
 - If contains "## PLAN COMPLETE": Finalize execution
