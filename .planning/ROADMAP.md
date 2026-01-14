@@ -19,6 +19,7 @@ None - this is internal GSD development following existing command/workflow/temp
 - [ ] **Phase 3: Integration** - Wire brownfield support into existing GSD workflows
 - [x] **Phase 10: Parallel Phase Execution** - Separate single-plan vs multi-plan execution with intelligent parallelization
 - [x] **Phase 11: Parallel-Aware Planning** - Update plan-phase.md to create parallelizable plans when config enables it
+- [ ] **Phase 12: Changelog & Update Awareness** - Add changelog generation and /gsd:whats-new for version discovery
 - [x] **Phase 99: Test Parallel (THROWAWAY)** - Create 3 silly independent files to test parallel execution
 
 ## Phase Details
@@ -190,6 +191,25 @@ Current plan-phase.md has sequential execution bias - later plans reference earl
 - Add frontmatter: `parallelizable: true/false`, `depends_on: []`, `files_exclusive: []`
 
 This enables execute-phase to produce more Wave 1 plans (true independence) instead of sequential chains.
+
+### Phase 12: Changelog & Update Awareness
+
+**Goal:** Add changelog generation to publish workflow and `/gsd:whats-new` command for users to discover changes
+**Depends on:** Phase 11
+**Research:** Unlikely (straightforward command + workflow additions)
+**Plans:** 3 plans
+
+Plans:
+- [ ] 12-01: CHANGELOG.md foundation - Create changelog file, update installer to copy it
+- [ ] 12-02: Publish command update - Add changelog generation to gsd-publish-version.md
+- [ ] 12-03: whats-new command - Create /gsd:whats-new with remote fetch and version comparison
+
+**Wave structure:**
+- Wave 1: 12-01 (foundation)
+- Wave 2: 12-02, 12-03 (parallel - both depend only on 12-01)
+
+**Details:**
+Users adopting GSD need visibility into what changed between versions. The publish workflow generates curated changelog entries (Claude-drafted, Lex-approved). `/gsd:whats-new` fetches from GitHub raw, compares to installed version, and prompts to update if behind.
 
 ### Phase 99: Test Parallel (THROWAWAY)
 
