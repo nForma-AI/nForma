@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.4.28] - 2026-01-14
+
+### Fixed
+- Restored comprehensive checkpoint documentation with full examples for verification, decisions, and auth gates
+- Fixed execute-plan command to use fresh continuation agents instead of broken resume pattern
+- Rich checkpoint presentation formats now documented for all three checkpoint types
+
+### Changed
+- Slimmed execute-phase command to properly delegate checkpoint handling to workflow
+
 ## [1.4.27] - 2025-01-14
 
 ### Fixed
@@ -551,7 +561,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.4.27...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.4.28...HEAD
+[1.4.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.28
 [1.4.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.27
 [1.4.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.26
 [1.4.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.25
