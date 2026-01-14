@@ -107,6 +107,17 @@ _Note: TDD tasks may have multiple commits (test → feat → refactor)_
 
 [Note: "Deviations from Plan" documents unplanned work that was handled automatically via deviation rules. "Issues Encountered" documents problems during planned work that required problem-solving.]
 
+## User Setup Required
+
+[If USER-SETUP.md was generated:]
+**External services require manual configuration.** See [{phase}-USER-SETUP.md](./{phase}-USER-SETUP.md) for:
+- Environment variables to add
+- Dashboard configuration steps
+- Verification commands
+
+[If no USER-SETUP.md:]
+None - no external service configuration required.
+
 ## Next Phase Readiness
 [What's ready for next phase]
 [Any blockers or concerns]

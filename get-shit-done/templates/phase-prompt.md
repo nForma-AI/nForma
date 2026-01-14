@@ -18,6 +18,7 @@ depends_on: []              # Plan IDs this plan requires (e.g., ["01-01"]).
 files_modified: []          # Files this plan modifies.
 autonomous: true            # false if plan has checkpoints requiring user interaction
 domain: [optional - if domain skill loaded]
+user_setup: []              # Human-required setup Claude cannot automate (see below)
 ---
 
 <objective>
@@ -131,6 +132,7 @@ After completion, create `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 | `files_modified` | Yes | Files this plan touches. |
 | `autonomous` | Yes | `true` if no checkpoints, `false` if has checkpoints |
 | `domain` | No | Domain skill if loaded (e.g., `next-js`) |
+| `user_setup` | No | Array of human-required setup items (external services) |
 
 **Wave is pre-computed:** Wave numbers are assigned during `/gsd:plan-phase`. Execute-phase reads `wave` directly from frontmatter and groups plans by wave number. No runtime dependency analysis needed.
 
@@ -461,3 +463,37 @@ files_modified: [...]
 - Only reference prior SUMMARYs when genuinely needed
 - Group checkpoints with related auto tasks in same plan
 - 2-3 tasks per plan, ~50% context max
+
+---
+
+## User Setup (External Services)
+
+When a plan introduces external services requiring human configuration, declare in frontmatter:
+
+```yaml
+user_setup:
+  - service: stripe
+    why: "Payment processing requires API keys"
+    env_vars:
+      - name: STRIPE_SECRET_KEY
+        source: "Stripe Dashboard → Developers → API keys → Secret key"
+      - name: STRIPE_WEBHOOK_SECRET
+        source: "Stripe Dashboard → Developers → Webhooks → Signing secret"
+    dashboard_config:
+      - task: "Create webhook endpoint"
+        location: "Stripe Dashboard → Developers → Webhooks → Add endpoint"
+        details: "URL: https://[your-domain]/api/webhooks/stripe"
+    local_dev:
+      - "stripe listen --forward-to localhost:3000/api/webhooks/stripe"
+```
+
+**The automation-first rule:** `user_setup` contains ONLY what Claude literally cannot do:
+- Account creation (requires human signup)
+- Secret retrieval (requires dashboard access)
+- Dashboard configuration (requires human in browser)
+
+**NOT included:** Package installs, code changes, file creation, CLI commands Claude can run.
+
+**Result:** Execute-plan generates `{phase}-USER-SETUP.md` with checklist for the user.
+
+See `~/.claude/get-shit-done/templates/user-setup.md` for full schema and examples

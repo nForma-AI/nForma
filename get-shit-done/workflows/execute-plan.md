@@ -1235,6 +1235,76 @@ fi
 Pass timing data to SUMMARY.md creation.
 </step>
 
+<step name="generate_user_setup">
+**Generate USER-SETUP.md if plan has user_setup in frontmatter.**
+
+Check PLAN.md frontmatter for `user_setup` field:
+
+```bash
+grep -A 50 "^user_setup:" .planning/phases/XX-name/{phase}-{plan}-PLAN.md | head -50
+```
+
+**If user_setup exists and is not empty:**
+
+Create `.planning/phases/XX-name/{phase}-USER-SETUP.md` using template from `~/.claude/get-shit-done/templates/user-setup.md`.
+
+**Content generation:**
+
+1. Parse each service in `user_setup` array
+2. For each service, generate sections:
+   - Environment Variables table (from `env_vars`)
+   - Account Setup checklist (from `account_setup`, if present)
+   - Dashboard Configuration steps (from `dashboard_config`, if present)
+   - Local Development notes (from `local_dev`, if present)
+3. Add verification section with commands to confirm setup works
+4. Set status to "Incomplete"
+
+**Example output:**
+
+```markdown
+# Phase 10: User Setup Required
+
+**Generated:** 2025-01-14
+**Phase:** 10-monetization
+**Status:** Incomplete
+
+## Environment Variables
+
+| Status | Variable | Source | Add to |
+|--------|----------|--------|--------|
+| [ ] | `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API keys → Secret key | `.env.local` |
+| [ ] | `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → Signing secret | `.env.local` |
+
+## Dashboard Configuration
+
+- [ ] **Create webhook endpoint**
+  - Location: Stripe Dashboard → Developers → Webhooks → Add endpoint
+  - Details: URL: https://[your-domain]/api/webhooks/stripe, Events: checkout.session.completed
+
+## Local Development
+
+For local testing:
+\`\`\`bash
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+\`\`\`
+
+## Verification
+
+[Verification commands based on service]
+
+---
+**Once all items complete:** Mark status as "Complete"
+```
+
+**If user_setup is empty or missing:**
+
+Skip this step - no USER-SETUP.md needed.
+
+**Track for offer_next:**
+
+Set `USER_SETUP_CREATED=true` if file was generated, for use in completion messaging.
+</step>
+
 <step name="create_summary">
 Create `{phase}-{plan}-SUMMARY.md` as specified in the prompt's `<output>` section.
 Use ~/.claude/get-shit-done/templates/summary.md for structure.
@@ -1541,6 +1611,30 @@ Skip this step.
 
 Do NOT skip this verification. Do NOT assume phase or milestone completion without checking.
 
+**Step 0: Check for USER-SETUP.md**
+
+If `USER_SETUP_CREATED=true` (from generate_user_setup step), always include this warning block at the TOP of completion output:
+
+```
+⚠️ USER SETUP REQUIRED
+
+This phase introduced external services requiring manual configuration:
+
+📋 .planning/phases/{phase-dir}/{phase}-USER-SETUP.md
+
+Quick view:
+- [ ] {ENV_VAR_1}
+- [ ] {ENV_VAR_2}
+- [ ] {Dashboard config task}
+
+Complete this setup for the integration to function.
+Run `cat .planning/phases/{phase-dir}/{phase}-USER-SETUP.md` for full details.
+
+---
+```
+
+This warning appears BEFORE "Plan complete" messaging. User sees setup requirements prominently.
+
 **Step 1: Count plans and summaries in current phase**
 
 List files in the phase directory:
@@ -1718,8 +1812,10 @@ Milestone is 100% done.
 
 - All tasks from PLAN.md completed
 - All verifications pass
+- USER-SETUP.md generated if user_setup in frontmatter
 - SUMMARY.md created with substantive content
 - STATE.md updated (position, decisions, issues, session)
 - ROADMAP.md updated
 - If codebase map exists: map updated with execution changes (or skipped if no significant changes)
+- If USER-SETUP.md created: prominently surfaced in completion output
   </success_criteria>

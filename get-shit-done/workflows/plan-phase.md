@@ -288,6 +288,22 @@ See `~/.claude/get-shit-done/references/tdd.md` for TDD plan structure.
 **Critical:** If external resource has CLI/API (Vercel, Stripe, etc.), use type="auto" to automate. Only checkpoint for verification AFTER automation.
 
 See ~/.claude/get-shit-done/references/checkpoints.md for checkpoint structure.
+
+**User setup detection:** For tasks involving external services, identify human-required configuration:
+
+External service indicators:
+- New SDK: `stripe`, `@sendgrid/mail`, `twilio`, `openai`, `@supabase/supabase-js`
+- Webhook handlers: Files in `**/webhooks/**` or `**/webhook*`
+- OAuth integration: Social login, third-party auth
+- API keys: Code referencing `process.env.SERVICE_*` patterns
+
+For each external service, determine:
+1. **Env vars needed** - What secrets must be retrieved from dashboards?
+2. **Account setup** - Does user need to create an account?
+3. **Dashboard config** - What must be configured in external UI?
+4. **Local dev** - Any CLI tools for local testing?
+
+Record in `user_setup` frontmatter (see write_phase_prompt step).
 </step>
 
 <step name="build_dependency_graph">
@@ -557,8 +573,38 @@ depends_on: []              # Plan IDs this plan requires.
 files_modified: []          # Files this plan touches.
 autonomous: true            # false if plan has checkpoints requiring user interaction
 domain: [optional]
+user_setup: []              # Human-required setup (omit if empty)
 ---
 ```
+
+**User setup frontmatter (when external services involved):**
+
+```yaml
+user_setup:
+  - service: stripe
+    why: "Payment processing"
+    env_vars:
+      - name: STRIPE_SECRET_KEY
+        source: "Stripe Dashboard → Developers → API keys → Secret key"
+      - name: STRIPE_WEBHOOK_SECRET
+        source: "Stripe Dashboard → Developers → Webhooks → Signing secret"
+    account_setup:
+      - url: "https://dashboard.stripe.com/register"
+        skip_if: "Already have Stripe account"
+    dashboard_config:
+      - task: "Create webhook endpoint"
+        location: "Stripe Dashboard → Developers → Webhooks → Add endpoint"
+        details: "URL: https://[your-domain]/api/webhooks/stripe, Events: checkout.session.completed"
+    local_dev:
+      - "stripe listen --forward-to localhost:3000/api/webhooks/stripe"
+```
+
+**Automation-first rule:** Only include setup Claude literally cannot do:
+- Account creation (requires human signup)
+- Secret retrieval (requires dashboard access)
+- Dashboard configuration (requires human in browser)
+
+Do NOT include: npm install, code changes, file creation, CLI commands Claude can run.
 
 **Wave is pre-computed:** Wave numbers are assigned during planning (see `assign_waves` step). `/gsd:execute-phase` reads `wave` directly from frontmatter and groups plans by wave number. No runtime dependency analysis needed.
 
@@ -691,6 +737,7 @@ Phase planning complete when:
 - [ ] Tasks grouped into plans by wave, not by sequence
 - [ ] PLAN file(s) exist with XML structure
 - [ ] Each plan: depends_on, files_modified, autonomous in frontmatter
+- [ ] Each plan: user_setup declared if external services involved
 - [ ] Each plan: Objective, context, tasks, verification, success criteria, output
 - [ ] Each plan: 2-3 tasks (~50% context)
 - [ ] Each task: Type, Files (if auto), Action, Verify, Done
