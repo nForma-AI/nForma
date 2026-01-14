@@ -163,6 +163,14 @@ function install(isGlobal) {
   copyWithPathReplacement(skillSrc, skillDest, pathPrefix);
   console.log(`  ${green}✓${reset} Installed get-shit-done`);
 
+  // Copy CHANGELOG.md
+  const changelogSrc = path.join(src, 'CHANGELOG.md');
+  const changelogDest = path.join(claudeDir, 'get-shit-done', 'CHANGELOG.md');
+  if (fs.existsSync(changelogSrc)) {
+    fs.copyFileSync(changelogSrc, changelogDest);
+    console.log(`  ${green}✓${reset} Installed CHANGELOG.md`);
+  }
+
   console.log(`
   ${green}Done!${reset} Launch Claude Code and run ${cyan}/gsd:help${reset}.
 `);
