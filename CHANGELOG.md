@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.4.26] - 2026-01-14
+
+### Added
+- Full changelog history backfilled from git (66 historical versions from 1.0.0 to 1.4.23)
+
 ## [1.4.25] - 2026-01-14
 
 ### Added
@@ -541,7 +546,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.4.25...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.4.26...HEAD
+[1.4.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.26
 [1.4.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.25
 [1.4.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.24
 [1.4.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.23
