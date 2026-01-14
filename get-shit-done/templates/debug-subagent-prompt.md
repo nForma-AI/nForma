@@ -54,10 +54,12 @@ The fix will be planned and applied separately by /gsd:plan-fix.
 </mode>
 
 <debug_file>
-Create: `.planning/debug/{slug}.md`
+**Path constant:** DEBUG_DIR=.planning/debug
+
+Create: `${DEBUG_DIR}/{slug}.md`
 
 Generate slug from issue summary (same as regular /gsd:debug).
-Example: `comment-not-refreshing.md`
+Example: `.planning/debug/comment-not-refreshing.md`
 
 Pre-fill Symptoms section:
 ```markdown
@@ -92,7 +94,7 @@ When root cause is confirmed, return:
 - [file1.ts]: [what's wrong]
 - [file2.ts]: [related issue]
 
-**Debug Session:** .planning/debug/{slug}.md
+**Debug Session:** ${DEBUG_DIR}/{slug}.md
 
 **Suggested Fix Direction:** [brief hint for plan-fix, not implementation]
 ```
@@ -112,7 +114,7 @@ If unable to determine root cause after thorough investigation:
 
 **Recommendation:** Manual review needed
 
-**Debug Session:** .planning/debug/{slug}.md
+**Debug Session:** ${DEBUG_DIR}/{slug}.md
 ```
 </return_format>
 

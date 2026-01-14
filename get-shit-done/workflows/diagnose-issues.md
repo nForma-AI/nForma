@@ -6,6 +6,12 @@ After UAT finds issues, spawn one debug agent per issue. Each agent investigates
 Orchestrator stays lean: parse issues, spawn agents, collect results, update UAT.
 </purpose>
 
+<paths>
+DEBUG_DIR=.planning/debug
+
+Debug files use the `.planning/debug/` path (hidden directory with leading dot).
+</paths>
+
 <core_principle>
 **Diagnose before planning fixes.**
 
@@ -99,7 +105,7 @@ Each agent returns with:
 
 **Root Cause:** {specific cause with evidence}
 **Files Involved:** {list of files}
-**Debug Session:** .planning/debug/{slug}.md
+**Debug Session:** ${DEBUG_DIR}/{slug}.md
 
 **Evidence Summary:**
 - {key finding 1}
@@ -128,7 +134,7 @@ result: issue
 reported: "works but doesn't show until I refresh the page"
 severity: major
 root_cause: "useEffect in CommentList.tsx missing commentCount dependency - doesn't re-render when new comment added"
-debug_session: .planning/debug/comment-not-refreshing.md
+debug_session: ${DEBUG_DIR}/comment-not-refreshing.md
 ```
 
 Update the "Issues for /gsd:plan-fix" section with root causes:
@@ -165,7 +171,7 @@ git commit -m "docs({phase}): add root causes from diagnosis"
 | UAT-002 | CSS flex order incorrect | ReplyButton.tsx |
 | UAT-003 | API missing auth header | api/comments.ts |
 
-Debug sessions saved to .planning/debug/
+Debug sessions saved to ${DEBUG_DIR}/
 
 ---
 
@@ -228,6 +234,6 @@ The fix plan will use diagnosed root causes for targeted fixes.
 - [ ] Debug agents spawned in parallel
 - [ ] Root causes collected from all agents
 - [ ] UAT.md updated with root causes
-- [ ] Debug sessions saved to .planning/debug/
+- [ ] Debug sessions saved to ${DEBUG_DIR}/
 - [ ] User knows next steps (plan-fix)
 </success_criteria>
