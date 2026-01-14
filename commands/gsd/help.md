@@ -280,6 +280,16 @@ Usage: `/gsd:check-todos api`
 **`/gsd:help`**
 Show this command reference.
 
+**`/gsd:whats-new`**
+See what's changed since your installed version.
+
+- Shows installed vs latest version comparison
+- Displays changelog entries for versions you've missed
+- Highlights breaking changes
+- Provides update instructions when behind
+
+Usage: `/gsd:whats-new`
+
 ## Files & Structure
 
 ```
