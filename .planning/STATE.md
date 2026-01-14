@@ -19,12 +19,12 @@
 
 ## Current Position
 
-Phase: 99 of 99 (Test Parallel - THROWAWAY)
-Plan: 3 of 3 in current phase
-Status: Phase complete (via parallel execution)
-Last activity: 2026-01-12 - Completed Phase 99 via /gsd:execute-phase
+Phase: 12 of 12 (Changelog & Update Awareness)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-01-14 - Completed 12-01-PLAN.md
 
-Progress: Test phase complete (throwaway - not counted in main milestone)
+Progress: ████████████████████░░░░ 24/27 plans (~89%)
 
 ## Performance Metrics
 
@@ -95,6 +95,7 @@ None yet.
 - Phase 9 added: Integrate verify-work (community contribution from OracleGreyBeard)
 - Phase 10 added: Parallel phase execution (rename workflow, create /gsd:execute-phase with parallelization)
 - Phase 11 added: Parallel-aware planning (update plan-phase.md to create parallelizable plans when enabled)
+- Phase 12 added: Changelog & update awareness (remote changelog fetch, /gsd:whats-new, publish workflow integration)
 
 ## Project Alignment
 
@@ -105,6 +106,6 @@ Drift notes: None
 
 ## Session Continuity
 
-Last session: 2026-01-12
-Stopped at: Completed Phase 99 via /gsd:execute-phase (parallel test)
+Last session: 2026-01-14
+Stopped at: Completed 12-01-PLAN.md
 Resume file: None

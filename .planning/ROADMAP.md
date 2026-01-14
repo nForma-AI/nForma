@@ -200,7 +200,7 @@ This enables execute-phase to produce more Wave 1 plans (true independence) inst
 **Plans:** 3 plans
 
 Plans:
-- [ ] 12-01: CHANGELOG.md foundation - Create changelog file, update installer to copy it
+- [x] 12-01: CHANGELOG.md foundation - Create changelog file, update installer to copy it
 - [ ] 12-02: Publish command update - Add changelog generation to gsd-publish-version.md
 - [ ] 12-03: whats-new command - Create /gsd:whats-new with remote fetch and version comparison
 
