@@ -16,17 +16,619 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.4.24] - 2026-01-14
 
 ### Added
+- USER-SETUP.md template for external service configuration
+
+### Removed
+- **BREAKING:** ISSUES.md system (replaced by phase-scoped UAT issues and TODOs)
+
+## [1.4.23] - 2026-01-14
+
+### Changed
+- Removed dead ISSUES.md system code
+
+## [1.4.22] - 2026-01-14
+
+### Added
+- Subagent isolation for debug investigations with checkpoint support
+
+### Fixed
+- DEBUG_DIR path constant to prevent typos in debug workflow
+
+## [1.4.21] - 2026-01-14
+
+### Fixed
+- SlashCommand tool added to plan-fix allowed-tools
+
+## [1.4.20] - 2026-01-14
+
+### Fixed
+- Standardized debug file naming convention
+- Debug workflow now invokes execute-plan correctly
+
+## [1.4.19] - 2026-01-14
+
+### Fixed
+- Auto-diagnose issues instead of offering choice in plan-fix
+
+## [1.4.18] - 2026-01-14
+
+### Added
+- Parallel diagnosis before plan-fix execution
+
+## [1.4.17] - 2026-01-14
+
+### Changed
+- Redesigned verify-work as conversational UAT with persistent state
+
+## [1.4.16] - 2026-01-13
+
+### Added
+- Pre-execution summary for interactive mode in execute-plan
+- Pre-computed wave numbers at plan time
+
+## [1.4.15] - 2026-01-13
+
+### Added
+- Context rot explanation to README header
+
+## [1.4.14] - 2026-01-13
+
+### Changed
+- YOLO mode is now recommended default in new-project
+
+## [1.4.13] - 2026-01-13
+
+### Fixed
+- Brownfield flow documentation
+- Removed deprecated resume-task references
+
+## [1.4.12] - 2026-01-13
+
+### Changed
+- execute-phase is now recommended as primary execution command
+
+## [1.4.11] - 2026-01-13
+
+### Fixed
+- Checkpoints now use fresh continuation agents instead of resume
+
+## [1.4.10] - 2026-01-13
+
+### Changed
+- execute-plan converted to orchestrator pattern for performance
+
+## [1.4.9] - 2026-01-13
+
+### Changed
+- Removed subagent-only context from execute-phase orchestrator
+
+### Fixed
+- Removed "what's out of scope" question from discuss-phase
+
+## [1.4.8] - 2026-01-13
+
+### Added
+- TDD reasoning explanation restored to plan-phase docs
+
+## [1.4.7] - 2026-01-13
+
+### Added
+- Project state loading before execution in execute-phase
+
+### Fixed
+- Parallel execution marked as recommended, not experimental
+
+## [1.4.6] - 2026-01-13
+
+### Added
+- Checkpoint pause/resume for spawned agents
+- Deviation rules, commit rules, and workflow references to execute-phase
+
+## [1.4.5] - 2026-01-13
+
+### Added
+- Parallel-first planning with dependency graphs
+- Checkpoint-resume capability for long-running phases
+- `.claude/rules/` directory for auto-loaded contribution rules
+
+### Changed
+- execute-phase uses wave-based blocking execution
+
+## [1.4.4] - 2026-01-13
+
+### Fixed
+- Inline listing for multiple active debug sessions
+
+## [1.4.3] - 2026-01-13
+
+### Added
+- `/gsd:debug` command for systematic debugging with persistent state
+
+## [1.4.2] - 2026-01-13
+
+### Fixed
+- Installation verification step clarification
+
+## [1.4.1] - 2026-01-13
+
+### Added
 - Parallel phase execution via `/gsd:execute-phase`
 - Parallel-aware planning in `/gsd:plan-phase`
-- Changelog and update awareness system
+- `/gsd:status` command for parallel agent monitoring
+- Parallelization configuration in config.json
+- Wave-based parallel execution with dependency graphs
 
 ### Changed
 - Renamed `execute-phase.md` workflow to `execute-plan.md` for clarity
 - Plan frontmatter now includes `wave`, `depends_on`, `files_modified`, `autonomous`
 
-### Removed
-- **BREAKING:** ISSUES.md system (replaced by phase-scoped UAT issues and TODOs)
+## [1.4.0] - 2026-01-12
+
+### Added
+- Full parallel phase execution system
+- Parallelization frontmatter in plan templates
+- Dependency analysis for parallel task scheduling
+- Agent history schema v1.2 with parallel execution support
+
+### Changed
+- Plans can now specify wave numbers and dependencies
+- execute-phase orchestrates multiple subagents in waves
+
+## [1.3.34] - 2026-01-11
+
+### Added
+- `/gsd:add-todo` and `/gsd:check-todos` for mid-session idea capture
+
+## [1.3.33] - 2026-01-11
+
+### Fixed
+- Consistent zero-padding for decimal phase numbers (e.g., 01.1)
+
+### Changed
+- Removed obsolete .claude-plugin directory
+
+## [1.3.32] - 2026-01-10
+
+### Added
+- `/gsd:resume-task` for resuming interrupted subagent executions
+
+## [1.3.31] - 2026-01-08
+
+### Added
+- Planning principles for security, performance, and observability
+- Pro patterns section in README
+
+## [1.3.30] - 2026-01-08
+
+### Added
+- verify-work option surfaces after plan execution
+
+## [1.3.29] - 2026-01-08
+
+### Added
+- `/gsd:verify-work` for conversational UAT validation
+- `/gsd:plan-fix` for fixing UAT issues
+- UAT issues template
+
+## [1.3.28] - 2026-01-07
+
+### Added
+- `--config-dir` CLI argument for multi-account setups
+- `/gsd:remove-phase` command
+
+### Fixed
+- Validation for --config-dir edge cases
+
+## [1.3.27] - 2026-01-07
+
+### Added
+- Recommended permissions mode documentation
+
+### Fixed
+- Mandatory verification enforced before phase/milestone completion routing
+
+## [1.3.26] - 2026-01-06
+
+### Added
+- Claude Code marketplace plugin support
+
+### Fixed
+- Phase artifacts now committed when created
+
+## [1.3.25] - 2026-01-06
+
+### Fixed
+- Milestone discussion context persists across /clear
+
+## [1.3.24] - 2026-01-06
+
+### Added
+- `CLAUDE_CONFIG_DIR` environment variable support
+
+## [1.3.23] - 2026-01-06
+
+### Added
+- Non-interactive install flags (`--global`, `--local`) for Docker/CI
+
+## [1.3.22] - 2026-01-05
+
+### Changed
+- Removed unused auto.md command
+
+## [1.3.21] - 2026-01-05
+
+### Changed
+- TDD features use dedicated plans for full context quality
+
+## [1.3.20] - 2026-01-05
+
+### Added
+- Per-task atomic commits for better AI observability
+
+## [1.3.19] - 2026-01-05
+
+### Fixed
+- Clarified create-milestone.md file locations with explicit instructions
+
+## [1.3.18] - 2026-01-05
+
+### Added
+- YAML frontmatter schema with dependency graph metadata
+- Intelligent context assembly via frontmatter dependency graph
+
+## [1.3.17] - 2026-01-04
+
+### Fixed
+- Clarified depth controls compression, not inflation in planning
+
+## [1.3.16] - 2026-01-04
+
+### Added
+- Depth parameter for planning thoroughness (`--depth=1-5`)
+
+## [1.3.15] - 2026-01-01
+
+### Fixed
+- TDD reference loaded directly in commands
+
+## [1.3.14] - 2025-12-31
+
+### Added
+- TDD integration with detection, annotation, and execution flow
+
+## [1.3.13] - 2025-12-29
+
+### Fixed
+- Restored deterministic bash commands
+- Removed redundant decision_gate
+
+## [1.3.12] - 2025-12-29
+
+### Fixed
+- Restored plan-format.md as output template
+
+## [1.3.11] - 2025-12-29
+
+### Changed
+- 70% context reduction for plan-phase workflow
+- Merged CLI automation into checkpoints
+- Compressed scope-estimation (74% reduction) and plan-phase.md (66% reduction)
+
+## [1.3.10] - 2025-12-29
+
+### Fixed
+- Explicit plan count check in offer_next step
+
+## [1.3.9] - 2025-12-27
+
+### Added
+- Evolutionary PROJECT.md system with incremental updates
+
+## [1.3.8] - 2025-12-18
+
+### Added
+- Brownfield/existing projects section in README
+
+## [1.3.7] - 2025-12-18
+
+### Fixed
+- Improved incremental codebase map updates
+
+## [1.3.6] - 2025-12-18
+
+### Added
+- File paths included in codebase mapping output
+
+## [1.3.5] - 2025-12-17
+
+### Fixed
+- Removed arbitrary 100-line limit from codebase mapping
+
+## [1.3.4] - 2025-12-17
+
+### Fixed
+- Inline code for Next Up commands (avoids nesting ambiguity)
+
+## [1.3.3] - 2025-12-17
+
+### Fixed
+- Check PROJECT.md not .planning/ directory for existing project detection
+
+## [1.3.2] - 2025-12-17
+
+### Added
+- Git commit step to map-codebase workflow
+
+## [1.3.1] - 2025-12-17
+
+### Added
+- `/gsd:map-codebase` documentation in help and README
+
+## [1.3.0] - 2025-12-17
+
+### Added
+- `/gsd:map-codebase` command for brownfield project analysis
+- Codebase map templates (stack, architecture, structure, conventions, testing, integrations, concerns)
+- Parallel Explore agent orchestration for codebase analysis
+- Brownfield integration into GSD workflows
+
+### Changed
+- Improved continuation UI with context and visual hierarchy
+
+### Fixed
+- Permission errors for non-DSP users (removed shell context)
+- First question is now freeform, not AskUserQuestion
+
+## [1.2.13] - 2025-12-17
+
+### Added
+- Improved continuation UI with context and visual hierarchy
+
+## [1.2.12] - 2025-12-17
+
+### Fixed
+- First question should be freeform, not AskUserQuestion
+
+## [1.2.11] - 2025-12-17
+
+### Fixed
+- Permission errors for non-DSP users (removed shell context)
+
+## [1.2.10] - 2025-12-16
+
+### Fixed
+- Inline command invocation replaced with clear-then-paste pattern
+
+## [1.2.9] - 2025-12-16
+
+### Fixed
+- Git init runs in current directory
+
+## [1.2.8] - 2025-12-16
+
+### Changed
+- Phase count derived from work scope, not arbitrary limits
+
+## [1.2.7] - 2025-12-16
+
+### Fixed
+- AskUserQuestion mandated for all exploration questions
+
+## [1.2.6] - 2025-12-16
+
+### Changed
+- Internal refactoring
+
+## [1.2.5] - 2025-12-16
+
+### Changed
+- `<if mode>` tags for yolo/interactive branching
+
+## [1.2.4] - 2025-12-16
+
+### Fixed
+- Stale CONTEXT.md references updated to new vision structure
+
+## [1.2.3] - 2025-12-16
+
+### Fixed
+- Enterprise language removed from help and discuss-milestone
+
+## [1.2.2] - 2025-12-16
+
+### Fixed
+- new-project completion presented inline instead of as question
+
+## [1.2.1] - 2025-12-16
+
+### Fixed
+- AskUserQuestion restored for decision gate in questioning flow
+
+## [1.2.0] - 2025-12-15
+
+### Changed
+- Research workflow implemented as Claude Code context injection
+
+## [1.1.2] - 2025-12-15
+
+### Fixed
+- YOLO mode now skips confirmation gates in plan-phase
+
+## [1.1.1] - 2025-12-15
+
+### Added
+- README documentation for new research workflow
+
+## [1.1.0] - 2025-12-15
+
+### Added
+- Pre-roadmap research workflow
+- `/gsd:research-phase` for niche domain ecosystem discovery
+- `/gsd:research-project` command with workflow and templates
+- `/gsd:create-roadmap` command with research-aware workflow
+- Research subagent prompt templates
+
+### Changed
+- new-project split to only create PROJECT.md + config.json
+- Questioning rewritten as thinking partner, not interviewer
+
+## [1.0.11] - 2025-12-15
+
+### Added
+- `/gsd:research-phase` for niche domain ecosystem discovery
+
+## [1.0.10] - 2025-12-15
+
+### Fixed
+- Scope creep prevention in discuss-phase command
+
+## [1.0.9] - 2025-12-15
+
+### Added
+- Phase CONTEXT.md loaded in plan-phase command
+
+## [1.0.8] - 2025-12-15
+
+### Changed
+- PLAN.md included in phase completion commits
+
+## [1.0.7] - 2025-12-15
+
+### Added
+- Path replacement for local installs
+
+## [1.0.6] - 2025-12-15
+
+### Changed
+- Internal improvements
+
+## [1.0.5] - 2025-12-15
+
+### Added
+- Global/local install prompt during setup
+
+### Fixed
+- Bin path fixed (removed ./)
+- .DS_Store ignored
+
+## [1.0.4] - 2025-12-15
+
+### Fixed
+- Bin name and circular dependency removed
+
+## [1.0.3] - 2025-12-15
+
+### Added
+- TDD guidance in planning workflow
+
+## [1.0.2] - 2025-12-15
+
+### Added
+- Issue triage system to prevent deferred issue pile-up
+
+## [1.0.1] - 2025-12-15
+
+### Added
+- Initial npm package release
+
+## [1.0.0] - 2025-12-14
+
+### Added
+- Initial release of GSD (Get Shit Done) meta-prompting system
+- Core slash commands: `/gsd:new-project`, `/gsd:discuss-phase`, `/gsd:plan-phase`, `/gsd:execute-phase`
+- PROJECT.md and STATE.md templates
+- Phase-based development workflow
+- YOLO mode for autonomous execution
+- Interactive mode with checkpoints
 
 [Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.4.25...HEAD
 [1.4.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.25
 [1.4.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.24
+[1.4.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.23
+[1.4.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.22
+[1.4.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.21
+[1.4.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.20
+[1.4.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.19
+[1.4.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.18
+[1.4.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.17
+[1.4.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.16
+[1.4.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.15
+[1.4.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.14
+[1.4.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.13
+[1.4.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.12
+[1.4.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.11
+[1.4.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.10
+[1.4.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.9
+[1.4.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.8
+[1.4.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.7
+[1.4.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.6
+[1.4.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.5
+[1.4.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.4
+[1.4.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.3
+[1.4.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.2
+[1.4.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.1
+[1.4.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.0
+[1.3.34]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.34
+[1.3.33]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.33
+[1.3.32]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.32
+[1.3.31]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.31
+[1.3.30]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.30
+[1.3.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.29
+[1.3.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.28
+[1.3.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.27
+[1.3.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.26
+[1.3.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.25
+[1.3.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.24
+[1.3.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.23
+[1.3.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.22
+[1.3.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.21
+[1.3.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.20
+[1.3.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.19
+[1.3.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.18
+[1.3.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.17
+[1.3.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.16
+[1.3.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.15
+[1.3.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.14
+[1.3.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.13
+[1.3.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.12
+[1.3.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.11
+[1.3.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.10
+[1.3.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.9
+[1.3.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.8
+[1.3.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.7
+[1.3.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.6
+[1.3.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.5
+[1.3.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.4
+[1.3.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.3
+[1.3.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.2
+[1.3.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.1
+[1.3.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.0
+[1.2.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.13
+[1.2.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.12
+[1.2.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.11
+[1.2.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.10
+[1.2.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.9
+[1.2.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.8
+[1.2.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.7
+[1.2.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.6
+[1.2.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.5
+[1.2.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.4
+[1.2.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.3
+[1.2.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.2
+[1.2.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.1
+[1.2.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.0
+[1.1.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.2
+[1.1.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.1
+[1.1.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.0
+[1.0.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.11
+[1.0.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.10
+[1.0.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.9
+[1.0.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.8
+[1.0.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.7
+[1.0.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.6
+[1.0.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.5
+[1.0.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.4
+[1.0.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.3
+[1.0.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.2
+[1.0.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.1
+[1.0.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.0
