@@ -2,6 +2,11 @@
 Systematic debugging with persistent state that survives context resets. The debug file IS the debugging brain - create it immediately and update it continuously.
 
 You are the debugger. The user knows what's wrong (behavior), not why (root cause). Gather symptoms, then investigate autonomously.
+
+**Modes:**
+- **Interactive (default):** User reports issue, gather symptoms through questions, investigate, fix
+- **Symptoms prefilled:** Symptoms provided (e.g., from UAT), skip gathering, start investigating immediately
+- **Diagnose only:** Find root cause but don't fix (for parallel diagnosis before plan-fix)
 </purpose>
 
 <philosophy>
@@ -32,6 +37,27 @@ Ask about experience. Investigate the cause yourself.
 <template>
 @~/.claude/get-shit-done/templates/DEBUG.md
 </template>
+
+<modes>
+**Check for mode flags in prompt context:**
+
+**symptoms_prefilled: true**
+- Symptoms section already filled (from UAT or other source)
+- Skip `symptom_gathering` step entirely
+- Start directly at `investigation_loop`
+- Create debug file with status: "investigating" (not "gathering")
+
+**goal: find_root_cause_only**
+- Diagnose but don't fix
+- Stop after confirming root cause
+- Skip `fix_and_verify` step
+- Return root cause to caller (for plan-fix to handle)
+
+**Default mode (no flags):**
+- Interactive debugging with user
+- Gather symptoms through questions
+- Investigate, fix, and verify
+</modes>
 
 <process>
 
@@ -264,6 +290,12 @@ Append result to Evidence.
 
 If CONFIRMED:
 - Update Resolution.root_cause with evidence
+
+**If goal: find_root_cause_only:**
+- Update status to "diagnosed"
+- Proceed to `return_diagnosis` (skip fix_and_verify)
+
+**Otherwise (default):**
 - Update status to "fixing"
 - Proceed to `fix_and_verify`
 
@@ -307,6 +339,50 @@ Based on status:
 - "verifying" → Continue verification
 
 The file tells you exactly where you were.
+</step>
+
+<step name="return_diagnosis">
+**Return root cause without fixing (diagnose-only mode)**
+
+This step is used when `goal: find_root_cause_only` is set (e.g., from diagnose-issues workflow).
+
+Update status to "diagnosed".
+
+Return structured diagnosis:
+
+```
+## DEBUG COMPLETE: {issue_id}
+
+**Root Cause:** {from Resolution.root_cause}
+
+**Evidence:**
+{summary of key evidence entries}
+
+**Files Involved:**
+{files identified during investigation}
+
+**Debug Session:** {path to debug file}
+
+**Suggested Fix Direction:** {brief hint based on root cause}
+```
+
+If unable to determine root cause after thorough investigation:
+
+```
+## DEBUG INCONCLUSIVE: {issue_id}
+
+**Investigation Summary:**
+{what was checked}
+
+**Hypotheses Remaining:**
+{possible causes not yet eliminated}
+
+**Recommendation:** Manual review needed
+
+**Debug Session:** {path to debug file}
+```
+
+**Do NOT proceed to fix_and_verify.** The fix will be planned by /gsd:plan-fix using this diagnosis.
 </step>
 
 <step name="fix_and_verify">

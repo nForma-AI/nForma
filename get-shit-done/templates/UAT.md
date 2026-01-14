@@ -8,7 +8,7 @@ Template for `.planning/phases/XX-name/{phase}-UAT.md` — persistent UAT sessio
 
 ```markdown
 ---
-status: testing | complete
+status: testing | complete | diagnosed
 phase: XX-name
 source: [list of SUMMARY.md files tested]
 started: [ISO timestamp]
@@ -39,6 +39,8 @@ expected: [observable behavior]
 result: issue
 reported: "[verbatim user response]"
 severity: major
+root_cause: [filled by diagnose-issues, empty until diagnosed]
+debug_session: [path to DEBUG file, empty until diagnosed]
 
 ### 4. [Test Name]
 expected: [observable behavior]
@@ -58,7 +60,10 @@ skipped: [N]
 ## Issues for /gsd:plan-fix
 
 - UAT-001: [brief summary] (blocker) - Test 3
+  root_cause: [empty until diagnosed]
+
 - UAT-002: [brief summary] (major) - Test 7
+  root_cause: [empty until diagnosed]
 ```
 
 ---
@@ -82,6 +87,7 @@ skipped: [N]
 - `result` values: [pending], pass, issue, skipped
 - If issue: add `reported` (verbatim) and `severity` (inferred)
 - If skipped: add `reason` if provided
+- After diagnosis: add `root_cause` and `debug_session` fields to issues
 
 **Summary:**
 - OVERWRITE counts after each response
@@ -90,9 +96,43 @@ skipped: [N]
 **Issues for /gsd:plan-fix:**
 - APPEND only when issue found
 - Format: `- UAT-{NNN}: {summary} ({severity}) - Test {N}`
+- After diagnosis: add `root_cause:` line under each issue
 - This section feeds directly into /gsd:plan-fix
 
 </section_rules>
+
+<diagnosis_lifecycle>
+
+**After testing complete (status: complete), if issues exist:**
+
+1. User runs diagnosis (from verify-work offer or manually)
+2. diagnose-issues workflow spawns parallel debug agents
+3. Each agent investigates one issue, returns root cause
+4. UAT.md updated with root causes:
+   - Each issue test gets `root_cause:` and `debug_session:` fields
+   - Issues section gets `root_cause:` under each issue
+5. status → "diagnosed"
+6. Ready for /gsd:plan-fix with root causes
+
+**After diagnosis:**
+```markdown
+### 2. Create Top-Level Comment
+expected: Submit comment via rich text editor, appears in list with author info
+result: issue
+reported: "works but doesn't show until I refresh the page"
+severity: major
+root_cause: useEffect in CommentList.tsx missing commentCount dependency
+debug_session: .planning/debug/uat-001-comment-refresh.md
+```
+
+```markdown
+## Issues for /gsd:plan-fix
+
+- UAT-001: Comment doesn't appear until refresh (major) - Test 2
+  root_cause: useEffect in CommentList.tsx missing commentCount dependency
+```
+
+</diagnosis_lifecycle>
 
 <lifecycle>
 
@@ -170,6 +210,8 @@ expected: Submit comment via rich text editor, appears in list with author info
 result: issue
 reported: "works but doesn't show until I refresh the page"
 severity: major
+root_cause: useEffect in CommentList.tsx missing commentCount dependency
+debug_session: .planning/debug/uat-001-comment-refresh.md
 
 ### 3. Reply to a Comment
 expected: Click Reply, inline composer appears, submit shows nested reply
@@ -198,6 +240,7 @@ skipped: 0
 ## Issues for /gsd:plan-fix
 
 - UAT-001: Comment doesn't appear until refresh (major) - Test 2
+  root_cause: useEffect in CommentList.tsx missing commentCount dependency
 ```
 </good_example>
 

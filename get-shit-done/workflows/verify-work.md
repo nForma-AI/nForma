@@ -292,19 +292,78 @@ Present summary:
 ### Issues Found
 
 [List from Issues section]
+```
 
+**If issues > 0:** Proceed to `offer_diagnosis`
+
+**If issues == 0:**
+```
+All tests passed. Ready to continue.
+
+- `/gsd:plan-phase {next}` — Plan next phase
+- `/gsd:execute-phase {next}` — Execute next phase
+```
+</step>
+
+<step name="offer_diagnosis">
+**Offer to diagnose root causes before planning fixes:**
+
+```
+---
+
+{N} issues found. Before planning fixes, diagnose root causes?
+
+Diagnosis spawns parallel debug agents to investigate each issue.
+Each agent finds the root cause, making fix planning more accurate.
+
+Diagnose now? (yes/no)
+```
+
+Wait for user response.
+
+**If yes/y/diagnose:**
+- Load diagnose-issues workflow
+- Follow @~/.claude/get-shit-done/workflows/diagnose-issues.md
+- Spawn parallel debug agents for each issue
+- Collect root causes
+- Update UAT.md with root causes
+- Return to `offer_plan_fix`
+
+**If no/skip/later:**
+- Proceed to `offer_plan_fix` without diagnosis
+- Plan-fix will work without root causes (less precise but still functional)
+</step>
+
+<step name="offer_plan_fix">
+**Offer next steps after testing (and optional diagnosis):**
+
+Check if UAT.md has root causes (status: "diagnosed" or root_cause fields populated).
+
+**If diagnosed:**
+```
+---
+
+Root causes identified. Ready to plan fixes.
+
+| Issue | Root Cause |
+|-------|------------|
+| UAT-001 | {root_cause} |
+| UAT-002 | {root_cause} |
+...
+
+Next steps:
+- `/gsd:plan-fix {phase}` — Create fix plan with root causes
+- `/gsd:verify-work {phase}` — Re-test after fixes
+```
+
+**If not diagnosed:**
+```
 ---
 
 Next steps:
 - `/gsd:plan-fix {phase}` — Create fix plan for issues
 - `/gsd:verify-work {phase}` — Re-test after fixes
-- Continue to next phase
-
-[If issues == 0:]
-All tests passed. Ready to continue.
-
-- `/gsd:plan-phase {next}` — Plan next phase
-- `/gsd:execute-phase {next}` — Execute next phase
+- Continue to next phase (issues logged for later)
 ```
 </step>
 

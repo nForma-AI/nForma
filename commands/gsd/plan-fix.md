@@ -91,10 +91,17 @@ Parse each issue:
 - Brief summary
 - Severity (blocker/major/minor/cosmetic)
 - Test number (for context)
+- **root_cause** (if diagnosed - may be empty)
 
 Also read the corresponding test from "Tests" section to get:
 - expected behavior
 - reported issue (verbatim user description)
+- root_cause (if diagnosed)
+- debug_session (path to debug file, if diagnosed)
+
+**Check if diagnosed:**
+- If UAT.md status is "diagnosed" OR root_cause fields are populated → issues have been investigated
+- If not diagnosed → plan based on symptoms only (less precise)
 </step>
 
 <step name="plan">
@@ -104,7 +111,29 @@ For each issue (or logical group):
 - Create one task per issue OR
 - Group related cosmetic/minor issues into single task
 
-Task structure:
+**If diagnosed (root_cause available):**
+```xml
+<task type="auto">
+  <name>Fix UAT-{NNN}: {issue summary}</name>
+  <files>{files from diagnosis}</files>
+  <action>
+**Root Cause:** {root_cause from diagnosis}
+**Issue:** {verbatim reported description}
+**Expected:** {from test}
+
+**Fix:** {specific fix based on diagnosed root cause}
+
+Debug session: {debug_session path} (for reference)
+  </action>
+  <verify>
+- Confirm root cause addressed
+- {expected behavior} now works correctly
+  </verify>
+  <done>UAT-{NNN} resolved - {root_cause} fixed</done>
+</task>
+```
+
+**If NOT diagnosed (symptoms only):**
 ```xml
 <task type="auto">
   <name>Fix UAT-{NNN}: {issue summary}</name>
@@ -113,7 +142,7 @@ Task structure:
 **Issue:** {verbatim reported description}
 **Expected:** {from test}
 
-[Specific fix approach]
+[Investigate and fix - root cause unknown]
   </action>
   <verify>
 - Reproduce original issue - confirm fixed
@@ -145,6 +174,7 @@ autonomous: true
 Fix {N} UAT issues from phase {phase}.
 
 Source: {phase}-UAT.md
+Diagnosed: {yes/no - whether root causes were identified}
 Priority: {blocker count} blocker, {major count} major, {minor count} minor, {cosmetic count} cosmetic
 </objective>
 
@@ -159,6 +189,11 @@ Priority: {blocker count} blocker, {major count} major, {minor count} minor, {co
 
 **Issues being fixed:**
 @.planning/phases/XX-name/{phase}-UAT.md
+
+**Debug sessions (if diagnosed):**
+@.planning/debug/uat-001-*.md
+@.planning/debug/uat-002-*.md
+[etc - reference each debug session for full investigation context]
 
 **Original plans for reference:**
 @.planning/phases/XX-name/{phase}-01-PLAN.md
