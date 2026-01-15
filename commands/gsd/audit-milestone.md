@@ -100,9 +100,9 @@ For each requirement in REQUIREMENTS.md mapped to this milestone:
 - Check phase verification status
 - Determine: satisfied | partial | unsatisfied
 
-## 6. Aggregate into MILESTONE-AUDIT.md
+## 6. Aggregate into v{version}-MILESTONE-AUDIT.md
 
-Create `.planning/MILESTONE-AUDIT.md` with:
+Create `.planning/v{version}-v{version}-MILESTONE-AUDIT.md` with:
 
 ```yaml
 ---
@@ -149,7 +149,7 @@ Route by status (see `<offer_next>`).
 ## ✓ Milestone {version} — Audit Passed
 
 **Score:** {N}/{M} requirements satisfied
-**Report:** .planning/MILESTONE-AUDIT.md
+**Report:** .planning/v{version}-MILESTONE-AUDIT.md
 
 All requirements covered. Cross-phase integration verified. E2E flows complete.
 
@@ -172,7 +172,7 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 ## ⚠ Milestone {version} — Gaps Found
 
 **Score:** {N}/{M} requirements satisfied
-**Report:** .planning/MILESTONE-AUDIT.md
+**Report:** .planning/v{version}-MILESTONE-AUDIT.md
 
 ### Unsatisfied Requirements
 
@@ -203,7 +203,7 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 ---
 
 **Also available:**
-- `cat .planning/MILESTONE-AUDIT.md` — see full report
+- `cat .planning/v{version}-MILESTONE-AUDIT.md` — see full report
 - `/gsd:complete-milestone {version}` — proceed anyway (accept tech debt)
 ```
 
@@ -215,7 +215,7 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 ## ⚡ Milestone {version} — Tech Debt Review
 
 **Score:** {N}/{M} requirements satisfied
-**Report:** .planning/MILESTONE-AUDIT.md
+**Report:** .planning/v{version}-MILESTONE-AUDIT.md
 
 All requirements met. No critical blockers. Accumulated tech debt needs review.
 
@@ -249,6 +249,6 @@ All requirements met. No critical blockers. Accumulated tech debt needs review.
 - [ ] All phase VERIFICATION.md files read
 - [ ] Tech debt and deferred gaps aggregated
 - [ ] Integration checker spawned for cross-phase wiring
-- [ ] MILESTONE-AUDIT.md created
+- [ ] v{version}-MILESTONE-AUDIT.md created
 - [ ] Results presented with actionable next steps
 </success_criteria>

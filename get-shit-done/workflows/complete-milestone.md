@@ -532,6 +532,24 @@ Archive requirements and prepare for fresh requirements in next milestone.
 
 </step>
 
+<step name="archive_audit">
+
+Move the milestone audit file to the archive (if it exists):
+
+```bash
+# Move audit to milestones folder (if exists)
+[ -f .planning/v[X.Y]-MILESTONE-AUDIT.md ] && mv .planning/v[X.Y]-MILESTONE-AUDIT.md .planning/milestones/
+```
+
+Confirm:
+```
+✅ Audit archived to milestones/v[X.Y]-MILESTONE-AUDIT.md
+```
+
+(Skip silently if no audit file exists — audit is optional)
+
+</step>
+
 <step name="update_state">
 
 Update STATE.md to reflect milestone completion.
@@ -606,6 +624,7 @@ Commit milestone completion including archive files and deletions.
 # Stage archive files (new)
 git add .planning/milestones/v[X.Y]-ROADMAP.md
 git add .planning/milestones/v[X.Y]-REQUIREMENTS.md
+git add .planning/milestones/v[X.Y]-MILESTONE-AUDIT.md 2>/dev/null || true
 
 # Stage updated files
 git add .planning/MILESTONES.md
@@ -622,6 +641,7 @@ chore: complete v[X.Y] milestone
 Archived:
 - milestones/v[X.Y]-ROADMAP.md
 - milestones/v[X.Y]-REQUIREMENTS.md
+- milestones/v[X.Y]-MILESTONE-AUDIT.md (if audit was run)
 
 Deleted (fresh for next milestone):
 - ROADMAP.md

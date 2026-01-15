@@ -25,7 +25,7 @@ One command creates all fix phases — no manual `/gsd:add-phase` per gap.
 
 <context>
 **Audit results:**
-@.planning/MILESTONE-AUDIT.md
+Glob: .planning/v*-MILESTONE-AUDIT.md (use most recent)
 
 **Original intent (for prioritization):**
 @.planning/PROJECT.md
@@ -41,7 +41,8 @@ One command creates all fix phases — no manual `/gsd:add-phase` per gap.
 ## 1. Load Audit Results
 
 ```bash
-cat .planning/MILESTONE-AUDIT.md
+# Find the most recent audit file
+ls -t .planning/v*-MILESTONE-AUDIT.md 2>/dev/null | head -1
 ```
 
 Parse YAML frontmatter to extract structured gaps:
@@ -49,7 +50,7 @@ Parse YAML frontmatter to extract structured gaps:
 - `gaps.integration` — missing cross-phase connections
 - `gaps.flows` — broken E2E flows
 
-If MILESTONE-AUDIT.md doesn't exist or has no gaps, error:
+If no audit file exists or has no gaps, error:
 ```
 No audit gaps found. Run `/gsd:audit-milestone` first.
 ```
