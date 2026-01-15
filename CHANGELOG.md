@@ -6,6 +6,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-01-14
+
+### Added
+- New `/gsd:research-project` command for pre-roadmap ecosystem research — spawns parallel agents to investigate stack, features, architecture, and pitfalls before you commit to a roadmap
+- New `/gsd:define-requirements` command for scoping v1 requirements from research findings — transforms "what exists in this domain" into "what we're building"
+- Requirements traceability: phases now map to specific requirement IDs with 100% coverage validation
+
+### Changed
+- **BREAKING:** New project flow is now: `new-project → research-project → define-requirements → create-roadmap`
+- Roadmap creation now requires REQUIREMENTS.md and validates all v1 requirements are mapped to phases
+- Simplified questioning in new-project to four essentials (vision, core priority, boundaries, constraints)
+
 ## [1.4.29] - 2026-01-14
 
 ### Removed
