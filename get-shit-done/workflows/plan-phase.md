@@ -100,6 +100,114 @@ If multiple phases available, ask which one to plan. If obvious (first incomplet
 **If decimal phase:** Validate integer X exists and is complete, X+1 exists in roadmap, decimal X.Y doesn't exist, Y >= 1.
 
 Read any existing PLAN.md or DISCOVERY.md in the phase directory.
+
+**Check for --gaps flag:**
+If `--gaps` present in arguments, switch to gap_closure_mode (see `<step name="gap_closure_mode">`).
+</step>
+
+<step name="gap_closure_mode">
+**Triggered by `--gaps` flag.** Plans address verification gaps.
+
+**1. Load VERIFICATION.md:**
+
+```bash
+PHASE_DIR=$(ls -d .planning/phases/${PHASE_ARG}* 2>/dev/null | head -1)
+cat "$PHASE_DIR"/*-VERIFICATION.md
+```
+
+**2. Parse gaps from YAML frontmatter:**
+
+Extract `gaps:` array. Each gap has:
+- `truth`: The observable behavior that failed
+- `reason`: Why it failed
+- `artifacts`: Files with issues
+- `missing`: Specific things to add/fix
+
+**3. Load existing SUMMARYs:**
+
+```bash
+ls "$PHASE_DIR"/*-SUMMARY.md
+```
+
+Understand what's already built. Gap closure plans reference existing work.
+
+**4. Find next plan number:**
+
+```bash
+# Get highest existing plan number
+ls "$PHASE_DIR"/*-PLAN.md | sort -V | tail -1
+```
+
+If plans 01, 02, 03 exist, next is 04.
+
+**5. Group gaps into plans:**
+
+Cluster related gaps by:
+- Same artifact (multiple issues in Chat.tsx → one plan)
+- Same concern (fetch + render → one "wire frontend" plan)
+- Dependency order (can't wire if artifact is stub → fix stub first)
+
+**6. Create gap closure tasks:**
+
+For each gap:
+```xml
+<task name="{fix_description}" type="auto">
+  <files>{artifact.path}</files>
+  <action>
+    {For each item in gap.missing:}
+    - {missing item}
+
+    Reference existing code: {from SUMMARYs}
+    Gap reason: {gap.reason}
+  </action>
+  <verify>{How to confirm gap is closed}</verify>
+  <done>{Observable truth now achievable}</done>
+</task>
+```
+
+**7. Write PLAN.md files:**
+
+Use standard template but note gap closure context:
+
+```yaml
+---
+phase: XX-name
+plan: NN              # Sequential after existing
+type: execute
+wave: 1               # Gap closures typically single wave
+depends_on: []        # Usually independent of each other
+files_modified: [...]
+autonomous: true
+gap_closure: true     # Flag for tracking
+---
+```
+
+**9. Present gap closure summary:**
+
+```markdown
+## Gap Closure Plans Created
+
+**Phase {X}: {Name}** — closing {N} gaps
+
+| Plan | Gaps Addressed | Files |
+|------|----------------|-------|
+| {phase}-04 | {gap truths} | {files} |
+| {phase}-05 | {gap truths} | {files} |
+
+---
+
+## ▶ Next Up
+
+**Execute gap closure plans**
+
+`/gsd:execute-phase {X}`
+
+<sub>`/clear` first → fresh context window</sub>
+
+---
+```
+
+**Skip directly to git_commit step after creating plans.**
 </step>
 
 <step name="mandatory_discovery">
@@ -238,120 +346,6 @@ cat .planning/phases/XX-name/${PHASE}-CONTEXT.md 2>/dev/null
 **If CONTEXT.md exists:** Honor vision, prioritize essential, respect boundaries, incorporate specifics.
 
 **If neither exist:** Suggest /gsd:research-phase for niche domains, /gsd:discuss-phase for simpler domains, or proceed with roadmap only.
-</step>
-
-<step name="derive_must_haves">
-**BEFORE breaking into tasks, work BACKWARD from the phase goal.**
-
-This step prevents the common failure mode: tasks complete but goal not achieved.
-
-See `~/.claude/get-shit-done/references/goal-backward.md` for complete guidance.
-
-**1. State the phase goal:**
-
-Extract from ROADMAP.md. Reframe if task-shaped:
-- Task-shaped: "implement chat system" → Outcome-shaped: "users can chat"
-- Task-shaped: "add authentication" → Outcome-shaped: "users can log in securely"
-
-**2. Derive observable truths:**
-
-Ask: **"What must be TRUE for this goal to be achieved?"**
-
-List 3-7 truths from the USER's perspective:
-- "User can see existing messages"
-- "User can type and send a message"
-- "Sent message appears in the list"
-- "Messages persist across refresh"
-
-**Test:** Each truth should be verifiable by a human using the app. If you can't test it by clicking around, it's not observable.
-
-**3. Derive required artifacts:**
-
-For each truth, ask: **"What must EXIST for this to be true?"**
-
-Map truths to concrete files:
-```
-"User can see existing messages" requires:
-  - src/components/Chat.tsx (renders messages)
-  - src/app/api/chat/route.ts (provides messages)
-  - prisma/schema.prisma (Message model)
-```
-
-**Test:** Each artifact should be a specific file path. If you can't point to where it lives, it's too abstract.
-
-**4. Derive key links (wiring):**
-
-For each artifact, ask: **"What must be CONNECTED for this to function?"**
-
-Key links are critical connections:
-```
-- Chat.tsx → /api/chat: fetch in useEffect, response mapped to state
-- /api/chat GET → database: prisma.message.findMany, result returned
-- ChatInput onSubmit → /api/chat POST: fetch call, not just console.log
-```
-
-**Test:** Wiring is verified by tracing data flow. Does A actually call B?
-
-**5. Identify highest-risk links:**
-
-Ask: **"Where is this most likely to break?"**
-
-These get extra verification attention. Common high-risk links:
-- Form submit → API call (often stubbed with console.log)
-- API handler → database query (often returns hardcoded data)
-- Component → real data (often renders placeholder)
-
-**6. Document must-haves:**
-
-Structure for PLAN.md frontmatter:
-
-```yaml
-must_haves:
-  truths:
-    - "User can see existing messages"
-    - "User can send a message"
-    - "Messages persist across refresh"
-  artifacts:
-    - path: "src/components/Chat.tsx"
-      provides: "Message list rendering"
-      min_lines: 30
-    - path: "src/app/api/chat/route.ts"
-      provides: "Message CRUD"
-      exports: ["GET", "POST"]
-    - path: "prisma/schema.prisma"
-      provides: "Message model"
-      contains: "model Message"
-  key_links:
-    - from: "src/components/Chat.tsx"
-      to: "/api/chat"
-      via: "fetch in useEffect"
-      pattern: "fetch.*api/chat"
-    - from: "src/app/api/chat/route.ts"
-      to: "prisma.message"
-      via: "database query"
-      pattern: "prisma\\.message"
-```
-
-**7. Use must-haves to inform task design:**
-
-Tasks should CREATE artifacts and ESTABLISH key links. When writing tasks:
-- Each artifact should have a task that creates it
-- Each key link should be established (not left as TODO)
-- Verification should check the link works, not just that files exist
-
-**Why this matters:**
-
-Without goal-backward derivation, you get:
-- "Create Chat.tsx" ✓ (file exists, but renders placeholder)
-- "Create API route" ✓ (file exists, but returns hardcoded data)
-- "Phase complete" ✓ (all tasks done)
-- "App doesn't work" ✗ (goal not achieved)
-
-With goal-backward derivation:
-- Must-haves define what "working" means
-- Tasks are designed to achieve must-haves
-- Verification checks must-haves after execution
-- Gaps found before they compound into later phases
 </step>
 
 <step name="break_into_tasks">
@@ -843,23 +837,30 @@ Tasks are instructions for Claude, not Jira tickets.
 </anti_patterns>
 
 <success_criteria>
-Phase planning complete when:
+**Standard mode** — Phase planning complete when:
 - [ ] STATE.md read, project history absorbed
 - [ ] Mandatory discovery completed (Level 0-3)
 - [ ] Prior decisions, issues, concerns synthesized
-- [ ] **Must-haves derived** (truths, artifacts, key links from goal-backward analysis)
 - [ ] Dependency graph built (needs/creates for each task)
 - [ ] Tasks grouped into plans by wave, not by sequence
 - [ ] PLAN file(s) exist with XML structure
 - [ ] Each plan: depends_on, files_modified, autonomous in frontmatter
-- [ ] **Each plan: must_haves in frontmatter** (for post-execution verification)
 - [ ] Each plan: user_setup declared if external services involved
 - [ ] Each plan: Objective, context, tasks, verification, success criteria, output
 - [ ] Each plan: 2-3 tasks (~50% context)
 - [ ] Each task: Type, Files (if auto), Action, Verify, Done
-- [ ] **Tasks designed to CREATE artifacts and ESTABLISH key links**
 - [ ] Checkpoints properly structured
 - [ ] Wave structure maximizes parallelism
 - [ ] PLAN file(s) committed to git
 - [ ] User knows next steps and wave structure
+
+**Gap closure mode (`--gaps`)** — Planning complete when:
+- [ ] VERIFICATION.md loaded and gaps parsed
+- [ ] Existing SUMMARYs read for context
+- [ ] Gaps clustered into focused plans
+- [ ] Plan numbers sequential after existing (04, 05...)
+- [ ] PLAN file(s) exist with gap_closure: true
+- [ ] Each plan: tasks derived from gap.missing items
+- [ ] PLAN file(s) committed to git
+- [ ] User knows to run `/gsd:execute-phase {X}` next
 </success_criteria>

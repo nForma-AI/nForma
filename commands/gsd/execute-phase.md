@@ -65,9 +65,10 @@ Phase: $ARGUMENTS
    - Spawn `gsd-verifier` subagent with phase directory and goal
    - Verifier checks must_haves against actual codebase (not SUMMARY claims)
    - Creates VERIFICATION.md with detailed report
-   - If gaps found: create fix plans, execute, re-verify (max 3 cycles)
-   - If human verification needed: present items to user
-   - Block until verification passes or user approves
+   - Route by status:
+     - `passed` → continue to step 7
+     - `human_needed` → present items, get approval or feedback
+     - `gaps_found` → present gaps, offer `/gsd:plan-phase {X} --gaps`
 
 7. **Update roadmap and state**
    - Update ROADMAP.md, STATE.md
@@ -93,25 +94,23 @@ Phase: $ARGUMENTS
 <offer_next>
 **MANDATORY: Present copy/paste-ready next command.**
 
-After phase completes, determine what's next:
+After verification completes, route based on status:
 
-**Step 1: Check milestone status**
-
-Read ROADMAP.md. Find current phase number and highest phase in milestone.
-
-| Condition | Action |
-|-----------|--------|
-| current < highest | More phases → Route A |
-| current = highest | Milestone complete → Route B |
+| Status | Route |
+|--------|-------|
+| `gaps_found` | Route C (gap closure) |
+| `human_needed` | Present checklist, then re-route based on approval |
+| `passed` + more phases | Route A (next phase) |
+| `passed` + last phase | Route B (milestone complete) |
 
 ---
 
-**Route A: More phases remain in milestone**
+**Route A: Phase verified, more phases remain**
 
 ```
 ## ✓ Phase {Z}: {Name} Complete
 
-All {Y} plans finished.
+All {Y} plans finished. Phase goal verified.
 
 ---
 
@@ -135,14 +134,14 @@ All {Y} plans finished.
 
 ---
 
-**Route B: Milestone complete**
+**Route B: Phase verified, milestone complete**
 
 ```
 🎉 MILESTONE COMPLETE!
 
 ## ✓ Phase {Z}: {Name} Complete
 
-All {N} phases finished.
+All {N} phases finished. All goals verified.
 
 ---
 
@@ -162,6 +161,46 @@ All {N} phases finished.
 
 ---
 ```
+
+---
+
+**Route C: Gaps found — need additional planning**
+
+```
+## ⚠ Phase {Z}: {Name} — Gaps Found
+
+**Score:** {N}/{M} must-haves verified
+**Report:** .planning/phases/{phase_dir}/{phase}-VERIFICATION.md
+
+### What's Missing
+
+{Extract gap summaries from VERIFICATION.md}
+
+---
+
+## ▶ Next Up
+
+**Plan gap closure** — create additional plans to complete the phase
+
+`/gsd:plan-phase {Z} --gaps`
+
+<sub>`/clear` first → fresh context window</sub>
+
+---
+
+**Also available:**
+- `cat .planning/phases/{phase_dir}/{phase}-VERIFICATION.md` — see full report
+- `/gsd:verify-work {Z}` — manual testing before planning
+
+---
+```
+
+After user runs `/gsd:plan-phase {Z} --gaps`:
+1. Planner reads VERIFICATION.md gaps
+2. Creates plans 04, 05, etc. to close gaps
+3. User runs `/gsd:execute-phase {Z}` again
+4. Execute-phase runs incomplete plans (04, 05...)
+5. Verifier runs again → loop until passed
 </offer_next>
 
 <wave_execution>

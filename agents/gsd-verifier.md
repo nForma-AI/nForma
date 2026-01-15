@@ -462,48 +462,51 @@ Some things can't be verified programmatically:
 score = (verified_truths / total_truths)
 ```
 
-## Step 10: Generate Fix Plans (If Gaps Found)
+## Step 10: Structure Gap Output (If Gaps Found)
 
-Group related gaps into fix plans:
+When gaps are found, structure them for consumption by `/gsd:plan-phase --gaps`.
 
-1. **Identify gap clusters:**
+**Output structured gaps in YAML frontmatter:**
 
-   - API stub + component not wired → "Wire frontend to backend"
-   - Multiple artifacts missing → "Complete core implementation"
-   - Wiring issues only → "Connect existing components"
-
-2. **Generate plan recommendations:**
-
-```markdown
-### {phase}-{next}-PLAN.md: {Fix Name}
-
-**Objective:** {What this fixes}
-
-**Tasks:**
-
-1. {Task to fix gap 1}
-
-   - Files: {files to modify}
-   - Action: {specific fix}
-   - Verify: {how to confirm fix}
-
-2. {Task to fix gap 2}
-
-3. Re-verify phase goal
-
-**Estimated scope:** {Small / Medium}
+```yaml
+---
+phase: XX-name
+verified: YYYY-MM-DDTHH:MM:SSZ
+status: gaps_found
+score: N/M must-haves verified
+gaps:
+  - truth: "User can see existing messages"
+    status: failed
+    reason: "Chat.tsx exists but doesn't fetch from API"
+    artifacts:
+      - path: "src/components/Chat.tsx"
+        issue: "No useEffect with fetch call"
+    missing:
+      - "API call in useEffect to /api/chat"
+      - "State for storing fetched messages"
+      - "Render messages array in JSX"
+  - truth: "User can send a message"
+    status: failed
+    reason: "Form exists but onSubmit is stub"
+    artifacts:
+      - path: "src/components/Chat.tsx"
+        issue: "onSubmit only calls preventDefault()"
+    missing:
+      - "POST request to /api/chat"
+      - "Add new message to state after success"
+---
 ```
 
-3. **Keep plans focused:**
+**Gap structure:**
+- `truth`: The observable truth that failed verification
+- `status`: failed | partial
+- `reason`: Brief explanation of why it failed
+- `artifacts`: Which files have issues and what's wrong
+- `missing`: Specific things that need to be added/fixed
 
-   - 2-3 tasks per plan
-   - Single concern per plan
-   - Include verification task
+The planner (`/gsd:plan-phase --gaps`) reads this gap analysis and creates appropriate plans.
 
-4. **Order by dependency:**
-   - Fix missing artifacts before wiring
-   - Fix stubs before integration
-   - Verify after all fixes
+**Group related gaps by concern** when possible — if multiple truths fail because of the same root cause (e.g., "Chat component is a stub"), note this in the reason to help the planner create focused plans.
 
 </verification_process>
 
@@ -519,6 +522,20 @@ phase: XX-name
 verified: YYYY-MM-DDTHH:MM:SSZ
 status: passed | gaps_found | human_needed
 score: N/M must-haves verified
+gaps:                           # Only include if status: gaps_found
+  - truth: "Observable truth that failed"
+    status: failed
+    reason: "Why it failed"
+    artifacts:
+      - path: "src/path/to/file.tsx"
+        issue: "What's wrong with this file"
+    missing:
+      - "Specific thing to add/fix"
+      - "Another specific thing"
+human_verification:             # Only include if status: human_needed
+  - test: "What to do"
+    expected: "What should happen"
+    why_human: "Why can't verify programmatically"
 ---
 
 # Phase {X}: {Name} Verification Report
@@ -561,15 +578,11 @@ score: N/M must-haves verified
 
 ### Human Verification Required
 
-{Items needing human testing}
+{Items needing human testing — detailed format for user}
 
 ### Gaps Summary
 
-{Critical and non-critical gaps}
-
-### Recommended Fix Plans
-
-{If gaps_found, include fix plan recommendations}
+{Narrative summary of what's missing and why}
 
 ---
 
@@ -597,17 +610,14 @@ All must-haves verified. Phase goal achieved. Ready to proceed.
 
 ### Gaps Found
 
-{N} critical gaps blocking goal achievement:
+{N} gaps blocking goal achievement:
 
-1. {Gap 1 summary}
-2. {Gap 2 summary}
+1. **{Truth 1}** — {reason}
+   - Missing: {what needs to be added}
+2. **{Truth 2}** — {reason}
+   - Missing: {what needs to be added}
 
-### Recommended Fixes
-
-{N} fix plans recommended:
-
-1. {phase}-{next}-PLAN.md: {name}
-2. {phase}-{next+1}-PLAN.md: {name}
+Structured gaps in VERIFICATION.md frontmatter for `/gsd:plan-phase --gaps`.
 
 {If human_needed:}
 
@@ -615,8 +625,10 @@ All must-haves verified. Phase goal achieved. Ready to proceed.
 
 {N} items need human testing:
 
-1. {Item 1}
-2. {Item 2}
+1. **{Test name}** — {what to do}
+   - Expected: {what should happen}
+2. **{Test name}** — {what to do}
+   - Expected: {what should happen}
 
 Automated checks passed. Awaiting human verification.
 ```
@@ -631,7 +643,7 @@ Automated checks passed. Awaiting human verification.
 
 **DO NOT skip key link verification.** This is where 80% of stubs hide. The pieces exist but aren't connected.
 
-**DO generate fix plans if gaps found.** Don't just report "this is broken" — recommend specific fix plans with tasks.
+**Structure gaps in YAML frontmatter.** The planner (`/gsd:plan-phase --gaps`) creates plans from your analysis.
 
 **DO flag for human verification when uncertain.** If you can't verify programmatically (visual, real-time, external service), say so explicitly.
 
@@ -726,7 +738,7 @@ return <div>No messages</div>  // Always shows "no messages"
 - [ ] Anti-patterns scanned and categorized
 - [ ] Human verification items identified
 - [ ] Overall status determined
-- [ ] Fix plans generated (if gaps_found)
+- [ ] Gaps structured in YAML frontmatter (if gaps_found)
 - [ ] VERIFICATION.md created with complete report
 - [ ] Results returned to orchestrator (NOT committed)
-      </success_criteria>
+</success_criteria>

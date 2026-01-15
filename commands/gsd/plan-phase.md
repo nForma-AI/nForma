@@ -1,7 +1,7 @@
 ---
 name: gsd:plan-phase
 description: Create detailed execution plan for a phase (PLAN.md)
-argument-hint: "[phase]"
+argument-hint: "[phase] [--gaps]"
 allowed-tools:
   - Read
   - Bash
@@ -18,6 +18,9 @@ Create executable phase prompt with discovery, context injection, and task break
 
 Purpose: Break down roadmap phases into concrete, executable PLAN.md files that Claude can execute.
 Output: One or more PLAN.md files in the phase directory (.planning/phases/XX-name/{phase}-{plan}-PLAN.md)
+
+**Gap closure mode (`--gaps` flag):**
+When invoked with `--gaps`, plans address gaps identified by the verifier. Load VERIFICATION.md, create plans to close specific gaps.
 </objective>
 
 <execution_context>
@@ -33,6 +36,7 @@ Output: One or more PLAN.md files in the phase directory (.planning/phases/XX-na
 
 <context>
 Phase number: $ARGUMENTS (optional - auto-detects next unplanned phase if not provided)
+Gap closure mode: `--gaps` flag triggers gap closure workflow
 
 **Load project state first:**
 @.planning/STATE.md
@@ -59,19 +63,33 @@ Check for and read `.planning/phases/XX-name/{phase}-CONTEXT.md` - contains rese
 
 **Load codebase context if exists:**
 Check for `.planning/codebase/` and load relevant documents based on phase type.
+
+**If --gaps flag present, also load:**
+@.planning/phases/XX-name/{phase}-VERIFICATION.md — contains structured gaps in YAML frontmatter
 </context>
 
 <process>
 1. Check .planning/ directory exists (error if not - user should run /gsd:new-project)
-2. If phase number provided via $ARGUMENTS, validate it exists in roadmap
-3. If no phase number, detect next unplanned phase from roadmap
-4. Follow plan-phase.md workflow:
+2. Parse arguments: extract phase number and check for `--gaps` flag
+3. If phase number provided, validate it exists in roadmap
+4. If no phase number, detect next unplanned phase from roadmap
+
+**Standard mode (no --gaps flag):**
+5. Follow plan-phase.md workflow:
    - Load project state and accumulated decisions
    - Perform mandatory discovery (Level 0-3 as appropriate)
    - Read project history (prior decisions, issues, concerns)
    - Break phase into tasks
    - Estimate scope and split into multiple plans if needed
    - Create PLAN.md file(s) with executable structure
+
+**Gap closure mode (--gaps flag):**
+5. Follow plan-phase.md workflow with gap_closure_mode:
+   - Load VERIFICATION.md and parse `gaps:` YAML from frontmatter
+   - Read existing SUMMARYs to understand what's already built
+   - Create tasks from gaps (each gap.missing item → task candidates)
+   - Number plans sequentially after existing (if 01-03 exist, create 04, 05...)
+   - Create PLAN.md file(s) focused on closing specific gaps
 </process>
 
 <success_criteria>
