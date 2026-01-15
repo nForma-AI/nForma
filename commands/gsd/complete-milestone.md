@@ -38,6 +38,28 @@ Output: Milestone archived, roadmap reorganized, git tagged.
 
 **Follow complete-milestone.md workflow:**
 
+0. **Check for audit:**
+
+   - Look for `.planning/MILESTONE-AUDIT.md`
+   - If missing or stale: recommend `/gsd:audit-milestone` first
+   - If audit status is `gaps_found`: recommend `/gsd:plan-milestone-gaps` first
+   - If audit status is `passed`: proceed to step 1
+
+   ```markdown
+   ## Pre-flight Check
+
+   {If no MILESTONE-AUDIT.md:}
+   ⚠ No milestone audit found. Run `/gsd:audit-milestone` first to verify
+   requirements coverage, cross-phase integration, and E2E flows.
+
+   {If audit has gaps:}
+   ⚠ Milestone audit found gaps. Run `/gsd:plan-milestone-gaps` to create
+   phases that close the gaps, or proceed anyway to accept as tech debt.
+
+   {If audit passed:}
+   ✓ Milestone audit passed. Proceeding with completion.
+   ```
+
 1. **Verify readiness:**
 
    - Check all phases in milestone have completed plans (SUMMARY.md exists)
