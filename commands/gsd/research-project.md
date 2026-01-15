@@ -5,37 +5,17 @@ allowed-tools:
   - Read
   - Write
   - Bash
-  - Glob
-  - Grep
   - Task
-  - WebFetch
-  - WebSearch
-  - mcp__context7__*
+  - AskUserQuestion
 ---
 
 <objective>
-Comprehensive domain research before roadmap creation.
+Research domain ecosystem. Spawns 4 parallel gsd-researcher agents for comprehensive coverage.
 
-Answers the questions that inform quality roadmaps:
-- What's the standard stack for this type of product?
-- What features do users expect?
-- How are these systems typically structured?
-- What do projects in this domain commonly get wrong?
+**Orchestrator role:** Analyze project, generate research questions, spawn 4 parallel agents, synthesize SUMMARY.md.
 
-Run after `/gsd:new-project`, before `/gsd:define-requirements`.
-
-Output: `.planning/research/` folder with ecosystem knowledge.
+**Why subagents:** Research burns context fast. Fresh 200k context per domain. Main context stays lean.
 </objective>
-
-<execution_context>
-@~/.claude/get-shit-done/references/principles.md
-@~/.claude/get-shit-done/workflows/research-project.md
-@~/.claude/get-shit-done/templates/research-project/SUMMARY.md
-@~/.claude/get-shit-done/templates/research-project/STACK.md
-@~/.claude/get-shit-done/templates/research-project/FEATURES.md
-@~/.claude/get-shit-done/templates/research-project/ARCHITECTURE.md
-@~/.claude/get-shit-done/templates/research-project/PITFALLS.md
-</execution_context>
 
 <context>
 @.planning/PROJECT.md
@@ -44,94 +24,114 @@ Output: `.planning/research/` folder with ecosystem knowledge.
 
 <process>
 
-<step name="validate">
+## 1. Validate Prerequisites
+
 ```bash
-# Verify project exists
-[ -f .planning/PROJECT.md ] || { echo "ERROR: No PROJECT.md found. Run /gsd:new-project first."; exit 1; }
-
-# Check if roadmap already exists
-[ -f .planning/ROADMAP.md ] && echo "WARNING: ROADMAP.md already exists. Research is typically done before roadmap creation."
-
-# Check if research already exists
+[ -f .planning/PROJECT.md ] || { echo "ERROR: No PROJECT.md. Run /gsd:new-project first."; exit 1; }
+[ -f .planning/ROADMAP.md ] && echo "WARNING: ROADMAP.md exists. Research is typically done before roadmap."
 [ -d .planning/research ] && echo "RESEARCH_EXISTS" || echo "NO_RESEARCH"
 ```
-</step>
 
-<step name="check_existing">
-**If RESEARCH_EXISTS:**
+## 2. Handle Existing Research
 
-Use AskUserQuestion:
-- header: "Research exists"
-- question: "Research folder already exists. What would you like to do?"
-- options:
-  - "View existing" — Show current research summary
-  - "Replace" — Run fresh research (will overwrite)
-  - "Cancel" — Keep existing research
+**If RESEARCH_EXISTS:** Use AskUserQuestion (View existing / Replace / Cancel)
 
-If "View existing": Read and display `.planning/research/SUMMARY.md`, then exit
-If "Cancel": Exit
-If "Replace": Continue with workflow
-</step>
+## 3. Analyze Project
 
-<step name="execute_research">
-Follow the research-project.md workflow:
-- Analyze PROJECT.md to determine domain
-- Identify research questions based on domain
-- Spawn parallel research agents
-- Aggregate results into `.planning/research/`
-- Create SUMMARY.md with roadmap implications
-</step>
+Read PROJECT.md, extract domain/stack/core value/constraints. Present for approval:
+```
+Domain analysis:
+- Type: [domain]
+- Stack: [stated or TBD]
+- Core: [core value]
+Does this look right? (yes / adjust)
+```
 
-<step name="done">
+## 4. Generate Research Questions
+
+| Dimension | Question |
+|-----------|----------|
+| Stack | "What's the standard 2025 stack for [domain]?" |
+| Features | "What features do [domain] products have?" |
+| Architecture | "How are [domain] systems structured?" |
+| Pitfalls | "What do [domain] projects get wrong?" |
+
+Present for approval.
+
+## 5. Spawn Research Agents
+
+```bash
+mkdir -p .planning/research
+```
+
+Spawn all 4 in parallel:
+
+```
+Task(prompt="Research stack for [domain]. Question: [question]. Context: [PROJECT.md summary].
+Write to: .planning/research/STACK.md. Use template from ~/.claude/get-shit-done/templates/research-project/STACK.md",
+subagent_type="gsd-researcher", description="Stack research")
+
+Task(prompt="Research features for [domain]. Question: [question]. Context: [PROJECT.md summary].
+Write to: .planning/research/FEATURES.md. Use template from ~/.claude/get-shit-done/templates/research-project/FEATURES.md",
+subagent_type="gsd-researcher", description="Features research")
+
+Task(prompt="Research architecture for [domain]. Question: [question]. Context: [PROJECT.md summary].
+Write to: .planning/research/ARCHITECTURE.md. Use template from ~/.claude/get-shit-done/templates/research-project/ARCHITECTURE.md",
+subagent_type="gsd-researcher", description="Architecture research")
+
+Task(prompt="Research pitfalls for [domain]. Question: [question]. Context: [PROJECT.md summary].
+Write to: .planning/research/PITFALLS.md. Use template from ~/.claude/get-shit-done/templates/research-project/PITFALLS.md",
+subagent_type="gsd-researcher", description="Pitfalls research")
+```
+
+**Announce:** "Spawning 4 research agents... may take 2-3 minutes."
+
+## 6. Synthesize Results
+
+After all agents complete, read their outputs and write `.planning/research/SUMMARY.md`:
+- Read template: `~/.claude/get-shit-done/templates/research-project/SUMMARY.md`
+- Synthesize executive summary from all 4 files
+- Include "Implications for Roadmap" with suggested phase structure
+- Add confidence assessment
+
+## 7. Commit Research
+
+```bash
+git add .planning/research/
+git commit -m "docs: research [domain] ecosystem
+
+Key findings:
+- Stack: [one-liner]
+- Architecture: [one-liner]
+- Critical pitfall: [one-liner]"
+```
+
+## 8. Present Results
+
 ```
 Research complete:
 
-- Summary: .planning/research/SUMMARY.md
-- Stack: .planning/research/STACK.md
-- Features: .planning/research/FEATURES.md
-- Architecture: .planning/research/ARCHITECTURE.md
-- Pitfalls: .planning/research/PITFALLS.md
+Files: SUMMARY.md, STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md
+
+Key findings:
+- Stack: [one-liner]
+- Architecture: [one-liner]
+- Critical pitfall: [one-liner]
 
 ---
-
-## ▶ Next Up
-
-**Define requirements** — scope your v1 from research findings
-
-`/gsd:define-requirements`
-
-<sub>`/clear` first → fresh context window</sub>
-
-**Flow:** research-project → **define-requirements** → create-roadmap
-
+## > Next Up
+**Define requirements** - `/gsd:define-requirements`
+<sub>`/clear` first</sub>
 ---
 ```
-</step>
 
 </process>
 
-<when_to_use>
-**Use research-project for:**
-- Greenfield projects in established domains (community, e-commerce, SaaS)
-- When "what features should exist" is partially unknown
-- Complex integrations requiring ecosystem knowledge
-- Domains where best practices matter (auth, payments, real-time)
-- Any project where you'd Google "how to build a [X]" before starting
-
-**Skip research-project for:**
-- Well-defined specs ("build exactly this API")
-- Simple tools/utilities with clear scope
-- Adding features to existing codebases (use research-phase instead)
-- Domains you've built in many times before
-</when_to_use>
-
 <success_criteria>
 - [ ] PROJECT.md validated
-- [ ] Domain identified from project description
-- [ ] Research questions determined and approved
-- [ ] Parallel research agents spawned
-- [ ] All research documents created in .planning/research/
-- [ ] SUMMARY.md includes roadmap implications
-- [ ] Research committed to git
-- [ ] User knows next step (define-requirements)
+- [ ] Domain identified and approved
+- [ ] 4 gsd-researcher agents spawned in parallel
+- [ ] All research files created
+- [ ] SUMMARY.md synthesized with roadmap implications
+- [ ] Research committed
 </success_criteria>
