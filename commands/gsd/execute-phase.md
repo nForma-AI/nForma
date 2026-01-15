@@ -62,18 +62,23 @@ Phase: $ARGUMENTS
 5. **Aggregate results**
    - Collect summaries from all plans
    - Report phase completion status
-   - Update ROADMAP.md
+   - Update ROADMAP.md, STATE.md
 
 6. **Update requirements**
-   Phase is complete, so mark its requirements as Complete:
+   Mark phase requirements as Complete:
    - Read ROADMAP.md, find this phase's `Requirements:` line (e.g., "AUTH-01, AUTH-02")
    - Read REQUIREMENTS.md traceability table
    - For each REQ-ID in this phase: change Status from "Pending" to "Complete"
    - Write updated REQUIREMENTS.md
-   - Stage for commit: `git add .planning/REQUIREMENTS.md`
    - Skip if: REQUIREMENTS.md doesn't exist, or phase has no Requirements line
 
-7. **Offer next steps**
+7. **Commit phase completion**
+   Bundle all phase metadata updates in one commit:
+   - Stage: `git add .planning/ROADMAP.md .planning/STATE.md`
+   - Stage REQUIREMENTS.md if updated: `git add .planning/REQUIREMENTS.md`
+   - Commit: `docs({phase}): complete {phase-name} phase`
+
+8. **Offer next steps**
    - Route to next action (see `<offer_next>`)
 </process>
 
@@ -198,10 +203,17 @@ After each task completes:
 
 **Plan Metadata Commit:**
 
-After all tasks complete:
-1. Stage planning artifacts only: PLAN.md, SUMMARY.md, STATE.md, ROADMAP.md
+After all tasks in a plan complete:
+1. Stage plan artifacts only: PLAN.md, SUMMARY.md
 2. Commit with format: `docs({phase}-{plan}): complete [plan-name] plan`
 3. NO code files (already committed per-task)
+
+**Phase Completion Commit:**
+
+After all plans in phase complete (step 7):
+1. Stage: ROADMAP.md, STATE.md, REQUIREMENTS.md (if updated)
+2. Commit with format: `docs({phase}): complete {phase-name} phase`
+3. Bundles all phase-level state updates in one commit
 
 **NEVER use:**
 - `git add .`
