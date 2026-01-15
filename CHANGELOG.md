@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.11] - 2025-01-15
+
+### Changed
+- Verifier reuses previous must-haves on re-verification instead of re-deriving, focuses deep verification on failed items with quick regression checks on passed items
+
 ## [1.5.10] - 2025-01-15
 
 ### Changed
@@ -682,7 +687,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.10...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.11...HEAD
+[1.5.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.11
 [1.5.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.10
 [1.5.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.9
 [1.5.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.8
