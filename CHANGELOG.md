@@ -6,6 +6,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.3] - 2025-01-15
+
+### Changed
+- **execute-phase narration**: Orchestrator now describes what each wave builds before spawning agents, and summarizes what was built after completion. No more staring at opaque status updates.
+- **new-project flow**: Now offers two paths — research first (recommended) or define requirements directly (fast path for familiar domains)
+- **define-requirements**: Works without prior research. Gathers requirements through conversation when FEATURES.md doesn't exist.
+
+### Removed
+- Dead `/gsd:status` command (referenced abandoned background agent model)
+- Unused `agent-history.md` template
+- `_archive/` directory with old execute-phase version
+
 ## [1.5.2] - 2026-01-15
 
 ### Added
@@ -599,7 +611,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.4.29...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.3...HEAD
+[1.5.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.3
+[1.5.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.2
+[1.5.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.1
+[1.5.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.0
 [1.4.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.29
 [1.4.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.28
 [1.4.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.27
