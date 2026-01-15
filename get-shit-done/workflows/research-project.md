@@ -350,7 +350,15 @@ Research complete:
 
 ## ▶ Next Up
 
-**Create roadmap** — using research findings
+Choose your path:
+
+**Option A: Define requirements first** (recommended)
+Scope your v1 from research findings. Transforms "what exists" into "what we're building" with checkable requirements.
+
+`/gsd:define-requirements`
+
+**Option B: Create roadmap directly**
+Skip requirements if scope is already clear from research.
 
 `/gsd:create-roadmap`
 
