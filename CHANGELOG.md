@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.8] - 2025-01-15
+
+### Added
+- Verification loop: When gaps are found, verifier generates fix plans that execute automatically before re-verifying
+
+### Changed
+- `gsd-executor` subagent color changed from red to blue
+
 ## [1.5.7] - 2025-01-15
 
 ### Added
@@ -650,7 +658,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.7...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.8...HEAD
+[1.5.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.8
 [1.5.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.7
 [1.5.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.6
 [1.5.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.5
