@@ -95,44 +95,134 @@ Proceed with these questions? (yes / adjust)
 ```
 </step>
 
+<step name="setup_directory">
+Create `.planning/research/` directory before spawning agents:
+
+```bash
+mkdir -p .planning/research
+```
+</step>
+
 <step name="spawn_research_agents">
 Spawn 4 parallel Task agents using subagent_type: "general-purpose".
 
-**Agent prompt template:**
+**Each agent writes its own file directly.** This enables parallel writes and keeps the orchestrator lean.
 
+**Agent prompts (spawn all 4 in parallel):**
+
+**1. Stack Agent:**
 ```
-Research question: [question]
+Research: [stack question from determine_research_questions]
 
-Domain: [domain from analyze_project]
+Domain: [domain]
 Project context: [summary from PROJECT.md]
 
 Instructions:
 1. Use Context7 to find relevant library documentation
 2. Use WebSearch to find current best practices (2024-2025)
-3. Cross-verify all WebSearch findings with authoritative sources
-4. Focus on actionable recommendations, not theoretical overview
+3. Cross-verify findings with authoritative sources
+4. Focus on actionable recommendations
 
-Output format:
-- Direct answer to the question
-- Specific recommendations with rationale
-- Code examples where relevant
-- Sources with confidence levels (HIGH/MEDIUM/LOW)
+When complete, write your findings to: .planning/research/STACK.md
+
+Use this template structure:
+- Read ~/.claude/get-shit-done/templates/research-project/STACK.md for format
+- Include specific version numbers and rationale
+- Cite sources with confidence levels (HIGH/MEDIUM/LOW)
+- Be specific: versions, library names, exact patterns
 
 Constraints:
 - Prefer official docs and Context7 over blog posts
 - Mark anything unverified as LOW confidence
-- Be specific: versions, library names, patterns
+```
+
+**2. Features Agent:**
+```
+Research: [features question from determine_research_questions]
+
+Domain: [domain]
+Project context: [summary from PROJECT.md]
+
+Instructions:
+1. Use Context7 to find relevant library documentation
+2. Use WebSearch to find current best practices (2024-2025)
+3. Cross-verify findings with authoritative sources
+4. Focus on what users actually expect
+
+When complete, write your findings to: .planning/research/FEATURES.md
+
+Use this template structure:
+- Read ~/.claude/get-shit-done/templates/research-project/FEATURES.md for format
+- Categorize as table stakes / differentiators / anti-features
+- Note complexity and dependencies between features
+- Cite sources with confidence levels (HIGH/MEDIUM/LOW)
+
+Constraints:
+- Prefer official docs and Context7 over blog posts
+- Mark anything unverified as LOW confidence
+```
+
+**3. Architecture Agent:**
+```
+Research: [architecture question from determine_research_questions]
+
+Domain: [domain]
+Project context: [summary from PROJECT.md]
+
+Instructions:
+1. Use Context7 to find relevant library documentation
+2. Use WebSearch to find current best practices (2024-2025)
+3. Cross-verify findings with authoritative sources
+4. Focus on how systems are actually structured
+
+When complete, write your findings to: .planning/research/ARCHITECTURE.md
+
+Use this template structure:
+- Read ~/.claude/get-shit-done/templates/research-project/ARCHITECTURE.md for format
+- Include system diagrams (ASCII)
+- Document component responsibilities and boundaries
+- Cite sources with confidence levels (HIGH/MEDIUM/LOW)
+
+Constraints:
+- Prefer official docs and Context7 over blog posts
+- Mark anything unverified as LOW confidence
+```
+
+**4. Pitfalls Agent:**
+```
+Research: [pitfalls question from determine_research_questions]
+
+Domain: [domain]
+Project context: [summary from PROJECT.md]
+
+Instructions:
+1. Use WebSearch to find post-mortems and failure cases
+2. Look for community discussions about common mistakes
+3. Find what experienced developers warn against
+4. Focus on preventable mistakes, not edge cases
+
+When complete, write your findings to: .planning/research/PITFALLS.md
+
+Use this template structure:
+- Read ~/.claude/get-shit-done/templates/research-project/PITFALLS.md for format
+- Include warning signs and prevention strategies
+- Note which phase should address each pitfall
+- Cite sources with confidence levels (HIGH/MEDIUM/LOW)
+
+Constraints:
+- Prefer post-mortems and experienced developers over generic advice
+- Mark anything unverified as LOW confidence
 ```
 
 **Spawn all 4 agents in parallel:**
 
 ```
-Spawning research agents:
+Spawning research agents (each writes its own file):
 
-1. Stack research → [running]
-2. Features research → [running]
-3. Architecture research → [running]
-4. Pitfalls research → [running]
+1. Stack research → .planning/research/STACK.md
+2. Features research → .planning/research/FEATURES.md
+3. Architecture research → .planning/research/ARCHITECTURE.md
+4. Pitfalls research → .planning/research/PITFALLS.md
 
 This may take 2-3 minutes...
 ```
@@ -140,40 +230,25 @@ This may take 2-3 minutes...
 Wait for all agents to complete.
 </step>
 
-<step name="aggregate_results">
-Create `.planning/research/` directory:
+<step name="write_summary">
+After all agents complete, read their outputs and synthesize SUMMARY.md:
 
 ```bash
-mkdir -p .planning/research
+# Verify all files exist
+ls .planning/research/
 ```
 
-**For each research dimension, create document using templates:**
+Read each file:
+- .planning/research/STACK.md
+- .planning/research/FEATURES.md
+- .planning/research/ARCHITECTURE.md
+- .planning/research/PITFALLS.md
 
-1. **STACK.md** — From stack agent results
-   - Use template from templates/research-project/STACK.md
-   - Populate with agent findings
-   - Include version numbers and rationale
-
-2. **FEATURES.md** — From features agent results
-   - Use template from templates/research-project/FEATURES.md
-   - Categorize as table stakes / differentiators / anti-features
-   - Note complexity and dependencies
-
-3. **ARCHITECTURE.md** — From architecture agent results
-   - Use template from templates/research-project/ARCHITECTURE.md
-   - Include system diagrams (ASCII)
-   - Document component responsibilities
-
-4. **PITFALLS.md** — From pitfalls agent results
-   - Use template from templates/research-project/PITFALLS.md
-   - Include warning signs and prevention
-   - Note which phase should address each pitfall
-
-5. **SUMMARY.md** — Synthesize all results
-   - Use template from templates/research-project/SUMMARY.md
-   - Executive summary of all findings
-   - **Critical: Include "Implications for Roadmap" section**
-   - Suggest phase structure based on research
+Write `.planning/research/SUMMARY.md` using template from `templates/research-project/SUMMARY.md`:
+- Executive summary synthesizing all findings
+- **Critical: Include "Implications for Roadmap" section**
+- Suggest phase structure based on research
+- Cross-reference findings across all documents
 </step>
 
 <step name="roadmap_implications">
@@ -304,12 +379,14 @@ Research complete:
 <success_criteria>
 - [ ] PROJECT.md analyzed, domain identified
 - [ ] Research questions customized and approved
-- [ ] 4 parallel agents spawned and completed
-- [ ] STACK.md created with specific recommendations
-- [ ] FEATURES.md created with prioritized features
-- [ ] ARCHITECTURE.md created with system structure
-- [ ] PITFALLS.md created with prevention strategies
-- [ ] SUMMARY.md created with roadmap implications
-- [ ] Confidence assessment included
+- [ ] .planning/research/ directory created
+- [ ] 4 parallel agents spawned (each writes its own file)
+- [ ] STACK.md written by stack agent
+- [ ] FEATURES.md written by features agent
+- [ ] ARCHITECTURE.md written by architecture agent
+- [ ] PITFALLS.md written by pitfalls agent
+- [ ] All agent files verified to exist
+- [ ] SUMMARY.md written by orchestrator (synthesizes all)
+- [ ] Confidence assessment included in SUMMARY.md
 - [ ] Research committed to git
 </success_criteria>
