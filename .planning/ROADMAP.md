@@ -21,7 +21,7 @@ None - this is internal GSD development following existing command/workflow/temp
 - [x] **Phase 11: Parallel-Aware Planning** - Update plan-phase.md to create parallelizable plans when config enables it
 - [ ] **Phase 12: Changelog & Update Awareness** - Add changelog generation and /gsd:whats-new for version discovery
 - [x] **Phase 13: Dedicated Debug Agent** - Create gsd-debugger agent, refactor /gsd:debug to thin orchestrator
-- [ ] **Phase 14: Dedicated Researcher Agent** - Create gsd-researcher agent for structured research with baked-in methodology
+- [x] **Phase 14: Dedicated Researcher Agent** - Create gsd-researcher agent for structured research with baked-in methodology
 - [x] **Phase 99: Test Parallel (THROWAWAY)** - Create 3 silly independent files to test parallel execution
 
 ## Phase Details
@@ -236,9 +236,9 @@ Created gsd-debugger agent with scientific method, hypothesis testing, 7+ invest
 **Plans:** 3 plans
 
 Plans:
-- [ ] 14-01: Create gsd-researcher agent - Consolidate research expertise (~800-1000 lines)
-- [ ] 14-02: Refactor /gsd:research-phase - Thin orchestrator, deprecate workflow
-- [ ] 14-03: Refactor /gsd:research-project - Parallel agent spawning, deprecate workflow
+- [x] 14-01: Create gsd-researcher agent - Consolidate research expertise (902 lines)
+- [x] 14-02: Refactor /gsd:research-phase - Thin orchestrator (130 lines), deprecate workflow
+- [x] 14-03: Refactor /gsd:research-project - Parallel agent spawning (137 lines), deprecate workflow
 
 **Wave structure:**
 - Wave 1: 14-01 (foundation)
@@ -300,3 +300,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 11. Parallel-Aware Planning | 4/4 | Complete | 2026-01-12 |
 | 99. Test Parallel (THROWAWAY) | 3/3 | Complete | 2026-01-12 |
 | 13. Dedicated Debug Agent | 3/3 | Complete | 2026-01-15 |
+| 14. Dedicated Researcher Agent | 3/3 | Complete | 2026-01-15 |
