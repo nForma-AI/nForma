@@ -466,12 +466,21 @@ Execution:
 [1] Spawning subagent for tasks 1-3...
 → Subagent completes: 3 files modified, 0 deviations
 [2] Executing checkpoint 4 (human-verify)...
-════════════════════════════════════════
-CHECKPOINT: Verification Required
-Task 4 of 8: Verify database schema
-I built: User and Session tables with relations
-How to verify: Check src/db/schema.ts for correct types
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Verification Required                    ║
+╚═══════════════════════════════════════════════════════╝
+
+Progress: 3/8 tasks complete
+Task: Verify database schema
+
+Built: User and Session tables with relations
+
+How to verify:
+  1. Check src/db/schema.ts for correct types
+
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Type "approved" or describe issues
+────────────────────────────────────────────────────────
 User: "approved"
 [3] Spawning subagent for tasks 5-6...
 → Subagent completes: 2 files modified, 1 deviation (added error handling)
@@ -609,23 +618,25 @@ Error: Not authenticated. Please run 'vercel login'
 
 [Create checkpoint dynamically]
 
-════════════════════════════════════════
-CHECKPOINT: Authentication Required
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Action Required                          ║
+╚═══════════════════════════════════════════════════════╝
 
-Task 3 of 8: Authenticate Vercel CLI
+Progress: 2/8 tasks complete
+Task: Authenticate Vercel CLI
 
-I tried to deploy but got authentication error.
+Attempted: vercel --yes
+Error: Not authenticated
 
 What you need to do:
-Run: vercel login
+  1. Run: vercel login
+  2. Complete browser authentication
 
-This will open your browser - complete the authentication flow.
+I'll verify: vercel whoami returns your account
 
-I'll verify after: vercel whoami returns your account
-
-Type "done" when authenticated
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Type "done" when authenticated
+────────────────────────────────────────────────────────
 
 [Wait for user response]
 
@@ -1042,29 +1053,33 @@ When encountering `type="checkpoint:*"`:
 **Display checkpoint clearly:**
 
 ```
-════════════════════════════════════════
-CHECKPOINT: [Type]
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: [Type]                                   ║
+╚═══════════════════════════════════════════════════════╝
 
-Task [X] of [Y]: [Action/What-Built/Decision]
+Progress: {X}/{Y} tasks complete
+Task: [task name]
 
 [Display task-specific content based on type]
 
-[Resume signal instruction]
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: [Resume signal instruction]
+────────────────────────────────────────────────────────
 ```
 
 **For checkpoint:human-verify (90% of checkpoints):**
 
 ```
-I automated: [what was automated - deployed, built, configured]
+Built: [what was automated - deployed, built, configured]
 
 How to verify:
-1. [Step 1 - exact command/URL]
-2. [Step 2 - what to check]
-3. [Step 3 - expected behavior]
+  1. [Step 1 - exact command/URL]
+  2. [Step 2 - what to check]
+  3. [Step 3 - expected behavior]
 
-[Resume signal - e.g., "Type 'approved' or describe issues"]
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Type "approved" or describe issues
+────────────────────────────────────────────────────────
 ```
 
 **For checkpoint:decision (9% of checkpoints):**
@@ -1776,10 +1791,9 @@ Summary: .planning/phases/{phase-dir}/{phase}-{plan}-SUMMARY.md
 
 All {Y} plans finished.
 
-════════════════════════════════════════
-All {N} phases complete!
-Milestone is 100% done.
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  All {N} phases complete! Milestone is 100% done.     ║
+╚═══════════════════════════════════════════════════════╝
 
 ---
 

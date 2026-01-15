@@ -281,64 +281,70 @@ Display rich formatted checkpoint based on type:
 
 **For human-verify:**
 ```
-════════════════════════════════════════
-CHECKPOINT: Verification Required
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Verification Required                    ║
+╚═══════════════════════════════════════════════════════╝
 
-Task {X} of {Y}: {task name}
+Progress: {X}/{Y} tasks complete
+Task: {task name}
 
-I built: {what-built from checkpoint details}
+Built: {what-built from checkpoint details}
 
 How to verify:
-{numbered verification steps}
+  {numbered verification steps}
 
-Type "approved" to continue, or describe issues.
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Type "approved" or describe issues
+────────────────────────────────────────────────────────
 ```
 
 **For human-action (auth gate):**
 ```
-════════════════════════════════════════
-CHECKPOINT: Authentication Required
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Action Required                          ║
+╚═══════════════════════════════════════════════════════╝
 
-Task {X} of {Y}: {task name}
+Progress: {X}/{Y} tasks complete
+Task: {task name}
 
-I tried: {automation attempted}
+Attempted: {automation attempted}
 Error: {error encountered}
 
 What you need to do:
-{numbered instructions}
+  {numbered instructions}
 
-I'll verify after: {verification}
+I'll verify: {verification}
 
-Type "done" when complete.
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Type "done" when complete
+────────────────────────────────────────────────────────
 ```
 
 **For decision:**
 ```
-════════════════════════════════════════
-CHECKPOINT: Decision Required
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Decision Required                        ║
+╚═══════════════════════════════════════════════════════╝
 
-Task {X} of {Y}: {task name}
+Progress: {X}/{Y} tasks complete
+Task: {task name}
 
 Decision: {what's being decided}
 
 Context: {why this matters}
 
 Options:
-1. {option-a}: {name}
-   Pros: {benefits}
-   Cons: {tradeoffs}
+  1. {option-a} - {name}
+     Pros: {benefits}
+     Cons: {tradeoffs}
 
-2. {option-b}: {name}
-   Pros: {benefits}
-   Cons: {tradeoffs}
+  2. {option-b} - {name}
+     Pros: {benefits}
+     Cons: {tradeoffs}
 
-Select: {option-a | option-b | ...}
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Select option-a or option-b
+────────────────────────────────────────────────────────
 ```
 
 **3. Collect response:**
