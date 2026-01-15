@@ -1,10 +1,11 @@
 <purpose>
-Transform research findings into scoped, checkable requirements.
+Define concrete, checkable requirements for v1.
 
-Research tells you what products in this domain typically have.
-Requirements tell you what YOU are building for v1.
+Two modes:
+1. **With research** — Transform FEATURES.md into scoped requirements
+2. **Without research** — Gather requirements through questioning
 
-This is the bridge between "what's possible" and "what we're committing to."
+This is the bridge between "what's possible/wanted" and "what we're committing to."
 </purpose>
 
 <required_reading>
@@ -12,13 +13,23 @@ This is the bridge between "what's possible" and "what we're committing to."
 
 1. ~/.claude/get-shit-done/templates/requirements.md
 2. .planning/PROJECT.md
-3. .planning/research/FEATURES.md
-4. .planning/research/SUMMARY.md
+3. .planning/research/FEATURES.md (if exists)
+4. .planning/research/SUMMARY.md (if exists)
 </required_reading>
 
 <process>
 
-<step name="load_context">
+<step name="detect_mode">
+Check for research:
+```bash
+[ -f .planning/research/FEATURES.md ] && echo "HAS_RESEARCH" || echo "NO_RESEARCH"
+```
+
+**If HAS_RESEARCH:** Follow steps load_context → present_features → scope_categories
+**If NO_RESEARCH:** Follow steps load_project → gather_requirements → scope_categories
+</step>
+
+<step name="load_context" mode="with_research">
 Read PROJECT.md and extract:
 - Core value (the ONE thing that must work)
 - Stated constraints (budget, timeline, tech limitations)
@@ -37,11 +48,52 @@ Read research/SUMMARY.md for:
 - Suggested phase structure (informational only)
 </step>
 
+<step name="load_project" mode="without_research">
+Read PROJECT.md and extract:
+- Core value (the ONE thing that must work)
+- Stated constraints (budget, timeline, tech limitations)
+- Any explicit scope boundaries from project definition
+- Any requirements already mentioned in PROJECT.md
+</step>
+
+<step name="gather_requirements" mode="without_research">
+Since no research exists, gather requirements through conversation.
+
+**Start with core value:**
+```
+Based on PROJECT.md, the core value is: "[core value]"
+
+What are the main things users need to be able to do?
+```
+
+Wait for response. For each capability mentioned:
+- Ask clarifying questions to make it specific
+- Probe for related capabilities they might need
+- Group naturally emerging categories
+
+**Example flow:**
+```
+User: "Users need to create and share posts"
+
+You: "For posts, what should users be able to include?
+- Text only?
+- Images?
+- Links with previews?
+
+And for sharing — to a feed, or also direct to other users?"
+```
+
+Build up a mental feature list organized by category.
+
+**When you have enough:**
+Present gathered features in same format as present_features step, then proceed to scope_categories.
+</step>
+
 <step name="present_features">
-Present researched features grouped by category:
+Present features grouped by category (from research or gathered through questioning):
 
 ```
-Based on research, here are the features for [domain]:
+Here are the features for [domain]:
 
 ## Authentication
 **Table stakes:**
@@ -267,7 +319,7 @@ Requirements defined:
 
 <success_criteria>
 - [ ] PROJECT.md core value extracted
-- [ ] Research FEATURES.md loaded and parsed
+- [ ] Features gathered (from research OR conversation)
 - [ ] All categories presented to user
 - [ ] User scoped each category (v1/v2/out of scope)
 - [ ] User had opportunity to add requirements

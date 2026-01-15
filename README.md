@@ -340,7 +340,6 @@ You're never locked in. The system adapts.
 | `/gsd:plan-phase [N]` | Generate task plans for phase |
 | `/gsd:execute-plan` | Run single plan via subagent |
 | `/gsd:execute-phase <N>` | Execute all plans in phase N with parallel agents |
-| `/gsd:status [--wait]` | Check background agent status from parallel execution |
 | `/gsd:progress` | Where am I? What's next? |
 | `/gsd:verify-work [N]` | User acceptance test of phase or plan ¹ |
 | `/gsd:plan-fix [plan]` | Plan fixes for UAT issues from verify-work |

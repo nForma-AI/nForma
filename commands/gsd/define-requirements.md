@@ -10,14 +10,13 @@ allowed-tools:
 ---
 
 <objective>
-Define concrete, checkable requirements from research findings.
+Define concrete, checkable requirements for v1.
 
-Research answers "what do products like this have?"
-Requirements answers "what are WE building?"
+Two modes:
+1. **With research** — Transform FEATURES.md into scoped requirements
+2. **Without research** — Gather requirements through questioning
 
-Transforms research features into scoped v1/v2 requirements that roadmap phases map to.
-
-Run after `/gsd:research-project`, before `/gsd:create-roadmap`.
+Run before `/gsd:create-roadmap`.
 
 Output: `.planning/REQUIREMENTS.md`
 </objective>
@@ -30,8 +29,8 @@ Output: `.planning/REQUIREMENTS.md`
 
 <context>
 @.planning/PROJECT.md
-@.planning/research/FEATURES.md (required)
-@.planning/research/SUMMARY.md
+@.planning/research/FEATURES.md (if exists)
+@.planning/research/SUMMARY.md (if exists)
 </context>
 
 <process>
@@ -41,8 +40,8 @@ Output: `.planning/REQUIREMENTS.md`
 # Verify project exists
 [ -f .planning/PROJECT.md ] || { echo "ERROR: No PROJECT.md found. Run /gsd:new-project first."; exit 1; }
 
-# Verify research exists
-[ -f .planning/research/FEATURES.md ] || { echo "ERROR: No research found. Run /gsd:research-project first."; exit 1; }
+# Check for research
+[ -f .planning/research/FEATURES.md ] && echo "HAS_RESEARCH" || echo "NO_RESEARCH"
 
 # Check if requirements already exist
 [ -f .planning/REQUIREMENTS.md ] && echo "REQUIREMENTS_EXISTS" || echo "NO_REQUIREMENTS"
@@ -66,12 +65,24 @@ If "Replace": Continue with workflow
 </step>
 
 <step name="execute">
+**If HAS_RESEARCH:**
 Follow the define-requirements.md workflow:
-- Load research features
+- Load research features from FEATURES.md
 - Present features by category
 - Ask user to scope each category (v1 / v2 / out of scope)
 - Capture any additions research missed
 - Generate REQUIREMENTS.md with checkable list
+
+**If NO_RESEARCH:**
+Gather requirements through questioning:
+- Read PROJECT.md for core value and context
+- Ask: "What are the main things users need to be able to do?"
+- For each capability mentioned, probe for specifics
+- Group into categories (Authentication, Content, etc.)
+- For each category, ask what's v1 vs v2 vs out of scope
+- Generate REQUIREMENTS.md with checkable list
+
+Same output format either way — the difference is source (research vs conversation).
 </step>
 
 <step name="done">
@@ -101,8 +112,7 @@ Requirements defined:
 
 <success_criteria>
 - [ ] PROJECT.md validated
-- [ ] Research FEATURES.md loaded
-- [ ] Features presented by category
+- [ ] Features gathered (from research OR questioning)
 - [ ] User scoped each category (v1/v2/out of scope)
 - [ ] User had opportunity to add missing requirements
 - [ ] REQUIREMENTS.md created with checkable list

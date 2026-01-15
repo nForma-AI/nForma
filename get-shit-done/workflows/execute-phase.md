@@ -103,15 +103,21 @@ waves = {
 
 **No dependency analysis needed.** Wave numbers are pre-computed during `/gsd:plan-phase`.
 
-Report wave structure to user:
+Report wave structure with context:
 ```
-Execution Plan:
-  Wave 1 (parallel): 03-01, 03-02
-  Wave 2 (parallel): 03-03 [checkpoint], 03-04
-  Wave 3: 03-05
+## Execution Plan
 
-Total: 5 plans in 3 waves
+**Phase {X}: {Name}** — {total_plans} plans across {wave_count} waves
+
+| Wave | Plans | What it builds |
+|------|-------|----------------|
+| 1 | 01-01, 01-02 | {from plan objectives} |
+| 2 | 01-03 | {from plan objectives} |
+| 3 | 01-04 [checkpoint] | {from plan objectives} |
+
 ```
+
+The "What it builds" column comes from skimming plan names/objectives. Keep it brief (3-8 words).
 </step>
 
 <step name="execute_waves">
@@ -119,7 +125,32 @@ Execute each wave in sequence. Autonomous plans within a wave run in parallel.
 
 **For each wave:**
 
-1. **Spawn all autonomous agents in wave simultaneously:**
+1. **Describe what's being built (BEFORE spawning):**
+
+   Read each plan's `<objective>` section. Extract what's being built and why it matters.
+
+   **Output:**
+   ```
+   ---
+
+   ## Wave {N}
+
+   **{Plan ID}: {Plan Name}**
+   {2-3 sentences: what this builds, key technical approach, why it matters in context}
+
+   **{Plan ID}: {Plan Name}** (if parallel)
+   {same format}
+
+   Spawning {count} agent(s)...
+
+   ---
+   ```
+
+   **Examples:**
+   - Bad: "Executing terrain generation plan"
+   - Good: "Procedural terrain generator using Perlin noise — creates height maps, biome zones, and collision meshes. Required before vehicle physics can interact with ground."
+
+2. **Spawn all autonomous agents in wave simultaneously:**
 
    Use Task tool with multiple parallel calls. Each agent gets prompt from subagent-task-prompt template:
 
@@ -155,12 +186,34 @@ Execute each wave in sequence. Autonomous plans within a wave run in parallel.
 
    Task tool blocks until each agent finishes. All parallel agents return together.
 
-3. **Collect results from wave:**
+3. **Report completion and what was built:**
 
    For each completed agent:
    - Verify SUMMARY.md exists at expected path
-   - Note any issues reported
-   - Record completion
+   - Read SUMMARY.md to extract what was built
+   - Note any issues or deviations
+
+   **Output:**
+   ```
+   ---
+
+   ## Wave {N} Complete
+
+   **{Plan ID}: {Plan Name}**
+   {What was built — from SUMMARY.md deliverables}
+   {Notable deviations or discoveries, if any}
+
+   **{Plan ID}: {Plan Name}** (if parallel)
+   {same format}
+
+   {If more waves: brief note on what this enables for next wave}
+
+   ---
+   ```
+
+   **Examples:**
+   - Bad: "Wave 2 complete. Proceeding to Wave 3."
+   - Good: "Terrain system complete — 3 biome types, height-based texturing, physics collision meshes. Vehicle physics (Wave 3) can now reference ground surfaces."
 
 4. **Handle failures:**
 
