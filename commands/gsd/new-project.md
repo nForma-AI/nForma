@@ -12,7 +12,7 @@ allowed-tools:
 
 Initialize a new project through comprehensive context gathering.
 
-This is the most leveraged moment in any project. Deep questioning here means better plans, better execution, better outcomes.
+This is the most leveraged moment in any project. Deep questioning here means better plans, better execution, better outcomes. The quality of PROJECT.md determines the quality of everything downstream.
 
 Creates `.planning/` with PROJECT.md and config.json.
 
@@ -90,52 +90,48 @@ Exit command.
 
 <step name="question">
 
-**1. Open (FREEFORM — do NOT use AskUserQuestion):**
+**Open the conversation:**
 
-Ask inline: "What do you want to build?"
+Ask inline (freeform, NOT AskUserQuestion):
 
-Wait for their freeform response. This gives you the context needed to ask intelligent follow-up questions.
+"What do you want to build?"
 
-**2. Follow the thread (NOW use AskUserQuestion):**
+Wait for their response. This gives you the context needed to ask intelligent follow-up questions.
 
-Based on their response, use AskUserQuestion with options that probe what they mentioned:
-- header: "[Topic they mentioned]"
-- question: "You mentioned [X] — what would that look like?"
-- options: 2-3 interpretations + "Something else"
+**Follow the thread:**
 
-**3. Sharpen the core:**
+Based on what they said, ask follow-up questions that dig into their response. Use AskUserQuestion with options that probe what they mentioned — interpretations, clarifications, concrete examples.
 
-Use AskUserQuestion:
-- header: "Core"
-- question: "If you could only nail one thing, what would it be?"
-- options: Key aspects they've mentioned + "All equally important" + "Something else"
+Keep following threads. Each answer opens new threads to explore. Ask about:
+- What excited them
+- What problem sparked this
+- What they mean by vague terms
+- What it would actually look like
+- What's already decided
 
-**4. Find boundaries:**
+Consult `questioning.md` for techniques:
+- Challenge vagueness
+- Make abstract concrete
+- Surface assumptions
+- Find edges
+- Reveal motivation
 
-Use AskUserQuestion:
-- header: "Scope"
-- question: "What's explicitly NOT in v1?"
-- options: Things that might be tempting + "Nothing specific" + "Let me list them"
+**Check context (background, not out loud):**
 
-**5. Ground in reality:**
+As you go, mentally check the context checklist from `questioning.md`. If gaps remain, weave questions naturally. Don't suddenly switch to checklist mode.
 
-Use AskUserQuestion:
-- header: "Constraints"
-- question: "Any hard constraints?"
-- options: Relevant constraint types + "None" + "Yes, let me explain"
+**Decision gate:**
 
-**6. Decision gate:**
+When you could write a clear PROJECT.md, use AskUserQuestion:
 
-Use AskUserQuestion:
 - header: "Ready?"
-- question: "Ready to create PROJECT.md, or explore more?"
-- options (ALL THREE REQUIRED):
-  - "Create PROJECT.md" — Finalize and continue
-  - "Ask more questions" — I'll dig deeper
-  - "Let me add context" — You have more to share
+- question: "I think I understand what you're after. Ready to create PROJECT.md?"
+- options:
+  - "Create PROJECT.md" — Let's move forward
+  - "Keep exploring" — I want to share more / ask me more
 
-If "Ask more questions" → check coverage gaps from `questioning.md` → return to step 2.
-If "Let me add context" → receive input via their response → return to step 2.
+If "Keep exploring" — ask what they want to add, or identify gaps and probe naturally.
+
 Loop until "Create PROJECT.md" selected.
 
 </step>
@@ -303,23 +299,19 @@ Project initialized:
 
 ## ▶ Next Up
 
-**Research the domain** (recommended)
+Choose your path:
+
+**Option A: Research first** (recommended for new domains)
+Research the ecosystem before creating roadmap. Discovers standard stacks, expected features, architecture patterns, and common pitfalls.
 
 `/gsd:research-project`
 
-Discovers standard stacks, expected features, architecture patterns, and common pitfalls. Then define requirements and create roadmap.
+**Option B: Create roadmap directly** (for familiar domains)
+Skip research if you know this domain well or have a clear spec.
+
+`/gsd:create-roadmap`
 
 <sub>`/clear` first → fresh context window</sub>
-
-**Full flow:** research-project → define-requirements → create-roadmap
-
----
-
-**Skip research** (familiar domains only)
-
-If you know this domain well, skip directly to defining requirements:
-
-`/gsd:define-requirements`
 
 ---
 ```
@@ -337,7 +329,7 @@ If you know this domain well, skip directly to defining requirements:
 
 <success_criteria>
 
-- [ ] Deep questioning completed (not rushed)
+- [ ] Deep questioning completed (not rushed, threads followed)
 - [ ] PROJECT.md captures full context with evolutionary structure
 - [ ] Requirements initialized as hypotheses (greenfield) or with inferred Validated (brownfield)
 - [ ] Key Decisions table initialized
