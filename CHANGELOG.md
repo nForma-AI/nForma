@@ -6,6 +6,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.9] - 2025-01-15
+
+### Added
+- Milestone audit system (`/gsd:audit-milestone`) for verifying milestone completion with parallel verification agents
+
+### Changed
+- Checkpoint display format improved with box headers and unmissable "→ YOUR ACTION:" prompts
+- Subagent colors updated (executor: yellow, integration-checker: blue)
+- Execute-phase now recommends `/gsd:audit-milestone` when milestone completes
+
+### Fixed
+- Research-phase no longer gatekeeps by domain type
+
+### Removed
+- Domain expertise feature (`~/.claude/skills/expertise/`) - was personal tooling not available to other users
+
 ## [1.5.8] - 2025-01-15
 
 ### Added
@@ -658,7 +674,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.8...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.9...HEAD
+[1.5.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.9
 [1.5.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.8
 [1.5.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.7
 [1.5.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.6
