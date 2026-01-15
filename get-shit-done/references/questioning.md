@@ -33,15 +33,11 @@ A vague PROJECT.md forces every downstream phase to guess. The cost compounds.
 
 **Challenge vagueness.** Never accept fuzzy answers. "Good" means what? "Users" means who? "Simple" means how?
 
-**Make the abstract concrete.** "Walk me through using this." "What happens when X?" "What does that actually look like?"
+**Make the abstract concrete.** "Walk me through using this." "What does that actually look like?"
 
-**Surface assumptions.** "You haven't mentioned Y — is that intentional?" "When you say Z, do you mean A or B?"
+**Clarify ambiguity.** "When you say Z, do you mean A or B?" "You mentioned X — tell me more."
 
-**Find the edges.** "What would make this feel bloated?" "What's the simplest version that's still useful?"
-
-**Reveal motivation.** "What prompted this?" "What are you doing today that this replaces?"
-
-**Know when to stop.** When you could write a clear PROJECT.md that downstream phases can act on, offer to.
+**Know when to stop.** When you understand what they want, why they want it, who it's for, and what done looks like — offer to proceed.
 
 </how_to_question>
 
@@ -49,37 +45,23 @@ A vague PROJECT.md forces every downstream phase to guess. The cost compounds.
 
 Use these as inspiration, not a checklist. Pick what's relevant to the thread.
 
-**Motivation:**
+**Motivation — why this exists:**
 - "What prompted this?"
 - "What are you doing today that this replaces?"
 - "What would you do if this existed?"
-- "Why does this need to exist?"
 
-**Concreteness:**
+**Concreteness — what it actually is:**
 - "Walk me through using this"
-- "What happens when [edge case]?"
 - "You said X — what does that actually look like?"
 - "Give me an example"
 
-**Boundaries:**
-- "What would make this feel bloated?"
-- "What's the simplest version that's still useful?"
-- "What would you cut if you had to ship tomorrow?"
-
-**Assumptions:**
-- "You haven't mentioned Y — is that intentional?"
+**Clarification — what they mean:**
 - "When you say Z, do you mean A or B?"
-- "What are you assuming I already know?"
+- "You mentioned X — tell me more about that"
 
-**Reality:**
-- "What exists already that this touches?"
-- "What's already decided?" (tech, platform, integrations)
-- "What would make this impossible?"
-
-**Success:**
+**Success — how you'll know it's working:**
 - "How will you know this is working?"
 - "What does done look like?"
-- "What would make this obviously successful?"
 
 </question_types>
 
@@ -115,22 +97,14 @@ User mentions "frustrated with current tools"
 
 <context_checklist>
 
-Use this as a **background checklist**, not a conversation structure. Check these boxes mentally as you go. If gaps remain near the end, weave questions naturally — don't suddenly switch to checklist mode.
+Use this as a **background checklist**, not a conversation structure. Check these mentally as you go. If gaps remain, weave questions naturally.
 
 - [ ] What they're building (concrete enough to explain to a stranger)
 - [ ] Why it needs to exist (the problem or desire driving it)
 - [ ] Who it's for (even if just themselves)
 - [ ] What "done" looks like (observable outcomes)
 
-That's it. Four things.
-
-**NOT your job to extract:**
-- Scope boundaries → research and roadmapping determine this
-- Constraints → emerge from implementation
-- Tech stack → research decides this
-- What they already know → irrelevant, Claude researches regardless
-
-If they volunteer this information, capture it. Don't ask for it.
+Four things. If they volunteer more, capture it.
 
 </context_checklist>
 
