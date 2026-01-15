@@ -29,6 +29,28 @@ Then verify each level against the actual codebase.
 
 <verification_process>
 
+## Step 0: Check for Previous Verification
+
+Before starting fresh, check if a previous VERIFICATION.md exists:
+
+```bash
+cat "$PHASE_DIR"/*-VERIFICATION.md 2>/dev/null
+```
+
+**If previous verification exists with `gaps:` section:**
+
+1. **Load previous must-haves** — skip derivation in Step 2, reuse existing truths/artifacts/key_links
+2. **Note which items previously passed vs failed** — from the gaps section
+3. **Focus deep verification on failed items** — these need full 3-level checks
+4. **Quick regression check on passed items** — existence + basic sanity, not full re-verify
+5. **Track for report** — note this is a re-verification after gap closure
+
+This saves tokens by not re-deriving must-haves and not deeply re-verifying items that already passed.
+
+**If no previous verification exists:**
+
+Proceed with full derivation and verification (Step 1 onwards).
+
 ## Step 1: Load Context
 
 Gather all verification context from the phase directory and project state.
@@ -523,6 +545,13 @@ phase: XX-name
 verified: YYYY-MM-DDTHH:MM:SSZ
 status: passed | gaps_found | human_needed
 score: N/M must-haves verified
+re_verification: # Only include if previous VERIFICATION.md existed
+  previous_status: gaps_found
+  previous_score: 2/5
+  gaps_closed:
+    - "Truth that was fixed"
+  gaps_remaining: []
+  regressions: []  # Items that passed before but now fail
 gaps: # Only include if status: gaps_found
   - truth: "Observable truth that failed"
     status: failed
@@ -544,6 +573,7 @@ human_verification: # Only include if status: human_needed
 **Phase Goal:** {goal from ROADMAP.md}
 **Verified:** {timestamp}
 **Status:** {status}
+**Re-verification:** {Yes — after gap closure | No — initial verification}
 
 ## Goal Achievement
 
@@ -731,7 +761,9 @@ return <div>No messages</div>  // Always shows "no messages"
 
 <success_criteria>
 
-- [ ] Must-haves established (from frontmatter or derived)
+- [ ] Previous VERIFICATION.md checked (Step 0)
+- [ ] If re-verification: must-haves loaded from previous, focus on failed items
+- [ ] If initial: must-haves established (from frontmatter or derived)
 - [ ] All truths verified with status and evidence
 - [ ] All artifacts checked at all three levels (exists, substantive, wired)
 - [ ] All key links verified
@@ -740,6 +772,7 @@ return <div>No messages</div>  // Always shows "no messages"
 - [ ] Human verification items identified
 - [ ] Overall status determined
 - [ ] Gaps structured in YAML frontmatter (if gaps_found)
+- [ ] Re-verification metadata included (if previous existed)
 - [ ] VERIFICATION.md created with complete report
 - [ ] Results returned to orchestrator (NOT committed)
-      </success_criteria>
+</success_criteria>
