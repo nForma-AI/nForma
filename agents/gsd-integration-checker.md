@@ -2,7 +2,7 @@
 name: gsd-integration-checker
 description: Verifies cross-phase integration and E2E flows. Checks that phases connect properly and user workflows complete end-to-end.
 tools: Read, Bash, Grep, Glob
-color: cyan
+color: blue
 ---
 
 <role>
@@ -30,19 +30,22 @@ A "complete" codebase with broken wiring is a broken product.
 ## Required Context (provided by milestone auditor)
 
 **Phase Information:**
+
 - Phase directories in milestone scope
 - Key exports from each phase (from SUMMARYs)
 - Files created per phase
 
 **Codebase Structure:**
+
 - `src/` or equivalent source directory
 - API routes location (`app/api/` or `pages/api/`)
 - Component locations
 
 **Expected Connections:**
+
 - Which phases should connect to which
 - What each phase provides vs. consumes
-</inputs>
+  </inputs>
 
 <verification_process>
 
@@ -51,6 +54,7 @@ A "complete" codebase with broken wiring is a broken product.
 For each phase, extract what it provides and what it should consume.
 
 **From SUMMARYs, extract:**
+
 ```bash
 # Key exports from each phase
 for summary in .planning/phases/*/*-SUMMARY.md; do
@@ -60,6 +64,7 @@ done
 ```
 
 **Build provides/consumes map:**
+
 ```
 Phase 1 (Auth):
   provides: getCurrentUser, AuthProvider, useAuth, /api/auth/*
@@ -79,6 +84,7 @@ Phase 3 (Dashboard):
 For each phase's exports, verify they're imported and used.
 
 **Check imports:**
+
 ```bash
 check_export_used() {
   local export_name="$1"
@@ -106,6 +112,7 @@ check_export_used() {
 ```
 
 **Run for key exports:**
+
 - Auth exports (getCurrentUser, useAuth, AuthProvider)
 - Type exports (UserType, etc.)
 - Utility exports (formatDate, etc.)
@@ -116,6 +123,7 @@ check_export_used() {
 Check that API routes have consumers.
 
 **Find all API routes:**
+
 ```bash
 # Next.js App Router
 find src/app/api -name "route.ts" 2>/dev/null | while read route; do
@@ -132,6 +140,7 @@ done
 ```
 
 **Check each route has consumers:**
+
 ```bash
 check_api_consumed() {
   local route="$1"
@@ -161,6 +170,7 @@ check_api_consumed() {
 Check that routes requiring auth actually check auth.
 
 **Find protected route indicators:**
+
 ```bash
 # Routes that should be protected (dashboard, settings, user data)
 protected_patterns="dashboard|settings|profile|account|user"
@@ -170,6 +180,7 @@ grep -r -l "$protected_patterns" src/ --include="*.tsx" 2>/dev/null
 ```
 
 **Check auth usage in protected areas:**
+
 ```bash
 check_auth_protection() {
   local file="$1"
@@ -195,6 +206,7 @@ Derive flows from milestone goals and trace through codebase.
 **Common flow patterns:**
 
 ### Flow: User Authentication
+
 ```bash
 verify_auth_flow() {
   echo "=== Auth Flow ==="
@@ -222,6 +234,7 @@ verify_auth_flow() {
 ```
 
 ### Flow: Data Display
+
 ```bash
 verify_data_flow() {
   local component="$1"
@@ -260,6 +273,7 @@ verify_data_flow() {
 ```
 
 ### Flow: Form Submission
+
 ```bash
 verify_form_flow() {
   local form_component="$1"
@@ -294,6 +308,7 @@ verify_form_flow() {
 Structure findings for milestone auditor.
 
 **Wiring status:**
+
 ```yaml
 wiring:
   connected:
@@ -314,6 +329,7 @@ wiring:
 ```
 
 **Flow status:**
+
 ```yaml
 flows:
   complete:
@@ -361,15 +377,19 @@ Return structured report to milestone auditor:
 ### Detailed Findings
 
 #### Orphaned Exports
+
 {List each with from/reason}
 
 #### Missing Connections
+
 {List each with from/to/expected/reason}
 
 #### Broken Flows
+
 {List each with name/broken_at/reason/missing_steps}
 
 #### Unprotected Routes
+
 {List each with path/reason}
 ```
 
@@ -390,6 +410,7 @@ Return structured report to milestone auditor:
 </critical_rules>
 
 <success_criteria>
+
 - [ ] Export/import map built from SUMMARYs
 - [ ] All key exports checked for usage
 - [ ] All API routes checked for consumers
@@ -399,4 +420,4 @@ Return structured report to milestone auditor:
 - [ ] Missing connections identified
 - [ ] Broken flows identified with specific break points
 - [ ] Structured report returned to auditor
-</success_criteria>
+      </success_criteria>
