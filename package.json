@@ -8,7 +8,8 @@
   "files": [
     "bin",
     "commands",
-    "get-shit-done"
+    "get-shit-done",
+    "agents"
   ],
   "keywords": [
     "claude",
