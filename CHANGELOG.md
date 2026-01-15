@@ -6,6 +6,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-01-14
+
+### Changed
+- Research agents write their own files directly (STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md) instead of returning results to orchestrator
+- Slimmed principles.md and load it dynamically in core commands
+
 ## [1.5.0] - 2026-01-14
 
 ### Added
