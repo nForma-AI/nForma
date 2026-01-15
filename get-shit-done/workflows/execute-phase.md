@@ -448,9 +448,10 @@ Update ROADMAP.md to reflect phase completion:
 # Update status
 ```
 
-Commit roadmap update:
+Commit phase completion (roadmap, state, verification):
 ```bash
-git add .planning/ROADMAP.md
+git add .planning/ROADMAP.md .planning/STATE.md .planning/phases/{phase_dir}/*-VERIFICATION.md
+git add .planning/REQUIREMENTS.md  # if updated
 git commit -m "docs(phase-{X}): complete phase execution"
 ```
 </step>

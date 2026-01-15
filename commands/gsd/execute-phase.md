@@ -259,7 +259,7 @@ After all tasks in a plan complete:
 **Phase Completion Commit:**
 
 After all plans in phase complete (step 7):
-1. Stage: ROADMAP.md, STATE.md, REQUIREMENTS.md (if updated)
+1. Stage: ROADMAP.md, STATE.md, REQUIREMENTS.md (if updated), VERIFICATION.md
 2. Commit with format: `docs({phase}): complete {phase-name} phase`
 3. Bundles all phase-level state updates in one commit
 
