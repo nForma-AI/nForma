@@ -498,6 +498,7 @@ gaps:
 ```
 
 **Gap structure:**
+
 - `truth`: The observable truth that failed verification
 - `status`: failed | partial
 - `reason`: Brief explanation of why it failed
@@ -522,7 +523,7 @@ phase: XX-name
 verified: YYYY-MM-DDTHH:MM:SSZ
 status: passed | gaps_found | human_needed
 score: N/M must-haves verified
-gaps:                           # Only include if status: gaps_found
+gaps: # Only include if status: gaps_found
   - truth: "Observable truth that failed"
     status: failed
     reason: "Why it failed"
@@ -532,7 +533,7 @@ gaps:                           # Only include if status: gaps_found
     missing:
       - "Specific thing to add/fix"
       - "Another specific thing"
-human_verification:             # Only include if status: human_needed
+human_verification: # Only include if status: human_needed
   - test: "What to do"
     expected: "What should happen"
     why_human: "Why can't verify programmatically"
@@ -741,4 +742,4 @@ return <div>No messages</div>  // Always shows "no messages"
 - [ ] Gaps structured in YAML frontmatter (if gaps_found)
 - [ ] VERIFICATION.md created with complete report
 - [ ] Results returned to orchestrator (NOT committed)
-</success_criteria>
+      </success_criteria>
