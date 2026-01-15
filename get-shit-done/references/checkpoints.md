@@ -317,94 +317,87 @@ Plans execute autonomously. Checkpoints formalize the interaction points where h
 When Claude encounters `type="checkpoint:*"`:
 
 1. **Stop immediately** - do not proceed to next task
-2. **Display checkpoint clearly:**
-
-```
-════════════════════════════════════════
-CHECKPOINT: [Type]
-════════════════════════════════════════
-
-Task [X] of [Y]: [Name]
-
-[Display task-specific content based on type]
-
-[Resume signal instruction]
-════════════════════════════════════════
-```
-
+2. **Display checkpoint clearly** using the format below
 3. **Wait for user response** - do not hallucinate completion
 4. **Verify if possible** - check files, run tests, whatever is specified
 5. **Resume execution** - continue to next task only after confirmation
 
 **For checkpoint:human-verify:**
 ```
-════════════════════════════════════════
-CHECKPOINT: Verification Required
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Verification Required                    ║
+╚═══════════════════════════════════════════════════════╝
 
-Task 5 of 8: Responsive dashboard layout
+Progress: 5/8 tasks complete
+Task: Responsive dashboard layout
 
-I built: Responsive dashboard at /dashboard
+Built: Responsive dashboard at /dashboard
 
 How to verify:
-1. Run: npm run dev
-2. Visit: http://localhost:3000/dashboard
-3. Test: Resize browser window to mobile/tablet/desktop
-4. Confirm: No layout shift, proper responsive behavior
+  1. Run: npm run dev
+  2. Visit: http://localhost:3000/dashboard
+  3. Desktop (>1024px): Sidebar visible, content fills remaining space
+  4. Tablet (768px): Sidebar collapses to icons
+  5. Mobile (375px): Sidebar hidden, hamburger menu appears
 
-Type "approved" to continue, or describe issues.
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Type "approved" or describe issues
+────────────────────────────────────────────────────────
 ```
 
 **For checkpoint:decision:**
 ```
-════════════════════════════════════════
-CHECKPOINT: Decision Required
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Decision Required                        ║
+╚═══════════════════════════════════════════════════════╝
 
-Task 2 of 6: Select authentication provider
+Progress: 2/6 tasks complete
+Task: Select authentication provider
 
 Decision: Which auth provider should we use?
 
 Context: Need user authentication. Three options with different tradeoffs.
 
 Options:
-1. supabase - Built-in with our DB, free tier
-   Pros: Row-level security integration, generous free tier
-   Cons: Less customizable UI, ecosystem lock-in
+  1. supabase - Built-in with our DB, free tier
+     Pros: Row-level security integration, generous free tier
+     Cons: Less customizable UI, ecosystem lock-in
 
-2. clerk - Best DX, paid after 10k users
-   Pros: Beautiful pre-built UI, excellent documentation
-   Cons: Vendor lock-in, pricing at scale
+  2. clerk - Best DX, paid after 10k users
+     Pros: Beautiful pre-built UI, excellent documentation
+     Cons: Vendor lock-in, pricing at scale
 
-3. nextauth - Self-hosted, maximum control
-   Pros: Free, no vendor lock-in, widely adopted
-   Cons: More setup work, DIY security updates
+  3. nextauth - Self-hosted, maximum control
+     Pros: Free, no vendor lock-in, widely adopted
+     Cons: More setup work, DIY security updates
 
-Select: supabase, clerk, or nextauth
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Select supabase, clerk, or nextauth
+────────────────────────────────────────────────────────
 ```
 
 **For checkpoint:human-action:**
 ```
-════════════════════════════════════════
-CHECKPOINT: Authentication Required
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Action Required                          ║
+╚═══════════════════════════════════════════════════════╝
 
-Task 3 of 8: Deploy to Vercel
+Progress: 3/8 tasks complete
+Task: Deploy to Vercel
 
-I tried: vercel --yes
+Attempted: vercel --yes
 Error: Not authenticated. Please run 'vercel login'
 
 What you need to do:
-1. Run: vercel login
-2. Complete browser authentication when it opens
-3. Return here when done
+  1. Run: vercel login
+  2. Complete browser authentication when it opens
+  3. Return here when done
 
-I'll verify after: vercel whoami returns your account
+I'll verify: vercel whoami returns your account
 
-Type "done" when authenticated.
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Type "done" when authenticated
+────────────────────────────────────────────────────────
 ```
 </execution_protocol>
 
@@ -430,23 +423,25 @@ Claude: Running `vercel --yes` to deploy...
 
 Error: Not authenticated. Please run 'vercel login'
 
-════════════════════════════════════════
-CHECKPOINT: Authentication Required
-════════════════════════════════════════
+╔═══════════════════════════════════════════════════════╗
+║  CHECKPOINT: Action Required                          ║
+╚═══════════════════════════════════════════════════════╝
 
-Task 3 of 8: Deploy to Vercel
+Progress: 2/8 tasks complete
+Task: Deploy to Vercel
 
-I tried: vercel --yes
+Attempted: vercel --yes
 Error: Not authenticated
 
 What you need to do:
-1. Run: vercel login
-2. Complete browser authentication
+  1. Run: vercel login
+  2. Complete browser authentication
 
-I'll verify after: vercel whoami returns your account
+I'll verify: vercel whoami returns your account
 
-Type "done" when authenticated.
-════════════════════════════════════════
+────────────────────────────────────────────────────────
+→ YOUR ACTION: Type "done" when authenticated
+────────────────────────────────────────────────────────
 
 User: done
 
