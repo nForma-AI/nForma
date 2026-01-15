@@ -107,21 +107,19 @@ Milestone name: $ARGUMENTS (optional - will prompt if not provided)
 
    ## ▶ Next Up
 
-   **Define Requirements** — scope v[X.Y] features
+   Choose your path:
+
+   **Option A: Research first** (new domains/capabilities)
+   Research ecosystem before scoping. Discovers patterns, expected features, architecture approaches.
+
+   `/gsd:research-project`
+
+   **Option B: Define requirements directly** (familiar territory)
+   Skip research, define requirements from what you know.
 
    `/gsd:define-requirements`
 
    <sub>`/clear` first → fresh context window</sub>
-
-   ---
-
-   **Or research first:**
-   - `/gsd:research-project` — investigate ecosystem before scoping
-
-   **Full flow:**
-   1. `/gsd:define-requirements` — create REQUIREMENTS.md
-   2. `/gsd:create-roadmap` — create ROADMAP.md with phases
-   3. `/gsd:plan-phase [N]` — start execution
 
    ---
    ```
