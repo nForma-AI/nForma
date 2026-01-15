@@ -124,9 +124,34 @@ ls -1 .planning/phases/[phase-dir]/*-SUMMARY.md 2>/dev/null | wc -l
 | Condition | Action |
 |-----------|--------|
 | summaries < plans | More plans remain → Route A |
-| summaries = plans | Phase complete → Update requirements, then Step 3 |
+| summaries = plans | Phase complete → Step 2.5 (verify phase goal) |
 
-**Step 2.5: Update requirements (only when phase complete)**
+**Step 2.5: Verify phase goal (only when phase complete)**
+
+When summaries = plans, verify the phase achieved its GOAL before proceeding:
+
+```
+Task(
+  prompt="Verify phase {phase_number} goal achievement
+
+Phase: {phase_number} - {phase_name}
+Phase goal: {phase_goal_from_roadmap}
+Phase directory: @.planning/phases/{phase_dir}/
+
+Project context:
+@.planning/ROADMAP.md
+@.planning/REQUIREMENTS.md (if exists)",
+  subagent_type="gsd-verifier",
+  description="Verify phase {phase_number}"
+)
+```
+
+Handle verification result:
+- **If passed:** Continue to Step 2.6 (update requirements)
+- **If gaps_found:** Create fix plans, execute them, re-verify (max 3 cycles)
+- **If human_needed:** Present items to user, collect response
+
+**Step 2.6: Update requirements (only when verification passes)**
 
 When summaries = plans, update REQUIREMENTS.md before presenting completion:
 
@@ -359,6 +384,7 @@ Continue handling returns until "## PLAN COMPLETE" or user stops.
 <success_criteria>
 - [ ] Plan executed (SUMMARY.md created)
 - [ ] All checkpoints handled
+- [ ] If phase complete: Phase goal verified (gsd-verifier spawned, VERIFICATION.md created)
 - [ ] If phase complete: REQUIREMENTS.md updated (phase requirements marked Complete)
 - [ ] User informed of completion and next steps
 </success_criteria>
