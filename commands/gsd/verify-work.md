@@ -59,7 +59,7 @@ Phase: $ARGUMENTS (optional)
 - [ ] Tests presented one at a time with expected behavior
 - [ ] Plain text responses (no structured forms)
 - [ ] Severity inferred, never asked
-- [ ] File updated after each response (survives /clear)
+- [ ] Batched writes: on issue, every 5 passes, or completion
 - [ ] Committed on completion
 - [ ] Clear next steps based on results
 </success_criteria>
