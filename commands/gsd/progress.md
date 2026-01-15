@@ -31,7 +31,13 @@ Run /gsd:new-project to start a new project.
 
 Exit.
 
-If missing STATE.md or ROADMAP.md: inform what's missing, suggest running `/gsd:new-project`.
+If missing STATE.md: suggest `/gsd:new-project`.
+
+**If ROADMAP.md missing but PROJECT.md exists:**
+
+This means a milestone was completed and archived. Go to **Route F** (between milestones).
+
+If missing both ROADMAP.md and PROJECT.md: suggest `/gsd:new-project`.
 </step>
 
 <step name="load">
@@ -298,6 +304,41 @@ All {N} phases finished!
 
 **Also available:**
 - `/gsd:verify-work` — user acceptance test before completing milestone
+
+---
+```
+
+---
+
+**Route F: Between milestones (ROADMAP.md missing, PROJECT.md exists)**
+
+A milestone was completed and archived. Ready to start the next milestone cycle.
+
+Read MILESTONES.md to find the last completed milestone version.
+
+```
+---
+
+## ✓ Milestone v{X.Y} Complete
+
+Ready to plan the next milestone.
+
+## ▶ Next Up
+
+**Discuss Next Milestone** — figure out what to build next
+
+`/gsd:discuss-milestone`
+
+<sub>`/clear` first → fresh context window</sub>
+
+---
+
+**Next milestone flow:**
+1. `/gsd:discuss-milestone` — thinking partner, creates context file
+2. `/gsd:new-milestone` — update PROJECT.md with new goals
+3. `/gsd:research-project` — (optional) research ecosystem
+4. `/gsd:define-requirements` — scope what to build
+5. `/gsd:create-roadmap` — plan how to build it
 
 ---
 ```
