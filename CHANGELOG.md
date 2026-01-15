@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.6] - 2025-01-15
+
+### Changed
+- README: Separated flow into distinct steps (1 → 1.5 → 2 → 3 → 4 → 5) making `research-project` clearly optional and `define-requirements` required
+- README: Research recommended for quality; skip only for speed
+
+### Fixed
+- execute-phase: Phase metadata (timing, wave info) now bundled into single commit instead of separate commits
+
 ## [1.5.5] - 2025-01-15
 
 ### Changed
@@ -623,7 +632,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.5...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.6...HEAD
+[1.5.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.6
 [1.5.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.5
 [1.5.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.4
 [1.5.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.3
