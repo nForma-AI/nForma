@@ -25,7 +25,6 @@ Context budget: ~15% orchestrator, 100% fresh per subagent.
 <execution_context>
 @~/.claude/get-shit-done/references/principles.md
 @~/.claude/get-shit-done/workflows/execute-phase.md
-@~/.claude/get-shit-done/templates/subagent-task-prompt.md
 @~/.claude/get-shit-done/templates/subagent-verify-prompt.md
 @~/.claude/get-shit-done/workflows/verify-phase.md
 </execution_context>
@@ -173,9 +172,9 @@ All {N} phases finished.
 Spawn all plans in a wave with a single message containing multiple Task calls:
 
 ```
-Task(prompt=filled_template_for_plan_01, subagent_type="general-purpose")
-Task(prompt=filled_template_for_plan_02, subagent_type="general-purpose")
-Task(prompt=filled_template_for_plan_03, subagent_type="general-purpose")
+Task(prompt="Execute plan at {plan_01_path}\n\nPlan: @{plan_01_path}\nProject state: @.planning/STATE.md", subagent_type="gsd-executor")
+Task(prompt="Execute plan at {plan_02_path}\n\nPlan: @{plan_02_path}\nProject state: @.planning/STATE.md", subagent_type="gsd-executor")
+Task(prompt="Execute plan at {plan_03_path}\n\nPlan: @{plan_03_path}\nProject state: @.planning/STATE.md", subagent_type="gsd-executor")
 ```
 
 All three run in parallel. Task tool blocks until all complete.

@@ -205,7 +205,7 @@ No segmentation benefit - execute entirely in main
 ```
 1. Run init_agent_tracking step first (see step below)
 
-2. Use Task tool with subagent_type="general-purpose":
+2. Use Task tool with subagent_type="gsd-executor":
 
    Prompt: "Execute plan at .planning/phases/{phase}-{plan}-PLAN.md
 
@@ -357,7 +357,7 @@ For Pattern A (fully autonomous) and Pattern C (decision-dependent), skip this s
 
    B. If routing = Subagent:
       ```
-      Spawn Task tool with subagent_type="general-purpose":
+      Spawn Task tool with subagent_type="gsd-executor":
 
       Prompt: "Execute tasks [task numbers/names] from plan at [plan path].
 

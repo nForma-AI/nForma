@@ -228,7 +228,7 @@ Orchestrator fills placeholders from checkpoint return and user response:
 ```python
 Task(
     prompt=filled_continuation_template,
-    subagent_type="general-purpose"
+    subagent_type="gsd-executor"
 )
 ```
 
