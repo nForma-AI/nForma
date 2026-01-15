@@ -11,15 +11,6 @@ Template for `.planning/ROADMAP.md`.
 
 [One paragraph describing the journey from start to finish]
 
-## Domain Expertise
-
-[Paths to domain skills that inform planning. These SKILL.md files serve as indexes - during phase planning, read them to find relevant references for each phase type.]
-
-- ~/.claude/skills/expertise/[domain]/SKILL.md
-[Add additional domains if project spans multiple (e.g., ISF shaders + macOS app)]
-
-Or: None
-
 ## Phases
 
 **Phase Numbering:**

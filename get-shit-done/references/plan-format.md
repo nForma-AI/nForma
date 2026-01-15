@@ -22,7 +22,6 @@ wave: N                     # Execution wave (1, 2, 3...). Pre-computed at plan 
 depends_on: []              # Plan IDs this plan requires (e.g., ["01-01"])
 files_modified: []          # Files this plan modifies
 autonomous: true            # false if plan has checkpoints
-domain: [optional]          # Domain skill if loaded
 ---
 ```
 
@@ -35,7 +34,6 @@ domain: [optional]          # Domain skill if loaded
 | `depends_on` | Yes | Array of plan IDs this plan requires. |
 | `files_modified` | Yes | Files this plan touches. |
 | `autonomous` | Yes | `true` if no checkpoints, `false` if has checkpoints |
-| `domain` | No | Domain skill if loaded (e.g., `next-js`) |
 
 **Wave is pre-computed:** `/gsd:plan-phase` assigns wave numbers based on `depends_on`. `/gsd:execute-phase` reads `wave` directly from frontmatter and groups plans by wave number. No runtime dependency analysis needed.
 

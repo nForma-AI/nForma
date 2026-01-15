@@ -66,11 +66,10 @@ If "Replace": Continue with workflow
 </step>
 
 <step name="create_roadmap">
-Follow the create-roadmap.md workflow starting from detect_domain step.
+Follow the create-roadmap.md workflow starting from identify_phases step.
 
 The workflow handles:
 - Loading requirements
-- Domain expertise detection
 - Phase identification mapped to requirements
 - Requirement coverage validation (no orphaned requirements)
 - Research flags for each phase

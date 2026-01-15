@@ -23,10 +23,6 @@ Decimal phases enable urgent work insertion without renumbering:
 6. .planning/ROADMAP.md
 7. .planning/PROJECT.md
 
-**Load domain expertise from ROADMAP:**
-- Parse ROADMAP.md's `## Domain Expertise` section for paths
-- Read each domain SKILL.md (these serve as indexes)
-- Determine phase type and load ONLY references relevant to THIS phase type from each SKILL.md's `<references_index>`
 </required_reading>
 
 <purpose>

@@ -92,61 +92,9 @@ Proceeding with research-informed phase identification...
 
 **If NO_RESEARCH:**
 
-Continue without research context. Phase identification will rely on PROJECT.md and domain expertise only.
+Continue without research context. Phase identification will rely on PROJECT.md only.
 
 **Note:** Research is optional. Roadmap can be created without it, but research-informed roadmaps tend to have better phase structure and fewer surprises.
-</step>
-
-<step name="detect_domain">
-Scan for available domain expertise:
-
-```bash
-ls ~/.claude/skills/expertise/ 2>/dev/null
-```
-
-**Inference:** Based on the brief/user request, infer applicable domains:
-
-| Keywords                                 | Domain                   |
-| ---------------------------------------- | ------------------------ |
-| "macOS", "Mac app", "menu bar", "AppKit" | expertise/macos-apps     |
-| "iPhone", "iOS", "iPad", "mobile app"    | expertise/iphone-apps    |
-| "Unity", "game", "C#", "3D game"         | expertise/unity-games    |
-| "MIDI", "sequencer", "music app"         | expertise/midi           |
-| "ISF", "shader", "GLSL", "visual effect" | expertise/isf-shaders    |
-| "UI", "design", "frontend", "Tailwind"   | expertise/ui-design      |
-| "Agent SDK", "Claude SDK", "agentic"     | expertise/with-agent-sdk |
-
-**If domain inferred:**
-
-```
-Detected: [domain] project → expertise/[name]
-Include this domain expertise? (Y / see options / none)
-```
-
-**If multiple domains apply** (e.g., ISF shaders for a macOS app):
-
-```
-Detected multiple domains:
-- expertise/isf-shaders (shader development)
-- expertise/macos-apps (native app)
-
-Include both? (Y / select one / none)
-```
-
-**If no domain obvious:**
-
-```
-Available domain expertise:
-1. macos-apps
-2. iphone-apps
-[... others found ...]
-
-N. None - proceed without domain expertise
-
-Select (comma-separate for multiple):
-```
-
-**Store selected paths** for inclusion in ROADMAP.md.
 </step>
 
 <step name="identify_phases">
@@ -159,7 +107,6 @@ Derive phases from requirements. Each phase covers a coherent set of requirement
 
 **Secondary inputs:**
 - Research SUMMARY.md (if exists): suggested phases, architecture patterns
-- Domain expertise: established patterns for this type of project
 
 **Phase identification process:**
 
@@ -517,7 +464,6 @@ Decimal phases added later via /gsd:insert-phase command (if it exists).
 
 Write to `.planning/ROADMAP.md` with:
 
-- Domain Expertise section (paths from detect_domain step, or "None" if skipped)
 - Phase list with names and one-line descriptions
 - Dependencies (what must complete before what)
 - **Requirement mappings** (which REQ-IDs each phase covers):

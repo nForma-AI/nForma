@@ -17,7 +17,6 @@ wave: N                     # Execution wave (1, 2, 3...). Pre-computed at plan 
 depends_on: []              # Plan IDs this plan requires (e.g., ["01-01"]).
 files_modified: []          # Files this plan modifies.
 autonomous: true            # false if plan has checkpoints requiring user interaction
-domain: [optional - if domain skill loaded]
 user_setup: []              # Human-required setup Claude cannot automate (see below)
 
 # Goal-backward verification (derived during planning, verified after execution)
@@ -137,7 +136,6 @@ After completion, create `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 | `depends_on` | Yes | Array of plan IDs this plan requires. |
 | `files_modified` | Yes | Files this plan touches. |
 | `autonomous` | Yes | `true` if no checkpoints, `false` if has checkpoints |
-| `domain` | No | Domain skill if loaded (e.g., `next-js`) |
 | `user_setup` | No | Array of human-required setup items (external services) |
 | `must_haves` | Yes | Goal-backward verification criteria (see below) |
 
