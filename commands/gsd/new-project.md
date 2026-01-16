@@ -668,23 +668,85 @@ Write files first, then return. This ensures artifacts persist even if context i
 
 **Handle roadmapper return:**
 
-**If `## ROADMAP CREATED`:**
-- Present summary to user
-- Files already exist on disk
-- Ask if user wants to review or adjust
-
-**If user wants adjustments:**
-- Feed notes back to roadmapper
-- Re-spawn with revision context
-- Roadmapper updates files in place
-- Loop until user is satisfied
-
 **If `## ROADMAP BLOCKED`:**
 - Present blocker information
 - Work with user to resolve
 - Re-spawn when resolved
 
-**Commit roadmap:**
+**If `## ROADMAP CREATED`:**
+
+Read the created ROADMAP.md and present it nicely inline:
+
+```
+---
+
+## Proposed Roadmap
+
+**[N] phases** | **[X] requirements mapped** | All v1 requirements covered ✓
+
+| # | Phase | Goal | Requirements | Success Criteria |
+|---|-------|------|--------------|------------------|
+| 1 | [Name] | [Goal] | [REQ-IDs] | [count] |
+| 2 | [Name] | [Goal] | [REQ-IDs] | [count] |
+| 3 | [Name] | [Goal] | [REQ-IDs] | [count] |
+...
+
+### Phase Details
+
+**Phase 1: [Name]**
+Goal: [goal]
+Requirements: [REQ-IDs]
+Success criteria:
+1. [criterion]
+2. [criterion]
+3. [criterion]
+
+**Phase 2: [Name]**
+Goal: [goal]
+Requirements: [REQ-IDs]
+Success criteria:
+1. [criterion]
+2. [criterion]
+
+[... continue for all phases ...]
+
+---
+```
+
+**CRITICAL: Ask for approval before committing:**
+
+Use AskUserQuestion:
+- header: "Roadmap"
+- question: "Does this roadmap structure work for you?"
+- options:
+  - "Approve" — Commit and continue
+  - "Adjust phases" — Tell me what to change
+  - "Review full file" — Show raw ROADMAP.md
+
+**If "Approve":** Continue to commit.
+
+**If "Adjust phases":**
+- Get user's adjustment notes
+- Re-spawn roadmapper with revision context:
+  ```
+  Task(prompt="
+  <revision>
+  User feedback on roadmap:
+  [user's notes]
+
+  Current ROADMAP.md: @.planning/ROADMAP.md
+
+  Update the roadmap based on feedback. Edit files in place.
+  Return ROADMAP REVISED with changes made.
+  </revision>
+  ", subagent_type="gsd-roadmapper", description="Revise roadmap")
+  ```
+- Present revised roadmap
+- Loop until user approves
+
+**If "Review full file":** Display raw `cat .planning/ROADMAP.md`, then re-ask.
+
+**Commit roadmap (after approval):**
 
 ```bash
 git add .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md .planning/phases/
