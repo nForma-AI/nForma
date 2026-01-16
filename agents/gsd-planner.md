@@ -1216,6 +1216,36 @@ Execute: `/gsd:execute-phase {phase}`
 Execute: `/gsd:execute-phase {phase}`
 ```
 
+## Revision Complete
+
+```markdown
+## REVISION COMPLETE
+
+**Issues addressed:** {N}/{M}
+
+### Changes Made
+
+| Plan | Change | Issue Addressed |
+|------|--------|-----------------|
+| {plan-id} | {what changed} | {dimension: description} |
+
+### Files Updated
+
+- .planning/phases/{phase_dir}/{plan}-PLAN.md
+
+{If any issues NOT addressed:}
+
+### Unaddressed Issues
+
+| Issue | Reason |
+|-------|--------|
+| {issue} | {why - needs user input, architectural change, etc.} |
+
+### Ready for Re-verification
+
+Checker can now re-verify updated plans.
+```
+
 </structured_returns>
 
 <success_criteria>
