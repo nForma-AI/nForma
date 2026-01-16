@@ -1156,11 +1156,38 @@ Write to `.planning/phases/XX-name/{phase}-{NN}-PLAN.md` (e.g., `01-02-PLAN.md` 
 Include frontmatter (phase, plan, type, wave, depends_on, files_modified, autonomous, must_haves).
 </step>
 
+<step name="update_roadmap">
+Update ROADMAP.md to finalize phase placeholders created by add-phase or insert-phase.
+
+1. Read `.planning/ROADMAP.md`
+2. Find the phase entry (`### Phase {N}:`)
+3. Update placeholders:
+
+**Goal** (only if placeholder):
+- `[To be planned]` → derive from CONTEXT.md > RESEARCH.md > phase description
+- `[Urgent work - to be planned]` → derive from same sources
+- If Goal already has real content → leave it alone
+
+**Plans** (always update):
+- `**Plans:** 0 plans` → `**Plans:** {N} plans`
+- `**Plans:** (created by /gsd:plan-phase)` → `**Plans:** {N} plans`
+
+**Plan list** (always update):
+- Replace `Plans:\n- [ ] TBD ...` with actual plan checkboxes:
+  ```
+  Plans:
+  - [ ] {phase}-01-PLAN.md — {brief objective}
+  - [ ] {phase}-02-PLAN.md — {brief objective}
+  ```
+
+4. Write updated ROADMAP.md
+</step>
+
 <step name="git_commit">
-Commit phase plan(s):
+Commit phase plan(s) and updated roadmap:
 
 ```bash
-git add .planning/phases/${PHASE}-*/${PHASE}-*-PLAN.md
+git add .planning/phases/${PHASE}-*/${PHASE}-*-PLAN.md .planning/ROADMAP.md
 git commit -m "docs(${PHASE}): create phase plan
 
 Phase ${PHASE}: ${PHASE_NAME}
