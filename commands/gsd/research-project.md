@@ -10,7 +10,7 @@ allowed-tools:
 ---
 
 <objective>
-Research domain ecosystem. Spawns 4 parallel gsd-researcher agents for comprehensive coverage.
+Research domain ecosystem. Spawns 4 parallel gsd-project-researcher agents for comprehensive coverage.
 
 **Orchestrator role:** Analyze project, generate research questions, spawn 4 parallel agents, synthesize SUMMARY.md.
 
@@ -108,7 +108,7 @@ Your STACK.md feeds into /gsd:create-roadmap. Be prescriptive:
 Write to: .planning/research/STACK.md
 Use template: ~/.claude/get-shit-done/templates/research-project/STACK.md
 </output>
-", subagent_type="gsd-researcher", description="Stack research")
+", subagent_type="gsd-project-researcher", description="Stack research")
 
 Task(prompt="
 <research_type>
@@ -147,7 +147,7 @@ Your FEATURES.md feeds into /gsd:define-requirements. Categorize clearly:
 Write to: .planning/research/FEATURES.md
 Use template: ~/.claude/get-shit-done/templates/research-project/FEATURES.md
 </output>
-", subagent_type="gsd-researcher", description="Features research")
+", subagent_type="gsd-project-researcher", description="Features research")
 
 Task(prompt="
 <research_type>
@@ -186,7 +186,7 @@ Your ARCHITECTURE.md informs phase structure in roadmap. Include:
 Write to: .planning/research/ARCHITECTURE.md
 Use template: ~/.claude/get-shit-done/templates/research-project/ARCHITECTURE.md
 </output>
-", subagent_type="gsd-researcher", description="Architecture research")
+", subagent_type="gsd-project-researcher", description="Architecture research")
 
 Task(prompt="
 <research_type>
@@ -225,7 +225,7 @@ Your PITFALLS.md prevents mistakes in roadmap/planning. For each pitfall:
 Write to: .planning/research/PITFALLS.md
 Use template: ~/.claude/get-shit-done/templates/research-project/PITFALLS.md
 </output>
-", subagent_type="gsd-researcher", description="Pitfalls research")
+", subagent_type="gsd-project-researcher", description="Pitfalls research")
 ```
 
 **Announce:** "Spawning 4 research agents... may take 2-3 minutes."
@@ -300,7 +300,7 @@ Key findings:
 <success_criteria>
 - [ ] PROJECT.md validated
 - [ ] Domain identified and approved
-- [ ] 4 gsd-researcher agents spawned in parallel
+- [ ] 4 gsd-project-researcher agents spawned in parallel
 - [ ] All research files created
 - [ ] SUMMARY.md synthesized with roadmap implications
 - [ ] Research committed

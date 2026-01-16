@@ -1,6 +1,6 @@
 ---
 name: gsd:research-phase
-description: Research how to implement a phase before planning
+description: Research how to implement a phase (standalone - usually use /gsd:plan-phase instead)
 argument-hint: "[phase]"
 allowed-tools:
   - Read
@@ -9,7 +9,14 @@ allowed-tools:
 ---
 
 <objective>
-Research how to implement a phase. Spawns gsd-researcher agent with phase context.
+Research how to implement a phase. Spawns gsd-phase-researcher agent with phase context.
+
+**Note:** This is a standalone research command. For most workflows, use `/gsd:plan-phase` which integrates research automatically.
+
+**Use this command when:**
+- You want to research without planning yet
+- You want to re-research after planning is complete
+- You need to investigate before deciding if a phase is feasible
 
 **Orchestrator role:** Parse phase, validate against roadmap, check existing research, gather context, spawn researcher agent, present results.
 
@@ -118,7 +125,7 @@ Write to: .planning/phases/{phase}-{slug}/{phase}-RESEARCH.md
 ```
 Task(
   prompt=filled_prompt,
-  subagent_type="gsd-researcher",
+  subagent_type="gsd-phase-researcher",
   description="Research Phase {phase}"
 )
 ```
@@ -151,7 +158,7 @@ Research file: @.planning/phases/{phase}-{slug}/{phase}-RESEARCH.md
 ```
 Task(
   prompt=continuation_prompt,
-  subagent_type="gsd-researcher",
+  subagent_type="gsd-phase-researcher",
   description="Continue research Phase {phase}"
 )
 ```
@@ -161,7 +168,7 @@ Task(
 <success_criteria>
 - [ ] Phase validated against roadmap
 - [ ] Existing research checked
-- [ ] gsd-researcher spawned with context
+- [ ] gsd-phase-researcher spawned with context
 - [ ] Checkpoints handled correctly
 - [ ] User knows next steps
 </success_criteria>

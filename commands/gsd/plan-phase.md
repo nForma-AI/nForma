@@ -1,7 +1,7 @@
 ---
 name: gsd:plan-phase
 description: Create detailed execution plan for a phase (PLAN.md) with verification loop
-argument-hint: "[phase] [--gaps] [--skip-verify]"
+argument-hint: "[phase] [--research] [--skip-research] [--gaps] [--skip-verify]"
 agent: gsd-planner
 allowed-tools:
   - Read
@@ -15,21 +15,28 @@ allowed-tools:
 ---
 
 <objective>
-Create executable phase prompts (PLAN.md files) for a roadmap phase with optional verification loop.
+Create executable phase prompts (PLAN.md files) for a roadmap phase with integrated research and verification.
 
-**Orchestrator role:** Parse arguments, validate phase, gather context paths, spawn gsd-planner agent, verify plans with gsd-plan-checker, iterate until plans pass or max iterations reached, present results.
+**Default flow:** Research (if needed) → Plan → Verify → Done
 
-**Why subagent:** Planning burns context fast. Verification uses fresh context. User sees the ping-pong between planner and checker in main context.
+**Orchestrator role:** Parse arguments, validate phase, research domain (unless skipped or exists), spawn gsd-planner agent, verify plans with gsd-plan-checker, iterate until plans pass or max iterations reached, present results.
+
+**Why subagents:** Research and planning burn context fast. Verification uses fresh context. User sees the flow between agents in main context.
 </objective>
 
 <context>
 Phase number: $ARGUMENTS (optional - auto-detects next unplanned phase if not provided)
-Gap closure mode: `--gaps` flag triggers gap closure workflow
-Skip verification: `--skip-verify` flag bypasses planner → checker loop
 
-Check for existing plans:
+**Flags:**
+- `--research` — Force re-research even if RESEARCH.md exists
+- `--skip-research` — Skip research entirely, go straight to planning
+- `--gaps` — Gap closure mode (reads VERIFICATION.md, skips research)
+- `--skip-verify` — Skip planner → checker verification loop
+
+Check for existing research and plans:
 
 ```bash
+ls .planning/phases/${PHASE}-*/*-RESEARCH.md 2>/dev/null
 ls .planning/phases/${PHASE}-*/*-PLAN.md 2>/dev/null
 ```
 
@@ -50,6 +57,8 @@ ls .planning/ 2>/dev/null
 Extract from $ARGUMENTS:
 
 - Phase number (integer or decimal like `2.1`)
+- `--research` flag to force re-research
+- `--skip-research` flag to skip research
 - `--gaps` flag for gap closure mode
 - `--skip-verify` flag to bypass verification loop
 
@@ -63,17 +72,116 @@ grep -A5 "Phase ${PHASE}:" .planning/ROADMAP.md 2>/dev/null
 
 **If not found:** Error with available phases. **If found:** Extract phase number, name, description.
 
-## 4. Check Existing Plans
+## 4. Ensure Phase Directory Exists
 
 ```bash
-ls .planning/phases/${PHASE}-*/*-PLAN.md 2>/dev/null
+PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+if [ -z "$PHASE_DIR" ]; then
+  # Create phase directory from roadmap name
+  PHASE_NAME=$(grep "Phase ${PHASE}:" .planning/ROADMAP.md | sed 's/.*Phase [0-9]*: //' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+  mkdir -p ".planning/phases/${PHASE}-${PHASE_NAME}"
+  PHASE_DIR=".planning/phases/${PHASE}-${PHASE_NAME}"
+fi
 ```
 
-**If exists:** Offer: 1) Continue planning, 2) View existing, 3) Replan. Wait for response.
+## 5. Handle Research
 
-## 5. Gather Context Paths
+**If `--gaps` flag:** Skip research (gap closure uses VERIFICATION.md instead).
 
-Identify context files for the agent:
+**If `--skip-research` flag:** Skip to step 6.
+
+**Otherwise:**
+
+Check for existing research:
+
+```bash
+ls "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null
+```
+
+**If RESEARCH.md exists AND `--research` flag NOT set:**
+- Display: `Using existing research: ${PHASE_DIR}/${PHASE}-RESEARCH.md`
+- Skip to step 6
+
+**If RESEARCH.md missing OR `--research` flag set:**
+- Display: `Phase {X}: {Name} — researching domain...`
+- Proceed to spawn researcher
+
+### Spawn gsd-phase-researcher
+
+Gather context for research prompt:
+
+```bash
+# Get phase description from roadmap
+PHASE_DESC=$(grep -A3 "Phase ${PHASE}:" .planning/ROADMAP.md)
+
+# Get requirements if they exist
+REQUIREMENTS=$(cat .planning/REQUIREMENTS.md 2>/dev/null | grep -A100 "## Requirements" | head -50)
+
+# Get prior decisions from STATE.md
+DECISIONS=$(grep -A20 "### Decisions Made" .planning/STATE.md 2>/dev/null)
+
+# Get phase context if exists
+PHASE_CONTEXT=$(cat "${PHASE_DIR}/${PHASE}-CONTEXT.md" 2>/dev/null)
+```
+
+Fill research prompt and spawn:
+
+```markdown
+<objective>
+Research how to implement Phase {phase_number}: {phase_name}
+
+Answer: "What do I need to know to PLAN this phase well?"
+</objective>
+
+<context>
+**Phase description:**
+{phase_description}
+
+**Requirements (if any):**
+{requirements}
+
+**Prior decisions:**
+{decisions}
+
+**Phase context (if any):**
+{phase_context}
+</context>
+
+<output>
+Write research findings to: {phase_dir}/{phase}-RESEARCH.md
+</output>
+```
+
+```
+Task(
+  prompt=research_prompt,
+  subagent_type="gsd-phase-researcher",
+  description="Research Phase {phase}"
+)
+```
+
+### Handle Researcher Return
+
+**`## RESEARCH COMPLETE`:**
+- Display: `Research complete. Proceeding to planning...`
+- Continue to step 6
+
+**`## RESEARCH BLOCKED`:**
+- Display blocker information
+- Offer: 1) Provide more context, 2) Skip research and plan anyway, 3) Abort
+- Wait for user response
+
+## 6. Check Existing Plans
+
+```bash
+ls "${PHASE_DIR}"/*-PLAN.md 2>/dev/null
+```
+
+**If exists:** Offer: 1) Continue planning (add more plans), 2) View existing, 3) Replan from scratch. Wait for response.
+
+## 7. Gather Context Paths
+
+Identify context files for the planner agent:
 
 ```bash
 # Required
@@ -81,15 +189,14 @@ STATE=.planning/STATE.md
 ROADMAP=.planning/ROADMAP.md
 REQUIREMENTS=.planning/REQUIREMENTS.md
 
-# Optional
-PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+# Optional (created by earlier steps or commands)
 CONTEXT="${PHASE_DIR}/${PHASE}-CONTEXT.md"
 RESEARCH="${PHASE_DIR}/${PHASE}-RESEARCH.md"
 VERIFICATION="${PHASE_DIR}/${PHASE}-VERIFICATION.md"
 UAT="${PHASE_DIR}/${PHASE}-UAT.md"
 ```
 
-## 6. Spawn gsd-planner Agent
+## 8. Spawn gsd-planner Agent
 
 Display: `Phase {X}: {Name} — launching planner...`
 
@@ -152,24 +259,24 @@ Task(
 )
 ```
 
-## 7. Handle Planner Return
+## 9. Handle Planner Return
 
 Parse planner output:
 
 **`## PLANNING COMPLETE`:**
 - Display: `Planner created {N} plan(s). Files on disk.`
-- If `--skip-verify`: Skip to step 11
-- Otherwise: Proceed to step 8
+- If `--skip-verify`: Skip to step 13
+- Otherwise: Proceed to step 10
 
 **`## CHECKPOINT REACHED`:**
-- Present to user, get response, spawn continuation (see step 10)
+- Present to user, get response, spawn continuation (see step 12)
 
 **`## PLANNING INCONCLUSIVE`:**
 - Show what was attempted
 - Offer: Add context, Retry, Manual
 - Wait for user response
 
-## 8. Spawn gsd-plan-checker Agent
+## 10. Spawn gsd-plan-checker Agent
 
 Display: `Launching plan checker...`
 
@@ -204,19 +311,19 @@ Task(
 )
 ```
 
-## 9. Handle Checker Return
+## 11. Handle Checker Return
 
 **If `## VERIFICATION PASSED`:**
 - Display: `Plans verified. Ready for execution.`
-- Proceed to step 11
+- Proceed to step 13
 
 **If `## ISSUES FOUND`:**
 - Display: `Checker found issues:`
 - List issues from checker output
 - Check iteration count
-- Proceed to step 10
+- Proceed to step 12
 
-## 10. Revision Loop (Max 3 Iterations)
+## 12. Revision Loop (Max 3 Iterations)
 
 Track: `iteration_count` (starts at 1 after initial plan + check)
 
@@ -255,7 +362,7 @@ Task(
 )
 ```
 
-- After planner returns → spawn checker again (step 8)
+- After planner returns → spawn checker again (step 10)
 - Increment iteration_count
 
 **If iteration_count >= 3:**
@@ -270,10 +377,13 @@ Offer options:
 
 Wait for user response.
 
-## 11. Present Final Status
+## 13. Present Final Status
 
 ```markdown
 Phase {X} planned: {N} plan(s) in {M} wave(s)
+
+## Research
+{Completed | Used existing | Skipped (--skip-research) | N/A (--gaps)}
 
 ## Wave Structure
 Wave 1 (parallel): {plan-01}, {plan-02}
@@ -300,8 +410,11 @@ Wave 2: {plan-03}
 <success_criteria>
 - [ ] .planning/ directory validated
 - [ ] Phase validated against roadmap
+- [ ] Phase directory created if needed
+- [ ] Research completed (unless --skip-research or --gaps or exists)
+- [ ] gsd-phase-researcher spawned if research needed
 - [ ] Existing plans checked
-- [ ] gsd-planner spawned with context
+- [ ] gsd-planner spawned with context (including RESEARCH.md if available)
 - [ ] Plans created (PLANNING COMPLETE or CHECKPOINT handled)
 - [ ] gsd-plan-checker spawned (unless --skip-verify)
 - [ ] Verification passed OR user override OR max iterations with user decision
