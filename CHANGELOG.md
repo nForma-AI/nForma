@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.22] - 2025-01-16
+
+### Added
+- Statusline update indicator — shows `⬆ /gsd:update` when a new version is available
+
+### Fixed
+- Planner now updates ROADMAP.md placeholders after planning completes
+
 ## [1.5.21] - 2026-01-16
 
 ### Added
@@ -814,7 +822,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.21...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.22...HEAD
+[1.5.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.22
 [1.5.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.21
 [1.5.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.20
 [1.5.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.19
