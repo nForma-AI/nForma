@@ -186,10 +186,13 @@ You approve the roadmap. Now you're ready to build.
 ### 2. Plan Phase
 
 ```
+/gsd:discuss-phase 1   # Optional: clarify UI/UX/behavior decisions first
 /gsd:plan-phase 1
 ```
 
-The system:
+**discuss-phase** (optional) — If the phase has gray areas (UI choices, UX flows, behavior decisions), discuss them first. Creates `CONTEXT.md` that guides planning. Skip if you trust the system's defaults.
+
+**plan-phase** — The system:
 
 1. **Researches** — Investigates how to implement this specific phase
 2. **Plans** — Creates 2-3 atomic task plans with XML structure
