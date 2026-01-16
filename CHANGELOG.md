@@ -6,6 +6,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.25] - 2026-01-16
+
+### Fixed
+- Stop notification hook no longer shows stale project state (now uses session-scoped todos only)
+- Researcher agent now reliably loads CONTEXT.md from discuss-phase
+
 ## [1.5.24] - 2026-01-16
 
 ### Fixed
@@ -840,7 +846,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.24...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.25...HEAD
+[1.5.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.25
 [1.5.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.24
 [1.5.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.23
 [1.5.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.22
