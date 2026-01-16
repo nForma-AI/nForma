@@ -6,6 +6,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.24] - 2026-01-16
+
+### Fixed
+- Stop notification hook now correctly parses STATE.md fields (was always showing "Ready for input")
+- Planner agent now reliably loads CONTEXT.md and RESEARCH.md files
+
 ## [1.5.23] - 2025-01-16
 
 ### Added
@@ -834,7 +840,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.23...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.24...HEAD
+[1.5.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.24
 [1.5.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.23
 [1.5.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.22
 [1.5.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.21
