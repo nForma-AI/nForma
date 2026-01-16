@@ -85,6 +85,12 @@ npx get-shit-done-cc --global
 ```
 
 Capture output. If install fails, show error and STOP.
+
+Clear the update cache so statusline indicator disappears:
+
+```bash
+rm -f ~/.claude/cache/gsd-update-check.json
+```
 </step>
 
 <step name="fetch_changelog">

@@ -225,12 +225,40 @@ function install(isGlobal) {
     console.log(`  ${green}✓${reset} Installed hooks`);
   }
 
-  // Configure statusline in settings.json
+  // Configure statusline and hooks in settings.json
   const settingsPath = path.join(claudeDir, 'settings.json');
   const settings = readSettings(settingsPath);
   const statuslineCommand = isGlobal
     ? '$HOME/.claude/hooks/statusline.sh'
     : '.claude/hooks/statusline.sh';
+  const updateCheckCommand = isGlobal
+    ? '$HOME/.claude/hooks/gsd-check-update.sh'
+    : '.claude/hooks/gsd-check-update.sh';
+
+  // Configure SessionStart hook for update checking
+  if (!settings.hooks) {
+    settings.hooks = {};
+  }
+  if (!settings.hooks.SessionStart) {
+    settings.hooks.SessionStart = [];
+  }
+
+  // Check if GSD update hook already exists
+  const hasGsdUpdateHook = settings.hooks.SessionStart.some(entry =>
+    entry.hooks && entry.hooks.some(h => h.command && h.command.includes('gsd-check-update'))
+  );
+
+  if (!hasGsdUpdateHook) {
+    settings.hooks.SessionStart.push({
+      hooks: [
+        {
+          type: 'command',
+          command: updateCheckCommand
+        }
+      ]
+    });
+    console.log(`  ${green}✓${reset} Configured update check hook`);
+  }
 
   return { settingsPath, settings, statuslineCommand };
 }
@@ -238,15 +266,17 @@ function install(isGlobal) {
 /**
  * Apply statusline config and print completion message
  */
-function finishInstall(settingsPath, settings, statuslineCommand, shouldInstall) {
-  if (shouldInstall) {
+function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline) {
+  if (shouldInstallStatusline) {
     settings.statusLine = {
       type: 'command',
       command: statuslineCommand
     };
-    writeSettings(settingsPath, settings);
     console.log(`  ${green}✓${reset} Configured statusline`);
   }
+
+  // Always write settings (hooks were already configured in install())
+  writeSettings(settingsPath, settings);
 
   console.log(`
   ${green}Done!${reset} Launch Claude Code and run ${cyan}/gsd:help${reset}.
