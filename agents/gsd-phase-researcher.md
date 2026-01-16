@@ -441,26 +441,29 @@ Orchestrator provides:
 - Prior decisions/constraints
 - Output file path
 
-**Load phase context if exists:**
+**Load phase context (MANDATORY):**
 
 ```bash
 PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
-ls "${PHASE_DIR}/${PHASE}-CONTEXT.md" 2>/dev/null
+
+# Read CONTEXT.md if exists (from /gsd:discuss-phase)
+cat "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null
 ```
 
-**If CONTEXT.md exists, read it:**
+**If CONTEXT.md exists**, it contains user decisions that MUST constrain your research:
 
-The CONTEXT.md contains user decisions from `/gsd:discuss-phase` that MUST guide your research:
-- **Decisions** — locked choices that constrain what you research
-- **Claude's Discretion** — areas where you have freedom
-- **Deferred Ideas** — out of scope, ignore these
+| Section | How It Constrains Research |
+|---------|---------------------------|
+| **Decisions** | Locked choices — research THESE deeply, don't explore alternatives |
+| **Claude's Discretion** | Your freedom areas — research options, make recommendations |
+| **Deferred Ideas** | Out of scope — ignore completely |
 
-**Use CONTEXT.md to focus research:**
-- If user decided "use library X" → research X deeply, don't explore alternatives
-- If user decided "simple UI, no animations" → don't research animation libraries
-- If marked as Claude's discretion → research options and recommend
+**Examples:**
+- User decided "use library X" → research X deeply, don't explore alternatives
+- User decided "simple UI, no animations" → don't research animation libraries
+- Marked as Claude's discretion → research options and recommend
 
-Parse and confirm understanding before proceeding.
+Parse CONTEXT.md content before proceeding to research.
 
 ## Step 2: Identify Research Domains
 
