@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.19] - 2026-01-16
+
+### Changed
+- `/gsd:discuss-phase` redesigned with intelligent gray area analysis — analyzes phase to identify discussable areas (UI, UX, Behavior, etc.), presents multi-select for user control, deep-dives each area with focused questioning
+- Explicit scope guardrail prevents scope creep during discussion — captures deferred ideas without acting on them
+- CONTEXT.md template restructured for decisions (domain boundary, decisions by category, Claude's discretion, deferred ideas)
+- Downstream awareness: discuss-phase now explicitly documents that CONTEXT.md feeds researcher and planner agents
+- `/gsd:plan-phase` now integrates research — spawns `gsd-phase-researcher` before planning unless research exists or `--skip-research` flag used
+
 ## [1.5.18] - 2026-01-16
 
 ### Added
@@ -776,7 +785,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.18...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.19...HEAD
+[1.5.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.19
 [1.5.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.18
 [1.5.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.17
 [1.5.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.16
