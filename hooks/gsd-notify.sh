@@ -17,8 +17,8 @@ fi
 message=""
 state_file="$cwd/.planning/STATE.md"
 if [[ -f "$state_file" ]]; then
-  phase=$(grep -m1 "^current_phase:" "$state_file" 2>/dev/null | sed 's/^current_phase: *//')
-  status=$(grep -m1 "^status:" "$state_file" 2>/dev/null | sed 's/^status: *//')
+  phase=$(grep -m1 "^Phase:" "$state_file" 2>/dev/null | sed 's/^Phase: *//')
+  status=$(grep -m1 "^Status:" "$state_file" 2>/dev/null | sed 's/^Status: *//')
   if [[ -n "$phase" && -n "$status" ]]; then
     message="Phase $phase: $status"
   fi
