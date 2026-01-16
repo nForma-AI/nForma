@@ -1,8 +1,12 @@
 # Phase Context Template
 
-Template for `.planning/phases/XX-name/{phase}-CONTEXT.md` - captures the user's vision for a phase.
+Template for `.planning/phases/XX-name/{phase}-CONTEXT.md` - captures implementation decisions for a phase.
 
-**Purpose:** Document how the user imagines the phase working. This is vision context, not technical analysis. Technical details come from research.
+**Purpose:** Document decisions that downstream agents need. Researcher uses this to know WHAT to investigate. Planner uses this to know WHAT choices are locked vs flexible.
+
+**Downstream consumers:**
+- `gsd-phase-researcher` — Reads decisions to focus research (e.g., "card layout" → research card component patterns)
+- `gsd-planner` — Reads decisions to create specific tasks (e.g., "infinite scroll" → task includes virtualization)
 
 ---
 
@@ -12,43 +16,47 @@ Template for `.planning/phases/XX-name/{phase}-CONTEXT.md` - captures the user's
 # Phase [X]: [Name] - Context
 
 **Gathered:** [date]
-**Status:** [Ready for research / Ready for planning]
+**Status:** Ready for planning
 
-<vision>
-## How This Should Work
+<domain>
+## Phase Boundary
 
-[User's description of how they imagine this phase working. What happens when someone uses it? What does it look/feel like? This is the "pitch" version, not the technical spec.]
+[Clear statement of what this phase delivers — the scope anchor. This comes from ROADMAP.md and is fixed. Discussion clarifies implementation within this boundary.]
 
-</vision>
+</domain>
 
-<essential>
-## What Must Be Nailed
+<decisions>
+## Implementation Decisions
 
-[The core of this phase. If we only get one thing right, what is it? What's the non-negotiable that makes this phase successful?]
+### [Category discussed, e.g., UI]
+- [Specific decision made]
+- [Another decision if applicable]
 
-- [Essential thing 1]
-- [Essential thing 2]
-- [Essential thing 3 if applicable]
+### [Category discussed, e.g., Behavior]
+- [Specific decision made]
 
-</essential>
+### Claude's Discretion
+[Areas where user explicitly said "you decide" — Claude has flexibility here during planning/implementation]
+
+</decisions>
 
 <specifics>
 ## Specific Ideas
 
-[Any particular things the user has in mind. References to existing products/features they like. Specific behaviors or interactions. "I want it to work like X" or "When you click Y, it should Z."]
+[Any particular references, examples, or "I want it like X" moments from discussion. Product references, specific behaviors, interaction patterns.]
 
-[If none: "No specific requirements - open to standard approaches"]
+[If none: "No specific requirements — open to standard approaches"]
 
 </specifics>
 
-<notes>
-## Additional Context
+<deferred>
+## Deferred Ideas
 
-[Anything else captured during the discussion that doesn't fit above. User's priorities, concerns mentioned, relevant background.]
+[Ideas that came up during discussion but belong in other phases. Captured here so they're not lost, but explicitly out of scope for this phase.]
 
-[If none: "No additional notes"]
+[If none: "None — discussion stayed within phase scope"]
 
-</notes>
+</deferred>
 
 ---
 
@@ -58,83 +66,96 @@ Template for `.planning/phases/XX-name/{phase}-CONTEXT.md` - captures the user's
 
 <good_examples>
 ```markdown
-# Phase 3: User Dashboard - Context
+# Phase 3: Post Feed - Context
 
 **Gathered:** 2025-01-20
-**Status:** Ready for research
+**Status:** Ready for planning
 
-<vision>
-## How This Should Work
+<domain>
+## Phase Boundary
 
-When users log in, they land on a dashboard that shows them everything important at a glance. I imagine it feeling calm and organized - not overwhelming like Jira or cluttered like Notion.
+Display posts from followed users in a scrollable feed. Users can view posts and see engagement counts. Creating posts and interactions are separate phases.
 
-The main thing is seeing their active projects and what needs attention. Think of it like a "what should I work on today" view. It should feel personal, not like enterprise software.
+</domain>
 
-</vision>
+<decisions>
+## Implementation Decisions
 
-<essential>
-## What Must Be Nailed
+### UI
+- Card-based layout, not timeline or list
+- Each card shows: author avatar, name, timestamp, full post content, reaction counts
+- Cards have subtle shadows, rounded corners — modern feel
+- Show 10 posts initially, load more on scroll
 
-- **At-a-glance clarity** - Within 2 seconds of landing, user knows what needs their attention
-- **Personal feel** - This is YOUR dashboard, not a team dashboard. It should feel like opening your personal notebook.
+### Behavior
+- Infinite scroll, not pagination
+- Pull-to-refresh on mobile
+- New posts indicator at top ("3 new posts") rather than auto-inserting
 
-</essential>
+### Empty State
+- Friendly illustration + "Follow people to see posts here"
+- Suggest 3-5 accounts to follow based on interests
+
+### Claude's Discretion
+- Loading skeleton design
+- Exact spacing and typography
+- Error state handling
+
+</decisions>
 
 <specifics>
 ## Specific Ideas
 
-- I like how Linear's home screen highlights what's assigned to you without noise
-- Should show projects in a card format, not a list
-- Maybe a "Today" section at the top with urgent stuff
-- Dark mode is essential (already have this from Phase 2)
+- "I like how Twitter shows the new posts indicator without disrupting your scroll position"
+- Cards should feel like Linear's issue cards — clean, not cluttered
+- No infinite scroll fatigue — maybe show "You're all caught up" after ~50 posts
 
 </specifics>
 
-<notes>
-## Additional Context
+<deferred>
+## Deferred Ideas
 
-User mentioned they've abandoned several dashboards before because they felt too "corporate." The key differentiator is making it feel personal and calm.
+- Commenting on posts — Phase 5
+- Reaction picker (not just counts) — Phase 5
+- Bookmarking posts — add to backlog
 
-Priority is clarity over features. Better to show less and make it obvious than show everything.
-
-</notes>
+</deferred>
 
 ---
 
-*Phase: 03-user-dashboard*
+*Phase: 03-post-feed*
 *Context gathered: 2025-01-20*
 ```
 </good_examples>
 
 <guidelines>
-**This template captures VISION, not technical specs.**
+**This template captures DECISIONS for downstream agents.**
 
-The user is the visionary. They know:
-- How they imagine it working
-- What it should feel like
-- What's essential vs nice-to-have
-- References to things they like
+The output should answer: "What does the researcher need to investigate? What choices are locked for the planner?"
 
-The user does NOT know (and shouldn't be asked):
-- Codebase patterns (Claude reads the code)
-- Technical risks (Claude identifies during research)
-- Implementation constraints (Claude figures out)
-- Success metrics (Claude infers from the work)
+**Good content:**
+- "Card-based layout, not timeline"
+- "Infinite scroll with pull-to-refresh"
+- "Show 10 posts initially"
+- "New posts indicator rather than auto-insert"
 
-**Content should read like:**
-- A founder describing their product vision
-- "When you use this, it should feel like..."
-- "The most important thing is..."
-- "I don't want it to be like X, I want it to feel like Y"
+**Bad content (too vague):**
+- "Should feel modern and clean"
+- "Good user experience"
+- "Fast and responsive"
+- "Easy to use"
 
-**Content should NOT read like:**
-- A technical specification
-- Risk assessment matrix
-- Success criteria checklist
-- Codebase analysis
+**Sections explained:**
+
+- **Domain** — The scope anchor. Copied/derived from ROADMAP.md. Fixed boundary.
+- **Decisions** — Organized by category (UI, UX, Behavior, etc.). Actual choices made.
+- **Claude's Discretion** — Explicit acknowledgment of what Claude can decide during implementation.
+- **Specifics** — Product references, examples, "like X but..." statements.
+- **Deferred** — Ideas captured but explicitly out of scope. Prevents scope creep while preserving good ideas.
 
 **After creation:**
 - File lives in phase directory: `.planning/phases/XX-name/{phase}-CONTEXT.md`
-- Research phase adds technical context (patterns, risks, constraints)
-- Planning phase creates executable tasks informed by both vision AND research
+- `gsd-phase-researcher` uses decisions to focus investigation
+- `gsd-planner` uses decisions + research to create executable tasks
+- Downstream agents should NOT need to ask the user again about captured decisions
 </guidelines>
