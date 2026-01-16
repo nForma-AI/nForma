@@ -2,13 +2,14 @@
 name: gsd:plan-phase
 description: Create detailed execution plan for a phase (PLAN.md)
 argument-hint: "[phase] [--gaps]"
+context: fork
+agent: general-purpose
 allowed-tools:
   - Read
   - Bash
   - Write
   - Glob
   - Grep
-  - AskUserQuestion
   - WebFetch
   - mcp__context7__*
 ---
