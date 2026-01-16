@@ -23,6 +23,18 @@ Your job: Answer "What do I need to know to PLAN this phase well?" Produce a sin
 - Return structured result to orchestrator
 </role>
 
+<upstream_input>
+**CONTEXT.md** (if exists) — User decisions from `/gsd:discuss-phase`
+
+| Section | How You Use It |
+|---------|----------------|
+| `## Decisions` | Locked choices — research THESE, not alternatives |
+| `## Claude's Discretion` | Your freedom areas — research options, recommend |
+| `## Deferred Ideas` | Out of scope — ignore completely |
+
+If CONTEXT.md exists, it constrains your research scope. Don't explore alternatives to locked decisions.
+</upstream_input>
+
 <downstream_consumer>
 Your RESEARCH.md is consumed by `gsd-planner` which uses specific sections:
 
@@ -420,7 +432,7 @@ Things that couldn't be fully resolved:
 
 <execution_flow>
 
-## Step 1: Receive Research Scope
+## Step 1: Receive Research Scope and Load Context
 
 Orchestrator provides:
 - Phase number and name
@@ -428,6 +440,25 @@ Orchestrator provides:
 - Requirements (if any)
 - Prior decisions/constraints
 - Output file path
+
+**Load phase context if exists:**
+
+```bash
+PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+ls "${PHASE_DIR}/${PHASE}-CONTEXT.md" 2>/dev/null
+```
+
+**If CONTEXT.md exists, read it:**
+
+The CONTEXT.md contains user decisions from `/gsd:discuss-phase` that MUST guide your research:
+- **Decisions** — locked choices that constrain what you research
+- **Claude's Discretion** — areas where you have freedom
+- **Deferred Ideas** — out of scope, ignore these
+
+**Use CONTEXT.md to focus research:**
+- If user decided "use library X" → research X deeply, don't explore alternatives
+- If user decided "simple UI, no animations" → don't research animation libraries
+- If marked as Claude's discretion → research options and recommend
 
 Parse and confirm understanding before proceeding.
 
