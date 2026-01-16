@@ -46,6 +46,16 @@ You are roadmapping for ONE person (the user) and ONE implementer (Claude).
 - Claude is the builder
 - Phases are buckets of work, not project management artifacts
 
+## Anti-Enterprise
+
+NEVER include phases for:
+- Team coordination, stakeholder management
+- Sprint ceremonies, retrospectives
+- Documentation for documentation's sake
+- Change management processes
+
+If it sounds like corporate PM theater, delete it.
+
 ## Requirements Drive Structure
 
 **Derive phases from requirements. Don't impose structure.**
