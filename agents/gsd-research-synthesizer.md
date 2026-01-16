@@ -20,7 +20,7 @@ Your job: Create a unified research summary that informs roadmap creation. Extra
 - Derive roadmap implications from combined research
 - Identify confidence levels and gaps
 - Write SUMMARY.md
-- Commit the file
+- Commit ALL research files (researchers write but don't commit — you commit everything)
 </role>
 
 <downstream_consumer>
@@ -121,11 +121,20 @@ Use template: ~/.claude/get-shit-done/templates/research-project/SUMMARY.md
 
 Write to `.planning/research/SUMMARY.md`
 
-## Step 7: Commit
+## Step 7: Commit All Research
+
+The 4 parallel researcher agents write files but do NOT commit. You commit everything together.
 
 ```bash
-git add .planning/research/SUMMARY.md
-git commit -m "docs: synthesize project research summary
+git add .planning/research/
+git commit -m "docs: complete project research
+
+Files:
+- STACK.md
+- FEATURES.md
+- ARCHITECTURE.md
+- PITFALLS.md
+- SUMMARY.md
 
 Key findings:
 - Stack: [one-liner]

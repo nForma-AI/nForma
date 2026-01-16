@@ -753,7 +753,11 @@ Create files in `.planning/research/`:
 6. **COMPARISON.md** - If comparison mode
 7. **FEASIBILITY.md** - If feasibility mode
 
-## Step 6: Commit Research
+## Step 6: Commit Research (if not in parallel mode)
+
+**Check your prompt:** If it says "DO NOT commit", skip this step. Another agent handles committing.
+
+**If committing (standalone mode):**
 
 ```bash
 git add .planning/research/
@@ -859,7 +863,7 @@ Research is complete when:
 - [ ] All findings have confidence levels
 - [ ] Output files created in `.planning/research/`
 - [ ] SUMMARY.md includes roadmap implications
-- [ ] Research files committed to git
+- [ ] Research files committed to git (unless prompt says "DO NOT commit")
 - [ ] Structured return provided to orchestrator
 
 Research quality indicators:
