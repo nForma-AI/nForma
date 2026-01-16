@@ -168,14 +168,20 @@ Proceed to `present_test`.
 
 Read Current Test section from UAT file.
 
-Display:
+Display using checkpoint box format:
 
 ```
-## Test {number}: {name}
+╔══════════════════════════════════════════════════════════════╗
+║  CHECKPOINT: Verification Required                           ║
+╚══════════════════════════════════════════════════════════════╝
 
-**Expected:** {expected}
+**Test {number}: {name}**
 
-Does this match what you see?
+{expected}
+
+──────────────────────────────────────────────────────────────
+→ Type "pass" or describe what's wrong
+──────────────────────────────────────────────────────────────
 ```
 
 Wait for user response (plain text, no AskUserQuestion).
