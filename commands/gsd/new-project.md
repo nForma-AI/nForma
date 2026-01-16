@@ -464,28 +464,31 @@ Use template: ~/.claude/get-shit-done/templates/research-project/PITFALLS.md
 ", subagent_type="gsd-project-researcher", description="Pitfalls research")
 ```
 
-After all agents complete, synthesize `.planning/research/SUMMARY.md`:
-- Executive summary from all 4 files
-- Key findings (one-liner each)
-- Implications for roadmap (suggested phase structure)
-- Confidence assessment
+After all 4 agents complete, spawn synthesizer to create SUMMARY.md:
 
-**Commit research:**
+```
+Task(prompt="
+<task>
+Synthesize research outputs into SUMMARY.md.
+</task>
 
-```bash
-git add .planning/research/
-git commit -m "$(cat <<'EOF'
-docs: research [domain] ecosystem
+<research_files>
+Read these files:
+- .planning/research/STACK.md
+- .planning/research/FEATURES.md
+- .planning/research/ARCHITECTURE.md
+- .planning/research/PITFALLS.md
+</research_files>
 
-Key findings:
-- Stack: [one-liner]
-- Architecture: [one-liner]
-- Critical pitfall: [one-liner]
-EOF
-)"
+<output>
+Write to: .planning/research/SUMMARY.md
+Use template: ~/.claude/get-shit-done/templates/research-project/SUMMARY.md
+Commit after writing.
+</output>
+", subagent_type="gsd-research-synthesizer", description="Synthesize research")
 ```
 
-Display key findings summary to user.
+Display key findings summary to user from synthesizer output.
 
 **If "Skip research":** Continue to Phase 7.
 
