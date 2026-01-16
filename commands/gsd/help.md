@@ -138,18 +138,13 @@ Execute a single PLAN.md file.
 Usage: `/gsd:execute-plan .planning/phases/01-foundation/01-01-PLAN.md`
 
 **`/gsd:execute-phase <phase-number>`**
-Execute all unexecuted plans in a phase with parallel background agents.
+Execute all plans in a phase with wave-based parallelization.
 
-- Analyzes plan dependencies and spawns independent plans concurrently
-- Use when phase has 2+ plans and you want "walk away" execution
-- Respects max_concurrent_agents from config.json
+- Groups plans by wave (from frontmatter), executes waves sequentially
+- Plans within each wave run in parallel via Task tool
+- Verifies phase goal after all plans complete
 
 Usage: `/gsd:execute-phase 5`
-
-Options (via `.planning/config.json` parallelization section):
-- `max_concurrent_agents`: Limit parallel agents (default: 3)
-- `skip_checkpoints`: Skip human checkpoints in background (default: true)
-- `min_plans_for_parallel`: Minimum plans to trigger parallelization (default: 2)
 
 ### Roadmap Management
 
