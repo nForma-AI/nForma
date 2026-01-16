@@ -1149,7 +1149,7 @@ Wait for confirmation in interactive mode. Auto-approve in yolo mode.
 <step name="write_phase_prompt">
 Use template structure for each PLAN.md.
 
-Write to `.planning/phases/XX-name/{phase}-NN-PLAN.md`
+Write to `.planning/phases/XX-name/{phase}-{NN}-PLAN.md` (e.g., `01-02-PLAN.md` for Phase 1, Plan 2)
 
 Include frontmatter (phase, plan, type, wave, depends_on, files_modified, autonomous, must_haves).
 </step>
