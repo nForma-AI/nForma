@@ -166,67 +166,59 @@ If you prefer not to use that flag, add this to your project's `.claude/settings
 
 ## How It Works
 
-### 1. Start with an idea
+### 1. Initialize Project (~10 minutes)
 
 ```
 /gsd:new-project
 ```
 
-The system asks questions. Keeps asking until it has everything — your goals, constraints, tech preferences, edge cases. You go back and forth until the idea is fully captured. Creates **PROJECT.md**.
+One command, one flow. The system:
 
-### 1.5. Research the domain (optional)
+1. **Questions** — Asks until it understands your idea completely (goals, constraints, tech preferences, edge cases)
+2. **Research** — Spawns parallel agents to investigate the domain (optional but recommended)
+3. **Requirements** — Extracts what's v1, v2, and out of scope
+4. **Roadmap** — Creates phases mapped to requirements
 
-```
-/gsd:research-project
-```
+You approve the roadmap. Now you're ready to build.
 
-Spawns parallel agents to investigate the domain — what's the standard stack, what features users expect, common architectural patterns, and pitfalls to avoid. Creates `.planning/research/` with ecosystem knowledge.
+**Creates:** `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, `STATE.md`, `.planning/research/`
 
-> Recommended for best results. Skip only if you need speed over thoroughness.
-
-### 2. Define requirements
-
-```
-/gsd:define-requirements
-```
-
-Scope what's v1, what's v2, and what's out of scope. Creates **REQUIREMENTS.md** with checkable requirements and traceability. Works with or without prior research.
-
-### 3. Create roadmap
+### 2. Plan Phase
 
 ```
-/gsd:create-roadmap
+/gsd:plan-phase 1
 ```
 
-Produces:
-- **ROADMAP.md** — Phases from start to finish, mapped to requirements
-- **STATE.md** — Living memory that persists across sessions
+The system:
 
-### 4. Plan and execute phases
+1. **Researches** — Investigates how to implement this specific phase
+2. **Plans** — Creates 2-3 atomic task plans with XML structure
+3. **Verifies** — Checks plans against requirements, loops if needed
 
-```
-/gsd:plan-phase 1      # System creates atomic task plans
-/gsd:execute-phase 1   # Parallel agents execute all plans
-```
+Ready when plans pass verification.
 
-Each phase breaks into 2-3 task plans. Each plan runs in a fresh subagent context — 200k tokens purely for implementation, zero degradation. Plans without dependencies run in parallel.
-
-**For single-plan or interactive execution:**
-```
-/gsd:execute-plan      # Run one plan at a time with checkpoints
-```
-
-Use `/gsd:execute-phase` for parallel "walk away" automation (recommended). Use `/gsd:execute-plan` when you need interactive single-plan execution with manual checkpoints.
-
-### 5. Ship and iterate
+### 3. Execute Phase
 
 ```
-/gsd:complete-milestone   # Archive v1, prep for v2
-/gsd:add-phase            # Append new work
-/gsd:insert-phase 2       # Slip urgent work between phases
+/gsd:execute-phase 1
 ```
 
-Ship your MVP in a day. Add features. Insert hotfixes. The system stays modular — you're never stuck.
+The system:
+
+1. **Runs plans in waves** — Parallel where possible, sequential when dependent
+2. **Fresh context per plan** — 200k tokens purely for implementation, zero degradation
+3. **Verifies code** — Checks against phase goals when complete
+
+### 4. Repeat
+
+```
+/gsd:plan-phase 2
+/gsd:execute-phase 2
+...
+/gsd:complete-milestone   # When all phases done
+```
+
+Loop plan → execute until milestone complete. Ship your MVP. Start next milestone.
 
 ---
 
@@ -240,30 +232,15 @@ Already have code? Start here instead.
 /gsd:map-codebase
 ```
 
-Spawns parallel agents to analyze your code. Creates `.planning/codebase/` with 7 documents:
+Spawns parallel agents to analyze your code. Creates `.planning/codebase/` with structured analysis of your stack, architecture, conventions, and concerns.
 
-| Document | Purpose |
-|----------|---------|
-| `STACK.md` | Languages, frameworks, dependencies |
-| `ARCHITECTURE.md` | Patterns, layers, data flow |
-| `STRUCTURE.md` | Directory layout, where things live |
-| `CONVENTIONS.md` | Code style, naming patterns |
-| `TESTING.md` | Test framework, patterns |
-| `INTEGRATIONS.md` | External services, APIs |
-| `CONCERNS.md` | Tech debt, known issues, fragile areas |
-
-### 2. Initialize project
+### 2. Initialize and build
 
 ```
 /gsd:new-project
 ```
 
-Same as greenfield, but the system knows your codebase. Questions focus on what you're adding/changing, not starting from scratch.
-
-### 3. Continue as normal
-
-From here, it's the same flow:
-- `/gsd:research-project` (optional) → `/gsd:define-requirements` → `/gsd:create-roadmap` → `/gsd:plan-phase` → `/gsd:execute-phase`
+Same flow as greenfield, but the system knows your codebase. Questions focus on what you're adding/changing. Then plan → execute as normal.
 
 The codebase docs load automatically during planning. Claude knows your patterns, conventions, and where to put things.
 
@@ -353,38 +330,33 @@ You're never locked in. The system adapts.
 
 ## Commands
 
-### Setup
+### Core Workflow
 
 | Command | What it does |
 |---------|--------------|
-| `/gsd:new-project` | Extract your idea through questions, create PROJECT.md |
-| `/gsd:research-project` | Research domain ecosystem (stacks, features, pitfalls) |
-| `/gsd:define-requirements` | Scope v1/v2/out-of-scope requirements |
-| `/gsd:create-roadmap` | Create roadmap with phases mapped to requirements |
-| `/gsd:map-codebase` | Map existing codebase for brownfield projects |
+| `/gsd:new-project` | Full initialization: questions → research → requirements → roadmap |
+| `/gsd:plan-phase [N]` | Research + plan + verify for a phase |
+| `/gsd:execute-phase <N>` | Execute all plans in parallel waves, verify when complete |
+| `/gsd:complete-milestone` | Ship it, prep next version |
 
-### Execution
+### Navigation
 
 | Command | What it does |
 |---------|--------------|
-| `/gsd:plan-phase [N]` | Generate task plans for phase |
-| `/gsd:execute-phase <N>` | Execute all plans in phase with parallel agents |
-| `/gsd:execute-plan` | Run single plan via subagent |
 | `/gsd:progress` | Where am I? What's next? |
+| `/gsd:help` | Show all commands and usage guide |
 
 ### Verification
 
 | Command | What it does |
 |---------|--------------|
-| `/gsd:verify-work [N]` | User acceptance test of phase or plan ¹ |
+| `/gsd:verify-work [N]` | Manual user acceptance testing ¹ |
 
-### Milestones
+### Brownfield
 
 | Command | What it does |
 |---------|--------------|
-| `/gsd:complete-milestone` | Ship it, prep next version |
-| `/gsd:discuss-milestone` | Gather context for next milestone |
-| `/gsd:new-milestone [name]` | Create new milestone with phases |
+| `/gsd:map-codebase` | Analyze existing codebase before new-project |
 
 ### Phase Management
 
@@ -392,26 +364,30 @@ You're never locked in. The system adapts.
 |---------|--------------|
 | `/gsd:add-phase` | Append phase to roadmap |
 | `/gsd:insert-phase [N]` | Insert urgent work between phases |
-| `/gsd:remove-phase [N]` | Remove future phase, renumber subsequent |
+| `/gsd:remove-phase [N]` | Remove future phase, renumber |
 | `/gsd:discuss-phase [N]` | Gather context before planning |
-| `/gsd:research-phase [N]` | Deep research for unfamiliar domains |
-| `/gsd:list-phase-assumptions [N]` | See what Claude assumes before correcting |
+
+### Milestones
+
+| Command | What it does |
+|---------|--------------|
+| `/gsd:new-milestone [name]` | Start next milestone |
+| `/gsd:discuss-milestone` | Gather context for next milestone |
 
 ### Session
 
 | Command | What it does |
 |---------|--------------|
-| `/gsd:pause-work` | Create handoff file when stopping mid-phase |
+| `/gsd:pause-work` | Create handoff when stopping mid-phase |
 | `/gsd:resume-work` | Restore from last session |
 
 ### Utilities
 
 | Command | What it does |
 |---------|--------------|
-| `/gsd:add-todo [desc]` | Capture idea or task for later |
-| `/gsd:check-todos [area]` | List pending todos, select one to work on |
+| `/gsd:add-todo [desc]` | Capture idea for later |
+| `/gsd:check-todos` | List pending todos |
 | `/gsd:debug [desc]` | Systematic debugging with persistent state |
-| `/gsd:help` | Show all commands and usage guide |
 
 <sup>¹ Contributed by reddit user OracleGreyBeard</sup>
 
