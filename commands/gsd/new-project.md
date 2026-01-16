@@ -368,7 +368,6 @@ Your STACK.md feeds into roadmap creation. Be prescriptive:
 <output>
 Write to: .planning/research/STACK.md
 Use template: ~/.claude/get-shit-done/templates/research-project/STACK.md
-DO NOT commit. The synthesizer agent commits all research files together.
 </output>
 ", subagent_type="gsd-project-researcher", description="Stack research")
 
@@ -408,7 +407,6 @@ Your FEATURES.md feeds into requirements definition. Categorize clearly:
 <output>
 Write to: .planning/research/FEATURES.md
 Use template: ~/.claude/get-shit-done/templates/research-project/FEATURES.md
-DO NOT commit. The synthesizer agent commits all research files together.
 </output>
 ", subagent_type="gsd-project-researcher", description="Features research")
 
@@ -448,7 +446,6 @@ Your ARCHITECTURE.md informs phase structure in roadmap. Include:
 <output>
 Write to: .planning/research/ARCHITECTURE.md
 Use template: ~/.claude/get-shit-done/templates/research-project/ARCHITECTURE.md
-DO NOT commit. The synthesizer agent commits all research files together.
 </output>
 ", subagent_type="gsd-project-researcher", description="Architecture research")
 
@@ -488,7 +485,6 @@ Your PITFALLS.md prevents mistakes in roadmap/planning. For each pitfall:
 <output>
 Write to: .planning/research/PITFALLS.md
 Use template: ~/.claude/get-shit-done/templates/research-project/PITFALLS.md
-DO NOT commit. The synthesizer agent commits all research files together.
 </output>
 ", subagent_type="gsd-project-researcher", description="Pitfalls research")
 ```

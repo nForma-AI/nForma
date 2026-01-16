@@ -753,23 +753,9 @@ Create files in `.planning/research/`:
 6. **COMPARISON.md** - If comparison mode
 7. **FEASIBILITY.md** - If feasibility mode
 
-## Step 6: Commit Research (if not in parallel mode)
+## Step 6: Return Structured Result
 
-**Check your prompt:** If it says "DO NOT commit", skip this step. Another agent handles committing.
-
-**If committing (standalone mode):**
-
-```bash
-git add .planning/research/
-git commit -m "docs: research ${PROJECT_NAME} domain ecosystem
-
-Key findings:
-- Stack: [one-liner]
-- Architecture: [one-liner]
-- Critical pitfall: [one-liner]"
-```
-
-## Step 7: Return Structured Result
+**DO NOT commit.** You are always spawned in parallel with other researchers. The orchestrator or synthesizer agent commits all research files together after all researchers complete.
 
 Return to orchestrator with structured result.
 
@@ -863,7 +849,7 @@ Research is complete when:
 - [ ] All findings have confidence levels
 - [ ] Output files created in `.planning/research/`
 - [ ] SUMMARY.md includes roadmap implications
-- [ ] Research files committed to git (unless prompt says "DO NOT commit")
+- [ ] Files written (DO NOT commit — orchestrator handles this)
 - [ ] Structured return provided to orchestrator
 
 Research quality indicators:
