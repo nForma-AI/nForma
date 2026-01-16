@@ -1,8 +1,7 @@
 ---
 name: gsd:plan-phase
-description: Create detailed execution plan for a phase (PLAN.md)
-argument-hint: "[phase] [--gaps]"
-context: fork
+description: Create detailed execution plan for a phase (PLAN.md) with verification loop
+argument-hint: "[phase] [--gaps] [--skip-verify]"
 agent: gsd-planner
 allowed-tools:
   - Read
@@ -10,6 +9,7 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
+  - Task
   - WebFetch
   - mcp__context7__*
 ---
@@ -27,9 +27,11 @@ Phase number: $ARGUMENTS (optional - auto-detects next unplanned phase if not pr
 Gap closure mode: `--gaps` flag triggers gap closure workflow
 
 Check for existing plans:
+
 ```bash
 ls .planning/phases/${PHASE}-*/*-PLAN.md 2>/dev/null
 ```
+
 </context>
 
 <process>
@@ -45,6 +47,7 @@ ls .planning/ 2>/dev/null
 ## 2. Parse Arguments
 
 Extract from $ARGUMENTS:
+
 - Phase number (integer or decimal like `2.1`)
 - `--gaps` flag for gap closure mode
 
@@ -118,21 +121,23 @@ Fill prompt and spawn:
 <downstream_consumer>
 Output consumed by /gsd:execute-phase or /gsd:execute-plan
 Plans must be executable prompts with:
+
 - Frontmatter (wave, depends_on, files_modified, autonomous)
 - Tasks in XML format
 - Verification criteria
 - must_haves for goal-backward verification
-</downstream_consumer>
+  </downstream_consumer>
 
 <quality_gate>
 Before returning PLANNING COMPLETE:
+
 - [ ] PLAN.md files created in phase directory
 - [ ] Each plan has valid frontmatter
 - [ ] Tasks are specific and actionable
 - [ ] Dependencies correctly identified
 - [ ] Waves assigned for parallel execution
 - [ ] must_haves derived from phase goal
-</quality_gate>
+      </quality_gate>
 ```
 
 ```
@@ -160,7 +165,7 @@ Continue planning for Phase {phase_number}: {phase_name}
 
 <prior_state>
 Phase directory: @.planning/phases/{phase_dir}/
-Existing plans: @.planning/phases/{phase_dir}/*-PLAN.md
+Existing plans: @.planning/phases/{phase_dir}/\*-PLAN.md
 </prior_state>
 
 <checkpoint_response>
@@ -180,10 +185,11 @@ Task(
 </process>
 
 <success_criteria>
+
 - [ ] .planning/ directory validated
 - [ ] Phase validated against roadmap
 - [ ] Existing plans checked
 - [ ] gsd-planner spawned with context
 - [ ] Checkpoints handled correctly
 - [ ] User knows next steps (execute or review)
-</success_criteria>
+      </success_criteria>
