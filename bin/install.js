@@ -55,6 +55,8 @@ function parseConfigDirArg() {
 const explicitConfigDir = parseConfigDirArg();
 const hasHelp = args.includes('--help') || args.includes('-h');
 const forceStatusline = args.includes('--force-statusline');
+const forceNotify = args.includes('--force-notify');
+const noNotify = args.includes('--no-notify');
 
 console.log(banner);
 
@@ -68,6 +70,8 @@ if (hasHelp) {
     ${cyan}-c, --config-dir <path>${reset}   Specify custom Claude config directory
     ${cyan}-h, --help${reset}                Show this help message
     ${cyan}--force-statusline${reset}        Replace existing statusline config
+    ${cyan}--force-notify${reset}            Replace existing notification hook
+    ${cyan}--no-notify${reset}               Skip notification hook installation
 
   ${yellow}Examples:${reset}
     ${dim}# Install to default ~/.claude directory${reset}
@@ -234,6 +238,9 @@ function install(isGlobal) {
   const updateCheckCommand = isGlobal
     ? '$HOME/.claude/hooks/gsd-check-update.sh'
     : '.claude/hooks/gsd-check-update.sh';
+  const notifyCommand = isGlobal
+    ? '$HOME/.claude/hooks/gsd-notify.sh'
+    : '.claude/hooks/gsd-notify.sh';
 
   // Configure SessionStart hook for update checking
   if (!settings.hooks) {
@@ -260,19 +267,38 @@ function install(isGlobal) {
     console.log(`  ${green}✓${reset} Configured update check hook`);
   }
 
-  return { settingsPath, settings, statuslineCommand };
+  return { settingsPath, settings, statuslineCommand, notifyCommand };
 }
 
 /**
- * Apply statusline config and print completion message
+ * Apply statusline and notification config, then print completion message
  */
-function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline) {
+function finishInstall(settingsPath, settings, statuslineCommand, notifyCommand, shouldInstallStatusline, shouldInstallNotify) {
   if (shouldInstallStatusline) {
     settings.statusLine = {
       type: 'command',
       command: statuslineCommand
     };
     console.log(`  ${green}✓${reset} Configured statusline`);
+  }
+
+  if (shouldInstallNotify) {
+    if (!settings.hooks.Stop) {
+      settings.hooks.Stop = [];
+    }
+    // Remove any existing GSD notify hook first
+    settings.hooks.Stop = settings.hooks.Stop.filter(entry =>
+      !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('gsd-notify')))
+    );
+    settings.hooks.Stop.push({
+      hooks: [
+        {
+          type: 'command',
+          command: notifyCommand
+        }
+      ]
+    });
+    console.log(`  ${green}✓${reset} Configured completion notifications`);
   }
 
   // Always write settings (hooks were already configured in install())
@@ -286,7 +312,7 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
 /**
  * Handle statusline configuration with optional prompt
  */
-function handleStatusline(settingsPath, settings, statuslineCommand, isInteractive, callback) {
+function handleStatusline(settings, isInteractive, callback) {
   const hasExisting = settings.statusLine != null;
 
   // No existing statusline - just install it
@@ -340,6 +366,66 @@ function handleStatusline(settingsPath, settings, statuslineCommand, isInteracti
 }
 
 /**
+ * Handle notification hook configuration with optional prompt
+ */
+function handleNotifications(settings, isInteractive, callback) {
+  // Check if --no-notify flag was passed
+  if (noNotify) {
+    callback(false);
+    return;
+  }
+
+  // Check if GSD notify hook already exists
+  const hasExisting = settings.hooks?.Stop?.some(entry =>
+    entry.hooks && entry.hooks.some(h => h.command && h.command.includes('gsd-notify'))
+  );
+
+  // No existing - just install it
+  if (!hasExisting) {
+    callback(true);
+    return;
+  }
+
+  // Has existing and --force-notify flag
+  if (forceNotify) {
+    callback(true);
+    return;
+  }
+
+  // Has existing, non-interactive mode - skip
+  if (!isInteractive) {
+    console.log(`  ${yellow}⚠${reset} Skipping notifications (already configured)`);
+    console.log(`    Use ${cyan}--force-notify${reset} to replace\n`);
+    callback(false);
+    return;
+  }
+
+  // Has existing, interactive mode - prompt user
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  console.log(`
+  ${yellow}⚠${reset} Existing notification hook detected
+
+  GSD includes completion notifications that alert you when:
+    • A phase completes planning or execution
+    • Claude stops and needs your input
+    • Works on Mac, Linux, and Windows
+
+  ${cyan}1${reset}) Keep existing
+  ${cyan}2${reset}) Replace with GSD notifications
+`);
+
+  rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
+    rl.close();
+    const choice = answer.trim() || '1';
+    callback(choice === '2');
+  });
+}
+
+/**
  * Prompt for install location
  */
 function promptLocation() {
@@ -362,10 +448,12 @@ function promptLocation() {
     rl.close();
     const choice = answer.trim() || '1';
     const isGlobal = choice !== '2';
-    const { settingsPath, settings, statuslineCommand } = install(isGlobal);
-    // Interactive mode - prompt for statusline if needed
-    handleStatusline(settingsPath, settings, statuslineCommand, true, (shouldInstall) => {
-      finishInstall(settingsPath, settings, statuslineCommand, shouldInstall);
+    const { settingsPath, settings, statuslineCommand, notifyCommand } = install(isGlobal);
+    // Interactive mode - prompt for optional features
+    handleStatusline(settings, true, (shouldInstallStatusline) => {
+      handleNotifications(settings, true, (shouldInstallNotify) => {
+        finishInstall(settingsPath, settings, statuslineCommand, notifyCommand, shouldInstallStatusline, shouldInstallNotify);
+      });
     });
   });
 }
@@ -378,16 +466,20 @@ if (hasGlobal && hasLocal) {
   console.error(`  ${yellow}Cannot use --config-dir with --local${reset}`);
   process.exit(1);
 } else if (hasGlobal) {
-  const { settingsPath, settings, statuslineCommand } = install(true);
-  // Non-interactive - skip prompt, respect --force-statusline
-  handleStatusline(settingsPath, settings, statuslineCommand, false, (shouldInstall) => {
-    finishInstall(settingsPath, settings, statuslineCommand, shouldInstall);
+  const { settingsPath, settings, statuslineCommand, notifyCommand } = install(true);
+  // Non-interactive - respect flags
+  handleStatusline(settings, false, (shouldInstallStatusline) => {
+    handleNotifications(settings, false, (shouldInstallNotify) => {
+      finishInstall(settingsPath, settings, statuslineCommand, notifyCommand, shouldInstallStatusline, shouldInstallNotify);
+    });
   });
 } else if (hasLocal) {
-  const { settingsPath, settings, statuslineCommand } = install(false);
-  // Non-interactive - skip prompt, respect --force-statusline
-  handleStatusline(settingsPath, settings, statuslineCommand, false, (shouldInstall) => {
-    finishInstall(settingsPath, settings, statuslineCommand, shouldInstall);
+  const { settingsPath, settings, statuslineCommand, notifyCommand } = install(false);
+  // Non-interactive - respect flags
+  handleStatusline(settings, false, (shouldInstallStatusline) => {
+    handleNotifications(settings, false, (shouldInstallNotify) => {
+      finishInstall(settingsPath, settings, statuslineCommand, notifyCommand, shouldInstallStatusline, shouldInstallNotify);
+    });
   });
 } else {
   promptLocation();
