@@ -1065,13 +1065,25 @@ Understand:
 - Phase goal (from roadmap)
 - What exists already (scan codebase if mid-project)
 - Dependencies met (previous phases complete?)
-- Any {phase}-RESEARCH.md (from /gsd:research-phase)
-- Any DISCOVERY.md (from mandatory discovery)
-- Any {phase}-CONTEXT.md (from /gsd:discuss-phase)
 
-**If RESEARCH.md exists:** Use standard_stack, architecture_patterns, dont_hand_roll, common_pitfalls.
+**Load phase-specific context files (MANDATORY):**
 
-**If CONTEXT.md exists:** Honor vision, prioritize essential, respect boundaries.
+```bash
+PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+
+# Read CONTEXT.md if exists (from /gsd:discuss-phase)
+cat "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null
+
+# Read RESEARCH.md if exists (from /gsd:research-phase)
+cat "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null
+
+# Read DISCOVERY.md if exists (from mandatory discovery)
+cat "${PHASE_DIR}"/*-DISCOVERY.md 2>/dev/null
+```
+
+**If CONTEXT.md exists:** Honor user's vision, prioritize their essential features, respect stated boundaries. These are locked decisions - do not revisit.
+
+**If RESEARCH.md exists:** Use standard_stack, architecture_patterns, dont_hand_roll, common_pitfalls. Research has already identified the right tools.
 </step>
 
 <step name="break_into_tasks">
