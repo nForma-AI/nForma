@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.20] - 2026-01-16
+
+### Fixed
+- Research no longer skipped based on premature "Research: Unlikely" predictions made during roadmap creation. The `--skip-research` flag provides explicit control when needed.
+
+### Removed
+- `Research: Likely/Unlikely` fields from roadmap phase template
+- `detect_research_needs` step from roadmap creation workflow
+- Roadmap-based research skip logic from planner agent
+
 ## [1.5.19] - 2026-01-16
 
 ### Changed
@@ -785,7 +795,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.19...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.20...HEAD
+[1.5.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.20
 [1.5.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.19
 [1.5.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.18
 [1.5.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.17
