@@ -151,6 +151,41 @@ Every task has four required fields:
 
 **Automation-first rule:** If Claude CAN do it via CLI/API, Claude MUST do it. Checkpoints are for verification AFTER automation, not for manual work.
 
+## Task Sizing
+
+Each task should take Claude **15-60 minutes** to execute. This calibrates granularity:
+
+| Duration | Action |
+|----------|--------|
+| < 15 min | Too small — combine with related task |
+| 15-60 min | Right size — single focused unit of work |
+| > 60 min | Too large — split into smaller tasks |
+
+**Signals a task is too large:**
+- Touches more than 3-5 files
+- Has multiple distinct "chunks" of work
+- You'd naturally take a break partway through
+- The <action> section is more than a paragraph
+
+**Signals tasks should be combined:**
+- One task just sets up for the next
+- Separate tasks touch the same file
+- Neither task is meaningful alone
+
+## Specificity Examples
+
+Tasks must be specific enough for clean execution. Compare:
+
+| TOO VAGUE | JUST RIGHT |
+|-----------|------------|
+| "Add authentication" | "Add JWT auth with refresh rotation using jose library, store in httpOnly cookie, 15min access / 7day refresh" |
+| "Create the API" | "Create POST /api/projects endpoint accepting {name, description}, validates name length 3-50 chars, returns 201 with project object" |
+| "Style the dashboard" | "Add Tailwind classes to Dashboard.tsx: grid layout (3 cols on lg, 1 on mobile), card shadows, hover states on action buttons" |
+| "Handle errors" | "Wrap API calls in try/catch, return {error: string} on 4xx/5xx, show toast via sonner on client" |
+| "Set up the database" | "Add User and Project models to schema.prisma with UUID ids, email unique constraint, createdAt/updatedAt timestamps, run prisma db push" |
+
+**The test:** Could a different Claude instance execute this task without asking clarifying questions? If not, add specificity.
+
 ## TDD Detection Heuristic
 
 For each potential task, evaluate TDD fit:
