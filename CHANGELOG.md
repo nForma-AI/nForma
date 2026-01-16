@@ -6,6 +6,34 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.18] - 2026-01-16
+
+### Added
+- **Plan verification loop** — Plans are now verified before execution with a planner → checker → revise cycle
+  - New `gsd-plan-checker` agent (744 lines) validates plans will achieve phase goals
+  - Six verification dimensions: requirement coverage, task completeness, dependency correctness, key links, scope sanity, must_haves derivation
+  - Max 3 revision iterations before user escalation
+  - `--skip-verify` flag for experienced users who want to bypass verification
+- **Dedicated planner agent** — `gsd-planner` (1,319 lines) consolidates all planning expertise
+  - Complete methodology: discovery levels, task breakdown, dependency graphs, scope estimation, goal-backward analysis
+  - Revision mode for handling checker feedback
+  - TDD integration and checkpoint patterns
+- **Statusline integration** — Context usage, model, and current task display
+
+### Changed
+- `/gsd:plan-phase` refactored to thin orchestrator pattern (310 lines)
+  - Spawns `gsd-planner` for planning, `gsd-plan-checker` for verification
+  - User sees status between agent spawns (not a black box)
+- Planning references deprecated with redirects to `gsd-planner` agent sections
+  - `plan-format.md`, `scope-estimation.md`, `goal-backward.md`, `principles.md`
+  - `workflows/plan-phase.md`
+
+### Fixed
+- Removed zombie `gsd-milestone-auditor` agent (was accidentally re-added after correct deletion)
+
+### Removed
+- Phase 99 throwaway test files
+
 ## [1.5.17] - 2026-01-15
 
 ### Added
@@ -748,7 +776,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.17...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.18...HEAD
+[1.5.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.18
 [1.5.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.17
 [1.5.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.16
 [1.5.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.15
