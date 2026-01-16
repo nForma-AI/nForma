@@ -35,11 +35,9 @@ Roadmaps define what work happens in what order. Phases map to requirements.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/references/principles.md
 @~/.claude/get-shit-done/workflows/create-roadmap.md
 @~/.claude/get-shit-done/templates/roadmap.md
 @~/.claude/get-shit-done/templates/state.md
-@~/.claude/get-shit-done/references/goal-backward.md
 </execution_context>
 
 <context>

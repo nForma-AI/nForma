@@ -25,7 +25,7 @@ Context budget: ~15% orchestrator, 100% fresh for subagent.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/references/principles.md
+<!-- Spawns gsd-executor agent which has all execution expertise baked in -->
 </execution_context>
 
 <context>

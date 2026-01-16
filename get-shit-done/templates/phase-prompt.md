@@ -573,5 +573,4 @@ Task completion ≠ Goal achievement. A task "create chat component" can complet
 5. Gaps found → fix plans created → execute → re-verify
 6. All must_haves pass → phase complete
 
-See `~/.claude/get-shit-done/references/goal-backward.md` for derivation process.
 See `~/.claude/get-shit-done/workflows/verify-phase.md` for verification logic.
