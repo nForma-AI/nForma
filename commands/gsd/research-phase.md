@@ -26,17 +26,23 @@ Research how to implement a phase. Spawns gsd-phase-researcher agent with phase 
 <context>
 Phase number: $ARGUMENTS (required)
 
-Check for existing research:
-```bash
-ls .planning/phases/${PHASE}-*/*RESEARCH.md 2>/dev/null
-```
+Normalize phase input in step 1 before any directory lookups.
 </context>
 
 <process>
 
-## 1. Parse and Validate Phase
+## 1. Normalize and Validate Phase
 
 ```bash
+# Normalize phase number (8 → 08, but preserve decimals like 2.1 → 02.1)
+if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
+  PHASE=$(printf "%02d" "$ARGUMENTS")
+elif [[ "$ARGUMENTS" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
+  PHASE=$(printf "%02d.%s" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}")
+else
+  PHASE="$ARGUMENTS"
+fi
+
 grep -A5 "Phase ${PHASE}:" .planning/ROADMAP.md 2>/dev/null
 ```
 
@@ -118,7 +124,7 @@ Before declaring complete, verify:
 </quality_gate>
 
 <output>
-Write to: .planning/phases/{phase}-{slug}/{phase}-RESEARCH.md
+Write to: .planning/phases/${PHASE}-{slug}/${PHASE}-RESEARCH.md
 </output>
 ```
 
@@ -146,7 +152,7 @@ Continue research for Phase {phase_number}: {phase_name}
 </objective>
 
 <prior_state>
-Research file: @.planning/phases/{phase}-{slug}/{phase}-RESEARCH.md
+Research file: @.planning/phases/${PHASE}-{slug}/${PHASE}-RESEARCH.md
 </prior_state>
 
 <checkpoint_response>

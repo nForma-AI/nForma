@@ -37,13 +37,7 @@ Phase number: $ARGUMENTS (optional - auto-detects next unplanned phase if not pr
 - `--gaps` — Gap closure mode (reads VERIFICATION.md, skips research)
 - `--skip-verify` — Skip planner → checker verification loop
 
-Check for existing research and plans:
-
-```bash
-ls .planning/phases/${PHASE}-*/*-RESEARCH.md 2>/dev/null
-ls .planning/phases/${PHASE}-*/*-PLAN.md 2>/dev/null
-```
-
+Normalize phase input in step 2 before any directory lookups.
 </context>
 
 <process>
@@ -56,7 +50,7 @@ ls .planning/ 2>/dev/null
 
 **If not found:** Error - user should run `/gsd:new-project` first.
 
-## 2. Parse Arguments
+## 2. Parse and Normalize Arguments
 
 Extract from $ARGUMENTS:
 
@@ -67,6 +61,24 @@ Extract from $ARGUMENTS:
 - `--skip-verify` flag to bypass verification loop
 
 **If no phase number:** Detect next unplanned phase from roadmap.
+
+**Normalize phase to zero-padded format:**
+
+```bash
+# Normalize phase number (8 → 08, but preserve decimals like 2.1 → 02.1)
+if [[ "$PHASE" =~ ^[0-9]+$ ]]; then
+  PHASE=$(printf "%02d" "$PHASE")
+elif [[ "$PHASE" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
+  PHASE=$(printf "%02d.%s" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}")
+fi
+```
+
+**Check for existing research and plans:**
+
+```bash
+ls .planning/phases/${PHASE}-*/*-RESEARCH.md 2>/dev/null
+ls .planning/phases/${PHASE}-*/*-PLAN.md 2>/dev/null
+```
 
 ## 3. Validate Phase
 
@@ -79,14 +91,13 @@ grep -A5 "Phase ${PHASE}:" .planning/ROADMAP.md 2>/dev/null
 ## 4. Ensure Phase Directory Exists
 
 ```bash
-# Match both zero-padded (05-*) and unpadded (5-*) folders
-PADDED_PHASE=$(printf "%02d" ${PHASE})
-PHASE_DIR=$(ls -d .planning/phases/${PADDED_PHASE}-* .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+# PHASE is already normalized (08, 02.1, etc.) from step 2
+PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
 if [ -z "$PHASE_DIR" ]; then
-  # Create phase directory from roadmap name with zero-padded phase number
+  # Create phase directory from roadmap name
   PHASE_NAME=$(grep "Phase ${PHASE}:" .planning/ROADMAP.md | sed 's/.*Phase [0-9]*: //' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-  mkdir -p ".planning/phases/${PADDED_PHASE}-${PHASE_NAME}"
-  PHASE_DIR=".planning/phases/${PADDED_PHASE}-${PHASE_NAME}"
+  mkdir -p ".planning/phases/${PHASE}-${PHASE_NAME}"
+  PHASE_DIR=".planning/phases/${PHASE}-${PHASE_NAME}"
 fi
 ```
 
