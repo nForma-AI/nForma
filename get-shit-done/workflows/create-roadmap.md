@@ -577,14 +577,14 @@ Project initialized:
 
 **Phase 1: [Name]** — [Goal from ROADMAP.md]
 
-`/gsd:plan-phase 1`
+`/gsd:discuss-phase 1` — gather context and clarify approach
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:discuss-phase 1` — gather context first
+- `/gsd:plan-phase 1` — skip discussion, plan directly
 - Review roadmap
 
 ---

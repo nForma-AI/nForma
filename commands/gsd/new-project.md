@@ -842,9 +842,14 @@ Present completion with next steps:
 
 **Phase 1: [Phase Name]** — [Goal from ROADMAP.md]
 
-`/gsd:plan-phase 1`
+`/gsd:discuss-phase 1` — gather context and clarify approach
 
 <sub>`/clear` first → fresh context window</sub>
+
+---
+
+**Also available:**
+- `/gsd:plan-phase 1` — skip discussion, plan directly
 
 ───────────────────────────────────────────────────────────────
 ```
@@ -887,7 +892,7 @@ Present completion with next steps:
 - [ ] STATE.md initialized
 - [ ] REQUIREMENTS.md traceability updated
 - [ ] Phase directories created → **committed**
-- [ ] User knows next step is `/gsd:plan-phase 1`
+- [ ] User knows next step is `/gsd:discuss-phase 1`
 
 **Atomic commits:** Each phase commits its artifacts immediately. If context is lost, artifacts persist.
 

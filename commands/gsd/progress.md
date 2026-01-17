@@ -193,14 +193,14 @@ Check if `{phase}-CONTEXT.md` exists in phase directory.
 
 **Phase {N}: {Name}** — {Goal from ROADMAP.md}
 
-`/gsd:plan-phase {phase}`
+`/gsd:discuss-phase {phase}` — gather context and clarify approach
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:discuss-phase {phase}` — gather context first
+- `/gsd:plan-phase {phase}` — skip discussion, plan directly
 - `/gsd:list-phase-assumptions {phase}` — see Claude's assumptions
 
 ---
@@ -266,15 +266,15 @@ Read ROADMAP.md to get the next phase's name and goal.
 
 **Phase {Z+1}: {Name}** — {Goal from ROADMAP.md}
 
-`/gsd:plan-phase {Z+1}`
+`/gsd:discuss-phase {Z+1}` — gather context and clarify approach
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
+- `/gsd:plan-phase {Z+1}` — skip discussion, plan directly
 - `/gsd:verify-work {Z}` — user acceptance test before continuing
-- `/gsd:discuss-phase {Z+1}` — gather context first
 
 ---
 ```
