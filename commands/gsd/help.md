@@ -76,14 +76,6 @@ Map an existing codebase for brownfield projects.
 
 Usage: `/gsd:map-codebase`
 
-### Standalone Commands (deprecated, kept for mid-project use)
-
-These commands are now integrated into `/gsd:new-project` but remain available for mid-project adjustments:
-
-**`/gsd:research-project`** — Re-research a domain (integrated into new-project Phase 6)
-**`/gsd:define-requirements`** — Redefine requirements (integrated into new-project Phase 7)
-**`/gsd:create-roadmap`** — Recreate roadmap (integrated into new-project Phase 8)
-
 ### Phase Planning
 
 **`/gsd:discuss-phase <number>`**
@@ -171,21 +163,15 @@ Result: Phase 17 deleted, phases 18-20 become 17-19
 
 ### Milestone Management
 
-**`/gsd:discuss-milestone`**
-Figure out what you want to build in the next milestone.
-
-- Reviews what shipped in previous milestone
-- Helps you identify features to add, improve, or fix
-- Routes to /gsd:new-milestone when ready
-
-Usage: `/gsd:discuss-milestone`
-
 **`/gsd:new-milestone <name>`**
-Create a new milestone with phases for an existing project.
+Start a new milestone through unified flow.
 
-- Adds milestone section to ROADMAP.md
-- Creates phase directories
-- Updates STATE.md for new milestone
+- Deep questioning to understand what you're building next
+- Optional domain research (spawns 4 parallel researcher agents)
+- Requirements definition with scoping
+- Roadmap creation with phase breakdown
+
+Mirrors `/gsd:new-project` flow for brownfield projects (existing PROJECT.md).
 
 Usage: `/gsd:new-milestone "v2.0 Features"`
 
@@ -366,7 +352,8 @@ Change anytime by editing `.planning/config.json`
 
 ```
 /gsd:complete-milestone 1.0.0
-/gsd:new-milestone  # Start next milestone
+/clear
+/gsd:new-milestone  # Start next milestone (questioning → research → requirements → roadmap)
 ```
 
 **Capturing ideas during work:**

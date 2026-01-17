@@ -6,6 +6,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- **Unified `/gsd:new-milestone` flow** — Now mirrors `/gsd:new-project` with questioning → research → requirements → roadmap
+- **BREAKING:** Removed `/gsd:discuss-milestone` command (consolidated into `/gsd:new-milestone`)
+- **BREAKING:** Removed `/gsd:create-roadmap` command (integrated into project/milestone flows)
+- **BREAKING:** Removed `/gsd:define-requirements` command (integrated into project/milestone flows)
+- **BREAKING:** Removed `/gsd:research-project` command (integrated into project/milestone flows)
+- Roadmapper agent now references templates instead of inline structures
+
+### Removed
+- `commands/gsd/discuss-milestone.md`
+- `commands/gsd/create-roadmap.md`
+- `commands/gsd/define-requirements.md`
+- `commands/gsd/research-project.md`
+- `get-shit-done/workflows/discuss-milestone.md`
+- `get-shit-done/workflows/create-roadmap.md`
+- `get-shit-done/workflows/define-requirements.md`
+- `get-shit-done/templates/milestone-context.md`
+
 ## [1.5.30] - 2026-01-17
 
 ### Fixed

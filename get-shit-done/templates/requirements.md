@@ -52,7 +52,7 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Which phases cover which requirements. Updated by create-roadmap.
+Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -97,9 +97,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 - Anti-features from research belong here with warnings
 
 **Traceability:**
-- Empty initially, populated by create-roadmap
+- Empty initially, populated during roadmap creation
 - Each requirement maps to exactly one phase
-- Unmapped requirements = roadmap gap (error in create-roadmap)
+- Unmapped requirements = roadmap gap
 
 **Status Values:**
 - Pending: Not started

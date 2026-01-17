@@ -323,20 +323,11 @@ Ready to plan the next milestone.
 
 ## ▶ Next Up
 
-**Discuss Next Milestone** — figure out what to build next
+**Start Next Milestone** — questioning → research → requirements → roadmap
 
-`/gsd:discuss-milestone`
+`/gsd:new-milestone`
 
 <sub>`/clear` first → fresh context window</sub>
-
----
-
-**Next milestone flow:**
-1. `/gsd:discuss-milestone` — thinking partner, creates context file
-2. `/gsd:new-milestone` — update PROJECT.md with new goals
-3. `/gsd:research-project` — (optional) research ecosystem
-4. `/gsd:define-requirements` — scope what to build
-5. `/gsd:create-roadmap` — plan how to build it
 
 ---
 ```

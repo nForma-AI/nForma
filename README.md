@@ -374,8 +374,7 @@ You're never locked in. The system adapts.
 
 | Command | What it does |
 |---------|--------------|
-| `/gsd:new-milestone [name]` | Start next milestone |
-| `/gsd:discuss-milestone` | Gather context for next milestone |
+| `/gsd:new-milestone [name]` | Start next milestone (questioning → research → requirements → roadmap) |
 
 ### Session
 

@@ -167,17 +167,11 @@ All 4 phases shipped
 
 ## ▶ Next Up
 
-**Plan v1.1** — Enhanced features and optimizations
+**Start v1.1** — questioning → research → requirements → roadmap
 
-`/gsd:discuss-milestone`
+`/gsd:new-milestone`
 
 <sub>`/clear` first → fresh context window</sub>
-
----
-
-**Also available:**
-- `/gsd:new-milestone` — create directly if scope is clear
-- Review accomplishments before moving on
 
 ---
 ```

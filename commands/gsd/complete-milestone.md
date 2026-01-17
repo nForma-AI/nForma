@@ -108,8 +108,7 @@ Output: Milestone archived (roadmap + requirements), PROJECT.md evolved, git tag
    - Ask about pushing tag
 
 8. **Offer next steps:**
-   - `/gsd:discuss-milestone` — thinking partner, creates context file
-   - Then `/gsd:new-milestone` — update PROJECT.md with new goals
+   - `/gsd:new-milestone` — start next milestone (questioning → research → requirements → roadmap)
 
 </process>
 
@@ -133,5 +132,5 @@ Output: Milestone archived (roadmap + requirements), PROJECT.md evolved, git tag
 - **Archive before deleting:** Always create archive files before updating/deleting originals
 - **One-line summary:** Collapsed milestone in ROADMAP.md should be single line with link
 - **Context efficiency:** Archive keeps ROADMAP.md and REQUIREMENTS.md constant size per milestone
-- **Fresh requirements:** Next milestone starts with `/gsd:define-requirements`, not reusing old file
+- **Fresh requirements:** Next milestone starts with `/gsd:new-milestone` which includes requirements definition
   </critical_rules>

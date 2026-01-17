@@ -286,114 +286,23 @@ After roadmap creation, REQUIREMENTS.md gets updated with phase mappings:
 
 ## ROADMAP.md Structure
 
-```markdown
-# Roadmap
+Use template from `~/.claude/get-shit-done/templates/roadmap.md`.
 
-**Project:** [name]
-**Created:** [date]
-**Phases:** [N]
-
-## Overview
-
-[2-3 sentences describing the roadmap approach]
-
-## Phases
-
-### Phase 1: [Name]
-
-**Goal:** [What this phase delivers - outcome, not task]
-**Depends on:** Nothing (first phase)
-**Requirements:** [REQ-IDs]
-
-**Success Criteria:**
-1. [Observable user behavior]
-2. [Observable user behavior]
-3. [Observable user behavior]
-
-**Plans:** (created by /gsd:plan-phase)
-
----
-
-### Phase 2: [Name]
-
-**Goal:** [Outcome]
-**Depends on:** Phase 1
-**Requirements:** [REQ-IDs]
-
-**Success Criteria:**
-1. [Observable user behavior]
-2. [Observable user behavior]
-
----
-
-[... more phases ...]
-
-## Progress
-
-| Phase | Status | Completed |
-|-------|--------|-----------|
-| 1 - [Name] | Not started | — |
-| 2 - [Name] | Not started | — |
-| 3 - [Name] | Not started | — |
-
----
-
-*Roadmap for milestone: v1.0*
-```
+Key sections:
+- Overview (2-3 sentences)
+- Phases with Goal, Dependencies, Requirements, Success Criteria
+- Progress table
 
 ## STATE.md Structure
 
-```markdown
-# Project State
+Use template from `~/.claude/get-shit-done/templates/state.md`.
 
-## Project Reference
-
-See: .planning/PROJECT.md
-
-**Core value:** [from PROJECT.md]
-**Current focus:** Phase 1 — [name]
-
-## Current Position
-
-Phase: 1 of [N] ([name])
-Plan: Not started
-Status: Ready to plan
-Last activity: [date] — Project initialized
-
-Progress: ░░░░░░░░░░ 0%
-
-## Performance Metrics
-
-**Velocity:**
-- Total plans completed: 0
-- Average duration: —
-
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| — | — | — | — |
-
-## Accumulated Context
-
-### Decisions
-
-(None yet)
-
-### Pending Todos
-
-(None yet)
-
-### Blockers/Concerns
-
-(None yet)
-
-## Session Continuity
-
-Last session: [date]
-Stopped at: Project initialization
-Resume file: None
-```
+Key sections:
+- Project Reference (core value, current focus)
+- Current Position (phase, plan, status, progress bar)
+- Performance Metrics
+- Accumulated Context (decisions, todos, blockers)
+- Session Continuity
 
 ## Draft Presentation Format
 

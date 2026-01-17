@@ -151,7 +151,7 @@ Phases with standard patterns (skip research-phase):
 
 **Implications for Roadmap:**
 - This is the most important section
-- Directly informs create-roadmap workflow
+- Directly informs roadmap creation
 - Be explicit about phase suggestions and rationale
 - Include research flags for each suggested phase
 
@@ -162,9 +162,9 @@ Phases with standard patterns (skip research-phase):
 - MEDIUM = community consensus, multiple sources agree
 - LOW = single source or inference
 
-**Integration with create-roadmap:**
-- This file is loaded as @context in create-roadmap
+**Integration with roadmap creation:**
+- This file is loaded as context during roadmap creation
 - Phase suggestions here become starting point for roadmap
-- Research flags inform detect_research_needs step
+- Research flags inform phase planning
 
 </guidelines>
