@@ -808,7 +808,9 @@ Triggered by `--gaps` flag. Creates plans to address verification or UAT failure
 **1. Find gap sources:**
 
 ```bash
-PHASE_DIR=$(ls -d .planning/phases/${PHASE_ARG}* 2>/dev/null | head -1)
+# Match both zero-padded (05-*) and unpadded (5-*) folders
+PADDED_PHASE=$(printf "%02d" ${PHASE_ARG} 2>/dev/null || echo "${PHASE_ARG}")
+PHASE_DIR=$(ls -d .planning/phases/${PADDED_PHASE}-* .planning/phases/${PHASE_ARG}-* 2>/dev/null | head -1)
 
 # Check for VERIFICATION.md (code verification gaps)
 ls "$PHASE_DIR"/*-VERIFICATION.md 2>/dev/null
@@ -1076,7 +1078,9 @@ Understand:
 **Load phase-specific context files (MANDATORY):**
 
 ```bash
-PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+# Match both zero-padded (05-*) and unpadded (5-*) folders
+PADDED_PHASE=$(printf "%02d" ${PHASE} 2>/dev/null || echo "${PHASE}")
+PHASE_DIR=$(ls -d .planning/phases/${PADDED_PHASE}-* .planning/phases/${PHASE}-* 2>/dev/null | head -1)
 
 # Read CONTEXT.md if exists (from /gsd:discuss-phase)
 cat "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null

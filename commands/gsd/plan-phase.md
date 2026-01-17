@@ -79,11 +79,12 @@ grep -A5 "Phase ${PHASE}:" .planning/ROADMAP.md 2>/dev/null
 ## 4. Ensure Phase Directory Exists
 
 ```bash
-PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+# Match both zero-padded (05-*) and unpadded (5-*) folders
+PADDED_PHASE=$(printf "%02d" ${PHASE})
+PHASE_DIR=$(ls -d .planning/phases/${PADDED_PHASE}-* .planning/phases/${PHASE}-* 2>/dev/null | head -1)
 if [ -z "$PHASE_DIR" ]; then
   # Create phase directory from roadmap name with zero-padded phase number
   PHASE_NAME=$(grep "Phase ${PHASE}:" .planning/ROADMAP.md | sed 's/.*Phase [0-9]*: //' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-  PADDED_PHASE=$(printf "%02d" ${PHASE})
   mkdir -p ".planning/phases/${PADDED_PHASE}-${PHASE_NAME}"
   PHASE_DIR=".planning/phases/${PADDED_PHASE}-${PHASE_NAME}"
 fi

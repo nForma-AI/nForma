@@ -73,8 +73,9 @@ Continue to `create_uat_file`.
 Parse $ARGUMENTS as phase number (e.g., "4") or plan number (e.g., "04-02").
 
 ```bash
-# Find phase directory
-PHASE_DIR=$(ls -d .planning/phases/${PHASE_ARG}* 2>/dev/null | head -1)
+# Find phase directory (match both zero-padded and unpadded)
+PADDED_PHASE=$(printf "%02d" ${PHASE_ARG} 2>/dev/null || echo "${PHASE_ARG}")
+PHASE_DIR=$(ls -d .planning/phases/${PADDED_PHASE}-* .planning/phases/${PHASE_ARG}-* 2>/dev/null | head -1)
 
 # Find SUMMARY files
 ls "$PHASE_DIR"/*-SUMMARY.md 2>/dev/null

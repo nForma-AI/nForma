@@ -109,8 +109,9 @@ Exit workflow.
 Check if CONTEXT.md already exists:
 
 ```bash
-ls .planning/phases/${PHASE}-*/CONTEXT.md 2>/dev/null
-ls .planning/phases/${PHASE}-*/${PHASE}-CONTEXT.md 2>/dev/null
+# Match both zero-padded (05-*) and unpadded (5-*) folders
+PADDED_PHASE=$(printf "%02d" ${PHASE})
+ls .planning/phases/${PADDED_PHASE}-*/CONTEXT.md .planning/phases/${PADDED_PHASE}-*/${PADDED_PHASE}-CONTEXT.md .planning/phases/${PHASE}-*/CONTEXT.md .planning/phases/${PHASE}-*/${PHASE}-CONTEXT.md 2>/dev/null
 ```
 
 **If exists:**
@@ -229,11 +230,21 @@ Track deferred ideas internally.
 <step name="write_context">
 Create CONTEXT.md capturing decisions made.
 
-**File location:** `.planning/phases/${PADDED_PHASE}-${SLUG}/${PADDED_PHASE}-CONTEXT.md`
+**Find or create phase directory:**
 
-Zero-pad the phase number: `PADDED_PHASE=$(printf "%02d" ${PHASE})`
+```bash
+# Match existing directory (padded or unpadded)
+PADDED_PHASE=$(printf "%02d" ${PHASE})
+PHASE_DIR=$(ls -d .planning/phases/${PADDED_PHASE}-* .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+if [ -z "$PHASE_DIR" ]; then
+  # Create from roadmap name (lowercase, hyphens)
+  PHASE_NAME=$(grep "Phase ${PHASE}:" .planning/ROADMAP.md | sed 's/.*Phase [0-9]*: //' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+  mkdir -p ".planning/phases/${PADDED_PHASE}-${PHASE_NAME}"
+  PHASE_DIR=".planning/phases/${PADDED_PHASE}-${PHASE_NAME}"
+fi
+```
 
-Create phase directory if it doesn't exist. Use roadmap phase name for slug (lowercase, hyphens).
+**File location:** `${PHASE_DIR}/${PADDED_PHASE}-CONTEXT.md`
 
 **Structure the content by what was discussed:**
 
@@ -334,18 +345,18 @@ Created: .planning/phases/${PADDED_PHASE}-${SLUG}/${PADDED_PHASE}-CONTEXT.md
 Commit phase context:
 
 ```bash
-git add .planning/phases/${PHASE}-${SLUG}/${PHASE}-CONTEXT.md
+git add "${PHASE_DIR}/${PADDED_PHASE}-CONTEXT.md"
 git commit -m "$(cat <<'EOF'
-docs(${PHASE}): capture phase context
+docs(${PADDED_PHASE}): capture phase context
 
-Phase ${PHASE}: ${PHASE_NAME}
+Phase ${PADDED_PHASE}: ${PHASE_NAME}
 - Implementation decisions documented
 - Phase boundary established
 EOF
 )"
 ```
 
-Confirm: "Committed: docs(${PHASE}): capture phase context"
+Confirm: "Committed: docs(${PADDED_PHASE}): capture phase context"
 </step>
 
 </process>

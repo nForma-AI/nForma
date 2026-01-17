@@ -121,7 +121,7 @@ Present complete project status to user:
     Task: [task description from agent-history.json]
     Interrupted: [timestamp]
 
-    Resume with: /gsd:resume-task
+    Resume with: Task tool (resume parameter with agent ID)
 
 [If pending todos exist:]
 📋 [N] pending todos — /gsd:check-todos to review
@@ -141,7 +141,7 @@ Present complete project status to user:
 Based on project state, determine the most logical next action:
 
 **If interrupted agent exists:**
-→ Primary: Resume interrupted agent (/gsd:resume-task)
+→ Primary: Resume interrupted agent (Task tool with resume parameter)
 → Option: Start fresh (abandon agent work)
 
 **If .continue-here file exists:**
@@ -178,7 +178,7 @@ Present contextual options based on project state:
 What would you like to do?
 
 [Primary action based on state - e.g.:]
-1. Resume interrupted agent (/gsd:resume-task) [if interrupted agent found]
+1. Resume interrupted agent [if interrupted agent found]
    OR
 1. Execute phase (/gsd:execute-phase {phase})
    OR

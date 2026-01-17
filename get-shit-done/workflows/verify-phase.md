@@ -29,8 +29,9 @@ Then verify each level against the actual codebase.
 **Gather all verification context:**
 
 ```bash
-# Phase directory
-PHASE_DIR=$(ls -d .planning/phases/${PHASE_ARG}* 2>/dev/null | head -1)
+# Phase directory (match both zero-padded and unpadded)
+PADDED_PHASE=$(printf "%02d" ${PHASE_ARG} 2>/dev/null || echo "${PHASE_ARG}")
+PHASE_DIR=$(ls -d .planning/phases/${PADDED_PHASE}-* .planning/phases/${PHASE_ARG}-* 2>/dev/null | head -1)
 
 # Phase goal from ROADMAP
 grep -A 5 "Phase ${PHASE_NUM}" .planning/ROADMAP.md
