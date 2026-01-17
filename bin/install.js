@@ -210,6 +210,38 @@ function cleanupOrphanedHooks(settings) {
 }
 
 /**
+ * Verify a directory exists and contains files
+ */
+function verifyInstalled(dirPath, description) {
+  if (!fs.existsSync(dirPath)) {
+    console.error(`  ${yellow}✗${reset} Failed to install ${description}: directory not created`);
+    return false;
+  }
+  try {
+    const entries = fs.readdirSync(dirPath);
+    if (entries.length === 0) {
+      console.error(`  ${yellow}✗${reset} Failed to install ${description}: directory is empty`);
+      return false;
+    }
+  } catch (e) {
+    console.error(`  ${yellow}✗${reset} Failed to install ${description}: ${e.message}`);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Verify a file exists
+ */
+function verifyFileInstalled(filePath, description) {
+  if (!fs.existsSync(filePath)) {
+    console.error(`  ${yellow}✗${reset} Failed to install ${description}: file not created`);
+    return false;
+  }
+  return true;
+}
+
+/**
  * Install to the specified directory
  */
 function install(isGlobal) {
@@ -233,6 +265,9 @@ function install(isGlobal) {
 
   console.log(`  Installing to ${cyan}${locationLabel}${reset}\n`);
 
+  // Track installation failures
+  const failures = [];
+
   // Clean up orphaned files from previous versions
   cleanupOrphanedFiles(claudeDir);
 
@@ -244,13 +279,21 @@ function install(isGlobal) {
   const gsdSrc = path.join(src, 'commands', 'gsd');
   const gsdDest = path.join(commandsDir, 'gsd');
   copyWithPathReplacement(gsdSrc, gsdDest, pathPrefix);
-  console.log(`  ${green}✓${reset} Installed commands/gsd`);
+  if (verifyInstalled(gsdDest, 'commands/gsd')) {
+    console.log(`  ${green}✓${reset} Installed commands/gsd`);
+  } else {
+    failures.push('commands/gsd');
+  }
 
   // Copy get-shit-done skill with path replacement
   const skillSrc = path.join(src, 'get-shit-done');
   const skillDest = path.join(claudeDir, 'get-shit-done');
   copyWithPathReplacement(skillSrc, skillDest, pathPrefix);
-  console.log(`  ${green}✓${reset} Installed get-shit-done`);
+  if (verifyInstalled(skillDest, 'get-shit-done')) {
+    console.log(`  ${green}✓${reset} Installed get-shit-done`);
+  } else {
+    failures.push('get-shit-done');
+  }
 
   // Copy agents to ~/.claude/agents (subagents must be at root level)
   // Only delete gsd-*.md files to preserve user's custom agents
@@ -277,7 +320,11 @@ function install(isGlobal) {
         fs.writeFileSync(path.join(agentsDest, entry.name), content);
       }
     }
-    console.log(`  ${green}✓${reset} Installed agents`);
+    if (verifyInstalled(agentsDest, 'agents')) {
+      console.log(`  ${green}✓${reset} Installed agents`);
+    } else {
+      failures.push('agents');
+    }
   }
 
   // Copy CHANGELOG.md
@@ -285,13 +332,21 @@ function install(isGlobal) {
   const changelogDest = path.join(claudeDir, 'get-shit-done', 'CHANGELOG.md');
   if (fs.existsSync(changelogSrc)) {
     fs.copyFileSync(changelogSrc, changelogDest);
-    console.log(`  ${green}✓${reset} Installed CHANGELOG.md`);
+    if (verifyFileInstalled(changelogDest, 'CHANGELOG.md')) {
+      console.log(`  ${green}✓${reset} Installed CHANGELOG.md`);
+    } else {
+      failures.push('CHANGELOG.md');
+    }
   }
 
   // Write VERSION file for whats-new command
   const versionDest = path.join(claudeDir, 'get-shit-done', 'VERSION');
   fs.writeFileSync(versionDest, pkg.version);
-  console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version})`);
+  if (verifyFileInstalled(versionDest, 'VERSION')) {
+    console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version})`);
+  } else {
+    failures.push('VERSION');
+  }
 
   // Copy hooks
   const hooksSrc = path.join(src, 'hooks');
@@ -304,7 +359,18 @@ function install(isGlobal) {
       const destFile = path.join(hooksDest, entry);
       fs.copyFileSync(srcFile, destFile);
     }
-    console.log(`  ${green}✓${reset} Installed hooks`);
+    if (verifyInstalled(hooksDest, 'hooks')) {
+      console.log(`  ${green}✓${reset} Installed hooks`);
+    } else {
+      failures.push('hooks');
+    }
+  }
+
+  // If critical components failed, exit with error
+  if (failures.length > 0) {
+    console.error(`\n  ${yellow}Installation incomplete!${reset} Failed: ${failures.join(', ')}`);
+    console.error(`  Try running directly: node ~/.npm/_npx/*/node_modules/get-shit-done-cc/bin/install.js --global\n`);
+    process.exit(1);
   }
 
   // Configure statusline and hooks in settings.json
@@ -425,9 +491,35 @@ function handleStatusline(settings, isInteractive, callback) {
  * Prompt for install location
  */
 function promptLocation() {
+  // Check if stdin is a TTY - if not, fall back to global install
+  // This handles npx execution in environments like WSL2 where stdin may not be properly connected
+  if (!process.stdin.isTTY) {
+    console.log(`  ${yellow}Non-interactive terminal detected, defaulting to global install${reset}\n`);
+    const { settingsPath, settings, statuslineCommand } = install(true);
+    handleStatusline(settings, false, (shouldInstallStatusline) => {
+      finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline);
+    });
+    return;
+  }
+
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
+  });
+
+  // Track whether we've processed the answer to prevent double-execution
+  let answered = false;
+
+  // Handle readline close event to detect premature stdin closure
+  rl.on('close', () => {
+    if (!answered) {
+      answered = true;
+      console.log(`\n  ${yellow}Input stream closed, defaulting to global install${reset}\n`);
+      const { settingsPath, settings, statuslineCommand } = install(true);
+      handleStatusline(settings, false, (shouldInstallStatusline) => {
+        finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline);
+      });
+    }
   });
 
   const configDir = expandTilde(explicitConfigDir) || expandTilde(process.env.CLAUDE_CONFIG_DIR);
@@ -441,6 +533,7 @@ function promptLocation() {
 `);
 
   rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
+    answered = true;
     rl.close();
     const choice = answer.trim() || '1';
     const isGlobal = choice !== '2';
