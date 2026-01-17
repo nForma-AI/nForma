@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.5.29] - 2025-01-16
+
+### Changed
+- Discuss-phase now uses domain-aware questioning with deeper probing for gray areas
+
+### Fixed
+- Windows hooks now work via Node.js conversion (statusline, update-check)
+- Phase input normalization at command entry points
+- Removed blocking notification popups (gsd-notify) on all platforms
+
 ## [1.5.28] - 2026-01-16
 
 ### Changed
@@ -867,7 +877,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.28...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.29...HEAD
+[1.5.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.29
 [1.5.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.28
 [1.5.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.27
 [1.5.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.26
