@@ -1,6 +1,6 @@
 {
   "name": "get-shit-done-cc",
-  "version": "1.5.27",
+  "version": "1.5.28",
   "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code by TÂCHES.",
   "bin": {
     "get-shit-done-cc": "bin/install.js"
