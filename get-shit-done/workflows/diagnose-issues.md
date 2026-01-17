@@ -164,10 +164,13 @@ git commit -m "docs({phase}): add root causes from diagnosis"
 </step>
 
 <step name="report_results">
-**Report diagnosis results:**
+**Report diagnosis results and hand off:**
 
+Display:
 ```
-## Diagnosis Complete
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSD ► DIAGNOSIS COMPLETE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 | Gap (Truth) | Root Cause | Files |
 |-------------|------------|-------|
@@ -175,26 +178,13 @@ git commit -m "docs({phase}): add root causes from diagnosis"
 | Reply button positioned correctly | CSS flex order incorrect | ReplyButton.tsx |
 | Delete removes comment | API missing auth header | api/comments.ts |
 
-Debug sessions saved to ${DEBUG_DIR}/
+Debug sessions: ${DEBUG_DIR}/
 
----
-
-Next steps:
-- `/gsd:plan-phase {phase} --gaps` — Create fix plans from diagnosed gaps
-- Review debug sessions for details
+Proceeding to plan fixes...
 ```
-</step>
 
-<step name="offer_next">
-**Offer gap closure:**
-
-```
-Root causes identified. Ready to plan fixes?
-
-`/gsd:plan-phase {phase} --gaps`
-
-The fix plans will use diagnosed root causes for targeted fixes.
-```
+Return to verify-work orchestrator for automatic planning.
+Do NOT offer manual next steps - verify-work handles the rest.
 </step>
 
 </process>
@@ -239,5 +229,5 @@ The fix plans will use diagnosed root causes for targeted fixes.
 - [ ] Root causes collected from all agents
 - [ ] UAT.md gaps updated with artifacts and missing
 - [ ] Debug sessions saved to ${DEBUG_DIR}/
-- [ ] User knows next steps (plan-phase --gaps)
+- [ ] Hand off to verify-work for automatic planning
 </success_criteria>

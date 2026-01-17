@@ -419,7 +419,13 @@ Wait for user response.
 
 ## 13. Present Final Status
 
-```
+Route to `<offer_next>`.
+
+</process>
+
+<offer_next>
+Output this markdown directly (not as a code block):
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  GSD ► PHASE {X} PLANNED ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -440,20 +446,18 @@ Verification: {Passed | Passed with override | Skipped}
 
 **Execute Phase {X}** — run all {N} plans
 
-`/gsd:execute-phase {X}`
+/gsd:execute-phase {X}
 
-<sub>`/clear` first → fresh context window</sub>
+<sub>/clear first → fresh context window</sub>
 
 ───────────────────────────────────────────────────────────────
 
 **Also available:**
-- `cat .planning/phases/{phase-dir}/*-PLAN.md` — review plans
-- `/gsd:plan-phase {X} --research` — re-research first
+- cat .planning/phases/{phase-dir}/*-PLAN.md — review plans
+- /gsd:plan-phase {X} --research — re-research first
 
 ───────────────────────────────────────────────────────────────
-```
-
-</process>
+</offer_next>
 
 <success_criteria>
 - [ ] .planning/ directory validated

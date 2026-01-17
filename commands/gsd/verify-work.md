@@ -9,14 +9,15 @@ allowed-tools:
   - Grep
   - Edit
   - Write
+  - Task
 ---
 
 <objective>
 Validate built features through conversational testing with persistent state.
 
-Purpose: Confirm what Claude built actually works from user's perspective. One test at a time, plain text responses, no interrogation.
+Purpose: Confirm what Claude built actually works from user's perspective. One test at a time, plain text responses, no interrogation. When issues are found, automatically diagnose, plan fixes, and prepare for execution.
 
-Output: {phase}-UAT.md tracking all test results, gaps logged for /gsd:plan-phase --gaps
+Output: {phase}-UAT.md tracking all test results. If issues found: diagnosed gaps, verified fix plans ready for /gsd:execute-phase
 </objective>
 
 <execution_context>
@@ -43,7 +44,13 @@ Phase: $ARGUMENTS (optional)
    - Wait for plain text response
    - "yes/y/next" = pass, anything else = issue (severity inferred)
 6. Update UAT.md after each response
-7. On completion: commit, present summary, offer next steps
+7. On completion: commit, present summary
+8. If issues found:
+   - Spawn parallel debug agents to diagnose root causes
+   - Spawn gsd-planner in --gaps mode to create fix plans
+   - Spawn gsd-plan-checker to verify fix plans
+   - Iterate planner ↔ checker until plans pass (max 3)
+   - Present ready status with `/clear` then `/gsd:execute-phase`
 </process>
 
 <anti_patterns>
@@ -51,7 +58,7 @@ Phase: $ARGUMENTS (optional)
 - Don't ask severity — infer from description
 - Don't present full checklist upfront — one test at a time
 - Don't run automated tests — this is manual user validation
-- Don't fix issues during testing — log as gaps for /gsd:plan-phase --gaps
+- Don't fix issues during testing — log as gaps, diagnose after all tests complete
 </anti_patterns>
 
 <success_criteria>
@@ -61,5 +68,8 @@ Phase: $ARGUMENTS (optional)
 - [ ] Severity inferred, never asked
 - [ ] Batched writes: on issue, every 5 passes, or completion
 - [ ] Committed on completion
-- [ ] Clear next steps based on results
+- [ ] If issues: parallel debug agents diagnose root causes
+- [ ] If issues: gsd-planner creates fix plans from diagnosed gaps
+- [ ] If issues: gsd-plan-checker verifies fix plans (max 3 iterations)
+- [ ] Ready for `/gsd:execute-phase` when complete
 </success_criteria>

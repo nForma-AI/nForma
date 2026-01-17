@@ -143,9 +143,12 @@ Route by status (see `<offer_next>`).
 </process>
 
 <offer_next>
+Output this markdown directly (not as a code block). Route based on status:
+
+---
+
 **If passed:**
 
-```markdown
 ## ✓ Milestone {version} — Audit Passed
 
 **Score:** {N}/{M} requirements satisfied
@@ -153,22 +156,22 @@ Route by status (see `<offer_next>`).
 
 All requirements covered. Cross-phase integration verified. E2E flows complete.
 
----
+───────────────────────────────────────────────────────────────
 
 ## ▶ Next Up
 
 **Complete milestone** — archive and tag
 
-`/gsd:complete-milestone {version}`
+/gsd:complete-milestone {version}
 
-<sub>`/clear` first → fresh context window</sub>
-```
+<sub>/clear first → fresh context window</sub>
+
+───────────────────────────────────────────────────────────────
 
 ---
 
 **If gaps_found:**
 
-```markdown
 ## ⚠ Milestone {version} — Gaps Found
 
 **Score:** {N}/{M} requirements satisfied
@@ -190,28 +193,28 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 {For each flow gap:}
 - **{flow name}:** breaks at {step}
 
----
+───────────────────────────────────────────────────────────────
 
 ## ▶ Next Up
 
 **Plan gap closure** — create phases to complete milestone
 
-`/gsd:plan-milestone-gaps`
+/gsd:plan-milestone-gaps
 
-<sub>`/clear` first → fresh context window</sub>
+<sub>/clear first → fresh context window</sub>
 
----
+───────────────────────────────────────────────────────────────
 
 **Also available:**
-- `cat .planning/v{version}-MILESTONE-AUDIT.md` — see full report
-- `/gsd:complete-milestone {version}` — proceed anyway (accept tech debt)
-```
+- cat .planning/v{version}-MILESTONE-AUDIT.md — see full report
+- /gsd:complete-milestone {version} — proceed anyway (accept tech debt)
+
+───────────────────────────────────────────────────────────────
 
 ---
 
 **If tech_debt (no blockers but accumulated debt):**
 
-```markdown
 ## ⚡ Milestone {version} — Tech Debt Review
 
 **Score:** {N}/{M} requirements satisfied
@@ -228,20 +231,21 @@ All requirements met. No critical blockers. Accumulated tech debt needs review.
 
 ### Total: {N} items across {M} phases
 
----
+───────────────────────────────────────────────────────────────
 
 ## ▶ Options
 
 **A. Complete milestone** — accept debt, track in backlog
 
-`/gsd:complete-milestone {version}`
+/gsd:complete-milestone {version}
 
 **B. Plan cleanup phase** — address debt before completing
 
-`/gsd:plan-milestone-gaps`
+/gsd:plan-milestone-gaps
 
-<sub>`/clear` first → fresh context window</sub>
-```
+<sub>/clear first → fresh context window</sub>
+
+───────────────────────────────────────────────────────────────
 </offer_next>
 
 <success_criteria>
