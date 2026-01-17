@@ -6,6 +6,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.6.1] - 2025-01-17
+
+### Changed
+- Installer performs clean install of GSD folders, removing orphaned files from previous versions
+- `/gsd:update` shows changelog and asks for confirmation before updating, with clear warning about what gets replaced
+
 ## [1.6.0] - 2026-01-17
 
 ### Changed
@@ -898,7 +904,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.5.30...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.6.1...HEAD
+[1.6.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.1
+[1.6.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.0
 [1.5.30]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.30
 [1.5.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.29
 [1.5.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.28
