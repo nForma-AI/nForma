@@ -156,7 +156,7 @@ Fix plans verified ✓
 
 **Execute fix plans** — run diagnosed fixes
 
-/gsd:execute-phase {Z}
+/gsd:execute-phase {Z} --gaps-only
 
 <sub>/clear first → fresh context window</sub>
 

@@ -1296,7 +1296,7 @@ Execute: `/gsd:execute-phase {phase}`
 
 ### Next Steps
 
-Execute: `/gsd:execute-phase {phase}`
+Execute: `/gsd:execute-phase {phase} --gaps-only`
 ```
 
 ## Revision Complete
