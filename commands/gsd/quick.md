@@ -26,7 +26,7 @@ Use when: You know exactly what to do and the task is small enough to not need r
 </objective>
 
 <execution_context>
-<!-- DEFERRED TO PLAN 02: Reference to quick workflow will be populated here -->
+Orchestration is inline - no separate workflow file. Quick mode is deliberately simpler than full GSD.
 </execution_context>
 
 <context>
@@ -229,9 +229,47 @@ Use Edit tool to make these changes atomically
 
 ---
 
-**Step 8: Commit artifacts**
+**Step 8: Final commit and completion**
 
-<!-- DEFERRED: Stage and commit quick task artifacts -->
+Stage and commit quick task artifacts:
+
+```bash
+# Stage quick task artifacts
+git add ${QUICK_DIR}/PLAN.md
+git add ${QUICK_DIR}/SUMMARY.md
+git add .planning/STATE.md
+
+# Commit with quick task format
+git commit -m "$(cat <<'EOF'
+docs(quick-${next_num}): ${DESCRIPTION}
+
+Quick task completed.
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+EOF
+)"
+```
+
+Get final commit hash:
+```bash
+commit_hash=$(git rev-parse --short HEAD)
+```
+
+Display completion output:
+```
+---
+
+GSD > QUICK TASK COMPLETE
+
+Quick Task ${next_num}: ${DESCRIPTION}
+
+Summary: ${QUICK_DIR}/SUMMARY.md
+Commit: ${commit_hash}
+
+---
+
+Ready for next task: /gsd:quick
+```
 
 </process>
 
