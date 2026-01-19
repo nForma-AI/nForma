@@ -6,6 +6,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-01-19
+
+### Added
+- Uncommitted planning mode: Keep `.planning/` local-only (not committed to git) via `planning.commit_docs: false` in config.json. Useful for OSS contributions, client work, or privacy preferences.
+- `/gsd:new-project` now asks about git tracking during initial setup, letting you opt out of committing planning docs from the start
+
 ## [1.7.1] - 2026-01-19
 
 ### Fixed
@@ -951,7 +957,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.7.1...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.8.0
 [1.7.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.7.1
 [1.7.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.7.0
 [1.6.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.4
