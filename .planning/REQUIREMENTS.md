@@ -33,9 +33,9 @@
 
 ### Docs
 
-- [ ] **DOCS-01**: help.md lists `/gsd:quick` command
-- [ ] **DOCS-02**: README.md includes quick mode section
-- [ ] **DOCS-03**: GSD-STYLE.md documents quick mode patterns
+- [x] **DOCS-01**: help.md lists `/gsd:quick` command
+- [x] **DOCS-02**: README.md includes quick mode section
+- [x] **DOCS-03**: GSD-STYLE.md documents quick mode patterns
 
 ## v2 Requirements
 
@@ -73,9 +73,9 @@
 | STATE-03 | Phase 1 | Complete |
 | RESUME-01 | Phase 2 | Pending |
 | RESUME-02 | Phase 2 | Pending |
-| DOCS-01 | Phase 3 | Pending |
-| DOCS-02 | Phase 3 | Pending |
-| DOCS-03 | Phase 3 | Pending |
+| DOCS-01 | Phase 2 | Complete |
+| DOCS-02 | Phase 2 | Complete |
+| DOCS-03 | Phase 2 | Complete |
 
 **Coverage:**
 - v1 requirements: 17 total
