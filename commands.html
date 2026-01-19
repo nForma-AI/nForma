@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>~~*~* GSD COMMAND CENTER *~*~~</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background-color: #00FF00;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='40' height='40' fill='%2300FF00'/%3E%3Crect x='0' y='0' width='20' height='20' fill='%2300CC00'/%3E%3Crect x='20' y='20' width='20' height='20' fill='%2300CC00'/%3E%3C/svg%3E");
+            font-family: 'Times New Roman', serif;
+            color: #FF00FF;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        .rainbow {
+            background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+            color: #FF0000;
+            text-shadow: 3px 3px #FFFF00, -1px -1px #00FFFF;
+            font-size: 28px;
+        }
+
+        h2 {
+            font-family: 'Papyrus', 'Comic Sans MS', fantasy;
+            color: #0000FF;
+            text-decoration: underline;
+        }
+
+        table {
+            border: 5px ridge #FF00FF;
+            border-collapse: separate;
+            border-spacing: 3px;
+            background-color: #FFFF00;
+            width: 90%;
+        }
+
+        th {
+            font-family: 'Comic Sans MS', cursive;
+            background-color: #FF0000;
+            color: #FFFF00;
+            border: 3px outset #880000;
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        td {
+            border: 2px inset #0000FF;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        .cmd-name {
+            font-family: 'Courier New', monospace;
+            color: #0000FF;
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .cmd-desc {
+            font-family: 'Times New Roman', serif;
+            color: #000000;
+            font-size: 13px;
+        }
+
+        .new-badge {
+            color: #FF0000;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 10px;
+            animation: blinker 0.5s linear infinite;
+        }
+
+        .section-header {
+            background-color: #00FFFF;
+            color: #FF0000;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .construction {
+            font-family: 'Comic Sans MS', cursive;
+            color: #FF0000;
+            background-color: #FFFF00;
+            border: 3px dashed #FF0000;
+            padding: 10px;
+            margin: 10px;
+        }
+
+        .visitor-counter {
+            font-family: 'Courier New', monospace;
+            background-color: #000000;
+            color: #00FF00;
+            padding: 5px 10px;
+            border: 2px inset #888888;
+            display: inline-block;
+        }
+
+        .footer-box {
+            background-color: #C0C0C0;
+            border: 3px outset #FFFFFF;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        a {
+            color: #0000FF;
+        }
+
+        a:visited {
+            color: #800080;
+        }
+
+        .netscape {
+            font-family: 'Times New Roman', serif;
+            font-size: 11px;
+            color: #000080;
+        }
+
+        hr {
+            border: none;
+            height: 3px;
+            background: linear-gradient(to right, #FF0000, #FF7F00, #FFFF00, #00FF00, #0000FF, #4B0082, #9400D3);
+        }
+
+        .stars {
+            color: #FFD700;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<center>
+
+<marquee behavior="scroll" direction="left" scrollamount="8" style="background-color: #FF00FF; color: #FFFF00; font-family: 'Comic Sans MS', cursive; font-size: 24px; padding: 10px;">
+    <span class="stars">***</span> WELCOME TO THE GSD COMMAND CENTER!!! <span class="stars">***</span> Get Shit Done with Claude Code! <span class="stars">***</span> Solo Agentic Development <span class="stars">***</span>
+</marquee>
+
+<br><br>
+
+<h1><span class="rainbow">~*~*~*~ GSD COMMAND REFERENCE ~*~*~*~</span></h1>
+
+<p style="font-family: 'Comic Sans MS', cursive; color: #0000FF; font-size: 16px;">
+    <span class="blink">***</span> Your ULTIMATE guide to the Get Shit Done system! <span class="blink">***</span>
+</p>
+
+<hr>
+
+<div class="construction">
+    <span class="blink">!!! UNDER CONSTRUCTION !!!</span><br>
+    <span style="font-size: 20px;">&#128679; &#9888; &#128679;</span><br>
+    More features coming soon!!!
+</div>
+
+<hr>
+
+<h2>&#127775; CORE COMMANDS &#127775;</h2>
+
+<table>
+    <tr>
+        <th>COMMAND</th>
+        <th>DESCRIPTION</th>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#128204; PROJECT INITIALIZATION &#128204;</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:new-project</td>
+        <td class="cmd-desc">Initialize new project through unified flow. One command takes you from idea to ready-for-planning: deep questioning, optional domain research (4 parallel researcher agents), requirements definition with v1/v2/out-of-scope scoping, and roadmap creation. <span class="new-badge">NEW!</span></td>
+    </tr>
+    <tr bgcolor="#CCFFCC">
+        <td class="cmd-name">/gsd:map-codebase</td>
+        <td class="cmd-desc">Map an existing codebase for brownfield projects. Analyzes codebase with parallel Explore agents, creates 7 focused documents covering stack, architecture, structure, conventions, testing, integrations, and concerns.</td>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#128221; PHASE PLANNING &#128221;</td>
+    </tr>
+    <tr bgcolor="#FFFFCC">
+        <td class="cmd-name">/gsd:discuss-phase &lt;number&gt;</td>
+        <td class="cmd-desc">Help articulate your vision for a phase before planning. Captures how you imagine this phase working and creates CONTEXT.md with your vision, essentials, and boundaries.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:research-phase &lt;number&gt;</td>
+        <td class="cmd-desc">Comprehensive ecosystem research for niche/complex domains. Discovers standard stack, architecture patterns, pitfalls. Creates RESEARCH.md with "how experts build this" knowledge.</td>
+    </tr>
+    <tr bgcolor="#CCFFCC">
+        <td class="cmd-name">/gsd:list-phase-assumptions &lt;number&gt;</td>
+        <td class="cmd-desc">See what Claude is planning to do before it starts. Shows Claude's intended approach for a phase so you can course-correct if Claude misunderstood your vision.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:plan-phase &lt;number&gt;</td>
+        <td class="cmd-desc">Create detailed execution plan for a specific phase. Generates PLAN.md files with concrete, actionable tasks including verification criteria and success measures. <span class="new-badge">HOT!</span></td>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#128640; EXECUTION &#128640;</td>
+    </tr>
+    <tr bgcolor="#FFCCFF">
+        <td class="cmd-name">/gsd:execute-phase &lt;number&gt;</td>
+        <td class="cmd-desc">Execute all plans in a phase. Groups plans by wave, executes waves sequentially with plans within each wave running in parallel. Verifies phase goal after all plans complete.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:quick</td>
+        <td class="cmd-desc">Execute small, ad-hoc tasks with GSD guarantees but skip optional agents. Spawns planner + executor (skips researcher, checker, verifier). Quick tasks live in .planning/quick/. <span class="new-badge">NEW!</span></td>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#128506; ROADMAP MANAGEMENT &#128506;</td>
+    </tr>
+    <tr bgcolor="#CCCCFF">
+        <td class="cmd-name">/gsd:add-phase &lt;description&gt;</td>
+        <td class="cmd-desc">Add new phase to end of current milestone. Appends to ROADMAP.md using next sequential number and updates phase directory structure.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:insert-phase &lt;after&gt; &lt;desc&gt;</td>
+        <td class="cmd-desc">Insert urgent work as decimal phase between existing phases (e.g., 7.1 between 7 and 8). Useful for discovered work that must happen mid-milestone.</td>
+    </tr>
+    <tr bgcolor="#CCCCFF">
+        <td class="cmd-name">/gsd:remove-phase &lt;number&gt;</td>
+        <td class="cmd-desc">Remove a future phase and renumber subsequent phases. Deletes phase directory and all references. Only works on future (unstarted) phases.</td>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#127942; MILESTONE MANAGEMENT &#127942;</td>
+    </tr>
+    <tr bgcolor="#FFCCCC">
+        <td class="cmd-name">/gsd:new-milestone &lt;name&gt;</td>
+        <td class="cmd-desc">Start a new milestone through unified flow. Deep questioning, optional domain research, requirements definition, and roadmap creation. Mirrors /gsd:new-project for brownfield projects.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:complete-milestone &lt;ver&gt;</td>
+        <td class="cmd-desc">Archive completed milestone and prepare for next version. Creates MILESTONES.md entry, archives details, creates git tag, prepares workspace for next version.</td>
+    </tr>
+    <tr bgcolor="#FFCCCC">
+        <td class="cmd-name">/gsd:audit-milestone</td>
+        <td class="cmd-desc">Audit current milestone progress against requirements and roadmap. Shows completion status and identifies any gaps or issues.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:plan-milestone-gaps</td>
+        <td class="cmd-desc">Create plans to address identified milestone gaps. Generates additional phase plans for any discovered missing work.</td>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#128202; PROGRESS TRACKING &#128202;</td>
+    </tr>
+    <tr bgcolor="#CCFFFF">
+        <td class="cmd-name">/gsd:progress</td>
+        <td class="cmd-desc">Check project status and intelligently route to next action. Shows visual progress bar, summarizes recent work, displays current position, and offers to execute or create next plan. <span class="new-badge">HOT!</span></td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:resume-work</td>
+        <td class="cmd-desc">Resume work from previous session with full context restoration. Reads STATE.md for project context, shows current position and recent progress, offers next actions.</td>
+    </tr>
+    <tr bgcolor="#CCFFFF">
+        <td class="cmd-name">/gsd:pause-work</td>
+        <td class="cmd-desc">Create context handoff when pausing work mid-phase. Creates .continue-here file with current state, updates STATE.md session continuity section.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:verify-work</td>
+        <td class="cmd-desc">Verify completed work against plan requirements. Ensures all tasks were completed correctly and nothing was missed.</td>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#128270; DEBUGGING &#128270;</td>
+    </tr>
+    <tr bgcolor="#FFEECC">
+        <td class="cmd-name">/gsd:debug [issue]</td>
+        <td class="cmd-desc">Systematic debugging with persistent state across context resets. Gathers symptoms, creates .planning/debug/[slug].md to track investigation, uses scientific method. Survives /clear!</td>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#128203; TODO MANAGEMENT &#128203;</td>
+    </tr>
+    <tr bgcolor="#EECCFF">
+        <td class="cmd-name">/gsd:add-todo [description]</td>
+        <td class="cmd-desc">Capture idea or task as todo from current conversation. Extracts context, creates structured todo file in .planning/todos/pending/, infers area from file paths.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:check-todos [area]</td>
+        <td class="cmd-desc">List pending todos and select one to work on. Optional area filter, loads full context for selected todo, routes to appropriate action.</td>
+    </tr>
+    <tr class="section-header">
+        <td colspan="2">&#128736; UTILITY COMMANDS &#128736;</td>
+    </tr>
+    <tr bgcolor="#DDDDDD">
+        <td class="cmd-name">/gsd:help</td>
+        <td class="cmd-desc">Show complete GSD command reference. Displays all available commands with descriptions and usage examples.</td>
+    </tr>
+    <tr>
+        <td class="cmd-name">/gsd:whats-new</td>
+        <td class="cmd-desc">See what's changed since your installed version. Shows installed vs latest version comparison, displays changelog entries, highlights breaking changes.</td>
+    </tr>
+    <tr bgcolor="#DDDDDD">
+        <td class="cmd-name">/gsd:update</td>
+        <td class="cmd-desc">Update GSD to the latest version. Downloads and installs the newest version of the get-shit-done-cc package.</td>
+    </tr>
+</table>
+
+<hr>
+
+<p style="font-family: 'Comic Sans MS', cursive; font-size: 14px; color: #FF0000;">
+    <span class="blink">&#9733;</span> Total Commands: <b>25</b> <span class="blink">&#9733;</span>
+</p>
+
+<hr>
+
+<h2>&#128218; QUICK START GUIDE &#128218;</h2>
+
+<table border="3" bgcolor="#CCFFFF" width="80%">
+    <tr>
+        <td style="font-family: 'Courier New', monospace; color: #000080; padding: 15px;">
+            <b>Step 1:</b> /gsd:new-project<br>
+            <b>Step 2:</b> /gsd:plan-phase 1<br>
+            <b>Step 3:</b> /gsd:execute-phase 1<br>
+            <b>Step 4:</b> REPEAT!!! &#128640;
+        </td>
+    </tr>
+</table>
+
+<hr>
+
+<marquee behavior="alternate" direction="right" scrollamount="3" style="color: #FF00FF; font-family: 'Comic Sans MS', cursive;">
+    &#127881; Thanks for visiting the GSD Command Center! &#127881; Tell your friends! &#127881; Sign my guestbook! &#127881;
+</marquee>
+
+<hr>
+
+<div class="footer-box">
+    <p>
+        <span class="visitor-counter">You are visitor #00042069</span>
+    </p>
+
+    <p>
+        <a href="#">&#128221; Sign my Guestbook!</a> |
+        <a href="#">&#128279; Cool Links</a> |
+        <a href="#">&#127968; Home</a>
+    </p>
+
+    <hr style="width: 50%;">
+
+    <p class="netscape">
+        &#127760; Best viewed in <b>Netscape Navigator 4.0</b> at <b>800x600</b> resolution<br>
+        &#128187; Optimized for 56k modem users
+    </p>
+
+    <p style="font-size: 12px; color: #000080;">
+        &#128231; Email the webmaster: <a href="mailto:webmaster@gsd.fake">webmaster@gsd.fake</a>
+    </p>
+
+    <p style="font-size: 11px; color: #666666;">
+        <i>Last updated: January 19, 2026</i><br>
+        &copy; 2026 GSD Command Center - All Rights Reserved<br>
+        Made with &#128153; and Claude Code
+    </p>
+
+    <p style="font-family: 'Courier New', monospace; font-size: 10px; color: #008000;">
+        =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=<br>
+        This page is Y2K compliant!<br>
+        =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    </p>
+</div>
+
+<br>
+
+<marquee behavior="scroll" direction="up" scrollamount="2" height="50" style="color: #FF0000; font-family: 'Comic Sans MS', cursive; font-size: 12px;">
+    &#9733; GSD - Get Shit Done &#9733; Solo Agentic Development &#9733; Claude Code &#9733;
+</marquee>
+
+</center>
+
+</body>
+</html>
