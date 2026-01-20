@@ -353,6 +353,9 @@ Create `.planning/config.json` with all settings:
 - Set `commit_docs: false` in config.json
 - Add `.planning/` to `.gitignore` (create if needed)
 
+**If commit_docs = Yes:**
+- Add `.planning/intel/` to `.gitignore` (intel is always local — changes constantly, can be regenerated)
+
 **Commit config.json:**
 
 ```bash
