@@ -76,6 +76,17 @@ Map an existing codebase for brownfield projects.
 
 Usage: `/gsd:map-codebase`
 
+**`/gsd:analyze-codebase`**
+Bootstrap codebase intelligence for existing projects.
+
+- Scans all JS/TS files and extracts exports/imports
+- Detects naming conventions, directory patterns, file suffixes
+- Creates `.planning/intel/` with index, conventions, and summary
+- Works standalone (no `/gsd:new-project` required)
+- After initial scan, PostToolUse hook continues incremental learning
+
+Usage: `/gsd:analyze-codebase`
+
 ### Phase Planning
 
 **`/gsd:discuss-phase <number>`**
@@ -302,6 +313,10 @@ Usage: `/gsd:whats-new`
 │   └── done/             # Completed todos
 ├── debug/                # Active debug sessions
 │   └── resolved/         # Archived resolved issues
+├── intel/                # Codebase intelligence (auto-populated)
+│   ├── index.json        # File exports and imports
+│   ├── conventions.json  # Detected patterns
+│   └── summary.md        # Context for session injection
 ├── codebase/             # Codebase map (brownfield projects)
 │   ├── STACK.md          # Languages, frameworks, dependencies
 │   ├── ARCHITECTURE.md   # Patterns, layers, data flow
