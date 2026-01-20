@@ -3,6 +3,26 @@
 // Indexes file exports/imports when Claude writes or edits JS/TS files
 // Also handles entity files for semantic codebase understanding
 
+/**
+ * CLI Query Interface
+ *
+ * In addition to PostToolUse indexing (Write/Edit actions), this hook supports
+ * direct graph queries via stdin:
+ *
+ * Query dependents (what uses this file?):
+ *   echo '{"action":"query","type":"dependents","target":"src-lib-db"}' | node hooks/gsd-intel-index.js
+ *
+ * Query hotspots (most depended-on files):
+ *   echo '{"action":"query","type":"hotspots","limit":5}' | node hooks/gsd-intel-index.js
+ *
+ * Options:
+ *   - target: Entity ID (required for dependents, e.g., 'src-lib-db' for src/lib/db.ts)
+ *   - limit: Max results (default: 10 for dependents, 5 for hotspots)
+ *   - maxDepth: Traversal depth for dependents (default: 5)
+ *
+ * Output: JSON to stdout with query results
+ */
+
 const fs = require('fs');
 const path = require('path');
 const initSqlJs = require('sql.js');
