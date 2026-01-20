@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Current Position
 
 Phase: 4 of 4 (Semantic Intelligence & Scale)
-Plan: 4 of 4 complete
+Plan: 5 of 5 complete
 Status: Phase complete
-Last activity: 2026-01-20 — Completed 04-04-PLAN.md (CLI Query Interface - gap closure)
+Last activity: 2026-01-20 — Completed 04-05-PLAN.md (Intel Injection into Planner)
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 2.6 min
-- Total execution time: 29 min
+- Total plans completed: 12
+- Average duration: 2.5 min
+- Total execution time: 30 min
 
 **By Phase:**
 
@@ -30,7 +30,7 @@ Progress: [██████████] 100%
 | 1. Foundation & Learning | 2/2 | 7 min | 3.5 min |
 | 2. Context Injection | 2/2 | 4 min | 2.0 min |
 | 3. Brownfield & Integration | 3/3 | 6 min | 2.0 min |
-| 4. Semantic Intelligence | 4/4 | 12 min | 3.0 min |
+| 4. Semantic Intelligence | 5/5 | 13 min | 2.6 min |
 
 *Updated after each plan completion*
 
@@ -67,6 +67,8 @@ Progress: [██████████] 100%
 | Query mode read-only | 04-04 | Query actions don't persist to disk, safe operations |
 | Default limit 10 for dependents | 04-04 | Prevents huge output for files with many dependents |
 | Query routing before Write/Edit | 04-04 | Clean separation between query and indexing modes |
+| Intel read in Step 7 with others | 04-05 | Keep all context file reads in one place |
+| 2>/dev/null for missing intel | 04-05 | Graceful degradation when summary.md doesn't exist |
 
 ### Pending Todos
 
@@ -79,7 +81,7 @@ Progress: [██████████] 100%
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Completed 04-04-PLAN.md (CLI Query Interface gap closure)
+Stopped at: Completed 04-05-PLAN.md (Intel Injection into Planner)
 Resume file: None
 
 ## Phase Progress
@@ -94,3 +96,4 @@ Resume file: None
 - 04-02: Query interface ✓
 - 04-03: Entity generation instructions ✓
 - 04-04: CLI query interface (gap closure) ✓
+- 04-05: Intel injection into planner ✓
