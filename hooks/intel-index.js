@@ -320,6 +320,65 @@ function detectConventions(index) {
 }
 
 /**
+ * Generate summary.md content from index and conventions
+ * Target: < 500 tokens for context injection
+ */
+function generateSummary(index, conventions) {
+  const lines = [];
+  const fileCount = Object.keys(index.files || {}).length;
+
+  lines.push('# Codebase Intelligence Summary');
+  lines.push('');
+  lines.push(`Last updated: ${new Date().toISOString()}`);
+  lines.push(`Indexed files: ${fileCount}`);
+  lines.push('');
+
+  // Naming conventions
+  if (conventions.naming?.exports?.dominant) {
+    const n = conventions.naming.exports;
+    lines.push('## Naming Conventions');
+    lines.push('');
+    lines.push(`- Export naming: ${n.dominant} (${n.percentage}% of ${n.count} exports)`);
+    lines.push('');
+  }
+
+  // Key directories (top 5)
+  const dirs = Object.entries(conventions.directories || {});
+  if (dirs.length > 0) {
+    lines.push('## Key Directories');
+    lines.push('');
+    for (const [dir, info] of dirs.slice(0, 5)) {
+      lines.push(`- \`${dir}/\`: ${info.purpose} (${info.files} files)`);
+    }
+    lines.push('');
+  }
+
+  // Suffix patterns (top 3)
+  const suffixes = Object.entries(conventions.suffixes || {});
+  if (suffixes.length > 0) {
+    lines.push('## File Patterns');
+    lines.push('');
+    for (const [suffix, info] of suffixes.slice(0, 3)) {
+      lines.push(`- \`*${suffix}\`: ${info.purpose} (${info.count} files)`);
+    }
+    lines.push('');
+  }
+
+  // Total exports count
+  let totalExports = 0;
+  for (const fileData of Object.values(index.files || {})) {
+    if (fileData.exports) {
+      totalExports += fileData.exports.filter(e => e !== 'default').length;
+    }
+  }
+  if (totalExports > 0) {
+    lines.push(`Total exports: ${totalExports}`);
+  }
+
+  return lines.join('\n');
+}
+
+/**
  * Update the index.json file with new file entry
  * Uses read-modify-write pattern with synchronous operations
  */
@@ -356,6 +415,11 @@ function updateIndex(filePath, exports, imports) {
   const conventions = detectConventions(index);
   const conventionsPath = path.join(process.cwd(), '.planning', 'intel', 'conventions.json');
   fs.writeFileSync(conventionsPath, JSON.stringify(conventions, null, 2));
+
+  // Generate and write summary.md for context injection
+  const summary = generateSummary(index, conventions);
+  const summaryPath = path.join(process.cwd(), '.planning', 'intel', 'summary.md');
+  fs.writeFileSync(summaryPath, summary);
 }
 
 // Read JSON from stdin (standard hook pattern)
