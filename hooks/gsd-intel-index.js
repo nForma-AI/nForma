@@ -923,6 +923,54 @@ function updateIndex(filePath, exports, imports) {
   fs.writeFileSync(summaryPath, summary);
 }
 
+/**
+ * Handle CLI query actions
+ * Routes to appropriate graph query function based on query type
+ *
+ * @param {Object} data - Query action data
+ * @param {string} data.action - Must be 'query'
+ * @param {string} data.type - Query type: 'dependents' | 'hotspots'
+ * @param {string} [data.target] - Entity ID for dependents query (e.g., 'src-lib-db')
+ * @param {number} [data.limit] - Max results (default: 10 for dependents, 5 for hotspots)
+ * @param {number} [data.maxDepth] - Max traversal depth for dependents (default: 5)
+ * @returns {Promise<Object>} Query results
+ */
+async function handleQuery(data) {
+  const { db, dbPath } = await loadGraphDatabase();
+
+  try {
+    switch (data.type) {
+      case 'dependents': {
+        if (!data.target) {
+          return { error: 'target is required for dependents query' };
+        }
+        const results = getDependents(db, data.target, data.maxDepth || 5);
+        const limited = data.limit ? results.slice(0, data.limit) : results.slice(0, 10);
+        return {
+          query: 'dependents',
+          target: data.target,
+          count: results.length,
+          results: limited
+        };
+      }
+
+      case 'hotspots': {
+        const results = getHotspots(db, data.limit || 5);
+        return {
+          query: 'hotspots',
+          count: results.length,
+          results
+        };
+      }
+
+      default:
+        return { error: `Unknown query type: ${data.type}. Valid types: dependents, hotspots` };
+    }
+  } finally {
+    db.close();
+  }
+}
+
 // Read JSON from stdin (standard hook pattern)
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -930,6 +978,18 @@ process.stdin.on('data', chunk => input += chunk);
 process.stdin.on('end', () => {
   try {
     const data = JSON.parse(input);
+
+    // Handle query actions (graph queries)
+    if (data.action === 'query') {
+      handleQuery(data).then(result => {
+        console.log(JSON.stringify(result));
+        process.exit(0);
+      }).catch(err => {
+        console.log(JSON.stringify({ error: err.message }));
+        process.exit(1);
+      });
+      return; // Don't fall through to Write/Edit handling
+    }
 
     // Only process Write and Edit tools
     if (!['Write', 'Edit'].includes(data.tool_name)) {
