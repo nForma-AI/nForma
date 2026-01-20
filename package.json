@@ -32,5 +32,8 @@
   },
   "engines": {
     "node": ">=16.7.0"
+  },
+  "dependencies": {
+    "sql.js": "^1.12.0"
   }
 }

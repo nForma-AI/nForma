@@ -5,6 +5,25 @@
 
 const fs = require('fs');
 const path = require('path');
+const initSqlJs = require('sql.js');
+
+// Graph database schema (simple-graph pattern)
+const GRAPH_SCHEMA = `
+CREATE TABLE IF NOT EXISTS nodes (
+  body TEXT,
+  id TEXT GENERATED ALWAYS AS (json_extract(body, '$.id')) VIRTUAL NOT NULL UNIQUE
+);
+CREATE INDEX IF NOT EXISTS id_idx ON nodes(id);
+
+CREATE TABLE IF NOT EXISTS edges (
+  source TEXT NOT NULL,
+  target TEXT NOT NULL,
+  relationship TEXT DEFAULT 'depends_on',
+  UNIQUE(source, target, relationship) ON CONFLICT REPLACE
+);
+CREATE INDEX IF NOT EXISTS source_idx ON edges(source);
+CREATE INDEX IF NOT EXISTS target_idx ON edges(target);
+`;
 
 // JS/TS file extensions to index
 const INDEXABLE_EXTENSIONS = ['.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs'];
