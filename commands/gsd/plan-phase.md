@@ -293,7 +293,9 @@ Fill prompt with inlined content and spawn:
 {uat_content}
 
 **Codebase Intel (if exists):**
+<codebase-intel>
 {intel_content}
+</codebase-intel>
 
 </planning_context>
 

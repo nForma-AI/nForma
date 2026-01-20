@@ -551,7 +551,7 @@ function generateSummary(index, conventions) {
  * Check if a file path is an entity file
  */
 function isEntityFile(filePath) {
-  return filePath.includes('.planning/intel/entities/') &&
+  return filePath.includes(ENTITY_DIR + '/') &&
          filePath.endsWith('.md');
 }
 
