@@ -456,6 +456,29 @@ function install(isGlobal) {
     console.log(`  ${green}✓${reset} Configured intel session hook`);
   }
 
+  // Stop hook for pruning deleted files
+  const intelPruneCommand = isGlobal
+    ? 'node "$HOME/.claude/hooks/intel-prune.js"'
+    : 'node .claude/hooks/intel-prune.js';
+
+  if (!settings.hooks.Stop) {
+    settings.hooks.Stop = [];
+  }
+
+  const hasIntelPruneHook = settings.hooks.Stop.some(entry =>
+    entry.hooks && entry.hooks.some(h => h.command && h.command.includes('intel-prune'))
+  );
+
+  if (!hasIntelPruneHook) {
+    settings.hooks.Stop.push({
+      hooks: [{
+        type: 'command',
+        command: intelPruneCommand
+      }]
+    });
+    console.log(`  ${green}✓${reset} Configured intel prune hook`);
+  }
+
   return { settingsPath, settings, statuslineCommand };
 }
 
