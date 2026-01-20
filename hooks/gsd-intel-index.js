@@ -590,6 +590,73 @@ function extractPurpose(content) {
 }
 
 /**
+ * Generate semantic summary from graph database
+ * Target: < 500 tokens for context injection
+ */
+async function generateGraphSummary() {
+  const intelDir = path.join(process.cwd(), '.planning', 'intel');
+  const dbPath = path.join(intelDir, 'graph.db');
+  const summaryPath = path.join(intelDir, 'summary.md');
+
+  if (!fs.existsSync(dbPath)) {
+    return null;
+  }
+
+  try {
+    const { db } = await loadGraphDatabase();
+
+    const lines = [];
+    lines.push('# Codebase Intelligence');
+    lines.push('');
+
+    const countResult = db.exec('SELECT COUNT(*) FROM nodes');
+    const fileCount = countResult[0]?.values[0]?.[0] || 0;
+    lines.push(`**Indexed entities:** ${fileCount}`);
+    lines.push(`**Last updated:** ${new Date().toISOString().split('T')[0]}`);
+    lines.push('');
+
+    const hotspots = getHotspots(db, 5);
+    if (hotspots.length > 0) {
+      lines.push('## Dependency Hotspots');
+      lines.push('');
+      lines.push('Files with most dependents (change carefully):');
+      for (const { path: filePath, count, type } of hotspots) {
+        const typeLabel = type !== 'unknown' ? ` [${type}]` : '';
+        lines.push(`1. \`${filePath}\` (${count} dependents)${typeLabel}`);
+      }
+      lines.push('');
+    }
+
+    const byType = getNodesByType(db);
+    if (byType.length > 0) {
+      lines.push('## Module Types');
+      lines.push('');
+      for (const { type, count } of byType) {
+        const label = type.charAt(0).toUpperCase() + type.slice(1);
+        lines.push(`- **${label}**: ${count} files`);
+      }
+      lines.push('');
+    }
+
+    const edgeResult = db.exec('SELECT COUNT(*) FROM edges');
+    const edgeCount = edgeResult[0]?.values[0]?.[0] || 0;
+    if (edgeCount > 0) {
+      lines.push(`**Relationships tracked:** ${edgeCount}`);
+      lines.push('');
+    }
+
+    db.close();
+
+    const summary = lines.join('\n');
+    fs.writeFileSync(summaryPath, summary);
+
+    return summary;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
  * Sync entity file to graph database
  * Called when an entity .md file is written
  *
