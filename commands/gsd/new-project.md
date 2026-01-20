@@ -237,7 +237,7 @@ EOF
 
 ## Phase 5: Workflow Preferences
 
-Ask all workflow preferences in a single AskUserQuestion call (4 questions):
+**Round 1 — Core workflow settings (4 questions):**
 
 ```
 questions: [
@@ -281,10 +281,68 @@ questions: [
 ]
 ```
 
-Create `.planning/config.json` with chosen mode, depth, parallelization, and commit_docs setting.
+**Round 2 — Workflow agents:**
+
+These spawn additional agents during planning/execution. They add tokens and time but improve quality.
+
+| Agent | When it runs | What it does |
+|-------|--------------|--------------|
+| **Researcher** | Before planning each phase | Investigates domain, finds patterns, surfaces gotchas |
+| **Plan Checker** | After plan is created | Verifies plan actually achieves the phase goal |
+| **Verifier** | After phase execution | Confirms must-haves were delivered |
+
+All recommended for important projects. Skip for quick experiments.
+
+```
+questions: [
+  {
+    header: "Research",
+    question: "Spawn Plan Researcher? (researches domain before planning — adds tokens/time)",
+    multiSelect: false,
+    options: [
+      { label: "Yes (Recommended)", description: "Research phase goals before planning" },
+      { label: "No", description: "Skip research, plan directly" }
+    ]
+  },
+  {
+    header: "Plan Check",
+    question: "Spawn Plan Checker? (verifies plans before execution — adds tokens/time)",
+    multiSelect: false,
+    options: [
+      { label: "Yes (Recommended)", description: "Verify plans meet phase goals" },
+      { label: "No", description: "Skip plan verification" }
+    ]
+  },
+  {
+    header: "Verifier",
+    question: "Spawn Execution Verifier? (verifies phase completion — adds tokens/time)",
+    multiSelect: false,
+    options: [
+      { label: "Yes (Recommended)", description: "Verify must-haves after execution" },
+      { label: "No", description: "Skip post-execution verification" }
+    ]
+  }
+]
+```
+
+Create `.planning/config.json` with all settings:
+
+```json
+{
+  "mode": "yolo|interactive",
+  "depth": "quick|standard|comprehensive",
+  "parallelization": true|false,
+  "commit_docs": true|false,
+  "workflow": {
+    "research": true|false,
+    "plan_check": true|false,
+    "verifier": true|false
+  }
+}
+```
 
 **If commit_docs = No:**
-- Set `planning.commit_docs: false` in config.json
+- Set `commit_docs: false` in config.json
 - Add `.planning/` to `.gitignore` (create if needed)
 
 **Commit config.json:**
@@ -297,9 +355,12 @@ chore: add project config
 Mode: [chosen mode]
 Depth: [chosen depth]
 Parallelization: [enabled/disabled]
+Workflow agents: research=[on/off], plan_check=[on/off], verifier=[on/off]
 EOF
 )"
 ```
+
+**Note:** Run `/gsd:settings` anytime to update these preferences.
 
 ## Phase 6: Research Decision
 
