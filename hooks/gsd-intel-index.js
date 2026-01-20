@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 // Codebase Intelligence - PostToolUse Indexing Hook
 // Indexes file exports/imports when Claude writes or edits JS/TS files
+// Also handles entity files for semantic codebase understanding
 
 const fs = require('fs');
 const path = require('path');
 
 // JS/TS file extensions to index
 const INDEXABLE_EXTENSIONS = ['.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs'];
+
+// Entity file location
+const ENTITY_DIR = '.planning/intel/entities';
 
 // Convention detection thresholds
 const MIN_SAMPLES = 5;
@@ -379,6 +383,214 @@ function generateSummary(index, conventions) {
 }
 
 /**
+ * Check if a file path is an entity file
+ */
+function isEntityFile(filePath) {
+  return filePath.includes('.planning/intel/entities/') &&
+         filePath.endsWith('.md');
+}
+
+/**
+ * Check if a file is a code file we should index
+ */
+function isCodeFile(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  return INDEXABLE_EXTENSIONS.includes(ext);
+}
+
+/**
+ * Extract [[wiki-links]] from entity content
+ * Returns array of linked entity names (e.g., 'src-lib-db', 'src-api-auth')
+ */
+function extractWikiLinks(content) {
+  const links = [];
+  const regex = /\[\[([^\]]+)\]\]/g;
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    links.push(match[1]);
+  }
+  return links;
+}
+
+/**
+ * Parse frontmatter from entity content
+ * Returns object with frontmatter fields
+ */
+function parseEntityFrontmatter(content) {
+  const frontmatter = {};
+  const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  if (fmMatch) {
+    const fmLines = fmMatch[1].split('\n');
+    for (const line of fmLines) {
+      const colonIdx = line.indexOf(':');
+      if (colonIdx > 0) {
+        const key = line.slice(0, colonIdx).trim();
+        const value = line.slice(colonIdx + 1).trim();
+        frontmatter[key] = value;
+      }
+    }
+  }
+  return frontmatter;
+}
+
+/**
+ * Extract purpose from entity content (first paragraph after ## Purpose)
+ */
+function extractPurpose(content) {
+  const purposeMatch = content.match(/## Purpose\s*\n+([^\n#]+)/);
+  if (purposeMatch) {
+    return purposeMatch[1].trim();
+  }
+  return null;
+}
+
+/**
+ * Regenerate summary.md from all entity files
+ * Creates a semantic overview of the codebase
+ */
+function regenerateEntitySummary() {
+  const intelDir = path.join(process.cwd(), '.planning', 'intel');
+  const entitiesDir = path.join(intelDir, 'entities');
+  const summaryPath = path.join(intelDir, 'summary.md');
+
+  // Check directories exist
+  if (!fs.existsSync(entitiesDir)) {
+    return;
+  }
+
+  // Read all entity files
+  const entityFiles = fs.readdirSync(entitiesDir)
+    .filter(f => f.endsWith('.md'))
+    .map(f => path.join(entitiesDir, f));
+
+  if (entityFiles.length === 0) {
+    return;
+  }
+
+  // Parse all entities
+  const entities = [];
+  const dependentCounts = {}; // Track how many things depend on each entity
+
+  for (const filePath of entityFiles) {
+    try {
+      const content = fs.readFileSync(filePath, 'utf8');
+      const frontmatter = parseEntityFrontmatter(content);
+      const purpose = extractPurpose(content);
+      const links = extractWikiLinks(content);
+
+      // Count dependencies (things this entity links to)
+      for (const link of links) {
+        dependentCounts[link] = (dependentCounts[link] || 0) + 1;
+      }
+
+      entities.push({
+        name: path.basename(filePath, '.md'),
+        path: frontmatter.path || null,
+        type: frontmatter.type || 'unknown',
+        updated: frontmatter.updated || null,
+        status: frontmatter.status || 'unknown',
+        purpose,
+        links
+      });
+    } catch (e) {
+      // Skip unreadable files
+    }
+  }
+
+  // Generate summary
+  const lines = [];
+  lines.push('# Codebase Intelligence');
+  lines.push('');
+  lines.push(`**Files indexed:** ${entities.length}`);
+  lines.push(`**Last updated:** ${new Date().toISOString().split('T')[0]}`);
+  lines.push('');
+
+  // Group by type
+  const byType = {};
+  for (const entity of entities) {
+    const type = entity.type || 'other';
+    if (!byType[type]) {
+      byType[type] = [];
+    }
+    byType[type].push(entity);
+  }
+
+  // Key Modules section
+  lines.push('## Key Modules');
+  lines.push('');
+
+  const typeLabels = {
+    'api': 'API Layer',
+    'component': 'Components',
+    'util': 'Utilities',
+    'hook': 'Hooks',
+    'service': 'Services',
+    'model': 'Models',
+    'config': 'Configuration',
+    'other': 'Other'
+  };
+
+  for (const [type, typeEntities] of Object.entries(byType)) {
+    if (typeEntities.length === 0) continue;
+
+    const label = typeLabels[type] || type.charAt(0).toUpperCase() + type.slice(1);
+    lines.push(`### ${label}`);
+
+    // Show up to 5 entities per type, prioritize those with purposes
+    const withPurpose = typeEntities.filter(e => e.purpose);
+    const shown = withPurpose.slice(0, 5);
+    if (shown.length < 5) {
+      const remaining = typeEntities.filter(e => !e.purpose).slice(0, 5 - shown.length);
+      shown.push(...remaining);
+    }
+
+    for (const entity of shown) {
+      const desc = entity.purpose || 'No description';
+      lines.push(`- **${entity.path || entity.name}** - ${desc}`);
+    }
+    lines.push('');
+  }
+
+  // Dependency Hotspots (most depended-on files)
+  const hotspots = Object.entries(dependentCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  if (hotspots.length > 0) {
+    lines.push('## Dependency Hotspots');
+    lines.push('');
+    lines.push('Files with most dependents (change carefully):');
+
+    for (const [entityName, count] of hotspots) {
+      const entity = entities.find(e => e.name === entityName);
+      const desc = entity?.purpose || '';
+      const pathStr = entity?.path || entityName;
+      lines.push(`1. \`${pathStr}\` (${count} dependents)${desc ? ' - ' + desc : ''}`);
+    }
+    lines.push('');
+  }
+
+  // Recent Updates (last 5 by date)
+  const withDates = entities
+    .filter(e => e.updated)
+    .sort((a, b) => b.updated.localeCompare(a.updated))
+    .slice(0, 5);
+
+  if (withDates.length > 0) {
+    lines.push('## Recent Updates');
+    lines.push('');
+    for (const entity of withDates) {
+      const desc = entity.purpose ? ` - ${entity.purpose}` : '';
+      lines.push(`- ${entity.name}.md (${entity.updated})${desc}`);
+    }
+    lines.push('');
+  }
+
+  // Write summary
+  fs.writeFileSync(summaryPath, lines.join('\n'));
+}
+
+/**
  * Update the index.json file with new file entry
  * Uses read-modify-write pattern with synchronous operations
  *
@@ -447,9 +659,14 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    // Only index JS/TS files
-    const ext = path.extname(filePath).toLowerCase();
-    if (!INDEXABLE_EXTENSIONS.includes(ext)) {
+    // Handle entity file writes - regenerate summary
+    if (isEntityFile(filePath)) {
+      regenerateEntitySummary();
+      process.exit(0);
+    }
+
+    // Handle code file writes - existing behavior
+    if (!isCodeFile(filePath)) {
       process.exit(0);
     }
 
