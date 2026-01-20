@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A fast-path command (`/gsd:quick`) for GSD that executes small tasks with the same guarantees (atomic commits, STATE.md tracking, ROADMAP.md integration) but skips optional verification agents. Reduces agent spawns from 5-8 to 2 (planner + executor) for tasks where the user already knows what to do.
+A fast-path command (`/gsd:quick`) for GSD that executes small tasks with the same guarantees (atomic commits, STATE.md tracking) but skips optional verification agents. Reduces agent spawns from 5-8 to 2 (planner + executor) for tasks where the user already knows what to do.
 
 ## Core Value
 
@@ -12,24 +12,20 @@ Same guarantees, 50-70% fewer tokens for simple tasks.
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ `/gsd:quick "description"` command executes end-to-end — v1.8.0
+- ✓ Spawns gsd-planner (unchanged, just skips researcher/checker) — v1.8.0
+- ✓ Spawns gsd-executor for each plan — v1.8.0
+- ✓ Commits only files it edits/creates (not entire working dir) — v1.8.0
+- ✓ Updates STATE.md with "Quick Tasks Completed" table — v1.8.0
+- ✓ Updates STATE.md "Last activity" line — v1.8.0
+- ✓ Errors if no ROADMAP.md exists — v1.8.0
+- ✓ help.md updated with quick command — v1.8.0
+- ✓ README.md updated with quick mode section — v1.8.0
+- ✓ GSD-STYLE.md updated with quick mode patterns — v1.8.0
 
 ### Active
 
-- [ ] `/gsd:quick "description"` command executes end-to-end
-- [ ] Creates decimal phase (3.1, 3.2) in ROADMAP.md
-- [ ] Spawns gsd-planner (unchanged, just skips researcher/checker)
-- [ ] Spawns gsd-executor for each plan
-- [ ] Handles multiple plans with wave-based parallel execution
-- [ ] Commits only files it edits/creates (not entire working dir)
-- [ ] Updates STATE.md with "Quick Tasks Completed" table
-- [ ] Updates STATE.md "Last activity" line
-- [ ] Marks decimal phase complete in ROADMAP.md
-- [ ] Errors if no ROADMAP.md exists
 - [ ] `/gsd:resume-work` handles decimal phases (3.1, 3.2)
-- [ ] help.md updated with quick command
-- [ ] README.md updated with quick mode section
-- [ ] GSD-STYLE.md updated with quick mode patterns
 
 ### Out of Scope
 
@@ -42,41 +38,30 @@ Same guarantees, 50-70% fewer tokens for simple tasks.
 - gsd-verifier — verification skipped by design
 - Requirements mapping — quick tasks are ad-hoc
 - `/gsd:squash-quick` — future enhancement if fragmentation becomes a problem
+- Decimal phases in ROADMAP.md — Quick tasks use `.planning/quick/` instead
+- Handles multiple plans with wave-based execution — Quick tasks are single-plan by design
 
 ## Context
 
-GSD's current flow spawns 5-8 agents for every task:
-1. gsd-phase-researcher (research)
-2. gsd-planner (planning)
-3. gsd-plan-checker (verification loop, 2-6 spawns)
-4. gsd-executor (execution)
-5. gsd-verifier (verification)
+Shipped v1.8.0 with `/gsd:quick` command. Quick tasks live in `.planning/quick/NNN-slug/` directories with sequential numbering. Each quick task spawns planner + executor and commits atomically.
 
-For simple tasks like "transition cards to table layout", only planner + executor are needed. The research, checker loops, and verifier add no value when the user knows exactly what to do.
-
-Quick mode is the normal flow with 3 agent types removed:
-- No gsd-phase-researcher
-- No gsd-plan-checker
-- No gsd-verifier
-
-Everything else stays the same: same planner, same executor, same artifacts, same commits, same state tracking.
+Design change: Quick tasks don't integrate with ROADMAP.md or use decimal phases. They're tracked separately in STATE.md's Quick Tasks Completed table.
 
 ## Constraints
 
-- **Integration**: Must use decimal phases for ROADMAP.md integration (borrowing from /gsd:insert-phase)
-- **Compatibility**: Must work with /gsd:resume-work for failed quick tasks
 - **Artifacts**: Same artifacts as full mode (PLAN.md, SUMMARY.md)
+- **Directory**: Quick tasks in `.planning/quick/`, not `.planning/phases/`
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| No planner changes | Quick mode is orchestrator-level, not agent-level | — Pending |
-| Decimal phases required | Maintains full traceability and state integrity | — Pending |
-| No flags for MVP | Simplest possible interface | — Pending |
-| Parallel wave execution | Matches execute-phase behavior for multi-plan tasks | — Pending |
-| Quick Tasks table in STATE.md | Better tracking than just Last activity | — Pending |
-| Error if no ROADMAP | Maintains state integrity, no standalone mode | — Pending |
+| No planner changes | Quick mode is orchestrator-level, not agent-level | ✓ Good |
+| No decimal phases | Quick tasks don't need ROADMAP integration | ✓ Good — simpler |
+| No flags for MVP | Simplest possible interface | ✓ Good |
+| Quick Tasks table in STATE.md | Better tracking than just Last activity | ✓ Good |
+| Error if no ROADMAP | Maintains state integrity, no standalone mode | ✓ Good |
+| Orchestration inline in command | No separate workflow needed for simple flow | ✓ Good |
 
 ---
-*Last updated: 2025-01-19 after initialization*
+*Last updated: 2026-01-19 after v1.8.0 milestone*
