@@ -718,12 +718,23 @@ async function syncEntityToGraph(entityPath) {
 /**
  * Regenerate summary.md from all entity files
  * Creates a semantic overview of the codebase
+ * Prefers graph-backed summary when graph.db exists
  */
-function regenerateEntitySummary() {
+async function regenerateEntitySummary() {
   const intelDir = path.join(process.cwd(), '.planning', 'intel');
   const entitiesDir = path.join(intelDir, 'entities');
   const summaryPath = path.join(intelDir, 'summary.md');
+  const dbPath = path.join(intelDir, 'graph.db');
 
+  // Try graph-backed summary first (preferred when graph.db exists)
+  if (fs.existsSync(dbPath)) {
+    const graphSummary = await generateGraphSummary();
+    if (graphSummary) {
+      return; // Graph summary written successfully
+    }
+  }
+
+  // Fallback: entity-file-based summary
   // Check directories exist
   if (!fs.existsSync(entitiesDir)) {
     return;
@@ -932,8 +943,8 @@ process.stdin.on('end', () => {
 
     // Handle entity file writes - sync to graph, regenerate summary
     if (isEntityFile(filePath)) {
-      syncEntityToGraph(filePath).then(() => {
-        regenerateEntitySummary();
+      syncEntityToGraph(filePath).then(async () => {
+        await regenerateEntitySummary();
         process.exit(0);
       }).catch(() => {
         // Silent failure
