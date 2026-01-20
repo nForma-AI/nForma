@@ -52,6 +52,21 @@ git check-ignore -q .planning 2>/dev/null && COMMIT_PLANNING_DOCS=false
 Store `COMMIT_PLANNING_DOCS` for use in git operations.
 </step>
 
+<step name="load_codebase_intelligence">
+Check for codebase intelligence:
+
+```bash
+cat .planning/intel/summary.md 2>/dev/null
+```
+
+If exists:
+- Follow detected naming conventions when writing code
+- Place new files in directories that match their purpose
+- Use established patterns (camelCase, PascalCase, etc.)
+
+This context helps maintain codebase consistency during execution.
+</step>
+
 <step name="load_plan">
 Read the plan file provided in your prompt context.
 
