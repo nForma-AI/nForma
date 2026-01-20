@@ -25,6 +25,50 @@ CREATE INDEX IF NOT EXISTS source_idx ON edges(source);
 CREATE INDEX IF NOT EXISTS target_idx ON edges(target);
 `;
 
+// Singleton SQL instance (async init, reuse across calls)
+let sqlInstance = null;
+
+/**
+ * Get or initialize sql.js instance
+ * Caches the SQL constructor for reuse
+ */
+async function getSQL() {
+  if (!sqlInstance) {
+    sqlInstance = await initSqlJs();
+  }
+  return sqlInstance;
+}
+
+/**
+ * Load or create the graph database
+ * Returns { db, dbPath } for operations and persistence
+ */
+async function loadGraphDatabase() {
+  const SQL = await getSQL();
+  const dbPath = path.join(process.cwd(), '.planning', 'intel', 'graph.db');
+
+  let db;
+  if (fs.existsSync(dbPath)) {
+    const buffer = fs.readFileSync(dbPath);
+    db = new SQL.Database(buffer);
+  } else {
+    db = new SQL.Database();
+    db.run(GRAPH_SCHEMA);
+  }
+
+  return { db, dbPath };
+}
+
+/**
+ * Persist database to disk
+ * Must call after every write operation
+ */
+function persistDatabase(db, dbPath) {
+  const data = db.export();
+  const buffer = Buffer.from(data);
+  fs.writeFileSync(dbPath, buffer);
+}
+
 // JS/TS file extensions to index
 const INDEXABLE_EXTENSIONS = ['.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs'];
 
