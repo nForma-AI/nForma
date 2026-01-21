@@ -181,6 +181,9 @@ function cleanupOrphanedHooks(settings) {
   const orphanedHookPatterns = [
     'gsd-notify.sh',  // Removed in v1.6.x
     'hooks/statusline.js',  // Renamed to gsd-statusline.js in v1.9.0
+    'gsd-intel-index.js',  // Removed in v1.9.2
+    'gsd-intel-session.js',  // Removed in v1.9.2
+    'gsd-intel-prune.js',  // Removed in v1.9.2
   ];
 
   let cleaned = false;
