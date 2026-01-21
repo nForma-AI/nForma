@@ -67,36 +67,50 @@ Plans:
 ### Phase 5: Subagent Codebase Analysis
 **Goal:** Prevent context exhaustion on large codebases by delegating analysis to subagents
 **Depends on:** Phase 4
-**Plans:** 2 plans
+**Status:** Gap closure in progress
+**Plans:** 4 plans (2 complete, 2 gap closure)
 
 Plans:
-- [ ] 05-01-PLAN.md — Create gsd-entity-generator subagent (Wave 1)
-- [ ] 05-02-PLAN.md — Refactor analyze-codebase to use subagent delegation (Wave 2)
+- [x] 05-01-PLAN.md — Create gsd-entity-generator subagent (Wave 1)
+- [x] 05-02-PLAN.md — Refactor Step 9 for subagent delegation (Wave 2) — partial, gap found
+- [ ] 05-03-PLAN.md — Create gsd-indexer subagent for Steps 2-3 (Wave 3) — gap closure
+- [ ] 05-04-PLAN.md — Refactor Steps 2-3 for subagent delegation (Wave 4) — gap closure
 
 **Wave Structure:**
-- Wave 1: 05-01 (agent definition)
-- Wave 2: 05-02 (command refactor + verification)
+- Wave 1: 05-01 (entity generator agent)
+- Wave 2: 05-02 (Step 9 refactor)
+- Wave 3: 05-03 (indexer agent) — gap closure
+- Wave 4: 05-04 (Steps 2-3 refactor + verification) — gap closure
 
 **Why this phase:**
 - Current entity generation loads file contents in orchestrator context
 - On large codebases (500+ files), orchestrator exhausts context during file selection and batching
-- Subagent delegation gives fresh 200k context for entity generation
+- Subagent delegation gives fresh 200k context for file processing
+
+**Gap Found (05-VERIFICATION.md):**
+- Original scope only addressed Step 9 (entity generation)
+- Actual context exhaustion occurs during Steps 2-3 (indexing)
+- Orchestrator reads ALL file contents during indexing, not just entity generation
+- Need additional gsd-indexer subagent for Steps 2-3
 
 **Delivers:**
 - `gsd-entity-generator` subagent following gsd-codebase-mapper pattern
-- Refactored `/gsd:analyze-codebase` that spawns subagent instead of inline batching
+- `gsd-indexer` subagent for file reading and export/import extraction
+- Refactored `/gsd:analyze-codebase` with full subagent delegation
 - Preserved orchestrator context for large codebase analysis
 
 **Requirements:**
-- INTEL-08: Entity generation delegated to subagent (not inline)
-- INTEL-09: Subagent writes entities directly, returns statistics only
-- INTEL-10: Orchestrator passes file paths, not file contents
+- INTEL-08: Entity generation delegated to subagent (not inline) ✓
+- INTEL-09: Subagent writes entities directly, returns statistics only ✓
+- INTEL-10: Orchestrator passes file paths, not file contents — BLOCKED (needs 05-03, 05-04)
+- INTEL-11: Indexing phase delegated to subagent (gap closure)
 
 **Success Criteria:**
-1. Entity generation works via subagent spawn
-2. Orchestrator context preserved (no file contents loaded)
-3. Entities correctly formatted and graph.db updated
-4. Works on 500+ file codebases without context exhaustion
+1. Entity generation works via subagent spawn ✓
+2. Indexing works via subagent spawn (gap closure)
+3. Orchestrator context preserved (no file contents loaded in orchestrator)
+4. Entities correctly formatted and graph.db updated ✓
+5. Works on 500+ file codebases without context exhaustion
 
 ---
 
@@ -111,10 +125,11 @@ Plans:
 | INTEL-05 | Phase 4 | ✓ Complete (04-04) |
 | INTEL-06 | Phase 4 | ✓ Complete (04-03) |
 | INTEL-07 | Phase 4 | ✓ Complete (04-02) |
-| INTEL-08 | Phase 5 | Planned (05-01, 05-02) |
-| INTEL-09 | Phase 5 | Planned (05-01) |
-| INTEL-10 | Phase 5 | Planned (05-02) |
+| INTEL-08 | Phase 5 | ✓ Complete (05-01, 05-02) |
+| INTEL-09 | Phase 5 | ✓ Complete (05-01) |
+| INTEL-10 | Phase 5 | Gap closure (05-03, 05-04) |
+| INTEL-11 | Phase 5 | Gap closure (05-03, 05-04) |
 
 ---
 *Created: 2026-01-19*
-*Updated: 2026-01-20 — Phase 5 planned with 2 plans in 2 waves*
+*Updated: 2026-01-20 — Phase 5 gap closure plans added (05-03, 05-04)*
