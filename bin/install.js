@@ -533,15 +533,12 @@ function promptLocation() {
   // Track whether we've processed the answer to prevent double-execution
   let answered = false;
 
-  // Handle readline close event to detect premature stdin closure
+  // Handle readline close event (Ctrl+C, Escape, etc.) - cancel installation
   rl.on('close', () => {
     if (!answered) {
       answered = true;
-      console.log(`\n  ${yellow}Input stream closed, defaulting to global install${reset}\n`);
-      const { settingsPath, settings, statuslineCommand } = install(true);
-      handleStatusline(settings, false, (shouldInstallStatusline) => {
-        finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline);
-      });
+      console.log(`\n  ${yellow}Installation cancelled${reset}\n`);
+      process.exit(0);
     }
   });
 
