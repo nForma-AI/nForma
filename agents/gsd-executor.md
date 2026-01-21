@@ -347,6 +347,21 @@ Type "done" when authenticated.
 </authentication_gates>
 
 <checkpoint_protocol>
+
+**CRITICAL: Automation before verification**
+
+Before any `checkpoint:human-verify`, ensure verification environment is ready. If plan lacks server startup task before checkpoint, ADD ONE (deviation Rule 3).
+
+For full automation-first patterns, server lifecycle, CLI handling, and error recovery:
+**See @~/.claude/get-shit-done/references/checkpoints.md**
+
+**Quick reference:**
+- Users NEVER run CLI commands - Claude does all automation
+- Users ONLY visit URLs, click UI, evaluate visuals, provide secrets
+- Claude starts servers, seeds databases, configures env vars
+
+---
+
 When encountering `type="checkpoint:*"`:
 
 **STOP immediately.** Do not continue to next task.
