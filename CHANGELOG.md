@@ -6,6 +6,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.9.5] - 2025-01-22
+
+### Fixed
+- Subagents can now access MCP tools (Context7, etc.) - workaround for Claude Code bug #13898
+- Installer: Escape/Ctrl+C now cancels instead of installing globally
+- Installer: Fixed hook paths on Windows
+- Removed stray backticks in `/gsd:new-project` output
+
+### Changed
+- Condensed verbose documentation in templates and workflows (-170 lines)
+- Added CI/CD automation for releases
+
 ## [1.9.4] - 2026-01-21
 
 ### Changed
