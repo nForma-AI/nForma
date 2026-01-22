@@ -389,6 +389,59 @@ function cleanupOrphanedHooks(settings) {
 }
 
 /**
+ * Configure OpenCode permissions to allow reading GSD reference docs
+ * This prevents permission prompts when GSD accesses ~/.opencode/get-shit-done/
+ */
+function configureOpencodePermissions() {
+  const configPath = path.join(os.homedir(), '.opencode.json');
+
+  // Read existing config or create empty object
+  let config = {};
+  if (fs.existsSync(configPath)) {
+    try {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    } catch (e) {
+      // Invalid JSON - start fresh but warn user
+      console.log(`  ${yellow}⚠${reset} ~/.opencode.json had invalid JSON, recreating`);
+    }
+  }
+
+  // Ensure permission structure exists
+  if (!config.permission) {
+    config.permission = {};
+  }
+
+  const gsdPath = '~/.opencode/get-shit-done/*';
+  let modified = false;
+
+  // Configure read permission
+  if (!config.permission.read || typeof config.permission.read !== 'object') {
+    config.permission.read = {};
+  }
+  if (config.permission.read[gsdPath] !== 'allow') {
+    config.permission.read[gsdPath] = 'allow';
+    modified = true;
+  }
+
+  // Configure external_directory permission (the safety guard for paths outside project)
+  if (!config.permission.external_directory || typeof config.permission.external_directory !== 'object') {
+    config.permission.external_directory = {};
+  }
+  if (config.permission.external_directory[gsdPath] !== 'allow') {
+    config.permission.external_directory[gsdPath] = 'allow';
+    modified = true;
+  }
+
+  if (!modified) {
+    return; // Already configured
+  }
+
+  // Write config back
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+  console.log(`  ${green}✓${reset} Configured read permission for GSD docs`);
+}
+
+/**
  * Verify a directory exists and contains files
  */
 function verifyInstalled(dirPath, description) {
@@ -743,6 +796,7 @@ if (hasGlobal && hasLocal) {
     console.log(`  ${yellow}Note: opencode doesn't support statusline configuration (uses themes instead)${reset}\n`);
   }
   const { settingsPath, settings, statuslineCommand } = install(hasGlobal);
+  configureOpencodePermissions();
   finishInstall(settingsPath, settings, statuslineCommand, false);
 } else if (hasGlobal || hasLocal) {
   const { settingsPath, settings, statuslineCommand } = install(hasGlobal);
