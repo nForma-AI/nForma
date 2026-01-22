@@ -216,19 +216,7 @@ Tasks 2-5: Main context (need decision from checkpoint 1)
 No segmentation benefit - execute entirely in main
 ```
 
-**4. Why this works:**
-
-**Segmentation benefits:**
-
-- Fresh context for each autonomous segment (0% start every time)
-- Main context only for checkpoints (~10-20% total)
-- Can handle 10+ task plans if properly segmented
-- Quality impossible to degrade in autonomous segments
-
-**When segmentation provides no benefit:**
-
-- Checkpoint is decision/human-action and following tasks depend on outcome
-- Better to execute sequentially in main than break flow
+**4. Why segment:** Fresh context per subagent preserves peak quality. Main context stays lean (~15% usage).
 
 **5. Implementation:**
 
@@ -533,18 +521,7 @@ Committing...
 
 ````
 
-**Benefits of this pattern:**
-- Main context usage: ~20% (just orchestration + checkpoints)
-- Subagent 1: Fresh 0-30% (tasks 1-3)
-- Subagent 2: Fresh 0-30% (tasks 5-6)
-- Subagent 3: Fresh 0-20% (task 8)
-- All autonomous work: Peak quality
-- Can handle large plans with many tasks if properly segmented
-
-**When NOT to use segmentation:**
-- Plan has decision/human-action checkpoints that affect following tasks
-- Following tasks depend on checkpoint outcome
-- Better to execute in main sequentially in those cases
+**Benefit:** Each subagent starts fresh (~20-30% context), enabling larger plans without quality degradation.
 </step>
 
 <step name="load_prompt">
@@ -1067,13 +1044,6 @@ Store in array or list for SUMMARY generation:
 ```bash
 TASK_COMMITS+=("Task ${TASK_NUM}: ${TASK_COMMIT}")
 ```
-
-**Atomic commit benefits:**
-- Each task independently revertable
-- Git bisect finds exact failing task
-- Git blame traces line to specific task context
-- Clear history for Claude in future sessions
-- Better observability for AI-automated workflow
 
 </task_commit>
 

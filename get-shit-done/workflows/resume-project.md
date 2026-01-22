@@ -7,10 +7,7 @@ Use this workflow when:
 </trigger>
 
 <purpose>
-Instantly restore full project context and present clear status.
-Enables seamless session continuity for fully autonomous workflows.
-
-"Where were we?" should have an immediate, complete answer.
+Instantly restore full project context so "Where were we?" has an immediate, complete answer.
 </purpose>
 
 <required_reading>
@@ -290,17 +287,12 @@ This handles cases where:
   </reconstruction>
 
 <quick_resume>
-For users who want minimal friction:
-
-If user says just "continue" or "go":
-
+If user says "continue" or "go":
 - Load state silently
 - Determine primary action
 - Execute immediately without presenting options
 
 "Continuing from [state]... [action]"
-
-This enables fully autonomous "just keep going" workflow.
 </quick_resume>
 
 <success_criteria>
