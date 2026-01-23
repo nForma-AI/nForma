@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.9.8] - 2025-01-22
+
+### Added
+- Uninstall flag (`--uninstall`) to cleanly remove GSD from global or local installations
+
+### Fixed
+- Context file detection now matches filename variants (handles both `CONTEXT.md` and `{phase}-CONTEXT.md` patterns)
+
 ## [1.9.7] - 2026-01-22
 
 ### Fixed
@@ -1021,8 +1029,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.9.6...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.9.8...HEAD
+[1.9.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.8
+[1.9.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.7
 [1.9.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.6
+[1.9.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.5
 [1.9.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.4
 [1.9.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.2
 [1.9.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.0
