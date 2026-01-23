@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.9.10] - 2026-01-23
+
+### Added
+- Discord community link shown in installer completion message
+
 ## [1.9.9] - 2026-01-23
 
 ### Added
@@ -1034,7 +1039,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.9.9...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.9.10...HEAD
+[1.9.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.10
 [1.9.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.9
 [1.9.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.8
 [1.9.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.7
