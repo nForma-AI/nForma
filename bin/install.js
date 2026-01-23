@@ -22,6 +22,7 @@ const hasLocal = args.includes('--local') || args.includes('-l');
 const hasOpencode = args.includes('--opencode');
 const hasClaude = args.includes('--claude');
 const hasBoth = args.includes('--both');
+const hasUninstall = args.includes('--uninstall') || args.includes('-u');
 
 // Runtime selection - can be set by flags or interactive prompt
 let selectedRuntimes = [];
@@ -140,6 +141,7 @@ if (hasHelp) {
     ${cyan}--claude${reset}                  Install for Claude Code only
     ${cyan}--opencode${reset}                Install for OpenCode only
     ${cyan}--both${reset}                    Install for both Claude Code and OpenCode
+    ${cyan}-u, --uninstall${reset}           Uninstall GSD (remove all GSD files)
     ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory
     ${cyan}-h, --help${reset}                Show this help message
     ${cyan}--force-statusline${reset}        Replace existing statusline config
@@ -162,6 +164,12 @@ if (hasHelp) {
 
     ${dim}# Install to current project only${reset}
     npx get-shit-done-cc --claude --local
+
+    ${dim}# Uninstall GSD from Claude Code globally${reset}
+    npx get-shit-done-cc --claude --global --uninstall
+
+    ${dim}# Uninstall GSD from current project${reset}
+    npx get-shit-done-cc --claude --local --uninstall
 
   ${yellow}Notes:${reset}
     The --config-dir option is useful when you have multiple Claude Code
@@ -523,6 +531,203 @@ function cleanupOrphanedHooks(settings) {
   }
 
   return settings;
+}
+
+/**
+ * Uninstall GSD from the specified directory for a specific runtime
+ * Removes only GSD-specific files/directories, preserves user content
+ * @param {boolean} isGlobal - Whether to uninstall from global or local
+ * @param {string} runtime - Target runtime ('claude' or 'opencode')
+ */
+function uninstall(isGlobal, runtime = 'claude') {
+  const isOpencode = runtime === 'opencode';
+  const dirName = getDirName(runtime);
+
+  // Get the target directory based on runtime and install type
+  const targetDir = isGlobal
+    ? getGlobalDir(runtime, explicitConfigDir)
+    : path.join(process.cwd(), dirName);
+
+  const locationLabel = isGlobal
+    ? targetDir.replace(os.homedir(), '~')
+    : targetDir.replace(process.cwd(), '.');
+
+  const runtimeLabel = isOpencode ? 'OpenCode' : 'Claude Code';
+  console.log(`  Uninstalling GSD from ${cyan}${runtimeLabel}${reset} at ${cyan}${locationLabel}${reset}\n`);
+
+  // Check if target directory exists
+  if (!fs.existsSync(targetDir)) {
+    console.log(`  ${yellow}⚠${reset} Directory does not exist: ${locationLabel}`);
+    console.log(`  Nothing to uninstall.\n`);
+    return;
+  }
+
+  let removedCount = 0;
+
+  // 1. Remove GSD commands directory
+  if (isOpencode) {
+    // OpenCode: remove command/gsd-*.md files
+    const commandDir = path.join(targetDir, 'command');
+    if (fs.existsSync(commandDir)) {
+      const files = fs.readdirSync(commandDir);
+      for (const file of files) {
+        if (file.startsWith('gsd-') && file.endsWith('.md')) {
+          fs.unlinkSync(path.join(commandDir, file));
+          removedCount++;
+        }
+      }
+      console.log(`  ${green}✓${reset} Removed GSD commands from command/`);
+    }
+  } else {
+    // Claude Code: remove commands/gsd/ directory
+    const gsdCommandsDir = path.join(targetDir, 'commands', 'gsd');
+    if (fs.existsSync(gsdCommandsDir)) {
+      fs.rmSync(gsdCommandsDir, { recursive: true });
+      removedCount++;
+      console.log(`  ${green}✓${reset} Removed commands/gsd/`);
+    }
+  }
+
+  // 2. Remove get-shit-done directory
+  const gsdDir = path.join(targetDir, 'get-shit-done');
+  if (fs.existsSync(gsdDir)) {
+    fs.rmSync(gsdDir, { recursive: true });
+    removedCount++;
+    console.log(`  ${green}✓${reset} Removed get-shit-done/`);
+  }
+
+  // 3. Remove GSD agents (gsd-*.md files only)
+  const agentsDir = path.join(targetDir, 'agents');
+  if (fs.existsSync(agentsDir)) {
+    const files = fs.readdirSync(agentsDir);
+    let agentCount = 0;
+    for (const file of files) {
+      if (file.startsWith('gsd-') && file.endsWith('.md')) {
+        fs.unlinkSync(path.join(agentsDir, file));
+        agentCount++;
+      }
+    }
+    if (agentCount > 0) {
+      removedCount++;
+      console.log(`  ${green}✓${reset} Removed ${agentCount} GSD agents`);
+    }
+  }
+
+  // 4. Remove GSD hooks
+  const hooksDir = path.join(targetDir, 'hooks');
+  if (fs.existsSync(hooksDir)) {
+    const gsdHooks = ['gsd-statusline.js', 'gsd-check-update.js', 'gsd-check-update.sh'];
+    let hookCount = 0;
+    for (const hook of gsdHooks) {
+      const hookPath = path.join(hooksDir, hook);
+      if (fs.existsSync(hookPath)) {
+        fs.unlinkSync(hookPath);
+        hookCount++;
+      }
+    }
+    if (hookCount > 0) {
+      removedCount++;
+      console.log(`  ${green}✓${reset} Removed ${hookCount} GSD hooks`);
+    }
+  }
+
+  // 5. Clean up settings.json (remove GSD hooks and statusline)
+  const settingsPath = path.join(targetDir, 'settings.json');
+  if (fs.existsSync(settingsPath)) {
+    let settings = readSettings(settingsPath);
+    let settingsModified = false;
+
+    // Remove GSD statusline if it references our hook
+    if (settings.statusLine && settings.statusLine.command &&
+        settings.statusLine.command.includes('gsd-statusline')) {
+      delete settings.statusLine;
+      settingsModified = true;
+      console.log(`  ${green}✓${reset} Removed GSD statusline from settings`);
+    }
+
+    // Remove GSD hooks from SessionStart
+    if (settings.hooks && settings.hooks.SessionStart) {
+      const before = settings.hooks.SessionStart.length;
+      settings.hooks.SessionStart = settings.hooks.SessionStart.filter(entry => {
+        if (entry.hooks && Array.isArray(entry.hooks)) {
+          // Filter out GSD hooks
+          const hasGsdHook = entry.hooks.some(h =>
+            h.command && (h.command.includes('gsd-check-update') || h.command.includes('gsd-statusline'))
+          );
+          return !hasGsdHook;
+        }
+        return true;
+      });
+      if (settings.hooks.SessionStart.length < before) {
+        settingsModified = true;
+        console.log(`  ${green}✓${reset} Removed GSD hooks from settings`);
+      }
+      // Clean up empty array
+      if (settings.hooks.SessionStart.length === 0) {
+        delete settings.hooks.SessionStart;
+      }
+      // Clean up empty hooks object
+      if (Object.keys(settings.hooks).length === 0) {
+        delete settings.hooks;
+      }
+    }
+
+    if (settingsModified) {
+      writeSettings(settingsPath, settings);
+      removedCount++;
+    }
+  }
+
+  // 6. For OpenCode, clean up permissions from opencode.json
+  if (isOpencode) {
+    const opencodeConfigDir = getOpencodeGlobalDir();
+    const configPath = path.join(opencodeConfigDir, 'opencode.json');
+    if (fs.existsSync(configPath)) {
+      try {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        let modified = false;
+
+        // Remove GSD permission entries
+        if (config.permission) {
+          for (const permType of ['read', 'external_directory']) {
+            if (config.permission[permType]) {
+              const keys = Object.keys(config.permission[permType]);
+              for (const key of keys) {
+                if (key.includes('get-shit-done')) {
+                  delete config.permission[permType][key];
+                  modified = true;
+                }
+              }
+              // Clean up empty objects
+              if (Object.keys(config.permission[permType]).length === 0) {
+                delete config.permission[permType];
+              }
+            }
+          }
+          if (Object.keys(config.permission).length === 0) {
+            delete config.permission;
+          }
+        }
+
+        if (modified) {
+          fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+          removedCount++;
+          console.log(`  ${green}✓${reset} Removed GSD permissions from opencode.json`);
+        }
+      } catch (e) {
+        // Ignore JSON parse errors
+      }
+    }
+  }
+
+  if (removedCount === 0) {
+    console.log(`  ${yellow}⚠${reset} No GSD files found to remove.`);
+  }
+
+  console.log(`
+  ${green}Done!${reset} GSD has been uninstalled from ${runtimeLabel}.
+  Your other files and settings have been preserved.
+`);
 }
 
 /**
@@ -1049,6 +1254,17 @@ if (hasGlobal && hasLocal) {
 } else if (explicitConfigDir && hasLocal) {
   console.error(`  ${yellow}Cannot use --config-dir with --local${reset}`);
   process.exit(1);
+} else if (hasUninstall) {
+  // Uninstall mode
+  if (!hasGlobal && !hasLocal) {
+    console.error(`  ${yellow}--uninstall requires --global or --local${reset}`);
+    console.error(`  Example: npx get-shit-done-cc --claude --global --uninstall`);
+    process.exit(1);
+  }
+  const runtimes = selectedRuntimes.length > 0 ? selectedRuntimes : ['claude'];
+  for (const runtime of runtimes) {
+    uninstall(hasGlobal, runtime);
+  }
 } else if (selectedRuntimes.length > 0) {
   // Non-interactive: runtime specified via flags
   if (!hasGlobal && !hasLocal) {

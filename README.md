@@ -553,6 +553,22 @@ CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
 ```
 This ensures absolute paths are used instead of `~` which may not expand correctly in containers.
 
+### Uninstalling
+
+To remove GSD completely:
+
+```bash
+# Global installs
+npx get-shit-done-cc --claude --global --uninstall
+npx get-shit-done-cc --opencode --global --uninstall
+
+# Local installs (current project)
+npx get-shit-done-cc --claude --local --uninstall
+npx get-shit-done-cc --opencode --local --uninstall
+```
+
+This removes all GSD commands, agents, hooks, and settings while preserving your other configurations.
+
 ---
 
 ## Community Ports
