@@ -440,6 +440,7 @@ You're never locked in. The system adapts.
 | `/gsd:help` | Show all commands and usage guide |
 | `/gsd:whats-new` | See what changed since your installed version |
 | `/gsd:update` | Update GSD with changelog preview |
+| `/gsd:join-discord` | Join the GSD Discord community |
 
 ### Brownfield
 
