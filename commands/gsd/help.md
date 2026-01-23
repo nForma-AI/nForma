@@ -27,13 +27,7 @@ Output ONLY the reference content below. Do NOT add:
 
 ## Staying Updated
 
-GSD evolves fast. Check for updates periodically:
-
-```
-/gsd:whats-new
-```
-
-Shows what changed since your installed version. Update with:
+GSD evolves fast. Update periodically:
 
 ```bash
 npx get-shit-done-cc@latest
@@ -333,20 +327,12 @@ Usage: `/gsd:set-profile budget`
 **`/gsd:help`**
 Show this command reference.
 
-**`/gsd:whats-new`**
-See what's changed since your installed version.
+**`/gsd:update`**
+Update GSD to latest version with changelog preview.
 
 - Shows installed vs latest version comparison
 - Displays changelog entries for versions you've missed
 - Highlights breaking changes
-- Provides update instructions when behind
-
-Usage: `/gsd:whats-new`
-
-**`/gsd:update`**
-Update GSD to latest version with changelog preview.
-
-- Shows what changed before updating
 - Confirms before running install
 - Better than raw `npx get-shit-done-cc`
 

@@ -84,13 +84,7 @@ Verify with `/gsd:help` inside your Claude Code or OpenCode interface.
 
 ### Staying Updated
 
-GSD evolves fast. Check for updates periodically:
-
-```
-/gsd:whats-new
-```
-
-Update with:
+GSD evolves fast. Update periodically:
 
 ```bash
 npx get-shit-done-cc@latest
@@ -439,7 +433,6 @@ You're never locked in. The system adapts.
 |---------|--------------|
 | `/gsd:progress` | Where am I? What's next? |
 | `/gsd:help` | Show all commands and usage guide |
-| `/gsd:whats-new` | See what changed since your installed version |
 | `/gsd:update` | Update GSD with changelog preview |
 | `/gsd:join-discord` | Join the GSD Discord community |
 
