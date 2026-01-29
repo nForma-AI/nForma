@@ -6,7 +6,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.9.14] - 2026-01-29
+## [1.10.0] - 2026-01-29
 
 ### Added
 - Native Gemini CLI support — install with `--gemini` flag or select from interactive menu
@@ -1064,8 +1064,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.9.14...HEAD
-[1.9.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.14
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.10.0
 [1.9.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.12
 [1.9.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.11
 [1.9.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.10
