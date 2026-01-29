@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.9.14] - 2026-01-29
+
+### Added
+- Native Gemini CLI support — install with `--gemini` flag or select from interactive menu
+- New `--all` flag to install for Claude Code, OpenCode, and Gemini simultaneously
+
+### Fixed
+- Context bar now shows 100% at actual 80% limit (was scaling incorrectly)
+
 ## [1.9.12] - 2025-01-23
 
 ### Removed
@@ -1055,7 +1064,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.9.12...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.9.14...HEAD
+[1.9.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.14
 [1.9.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.12
 [1.9.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.11
 [1.9.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.10
