@@ -165,6 +165,17 @@ if [ "$BRANCHING_STRATEGY" = "milestone" ]; then
 fi
 ```
 
+**Merge options at complete-milestone:**
+
+| Option | Git command | Result |
+|--------|-------------|--------|
+| Squash merge (recommended) | `git merge --squash` | Single clean commit per branch |
+| Merge with history | `git merge --no-ff` | Preserves all individual commits |
+| Delete without merging | `git branch -D` | Discard branch work |
+| Keep branches | (none) | Manual handling later |
+
+Squash merge is recommended — keeps main branch history clean while preserving the full development history in the branch (until deleted).
+
 **Use cases:**
 
 | Strategy | Best for |

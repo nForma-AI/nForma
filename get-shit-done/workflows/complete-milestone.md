@@ -643,7 +643,8 @@ AskUserQuestion([
     header: "Branches",
     multiSelect: false,
     options: [
-      { label: "Merge to main", description: "Merge all branches to main sequentially" },
+      { label: "Squash merge (Recommended)", description: "Squash all commits into one clean commit on main" },
+      { label: "Merge with history", description: "Preserve all individual commits (--no-ff)" },
       { label: "Delete without merging", description: "Branches already merged or not needed" },
       { label: "Keep branches", description: "Leave branches for manual handling later" }
     ]
@@ -651,7 +652,34 @@ AskUserQuestion([
 ])
 ```
 
-**If "Merge to main":**
+**If "Squash merge":**
+
+```bash
+CURRENT_BRANCH=$(git branch --show-current)
+git checkout main
+
+# For phase strategy - squash merge each phase branch
+if [ "$BRANCHING_STRATEGY" = "phase" ]; then
+  for branch in $PHASE_BRANCHES; do
+    echo "Squash merging $branch..."
+    git merge --squash "$branch"
+    git commit -m "feat: $branch for v[X.Y]"
+  done
+fi
+
+# For milestone strategy - squash merge milestone branch
+if [ "$BRANCHING_STRATEGY" = "milestone" ]; then
+  echo "Squash merging $MILESTONE_BRANCH..."
+  git merge --squash "$MILESTONE_BRANCH"
+  git commit -m "feat: $MILESTONE_BRANCH for v[X.Y]"
+fi
+
+git checkout "$CURRENT_BRANCH"
+```
+
+Report: "Squash merged branches to main"
+
+**If "Merge with history":**
 
 ```bash
 CURRENT_BRANCH=$(git branch --show-current)
@@ -674,7 +702,7 @@ fi
 git checkout "$CURRENT_BRANCH"
 ```
 
-Report: "Merged branches to main"
+Report: "Merged branches to main with full history"
 
 **If "Delete without merging":**
 
