@@ -6,6 +6,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-01-31
+
+### Added
+- Git branching strategy configuration with three options:
+  - `none` (default): commit to current branch
+  - `phase`: create branch per phase (`gsd/phase-{N}-{slug}`)
+  - `milestone`: create branch per milestone (`gsd/{version}-{slug}`)
+- Squash merge option at milestone completion (recommended) with merge-with-history alternative
+- Context compliance verification dimension in plan checker — flags if plans contradict user decisions
+
+### Fixed
+- CONTEXT.md from `/gsd:discuss-phase` now properly flows to all downstream agents (researcher, planner, checker, revision loop)
+
 ## [1.10.1] - 2025-01-30
 
 ### Fixed
@@ -1069,7 +1082,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.10.1...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.11.0
 [1.10.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.10.1
 [1.10.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.10.0
 [1.9.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.12
