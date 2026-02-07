@@ -33,33 +33,16 @@ Normalize phase input in step 1 before any directory lookups.
 
 ## 0. Resolve Model Profile
 
-Read model profile for agent spawning:
-
 ```bash
-MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
+RESEARCHER_MODEL=$(node ~/.claude/get-shit-done/bin/gsd-tools.js resolve-model gsd-phase-researcher --raw)
 ```
-
-Default to "balanced" if not set.
-
-**Model lookup table:**
-
-| Agent | quality | balanced | budget |
-|-------|---------|----------|--------|
-| gsd-phase-researcher | opus | sonnet | haiku |
-
-Store resolved model for use in Task calls below.
 
 ## 1. Normalize and Validate Phase
 
 ```bash
-# Normalize phase number (8 → 08, but preserve decimals like 2.1 → 02.1)
-if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  PHASE=$(printf "%02d" "$ARGUMENTS")
-elif [[ "$ARGUMENTS" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
-  PHASE=$(printf "%02d.%s" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}")
-else
-  PHASE="$ARGUMENTS"
-fi
+PHASE_INFO=$(node ~/.claude/get-shit-done/bin/gsd-tools.js find-phase "$ARGUMENTS")
+PHASE_DIR=$(echo "$PHASE_INFO" | grep -o '"directory":"[^"]*"' | cut -d'"' -f4)
+PHASE=$(echo "$PHASE_INFO" | grep -o '"phase_number":"[^"]*"' | cut -d'"' -f4)
 
 grep -A5 "Phase ${PHASE}:" .planning/ROADMAP.md 2>/dev/null
 ```

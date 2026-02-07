@@ -20,9 +20,12 @@ Instantly restore full project context so "Where were we?" has an immediate, com
 Check if this is an existing project:
 
 ```bash
-ls .planning/STATE.md 2>/dev/null && echo "Project exists"
-ls .planning/ROADMAP.md 2>/dev/null && echo "Roadmap exists"
-ls .planning/PROJECT.md 2>/dev/null && echo "Project file exists"
+STATE_EXISTS=$(node ~/.claude/get-shit-done/bin/gsd-tools.js verify-path-exists .planning/STATE.md --raw)
+ROADMAP_EXISTS=$(node ~/.claude/get-shit-done/bin/gsd-tools.js verify-path-exists .planning/ROADMAP.md --raw)
+PROJECT_EXISTS=$(node ~/.claude/get-shit-done/bin/gsd-tools.js verify-path-exists .planning/PROJECT.md --raw)
+[ "$STATE_EXISTS" = "true" ] && echo "Project exists"
+[ "$ROADMAP_EXISTS" = "true" ] && echo "Roadmap exists"
+[ "$PROJECT_EXISTS" = "true" ] && echo "Project file exists"
 ```
 
 **If STATE.md exists:** Proceed to load_state
@@ -72,7 +75,8 @@ for plan in .planning/phases/*/*-PLAN.md; do
 done 2>/dev/null
 
 # Check for interrupted agents
-if [ -f .planning/current-agent-id.txt ] && [ -s .planning/current-agent-id.txt ]; then
+AGENT_FILE_EXISTS=$(node ~/.claude/get-shit-done/bin/gsd-tools.js verify-path-exists .planning/current-agent-id.txt --raw)
+if [ "$AGENT_FILE_EXISTS" = "true" ] && [ -s .planning/current-agent-id.txt ]; then
   AGENT_ID=$(cat .planning/current-agent-id.txt | tr -d '\n')
   echo "Interrupted agent: $AGENT_ID"
 fi

@@ -130,9 +130,8 @@ Exit workflow.
 Check if CONTEXT.md already exists:
 
 ```bash
-# Match both zero-padded (05-*) and unpadded (5-*) folders
-PADDED_PHASE=$(printf "%02d" ${PHASE})
-ls .planning/phases/${PADDED_PHASE}-*/*-CONTEXT.md .planning/phases/${PHASE}-*/*-CONTEXT.md 2>/dev/null
+PHASE_DIR=$(node ~/.claude/get-shit-done/bin/gsd-tools.js find-phase "${PHASE}" --raw)
+ls ${PHASE_DIR}/*-CONTEXT.md 2>/dev/null
 ```
 
 **If exists:**
@@ -282,14 +281,15 @@ Create CONTEXT.md capturing decisions made.
 **Find or create phase directory:**
 
 ```bash
-# Match existing directory (padded or unpadded)
-PADDED_PHASE=$(printf "%02d" ${PHASE})
-PHASE_DIR=$(ls -d .planning/phases/${PADDED_PHASE}-* .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+PHASE_INFO=$(node ~/.claude/get-shit-done/bin/gsd-tools.js find-phase "${PHASE}")
+PHASE_DIR=$(echo "$PHASE_INFO" | grep -o '"directory":"[^"]*"' | cut -d'"' -f4)
+PADDED_PHASE=$(echo "$PHASE_INFO" | grep -o '"phase_number":"[^"]*"' | cut -d'"' -f4)
 if [ -z "$PHASE_DIR" ]; then
-  # Create from roadmap name (lowercase, hyphens)
-  PHASE_NAME=$(grep "Phase ${PHASE}:" .planning/ROADMAP.md | sed 's/.*Phase [0-9]*: //' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-  mkdir -p ".planning/phases/${PADDED_PHASE}-${PHASE_NAME}"
-  PHASE_DIR=".planning/phases/${PADDED_PHASE}-${PHASE_NAME}"
+  PHASE_NAME=$(grep "Phase ${PHASE}:" .planning/ROADMAP.md | sed 's/.*Phase [0-9]*: //')
+  PHASE_SLUG=$(node ~/.claude/get-shit-done/bin/gsd-tools.js generate-slug "$PHASE_NAME" --raw)
+  PADDED_PHASE=$(printf "%02d" ${PHASE})
+  mkdir -p ".planning/phases/${PADDED_PHASE}-${PHASE_SLUG}"
+  PHASE_DIR=".planning/phases/${PADDED_PHASE}-${PHASE_SLUG}"
 fi
 ```
 
@@ -393,27 +393,8 @@ Created: .planning/phases/${PADDED_PHASE}-${SLUG}/${PADDED_PHASE}-CONTEXT.md
 <step name="git_commit">
 Commit phase context:
 
-**Check planning config:**
-
 ```bash
-COMMIT_PLANNING_DOCS=$(cat .planning/config.json 2>/dev/null | grep -o '"commit_docs"[[:space:]]*:[[:space:]]*[^,}]*' | grep -o 'true\|false' || echo "true")
-git check-ignore -q .planning 2>/dev/null && COMMIT_PLANNING_DOCS=false
-```
-
-**If `COMMIT_PLANNING_DOCS=false`:** Skip git operations
-
-**If `COMMIT_PLANNING_DOCS=true` (default):**
-
-```bash
-git add "${PHASE_DIR}/${PADDED_PHASE}-CONTEXT.md"
-git commit -m "$(cat <<'EOF'
-docs(${PADDED_PHASE}): capture phase context
-
-Phase ${PADDED_PHASE}: ${PHASE_NAME}
-- Implementation decisions documented
-- Phase boundary established
-EOF
-)"
+node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs(${PADDED_PHASE}): capture phase context" --files "${PHASE_DIR}/${PADDED_PHASE}-CONTEXT.md"
 ```
 
 Confirm: "Committed: docs(${PADDED_PHASE}): capture phase context"
