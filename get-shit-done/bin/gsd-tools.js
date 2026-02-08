@@ -26,6 +26,8 @@
  *   summary-extract <path> [--fields]  Extract structured data from SUMMARY.md
  *   state-snapshot                     Structured parse of STATE.md
  *   phase-plan-index <phase>           Index plans with waves and status
+ *   websearch <query>                  Search web via Brave API (if configured)
+ *     [--limit N] [--freshness day|week|month]
  *
  * Phase Operations:
  *   phase next-decimal <phase>         Calculate next decimal phase number
@@ -165,6 +167,7 @@ function loadConfig(cwd) {
     plan_checker: true,
     verifier: true,
     parallelization: true,
+    brave_search: false,
   };
 
   try {
@@ -197,6 +200,7 @@ function loadConfig(cwd) {
       plan_checker: get('plan_checker', { section: 'workflow', field: 'plan_check' }) ?? defaults.plan_checker,
       verifier: get('verifier', { section: 'workflow', field: 'verifier' }) ?? defaults.verifier,
       parallelization,
+      brave_search: get('brave_search') ?? defaults.brave_search,
     };
   } catch {
     return defaults;
@@ -584,6 +588,11 @@ function cmdConfigEnsureSection(cwd, raw) {
     return;
   }
 
+  // Detect Brave Search API key availability
+  const homedir = require('os').homedir();
+  const braveKeyFile = path.join(homedir, '.gsd', 'brave_api_key');
+  const hasBraveSearch = !!(process.env.BRAVE_API_KEY || fs.existsSync(braveKeyFile));
+
   // Create default config
   const defaults = {
     model_profile: 'balanced',
@@ -598,6 +607,7 @@ function cmdConfigEnsureSection(cwd, raw) {
       verifier: true,
     },
     parallelization: true,
+    brave_search: hasBraveSearch,
   };
 
   try {
@@ -1985,6 +1995,70 @@ function cmdSummaryExtract(cwd, summaryPath, fields, raw) {
   }
 
   output(fullResult, raw);
+}
+
+// ─── Web Search (Brave API) ──────────────────────────────────────────────────
+
+async function cmdWebsearch(query, options, raw) {
+  const apiKey = process.env.BRAVE_API_KEY;
+
+  if (!apiKey) {
+    // No key = silent skip, agent falls back to built-in WebSearch
+    output({ available: false, reason: 'BRAVE_API_KEY not set' }, raw, '');
+    return;
+  }
+
+  if (!query) {
+    output({ available: false, error: 'Query required' }, raw, '');
+    return;
+  }
+
+  const params = new URLSearchParams({
+    q: query,
+    count: String(options.limit || 10),
+    country: 'us',
+    search_lang: 'en',
+    text_decorations: 'false'
+  });
+
+  if (options.freshness) {
+    params.set('freshness', options.freshness);
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.search.brave.com/res/v1/web/search?${params}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'X-Subscription-Token': apiKey
+        }
+      }
+    );
+
+    if (!response.ok) {
+      output({ available: false, error: `API error: ${response.status}` }, raw, '');
+      return;
+    }
+
+    const data = await response.json();
+
+    const results = (data.web?.results || []).map(r => ({
+      title: r.title,
+      url: r.url,
+      description: r.description,
+      age: r.age || null
+    }));
+
+    output({
+      available: true,
+      query,
+      count: results.length,
+      results
+    }, raw, results.map(r => `${r.title}\n${r.url}\n${r.description}`).join('\n\n'));
+  } catch (err) {
+    output({ available: false, error: err.message }, raw, '');
+  }
 }
 
 // ─── Frontmatter CRUD ────────────────────────────────────────────────────────
@@ -3659,6 +3733,11 @@ function cmdInitPlanPhase(cwd, phase, includes, raw) {
 function cmdInitNewProject(cwd, raw) {
   const config = loadConfig(cwd);
 
+  // Detect Brave Search API key availability
+  const homedir = require('os').homedir();
+  const braveKeyFile = path.join(homedir, '.gsd', 'brave_api_key');
+  const hasBraveSearch = !!(process.env.BRAVE_API_KEY || fs.existsSync(braveKeyFile));
+
   // Detect existing code
   let hasCode = false;
   let hasPackageFile = false;
@@ -3699,6 +3778,9 @@ function cmdInitNewProject(cwd, raw) {
 
     // Git state
     has_git: pathExistsInternal(cwd, '.git'),
+
+    // Enhanced search
+    brave_search_available: hasBraveSearch,
   };
 
   output(result, raw);
@@ -3841,6 +3923,7 @@ function cmdInitPhaseOp(cwd, phase, raw) {
   const result = {
     // Config
     commit_docs: config.commit_docs,
+    brave_search: config.brave_search,
 
     // Phase info
     phase_found: !!phaseInfo,
@@ -4128,7 +4211,7 @@ function cmdInitProgress(cwd, includes, raw) {
 
 // ─── CLI Router ───────────────────────────────────────────────────────────────
 
-function main() {
+async function main() {
   const args = process.argv.slice(2);
   const rawIndex = args.indexOf('--raw');
   const raw = rawIndex !== -1;
@@ -4492,6 +4575,17 @@ function main() {
       const fieldsIndex = args.indexOf('--fields');
       const fields = fieldsIndex !== -1 ? args[fieldsIndex + 1].split(',') : null;
       cmdSummaryExtract(cwd, summaryPath, fields, raw);
+      break;
+    }
+
+    case 'websearch': {
+      const query = args[1];
+      const limitIdx = args.indexOf('--limit');
+      const freshnessIdx = args.indexOf('--freshness');
+      await cmdWebsearch(query, {
+        limit: limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : 10,
+        freshness: freshnessIdx !== -1 ? args[freshnessIdx + 1] : null,
+      }, raw);
       break;
     }
 
