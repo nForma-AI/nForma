@@ -6,6 +6,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-02-08
+
+### Added
+- `gsd-tools history-digest` — Compiles phase summaries into structured JSON for faster context loading
+- `gsd-tools phases list` — Lists phase directories with filtering (replaces fragile `ls | sort -V` patterns)
+- `gsd-tools roadmap get-phase` — Extracts phase sections from ROADMAP.md
+- `gsd-tools phase next-decimal` — Calculates next decimal phase number for insert operations
+- `gsd-tools state get/patch` — Atomic STATE.md field operations
+- `gsd-tools template select` — Chooses summary template based on plan complexity
+- Summary template variants: minimal (~30 lines), standard (~60 lines), complex (~100 lines)
+- Test infrastructure with 22 tests covering new commands
+
+### Changed
+- Planner uses two-step context assembly: digest for selection, full SUMMARY for understanding
+- Agents migrated from bash patterns to structured gsd-tools commands
+- Nested YAML frontmatter parsing now handles `dependency-graph.provides`, `tech-stack.added` correctly
+
 ## [1.12.1] - 2026-02-08
 
 ### Changed
