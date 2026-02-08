@@ -6,6 +6,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-02-08
+
+### Added
+- **gsd-tools verification suite**: `verify plan-structure`, `verify phase-completeness`, `verify references`, `verify commits`, `verify artifacts`, `verify key-links` — deterministic structural checks
+- **gsd-tools frontmatter CRUD**: `frontmatter get/set/merge/validate` — safe YAML frontmatter operations with schema validation
+- **gsd-tools template fill**: `template fill summary/plan/verification` — pre-filled document skeletons
+- **gsd-tools state progression**: `state advance-plan`, `state update-progress`, `state record-metric`, `state add-decision`, `state add-blocker`, `state resolve-blocker`, `state record-session` — automates STATE.md updates
+- **Local patch preservation**: Installer now detects locally modified GSD files, backs them up to `gsd-local-patches/`, and creates a manifest for restoration
+- `/gsd:reapply-patches` command to merge local modifications back after GSD updates
+
+### Changed
+- Agents (executor, planner, plan-checker, verifier) now use gsd-tools for state updates and verification instead of manual markdown parsing
+- `/gsd:update` workflow now notifies about backed-up local patches and suggests `/gsd:reapply-patches`
+
+### Fixed
+- Added workaround for Claude Code `classifyHandoffIfNeeded` bug that causes false agent failures — execute-phase and quick workflows now spot-check actual output before reporting failure
+
 ## [1.16.0] - 2026-02-08
 
 ### Added
@@ -1179,7 +1196,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.16.0...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.17.0...HEAD
+[1.17.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.17.0
 [1.16.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.16.0
 [1.15.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.15.0
 [1.14.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.14.0
