@@ -15,7 +15,7 @@
 <br>
 
 ```bash
-npx get-shit-done-cc
+npx get-shit-done-cc@latest
 ```
 
 **Works on Mac, Windows, and Linux.**
@@ -73,7 +73,7 @@ People who want to describe what they want and have it built correctly — witho
 ## Getting Started
 
 ```bash
-npx get-shit-done-cc
+npx get-shit-done-cc@latest
 ```
 
 The installer prompts you to choose:
