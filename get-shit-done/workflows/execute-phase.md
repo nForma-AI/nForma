@@ -94,39 +94,43 @@ Execute each wave in sequence. Within a wave: parallel if `PARALLELIZATION=true`
    - Bad: "Executing terrain generation plan"
    - Good: "Procedural terrain generator using Perlin noise — creates height maps, biome zones, and collision meshes. Required before vehicle physics can interact with ground."
 
-2. **Spawn agents with file paths (not content):**
+2. **Spawn executor agents:**
 
    Pass paths only — executors read files themselves with their fresh 200k context.
    This keeps orchestrator context lean (~10-15%).
 
-   Each agent prompt:
-
    ```
-   <objective>
-   Execute plan {plan_number} of phase {phase_number}-{phase_name}.
-   Commit each task atomically. Create SUMMARY.md. Update STATE.md.
-   </objective>
+   Task(
+     subagent_type="gsd-executor",
+     model="{executor_model}",
+     prompt="
+       <objective>
+       Execute plan {plan_number} of phase {phase_number}-{phase_name}.
+       Commit each task atomically. Create SUMMARY.md. Update STATE.md.
+       </objective>
 
-   <execution_context>
-   @~/.claude/get-shit-done/workflows/execute-plan.md
-   @~/.claude/get-shit-done/templates/summary.md
-   @~/.claude/get-shit-done/references/checkpoints.md
-   @~/.claude/get-shit-done/references/tdd.md
-   </execution_context>
+       <execution_context>
+       @~/.claude/get-shit-done/workflows/execute-plan.md
+       @~/.claude/get-shit-done/templates/summary.md
+       @~/.claude/get-shit-done/references/checkpoints.md
+       @~/.claude/get-shit-done/references/tdd.md
+       </execution_context>
 
-   <files_to_read>
-   Read these files at execution start using the Read tool:
-   - Plan: {phase_dir}/{plan_file}
-   - State: .planning/STATE.md
-   - Config: .planning/config.json (if exists)
-   </files_to_read>
+       <files_to_read>
+       Read these files at execution start using the Read tool:
+       - Plan: {phase_dir}/{plan_file}
+       - State: .planning/STATE.md
+       - Config: .planning/config.json (if exists)
+       </files_to_read>
 
-   <success_criteria>
-   - [ ] All tasks executed
-   - [ ] Each task committed individually
-   - [ ] SUMMARY.md created in plan directory
-   - [ ] STATE.md updated with position and decisions
-   </success_criteria>
+       <success_criteria>
+       - [ ] All tasks executed
+       - [ ] Each task committed individually
+       - [ ] SUMMARY.md created in plan directory
+       - [ ] STATE.md updated with position and decisions
+       </success_criteria>
+     "
+   )
    ```
 
 3. **Wait for all agents in wave to complete.**
