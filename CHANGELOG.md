@@ -6,6 +6,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.12.1] - 2026-02-08
+
+### Changed
+- Consolidated workflow initialization into compound `init` commands, reducing token usage and improving startup performance
+- Updated 24 workflow and agent files to use single-call context gathering instead of multiple atomic calls
+
 ## [1.12.0] - 2026-02-07
 
 ### Changed
@@ -1114,7 +1120,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.12.1...HEAD
+[1.12.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.12.1
 [1.12.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.12.0
 [1.11.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.11.2
 [1.11.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.11.0
