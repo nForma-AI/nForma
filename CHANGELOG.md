@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-02-08
+
+### Added
+- `--auto` flag for `/gsd:new-project` — runs research → requirements → roadmap automatically after config questions. Expects idea document via @ reference (e.g., `/gsd:new-project --auto @prd.md`)
+
+### Fixed
+- Windows: SessionStart hook now spawns detached process correctly
+- Windows: Replaced HEREDOC with literal newlines for git commit compatibility
+- Research decision from `/gsd:new-milestone` now persists to config.json
+
 ## [1.17.0] - 2026-02-08
 
 ### Added
@@ -1196,7 +1206,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.17.0...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.18.0...HEAD
+[1.18.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.18.0
 [1.17.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.17.0
 [1.16.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.16.0
 [1.15.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.15.0
