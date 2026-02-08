@@ -12,17 +12,18 @@ Read config.json for planning behavior settings.
 <process>
 
 <step name="init_context" priority="first">
-Load execution context (uses `init execute-phase` for full context):
+Load execution context (uses `init execute-phase` for full context, including file contents):
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init execute-phase "${PHASE}")
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init execute-phase "${PHASE}" --include state,config)
 ```
 
 Extract from init JSON: `executor_model`, `commit_docs`, `phase_dir`, `phase_number`, `plans`, `summaries`, `incomplete_plans`.
 
-Also read STATE.md for current position, decisions, blockers:
+**File contents (from --include):** `state_content`, `config_content`. Access with:
 ```bash
-cat .planning/STATE.md 2>/dev/null
+STATE_CONTENT=$(echo "$INIT" | jq -r '.state_content // empty')
+CONFIG_CONTENT=$(echo "$INIT" | jq -r '.config_content // empty')
 ```
 
 If `.planning/` missing: error.
@@ -30,7 +31,7 @@ If `.planning/` missing: error.
 
 <step name="identify_plan">
 ```bash
-cat .planning/ROADMAP.md
+# Use plans/summaries from INIT JSON, or list files
 ls .planning/phases/XX-name/*-PLAN.md 2>/dev/null | sort
 ls .planning/phases/XX-name/*-SUMMARY.md 2>/dev/null | sort
 ```
@@ -39,7 +40,7 @@ Find first PLAN without matching SUMMARY. Decimal phases supported (`01.1-hotfix
 
 ```bash
 PHASE=$(echo "$PLAN_PATH" | grep -oE '[0-9]+(\.[0-9]+)?-[0-9]+')
-cat .planning/config.json 2>/dev/null
+# config_content already loaded via --include config in init_context
 ```
 
 <if mode="yolo">

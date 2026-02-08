@@ -9,13 +9,15 @@ Read all files referenced by the invoking prompt's execution_context before star
 <process>
 
 <step name="init_context">
-**Load progress context:**
+**Load progress context (with file contents to avoid redundant reads):**
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init progress)
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init progress --include state,roadmap,project,config)
 ```
 
 Extract from init JSON: `project_exists`, `roadmap_exists`, `state_exists`, `phases`, `current_phase`, `next_phase`, `milestone_version`, `completed_count`, `phase_count`, `paused_at`.
+
+**File contents (from --include):** `state_content`, `roadmap_content`, `project_content`, `config_content`. These are null if files don't exist.
 
 If `project_exists` is false (no `.planning/` directory):
 
@@ -37,13 +39,16 @@ If missing both ROADMAP.md and PROJECT.md: suggest `/gsd:new-project`.
 </step>
 
 <step name="load">
-**Load full project context:**
+**Use project context from INIT:**
 
-- Read `.planning/STATE.md` for living memory (position, decisions, issues)
-- Read `.planning/ROADMAP.md` for phase structure and objectives
-- Read `.planning/PROJECT.md` for current state (What This Is, Core Value, Requirements)
-- Read `.planning/config.json` for settings (model_profile, workflow toggles)
-  </step>
+All file contents are already loaded via `--include` in init_context step:
+- `state_content` — living memory (position, decisions, issues)
+- `roadmap_content` — phase structure and objectives
+- `project_content` — current state (What This Is, Core Value, Requirements)
+- `config_content` — settings (model_profile, workflow toggles)
+
+No additional file reads needed.
+</step>
 
 <step name="recent">
 **Gather recent work context:**

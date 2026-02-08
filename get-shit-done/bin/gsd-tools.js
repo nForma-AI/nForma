@@ -53,6 +53,22 @@ const MODEL_PROFILES = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function parseIncludeFlag(args) {
+  const includeIndex = args.indexOf('--include');
+  if (includeIndex === -1) return new Set();
+  const includeValue = args[includeIndex + 1];
+  if (!includeValue) return new Set();
+  return new Set(includeValue.split(',').map(s => s.trim()));
+}
+
+function safeReadFile(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf-8');
+  } catch {
+    return null;
+  }
+}
+
 function loadConfig(cwd) {
   const configPath = path.join(cwd, '.planning', 'config.json');
   const defaults = {
@@ -1392,7 +1408,7 @@ function getMilestoneInfo(cwd) {
   }
 }
 
-function cmdInitExecutePhase(cwd, phase, raw) {
+function cmdInitExecutePhase(cwd, phase, includes, raw) {
   if (!phase) {
     error('phase required for init execute-phase');
   }
@@ -1450,10 +1466,21 @@ function cmdInitExecutePhase(cwd, phase, raw) {
     config_exists: pathExistsInternal(cwd, '.planning/config.json'),
   };
 
+  // Include file contents if requested via --include
+  if (includes.has('state')) {
+    result.state_content = safeReadFile(path.join(cwd, '.planning', 'STATE.md'));
+  }
+  if (includes.has('config')) {
+    result.config_content = safeReadFile(path.join(cwd, '.planning', 'config.json'));
+  }
+  if (includes.has('roadmap')) {
+    result.roadmap_content = safeReadFile(path.join(cwd, '.planning', 'ROADMAP.md'));
+  }
+
   output(result, raw);
 }
 
-function cmdInitPlanPhase(cwd, phase, raw) {
+function cmdInitPlanPhase(cwd, phase, includes, raw) {
   if (!phase) {
     error('phase required for init plan-phase');
   }
@@ -1490,6 +1517,61 @@ function cmdInitPlanPhase(cwd, phase, raw) {
     planning_exists: pathExistsInternal(cwd, '.planning'),
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
   };
+
+  // Include file contents if requested via --include
+  if (includes.has('state')) {
+    result.state_content = safeReadFile(path.join(cwd, '.planning', 'STATE.md'));
+  }
+  if (includes.has('roadmap')) {
+    result.roadmap_content = safeReadFile(path.join(cwd, '.planning', 'ROADMAP.md'));
+  }
+  if (includes.has('requirements')) {
+    result.requirements_content = safeReadFile(path.join(cwd, '.planning', 'REQUIREMENTS.md'));
+  }
+  if (includes.has('context') && phaseInfo?.directory) {
+    // Find *-CONTEXT.md in phase directory
+    const phaseDirFull = path.join(cwd, phaseInfo.directory);
+    try {
+      const files = fs.readdirSync(phaseDirFull);
+      const contextFile = files.find(f => f.endsWith('-CONTEXT.md') || f === 'CONTEXT.md');
+      if (contextFile) {
+        result.context_content = safeReadFile(path.join(phaseDirFull, contextFile));
+      }
+    } catch {}
+  }
+  if (includes.has('research') && phaseInfo?.directory) {
+    // Find *-RESEARCH.md in phase directory
+    const phaseDirFull = path.join(cwd, phaseInfo.directory);
+    try {
+      const files = fs.readdirSync(phaseDirFull);
+      const researchFile = files.find(f => f.endsWith('-RESEARCH.md') || f === 'RESEARCH.md');
+      if (researchFile) {
+        result.research_content = safeReadFile(path.join(phaseDirFull, researchFile));
+      }
+    } catch {}
+  }
+  if (includes.has('verification') && phaseInfo?.directory) {
+    // Find *-VERIFICATION.md in phase directory
+    const phaseDirFull = path.join(cwd, phaseInfo.directory);
+    try {
+      const files = fs.readdirSync(phaseDirFull);
+      const verificationFile = files.find(f => f.endsWith('-VERIFICATION.md') || f === 'VERIFICATION.md');
+      if (verificationFile) {
+        result.verification_content = safeReadFile(path.join(phaseDirFull, verificationFile));
+      }
+    } catch {}
+  }
+  if (includes.has('uat') && phaseInfo?.directory) {
+    // Find *-UAT.md in phase directory
+    const phaseDirFull = path.join(cwd, phaseInfo.directory);
+    try {
+      const files = fs.readdirSync(phaseDirFull);
+      const uatFile = files.find(f => f.endsWith('-UAT.md') || f === 'UAT.md');
+      if (uatFile) {
+        result.uat_content = safeReadFile(path.join(phaseDirFull, uatFile));
+      }
+    } catch {}
+  }
 
   output(result, raw);
 }
@@ -1857,7 +1939,7 @@ function cmdInitMapCodebase(cwd, raw) {
   output(result, raw);
 }
 
-function cmdInitProgress(cwd, raw) {
+function cmdInitProgress(cwd, includes, raw) {
   const config = loadConfig(cwd);
   const milestone = getMilestoneInfo(cwd);
 
@@ -1946,6 +2028,20 @@ function cmdInitProgress(cwd, raw) {
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
     state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
   };
+
+  // Include file contents if requested via --include
+  if (includes.has('state')) {
+    result.state_content = safeReadFile(path.join(cwd, '.planning', 'STATE.md'));
+  }
+  if (includes.has('roadmap')) {
+    result.roadmap_content = safeReadFile(path.join(cwd, '.planning', 'ROADMAP.md'));
+  }
+  if (includes.has('project')) {
+    result.project_content = safeReadFile(path.join(cwd, '.planning', 'PROJECT.md'));
+  }
+  if (includes.has('config')) {
+    result.config_content = safeReadFile(path.join(cwd, '.planning', 'config.json'));
+  }
 
   output(result, raw);
 }
@@ -2091,12 +2187,13 @@ function main() {
 
     case 'init': {
       const workflow = args[1];
+      const includes = parseIncludeFlag(args);
       switch (workflow) {
         case 'execute-phase':
-          cmdInitExecutePhase(cwd, args[2], raw);
+          cmdInitExecutePhase(cwd, args[2], includes, raw);
           break;
         case 'plan-phase':
-          cmdInitPlanPhase(cwd, args[2], raw);
+          cmdInitPlanPhase(cwd, args[2], includes, raw);
           break;
         case 'new-project':
           cmdInitNewProject(cwd, raw);
@@ -2126,7 +2223,7 @@ function main() {
           cmdInitMapCodebase(cwd, raw);
           break;
         case 'progress':
-          cmdInitProgress(cwd, raw);
+          cmdInitProgress(cwd, includes, raw);
           break;
         default:
           error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`);

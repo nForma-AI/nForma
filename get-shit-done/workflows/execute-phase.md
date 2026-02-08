@@ -13,13 +13,15 @@ Read STATE.md before any operation to load project context.
 <process>
 
 <step name="initialize" priority="first">
-Load all context in one call:
+Load all context in one call (include file contents to avoid redundant reads):
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init execute-phase "${PHASE_ARG}")
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init execute-phase "${PHASE_ARG}" --include state,config)
 ```
 
 Parse JSON for: `executor_model`, `verifier_model`, `commit_docs`, `parallelization`, `branching_strategy`, `branch_name`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `plans`, `incomplete_plans`, `plan_count`, `incomplete_count`, `state_exists`, `roadmap_exists`.
+
+**File contents (from --include):** `state_content`, `config_content`. These are null if files don't exist.
 
 **If `phase_found` is false:** Error — phase directory not found.
 **If `plan_count` is 0:** Error — no plans found in phase.
@@ -97,11 +99,13 @@ Execute each wave in sequence. Within a wave: parallel if `PARALLELIZATION=true`
 2. **Read files and spawn agents:**
 
    Content must be inlined — `@` syntax doesn't work across Task() boundaries.
+   STATE and CONFIG are already loaded via `--include` in initialize step.
 
    ```bash
    PLAN_CONTENT=$(cat "{plan_path}")
-   STATE_CONTENT=$(cat .planning/STATE.md)
-   CONFIG_CONTENT=$(cat .planning/config.json 2>/dev/null)
+   # Use state_content and config_content from INIT (no need to re-read)
+   STATE_CONTENT=$(echo "$INIT" | jq -r '.state_content // empty')
+   CONFIG_CONTENT=$(echo "$INIT" | jq -r '.config_content // empty')
    ```
 
    Each agent prompt:
