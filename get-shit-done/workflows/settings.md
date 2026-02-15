@@ -1,5 +1,5 @@
 <purpose>
-Interactive configuration of GSD workflow agents (research, plan_check, verifier) and model profile selection via multi-question prompt. Updates .planning/config.json with user preferences.
+Interactive configuration of GSD workflow agents (research, plan_check, verifier) and model profile selection via multi-question prompt. Updates .planning/config.json with user preferences. Optionally saves settings as global defaults (~/.gsd/defaults.json) for future projects.
 </purpose>
 
 <required_reading>
@@ -119,6 +119,48 @@ Merge new settings into existing config.json:
 Write updated config to `.planning/config.json`.
 </step>
 
+<step name="save_as_defaults">
+Ask whether to save these settings as global defaults for future projects:
+
+```
+AskUserQuestion([
+  {
+    question: "Save these as default settings for all new projects?",
+    header: "Defaults",
+    multiSelect: false,
+    options: [
+      { label: "Yes", description: "New projects start with these settings (saved to ~/.gsd/defaults.json)" },
+      { label: "No", description: "Only apply to this project" }
+    ]
+  }
+])
+```
+
+If "Yes": write the same config object (minus project-specific fields like `brave_search`) to `~/.gsd/defaults.json`:
+
+```bash
+mkdir -p ~/.gsd
+```
+
+Write `~/.gsd/defaults.json` with:
+```json
+{
+  "mode": <current>,
+  "depth": <current>,
+  "model_profile": <current>,
+  "commit_docs": <current>,
+  "parallelization": <current>,
+  "branching_strategy": <current>,
+  "workflow": {
+    "research": <current>,
+    "plan_check": <current>,
+    "verifier": <current>,
+    "auto_advance": <current>
+  }
+}
+```
+</step>
+
 <step name="confirm">
 Display:
 
@@ -135,6 +177,7 @@ Display:
 | Execution Verifier   | {On/Off} |
 | Auto-Advance         | {On/Off} |
 | Git Branching        | {None/Per Phase/Per Milestone} |
+| Saved as Defaults    | {Yes/No} |
 
 These settings apply to future /gsd:plan-phase and /gsd:execute-phase runs.
 
@@ -152,5 +195,6 @@ Quick commands:
 - [ ] Current config read
 - [ ] User presented with 6 settings (profile + 4 workflow toggles + git branching)
 - [ ] Config updated with model_profile, workflow, and git sections
+- [ ] User offered to save as global defaults (~/.gsd/defaults.json)
 - [ ] Changes confirmed to user
 </success_criteria>

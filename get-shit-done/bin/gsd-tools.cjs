@@ -852,9 +852,9 @@ function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
     // Escape special regex chars in phase number, handle decimal
     const escapedPhase = phaseNum.replace(/\./g, '\\.');
 
-    // Match "## Phase X:" or "### Phase X:" with optional name
+    // Match "## Phase X:", "### Phase X:", or "#### Phase X:" with optional name
     const phasePattern = new RegExp(
-      `#{2,3}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`,
+      `#{2,4}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`,
       'i'
     );
     const headerMatch = content.match(phasePattern);
@@ -888,7 +888,7 @@ function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
 
     // Find the end of this section (next ## or ### phase header, or end of file)
     const restOfContent = content.slice(headerIndex);
-    const nextHeaderMatch = restOfContent.match(/\n#{2,3}\s+Phase\s+\d/i);
+    const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
     const sectionEnd = nextHeaderMatch
       ? headerIndex + nextHeaderMatch.index
       : content.length;
@@ -2475,7 +2475,7 @@ function cmdRoadmapAnalyze(cwd, raw) {
   const phasesDir = path.join(cwd, '.planning', 'phases');
 
   // Extract all phase headings: ## Phase N: Name or ### Phase N: Name
-  const phasePattern = /#{2,3}\s*Phase\s+(\d+(?:\.\d+)?)\s*:\s*([^\n]+)/gi;
+  const phasePattern = /#{2,4}\s*Phase\s+(\d+(?:\.\d+)?)\s*:\s*([^\n]+)/gi;
   const phases = [];
   let match;
 
@@ -2486,7 +2486,7 @@ function cmdRoadmapAnalyze(cwd, raw) {
     // Extract goal from the section
     const sectionStart = match.index;
     const restOfContent = content.slice(sectionStart);
-    const nextHeader = restOfContent.match(/\n#{2,3}\s+Phase\s+\d/i);
+    const nextHeader = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
     const sectionEnd = nextHeader ? sectionStart + nextHeader.index : content.length;
     const section = content.slice(sectionStart, sectionEnd);
 
@@ -2606,7 +2606,7 @@ function cmdPhaseAdd(cwd, description, raw) {
   const slug = generateSlugInternal(description);
 
   // Find highest integer phase number
-  const phasePattern = /#{2,3}\s*Phase\s+(\d+)(?:\.\d+)?:/gi;
+  const phasePattern = /#{2,4}\s*Phase\s+(\d+)(?:\.\d+)?:/gi;
   let maxPhase = 0;
   let m;
   while ((m = phasePattern.exec(content)) !== null) {
@@ -2666,7 +2666,7 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
   const normalizedAfter = normalizePhaseName(afterPhase);
   const unpadded = normalizedAfter.replace(/^0+/, '');
   const afterPhaseEscaped = unpadded.replace(/\./g, '\\.');
-  const targetPattern = new RegExp(`#{2,3}\\s*Phase\\s+0*${afterPhaseEscaped}:`, 'i');
+  const targetPattern = new RegExp(`#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:`, 'i');
   if (!targetPattern.test(content)) {
     error(`Phase ${afterPhase} not found in ROADMAP.md`);
   }
@@ -2698,7 +2698,7 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
   const phaseEntry = `\n### Phase ${decimalPhase}: ${description} (INSERTED)\n\n**Goal:** [Urgent work - to be planned]\n**Depends on:** Phase ${afterPhase}\n**Plans:** 0 plans\n\nPlans:\n- [ ] TBD (run /gsd:plan-phase ${decimalPhase} to break down)\n`;
 
   // Insert after the target phase section
-  const headerPattern = new RegExp(`(#{2,3}\\s*Phase\\s+0*${afterPhaseEscaped}:[^\\n]*\\n)`, 'i');
+  const headerPattern = new RegExp(`(#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:[^\\n]*\\n)`, 'i');
   const headerMatch = content.match(headerPattern);
   if (!headerMatch) {
     error(`Could not find Phase ${afterPhase} header`);
@@ -2706,7 +2706,7 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
 
   const headerIdx = content.indexOf(headerMatch[0]);
   const afterHeader = content.slice(headerIdx + headerMatch[0].length);
-  const nextPhaseMatch = afterHeader.match(/\n#{2,3}\s+Phase\s+\d/i);
+  const nextPhaseMatch = afterHeader.match(/\n#{2,4}\s+Phase\s+\d/i);
 
   let insertIdx;
   if (nextPhaseMatch) {
@@ -2889,7 +2889,7 @@ function cmdPhaseRemove(cwd, targetPhase, options, raw) {
   // Remove the target phase section
   const targetEscaped = targetPhase.replace(/\./g, '\\.');
   const sectionPattern = new RegExp(
-    `\\n?#{2,3}\\s*Phase\\s+${targetEscaped}\\s*:[\\s\\S]*?(?=\\n#{2,3}\\s+Phase\\s+\\d|$)`,
+    `\\n?#{2,4}\\s*Phase\\s+${targetEscaped}\\s*:[\\s\\S]*?(?=\\n#{2,4}\\s+Phase\\s+\\d|$)`,
     'i'
   );
   roadmapContent = roadmapContent.replace(sectionPattern, '');
@@ -2917,7 +2917,7 @@ function cmdPhaseRemove(cwd, targetPhase, options, raw) {
 
       // Phase headings: ## Phase 18: or ### Phase 18: → ## Phase 17: or ### Phase 17:
       roadmapContent = roadmapContent.replace(
-        new RegExp(`(#{2,3}\\s*Phase\\s+)${oldStr}(\\s*:)`, 'gi'),
+        new RegExp(`(#{2,4}\\s*Phase\\s+)${oldStr}(\\s*:)`, 'gi'),
         `$1${newStr}$2`
       );
 
@@ -3029,7 +3029,7 @@ function cmdRoadmapUpdatePlanProgress(cwd, phaseNum, raw) {
 
   // Update plan count in phase detail section
   const planCountPattern = new RegExp(
-    `(#{2,3}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
+    `(#{2,4}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
     'i'
   );
   const planCountText = isComplete
@@ -3104,7 +3104,7 @@ function cmdPhaseComplete(cwd, phaseNum, raw) {
 
     // Update plan count in phase section
     const planCountPattern = new RegExp(
-      `(#{2,3}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
+      `(#{2,4}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
       'i'
     );
     roadmapContent = roadmapContent.replace(
@@ -3368,7 +3368,7 @@ function cmdValidateConsistency(cwd, raw) {
 
   // Extract phases from ROADMAP
   const roadmapPhases = new Set();
-  const phasePattern = /#{2,3}\s*Phase\s+(\d+(?:\.\d+)?)\s*:/gi;
+  const phasePattern = /#{2,4}\s*Phase\s+(\d+(?:\.\d+)?)\s*:/gi;
   let m;
   while ((m = phasePattern.exec(roadmapContent)) !== null) {
     roadmapPhases.add(m[1]);
@@ -3712,14 +3712,14 @@ function getRoadmapPhaseInternal(cwd, phaseNum) {
   try {
     const content = fs.readFileSync(roadmapPath, 'utf-8');
     const escapedPhase = phaseNum.toString().replace(/\./g, '\\.');
-    const phasePattern = new RegExp(`#{2,3}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`, 'i');
+    const phasePattern = new RegExp(`#{2,4}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`, 'i');
     const headerMatch = content.match(phasePattern);
     if (!headerMatch) return null;
 
     const phaseName = headerMatch[1].trim();
     const headerIndex = headerMatch.index;
     const restOfContent = content.slice(headerIndex);
-    const nextHeaderMatch = restOfContent.match(/\n#{2,3}\s+Phase\s+\d/i);
+    const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
     const sectionEnd = nextHeaderMatch ? headerIndex + nextHeaderMatch.index : content.length;
     const section = content.slice(headerIndex, sectionEnd).trim();
 
