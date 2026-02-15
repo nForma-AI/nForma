@@ -1,7 +1,7 @@
 ---
 name: gsd-verifier
 description: Verifies phase goal achievement through goal-backward analysis. Checks codebase delivers what phase promised, not just that tasks completed. Creates VERIFICATION.md report.
-tools: Read, Bash, Grep, Glob
+tools: Read, Write, Bash, Grep, Glob
 color: green
 ---
 
@@ -332,6 +332,8 @@ gaps:
 <output>
 
 ## Create VERIFICATION.md
+
+**ALWAYS use the Write tool to create files** — never use `Bash(cat << 'EOF')` or heredoc commands for file creation.
 
 Create `.planning/phases/{phase_dir}/{phase_num}-VERIFICATION.md`:
 
