@@ -336,37 +336,33 @@ Gap closure cycle: `/gsd:plan-phase {X} --gaps` reads VERIFICATION.md → create
 </step>
 
 <step name="update_roadmap">
-```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js roadmap update-plan-progress "${PHASE_NUMBER}"
-```
-Counts PLAN vs SUMMARY files on disk. Updates progress table row with correct count and status.
+**Mark phase complete and update all tracking files:**
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs(phase-{X}): complete phase execution" --files .planning/ROADMAP.md .planning/STATE.md .planning/phases/{phase_dir}/*-VERIFICATION.md .planning/REQUIREMENTS.md
+COMPLETION=$(node ~/.claude/get-shit-done/bin/gsd-tools.js phase complete "${PHASE_NUMBER}")
+```
+
+The CLI handles:
+- Marking phase checkbox `[x]` with completion date
+- Updating Progress table (Status → Complete, date)
+- Updating plan count to final
+- Advancing STATE.md to next phase
+- Updating REQUIREMENTS.md traceability
+
+Extract from result: `next_phase`, `next_phase_name`, `is_last_phase`.
+
+```bash
+node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs(phase-{X}): complete phase execution" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md .planning/phases/{phase_dir}/*-VERIFICATION.md
 ```
 </step>
 
 <step name="offer_next">
 
-**If more phases:**
-```
-## Next Up
+**Routing is handled by `transition.md`** — do NOT emit a separate "Next Up" block here.
 
-**Phase {X+1}: {Name}** — {Goal}
+After `verify_phase_goal` passes (or human approves), the workflow ends. The user runs `/gsd:progress` or the transition workflow handles next-step routing.
 
-`/gsd:plan-phase {X+1}`
-
-<sub>`/clear` first for fresh context</sub>
-```
-
-**If milestone complete:**
-```
-MILESTONE COMPLETE!
-
-All {N} phases executed.
-
-`/gsd:complete-milestone`
-```
+**Exception:** If `gaps_found`, the `verify_phase_goal` step already presents the gap-closure path (`/gsd:plan-phase {X} --gaps`). No additional routing needed.
 </step>
 
 </process>

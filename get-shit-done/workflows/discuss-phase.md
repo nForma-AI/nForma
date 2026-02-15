@@ -252,6 +252,7 @@ Ask 4 questions per area before offering to continue or move on. Each answer oft
 
    If "More questions" → ask 4 more, then check again
    If "Next area" → proceed to next selected area
+   If "Other" (free text) → interpret intent: continuation phrases ("chat more", "keep going", "yes", "more") map to "More questions"; advancement phrases ("done", "move on", "next", "skip") map to "Next area". If ambiguous, ask: "Continue with more questions about [area], or move to the next area?"
 
 4. **After all areas complete:**
    - header: "Done"
