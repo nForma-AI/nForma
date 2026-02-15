@@ -75,6 +75,15 @@ AskUserQuestion([
     ]
   },
   {
+    question: "Auto-advance pipeline? (discuss → plan → execute automatically)",
+    header: "Auto",
+    multiSelect: false,
+    options: [
+      { label: "No (Recommended)", description: "Manual /clear + paste between stages" },
+      { label: "Yes", description: "Chain stages via Task() subagents (same isolation)" }
+    ]
+  },
+  {
     question: "Git branching strategy?",
     header: "Branching",
     multiSelect: false,
@@ -98,7 +107,8 @@ Merge new settings into existing config.json:
   "workflow": {
     "research": true/false,
     "plan_check": true/false,
-    "verifier": true/false
+    "verifier": true/false,
+    "auto_advance": true/false
   },
   "git": {
     "branching_strategy": "none" | "phase" | "milestone"
@@ -123,6 +133,7 @@ Display:
 | Plan Researcher      | {On/Off} |
 | Plan Checker         | {On/Off} |
 | Execution Verifier   | {On/Off} |
+| Auto-Advance         | {On/Off} |
 | Git Branching        | {None/Per Phase/Per Milestone} |
 
 These settings apply to future /gsd:plan-phase and /gsd:execute-phase runs.
@@ -139,7 +150,7 @@ Quick commands:
 
 <success_criteria>
 - [ ] Current config read
-- [ ] User presented with 5 settings (profile + 3 workflow toggles + git branching)
+- [ ] User presented with 6 settings (profile + 4 workflow toggles + git branching)
 - [ ] Config updated with model_profile, workflow, and git sections
 - [ ] Changes confirmed to user
 </success_criteria>
