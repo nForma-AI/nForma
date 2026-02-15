@@ -55,7 +55,7 @@ function getDirName(runtime) {
 function getConfigDirFromHome(runtime, isGlobal) {
   if (!isGlobal) {
     // Local installs use the same dir name pattern
-    return getDirName(runtime);
+    return `'${getDirName(runtime)}'`;
   }
   // Global installs - OpenCode uses XDG path structure
   if (runtime === 'opencode') {
