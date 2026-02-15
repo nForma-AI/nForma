@@ -6,6 +6,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.19.2] - 2026-02-15
+
+### Added
+- User-level default settings via `~/.gsd/defaults.json` — set GSD defaults across all projects
+- Per-agent model overrides — customize which Claude model each agent uses
+
+### Changed
+- Completed milestone phase directories are now archived for cleaner project structure
+- Wave execution diagram added to README for clearer parallelization visualization
+
+### Fixed
+- OpenCode local installs now write config to `./.opencode/` instead of overwriting global `~/.config/opencode/`
+- Large JSON payloads write to temp files to prevent truncation in tool calls
+- Phase heading matching now supports `####` depth
+- Phase padding normalized in insert command
+- ESM conflicts prevented by renaming gsd-tools.js to .cjs
+- Config directory paths quoted in hook templates for local installs
+- Settings file corruption prevented by using Write tool for file creation
+- Plan-phase autocomplete fixed by removing "execution" from description
+- Executor now has scope boundary and attempt limit to prevent runaway loops
+
 ## [1.19.1] - 2026-02-15
 
 ### Added
@@ -1236,7 +1257,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.19.1...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.19.2...HEAD
+[1.19.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.2
 [1.19.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.1
 [1.19.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.0
 [1.18.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.18.0
