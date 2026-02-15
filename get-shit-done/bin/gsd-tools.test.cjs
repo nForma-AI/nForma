@@ -1493,6 +1493,32 @@ describe('phase insert command', () => {
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
     assert.ok(roadmap.includes('(INSERTED)'), 'roadmap should include inserted phase');
   });
+
+  test('handles #### heading depth from multi-milestone roadmaps', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### v1.1 Milestone
+
+#### Phase 5: Feature Work
+**Goal:** Build features
+
+#### Phase 6: Polish
+**Goal:** Polish
+`
+    );
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '05-feature-work'), { recursive: true });
+
+    const result = runGsdTools('phase insert 5 Hotfix', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.phase_number, '05.1');
+
+    const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
+    assert.ok(roadmap.includes('Phase 05.1: Hotfix (INSERTED)'), 'roadmap should include inserted phase');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
