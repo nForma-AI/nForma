@@ -867,7 +867,23 @@ function uninstall(isGlobal, runtime = 'claude') {
     }
   }
 
-  // 5. Clean up settings.json (remove GSD hooks and statusline)
+  // 5. Remove GSD package.json (CommonJS mode marker)
+  const pkgJsonPath = path.join(targetDir, 'package.json');
+  if (fs.existsSync(pkgJsonPath)) {
+    try {
+      const content = fs.readFileSync(pkgJsonPath, 'utf8').trim();
+      // Only remove if it's our minimal CommonJS marker
+      if (content === '{"type":"commonjs"}') {
+        fs.unlinkSync(pkgJsonPath);
+        removedCount++;
+        console.log(`  ${green}✓${reset} Removed GSD package.json`);
+      }
+    } catch (e) {
+      // Ignore read errors
+    }
+  }
+
+  // 6. Clean up settings.json (remove GSD hooks and statusline)
   const settingsPath = path.join(targetDir, 'settings.json');
   if (fs.existsSync(settingsPath)) {
     let settings = readSettings(settingsPath);
@@ -1404,6 +1420,13 @@ function install(isGlobal, runtime = 'claude') {
   } else {
     failures.push('VERSION');
   }
+
+  // Write package.json to force CommonJS mode for GSD scripts
+  // Prevents "require is not defined" errors when project has "type": "module"
+  // Node.js walks up looking for package.json - this stops inheritance from project
+  const pkgJsonDest = path.join(targetDir, 'package.json');
+  fs.writeFileSync(pkgJsonDest, '{"type":"commonjs"}\n');
+  console.log(`  ${green}✓${reset} Wrote package.json (CommonJS mode)`);
 
   // Copy hooks from dist/ (bundled with dependencies)
   const hooksSrc = path.join(src, 'hooks', 'dist');
