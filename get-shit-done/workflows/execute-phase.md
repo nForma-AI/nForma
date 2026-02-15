@@ -174,7 +174,19 @@ Execute each wave in sequence. Within a wave: parallel if `PARALLELIZATION=true`
 <step name="checkpoint_handling">
 Plans with `autonomous: false` require user interaction.
 
-**Flow:**
+**Auto-mode checkpoint handling:**
+
+Read auto-advance config:
+```bash
+AUTO_CFG=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+```
+
+When executor returns a checkpoint AND `AUTO_CFG` is `"true"`:
+- **human-verify** → Auto-spawn continuation agent with `{user_response}` = `"approved"`. Log `⚡ Auto-approved checkpoint`.
+- **decision** → Auto-spawn continuation agent with `{user_response}` = first option from checkpoint details. Log `⚡ Auto-selected: [option]`.
+- **human-action** → Present to user (existing behavior below). Auth gates cannot be automated.
+
+**Standard flow (not auto-mode, or human-action type):**
 
 1. Spawn agent for checkpoint plan
 2. Agent runs until checkpoint task or auth gate → returns structured state

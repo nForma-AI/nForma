@@ -168,6 +168,16 @@ Track auto-fix attempts per task. After 3 auto-fix attempts on a single task:
 **In Summary:** Document auth gates as normal flow, not deviations.
 </authentication_gates>
 
+<auto_mode_detection>
+Check if auto mode is active at executor start:
+
+```bash
+AUTO_CFG=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+```
+
+Store the result for checkpoint handling below.
+</auto_mode_detection>
+
 <checkpoint_protocol>
 
 **CRITICAL: Automation before verification**
@@ -180,6 +190,14 @@ For full automation-first patterns, server lifecycle, CLI handling:
 **Quick reference:** Users NEVER run CLI commands. Users ONLY visit URLs, click UI, evaluate visuals, provide secrets. Claude does all automation.
 
 ---
+
+**Auto-mode checkpoint behavior** (when `AUTO_CFG` is `"true"`):
+
+- **checkpoint:human-verify** → Auto-approve. Log `⚡ Auto-approved: [what-built]`. Continue to next task.
+- **checkpoint:decision** → Auto-select first option (planners front-load the recommended choice). Log `⚡ Auto-selected: [option name]`. Continue to next task.
+- **checkpoint:human-action** → STOP normally. Auth gates cannot be automated — return structured checkpoint message using checkpoint_return_format.
+
+**Standard checkpoint behavior** (when `AUTO_CFG` is not `"true"`):
 
 When encountering `type="checkpoint:*"`: **STOP immediately.** Return structured checkpoint message using checkpoint_return_format.
 
