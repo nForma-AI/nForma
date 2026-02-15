@@ -3620,6 +3620,14 @@ function cmdScaffold(cwd, type, options, raw) {
 
 function resolveModelInternal(cwd, agentType) {
   const config = loadConfig(cwd);
+
+  // Check per-agent override first
+  const override = config.model_overrides?.[agentType];
+  if (override) {
+    return override === 'opus' ? 'inherit' : override;
+  }
+
+  // Fall back to profile lookup
   const profile = config.model_profile || 'balanced';
   const agentModels = MODEL_PROFILES[agentType];
   if (!agentModels) return 'sonnet';

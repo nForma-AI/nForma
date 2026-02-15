@@ -42,10 +42,26 @@ Orchestrators resolve model before spawning:
 
 ```
 1. Read .planning/config.json
-2. Get model_profile (default: "balanced")
-3. Look up agent in table above
+2. Check model_overrides for agent-specific override
+3. If no override, look up agent in profile table
 4. Pass model parameter to Task call
 ```
+
+## Per-Agent Overrides
+
+Override specific agents without changing the entire profile:
+
+```json
+{
+  "model_profile": "balanced",
+  "model_overrides": {
+    "gsd-executor": "opus",
+    "gsd-planner": "haiku"
+  }
+}
+```
+
+Overrides take precedence over the profile. Valid values: `opus`, `sonnet`, `haiku`.
 
 ## Switching Profiles
 
