@@ -1347,7 +1347,8 @@ function cmdResolveModel(cwd, agentType, raw) {
     return;
   }
 
-  const model = agentModels[profile] || agentModels['balanced'] || 'sonnet';
+  const resolved = agentModels[profile] || agentModels['balanced'] || 'sonnet';
+  const model = resolved === 'opus' ? 'inherit' : resolved;
   const result = { model, profile };
   output(result, raw, model);
 }
@@ -3509,7 +3510,8 @@ function resolveModelInternal(cwd, agentType) {
   const profile = config.model_profile || 'balanced';
   const agentModels = MODEL_PROFILES[agentType];
   if (!agentModels) return 'sonnet';
-  return agentModels[profile] || agentModels['balanced'] || 'sonnet';
+  const resolved = agentModels[profile] || agentModels['balanced'] || 'sonnet';
+  return resolved === 'opus' ? 'inherit' : resolved;
 }
 
 function findPhaseInternal(cwd, phase) {
