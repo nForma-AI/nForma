@@ -12,7 +12,15 @@ Read all files referenced by the invoking prompt's execution_context before star
 **Load progress context (with file contents to avoid redundant reads):**
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init progress --include state,roadmap,project,config)
+INIT_RAW=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init progress --include state,roadmap,project,config)
+# Large payloads are written to a tmpfile — output starts with @file:/path
+if [[ "$INIT_RAW" == @file:* ]]; then
+  INIT_FILE="${INIT_RAW#@file:}"
+  INIT=$(cat "$INIT_FILE")
+  rm -f "$INIT_FILE"
+else
+  INIT="$INIT_RAW"
+fi
 ```
 
 Extract from init JSON: `project_exists`, `roadmap_exists`, `state_exists`, `phases`, `current_phase`, `next_phase`, `milestone_version`, `completed_count`, `phase_count`, `paused_at`.

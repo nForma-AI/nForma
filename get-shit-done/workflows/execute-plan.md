@@ -15,7 +15,15 @@ Read config.json for planning behavior settings.
 Load execution context (uses `init execute-phase` for full context, including file contents):
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init execute-phase "${PHASE}" --include state,config)
+INIT_RAW=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init execute-phase "${PHASE}" --include state,config)
+# Large payloads are written to a tmpfile — output starts with @file:/path
+if [[ "$INIT_RAW" == @file:* ]]; then
+  INIT_FILE="${INIT_RAW#@file:}"
+  INIT=$(cat "$INIT_FILE")
+  rm -f "$INIT_FILE"
+else
+  INIT="$INIT_RAW"
+fi
 ```
 
 Extract from init JSON: `executor_model`, `commit_docs`, `phase_dir`, `phase_number`, `plans`, `summaries`, `incomplete_plans`.

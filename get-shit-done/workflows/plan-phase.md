@@ -15,7 +15,15 @@ Read all files referenced by the invoking prompt's execution_context before star
 Load all context in one call (include file contents to avoid redundant reads):
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init plan-phase "$PHASE" --include state,roadmap,requirements,context,research,verification,uat)
+INIT_RAW=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init plan-phase "$PHASE" --include state,roadmap,requirements,context,research,verification,uat)
+# Large payloads are written to a tmpfile — output starts with @file:/path
+if [[ "$INIT_RAW" == @file:* ]]; then
+  INIT_FILE="${INIT_RAW#@file:}"
+  INIT=$(cat "$INIT_FILE")
+  rm -f "$INIT_FILE"
+else
+  INIT="$INIT_RAW"
+fi
 ```
 
 Parse JSON for: `researcher_model`, `planner_model`, `checker_model`, `research_enabled`, `plan_checker_enabled`, `commit_docs`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `padded_phase`, `has_research`, `has_context`, `has_plans`, `plan_count`, `planning_exists`, `roadmap_exists`.
