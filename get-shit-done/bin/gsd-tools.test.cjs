@@ -1468,6 +1468,31 @@ describe('phase insert command', () => {
     assert.ok(!result.success, 'should fail for missing phase');
     assert.ok(result.error.includes('not found'), 'error mentions not found');
   });
+
+  test('handles padding mismatch between input and roadmap', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+## Phase 09.05: Existing Decimal Phase
+**Goal:** Test padding
+
+## Phase 09.1: Next Phase
+**Goal:** Test
+`
+    );
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '09.05-existing'), { recursive: true });
+
+    // Pass unpadded "9.05" but roadmap has "09.05"
+    const result = runGsdTools('phase insert 9.05 Padding Test', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.after_phase, '9.05');
+
+    const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
+    assert.ok(roadmap.includes('(INSERTED)'), 'roadmap should include inserted phase');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -594,8 +594,19 @@ function cmdConfigEnsureSection(cwd, raw) {
   const braveKeyFile = path.join(homedir, '.gsd', 'brave_api_key');
   const hasBraveSearch = !!(process.env.BRAVE_API_KEY || fs.existsSync(braveKeyFile));
 
-  // Create default config
-  const defaults = {
+  // Load user-level defaults from ~/.gsd/defaults.json if available
+  const globalDefaultsPath = path.join(homedir, '.gsd', 'defaults.json');
+  let userDefaults = {};
+  try {
+    if (fs.existsSync(globalDefaultsPath)) {
+      userDefaults = JSON.parse(fs.readFileSync(globalDefaultsPath, 'utf-8'));
+    }
+  } catch (err) {
+    // Ignore malformed global defaults, fall back to hardcoded
+  }
+
+  // Create default config (user-level defaults override hardcoded defaults)
+  const hardcoded = {
     model_profile: 'balanced',
     commit_docs: true,
     search_gitignored: false,
@@ -609,6 +620,11 @@ function cmdConfigEnsureSection(cwd, raw) {
     },
     parallelization: true,
     brave_search: hasBraveSearch,
+  };
+  const defaults = {
+    ...hardcoded,
+    ...userDefaults,
+    workflow: { ...hardcoded.workflow, ...(userDefaults.workflow || {}) },
   };
 
   try {
@@ -2646,9 +2662,11 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
   const content = fs.readFileSync(roadmapPath, 'utf-8');
   const slug = generateSlugInternal(description);
 
-  // Verify target phase exists
-  const afterPhaseEscaped = afterPhase.replace(/\./g, '\\.');
-  const targetPattern = new RegExp(`#{2,3}\\s*Phase\\s+${afterPhaseEscaped}:`, 'i');
+  // Normalize input then strip leading zeros for flexible matching
+  const normalizedAfter = normalizePhaseName(afterPhase);
+  const unpadded = normalizedAfter.replace(/^0+/, '');
+  const afterPhaseEscaped = unpadded.replace(/\./g, '\\.');
+  const targetPattern = new RegExp(`#{2,3}\\s*Phase\\s+0*${afterPhaseEscaped}:`, 'i');
   if (!targetPattern.test(content)) {
     error(`Phase ${afterPhase} not found in ROADMAP.md`);
   }
@@ -2680,7 +2698,7 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
   const phaseEntry = `\n### Phase ${decimalPhase}: ${description} (INSERTED)\n\n**Goal:** [Urgent work - to be planned]\n**Depends on:** Phase ${afterPhase}\n**Plans:** 0 plans\n\nPlans:\n- [ ] TBD (run /gsd:plan-phase ${decimalPhase} to break down)\n`;
 
   // Insert after the target phase section
-  const headerPattern = new RegExp(`(#{2,3}\\s*Phase\\s+${afterPhaseEscaped}:[^\\n]*\\n)`, 'i');
+  const headerPattern = new RegExp(`(#{2,3}\\s*Phase\\s+0*${afterPhaseEscaped}:[^\\n]*\\n)`, 'i');
   const headerMatch = content.match(headerPattern);
   if (!headerMatch) {
     error(`Could not find Phase ${afterPhase} header`);
