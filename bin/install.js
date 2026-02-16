@@ -456,7 +456,16 @@ function convertClaudeToGeminiAgent(content) {
   }
 
   const newFrontmatter = newLines.join('\n').trim();
-  return `---\n${newFrontmatter}\n---${stripSubTags(body)}`;
+
+  // Escape ${VAR} patterns in agent body for Gemini CLI compatibility.
+  // Gemini's templateString() treats all ${word} patterns as template variables
+  // and throws "Template validation failed: Missing required input parameters"
+  // when they can't be resolved. GSD agents use ${PHASE}, ${PLAN}, etc. as
+  // shell variables in bash code blocks — convert to $VAR (no braces) which
+  // is equivalent bash and invisible to Gemini's /\$\{(\w+)\}/g regex.
+  const escapedBody = body.replace(/\$\{(\w+)\}/g, '$$$1');
+
+  return `---\n${newFrontmatter}\n---${stripSubTags(escapedBody)}`;
 }
 
 function convertClaudeToOpencodeFrontmatter(content) {
