@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.20.3] - 2026-02-16
+
+### Fixed
+- Milestone audit now cross-references three independent sources (VERIFICATION.md + SUMMARY frontmatter + REQUIREMENTS.md traceability) instead of single-source phase status checks
+- Orphaned requirements (in traceability table but absent from all phase VERIFICATIONs) detected and forced to `unsatisfied`
+- Integration checker receives milestone requirement IDs and maps findings to affected requirements
+- `complete-milestone` gates on requirements completion before archival — surfaces unchecked requirements with proceed/audit/abort options
+- `plan-milestone-gaps` updates REQUIREMENTS.md traceability table (phase assignments, checkbox resets, coverage count) and includes it in commit
+- Gemini CLI: escape `${VAR}` shell variables in agent bodies to prevent template validation failures
+
 ## [1.20.2] - 2026-02-16
 
 ### Fixed
@@ -1293,7 +1303,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.20.2...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.20.3...HEAD
+[1.20.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.3
 [1.20.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.2
 [1.20.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.1
 [1.20.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.0
