@@ -1039,6 +1039,102 @@ function uninstallCodexSkills(configDir) {
 }
 
 /**
+ * Install GSD commands as Codex prompts (legacy UI discoverability).
+ * Each commands/gsd/<name>.md becomes ~/.codex/prompts/gsd_<name>.md
+ * Invoked in Codex UI as /prompts:gsd_<name>
+ *
+ * Prompts are the deprecated predecessor to skills, but remain functional
+ * and appear in the '/' command menu — unlike skills which use '$' syntax.
+ *
+ * @param {string} srcDir - Source commands/gsd/ directory
+ * @param {string} configDir - Codex config dir (e.g. ~/.codex)
+ * @param {string} pathPrefix - Path prefix for file references
+ * @param {string} runtime - 'codex'
+ */
+function installCodexPrompts(srcDir, configDir, pathPrefix, runtime) {
+  if (!fs.existsSync(srcDir)) return 0;
+
+  const promptsDir = path.join(configDir, 'prompts');
+
+  // Remove existing gsd_*.md prompt files (clean install)
+  if (fs.existsSync(promptsDir)) {
+    for (const file of fs.readdirSync(promptsDir)) {
+      if (file.startsWith('gsd_') && file.endsWith('.md')) {
+        fs.unlinkSync(path.join(promptsDir, file));
+      }
+    }
+  }
+
+  fs.mkdirSync(promptsDir, { recursive: true });
+
+  let count = 0;
+
+  function processDir(dir, nameSegments) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const entryPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        processDir(entryPath, nameSegments.concat(entry.name));
+      } else if (entry.name.endsWith('.md')) {
+        const baseName = entry.name.replace('.md', '');
+        const rawName = nameSegments.concat(baseName).join('_');
+        const promptName = `gsd_${rawName}`;
+
+        let content = fs.readFileSync(entryPath, 'utf8');
+        // Apply path replacements
+        content = content.replace(/~\/\.claude\//g, pathPrefix);
+        content = content.replace(/\.\/\.claude\//g, './.codex/');
+        content = processAttribution(content, getCommitAttribution(runtime));
+        content = convertClaudeToCodexPrompt(content);
+
+        fs.writeFileSync(path.join(promptsDir, `${promptName}.md`), content);
+        count++;
+      }
+    }
+  }
+
+  processDir(srcDir, []);
+  return count;
+}
+
+/**
+ * Convert a Claude Code GSD command to Codex prompts format.
+ * Codex prompts support: description, argument-hint in frontmatter.
+ * Everything else (name, allowed-tools, color) is stripped.
+ */
+function convertClaudeToCodexPrompt(content) {
+  if (!content.startsWith('---')) {
+    return content;
+  }
+
+  const endIndex = content.indexOf('---', 3);
+  if (endIndex === -1) {
+    return content;
+  }
+
+  const frontmatter = content.substring(3, endIndex).trim();
+  const body = content.substring(endIndex + 3);
+
+  let description = '';
+  let argumentHint = '';
+  for (const line of frontmatter.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('description:')) {
+      description = trimmed.substring(12).trim();
+    } else if (trimmed.startsWith('argument-hint:')) {
+      argumentHint = trimmed.substring(14).trim();
+    }
+  }
+
+  const fmLines = [];
+  if (description) fmLines.push(`description: ${description}`);
+  if (argumentHint) fmLines.push(`argument-hint: ${argumentHint}`);
+
+  const newFrontmatter = fmLines.length > 0 ? fmLines.join('\n') : '';
+  return newFrontmatter ? `---\n${newFrontmatter}\n---${body}` : body.trimStart();
+}
+
+/**
  * Copy commands to a flat structure for OpenCode
  * OpenCode expects: command/gsd-help.md (invoked as /gsd-help)
  * Source structure: commands/gsd/help.md
@@ -1176,21 +1272,6 @@ function cleanupOrphanedFiles(configDir) {
     }
   }
 
-  // Codex: remove old-format gsd_*.md prompts (pre-skills install format)
-  // These show up as /prompts:gsd_* in the Codex UI and conflict with the new skills system
-  const promptsDir = path.join(configDir, 'prompts');
-  if (fs.existsSync(promptsDir)) {
-    let removed = 0;
-    for (const file of fs.readdirSync(promptsDir)) {
-      if (file.startsWith('gsd_') && file.endsWith('.md')) {
-        fs.unlinkSync(path.join(promptsDir, file));
-        removed++;
-      }
-    }
-    if (removed > 0) {
-      console.log(`  ${green}✓${reset} Removed ${removed} old GSD prompts (migrated to skills)`);
-    }
-  }
 }
 
 /**
@@ -1846,6 +1927,16 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Installed ${count} skills to skills/`);
     } else {
       failures.push('skills/gsd-*');
+    }
+
+    // Also install as prompts for '/' menu discoverability
+    // Skills use '$gsd-*' syntax; prompts appear in the '/' command menu as /prompts:gsd_*
+    const promptCount = installCodexPrompts(gsdSrc, targetDir, pathPrefix, runtime);
+    const promptsDir = path.join(targetDir, 'prompts');
+    if (verifyInstalled(promptsDir, 'prompts/gsd_*')) {
+      console.log(`  ${green}✓${reset} Installed ${promptCount} prompts to prompts/`);
+    } else {
+      failures.push('prompts/gsd_*');
     }
   } else if (isOpencode) {
     // OpenCode uses 'command/' (singular) with flat structure
