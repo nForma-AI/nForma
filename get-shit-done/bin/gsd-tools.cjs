@@ -3830,6 +3830,13 @@ function cmdValidateHealth(cwd, options, raw) {
             break;
           }
           case 'regenerateState': {
+            // Create timestamped backup before overwriting
+            if (fs.existsSync(statePath)) {
+              const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+              const backupPath = `${statePath}.bak-${timestamp}`;
+              fs.copyFileSync(statePath, backupPath);
+              repairActions.push({ action: 'backupState', success: true, path: backupPath });
+            }
             // Generate minimal STATE.md from ROADMAP.md structure
             const milestone = getMilestoneInfo(cwd);
             let stateContent = `# Session State\n\n`;
