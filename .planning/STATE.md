@@ -88,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Phase 2 complete, transitioned to Phase 3 ready-to-plan. Phases 1 and 2 fully verified; Phase 3 (Installer & Distribution) has no plans yet — run /gsd:plan-phase 3 to begin.
-Resume file: None
+Stopped at: Phase 3 context gathered — ready to plan. Resume at /gsd:plan-phase 3
+Resume file: .planning/phases/03-installer-distribution/03-CONTEXT.md
