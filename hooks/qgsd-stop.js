@@ -137,6 +137,66 @@ function getAvailableMcpPrefixes() {
   }
 }
 
+// Planning artifact file path patterns — matches only planning artifacts, not codebase docs.
+// Each pattern is specific enough to avoid false positives from ls/cat/grep Bash calls.
+const ARTIFACT_PATTERNS = [
+  /-PLAN\.md/,        // e.g. 04-01-PLAN.md
+  /-RESEARCH\.md/,    // e.g. 04-RESEARCH.md
+  /-CONTEXT\.md/,     // e.g. 04-CONTEXT.md (discuss-phase output)
+  /-UAT\.md/,         // e.g. 04-UAT.md (verify-work UAT output)
+  /ROADMAP\.md/,      // ROADMAP.md (new-project, new-milestone)
+  /REQUIREMENTS\.md/, // REQUIREMENTS.md (new-project)
+  /PROJECT\.md/,      // PROJECT.md (new-project early commit)
+];
+
+// Returns true if the current turn contains a Bash tool_use block that BOTH:
+// (a) invokes gsd-tools.cjs commit, AND
+// (b) references a planning artifact file path (not codebase/*.md).
+// Requiring both conditions prevents false positives from ls/cat/grep commands.
+function hasArtifactCommit(currentTurnLines) {
+  for (const line of currentTurnLines) {
+    try {
+      const entry = JSON.parse(line);
+      if (entry.type !== 'assistant') continue;
+      const content = entry.message && entry.message.content;
+      if (!Array.isArray(content)) continue;
+      for (const block of content) {
+        if (block.type !== 'tool_use') continue;
+        if (block.name !== 'Bash') continue;
+        const cmdStr = JSON.stringify(block.input || '');
+        // Both conditions must hold in the same Bash block
+        if (!cmdStr.includes('gsd-tools.cjs commit')) continue;
+        if (ARTIFACT_PATTERNS.some(p => p.test(cmdStr))) return true;
+      }
+    } catch { /* skip */ }
+  }
+  return false;
+}
+
+// The exact token Claude must include in its final output to mark a decision turn.
+// Used by hasDecisionMarker (Stop hook) and injected into Claude's context (Prompt hook).
+const DECISION_MARKER = '<!-- GSD_DECISION -->';
+
+// Returns true if the last assistant text block in currentTurnLines contains DECISION_MARKER.
+// Walks lines in reverse to find the most recent assistant entry with a text content block.
+function hasDecisionMarker(currentTurnLines) {
+  for (let i = currentTurnLines.length - 1; i >= 0; i--) {
+    try {
+      const entry = JSON.parse(currentTurnLines[i]);
+      if (entry.type !== 'assistant') continue;
+      const content = entry.message && entry.message.content;
+      if (!Array.isArray(content)) continue;
+      for (const block of content) {
+        if (block.type !== 'text') continue;
+        if (block.text && block.text.includes(DECISION_MARKER)) return true;
+      }
+      // Found the last assistant entry — no text block with marker → stop scanning
+      break;
+    } catch { /* skip */ }
+  }
+  return false;
+}
+
 // Derives the canonical tool name for the block reason message.
 // Uses known model keys first; falls back to prefix + key for unknown models.
 function deriveMissingToolName(modelKey, modelDef) {
@@ -186,6 +246,14 @@ function main() {
       // GUARD 4: Only enforce quorum if a planning command is in current turn (STOP-06)
       if (!hasQuorumCommand(currentTurnLines, cmdPattern)) {
         process.exit(0);
+      }
+
+      // GUARD 5: Only enforce quorum on project decision turns (SCOPE-01, SCOPE-02, SCOPE-03)
+      // A turn is a decision turn if it contains a planning artifact commit OR a decision marker.
+      // GSD-internal operation turns (routing, agent spawning, questioning) have neither.
+      const isDecisionTurn = hasArtifactCommit(currentTurnLines) || hasDecisionMarker(currentTurnLines);
+      if (!isDecisionTurn) {
+        process.exit(0); // GSD-internal operation — not a project decision turn
       }
 
       // Scan for quorum tool_use evidence in current turn (STOP-01)
