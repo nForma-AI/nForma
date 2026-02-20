@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 Phase: 1 of 3 (Hook Enforcement)
 Plan: 5 of TBD in current phase
 Status: In progress — Plan 05 complete
-Last activity: 2026-02-20 — Plan 01-05 complete (QGSD hooks installed globally, integration checkpoint auto-approved)
+Last activity: 2026-02-20 — Plan 01-06 complete (STOP-05 gap closure: requirement revised to match JSONL-only implementation)
 
 Progress: [█████░░░░░] ~50%
 
@@ -61,6 +61,7 @@ Recent decisions affecting current work:
 - META behavior (META-01/02/03): discuss-phase question auto-resolution is satisfied structurally — /gsd:discuss-phase is in the QGSD hook allowlist, so quorum runs before output delivery. Only questions without consensus are escalated to the user; auto-resolved questions are presented as assumptions first. This is enforced by hooks, not by behavioral instruction.
 - [Phase 01-hook-enforcement]: Build wiring: qgsd-prompt.js and qgsd-stop.js added to HOOKS_TO_COPY in build-hooks.js; installer registers both in settings.json with idempotency guards
 - [Phase 01-hook-enforcement]: Task 1 produces no git commit because installation targets ~/.claude/ outside repo and hooks/dist/ is gitignored; wiring committed in Plan 04
+- [Phase 01-hook-enforcement gap closure]: STOP-05 fast-path omitted by design — last_assistant_message substring matching is not a reliable signal (Claude could summarize results in prose without naming tool prefixes); transcript JSONL is the authoritative and sole source of quorum evidence. Requirement revised to match implementation. (quorum consensus: Claude + Codex + Gemini; OpenCode unavailable)
 
 ### Pending Todos
 

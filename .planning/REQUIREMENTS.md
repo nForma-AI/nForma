@@ -13,7 +13,7 @@ All features are v1. No deferral.
 - [x] **STOP-02**: Stop hook checks `stop_hook_active` flag first — if true, exits 0 immediately (infinite loop prevention)
 - [x] **STOP-03**: Stop hook checks `hook_event_name` — if `SubagentStop`, exits 0 immediately (subagent exclusion)
 - [x] **STOP-04**: Stop hook scopes transcript search to current turn only (lines since last user message boundary) — survives context compaction
-- [x] **STOP-05**: Stop hook uses `last_assistant_message` as fast-path check before parsing full JSONL
+- [x] **STOP-05**: Stop hook reads transcript JSONL as the authoritative source of quorum evidence — no fast-path pre-check (design decision: last_assistant_message substring matching is not a reliable signal; JSONL parse is synchronous and correct for all transcript sizes)
 - [x] **STOP-06**: Stop hook verifies quorum only when a configured planning command was issued in the current turn (scope filtering)
 - [x] **STOP-07**: Stop hook blocks with `{"decision": "block", "reason": "..."}` when quorum is missing — reason includes exact tool names and instructions
 - [x] **STOP-08**: Block reason message format: "QUORUM REQUIRED: Before completing this /gsd:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output."
@@ -144,4 +144,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 — META-01/02/03 marked complete after Plan 01-03 (hook enforcement + CLAUDE.md R4 structural note)*
+*Last updated: 2026-02-20 — STOP-05 revised: fast-path omitted by design; JSONL-only verification is authoritative (gap closure Plan 01-06)*
