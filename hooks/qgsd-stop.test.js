@@ -35,6 +35,22 @@ function runHook(stdinPayload) {
   };
 }
 
+// Helper: run the hook with a given stdin JSON payload and additional env vars
+// Used for TC11-TC13 to inject QGSD_CLAUDE_JSON for deterministic MCP availability testing
+function runHookWithEnv(stdinPayload, extraEnv) {
+  const result = spawnSync('node', [HOOK_PATH], {
+    input: JSON.stringify(stdinPayload),
+    encoding: 'utf8',
+    timeout: 5000,
+    env: { ...process.env, ...extraEnv },
+  });
+  return {
+    stdout: result.stdout || '',
+    stderr: result.stderr || '',
+    exitCode: result.status,
+  };
+}
+
 // JSONL builder helpers
 function userLine(content, uuid = 'user-1') {
   return JSON.stringify({
@@ -320,5 +336,155 @@ test('TC10: quorum calls interleaved with tool_result user messages are in scope
     assert.strictEqual(stdout, '', 'stdout must be empty — quorum calls are in scope despite tool_result boundaries');
   } finally {
     fs.unlinkSync(tmpFile);
+  }
+});
+
+// ── TC11-TC13: Fail-open unavailability detection ──────────────────────────────
+//
+// These tests use QGSD_CLAUDE_JSON env var to inject a deterministic ~/.claude.json
+// substitute. The hook must read this env var via:
+//   const claudeJsonPath = process.env.QGSD_CLAUDE_JSON || path.join(os.homedir(), '.claude.json');
+// This env var is for testing only — production always uses ~/.claude.json.
+//
+// TC11: Model prefix not in mcpServers → unavailable → fail-open (pass)
+// TC12: Partial availability — one model unavailable (pass), one available+missing (block)
+// TC13: MCP-06 regression — renamed prefix matched correctly (pass)
+
+// TC11: opencode prefix not in mcpServers (empty servers) → unavailable → pass (fail-open)
+test('TC11: model prefix not in mcpServers → unavailable → fail-open pass', () => {
+  // Create temp ~/.claude.json substitute with empty mcpServers
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-tc11-${Date.now()}.json`);
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers: {} }), 'utf8');
+
+  // Transcript: quorum command issued, but no quorum tool_use calls at all
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:plan-phase 1', 'human-msg'),
+    assistantLine([{ type: 'text', text: 'Here is the plan.' }], 'assistant-1'),
+  ]);
+
+  try {
+    // Config requires codex-cli prefix; empty mcpServers → codex-cli unavailable → pass
+    const configPayload = JSON.stringify({
+      quorum_commands: ['plan-phase'],
+      fail_mode: 'open',
+      required_models: {
+        codex: { tool_prefix: 'mcp__codex-cli__', required: true },
+      },
+    });
+    const configTmp = path.join(os.tmpdir(), `qgsd-cfg-tc11-${Date.now()}.json`);
+    const qgsdConfigDir = path.join(os.tmpdir(), `qgsd-home-tc11-${Date.now()}`);
+    fs.mkdirSync(qgsdConfigDir, { recursive: true });
+    fs.writeFileSync(path.join(qgsdConfigDir, 'qgsd.json'), configPayload, 'utf8');
+
+    const { stdout, exitCode } = runHookWithEnv(
+      {
+        stop_hook_active: false,
+        hook_event_name: 'Stop',
+        transcript_path: tmpFile,
+        last_assistant_message: 'Here is the plan.',
+      },
+      {
+        QGSD_CLAUDE_JSON: claudeJsonTmp,
+        HOME: qgsdConfigDir, // Makes loadConfig() read from our temp ~/.claude/qgsd.json
+      }
+    );
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 — unavailable model → fail-open pass');
+    assert.strictEqual(stdout, '', 'stdout must be empty — no block for unavailable model');
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
+// TC12: Partial availability — gemini not in mcpServers (unavailable → skip), codex IS in mcpServers but not called → block
+test('TC12: partial availability — unavailable model skipped, available-but-missing model blocks', () => {
+  // Create temp ~/.claude.json with only codex-cli in mcpServers (gemini absent)
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-tc12-${Date.now()}.json`);
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers: { 'codex-cli': {} } }), 'utf8');
+
+  // Transcript: quorum command issued, no quorum calls
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:plan-phase 1', 'human-msg'),
+    assistantLine([{ type: 'text', text: 'Here is the plan.' }], 'assistant-1'),
+  ]);
+
+  try {
+    const configPayload = JSON.stringify({
+      quorum_commands: ['plan-phase'],
+      fail_mode: 'open',
+      required_models: {
+        codex:  { tool_prefix: 'mcp__codex-cli__',  required: true },
+        gemini: { tool_prefix: 'mcp__gemini-cli__', required: true },
+      },
+    });
+    const qgsdConfigDir = path.join(os.tmpdir(), `qgsd-home-tc12-${Date.now()}`);
+    fs.mkdirSync(qgsdConfigDir, { recursive: true });
+    fs.writeFileSync(path.join(qgsdConfigDir, 'qgsd.json'), configPayload, 'utf8');
+
+    const { stdout, exitCode } = runHookWithEnv(
+      {
+        stop_hook_active: false,
+        hook_event_name: 'Stop',
+        transcript_path: tmpFile,
+        last_assistant_message: 'Here is the plan.',
+      },
+      {
+        QGSD_CLAUDE_JSON: claudeJsonTmp,
+        HOME: qgsdConfigDir,
+      }
+    );
+    // codex IS in mcpServers but was not called → block
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 — hook communicates via stdout JSON, not exit code');
+    const parsed = JSON.parse(stdout);
+    assert.strictEqual(parsed.decision, 'block', 'should block — codex available+missing');
+    assert.ok(parsed.reason.includes('codex') || parsed.reason.includes('mcp__codex-cli__'), 'block reason should name codex');
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
+// TC13: MCP-06 regression — renamed prefix matched correctly (pass when called)
+test('TC13: MCP-06 regression — renamed prefix detected and matched correctly', () => {
+  // Config has a custom prefix (renamed MCP server); mcpServers has that server; transcript has a call
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-tc13-${Date.now()}.json`);
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers: { 'my-custom-codex': {} } }), 'utf8');
+
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:plan-phase 1', 'human-msg'),
+    assistantLine([toolUseBlock('mcp__my-custom-codex__review')], 'assistant-1'),
+    assistantLine([{ type: 'text', text: 'Plan with custom codex.' }], 'assistant-2'),
+  ]);
+
+  try {
+    const configPayload = JSON.stringify({
+      quorum_commands: ['plan-phase'],
+      fail_mode: 'open',
+      required_models: {
+        custom: { tool_prefix: 'mcp__my-custom-codex__', required: true },
+      },
+    });
+    const qgsdConfigDir = path.join(os.tmpdir(), `qgsd-home-tc13-${Date.now()}`);
+    fs.mkdirSync(qgsdConfigDir, { recursive: true });
+    fs.writeFileSync(path.join(qgsdConfigDir, 'qgsd.json'), configPayload, 'utf8');
+
+    const { stdout, exitCode } = runHookWithEnv(
+      {
+        stop_hook_active: false,
+        hook_event_name: 'Stop',
+        transcript_path: tmpFile,
+        last_assistant_message: 'Plan with custom codex.',
+      },
+      {
+        QGSD_CLAUDE_JSON: claudeJsonTmp,
+        HOME: qgsdConfigDir,
+      }
+    );
+    // custom prefix IS in mcpServers AND was called → pass
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty — renamed prefix found evidence → pass');
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
   }
 });

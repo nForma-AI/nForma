@@ -7,7 +7,9 @@
 // evidence. Blocks with decision:block if a planning command was issued but
 // quorum tool calls are missing. Fails open on all errors.
 //
-// Config: ~/.claude/qgsd.json (falls back to DEFAULT_CONFIG if absent/malformed)
+// Config: ~/.claude/qgsd.json (two-layer merge via shared config-loader)
+// Unavailability: reads ~/.claude.json mcpServers to detect which models are installed
+//   (QGSD_CLAUDE_JSON env var overrides the path — for testing only)
 
 'use strict';
 
@@ -15,29 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const DEFAULT_CONFIG = {
-  quorum_commands: [
-    'plan-phase', 'new-project', 'new-milestone',
-    'discuss-phase', 'verify-work', 'research-phase',
-  ],
-  fail_mode: 'open',
-  required_models: {
-    codex:    { tool_prefix: 'mcp__codex-cli__',  required: true },
-    gemini:   { tool_prefix: 'mcp__gemini-cli__', required: true },
-    opencode: { tool_prefix: 'mcp__opencode__',   required: true },
-  },
-};
-
-function loadConfig() {
-  const configPath = path.join(os.homedir(), '.claude', 'qgsd.json');
-  if (!fs.existsSync(configPath)) return DEFAULT_CONFIG;
-  try {
-    const fileConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    return { ...DEFAULT_CONFIG, ...fileConfig };
-  } catch {
-    return DEFAULT_CONFIG;
-  }
-}
+const { loadConfig, DEFAULT_CONFIG } = require('./config-loader');
 
 // Builds the regex that matches /gsd:<quorum-command> in any text.
 function buildCommandPattern(quorumCommands) {
@@ -133,6 +113,30 @@ function findQuorumEvidence(currentTurnLines, requiredModels) {
   return found;
 }
 
+// Reads ~/.claude.json to determine which MCP servers are registered.
+// Returns an array of derived tool prefixes (e.g. ['mcp__codex-cli__', 'mcp__gemini-cli__']).
+// Returns null if the file is missing or malformed — callers treat null as "unknown" (conservative).
+//
+// TESTING ONLY: set QGSD_CLAUDE_JSON env var to override the file path.
+// In production, always reads ~/.claude.json.
+//
+// KNOWN LIMITATION: Only reads ~/.claude.json (user-scoped MCPs). Project-scoped MCPs
+// configured in .mcp.json are not checked. If a required model is only configured at
+// project level, it will be classified as unavailable and skipped (fail-open).
+// In practice, quorum models (Codex, Gemini, OpenCode) are global tools.
+function getAvailableMcpPrefixes() {
+  const claudeJsonPath = process.env.QGSD_CLAUDE_JSON || path.join(os.homedir(), '.claude.json');
+  if (!fs.existsSync(claudeJsonPath)) return null;
+  try {
+    const d = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8'));
+    const servers = d.mcpServers || {};
+    return Object.keys(servers).map(name => 'mcp__' + name + '__');
+  } catch (e) {
+    process.stderr.write('[qgsd] WARNING: Could not parse ~/.claude.json: ' + e.message + '\n');
+    return null;
+  }
+}
+
 // Derives the canonical tool name for the block reason message.
 // Uses known model keys first; falls back to prefix + key for unknown models.
 function deriveMissingToolName(modelKey, modelDef) {
@@ -187,27 +191,53 @@ function main() {
       // Scan for quorum tool_use evidence in current turn (STOP-01)
       const foundModels = findQuorumEvidence(currentTurnLines, config.required_models);
 
-      // Identify missing required models
+      // Check which MCP servers are actually registered (for fail-open unavailability detection)
+      const availablePrefixes = getAvailableMcpPrefixes(); // null = unknown (conservative)
+
+      // Identify missing required models — separate unavailable (skip) from missing (block)
+      const unavailableKeys = [];
       const missingKeys = Object.entries(config.required_models)
-        .filter(([modelKey, modelDef]) => modelDef.required && !foundModels.has(modelKey))
+        .filter(([modelKey, modelDef]) => {
+          if (!modelDef.required) return false;
+          if (foundModels.has(modelKey)) return false; // called — not missing
+          // Check unavailability only when we have a definitive server list
+          if (availablePrefixes !== null) {
+            const isConfigured = availablePrefixes.some(p => p === modelDef.tool_prefix);
+            if (!isConfigured) {
+              // Model's prefix not in mcpServers → unavailable → fail-open: skip
+              unavailableKeys.push({ modelKey, prefix: modelDef.tool_prefix });
+              return false;
+            }
+          }
+          // Required, not called, and either available or unknown → block candidate
+          return true;
+        })
         .map(([modelKey]) => modelKey);
 
-      // PASS: all required models found (STOP-09)
+      // PASS: all required (available) models found or all missing were unavailable (STOP-09)
       if (missingKeys.length === 0) {
+        if (unavailableKeys.length > 0) {
+          const note = unavailableKeys.map(u => u.modelKey + ' (' + u.prefix + ')').join(', ');
+          process.stderr.write('[qgsd] INFO: Quorum passed. Note: ' + note + ' was unavailable and skipped.\n');
+        }
         process.exit(0);
       }
 
-      // BLOCK: quorum incomplete (STOP-07, STOP-08)
+      // BLOCK: quorum incomplete — some required available models were not called (STOP-07, STOP-08)
       const missingTools = missingKeys.map(modelKey =>
         deriveMissingToolName(modelKey, config.required_models[modelKey])
       );
 
       const command = extractCommand(currentTurnLines, cmdPattern);
 
+      const unavailNote = unavailableKeys.length > 0
+        ? ' [Note: ' + unavailableKeys.map(u => u.modelKey + ' (' + u.prefix + ')').join(', ') + ' was unavailable and skipped per fail-open policy]'
+        : '';
+
       const blockReason =
         `QUORUM REQUIRED: Before completing this ${command} response, call ` +
         `${missingTools.join(', ')} with your current plan. ` +
-        'Present their responses, then deliver your final output.';
+        'Present their responses, then deliver your final output.' + unavailNote;
 
       process.stdout.write(JSON.stringify({ decision: 'block', reason: blockReason }));
       process.exit(0);
