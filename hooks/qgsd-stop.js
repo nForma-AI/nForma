@@ -39,9 +39,16 @@ function loadConfig() {
   }
 }
 
+// Builds the regex that matches /gsd:<quorum-command> in any text.
+function buildCommandPattern(quorumCommands) {
+  const escaped = quorumCommands.map(c => c.replace(/-/g, '\\-'));
+  return new RegExp('\\/gsd:(' + escaped.join('|') + ')');
+}
+
 // Scans backward from end to find last user message boundary.
 // Returns all lines from that boundary forward (the current turn).
-// If no user message found, returns all lines (conservative).
+// If no user message is found, returns all lines (conservative — treats whole
+// transcript as current turn to avoid false passes).
 function getCurrentTurnLines(lines) {
   let lastUserIdx = -1;
   for (let i = lines.length - 1; i >= 0; i--) {
@@ -59,15 +66,12 @@ function getCurrentTurnLines(lines) {
 }
 
 // Returns true if any user entry in currentTurnLines contains a GSD quorum command.
-function hasQuorumCommand(currentTurnLines, quorumCommands) {
-  const escapedCommands = quorumCommands.map(c => c.replace(/-/g, '\\-'));
-  const cmdPattern = new RegExp('\\/gsd:(' + escapedCommands.join('|') + ')');
+function hasQuorumCommand(currentTurnLines, cmdPattern) {
   for (const line of currentTurnLines) {
     try {
       const entry = JSON.parse(line);
       if (entry.type !== 'user') continue;
-      const text = JSON.stringify(entry.message || entry);
-      if (cmdPattern.test(text)) return true;
+      if (cmdPattern.test(JSON.stringify(entry.message || entry))) return true;
     } catch {
       // Skip malformed lines
     }
@@ -75,16 +79,15 @@ function hasQuorumCommand(currentTurnLines, quorumCommands) {
   return false;
 }
 
-// Extracts the matched /gsd:<command> text from current turn user lines.
-function extractCommand(currentTurnLines, quorumCommands) {
-  const escapedCommands = quorumCommands.map(c => c.replace(/-/g, '\\-'));
-  const cmdPattern = new RegExp('\\/gsd:(' + escapedCommands.join('|') + ')');
+// Extracts the matched /gsd:<command> text from the first matching user line.
+// Falls back to '/gsd:plan-phase' if no match is found (should not happen
+// since hasQuorumCommand already confirmed a match).
+function extractCommand(currentTurnLines, cmdPattern) {
   for (const line of currentTurnLines) {
     try {
       const entry = JSON.parse(line);
       if (entry.type !== 'user') continue;
-      const text = JSON.stringify(entry.message || entry);
-      const match = cmdPattern.exec(text);
+      const match = cmdPattern.exec(JSON.stringify(entry.message || entry));
       if (match) return match[0];
     } catch {
       // Skip malformed lines
@@ -93,7 +96,8 @@ function extractCommand(currentTurnLines, quorumCommands) {
   return '/gsd:plan-phase';
 }
 
-// Scans assistant entries in currentTurnLines for tool_use blocks.
+// Scans assistant entries in currentTurnLines for tool_use blocks whose
+// name starts with a required model's tool_prefix.
 // Returns a Set of model keys (e.g. 'codex', 'gemini', 'opencode') found.
 function findQuorumEvidence(currentTurnLines, requiredModels) {
   const found = new Set();
@@ -101,7 +105,7 @@ function findQuorumEvidence(currentTurnLines, requiredModels) {
     try {
       const entry = JSON.parse(line);
       if (entry.type !== 'assistant') continue;
-      const content = entry && entry.message && entry.message.content;
+      const content = entry.message && entry.message.content;
       if (!Array.isArray(content)) continue;
       for (const block of content) {
         if (block.type !== 'tool_use') continue;
@@ -118,7 +122,8 @@ function findQuorumEvidence(currentTurnLines, requiredModels) {
   return found;
 }
 
-// Derives canonical tool name for block reason from model key + prefix.
+// Derives the canonical tool name for the block reason message.
+// Uses known model keys first; falls back to prefix + key for unknown models.
 function deriveMissingToolName(modelKey, modelDef) {
   const prefix = modelDef.tool_prefix;
   if (modelKey === 'codex') return prefix + 'review';
@@ -152,15 +157,19 @@ function main() {
 
       const config = loadConfig();
 
-      // Read and parse transcript JSONL
-      const rawContent = fs.readFileSync(input.transcript_path, 'utf8');
-      const lines = rawContent.split('\n').filter(l => l.trim().length > 0);
+      // Read and split transcript JSONL; skip empty lines
+      const lines = fs.readFileSync(input.transcript_path, 'utf8')
+        .split('\n')
+        .filter(l => l.trim().length > 0);
 
       // Scope to current turn: lines since last user message (STOP-04)
       const currentTurnLines = getCurrentTurnLines(lines);
 
+      // Build command pattern once; reuse for detection and extraction
+      const cmdPattern = buildCommandPattern(config.quorum_commands);
+
       // GUARD 4: Only enforce quorum if a planning command is in current turn (STOP-06)
-      if (!hasQuorumCommand(currentTurnLines, config.quorum_commands)) {
+      if (!hasQuorumCommand(currentTurnLines, cmdPattern)) {
         process.exit(0);
       }
 
@@ -182,13 +191,12 @@ function main() {
         deriveMissingToolName(modelKey, config.required_models[modelKey])
       );
 
-      const command = extractCommand(currentTurnLines, config.quorum_commands);
+      const command = extractCommand(currentTurnLines, cmdPattern);
 
-      const blockReason = [
-        `QUORUM REQUIRED: Before completing this ${command} response, call`,
-        missingTools.join(', '),
-        'with your current plan. Present their responses, then deliver your final output.',
-      ].join(' ');
+      const blockReason =
+        `QUORUM REQUIRED: Before completing this ${command} response, call ` +
+        `${missingTools.join(', ')} with your current plan. ` +
+        'Present their responses, then deliver your final output.';
 
       process.stdout.write(JSON.stringify({ decision: 'block', reason: blockReason }));
       process.exit(0);
