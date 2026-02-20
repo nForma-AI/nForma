@@ -954,10 +954,34 @@ function uninstall(isGlobal, runtime = 'claude') {
       if (settings.hooks.SessionStart.length === 0) {
         delete settings.hooks.SessionStart;
       }
-      // Clean up empty hooks object
-      if (Object.keys(settings.hooks).length === 0) {
-        delete settings.hooks;
+    }
+
+    if (settings.hooks && settings.hooks.UserPromptSubmit) {
+      const before = settings.hooks.UserPromptSubmit.length;
+      settings.hooks.UserPromptSubmit = settings.hooks.UserPromptSubmit.filter(entry =>
+        !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-prompt')))
+      );
+      if (settings.hooks.UserPromptSubmit.length < before) {
+        settingsModified = true;
+        console.log(`  ${green}✓${reset} Removed QGSD quorum injection hook`);
       }
+      if (settings.hooks.UserPromptSubmit.length === 0) delete settings.hooks.UserPromptSubmit;
+    }
+    if (settings.hooks && settings.hooks.Stop) {
+      const before = settings.hooks.Stop.length;
+      settings.hooks.Stop = settings.hooks.Stop.filter(entry =>
+        !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-stop')))
+      );
+      if (settings.hooks.Stop.length < before) {
+        settingsModified = true;
+        console.log(`  ${green}✓${reset} Removed QGSD quorum gate hook`);
+      }
+      if (settings.hooks.Stop.length === 0) delete settings.hooks.Stop;
+    }
+
+    // Clean up empty hooks object
+    if (settings.hooks && Object.keys(settings.hooks).length === 0) {
+      delete settings.hooks;
     }
 
     if (settingsModified) {
@@ -1551,6 +1575,41 @@ function install(isGlobal, runtime = 'claude') {
         ]
       });
       console.log(`  ${green}✓${reset} Configured update check hook`);
+    }
+
+    // Register QGSD UserPromptSubmit hook (quorum injection)
+    // MUST be in settings.json — plugin hooks.json silently discards UserPromptSubmit output (GitHub #10225)
+    if (!settings.hooks.UserPromptSubmit) settings.hooks.UserPromptSubmit = [];
+    const hasQgsdPromptHook = settings.hooks.UserPromptSubmit.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-prompt'))
+    );
+    if (!hasQgsdPromptHook) {
+      settings.hooks.UserPromptSubmit.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-prompt.js') }]
+      });
+      console.log(`  ${green}✓${reset} Configured QGSD quorum injection hook (UserPromptSubmit)`);
+    }
+
+    // Register QGSD Stop hook (quorum gate — verifies quorum evidence before Claude delivers planning output)
+    if (!settings.hooks.Stop) settings.hooks.Stop = [];
+    const hasQgsdStopHook = settings.hooks.Stop.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-stop'))
+    );
+    if (!hasQgsdStopHook) {
+      settings.hooks.Stop.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-stop.js'), timeout: 30 }]
+      });
+      console.log(`  ${green}✓${reset} Configured QGSD quorum gate hook (Stop)`);
+    }
+
+    // Write QGSD default config if not present (preserves any existing user customizations)
+    const qgsdConfigPath = path.join(targetDir, 'qgsd.json');
+    if (!fs.existsSync(qgsdConfigPath)) {
+      const qgsdConfigTemplatePath = path.join(__dirname, '..', 'templates', 'qgsd.json');
+      if (fs.existsSync(qgsdConfigTemplatePath)) {
+        fs.copyFileSync(qgsdConfigTemplatePath, qgsdConfigPath);
+        console.log(`  ${green}✓${reset} Wrote QGSD default config (~/.claude/qgsd.json)`);
+      }
     }
   }
 
