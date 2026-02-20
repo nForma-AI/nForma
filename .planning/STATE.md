@@ -55,6 +55,7 @@ Recent decisions affecting current work:
 - [Phase 01-hook-enforcement]: buildCommandPattern() extracted in REFACTOR to build quorum command regex once and reuse across hasQuorumCommand and extractCommand
 - [Phase 01-hook-enforcement P02]: UserPromptSubmit hook uses ~/.claude/qgsd.json (same file as stop hook); loadConfig() returns null on missing/malformed so caller controls fallback
 - [Phase 01-hook-enforcement P02]: Anchored regex ^\\s*\\/gsd:(cmd)(\\s|$) with mandatory /gsd: prefix matches stop hook pattern exactly — no optional (gsd:)? group
+- META behavior (META-01/02/03): discuss-phase question auto-resolution is satisfied structurally — /gsd:discuss-phase is in the QGSD hook allowlist, so quorum runs before output delivery. Only questions without consensus are escalated to the user; auto-resolved questions are presented as assumptions first. This is enforced by hooks, not by behavioral instruction.
 
 ### Pending Todos
 
