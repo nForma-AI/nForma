@@ -78,6 +78,10 @@ function toolUseBlock(name) {
   return { type: 'tool_use', id: `toolu_${name}`, name, input: { content: 'test plan' } };
 }
 
+function bashCommitBlock(commitCmd) {
+  return { type: 'tool_use', id: 'toolu_bash', name: 'Bash', input: { command: commitCmd } };
+}
+
 // --- Test Cases ---
 
 // Test 1: stop_hook_active: true → exit 0, no stdout (infinite loop guard)
@@ -172,12 +176,17 @@ test('TC5: planning command with all three quorum tool calls passes', () => {
 });
 
 // Test 6: /gsd:plan-phase in current turn + only codex tool_use → block with decision:block
+// TC6 updated (step 1a): includes a PLAN.md artifact commit so GUARD 5 classifies this as a
+// decision turn, preserving the invariant: quorum-command + decision-turn + partial quorum = block.
 test('TC6: planning command with only codex tool call triggers block', () => {
   const tmpFile = writeTempTranscript([
     userLine('/gsd:plan-phase 1'),
     assistantLine([
       toolUseBlock('mcp__codex-cli__review'),
     ]),
+    assistantLine([
+      bashCommitBlock('node /path/gsd-tools.cjs commit "feat: plan" --files 04-01-PLAN.md'),
+    ], 'assistant-commit'),
     assistantLine([{ type: 'text', text: 'Here is the plan.' }], 'assistant-2'),
   ]);
   try {
@@ -252,12 +261,17 @@ test('TC8: malformed JSONL lines are skipped gracefully', () => {
 });
 
 // Test 9: config file missing → DEFAULT_CONFIG used, hook still works
+// TC9 updated (step 1a): includes a RESEARCH.md artifact commit so GUARD 5 classifies this as a
+// decision turn, preserving the invariant: quorum-command + decision-turn + no quorum = block.
 test('TC9: missing config file falls back to DEFAULT_CONFIG', () => {
   // This test passes because the hook uses DEFAULT_CONFIG when ~/.claude/qgsd.json is absent.
   // The existing tests already exercise this (no config file written during tests).
   // Explicitly verify: a planning command without quorum gets blocked with default model names.
   const tmpFile = writeTempTranscript([
     userLine('/gsd:research-phase 1'),
+    assistantLine([
+      bashCommitBlock('node /path/gsd-tools.cjs commit "docs: research" --files 04-RESEARCH.md'),
+    ], 'assistant-commit'),
     assistantLine([{ type: 'text', text: 'No quorum calls here.' }]),
   ]);
   try {
@@ -397,14 +411,19 @@ test('TC11: model prefix not in mcpServers → unavailable → fail-open pass', 
 });
 
 // TC12: Partial availability — gemini not in mcpServers (unavailable → skip), codex IS in mcpServers but not called → block
+// TC12 updated (step 1a): includes a PLAN.md artifact commit so GUARD 5 classifies this as a
+// decision turn, preserving the invariant: quorum-command + decision-turn + available-but-missing = block.
 test('TC12: partial availability — unavailable model skipped, available-but-missing model blocks', () => {
   // Create temp ~/.claude.json with only codex-cli in mcpServers (gemini absent)
   const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-tc12-${Date.now()}.json`);
   fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers: { 'codex-cli': {} } }), 'utf8');
 
-  // Transcript: quorum command issued, no quorum calls
+  // Transcript: quorum command issued, PLAN.md artifact commit, no quorum calls
   const tmpFile = writeTempTranscript([
     userLine('/gsd:plan-phase 1', 'human-msg'),
+    assistantLine([
+      bashCommitBlock('node /path/gsd-tools.cjs commit "feat: plan" --files 04-01-PLAN.md'),
+    ], 'assistant-commit'),
     assistantLine([{ type: 'text', text: 'Here is the plan.' }], 'assistant-1'),
   ]);
 
@@ -486,5 +505,153 @@ test('TC13: MCP-06 regression — renamed prefix detected and matched correctly'
   } finally {
     fs.unlinkSync(tmpFile);
     fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
+// ── TC14-TC19: GUARD 5 — Decision turn detection (SCOPE-01/02/03/05/06/07) ─────────────────────
+//
+// TC14: intermediate plan-phase turn (no artifact commit, no marker) → PASS (not a decision turn)
+// TC15: final plan-phase turn with PLAN.md artifact committed → QUORUM REQUIRED (decision turn)
+// TC16: map-codebase turn (codebase/*.md commit, no artifact pattern match) → PASS
+// TC17: new-project routing turn (no artifact commit, no marker) → PASS
+// TC18: discuss-phase final turn with CONTEXT.md artifact committed → QUORUM REQUIRED
+// TC19: verify-work turn with <!-- GSD_DECISION --> marker in last text block → QUORUM REQUIRED
+
+// TC14: intermediate plan-phase turn — assistant spawns an agent, no artifact commit, no marker
+test('TC14: intermediate plan-phase turn (no artifact commit, no marker) passes without quorum block', () => {
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:plan-phase 1'),
+    assistantLine([{ type: 'text', text: 'Spawning researcher agent...' }]),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Spawning researcher agent...',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty — intermediate turn is not a decision turn');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
+
+// TC15: final plan-phase turn — PLAN.md artifact committed + no quorum calls → QUORUM REQUIRED
+test('TC15: final plan-phase turn with PLAN.md artifact committed blocks when quorum missing', () => {
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:plan-phase 1'),
+    assistantLine([
+      bashCommitBlock('node /path/gsd-tools.cjs commit "feat: plan" --files 04-01-PLAN.md'),
+    ], 'assistant-commit'),
+    assistantLine([{ type: 'text', text: 'Here is the plan.' }], 'assistant-2'),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Here is the plan.',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 even when blocking');
+    assert.ok(stdout.length > 0, 'stdout must contain block decision JSON');
+    const parsed = JSON.parse(stdout);
+    assert.strictEqual(parsed.decision, 'block', 'decision must be "block"');
+    assert.ok(parsed.reason.startsWith('QUORUM REQUIRED:'), 'reason must start with QUORUM REQUIRED:');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
+
+// TC16: map-codebase turn — commits codebase/STACK.md (no artifact pattern match) → PASS
+// Guards against Pitfall 2 from RESEARCH.md: bare STACK.md must NOT trigger artifact detection.
+test('TC16: map-codebase turn with codebase/*.md commit passes without quorum block', () => {
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:plan-phase 1'),
+    assistantLine([
+      bashCommitBlock('node /path/gsd-tools.cjs commit "docs: codebase" --files .planning/codebase/STACK.md'),
+    ], 'assistant-commit'),
+    assistantLine([{ type: 'text', text: 'Codebase mapped.' }], 'assistant-2'),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Codebase mapped.',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty — codebase/*.md is not a planning artifact');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
+
+// TC17: new-project routing turn — assistant asks a question, no artifact commit, no marker → PASS
+test('TC17: new-project routing turn (questioning step) passes without quorum block', () => {
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:new-project'),
+    assistantLine([{ type: 'text', text: 'What do you want to build?' }]),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'What do you want to build?',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty — routing/questioning turn is not a decision turn');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
+
+// TC18: discuss-phase final turn — CONTEXT.md artifact committed + no quorum calls → QUORUM REQUIRED
+test('TC18: discuss-phase final turn with CONTEXT.md artifact committed blocks when quorum missing', () => {
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:discuss-phase 4'),
+    assistantLine([
+      bashCommitBlock('node /path/gsd-tools.cjs commit "docs: context" --files 04-CONTEXT.md'),
+    ], 'assistant-commit'),
+    assistantLine([{ type: 'text', text: 'Here are the filtered questions.' }], 'assistant-2'),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Here are the filtered questions.',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 even when blocking');
+    assert.ok(stdout.length > 0, 'stdout must contain block decision JSON');
+    const parsed = JSON.parse(stdout);
+    assert.strictEqual(parsed.decision, 'block', 'decision must be "block"');
+    assert.ok(parsed.reason.startsWith('QUORUM REQUIRED:'), 'reason must start with QUORUM REQUIRED:');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
+
+// TC19: verify-work turn with <!-- GSD_DECISION --> in last assistant text block → QUORUM REQUIRED
+test('TC19: verify-work turn with decision marker in last assistant text block blocks when quorum missing', () => {
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:verify-work'),
+    assistantLine([{ type: 'text', text: 'Verification complete.\n\n<!-- GSD_DECISION -->' }]),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Verification complete.\n\n<!-- GSD_DECISION -->',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 even when blocking');
+    assert.ok(stdout.length > 0, 'stdout must contain block decision JSON');
+    const parsed = JSON.parse(stdout);
+    assert.strictEqual(parsed.decision, 'block', 'decision must be "block"');
+    assert.ok(parsed.reason.startsWith('QUORUM REQUIRED:'), 'reason must start with QUORUM REQUIRED:');
+  } finally {
+    fs.unlinkSync(tmpFile);
   }
 });
