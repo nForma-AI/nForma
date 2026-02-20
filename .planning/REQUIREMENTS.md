@@ -46,8 +46,8 @@ All features are v1. No deferral.
 
 ### Installer
 
-- [ ] **INST-01**: QGSD is the unified installer — `npx qgsd@latest` installs GSD + quorum hooks in one command
-- [ ] **INST-02**: QGSD's package.json pins GSD version — version lockstep ensures hook compatibility
+- [x] **INST-01**: QGSD is the unified installer — `npx qgsd@latest` installs GSD + quorum hooks in one command
+- [x] **INST-02**: QGSD's package.json pins GSD version — version lockstep ensures hook compatibility
 - [ ] **INST-03**: Installer writes hooks to `~/.claude/settings.json` directly (not plugin.json hooks — stdout is silently discarded per GitHub #10225)
 - [ ] **INST-04**: Installer adds UserPromptSubmit and Stop hook entries to `~/.claude/settings.json` hooks section
 - [ ] **INST-05**: Installer performs validation before registering hooks: checks MCPs are configured in Claude Code settings, warns if Codex/Gemini/OpenCode not found
@@ -56,10 +56,10 @@ All features are v1. No deferral.
 
 ### GSD Sync Strategy
 
-- [ ] **SYNC-01**: QGSD ships as separate npm package (`qgsd` or `get-shit-done-quorum`) that wraps GSD
-- [ ] **SYNC-02**: When GSD releases a new planning command, QGSD releases a patch update adding the command to the default `quorum_commands` list
-- [ ] **SYNC-03**: QGSD changelog explicitly tracks which GSD version it is compatible with
-- [ ] **SYNC-04**: No QGSD code modifies any GSD source files — all additions are in separate files (`hooks/qgsd-stop.js`, `hooks/qgsd-prompt.js`, `bin/qgsd-install.js`)
+- [x] **SYNC-01**: QGSD ships as separate npm package (`qgsd` or `get-shit-done-quorum`) that wraps GSD
+- [x] **SYNC-02**: When GSD releases a new planning command, QGSD releases a patch update adding the command to the default `quorum_commands` list
+- [x] **SYNC-03**: QGSD changelog explicitly tracks which GSD version it is compatible with
+- [x] **SYNC-04**: No QGSD code modifies any GSD source files — all additions are in separate files (`hooks/qgsd-stop.js`, `hooks/qgsd-prompt.js`, `bin/qgsd-install.js`)
 
 ### Quorum-First Behavior (Meta — how QGSD itself uses quorum during development)
 
@@ -125,17 +125,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MCP-04 | Phase 2 | Complete |
 | MCP-05 | Phase 2 | Complete |
 | MCP-06 | Phase 2 | Complete |
-| INST-01 | Phase 3 | Pending |
-| INST-02 | Phase 3 | Pending |
+| INST-01 | Phase 3 | Complete |
+| INST-02 | Phase 3 | Complete |
 | INST-03 | Phase 3 | Pending |
 | INST-04 | Phase 3 | Pending |
 | INST-05 | Phase 3 | Pending |
 | INST-06 | Phase 3 | Pending |
 | INST-07 | Phase 3 | Pending |
-| SYNC-01 | Phase 3 | Pending |
-| SYNC-02 | Phase 3 | Pending |
-| SYNC-03 | Phase 3 | Pending |
-| SYNC-04 | Phase 3 | Pending |
+| SYNC-01 | Phase 3 | Complete |
+| SYNC-02 | Phase 3 | Complete |
+| SYNC-03 | Phase 3 | Complete |
+| SYNC-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 39 total

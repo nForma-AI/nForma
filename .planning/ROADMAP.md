@@ -84,14 +84,14 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Hook Enforcement | 5/5 | Complete   | 2026-02-20 |
 | 2. Config & MCP Detection | 4/4 | Complete | 2026-02-20 |
-| 3. Installer & Distribution | 0/3 | Planned | - |
+| 3. Installer & Distribution | 1/3 | In Progress|  |
 
 ### Phase 4: Narrow quorum scope to project decisions only
 
 **Goal:** Stop hook only fires quorum on turns where Claude delivers a project decision (plan, roadmap, research, verification report) — not on intermediate GSD-internal operations (agent spawning, routing, questioning, status messages)
 **Depends on:** Phase 3
 **Requirements**: SCOPE-01, SCOPE-02, SCOPE-03, SCOPE-04, SCOPE-05, SCOPE-06, SCOPE-07
-**Plans:** 2 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 04-01-PLAN.md — Stop hook GUARD 5: decision turn detection (hasArtifactCommit + hasDecisionMarker) — TDD with TC14-TC19
