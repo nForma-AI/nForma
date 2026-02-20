@@ -97,19 +97,51 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STOP-01 through STOP-09 | Phase 1 | Pending |
-| UPS-01 through UPS-05 | Phase 1 | Pending |
-| CONF-01 through CONF-05 | Phase 1 | Pending |
-| MCP-01 through MCP-06 | Phase 1 | Pending |
-| INST-01 through INST-07 | Phase 2 | Pending |
-| SYNC-01 through SYNC-04 | Phase 2 | Pending |
-| META-01 through META-03 | Phase 1 | Pending |
+| STOP-01 | Phase 1 | Pending |
+| STOP-02 | Phase 1 | Pending |
+| STOP-03 | Phase 1 | Pending |
+| STOP-04 | Phase 1 | Pending |
+| STOP-05 | Phase 1 | Pending |
+| STOP-06 | Phase 1 | Pending |
+| STOP-07 | Phase 1 | Pending |
+| STOP-08 | Phase 1 | Pending |
+| STOP-09 | Phase 1 | Pending |
+| UPS-01 | Phase 1 | Pending |
+| UPS-02 | Phase 1 | Pending |
+| UPS-03 | Phase 1 | Pending |
+| UPS-04 | Phase 1 | Pending |
+| UPS-05 | Phase 1 | Pending |
+| META-01 | Phase 1 | Pending |
+| META-02 | Phase 1 | Pending |
+| META-03 | Phase 1 | Pending |
+| CONF-01 | Phase 2 | Pending |
+| CONF-02 | Phase 2 | Pending |
+| CONF-03 | Phase 2 | Pending |
+| CONF-04 | Phase 2 | Pending |
+| CONF-05 | Phase 2 | Pending |
+| MCP-01 | Phase 2 | Pending |
+| MCP-02 | Phase 2 | Pending |
+| MCP-03 | Phase 2 | Pending |
+| MCP-04 | Phase 2 | Pending |
+| MCP-05 | Phase 2 | Pending |
+| MCP-06 | Phase 2 | Pending |
+| INST-01 | Phase 3 | Pending |
+| INST-02 | Phase 3 | Pending |
+| INST-03 | Phase 3 | Pending |
+| INST-04 | Phase 3 | Pending |
+| INST-05 | Phase 3 | Pending |
+| INST-06 | Phase 3 | Pending |
+| INST-07 | Phase 3 | Pending |
+| SYNC-01 | Phase 3 | Pending |
+| SYNC-02 | Phase 3 | Pending |
+| SYNC-03 | Phase 3 | Pending |
+| SYNC-04 | Phase 3 | Pending |
 
 **Coverage:**
-- v1 requirements: 40 total
-- Mapped to phases: 40
-- Unmapped: 0 ✓
+- v1 requirements: 39 total
+- Mapped to phases: 39
+- Unmapped: 0 (corrected from initial count of 40 — actual count is 39)
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 after initial definition — quorum decisions: D1 unified installer, D2 auto-detect+fallback, D3 detailed block message, D4 global+per-project config*
+*Last updated: 2026-02-20 — traceability updated after roadmap creation; phase assignments: STOP+UPS+META → Phase 1, CONF+MCP → Phase 2, INST+SYNC → Phase 3*
