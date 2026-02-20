@@ -66,6 +66,7 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - `2026-02-20-add-gsd-quorum-command-for-consensus-answers.md` — Add gsd:quorum command for consensus answers (area: planning)
+- `2026-02-20-narrow-stop-hook-quorum-scope-to-exclude-internal-routing-decisions.md` — Narrow stop hook quorum scope to exclude internal routing decisions (area: planning)
 
 ### Blockers/Concerns
 
