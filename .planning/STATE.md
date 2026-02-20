@@ -49,7 +49,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- `2026-02-20-add-gsd-quorum-command-for-consensus-answers.md` — Add gsd:quorum command for consensus answers (area: planning)
 
 ### Blockers/Concerns
 
