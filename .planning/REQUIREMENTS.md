@@ -29,20 +29,20 @@ All features are v1. No deferral.
 
 ### Config System
 
-- [ ] **CONF-01**: Global config at `~/.claude/qgsd.json` — installed once, applies to all projects
-- [ ] **CONF-02**: Per-project override at `.claude/qgsd.json` — merged with global, project values take precedence
-- [ ] **CONF-03**: Config contains: `quorum_commands` (array of command names), `required_models` (dict of MCP tool entries: { tool_prefix, required }), `fail_mode` (open|closed, default: open)
-- [ ] **CONF-04**: Fail-open behavior: when a quorum model is unavailable, Stop hook passes and logs reduced quorum notification
-- [ ] **CONF-05**: Config validates on read — malformed config falls back to hardcoded defaults with warning
+- [x] **CONF-01**: Global config at `~/.claude/qgsd.json` — installed once, applies to all projects
+- [x] **CONF-02**: Per-project override at `.claude/qgsd.json` — merged with global, project values take precedence
+- [x] **CONF-03**: Config contains: `quorum_commands` (array of command names), `required_models` (dict of MCP tool entries: { tool_prefix, required }), `fail_mode` (open|closed, default: open)
+- [x] **CONF-04**: Fail-open behavior: when a quorum model is unavailable, Stop hook passes and logs reduced quorum notification
+- [x] **CONF-05**: Config validates on read — malformed config falls back to hardcoded defaults with warning
 
 ### MCP Server Detection
 
-- [ ] **MCP-01**: Installer reads `~/.claude.json` to auto-detect MCP server names for Codex, Gemini, OpenCode
-- [ ] **MCP-02**: Detection matches server names containing "codex", "gemini", "opencode" (case-insensitive keyword match)
-- [ ] **MCP-03**: Detected names written to `~/.claude/qgsd.json` as `required_models` on install
-- [ ] **MCP-04**: If detection finds no matching servers, installer falls back to hardcoded defaults: `mcp__codex-cli__`, `mcp__gemini-cli__`, `mcp__opencode__`
-- [ ] **MCP-05**: User can manually edit `qgsd.json` to override detected names
-- [ ] **MCP-06**: Stop hook matches tool_use names by prefix (e.g. `mcp__codex-cli__` matches both `mcp__codex-cli__codex` and `mcp__codex-cli__review`)
+- [x] **MCP-01**: Installer reads `~/.claude.json` to auto-detect MCP server names for Codex, Gemini, OpenCode
+- [x] **MCP-02**: Detection matches server names containing "codex", "gemini", "opencode" (case-insensitive keyword match)
+- [x] **MCP-03**: Detected names written to `~/.claude/qgsd.json` as `required_models` on install
+- [x] **MCP-04**: If detection finds no matching servers, installer falls back to hardcoded defaults: `mcp__codex-cli__`, `mcp__gemini-cli__`, `mcp__opencode__`
+- [x] **MCP-05**: User can manually edit `qgsd.json` to override detected names
+- [x] **MCP-06**: Stop hook matches tool_use names by prefix (e.g. `mcp__codex-cli__` matches both `mcp__codex-cli__codex` and `mcp__codex-cli__review`)
 
 ### Installer
 
@@ -114,17 +114,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | META-01 | Phase 1 | Complete |
 | META-02 | Phase 1 | Complete |
 | META-03 | Phase 1 | Complete |
-| CONF-01 | Phase 2 | Pending |
-| CONF-02 | Phase 2 | Pending |
-| CONF-03 | Phase 2 | Pending |
-| CONF-04 | Phase 2 | Pending |
-| CONF-05 | Phase 2 | Pending |
-| MCP-01 | Phase 2 | Pending |
-| MCP-02 | Phase 2 | Pending |
-| MCP-03 | Phase 2 | Pending |
-| MCP-04 | Phase 2 | Pending |
-| MCP-05 | Phase 2 | Pending |
-| MCP-06 | Phase 2 | Pending |
+| CONF-01 | Phase 2 | Complete |
+| CONF-02 | Phase 2 | Complete |
+| CONF-03 | Phase 2 | Complete |
+| CONF-04 | Phase 2 | Complete |
+| CONF-05 | Phase 2 | Complete |
+| MCP-01 | Phase 2 | Complete |
+| MCP-02 | Phase 2 | Complete |
+| MCP-03 | Phase 2 | Complete |
+| MCP-04 | Phase 2 | Complete |
+| MCP-05 | Phase 2 | Complete |
+| MCP-06 | Phase 2 | Complete |
 | INST-01 | Phase 3 | Pending |
 | INST-02 | Phase 3 | Pending |
 | INST-03 | Phase 3 | Pending |
