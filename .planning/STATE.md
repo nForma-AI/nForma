@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 1 of 3 (Hook Enforcement)
-Plan: 1 of TBD in current phase
-Status: In progress — Plan 01 complete
-Last activity: 2026-02-20 — Plan 01-01 complete (Stop hook TDD)
+Plan: 2 of TBD in current phase
+Status: In progress — Plan 02 complete
+Last activity: 2026-02-20 — Plan 01-02 complete (UserPromptSubmit hook)
 
-Progress: [█░░░░░░░░░] ~10%
+Progress: [██░░░░░░░░] ~20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 5 min
+- Total plans completed: 2
+- Average duration: 3.5 min
 - Total execution time: 0.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-hook-enforcement | 1 | 5 min | 5 min |
+| 01-hook-enforcement | 2 | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 min
+- Last 5 plans: 5 min, 2 min
 - Trend: establishing baseline
 
 *Updated after each plan completion*
@@ -38,6 +38,7 @@ Progress: [█░░░░░░░░░] ~10%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01-hook-enforcement P01 | 5 min | 3 tasks | 3 files |
+| Phase 01-hook-enforcement P02 | 2 min | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -52,6 +53,8 @@ Recent decisions affecting current work:
 - Global install only: No per-project install in v1 — matches GSD's behavior
 - [Phase 01-hook-enforcement]: Config file named qgsd.json for stop hook; matches PLAN.md artifact spec; Phase 2 CONF-01 may rename
 - [Phase 01-hook-enforcement]: buildCommandPattern() extracted in REFACTOR to build quorum command regex once and reuse across hasQuorumCommand and extractCommand
+- [Phase 01-hook-enforcement P02]: UserPromptSubmit hook uses ~/.claude/qgsd.json (same file as stop hook); loadConfig() returns null on missing/malformed so caller controls fallback
+- [Phase 01-hook-enforcement P02]: Anchored regex ^\\s*\\/gsd:(cmd)(\\s|$) with mandatory /gsd: prefix matches stop hook pattern exactly — no optional (gsd:)? group
 
 ### Pending Todos
 
@@ -63,6 +66,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-20T19:30:36Z
-Stopped at: Completed 01-hook-enforcement-01-PLAN.md (Stop hook TDD)
+Last session: 2026-02-20T19:35:27Z
+Stopped at: Completed 01-hook-enforcement-02-PLAN.md (UserPromptSubmit hook)
 Resume file: None

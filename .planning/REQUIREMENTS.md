@@ -21,11 +21,11 @@ All features are v1. No deferral.
 
 ### UserPromptSubmit Hook — Proactive Injection
 
-- [ ] **UPS-01**: UserPromptSubmit hook detects GSD planning commands via explicit allowlist regex match against prompt field
-- [ ] **UPS-02**: Allowlist contains exactly 6 commands: new-project, plan-phase, new-milestone, discuss-phase, verify-work, research-phase
-- [ ] **UPS-03**: UserPromptSubmit hook injects quorum instructions via `hookSpecificOutput.additionalContext` (not systemMessage — goes into Claude's context window)
-- [ ] **UPS-04**: Injected context names the exact MCP tools to call and instructs Claude to present model responses before delivering final output
-- [ ] **UPS-05**: UserPromptSubmit hook never fires on execute-phase or other non-planning commands
+- [x] **UPS-01**: UserPromptSubmit hook detects GSD planning commands via explicit allowlist regex match against prompt field
+- [x] **UPS-02**: Allowlist contains exactly 6 commands: new-project, plan-phase, new-milestone, discuss-phase, verify-work, research-phase
+- [x] **UPS-03**: UserPromptSubmit hook injects quorum instructions via `hookSpecificOutput.additionalContext` (not systemMessage — goes into Claude's context window)
+- [x] **UPS-04**: Injected context names the exact MCP tools to call and instructs Claude to present model responses before delivering final output
+- [x] **UPS-05**: UserPromptSubmit hook never fires on execute-phase or other non-planning commands
 
 ### Config System
 
@@ -106,11 +106,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOP-07 | Phase 1 | Complete |
 | STOP-08 | Phase 1 | Complete |
 | STOP-09 | Phase 1 | Complete |
-| UPS-01 | Phase 1 | Pending |
-| UPS-02 | Phase 1 | Pending |
-| UPS-03 | Phase 1 | Pending |
-| UPS-04 | Phase 1 | Pending |
-| UPS-05 | Phase 1 | Pending |
+| UPS-01 | Phase 1 | Complete |
+| UPS-02 | Phase 1 | Complete |
+| UPS-03 | Phase 1 | Complete |
+| UPS-04 | Phase 1 | Complete |
+| UPS-05 | Phase 1 | Complete |
 | META-01 | Phase 1 | Pending |
 | META-02 | Phase 1 | Pending |
 | META-03 | Phase 1 | Pending |
