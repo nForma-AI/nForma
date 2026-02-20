@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. GSD subagent Stop events (SubagentStop) are excluded — only the main session Stop is gated
   6. Stop hook correctly identifies planning commands with and without leading whitespace, aliased invocations, and mixed casing — no false positives from non-quorum commands
   7. Stop hook scans only the current turn (since last user message boundary) — correctly passes after context compaction even when prior quorum evidence no longer appears in transcript
-**Plans**: 5 plans
+**Plans**: 6 plans
 
 Plans:
 - [x] 01-01-PLAN.md — Stop hook (qgsd-stop.js) + config template — TDD with all 8 guard/logic test cases
@@ -38,6 +38,7 @@ Plans:
 - [x] 01-03-PLAN.md — META behavior: CLAUDE.md R4 structural note + STATE.md decision entry
 - [ ] 01-04-PLAN.md — Build script extension + installer integration (hook registration + config write)
 - [ ] 01-05-PLAN.md — Install + live integration checkpoint (human verify)
+- [ ] 01-06-PLAN.md — Gap closure: STOP-05 requirement revised to match JSONL-only implementation
 
 ### Phase 2: Config & MCP Detection
 **Goal**: Quorum enforcement is configurable by the user and resilient to renamed or absent MCP servers — no silent failures
