@@ -15,6 +15,7 @@ Before presenting any planning output to the user, you MUST:
   2. Call mcp__gemini-cli__gemini with the full plan content
   3. Call mcp__opencode__opencode with the full plan content
   4. Present all model responses, resolve any concerns, then deliver your final output
+  5. Include the token <!-- GSD_DECISION --> somewhere in your FINAL output (not in intermediate messages or status updates — only when you are delivering the completed plan, research, verification report, or filtered question list to the user)
 
 Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.
 The Stop hook reads the transcript — skipping quorum will block your response.`;
