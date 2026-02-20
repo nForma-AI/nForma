@@ -13,6 +13,7 @@ Quorum is firing for GSD's own internal operations, not just project decisions. 
 
 - **`/gsd:map-codebase`** — mapping the codebase is a GSD file operation, not a project decision
 - **`/gsd:new-project` routing** — routing the user to run a prerequisite command is workflow navigation
+- **`/gsd:new-project` questioning** — asking "What do you want to build?" is user input gathering, not a project decision
 - **`/gsd:discuss-phase` intermediate steps** — mid-workflow status messages aren't project decisions
 - **Any todo/STATE.md write** — GSD managing its own planning files
 
