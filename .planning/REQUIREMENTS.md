@@ -31,15 +31,15 @@ All features are v1. No deferral.
 
 - [ ] **CONF-01**: Global config at `~/.claude/qgsd.json` — installed once, applies to all projects
 - [ ] **CONF-02**: Per-project override at `.claude/qgsd.json` — merged with global, project values take precedence
-- [ ] **CONF-03**: Config contains: `quorum_commands` (array of command names), `quorum_models` (array of MCP tool name patterns), `fail_mode` (open|closed, default: open)
+- [ ] **CONF-03**: Config contains: `quorum_commands` (array of command names), `required_models` (dict of MCP tool entries: { tool_prefix, required }), `fail_mode` (open|closed, default: open)
 - [ ] **CONF-04**: Fail-open behavior: when a quorum model is unavailable, Stop hook passes and logs reduced quorum notification
 - [ ] **CONF-05**: Config validates on read — malformed config falls back to hardcoded defaults with warning
 
 ### MCP Server Detection
 
-- [ ] **MCP-01**: Installer reads `~/.claude/settings.json` (or `~/.claude/claude_desktop_config.json`) to auto-detect MCP server names for Codex, Gemini, OpenCode
+- [ ] **MCP-01**: Installer reads `~/.claude.json` to auto-detect MCP server names for Codex, Gemini, OpenCode
 - [ ] **MCP-02**: Detection matches server names containing "codex", "gemini", "opencode" (case-insensitive keyword match)
-- [ ] **MCP-03**: Detected names written to `~/.claude/qgsd.json` as `quorum_models` on install
+- [ ] **MCP-03**: Detected names written to `~/.claude/qgsd.json` as `required_models` on install
 - [ ] **MCP-04**: If detection finds no matching servers, installer falls back to hardcoded defaults: `mcp__codex-cli__`, `mcp__gemini-cli__`, `mcp__opencode__`
 - [ ] **MCP-05**: User can manually edit `qgsd.json` to override detected names
 - [ ] **MCP-06**: Stop hook matches tool_use names by prefix (e.g. `mcp__codex-cli__` matches both `mcp__codex-cli__codex` and `mcp__codex-cli__review`)
@@ -145,3 +145,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 ---
 *Requirements defined: 2026-02-20*
 *Last updated: 2026-02-20 — STOP-05 revised: fast-path omitted by design; JSONL-only verification is authoritative (gap closure Plan 01-06)*
+*Updated: 2026-02-20 — MCP-01: corrected file path from ~/.claude/settings.json to ~/.claude.json (verified live). CONF-03/MCP-03: corrected field name from quorum_models to required_models (approved divergence during Phase 2 planning).*
