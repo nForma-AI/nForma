@@ -80,3 +80,12 @@ Phases execute in numeric order: 1 → 2 → 3
 | 1. Hook Enforcement | 5/5 | Complete   | 2026-02-20 |
 | 2. Config & MCP Detection | 4/4 | Complete | 2026-02-20 |
 | 3. Installer & Distribution | 0/TBD | Not started | - |
+
+### Phase 4: Narrow quorum scope to project decisions only
+
+**Goal:** [To be planned]
+**Depends on:** Phase 3
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 4 to break down)

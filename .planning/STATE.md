@@ -74,10 +74,13 @@ Recent decisions affecting current work:
 - [Phase 02-config-mcp-detection P03]: QGSD_KEYWORD_MAP named with QGSD_ prefix to avoid collision in 1874-line install.js; quorum_instructions generated from detected prefixes (not template copy) to prevent behavioral/structural mismatch when servers are renamed
 - [Phase 02-config-mcp-detection P04]: REQUIREMENTS.md MCP-01 path corrected (settings.json → ~/.claude.json verified live); CONF-03/MCP-03 field name corrected (quorum_models → required_models, approved divergence)
 
+### Roadmap Evolution
+
+- Phase 4 added: Narrow quorum scope to project decisions only
+
 ### Pending Todos
 
 - `2026-02-20-add-gsd-quorum-command-for-consensus-answers.md` — Add gsd:quorum command for consensus answers (area: planning)
-- `2026-02-20-narrow-stop-hook-quorum-scope-to-exclude-internal-routing-decisions.md` — Narrow stop hook quorum scope to exclude internal routing decisions (area: planning)
 
 ### Blockers/Concerns
 
