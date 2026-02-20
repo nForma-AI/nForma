@@ -6,6 +6,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-02-20
+
+### QGSD — Initial Release
+
+QGSD adds multi-model quorum enforcement to GSD via Claude Code hooks. It installs
+alongside GSD without modifying any GSD source files.
+
+**GSD compatibility:** `get-shit-done-cc >= 1.20.0`
+
+**Files installed into `~/.claude/` by QGSD:**
+- `hooks/qgsd-stop.js` — Stop hook: reads transcript JSONL, blocks if quorum evidence missing
+- `hooks/qgsd-prompt.js` — UserPromptSubmit hook: injects quorum instructions before planning commands
+- `hooks/config-loader.js` — Shared config loader: two-layer merge (global + per-project qgsd.json)
+- `qgsd.json` — Quorum config with MCP-auto-detected tool prefixes
+
+**SYNC-04 audit (no GSD source modifications):**
+QGSD adds only the files listed above. Zero imports from GSD internals
+(`get-shit-done/`, `commands/`, `agents/`, `bin/`). GSD source is unmodified.
+
+**SYNC-02 maintenance note:**
+When GSD adds a new planning command, update `quorum_commands` in three places:
+`hooks/config-loader.js` (DEFAULT_CONFIG), `bin/install.js` (qgsd config write block),
+and `templates/qgsd.json`. Then cut a QGSD patch release.
+
 ## [1.20.5] - 2026-02-19
 
 ### Fixed
