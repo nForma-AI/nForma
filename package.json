@@ -1,7 +1,7 @@
 {
   "name": "qgsd",
   "version": "0.1.0",
-  "description": "Multi-model quorum enforcement for GSD planning commands via Claude Code hooks.",
+  "description": "QGSD: Quorum Gets Shit Done — multi-model quorum enforcement for GSD planning commands via Claude Code hooks.",
   "bin": {
     "qgsd": "bin/install.js",
     "get-shit-done-cc": "bin/install.js"

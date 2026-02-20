@@ -1,8 +1,8 @@
 <div align="center">
 
-# GET SHIT DONE
+# QGSD: Quorum Gets Shit Done
 
-**A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, and Gemini CLI.**
+**A multi-model quorum enforcement layer on top of GSD — every planning decision verified by Codex, Gemini, OpenCode, and Copilot before Claude executes.**
 
 **Solves context rot — the quality degradation that happens as Claude fills its context window.**
 
@@ -686,6 +686,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**Claude Code is powerful. GSD makes it reliable.**
+**Claude Code is powerful. QGSD makes its plans trustworthy.**
 
 </div>

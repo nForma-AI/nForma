@@ -1,4 +1,4 @@
-# GSD User Guide
+# QGSD User Guide
 
 A detailed reference for workflows, troubleshooting, and configuration. For quick-start setup, see the [README](../README.md).
 
@@ -159,7 +159,7 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 | `/qgsd:resume-work` | Restore full context from last session | Starting a new session |
 | `/qgsd:pause-work` | Save context handoff | Stopping mid-phase |
 | `/qgsd:help` | Show all commands | Quick reference |
-| `/qgsd:update` | Update GSD with changelog preview | Check for new versions |
+| `/qgsd:update` | Update QGSD with changelog preview | Check for new versions |
 | `/qgsd:join-discord` | Open Discord community invite | Questions or community |
 
 ### Phase Management
@@ -178,7 +178,7 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
 | `/qgsd:map-codebase` | Analyze existing codebase | Before `/qgsd:new-project` on existing code |
-| `/qgsd:quick` | Ad-hoc task with GSD guarantees | Bug fixes, small features, config changes |
+| `/qgsd:quick` | Ad-hoc task with QGSD guarantees | Bug fixes, small features, config changes |
 | `/qgsd:debug [desc]` | Systematic debugging with persistent state | When something breaks |
 | `/qgsd:add-todo [desc]` | Capture an idea for later | Think of something during a session |
 | `/qgsd:check-todos` | List pending todos | Review captured ideas |
@@ -190,7 +190,7 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 
 ## Configuration Reference
 
-GSD stores project settings in `.planning/config.json`. Configure during `/qgsd:new-project` or update later with `/qgsd:settings`.
+QGSD stores project settings in `.planning/config.json`. Configure during `/qgsd:new-project` or update later with `/qgsd:settings`.
 
 ### Full config.json Schema
 
@@ -370,7 +370,7 @@ You ran `/qgsd:new-project` but `.planning/PROJECT.md` already exists. This is a
 
 ### Context Degradation During Long Sessions
 
-Clear your context window between major commands: `/clear` in Claude Code. GSD is designed around fresh contexts -- every subagent gets a clean 200K window. If quality is dropping in the main session, clear and use `/qgsd:resume-work` or `/qgsd:progress` to restore state.
+Clear your context window between major commands: `/clear` in Claude Code. QGSD is designed around fresh contexts -- every subagent gets a clean 200K window. If quality is dropping in the main session, clear and use `/qgsd:resume-work` or `/qgsd:progress` to restore state.
 
 ### Plans Seem Wrong or Misaligned
 
@@ -396,13 +396,13 @@ Switch to budget profile: `/qgsd:set-profile budget`. Disable research and plan-
 
 Set `commit_docs: false` during `/qgsd:new-project` or via `/qgsd:settings`. Add `.planning/` to your `.gitignore`. Planning artifacts stay local and never touch git.
 
-### GSD Update Overwrote My Local Changes
+### QGSD Update Overwrote My Local Changes
 
 Since v1.17, the installer backs up locally modified files to `gsd-local-patches/`. Run `/qgsd:reapply-patches` to merge your changes back.
 
 ### Subagent Appears to Fail but Work Was Done
 
-A known workaround exists for a Claude Code classification bug. GSD's orchestrators (execute-phase, quick) spot-check actual output before reporting failure. If you see a failure message but commits were made, check `git log` -- the work may have succeeded.
+A known workaround exists for a Claude Code classification bug. QGSD's orchestrators (execute-phase, quick) spot-check actual output before reporting failure. If you see a failure message but commits were made, check `git log` -- the work may have succeeded.
 
 ---
 
@@ -424,7 +424,7 @@ A known workaround exists for a Claude Code classification bug. GSD's orchestrat
 
 ## Project File Structure
 
-For reference, here is what GSD creates in your project:
+For reference, here is what QGSD creates in your project:
 
 ```
 .planning/
