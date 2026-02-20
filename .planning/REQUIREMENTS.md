@@ -9,15 +9,15 @@ All features are v1. No deferral.
 
 ### Stop Hook — Core Gate
 
-- [ ] **STOP-01**: Stop hook reads transcript JSONL for tool_use entries matching configured quorum model names
-- [ ] **STOP-02**: Stop hook checks `stop_hook_active` flag first — if true, exits 0 immediately (infinite loop prevention)
-- [ ] **STOP-03**: Stop hook checks `hook_event_name` — if `SubagentStop`, exits 0 immediately (subagent exclusion)
-- [ ] **STOP-04**: Stop hook scopes transcript search to current turn only (lines since last user message boundary) — survives context compaction
-- [ ] **STOP-05**: Stop hook uses `last_assistant_message` as fast-path check before parsing full JSONL
-- [ ] **STOP-06**: Stop hook verifies quorum only when a configured planning command was issued in the current turn (scope filtering)
-- [ ] **STOP-07**: Stop hook blocks with `{"decision": "block", "reason": "..."}` when quorum is missing — reason includes exact tool names and instructions
-- [ ] **STOP-08**: Block reason message format: "QUORUM REQUIRED: Before completing this /gsd:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output."
-- [ ] **STOP-09**: Stop hook passes (exits 0, no decision field) when quorum evidence found or no planning command in scope
+- [x] **STOP-01**: Stop hook reads transcript JSONL for tool_use entries matching configured quorum model names
+- [x] **STOP-02**: Stop hook checks `stop_hook_active` flag first — if true, exits 0 immediately (infinite loop prevention)
+- [x] **STOP-03**: Stop hook checks `hook_event_name` — if `SubagentStop`, exits 0 immediately (subagent exclusion)
+- [x] **STOP-04**: Stop hook scopes transcript search to current turn only (lines since last user message boundary) — survives context compaction
+- [x] **STOP-05**: Stop hook uses `last_assistant_message` as fast-path check before parsing full JSONL
+- [x] **STOP-06**: Stop hook verifies quorum only when a configured planning command was issued in the current turn (scope filtering)
+- [x] **STOP-07**: Stop hook blocks with `{"decision": "block", "reason": "..."}` when quorum is missing — reason includes exact tool names and instructions
+- [x] **STOP-08**: Block reason message format: "QUORUM REQUIRED: Before completing this /gsd:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output."
+- [x] **STOP-09**: Stop hook passes (exits 0, no decision field) when quorum evidence found or no planning command in scope
 
 ### UserPromptSubmit Hook — Proactive Injection
 
@@ -97,15 +97,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STOP-01 | Phase 1 | Pending |
-| STOP-02 | Phase 1 | Pending |
-| STOP-03 | Phase 1 | Pending |
-| STOP-04 | Phase 1 | Pending |
-| STOP-05 | Phase 1 | Pending |
-| STOP-06 | Phase 1 | Pending |
-| STOP-07 | Phase 1 | Pending |
-| STOP-08 | Phase 1 | Pending |
-| STOP-09 | Phase 1 | Pending |
+| STOP-01 | Phase 1 | Complete |
+| STOP-02 | Phase 1 | Complete |
+| STOP-03 | Phase 1 | Complete |
+| STOP-04 | Phase 1 | Complete |
+| STOP-05 | Phase 1 | Complete |
+| STOP-06 | Phase 1 | Complete |
+| STOP-07 | Phase 1 | Complete |
+| STOP-08 | Phase 1 | Complete |
+| STOP-09 | Phase 1 | Complete |
 | UPS-01 | Phase 1 | Pending |
 | UPS-02 | Phase 1 | Pending |
 | UPS-03 | Phase 1 | Pending |
