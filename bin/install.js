@@ -576,8 +576,8 @@ function convertClaudeToOpencodeFrontmatter(content) {
   convertedContent = convertedContent.replace(/\bAskUserQuestion\b/g, 'question');
   convertedContent = convertedContent.replace(/\bSlashCommand\b/g, 'skill');
   convertedContent = convertedContent.replace(/\bTodoWrite\b/g, 'todowrite');
-  // Replace /gsd:command with /gsd-command for opencode (flat command structure)
-  convertedContent = convertedContent.replace(/\/gsd:/g, '/gsd-');
+  // Replace /qgsd:command with /qgsd-command for opencode (flat command structure)
+  convertedContent = convertedContent.replace(/\/qgsd:/g, '/qgsd-');
   // Replace ~/.claude with ~/.config/opencode (OpenCode's correct config location)
   convertedContent = convertedContent.replace(/~\/\.claude\b/g, '~/.config/opencode');
   // Replace general-purpose subagent type with OpenCode's equivalent "general"
@@ -945,7 +945,7 @@ function uninstall(isGlobal, runtime = 'claude') {
     if (fs.existsSync(commandDir)) {
       const files = fs.readdirSync(commandDir);
       for (const file of files) {
-        if (file.startsWith('gsd-') && file.endsWith('.md')) {
+        if (file.startsWith('qgsd-') && file.endsWith('.md')) {
           fs.unlinkSync(path.join(commandDir, file));
           removedCount++;
         }
@@ -953,12 +953,12 @@ function uninstall(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Removed GSD commands from command/`);
     }
   } else {
-    // Claude Code & Gemini: remove commands/gsd/ directory
-    const gsdCommandsDir = path.join(targetDir, 'commands', 'gsd');
+    // Claude Code & Gemini: remove commands/qgsd/ directory
+    const gsdCommandsDir = path.join(targetDir, 'commands', 'qgsd');
     if (fs.existsSync(gsdCommandsDir)) {
       fs.rmSync(gsdCommandsDir, { recursive: true });
       removedCount++;
-      console.log(`  ${green}✓${reset} Removed commands/gsd/`);
+      console.log(`  ${green}✓${reset} Removed commands/qgsd/`);
     }
   }
 
@@ -1370,7 +1370,7 @@ function writeManifest(configDir) {
   if (fs.existsSync(commandsDir)) {
     const cmdHashes = generateManifest(commandsDir);
     for (const [rel, hash] of Object.entries(cmdHashes)) {
-      manifest.files['commands/gsd/' + rel] = hash;
+      manifest.files['commands/qgsd/' + rel] = hash;
     }
   }
   if (fs.existsSync(agentsDir)) {
@@ -1445,7 +1445,7 @@ function reportLocalPatches(configDir) {
     }
     console.log('');
     console.log('  Your modifications are saved in ' + cyan + PATCHES_DIR_NAME + '/' + reset);
-    console.log('  Run ' + cyan + '/gsd:reapply-patches' + reset + ' to merge them into the new version.');
+    console.log('  Run ' + cyan + '/qgsd:reapply-patches' + reset + ' to merge them into the new version.');
     console.log('  Or manually compare and merge the files.');
     console.log('');
   }
@@ -1496,27 +1496,27 @@ function install(isGlobal, runtime = 'claude') {
     const commandDir = path.join(targetDir, 'command');
     fs.mkdirSync(commandDir, { recursive: true });
     
-    // Copy commands/gsd/*.md as command/gsd-*.md (flatten structure)
-    const gsdSrc = path.join(src, 'commands', 'gsd');
-    copyFlattenedCommands(gsdSrc, commandDir, 'gsd', pathPrefix, runtime);
-    if (verifyInstalled(commandDir, 'command/gsd-*')) {
-      const count = fs.readdirSync(commandDir).filter(f => f.startsWith('gsd-')).length;
+    // Copy commands/qgsd/*.md as command/qgsd-*.md (flatten structure)
+    const gsdSrc = path.join(src, 'commands', 'qgsd');
+    copyFlattenedCommands(gsdSrc, commandDir, 'qgsd', pathPrefix, runtime);
+    if (verifyInstalled(commandDir, 'command/qgsd-*')) {
+      const count = fs.readdirSync(commandDir).filter(f => f.startsWith('qgsd-')).length;
       console.log(`  ${green}✓${reset} Installed ${count} commands to command/`);
     } else {
-      failures.push('command/gsd-*');
+      failures.push('command/qgsd-*');
     }
   } else {
     // Claude Code & Gemini: nested structure in commands/ directory
     const commandsDir = path.join(targetDir, 'commands');
     fs.mkdirSync(commandsDir, { recursive: true });
     
-    const gsdSrc = path.join(src, 'commands', 'gsd');
-    const gsdDest = path.join(commandsDir, 'gsd');
+    const gsdSrc = path.join(src, 'commands', 'qgsd');
+    const gsdDest = path.join(commandsDir, 'qgsd');
     copyWithPathReplacement(gsdSrc, gsdDest, pathPrefix, runtime);
-    if (verifyInstalled(gsdDest, 'commands/gsd')) {
-      console.log(`  ${green}✓${reset} Installed commands/gsd`);
+    if (verifyInstalled(gsdDest, 'commands/qgsd')) {
+      console.log(`  ${green}✓${reset} Installed commands/qgsd`);
     } else {
-      failures.push('commands/gsd');
+      failures.push('commands/qgsd');
     }
   }
 
@@ -1784,7 +1784,7 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
   if (runtime === 'opencode') program = 'OpenCode';
   if (runtime === 'gemini') program = 'Gemini';
 
-  const command = isOpencode ? '/gsd-help' : '/gsd:help';
+  const command = isOpencode ? '/qgsd-help' : '/qgsd:help';
   console.log(`
   ${green}Done!${reset} Launch ${program} and run ${cyan}${command}${reset}.
 
