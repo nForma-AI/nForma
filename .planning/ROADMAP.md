@@ -33,9 +33,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Stop hook (qgsd-stop.js) + config template — TDD with all 8 guard/logic test cases
-- [ ] 01-02-PLAN.md — UserPromptSubmit hook (qgsd-prompt.js) — allowlist injection
-- [ ] 01-03-PLAN.md — META behavior: CLAUDE.md R4 structural note + STATE.md decision entry
+- [x] 01-01-PLAN.md — Stop hook (qgsd-stop.js) + config template — TDD with all 8 guard/logic test cases
+- [x] 01-02-PLAN.md — UserPromptSubmit hook (qgsd-prompt.js) — allowlist injection
+- [x] 01-03-PLAN.md — META behavior: CLAUDE.md R4 structural note + STATE.md decision entry
 - [ ] 01-04-PLAN.md — Build script extension + installer integration (hook registration + config write)
 - [ ] 01-05-PLAN.md — Install + live integration checkpoint (human verify)
 
@@ -70,6 +70,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Hook Enforcement | 2/5 | In Progress|  |
+| 1. Hook Enforcement | 3/5 | In Progress|  |
 | 2. Config & MCP Detection | 0/TBD | Not started | - |
 | 3. Installer & Distribution | 0/TBD | Not started | - |

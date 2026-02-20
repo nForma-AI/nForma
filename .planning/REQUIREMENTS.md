@@ -63,9 +63,9 @@ All features are v1. No deferral.
 
 ### Quorum-First Behavior (Meta — how QGSD itself uses quorum during development)
 
-- [ ] **META-01**: GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user
-- [ ] **META-02**: Only questions where quorum fails to reach consensus are presented to the user
-- [ ] **META-03**: Auto-resolved questions are presented as a list of assumptions before escalated questions
+- [x] **META-01**: GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user
+- [x] **META-02**: Only questions where quorum fails to reach consensus are presented to the user
+- [x] **META-03**: Auto-resolved questions are presented as a list of assumptions before escalated questions
 
 ## v2 Requirements
 
@@ -111,9 +111,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UPS-03 | Phase 1 | Complete |
 | UPS-04 | Phase 1 | Complete |
 | UPS-05 | Phase 1 | Complete |
-| META-01 | Phase 1 | Pending |
-| META-02 | Phase 1 | Pending |
-| META-03 | Phase 1 | Pending |
+| META-01 | Phase 1 | Complete |
+| META-02 | Phase 1 | Complete |
+| META-03 | Phase 1 | Complete |
 | CONF-01 | Phase 2 | Pending |
 | CONF-02 | Phase 2 | Pending |
 | CONF-03 | Phase 2 | Pending |
@@ -144,4 +144,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 — traceability updated after roadmap creation; phase assignments: STOP+UPS+META → Phase 1, CONF+MCP → Phase 2, INST+SYNC → Phase 3*
+*Last updated: 2026-02-20 — META-01/02/03 marked complete after Plan 01-03 (hook enforcement + CLAUDE.md R4 structural note)*
