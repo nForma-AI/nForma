@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 1 of 3 (Hook Enforcement)
-Plan: 3 of TBD in current phase
-Status: In progress — Plan 03 complete
-Last activity: 2026-02-20 — Plan 01-03 complete (CLAUDE.md R4 policy clarification + META-01/02/03 recorded)
+Plan: 4 of TBD in current phase
+Status: In progress — Plan 04 complete
+Last activity: 2026-02-20 — Plan 01-04 complete (build+installer wiring for QGSD hooks)
 
-Progress: [███░░░░░░░] ~30%
+Progress: [████░░░░░░] ~40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 3 min
-- Total execution time: 0.15 hours
+- Total plans completed: 4
+- Average duration: 2.5 min
+- Total execution time: 0.17 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-hook-enforcement | 3 | 9 min | 3 min |
+| 01-hook-enforcement | 4 | 10 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 min, 2 min, 2 min
+- Last 5 plans: 5 min, 2 min, 2 min, 1 min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -40,6 +40,7 @@ Progress: [███░░░░░░░] ~30%
 | Phase 01-hook-enforcement P01 | 5 min | 3 tasks | 3 files |
 | Phase 01-hook-enforcement P02 | 2 min | 1 task | 1 file |
 | Phase 01-hook-enforcement P03 | 2 min | 2 tasks | 2 files |
+| Phase 01-hook-enforcement P04 | 1 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -57,6 +58,7 @@ Recent decisions affecting current work:
 - [Phase 01-hook-enforcement P02]: UserPromptSubmit hook uses ~/.claude/qgsd.json (same file as stop hook); loadConfig() returns null on missing/malformed so caller controls fallback
 - [Phase 01-hook-enforcement P02]: Anchored regex ^\\s*\\/gsd:(cmd)(\\s|$) with mandatory /gsd: prefix matches stop hook pattern exactly — no optional (gsd:)? group
 - META behavior (META-01/02/03): discuss-phase question auto-resolution is satisfied structurally — /gsd:discuss-phase is in the QGSD hook allowlist, so quorum runs before output delivery. Only questions without consensus are escalated to the user; auto-resolved questions are presented as assumptions first. This is enforced by hooks, not by behavioral instruction.
+- [Phase 01-hook-enforcement]: Build wiring: qgsd-prompt.js and qgsd-stop.js added to HOOKS_TO_COPY in build-hooks.js; installer registers both in settings.json with idempotency guards
 
 ### Pending Todos
 
@@ -68,6 +70,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-20T19:39:03Z
-Stopped at: Completed 01-03-PLAN.md (CLAUDE.md R4 policy clarification + META-01/02/03 recorded)
+Last session: 2026-02-20T19:43:56Z
+Stopped at: Completed 01-04-PLAN.md (build+installer wiring for QGSD hooks)
 Resume file: None

@@ -70,6 +70,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Hook Enforcement | 3/5 | In Progress|  |
+| 1. Hook Enforcement | 4/5 | In Progress|  |
 | 2. Config & MCP Detection | 0/TBD | Not started | - |
 | 3. Installer & Distribution | 0/TBD | Not started | - |
