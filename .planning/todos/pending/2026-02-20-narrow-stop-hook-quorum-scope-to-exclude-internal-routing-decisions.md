@@ -9,25 +9,26 @@ files:
 
 ## Problem
 
-The stop hook fires quorum for internal GSD workflow steps that are NOT presenting a plan or research output. This is overkill in at least three observed cases:
+Quorum is firing for GSD's own internal operations, not just project decisions. These should never require quorum:
 
-1. **`/gsd:new-project` routing** — detects existing code, routes user to `/gsd:map-codebase`. Stop hook fires before delivering this simple routing message.
+- **`/gsd:map-codebase`** — mapping the codebase is a GSD file operation, not a project decision
+- **`/gsd:new-project` routing** — routing the user to run a prerequisite command is workflow navigation
+- **`/gsd:discuss-phase` intermediate steps** — mid-workflow status messages aren't project decisions
+- **Any todo/STATE.md write** — GSD managing its own planning files
 
-2. **`/gsd:discuss-phase` responses** — stop hook fires even on intermediate discuss-phase workflow steps, not just when the filtered question list is presented.
+The core principle: **quorum is for decisions about the project being built** (plans, architecture, roadmaps, phase research). It is NOT for GSD managing its own files or orchestrating its own workflow.
 
-3. **`/gsd:map-codebase` mid-workflow** — stop hook fires while Claude is waiting for background mapper agents to complete, before any output is presented to the user. The quorum reviews "is this approach correct?" — a meaningless question at that stage.
-
-The hook is matching on command name (`/gsd:new-project`, `/gsd:map-codebase`, etc.) in the transcript but NOT distinguishing between:
-- Intermediate workflow steps (agent spawning, routing, status updates)
-- Final substantive outputs that actually need quorum (plans, roadmaps, research reports, verified question lists)
+The stop hook currently pattern-matches on command names and fires on any Stop event for an allowlisted command — regardless of whether Claude is making a project decision or just doing GSD housekeeping.
 
 ## Solution
 
-The stop hook should only require quorum when Claude is about to deliver a **final substantive NON_EXECUTION output** — not on every Stop event that mentions a GSD command.
+Redefine the quorum trigger condition: quorum is required only when Claude is delivering a **project decision output** — a plan, roadmap, architecture choice, research result, or verification report about the project.
 
-Options:
-- Add a structured sentinel Claude emits only when presenting final output (e.g., `<!-- QUORUM_REQUIRED -->`), and only check for quorum evidence when that sentinel is present
-- Narrow the hook's allowlist to specific output patterns (e.g., "Here is the plan", "Phase plan complete") rather than command name presence
-- Add an exemption for mid-workflow intermediate steps (routing, agent spawning, status waiting)
+GSD's own internal operations are explicitly exempt:
+- Codebase mapping (`/gsd:map-codebase`)
+- Workflow routing (directing user to run another command)
+- Todo/STATE.md management
+- Agent spawning and status reporting
+- Any step where GSD is managing itself, not deciding about the project
 
-The current architecture makes the hook over-broad — it gates every Stop event for an allowlisted command, including purely administrative mid-workflow turns.
+Implementation: the stop hook allowlist or trigger logic needs to distinguish "GSD housekeeping commands" from "project decision commands".
