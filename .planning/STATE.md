@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Milestone v1.0 complete — Phase 1 (Hook Enforcement) finished; Phases 2 and 3 are future milestones
+**Current focus:** Phases 1 and 2 complete — Phase 3 (Installer & Distribution) is next
 
 ## Current Position
 
-Phase: 1 of 3 (Hook Enforcement) — COMPLETE
-Plan: 6/6 complete
-Status: Phase 1 complete — milestone v1.0 hook enforcement shipped
-Last activity: 2026-02-20 — Phase 1 complete (6/6 plans, 17/17 requirements verified, STOP-05 gap closed)
+Phase: 2 of 3 (Config & MCP Detection) — COMPLETE
+Plan: 4/4 complete
+Status: Phase 2 complete — shared config-loader, fail-open detection, MCP auto-detection, template docs shipped
+Last activity: 2026-02-20 — Phase 2 complete (4/4 plans, 11/11 requirements verified, human checkpoint approved)
 
-Progress: [██████████] 100% (Phase 1)
+Progress: [████████████████████] 67% (2/3 phases complete)
 
 ## Performance Metrics
 
@@ -28,10 +28,11 @@ Progress: [██████████] 100% (Phase 1)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-hook-enforcement | 4 | 10 min | 2.5 min |
+| 02-config-mcp-detection | 4 | 38 min | 9.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 min, 2 min, 2 min, 1 min
-- Trend: stable
+- Last 5 plans: 5 min, 2 min, 2 min, 1 min, 12 min, 8 min, 10 min, 8 min
+- Trend: stable (Phase 2 plans longer due to TDD + migration scope)
 
 *Updated after each plan completion*
 
@@ -41,7 +42,11 @@ Progress: [██████████] 100% (Phase 1)
 | Phase 01-hook-enforcement P02 | 2 min | 1 task | 1 file |
 | Phase 01-hook-enforcement P03 | 2 min | 2 tasks | 2 files |
 | Phase 01-hook-enforcement P04 | 1 min | 2 tasks | 2 files |
-| Phase 01-hook-enforcement P05 | 1 | 2 tasks | 0 files |
+| Phase 01-hook-enforcement P05 | 1 min | 2 tasks | 0 files |
+| Phase 02-config-mcp-detection P01 | 12 min | 2 tasks | 4 files |
+| Phase 02-config-mcp-detection P02 | 10 min | 1 task | 2 files |
+| Phase 02-config-mcp-detection P03 | 8 min | 1 task | 1 file |
+| Phase 02-config-mcp-detection P04 | 8 min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -62,6 +67,12 @@ Recent decisions affecting current work:
 - [Phase 01-hook-enforcement]: Build wiring: qgsd-prompt.js and qgsd-stop.js added to HOOKS_TO_COPY in build-hooks.js; installer registers both in settings.json with idempotency guards
 - [Phase 01-hook-enforcement]: Task 1 produces no git commit because installation targets ~/.claude/ outside repo and hooks/dist/ is gitignored; wiring committed in Plan 04
 - [Phase 01-hook-enforcement gap closure]: STOP-05 fast-path omitted by design — last_assistant_message substring matching is not a reliable signal (Claude could summarize results in prose without naming tool prefixes); transcript JSONL is the authoritative and sole source of quorum evidence. Requirement revised to match implementation. (quorum consensus: Claude + Codex + Gemini; OpenCode unavailable)
+- [Phase 02-config-mcp-detection P01]: Shallow merge chosen for config layering — project `required_models` fully replaces global; no deep merge. This is intentional: a project that needs only one model should be able to declare that without merging global model list.
+- [Phase 02-config-mcp-detection P01]: TC1 in config-loader.test.js adjusted — cannot assert deepEqual to DEFAULT_CONFIG when real ~/.claude/qgsd.json exists on test machine; asserts valid config shape instead
+- [Phase 02-config-mcp-detection P02]: QGSD_CLAUDE_JSON env var for testing getAvailableMcpPrefixes() without mutating real ~/.claude.json — production always reads real file
+- [Phase 02-config-mcp-detection P02]: KNOWN LIMITATION: getAvailableMcpPrefixes() only reads ~/.claude.json (user-scoped); project-scoped .mcp.json not checked — quorum models are global tools in practice
+- [Phase 02-config-mcp-detection P03]: QGSD_KEYWORD_MAP named with QGSD_ prefix to avoid collision in 1874-line install.js; quorum_instructions generated from detected prefixes (not template copy) to prevent behavioral/structural mismatch when servers are renamed
+- [Phase 02-config-mcp-detection P04]: REQUIREMENTS.md MCP-01 path corrected (settings.json → ~/.claude.json verified live); CONF-03/MCP-03 field name corrected (quorum_models → required_models, approved divergence)
 
 ### Pending Todos
 
@@ -71,10 +82,11 @@ Recent decisions affecting current work:
 ### Blockers/Concerns
 
 - [Phase 1 carry-forward] Integration test: `stop_hook_active` behavior on second Stop invocations with GSD subagents must be empirically confirmed against live Claude Code runtime — documented behavior but not end-to-end tested
-- [Phase 1 carry-forward] Human verification still pending: 3 live-session tests in VERIFICATION.md (quorum injection on planning command, stop hook blocks missing quorum, execute-phase not affected) — must be done in a real Claude Code session
+- [Phase 2 carry-forward] KNOWN LIMITATION: getAvailableMcpPrefixes() only reads ~/.claude.json (user-scoped MCPs). Project-scoped MCPs configured in .mcp.json are not checked — Phase 3 / future work to extend
+- [Phase 3 blocker resolved] Human Check 6 confirmed live quorum enforcement works end-to-end — Stop hook blocks and passes correctly in real Claude Code session
 
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Phase 1 complete — all 6 plans executed, 17/17 requirements verified, milestone v1.0 hook enforcement shipped
+Stopped at: Phase 2 complete — all 4 plans executed, 11/11 requirements verified, human checkpoint approved. Ready for Phase 3: Installer & Distribution.
 Resume file: None
