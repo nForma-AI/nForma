@@ -50,7 +50,13 @@ Plans:
   3. When one or more quorum models are unavailable (no matching tool_use found), the Stop hook passes (fail-open) and the block message notes which models were absent
   4. When `qgsd.json` is malformed or missing, the hooks fall back to hardcoded defaults and surface a warning — no crash, no silent pass without reason
   5. Stop hook matches MCP tool names by prefix so that both `mcp__codex-cli__codex` and `mcp__codex-cli__review` satisfy the Codex quorum requirement
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Shared config-loader.js (TDD): two-layer merge, validation, stderr warnings + qgsd-prompt.js migration
+- [ ] 02-02-PLAN.md — Stop hook fail-open enhancement (TDD): unavailability detection, config-loader migration
+- [ ] 02-03-PLAN.md — MCP auto-detection in installer: read ~/.claude.json, write detected required_models to qgsd.json
+- [ ] 02-04-PLAN.md — Template documentation + human-verify checkpoint
 
 ### Phase 3: Installer & Distribution
 **Goal**: A single `npx qgsd@latest` command installs GSD and quorum hooks globally, writes to `~/.claude/settings.json`, and establishes a versioned sync strategy with GSD
