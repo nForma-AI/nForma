@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-20 after Phase 2)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 3 — Installer & Distribution (next up)
+**Current focus:** Phase 3 — Installer & Distribution (3 plans ready — execute next)
 
 ## Current Position
 
-Phase: 2 of 3 (Config & MCP Detection) — COMPLETE
-Plan: 4/4 complete
-Status: Phase 2 complete — shared config-loader, fail-open detection, MCP auto-detection, template docs shipped
-Last activity: 2026-02-20 — Phase 2 complete (4/4 plans, 11/11 requirements verified, human checkpoint approved)
+Phase: 3 of 3 (Installer & Distribution) — PLANNED, READY TO EXECUTE
+Plan: 0/3 complete
+Status: Phase 3 planned — 3 plans written (03-01: packaging, 03-02: installer enhancements, 03-03: verify checkpoint)
+Last activity: 2026-02-20 — Phase 3 planning complete (quorum: Claude + Codex + Gemini + OpenCode; Copilot unavailable)
 
-Progress: [████████████████████] 67% (2/3 phases complete)
+Progress: [████████████████████] 67% (2/3 phases complete, Phase 3 planned)
 
 ## Performance Metrics
 
@@ -73,6 +73,11 @@ Recent decisions affecting current work:
 - [Phase 02-config-mcp-detection P02]: KNOWN LIMITATION: getAvailableMcpPrefixes() only reads ~/.claude.json (user-scoped); project-scoped .mcp.json not checked — quorum models are global tools in practice
 - [Phase 02-config-mcp-detection P03]: QGSD_KEYWORD_MAP named with QGSD_ prefix to avoid collision in 1874-line install.js; quorum_instructions generated from detected prefixes (not template copy) to prevent behavioral/structural mismatch when servers are renamed
 - [Phase 02-config-mcp-detection P04]: REQUIREMENTS.md MCP-01 path corrected (settings.json → ~/.claude.json verified live); CONF-03/MCP-03 field name corrected (quorum_models → required_models, approved divergence)
+- [Phase 03-installer-distribution planning]: Edit package.json in-place (no separate qgsd-specific file) — rename to 'qgsd', version 0.1.0, keep get-shit-done-cc bin entry for backward compat, add peerDependencies
+- [Phase 03-installer-distribution planning]: INST-05 validation runs on every install (not just first-time) — per-model yellow warning, fail-open always (quorum: Claude + Codex + Gemini + OpenCode)
+- [Phase 03-installer-distribution planning]: hooks/dist/ is STALE (Phase 2 not built to dist yet; config-loader.js missing from dist) — Plan 03-03 must run build:hooks before verify
+- [Phase 03-installer-distribution planning]: SYNC-04 pre-verified — QGSD hooks import only Node stdlib and ./config-loader; zero GSD source imports confirmed
+- [Phase 03-installer-distribution planning]: CHANGELOG.md update (not create) — file already exists at repo root in Keep-a-Changelog format
 
 ### Roadmap Evolution
 
@@ -91,5 +96,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Phase 3 context gathered — ready to plan. Resume at /gsd:plan-phase 3
-Resume file: .planning/phases/03-installer-distribution/03-CONTEXT.md
+Stopped at: Phase 3 planned (3/3 plans written). Ready to execute. Resume at /gsd:execute-phase 3
+Resume file: .planning/phases/03-installer-distribution/03-01-PLAN.md

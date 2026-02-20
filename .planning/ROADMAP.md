@@ -68,7 +68,12 @@ Plans:
   3. The installer warns if Codex, Gemini, or OpenCode MCPs are not found in Claude Code settings — the user knows before hooks are active that quorum models are missing
   4. The installed package declares a pinned GSD version dependency and its changelog records which GSD version it is compatible with
   5. No QGSD file modifies any GSD source file — all additions are in separate files (`hooks/qgsd-stop.js`, `hooks/qgsd-prompt.js`, `bin/qgsd-install.js`)
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Package identity: update package.json (name=qgsd, bin, peerDeps) + CHANGELOG.md v0.1.0 entry
+- [ ] 03-02-PLAN.md — Installer enhancements: INST-05 MCP validation warning + INST-06 reinstall summary + --redetect-mcps flag
+- [ ] 03-03-PLAN.md — Build dist + human verify checkpoint + mark Phase 3 complete
 
 ## Progress
 
@@ -79,7 +84,7 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Hook Enforcement | 5/5 | Complete   | 2026-02-20 |
 | 2. Config & MCP Detection | 4/4 | Complete | 2026-02-20 |
-| 3. Installer & Distribution | 0/TBD | Not started | - |
+| 3. Installer & Distribution | 0/3 | Planned | - |
 
 ### Phase 4: Narrow quorum scope to project decisions only
 
