@@ -26,6 +26,7 @@ const hasGemini = args.includes('--gemini');
 const hasBoth = args.includes('--both'); // Legacy flag, keeps working
 const hasAll = args.includes('--all');
 const hasUninstall = args.includes('--uninstall') || args.includes('-u');
+const hasRedetectMcps = args.includes('--redetect-mcps');
 
 // Runtime selection - can be set by flags or interactive prompt
 let selectedRuntimes = [];
@@ -209,6 +210,35 @@ function buildQuorumInstructions(requiredModels) {
     'Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.\n' +
     'The Stop hook reads the transcript — skipping quorum will block your response.'
   );
+}
+
+// INST-05: Validate MCP availability and warn (yellow) per missing model.
+// Runs on every install/reinstall — not just first-time.
+// Does NOT abort installation (fail-open philosophy).
+function warnMissingMcpServers() {
+  const claudeJsonPath = path.join(os.homedir(), '.claude.json');
+  let mcpServers = {};
+  try {
+    if (fs.existsSync(claudeJsonPath)) {
+      const d = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8'));
+      mcpServers = d.mcpServers || {};
+    }
+  } catch (e) {
+    // If we can't read, skip silently — detection already warned in buildRequiredModelsFromMcp
+    return;
+  }
+
+  for (const [modelKey, { keywords }] of Object.entries(QGSD_KEYWORD_MAP)) {
+    const found = Object.keys(mcpServers).some(serverName =>
+      keywords.some(kw => serverName.toLowerCase().includes(kw))
+    );
+    if (!found) {
+      console.warn(
+        `  ${yellow}⚠${reset} No ${modelKey} MCP server found in ~/.claude.json — ` +
+        `quorum enforcement for ${modelKey} will be inactive until configured`
+      );
+    }
+  }
 }
 
 // Parse --config-dir argument
@@ -1649,6 +1679,9 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Configured update check hook`);
     }
 
+    // INST-05: Warn (yellow) if quorum MCP servers are absent — runs every install
+    warnMissingMcpServers();
+
     // Register QGSD UserPromptSubmit hook (quorum injection)
     // MUST be in settings.json — plugin hooks.json silently discards UserPromptSubmit output (GitHub #10225)
     if (!settings.hooks.UserPromptSubmit) settings.hooks.UserPromptSubmit = [];
@@ -1674,9 +1707,15 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Configured QGSD quorum gate hook (Stop)`);
     }
 
-    // Write QGSD config if not present — detects MCP server names and generates
-    // quorum_instructions from detected prefixes (never overwrites existing user config)
+    // Write QGSD config — skip if exists unless --redetect-mcps flag set
     const qgsdConfigPath = path.join(targetDir, 'qgsd.json');
+
+    // --redetect-mcps: delete existing config so fresh detection runs below
+    if (hasRedetectMcps && fs.existsSync(qgsdConfigPath)) {
+      fs.unlinkSync(qgsdConfigPath);
+      console.log(`  ${cyan}◆${reset} Re-detecting MCP prefixes (--redetect-mcps)...`);
+    }
+
     if (!fs.existsSync(qgsdConfigPath)) {
       // Build config with auto-detected MCP prefixes
       const detectedModels = buildRequiredModelsFromMcp();
@@ -1694,7 +1733,18 @@ function install(isGlobal, runtime = 'claude') {
       fs.writeFileSync(qgsdConfigPath, JSON.stringify(qgsdConfig, null, 2) + '\n', 'utf8');
       console.log(`  ${green}✓${reset} Wrote QGSD config with detected MCP prefixes (~/.claude/qgsd.json)`);
     } else {
-      console.log(`  ${dim}↳ ~/.claude/qgsd.json already exists — skipping (user config preserved)${reset}`);
+      // INST-06: print active config summary on reinstall
+      try {
+        const existingConfig = JSON.parse(fs.readFileSync(qgsdConfigPath, 'utf8'));
+        const models = existingConfig.required_models || {};
+        const summary = Object.entries(models)
+          .map(([key, def]) => `${key} → ${def.tool_prefix || '(unset)'}`)
+          .join(', ');
+        console.log(`  ${dim}↳ ~/.claude/qgsd.json exists — active config: ${summary}${reset}`);
+        console.log(`  ${dim}  (run with --redetect-mcps to refresh MCP prefix detection)${reset}`);
+      } catch {
+        console.log(`  ${dim}↳ ~/.claude/qgsd.json already exists — skipping (user config preserved)${reset}`);
+      }
     }
   }
 
