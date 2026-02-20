@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-20 after Phase 2)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 3 — Installer & Distribution (3 plans ready — execute next)
+**Current focus:** Phase 4 — Narrow Quorum Scope to Project Decisions Only (1/2 plans done)
 
 ## Current Position
 
-Phase: 3 of 3 (Installer & Distribution) — IN PROGRESS
-Plan: 2/3 complete
-Status: Phase 3 in progress — 03-01 (package identity) done, 03-02 (installer enhancements) done, 03-03 (verify checkpoint) remaining
-Last activity: 2026-02-20 — 03-02 complete: INST-05 MCP validation warning + INST-06 reinstall summary + --redetect-mcps flag added to bin/install.js
+Phase: 4 of 4 (Narrow Quorum Scope) — IN PROGRESS
+Plan: 1/2 complete
+Status: Phase 4 in progress — 04-01 (GUARD 5 decision turn detection) done, 04-02 (prompt hook injection) remaining
+Last activity: 2026-02-20 — 04-01 complete: GUARD 5 added to qgsd-stop.js with hasArtifactCommit + hasDecisionMarker; TC14-TC19 added; 19/19 tests pass
 
-Progress: [████████████████████] 67% (2/3 phases complete, Phase 3 planned)
+Progress: [████████████████████████] 75% (3/4 phases complete, Phase 4 in progress)
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [████████████████████] 67% (2/
 | Phase 02-config-mcp-detection P04 | 8 min | 3 tasks | 2 files |
 | Phase 03-installer-distribution P01 | 1 min | 2 tasks | 2 files |
 | Phase 03-installer-distribution P02 | 1 min | 4 tasks | 1 file |
+| Phase 04-narrow-quorum-scope P01 | 8 min | 1 task (TDD) | 2 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,10 @@ Recent decisions affecting current work:
 - [Phase 03-installer-distribution planning]: CHANGELOG.md update (not create) — file already exists at repo root in Keep-a-Changelog format
 - [Phase 03-installer-distribution P02]: warnMissingMcpServers() reads QGSD_KEYWORD_MAP directly — warning set stays in sync with detection set automatically without separate maintenance
 - [Phase 03-installer-distribution P02]: INST-06 catch block falls back to original 'already exists — skipping' message for malformed qgsd.json (safe degradation)
+- [Phase 04-narrow-quorum-scope P01]: GUARD 5 position: after GUARD 4 (hasQuorumCommand) but before findQuorumEvidence — quorum command is prerequisite; decision turn is the narrowing gate
+- [Phase 04-narrow-quorum-scope P01]: hasArtifactCommit requires BOTH gsd-tools.cjs commit AND artifact pattern in same Bash block — prevents false positives from ls/cat/grep mentioning artifact names
+- [Phase 04-narrow-quorum-scope P01]: DECISION_MARKER = '<!-- GSD_DECISION -->' defined at module level as constant for consistency between detection and future injection
+- [Phase 04-narrow-quorum-scope P01]: TC6/TC9/TC12 updated (step 1a) to include artifact commit signals — preserves decision:block invariant after GUARD 5 is added
 
 ### Roadmap Evolution
 
@@ -100,5 +105,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Phase 3 plan 03-02 complete. Resume at /gsd:execute-phase 3 (03-03 next)
-Resume file: .planning/phases/03-installer-distribution/03-03-PLAN.md
+Stopped at: Phase 4 plan 04-01 complete. Resume at /gsd:execute-phase 4 (04-02 next)
+Resume file: .planning/phases/04-narrow-quorum-scope-to-project-decisions-only/04-02-PLAN.md
