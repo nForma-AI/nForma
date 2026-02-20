@@ -91,7 +91,7 @@ Phases execute in numeric order: 1 → 2 → 3
 **Goal:** Stop hook only fires quorum on turns where Claude delivers a project decision (plan, roadmap, research, verification report) — not on intermediate GSD-internal operations (agent spawning, routing, questioning, status messages)
 **Depends on:** Phase 3
 **Requirements**: SCOPE-01, SCOPE-02, SCOPE-03, SCOPE-04, SCOPE-05, SCOPE-06, SCOPE-07
-**Plans:** 2/3 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 04-01-PLAN.md — Stop hook GUARD 5: decision turn detection (hasArtifactCommit + hasDecisionMarker) — TDD with TC14-TC19
