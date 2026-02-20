@@ -267,3 +267,58 @@ test('TC9: missing config file falls back to DEFAULT_CONFIG', () => {
     fs.unlinkSync(tmpFile);
   }
 });
+
+// Test 10: Regression — quorum calls interleaved with tool_result user messages
+// This reproduces the live false-positive: getCurrentTurnLines() must skip
+// tool_result user messages and use the human text message as the boundary.
+function toolResultLine(toolUseId, resultContent, uuid) {
+  return JSON.stringify({
+    type: 'user',
+    message: {
+      role: 'user',
+      content: [{ type: 'tool_result', tool_use_id: toolUseId, content: resultContent }],
+    },
+    timestamp: '2026-02-20T00:01:00Z',
+    uuid: uuid || `tr-${toolUseId}`,
+  });
+}
+
+test('TC10: quorum calls interleaved with tool_result user messages are in scope', () => {
+  // Simulates a multi-tool turn: human message → tool calls → tool_results → more calls
+  // The quorum calls appear between intermediate tool_result user messages.
+  // getCurrentTurnLines() must find the human message as the boundary, not a tool_result.
+  const tmpFile = writeTempTranscript([
+    // Human turn starts here
+    userLine('/gsd:plan-phase 1', 'human-msg'),
+    // First batch of tool calls (non-quorum — e.g., Task/Bash)
+    assistantLine([toolUseBlock('Bash')], 'assistant-1'),
+    toolResultLine('toolu_Bash', 'bash output', 'tr-1'),
+    // Second batch — quorum calls
+    assistantLine([
+      toolUseBlock('mcp__codex-cli__review'),
+    ], 'assistant-2'),
+    toolResultLine('toolu_codex', 'codex review result', 'tr-2'),
+    assistantLine([
+      toolUseBlock('mcp__gemini-cli__gemini'),
+    ], 'assistant-3'),
+    toolResultLine('toolu_gemini', 'gemini result', 'tr-3'),
+    assistantLine([
+      toolUseBlock('mcp__opencode__opencode'),
+    ], 'assistant-4'),
+    // Final tool_result before the final assistant text
+    toolResultLine('toolu_opencode', 'opencode result', 'tr-4'),
+    assistantLine([{ type: 'text', text: 'Here is the plan with quorum complete.' }], 'assistant-5'),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Here is the plan with quorum complete.',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty — quorum calls are in scope despite tool_result boundaries');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});

@@ -45,16 +45,27 @@ function buildCommandPattern(quorumCommands) {
   return new RegExp('\\/gsd:(' + escaped.join('|') + ')');
 }
 
-// Scans backward from end to find last user message boundary.
-// Returns all lines from that boundary forward (the current turn).
-// If no user message is found, returns all lines (conservative — treats whole
-// transcript as current turn to avoid false passes).
+// Returns true if a parsed JSONL user entry is a human text message.
+// Excludes tool_result-only messages (intermediate turn messages from
+// multi-step tool call sequences) which also use type:"user" in the JSONL.
+function isHumanMessage(entry) {
+  const content = entry.message?.content;
+  if (typeof content === 'string') return content.length > 0;
+  if (Array.isArray(content)) return content.some(c => c?.type === 'text');
+  return false;
+}
+
+// Scans backward from end to find last HUMAN user message boundary.
+// Skips tool_result user messages — those are intermediate turn messages,
+// not human turn boundaries. Returns all lines from the boundary forward.
+// If no human message is found, returns all lines (conservative — treats
+// whole transcript as current turn to avoid false passes).
 function getCurrentTurnLines(lines) {
   let lastUserIdx = -1;
   for (let i = lines.length - 1; i >= 0; i--) {
     try {
       const entry = JSON.parse(lines[i]);
-      if (entry.type === 'user') {
+      if (entry.type === 'user' && isHumanMessage(entry)) {
         lastUserIdx = i;
         break;
       }
