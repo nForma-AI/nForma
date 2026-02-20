@@ -4,26 +4,30 @@ title: Narrow stop hook quorum scope to exclude internal routing decisions
 area: planning
 files:
   - CLAUDE.md
+  - hooks/src/qgsd-stop.js
 ---
 
 ## Problem
 
-The stop hook fires quorum for internal GSD workflow routing decisions, which is overkill. For example: when `/gsd:new-project` detects existing code and routes the user to `/gsd:map-codebase`, the stop hook intercepts this routing response and demands full quorum review before Claude can deliver it.
+The stop hook fires quorum for internal GSD workflow steps that are NOT presenting a plan or research output. This is overkill in at least three observed cases:
 
-Quorum should only be required when presenting a substantive NON_EXECUTION output to the user (a plan, research result, roadmap, verification report). It should NOT fire for:
-- Routing decisions ("run this command first, then come back")
-- Workflow navigation responses
-- Simple user prompts asking for the next step
+1. **`/gsd:new-project` routing** — detects existing code, routes user to `/gsd:map-codebase`. Stop hook fires before delivering this simple routing message.
 
-The current hook allowlist is too broad — it catches these routing messages as if they were plan outputs.
+2. **`/gsd:discuss-phase` responses** — stop hook fires even on intermediate discuss-phase workflow steps, not just when the filtered question list is presented.
+
+3. **`/gsd:map-codebase` mid-workflow** — stop hook fires while Claude is waiting for background mapper agents to complete, before any output is presented to the user. The quorum reviews "is this approach correct?" — a meaningless question at that stage.
+
+The hook is matching on command name (`/gsd:new-project`, `/gsd:map-codebase`, etc.) in the transcript but NOT distinguishing between:
+- Intermediate workflow steps (agent spawning, routing, status updates)
+- Final substantive outputs that actually need quorum (plans, roadmaps, research reports, verified question lists)
 
 ## Solution
 
-Update the stop hook (or its allowlist/trigger conditions in CLAUDE.md R3.1) to distinguish between:
-1. **Substantive outputs** — actual plan/research/roadmap content → quorum required
-2. **Routing/navigation responses** — directing user to run a different command → quorum NOT required
+The stop hook should only require quorum when Claude is about to deliver a **final substantive NON_EXECUTION output** — not on every Stop event that mentions a GSD command.
 
-Could be implemented via:
-- A keyword/pattern filter in the stop hook that detects routing-only responses
-- An explicit exemption list for routing responses from sub-steps (e.g., "map codebase first" handoffs)
-- A structured marker Claude adds to routing responses to signal "no quorum needed"
+Options:
+- Add a structured sentinel Claude emits only when presenting final output (e.g., `<!-- QUORUM_REQUIRED -->`), and only check for quorum evidence when that sentinel is present
+- Narrow the hook's allowlist to specific output patterns (e.g., "Here is the plan", "Phase plan complete") rather than command name presence
+- Add an exemption for mid-workflow intermediate steps (routing, agent spawning, status waiting)
+
+The current architecture makes the hook over-broad — it gates every Stop event for an allowlisted command, including purely administrative mid-workflow turns.
