@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 Phase: 11 — changelog-build
 Plan: 02 complete (2/2 plans done — Phase 11 COMPLETE)
 Status: Phase 11 complete — CL-01, CL-02, BLD-01, BLD-02 all satisfied; hooks/dist/ rebuilt, npm test 141/141 passing
-Last activity: 2026-02-21 — Phase 11 Plan 02 complete; hooks/dist/ rebuilt from source, npm test 0 failures
+Last activity: 2026-02-21 — Completed quick task 16: Improve discuss-phase skill with quorum pre-filter on candidate questions
 
 Progress: [████████████████████████░░░░░░░░░] 10/13 phases complete (77%)
 
@@ -168,7 +168,7 @@ Recent decisions affecting current work:
 | 12 | Fix /qgsd:debug Step 7 to auto-execute consensus next step instead of user-permission gate | 2026-02-21 | a39d422 | Verified | [12-fix-qgsd-debug-to-auto-proceed-when-quor](./quick/12-fix-qgsd-debug-to-auto-proceed-when-quor/) |
 | 14 | Add Circuit Breaker & Oscillation Resolution diagram to docs/USER-GUIDE.md | 2026-02-21 | b637f65 | Complete | [14-add-oscillation-resolution-mode-diagram-](./quick/14-add-oscillation-resolution-mode-diagram-/) |
 | 15 | Rename gsd-statusline.js, gsd-check-update.js, gsd-file-manifest.json to qgsd-* namespace | 2026-02-21 | 061df09 | Complete | [15-rename-shared-gsd-files-to-qgsd-to-elimi](./quick/15-rename-shared-gsd-files-to-qgsd-to-elimi/) |
-| 16 | Improve discuss-phase skill with quorum pre-filter: add quorum_filter step, auto-resolve classification, preference questions with Claude recommendations | 2026-02-21 | — | Complete | [16-improve-discuss-phase-skill-with-quorum-](./quick/16-improve-discuss-phase-skill-with-quorum-/) |
+| 16 | Improve discuss-phase skill with quorum pre-filter: add quorum_filter step, auto-resolve classification, preference questions with Claude recommendations | 2026-02-21 | 9a33365 | Complete | [16-improve-discuss-phase-skill-with-quorum-](./quick/16-improve-discuss-phase-skill-with-quorum-/) |
 
 ### Blockers/Concerns
 
