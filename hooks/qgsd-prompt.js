@@ -32,10 +32,10 @@ process.stdin.on('end', () => {
     const commands = config.quorum_commands;
     const instructions = config.quorum_instructions || DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK;
 
-    // Anchored allowlist pattern — requires /gsd: prefix and word boundary after command.
+    // Anchored allowlist pattern — requires /gsd: or /qgsd: prefix and word boundary after command.
     // This prevents /gsd:execute-phase from matching when allowlist contains 'execute',
     // and prevents substring matches within longer strings.
-    const cmdPattern = new RegExp('^\\s*\\/gsd:(' + commands.join('|') + ')(\\s|$)');
+    const cmdPattern = new RegExp('^\\s*\\/q?gsd:(' + commands.join('|') + ')(\\s|$)');
 
     if (!cmdPattern.test(prompt)) {
       process.exit(0); // Silent pass — UPS-05
