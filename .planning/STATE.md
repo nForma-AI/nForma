@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone s
 Phase: 7 of 8 (Enforcement & Config Integration) — v0.2 milestone
 Plan: 2 of 2 in current phase (COMPLETE)
 Status: Phase 7 complete 2026-02-21
-Last activity: 2026-02-21 - Completed Phase 7: circuit_breaker config extension + enforcement blocking (138 tests passing)
+Last activity: 2026-02-21 - Completed quick task 11: Change GSD ASCII art to QGSD with Q in a contrasting color to blue
 
 Progress: [█████████████████████░░░░░░░░░░░] 75% (Phases 1–7 complete, Phase 8 remaining)
 
@@ -68,8 +68,8 @@ Recent decisions affecting current work:
 - [Phase 01-hook-enforcement]: Config file named qgsd.json for stop hook; matches PLAN.md artifact spec; Phase 2 CONF-01 may rename
 - [Phase 01-hook-enforcement]: buildCommandPattern() extracted in REFACTOR to build quorum command regex once and reuse across hasQuorumCommand and extractCommand
 - [Phase 01-hook-enforcement P02]: UserPromptSubmit hook uses ~/.claude/qgsd.json (same file as stop hook); loadConfig() returns null on missing/malformed so caller controls fallback
-- [Phase 01-hook-enforcement P02]: Anchored regex ^\\s*\\/gsd:(cmd)(\\s|$) with mandatory /gsd: prefix matches stop hook pattern exactly — no optional (gsd:)? group
-- META behavior (META-01/02/03): discuss-phase question auto-resolution is satisfied structurally — /gsd:discuss-phase is in the QGSD hook allowlist, so quorum runs before output delivery. Only questions without consensus are escalated to the user; auto-resolved questions are presented as assumptions first. This is enforced by hooks, not by behavioral instruction.
+- [Phase 01-hook-enforcement P02]: Anchored regex ^\\s*\\/qgsd:(cmd)(\\s|$) with mandatory /qgsd: prefix matches stop hook pattern exactly — no optional (gsd:)? group
+- META behavior (META-01/02/03): discuss-phase question auto-resolution is satisfied structurally — /qgsd:discuss-phase is in the QGSD hook allowlist, so quorum runs before output delivery. Only questions without consensus are escalated to the user; auto-resolved questions are presented as assumptions first. This is enforced by hooks, not by behavioral instruction.
 - [Phase 01-hook-enforcement]: Build wiring: qgsd-prompt.js and qgsd-stop.js added to HOOKS_TO_COPY in build-hooks.js; installer registers both in settings.json with idempotency guards
 - [Phase 01-hook-enforcement]: Task 1 produces no git commit because installation targets ~/.claude/ outside repo and hooks/dist/ is gitignored; wiring committed in Plan 04
 - [Phase 01-hook-enforcement gap closure]: STOP-05 fast-path omitted by design — last_assistant_message substring matching is not a reliable signal (Claude could summarize results in prose without naming tool prefixes); transcript JSONL is the authoritative and sole source of quorum evidence. Requirement revised to match implementation. (quorum consensus: Claude + Codex + Gemini; OpenCode unavailable)
