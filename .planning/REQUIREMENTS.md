@@ -73,18 +73,18 @@ All features are v1. No deferral.
 
 ### Detection (DETECT)
 
-- [ ] **DETECT-01**: PreToolUse hook intercepts Bash tool calls and checks whether the current context has an active circuit breaker before running detection
-- [ ] **DETECT-02**: Hook retrieves last N commits' changed files via `git log --name-only` (N = commit_window config) when detection is needed
-- [ ] **DETECT-03**: Hook identifies oscillation when the exact same file set (strict set equality, not intersection) appears in ≥ oscillation_depth of the last commit_window commits — strict equality prevents false positives during TDD cycles where different files are touched per commit
-- [ ] **DETECT-04**: Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) pass through without detection or blocking
-- [ ] **DETECT-05**: Detection is skipped (returns pass) when no git repository exists in the current working directory
+- [x] **DETECT-01**: PreToolUse hook intercepts Bash tool calls and checks whether the current context has an active circuit breaker before running detection
+- [x] **DETECT-02**: Hook retrieves last N commits' changed files via `git log --name-only` (N = commit_window config) when detection is needed
+- [x] **DETECT-03**: Hook identifies oscillation when the exact same file set (strict set equality, not intersection) appears in ≥ oscillation_depth of the last commit_window commits — strict equality prevents false positives during TDD cycles where different files are touched per commit
+- [x] **DETECT-04**: Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) pass through without detection or blocking
+- [x] **DETECT-05**: Detection is skipped (returns pass) when no git repository exists in the current working directory
 
 ### State Management (STATE)
 
-- [ ] **STATE-01**: Circuit breaker state persisted in `.claude/circuit-breaker-state.json` (relative to project root) so block survives across tool calls
-- [ ] **STATE-02**: State schema: `{ active, file_set[], activated_at, commit_window_snapshot[] }` — captures what triggered the breaker
-- [ ] **STATE-03**: Hook reads existing state first — if active, applies enforcement immediately without re-running git log detection
-- [ ] **STATE-04**: State file created silently if absent; failure to write logs to stderr but never blocks execution
+- [x] **STATE-01**: Circuit breaker state persisted in `.claude/circuit-breaker-state.json` (relative to project root) so block survives across tool calls
+- [x] **STATE-02**: State schema: `{ active, file_set[], activated_at, commit_window_snapshot[] }` — captures what triggered the breaker
+- [x] **STATE-03**: Hook reads existing state first — if active, applies enforcement immediately without re-running git log detection
+- [x] **STATE-04**: State file created silently if absent; failure to write logs to stderr but never blocks execution
 
 ### Enforcement (ENFC)
 
@@ -202,15 +202,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SYNC-02 | Phase 3 | Complete |
 | SYNC-03 | Phase 3 | Complete |
 | SYNC-04 | Phase 3 | Complete |
-| DETECT-01 | Phase 9 (gap closure for Phase 6) | Pending |
-| DETECT-02 | Phase 9 (gap closure for Phase 6) | Pending |
-| DETECT-03 | Phase 9 (gap closure for Phase 6) | Pending |
-| DETECT-04 | Phase 9 (gap closure for Phase 6) | Pending |
-| DETECT-05 | Phase 9 (gap closure for Phase 6) | Pending |
-| STATE-01 | Phase 9 (gap closure for Phase 6) | Pending |
-| STATE-02 | Phase 9 (gap closure for Phase 6) | Pending |
-| STATE-03 | Phase 9 (gap closure for Phase 6) | Pending |
-| STATE-04 | Phase 9 (gap closure for Phase 6) | Pending |
+| DETECT-01 | Phase 9 (gap closure for Phase 6) | Complete |
+| DETECT-02 | Phase 9 (gap closure for Phase 6) | Complete |
+| DETECT-03 | Phase 9 (gap closure for Phase 6) | Complete |
+| DETECT-04 | Phase 9 (gap closure for Phase 6) | Complete |
+| DETECT-05 | Phase 9 (gap closure for Phase 6) | Complete |
+| STATE-01 | Phase 9 (gap closure for Phase 6) | Complete |
+| STATE-02 | Phase 9 (gap closure for Phase 6) | Complete |
+| STATE-03 | Phase 9 (gap closure for Phase 6) | Complete |
+| STATE-04 | Phase 9 (gap closure for Phase 6) | Complete |
 | ENFC-01 | Phase 10 (gap closure for Phase 7) | Pending |
 | ENFC-02 | Phase 10 (gap closure for Phase 7) | Pending |
 | ENFC-03 | Phase 10 (gap closure for Phase 7) | Pending |
@@ -237,8 +237,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 - v0.3 requirements: 8 total — 8/8 mapped (Phases 11–12)
 - Unmapped v0.2: 0 ✓
 - Unmapped v0.3: 0 ✓
-- Pending (awaiting verification): 28 (v0.2: DETECT-01..05, STATE-01..04, ENFC-01..03, CONF-06..09, INST-08..10, RECV-01 + v0.3: CL-01..02, BLD-01..02, RLS-01..04)
+- Pending (awaiting verification): 19 (v0.2: ENFC-01..03, CONF-06..09, INST-08..10, RECV-01 + v0.3: CL-01..02, BLD-01..02, RLS-01..04)
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-21 — v0.3 roadmap finalized: CL-02 corrected to Phase 11 (changelog prep, not release action); all 8 v0.3 requirements confirmed mapped. Previous update: v0.3 Release Preparation: 8 new requirements added (CL-01..02, BLD-01..02, RLS-01..04) mapped to Phases 11–12.*
+*Last updated: 2026-02-21 — Phase 9 gap closure: DETECT-01..05 and STATE-01..04 marked Complete after Phase 6 VERIFICATION.md passed.*
