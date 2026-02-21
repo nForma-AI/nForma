@@ -121,6 +121,12 @@
  *   init milestone-op                  All context for milestone operations
  *   init map-codebase                  All context for map-codebase workflow
  *   init progress                      All context for progress workflow
+ *
+ * Activity Tracking:
+ *   activity-set <json>                Write current activity state to .planning/current-activity.json
+ *                                      (always overwrites `updated` with current ISO timestamp)
+ *   activity-clear                     Remove .planning/current-activity.json (idempotent)
+ *   activity-get                       Read .planning/current-activity.json; returns {} if missing
  */
 
 const fs = require('fs');
@@ -5316,8 +5322,54 @@ async function main() {
       break;
     }
 
+    case 'activity-set': {
+      cmdActivitySet(cwd, args[1], raw);
+      break;
+    }
+
+    case 'activity-clear': {
+      cmdActivityClear(cwd, raw);
+      break;
+    }
+
+    case 'activity-get': {
+      cmdActivityGet(cwd, raw);
+      break;
+    }
+
     default:
       error(`Unknown command: ${command}`);
+  }
+}
+
+// ─── Activity Commands ────────────────────────────────────────────────────────
+
+function cmdActivitySet(cwd, jsonStr, raw) {
+  let data;
+  try {
+    data = JSON.parse(jsonStr);
+  } catch (e) {
+    error(`activity-set: invalid JSON — ${e.message}`);
+  }
+  data.updated = new Date().toISOString();
+  const filePath = path.join(cwd, '.planning', 'current-activity.json');
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  output({ written: true, path: '.planning/current-activity.json' }, raw);
+}
+
+function cmdActivityClear(cwd, raw) {
+  const filePath = path.join(cwd, '.planning', 'current-activity.json');
+  try { fs.unlinkSync(filePath); } catch (e) { /* idempotent — no error if file absent */ }
+  output({ cleared: true }, raw);
+}
+
+function cmdActivityGet(cwd, raw) {
+  const filePath = path.join(cwd, '.planning', 'current-activity.json');
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    output(JSON.parse(content), raw);
+  } catch (e) {
+    output({}, raw);
   }
 }
 
