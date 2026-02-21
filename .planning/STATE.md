@@ -171,6 +171,7 @@ Recent decisions affecting current work:
 | 16 | Improve discuss-phase skill with quorum pre-filter: add quorum_filter step, auto-resolve classification, preference questions with Claude recommendations | 2026-02-21 | 9a33365 | Complete | [16-improve-discuss-phase-skill-with-quorum-](./quick/16-improve-discuss-phase-skill-with-quorum-/) |
 | 18 | Clarify Claude as full voting quorum member in CLAUDE.md Appendix table, R3.2 step 1, and scoreboard Notes | 2026-02-21 | disk-only | Complete | [18-clarify-claude-as-full-quorum-member-wit](./quick/18-clarify-claude-as-full-quorum-member-wit/) |
 | 17 | Add quorum gate inside map-codebase workflow: quorum validates mapper docs before finalization | 2026-02-21 | 1be247d | Complete (quorum override) | [17-add-quorum-gate-inside-map-codebase-work](./quick/17-add-quorum-gate-inside-map-codebase-work/) |
+| 19 | Fix Stop hook false positive on new-project: XML-tag-first command matching in hasQuorumCommand/extractCommand | 2026-02-21 | 02b73bf | Complete | [19-fix-stop-hook-false-positive-on-new-proj](./quick/19-fix-stop-hook-false-positive-on-new-proj/) |
 
 ### Blockers/Concerns
 
@@ -181,5 +182,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed quick-18 — Clarified Claude as full voting quorum member: updated CLAUDE.md Appendix table (Voting quorum member role), R3.2 step 1 (position = vote, active quorum contribution), and scoreboard Notes bullet (Claude rows are participant votes, not orchestration overhead). Both files are disk-only (gitignored by project design).
+Stopped at: Completed quick-19 — Fixed Stop hook @file-expansion false positive: added extractCommandTag() helper; rewrote hasQuorumCommand and extractCommand with XML-tag-first + 300-char text fallback strategy; added TC20/TC20b/TC20c regression tests; npm test 144/144.
 Resume file: N/A
