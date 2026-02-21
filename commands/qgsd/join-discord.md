@@ -1,18 +1,18 @@
 ---
 name: qgsd:join-discord
-description: Join the GSD Discord community
+description: Join the QGSD Discord community
 ---
 
 <objective>
-Display the Discord invite link for the GSD community server.
+Display the Discord invite link for the QGSD community server.
 </objective>
 
 <output>
-# Join the GSD Discord
+# Join the QGSD Discord
 
-Connect with other GSD users, get help, share what you're building, and stay updated.
+Connect with other QGSD users, get help, share what you're building, and stay updated.
 
-**Invite link:** https://discord.gg/5JJgD5svVS
+**Server link:** https://discord.com/servers/1474810068636663886
 
 Click the link or paste it into your browser to join.
 </output>

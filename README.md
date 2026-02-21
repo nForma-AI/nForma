@@ -8,7 +8,7 @@
 
 [![npm version](https://img.shields.io/npm/v/qgsd?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/qgsd)
 [![npm downloads](https://img.shields.io/npm/dm/qgsd?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/qgsd)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/5JJgD5svVS)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/servers/1474810068636663886)
 [![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
 [![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
 [![GitHub stars](https://img.shields.io/github/stars/LangBlaze-AI/QGSD?style=for-the-badge&logo=github&color=181717)](https://github.com/LangBlaze-AI/QGSD)
@@ -459,7 +459,7 @@ You're never locked in. The system adapts.
 | `/qgsd:discuss-phase [N] [--auto]` | Capture implementation decisions before planning |
 | `/qgsd:plan-phase [N] [--auto]` | Research + plan + verify for a phase |
 | `/qgsd:execute-phase <N>` | Execute all plans in parallel waves, verify when complete |
-| `/qgsd:verify-work [N]` | Manual user acceptance testing ¹ |
+| `/qgsd:verify-work [N]` | Manual user acceptance testing |
 | `/qgsd:audit-milestone` | Verify milestone achieved its definition of done |
 | `/qgsd:complete-milestone` | Archive milestone, tag release |
 | `/qgsd:new-milestone [name]` | Start next version: questions → research → requirements → roadmap |
@@ -512,8 +512,6 @@ You're never locked in. The system adapts.
 | `/qgsd:quick [--full]` | Execute ad-hoc task with QGSD guarantees (`--full` adds plan-checking and verification) |
 | `/qgsd:reapply-patches` | Restore local modifications after an update |
 | `/qgsd:health [--repair]` | Validate `.planning/` directory integrity, auto-repair with `--repair` |
-
-<sup>¹ Contributed by reddit user OracleGreyBeard</sup>
 
 ---
 

@@ -32,11 +32,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/glittercowboy/get-shit-done.git"
+    "url": "git+https://github.com/LangBlaze-AI/QGSD.git"
   },
-  "homepage": "https://github.com/glittercowboy/get-shit-done",
+  "homepage": "https://github.com/LangBlaze-AI/QGSD",
   "bugs": {
-    "url": "https://github.com/glittercowboy/get-shit-done/issues"
+    "url": "https://github.com/LangBlaze-AI/QGSD/issues"
   },
   "engines": {
     "node": ">=16.7.0"
@@ -47,6 +47,7 @@
   },
   "scripts": {
     "build:hooks": "node scripts/build-hooks.js",
+    "generate-terminal": "node scripts/generate-terminal-svg.js",
     "prepublishOnly": "npm run build:hooks",
     "test": "node --test hooks/qgsd-stop.test.js hooks/config-loader.test.js get-shit-done/bin/gsd-tools.test.cjs hooks/qgsd-circuit-breaker.test.js"
   }
