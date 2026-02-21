@@ -190,6 +190,7 @@ Recent decisions affecting current work:
 | 22 | Update orchestrator r8_scoreboard compact row format + quorum.md round-evolution display | 2026-02-21 | disk-only | Verified | [22-update-both-files-scoreboard-write-logic](./quick/22-update-both-files-scoreboard-write-logic/) |
 | 23 | Insert r4_pre_filter step into discuss-phase workflow between analyze_phase and present_gray_areas | 2026-02-21 | 646a412 | Verified | [23-add-the-r4-pre-filter-step-to-the-discus](./quick/23-add-the-r4-pre-filter-step-to-the-discus/) |
 | 24 | Canonicalize quorum pattern: role visibility (CONTRARIAN/AGREEING/IMPROVING), improvement round in debug.md, auto-execute gate | 2026-02-21 | 0a9b773 | Complete | [24-improve-qgsd-debug-quorum-discussion-flo](./quick/24-improve-qgsd-debug-quorum-discussion-flo/) |
+| 25 | Convert quorum scoreboard from markdown to JSON with CLI script (update-scoreboard.cjs) | 2026-02-21 | d24f1ad | Complete | [25-convert-quorum-scoreboard-from-markdown-](./quick/25-convert-quorum-scoreboard-from-markdown-/) |
 
 ### Blockers/Concerns
 
@@ -200,5 +201,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Phase 16 complete, ready to plan Phase 17 — Fix Installed Agent Name Typos (qqgsd-* → qgsd-* in installed plan-phase.md and new-milestone.md)
+Stopped at: quick-25 complete — scoreboard migrated to JSON, update-scoreboard.cjs CLI script created, quorum.md updated with CLI calls
 Resume file: None
