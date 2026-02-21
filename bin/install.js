@@ -28,6 +28,7 @@ const hasBoth = args.includes('--both'); // Legacy flag, keeps working
 const hasAll = args.includes('--all');
 const hasUninstall = args.includes('--uninstall') || args.includes('-u');
 const hasRedetectMcps = args.includes('--redetect-mcps');
+const hasResetBreaker = args.includes('--reset-breaker');
 
 // Runtime selection - can be set by flags or interactive prompt
 let selectedRuntimes = [];
@@ -1709,6 +1710,18 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Configured QGSD quorum gate hook (Stop)`);
     }
 
+    // INST-08: Register QGSD circuit breaker hook (PreToolUse — Claude Code only)
+    if (!settings.hooks.PreToolUse) settings.hooks.PreToolUse = [];
+    const hasCircuitBreakerHook = settings.hooks.PreToolUse.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-circuit-breaker'))
+    );
+    if (!hasCircuitBreakerHook) {
+      settings.hooks.PreToolUse.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-circuit-breaker.js'), timeout: 10 }]
+      });
+      console.log(`  ${green}✓${reset} Configured QGSD circuit breaker hook (PreToolUse)`);
+    }
+
     // Write QGSD config — skip if exists unless --redetect-mcps flag set
     const qgsdConfigPath = path.join(targetDir, 'qgsd.json');
 
@@ -1730,6 +1743,11 @@ function install(isGlobal, runtime = 'claude') {
         required_models: detectedModels,
         // Generated from detected prefixes — behavioral instructions match structural enforcement
         quorum_instructions: buildQuorumInstructions(detectedModels),
+        // INST-09: Must match DEFAULT_CONFIG.circuit_breaker in hooks/config-loader.js
+        circuit_breaker: {
+          oscillation_depth: 3,
+          commit_window: 6,
+        },
       };
 
       fs.writeFileSync(qgsdConfigPath, JSON.stringify(qgsdConfig, null, 2) + '\n', 'utf8');
@@ -1744,6 +1762,13 @@ function install(isGlobal, runtime = 'claude') {
           .join(', ');
         console.log(`  ${dim}↳ ~/.claude/qgsd.json exists — active config: ${summary}${reset}`);
         console.log(`  ${dim}  (run with --redetect-mcps to refresh MCP prefix detection)${reset}`);
+
+        // INST-10: Add missing circuit_breaker block without touching existing user config
+        if (!existingConfig.circuit_breaker) {
+          existingConfig.circuit_breaker = { oscillation_depth: 3, commit_window: 6 };
+          fs.writeFileSync(qgsdConfigPath, JSON.stringify(existingConfig, null, 2) + '\n', 'utf8');
+          console.log(`  ${green}✓${reset} Added circuit_breaker config block to qgsd.json`);
+        }
       } catch {
         console.log(`  ${dim}↳ ~/.claude/qgsd.json already exists — skipping (user config preserved)${reset}`);
       }
@@ -1971,6 +1996,19 @@ function installAllRuntimes(runtimes, isGlobal, isInteractive) {
     const opencodeResult = results[0];
     finishInstall(opencodeResult.settingsPath, opencodeResult.settings, opencodeResult.statuslineCommand, false, 'opencode', isGlobal);
   }
+}
+
+// RECV-01: --reset-breaker clears project-relative circuit breaker state and exits before any install logic
+if (hasResetBreaker) {
+  const stateFile = path.join(process.cwd(), '.claude', 'circuit-breaker-state.json');
+  if (fs.existsSync(stateFile)) {
+    fs.rmSync(stateFile);
+    console.log(`  ${green}✓${reset} Circuit breaker state cleared. Claude can resume Bash execution.`);
+    console.log(`    Removed: ${stateFile.replace(os.homedir(), '~')}`);
+  } else {
+    console.log(`  ${dim}No active circuit breaker state found at ${stateFile.replace(os.homedir(), '~')}${reset}`);
+  }
+  process.exit(0);
 }
 
 // Main logic
