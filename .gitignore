@@ -17,6 +17,9 @@ hooks/dist/
 animation/
 *.gif
 
+# MCP server local data
+.playwright-mcp/
+
 # Internal planning documents
 reports/
 RAILROAD_ARCHITECTURE.md
