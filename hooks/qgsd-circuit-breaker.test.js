@@ -67,6 +67,29 @@ function createOscillationCommits(repoDir, fileSet, commitCount) {
   }
 }
 
+// Helper: create true alternating oscillation commits: A-group, B-group, A-group, ...
+// Each "group" is a single commit to fileSetA; between groups a different file (filler_N.txt) is committed.
+// depth controls how many A-groups are created, producing depth-1 B-groups between them.
+// Example: createAlternatingCommits(repo, ['app.js'], 3) → app.js, filler_0.txt, app.js, filler_1.txt, app.js
+function createAlternatingCommits(repoDir, fileSetA, depth) {
+  for (let i = 0; i < depth; i++) {
+    // Commit to fileSetA
+    fileSetA.forEach(file => {
+      fs.writeFileSync(path.join(repoDir, file), `content-a-${i}`, 'utf8');
+    });
+    spawnSync('git', ['add', '.'], { cwd: repoDir, encoding: 'utf8' });
+    spawnSync('git', ['commit', '-m', `a-group ${i}`], { cwd: repoDir, encoding: 'utf8' });
+
+    // Commit to a different file between A-groups (except after last A-group)
+    if (i < depth - 1) {
+      const filler = `filler_${i}.txt`;
+      fs.writeFileSync(path.join(repoDir, filler), `filler ${i}`, 'utf8');
+      spawnSync('git', ['add', filler], { cwd: repoDir, encoding: 'utf8' });
+      spawnSync('git', ['commit', '-m', `b-group ${i}`], { cwd: repoDir, encoding: 'utf8' });
+    }
+  }
+}
+
 // Helper: create commits with different file sets (no oscillation)
 function createNonOscillationCommits(repoDir, commitCount) {
   for (let i = 0; i < commitCount; i++) {
@@ -191,12 +214,12 @@ test('CB-TC5: Write command with insufficient oscillation passes without state w
   }
 });
 
-// Test CB-TC6: Write command, no state, exactly oscillation_depth commits touch same file set → exit 0, state written active:true, correct schema
+// Test CB-TC6: Write command, no state, true A→B→A oscillation at depth=3 → exit 0, state written active:true
 test('CB-TC6: Write command with exact oscillation depth triggers state write', () => {
   const repoDir = createTempGitRepo();
   try {
-    // Create 3 commits with same file set (exactly depth=3)
-    createOscillationCommits(repoDir, ['file1.txt', 'file2.txt'], 3);
+    // Create true alternating oscillation: A,B,A,B,A (3 A-groups = depth 3)
+    createAlternatingCommits(repoDir, ['file1.txt', 'file2.txt'], 3);
     const { stdout, exitCode } = runHook({
       tool_name: 'Bash',
       tool_input: { command: 'echo hello > new.txt', description: 'test', timeout: 5000 },
@@ -269,8 +292,8 @@ test('CB-TC7: Write command with active state emits hookSpecificOutput deny deci
 test('CB-TC8: Write command with inactive state runs normal detection', () => {
   const repoDir = createTempGitRepo();
   try {
-    // Create commits BEFORE writing the state file so git add . does not capture it
-    createOscillationCommits(repoDir, ['file1.txt', 'file2.txt'], 3);
+    // Create true alternating oscillation before writing state file
+    createAlternatingCommits(repoDir, ['file1.txt', 'file2.txt'], 3);
 
     // Create inactive state after commits exist
     const stateDir = path.join(repoDir, '.claude');
@@ -331,8 +354,8 @@ test('CB-TC9: TDD cycle with different files per commit does not trigger oscilla
 test('CB-TC10: Malformed state file is treated as no state', () => {
   const repoDir = createTempGitRepo();
   try {
-    // Create commits BEFORE writing the state file so git add . does not capture it
-    createOscillationCommits(repoDir, ['file1.txt'], 3);
+    // Create true alternating oscillation before writing the state file
+    createAlternatingCommits(repoDir, ['file1.txt'], 3);
 
     // Create malformed state file after commits exist
     const stateDir = path.join(repoDir, '.claude');
@@ -368,8 +391,8 @@ test('CB-TC11: Missing .claude dir is created when writing state', () => {
     const stateDir = path.join(repoDir, '.claude');
     if (fs.existsSync(stateDir)) fs.rmSync(stateDir, { recursive: true });
 
-    // Create commits that trigger oscillation
-    createOscillationCommits(repoDir, ['file1.txt'], 3);
+    // Create true alternating oscillation commits
+    createAlternatingCommits(repoDir, ['file1.txt'], 3);
 
     const { stdout, exitCode } = runHook({
       tool_name: 'Bash',
@@ -397,12 +420,10 @@ test('CB-TC11: Missing .claude dir is created when writing state', () => {
 test('CB-TC12: State commit_window_snapshot correctly captures per-commit file arrays', () => {
   const repoDir = createTempGitRepo();
   try {
-    // Create a root commit touching only a.txt, then 3 oscillation commits touching [a.txt, b.txt].
-    // The 3 oscillation commits trigger detection (depth=3).
-    // git log returns newest-first: [osc2, osc1, osc0, root]
-    // snapshot[3] (oldest = root) should be ['a.txt'] thanks to --root flag in diff-tree.
-    commitInRepo(repoDir, 'a.txt', 'root content', 'root commit');
-    createOscillationCommits(repoDir, ['a.txt', 'b.txt'], 3);
+    // Create true alternating oscillation: A,B,A,B,A (5 commits, depth=3)
+    // git log newest-first: [a-group2, b-group1, a-group1, b-group0, a-group0]
+    // All 5 within window=6 → snapshot.length === 5
+    createAlternatingCommits(repoDir, ['a.txt', 'b.txt'], 3);
 
     const { stdout, exitCode } = runHook({
       tool_name: 'Bash',
@@ -419,14 +440,18 @@ test('CB-TC12: State commit_window_snapshot correctly captures per-commit file a
     assert(fs.existsSync(statePath), 'state file should be written');
     const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
     assert(Array.isArray(state.commit_window_snapshot), 'commit_window_snapshot should be array');
-    // 4 commits total: 3 oscillation + 1 root
-    assert.strictEqual(state.commit_window_snapshot.length, 4, 'should capture all 4 commits');
+    // 5 commits: 3 a-groups + 2 b-groups (filler commits between them)
+    assert.strictEqual(state.commit_window_snapshot.length, 5, 'should capture all 5 commits');
     // Each entry must be an array
     state.commit_window_snapshot.forEach((entry, i) =>
       assert(Array.isArray(entry), `snapshot[${i}] should be an array`)
     );
-    // Oldest commit (index 3) is the root — only touched a.txt
-    assert.deepStrictEqual(state.commit_window_snapshot[3], ['a.txt'], 'root commit snapshot should be [a.txt]');
+    // Most recent commit (index 0) is the last a-group — touched a.txt and b.txt
+    assert.deepStrictEqual(
+      state.commit_window_snapshot[0].slice().sort(),
+      ['a.txt', 'b.txt'],
+      'newest commit snapshot should be [a.txt, b.txt]'
+    );
   } finally {
     fs.rmSync(repoDir, { recursive: true, force: true });
   }
@@ -436,7 +461,7 @@ test('CB-TC12: State commit_window_snapshot correctly captures per-commit file a
 test('CB-TC13: Background write command still triggers detection', () => {
   const repoDir = createTempGitRepo();
   try {
-    createOscillationCommits(repoDir, ['file1.txt'], 3);
+    createAlternatingCommits(repoDir, ['file1.txt'], 3);
     const { stdout, exitCode } = runHook({
       tool_name: 'Bash',
       tool_input: { command: 'echo hello > new.txt', description: 'test', timeout: 5000, run_in_background: true },
@@ -472,8 +497,8 @@ test('CB-TC14: Malformed stdin JSON exits 0 fail-open', () => {
 test('CB-TC15: State write failure logs to stderr but does not block', () => {
   const repoDir = createTempGitRepo();
   try {
-    // Create commits BEFORE blocking .claude so git add . does not capture the blocking file
-    createOscillationCommits(repoDir, ['file1.txt'], 3);
+    // Create true alternating oscillation BEFORE blocking .claude
+    createAlternatingCommits(repoDir, ['file1.txt'], 3);
     // Now block .claude dir creation by making it a file
     fs.writeFileSync(path.join(repoDir, '.claude'), 'blocking file', 'utf8');
 
@@ -569,13 +594,12 @@ test('CB-TC17: Block reason includes file names, R5 reference, git log, and rese
   }
 });
 
-// Test CB-TC18 (NEW): config oscillation_depth integration — project config depth:2 triggers at 2 commits (not default 3)
+// Test CB-TC18 (NEW): config oscillation_depth integration — project config depth:2 triggers at 2 run-groups (not default 3)
 test('CB-TC18: Project config oscillation_depth:2 triggers oscillation detection at depth 2', () => {
   const repoDir = createTempGitRepo();
   try {
-    // Create exactly 2 commits touching same file set (below default depth=3, meets depth=2)
-    // Use flat file to avoid needing to create subdirectories in temp repo
-    createOscillationCommits(repoDir, ['app.js'], 2);
+    // Create true A→B→A oscillation with 2 A-groups (depth=2): app.js, filler, app.js
+    createAlternatingCommits(repoDir, ['app.js'], 2);
 
     // Write project config AFTER commits to avoid git add capturing the config file
     const claudeDir = path.join(repoDir, '.claude');

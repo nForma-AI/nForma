@@ -77,26 +77,107 @@ function getCommitFileSets(gitRoot, hashes) {
 }
 
 // Detects true oscillation: returns { detected: bool, fileSet: string[] }
-// A file set is oscillating only when it appears `depth` or more times AND
-// every consecutive pair of appearances has at least one different commit between
-// them (true A→B→A→B pattern). Consecutive identical commits (A, A, A with no
-// gap) are NOT oscillation — they are iterative refinement and must not trigger.
+//
+// Algorithm: collapse consecutive identical file sets into run-groups first,
+// then count how many times each file set's group appears in the collapsed
+// sequence. This correctly handles patterns like A A A B B A A B B B A A
+// (3 A-groups, 2 B-groups → oscillation at depth 3) while ignoring simple
+// iterative refinement like A A A (1 A-group → not oscillation).
 function detectOscillation(fileSets, depth) {
-  const positions = new Map();
-  for (let i = 0; i < fileSets.length; i++) {
-    const key = fileSets[i].slice().sort().join('\0');
-    if (!positions.has(key)) positions.set(key, []);
-    positions.get(key).push(i);
+  // Step 1: collapse consecutive identical file sets into runs
+  const runs = [];
+  for (const files of fileSets) {
+    const key = files.slice().sort().join('\0');
+    if (runs.length === 0 || runs[runs.length - 1].key !== key) {
+      runs.push({ key, files });
+    }
   }
-  for (const [key, idxs] of positions) {
-    if (idxs.length < depth) continue;
-    // All consecutive pairs must have a gap (at least one different commit between them)
-    const allAlternating = idxs.every((pos, k) => k === 0 || pos - idxs[k - 1] > 1);
-    if (allAlternating) {
+
+  // Step 2: count run-group occurrences per file set key
+  const count = new Map();
+  for (const run of runs) {
+    count.set(run.key, (count.get(run.key) || 0) + 1);
+  }
+
+  // Step 3: any file set with >= depth run-groups is oscillating
+  for (const [key, occurrences] of count) {
+    if (occurrences >= depth) {
       return { detected: true, fileSet: key.split('\0').filter(f => f.length > 0) };
     }
   }
   return { detected: false, fileSet: [] };
+}
+
+// Consults Claude Haiku to verify whether detected oscillation is genuine
+// (a real bug loop) or iterative refinement (the same files improved repeatedly).
+// Returns 'GENUINE', 'REFINEMENT', or null if the API is unavailable.
+async function consultHaiku(gitRoot, fileSet, fileSets, model) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
+
+  const logResult = spawnSync('git', ['log', '--oneline', '-10'], {
+    cwd: gitRoot, encoding: 'utf8', timeout: 5000,
+  });
+  const gitLog = logResult.stdout || '(unavailable)';
+
+  // Collect short diffs for the oscillating commits
+  const hashResult = spawnSync('git', ['log', '--format=%H', '-10'], {
+    cwd: gitRoot, encoding: 'utf8', timeout: 5000,
+  });
+  const hashes = (hashResult.stdout || '').trim().split('\n').filter(Boolean);
+  const diffs = [];
+  for (const hash of hashes.slice(0, 8)) {
+    const d = spawnSync('git', ['diff-tree', '-p', '--no-commit-id', '-r', hash], {
+      cwd: gitRoot, encoding: 'utf8', timeout: 5000,
+    });
+    if (d.stdout) diffs.push(`--- ${hash.slice(0, 7)} ---\n${d.stdout.slice(0, 800)}`);
+  }
+
+  const prompt =
+    `You are a circuit breaker analyzer for a coding agent. A potential oscillation pattern was detected.\n\n` +
+    `Oscillating file set: ${fileSet.join(', ')}\n\n` +
+    `Recent git log:\n${gitLog}\n\n` +
+    `Recent diffs (truncated):\n${diffs.join('\n\n').slice(0, 3000)}\n\n` +
+    `Question: Is this GENUINE oscillation (the same bug being introduced and fixed repeatedly, agent stuck in a loop) ` +
+    `or REFINEMENT (developer/agent iteratively improving the same files toward a clear goal, e.g. adjusting a banner message, tuning output)?\n\n` +
+    `Reply with exactly one word: GENUINE or REFINEMENT`;
+
+  const https = require('https');
+  const body = JSON.stringify({
+    model,
+    max_tokens: 10,
+    messages: [{ role: 'user', content: prompt }],
+  });
+
+  return new Promise((resolve) => {
+    const req = https.request({
+      hostname: 'api.anthropic.com',
+      path: '/v1/messages',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'Content-Length': Buffer.byteLength(body),
+      },
+      timeout: 12000,
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          const text = ((parsed.content || [])[0] || {}).text || '';
+          const verdict = text.trim().toUpperCase();
+          resolve(verdict.startsWith('REFINEMENT') ? 'REFINEMENT' : 'GENUINE');
+        } catch { resolve(null); }
+      });
+    });
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+    req.write(body);
+    req.end();
+  });
 }
 
 // Writes state file
@@ -159,7 +240,7 @@ function main() {
   let raw = '';
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', chunk => { raw += chunk; });
-  process.stdin.on('end', () => {
+  process.stdin.on('end', async () => {
     try {
       const input = JSON.parse(raw);
       const command = (input.tool_input && input.tool_input.command) || '';
@@ -206,10 +287,21 @@ function main() {
 
       // Detect oscillation
       const result = detectOscillation(fileSets, config.circuit_breaker.oscillation_depth);
-      if (result.detected) {
-        writeState(statePath, result.fileSet, fileSets);
+      if (!result.detected) {
+        process.exit(0);
       }
 
+      // HAIKU-01: Consult Haiku to verify before blocking (if enabled)
+      if (config.circuit_breaker.haiku_reviewer) {
+        const verdict = await consultHaiku(gitRoot, result.fileSet, fileSets, config.circuit_breaker.haiku_model);
+        if (verdict === 'REFINEMENT') {
+          // Haiku confirmed this is iterative refinement, not a bug loop — do not block
+          process.exit(0);
+        }
+        // verdict === 'GENUINE' or null (API unavailable) → trust the algorithm and block
+      }
+
+      writeState(statePath, result.fileSet, fileSets);
       process.exit(0);
     } catch {
       process.exit(0); // Fail-open on any error

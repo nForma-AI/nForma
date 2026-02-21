@@ -26,8 +26,10 @@ const DEFAULT_CONFIG = {
     opencode: { tool_prefix: 'mcp__opencode__',   required: true },
   },
   circuit_breaker: {
-    oscillation_depth: 3,
-    commit_window: 6,
+    oscillation_depth: 3,          // how many run-groups of same file set to trigger
+    commit_window: 6,              // how many commits to look back
+    haiku_reviewer: true,          // call Claude Haiku to verify before blocking
+    haiku_model: 'claude-haiku-4-5-20251001', // model used for review
   },
 };
 
@@ -85,6 +87,20 @@ function validateConfig(config) {
     }
     if (config.circuit_breaker.commit_window === undefined) {
       config.circuit_breaker.commit_window = DEFAULT_CONFIG.circuit_breaker.commit_window;
+    }
+    if (config.circuit_breaker.haiku_reviewer === undefined) {
+      config.circuit_breaker.haiku_reviewer = DEFAULT_CONFIG.circuit_breaker.haiku_reviewer;
+    }
+    if (config.circuit_breaker.haiku_model === undefined) {
+      config.circuit_breaker.haiku_model = DEFAULT_CONFIG.circuit_breaker.haiku_model;
+    }
+    if (typeof config.circuit_breaker.haiku_reviewer !== 'boolean') {
+      process.stderr.write('[qgsd] WARNING: qgsd.json: circuit_breaker.haiku_reviewer must be boolean; defaulting to true\n');
+      config.circuit_breaker.haiku_reviewer = true;
+    }
+    if (typeof config.circuit_breaker.haiku_model !== 'string') {
+      process.stderr.write('[qgsd] WARNING: qgsd.json: circuit_breaker.haiku_model must be a string; using default\n');
+      config.circuit_breaker.haiku_model = DEFAULT_CONFIG.circuit_breaker.haiku_model;
     }
   }
 
