@@ -1,5 +1,5 @@
 ---
-name: gsd:pause-work
+name: qgsd:pause-work
 description: Create context handoff when pausing work mid-phase
 allowed-tools:
   - Read

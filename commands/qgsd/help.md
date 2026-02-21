@@ -1,5 +1,5 @@
 ---
-name: gsd:help
+name: qgsd:help
 description: Show available GSD commands and usage guide
 ---
 <objective>

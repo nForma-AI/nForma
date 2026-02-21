@@ -1,5 +1,5 @@
 ---
-name: gsd-roadmapper
+name: qgsd-roadmapper
 description: Creates project roadmaps with phase breakdown, requirement mapping, success criteria derivation, and coverage validation. Spawned by /qgsd:new-project orchestrator.
 tools: Read, Write, Bash, Glob, Grep
 color: purple

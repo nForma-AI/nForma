@@ -1,0 +1,54 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Build and publish @langblaze.ai/qgsd
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC trusted publishing (and provenance)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@langblaze.ai'
+
+      # npm >=11.5 is required for OIDC trusted publishing.
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Install dev dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build hooks
+        run: npm run build:hooks
+
+      - name: Publish to npm
+        # npm CLI auto-detects the OIDC token from GitHub Actions and uses it
+        # for authentication (no NPM_TOKEN needed after trusted publishing is configured).
+        #
+        # FIRST-TIME BOOTSTRAP ONLY:
+        # The package must exist on npm before trusted publishing can be configured.
+        # For the very first publish, temporarily add NPM_TOKEN to the npm-publish
+        # environment secrets, then after the package exists:
+        #   1. Go to https://www.npmjs.com/package/@langblaze.ai/qgsd → Settings → Trusted Publishers
+        #   2. Add GitHub Actions: owner=<org>, repo=QGSD, workflow=publish.yml
+        #   3. Remove NPM_TOKEN from the environment secrets — OIDC takes over.
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}  # Remove after trusted publishing is configured

@@ -1,5 +1,5 @@
 ---
-name: gsd:progress
+name: qgsd:progress
 description: Check project progress, show context, and route to next action (execute or plan)
 allowed-tools:
   - Read

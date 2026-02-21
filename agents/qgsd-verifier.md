@@ -1,5 +1,5 @@
 ---
-name: gsd-verifier
+name: qgsd-verifier
 description: Verifies phase goal achievement through goal-backward analysis. Checks codebase delivers what phase promised, not just that tasks completed. Creates VERIFICATION.md report.
 tools: Read, Write, Bash, Grep, Glob
 color: green
@@ -432,7 +432,7 @@ human_verification: # Only if status: human_needed
 ---
 
 _Verified: {timestamp}_
-_Verifier: Claude (gsd-verifier)_
+_Verifier: Claude (qgsd-verifier)_
 ```
 
 ## Return to Orchestrator

@@ -1,5 +1,5 @@
 ---
-name: gsd-plan-checker
+name: qgsd-plan-checker
 description: Verifies plans will achieve phase goal before execution. Goal-backward analysis of plan quality. Spawned by /qgsd:plan-phase orchestrator.
 tools: Read, Bash, Glob, Grep
 color: green
@@ -72,8 +72,8 @@ Goal-backward verification works backwards from outcome:
 Then verify each level against the actual plan files.
 
 **The difference:**
-- `gsd-verifier`: Verifies code DID achieve goal (after execution)
-- `gsd-plan-checker`: Verifies plans WILL achieve goal (before execution)
+- `qgsd-verifier`: Verifies code DID achieve goal (after execution)
+- `qgsd-plan-checker`: Verifies plans WILL achieve goal (before execution)
 
 Same methodology (goal-backward), different timing, different subject matter.
 </core_principle>
@@ -603,7 +603,7 @@ Plans verified. Run `/qgsd:execute-phase {phase}` to proceed.
 
 <anti_patterns>
 
-**DO NOT** check code existence — that's gsd-verifier's job. You verify plans, not codebase.
+**DO NOT** check code existence — that's qgsd-verifier's job. You verify plans, not codebase.
 
 **DO NOT** run the application. Static plan analysis only.
 

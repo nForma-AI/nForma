@@ -14,10 +14,10 @@ allowed-tools:
 <objective>
 Take a failure context (test output, error trace, stack trace, or symptom description) and dispatch it to 4 parallel quorum workers. Each worker independently identifies the single most likely root cause and the single best next debugging step. Render a clean NEXT STEP recommendation table.
 
-This command augments the existing gsd-debugger investigation loop with quorum consensus on direction — before the debugger spends context on a path, quorum votes on which path is most likely correct.
+This command augments the existing qgsd-debugger investigation loop with quorum consensus on direction — before the debugger spends context on a path, quorum votes on which path is most likely correct.
 
 **Relationship to gsd:debug:**
-- `/gsd:debug` spawns the gsd-debugger agent for autonomous multi-step investigation.
+- `/qgsd:debug` spawns the qgsd-debugger agent for autonomous multi-step investigation.
 - `/qgsd:debug` is a quorum consultation step for a *specific failure snapshot*. Use it when: tests fail and you want a second opinion before diving in, you are stuck after 1-2 debugger passes, or you want quorum to triage a new bug before spawning the full debugger.
 </objective>
 
@@ -181,7 +181,7 @@ IF no consensus:
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   No consensus — review recommendations above and apply the most relevant step.
   Then run /qgsd:debug again with updated output.
-  To start a full autonomous debug session: /gsd:debug [description]
+  To start a full autonomous debug session: /qgsd:debug [description]
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ```
 

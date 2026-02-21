@@ -1,5 +1,5 @@
 ---
-name: gsd:research-phase
+name: qgsd:research-phase
 description: Research how to implement a phase (standalone - usually use /qgsd:plan-phase instead)
 argument-hint: "[phase]"
 allowed-tools:
@@ -9,7 +9,7 @@ allowed-tools:
 ---
 
 <objective>
-Research how to implement a phase. Spawns gsd-phase-researcher agent with phase context.
+Research how to implement a phase. Spawns qgsd-phase-researcher agent with phase context.
 
 **Note:** This is a standalone research command. For most workflows, use `/qgsd:plan-phase` which integrates research automatically.
 
@@ -41,7 +41,7 @@ Extract from init JSON: `phase_dir`, `phase_number`, `phase_name`, `phase_found`
 
 Resolve researcher model:
 ```bash
-RESEARCHER_MODEL=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs resolve-model gsd-phase-researcher --raw)
+RESEARCHER_MODEL=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs resolve-model qgsd-phase-researcher --raw)
 ```
 
 ## 1. Validate Phase
@@ -71,7 +71,7 @@ Use paths from INIT (do not inline file contents in orchestrator context):
 
 Present summary with phase description and what files the researcher will load.
 
-## 4. Spawn gsd-phase-researcher Agent
+## 4. Spawn qgsd-phase-researcher Agent
 
 Research modes: ecosystem (default), feasibility, implementation, comparison.
 
@@ -135,7 +135,7 @@ Write to: .planning/phases/${PHASE}-{slug}/${PHASE}-RESEARCH.md
 
 ```
 Task(
-  prompt="First, read ~/.claude/agents/gsd-phase-researcher.md for your role and instructions.\n\n" + filled_prompt,
+  prompt="First, read ~/.claude/agents/qgsd-phase-researcher.md for your role and instructions.\n\n" + filled_prompt,
   subagent_type="general-purpose",
   model="{researcher_model}",
   description="Research Phase {phase}"
@@ -171,7 +171,7 @@ Continue research for Phase {phase_number}: {phase_name}
 
 ```
 Task(
-  prompt="First, read ~/.claude/agents/gsd-phase-researcher.md for your role and instructions.\n\n" + continuation_prompt,
+  prompt="First, read ~/.claude/agents/qgsd-phase-researcher.md for your role and instructions.\n\n" + continuation_prompt,
   subagent_type="general-purpose",
   model="{researcher_model}",
   description="Continue research Phase {phase}"
@@ -183,7 +183,7 @@ Task(
 <success_criteria>
 - [ ] Phase validated against roadmap
 - [ ] Existing research checked
-- [ ] gsd-phase-researcher spawned with context
+- [ ] qgsd-phase-researcher spawned with context
 - [ ] Checkpoints handled correctly
 - [ ] User knows next steps
 </success_criteria>

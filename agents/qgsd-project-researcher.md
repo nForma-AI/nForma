@@ -1,5 +1,5 @@
 ---
-name: gsd-project-researcher
+name: qgsd-project-researcher
 description: Researches domain ecosystem before roadmap creation. Produces files in .planning/research/ consumed during roadmap creation. Spawned by /qgsd:new-project or /qgsd:new-milestone orchestrators.
 tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp__context7__*
 color: cyan
