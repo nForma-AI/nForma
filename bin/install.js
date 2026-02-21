@@ -2034,7 +2034,16 @@ function installAllRuntimes(runtimes, isGlobal, isInteractive) {
 
 // RECV-01: --reset-breaker clears project-relative circuit breaker state and exits before any install logic
 if (hasResetBreaker) {
-  const stateFile = path.join(process.cwd(), '.claude', 'circuit-breaker-state.json');
+  const { spawnSync } = require('child_process');
+  const gitResult = spawnSync('git', ['rev-parse', '--show-toplevel'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    timeout: 5000,
+  });
+  const projectRoot = (gitResult.status === 0 && !gitResult.error)
+    ? gitResult.stdout.trim()
+    : process.cwd();
+  const stateFile = path.join(projectRoot, '.claude', 'circuit-breaker-state.json');
   if (fs.existsSync(stateFile)) {
     fs.rmSync(stateFile);
     console.log(`  ${green}✓${reset} Circuit breaker state cleared. Claude can resume Bash execution.`);
