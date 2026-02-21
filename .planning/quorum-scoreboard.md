@@ -6,10 +6,10 @@ Tracks per-model performance across all QUORUM rounds. Updated after every quoru
 
 | Model | Score | TP | TN | FP | FN | Improvements Accepted | Rounds Participated |
 |-------|-------|----|----|----|----|----------------------|---------------------|
-| Claude | +2 | 2 | 0 | 0 | 0 | 0 | 2 |
-| Gemini | +10 | 4 | 0 | 0 | 0 | 3 | 4 |
-| OpenCode | +5 | 3 | 0 | 0 | 0 | 1 | 3 |
-| Copilot | +6 | 4 | 0 | 0 | 0 | 1 | 4 |
+| Claude | +3 | 3 | 0 | 0 | 0 | 0 | 3 |
+| Gemini | +11 | 5 | 0 | 0 | 0 | 3 | 5 |
+| OpenCode | +6 | 4 | 0 | 0 | 0 | 1 | 4 |
+| Copilot | +7 | 5 | 0 | 0 | 0 | 1 | 5 |
 | Codex | 0 | 0 | 0 | 0 | 0 | 0 | 0 (UNAVAIL) |
 
 ## Round Log
@@ -38,6 +38,11 @@ Tracks per-model performance across all QUORUM rounds. Updated after every quoru
 | 2026-02-21 | quick-5 pre-flight validation | 2 | Gemini | APPROVE | APPROVE | TP | +1 | |
 | 2026-02-21 | quick-5 pre-flight validation | 2 | OpenCode | APPROVE | APPROVE | TP | +1 | |
 | 2026-02-21 | quick-5 pre-flight validation | 2 | Copilot | APPROVE | APPROVE | TP | +1 | |
+| 2026-02-21 | quick-7 USER-GUIDE diagram | 1 | Claude | APPROVE | APPROVE | TP | +1 | |
+| 2026-02-21 | quick-7 USER-GUIDE diagram | 1 | Gemini | APPROVE | APPROVE | TP | +1 | |
+| 2026-02-21 | quick-7 USER-GUIDE diagram | 1 | OpenCode | APPROVE | APPROVE | TP | +1 | |
+| 2026-02-21 | quick-7 USER-GUIDE diagram | 1 | Copilot | APPROVE | APPROVE | TP | +1 | |
+| 2026-02-21 | quick-7 USER-GUIDE diagram | 1 | Codex | UNAVAIL | — | — | — | Usage limit until Feb 24 |
 | 2026-02-21 | quick-5 pre-flight validation | 2 | Codex | UNAVAIL | — | — | — | |
 
 ## Notes
