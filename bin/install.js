@@ -1797,11 +1797,26 @@ function install(isGlobal, runtime = 'claude') {
         console.log(`  ${dim}↳ ~/.claude/qgsd.json exists — active config: ${summary}${reset}`);
         console.log(`  ${dim}  (run with --redetect-mcps to refresh MCP prefix detection)${reset}`);
 
-        // INST-10: Add missing circuit_breaker block without touching existing user config
+        // INST-10: Add missing circuit_breaker block or missing sub-keys without touching existing user values
         if (!existingConfig.circuit_breaker) {
           existingConfig.circuit_breaker = { oscillation_depth: 3, commit_window: 6 };
           fs.writeFileSync(qgsdConfigPath, JSON.stringify(existingConfig, null, 2) + '\n', 'utf8');
           console.log(`  ${green}✓${reset} Added circuit_breaker config block to qgsd.json`);
+        } else {
+          // Backfill individual missing sub-keys without touching values the user has set
+          let subKeyAdded = false;
+          if (existingConfig.circuit_breaker.oscillation_depth === undefined) {
+            existingConfig.circuit_breaker.oscillation_depth = 3;
+            subKeyAdded = true;
+          }
+          if (existingConfig.circuit_breaker.commit_window === undefined) {
+            existingConfig.circuit_breaker.commit_window = 6;
+            subKeyAdded = true;
+          }
+          if (subKeyAdded) {
+            fs.writeFileSync(qgsdConfigPath, JSON.stringify(existingConfig, null, 2) + '\n', 'utf8');
+            console.log(`  ${green}✓${reset} Added missing circuit_breaker sub-keys to qgsd.json`);
+          }
         }
       } catch {
         console.log(`  ${dim}↳ ~/.claude/qgsd.json already exists — skipping (user config preserved)${reset}`);

@@ -20,6 +20,11 @@
     "  To add a model to the global list, copy the full required_models from global and add your entry.",
     "  Create .claude/qgsd.json in a project to restrict quorum to fewer models or different commands.",
     "",
+    "circuit_breaker config uses the SAME shallow merge: a project config with only oscillation_depth set",
+    "  entirely replaces the global circuit_breaker object. commit_window falls back to DEFAULT (6), NOT the global value.",
+    "  To override only one sub-key, set BOTH sub-keys in your project circuit_breaker block.",
+    "  Example: { \"circuit_breaker\": { \"oscillation_depth\": 2, \"commit_window\": 6 } }",
+    "",
     "MCP prefixes are auto-detected from ~/.claude.json mcpServers on first install.",
     "  Edit required_models here to override detected values."
   ],
