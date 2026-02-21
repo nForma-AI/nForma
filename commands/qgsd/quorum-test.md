@@ -96,7 +96,7 @@ Display:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Dispatch all four workers in a **single message** (parallel Task calls):
+Dispatch all four workers as parallel Task calls (Task subagents are isolated subprocesses — a failing Task does not propagate to sibling Tasks, so this is safe under CLAUDE.md R3.2 which restricts direct sibling MCP calls):
 
 Worker prompt template for each:
 ```
