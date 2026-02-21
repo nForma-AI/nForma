@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Enforcement & Config Integration** - Bash execution blocked when breaker is active; circuit_breaker config block added to config-loader (completed 2026-02-21)
 - [x] **Phase 8: Installer Integration** - Installer registers PreToolUse hook and writes default circuit_breaker config block idempotently (completed 2026-02-21)
 - [x] **Phase 9: Verify Phases 5-6** - Create VERIFICATION.md for Phases 5 and 6; close DETECT-01..05 and STATE-01..04 requirements (gap closure) (completed 2026-02-21)
-- [ ] **Phase 10: Fix Bugs + Verify Phases 7-8** - Fix INST-08 uninstall hook cleanup, RECV-01 path mismatch, INST-10 sub-key backfill, CONF-09 docs; create VERIFICATION.md for Phases 7 and 8; close all remaining v0.2 requirements (gap closure)
+- [x] **Phase 10: Fix Bugs + Verify Phases 7-8** - Fix INST-08 uninstall dead hook, RECV-01 path mismatch, INST-10 sub-key backfill + CONF-09 docs; create VERIFICATION.md for Phases 7 and 8; close all remaining v0.2 requirements (completed 2026-02-21)
 - [ ] **Phase 11: Changelog & Build** - Write CHANGELOG [0.2.0] entry, clear [Unreleased], rebuild hooks/dist/, validate full test suite
 - [ ] **Phase 12: Version & Publish** - Bump version to 0.2.0, archive v0.2 milestone, create git tag v0.2.0, publish qgsd@0.2.0 to npm
 
@@ -168,13 +168,13 @@ Plans:
 **Depends on:** Phase 9
 **Requirements:** ENFC-01, ENFC-02, ENFC-03, CONF-06, CONF-07, CONF-08, CONF-09, INST-08, INST-09, INST-10, RECV-01
 **Gap Closure:** Closes gaps from v0.2 audit — Phases 7 and 8 unverified + 3 integration bugs + Flow D partial
-**Plans:** 2/4 plans executed
+**Plans:** 4 plans
 
 Plans:
 - [x] 10-01-PLAN.md — Bug fixes: INST-08 uninstall cleanup, RECV-01 git root path, INST-10 sub-key backfill + CONF-09 template docs
-- [ ] 10-02-PLAN.md — gsd-verifier for Phase 7 (ENFC-01..03, CONF-06..09); produces 07-VERIFICATION.md
-- [ ] 10-03-PLAN.md — gsd-verifier for Phase 8 (INST-08..10, RECV-01); produces 08-VERIFICATION.md
-- [ ] 10-04-PLAN.md — Gate check + REQUIREMENTS.md update + STATE.md/ROADMAP.md update + commit all artifacts
+- [x] 10-02-PLAN.md — gsd-verifier for Phase 7 (ENFC-01..03, CONF-06..09); produces 07-VERIFICATION.md
+- [x] 10-03-PLAN.md — gsd-verifier for Phase 8 (INST-08..10, RECV-01); produces 08-VERIFICATION.md
+- [x] 10-04-PLAN.md — Gate check + REQUIREMENTS.md update + STATE.md/ROADMAP.md update + commit all artifacts
 
 ### Phase 11: Changelog & Build
 **Goal:** The release artifact is complete — CHANGELOG.md has a finalized [0.2.0] entry, [Unreleased] is cleared, hooks/dist/ reflects current source, and the full test suite passes with zero failures
@@ -217,7 +217,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Enforcement & Config Integration | 2/2 | Complete | 2026-02-21 |
 | 8. Installer Integration | 1/1 | Complete   | 2026-02-21 |
 | 9. Verify Phases 5-6 | 3/3 | Complete   | 2026-02-21 |
-| 10. Fix Bugs + Verify Phases 7-8 | 2/4 | In Progress|  |
+| 10. Fix Bugs + Verify Phases 7-8 | 4/4 | Complete | 2026-02-21 |
 | 11. Changelog & Build | 0/TBD | Not started | — |
 | 12. Version & Publish | 0/TBD | Not started | — |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |

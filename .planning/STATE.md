@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 10 complete — Plan 03 complete (08-VERIFICATION.md produced: 4/4 requirements PASS — INST-08..10, RECV-01; 141 tests green)
+**Current focus:** Phase 10 complete — all 4 plans done; ENFC-01..03, RECV-01, CONF-06..09, INST-08..10 marked Complete in REQUIREMENTS.md; Phase 11 next
 
 ## Current Position
 
 Phase: 10 — fix-bugs-verify-phases-7-8
-Plan: 03 complete (3 plans done — Phase 10 complete)
-Status: Phase 10 Plan 03 complete — 08-VERIFICATION.md produced; INST-08 (install+uninstall), INST-09, INST-10 (sub-key backfill), RECV-01 (git root) all PASS; 3 Plan 10-01 bug fixes confirmed
-Last activity: 2026-02-21 — Phase 10 Plan 03 complete; 08-VERIFICATION.md committed; INST-08..10, RECV-01 marked Complete in REQUIREMENTS.md
+Plan: 04 complete (all 4 plans done — Phase 10 complete)
+Status: Phase 10 complete — all 4 plans done; ENFC-01..03, RECV-01, CONF-06..09, INST-08..10 marked Complete in REQUIREMENTS.md; Phase 11 next
+Last activity: 2026-02-21 — Phase 10 Plan 04 complete; REQUIREMENTS.md updated (11 checkboxes); v0.2 requirements now 20/20 satisfied
 
-Progress: [████████████████████░░░░░░░░░░░░░] 8/13 phases complete (62%)
+Progress: [███████████████████████░░░░░░░░░░] 9/13 phases complete (69%)
 
 ## Performance Metrics
 
@@ -58,8 +58,10 @@ Progress: [████████████████████░░░
 | Phase 09-verify-phases-5-6 P03 | 2 | 3 tasks | 2 files |
 | Phase 13-circuit-breaker-oscillation-resolution-mode P01 | 2 min | 3 tasks | 3 files |
 | Phase 13-circuit-breaker-oscillation-resolution-mode P02 | 3 min | 2 tasks | 2 files |
-| Phase 10 P02 | 5 | 1 tasks | 1 files |
-| Phase 10-fix-bugs-verify-phases-7-8 P03 | 4 | 1 tasks | 1 files |
+| Phase 10-fix-bugs-verify-phases-7-8 P01 | 3 min | 3 tasks | 2 files |
+| Phase 10-fix-bugs-verify-phases-7-8 P02 | 5 min | 1 task (verify) | 1 file |
+| Phase 10-fix-bugs-verify-phases-7-8 P03 | 4 min | 1 task (verify) | 1 file |
+| Phase 10-fix-bugs-verify-phases-7-8 P04 | 2 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -127,6 +129,9 @@ Recent decisions affecting current work:
 - [Phase 13-02]: require.main === module guard + module.exports — standard pattern for testable Node CLI hook files; allows unit tests to call buildBlockReason() directly without stdin/process.exit
 - [Phase 10]: ENFC-03: Phase 13 updated block reason to 'Oscillation Resolution Mode per R5' — requirement satisfied as R5 IS the root cause procedure
 - [Phase 10]: Test count 141 vs 138: Phase 8 and Phase 13 added tests; 141 all green, no regressions
+- [Phase 10]: INST-08 uninstall fix: added PreToolUse removal block to uninstall() mirroring existing Stop/UserPromptSubmit pattern
+- [Phase 10]: RECV-01 fix: --reset-breaker uses git rev-parse --show-toplevel with process.cwd() fallback — consistent with how qgsd-circuit-breaker.js resolves gitRoot
+- [Phase 10]: INST-10 fix: sub-key backfill uses === undefined check (not falsy) to preserve user-set values including potentially 0; validateConfig() handles validation at runtime
 
 ### Roadmap Evolution
 
@@ -169,5 +174,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 10-03-PLAN.md — Phase 8 verification (08-VERIFICATION.md): 4/4 requirements PASS (INST-08..10, RECV-01), 141/141 tests green. Phase 10 complete.
+Stopped at: Completed 10-04-PLAN.md — Phase 10 complete: gate check passed, REQUIREMENTS.md 11 checkboxes confirmed [x], ROADMAP.md updated (4/4 plans), STATE.md updated. Phase 11 (Changelog & Build) next.
 Resume file: N/A
