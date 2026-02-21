@@ -451,11 +451,6 @@ Exit skill and invoke SlashCommand("/qgsd:discuss-phase [X+1] --auto")
 
 **Route B: Milestone complete (all phases done)**
 
-**Clear auto-advance** — milestone boundary is the natural stopping point:
-```bash
-node ~/.claude/qgsd/bin/gsd-tools.cjs config-set workflow.auto_advance false
-```
-
 <if mode="yolo">
 
 ```
