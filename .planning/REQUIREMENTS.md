@@ -118,8 +118,8 @@ All features are v1. No deferral.
 - [ ] **ORES-01**: When oscillation is detected and the oscillating file set contains only internal code files, Claude MUST enter oscillation resolution mode instead of hard-stopping
 - [ ] **ORES-02**: Oscillation resolution mode presents oscillation evidence (file set, commit graph) to all available quorum models with structural-coupling framing
 - [ ] **ORES-03**: Quorum deliberates (R3.3, up to 4 rounds) and may only approve unified solutions — partial/incremental fixes are rejected
-- [ ] **ORES-04**: On consensus, Claude presents the unified solution plan to the user for approval before any execution
-- [ ] **ORES-05**: If no consensus after 4 rounds, Claude hard-stops and escalates to the human with all model positions
+- [x] **ORES-04**: On consensus, Claude presents the unified solution plan to the user for approval before any execution
+- [x] **ORES-05**: If no consensus after 4 rounds, Claude hard-stops and escalates to the human with all model positions
 
 ## v0.3 Requirements — Release Preparation
 
@@ -237,8 +237,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ORES-01 | Phase 13 | Pending |
 | ORES-02 | Phase 13 | Pending |
 | ORES-03 | Phase 13 | Pending |
-| ORES-04 | Phase 13 | Pending |
-| ORES-05 | Phase 13 | Pending |
+| ORES-04 | Phase 13 | Complete |
+| ORES-05 | Phase 13 | Complete |
 | CL-01 | Phase 11 | Pending |
 | CL-02 | Phase 11 | Pending |
 | BLD-01 | Phase 11 | Pending |

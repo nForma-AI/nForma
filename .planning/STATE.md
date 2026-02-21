@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 13 in progress — Plan 01 complete (ORES requirements + R5 update + workflow doc)
+**Current focus:** Phase 13 complete — Plan 02 complete (buildBlockReason() enhanced with commit graph + R5 reference; 141 tests passing)
 
 ## Current Position
 
 Phase: 13 — circuit-breaker-oscillation-resolution-mode
-Plan: 01 complete (1 plan done)
-Status: Phase 13 Plan 01 complete — ORES-01..05 defined in REQUIREMENTS.md, CLAUDE.md R5 updated to oscillation resolution mode, workflow document created
-Last activity: 2026-02-21 — Phase 13 Plan 01 complete; REQUIREMENTS.md updated (ORES-01..05 added, pending 19→24)
+Plan: 02 complete (2 plans done — Phase 13 complete)
+Status: Phase 13 Plan 02 complete — buildBlockReason() renders commit_window_snapshot as markdown table; deny message references Oscillation Resolution Mode per R5; ORES-04..05 marked Complete in REQUIREMENTS.md
+Last activity: 2026-02-21 — Phase 13 Plan 02 complete; REQUIREMENTS.md updated (ORES-04..05 marked Complete)
 
 Progress: [████████████████████░░░░░░░░░░░░░] 8/13 phases complete (62%)
 
@@ -56,8 +56,8 @@ Progress: [████████████████████░░░
 | Phase 08-installer-integration P01 | 2 | 3 tasks | 2 files |
 | Phase 09-verify-phases-5-6 P01 | 5 min | 1 task (verify) | 1 file |
 | Phase 09-verify-phases-5-6 P03 | 2 | 3 tasks | 2 files |
-| Phase 10-fix-bugs-verify-phases-7-8 P01 | 2 min | 3 tasks | 2 files |
 | Phase 13-circuit-breaker-oscillation-resolution-mode P01 | 2 min | 3 tasks | 3 files |
+| Phase 13-circuit-breaker-oscillation-resolution-mode P02 | 3 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -120,11 +120,9 @@ Recent decisions affecting current work:
 - [Phase 13-circuit-breaker-oscillation-resolution-mode]: hookSpecificOutput JSON format unchanged — only permissionDecisionReason string content modified with commit graph table + R5 reference
 - [Phase 13-01]: CLAUDE.md is gitignored by project design — R5 oscillation resolution mode update applied to disk only (consistent with quick-4 precedent)
 - [Phase 13-01]: Environmental file fast-path in R5.2: config/lock files skip quorum entirely and escalate directly to user — structural diagnosis not applicable to external dependency oscillations
-- [Phase 10-01]: PreToolUse removal in uninstall() mirrors existing Stop/UserPromptSubmit pattern exactly (filter on command string, delete empty array)
-- [Phase 10-01]: RECV-01 uses inline require('child_process') in the reset-breaker block — spawnSync not used elsewhere in install.js; inline require is safe
-- [Phase 10-01]: INST-10 backfill uses === undefined (not falsy) to preserve user-set value of 0 (which validateConfig() warns about at runtime — correct behavior)
-- [Phase 10-01]: CONF-09 placed in _comment after existing required_models shallow merge paragraph for narrative flow
 - [Phase 13-01]: ORES requirements defined as pending (not implemented yet) — Phase 13 plans will implement the actual hook behavior changes
+- [Phase 13-02]: buildBlockReason() renders commit_window_snapshot as markdown table; graceful fallback to "(commit graph unavailable)" when snapshot absent or empty; hookSpecificOutput structure unchanged
+- [Phase 13-02]: require.main === module guard + module.exports — standard pattern for testable Node CLI hook files; allows unit tests to call buildBlockReason() directly without stdin/process.exit
 
 ### Roadmap Evolution
 
@@ -167,5 +165,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed Phase 10-01-PLAN.md — INST-08 PreToolUse removal in uninstall(), RECV-01 git root path for reset-breaker, INST-10 sub-key backfill, CONF-09 shallow merge docs. 141 tests pass.
+Stopped at: Phase 13 Plan 02 complete — buildBlockReason() enhanced with commit graph + R5 reference; ORES-04..05 marked Complete; 141 tests passing. Phase 13 complete.
 Resume file: N/A
