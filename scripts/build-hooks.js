@@ -11,8 +11,8 @@ const DIST_DIR = path.join(HOOKS_DIR, 'dist');
 
 // Hooks to copy (pure Node.js, no bundling needed)
 const HOOKS_TO_COPY = [
-  'gsd-check-update.js',
-  'gsd-statusline.js',
+  'qgsd-check-update.js',
+  'qgsd-statusline.js',
   'qgsd-prompt.js',      // QGSD: UserPromptSubmit quorum injection hook
   'qgsd-stop.js',        // QGSD: Stop quorum verification gate
   'config-loader.js',    // QGSD: shared config loader (required by qgsd-prompt.js and qgsd-stop.js)

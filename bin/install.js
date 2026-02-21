@@ -838,8 +838,10 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime) {
  */
 function cleanupOrphanedFiles(configDir) {
   const orphanedFiles = [
-    'hooks/gsd-notify.sh',  // Removed in v1.6.x
-    'hooks/statusline.js',  // Renamed to gsd-statusline.js in v1.9.0
+    'hooks/gsd-notify.sh',        // Removed in v1.6.x
+    'hooks/statusline.js',         // Renamed to gsd-statusline.js in v1.9.0
+    'hooks/gsd-statusline.js',     // Renamed to qgsd-statusline.js in v0.2
+    'hooks/gsd-check-update.js',   // Renamed to qgsd-check-update.js in v0.2
   ];
 
   for (const relPath of orphanedFiles) {
@@ -893,16 +895,16 @@ function cleanupOrphanedHooks(settings) {
     console.log(`  ${green}✓${reset} Removed orphaned hook registrations`);
   }
 
-  // Fix #330: Update statusLine if it points to old statusline.js path
-  if (settings.statusLine && settings.statusLine.command &&
-      settings.statusLine.command.includes('statusline.js') &&
-      !settings.statusLine.command.includes('gsd-statusline.js')) {
-    // Replace old path with new path
-    settings.statusLine.command = settings.statusLine.command.replace(
-      /statusline\.js/,
-      'gsd-statusline.js'
-    );
-    console.log(`  ${green}✓${reset} Updated statusline path (statusline.js → gsd-statusline.js)`);
+  // Fix #330 + qgsd migration: update statusLine if it points to old statusline path
+  if (settings.statusLine && settings.statusLine.command) {
+    const cmd = settings.statusLine.command;
+    if ((cmd.includes('statusline.js') || cmd.includes('gsd-statusline.js')) &&
+        !cmd.includes('qgsd-statusline.js')) {
+      settings.statusLine.command = cmd
+        .replace(/\bgsd-statusline\.js\b/, 'qgsd-statusline.js')
+        .replace(/\bstatusline\.js\b/, 'qgsd-statusline.js');
+      console.log(`  ${green}✓${reset} Updated statusline path → qgsd-statusline.js`);
+    }
   }
 
   return settings;
@@ -1016,7 +1018,7 @@ function uninstall(isGlobal, runtime = 'claude') {
   // 4. Remove GSD hooks
   const hooksDir = path.join(targetDir, 'hooks');
   if (fs.existsSync(hooksDir)) {
-    const gsdHooks = ['gsd-statusline.js', 'gsd-check-update.js', 'gsd-check-update.sh'];
+    const gsdHooks = ['qgsd-statusline.js', 'qgsd-check-update.js', 'gsd-check-update.sh'];
     let hookCount = 0;
     for (const hook of gsdHooks) {
       const hookPath = path.join(hooksDir, hook);
@@ -1055,7 +1057,7 @@ function uninstall(isGlobal, runtime = 'claude') {
 
     // Remove GSD statusline if it references our hook
     if (settings.statusLine && settings.statusLine.command &&
-        settings.statusLine.command.includes('gsd-statusline')) {
+        settings.statusLine.command.includes('qgsd-statusline')) {
       delete settings.statusLine;
       settingsModified = true;
       console.log(`  ${green}✓${reset} Removed GSD statusline from settings`);
@@ -1068,7 +1070,7 @@ function uninstall(isGlobal, runtime = 'claude') {
         if (entry.hooks && Array.isArray(entry.hooks)) {
           // Filter out GSD hooks
           const hasGsdHook = entry.hooks.some(h =>
-            h.command && (h.command.includes('gsd-check-update') || h.command.includes('gsd-statusline'))
+            h.command && (h.command.includes('qgsd-check-update') || h.command.includes('qgsd-statusline'))
           );
           return !hasGsdHook;
         }
@@ -1361,7 +1363,7 @@ function verifyFileInstalled(filePath, description) {
 // ──────────────────────────────────────────────────────
 
 const PATCHES_DIR_NAME = 'gsd-local-patches';
-const MANIFEST_NAME = 'gsd-file-manifest.json';
+const MANIFEST_NAME = 'qgsd-file-manifest.json';
 
 /**
  * Compute SHA256 hash of file contents
@@ -1674,11 +1676,11 @@ function install(isGlobal, runtime = 'claude') {
   const settingsPath = path.join(targetDir, 'settings.json');
   const settings = cleanupOrphanedHooks(readSettings(settingsPath));
   const statuslineCommand = isGlobal
-    ? buildHookCommand(targetDir, 'gsd-statusline.js')
-    : 'node ' + dirName + '/hooks/gsd-statusline.js';
+    ? buildHookCommand(targetDir, 'qgsd-statusline.js')
+    : 'node ' + dirName + '/hooks/qgsd-statusline.js';
   const updateCheckCommand = isGlobal
-    ? buildHookCommand(targetDir, 'gsd-check-update.js')
-    : 'node ' + dirName + '/hooks/gsd-check-update.js';
+    ? buildHookCommand(targetDir, 'qgsd-check-update.js')
+    : 'node ' + dirName + '/hooks/qgsd-check-update.js';
 
   // Enable experimental agents for Gemini CLI (required for custom sub-agents)
   if (isGemini) {
@@ -1701,7 +1703,7 @@ function install(isGlobal, runtime = 'claude') {
     }
 
     const hasGsdUpdateHook = settings.hooks.SessionStart.some(entry =>
-      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('gsd-check-update'))
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-check-update'))
     );
 
     if (!hasGsdUpdateHook) {
