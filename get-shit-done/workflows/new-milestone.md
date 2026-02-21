@@ -376,6 +376,68 @@ Also: `/qgsd:plan-phase [N]` — skip discussion, plan directly
 node ~/.claude/qgsd/bin/gsd-tools.cjs activity-clear
 ```
 
+**Auto-advance check:**
+
+```bash
+AUTO_CFG=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "true")
+FIRST_PHASE=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap list-phases 2>/dev/null | jq -r '.[0].phase_number // empty')
+# Fallback: extract first phase number from ROADMAP.md if tool unavailable
+if [ -z "$FIRST_PHASE" ]; then
+  FIRST_PHASE=$(grep -m1 "^### Phase [0-9]" .planning/ROADMAP.md | grep -o '[0-9]*' | head -1)
+fi
+```
+
+**If `AUTO_CFG` is true AND `FIRST_PHASE` is set:**
+
+Display banner:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSD ► AUTO-ADVANCING TO PLAN PHASE ${FIRST_PHASE}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Roadmap complete. Spawning plan-phase...
+```
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
+  "{\"activity\":\"new_milestone\",\"sub_activity\":\"plan_phase_${FIRST_PHASE}\"}"
+```
+
+```
+Task(
+  prompt="Run /qgsd:plan-phase ${FIRST_PHASE}",
+  subagent_type="general-purpose",
+  description="Plan Phase ${FIRST_PHASE}"
+)
+```
+
+**Handle plan-phase return:**
+- **PLANNING COMPLETE** → Display:
+  ```
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GSD ► PHASE ${FIRST_PHASE} PLANNED ✓
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Auto-advance pipeline finished.
+
+  Next: /qgsd:execute-phase ${FIRST_PHASE}
+  ```
+- **Other / error** → Display result, stop chain:
+  ```
+  Auto-advance stopped: Planning needs review.
+
+  Continue manually:
+  /qgsd:plan-phase ${FIRST_PHASE}
+  ```
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-clear
+```
+
+**If `AUTO_CFG` is false OR `FIRST_PHASE` is empty:**
+
+Show existing "Next Up" prompt (already in the Done banner — no change needed to that section).
+
 </process>
 
 <success_criteria>
@@ -390,7 +452,7 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-clear
 - [ ] User feedback incorporated (if any)
 - [ ] ROADMAP.md phases continue from previous milestone
 - [ ] All commits made (if planning docs committed)
-- [ ] User knows next step: `/qgsd:discuss-phase [N]`
+- [ ] Auto-advance spawns plan-phase task when AUTO_CFG is true; otherwise user sees `/qgsd:discuss-phase [N]`
 
 **Atomic commits:** Each phase commits its artifacts immediately.
 </success_criteria>
