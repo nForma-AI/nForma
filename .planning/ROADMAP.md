@@ -234,6 +234,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
 | 14. Activity Tracking | 4/4 | Complete    | 2026-02-21 |
 | 15. v0.4 Gap Closure — Activity Resume Routing | 1/1 | In Progress | — |
+| 16. Verify Phase 15 — ACT-02 and ACT-04 | 0/1 | Planned | — |
+| 17. Fix Installed Agent Name Typos | 0/1 | Planned | — |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
 
@@ -269,3 +271,25 @@ Plans:
 
 Plans:
 - [ ] 15-01-PLAN.md — Fix oscillation-resolution-mode.md (add phase field to circuit_breaker activity-set calls at Step 4 and Step 5) + fix resume-project.md routing table (add new_milestone rows; note oscillation_diagnosis/awaiting_approval phase limitation)
+
+### Phase 16: Verify Phase 15 — ACT-02 and ACT-04 Gap Closure
+
+**Goal:** Produce formal `15-VERIFICATION.md` by running gsd-verifier on Phase 15 work — closes ACT-02 and ACT-04 definitively with a verifier-stamped evidence record.
+**Depends on:** Phase 15
+**Requirements:** ACT-02, ACT-04
+**Gap Closure:** Closes gaps from v0.4 second audit — Phase 15 executed but lacked VERIFICATION.md; ACT-02 and ACT-04 remained partial
+**Plans:** 0/1 planned
+
+Plans:
+- [ ] 16-01-PLAN.md — Run gsd-verifier on Phase 15; produce 15-VERIFICATION.md; confirm REQUIREMENTS.md traceability Complete for ACT-02 and ACT-04
+
+### Phase 17: Fix Installed Agent Name Typos
+
+**Goal:** Correct `qqgsd-*` → `qgsd-*` in 7 lines across installed plan-phase.md and new-milestone.md — restores specialized agent role file loading for all users running QGSD from installed copies.
+**Depends on:** Phase 16
+**Requirements:** none (tech_debt fix)
+**Gap Closure:** Closes tech_debt from v0.4 audit — installer artifact introduced double-q prefix in agent name references
+**Plans:** 0/1 planned
+
+Plans:
+- [ ] 17-01-PLAN.md — Fix qqgsd-* typos in ~/.claude/qgsd/workflows/plan-phase.md (lines 124, 217, 286, 329) and new-milestone.md (lines 148, 177, 305); verify with grep; commit
