@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 12 Plan 01 complete — package.json bumped to 0.2.0, MILESTONES.md written; Plan 02 (tag + publish) next
+**Current focus:** Phase 12 complete — v0.2.0 release commit tagged and pushed; npm publish deferred. Ready for next milestone or publish decision.
 
 ## Current Position
 
-Phase: 12 — version-publish
-Plan: 01 complete (1/2 plans done)
-Status: Phase 12 Plan 01 complete — RLS-01, RLS-02 satisfied; release commit 440ee7ea ready for tagging in Plan 02
-Last activity: 2026-02-21 — Completed 12-01: bumped package.json to 0.2.0, created MILESTONES.md with v0.2 archive
+Phase: 12 — version-publish (COMPLETE)
+Plan: 02 complete (2/2 plans done)
+Status: RLS-01 ✓ (package.json 0.2.0), RLS-02 ✓ (MILESTONES.md archived), RLS-03 ✓ (tag v0.2.0 pushed), RLS-04 deferred (npm publish — user decision pending)
+Last activity: 2026-02-21 — Tagged v0.2.0 on commit 440ee7e and pushed to origin; all 211 commits on main pushed
 
-Progress: [█████████████████████████░░░░░░░░] 10.5/13 phases complete (81%)
+Progress: [████████████████████████████████] 12/13 phases complete (92%)
 
 ## Performance Metrics
 
@@ -183,5 +183,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 12-01 — package.json bumped to 0.2.0, MILESTONES.md created with v0.2 Anti-Oscillation Pattern archive (all 20 requirements + 7 key decisions). Release commit SHA: 440ee7ea — Plan 12-02 must tag this commit with v0.2.0.
+Stopped at: Phase 12 complete. Tag v0.2.0 pushed to origin (on commit 440ee7e). All docs fixed (README, USER-GUIDE, CHANGELOG). 144/144 tests passing. npm publish deferred pending user decision. Next: /qgsd:new-milestone to start v0.3, or run npm publish to complete RLS-04.
 Resume file: N/A

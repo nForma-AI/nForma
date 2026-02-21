@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 9: Verify Phases 5-6** - Create VERIFICATION.md for Phases 5 and 6; close DETECT-01..05 and STATE-01..04 requirements (gap closure) (completed 2026-02-21)
 - [x] **Phase 10: Fix Bugs + Verify Phases 7-8** - Fix INST-08 uninstall dead hook, RECV-01 path mismatch, INST-10 sub-key backfill + CONF-09 docs; create VERIFICATION.md for Phases 7 and 8; close all remaining v0.2 requirements (completed 2026-02-21)
 - [x] **Phase 11: Changelog & Build** - Write CHANGELOG [0.2.0] entry, clear [Unreleased], rebuild hooks/dist/, validate full test suite (completed 2026-02-21)
-- [ ] **Phase 12: Version & Publish** - Bump version to 0.2.0, archive v0.2 milestone, create git tag v0.2.0, publish qgsd@0.2.0 to npm
+- [x] **Phase 12: Version & Publish** - Bump version to 0.2.0, archive v0.2 milestone, create git tag v0.2.0, publish qgsd@0.2.0 to npm (RLS-04 npm publish deferred)
 
 ## Phase Details
 
@@ -189,7 +189,7 @@ Plans:
 
 Plans:
 - [x] 11-01-PLAN.md — Write CHANGELOG.md [0.2.0] entry covering all v0.2 changes; clear [Unreleased]
-- [ ] 11-02-PLAN.md — Rebuild hooks/dist/ via npm run build:hooks; validate npm test passes with 0 failures
+- [x] 11-02-PLAN.md — Rebuild hooks/dist/ via npm run build:hooks; validate npm test passes with 0 failures
 
 ### Phase 12: Version & Publish
 **Goal:** qgsd@0.2.0 is live on npm — version bumped, milestone archived, release commit tagged, and package published so `npx qgsd@0.2.0` installs from the registry
@@ -203,8 +203,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — Bump package.json to 0.2.0, write MILESTONES.md v0.2 archive entry, commit release commit
-- [ ] 12-02-PLAN.md — Create and push git tag v0.2.0, run npm publish, verify npm view qgsd@0.2.0 returns metadata
+- [x] 12-01-PLAN.md — Bump package.json to 0.2.0, write MILESTONES.md v0.2 archive entry, commit release commit
+- [x] 12-02-PLAN.md — Create and push git tag v0.2.0; npm publish deferred per user decision
 
 ## Progress
 
@@ -226,8 +226,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Installer Integration | 1/1 | Complete   | 2026-02-21 |
 | 9. Verify Phases 5-6 | 3/3 | Complete   | 2026-02-21 |
 | 10. Fix Bugs + Verify Phases 7-8 | 4/4 | Complete    | 2026-02-21 |
-| 11. Changelog & Build | 0/2 | Not started | — |
-| 12. Version & Publish | 0/2 | Not started | — |
+| 11. Changelog & Build | 2/2 | Complete | 2026-02-21 |
+| 12. Version & Publish | 2/2 | Complete (RLS-04 deferred) | 2026-02-21 |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
