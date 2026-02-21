@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone s
 Phase: 7 of 8 (Enforcement & Config Integration) — v0.2 milestone
 Plan: 0 of TBD in current phase
 Status: Ready to plan (Phase 6 complete 2026-02-21)
-Last activity: 2026-02-21 - Completed quick task 7: update docs/USER-GUIDE.md with checkpoint:verify flow diagrams
+Last activity: 2026-02-21 - Completed quick task 8: Fix hook namespace — /q?gsd: regex, /qgsd:plan-phase fallback, 20/20 tests pass
 
 Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13% (Phase 5 pending, Phases 6–8 not started)
 
@@ -120,7 +120,7 @@ Recent decisions affecting current work:
 | 5 | qgsd:quorum-test pre-flight validation — validate artifact collection before running tests | 2026-02-21 | 072c755 | Verified | [5-an-qgsd-quorum-test-should-probably-firs](./quick/5-an-qgsd-quorum-test-should-probably-firs/) |
 | 6 | Build checkpoint:verify flow into qgsd:execute-phase with debug loop and escalation | 2026-02-21 | 8b4d4ad | Verified | [6-build-checkpoint-verify-flow-into-qgsd-e](./quick/6-build-checkpoint-verify-flow-into-qgsd-e/) |
 | 7 | Update docs/USER-GUIDE.md Execution Wave Coordination diagram with checkpoint:verify pipeline | 2026-02-21 | 6cffc3f | Verified | [7-update-docs-user-guide-md-with-checkpoin](./quick/7-update-docs-user-guide-md-with-checkpoin/) |
-| 8 | Update qgsd-stop.js and qgsd-prompt.js to recognize /qgsd: prefix; fix fallback to /qgsd:plan-phase | 2026-02-21 | 2e201c6 | | [8-update-qgsd-stop-js-and-qgsd-prompt-js-t](./quick/8-update-qgsd-stop-js-and-qgsd-prompt-js-t/) |
+| 8 | Update qgsd-stop.js and qgsd-prompt.js to recognize /qgsd: prefix; fix fallback to /qgsd:plan-phase | 2026-02-21 | 2e201c6 | Verified | [8-update-qgsd-stop-js-and-qgsd-prompt-js-t](./quick/8-update-qgsd-stop-js-and-qgsd-prompt-js-t/) |
 
 ### Blockers/Concerns
 
