@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 Phase: 11 — changelog-build
 Plan: 02 complete (2/2 plans done — Phase 11 COMPLETE)
 Status: Phase 11 complete — CL-01, CL-02, BLD-01, BLD-02 all satisfied; hooks/dist/ rebuilt, npm test 141/141 passing
-Last activity: 2026-02-21 — Completed quick task 16: Improve discuss-phase skill with quorum pre-filter on candidate questions
+Last activity: 2026-02-21 — Completed quick task 17: quorum gate added to map-codebase workflow + USER-GUIDE.md brownfield diagram updated
 
 Progress: [████████████████████████░░░░░░░░░] 10/13 phases complete (77%)
 
@@ -170,6 +170,7 @@ Recent decisions affecting current work:
 | 15 | Rename gsd-statusline.js, gsd-check-update.js, gsd-file-manifest.json to qgsd-* namespace | 2026-02-21 | 061df09 | Complete | [15-rename-shared-gsd-files-to-qgsd-to-elimi](./quick/15-rename-shared-gsd-files-to-qgsd-to-elimi/) |
 | 16 | Improve discuss-phase skill with quorum pre-filter: add quorum_filter step, auto-resolve classification, preference questions with Claude recommendations | 2026-02-21 | 9a33365 | Complete | [16-improve-discuss-phase-skill-with-quorum-](./quick/16-improve-discuss-phase-skill-with-quorum-/) |
 | 18 | Clarify Claude as full voting quorum member in CLAUDE.md Appendix table, R3.2 step 1, and scoreboard Notes | 2026-02-21 | disk-only | Complete | [18-clarify-claude-as-full-quorum-member-wit](./quick/18-clarify-claude-as-full-quorum-member-wit/) |
+| 17 | Add quorum gate inside map-codebase workflow: quorum validates mapper docs before finalization | 2026-02-21 | 1be247d | Complete (quorum override) | [17-add-quorum-gate-inside-map-codebase-work](./quick/17-add-quorum-gate-inside-map-codebase-work/) |
 
 ### Blockers/Concerns
 
