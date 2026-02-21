@@ -111,11 +111,26 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
          ├── Wave 2 (depends on Wave 1):
          │     └── Executor C (fresh 200K context) -> commit
          │
-         └── Verifier
-               └── Check codebase against phase goals
-                     │
-                     ├── PASS -> VERIFICATION.md (success)
-                     └── FAIL -> Issues logged for /qgsd:verify-work
+         └── For each plan step (checkpoint type handling):
+               │
+               ├── checkpoint:verify (automated gate)
+               │     │
+               │     └── /qgsd:quorum-test
+               │           │
+               │           ├── PASS -> continue execution
+               │           │
+               │           └── BLOCK/REVIEW-NEEDED
+               │                 │
+               │                 └── /qgsd:debug loop (max 3 rounds)
+               │                       │
+               │                       ├── Round N: fix -> re-run quorum-test
+               │                       │     └── PASS -> continue execution
+               │                       │
+               │                       └── After 3 rounds, still failing
+               │                             │
+               │                             ▼
+               └── checkpoint:human-verify (escalation only)
+                     └── Human confirms before continuing
 ```
 
 ### Brownfield Workflow (Existing Codebase)
