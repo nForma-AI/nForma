@@ -248,23 +248,27 @@ Offer: 1) Force proceed, 2) Abort
 
 This step is MANDATORY regardless of `--full` mode. R3.1 requires quorum for any planning output from `/qgsd:quick`.
 
-Form your own position on the plan first: does it correctly address the task description? Are tasks atomic and safe?
+Form your own position on the plan first: does it correctly address the task description? Are tasks atomic and safe? State your vote as 1-2 sentences (APPROVE or BLOCK with rationale).
 
-Then query each available quorum model **sequentially** (separate tool calls per R3.2 — never sibling calls):
+Read the full plan content from `${QUICK_DIR}/${next_num}-PLAN.md`.
+
+Spawn the quorum orchestrator sub-agent:
 
 ```
-Plan for quick task ${next_num}: ${DESCRIPTION}
-
-[Paste full plan content from ${QUICK_DIR}/${next_num}-PLAN.md]
-
-Review this plan. Is it correct, safe to execute, and well-scoped?
-Vote APPROVE or BLOCK with 1-2 sentence rationale.
+Task(
+  subagent_type="qgsd-quorum-orchestrator",
+  description="Quorum review: quick plan ${next_num}",
+  prompt="claude_vote: [Your APPROVE/BLOCK vote with 1-2 sentence rationale]
+artifact: [Full plan content from ${QUICK_DIR}/${next_num}-PLAN.md]"
+)
 ```
 
-Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.
+Fail-open: if the Task itself errors (agent unavailable), note it and proceed — same as R6 policy for individual models.
 
-**On APPROVE consensus:** Include `<!-- GSD_DECISION -->` in your response summarizing quorum results, then proceed to Step 6.
-**On BLOCK:** Report the blocker to the user. Do not execute.
+**Route on quorum_result:**
+- **APPROVED:** Include `<!-- GSD_DECISION -->` in your response summarizing quorum results, then proceed to Step 6.
+- **BLOCKED:** Report the blocker to the user. Do not execute.
+- **ESCALATED:** Present the escalation to the user. Do not execute until resolved.
 
 ---
 
@@ -362,25 +366,30 @@ Store as `$VERIFICATION_STATUS`.
 
 1. Read the full `human_verification` section from `${QUICK_DIR}/${next_num}-VERIFICATION.md`.
 
-2. Form your own position: can each item be verified via available tools (grep, file reads, quorum-test)?
+2. Form your own position: can each item be verified via available tools (grep, file reads, quorum-test)? State your vote as APPROVE (can resolve programmatically) or BLOCK (genuinely requires human eyes) with 1-2 sentence rationale per item.
 
-3. Query each quorum model **sequentially** (separate tool calls, never parallel — R3.2):
+3. Spawn the quorum orchestrator sub-agent:
 
    ```
-   Quick task ${next_num} verification produced human_needed status.
-   The following items require human judgment per the verifier:
+   Task(
+     subagent_type="qgsd-quorum-orchestrator",
+     description="Quorum resolve human_needed: quick task ${next_num}",
+     prompt="claude_vote: [Your APPROVE/BLOCK vote — APPROVE means can be resolved programmatically, BLOCK means genuinely requires human]
+artifact: Quick task ${next_num} verification produced human_needed status.
+The following items require human judgment per the verifier:
 
-   [Paste full human_verification section from VERIFICATION.md]
+[Paste full human_verification section from VERIFICATION.md]
 
-   Using available tools (grep, file inspection, quorum-test), try to resolve each item.
-   Vote RESOLVED (with tool evidence) or UNRESOLVABLE (with reason for each unresolvable item).
+Can each item be resolved using available tools (grep, file inspection, quorum-test)? Vote APPROVE (can resolve) or BLOCK (needs human) with tool evidence or reason."
+   )
    ```
 
-   Fail-open: if a model is UNAVAILABLE (quota/error), skip it and proceed with available models.
+   Fail-open: if the Task itself errors, note it and treat as BLOCK (escalate to user).
 
-4. Evaluate votes:
-   - **All available models vote RESOLVED** → Consensus reached. Store `$VERIFICATION_STATUS = "Verified"`. Proceed to step 7.
-   - **Any model votes UNRESOLVABLE** → Cannot auto-resolve. Display items needing manual check to user. Store `$VERIFICATION_STATUS = "Needs Review"`. Continue to step 7.
+4. Route on quorum_result:
+   - **APPROVED** → Consensus reached. Store `$VERIFICATION_STATUS = "Verified"`. Proceed to step 7.
+   - **BLOCKED** → Cannot auto-resolve. Display items needing manual check to user. Store `$VERIFICATION_STATUS = "Needs Review"`. Continue to step 7.
+   - **ESCALATED** → Present escalation to user as "Needs Review". Continue to step 7.
 
 ---
 
