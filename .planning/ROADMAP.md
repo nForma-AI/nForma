@@ -214,3 +214,15 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10. Fix Bugs + Verify Phases 7-8 | 0/TBD | Pending | — |
 | 11. Changelog & Build | 0/TBD | Not started | — |
 | 12. Version & Publish | 0/TBD | Not started | — |
+| 13. Circuit Breaker Oscillation Resolution Mode | 0/2 | Pending | — |
+
+### Phase 13: Circuit Breaker Oscillation Resolution Mode
+
+**Goal:** When the circuit breaker fires, Claude enters a structured oscillation resolution mode — fast-pathing environmental issues to human, building a commit graph, running quorum diagnosis with structural coupling framing, and presenting a unified solution for user approval before execution resumes. Hard-stop is preserved as last resort only.
+**Depends on:** Phase 12
+**Requirements:** ORES-01, ORES-02, ORES-03, ORES-04, ORES-05
+**Plans:** 2 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — Update CLAUDE.md R5 to oscillation resolution mode + create get-shit-done/workflows/oscillation-resolution-mode.md
+- [ ] 13-02-PLAN.md — Enhance buildBlockReason() in circuit-breaker hook with commit graph + R5 reference + tests
