@@ -201,7 +201,7 @@ Recent decisions affecting current work:
 | 33 | Make workflow.auto_advance default to true — YOLO on by default without explicit config entry | 2026-02-21 | 3a64716 | Complete | [33-make-workflow-auto-advance-default-to-tr](./quick/33-make-workflow-auto-advance-default-to-tr/) |
 | 34 | Add debate category metadata to quorum scoreboard: 5-category taxonomy, --category/--subcategory/--task-description flags, Haiku auto-classification | 2026-02-21 | e7296ab | Verified | [34-add-debate-category-metadata-to-quorum-s](./quick/34-add-debate-category-metadata-to-quorum-s/) |
 | 35 | Auto-advance new-project and new-milestone to plan-phase via Task spawn after roadmap approval; AUTO_CFG config check; SlashCommand removed | 2026-02-21 | 9b08f6b | Verified | [35-after-roadmapper-reaches-quorum-consensu](./quick/35-after-roadmapper-reaches-quorum-consensu/) |
-| 36 | Add quorum resolution loop for human_needed verifier status in execute-phase and quick (--full) workflows | 2026-02-21 | 045f2fc | Complete | [36-add-quorum-resolution-loop-for-human-nee](./quick/36-add-quorum-resolution-loop-for-human-nee/) |
+| 36 | Add quorum resolution loop for human_needed verifier status in execute-phase and quick (--full) workflows | 2026-02-21 | 045f2fc | Verified | [36-add-quorum-resolution-loop-for-human-nee](./quick/36-add-quorum-resolution-loop-for-human-nee/) |
 
 ### Blockers/Concerns
 
