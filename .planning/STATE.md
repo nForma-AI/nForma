@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-20 after Phase 2)
+See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 4 — Narrow Quorum Scope to Project Decisions Only (COMPLETE — 2/2 plans done)
+**Current focus:** v0.2 Anti-Oscillation Pattern — defining requirements
 
 ## Current Position
 
-Phase: 4 of 4 (Narrow Quorum Scope) — COMPLETE
-Plan: 2/2 complete
-Status: ALL PHASES COMPLETE — Phase 4 fully done: 04-01 (GUARD 5) + 04-02 (decision marker injection) shipped
-Last activity: 2026-02-20 - Completed quick task 1: Rebrand project to QGSD: Quorum Gets Shit Done
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v0.2 Anti-Oscillation Pattern
+Last activity: 2026-02-21 — Milestone v0.2 started
 
-Progress: [████████████████████████████████] 100% (4/4 phases complete)
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0/N phases complete)
 
 ## Performance Metrics
 

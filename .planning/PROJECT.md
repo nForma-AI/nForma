@@ -8,6 +8,16 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Current Milestone: v0.2 Anti-Oscillation Pattern
+
+**Goal:** Move R5 (Circuit Breaker) from CLAUDE.md behavioral policy into structural Claude Code hooks — making oscillation detection and execution blocking impossible to skip, the same way R3 (Quorum) was moved in v0.1.
+
+**Target features:**
+- PreToolUse hook on Bash that detects oscillation (≥3 of last 6 commits alternating on the same file set with no net stability improvement)
+- Persistent circuit breaker state file tracks active breakers and their context across hook invocations
+- Execution blocked via `decision:block` when circuit breaker is active
+- Allowed operations enforced during active breaker: only root cause analysis and dependency mapping
+
 ## Requirements
 
 ### Validated
@@ -35,7 +45,12 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Active
 
-(All phases complete — no active requirements)
+<!-- Current scope for v0.2 Anti-Oscillation Pattern. Building toward these. -->
+
+- [ ] PreToolUse hook on Bash detects oscillation in git commit history
+- [ ] Persistent circuit breaker state file tracks active breakers
+- [ ] Hook blocks Bash execution via decision:block when circuit breaker active
+- [ ] Allowed operations enforced during circuit breaker: root cause analysis only
 
 ### Out of Scope
 
