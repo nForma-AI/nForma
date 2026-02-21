@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 Phase: 14 — activity-tracking (COMPLETE)
 Plan: 04 complete (4/4 plans done)
 Status: ACT-01 ✓, ACT-02 ✓, ACT-03 ✓, ACT-04 ✓, ACT-05 ✓, ACT-06 ✓, ACT-07 ✓ — all activity tracking requirements satisfied; resume-project.md routes recovery commands by sub_activity
-Last activity: 2026-02-21 — Completed quick task 21: fix QGSD gaps — Copilot in required_models, quick in quorum_commands, Step 5.7 quorum gate in quick.md
+Last activity: 2026-02-21 — Completed quick task 22: orchestrator r8_scoreboard compact row format + quorum.md round-evolution display after multi-round deliberation
 
 Progress: [████████████████████████████████████] 13/13 phases complete (100%)
 
@@ -184,6 +184,7 @@ Recent decisions affecting current work:
 | 19 | Fix Stop hook false positive on new-project: XML-tag-first command matching in hasQuorumCommand/extractCommand | 2026-02-21 | 02b73bf | Complete | [19-fix-stop-hook-false-positive-on-new-proj](./quick/19-fix-stop-hook-false-positive-on-new-proj/) |
 | 20 | Create qgsd-quorum-orchestrator + qgsd-oscillation-resolver agents; recolor qgsd-quorum-test-worker to magenta | 2026-02-21 | disk-only | Verified | [20-create-qgsd-quorum-orchestrator-qgsd-osc](./quick/20-create-qgsd-quorum-orchestrator-qgsd-osc/) |
 | 21 | Fix QGSD gaps: add Copilot to required_models, quick to quorum_commands, Step 5.7 quorum gate in quick.md | 2026-02-21 | 3306a9e | Complete | [21-fix-qgsd-gaps-add-copilot-to-required-mo](./quick/21-fix-qgsd-gaps-add-copilot-to-required-mo/) |
+| 22 | Update orchestrator r8_scoreboard compact row format + quorum.md round-evolution display | 2026-02-21 | disk-only | Complete | [22-update-both-files-scoreboard-write-logic](./quick/22-update-both-files-scoreboard-write-logic/) |
 
 ### Blockers/Concerns
 
@@ -194,5 +195,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed quick task 21. Copilot enforcement gap closed: required_models, deriveMissingToolName, prompt fallback, quorum_commands, quick.md Step 5.7 all updated. 42 tests pass.
+Stopped at: Completed quick task 22. Orchestrator r8_scoreboard has explicit compact row format with 7 cell encoding rules. quorum.md has round-evolution table in Mode A Step 5 and Mode B Step 5 reference.
 Resume file: N/A
