@@ -222,9 +222,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INST-09 | Phase 10 (gap closure for Phase 8) | Pending |
 | INST-10 | Phase 10 (gap closure for Phase 8) | Pending |
 | RECV-01 | Phase 10 (gap closure for Phase 8) | Pending |
-
 | CL-01 | Phase 11 | Pending |
-| CL-02 | Phase 12 | Pending |
+| CL-02 | Phase 11 | Pending |
 | BLD-01 | Phase 11 | Pending |
 | BLD-02 | Phase 11 | Pending |
 | RLS-01 | Phase 12 | Pending |
@@ -242,4 +241,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-21 — v0.3 Release Preparation: 8 new requirements added (CL-01..02, BLD-01..02, RLS-01..04) mapped to Phases 11–12. Previous update: v0.2 gap closure (20 requirements reset to Pending, reassigned to gap closure phases 9-10).*
+*Last updated: 2026-02-21 — v0.3 roadmap finalized: CL-02 corrected to Phase 11 (changelog prep, not release action); all 8 v0.3 requirements confirmed mapped. Previous update: v0.3 Release Preparation: 8 new requirements added (CL-01..02, BLD-01..02, RLS-01..04) mapped to Phases 11–12.*

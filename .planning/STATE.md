@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.3 Release Preparation — defining requirements for qgsd@0.2.0 release
+**Current focus:** v0.3 Release Preparation — executing Phase 9 (Verify Phases 5-6), the first pending phase
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 9 — Verify Phases 5-6
 Plan: —
-Status: Defining requirements for v0.3 Release Preparation
-Last activity: 2026-02-21 — Milestone v0.3 Release Preparation started
+Status: Pending — run /qgsd:plan-phase 9 to begin
+Last activity: 2026-02-21 — v0.3 roadmap created (Phases 11-12 added); current focus set to Phase 9
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
+Progress: [████████████████████░░░░░░░░░░░░░] 8/12 phases complete (67%)
 
 ## Performance Metrics
 
@@ -108,12 +108,15 @@ Recent decisions affecting current work:
 - [Phase 08-installer-integration]: --reset-breaker uses process.cwd() for state file path (project-relative, not global dir)
 - [Phase 08-installer-integration]: PreToolUse registration inside !isOpencode guard — circuit breaker is Claude Code-only in v0.2; timeout:10 (lighter than Stop hook's 30)
 - [Phase 08-installer-integration]: Reinstall backfill checks only top-level circuit_breaker key presence — user-modified sub-keys never touched
+- [v0.3 roadmap]: Phases 11-12 added for Release Preparation. Phase 11 (Changelog & Build) covers CL-01, CL-02, BLD-01, BLD-02. Phase 12 (Version & Publish) covers RLS-01, RLS-02, RLS-03, RLS-04. Phase 11 depends on Phase 10; Phase 12 depends on Phase 11.
 
 ### Roadmap Evolution
 
 - Phase 4 added: Narrow quorum scope to project decisions only
 - Phase 5 added: Fix GUARD 5 delivery gaps
 - Phases 6–8 added: v0.2 Anti-Oscillation Pattern (circuit breaker structural enforcement)
+- Phases 9–10 added: v0.3 gap closure (verification of v0.2 work)
+- Phases 11–12 added: v0.3 Release Preparation (changelog, build, version bump, npm publish)
 
 ### Pending Todos
 
@@ -147,5 +150,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Started v0.3 milestone — defining requirements for Release Preparation.
+Stopped at: v0.3 roadmap created — Phases 11-12 added for Release Preparation. Ready to execute Phase 9.
 Resume file: N/A
