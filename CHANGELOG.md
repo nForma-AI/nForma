@@ -6,17 +6,61 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Fixed
-- GUARD 5 decision-turn scoping now active for all install paths: `hooks/dist/` rebuilt to include
-  Phase 4 GUARD 5 code (`hasArtifactCommit` + `hasDecisionMarker`); `buildQuorumInstructions()` now
-  includes the `<!-- GSD_DECISION -->` marker step so installer-written configs trigger
-  `hasDecisionMarker()` correctly
-- `templates/qgsd.json` `quorum_instructions` updated to include the decision marker step
+## [0.2.0] - 2026-02-21
 
 ### Added
-- `--redetect-mcps` flag: re-runs MCP prefix detection and overwrites `~/.claude/qgsd.json` with
-  fresh detected prefixes without a full reinstall. Existing users should run
-  `npx qgsd@latest --redetect-mcps` to pick up updated `quorum_instructions` from this release.
+- **Circuit breaker hook** (`hooks/qgsd-circuit-breaker.js`) — PreToolUse hook that detects
+  oscillation in git history (strict set equality across the last N commits) and persists
+  breaker state to `.claude/circuit-breaker-state.json`; survives across tool calls
+- **Enforcement blocking** — When the circuit breaker is active, any non-read-only Bash
+  command is denied via `hookSpecificOutput.permissionDecision='deny'`; read-only commands
+  (git log, git diff, grep, cat, ls, head, tail, find) always pass
+- **Oscillation Resolution Mode** — Deny message renders the commit graph as a markdown table
+  and explicitly invokes Oscillation Resolution Mode per R5 (CLAUDE.md); procedure detailed
+  in `get-shit-done/workflows/oscillation-resolution-mode.md`
+- **`circuit_breaker` config block** — `qgsd.json` extended with `circuit_breaker.oscillation_depth`
+  (default: 3) and `circuit_breaker.commit_window` (default: 6); validated on load with
+  stderr warnings for invalid values; two-layer merge (global + per-project) applies
+- **`npx qgsd --reset-breaker`** — CLI flag clears `.claude/circuit-breaker-state.json`
+  (project-relative, resolved via git rev-parse) enabling manual recovery from deadlock
+- **Installer auto-registers circuit breaker hook** — `npx qgsd@latest` now writes a
+  PreToolUse entry for `qgsd-circuit-breaker.js` in `~/.claude/settings.json` and writes
+  the default `circuit_breaker` config block to `~/.claude/qgsd.json`; reinstall is
+  idempotent (existing user values are never overwritten)
+- **QGSD rebranding** — Package renamed to `qgsd`; banner updated to "QGSD: Quorum Gets Shit
+  Done" with salmon Q; all commands use `/qgsd:` prefix; hooks updated to match both
+  `/gsd:` and `/qgsd:` prefixes for backward compatibility (quick tasks 1, 8, 9, 10, 11)
+- **Quorum agent scoring** (`R8`) — TP/TN/FP/FN weighted schema tracks each model's initial
+  vote vs final consensus; scoreboard at `.planning/quorum-scoreboard.md`; Improvement
+  Accepted/Rejected classifications track proposal quality (quick task 4)
+- **`/qgsd:quorum-test` command** — Pre-flight validation collects artifacts before running
+  quorum models; replaces human checkpoint:human-verify gates in plan templates (quick task 3, 5)
+- **`/qgsd:debug` command** — Auto-proceeds when quorum reaches consensus; Step 7 executes
+  consensus next step without user-permission gate (quick task 12)
+- **`checkpoint:verify` flow in `/qgsd:execute-phase`** — Executor calls `/qgsd:quorum-test`
+  at checkpoint:verify gates; enters 3-round debug loop on BLOCK/REVIEW-NEEDED; escalates
+  to checkpoint:human-verify only after loop exhausts (quick task 6)
+- **R3.6 Iterative Improvement Protocol** — When quorum approves but proposes improvements,
+  Claude incorporates them and re-runs quorum; up to 10 iterations until no further
+  improvements proposed (quick task 2)
+- **User Guide updated** — Execution Wave Coordination diagram includes checkpoint:verify
+  pipeline (quick task 7)
+- **`--redetect-mcps` flag** — Re-runs MCP prefix detection and overwrites
+  `~/.claude/qgsd.json` without a full reinstall
+
+### Fixed
+- **GUARD 5 delivery gaps** — `hooks/dist/` rebuilt to include Phase 4 GUARD 5 code
+  (`hasArtifactCommit` + `hasDecisionMarker`); `buildQuorumInstructions()` in `bin/install.js`
+  now appends the `<!-- GSD_DECISION -->` marker step so installer-written configs trigger
+  `hasDecisionMarker()` correctly; `templates/qgsd.json` updated to match
+- **Installer uninstall dead hook** (INST-08) — `uninstall()` now removes the PreToolUse
+  circuit breaker hook entry from `~/.claude/settings.json`, mirroring the existing Stop
+  and UserPromptSubmit removal pattern
+- **`--reset-breaker` path resolution** (RECV-01) — Uses `git rev-parse --show-toplevel`
+  with `process.cwd()` fallback, consistent with how `qgsd-circuit-breaker.js` resolves
+  the git root
+- **Installer sub-key backfill** (INST-10) — Uses `=== undefined` check (not falsy) to
+  preserve user-set values including `0`; `validateConfig()` handles runtime validation
 
 ## [0.1.0] - 2026-02-20
 
@@ -1355,7 +1399,9 @@ and `templates/qgsd.json`. Then cut a QGSD patch release.
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.20.5...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/glittercowboy/get-shit-done/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v0.1.0
 [1.20.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.5
 [1.20.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.4
 [1.20.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.3
