@@ -69,6 +69,7 @@ Progress: [███████████████████░] 38/39 p
 | Phase 14-activity-tracking P02 | 2 | 2 tasks | 2 files |
 | Phase 14-activity-tracking P03 | 3 min | 3 tasks | 8 files |
 | Phase 14-activity-tracking P04 | 1 min | 2 tasks | 3 files |
+| Phase 17-fix-installed-agent-name-typos P01 | 2 | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -145,6 +146,7 @@ Recent decisions affecting current work:
 - [Phase 14-03]: quorum activity-set added in Step 8.5 (new section) in plan-phase — most accurate point where per-R3 quorum runs before user output; oscillation-resolution-mode.md does NOT get activity-clear as circuit_breaker states persist until parent workflow completes
 - [Phase Phase 14-04]: activity-get called in initialize step before state routing — HAS_ACTIVITY flag available to all downstream steps; routing table maps 13 sub_activity values to recovery commands; HAS_ACTIVITY=false is silent (graceful degradation when no interruption)
 - [Phase 16-verify-phase-15]: INT-02 fix (planning row disambiguation) included in Phase 16 scope — routing table now fully unambiguous with all ambiguous sub_activity values carrying (activity=X) qualifiers; disk-only update to installed resume-project.md per project convention (outside git repo)
+- [Phase 17-fix-installed-agent-name-typos]: Installed files corrected disk-only (no git commit) — consistent with project convention for ~/.claude/qgsd/ files
 
 ### Roadmap Evolution
 

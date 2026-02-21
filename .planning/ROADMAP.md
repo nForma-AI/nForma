@@ -236,7 +236,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Activity Tracking | 4/4 | Complete    | 2026-02-21 |
 | 15. v0.4 Gap Closure — Activity Resume Routing | 1/1 | Complete | 2026-02-21 |
 | 16. Verify Phase 15 — ACT-02 and ACT-04 | 1/1 | Complete    | 2026-02-21 |
-| 17. Fix Installed Agent Name Typos | 1/1 | Planned | — |
+| 17. Fix Installed Agent Name Typos | 1/1 | Complete   | 2026-02-21 |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
 
@@ -290,7 +290,7 @@ Plans:
 **Depends on:** Phase 16
 **Requirements:** none (tech_debt fix)
 **Gap Closure:** Closes tech_debt from v0.4 audit — installer artifact introduced double-q prefix in agent name references across all QGSD workflow files
-**Plans:** 1/1 planned
+**Plans:** 1/1 plans complete
 
 Plans:
 - [ ] 17-01-PLAN.md — Fix qqgsd-* → qgsd-* in all 12 affected files (10 installed: plan-phase, new-milestone, research-phase, execute-plan, audit-milestone, map-codebase, new-project, verify-work, debug-subagent-prompt, planner-subagent-prompt; 2 source: plan-phase, research-phase); verify with grep; commit source changes
