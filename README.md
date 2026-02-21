@@ -62,7 +62,7 @@ That's what this is. No enterprise roleplay bullshit. Just an incredibly effecti
 
 Vibecoding has a bad reputation. You describe what you want, AI generates code, and you get inconsistent garbage that falls apart at scale.
 
-GSD fixes that. It's the context engineering layer that makes Claude Code reliable. Describe your idea, let the system extract everything it needs to know, and let Claude Code get to work.
+QGSD fixes that. It's the context engineering layer that makes Claude Code reliable. Describe your idea, let the system extract everything it needs to know, and let Claude Code get to work.
 
 ---
 
@@ -86,7 +86,7 @@ Verify with `/qgsd:help` inside your chosen runtime.
 
 ### Staying Updated
 
-GSD evolves fast. Update periodically:
+QGSD evolves fast. Update periodically:
 
 ```bash
 npx get-shit-done-cc@latest
@@ -132,14 +132,14 @@ Installs to `./.claude/` for testing modifications before contributing.
 
 ### Recommended: Skip Permissions Mode
 
-GSD is designed for frictionless automation. Run Claude Code with:
+QGSD is designed for frictionless automation. Run Claude Code with:
 
 ```bash
 claude --dangerously-skip-permissions
 ```
 
 > [!TIP]
-> This is how GSD is intended to be used — stopping to approve `date` and `git commit` 50 times defeats the purpose.
+> This is how QGSD is intended to be used — stopping to approve `date` and `git commit` 50 times defeats the purpose.
 
 <details>
 <summary><strong>Alternative: Granular Permissions</strong></summary>
@@ -349,7 +349,7 @@ Then `/qgsd:new-milestone` starts the next version — same flow as `new-project
 
 **For ad-hoc tasks that don't need full planning.**
 
-Quick mode gives you GSD guarantees (atomic commits, state tracking) with a faster path:
+Quick mode gives you QGSD guarantees (atomic commits, state tracking) with a faster path:
 
 - **Same agents** — Planner + executor, same quality
 - **Skips optional steps** — No research, no plan checker, no verifier
@@ -372,7 +372,7 @@ Use for: bug fixes, small features, config changes, one-off tasks.
 
 Claude Code is incredibly powerful *if* you give it the context it needs. Most people don't.
 
-GSD handles it for you:
+QGSD handles it for you:
 
 | File | What it does |
 |------|--------------|
@@ -470,8 +470,8 @@ You're never locked in. The system adapts.
 |---------|--------------|
 | `/qgsd:progress` | Where am I? What's next? |
 | `/qgsd:help` | Show all commands and usage guide |
-| `/qgsd:update` | Update GSD with changelog preview |
-| `/qgsd:join-discord` | Join the GSD Discord community |
+| `/qgsd:update` | Update QGSD with changelog preview |
+| `/qgsd:join-discord` | Join the QGSD Discord community |
 
 ### Brownfield
 
@@ -505,7 +505,8 @@ You're never locked in. The system adapts.
 | `/qgsd:add-todo [desc]` | Capture idea for later |
 | `/qgsd:check-todos` | List pending todos |
 | `/qgsd:debug [desc]` | Systematic debugging with persistent state |
-| `/qgsd:quick [--full]` | Execute ad-hoc task with GSD guarantees (`--full` adds plan-checking and verification) |
+| `/qgsd:quorum-test` | Run multi-model quorum on a plan or verification artifact |
+| `/qgsd:quick [--full]` | Execute ad-hoc task with QGSD guarantees (`--full` adds plan-checking and verification) |
 | `/qgsd:health [--repair]` | Validate `.planning/` directory integrity, auto-repair with `--repair` |
 
 <sup>¹ Contributed by reddit user OracleGreyBeard</sup>
@@ -514,7 +515,7 @@ You're never locked in. The system adapts.
 
 ## Configuration
 
-GSD stores project settings in `.planning/config.json`. Configure during `/qgsd:new-project` or update later with `/qgsd:settings`. For the full config schema, workflow toggles, git branching options, and per-agent model breakdown, see the [User Guide](docs/USER-GUIDE.md#configuration-reference).
+QGSD stores project settings in `.planning/config.json`. Configure during `/qgsd:new-project` or update later with `/qgsd:settings`. For the full config schema, workflow toggles, git branching options, and per-agent model breakdown, see the [User Guide](docs/USER-GUIDE.md#configuration-reference).
 
 ### Core Settings
 
@@ -564,7 +565,7 @@ Use `/qgsd:settings` to toggle these, or override per-invocation:
 
 ### Git Branching
 
-Control how GSD handles branches during execution.
+Control how QGSD handles branches during execution.
 
 | Setting | Options | Default | What it does |
 |---------|---------|---------|--------------|
@@ -573,11 +574,11 @@ Control how GSD handles branches during execution.
 | `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | Template for milestone branches |
 
 **Strategies:**
-- **`none`** — Commits to current branch (default GSD behavior)
+- **`none`** — Commits to current branch (default QGSD behavior)
 - **`phase`** — Creates a branch per phase, merges at phase completion
 - **`milestone`** — Creates one branch for entire milestone, merges at completion
 
-At milestone completion, GSD offers squash merge (recommended) or merge with history.
+At milestone completion, QGSD offers squash merge (recommended) or merge with history.
 
 ---
 
@@ -585,7 +586,7 @@ At milestone completion, GSD offers squash merge (recommended) or merge with his
 
 ### Protecting Sensitive Files
 
-GSD's codebase mapping and analysis commands read files to understand your project. **Protect files containing secrets** by adding them to Claude Code's deny list:
+QGSD's codebase mapping and analysis commands read files to understand your project. **Protect files containing secrets** by adding them to Claude Code's deny list:
 
 1. Open Claude Code settings (`.claude/settings.json` or global)
 2. Add sensitive file patterns to the deny list:
@@ -608,7 +609,7 @@ GSD's codebase mapping and analysis commands read files to understand your proje
 This prevents Claude from reading these files entirely, regardless of what commands you run.
 
 > [!IMPORTANT]
-> GSD includes built-in protections against committing secrets, but defense-in-depth is best practice. Deny read access to sensitive files as a first line of defense.
+> QGSD includes built-in protections against committing secrets, but defense-in-depth is best practice. Deny read access to sensitive files as a first line of defense.
 
 ---
 
@@ -637,7 +638,7 @@ This ensures absolute paths are used instead of `~` which may not expand correct
 
 ### Uninstalling
 
-To remove GSD completely:
+To remove QGSD completely:
 
 ```bash
 # Global installs
@@ -649,7 +650,7 @@ npx get-shit-done-cc --claude --local --uninstall
 npx get-shit-done-cc --opencode --local --uninstall
 ```
 
-This removes all GSD commands, agents, hooks, and settings while preserving your other configurations.
+This removes all QGSD commands, agents, hooks, and settings while preserving your other configurations.
 
 ---
 
