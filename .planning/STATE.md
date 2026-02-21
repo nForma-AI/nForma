@@ -187,6 +187,7 @@ Recent decisions affecting current work:
 | 21 | Fix QGSD gaps: add Copilot to required_models, quick to quorum_commands, Step 5.7 quorum gate in quick.md | 2026-02-21 | 3306a9e | Complete | [21-fix-qgsd-gaps-add-copilot-to-required-mo](./quick/21-fix-qgsd-gaps-add-copilot-to-required-mo/) |
 | 22 | Update orchestrator r8_scoreboard compact row format + quorum.md round-evolution display | 2026-02-21 | disk-only | Verified | [22-update-both-files-scoreboard-write-logic](./quick/22-update-both-files-scoreboard-write-logic/) |
 | 23 | Insert r4_pre_filter step into discuss-phase workflow between analyze_phase and present_gray_areas | 2026-02-21 | 646a412 | Verified | [23-add-the-r4-pre-filter-step-to-the-discus](./quick/23-add-the-r4-pre-filter-step-to-the-discus/) |
+| 24 | Canonicalize quorum pattern: role visibility (CONTRARIAN/AGREEING/IMPROVING), improvement round in debug.md, auto-execute gate | 2026-02-21 | 0a9b773 | Complete | [24-improve-qgsd-debug-quorum-discussion-flo](./quick/24-improve-qgsd-debug-quorum-discussion-flo/) |
 
 ### Blockers/Concerns
 
