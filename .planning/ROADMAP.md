@@ -22,6 +22,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Circuit Breaker Detection & State** - PreToolUse hook detects oscillation in git history and persists breaker state across invocations
 - [x] **Phase 7: Enforcement & Config Integration** - Bash execution blocked when breaker is active; circuit_breaker config block added to config-loader (completed 2026-02-21)
 - [x] **Phase 8: Installer Integration** - Installer registers PreToolUse hook and writes default circuit_breaker config block idempotently (completed 2026-02-21)
+- [ ] **Phase 9: Verify Phases 5-6** - Create VERIFICATION.md for Phases 5 and 6; close DETECT-01..05 and STATE-01..04 requirements (gap closure)
+- [ ] **Phase 10: Fix Bugs + Verify Phases 7-8** - Fix INST-08 uninstall hook cleanup, RECV-01 path mismatch, INST-10 sub-key backfill, CONF-09 docs; create VERIFICATION.md for Phases 7 and 8; close all remaining v0.2 requirements (gap closure)
 
 ## Phase Details
 
@@ -145,6 +147,20 @@ Plans:
 Plans:
 - [ ] 08-01-PLAN.md — Four installer changes: PreToolUse hook registration, circuit_breaker config block, idempotent reinstall patch, --reset-breaker CLI flag
 
+### Phase 9: Verify Phases 5-6
+**Goal:** Produce gsd-verifier VERIFICATION.md for Phases 5 and 6 — establishing formal evidence that DETECT/STATE requirements are satisfied and the Phase 5 GUARD 5 delivery is correct
+**Depends on:** Phase 8
+**Requirements:** DETECT-01, DETECT-02, DETECT-03, DETECT-04, DETECT-05, STATE-01, STATE-02, STATE-03, STATE-04
+**Gap Closure:** Closes gaps from v0.2 audit — Phases 5 and 6 unverified (no VERIFICATION.md)
+**Plans:** TBD — run /qgsd:plan-phase 9
+
+### Phase 10: Fix Bugs + Verify Phases 7-8
+**Goal:** Fix 3 integration bugs found by audit (INST-08 uninstall dead hook, RECV-01 path mismatch, INST-10 sub-key backfill) + document CONF-09 shallow merge; then produce VERIFICATION.md for Phases 7 and 8
+**Depends on:** Phase 9
+**Requirements:** ENFC-01, ENFC-02, ENFC-03, CONF-06, CONF-07, CONF-08, CONF-09, INST-08, INST-09, INST-10, RECV-01
+**Gap Closure:** Closes gaps from v0.2 audit — Phases 7 and 8 unverified + 3 integration bugs + Flow D partial
+**Plans:** TBD — run /qgsd:plan-phase 10
+
 ## Progress
 
 **Execution Order:**
@@ -162,3 +178,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 6. Circuit Breaker Detection & State | 1/1 | Complete | 2026-02-21 |
 | 7. Enforcement & Config Integration | 2/2 | Complete | 2026-02-21 |
 | 8. Installer Integration | 1/1 | Complete   | 2026-02-21 |
+| 9. Verify Phases 5-6 | 0/TBD | Pending | — |
+| 10. Fix Bugs + Verify Phases 7-8 | 0/TBD | Pending | — |
