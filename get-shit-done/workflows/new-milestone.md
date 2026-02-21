@@ -110,6 +110,11 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs config-set workflow.research false
 ```
 
 ```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
+  "{\"activity\":\"new_milestone\",\"sub_activity\":\"researching\"}"
+```
+
+```bash
 mkdir -p .planning/research
 ```
 
@@ -268,6 +273,11 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs: define milestone v[X.Y] requ
 
 **Starting phase number:** Read MILESTONES.md for last phase number. Continue from there (v1.0 ended at phase 5 → v1.1 starts at phase 6).
 
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
+  "{\"activity\":\"new_milestone\",\"sub_activity\":\"creating_roadmap\"}"
+```
+
 ```
 Task(prompt="
 <planning_context>
@@ -360,6 +370,10 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs: create milestone v[X.Y] road
 <sub>`/clear` first → fresh context window</sub>
 
 Also: `/qgsd:plan-phase [N]` — skip discussion, plan directly
+```
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-clear
 ```
 
 </process>
