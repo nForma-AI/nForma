@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone s
 ## Current Position
 
 Phase: 7 of 8 (Enforcement & Config Integration) — v0.2 milestone
-Plan: 0 of TBD in current phase
-Status: Ready to plan (Phase 6 complete 2026-02-21)
-Last activity: 2026-02-21 - Completed quick task 8: Fix hook namespace — /q?gsd: regex, /qgsd:plan-phase fallback, 20/20 tests pass
+Plan: 2 of 2 in current phase (COMPLETE)
+Status: Phase 7 complete 2026-02-21
+Last activity: 2026-02-21 - Completed Phase 7: circuit_breaker config extension + enforcement blocking (138 tests passing)
 
-Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13% (Phase 5 pending, Phases 6–8 not started)
+Progress: [█████████████████████░░░░░░░░░░░] 75% (Phases 1–7 complete, Phase 8 remaining)
 
 ## Performance Metrics
 
@@ -51,6 +51,8 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | Phase 03-installer-distribution P02 | 1 min | 4 tasks | 1 file |
 | Phase 04-narrow-quorum-scope P01 | 8 min | 1 task (TDD) | 2 files |
 | Phase 04-narrow-quorum-scope P02 | 1 min | 1 task | 1 file |
+| Phase 07-enforcement-config-integration P01 | 8 min | 2 tasks (TDD) | 2 files |
+| Phase 07-enforcement-config-integration P02 | 10 min | 2 tasks (TDD) | 2 files |
 
 ## Accumulated Context
 
@@ -93,6 +95,11 @@ Recent decisions affecting current work:
 - [Phase 04-narrow-quorum-scope P02]: DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK only — users with custom quorum_instructions in qgsd.json bypass step 5; acceptable per fail-open philosophy
 - [Phase 04-narrow-quorum-scope P02]: Injection mechanism (hookSpecificOutput.additionalContext, cmdPattern, config-loading) unchanged; only the fallback string content was modified
 - [Phase 04-narrow-quorum-scope P01]: TC6/TC9/TC12 updated (step 1a) to include artifact commit signals — preserves decision:block invariant after GUARD 5 is added
+- [Phase 07-01]: circuit_breaker sub-key validation is independent — oscillation_depth and commit_window each get their own validation branch, own default, and own stderr warning; shallow merge carries circuit_breaker through automatically (CONF-09)
+- [Phase 07-01]: Undefined fill-in step handles TC-CB6 (partial project config with only oscillation_depth set): after range checks, missing optional sub-keys get assigned defaults
+- [Phase 07-02]: hookSpecificOutput deny format is CRITICAL: { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason } } — { "decision": "block" } silently allows the command
+- [Phase 07-02]: loadConfig(gitRoot) called AFTER active-state branch — config only needed for detection; when already blocked, config cost is unnecessary
+- [Phase 07-02]: Read-only commands always pass even during active block — diagnostic ops (git log, grep, cat) must remain available for root cause analysis workflow
 - [v0.2 roadmap]: Circuit breaker hook is a new file hooks/qgsd-circuit-breaker.js (PreToolUse on Bash); uses existing config-loader.js; state at .claude/circuit-breaker-state.json (project-relative)
 - [v0.2 roadmap revision]: RECV-01 moved from Future to Phase 8 — deadlock fix; npx qgsd --reset-breaker clears state file; consensus Gemini+OpenCode+Copilot. DETECT-03 clarified to strict set equality (not intersection). ENFC-03 updated to explicitly instruct user to manually commit the fix.
 - [quick-4 scoring]: CLAUDE.md gitignored by project design — R8 rule applied to disk only, no git commit (matches quick-2/R3.6 precedent); scoreboard at .planning/quorum-scoreboard.md committed separately
@@ -131,5 +138,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Quick task 8 complete — qgsd-stop.js and qgsd-prompt.js updated to recognize /qgsd: prefix; TC5b added; dist rebuilt (2e201c6).
+Stopped at: Phase 7 complete — circuit_breaker config extension (07-01) + enforcement blocking (07-02); 138/138 tests passing (ead8baa).
 Resume file: N/A

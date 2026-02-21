@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Narrow Quorum Scope** - Stop hook restricted to actual project decision turns via GUARD 5 (completed 2026-02-21)
 - [x] **Phase 5: Fix GUARD 5 Delivery Gaps** - hooks/dist/ rebuilt + marker path propagated to installer users
 - [x] **Phase 6: Circuit Breaker Detection & State** - PreToolUse hook detects oscillation in git history and persists breaker state across invocations
-- [ ] **Phase 7: Enforcement & Config Integration** - Bash execution blocked when breaker is active; circuit_breaker config block added to config-loader
+- [x] **Phase 7: Enforcement & Config Integration** - Bash execution blocked when breaker is active; circuit_breaker config block added to config-loader (completed 2026-02-21)
 - [ ] **Phase 8: Installer Integration** - Installer registers PreToolUse hook and writes default circuit_breaker config block idempotently
 
 ## Phase Details
@@ -128,8 +128,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — config-loader TDD: circuit_breaker sub-object in DEFAULT_CONFIG + validateConfig() with TC-CB1 through TC-CB7
-- [ ] 07-02-PLAN.md — Hook enforcement TDD: blocking output (hookSpecificOutput.permissionDecision:deny) + config-driven thresholds, CB-TC7 update + CB-TC16 through CB-TC19
+- [x] 07-01-PLAN.md — config-loader TDD: circuit_breaker sub-object in DEFAULT_CONFIG + validateConfig() with TC-CB1 through TC-CB8
+- [x] 07-02-PLAN.md — Hook enforcement TDD: blocking output (hookSpecificOutput.permissionDecision:deny) + config-driven thresholds, CB-TC7 update + CB-TC16 through CB-TC19
 
 ### Phase 8: Installer Integration
 **Goal**: Running `npx qgsd@latest` registers the circuit breaker PreToolUse hook and writes a default circuit_breaker config block — idempotently, without overwriting user-modified values
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 2. Config & MCP Detection | 4/4 | Complete | 2026-02-20 |
 | 3. Installer & Distribution | 3/3 | Complete   | 2026-02-20 |
 | 4. Narrow Quorum Scope | 2/2 | Complete | 2026-02-21 |
-| 5. Fix GUARD 5 Delivery Gaps | 0/1 | Not started | - |
-| 6. Circuit Breaker Detection & State | 0/1 | Not started | - |
-| 7. Enforcement & Config Integration | 0/2 | Not started | - |
+| 5. Fix GUARD 5 Delivery Gaps | 1/1 | Complete | 2026-02-21 |
+| 6. Circuit Breaker Detection & State | 1/1 | Complete | 2026-02-21 |
+| 7. Enforcement & Config Integration | 2/2 | Complete | 2026-02-21 |
 | 8. Installer Integration | 0/TBD | Not started | - |
