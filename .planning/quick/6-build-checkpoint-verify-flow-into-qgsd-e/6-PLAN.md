@@ -5,7 +5,6 @@ type: execute
 wave: 1
 depends_on: []
 files_modified:
-  - .planning/phases/02-config-mcp-detection/02-04-PLAN.md
   - commands/qgsd/execute-phase.md
   - CLAUDE.md
 autonomous: true
@@ -23,9 +22,6 @@ must_haves:
     - "CLAUDE.md R1 table defines both checkpoint:verify and checkpoint:human-verify with distinct semantics"
     - "All plans execute to completion with optional /qgsd:verify-work prompt"
   artifacts:
-    - path: ".planning/phases/02-config-mcp-detection/02-04-PLAN.md"
-      provides: "Updated plan with checkpoint:verify on Task 3"
-      contains: "checkpoint:verify"
     - path: "commands/qgsd/execute-phase.md"
       provides: "qgsd:execute-phase command with checkpoint:verify handling and debug loop"
       contains: "checkpoint:verify"
@@ -50,9 +46,9 @@ must_haves:
 <objective>
 Build the checkpoint:verify flow into the QGSD execute-phase command: automated quorum gate on plan verification steps with debug loop escalation and a final fallback to checkpoint:human-verify.
 
-Purpose: Plans that currently use checkpoint:human-verify for test-suite verification can now run fully automated via /qgsd:quorum-test. Human review is reserved for escalation only — when quorum cannot agree after 3 debug rounds, or when all models are unavailable.
+Purpose: New plans that use automated test-suite verification will carry checkpoint:verify so the executor calls /qgsd:quorum-test instead of waiting for human input. Existing plans (e.g., 02-04-PLAN.md) that have at least one non-automatable check (e.g., Check 6 requires a live Claude Code session) correctly retain checkpoint:human-verify and are NOT being renamed. Human review is reserved for: (a) plans with inherently non-automatable checks, (b) quorum cannot agree after 3 debug rounds, or (c) all models are unavailable.
 
-Output: Updated 02-04-PLAN.md (checkpoint type corrected), new qgsd:execute-phase command with full checkpoint:verify logic, CLAUDE.md R1 definitions for both checkpoint types.
+Output: New qgsd:execute-phase command with full checkpoint:verify logic, CLAUDE.md R1 definitions for both checkpoint types.
 </objective>
 
 <execution_context>
@@ -71,52 +67,7 @@ Output: Updated 02-04-PLAN.md (checkpoint type corrected), new qgsd:execute-phas
 <tasks>
 
 <task type="auto">
-  <name>Task 1: Rename checkpoint:human-verify to checkpoint:verify in annotated plan files</name>
-  <files>
-    .planning/phases/02-config-mcp-detection/02-04-PLAN.md
-  </files>
-  <action>
-    In `.planning/phases/02-config-mcp-detection/02-04-PLAN.md`, Task 3 is a checkpoint whose
-    primary verification steps (Check 1: config-loader tests, Check 2: stop hook tests) are handled
-    by /qgsd:quorum-test. The verification is automated — quorum-test handles it. The task type
-    must be updated from checkpoint:human-verify to checkpoint:verify.
-
-    Targeted edits to the file:
-
-    1. On line 158, find the task opening tag where type equals "checkpoint:human-verify"
-       and change the type attribute value to "checkpoint:verify". Keep the gate="blocking"
-       attribute unchanged.
-
-    2. In the frontmatter, change the `autonomous` field from `false` to `true`. This plan no
-       longer requires a human pause — the checkpoint:verify gate is handled by /qgsd:quorum-test
-       automatically.
-
-    3. At the top of Task 3's action element, insert a one-sentence note:
-       "Executor: call /qgsd:quorum-test for Checks 1 and 2; Checks 3–6 are executor-runnable
-       shell commands (not human-only steps)."
-
-    Do NOT change 01-05-PLAN.md. That plan's quorum-test reference is a HTML comment pointing
-    to a separate mechanism. The Task 2 checkpoint in that plan covers live session behavior
-    (Tests A/B/C/D) that cannot be automated via quorum-test — it must remain as
-    checkpoint:human-verify.
-  </action>
-  <verify>
-    grep "checkpoint:verify" /Users/jonathanborduas/code/QGSD/.planning/phases/02-config-mcp-detection/02-04-PLAN.md
-    grep "^autonomous: true" /Users/jonathanborduas/code/QGSD/.planning/phases/02-config-mcp-detection/02-04-PLAN.md
-    # Confirm no remaining task-type uses of checkpoint:human-verify (summary text is acceptable):
-    node -e "
-      const fs = require('fs');
-      const c = fs.readFileSync('/Users/jonathanborduas/code/QGSD/.planning/phases/02-config-mcp-detection/02-04-PLAN.md', 'utf8');
-      const taskTypeMatch = c.match(/type=[\"']checkpoint:human-verify[\"']/);
-      console.log('checkpoint:human-verify as task type:', taskTypeMatch ? 'FOUND (problem)' : 'absent (good)');
-      console.log('checkpoint:verify as task type:', c.includes('type=\"checkpoint:verify\"') ? 'FOUND (good)' : 'absent (problem)');
-    "
-  </verify>
-  <done>02-04-PLAN.md Task 3 has type="checkpoint:verify". The autonomous frontmatter field is true. No task type attribute in the file uses checkpoint:human-verify.</done>
-</task>
-
-<task type="auto">
-  <name>Task 2: Create qgsd:execute-phase command with checkpoint:verify handling</name>
+  <name>Task 1: Create qgsd:execute-phase command with checkpoint:verify handling</name>
   <files>
     commands/qgsd/execute-phase.md
   </files>
@@ -206,7 +157,7 @@ Output: Updated 02-04-PLAN.md (checkpoint type corrected), new qgsd:execute-phas
 </task>
 
 <task type="auto">
-  <name>Task 3: Add checkpoint:verify and checkpoint:human-verify definitions to CLAUDE.md R1</name>
+  <name>Task 2: Add checkpoint:verify and checkpoint:human-verify definitions to CLAUDE.md R1</name>
   <files>
     CLAUDE.md
   </files>
@@ -259,23 +210,20 @@ Output: Updated 02-04-PLAN.md (checkpoint type corrected), new qgsd:execute-phas
 </tasks>
 
 <verification>
-Post-task checks across all three files:
+Post-task checks across both files:
 
-1. grep "checkpoint:verify" /Users/jonathanborduas/code/QGSD/.planning/phases/02-config-mcp-detection/02-04-PLAN.md — returns match
-2. grep "^autonomous: true" /Users/jonathanborduas/code/QGSD/.planning/phases/02-config-mcp-detection/02-04-PLAN.md — returns match
-3. grep "name: qgsd:execute-phase" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
-4. grep "checkpoint:verify" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
-5. grep "qgsd:debug" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
-6. grep "3 rounds" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
-7. grep "All plans complete" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
-8. node -e check on CLAUDE.md — both checkpoint:verify and checkpoint:human-verify appear in R1 section
+1. grep "name: qgsd:execute-phase" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
+2. grep "checkpoint:verify" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
+3. grep "qgsd:debug" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
+4. grep "3 rounds" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
+5. grep "All plans complete" /Users/jonathanborduas/code/QGSD/commands/qgsd/execute-phase.md — returns match
+6. node -e check on CLAUDE.md — both checkpoint:verify and checkpoint:human-verify appear in R1 section
 </verification>
 
 <success_criteria>
-- 02-04-PLAN.md Task 3 type is checkpoint:verify (not checkpoint:human-verify); autonomous: true
 - commands/qgsd/execute-phase.md defines qgsd:execute-phase with: checkpoint:verify auto-flow via /qgsd:quorum-test, 3-round /qgsd:debug escalation, checkpoint:human-verify as final escalation only, post-completion /qgsd:verify-work suggestion
 - CLAUDE.md R1 table defines checkpoint:verify (automated quorum gate) and checkpoint:human-verify (escalation-only) with distinct, precise semantics
-- No plan file uses checkpoint:human-verify for verifications that /qgsd:quorum-test can handle automatically
+- New plans that carry checkpoint:verify will be handled automatically by the executor; existing plans with non-automatable checks (e.g., 02-04-PLAN.md Check 6) correctly retain checkpoint:human-verify
 </success_criteria>
 
 <output>
