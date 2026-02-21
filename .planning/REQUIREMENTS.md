@@ -109,6 +109,18 @@ All features are v1. No deferral.
 - [ ] **INST-09**: Installer writes default `circuit_breaker` config block to qgsd.json on first install
 - [ ] **INST-10**: Reinstall (idempotent) adds missing `circuit_breaker` config block without overwriting user-modified values
 
+## v0.2 Requirements — Oscillation Resolution Mode (ORES)
+
+**Goal:** Replace the hard-stop circuit breaker with a structured resolution workflow — quorum diagnoses the structural coupling, proposes a unified solution, and the user approves before execution resumes.
+
+### Oscillation Resolution Mode (ORES)
+
+- [ ] **ORES-01**: When oscillation is detected and the oscillating file set contains only internal code files, Claude MUST enter oscillation resolution mode instead of hard-stopping
+- [ ] **ORES-02**: Oscillation resolution mode presents oscillation evidence (file set, commit graph) to all available quorum models with structural-coupling framing
+- [ ] **ORES-03**: Quorum deliberates (R3.3, up to 4 rounds) and may only approve unified solutions — partial/incremental fixes are rejected
+- [ ] **ORES-04**: On consensus, Claude presents the unified solution plan to the user for approval before any execution
+- [ ] **ORES-05**: If no consensus after 4 rounds, Claude hard-stops and escalates to the human with all model positions
+
 ## v0.3 Requirements — Release Preparation
 
 **Goal:** Ship QGSD v0.2.0 to npm. Complete v0.2 verification gap closure (Phases 9–10), finalize CHANGELOG, rebuild dist, validate the test suite, bump version, archive milestone, tag, and publish.
@@ -222,6 +234,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INST-09 | Phase 10 (gap closure for Phase 8) | Pending |
 | INST-10 | Phase 10 (gap closure for Phase 8) | Pending |
 | RECV-01 | Phase 10 (gap closure for Phase 8) | Pending |
+| ORES-01 | Phase 13 | Pending |
+| ORES-02 | Phase 13 | Pending |
+| ORES-03 | Phase 13 | Pending |
+| ORES-04 | Phase 13 | Pending |
+| ORES-05 | Phase 13 | Pending |
 | CL-01 | Phase 11 | Pending |
 | CL-02 | Phase 11 | Pending |
 | BLD-01 | Phase 11 | Pending |
@@ -233,12 +250,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 **Coverage:**
 - v1 requirements: 39 total — all complete (v0.1)
-- v0.2 requirements: 20 total — 20/20 mapped (Phases 9–10 gap closure)
+- v0.2 requirements: 25 total — 25/25 mapped (Phases 9–10 gap closure + Phase 13 ORES)
 - v0.3 requirements: 8 total — 8/8 mapped (Phases 11–12)
 - Unmapped v0.2: 0 ✓
 - Unmapped v0.3: 0 ✓
-- Pending (awaiting verification): 19 (v0.2: ENFC-01..03, CONF-06..09, INST-08..10, RECV-01 + v0.3: CL-01..02, BLD-01..02, RLS-01..04)
+- Pending (awaiting verification): 24 (v0.2: ENFC-01..03, CONF-06..09, INST-08..10, RECV-01, ORES-01..05 + v0.3: CL-01..02, BLD-01..02, RLS-01..04)
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-21 — Phase 9 gap closure: DETECT-01..05 and STATE-01..04 marked Complete after Phase 6 VERIFICATION.md passed.*
+*Last updated: 2026-02-21 — Phase 13: ORES-01..05 added (oscillation resolution mode requirements, pending).*
