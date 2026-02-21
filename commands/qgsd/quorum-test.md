@@ -18,26 +18,69 @@ This command extends QGSD quorum from *planning* (consensus on direction) to *ve
 
 <process>
 
+**Step 0: Detect test runner**
+
+Read `package.json` if it exists (use the Read tool, not bash). Inspect `devDependencies`, `dependencies`, and `scripts.test`.
+
+Determine `$RUNNER` using this priority order:
+1. If `devDependencies` or `dependencies` contains `"vitest"` → `$RUNNER = vitest`
+2. Else if `devDependencies` or `dependencies` contains `"jest"` or `"@jest/core"` or `"ts-jest"` or `"babel-jest"` → `$RUNNER = jest`
+3. Else if `scripts.test` contains `"vitest"` → `$RUNNER = vitest`
+4. Else if `scripts.test` contains `"jest"` → `$RUNNER = jest`
+5. Else if `scripts.test` contains `"node --test"` → `$RUNNER = node`
+6. Else → `$RUNNER = node` (default)
+
+Set `$TEST_PATTERNS` based on `$RUNNER`:
+- `jest` or `vitest`: `*.test.ts`, `*.test.tsx`, `*.test.js`, `*.test.jsx`, `*.spec.ts`, `*.spec.tsx`, `*.spec.js`, `*.spec.jsx`
+- `node`: `*.test.js`, `*.test.cjs`, `*.test.mjs`
+
+Set `$RUN_CMD` based on `$RUNNER`:
+- `jest`: `npx jest --passWithNoTests`
+- `vitest`: `npx vitest run`
+- `node`: `node --test` (files appended per step 2)
+
+Display: `Detected runner: $RUNNER`
+
 **Step 1: Parse and validate target**
 
 **1a. Parse `$ARGUMENTS`:**
-- If non-empty and points to a **directory**: discover test files within that directory recursively
-  ```bash
-  find "$ARGUMENTS" \( -name "*.test.js" -o -name "*.test.cjs" \) \
-    -not -path "*/node_modules/*" -not -path "*/.git/*"
-  ```
 - If non-empty and points to a **file**: use it directly as `$TEST_FILES`
-- If empty: discover all test files from repo root:
-  ```bash
-  find . \( -name "*.test.js" -o -name "*.test.cjs" \) \
-    -not -path "*/node_modules/*" -not -path "*/.git/*"
-  ```
+- If non-empty and points to a **directory**: search within that directory using `$TEST_PATTERNS`
+- If empty: search from repo root using `$TEST_PATTERNS`
+
+For directory or root discovery, run one `find` covering all applicable patterns. Example for jest/vitest:
+```bash
+find <root> \( -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.test.js" \
+  -o -name "*.test.jsx" -o -name "*.spec.ts" -o -name "*.spec.tsx" \
+  -o -name "*.spec.js" -o -name "*.spec.jsx" \) \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*"
+```
+
+For node runner:
+```bash
+find <root> \( -name "*.test.js" -o -name "*.test.cjs" -o -name "*.test.mjs" \) \
+  -not -path "*/node_modules/*" -not -path "*/.git/*"
+```
 
 Store the list as `$TEST_FILES`.
 
 **1b. Empty check:**
 
-If `$TEST_FILES` is empty, stop: "No test files found."
+If `$TEST_FILES` is empty, display:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► QUORUM-TEST: No automated tests found
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Searched for: <$TEST_PATTERNS>
+Runner detected: <$RUNNER>
+
+If this checkpoint requires visual/manual verification, quorum-test does not apply.
+Proceed with human verification or add automated tests before invoking quorum-test.
+```
+
+STOP — do not proceed.
 
 **1c. File existence check:**
 
@@ -54,40 +97,17 @@ If any file is missing, display:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Missing: <list of missing files>
-Fix: Run `find . -name "*.test.*" | grep -v node_modules` to re-discover valid test files.
+Fix: Re-run discovery with `find . -name "*.test.*" | grep -v node_modules`
 ```
 
 STOP — do not proceed to test execution.
 
-**1d. npm test script validation (mandatory when package.json exists):**
-
-Check if `package.json` exists:
-```bash
-ls package.json 2>/dev/null
-```
-
-If it exists, read the `"test"` script value. Extract each file path argument (words ending in `.js` or `.cjs`). For each extracted path, check if it exists on disk.
-
-If any path is missing, display:
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- QGSD ► QUORUM-TEST: BLOCK (npm test script broken)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-package.json "test" script references missing file(s): <list>
-Fix: Update package.json test script to:
-  "test": "node --test <discovered test files from step 1>"
-```
-
-STOP — do not proceed.
-
-**1e. Validation summary:**
+**1d. Validation summary:**
 
 Display:
 ```
-✓ N test file(s) validated.
-✓ npm test script OK. (or: ⚠ package.json not found — skipping script check)
+✓ Runner: $RUNNER
+✓ N test file(s) found.
 Proceeding to test execution...
 ```
 
@@ -98,11 +118,12 @@ node --version
 ```
 Store as `$NODE_VERSION`.
 
-```bash
-node --test $TEST_FILES 2>&1
-echo "EXIT:$?"
-```
-Store full output as `$TEST_OUTPUT`. Extract exit code from the `EXIT:N` line at the end.
+Execute tests using `$RUN_CMD`:
+- **jest**: `npx jest --passWithNoTests $TEST_FILES 2>&1`
+- **vitest**: `npx vitest run $TEST_FILES 2>&1`
+- **node**: `node --test $TEST_FILES 2>&1`
+
+Append `echo "EXIT:$?"` to capture exit code. Store full output as `$TEST_OUTPUT`. Extract exit code from the `EXIT:N` line at the end.
 
 Read the full source of every file in `$TEST_FILES`. Store as `$TEST_SOURCES` — a combined block with filename headers:
 
