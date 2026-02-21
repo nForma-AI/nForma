@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone s
 Phase: Not started (defining requirements)
 Plan: —
 Status: Defining requirements for v0.2 Anti-Oscillation Pattern
-Last activity: 2026-02-21 — Milestone v0.2 started
+Last activity: 2026-02-21 - Completed quick task 2: Add R3.6 — Iterative Improvement Protocol to CLAUDE.md
 
 Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0/N phases complete)
 
@@ -104,10 +104,10 @@ Recent decisions affecting current work:
 
 ### Quick Tasks Completed
 
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 1 | Rebrand project to QGSD: Quorum Gets Shit Done | 2026-02-20 | f55eebf | [1-rebrand-project-to-qgsd-quorum-gets-shit](./quick/1-rebrand-project-to-qgsd-quorum-gets-shit/) |
-| 2 | Add R3.6 — Iterative Improvement Protocol to CLAUDE.md | 2026-02-21 | N/A (CLAUDE.md gitignored) | [2-in-qgsd-if-a-quorum-approved-a-plan-but-](./quick/2-in-qgsd-if-a-quorum-approved-a-plan-but-/) |
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 1 | Rebrand project to QGSD: Quorum Gets Shit Done | 2026-02-20 | f55eebf | | [1-rebrand-project-to-qgsd-quorum-gets-shit](./quick/1-rebrand-project-to-qgsd-quorum-gets-shit/) |
+| 2 | Add R3.6 — Iterative Improvement Protocol to CLAUDE.md | 2026-02-21 | ff20e54 | Verified | [2-in-qgsd-if-a-quorum-approved-a-plan-but-](./quick/2-in-qgsd-if-a-quorum-approved-a-plan-but-/) |
 
 ### Blockers/Concerns
 
