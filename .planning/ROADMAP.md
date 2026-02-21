@@ -200,7 +200,11 @@ Plans:
   2. MILESTONES.md contains a completed v0.2 archive entry listing What Shipped, Phases (6–10), all 20 v0.2 requirements satisfied, and Key Decisions Carried Forward
   3. Git tag `v0.2.0` exists on the release commit and has been pushed to the remote — `git tag -l v0.2.0` shows the tag on any fresh clone
   4. `npm view qgsd@0.2.0` returns package metadata — `npx qgsd@0.2.0` resolves and installs from the npm registry without error
-**Plans:** TBD — run /qgsd:plan-phase 12
+**Plans:** 2 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Bump package.json to 0.2.0, write MILESTONES.md v0.2 archive entry, commit release commit
+- [ ] 12-02-PLAN.md — Create and push git tag v0.2.0, run npm publish, verify npm view qgsd@0.2.0 returns metadata
 
 ## Progress
 
@@ -223,7 +227,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Verify Phases 5-6 | 3/3 | Complete   | 2026-02-21 |
 | 10. Fix Bugs + Verify Phases 7-8 | 4/4 | Complete    | 2026-02-21 |
 | 11. Changelog & Build | 0/2 | Not started | — |
-| 12. Version & Publish | 0/TBD | Not started | — |
+| 12. Version & Publish | 0/2 | Not started | — |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
