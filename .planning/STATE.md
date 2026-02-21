@@ -196,6 +196,7 @@ Recent decisions affecting current work:
 | 27 | Compact quorum.md output format: 1-sentence summaries, tighter banners, no supporting positions block | 2026-02-21 | 2f8ba26 | Complete | [27-compact-quorum-md-output-format-1-line-m](./quick/27-compact-quorum-md-output-format-1-line-m/) |
 | 28 | Rename gsd-integration-checker to qgsd-integration-checker in MODEL_PROFILES | 2026-02-21 | e2974fe | Complete | [28-rename-gsd-integration-checker-to-qgsd-i](./quick/28-rename-gsd-integration-checker-to-qgsd-i/) |
 | 29 | Make executor auto-proceed with CI failures revealed by a masking fix (SCOPE BOUNDARY exception) | 2026-02-21 | 1c12561 | Complete | [29-make-executor-auto-proceed-with-ci-failu](./quick/29-make-executor-auto-proceed-with-ci-failu/) |
+| 30 | fix execute-phase orchestrator CI failure gate: auto-spawn quick task when executor SUMMARY.md has diagnosed root causes | 2026-02-21 | f13a22d | Complete | [30-fix-execute-phase-orchestrator-ci-failur](.planning/quick/30-fix-execute-phase-orchestrator-ci-failur/) |
 
 ### Blockers/Concerns
 
@@ -206,5 +207,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: quick-29 complete — added masked-CI-failure exception to SCOPE BOUNDARY in executor (source + installed)
+Stopped at: quick-30 complete — added diagnosis-detection heuristic + auto-spawn quick task mechanism to execute-phase orchestrator failure paths (source + installed)
 Resume file: None
