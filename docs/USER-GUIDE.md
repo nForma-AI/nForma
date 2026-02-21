@@ -194,10 +194,15 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 ```
   /qgsd:map-codebase
          │
-         ├── Stack Mapper     -> codebase/STACK.md
-         ├── Arch Mapper      -> codebase/ARCHITECTURE.md
+         ├── Stack Mapper      -> codebase/STACK.md
+         ├── Arch Mapper       -> codebase/ARCHITECTURE.md
          ├── Convention Mapper -> codebase/CONVENTIONS.md
-         └── Concern Mapper   -> codebase/CONCERNS.md
+         └── Concern Mapper    -> codebase/CONCERNS.md
+                │
+         [QUORUM VALIDATES]
+         • Internal consistency across all 4 docs
+         • Completeness & blind spots
+         • Concern triage (blocks vs deferred)
                 │
         ┌───────▼──────────┐
         │ /qgsd:new-project │  <- Questions focus on what you're ADDING

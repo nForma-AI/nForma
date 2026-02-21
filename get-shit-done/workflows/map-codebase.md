@@ -26,7 +26,7 @@ Documents are reference material for Claude when planning/executing. Always incl
 Load codebase mapping context:
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init map-codebase)
+INIT=$(node ~/.claude/qgsd/bin/gsd-tools.cjs init map-codebase)
 ```
 
 Extract from init JSON: `mapper_model`, `commit_docs`, `codebase_dir`, `existing_maps`, `has_maps`, `codebase_dir_exists`.
@@ -84,7 +84,7 @@ Continue to spawn_agents.
 <step name="spawn_agents">
 Spawn 4 parallel gsd-codebase-mapper agents.
 
-Use Task tool with `subagent_type="gsd-codebase-mapper"`, `model="{mapper_model}"`, and `run_in_background=true` for parallel execution.
+Use Task tool with `subagent_type="qgsd-codebase-mapper"`, `model="{mapper_model}"`, and `run_in_background=true` for parallel execution.
 
 **CRITICAL:** Use the dedicated `gsd-codebase-mapper` agent, NOT `Explore`. The mapper agent writes documents directly.
 
@@ -92,7 +92,7 @@ Use Task tool with `subagent_type="gsd-codebase-mapper"`, `model="{mapper_model}
 
 ```
 Task(
-  subagent_type="gsd-codebase-mapper",
+  subagent_type="qgsd-codebase-mapper",
   model="{mapper_model}",
   run_in_background=true,
   description="Map codebase tech stack",
@@ -112,7 +112,7 @@ Explore thoroughly. Write documents directly using templates. Return confirmatio
 
 ```
 Task(
-  subagent_type="gsd-codebase-mapper",
+  subagent_type="qgsd-codebase-mapper",
   model="{mapper_model}",
   run_in_background=true,
   description="Map codebase architecture",
@@ -132,7 +132,7 @@ Explore thoroughly. Write documents directly using templates. Return confirmatio
 
 ```
 Task(
-  subagent_type="gsd-codebase-mapper",
+  subagent_type="qgsd-codebase-mapper",
   model="{mapper_model}",
   run_in_background=true,
   description="Map codebase conventions",
@@ -152,7 +152,7 @@ Explore thoroughly. Write documents directly using templates. Return confirmatio
 
 ```
 Task(
-  subagent_type="gsd-codebase-mapper",
+  subagent_type="qgsd-codebase-mapper",
   model="{mapper_model}",
   run_in_background=true,
   description="Map codebase concerns",
@@ -211,6 +211,50 @@ If any documents missing or empty, note which agents may have failed.
 Continue to scan_for_secrets.
 </step>
 
+<step name="quorum_validate">
+Run quorum validation on the 4 key mapper documents before finalizing.
+
+**What quorum checks:**
+- Internal consistency across STACK.md, ARCHITECTURE.md, CONVENTIONS.md, CONCERNS.md
+- Completeness — obvious areas not covered by any mapper
+- Blind spots — what parallel agents may have missed by working in isolation
+- Concern triage — which items in CONCERNS.md should block new work vs be deferred
+
+**Quorum prompt (use with each available model per R3 and R6, sequential calls):**
+
+> You are reviewing 4 codebase analysis documents produced by independent mapper agents.
+> Read: .planning/codebase/STACK.md, .planning/codebase/ARCHITECTURE.md, .planning/codebase/CONVENTIONS.md, .planning/codebase/CONCERNS.md
+>
+> Check for:
+> 1. CONSISTENCY — Do the docs contradict each other? (e.g. STACK says event-driven but ARCH says synchronous request/response)
+> 2. COMPLETENESS — Are there obvious areas (security, scaling, auth, data layer) absent from all docs?
+> 3. BLIND SPOTS — What did the parallel agents likely miss by working in isolation?
+> 4. CONCERN TRIAGE — Which CONCERNS.md items should block new feature work vs be deferred?
+>
+> Return: APPROVED (no significant issues) or ISSUES: [structured list].
+
+Apply R3 (sequential model calls) and R6 (proceed with reduced quorum if models unavailable).
+
+**On APPROVED (consensus):** Continue to scan_for_secrets.
+
+**On ISSUES found:** Present to user:
+
+```
+⚠ Quorum flagged issues in codebase map:
+
+[Issue list — e.g. "STACK says React 18 but ARCH references React 17 hooks pattern"]
+
+Options:
+1. Edit the affected documents now, then re-run quorum
+2. Accept as-is and proceed to commit (issues noted)
+3. Abort and re-run /qgsd:map-codebase
+```
+
+Wait for user response before continuing.
+
+**If all quorum models UNAVAILABLE (R6.6):** Note reduced quorum, continue to scan_for_secrets — documents are still better than nothing.
+</step>
+
 <step name="scan_for_secrets">
 **CRITICAL SECURITY CHECK:** Scan output files for accidentally leaked secrets before committing.
 
@@ -250,7 +294,7 @@ Continue to commit_codebase_map.
 Commit the codebase map:
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs commit "docs: map existing codebase" --files .planning/codebase/*.md
+node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs: map existing codebase" --files .planning/codebase/*.md
 ```
 
 Continue to offer_next.
@@ -310,6 +354,7 @@ End workflow.
 - Agents write documents directly (orchestrator doesn't receive document contents)
 - Read agent output files to collect confirmations
 - All 7 codebase documents exist
+- Quorum validates mapper docs for consistency, completeness, and concern triage before commit
 - Clear completion summary with line counts
 - User offered clear next steps in GSD style
 </success_criteria>
