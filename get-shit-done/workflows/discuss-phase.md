@@ -198,45 +198,41 @@ Apply the R4 pre-filter (CLAUDE.md §R4) to every gray area candidate before pre
 
 **For each gray area question identified in analyze_phase:**
 
-1. **Form Claude's own position first** — Bias toward the long-term solution. Write a 1-2 sentence answer and your confidence level internally before querying other models. This is Claude's active quorum vote.
+1. **Form Claude's own position first** — Bias toward the long-term solution. Write a 1-2 sentence answer and classify as CONSENSUS-READY or USER-INPUT-NEEDED. This is Claude's active quorum vote.
 
-2. **Query each external model sequentially** (one separate tool call per model — NOT sibling calls):
-   - Codex (`mcp__codex-cli__review`)
-   - Gemini (`mcp__gemini-cli__gemini`)
-   - OpenCode (`mcp__opencode__opencode`)
-   - Copilot (`mcp__copilot-cli__ask`)
+2. **Spawn the quorum orchestrator sub-agent** (one spawn per question — sequential, not parallel):
 
-   Prompt template (use identical prompt for all models):
    ```
-   Context: We are planning [phase name] for the QGSD project.
-   Phase goal: [goal from ROADMAP.md]
-   Codebase context: [relevant patterns/decisions from STATE.md and prior summaries]
+   Task(
+     subagent_type="qgsd-quorum-orchestrator",
+     description="R4 pre-filter: [question text excerpt]",
+     prompt="claude_vote: [CONSENSUS-READY: answer | USER-INPUT-NEEDED: reason] — Claude's position on whether this gray area can be resolved by quorum or needs user input.
+artifact: Context: We are planning [phase name] for the QGSD project.
+Phase goal: [goal from ROADMAP.md]
+Codebase context: [relevant patterns/decisions from STATE.md]
 
-   Gray area question: [question text]
+Gray area question: [question text]
 
-   Should this be decided by quorum now (removing it from the user's question list), or does it genuinely require the user's vision/preference to answer?
+Should this be decided by quorum now (removing it from the user's question list), or does it genuinely require the user's vision/preference to answer?
 
-   If quorum can decide: provide the recommended answer biased toward the long-term solution.
-   If user input is needed: explain why quorum cannot resolve this without user preference.
+If quorum can decide: provide the recommended answer biased toward the long-term solution.
+If user input is needed: explain why quorum cannot resolve this without user preference.
 
-   Respond with: CONSENSUS-READY: [answer] or USER-INPUT-NEEDED: [reason]
+Vote APPROVE (quorum can decide — equivalent to CONSENSUS-READY) or BLOCK (user input needed — equivalent to USER-INPUT-NEEDED)."
+   )
    ```
 
-3. **Collect all positions.** Apply the R4 decision table:
+   Fail-open: if the Task itself errors (agent unavailable), note it and mark the question for user presentation per R6.
 
-   | Outcome | Action |
-   |---|---|
-   | All available models agree on CONSENSUS-READY + same answer | Record as assumption. Remove from user-facing question list. |
-   | Any model returns USER-INPUT-NEEDED, OR models give conflicting CONSENSUS-READY answers | Run R3.3 deliberation (up to 3 rounds). |
-   | Still no consensus after 3 deliberation rounds | Mark for user presentation. |
+3. **Route on quorum_result:**
+   - **APPROVED** → Record as auto-resolved assumption. Add to `auto_resolved[]` with the consensus answer from the sub-agent's final_positions. Remove from user-facing question list.
+   - **BLOCKED or ESCALATED** → Mark for user presentation. Add to `for_user[]`.
 
 4. **Maintain two lists:**
-   - `auto_resolved[]` — Questions resolved by consensus, with the recorded assumption
+   - `auto_resolved[]` — Questions resolved by quorum consensus, with the recorded assumption
    - `for_user[]` — Questions that could not be resolved by quorum
 
-5. **Apply R6 tool failure policy:** If a model is UNAVAILABLE, proceed with available models per R6. Note the reduced quorum for each affected question.
-
-6. **After processing all questions:** Pass `auto_resolved[]` and `for_user[]` to the `present_gray_areas` step.
+5. **After processing all questions:** Pass `auto_resolved[]` and `for_user[]` to the `present_gray_areas` step.
 
 **If `for_user[]` is empty** (all questions resolved): Skip `present_gray_areas`. Go directly to `discuss_areas` with a note:
 ```

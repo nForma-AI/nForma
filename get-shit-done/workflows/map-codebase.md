@@ -220,29 +220,41 @@ Run quorum validation on the 4 key mapper documents before finalizing.
 - Blind spots — what parallel agents may have missed by working in isolation
 - Concern triage — which items in CONCERNS.md should block new work vs be deferred
 
-**Quorum prompt (use with each available model per R3 and R6, sequential calls):**
+Form your own position first: read the 4 documents and assess consistency, completeness, and blind spots. State your vote as APPROVE (no significant issues) or BLOCK (issues found) with 1-2 sentence rationale.
 
-> You are reviewing 4 codebase analysis documents produced by independent mapper agents.
-> Read: .planning/codebase/STACK.md, .planning/codebase/ARCHITECTURE.md, .planning/codebase/CONVENTIONS.md, .planning/codebase/CONCERNS.md
->
-> Check for:
-> 1. CONSISTENCY — Do the docs contradict each other? (e.g. STACK says event-driven but ARCH says synchronous request/response)
-> 2. COMPLETENESS — Are there obvious areas (security, scaling, auth, data layer) absent from all docs?
-> 3. BLIND SPOTS — What did the parallel agents likely miss by working in isolation?
-> 4. CONCERN TRIAGE — Which CONCERNS.md items should block new feature work vs be deferred?
->
-> Return: APPROVED (no significant issues) or ISSUES: [structured list].
+Spawn the quorum orchestrator sub-agent:
 
-Apply R3 (sequential model calls) and R6 (proceed with reduced quorum if models unavailable).
+```
+Task(
+  subagent_type="qgsd-quorum-orchestrator",
+  description="Quorum validate: codebase map documents",
+  prompt="claude_vote: [Your APPROVE/BLOCK vote with 1-2 sentence rationale]
+artifact: [Full contents of .planning/codebase/STACK.md, .planning/codebase/ARCHITECTURE.md, .planning/codebase/CONVENTIONS.md, .planning/codebase/CONCERNS.md]
+
+Review these 4 codebase analysis documents produced by independent mapper agents.
+
+Check for:
+1. CONSISTENCY — Do the docs contradict each other?
+2. COMPLETENESS — Are there obvious areas (security, scaling, auth, data layer) absent from all docs?
+3. BLIND SPOTS — What did the parallel agents likely miss by working in isolation?
+4. CONCERN TRIAGE — Which CONCERNS.md items should block new feature work vs be deferred?
+
+Vote APPROVE (no significant issues) or BLOCK (issues found with structured list)."
+)
+```
+
+Fail-open: if the Task itself errors (all models unavailable per R6.6), note reduced quorum, continue to scan_for_secrets — documents are still better than nothing.
+
+**Route on quorum_result:**
 
 **On APPROVED (consensus):** Continue to scan_for_secrets.
 
-**On ISSUES found:** Present to user:
+**On BLOCKED or ESCALATED:** Present to user:
 
 ```
 ⚠ Quorum flagged issues in codebase map:
 
-[Issue list — e.g. "STACK says React 18 but ARCH references React 17 hooks pattern"]
+[Issue list from sub-agent final_positions — e.g. "STACK says React 18 but ARCH references React 17 hooks pattern"]
 
 Options:
 1. Edit the affected documents now, then re-run quorum
@@ -251,8 +263,6 @@ Options:
 ```
 
 Wait for user response before continuing.
-
-**If all quorum models UNAVAILABLE (R6.6):** Note reduced quorum, continue to scan_for_secrets — documents are still better than nothing.
 </step>
 
 <step name="scan_for_secrets">
