@@ -48,6 +48,8 @@
   "scripts": {
     "build:hooks": "node scripts/build-hooks.js",
     "generate-terminal": "node scripts/generate-terminal-svg.js",
+    "generate-logo": "node scripts/generate-logo-svg.js",
+    "generate-assets": "npm run generate-terminal && npm run generate-logo",
     "prepublishOnly": "npm run build:hooks",
     "test": "node --test hooks/qgsd-stop.test.js hooks/config-loader.test.js get-shit-done/bin/gsd-tools.test.cjs hooks/qgsd-circuit-breaker.test.js"
   }

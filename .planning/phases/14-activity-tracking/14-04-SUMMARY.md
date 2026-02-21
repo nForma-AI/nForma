@@ -108,6 +108,15 @@ Phase 14 is now complete. All 4 plans executed:
 
 Activity tracking is fully operational end-to-end. The project is ready for next milestone planning.
 
+## Self-Check: PASSED
+
+- FOUND: /Users/jonathanborduas/.claude/qgsd/workflows/resume-project.md
+- FOUND: /Users/jonathanborduas/code/QGSD/get-shit-done/workflows/resume-project.md
+- FOUND: .planning/phases/14-activity-tracking/14-04-SUMMARY.md
+- FOUND commit: 954127f (feat: activity routing to resume-project)
+- FOUND commit: 3fd6c88 (docs: ACT-01..07 requirements)
+- FOUND commit: ff23ba7 (docs: SUMMARY/STATE/ROADMAP)
+
 ---
 *Phase: 14-activity-tracking*
 *Completed: 2026-02-21*

@@ -168,10 +168,12 @@ Route based on `activity` + `sub_activity`:
 | debug_loop | `/qgsd:execute-phase {phase}` — re-enter debug loop (was on round {debug_round}) |
 | awaiting_human_verify | `/qgsd:execute-phase {phase}` — checkpoint is waiting for human approval |
 | verifying_phase | `/qgsd:execute-phase {phase}` — verifier was running, re-trigger phase verification |
-| researching | `/qgsd:plan-phase {phase}` — researcher was running, re-trigger with --research flag |
+| researching (activity=plan_phase) | `/qgsd:plan-phase {phase}` — researcher was running, re-trigger with --research flag |
 | planning | `/qgsd:plan-phase {phase}` — planner was running, re-trigger plan-phase |
 | checking_plan | `/qgsd:plan-phase {phase}` — checker was running, re-trigger plan-phase |
 | quorum | `/qgsd:plan-phase {phase}` — QUORUM was in progress (round {quorum_round}), re-trigger plan-phase |
+| researching (activity=new_milestone) | `/qgsd:new-milestone` — milestone research was running |
+| creating_roadmap | `/qgsd:new-milestone` — roadmapper was spawning |
 | oscillation_diagnosis | `/qgsd:execute-phase {phase}` — oscillation resolution quorum was running |
 | awaiting_approval | `/qgsd:execute-phase {phase}` — unified solution is ready, user approval is needed |
 | executing | `/qgsd:quick` — quick task execution was in progress |

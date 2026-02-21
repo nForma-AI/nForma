@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 580">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 618">
   <!-- Window frame -->
-  <rect fill="#24283b" width="960" height="580" rx="12"/>
-  <rect fill="#1a1b26" x="1" y="1" width="958" height="578" rx="11"/>
+  <rect fill="#24283b" width="960" height="618" rx="12"/>
+  <rect fill="#1a1b26" x="1" y="1" width="958" height="616" rx="11"/>
 
   <!-- Title bar -->
   <rect fill="#1f2335" x="1" y="1" width="958" height="36" rx="11"/>
@@ -200,12 +200,14 @@
     <line x1="268.8" y1="143.0" x2="277.2" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
     <path d="M277.2,143.0 H281.4 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
     <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="198" xml:space="preserve"><tspan fill="#c0caf5">  Quorum Gets Shit Done </tspan><tspan fill="#565f89">v0.2.0</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="220" xml:space="preserve"><tspan fill="#565f89">  Built on GSD by TÂCHES.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="220" xml:space="preserve"><tspan fill="#565f89">  Built on get-shit-done-cc by TÂCHES.</tspan></text>
     <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="242" xml:space="preserve"><tspan fill="#565f89">  Full automation through quorum of coding agents. By Jonathan Borduas.</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="264" xml:space="preserve"><tspan fill="#c0caf5">  Gradatim Ferociter.</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="308" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> 32 commands installed</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="330" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Quorum hooks configured</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="374" xml:space="preserve"><tspan fill="#9ece6a">  Done! </tspan><tspan fill="#c0caf5">Run </tspan><tspan fill="#7dcfff">/qgsd:help</tspan><tspan fill="#c0caf5"> to get started.</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="418" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">▌</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="286" xml:space="preserve"><tspan fill="#7dcfff">  The task of leadership is to create an alignment of strengths</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="308" xml:space="preserve"><tspan fill="#7dcfff">   so strong that it makes the system’s weaknesses irrelevant.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="330" xml:space="preserve"><tspan fill="#565f89">  — Peter Drucker</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="374" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> 32 commands installed</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="396" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Quorum hooks configured</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="440" xml:space="preserve"><tspan fill="#9ece6a">  Done! </tspan><tspan fill="#c0caf5">Run </tspan><tspan fill="#7dcfff">/qgsd:help</tspan><tspan fill="#c0caf5"> to get started.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="484" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">▌</tspan></text>
   </g>
 </svg>

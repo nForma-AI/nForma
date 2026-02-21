@@ -71,9 +71,12 @@ const LINES = [
 
   { parts: [] },  // blank
   { parts: [{ t: `  Quorum Gets Shit Done `, c: COLORS.white }, { t: `v${version}`, c: COLORS.dim }] },
-  { parts: [{ t: '  Built on GSD by TÂCHES.', c: COLORS.dim }] },
+  { parts: [{ t: '  Built on get-shit-done-cc by TÂCHES.', c: COLORS.dim }] },
   { parts: [{ t: '  Full automation through quorum of coding agents. By Jonathan Borduas.', c: COLORS.dim }] },
-  { parts: [{ t: '  Gradatim Ferociter.', c: COLORS.white }] },
+  { parts: [] },  // blank
+  { parts: [{ t: '  The task of leadership is to create an alignment of strengths', c: COLORS.cyan }] },
+  { parts: [{ t: '   so strong that it makes the system\u2019s weaknesses irrelevant.', c: COLORS.cyan }] },
+  { parts: [{ t: '  \u2014 Peter Drucker', c: COLORS.dim }] },
   { parts: [] },  // blank
 
   // Install output — show only what matters to the user

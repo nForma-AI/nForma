@@ -141,9 +141,12 @@ const banner = '\n' +
   salmon + '  ╚══▀▀═╝ ' + cyan + ' ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
   '\n' +
   '  Quorum Gets Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
-  '  Built on GSD by TÂCHES.\n' +
+  '  Built on get-shit-done-cc by TÂCHES.\n' +
   '  Full automation through quorum of coding agents. By Jonathan Borduas.\n' +
-  '  Gradatim Ferociter.\n';
+  '\n' +
+  cyan + '  The task of leadership is to create an alignment of strengths\n' +
+  '   so strong that it makes the system\u2019s weaknesses irrelevant.\n' +
+  dim + '  \u2014 Peter Drucker' + reset + '\n';
 
 // QGSD: MCP auto-detection — keyword map for quorum model server matching
 const QGSD_KEYWORD_MAP = {

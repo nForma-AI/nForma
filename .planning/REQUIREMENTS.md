@@ -151,7 +151,7 @@ All features are v1. No deferral.
 - [x] **ACT-01**: `.planning/current-activity.json` is written atomically at every major workflow state transition (execute-phase, plan-phase, debug, quorum, circuit-breaker, new-milestone stages)
 - [x] **ACT-02**: Activity schema: `{ activity, sub_activity, phase?, plan?, wave?, debug_round?, checkpoint?, quorum_round?, updated }` — all fields except `activity` and `updated` are optional; unknown fields are preserved
 - [x] **ACT-03**: `gsd-tools.cjs activity-set <json>` CLI command writes the current-activity.json file with atomic replace; `activity-clear` removes it
-- [ ] **ACT-04**: `resume-work` reads current-activity.json and routes to the exact recovery point — displaying the interrupted state before resuming execution
+- [x] **ACT-04**: `resume-work` reads current-activity.json and routes to the exact recovery point — displaying the interrupted state before resuming execution
 - [x] **ACT-05**: `execute-phase` writes activity at every stage boundary: entering/exiting plan execution, checkpoint:verify, debug loop rounds, awaiting_human_verify, and verifying_phase
 - [x] **ACT-06**: `plan-phase`, `new-milestone`, `debug`, `quorum`, and `circuit-breaker` resolution workflows write activity at every stage boundary
 - [x] **ACT-07**: Activity file is cleared on successful completion of any top-level workflow; it persists across context resets when mid-workflow
@@ -262,9 +262,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RLS-03 | Phase 12 | Pending |
 | RLS-04 | Phase 12 | Pending |
 | ACT-01 | Phase 14 | Complete |
-| ACT-02 | Phase 15 (gap closure for Phase 14) | Pending |
+| ACT-02 | Phase 15 (gap closure for Phase 14) | Complete |
 | ACT-03 | Phase 14 | Complete |
-| ACT-04 | Phase 15 (gap closure for Phase 14) | Pending |
+| ACT-04 | Phase 15 (gap closure for Phase 14) | Complete |
 | ACT-05 | Phase 14 | Complete |
 | ACT-06 | Phase 14 | Complete |
 | ACT-07 | Phase 14 | Complete |
@@ -277,7 +277,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Unmapped v0.2: 0 ✓
 - Unmapped v0.3: 0 ✓
 - Unmapped v0.4: 0 ✓
-- Pending (awaiting verification): 20 (v0.2: ORES-01..05 + v0.3: RLS-01..04 + v0.4: ACT-02, ACT-04)
+- Pending (awaiting verification): 18 (v0.2: ORES-01..05 + v0.3: RLS-01..04)
 
 ---
 *Requirements defined: 2026-02-20*

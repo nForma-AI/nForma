@@ -62,7 +62,7 @@ Display as a table to make the A→B→A→B ping-pong pattern visually obvious:
 
 ```bash
 node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
-  "{\"activity\":\"circuit_breaker\",\"sub_activity\":\"oscillation_diagnosis\"}"
+  "{\"activity\":\"circuit_breaker\",\"sub_activity\":\"oscillation_diagnosis\",\"phase\":\"${PHASE_NUMBER}\"}"
 ```
 
 Form your own structural coupling diagnosis first (before querying models).
@@ -90,7 +90,7 @@ Apply R3.3 deliberation rules (up to 4 rounds, stop immediately on consensus).
 
 ```bash
 node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
-  "{\"activity\":\"circuit_breaker\",\"sub_activity\":\"awaiting_approval\"}"
+  "{\"activity\":\"circuit_breaker\",\"sub_activity\":\"awaiting_approval\",\"phase\":\"${PHASE_NUMBER}\"}"
 ```
 
 Present the unified solution plan to the user with:
