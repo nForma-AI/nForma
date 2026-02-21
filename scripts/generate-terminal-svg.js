@@ -67,14 +67,13 @@ const LINES = [
 
   { parts: [] },  // blank
   { parts: [{ t: `  Quorum Gets Shit Done `, c: COLORS.white }, { t: `v${version}`, c: COLORS.dim }] },
-  { parts: [{ t: '  Inspired by Get Shit Done by TÂCHES', c: COLORS.dim }] },
+  { parts: [{ t: '  A very opinionated, quorum-based version of Get Shit Done', c: COLORS.dim }] },
+  { parts: [{ t: '  from TÂCHES, by Jonathan Borduas.', c: COLORS.dim }] },
   { parts: [] },  // blank
 
-  // Install output
-  { parts: [{ t: '  ✓', c: COLORS.green }, { t: ' Installed commands/qgsd', c: COLORS.white }] },
-  { parts: [{ t: '  ✓', c: COLORS.green }, { t: ' Installed get-shit-done', c: COLORS.white }] },
-  { parts: [{ t: '  ✓', c: COLORS.green }, { t: ' Installed agents',        c: COLORS.white }] },
-  { parts: [{ t: '  ✓', c: COLORS.green }, { t: ' Configured quorum hooks', c: COLORS.white }] },
+  // Install output — show only what matters to the user
+  { parts: [{ t: '  ✓', c: COLORS.green }, { t: ' 32 commands installed',   c: COLORS.white }] },
+  { parts: [{ t: '  ✓', c: COLORS.green }, { t: ' Quorum hooks configured', c: COLORS.white }] },
   { parts: [] },  // blank
 
   // Done message

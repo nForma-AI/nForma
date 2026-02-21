@@ -26,12 +26,11 @@
     <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="132" xml:space="preserve"><tspan fill="#f4956a"> ╚██████╔╝</tspan><tspan fill="#7dcfff">╚██████╔╝███████║██████╔╝</tspan></text>
     <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="154" xml:space="preserve"><tspan fill="#f4956a">  ╚══▀▀═╝ </tspan><tspan fill="#7dcfff"> ╚═════╝ ╚══════╝╚═════╝ </tspan></text>
     <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="198" xml:space="preserve"><tspan fill="#c0caf5">  Quorum Gets Shit Done </tspan><tspan fill="#565f89">v0.2.0</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="220" xml:space="preserve"><tspan fill="#565f89">  Inspired by Get Shit Done by TÂCHES</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="264" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Installed commands/qgsd</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="286" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Installed get-shit-done</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="308" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Installed agents</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="330" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Configured quorum hooks</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="374" xml:space="preserve"><tspan fill="#9ece6a">  Done! </tspan><tspan fill="#c0caf5">Run </tspan><tspan fill="#7dcfff">/qgsd:help</tspan><tspan fill="#c0caf5"> to get started.</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="418" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">▌</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="220" xml:space="preserve"><tspan fill="#565f89">  A very opinionated, quorum-based version of Get Shit Done</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="242" xml:space="preserve"><tspan fill="#565f89">  from TÂCHES, by Jonathan Borduas.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="286" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> 32 commands installed</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="308" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Quorum hooks configured</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="352" xml:space="preserve"><tspan fill="#9ece6a">  Done! </tspan><tspan fill="#c0caf5">Run </tspan><tspan fill="#7dcfff">/qgsd:help</tspan><tspan fill="#c0caf5"> to get started.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="396" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">▌</tspan></text>
   </g>
 </svg>

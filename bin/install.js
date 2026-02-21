@@ -139,9 +139,8 @@ const banner = '\n' +
   salmon + '  ╚══▀▀═╝ ' + cyan + ' ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
   '\n' +
   '  Quorum Gets Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
-  '  Inspired by Get Shit Done by TÂCHES — extended with a quorum of\n' +
-  '  independent agents (Codex, Gemini, OpenCode, Copilot) for deeper,\n' +
-  '  more resilient planning and decision loops.\n';
+  '  A very opinionated, quorum-based version of Get Shit Done\n' +
+  '  from TÂCHES, by Jonathan Borduas.\n';
 
 // QGSD: MCP auto-detection — keyword map for quorum model server matching
 const QGSD_KEYWORD_MAP = {
