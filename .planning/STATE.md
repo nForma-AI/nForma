@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 12 complete — v0.2.0 release commit tagged and pushed; npm publish deferred. Ready for next milestone or publish decision.
+**Current focus:** Phase 14 in progress — activity-set/clear/get CLI commands implemented (plan 01 of 4 complete). Plans 14-02 and 14-03 ready to execute.
 
 ## Current Position
 
-Phase: 12 — version-publish (COMPLETE)
-Plan: 02 complete (2/2 plans done)
-Status: RLS-01 ✓ (package.json 0.2.0), RLS-02 ✓ (MILESTONES.md archived), RLS-03 ✓ (tag v0.2.0 pushed), RLS-04 deferred (npm publish — user decision pending)
-Last activity: 2026-02-21 — Tagged v0.2.0 on commit 440ee7e and pushed to origin; all 211 commits on main pushed
+Phase: 14 — activity-tracking (IN PROGRESS)
+Plan: 01 complete (1/4 plans done)
+Status: ACT-01 ✓, ACT-02 ✓, ACT-03 ✓, ACT-07 ✓ — activity-set/clear/get deployed; 148 tests pass
+Last activity: 2026-02-21 — Implemented activity tracking CLI commands in gsd-tools.cjs; deployed to ~/.claude/qgsd/bin/ and ~/.claude/get-shit-done/bin/
 
 Progress: [████████████████████████████████] 12/13 phases complete (92%)
 
@@ -65,6 +65,7 @@ Progress: [███████████████████████
 | Phase 11-changelog-build P01 | 3 min | 1 task | 1 file |
 | Phase 11-changelog-build P02 | 3 min | 2 tasks | 6 files |
 | Phase 12-version-publish P01 | 2 min | 3 tasks | 2 files |
+| Phase 14-activity-tracking P01 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -135,6 +136,8 @@ Recent decisions affecting current work:
 - [Phase 10]: INST-08 uninstall fix: added PreToolUse removal block to uninstall() mirroring existing Stop/UserPromptSubmit pattern
 - [Phase 10]: RECV-01 fix: --reset-breaker uses git rev-parse --show-toplevel with process.cwd() fallback — consistent with how qgsd-circuit-breaker.js resolves gitRoot
 - [Phase 10]: INST-10 fix: sub-key backfill uses === undefined check (not falsy) to preserve user-set values including potentially 0; validateConfig() handles validation at runtime
+- [Phase 14-activity-tracking]: activity-set always overwrites updated with new Date().toISOString() for timestamp consistency — caller values are discarded
+- [Phase 14-activity-tracking]: activity-get returns {} on missing file (not an error) — resume-work can safely call without checking file existence first
 
 ### Roadmap Evolution
 
@@ -183,5 +186,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Phase 12 complete. Tag v0.2.0 pushed to origin (on commit 440ee7e). All docs fixed (README, USER-GUIDE, CHANGELOG). 144/144 tests passing. npm publish deferred pending user decision. Next: /qgsd:new-milestone to start v0.3, or run npm publish to complete RLS-04.
+Stopped at: Completed 14-activity-tracking plan 01. activity-set/clear/get commands in gsd-tools.cjs; deployed to both installed locations; 148/148 tests passing. Next: execute plan 14-02.
 Resume file: N/A
