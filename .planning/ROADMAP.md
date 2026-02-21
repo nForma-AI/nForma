@@ -30,7 +30,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 12: Version & Publish** - Bump version to 0.2.0, archive v0.2 milestone, create git tag v0.2.0, publish qgsd@0.2.0 to npm (RLS-04 npm publish deferred)
 - [x] **Phase 13: Circuit Breaker Oscillation Resolution Mode** - When the circuit breaker fires, Claude enters structured resolution mode with commit graph, quorum diagnosis, and unified solution approval
 - [x] **Phase 14: Activity Tracking** - `.planning/current-activity.json` sidecar tracks current workflow state for granular resume-work recovery across all QGSD workflow stages (completed 2026-02-21)
-- [ ] **Phase 15: v0.4 Gap Closure — Activity Resume Routing** - Fix ACT-02 schema violations (add phase field to oscillation-resolution-mode activity-set calls) and ACT-04 routing gaps (add new_milestone routing rows to resume-project.md)
+- [x] **Phase 15: v0.4 Gap Closure — Activity Resume Routing** - Fix ACT-02 schema violations (add phase field to oscillation-resolution-mode activity-set calls) and ACT-04 routing gaps (add new_milestone routing rows to resume-project.md) (completed 2026-02-21)
+- [x] **Phase 16: Verify Phase 15 — ACT-02 and ACT-04 Gap Closure** - Produce formal 15-VERIFICATION.md, fix INT-02 planning row, close ACT-02/ACT-04 traceability to Complete (completed 2026-02-21)
 
 ## Phase Details
 
@@ -234,7 +235,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
 | 14. Activity Tracking | 4/4 | Complete    | 2026-02-21 |
 | 15. v0.4 Gap Closure — Activity Resume Routing | 1/1 | Complete | 2026-02-21 |
-| 16. Verify Phase 15 — ACT-02 and ACT-04 | 0/1 | Complete    | 2026-02-21 |
+| 16. Verify Phase 15 — ACT-02 and ACT-04 | 1/1 | Complete    | 2026-02-21 |
 | 17. Fix Installed Agent Name Typos | 0/1 | Planned | — |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode

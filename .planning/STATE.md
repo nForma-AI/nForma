@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 14 COMPLETE — all 4 plans done. Activity tracking injected into all workflows; resume-project.md now reads current-activity.json and routes recovery commands by sub_activity. Ready for next milestone planning.
+**Current focus:** Phase 16 COMPLETE — ACT-02/ACT-04 formally verified, INT-02 fixed, traceability closed. Ready to plan Phase 17 (Fix Installed Agent Name Typos).
 
 ## Current Position
 
-Phase: 14 — activity-tracking (COMPLETE)
-Plan: 04 complete (4/4 plans done)
-Status: ACT-01 ✓, ACT-02 ✓, ACT-03 ✓, ACT-04 ✓, ACT-05 ✓, ACT-06 ✓, ACT-07 ✓ — all activity tracking requirements satisfied; resume-project.md routes recovery commands by sub_activity
-Last activity: 2026-02-21 — Completed quick task 23: add R4 pre-filter step to discuss-phase workflow
+Phase: 17 — fix-installed-agent-name-typos (Ready to plan)
+Plan: Not started
+Status: Phase 16 complete — 15-VERIFICATION.md produced, ACT-02/ACT-04 traceability = Complete, pending count = 18, INT-02 planning row disambiguation applied
+Last activity: 2026-02-21 — Phase 16 complete: verify Phase 15 ACT-02/ACT-04, fix INT-02, close traceability
 
-Progress: [████████████████████████████████████] 13/13 phases complete (100%)
+Progress: [███████████████████░] 38/39 plans (97%)
 
 ## Performance Metrics
 
@@ -144,6 +144,7 @@ Recent decisions affecting current work:
 - [Phase 14-activity-tracking]: Activity tracking in execute-phase: variable names ${PHASE_NUMBER} (existing), ${PLAN_FILE}/${WAVE_N}/${DEBUG_ROUND} introduced; prose instruction blocks format matching workflow style
 - [Phase 14-03]: quorum activity-set added in Step 8.5 (new section) in plan-phase — most accurate point where per-R3 quorum runs before user output; oscillation-resolution-mode.md does NOT get activity-clear as circuit_breaker states persist until parent workflow completes
 - [Phase Phase 14-04]: activity-get called in initialize step before state routing — HAS_ACTIVITY flag available to all downstream steps; routing table maps 13 sub_activity values to recovery commands; HAS_ACTIVITY=false is silent (graceful degradation when no interruption)
+- [Phase 16-verify-phase-15]: INT-02 fix (planning row disambiguation) included in Phase 16 scope — routing table now fully unambiguous with all ambiguous sub_activity values carrying (activity=X) qualifiers; disk-only update to installed resume-project.md per project convention (outside git repo)
 
 ### Roadmap Evolution
 
@@ -196,5 +197,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed quick task 23: r4_pre_filter step inserted into discuss-phase workflow between analyze_phase and present_gray_areas — R4 quorum pre-filter enforced before any gray area reaches the user.
-Resume file: N/A
+Stopped at: Phase 16 complete, ready to plan Phase 17 — Fix Installed Agent Name Typos (qqgsd-* → qgsd-* in installed plan-phase.md and new-milestone.md)
+Resume file: None
