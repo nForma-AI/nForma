@@ -199,7 +199,11 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
    After planner returns, run quorum review (quick.md Step 5.7).
    After quorum approves, spawn qgsd-executor Task (same prompt as quick.md Step 6).
    After executor completes, update STATE.md quick tasks table and commit (same as quick.md Steps 7-8).
-   Then resume phase execution from the failed plan.
+
+   **Post-fix verification (cap: 1 retry):**
+   1. Re-run `/qgsd:quorum-test` on the same plan to confirm CI now passes.
+   2. If quorum-test PASS → mark plan complete, continue to next wave/phase normally.
+   3. If quorum-test BLOCK again → do NOT auto-spawn another quick task. Ask user: "CI still failing after fix. Review and retry manually?"
 
 6. **Execute checkpoint plans between waves** — see `<checkpoint_handling>`.
 
