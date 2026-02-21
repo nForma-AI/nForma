@@ -574,7 +574,8 @@ test('CB-TC18: Project config oscillation_depth:2 triggers oscillation detection
   const repoDir = createTempGitRepo();
   try {
     // Create exactly 2 commits touching same file set (below default depth=3, meets depth=2)
-    createOscillationCommits(repoDir, ['src/app.js'], 2);
+    // Use flat file to avoid needing to create subdirectories in temp repo
+    createOscillationCommits(repoDir, ['app.js'], 2);
 
     // Write project config AFTER commits to avoid git add capturing the config file
     const claudeDir = path.join(repoDir, '.claude');

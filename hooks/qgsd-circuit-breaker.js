@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // hooks/qgsd-circuit-breaker.js
-// PreToolUse hook — oscillation detection and state persistence for circuit breaker.
+// PreToolUse hook — oscillation detection, state persistence, and enforcement for circuit breaker.
 //
 // Reads JSON from stdin (Claude Code PreToolUse event payload), checks for oscillation
 // in git history when Bash commands are executed, and persists breaker state across
-// invocations. Phase 6: detection only, always exits 0, no blocking.
+// invocations. Phase 7: enforcement blocking + config-driven thresholds.
 //
-// Hardcoded defaults: oscillation_depth=3, commit_window=6
+// Config-driven defaults via loadConfig(gitRoot): oscillation_depth and commit_window
 // State file: .claude/circuit-breaker-state.json (gitignored)
 
 'use strict';
@@ -14,13 +14,10 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { loadConfig } = require('./config-loader');
 
-// Read-only command regex: git log/diff/status/show/blame, grep, cat, ls, head, tail, find
+// Read-only command regex: git log/diff/diff-tree/status/show/blame, grep, cat, ls, head, tail, find
 const READ_ONLY_REGEX = /^\s*(git\s+(log|diff|diff-tree|status|show|blame)|grep|cat\s|ls(\s|$)|head|tail|find)\s*/;
-
-// Hardcoded defaults (Phase 6 — Phase 7 adds config)
-const OSCILLATION_DEPTH = 3;
-const COMMIT_WINDOW = 6;
 
 // Returns git root directory or null if not a git repo
 function getGitRoot(cwd) {
@@ -112,6 +109,26 @@ function writeState(statePath, fileSet, snapshot) {
   }
 }
 
+// Builds the block reason message for the deny decision (ENFC-02/03)
+function buildBlockReason(state) {
+  const fileList = (state.file_set || []).join(', ') || '(unknown)';
+  return [
+    'CIRCUIT BREAKER ACTIVE',
+    '',
+    'Oscillating file set detected: ' + fileList,
+    '',
+    'Claude cannot execute write Bash commands while the circuit breaker is active.',
+    '',
+    'Allowed read-only operations: git log, git diff, grep, cat, ls, head, tail, find',
+    '',
+    'Required actions before resuming:',
+    '1. Perform root cause analysis and map dependencies between the oscillating components.',
+    '2. Design a unified solution that resolves both components simultaneously.',
+    '3. You must commit the fix manually — Claude cannot run git commit while the breaker is active.',
+    '   Run \'npx qgsd --reset-breaker\' to clear the breaker after committing.',
+  ].join('\n');
+}
+
 function main() {
   let raw = '';
   process.stdin.setEncoding('utf8');
@@ -132,7 +149,17 @@ function main() {
       const statePath = path.join(gitRoot, '.claude', 'circuit-breaker-state.json');
       const state = readState(statePath);
       if (state && state.active) {
-        process.exit(0); // STATE-03: already active, skip detection
+        // ENFC-01/02/03: Enforce blocking on write commands; allow read-only
+        if (!isReadOnly(command)) {
+          process.stdout.write(JSON.stringify({
+            hookSpecificOutput: {
+              hookEventName: 'PreToolUse',
+              permissionDecision: 'deny',
+              permissionDecisionReason: buildBlockReason(state),
+            }
+          }));
+        }
+        process.exit(0);
       }
 
       // Check if read-only
@@ -140,17 +167,18 @@ function main() {
         process.exit(0); // DETECT-04: read-only command
       }
 
-      // Get commit file sets
-      const hashes = getCommitHashes(gitRoot, COMMIT_WINDOW);
+      // Load config for detection thresholds
+      const config = loadConfig(gitRoot);
+      const hashes = getCommitHashes(gitRoot, config.circuit_breaker.commit_window);
       const fileSets = getCommitFileSets(gitRoot, hashes);
 
       // Detect oscillation
-      const result = detectOscillation(fileSets, OSCILLATION_DEPTH);
+      const result = detectOscillation(fileSets, config.circuit_breaker.oscillation_depth);
       if (result.detected) {
         writeState(statePath, result.fileSet, fileSets);
       }
 
-      process.exit(0); // Phase 6: always pass, no stdout output
+      process.exit(0);
     } catch {
       process.exit(0); // Fail-open on any error
     }
