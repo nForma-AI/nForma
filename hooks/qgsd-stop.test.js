@@ -175,6 +175,31 @@ test('TC5: planning command with all three quorum tool calls passes', () => {
   }
 });
 
+// Test 5b: /qgsd:plan-phase — quorum present → pass (mirrors TC5 with /qgsd: prefix)
+test('TC5b: /qgsd:plan-phase — quorum present → pass', () => {
+  const tmpFile = writeTempTranscript([
+    userLine('/qgsd:plan-phase 1'),
+    assistantLine([
+      toolUseBlock('mcp__codex-cli__review'),
+      toolUseBlock('mcp__gemini-cli__gemini'),
+      toolUseBlock('mcp__opencode__opencode'),
+    ]),
+    assistantLine([{ type: 'text', text: 'Here is the plan.' }], 'assistant-2'),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Here is the plan.',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty — /qgsd: prefix recognized and quorum complete');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
+
 // Test 6: /gsd:plan-phase in current turn + only codex tool_use → block with decision:block
 // TC6 updated (step 1a): includes a PLAN.md artifact commit so GUARD 5 classifies this as a
 // decision turn, preserving the invariant: quorum-command + decision-turn + partial quorum = block.
