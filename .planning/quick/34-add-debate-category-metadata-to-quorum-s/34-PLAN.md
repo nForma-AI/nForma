@@ -185,14 +185,14 @@ Existing `"models"` and `"rounds"` keys are preserved verbatim. Do NOT modify an
     1. `node bin/update-scoreboard.cjs --help 2>&1 | grep task-description` should show the flag in usage
     2. `node -e "const d = require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8'); const j = JSON.parse(d); console.log(Object.keys(j.categories).length)"` should output `5`
     3. `node -e "const d = require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8'); const j = JSON.parse(d); console.log(j.categories['Technical / Engineering'].length)"` should output `11`
-    4. Existing round entries are still present and unchanged: `node -e "const j = JSON.parse(require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8')); console.log(j.rounds.length)"` should equal the pre-edit count (46 rounds)
+    4. Existing round entries are still present and unchanged: `node -e "const j = JSON.parse(require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8')); console.log(j.rounds.length)"` should equal the pre-edit count (42 rounds)
     5. Test explicit category flag: `node bin/update-scoreboard.cjs --model claude --result TP --task "test-category-34" --round 1 --verdict APPROVE --category "Technical / Engineering" --subcategory "Basic programming"` — exits 0, confirmation includes "Technical / Engineering"
     6. Verify the test round entry was written with category field: `node -e "const j = JSON.parse(require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8')); const r = j.rounds.find(r => r.task === 'test-category-34'); console.log(r.category, r.subcategory)"` should print `Technical / Engineering Basic programming`
     7. Remove the test entry after verification by re-reading the JSON, filtering out the test entry, and writing back — or simply note it as a test artifact (acceptable in scoreboard)
   </verify>
   <done>
     - `quorum-scoreboard.json` has `categories` object with 5 parent keys and correct subcategory counts
-    - Existing 46 round entries are intact with no modifications
+    - Existing 42 round entries are intact with no modifications
     - `update-scoreboard.cjs` accepts `--category`, `--subcategory`, `--task-description` flags
     - Explicit `--category` + `--subcategory` pass through to the round entry
     - Haiku classification function exists (SDK-guarded, returns null on failure)
@@ -252,7 +252,7 @@ Do not change any other content in quorum.md. The `--result`, `--task`, `--round
 </tasks>
 
 <verification>
-1. JSON structure check: `node -e "const j = JSON.parse(require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8')); console.log(JSON.stringify({hasCats: !!j.categories, catCount: Object.keys(j.categories).length, roundCount: j.rounds.length}))"` — expect `{"hasCats":true,"catCount":5,"roundCount":46}` (or 47 if test round kept)
+1. JSON structure check: `node -e "const j = JSON.parse(require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8')); console.log(JSON.stringify({hasCats: !!j.categories, catCount: Object.keys(j.categories).length, roundCount: j.rounds.length}))"` — expect `{"hasCats":true,"catCount":5,"roundCount":42}` (or 43 if test round kept)
 2. CLI smoke test with category: `node bin/update-scoreboard.cjs --model claude --result TP --task "cat-smoke-34" --round 1 --verdict APPROVE --category "Product & Content" --subcategory "Technical writing & documentation"` — exits 0, prints confirmation with category
 3. Verify round entry: `node -e "const j = JSON.parse(require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8')); const r = j.rounds.find(r => r.task === 'cat-smoke-34'); console.log(r)"` — shows `category` and `subcategory` fields
 4. Backward compat: existing round entries (e.g. `quick-2: R3.6 rule`) do NOT have `category`/`subcategory` fields — `node -e "const j = JSON.parse(require('fs').readFileSync('.planning/quorum-scoreboard.json','utf8')); const r = j.rounds[0]; console.log('category' in r)"` outputs `false`
