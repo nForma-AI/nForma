@@ -169,7 +169,7 @@ Route based on `activity` + `sub_activity`:
 | awaiting_human_verify | `/qgsd:execute-phase {phase}` — checkpoint is waiting for human approval |
 | verifying_phase | `/qgsd:execute-phase {phase}` — verifier was running, re-trigger phase verification |
 | researching (activity=plan_phase) | `/qgsd:plan-phase {phase}` — researcher was running, re-trigger with --research flag |
-| planning | `/qgsd:plan-phase {phase}` — planner was running, re-trigger plan-phase |
+| planning (activity=plan_phase) | `/qgsd:plan-phase {phase}` — planner was running, re-trigger plan-phase |
 | checking_plan | `/qgsd:plan-phase {phase}` — checker was running, re-trigger plan-phase |
 | quorum | `/qgsd:plan-phase {phase}` — QUORUM was in progress (round {quorum_round}), re-trigger plan-phase |
 | researching (activity=new_milestone) | `/qgsd:new-milestone` — milestone research was running |

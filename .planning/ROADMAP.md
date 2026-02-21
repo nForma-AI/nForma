@@ -233,7 +233,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Version & Publish | 2/2 | Complete (RLS-04 deferred) | 2026-02-21 |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
 | 14. Activity Tracking | 4/4 | Complete    | 2026-02-21 |
-| 15. v0.4 Gap Closure — Activity Resume Routing | 1/1 | In Progress | — |
+| 15. v0.4 Gap Closure — Activity Resume Routing | 1/1 | Complete | 2026-02-21 |
 | 16. Verify Phase 15 — ACT-02 and ACT-04 | 0/1 | Planned | — |
 | 17. Fix Installed Agent Name Typos | 0/1 | Planned | — |
 

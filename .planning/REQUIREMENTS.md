@@ -262,9 +262,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RLS-03 | Phase 12 | Pending |
 | RLS-04 | Phase 12 | Pending |
 | ACT-01 | Phase 14 | Complete |
-| ACT-02 | Phase 16 (verification of Phase 15) | Pending |
+| ACT-02 | Phase 16 (verification of Phase 15) | Complete |
 | ACT-03 | Phase 14 | Complete |
-| ACT-04 | Phase 16 (verification of Phase 15) | Pending |
+| ACT-04 | Phase 16 (verification of Phase 15) | Complete |
 | ACT-05 | Phase 14 | Complete |
 | ACT-06 | Phase 14 | Complete |
 | ACT-07 | Phase 14 | Complete |
@@ -277,8 +277,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Unmapped v0.2: 0 ✓
 - Unmapped v0.3: 0 ✓
 - Unmapped v0.4: 0 ✓
-- Pending (awaiting verification): 20 (v0.2: ORES-01..05 + v0.3: RLS-01..04 + v0.4: ACT-02, ACT-04)
+- Pending (awaiting verification): 18 (v0.2: ORES-01..05 + v0.3: RLS-01..04)
 
 ---
 *Requirements defined: 2026-02-20*
 *Last updated: 2026-02-21 — v0.4 second audit: ACT-02 and ACT-04 traceability reassigned to Phase 16 (Phase 15 executed but lacked VERIFICATION.md). Phase 16 (Verify Phase 15) and Phase 17 (Fix Installer Typos) added to roadmap. Pending count 18→20.*
+*Last updated: 2026-02-21 — Phase 16 complete: ACT-02 and ACT-04 traceability updated to Complete. INT-02 planning row disambiguation applied. Pending count 20→18.*
