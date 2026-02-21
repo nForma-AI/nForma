@@ -223,8 +223,8 @@ test('CB-TC6: Write command with exact oscillation depth triggers state write', 
   }
 });
 
-// Test CB-TC7: Write command, existing state with active:true → exit 0 (Phase 6 passes)
-test('CB-TC7: Write command with existing active state passes without re-detection', () => {
+// Test CB-TC7: Write command, existing state with active:true → hookSpecificOutput deny emitted (Phase 7 enforcement)
+test('CB-TC7: Write command with active state emits hookSpecificOutput deny decision', () => {
   const repoDir = createTempGitRepo();
   try {
     // Create active state manually
@@ -249,7 +249,17 @@ test('CB-TC7: Write command with existing active state passes without re-detecti
       permission_mode: 'default',
     });
     assert.strictEqual(exitCode, 0, 'exit code must be 0');
-    assert.strictEqual(stdout, '', 'stdout must be empty (Phase 6 passes)');
+    assert.ok(stdout.length > 0, 'stdout must be non-empty when circuit breaker active');
+    const parsed = JSON.parse(stdout);
+    assert.ok(parsed.hookSpecificOutput, 'output must have hookSpecificOutput');
+    assert.strictEqual(parsed.hookSpecificOutput.permissionDecision, 'deny', 'permissionDecision must be deny');
+    assert.ok(parsed.hookSpecificOutput.permissionDecisionReason.includes('CIRCUIT BREAKER'), 'reason must include CIRCUIT BREAKER');
+    assert.ok(parsed.hookSpecificOutput.permissionDecisionReason.includes('git log'), 'reason must include allowed operations');
+    assert.ok(
+      parsed.hookSpecificOutput.permissionDecisionReason.includes('manually') ||
+      parsed.hookSpecificOutput.permissionDecisionReason.includes('manually commit'),
+      'reason must include manual commit instruction'
+    );
   } finally {
     fs.rmSync(repoDir, { recursive: true, force: true });
   }
@@ -480,6 +490,165 @@ test('CB-TC15: State write failure logs to stderr but does not block', () => {
     assert.strictEqual(exitCode, 0, 'exit code must be 0 (not blocked)');
     assert.strictEqual(stdout, '', 'stdout must be empty');
     assert(stderr.includes('[qgsd] WARNING'), 'stderr should contain warning about write failure');
+  } finally {
+    fs.rmSync(repoDir, { recursive: true, force: true });
+  }
+});
+
+// Test CB-TC16 (NEW): active state + read-only command → exit 0, stdout empty (read-only passes even when breaker is active)
+test('CB-TC16: Read-only command passes even when circuit breaker is active', () => {
+  const repoDir = createTempGitRepo();
+  try {
+    commitInRepo(repoDir, 'test.txt', 'content', 'init');
+    // Create active state
+    const stateDir = path.join(repoDir, '.claude');
+    fs.mkdirSync(stateDir, { recursive: true });
+    const statePath = path.join(stateDir, 'circuit-breaker-state.json');
+    fs.writeFileSync(statePath, JSON.stringify({
+      active: true,
+      file_set: ['test.txt'],
+      activated_at: new Date().toISOString(),
+      commit_window_snapshot: [['test.txt']]
+    }), 'utf8');
+
+    const { stdout, exitCode } = runHook({
+      tool_name: 'Bash',
+      tool_input: { command: 'git log --oneline -5', description: 'test', timeout: 5000 },
+      cwd: repoDir,
+      hook_event_name: 'PreToolUse',
+      tool_use_id: 'test-id',
+      session_id: 'test-session',
+      transcript_path: '/tmp/test.jsonl',
+      permission_mode: 'default',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty — read-only allowed even when breaker active');
+  } finally {
+    fs.rmSync(repoDir, { recursive: true, force: true });
+  }
+});
+
+// Test CB-TC17 (NEW): active state + write command — verify block reason content
+test('CB-TC17: Block reason includes file names, root cause, git log, and reset-breaker instructions', () => {
+  const repoDir = createTempGitRepo();
+  try {
+    const stateDir = path.join(repoDir, '.claude');
+    fs.mkdirSync(stateDir, { recursive: true });
+    const statePath = path.join(stateDir, 'circuit-breaker-state.json');
+    fs.writeFileSync(statePath, JSON.stringify({
+      active: true,
+      file_set: ['src/feature.js', 'src/utils.js'],
+      activated_at: new Date().toISOString(),
+      commit_window_snapshot: []
+    }), 'utf8');
+
+    const { stdout, exitCode } = runHook({
+      tool_name: 'Bash',
+      tool_input: { command: 'rm -rf /tmp/test', description: 'test', timeout: 5000 },
+      cwd: repoDir,
+      hook_event_name: 'PreToolUse',
+      tool_use_id: 'test-id',
+      session_id: 'test-session',
+      transcript_path: '/tmp/test.jsonl',
+      permission_mode: 'default',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    const parsed = JSON.parse(stdout);
+    const reason = parsed.hookSpecificOutput.permissionDecisionReason;
+    // File names from state.file_set
+    assert.ok(reason.includes('src/feature.js'), 'reason must include oscillating file names');
+    assert.ok(reason.includes('src/utils.js'), 'reason must include oscillating file names');
+    // Root cause analysis instruction
+    assert.ok(reason.includes('root cause'), 'reason must include root cause analysis instruction');
+    // Allowed read-only operations
+    assert.ok(reason.includes('git log'), 'reason must include git log as allowed operation');
+    // Reset breaker instruction
+    assert.ok(reason.includes('npx qgsd --reset-breaker'), 'reason must include reset-breaker command');
+  } finally {
+    fs.rmSync(repoDir, { recursive: true, force: true });
+  }
+});
+
+// Test CB-TC18 (NEW): config oscillation_depth integration — project config depth:2 triggers at 2 commits (not default 3)
+test('CB-TC18: Project config oscillation_depth:2 triggers oscillation detection at depth 2', () => {
+  const repoDir = createTempGitRepo();
+  try {
+    // Create exactly 2 commits touching same file set (below default depth=3, meets depth=2)
+    createOscillationCommits(repoDir, ['src/app.js'], 2);
+
+    // Write project config AFTER commits to avoid git add capturing the config file
+    const claudeDir = path.join(repoDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({ circuit_breaker: { oscillation_depth: 2, commit_window: 6 } }),
+      'utf8'
+    );
+
+    const statePath = path.join(claudeDir, 'circuit-breaker-state.json');
+    // Ensure no pre-existing state
+    if (fs.existsSync(statePath)) fs.unlinkSync(statePath);
+
+    const { exitCode } = runHook({
+      tool_name: 'Bash',
+      tool_input: { command: 'echo write', description: 'test', timeout: 5000 },
+      cwd: repoDir,
+      hook_event_name: 'PreToolUse',
+      tool_use_id: 'test-id',
+      session_id: 'test-session',
+      transcript_path: '/tmp/test.jsonl',
+      permission_mode: 'default',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    // Oscillation should be detected at depth=2 (config-driven), so state file should be written
+    assert(fs.existsSync(statePath), 'state file should be written — oscillation detected at project config depth=2');
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    assert.strictEqual(state.active, true, 'state.active should be true');
+  } finally {
+    fs.rmSync(repoDir, { recursive: true, force: true });
+  }
+});
+
+// Test CB-TC19 (NEW): config commit_window integration — project config window:3 excludes older commits
+test('CB-TC19: Project config commit_window:3 excludes commits beyond window from oscillation check', () => {
+  const repoDir = createTempGitRepo();
+  try {
+    // Create 4 commits: commits 1-3 touch file-A.txt, commit 4 touches file-B.txt (different)
+    // With default commit_window=6: commits 1-4 all in window, file-A.txt set appears 3x → would detect (depth=3)
+    // With commit_window=3: only last 3 commits in window; commit 1 (file-A.txt) is excluded
+    //   → file-A.txt set appears only 2x in window → oscillation NOT detected (depth=3)
+    commitInRepo(repoDir, 'file-A.txt', 'content-1', 'commit 1 file-A');
+    commitInRepo(repoDir, 'file-A.txt', 'content-2', 'commit 2 file-A');
+    commitInRepo(repoDir, 'file-A.txt', 'content-3', 'commit 3 file-A');
+    commitInRepo(repoDir, 'file-B.txt', 'content-4', 'commit 4 file-B');
+
+    // Write project config with commit_window=3 AFTER commits
+    const claudeDir = path.join(repoDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({ circuit_breaker: { oscillation_depth: 3, commit_window: 3 } }),
+      'utf8'
+    );
+
+    const statePath = path.join(claudeDir, 'circuit-breaker-state.json');
+    if (fs.existsSync(statePath)) fs.unlinkSync(statePath);
+
+    const { exitCode } = runHook({
+      tool_name: 'Bash',
+      tool_input: { command: 'echo write', description: 'test', timeout: 5000 },
+      cwd: repoDir,
+      hook_event_name: 'PreToolUse',
+      tool_use_id: 'test-id',
+      session_id: 'test-session',
+      transcript_path: '/tmp/test.jsonl',
+      permission_mode: 'default',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    // With commit_window=3, only last 3 commits are examined:
+    // [file-B.txt] (commit 4), [file-A.txt] (commit 3), [file-A.txt] (commit 2)
+    // file-A.txt set appears 2x — below depth=3 → NOT detected
+    assert(!fs.existsSync(statePath), 'state file must NOT be written — commit_window=3 excludes oldest file-A commit, so only 2 matches found (below depth=3)');
   } finally {
     fs.rmSync(repoDir, { recursive: true, force: true });
   }
