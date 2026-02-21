@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 Phase: 17 — fix-installed-agent-name-typos (Ready to plan)
 Plan: Not started
 Status: Phase 16 complete — 15-VERIFICATION.md produced, ACT-02/ACT-04 traceability = Complete, pending count = 18, INT-02 planning row disambiguation applied
-Last activity: 2026-02-21 — Completed quick task 27: compact quorum.md output format — 1-sentence summaries, tighter banners, no supporting positions block
+Last activity: 2026-02-21 — Completed quick task 28: rename gsd-integration-checker to qgsd-integration-checker in MODEL_PROFILES in both source and installed gsd-tools.cjs
 
 Progress: [███████████████████░] 38/39 plans (97%)
 
