@@ -67,14 +67,56 @@ All features are v1. No deferral.
 - [x] **META-02**: Only questions where quorum fails to reach consensus are presented to the user
 - [x] **META-03**: Auto-resolved questions are presented as a list of assumptions before escalated questions
 
-## v2 Requirements
+## v0.2 Requirements — Anti-Oscillation Pattern
 
-### Reliability Enhancements
+**Goal:** Move R5 (Circuit Breaker) from CLAUDE.md behavioral policy into structural Claude Code hooks.
+
+### Detection (DETECT)
+
+- [ ] **DETECT-01**: PreToolUse hook intercepts Bash tool calls and checks whether the current context has an active circuit breaker before running detection
+- [ ] **DETECT-02**: Hook retrieves last N commits' changed files via `git log --name-only` (N = commit_window config) when detection is needed
+- [ ] **DETECT-03**: Hook identifies oscillation when the same file or file set appears in ≥ oscillation_depth of the last commit_window commits
+- [ ] **DETECT-04**: Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) pass through without detection or blocking
+- [ ] **DETECT-05**: Detection is skipped (returns pass) when no git repository exists in the current working directory
+
+### State Management (STATE)
+
+- [ ] **STATE-01**: Circuit breaker state persisted in `.claude/circuit-breaker-state.json` (relative to project root) so block survives across tool calls
+- [ ] **STATE-02**: State schema: `{ active, file_set[], activated_at, commit_window_snapshot[] }` — captures what triggered the breaker
+- [ ] **STATE-03**: Hook reads existing state first — if active, applies enforcement immediately without re-running git log detection
+- [ ] **STATE-04**: State file created silently if absent; failure to write logs to stderr but never blocks execution
+
+### Enforcement (ENFC)
+
+- [ ] **ENFC-01**: When circuit breaker is active, hook returns `{ "decision": "block", "reason": "..." }` blocking Bash execution
+- [ ] **ENFC-02**: Block reason names the oscillating file set, confirms circuit breaker is active, and lists allowed operations (read-only Bash)
+- [ ] **ENFC-03**: Block reason instructs Claude to perform root cause analysis and map dependencies before resuming
+
+### Config Extensions (CONF)
+
+- [ ] **CONF-06**: qgsd.json schema extended with `circuit_breaker.oscillation_depth` (integer, default: 3) — minimum commits touching same file set to trigger breaker
+- [ ] **CONF-07**: qgsd.json schema extended with `circuit_breaker.commit_window` (integer, default: 6) — number of recent commits to analyze
+- [ ] **CONF-08**: Circuit breaker config values validated on load; invalid values fall back to defaults with stderr warning
+- [ ] **CONF-09**: Two-layer config merge (global + project) applies to `circuit_breaker` settings identically to existing merge behavior
+
+### Installer Extensions (INST)
+
+- [ ] **INST-08**: Installer registers PreToolUse circuit breaker hook in `~/.claude/settings.json` alongside existing hooks
+- [ ] **INST-09**: Installer writes default `circuit_breaker` config block to qgsd.json on first install
+- [ ] **INST-10**: Reinstall (idempotent) adds missing `circuit_breaker` config block without overwriting user-modified values
+
+## Future Requirements (v0.3+)
+
+### Circuit Breaker Recovery
+
+- **RECV-01**: Manual reset command (`npx qgsd@latest --reset-breaker`) clears active circuit breaker state
+- **RECV-02**: Auto-clear: circuit breaker resets when a commit on the oscillating file set does not match the oscillation pattern (non-oscillating forward progress)
+
+### Reliability Enhancements (from v0.1 v2 backlog)
 
 - **REL-01**: Session cache — track quorum state per-session to avoid re-verifying completed quorum on subsequent Stop hook calls
 - **REL-02**: Dry-run mode — `--dry-run` flag for installer that shows what would be installed without writing files
 - **REL-03**: Runtime warning when configured MCP server names are no longer present in Claude Code settings (drift detection)
-- **REL-04**: Re-detect command: `npx qgsd@latest --redetect-mcps` to update MCP names in qgsd.json without full reinstall
 
 ### Multi-Runtime Support
 
@@ -138,12 +180,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SYNC-04 | Phase 3 | Complete |
 
 **Coverage:**
-- v1 requirements: 39 total
-- Mapped to phases: 39
-- Unmapped: 0 (corrected from initial count of 40 — actual count is 39)
+- v1 requirements: 39 total — all complete (v0.1)
+- v0.2 requirements: 20 total — mapped to phases by roadmapper
+- Unmapped v0.2: 20 ⚠️ (pending roadmap)
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 — STOP-05 revised: fast-path omitted by design; JSONL-only verification is authoritative (gap closure Plan 01-06)*
-*Updated: 2026-02-20 — MCP-01: corrected file path from ~/.claude/settings.json to ~/.claude.json (verified live). CONF-03/MCP-03: corrected field name from quorum_models to required_models (approved divergence during Phase 2 planning).*
-*Updated: 2026-02-20 — Phase 3 complete: INST-03, INST-04, INST-07 marked [x]; all 11 Phase 3 requirements satisfied (human checkpoint approved, multi-model consensus: Codex+Gemini+OpenCode PASS).*
+*Last updated: 2026-02-21 — v0.2 Anti-Oscillation Pattern: 20 new requirements added (DETECT-01–05, STATE-01–04, ENFC-01–03, CONF-06–09, INST-08–10)*
