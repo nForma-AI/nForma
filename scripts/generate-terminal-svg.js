@@ -67,8 +67,8 @@ const LINES = [
 
   { parts: [] },  // blank
   { parts: [{ t: `  Quorum Gets Shit Done `, c: COLORS.white }, { t: `v${version}`, c: COLORS.dim }] },
-  { parts: [{ t: '  Built on GSD by TÂCHES. Not a PR — a different thesis:', c: COLORS.dim }] },
-  { parts: [{ t: '  full automation through quorum. By Jonathan Borduas.', c: COLORS.dim }] },
+  { parts: [{ t: '  Built on GSD by TÂCHES.', c: COLORS.dim }] },
+  { parts: [{ t: '  Full automation through coding agent quorum. By Jonathan Borduas.', c: COLORS.dim }] },
   { parts: [] },  // blank
 
   // Install output — show only what matters to the user

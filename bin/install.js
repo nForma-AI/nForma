@@ -139,8 +139,8 @@ const banner = '\n' +
   salmon + '  ╚══▀▀═╝ ' + cyan + ' ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
   '\n' +
   '  Quorum Gets Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
-  '  Built on GSD by TÂCHES. Not a PR — a different thesis:\n' +
-  '  full automation through quorum. By Jonathan Borduas.\n';
+  '  Built on GSD by TÂCHES.\n' +
+  '  Full automation through coding agent quorum. By Jonathan Borduas.\n';
 
 // QGSD: MCP auto-detection — keyword map for quorum model server matching
 const QGSD_KEYWORD_MAP = {
