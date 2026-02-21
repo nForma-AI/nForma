@@ -83,6 +83,11 @@ Display banner:
 ### Spawn qgsd-phase-researcher
 
 ```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
+  "{\"activity\":\"plan_phase\",\"sub_activity\":\"researching\",\"phase\":${PHASE_NUMBER}}"
+```
+
+```bash
 PHASE_DESC=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE}" | jq -r '.section')
 PHASE_REQ_IDS=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE}" | jq -r '.section // empty' | grep -i "Requirements:" | head -1 | sed 's/.*Requirements:\*\*\s*//' | sed 's/[\[\]]//g' | tr ',' '\n' | sed 's/^ *//;s/ *$//' | grep -v '^$' | tr '\n' ',' | sed 's/,$//')
 ```
@@ -152,6 +157,11 @@ CONTEXT_PATH=$(echo "$INIT" | jq -r '.context_path // empty')
 
 ## 8. Spawn qgsd-planner Agent
 
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
+  "{\"activity\":\"plan_phase\",\"sub_activity\":\"planning\",\"phase\":${PHASE_NUMBER}}"
+```
+
 Display banner:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -211,6 +221,17 @@ Task(
 )
 ```
 
+## 8.5 Run QUORUM (per CLAUDE.md R3)
+
+Before presenting planner output to the user, run QUORUM as required by R3.1. Set activity before each round:
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
+  "{\"activity\":\"plan_phase\",\"sub_activity\":\"quorum\",\"phase\":${PHASE_NUMBER},\"quorum_round\":${QUORUM_ROUND}}"
+```
+
+Run each quorum round (R3.2–R3.3): form own position, then query Codex, Gemini, OpenCode, Copilot sequentially. Stop on consensus. Update `QUORUM_ROUND` counter (starting at 1) before each round.
+
 ## 9. Handle Planner Return
 
 - **`## PLANNING COMPLETE`:** Display plan count. If `--skip-verify` or `plan_checker_enabled` is false (from init): skip to step 13. Otherwise: step 10.
@@ -218,6 +239,11 @@ Task(
 - **`## PLANNING INCONCLUSIVE`:** Show attempts, offer: Add context / Retry / Manual
 
 ## 10. Spawn qgsd-plan-checker Agent
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
+  "{\"activity\":\"plan_phase\",\"sub_activity\":\"checking_plan\",\"phase\":${PHASE_NUMBER}}"
+```
 
 Display banner:
 ```
@@ -318,6 +344,12 @@ Offer: 1) Force proceed, 2) Provide guidance and retry, 3) Abandon
 ## 13. Present Final Status
 
 Route to `<offer_next>` OR `auto_advance` depending on flags/config.
+
+After presenting final status to the user (offer_next output displayed OR auto-advance complete):
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-clear
+```
 
 ## 14. Auto-Advance Check
 
