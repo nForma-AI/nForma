@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 Phase: 14 — activity-tracking (COMPLETE)
 Plan: 04 complete (4/4 plans done)
 Status: ACT-01 ✓, ACT-02 ✓, ACT-03 ✓, ACT-04 ✓, ACT-05 ✓, ACT-06 ✓, ACT-07 ✓ — all activity tracking requirements satisfied; resume-project.md routes recovery commands by sub_activity
-Last activity: 2026-02-21 — Added activity-aware recovery routing to resume-project.md (both qgsd and source locations); routing table maps 13 sub_activity values to recovery commands; ACT-01..07 all marked complete
+Last activity: 2026-02-21 — Completed quick task 20: create qgsd-quorum-orchestrator + qgsd-oscillation-resolver agents and recolor quorum-test-worker magenta
 
 Progress: [████████████████████████████████████] 13/13 phases complete (100%)
 
@@ -182,7 +182,7 @@ Recent decisions affecting current work:
 | 18 | Clarify Claude as full voting quorum member in CLAUDE.md Appendix table, R3.2 step 1, and scoreboard Notes | 2026-02-21 | disk-only | Complete | [18-clarify-claude-as-full-quorum-member-wit](./quick/18-clarify-claude-as-full-quorum-member-wit/) |
 | 17 | Add quorum gate inside map-codebase workflow: quorum validates mapper docs before finalization | 2026-02-21 | 1be247d | Complete (quorum override) | [17-add-quorum-gate-inside-map-codebase-work](./quick/17-add-quorum-gate-inside-map-codebase-work/) |
 | 19 | Fix Stop hook false positive on new-project: XML-tag-first command matching in hasQuorumCommand/extractCommand | 2026-02-21 | 02b73bf | Complete | [19-fix-stop-hook-false-positive-on-new-proj](./quick/19-fix-stop-hook-false-positive-on-new-proj/) |
-| 20 | Create qgsd-quorum-orchestrator + qgsd-oscillation-resolver agents; recolor qgsd-quorum-test-worker to magenta | 2026-02-21 | disk-only | Complete | [20-create-qgsd-quorum-orchestrator-qgsd-osc](./quick/20-create-qgsd-quorum-orchestrator-qgsd-osc/) |
+| 20 | Create qgsd-quorum-orchestrator + qgsd-oscillation-resolver agents; recolor qgsd-quorum-test-worker to magenta | 2026-02-21 | disk-only | Verified | [20-create-qgsd-quorum-orchestrator-qgsd-osc](./quick/20-create-qgsd-quorum-orchestrator-qgsd-osc/) |
 
 ### Blockers/Concerns
 
