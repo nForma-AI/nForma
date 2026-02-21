@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after v0.2 milestone complete)
 Phase: Milestone v0.2 complete
 Plan: N/A — milestone archived
 Status: v0.2 SHIPPED — 17 phases complete, 40/40 plans, git tag v0.2.0 pushed. Milestone archived to .planning/milestones/. REQUIREMENTS.md deleted (fresh for next milestone). npm publish (RLS-04) deferred.
-Last activity: 2026-02-21 — Completed quick task 31: tighten execute-phase auto-spawn resume — replace vague resume line with 3-step post-fix verification block (cap: 1 retry)
+Last activity: 2026-02-21 — Completed quick task 33: make workflow.auto_advance default to true (YOLO mode on by default)
 
 Progress: [████████████████████] 40/40 plans (100%)
 
