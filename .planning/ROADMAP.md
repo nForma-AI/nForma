@@ -96,3 +96,12 @@ Phases execute in numeric order: 1 → 2 → 3
 Plans:
 - [x] 04-01-PLAN.md — Stop hook GUARD 5: decision turn detection (hasArtifactCommit + hasDecisionMarker) — TDD with TC14-TC19
 - [x] 04-02-PLAN.md — UserPromptSubmit hook: inject decision marker instruction into quorum context
+
+### Phase 5: Fix GUARD 5 Delivery Gaps
+**Goal:** Phase 4 features reach installed users — buildQuorumInstructions() includes step 5 so hasDecisionMarker() fires for installer users, and hooks/dist/ is current so source installs get GUARD 5
+**Depends on:** Phase 4
+**Gap Closure:** Closes GAP-01 (hooks/dist/ stale for source installs) and GAP-02 (marker path disabled for all installer users) from v0.1 milestone audit
+**Plans:** 0/1 plans complete
+
+Plans:
+- [ ] 05-01-PLAN.md — Add step 5 to buildQuorumInstructions() + templates/qgsd.json; rebuild hooks/dist/; verify with grep; document --redetect-mcps in CHANGELOG
