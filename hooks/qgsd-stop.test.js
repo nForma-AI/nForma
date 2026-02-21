@@ -680,3 +680,106 @@ test('TC19: verify-work turn with decision marker in last assistant text block b
     fs.unlinkSync(tmpFile);
   }
 });
+
+// ── TC20/TC20b/TC20c: @file-expansion false-positive regression ───────────────────────────────
+//
+// When Claude Code expands a workflow file (e.g. quick.md) via @-reference, the expanded content
+// is appended to the user message body. Workflow files often mention other /qgsd: commands by name
+// (e.g. "If you meant /qgsd:new-project, run that instead."). The old JSON.stringify full-body
+// scan would match these mentions and trigger a false-positive GUARD 4 hit.
+//
+// Fix: hasQuorumCommand reads the <command-name> XML tag first. This tag is injected by Claude
+// Code only for real slash command invocations — never in @file-expanded content. When the tag
+// is present, only the tag value is tested; the body is never scanned.
+//
+// TC20  — false-positive regression: /qgsd:quick tag, body mentions /qgsd:new-project → pass
+// TC20b — positive control: /qgsd:new-project real tag, questioning turn → pass (GUARD 5)
+// TC20c — end-to-end: /qgsd:new-project real tag + decision turn + no quorum → block
+
+// Helper: build a user JSONL line whose message.content begins with the <command-name> XML tag
+// (simulating Claude Code's injection for real slash command invocations) followed by the body.
+function userLineWithTag(commandTag, bodyText, uuid) {
+  const content = '<command-name>' + commandTag + '</command-name>\n\n' + bodyText;
+  return JSON.stringify({
+    type: 'user',
+    message: { role: 'user', content },
+    timestamp: '2026-02-20T00:00:00Z',
+    uuid: uuid || 'user-tagged',
+  });
+}
+
+// TC20 — The false-positive regression:
+// User invokes /qgsd:quick (tag = "/qgsd:quick"); body contains "new-project" text from
+// expanded quick.md workflow. With the fix, the tag is read first ("/qgsd:quick" is not in
+// quorum_commands) → GUARD 4 returns false → exit 0. Body is never scanned.
+test('TC20: @file-expanded body containing /qgsd:new-project text does not false-positive when real command is /qgsd:quick', () => {
+  const expandedBody =
+    'Execute the quick task.\n\n' +
+    'If you meant /qgsd:new-project, run that instead. ' +
+    'See /qgsd:new-project documentation for details.';
+  const tmpFile = writeTempTranscript([
+    userLineWithTag('/qgsd:quick', expandedBody, 'user-quick'),
+    assistantLine([{ type: 'text', text: 'Running quick task.' }], 'assistant-1'),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Running quick task.',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 — /qgsd:quick is not a quorum command');
+    assert.strictEqual(stdout, '', 'stdout must be empty — new-project in body must not trigger GUARD 4');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
+
+// TC20b — Positive control: new-project IS the real command (tag present), but no artifact commit
+// and no decision marker — GUARD 5 passes (routing/questioning turn).
+// Verifies the XML tag strategy correctly identifies real /qgsd:new-project invocations.
+test('TC20b: real /qgsd:new-project tag on a questioning turn passes (GUARD 5 — not a decision turn)', () => {
+  const tmpFile = writeTempTranscript([
+    userLineWithTag('/qgsd:new-project', 'I want to start a new project.', 'user-np'),
+    assistantLine([{ type: 'text', text: 'What do you want to build?' }], 'assistant-1'),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'What do you want to build?',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 — questioning turn is not a decision turn');
+    assert.strictEqual(stdout, '', 'stdout must be empty — GUARD 5 passes, no artifact or marker');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
+
+// TC20c — End-to-end: new-project IS real (tag) + ROADMAP.md artifact commit (decision turn) + no quorum → block
+// Verifies real /qgsd:new-project invocations still trigger quorum enforcement on decision turns.
+test('TC20c: real /qgsd:new-project tag on a decision turn blocks when quorum missing', () => {
+  const tmpFile = writeTempTranscript([
+    userLineWithTag('/qgsd:new-project', 'Build a task management app.', 'user-np2'),
+    assistantLine([
+      bashCommitBlock('node /path/gsd-tools.cjs commit "docs: roadmap" --files ROADMAP.md'),
+    ], 'assistant-commit'),
+    assistantLine([{ type: 'text', text: 'Here is the roadmap.' }], 'assistant-2'),
+  ]);
+  try {
+    const { stdout, exitCode } = runHook({
+      stop_hook_active: false,
+      hook_event_name: 'Stop',
+      transcript_path: tmpFile,
+      last_assistant_message: 'Here is the roadmap.',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 even when blocking');
+    assert.ok(stdout.length > 0, 'stdout must contain block decision JSON');
+    const parsed = JSON.parse(stdout);
+    assert.strictEqual(parsed.decision, 'block', 'decision must be "block"');
+    assert.ok(parsed.reason.startsWith('QUORUM REQUIRED:'), 'reason must start with QUORUM REQUIRED:');
+  } finally {
+    fs.unlinkSync(tmpFile);
+  }
+});
