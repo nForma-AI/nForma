@@ -135,6 +135,7 @@ Recent decisions affecting current work:
 | 11 | Change GSD ASCII art banner to QGSD with Q in salmon; update tagline to "Quorum Gets Shit Done" | 2026-02-21 | 3819d38 | Verified | [11-change-gsd-ascii-art-to-qgsd-with-q-in-a](./quick/11-change-gsd-ascii-art-to-qgsd-with-q-in-a/) |
 | 9 | Update active policy docs: replace /gsd: with /qgsd: in REQUIREMENTS.md, STATE.md, PROJECT.md, 01-05-PLAN.md, quorum todo | 2026-02-21 | c50cebe | Verified | [9-make-sure-that-qgsd-wil-now-use-qgsd-com](./quick/9-make-sure-that-qgsd-wil-now-use-qgsd-com/) |
 | 10 | Review all docs for QGSD framework sync: add /qgsd:quorum-test to tables, fix GSD prose in README + CHANGELOG | 2026-02-21 | 4066bb4 | Verified | [10-review-all-docs-for-qgsd-framework-sync-](./quick/10-review-all-docs-for-qgsd-framework-sync-/) |
+| 12 | Fix /qgsd:debug Step 7 to auto-execute consensus next step instead of user-permission gate | 2026-02-21 | a39d422 | Verified | [12-fix-qgsd-debug-to-auto-proceed-when-quor](./quick/12-fix-qgsd-debug-to-auto-proceed-when-quor/) |
 
 ### Blockers/Concerns
 
@@ -145,5 +146,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 08-01-PLAN.md — Phase 8 and v0.2 milestone complete (29d4b2e).
+Stopped at: Completed quick task 12 — fix /qgsd:debug Step 7 to auto-execute on consensus (a39d422).
 Resume file: N/A
