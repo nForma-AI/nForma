@@ -101,7 +101,7 @@ Plans:
 **Goal:** Phase 4 features reach installed users — buildQuorumInstructions() includes step 5 so hasDecisionMarker() fires for installer users, and hooks/dist/ is current so source installs get GUARD 5
 **Depends on:** Phase 4
 **Gap Closure:** Closes GAP-01 (hooks/dist/ stale for source installs) and GAP-02 (marker path disabled for all installer users) from v0.1 milestone audit
-**Plans:** 0/1 plans complete
+**Plans:** 1 plan
 
 Plans:
-- [ ] 05-01-PLAN.md — Add step 5 to buildQuorumInstructions() + templates/qgsd.json; rebuild hooks/dist/; verify with grep; document --redetect-mcps in CHANGELOG
+- [ ] 05-01-PLAN.md — Three-surface quorum_instructions sync (bin/install.js + templates/qgsd.json) + hooks/dist/ rebuild (GAP-01 + GAP-02) + CHANGELOG [Unreleased] entry
