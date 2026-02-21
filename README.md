@@ -2,15 +2,12 @@
 
 # QGSD: Quorum Gets Shit Done
 
-**A multi-model quorum enforcement layer on top of GSD — every planning decision verified by Codex, Gemini, OpenCode, and Copilot before Claude executes.**
-
-**Solves context rot — the quality degradation that happens as Claude fills its context window.**
+**Every planning decision verified by a quorum of AI models before Claude executes a single line.**
 
 [![npm version](https://img.shields.io/npm/v/qgsd?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/qgsd)
 [![npm downloads](https://img.shields.io/npm/dm/qgsd?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/qgsd)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/servers/1474810068636663886)
-[![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
-[![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
+[![X (Twitter)](https://img.shields.io/badge/X-@JonathanBorduas-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/JonathanBorduas)
 [![GitHub stars](https://img.shields.io/github/stars/LangBlaze-AI/QGSD?style=for-the-badge&logo=github&color=181717)](https://github.com/LangBlaze-AI/QGSD)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
@@ -24,51 +21,33 @@ npx qgsd@latest
 
 <br>
 
-![GSD Install](assets/terminal.svg)
+![QGSD Install](assets/terminal.svg)
 
 <br>
 
-*"If you know clearly what you want, this WILL build it for you. No bs."*
-
-*"I've done SpecKit, OpenSpec and Taskmaster — this has produced the best results for me."*
-
-*"By far the most powerful addition to my Claude Code. Nothing over-engineered. Literally just gets shit done."*
-
-<br>
-
-**Trusted by engineers at Amazon, Google, Shopify, and Webflow.**
-
-[Why I Built This](#why-i-built-this) · [How It Works](#how-it-works) · [Commands](#commands) · [Why It Works](#why-it-works) · [User Guide](docs/USER-GUIDE.md)
+[Why I Built QGSD](#why-i-built-qgsd) · [How It Works](#how-it-works) · [Commands](#commands) · [Why It Works](#why-it-works) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
 
 ---
 
-## Why I Built This
+## Why I Built QGSD
 
-I'm a solo developer. I don't write code — Claude Code does.
+GSD nailed the workflow. But I wanted to push it further.
 
-Other spec-driven development tools exist; BMAD, Speckit... But they all seem to make things way more complicated than they need to be (sprint ceremonies, story points, stakeholder syncs, retrospectives, Jira workflows) or lack real big picture understanding of what you're building. I'm not a 50-person software company. I don't want to play enterprise theater. I'm just a creative person trying to build great things that work.
+I believe diverse AI agents — running on diverse models — bring meaningfully different knowledge, reasoning patterns, and instincts to any given problem. Claude is extraordinary. But Gemini sees different things. Codex catches different edge cases. OpenCode and Copilot have different priors. That diversity, when structured properly, produces better strategies than any single model running alone — even the strongest one available.
 
-So I built GSD. The complexity is in the system, not in your workflow. Behind the scenes: context engineering, XML prompt formatting, subagent orchestration, state management. What you see: a few commands that just work.
+So I forked GSD and built a multi-model quorum layer on top of it. Every planning decision, every research output, every roadmap — reviewed by five models before Claude executes a single line. Not as a committee to slow things down, but as a structured deliberation to surface blind spots.
 
-The system gives Claude everything it needs to do the work *and* verify it. I trust the workflow. It just does a good job.
+The deeper goal: the first truly autonomous coding agent that only escalates to a human when there's a genuine lack of consensus. Not when it's uncertain. Not when it's guessing. Only when the quorum, after deliberation, can't agree — because that's the signal that a human judgment call is actually needed.
 
-That's what this is. No enterprise roleplay bullshit. Just an incredibly effective system for building cool stuff consistently using Claude Code.
-
-— **TÂCHES**
-
----
-
-Vibecoding has a bad reputation. You describe what you want, AI generates code, and you get inconsistent garbage that falls apart at scale.
-
-QGSD fixes that. It's the context engineering layer that makes Claude Code reliable. Describe your idea, let the system extract everything it needs to know, and let Claude Code get to work.
+— **Jonathan Borduas**
 
 ---
 
 ## Who This Is For
 
-People who want to describe what they want and have it built correctly — without pretending they're running a 50-person engineering org.
+People who want to describe what they want and have it built correctly — with a system that challenges its own assumptions before writing a single line of code.
 
 ---
 
@@ -83,6 +62,83 @@ The installer prompts you to choose:
 2. **Location** — Global (all projects) or local (current project only)
 
 Verify with `/qgsd:help` inside your chosen runtime.
+
+### Setting Up Your Quorum
+
+QGSD's quorum requires each model to run as an MCP server inside Claude Code. This is a **one-time setup per machine** — three steps per model: install the CLI, authenticate, register with Claude Code.
+
+---
+
+#### OpenAI Codex — [codex-mcp-server](https://github.com/LangBlaze-AI/codex-mcp-server)
+
+```bash
+# 1. Install Codex CLI (v0.75.0+)
+npm i -g @openai/codex
+
+# 2. Authenticate
+codex login --api-key "your-openai-api-key"
+
+# 3. Register with Claude Code
+claude mcp add codex-cli -- npx -y codex-mcp-server
+```
+
+---
+
+#### Google Gemini — [gemini-mcp-server](https://github.com/LangBlaze-AI/gemini-mcp-server)
+
+```bash
+# 1. Install Gemini CLI
+npm install -g @google/gemini-cli
+
+# 2. Authenticate (free tier: 60 req/min, 1000 req/day)
+gemini  # follow the Google login flow
+
+# 3. Register with Claude Code
+claude mcp add gemini-cli -- npx -y @tuannvm/gemini-mcp-server
+```
+
+---
+
+#### OpenCode — [opencode-mcp-server](https://github.com/LangBlaze-AI/opencode-mcp-server)
+
+```bash
+# 1. Install OpenCode CLI
+npm install -g opencode-ai
+
+# 2. Authenticate
+opencode  # follow the auth flow
+
+# 3. Register with Claude Code
+claude mcp add opencode -- npx -y @tuannvm/opencode-mcp-server
+```
+
+---
+
+#### GitHub Copilot — [copilot-mcp-server](https://github.com/LangBlaze-AI/copilot-mcp-server)
+
+```bash
+# 1. Requires an active GitHub Copilot subscription
+#    Authenticate via GitHub CLI if not already done:
+gh auth login
+
+# 2. Register with Claude Code
+claude mcp add copilot-cli -- npx -y copilot-mcp-server
+```
+
+---
+
+#### After adding MCPs — refresh QGSD's detection
+
+QGSD auto-detects your MCP server names on install and caches the result. After adding or renaming any MCP server, re-run with `--redetect-mcps` to update the cache:
+
+```bash
+npx qgsd@latest --redetect-mcps
+```
+
+This re-reads `~/.claude.json`, re-derives tool prefixes from your registered servers, and rewrites `~/.claude/qgsd.json`. Without this step, QGSD's hooks may reference stale default prefixes.
+
+> [!NOTE]
+> QGSD works with as few as one quorum member — more models means stronger consensus. Claude is always the fifth voting member in every quorum round.
 
 ### Staying Updated
 
@@ -656,19 +712,6 @@ This removes all QGSD commands, agents, hooks, and settings while preserving you
 
 ---
 
-## Community Ports
-
-OpenCode and Gemini CLI are now natively supported via `npx get-shit-done-cc`.
-
-These community ports pioneered multi-runtime support:
-
-| Project | Platform | Description |
-|---------|----------|-------------|
-| [gsd-opencode](https://github.com/rokicool/gsd-opencode) | OpenCode | Original OpenCode adaptation |
-| gsd-gemini (archived) | Gemini CLI | Original Gemini adaptation by uberfuzzy |
-
----
-
 ## Star History
 
 <a href="https://star-history.com/#LangBlaze-AI/QGSD&Date">
@@ -689,6 +732,8 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**Claude Code is powerful. QGSD makes its plans trustworthy.**
+*"The task of leadership is to create an alignment of strengths so strong that it makes the system's weaknesses irrelevant."*
+
+— Peter Drucker
 
 </div>
