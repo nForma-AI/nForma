@@ -3271,14 +3271,15 @@ function cmdPhaseComplete(cwd, phaseNum, raw) {
         let reqContent = fs.readFileSync(reqPath, 'utf-8');
 
         for (const reqId of reqIds) {
+          const escapedReqId = reqId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           // Update checkbox: - [ ] **REQ-ID** → - [x] **REQ-ID**
           reqContent = reqContent.replace(
-            new RegExp(`(-\\s*\\[)[ ](\\]\\s*\\*\\*${reqId}\\*\\*)`, 'gi'),
+            new RegExp(`(-\\s*\\[)[ ](\\]\\s*\\*\\*${escapedReqId}\\*\\*)`, 'gi'),
             '$1x$2'
           );
           // Update traceability table: | REQ-ID | Phase N | Pending | → | REQ-ID | Phase N | Complete |
           reqContent = reqContent.replace(
-            new RegExp(`(\\|\\s*${reqId}\\s*\\|[^|]+\\|)\\s*Pending\\s*(\\|)`, 'gi'),
+            new RegExp(`(\\|\\s*${escapedReqId}\\s*\\|[^|]+\\|)\\s*Pending\\s*(\\|)`, 'gi'),
             '$1 Complete $2'
           );
         }
