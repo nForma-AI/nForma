@@ -18,8 +18,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Config & MCP Detection** - User-editable config system with MCP auto-detection and fail-open behavior (completed 2026-02-20)
 - [x] **Phase 3: Installer & Distribution** - npm installer that writes hooks to ~/.claude/settings.json and GSD version sync strategy (completed 2026-02-20)
 - [x] **Phase 4: Narrow Quorum Scope** - Stop hook restricted to actual project decision turns via GUARD 5 (completed 2026-02-21)
-- [ ] **Phase 5: Fix GUARD 5 Delivery Gaps** - hooks/dist/ rebuilt + marker path propagated to installer users
-- [ ] **Phase 6: Circuit Breaker Detection & State** - PreToolUse hook detects oscillation in git history and persists breaker state across invocations
+- [x] **Phase 5: Fix GUARD 5 Delivery Gaps** - hooks/dist/ rebuilt + marker path propagated to installer users
+- [x] **Phase 6: Circuit Breaker Detection & State** - PreToolUse hook detects oscillation in git history and persists breaker state across invocations
 - [ ] **Phase 7: Enforcement & Config Integration** - Bash execution blocked when breaker is active; circuit_breaker config block added to config-loader
 - [ ] **Phase 8: Installer Integration** - Installer registers PreToolUse hook and writes default circuit_breaker config block idempotently
 
