@@ -111,7 +111,10 @@ Plans:
   3. When oscillation is detected, the hook writes `.claude/circuit-breaker-state.json` with the active flag, the oscillating file set, activation timestamp, and the commit window snapshot — and that state survives to the next tool call invocation
   4. When the hook reads an existing state file with `active: true`, it applies enforcement immediately without re-running git log — confirming that a persistent block requires no repeat detection
   5. When no git repository exists in the working directory, the hook passes without error
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md -- Circuit breaker hook (TDD): oscillation detection, state persistence, 14 test cases
 
 ### Phase 7: Enforcement & Config Integration
 **Goal**: An active circuit breaker makes further Bash execution impossible until Claude performs root cause analysis — and all circuit breaker thresholds are user-configurable through the existing config system
@@ -149,6 +152,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. Installer & Distribution | 3/3 | Complete   | 2026-02-20 |
 | 4. Narrow Quorum Scope | 2/2 | Complete | 2026-02-21 |
 | 5. Fix GUARD 5 Delivery Gaps | 0/1 | Not started | - |
-| 6. Circuit Breaker Detection & State | 0/TBD | Not started | - |
+| 6. Circuit Breaker Detection & State | 0/1 | Not started | - |
 | 7. Enforcement & Config Integration | 0/TBD | Not started | - |
 | 8. Installer Integration | 0/TBD | Not started | - |
