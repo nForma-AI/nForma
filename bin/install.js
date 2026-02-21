@@ -966,28 +966,50 @@ function uninstall(isGlobal, runtime = 'claude') {
     }
   }
 
-  // 2. Remove get-shit-done directory
-  const gsdDir = path.join(targetDir, 'get-shit-done');
+  // 2. Remove qgsd directory
+  const gsdDir = path.join(targetDir, 'qgsd');
   if (fs.existsSync(gsdDir)) {
     fs.rmSync(gsdDir, { recursive: true });
     removedCount++;
-    console.log(`  ${green}✓${reset} Removed get-shit-done/`);
+    console.log(`  ${green}✓${reset} Removed qgsd/`);
   }
 
-  // 3. Remove GSD agents (gsd-*.md files only)
+  // 2b. Migration: warn about old get-shit-done/ and commands/gsd/ paths from pre-v0.2 QGSD installs
+  const oldGsdDir = path.join(targetDir, 'get-shit-done');
+  const oldCommandsGsdDir = path.join(targetDir, 'commands', 'gsd');
+  if (fs.existsSync(oldGsdDir) || fs.existsSync(oldCommandsGsdDir)) {
+    console.log(`\n  ${yellow}⚠ Migration notice:${reset} Old QGSD paths detected from a pre-v0.2 install:`);
+    if (fs.existsSync(oldGsdDir)) console.log(`    ${yellow}•${reset} ${oldGsdDir}`);
+    if (fs.existsSync(oldCommandsGsdDir)) console.log(`    ${yellow}•${reset} ${oldCommandsGsdDir}`);
+    console.log(`  ${yellow}  If you don't have upstream GSD installed, these can be safely removed:${reset}`);
+    if (fs.existsSync(oldGsdDir)) console.log(`    rm -rf ${oldGsdDir}`);
+    if (fs.existsSync(oldCommandsGsdDir)) console.log(`    rm -rf ${oldCommandsGsdDir}`);
+    console.log();
+  }
+
+  // 3. Remove GSD agents (qgsd-*.md files only)
   const agentsDir = path.join(targetDir, 'agents');
   if (fs.existsSync(agentsDir)) {
     const files = fs.readdirSync(agentsDir);
     let agentCount = 0;
     for (const file of files) {
-      if (file.startsWith('gsd-') && file.endsWith('.md')) {
+      if (file.startsWith('qgsd-') && file.endsWith('.md')) {
         fs.unlinkSync(path.join(agentsDir, file));
         agentCount++;
       }
     }
     if (agentCount > 0) {
       removedCount++;
-      console.log(`  ${green}✓${reset} Removed ${agentCount} GSD agents`);
+      console.log(`  ${green}✓${reset} Removed ${agentCount} QGSD agents`);
+    }
+
+    // Migration: warn about old gsd-*.md agents from pre-v0.2 QGSD installs
+    const oldAgents = fs.readdirSync(agentsDir).filter(f => f.startsWith('gsd-') && f.endsWith('.md'));
+    if (oldAgents.length > 0) {
+      console.log(`\n  ${yellow}⚠ Migration notice:${reset} Old QGSD agents (gsd-*.md) detected from a pre-v0.2 install:`);
+      oldAgents.forEach(f => console.log(`    ${yellow}•${reset} ${path.join(agentsDir, f)}`));
+      console.log(`  ${yellow}  If you don't use upstream GSD, these can be safely removed:${reset}`);
+      console.log(`    for f in ~/.claude/agents/gsd-*.md; do rm "$f"; done\n`);
     }
   }
 
@@ -1115,7 +1137,7 @@ function uninstall(isGlobal, runtime = 'claude') {
             if (config.permission[permType]) {
               const keys = Object.keys(config.permission[permType]);
               for (const key of keys) {
-                if (key.includes('get-shit-done')) {
+                if (key.includes('qgsd')) {
                   delete config.permission[permType][key];
                   modified = true;
                 }
@@ -1215,7 +1237,7 @@ function parseJsonc(content) {
 
 /**
  * Configure OpenCode permissions to allow reading GSD reference docs
- * This prevents permission prompts when GSD accesses the get-shit-done directory
+ * This prevents permission prompts when GSD accesses the qgsd directory
  * @param {boolean} isGlobal - Whether this is a global or local install
  */
 function configureOpencodePermissions(isGlobal = true) {
@@ -1253,8 +1275,8 @@ function configureOpencodePermissions(isGlobal = true) {
   // Use ~ shorthand if it's in the default location, otherwise use full path
   const defaultConfigDir = path.join(os.homedir(), '.config', 'opencode');
   const gsdPath = opencodeConfigDir === defaultConfigDir
-    ? '~/.config/opencode/get-shit-done/*'
-    : `${opencodeConfigDir.replace(/\\/g, '/')}/get-shit-done/*`;
+    ? '~/.config/opencode/qgsd/*'
+    : `${opencodeConfigDir.replace(/\\/g, '/')}/qgsd/*`;
   
   let modified = false;
 
@@ -1362,14 +1384,14 @@ function generateManifest(dir, baseDir) {
  * Write file manifest after installation for future modification detection
  */
 function writeManifest(configDir) {
-  const gsdDir = path.join(configDir, 'get-shit-done');
+  const gsdDir = path.join(configDir, 'qgsd');
   const commandsDir = path.join(configDir, 'commands', 'qgsd');
   const agentsDir = path.join(configDir, 'agents');
   const manifest = { version: pkg.version, timestamp: new Date().toISOString(), files: {} };
 
   const gsdHashes = generateManifest(gsdDir);
   for (const [rel, hash] of Object.entries(gsdHashes)) {
-    manifest.files['get-shit-done/' + rel] = hash;
+    manifest.files['qgsd/' + rel] = hash;
   }
   if (fs.existsSync(commandsDir)) {
     const cmdHashes = generateManifest(commandsDir);
@@ -1379,7 +1401,7 @@ function writeManifest(configDir) {
   }
   if (fs.existsSync(agentsDir)) {
     for (const file of fs.readdirSync(agentsDir)) {
-      if (file.startsWith('gsd-') && file.endsWith('.md')) {
+      if (file.startsWith('qgsd-') && file.endsWith('.md')) {
         manifest.files['agents/' + file] = fileHash(path.join(agentsDir, file));
       }
     }
@@ -1524,14 +1546,14 @@ function install(isGlobal, runtime = 'claude') {
     }
   }
 
-  // Copy get-shit-done skill with path replacement
+  // Copy qgsd skill with path replacement
   const skillSrc = path.join(src, 'get-shit-done');
-  const skillDest = path.join(targetDir, 'get-shit-done');
+  const skillDest = path.join(targetDir, 'qgsd');
   copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime);
-  if (verifyInstalled(skillDest, 'get-shit-done')) {
-    console.log(`  ${green}✓${reset} Installed get-shit-done`);
+  if (verifyInstalled(skillDest, 'qgsd')) {
+    console.log(`  ${green}✓${reset} Installed qgsd`);
   } else {
-    failures.push('get-shit-done');
+    failures.push('qgsd');
   }
 
   // Copy agents to agents directory
@@ -1540,10 +1562,10 @@ function install(isGlobal, runtime = 'claude') {
     const agentsDest = path.join(targetDir, 'agents');
     fs.mkdirSync(agentsDest, { recursive: true });
 
-    // Remove old GSD agents (gsd-*.md) before copying new ones
+    // Remove old qgsd-*.md files before copying new ones
     if (fs.existsSync(agentsDest)) {
       for (const file of fs.readdirSync(agentsDest)) {
-        if (file.startsWith('gsd-') && file.endsWith('.md')) {
+        if (file.startsWith('qgsd-') && file.endsWith('.md')) {
           fs.unlinkSync(path.join(agentsDest, file));
         }
       }
@@ -1576,7 +1598,7 @@ function install(isGlobal, runtime = 'claude') {
 
   // Copy CHANGELOG.md
   const changelogSrc = path.join(src, 'CHANGELOG.md');
-  const changelogDest = path.join(targetDir, 'get-shit-done', 'CHANGELOG.md');
+  const changelogDest = path.join(targetDir, 'qgsd', 'CHANGELOG.md');
   if (fs.existsSync(changelogSrc)) {
     fs.copyFileSync(changelogSrc, changelogDest);
     if (verifyFileInstalled(changelogDest, 'CHANGELOG.md')) {
@@ -1587,7 +1609,7 @@ function install(isGlobal, runtime = 'claude') {
   }
 
   // Write VERSION file
-  const versionDest = path.join(targetDir, 'get-shit-done', 'VERSION');
+  const versionDest = path.join(targetDir, 'qgsd', 'VERSION');
   fs.writeFileSync(versionDest, pkg.version);
   if (verifyFileInstalled(versionDest, 'VERSION')) {
     console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version})`);
