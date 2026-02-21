@@ -8,6 +8,7 @@ const crypto = require('crypto');
 
 // Colors
 const cyan = '\x1b[36m';
+const salmon = '\x1b[38;5;209m';
 const green = '\x1b[32m';
 const yellow = '\x1b[33m';
 const dim = '\x1b[2m';
@@ -129,14 +130,14 @@ function getGlobalDir(runtime, explicitDir = null) {
 }
 
 const banner = '\n' +
-  cyan + '   ██████╗ ███████╗██████╗\n' +
-  '  ██╔════╝ ██╔════╝██╔══██╗\n' +
-  '  ██║  ███╗███████╗██║  ██║\n' +
-  '  ██║   ██║╚════██║██║  ██║\n' +
-  '  ╚██████╔╝███████║██████╔╝\n' +
-  '   ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
+  salmon + '  ██████╗ ' + cyan + ' ██████╗ ███████╗██████╗\n' +
+  salmon + ' ██╔═══██╗' + cyan + '██╔════╝ ██╔════╝██╔══██╗\n' +
+  salmon + ' ██║   ██║' + cyan + '██║  ███╗███████╗██║  ██║\n' +
+  salmon + ' ██║▄▄ ██║' + cyan + '██║   ██║╚════██║██║  ██║\n' +
+  salmon + ' ╚██████╔╝' + cyan + '╚██████╔╝███████║██████╔╝\n' +
+  salmon + '  ╚══▀▀═╝ ' + cyan + ' ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
   '\n' +
-  '  Get Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
+  '  Quorum Gets Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
   '  A meta-prompting, context engineering and spec-driven\n' +
   '  development system for Claude Code, OpenCode, and Gemini by TÂCHES.\n';
 
