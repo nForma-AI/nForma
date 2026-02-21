@@ -88,9 +88,9 @@ All features are v1. No deferral.
 
 ### Enforcement (ENFC)
 
-- [ ] **ENFC-01**: When circuit breaker is active, hook returns `{ "decision": "block", "reason": "..." }` blocking Bash execution
-- [ ] **ENFC-02**: Block reason names the oscillating file set, confirms circuit breaker is active, and lists allowed operations (read-only Bash)
-- [ ] **ENFC-03**: Block reason instructs Claude to perform root cause analysis and map dependencies before resuming; explicitly instructs the user to manually commit the fix (since Claude cannot run git commit while blocked)
+- [x] **ENFC-01**: When circuit breaker is active, hook returns `hookSpecificOutput.permissionDecision:'deny'` blocking Bash execution
+- [x] **ENFC-02**: Block reason names the oscillating file set, confirms circuit breaker is active, and lists allowed operations (read-only Bash)
+- [x] **ENFC-03**: Block reason instructs Claude to perform root cause analysis and map dependencies before resuming; explicitly instructs the user to manually commit the fix (since Claude cannot run git commit while blocked)
 
 ### Recovery (RECV)
 
@@ -98,10 +98,10 @@ All features are v1. No deferral.
 
 ### Config Extensions (CONF)
 
-- [ ] **CONF-06**: qgsd.json schema extended with `circuit_breaker.oscillation_depth` (integer, default: 3) — minimum commits touching same file set to trigger breaker
-- [ ] **CONF-07**: qgsd.json schema extended with `circuit_breaker.commit_window` (integer, default: 6) — number of recent commits to analyze
-- [ ] **CONF-08**: Circuit breaker config values validated on load; invalid values fall back to defaults with stderr warning
-- [ ] **CONF-09**: Two-layer config merge (global + project) applies to `circuit_breaker` settings identically to existing merge behavior
+- [x] **CONF-06**: qgsd.json schema extended with `circuit_breaker.oscillation_depth` (integer, default: 3) — minimum commits touching same file set to trigger breaker
+- [x] **CONF-07**: qgsd.json schema extended with `circuit_breaker.commit_window` (integer, default: 6) — number of recent commits to analyze
+- [x] **CONF-08**: Circuit breaker config values validated on load; invalid values fall back to defaults with stderr warning
+- [x] **CONF-09**: Two-layer config merge (global + project) applies to `circuit_breaker` settings identically to existing merge behavior
 
 ### Installer Extensions (INST)
 
@@ -190,13 +190,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STATE-02 | Phase 6 | Pending |
 | STATE-03 | Phase 6 | Pending |
 | STATE-04 | Phase 6 | Pending |
-| ENFC-01 | Phase 7 | Pending |
-| ENFC-02 | Phase 7 | Pending |
-| ENFC-03 | Phase 7 | Pending |
-| CONF-06 | Phase 7 | Pending |
-| CONF-07 | Phase 7 | Pending |
-| CONF-08 | Phase 7 | Pending |
-| CONF-09 | Phase 7 | Pending |
+| ENFC-01 | Phase 7 | Complete |
+| ENFC-02 | Phase 7 | Complete |
+| ENFC-03 | Phase 7 | Complete |
+| CONF-06 | Phase 7 | Complete |
+| CONF-07 | Phase 7 | Complete |
+| CONF-08 | Phase 7 | Complete |
+| CONF-09 | Phase 7 | Complete |
 | INST-08 | Phase 8 | Pending |
 | INST-09 | Phase 8 | Pending |
 | INST-10 | Phase 8 | Pending |
