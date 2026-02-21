@@ -1042,18 +1042,61 @@ Present completion summary:
 **[N] phases** | **[X] requirements** | Ready to build ✓
 ```
 
-**If auto mode:**
+**Auto-advance check:**
+
+```bash
+AUTO_CFG=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "true")
+FIRST_PHASE=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase 1 2>/dev/null | jq -r '.phase_number // "1"')
+```
+
+**If `--auto` flag present OR `AUTO_CFG` is true:**
+
+Display banner:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSD ► AUTO-ADVANCING TO PLAN PHASE 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Roadmap complete. Spawning plan-phase...
+```
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
+  "{\"activity\":\"new_project\",\"sub_activity\":\"plan_phase_1\"}"
+```
 
 ```
-╔══════════════════════════════════════════╗
-║  AUTO-ADVANCING → DISCUSS PHASE 1        ║
-╚══════════════════════════════════════════╝
+Task(
+  prompt="Run /qgsd:plan-phase 1",
+  subagent_type="general-purpose",
+  description="Plan Phase 1"
+)
 ```
 
-Exit skill and invoke SlashCommand("/qgsd:discuss-phase 1 --auto")
+**Handle plan-phase return:**
+- **PLANNING COMPLETE** → Display:
+  ```
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GSD ► PHASE 1 PLANNED ✓
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**If interactive mode:**
+  Auto-advance pipeline finished.
 
+  Next: /qgsd:execute-phase 1
+  ```
+- **Other / error** → Display result, stop chain:
+  ```
+  Auto-advance stopped: Planning needs review.
+
+  Continue manually:
+  /qgsd:plan-phase 1
+  ```
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs activity-clear
+```
+
+**If neither `--auto` nor `AUTO_CFG` enabled:**
 ```
 ───────────────────────────────────────────────────────────────
 
