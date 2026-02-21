@@ -236,7 +236,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Activity Tracking | 4/4 | Complete    | 2026-02-21 |
 | 15. v0.4 Gap Closure — Activity Resume Routing | 1/1 | Complete | 2026-02-21 |
 | 16. Verify Phase 15 — ACT-02 and ACT-04 | 1/1 | Complete    | 2026-02-21 |
-| 17. Fix Installed Agent Name Typos | 1/1 | Complete   | 2026-02-21 |
+| 17. Fix Installed Agent Name Typos | 1/1 | Complete    | 2026-02-21 |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
 
