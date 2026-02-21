@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.3 Release Preparation — Phase 9 (Verify Phases 5-6) complete; Phase 10 (Verify Phases 7-8) next
+**Current focus:** Phase 13 in progress — Plan 01 complete (ORES requirements + R5 update + workflow doc)
 
 ## Current Position
 
-Phase: 9 — Verify Phases 5-6
-Plan: 03 complete (all 3 plans done — Phase 9 complete)
-Status: Phase 9 complete — all 3 plans done; DETECT-01..05 and STATE-01..04 marked Complete in REQUIREMENTS.md; Phase 10 next
-Last activity: 2026-02-21 — Phase 9 Plan 03 complete; REQUIREMENTS.md updated (9 checkboxes [x], pending count 28→19)
+Phase: 13 — circuit-breaker-oscillation-resolution-mode
+Plan: 01 complete (1 plan done)
+Status: Phase 13 Plan 01 complete — ORES-01..05 defined in REQUIREMENTS.md, CLAUDE.md R5 updated to oscillation resolution mode, workflow document created
+Last activity: 2026-02-21 — Phase 13 Plan 01 complete; REQUIREMENTS.md updated (ORES-01..05 added, pending 19→24)
 
-Progress: [████████████████████░░░░░░░░░░░░░] 8/12 phases complete (67%)
+Progress: [████████████████████░░░░░░░░░░░░░] 8/13 phases complete (62%)
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [████████████████████░░░
 | Phase 08-installer-integration P01 | 2 | 3 tasks | 2 files |
 | Phase 09-verify-phases-5-6 P01 | 5 min | 1 task (verify) | 1 file |
 | Phase 09-verify-phases-5-6 P03 | 2 | 3 tasks | 2 files |
+| Phase 13-circuit-breaker-oscillation-resolution-mode P01 | 2 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,11 @@ Recent decisions affecting current work:
 - [Phase 09-01 verification]: gsd-tools verify artifacts/key-links returned parse errors (frontmatter format mismatch) — fell back to manual grep verification; results are equivalent and independently confirmed. Phase 5 verified PASSED (4/4 truths, 5/5 artifacts, 2/2 key links).
 - [Phase 09-01 verification]: hooks/dist/ is gitignored — dist files are not in git history; their on-disk state is authoritative; source-to-dist diff confirms GAP-01 closure.
 - [Phase 09-verify-phases-5-6]: Gate confirmed: 06-VERIFICATION.md status passed before REQUIREMENTS.md modified — no speculative updates
+- [Phase 13-circuit-breaker-oscillation-resolution-mode]: CB-TC17 assertion updated from 'root cause' to 'Oscillation Resolution Mode per R5' — old Required Actions block was replaced by R5 reference; test updated to match
+- [Phase 13-circuit-breaker-oscillation-resolution-mode]: hookSpecificOutput JSON format unchanged — only permissionDecisionReason string content modified with commit graph table + R5 reference
+- [Phase 13-01]: CLAUDE.md is gitignored by project design — R5 oscillation resolution mode update applied to disk only (consistent with quick-4 precedent)
+- [Phase 13-01]: Environmental file fast-path in R5.2: config/lock files skip quorum entirely and escalate directly to user — structural diagnosis not applicable to external dependency oscillations
+- [Phase 13-01]: ORES requirements defined as pending (not implemented yet) — Phase 13 plans will implement the actual hook behavior changes
 
 ### Roadmap Evolution
 
@@ -122,6 +128,7 @@ Recent decisions affecting current work:
 - Phases 6–8 added: v0.2 Anti-Oscillation Pattern (circuit breaker structural enforcement)
 - Phases 9–10 added: v0.3 gap closure (verification of v0.2 work)
 - Phases 11–12 added: v0.3 Release Preparation (changelog, build, version bump, npm publish)
+- Phase 13 added: circuit-breaker oscillation resolution mode
 
 ### Pending Todos
 
@@ -155,5 +162,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Phase 9 complete (all 3 plans done) — REQUIREMENTS.md updated: DETECT-01..05 and STATE-01..04 marked Complete, pending count 28→19. Ready to execute Phase 10 (Verify Phases 7-8).
+Stopped at: Completed Phase 13-01-PLAN.md — ORES-01..05 defined in REQUIREMENTS.md, CLAUDE.md R5 updated (disk-only), oscillation-resolution-mode.md workflow document created.
 Resume file: N/A
