@@ -133,6 +133,62 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
                      └── Human confirms before continuing
 ```
 
+### Circuit Breaker & Oscillation Resolution
+
+```
+  CIRCUIT BREAKER ACTIVE (PreToolUse deny)
+         │
+         │  Step 1: Extract from deny message
+         ├── Oscillating file set
+         └── commit_window_snapshot
+                  │
+                  ▼
+         ┌────────────────────────────────────┐
+         │  Step 2: Environmental Fast-Path   │
+         │  Check (.env, *.config.*, lock     │
+         │  files, schema files?)             │
+         └────────────────┬───────────────────┘
+                        │
+               Yes      │      No
+         ┌──────────────┘      └──────────────────┐
+         │                                         │
+         ▼                                         ▼
+  ┌─────────────────┐                  Step 3: Build Commit Graph
+  │ Immediate human │                  git log --oneline --name-only -N
+  │ escalation      │                  Display as table (A→B→A pattern)
+  │ (no quorum)     │                           │
+  └─────────────────┘                           ▼
+                                   ┌──────────────────────────┐
+                                   │  Step 4: Quorum Diagnosis │
+                                   │  STRUCTURAL COUPLING      │
+                                   │  framing (R3.3 rules)     │
+                                   │  Sequential tool calls    │
+                                   │  Up to 4 rounds           │
+                                   └──────────┬───────────────┘
+                                              │
+                              Consensus?      │
+                         ┌──────────────┬─────┘
+                        Yes             No (after 4 rounds)
+                         │              │
+                         ▼              ▼
+               ┌─────────────────┐  ┌──────────────────────┐
+               │ Step 5: Present │  │ Step 6: Hard-Stop     │
+               │ unified solution│  │ Each model's position │
+               │ Wait for user   │  │ Core disagreement     │
+               │ approval        │  │ Claude's recommend.   │
+               └────────┬────────┘  │ User makes final call │
+                        │           └──────────────────────┘
+               User approves
+                        │
+                        ▼
+              Run: npx qgsd --reset-breaker
+                        │
+                        ▼
+              Single-model executes
+              (unified solution only —
+               no incremental fixes)
+```
+
 ### Brownfield Workflow (Existing Codebase)
 
 ```
