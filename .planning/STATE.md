@@ -184,7 +184,7 @@ Recent decisions affecting current work:
 | 19 | Fix Stop hook false positive on new-project: XML-tag-first command matching in hasQuorumCommand/extractCommand | 2026-02-21 | 02b73bf | Complete | [19-fix-stop-hook-false-positive-on-new-proj](./quick/19-fix-stop-hook-false-positive-on-new-proj/) |
 | 20 | Create qgsd-quorum-orchestrator + qgsd-oscillation-resolver agents; recolor qgsd-quorum-test-worker to magenta | 2026-02-21 | disk-only | Verified | [20-create-qgsd-quorum-orchestrator-qgsd-osc](./quick/20-create-qgsd-quorum-orchestrator-qgsd-osc/) |
 | 21 | Fix QGSD gaps: add Copilot to required_models, quick to quorum_commands, Step 5.7 quorum gate in quick.md | 2026-02-21 | 3306a9e | Complete | [21-fix-qgsd-gaps-add-copilot-to-required-mo](./quick/21-fix-qgsd-gaps-add-copilot-to-required-mo/) |
-| 22 | Update orchestrator r8_scoreboard compact row format + quorum.md round-evolution display | 2026-02-21 | disk-only | Complete | [22-update-both-files-scoreboard-write-logic](./quick/22-update-both-files-scoreboard-write-logic/) |
+| 22 | Update orchestrator r8_scoreboard compact row format + quorum.md round-evolution display | 2026-02-21 | disk-only | Verified | [22-update-both-files-scoreboard-write-logic](./quick/22-update-both-files-scoreboard-write-logic/) |
 
 ### Blockers/Concerns
 
