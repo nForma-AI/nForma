@@ -46,6 +46,7 @@ const PADDING_Y  = 64;   // top of content area
 const LINE_H     = 22;   // pixels per line
 const FONT_SIZE  = 14;
 const CHAR_W     = FONT_SIZE * 0.6;  // ~8.4px — standard monospace width ratio
+const STROKE_W   = 1.5;              // stroke width for box-drawing char paths
 
 // ─── Terminal content ─────────────────────────────────────────────────────────
 // Each entry: { parts: [{ text, color }], indent: 0 }
@@ -58,13 +59,15 @@ const LINES = [
   { parts: [{ t: '~', c: COLORS.prompt }, { t: ' $ ', c: COLORS.dim }, { t: 'npx qgsd@latest', c: COLORS.white }] },
   { parts: [] },  // blank
 
-  // QGSD ASCII art (Block FIGlet font — █ and spaces only, zero font-fallback risk)
-  // Q in salmon (first 13 cols), GSD in cyan (rest). Split is consistent across all rows.
-  { parts: [{ t: '   ████        ██████    ██████  ██████    ', c: COLORS.salmon }], logo: true, logoCol: 13 },
-  { parts: [{ t: ' ██    ██    ██        ██        ██    ██  ', c: COLORS.salmon }], logo: true, logoCol: 13 },
-  { parts: [{ t: ' ██  ████    ██  ████    ████    ██    ██  ', c: COLORS.salmon }], logo: true, logoCol: 13 },
-  { parts: [{ t: ' ██    ██    ██    ██        ██  ██    ██  ', c: COLORS.salmon }], logo: true, logoCol: 13 },
-  { parts: [{ t: '   ████  ██    ██████  ██████    ██████    ', c: COLORS.salmon }], logo: true, logoCol: 13 },
+  // QGSD ASCII art — original ANSI Shadow font.
+  // Rendered as SVG primitives (rects + paths) — no font dependency, pixel-perfect.
+  // Q in salmon (first logoCol cols), GSD in cyan (rest).
+  { parts: [{ t: '  ██████╗  ██████╗ ███████╗██████╗ ', c: COLORS.salmon }], logo: true, logoCol: 9 },
+  { parts: [{ t: ' ██╔═══██╗██╔════╝ ██╔════╝██╔══██╗', c: COLORS.salmon }], logo: true, logoCol: 10 },
+  { parts: [{ t: ' ██║   ██║██║  ███╗███████╗██║  ██║', c: COLORS.salmon }], logo: true, logoCol: 10 },
+  { parts: [{ t: ' ██║▄▄ ██║██║   ██║╚════██║██║  ██║', c: COLORS.salmon }], logo: true, logoCol: 10 },
+  { parts: [{ t: ' ╚██████╔╝╚██████╔╝███████║██████╔╝', c: COLORS.salmon }], logo: true, logoCol: 10 },
+  { parts: [{ t: '  ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═════╝ ', c: COLORS.salmon }], logo: true, logoCol: 10 },
 
   { parts: [] },  // blank
   { parts: [{ t: `  Quorum Gets Shit Done `, c: COLORS.white }, { t: `v${version}`, c: COLORS.dim }] },
@@ -92,23 +95,65 @@ function esc(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// ─── Logo renderer — SVG primitives, no font dependency ──────────────────────
+// Each glyph maps to an exact <rect> or <path>. Cell dimensions match the text
+// grid so the logo aligns perfectly with the text lines above/below.
+
+function renderLogoLine(lineObj, y) {
+  const raw      = lineObj.parts[0].t;
+  const colSplit = lineObj.logoCol;
+  const cy       = y - LINE_H;          // cell top (seamless with LINE_H rows)
+  const ch       = LINE_H;              // cell height
+  const cw       = CHAR_W;              // cell width
+  const my       = cy + ch / 2;         // cell vertical midpoint
+  const stroke   = `stroke-width="${STROKE_W}" stroke-linecap="square" fill="none"`;
+
+  const elems = [];
+  Array.from(raw).forEach((glyph, col) => {
+    if (glyph === ' ') return;
+    const fill = col < colSplit ? COLORS.salmon : COLORS.cyan;
+    const x    = col * cw;
+    const mx   = x + cw / 2;
+    const f    = `fill="${fill}"`;
+    const s    = `stroke="${fill}" ${stroke}`;
+
+    switch (glyph) {
+      case '█':
+        elems.push(`<rect x="${x.toFixed(1)}" y="${cy.toFixed(1)}" width="${cw.toFixed(1)}" height="${ch}" ${f}/>`);
+        break;
+      case '╗': // ─┐ horizontal from left → vertical down
+        elems.push(`<path d="M${x.toFixed(1)},${my.toFixed(1)} H${mx.toFixed(1)} V${(cy+ch).toFixed(1)}" ${s}/>`);
+        break;
+      case '╔': // ┌─ horizontal from right → vertical down
+        elems.push(`<path d="M${(x+cw).toFixed(1)},${my.toFixed(1)} H${mx.toFixed(1)} V${(cy+ch).toFixed(1)}" ${s}/>`);
+        break;
+      case '╝': // ─┘ horizontal from left → vertical up
+        elems.push(`<path d="M${x.toFixed(1)},${my.toFixed(1)} H${mx.toFixed(1)} V${cy.toFixed(1)}" ${s}/>`);
+        break;
+      case '╚': // └─ horizontal from right → vertical up
+        elems.push(`<path d="M${(x+cw).toFixed(1)},${my.toFixed(1)} H${mx.toFixed(1)} V${cy.toFixed(1)}" ${s}/>`);
+        break;
+      case '║': // │ vertical line
+        elems.push(`<line x1="${mx.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${mx.toFixed(1)}" y2="${(cy+ch).toFixed(1)}" ${s}/>`);
+        break;
+      case '═': // ─ horizontal line
+        elems.push(`<line x1="${x.toFixed(1)}" y1="${my.toFixed(1)}" x2="${(x+cw).toFixed(1)}" y2="${my.toFixed(1)}" ${s}/>`);
+        break;
+      case '▀': // upper half block
+        elems.push(`<rect x="${x.toFixed(1)}" y="${cy.toFixed(1)}" width="${cw.toFixed(1)}" height="${(ch/2).toFixed(1)}" ${f}/>`);
+        break;
+      case '▄': // lower half block
+        elems.push(`<rect x="${x.toFixed(1)}" y="${(cy+ch/2).toFixed(1)}" width="${cw.toFixed(1)}" height="${(ch/2).toFixed(1)}" ${f}/>`);
+        break;
+    }
+  });
+  return elems.join('\n    ');
+}
+
 function buildTextLine(lineObj, y) {
   if (!lineObj.parts.length) return '';   // blank line — nothing to emit
 
-  if (lineObj.logo) {
-    // Split each logo line at logoCol characters: first part salmon, rest cyan.
-    // textLength forces every character cell to CHAR_W px regardless of font fallback,
-    // ensuring box-drawing chars (╗, ═, ║) align perfectly with block chars (█).
-    const raw   = lineObj.parts[0].t;
-    const col   = lineObj.logoCol;
-    const left  = raw.slice(0, col);
-    const right = raw.slice(col);
-    const tl    = (raw.length * CHAR_W).toFixed(1);
-    return `<text font-family=${JSON.stringify(FONT)} font-size="${FONT_SIZE}" y="${y}" xml:space="preserve" textLength="${tl}" lengthAdjust="spacingAndGlyphs">` +
-      `<tspan fill="${COLORS.salmon}">${esc(left)}</tspan>` +
-      `<tspan fill="${COLORS.cyan}">${esc(right)}</tspan>` +
-      `</text>`;
-  }
+  if (lineObj.logo) return renderLogoLine(lineObj, y);
 
   const spans = lineObj.parts.map(p =>
     `<tspan fill="${p.c}">${esc(p.t)}</tspan>`

@@ -19,18 +19,193 @@
   <!-- Content -->
   <g transform="translate(32, 64)">
     <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="0" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">npx qgsd@latest</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="44" xml:space="preserve" textLength="361.2" lengthAdjust="spacingAndGlyphs"><tspan fill="#f4956a">   ████      </tspan><tspan fill="#7dcfff">  ██████    ██████  ██████    </tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="66" xml:space="preserve" textLength="361.2" lengthAdjust="spacingAndGlyphs"><tspan fill="#f4956a"> ██    ██    </tspan><tspan fill="#7dcfff">██        ██        ██    ██  </tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="88" xml:space="preserve" textLength="361.2" lengthAdjust="spacingAndGlyphs"><tspan fill="#f4956a"> ██  ████    </tspan><tspan fill="#7dcfff">██  ████    ████    ██    ██  </tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="110" xml:space="preserve" textLength="361.2" lengthAdjust="spacingAndGlyphs"><tspan fill="#f4956a"> ██    ██    </tspan><tspan fill="#7dcfff">██    ██        ██  ██    ██  </tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="132" xml:space="preserve" textLength="361.2" lengthAdjust="spacingAndGlyphs"><tspan fill="#f4956a">   ████  ██  </tspan><tspan fill="#7dcfff">  ██████  ██████    ██████    </tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="176" xml:space="preserve"><tspan fill="#c0caf5">  Quorum Gets Shit Done </tspan><tspan fill="#565f89">v0.2.0</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="198" xml:space="preserve"><tspan fill="#565f89">  Built on GSD by TÂCHES.</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="220" xml:space="preserve"><tspan fill="#565f89">  Full automation through quorum of coding agents. By Jonathan Borduas.</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="242" xml:space="preserve"><tspan fill="#c0caf5">  Gradatim Ferociter.</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="286" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> 32 commands installed</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="308" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Quorum hooks configured</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="352" xml:space="preserve"><tspan fill="#9ece6a">  Done! </tspan><tspan fill="#c0caf5">Run </tspan><tspan fill="#7dcfff">/qgsd:help</tspan><tspan fill="#c0caf5"> to get started.</tspan></text>
-    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="396" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">▌</tspan></text>
+    <rect x="16.8" y="22.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="25.2" y="22.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="33.6" y="22.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="42.0" y="22.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="50.4" y="22.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="58.8" y="22.0" width="8.4" height="22" fill="#f4956a"/>
+    <path d="M67.2,33.0 H71.4 V44.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="92.4" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="100.8" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="109.2" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="117.6" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="126.0" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="134.4" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M142.8,33.0 H147.0 V44.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="159.6" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="168.0" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="176.4" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="184.8" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="193.2" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="201.6" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="210.0" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M218.4,33.0 H222.6 V44.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="226.8" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="235.2" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="243.6" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="252.0" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="260.4" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="268.8" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M277.2,33.0 H281.4 V44.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="8.4" y="44.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="16.8" y="44.0" width="8.4" height="22" fill="#f4956a"/>
+    <path d="M33.6,55.0 H29.4 V66.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="33.6" y1="55.0" x2="42.0" y2="55.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="42.0" y1="55.0" x2="50.4" y2="55.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="50.4" y1="55.0" x2="58.8" y2="55.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="58.8" y="44.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="67.2" y="44.0" width="8.4" height="22" fill="#f4956a"/>
+    <path d="M75.6,55.0 H79.8 V66.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="84.0" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="92.4" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M109.2,55.0 H105.0 V66.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="109.2" y1="55.0" x2="117.6" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="117.6" y1="55.0" x2="126.0" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="126.0" y1="55.0" x2="134.4" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="134.4" y1="55.0" x2="142.8" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M142.8,55.0 H147.0 V44.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="159.6" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="168.0" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M184.8,55.0 H180.6 V66.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="184.8" y1="55.0" x2="193.2" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="193.2" y1="55.0" x2="201.6" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="201.6" y1="55.0" x2="210.0" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="210.0" y1="55.0" x2="218.4" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M218.4,55.0 H222.6 V44.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="226.8" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="235.2" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M252.0,55.0 H247.8 V66.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="252.0" y1="55.0" x2="260.4" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="260.4" y1="55.0" x2="268.8" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="268.8" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="277.2" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M285.6,55.0 H289.8 V66.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="8.4" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="16.8" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <line x1="29.4" y1="66.0" x2="29.4" y2="88.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="58.8" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="67.2" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <line x1="79.8" y1="66.0" x2="79.8" y2="88.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="84.0" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="92.4" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="105.0" y1="66.0" x2="105.0" y2="88.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="126.0" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="134.4" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="142.8" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M151.2,77.0 H155.4 V88.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="159.6" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="168.0" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="176.4" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="184.8" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="193.2" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="201.6" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="210.0" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M218.4,77.0 H222.6 V88.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="226.8" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="235.2" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="247.8" y1="66.0" x2="247.8" y2="88.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="268.8" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="277.2" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="289.8" y1="66.0" x2="289.8" y2="88.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="8.4" y="88.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="16.8" y="88.0" width="8.4" height="22" fill="#f4956a"/>
+    <line x1="29.4" y1="88.0" x2="29.4" y2="110.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="33.6" y="99.0" width="8.4" height="11.0" fill="#f4956a"/>
+    <rect x="42.0" y="99.0" width="8.4" height="11.0" fill="#f4956a"/>
+    <rect x="58.8" y="88.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="67.2" y="88.0" width="8.4" height="22" fill="#f4956a"/>
+    <line x1="79.8" y1="88.0" x2="79.8" y2="110.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="84.0" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="92.4" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="105.0" y1="88.0" x2="105.0" y2="110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="134.4" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="142.8" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="155.4" y1="88.0" x2="155.4" y2="110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M168.0,99.0 H163.8 V88.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="168.0" y1="99.0" x2="176.4" y2="99.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="176.4" y1="99.0" x2="184.8" y2="99.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="184.8" y1="99.0" x2="193.2" y2="99.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="193.2" y1="99.0" x2="201.6" y2="99.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="201.6" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="210.0" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="222.6" y1="88.0" x2="222.6" y2="110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="226.8" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="235.2" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="247.8" y1="88.0" x2="247.8" y2="110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="268.8" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="277.2" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="289.8" y1="88.0" x2="289.8" y2="110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M16.8,121.0 H12.6 V110.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="16.8" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="25.2" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="33.6" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="42.0" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="50.4" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="58.8" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <path d="M75.6,121.0 H71.4 V132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M75.6,121.0 H79.8 V110.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M92.4,121.0 H88.2 V110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="92.4" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="100.8" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="109.2" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="117.6" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="126.0" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="134.4" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M151.2,121.0 H147.0 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M151.2,121.0 H155.4 V110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="159.6" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="168.0" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="176.4" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="184.8" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="193.2" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="201.6" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="210.0" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="222.6" y1="110.0" x2="222.6" y2="132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="226.8" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="235.2" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="243.6" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="252.0" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="260.4" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="268.8" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M285.6,121.0 H281.4 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M285.6,121.0 H289.8 V110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M25.2,143.0 H21.0 V132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="25.2" y1="143.0" x2="33.6" y2="143.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="33.6" y1="143.0" x2="42.0" y2="143.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="42.0" y="132.0" width="8.4" height="11.0" fill="#f4956a"/>
+    <rect x="50.4" y="132.0" width="8.4" height="11.0" fill="#f4956a"/>
+    <line x1="58.8" y1="143.0" x2="67.2" y2="143.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M67.2,143.0 H71.4 V132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M100.8,143.0 H96.6 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="100.8" y1="143.0" x2="109.2" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="109.2" y1="143.0" x2="117.6" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="117.6" y1="143.0" x2="126.0" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="126.0" y1="143.0" x2="134.4" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="134.4" y1="143.0" x2="142.8" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M142.8,143.0 H147.0 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M168.0,143.0 H163.8 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="168.0" y1="143.0" x2="176.4" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="176.4" y1="143.0" x2="184.8" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="184.8" y1="143.0" x2="193.2" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="193.2" y1="143.0" x2="201.6" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="201.6" y1="143.0" x2="210.0" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="210.0" y1="143.0" x2="218.4" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M218.4,143.0 H222.6 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M235.2,143.0 H231.0 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="235.2" y1="143.0" x2="243.6" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="243.6" y1="143.0" x2="252.0" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="252.0" y1="143.0" x2="260.4" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="260.4" y1="143.0" x2="268.8" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="268.8" y1="143.0" x2="277.2" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M277.2,143.0 H281.4 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="198" xml:space="preserve"><tspan fill="#c0caf5">  Quorum Gets Shit Done </tspan><tspan fill="#565f89">v0.2.0</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="220" xml:space="preserve"><tspan fill="#565f89">  Built on GSD by TÂCHES.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="242" xml:space="preserve"><tspan fill="#565f89">  Full automation through quorum of coding agents. By Jonathan Borduas.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="264" xml:space="preserve"><tspan fill="#c0caf5">  Gradatim Ferociter.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="308" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> 32 commands installed</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="330" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Quorum hooks configured</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="374" xml:space="preserve"><tspan fill="#9ece6a">  Done! </tspan><tspan fill="#c0caf5">Run </tspan><tspan fill="#7dcfff">/qgsd:help</tspan><tspan fill="#c0caf5"> to get started.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="418" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">▌</tspan></text>
   </g>
 </svg>
