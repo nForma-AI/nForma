@@ -6,6 +6,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- GUARD 5 decision-turn scoping now active for all install paths: `hooks/dist/` rebuilt to include
+  Phase 4 GUARD 5 code (`hasArtifactCommit` + `hasDecisionMarker`); `buildQuorumInstructions()` now
+  includes the `<!-- GSD_DECISION -->` marker step so installer-written configs trigger
+  `hasDecisionMarker()` correctly
+- `templates/qgsd.json` `quorum_instructions` updated to include the decision marker step
+
+### Added
+- `--redetect-mcps` flag: re-runs MCP prefix detection and overwrites `~/.claude/qgsd.json` with
+  fresh detected prefixes without a full reinstall. Existing users should run
+  `npx qgsd@latest --redetect-mcps` to pick up updated `quorum_instructions` from this release.
+
 ## [0.1.0] - 2026-02-20
 
 ### QGSD — Initial Release

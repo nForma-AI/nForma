@@ -206,7 +206,8 @@ function buildQuorumInstructions(requiredModels) {
     'QUORUM REQUIRED (structural enforcement — Stop hook will verify)\n\n' +
     'Before presenting any planning output to the user, you MUST:\n' +
     steps + '\n' +
-    `  ${required.length + 1}. Present all model responses, resolve concerns, then deliver final output\n\n` +
+    `  ${required.length + 1}. Present all model responses, resolve any concerns, then deliver your final output\n` +
+    `  ${required.length + 2}. Include the token <!-- GSD_DECISION --> somewhere in your FINAL output (not in intermediate messages or status updates — only when you are delivering the completed plan, research, verification report, or filtered question list to the user)\n\n` +
     'Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.\n' +
     'The Stop hook reads the transcript — skipping quorum will block your response.'
   );
