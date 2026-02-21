@@ -57,21 +57,7 @@ If you have a symptom not captured by tests, run:
   /qgsd:debug [describe the symptom]
 ```
 
-**Step 2: Read relevant source files**
-
-Identify the files most likely implicated from `$ARGUMENTS` and/or `$TEST_OUTPUT`:
-- Search for file paths mentioned in error traces
-- Read those files (up to 3 most relevant) to include in bundle
-
-Store as `$SOURCE_CONTEXT` — one block per file with filename header:
-```
-=== hooks/qgsd-stop.js ===
-<relevant excerpt or full file if small>
-```
-
-If no files can be identified from the failure context, set `$SOURCE_CONTEXT` to "(no source files identified from failure context)".
-
-**Step 3: Assemble bundle**
+**Step 2: Assemble bundle**
 
 Compose `$BUNDLE`:
 
@@ -82,12 +68,11 @@ EXIT CODE: $EXIT_CODE (or "N/A — symptom only" if no test run)
 
 === TEST OUTPUT ===
 $TEST_OUTPUT (or "N/A" if not a test failure)
-
-=== SOURCE CONTEXT ===
-$SOURCE_CONTEXT
 ```
 
-**Step 4: Dispatch parallel quorum workers**
+Workers have full repo access and will read whatever source files they need independently.
+
+**Step 3: Dispatch parallel quorum workers**
 
 Display:
 ```
@@ -122,7 +107,7 @@ Dispatch all four workers as parallel Task calls (Task subagents are isolated �
 - `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-cli__ask with the following prompt. Pass the full literal text of the bundle inline — do not summarize or truncate: [full worker prompt with $BUNDLE inlined verbatim]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli__review with the following prompt. Pass the full literal text of the bundle inline — do not summarize or truncate: [full worker prompt with $BUNDLE inlined verbatim]")`
 
-**Step 5: Collect responses and determine consensus next step**
+**Step 4: Collect responses and determine consensus next step**
 
 Parse each worker response for `root_cause:`, `next_step:`, `confidence:` lines.
 If a worker errored or returned unparseable output, mark as `UNAVAIL`.
@@ -132,7 +117,7 @@ Determine consensus next step:
 - If 3+ workers recommend the same next step → consensus step
 - Otherwise → list all unique recommendations; note lack of consensus
 
-**Step 6: Render NEXT STEP table**
+**Step 5: Render NEXT STEP table**
 
 Display:
 
@@ -157,7 +142,7 @@ Root Cause Hypothesis (consensus): [one-sentence summary or "No consensus"]
 
 If models give different next steps, list them all below the table with their root cause hypotheses.
 
-**Step 7: Save artifact**
+**Step 6: Save artifact**
 
 Write `.planning/quick/quorum-debug-latest.md`:
 
@@ -178,7 +163,7 @@ next_step: [consensus next step or "no consensus"]
 [full $BUNDLE]
 ```
 
-**Step 8: Prompt for continuation**
+**Step 7: Prompt for continuation**
 
 Display:
 ```
