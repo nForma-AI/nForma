@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to GSD will be documented in this file.
+All notable changes to QGSD will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
