@@ -185,7 +185,11 @@ Plans:
   2. CHANGELOG.md `[Unreleased]` section is empty (or omitted) after the `[0.2.0]` entry is written — no stale unreleased entries carry into v0.3
   3. `hooks/dist/` contains rebuilt output from current source — all circuit breaker hook code (Phases 6–8) and GUARD 5 code (Phase 5) are present in dist
   4. `npm test` exits with 0 failures across all test suites: config-loader, stop hook, and circuit breaker
-**Plans:** TBD — run /qgsd:plan-phase 11
+**Plans:** 2 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — Write CHANGELOG.md [0.2.0] entry covering all v0.2 changes; clear [Unreleased]
+- [ ] 11-02-PLAN.md — Rebuild hooks/dist/ via npm run build:hooks; validate npm test passes with 0 failures
 
 ### Phase 12: Version & Publish
 **Goal:** qgsd@0.2.0 is live on npm — version bumped, milestone archived, release commit tagged, and package published so `npx qgsd@0.2.0` installs from the registry
@@ -218,7 +222,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Installer Integration | 1/1 | Complete   | 2026-02-21 |
 | 9. Verify Phases 5-6 | 3/3 | Complete   | 2026-02-21 |
 | 10. Fix Bugs + Verify Phases 7-8 | 4/4 | Complete    | 2026-02-21 |
-| 11. Changelog & Build | 0/TBD | Not started | — |
+| 11. Changelog & Build | 0/2 | Not started | — |
 | 12. Version & Publish | 0/TBD | Not started | — |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
 
