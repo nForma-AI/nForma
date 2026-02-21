@@ -193,7 +193,7 @@ Recent decisions affecting current work:
 | 25 | Convert quorum scoreboard from markdown to JSON with bin/update-scoreboard.cjs script | 2026-02-21 | 30078e8 | Complete | [25-convert-quorum-scoreboard-from-markdown-](./quick/25-convert-quorum-scoreboard-from-markdown-/) |
 | 25 | Convert quorum scoreboard from markdown to JSON with CLI script (update-scoreboard.cjs) | 2026-02-21 | d24f1ad | Complete | [25-convert-quorum-scoreboard-from-markdown-](./quick/25-convert-quorum-scoreboard-from-markdown-/) |
 | 26 | apply two copy tweaks to Ping-Pong Commit Breaker section in README and USER-GUIDE | 2026-02-21 | 2e761d2 | Complete | [26-apply-two-copy-tweaks-to-ping-pong-commi](./quick/26-apply-two-copy-tweaks-to-ping-pong-commi/) |
-| 27 | Compact quorum.md output format: 1-sentence summaries, tighter banners, no supporting positions block | 2026-02-21 | TBD | Complete | [27-compact-quorum-md-output-format-1-line-m](./quick/27-compact-quorum-md-output-format-1-line-m/) |
+| 27 | Compact quorum.md output format: 1-sentence summaries, tighter banners, no supporting positions block | 2026-02-21 | 2f8ba26 | Complete | [27-compact-quorum-md-output-format-1-line-m](./quick/27-compact-quorum-md-output-format-1-line-m/) |
 
 ### Blockers/Concerns
 
