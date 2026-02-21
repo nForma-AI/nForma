@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.2 Anti-Oscillation Pattern — defining requirements
+**Current focus:** v0.2 Anti-Oscillation Pattern — Phase 6 (Circuit Breaker Detection & State), ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements for v0.2 Anti-Oscillation Pattern
-Last activity: 2026-02-21 - Completed quick task 2: Add R3.6 — Iterative Improvement Protocol to CLAUDE.md
+Phase: 6 of 8 (Circuit Breaker Detection & State) — v0.2 milestone
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-02-21 — v0.2 roadmap created (Phases 6–8 added, 20 requirements mapped)
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0/N phases complete)
+Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13% (Phase 5 pending, Phases 6–8 not started)
 
 ## Performance Metrics
 
@@ -93,10 +93,13 @@ Recent decisions affecting current work:
 - [Phase 04-narrow-quorum-scope P02]: DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK only — users with custom quorum_instructions in qgsd.json bypass step 5; acceptable per fail-open philosophy
 - [Phase 04-narrow-quorum-scope P02]: Injection mechanism (hookSpecificOutput.additionalContext, cmdPattern, config-loading) unchanged; only the fallback string content was modified
 - [Phase 04-narrow-quorum-scope P01]: TC6/TC9/TC12 updated (step 1a) to include artifact commit signals — preserves decision:block invariant after GUARD 5 is added
+- [v0.2 roadmap]: Circuit breaker hook is a new file hooks/qgsd-circuit-breaker.js (PreToolUse on Bash); uses existing config-loader.js; state at .claude/circuit-breaker-state.json (project-relative)
 
 ### Roadmap Evolution
 
 - Phase 4 added: Narrow quorum scope to project decisions only
+- Phase 5 added: Fix GUARD 5 delivery gaps
+- Phases 6–8 added: v0.2 Anti-Oscillation Pattern (circuit breaker structural enforcement)
 
 ### Pending Todos
 
@@ -108,6 +111,7 @@ Recent decisions affecting current work:
 |---|-------------|------|--------|--------|-----------|
 | 1 | Rebrand project to QGSD: Quorum Gets Shit Done | 2026-02-20 | f55eebf | | [1-rebrand-project-to-qgsd-quorum-gets-shit](./quick/1-rebrand-project-to-qgsd-quorum-gets-shit/) |
 | 2 | Add R3.6 — Iterative Improvement Protocol to CLAUDE.md | 2026-02-21 | ff20e54 | Verified | [2-in-qgsd-if-a-quorum-approved-a-plan-but-](./quick/2-in-qgsd-if-a-quorum-approved-a-plan-but-/) |
+| 3 | Replace human test checkpoints with /qgsd:quorum-test; create /qgsd:debug command | 2026-02-21 | 8a1f5df | Complete | [3-replace-human-test-checkpoints-with-qgsd](./quick/3-replace-human-test-checkpoints-with-qgsd/) |
 
 ### Blockers/Concerns
 
@@ -118,5 +122,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Quick task 2 complete — R3.6 added to CLAUDE.md.
+Stopped at: Quick task 3 complete — human-verify checkpoints updated with /qgsd:quorum-test references, /qgsd:debug command created.
 Resume file: N/A
