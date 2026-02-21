@@ -6,6 +6,8 @@ QGSD enforces multi-model quorum for GSD planning commands through Claude Code h
 
 v0.2 (Phases 6–8) moves R5 (Circuit Breaker) from CLAUDE.md behavioral policy into structural Claude Code hooks. Phase 6 delivers the PreToolUse hook with oscillation detection and state persistence. Phase 7 wires in execution blocking and extends the config system. Phase 8 integrates everything into the installer.
 
+v0.3 (Phases 9–12) closes verification gaps from the v0.2 audit and ships qgsd@0.2.0 to npm. Phases 9–10 are gap closure phases that verify and fix v0.2 work. Phases 11–12 finalize the release artifact: changelog, dist rebuild, test suite validation, version bump, milestone archive, git tag, and npm publish.
+
 ## Phases
 
 **Phase Numbering:**
@@ -24,6 +26,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: Installer Integration** - Installer registers PreToolUse hook and writes default circuit_breaker config block idempotently (completed 2026-02-21)
 - [ ] **Phase 9: Verify Phases 5-6** - Create VERIFICATION.md for Phases 5 and 6; close DETECT-01..05 and STATE-01..04 requirements (gap closure)
 - [ ] **Phase 10: Fix Bugs + Verify Phases 7-8** - Fix INST-08 uninstall hook cleanup, RECV-01 path mismatch, INST-10 sub-key backfill, CONF-09 docs; create VERIFICATION.md for Phases 7 and 8; close all remaining v0.2 requirements (gap closure)
+- [ ] **Phase 11: Changelog & Build** - Write CHANGELOG [0.2.0] entry, clear [Unreleased], rebuild hooks/dist/, validate full test suite
+- [ ] **Phase 12: Version & Publish** - Bump version to 0.2.0, archive v0.2 milestone, create git tag v0.2.0, publish qgsd@0.2.0 to npm
 
 ## Phase Details
 
@@ -152,7 +156,12 @@ Plans:
 **Depends on:** Phase 8
 **Requirements:** DETECT-01, DETECT-02, DETECT-03, DETECT-04, DETECT-05, STATE-01, STATE-02, STATE-03, STATE-04
 **Gap Closure:** Closes gaps from v0.2 audit — Phases 5 and 6 unverified (no VERIFICATION.md)
-**Plans:** TBD — run /qgsd:plan-phase 9
+**Plans:** 3 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Verify Phase 5: spawn gsd-verifier for Fix GUARD 5 Delivery Gaps; output 05-VERIFICATION.md
+- [ ] 09-02-PLAN.md — Verify Phase 6: spawn gsd-verifier for Circuit Breaker Detection & State; output 06-VERIFICATION.md; covers DETECT-01..05 and STATE-01..04
+- [ ] 09-03-PLAN.md — Update REQUIREMENTS.md: mark DETECT-01..05 and STATE-01..04 [x] Complete after 06-VERIFICATION.md passes
 
 ### Phase 10: Fix Bugs + Verify Phases 7-8
 **Goal:** Fix 3 integration bugs found by audit (INST-08 uninstall dead hook, RECV-01 path mismatch, INST-10 sub-key backfill) + document CONF-09 shallow merge; then produce VERIFICATION.md for Phases 7 and 8
@@ -161,12 +170,35 @@ Plans:
 **Gap Closure:** Closes gaps from v0.2 audit — Phases 7 and 8 unverified + 3 integration bugs + Flow D partial
 **Plans:** TBD — run /qgsd:plan-phase 10
 
+### Phase 11: Changelog & Build
+**Goal:** The release artifact is complete — CHANGELOG.md has a finalized [0.2.0] entry, [Unreleased] is cleared, hooks/dist/ reflects current source, and the full test suite passes with zero failures
+**Depends on:** Phase 10
+**Requirements:** CL-01, CL-02, BLD-01, BLD-02
+**Success Criteria** (what must be TRUE):
+  1. CHANGELOG.md contains a `[0.2.0]` section with entries covering all v0.2 changes: circuit breaker detection and enforcement (Phases 6–8), GUARD 5 gap closure (Phase 5), QGSD rebranding, quorum scoring, quorum commands, debug flow, and checkpoint:verify (quick tasks 1–12)
+  2. CHANGELOG.md `[Unreleased]` section is empty (or omitted) after the `[0.2.0]` entry is written — no stale unreleased entries carry into v0.3
+  3. `hooks/dist/` contains rebuilt output from current source — all circuit breaker hook code (Phases 6–8) and GUARD 5 code (Phase 5) are present in dist
+  4. `npm test` exits with 0 failures across all test suites: config-loader, stop hook, and circuit breaker
+**Plans:** TBD — run /qgsd:plan-phase 11
+
+### Phase 12: Version & Publish
+**Goal:** qgsd@0.2.0 is live on npm — version bumped, milestone archived, release commit tagged, and package published so `npx qgsd@0.2.0` installs from the registry
+**Depends on:** Phase 11
+**Requirements:** RLS-01, RLS-02, RLS-03, RLS-04
+**Success Criteria** (what must be TRUE):
+  1. `package.json` version field reads `0.2.0` — the version bump is committed before the release tag is created
+  2. MILESTONES.md contains a completed v0.2 archive entry listing What Shipped, Phases (6–10), all 20 v0.2 requirements satisfied, and Key Decisions Carried Forward
+  3. Git tag `v0.2.0` exists on the release commit and has been pushed to the remote — `git tag -l v0.2.0` shows the tag on any fresh clone
+  4. `npm view qgsd@0.2.0` returns package metadata — `npx qgsd@0.2.0` resolves and installs from the npm registry without error
+**Plans:** TBD — run /qgsd:plan-phase 12
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12
 
 **v0.2 Coverage:** 20 requirements across Phases 6–8 (DETECT: 5, STATE: 4, ENFC: 3, CONF: 4, INST: 3, RECV: 1)
+**v0.3 Coverage:** 8 requirements across Phases 11–12 (CL: 2, BLD: 2, RLS: 4)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -178,5 +210,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 6. Circuit Breaker Detection & State | 1/1 | Complete | 2026-02-21 |
 | 7. Enforcement & Config Integration | 2/2 | Complete | 2026-02-21 |
 | 8. Installer Integration | 1/1 | Complete   | 2026-02-21 |
-| 9. Verify Phases 5-6 | 0/TBD | Pending | — |
+| 9. Verify Phases 5-6 | 0/3 | Pending | — |
 | 10. Fix Bugs + Verify Phases 7-8 | 0/TBD | Pending | — |
+| 11. Changelog & Build | 0/TBD | Not started | — |
+| 12. Version & Publish | 0/TBD | Not started | — |
