@@ -486,8 +486,10 @@ You're never locked in. The system adapts.
 | `/qgsd:add-phase` | Append phase to roadmap |
 | `/qgsd:insert-phase [N]` | Insert urgent work between phases |
 | `/qgsd:remove-phase [N]` | Remove future phase, renumber |
+| `/qgsd:research-phase [N]` | Deep ecosystem research only (usually prefer plan-phase) |
 | `/qgsd:list-phase-assumptions [N]` | See Claude's intended approach before planning |
 | `/qgsd:plan-milestone-gaps` | Create phases to close gaps from audit |
+| `/qgsd:cleanup` | Archive completed phase directories |
 
 ### Session
 
@@ -508,6 +510,7 @@ You're never locked in. The system adapts.
 | `/qgsd:quorum-test` | Run multi-model quorum on a plan or verification artifact |
 | `/qgsd:quorum [question]` | Ask a question and get full five-model consensus answer |
 | `/qgsd:quick [--full]` | Execute ad-hoc task with QGSD guarantees (`--full` adds plan-checking and verification) |
+| `/qgsd:reapply-patches` | Restore local modifications after an update |
 | `/qgsd:health [--repair]` | Validate `.planning/` directory integrity, auto-repair with `--repair` |
 
 <sup>¹ Contributed by reddit user OracleGreyBeard</sup>
@@ -622,7 +625,7 @@ This prevents Claude from reading these files entirely, regardless of what comma
 
 **Commands not working as expected?**
 - Run `/qgsd:help` to verify installation
-- Re-run `npx get-shit-done-cc` to reinstall
+- Re-run `npx qgsd@latest` to reinstall
 
 **Updating to the latest version?**
 ```bash
@@ -633,7 +636,7 @@ npx qgsd@latest
 
 If file reads fail with tilde paths (`~/.claude/...`), set `CLAUDE_CONFIG_DIR` before installing:
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude npx qgsd@latest
 ```
 This ensures absolute paths are used instead of `~` which may not expand correctly in containers.
 
@@ -670,11 +673,11 @@ These community ports pioneered multi-runtime support:
 
 ## Star History
 
-<a href="https://star-history.com/#glittercowboy/get-shit-done&Date">
+<a href="https://star-history.com/#LangBlaze-AI/QGSD&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=LangBlaze-AI/QGSD&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=LangBlaze-AI/QGSD&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=LangBlaze-AI/QGSD&type=Date" />
  </picture>
 </a>
 

@@ -1,5 +1,5 @@
 ---
-name: gsd:join-discord
+name: qgsd:join-discord
 description: Join the GSD Discord community
 ---
 

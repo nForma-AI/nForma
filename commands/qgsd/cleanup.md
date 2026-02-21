@@ -1,5 +1,5 @@
 ---
-name: gsd:cleanup
+name: qgsd:cleanup
 description: Archive accumulated phase directories from completed milestones
 ---
 <objective>

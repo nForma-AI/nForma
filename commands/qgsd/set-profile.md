@@ -1,5 +1,5 @@
 ---
-name: gsd:set-profile
+name: qgsd:set-profile
 description: Switch model profile for GSD agents (quality/balanced/budget)
 argument-hint: <profile>
 allowed-tools:

@@ -1,6 +1,6 @@
 # Planner Subagent Prompt Template
 
-Template for spawning gsd-planner agent. The agent contains all planning expertise - this template provides planning context only.
+Template for spawning qgsd-planner agent. The agent contains all planning expertise - this template provides planning context only.
 
 ---
 
@@ -114,4 +114,4 @@ Continue: {standard | gap_closure}
 
 ---
 
-**Note:** Planning methodology, task breakdown, dependency analysis, wave assignment, TDD detection, and goal-backward derivation are baked into the gsd-planner agent. This template only passes context.
+**Note:** Planning methodology, task breakdown, dependency analysis, wave assignment, TDD detection, and goal-backward derivation are baked into the qgsd-planner agent. This template only passes context.

@@ -1,5 +1,5 @@
 ---
-name: gsd:map-codebase
+name: qgsd:map-codebase
 description: Analyze codebase with parallel mapper agents to produce .planning/codebase/ documents
 argument-hint: "[optional: specific area to map, e.g., 'api' or 'auth']"
 allowed-tools:
@@ -12,7 +12,7 @@ allowed-tools:
 ---
 
 <objective>
-Analyze existing codebase using parallel gsd-codebase-mapper agents to produce structured codebase documents.
+Analyze existing codebase using parallel qgsd-codebase-mapper agents to produce structured codebase documents.
 
 Each mapper agent explores a focus area and **writes documents directly** to `.planning/codebase/`. The orchestrator only receives confirmations, keeping context usage minimal.
 
@@ -51,7 +51,7 @@ Check for .planning/STATE.md - loads context if project already initialized
 <process>
 1. Check if .planning/codebase/ already exists (offer to refresh or skip)
 2. Create .planning/codebase/ directory structure
-3. Spawn 4 parallel gsd-codebase-mapper agents:
+3. Spawn 4 parallel qgsd-codebase-mapper agents:
    - Agent 1: tech focus → writes STACK.md, INTEGRATIONS.md
    - Agent 2: arch focus → writes ARCHITECTURE.md, STRUCTURE.md
    - Agent 3: quality focus → writes CONVENTIONS.md, TESTING.md

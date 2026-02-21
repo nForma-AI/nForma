@@ -355,7 +355,7 @@ Display:
 ◆ Spawning planner for gap closure...
 ```
 
-Spawn gsd-planner in --gaps mode:
+Spawn qgsd-planner in --gaps mode:
 
 ```
 Task(
@@ -403,7 +403,7 @@ Display:
 
 Initialize: `iteration_count = 1`
 
-Spawn gsd-plan-checker:
+Spawn qgsd-plan-checker:
 
 ```
 Task(
@@ -443,7 +443,7 @@ On return:
 
 Display: `Sending back to planner for revision... (iteration {N}/3)`
 
-Spawn gsd-planner with revision context:
+Spawn qgsd-planner with revision context:
 
 ```
 Task(
@@ -562,8 +562,8 @@ Default to **major** if unclear. User can correct if needed.
 - [ ] Batched writes: on issue, every 5 passes, or completion
 - [ ] Committed on completion
 - [ ] If issues: parallel debug agents diagnose root causes
-- [ ] If issues: gsd-planner creates fix plans (gap_closure mode)
-- [ ] If issues: gsd-plan-checker verifies fix plans
+- [ ] If issues: qgsd-planner creates fix plans (gap_closure mode)
+- [ ] If issues: qgsd-plan-checker verifies fix plans
 - [ ] If issues: revision loop until plans pass (max 3 iterations)
 - [ ] Ready for `/qgsd:execute-phase --gaps-only` when complete
 </success_criteria>

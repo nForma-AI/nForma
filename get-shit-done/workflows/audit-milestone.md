@@ -18,7 +18,7 @@ Extract from init JSON: `milestone_version`, `milestone_name`, `phase_count`, `c
 
 Resolve integration checker model:
 ```bash
-CHECKER_MODEL=$(node ~/.claude/qgsd/bin/gsd-tools.cjs resolve-model gsd-integration-checker --raw)
+CHECKER_MODEL=$(node ~/.claude/qgsd/bin/gsd-tools.cjs resolve-model qgsd-integration-checker --raw)
 ```
 
 ## 1. Determine Milestone Scope
