@@ -117,23 +117,25 @@ concerns:
 Your job is NOT to confirm the pass. Read the assertion code and ask: if someone changed the implementation in a meaningful way, would this test catch it? Look for swallowed exceptions, trivially true assertions, mocked internals that bypass real logic.
 ```
 
-Dispatch:
-- `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli__gemini with: [worker prompt with $BUNDLE substituted]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__opencode__opencode with: [worker prompt with $BUNDLE substituted]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-cli__ask with: [worker prompt with $BUNDLE substituted]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli__review with: [worker prompt with $BUNDLE substituted]")`
+Dispatch (each call in a single parallel message — Task subagents are isolated subprocesses; a failing Task does not propagate to co-submitted Tasks, unlike direct sibling MCP calls):
+- `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli__gemini with the following prompt. Pass the full literal text of the bundle inline — do not summarize or truncate: [full worker prompt with $BUNDLE inlined verbatim]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__opencode__opencode with the following prompt. Pass the full literal text of the bundle inline — do not summarize or truncate: [full worker prompt with $BUNDLE inlined verbatim]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-cli__ask with the following prompt. Pass the full literal text of the bundle inline — do not summarize or truncate: [full worker prompt with $BUNDLE inlined verbatim]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli__review with the following prompt. Pass the full literal text of the bundle inline — do not summarize or truncate: [full worker prompt with $BUNDLE inlined verbatim]")`
 
-Each subagent is responsible for calling its model and returning the structured verdict.
+Note: `agents/qgsd-quorum-test-worker.md` defines this same role and output format and can be invoked directly with a bundle as `$ARGUMENTS`. The parallel Task dispatch above is used when targeting specific external models (Gemini, OpenCode, Copilot, Codex) rather than a single agent.
 
 **Step 6: Collect verdicts and render table**
 
 Parse each worker response for `verdict:` and `concerns:` lines.
+When parsing concerns: if a bullet reads `none`, treat it as absent and display `—` in the table.
 
 If a worker errored or returned unparseable output, mark as `UNAVAIL`.
 
 Determine consensus:
 - All available models PASS → consensus `PASS`
 - Any available model BLOCK → consensus `BLOCK`
+- All available models REVIEW-NEEDED (no PASS, no BLOCK) → consensus `REVIEW-NEEDED`
 - Mixed PASS/REVIEW → consensus `REVIEW-NEEDED`
 - All UNAVAIL → stop: "All quorum models unavailable — cannot evaluate."
 
