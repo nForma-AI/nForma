@@ -394,25 +394,30 @@ Before escalating to the user, run a quorum resolution loop to attempt automated
 
 1. Read the full `human_verification` section from `${PHASE_DIR}/${PHASE_NUM}-VERIFICATION.md`.
 
-2. Form your own position: can each item be verified via available tools (grep, file reads, quorum-test)?
+2. Form your own position: can each item be verified via available tools (grep, file reads, quorum-test)? State your vote as APPROVE (can resolve programmatically) or BLOCK (genuinely needs human eyes) with 1-2 sentence rationale.
 
-3. Query each quorum model **sequentially** (separate tool calls, never parallel — R3.2):
+3. Spawn the quorum orchestrator sub-agent:
 
    ```
-   Phase ${PHASE_NUMBER} verification produced human_needed status.
-   The following items require human judgment per the verifier:
+   Task(
+     subagent_type="qgsd-quorum-orchestrator",
+     description="Quorum resolve human_needed: phase ${PHASE_NUMBER}",
+     prompt="claude_vote: [Your APPROVE/BLOCK vote — APPROVE means can be resolved programmatically, BLOCK means genuinely requires human]
+artifact: Phase ${PHASE_NUMBER} verification produced human_needed status.
+The following items require human judgment per the verifier:
 
-   [Paste full human_verification section from VERIFICATION.md]
+[Paste full human_verification section from VERIFICATION.md]
 
-   Using available tools (grep, file inspection, quorum-test), try to resolve each item.
-   Vote RESOLVED (with tool evidence) or UNRESOLVABLE (with reason for each unresolvable item).
+Can each item be resolved using available tools (grep, file inspection, quorum-test)? Vote APPROVE (can resolve) or BLOCK (needs human) with tool evidence or reason."
+   )
    ```
 
-   Fail-open: if a model is UNAVAILABLE (quota/error), skip it and proceed with available models.
+   Fail-open: if the Task itself errors, treat as BLOCK (escalate to user).
 
-4. Evaluate votes:
-   - **All available models vote RESOLVED** → Consensus reached. Treat as `passed`. Log: `Quorum resolved human_needed items — treating as passed`. Proceed to → update_roadmap.
-   - **Any model votes UNRESOLVABLE** → Cannot auto-resolve. Escalate to user with the standard block below.
+4. Route on quorum_result:
+   - **APPROVED** → Consensus reached. Treat as `passed`. Log: `Quorum resolved human_needed items — treating as passed`. Proceed to → update_roadmap.
+   - **BLOCKED** → Cannot auto-resolve. Escalate to user with the standard block below.
+   - **ESCALATED** → Escalate to user with escalation details appended to the standard block.
 
 **If escalating to user (quorum could not resolve):**
 ```

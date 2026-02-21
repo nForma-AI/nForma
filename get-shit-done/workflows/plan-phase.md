@@ -223,14 +223,34 @@ Task(
 
 ## 8.5 Run QUORUM (per CLAUDE.md R3)
 
-Before presenting planner output to the user, run QUORUM as required by R3.1. Set activity before each round:
+Before presenting planner output to the user, run QUORUM as required by R3.1.
+
+Form your own position on the plans first: do they correctly address the phase goal, requirement IDs, and user decisions from CONTEXT.md? State your vote as APPROVE or BLOCK with 1-2 sentence rationale.
+
+Read the plan files from `${PHASE_DIR}/*-PLAN.md` to prepare the artifact for the sub-agent.
 
 ```bash
 node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
-  "{\"activity\":\"plan_phase\",\"sub_activity\":\"quorum\",\"phase\":${PHASE_NUMBER},\"quorum_round\":${QUORUM_ROUND}}"
+  "{\"activity\":\"plan_phase\",\"sub_activity\":\"quorum\",\"phase\":${PHASE_NUMBER},\"quorum_round\":1}"
 ```
 
-Run each quorum round (R3.2–R3.3): form own position, then query Codex, Gemini, OpenCode, Copilot sequentially. Stop on consensus. Update `QUORUM_ROUND` counter (starting at 1) before each round.
+Spawn the quorum orchestrator sub-agent:
+
+```
+Task(
+  subagent_type="qgsd-quorum-orchestrator",
+  description="Quorum review: phase ${PHASE_NUMBER} plans",
+  prompt="claude_vote: [Your APPROVE/BLOCK vote with 1-2 sentence rationale]
+artifact: [Full content of all PLAN.md files from ${PHASE_DIR}]"
+)
+```
+
+Fail-open: if the Task itself errors (agent unavailable), note it and proceed — same as R6 policy for individual models.
+
+Route on quorum_result:
+- **APPROVED:** Include `<!-- GSD_DECISION -->` in your response summarizing quorum results. Proceed to step 9.
+- **BLOCKED:** Report blocker to user. Do not proceed.
+- **ESCALATED:** Present escalation to user. Do not proceed until resolved.
 
 ## 9. Handle Planner Return
 
