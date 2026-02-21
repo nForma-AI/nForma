@@ -236,7 +236,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Activity Tracking | 4/4 | Complete    | 2026-02-21 |
 | 15. v0.4 Gap Closure — Activity Resume Routing | 1/1 | Complete | 2026-02-21 |
 | 16. Verify Phase 15 — ACT-02 and ACT-04 | 1/1 | Complete    | 2026-02-21 |
-| 17. Fix Installed Agent Name Typos | 0/1 | Planned | — |
+| 17. Fix Installed Agent Name Typos | 1/1 | Planned | — |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
 
@@ -284,13 +284,13 @@ Plans:
 Plans:
 - [ ] 16-01-PLAN.md — Fix INT-02 planning row label in both resume-project.md copies + produce 15-VERIFICATION.md (gsd-verifier, 5/5 truths) + update REQUIREMENTS.md ACT-02/ACT-04 traceability to Complete + commit all artifacts
 
-### Phase 17: Fix Installed Agent Name Typos
+### Phase 17: Fix Agent Name Typos (All Files)
 
-**Goal:** Correct `qqgsd-*` → `qgsd-*` in 7 lines across installed plan-phase.md and new-milestone.md — restores specialized agent role file loading for all users running QGSD from installed copies.
+**Goal:** Correct `qqgsd-*` → `qgsd-*` in 31 occurrences across 12 files (10 installed + 2 source) — restores specialized agent role file loading for all QGSD workflows. Scope expanded from original 7-line spec to cover all workflow and template files.
 **Depends on:** Phase 16
 **Requirements:** none (tech_debt fix)
-**Gap Closure:** Closes tech_debt from v0.4 audit — installer artifact introduced double-q prefix in agent name references
-**Plans:** 0/1 planned
+**Gap Closure:** Closes tech_debt from v0.4 audit — installer artifact introduced double-q prefix in agent name references across all QGSD workflow files
+**Plans:** 1/1 planned
 
 Plans:
-- [ ] 17-01-PLAN.md — Fix qqgsd-* typos in ~/.claude/qgsd/workflows/plan-phase.md (lines 124, 217, 286, 329) and new-milestone.md (lines 148, 177, 305); verify with grep; commit
+- [ ] 17-01-PLAN.md — Fix qqgsd-* → qgsd-* in all 12 affected files (10 installed: plan-phase, new-milestone, research-phase, execute-plan, audit-milestone, map-codebase, new-project, verify-work, debug-subagent-prompt, planner-subagent-prompt; 2 source: plan-phase, research-phase); verify with grep; commit source changes
