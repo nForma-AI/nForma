@@ -188,7 +188,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 11-01-PLAN.md — Write CHANGELOG.md [0.2.0] entry covering all v0.2 changes; clear [Unreleased]
+- [x] 11-01-PLAN.md — Write CHANGELOG.md [0.2.0] entry covering all v0.2 changes; clear [Unreleased]
 - [ ] 11-02-PLAN.md — Rebuild hooks/dist/ via npm run build:hooks; validate npm test passes with 0 failures
 
 ### Phase 12: Version & Publish

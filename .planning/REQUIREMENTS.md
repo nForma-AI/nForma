@@ -127,8 +127,8 @@ All features are v1. No deferral.
 
 ### Changelog (CL)
 
-- [ ] **CL-01**: CHANGELOG.md has a `[0.2.0]` entry covering all v0.2 changes: circuit breaker (Phases 6–8), GUARD 5 gap closure (Phase 5), QGSD rebranding, quorum scoring, quorum commands, debug flow, checkpoint:verify (quick tasks 1–12)
-- [ ] **CL-02**: CHANGELOG.md `[Unreleased]` section is cleared after the `[0.2.0]` entry is finalized — clean slate for v0.3+
+- [x] **CL-01**: CHANGELOG.md has a `[0.2.0]` entry covering all v0.2 changes: circuit breaker (Phases 6–8), GUARD 5 gap closure (Phase 5), QGSD rebranding, quorum scoring, quorum commands, debug flow, checkpoint:verify (quick tasks 1–12)
+- [x] **CL-02**: CHANGELOG.md `[Unreleased]` section is cleared after the `[0.2.0]` entry is finalized — clean slate for v0.3+
 
 ### Build & Test (BLD)
 
@@ -239,8 +239,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ORES-03 | Phase 13 | Complete |
 | ORES-04 | Phase 13 | Complete |
 | ORES-05 | Phase 13 | Complete |
-| CL-01 | Phase 11 | Pending |
-| CL-02 | Phase 11 | Pending |
+| CL-01 | Phase 11 | Complete |
+| CL-02 | Phase 11 | Complete |
 | BLD-01 | Phase 11 | Pending |
 | BLD-02 | Phase 11 | Pending |
 | RLS-01 | Phase 12 | Pending |

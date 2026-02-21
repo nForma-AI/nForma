@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 10 complete — all 4 plans done; ENFC-01..03, RECV-01, CONF-06..09, INST-08..10 marked Complete in REQUIREMENTS.md; Phase 11 next
+**Current focus:** Phase 11 Plan 01 complete — CHANGELOG [0.2.0] entry written; Phase 11 Plan 02 (dist rebuild + test suite) next
 
 ## Current Position
 
-Phase: 10 — fix-bugs-verify-phases-7-8
-Plan: 04 complete (all 4 plans done — Phase 10 complete)
-Status: Phase 10 complete — all 4 plans done; ENFC-01..03, RECV-01, CONF-06..09, INST-08..10 marked Complete in REQUIREMENTS.md; Phase 11 next
-Last activity: 2026-02-21 — Phase 10 Plan 04 complete; REQUIREMENTS.md updated (11 checkboxes); v0.2 requirements now 20/20 satisfied
+Phase: 11 — changelog-build
+Plan: 01 complete (1/2 plans done — Phase 11 in progress)
+Status: Phase 11 Plan 01 complete — CHANGELOG.md [0.2.0] entry written, [Unreleased] cleared; CL-01 and CL-02 satisfied
+Last activity: 2026-02-21 — Phase 11 Plan 01 complete; CHANGELOG [0.2.0] entry written covering all v0.2 changes
 
-Progress: [███████████████████████░░░░░░░░░░] 9/13 phases complete (69%)
+Progress: [████████████████████████░░░░░░░░░] 10/13 phases complete (77%)
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [███████████████████████
 | Phase 10-fix-bugs-verify-phases-7-8 P02 | 5 min | 1 task (verify) | 1 file |
 | Phase 10-fix-bugs-verify-phases-7-8 P03 | 4 min | 1 task (verify) | 1 file |
 | Phase 10-fix-bugs-verify-phases-7-8 P04 | 2 min | 2 tasks | 3 files |
+| Phase 11-changelog-build P01 | 3 min | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -174,5 +175,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 10-04-PLAN.md — Phase 10 complete: gate check passed, REQUIREMENTS.md 11 checkboxes confirmed [x], ROADMAP.md updated (4/4 plans), STATE.md updated. Phase 11 (Changelog & Build) next.
+Stopped at: Completed 11-01-PLAN.md — CHANGELOG [0.2.0] entry written, [Unreleased] cleared; CL-01 and CL-02 satisfied. Phase 11 Plan 02 (dist rebuild + test suite) next.
 Resume file: N/A
