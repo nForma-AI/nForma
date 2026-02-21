@@ -283,7 +283,7 @@ Checker prompt:
 ```
 Task(
   prompt=checker_prompt,
-  subagent_type="qqgsd-plan-checker",
+  subagent_type="qgsd-plan-checker",
   model="{checker_model}",
   description="Verify Phase {phase} plans"
 )
