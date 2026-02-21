@@ -150,7 +150,24 @@ Supporting positions:
 • Copilot:   [brief or UNAVAIL]
 ```
 
-Update `.planning/quorum-scoreboard.md` per R8.
+Update the scoreboard: for each model that voted this round, run:
+
+```bash
+node bin/update-scoreboard.cjs \
+  --model <model_name> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT>
+```
+
+`--model` values: claude, gemini, opencode, copilot, codex
+`--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
+`--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
+`--round`: the round number that just completed
+`--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
+
+Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
 
 ### Step 7: Escalate — no consensus after 4 rounds
 
@@ -173,7 +190,24 @@ Core disagreement: [1–2 sentences on what models disagree about]
 Claude's recommendation: [Claude's position with rationale]
 ```
 
-Update `.planning/quorum-scoreboard.md` per R8.
+Update the scoreboard: for each model that voted this round, run:
+
+```bash
+node bin/update-scoreboard.cjs \
+  --model <model_name> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT>
+```
+
+`--model` values: claude, gemini, opencode, copilot, codex
+`--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
+`--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
+`--round`: the round number that just completed
+`--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
+
+Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
 
 ---
 
@@ -281,4 +315,21 @@ If split: run deliberation (up to 3 rounds) with traces always included in conte
 [rationale — what the traces showed]
 ```
 
-Update `.planning/quorum-scoreboard.md` per R8.
+Update the scoreboard: for each model that voted this round, run:
+
+```bash
+node bin/update-scoreboard.cjs \
+  --model <model_name> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT>
+```
+
+`--model` values: claude, gemini, opencode, copilot, codex
+`--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
+`--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
+`--round`: the round number that just completed
+`--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
+
+Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
