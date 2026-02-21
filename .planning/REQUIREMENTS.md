@@ -109,6 +109,27 @@ All features are v1. No deferral.
 - [ ] **INST-09**: Installer writes default `circuit_breaker` config block to qgsd.json on first install
 - [ ] **INST-10**: Reinstall (idempotent) adds missing `circuit_breaker` config block without overwriting user-modified values
 
+## v0.3 Requirements — Release Preparation
+
+**Goal:** Ship QGSD v0.2.0 to npm. Complete v0.2 verification gap closure (Phases 9–10), finalize CHANGELOG, rebuild dist, validate the test suite, bump version, archive milestone, tag, and publish.
+
+### Changelog (CL)
+
+- [ ] **CL-01**: CHANGELOG.md has a `[0.2.0]` entry covering all v0.2 changes: circuit breaker (Phases 6–8), GUARD 5 gap closure (Phase 5), QGSD rebranding, quorum scoring, quorum commands, debug flow, checkpoint:verify (quick tasks 1–12)
+- [ ] **CL-02**: CHANGELOG.md `[Unreleased]` section is cleared after the `[0.2.0]` entry is finalized — clean slate for v0.3+
+
+### Build & Test (BLD)
+
+- [ ] **BLD-01**: `hooks/dist/` rebuilt from current source — includes all circuit breaker hook code from Phases 6–8 and GUARD 5 code from Phase 5
+- [ ] **BLD-02**: `npm test` passes with 0 failures across all test suites (config-loader, stop hook, circuit breaker)
+
+### Release (RLS)
+
+- [ ] **RLS-01**: `package.json` version field bumped from `0.1.0` to `0.2.0`
+- [ ] **RLS-02**: v0.2 milestone archived in `MILESTONES.md` — includes What Shipped, Phases (6–10), Requirements Satisfied (all 20 v0.2 requirements), Key Decisions Carried Forward
+- [ ] **RLS-03**: Git tag `v0.2.0` created at release commit and pushed to remote
+- [ ] **RLS-04**: `qgsd@0.2.0` published to npm registry — `npx qgsd@0.2.0` installs successfully
+
 ## Future Requirements (v0.3+)
 
 ### Circuit Breaker Recovery
@@ -202,12 +223,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INST-10 | Phase 10 (gap closure for Phase 8) | Pending |
 | RECV-01 | Phase 10 (gap closure for Phase 8) | Pending |
 
+| CL-01 | Phase 11 | Pending |
+| CL-02 | Phase 12 | Pending |
+| BLD-01 | Phase 11 | Pending |
+| BLD-02 | Phase 11 | Pending |
+| RLS-01 | Phase 12 | Pending |
+| RLS-02 | Phase 12 | Pending |
+| RLS-03 | Phase 12 | Pending |
+| RLS-04 | Phase 12 | Pending |
+
 **Coverage:**
 - v1 requirements: 39 total — all complete (v0.1)
 - v0.2 requirements: 20 total — 20/20 mapped (Phases 9–10 gap closure)
+- v0.3 requirements: 8 total — 8/8 mapped (Phases 11–12)
 - Unmapped v0.2: 0 ✓
-- Pending (awaiting verification): 20 (DETECT-01..05, STATE-01..04, ENFC-01..03, CONF-06..09, INST-08..10, RECV-01)
+- Unmapped v0.3: 0 ✓
+- Pending (awaiting verification): 28 (v0.2: DETECT-01..05, STATE-01..04, ENFC-01..03, CONF-06..09, INST-08..10, RECV-01 + v0.3: CL-01..02, BLD-01..02, RLS-01..04)
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-21 — v0.2 gap closure: per milestone audit, 20 v0.2 requirements reset to Pending (orphaned — Phases 5-8 missing VERIFICATION.md). Reassigned to gap closure phases 9-10. ENFC-01..03, CONF-06..09, INST-08..10, RECV-01 checkboxes reset [x]→[ ]. Original: v0.2 Anti-Oscillation Pattern: 20 requirements mapped to Phases 6–8. Quorum Round 1 revision: RECV-01 moved from Future to Phase 8; DETECT-03 clarified to strict set equality; ENFC-03 updated with explicit user commit instruction.*
+*Last updated: 2026-02-21 — v0.3 Release Preparation: 8 new requirements added (CL-01..02, BLD-01..02, RLS-01..04) mapped to Phases 11–12. Previous update: v0.2 gap closure (20 requirements reset to Pending, reassigned to gap closure phases 9-10).*
