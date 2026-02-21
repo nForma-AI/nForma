@@ -195,6 +195,7 @@ Recent decisions affecting current work:
 | 26 | apply two copy tweaks to Ping-Pong Commit Breaker section in README and USER-GUIDE | 2026-02-21 | 2e761d2 | Complete | [26-apply-two-copy-tweaks-to-ping-pong-commi](./quick/26-apply-two-copy-tweaks-to-ping-pong-commi/) |
 | 27 | Compact quorum.md output format: 1-sentence summaries, tighter banners, no supporting positions block | 2026-02-21 | 2f8ba26 | Complete | [27-compact-quorum-md-output-format-1-line-m](./quick/27-compact-quorum-md-output-format-1-line-m/) |
 | 28 | Rename gsd-integration-checker to qgsd-integration-checker in MODEL_PROFILES | 2026-02-21 | e2974fe | Complete | [28-rename-gsd-integration-checker-to-qgsd-i](./quick/28-rename-gsd-integration-checker-to-qgsd-i/) |
+| 29 | Make executor auto-proceed with CI failures revealed by a masking fix (SCOPE BOUNDARY exception) | 2026-02-21 | 1c12561 | Complete | [29-make-executor-auto-proceed-with-ci-failu](./quick/29-make-executor-auto-proceed-with-ci-failu/) |
 
 ### Blockers/Concerns
 
@@ -205,5 +206,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: quick-28 complete — renamed gsd-integration-checker to qgsd-integration-checker in MODEL_PROFILES (source + installed)
+Stopped at: quick-29 complete — added masked-CI-failure exception to SCOPE BOUNDARY in executor (source + installed)
 Resume file: None
