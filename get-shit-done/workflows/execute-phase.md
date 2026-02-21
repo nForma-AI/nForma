@@ -224,7 +224,7 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
 
 Read auto-advance config:
 ```bash
-AUTO_CFG=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+AUTO_CFG=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "true")
 ```
 
 When executor returns a checkpoint AND `AUTO_CFG` is `"true"`:
@@ -459,7 +459,7 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs(phase-{X}): complete phase ex
 1. Parse `--auto` flag from $ARGUMENTS
 2. Read `workflow.auto_advance` from config:
    ```bash
-   AUTO_CFG=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+   AUTO_CFG=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "true")
    ```
 
 **If `--auto` flag present OR `AUTO_CFG` is true (AND verification passed with no gaps):**
