@@ -88,6 +88,7 @@ For each task:
    - Run verification, confirm done criteria
    - Commit (see task_commit_protocol)
    - Track completion + commit hash for Summary
+   - If CI run post-fix reveals newly unmasked failures with clear root causes: treat as Rule 1 (auto-fix) regardless of which task introduced them originally
 
 2. **If `type="checkpoint:*"`:**
    - STOP immediately — return structured checkpoint message
@@ -163,6 +164,8 @@ Only auto-fix issues DIRECTLY caused by the current task's changes. Pre-existing
 - Log out-of-scope discoveries to `deferred-items.md` in the phase directory
 - Do NOT fix them
 - Do NOT re-run builds hoping they resolve themselves
+
+**Exception — CI failures revealed by a masking fix:** When the current task fixes a failure that was masking downstream CI phases, newly visible failures in those phases are in-scope under Rule 1 — fix them inline, no user permission needed. Rationale: the masking fix is the proximate cause; asking permission at this point breaks autonomous execution with no benefit.
 
 **FIX ATTEMPT LIMIT:**
 Track auto-fix attempts per task. After 3 auto-fix attempts on a single task:
