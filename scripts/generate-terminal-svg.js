@@ -45,6 +45,7 @@ const PADDING_X  = 32;
 const PADDING_Y  = 64;   // top of content area
 const LINE_H     = 22;   // pixels per line
 const FONT_SIZE  = 14;
+const CHAR_W     = FONT_SIZE * 0.6;  // ~8.4px — standard monospace width ratio
 
 // ─── Terminal content ─────────────────────────────────────────────────────────
 // Each entry: { parts: [{ text, color }], indent: 0 }
@@ -57,18 +58,19 @@ const LINES = [
   { parts: [{ t: '~', c: COLORS.prompt }, { t: ' $ ', c: COLORS.dim }, { t: 'npx qgsd@latest', c: COLORS.white }] },
   { parts: [] },  // blank
 
-  // QGSD ASCII art — Q in salmon, GSD in cyan
-  { parts: [{ t: '  ██████╗  ██████╗ ███████╗██████╗ ', c: COLORS.salmon, split: 9 }], logo: true, logoCol: 9 },
-  { parts: [{ t: ' ██╔═══██╗██╔════╝ ██╔════╝██╔══██╗', c: COLORS.salmon, split: 10 }], logo: true, logoCol: 10 },
-  { parts: [{ t: ' ██║   ██║██║  ███╗███████╗██║  ██║', c: COLORS.salmon, split: 10 }], logo: true, logoCol: 10 },
-  { parts: [{ t: ' ██║▄▄ ██║██║   ██║╚════██║██║  ██║', c: COLORS.salmon, split: 10 }], logo: true, logoCol: 10 },
-  { parts: [{ t: ' ╚██████╔╝╚██████╔╝███████║██████╔╝', c: COLORS.salmon, split: 10 }], logo: true, logoCol: 10 },
-  { parts: [{ t: '  ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═════╝ ', c: COLORS.salmon, split: 10 }], logo: true, logoCol: 10 },
+  // QGSD ASCII art (Block FIGlet font — █ and spaces only, zero font-fallback risk)
+  // Q in salmon (first 13 cols), GSD in cyan (rest). Split is consistent across all rows.
+  { parts: [{ t: '   ████        ██████    ██████  ██████    ', c: COLORS.salmon }], logo: true, logoCol: 13 },
+  { parts: [{ t: ' ██    ██    ██        ██        ██    ██  ', c: COLORS.salmon }], logo: true, logoCol: 13 },
+  { parts: [{ t: ' ██  ████    ██  ████    ████    ██    ██  ', c: COLORS.salmon }], logo: true, logoCol: 13 },
+  { parts: [{ t: ' ██    ██    ██    ██        ██  ██    ██  ', c: COLORS.salmon }], logo: true, logoCol: 13 },
+  { parts: [{ t: '   ████  ██    ██████  ██████    ██████    ', c: COLORS.salmon }], logo: true, logoCol: 13 },
 
   { parts: [] },  // blank
   { parts: [{ t: `  Quorum Gets Shit Done `, c: COLORS.white }, { t: `v${version}`, c: COLORS.dim }] },
   { parts: [{ t: '  Built on GSD by TÂCHES.', c: COLORS.dim }] },
-  { parts: [{ t: '  Full automation through coding agent quorum. By Jonathan Borduas.', c: COLORS.dim }] },
+  { parts: [{ t: '  Full automation through quorum of coding agents. By Jonathan Borduas.', c: COLORS.dim }] },
+  { parts: [{ t: '  Gradatim Ferociter.', c: COLORS.white }] },
   { parts: [] },  // blank
 
   // Install output — show only what matters to the user
@@ -94,12 +96,15 @@ function buildTextLine(lineObj, y) {
   if (!lineObj.parts.length) return '';   // blank line — nothing to emit
 
   if (lineObj.logo) {
-    // Split each logo line at logoCol characters: first part salmon, rest cyan
+    // Split each logo line at logoCol characters: first part salmon, rest cyan.
+    // textLength forces every character cell to CHAR_W px regardless of font fallback,
+    // ensuring box-drawing chars (╗, ═, ║) align perfectly with block chars (█).
     const raw   = lineObj.parts[0].t;
     const col   = lineObj.logoCol;
     const left  = raw.slice(0, col);
     const right = raw.slice(col);
-    return `<text font-family=${JSON.stringify(FONT)} font-size="${FONT_SIZE}" y="${y}" xml:space="preserve">` +
+    const tl    = (raw.length * CHAR_W).toFixed(1);
+    return `<text font-family=${JSON.stringify(FONT)} font-size="${FONT_SIZE}" y="${y}" xml:space="preserve" textLength="${tl}" lengthAdjust="spacingAndGlyphs">` +
       `<tspan fill="${COLORS.salmon}">${esc(left)}</tspan>` +
       `<tspan fill="${COLORS.cyan}">${esc(right)}</tspan>` +
       `</text>`;
