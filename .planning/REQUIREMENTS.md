@@ -88,26 +88,26 @@ All features are v1. No deferral.
 
 ### Enforcement (ENFC)
 
-- [x] **ENFC-01**: When circuit breaker is active, hook returns `hookSpecificOutput.permissionDecision:'deny'` blocking Bash execution
-- [x] **ENFC-02**: Block reason names the oscillating file set, confirms circuit breaker is active, and lists allowed operations (read-only Bash)
-- [x] **ENFC-03**: Block reason instructs Claude to perform root cause analysis and map dependencies before resuming; explicitly instructs the user to manually commit the fix (since Claude cannot run git commit while blocked)
+- [ ] **ENFC-01**: When circuit breaker is active, hook returns `hookSpecificOutput.permissionDecision:'deny'` blocking Bash execution
+- [ ] **ENFC-02**: Block reason names the oscillating file set, confirms circuit breaker is active, and lists allowed operations (read-only Bash)
+- [ ] **ENFC-03**: Block reason instructs Claude to perform root cause analysis and map dependencies before resuming; explicitly instructs the user to manually commit the fix (since Claude cannot run git commit while blocked)
 
 ### Recovery (RECV)
 
-- [x] **RECV-01**: `npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation — enables manual recovery when circuit breaker deadlocks due to blocked git commit
+- [ ] **RECV-01**: `npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation — enables manual recovery when circuit breaker deadlocks due to blocked git commit
 
 ### Config Extensions (CONF)
 
-- [x] **CONF-06**: qgsd.json schema extended with `circuit_breaker.oscillation_depth` (integer, default: 3) — minimum commits touching same file set to trigger breaker
-- [x] **CONF-07**: qgsd.json schema extended with `circuit_breaker.commit_window` (integer, default: 6) — number of recent commits to analyze
-- [x] **CONF-08**: Circuit breaker config values validated on load; invalid values fall back to defaults with stderr warning
-- [x] **CONF-09**: Two-layer config merge (global + project) applies to `circuit_breaker` settings identically to existing merge behavior
+- [ ] **CONF-06**: qgsd.json schema extended with `circuit_breaker.oscillation_depth` (integer, default: 3) — minimum commits touching same file set to trigger breaker
+- [ ] **CONF-07**: qgsd.json schema extended with `circuit_breaker.commit_window` (integer, default: 6) — number of recent commits to analyze
+- [ ] **CONF-08**: Circuit breaker config values validated on load; invalid values fall back to defaults with stderr warning
+- [ ] **CONF-09**: Two-layer config merge (global + project) applies to `circuit_breaker` settings identically to existing merge behavior
 
 ### Installer Extensions (INST)
 
-- [x] **INST-08**: Installer registers PreToolUse circuit breaker hook in `~/.claude/settings.json` alongside existing hooks
-- [x] **INST-09**: Installer writes default `circuit_breaker` config block to qgsd.json on first install
-- [x] **INST-10**: Reinstall (idempotent) adds missing `circuit_breaker` config block without overwriting user-modified values
+- [ ] **INST-08**: Installer registers PreToolUse circuit breaker hook in `~/.claude/settings.json` alongside existing hooks
+- [ ] **INST-09**: Installer writes default `circuit_breaker` config block to qgsd.json on first install
+- [ ] **INST-10**: Reinstall (idempotent) adds missing `circuit_breaker` config block without overwriting user-modified values
 
 ## Future Requirements (v0.3+)
 
@@ -181,32 +181,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SYNC-02 | Phase 3 | Complete |
 | SYNC-03 | Phase 3 | Complete |
 | SYNC-04 | Phase 3 | Complete |
-| DETECT-01 | Phase 6 | Pending |
-| DETECT-02 | Phase 6 | Pending |
-| DETECT-03 | Phase 6 | Pending |
-| DETECT-04 | Phase 6 | Pending |
-| DETECT-05 | Phase 6 | Pending |
-| STATE-01 | Phase 6 | Pending |
-| STATE-02 | Phase 6 | Pending |
-| STATE-03 | Phase 6 | Pending |
-| STATE-04 | Phase 6 | Pending |
-| ENFC-01 | Phase 7 | Complete |
-| ENFC-02 | Phase 7 | Complete |
-| ENFC-03 | Phase 7 | Complete |
-| CONF-06 | Phase 7 | Complete |
-| CONF-07 | Phase 7 | Complete |
-| CONF-08 | Phase 7 | Complete |
-| CONF-09 | Phase 7 | Complete |
-| INST-08 | Phase 8 | Complete |
-| INST-09 | Phase 8 | Complete |
-| INST-10 | Phase 8 | Complete |
-| RECV-01 | Phase 8 | Complete |
+| DETECT-01 | Phase 9 (gap closure for Phase 6) | Pending |
+| DETECT-02 | Phase 9 (gap closure for Phase 6) | Pending |
+| DETECT-03 | Phase 9 (gap closure for Phase 6) | Pending |
+| DETECT-04 | Phase 9 (gap closure for Phase 6) | Pending |
+| DETECT-05 | Phase 9 (gap closure for Phase 6) | Pending |
+| STATE-01 | Phase 9 (gap closure for Phase 6) | Pending |
+| STATE-02 | Phase 9 (gap closure for Phase 6) | Pending |
+| STATE-03 | Phase 9 (gap closure for Phase 6) | Pending |
+| STATE-04 | Phase 9 (gap closure for Phase 6) | Pending |
+| ENFC-01 | Phase 10 (gap closure for Phase 7) | Pending |
+| ENFC-02 | Phase 10 (gap closure for Phase 7) | Pending |
+| ENFC-03 | Phase 10 (gap closure for Phase 7) | Pending |
+| CONF-06 | Phase 10 (gap closure for Phase 7) | Pending |
+| CONF-07 | Phase 10 (gap closure for Phase 7) | Pending |
+| CONF-08 | Phase 10 (gap closure for Phase 7) | Pending |
+| CONF-09 | Phase 10 (gap closure for Phase 7) | Pending |
+| INST-08 | Phase 10 (gap closure for Phase 8) | Pending |
+| INST-09 | Phase 10 (gap closure for Phase 8) | Pending |
+| INST-10 | Phase 10 (gap closure for Phase 8) | Pending |
+| RECV-01 | Phase 10 (gap closure for Phase 8) | Pending |
 
 **Coverage:**
 - v1 requirements: 39 total — all complete (v0.1)
-- v0.2 requirements: 20 total — 20/20 mapped (Phases 6–8)
+- v0.2 requirements: 20 total — 20/20 mapped (Phases 9–10 gap closure)
 - Unmapped v0.2: 0 ✓
+- Pending (awaiting verification): 20 (DETECT-01..05, STATE-01..04, ENFC-01..03, CONF-06..09, INST-08..10, RECV-01)
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-21 — v0.2 Anti-Oscillation Pattern: 20 requirements mapped to Phases 6–8. Quorum Round 1 revision: RECV-01 moved from Future to Phase 8 (deadlock fix, consensus: Gemini+OpenCode+Copilot); DETECT-03 clarified to strict set equality; ENFC-03 updated with explicit user commit instruction.*
+*Last updated: 2026-02-21 — v0.2 gap closure: per milestone audit, 20 v0.2 requirements reset to Pending (orphaned — Phases 5-8 missing VERIFICATION.md). Reassigned to gap closure phases 9-10. ENFC-01..03, CONF-06..09, INST-08..10, RECV-01 checkboxes reset [x]→[ ]. Original: v0.2 Anti-Oscillation Pattern: 20 requirements mapped to Phases 6–8. Quorum Round 1 revision: RECV-01 moved from Future to Phase 8; DETECT-03 clarified to strict set equality; ENFC-03 updated with explicit user commit instruction.*
