@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone s
 Phase: 6 of 8 (Circuit Breaker Detection & State) — v0.2 milestone
 Plan: 0 of TBD in current phase
 Status: Ready to plan
-Last activity: 2026-02-21 — ROADMAP.md updated: RECV-01 added to Phase 8, DETECT-03/ENFC-03 criteria clarified, Progress table reflects 20 v0.2 requirements
+Last activity: 2026-02-21 - Completed quick task 4: Quorum agent scoring — TP/TN/FP/FN schema + scoreboard (R8)
 
 Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13% (Phase 5 pending, Phases 6–8 not started)
 
@@ -115,6 +115,7 @@ Recent decisions affecting current work:
 | 1 | Rebrand project to QGSD: Quorum Gets Shit Done | 2026-02-20 | f55eebf | | [1-rebrand-project-to-qgsd-quorum-gets-shit](./quick/1-rebrand-project-to-qgsd-quorum-gets-shit/) |
 | 2 | Add R3.6 — Iterative Improvement Protocol to CLAUDE.md | 2026-02-21 | ff20e54 | Verified | [2-in-qgsd-if-a-quorum-approved-a-plan-but-](./quick/2-in-qgsd-if-a-quorum-approved-a-plan-but-/) |
 | 3 | Replace human test checkpoints with /qgsd:quorum-test; create /qgsd:debug command | 2026-02-21 | 8a1f5df | Verified | [3-replace-human-test-checkpoints-with-qgsd](./quick/3-replace-human-test-checkpoints-with-qgsd/) |
+| 4 | Quorum agent scoring: TP/TN/FP/FN schema, weighted scoreboard per model | 2026-02-21 | b075c01 | Verified | [4-quorum-agent-scoring-track-initial-votes](./quick/4-quorum-agent-scoring-track-initial-votes/) |
 | 4 | Quorum agent scoring: track initial votes vs final consensus (TP/TN/FP/FN + improvement rates) | 2026-02-21 | 177c2c1 | Verified | [4-quorum-agent-scoring-track-initial-votes](./quick/4-quorum-agent-scoring-track-initial-votes/) |
 | 5 | qgsd:quorum-test pre-flight validation — validate artifact collection before running tests | 2026-02-21 | 072c755 | Verified | [5-an-qgsd-quorum-test-should-probably-firs](./quick/5-an-qgsd-quorum-test-should-probably-firs/) |
 
