@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone s
 Phase: 7 of 8 (Enforcement & Config Integration) — v0.2 milestone
 Plan: 0 of TBD in current phase
 Status: Ready to plan (Phase 6 complete 2026-02-21)
-Last activity: 2026-02-21 - Phase 6 complete: circuit breaker detection + state (15/15 TCs, commit 1a0527b)
+Last activity: 2026-02-21 - Completed quick task 7: update docs/USER-GUIDE.md with checkpoint:verify flow diagrams
 
 Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13% (Phase 5 pending, Phases 6–8 not started)
 
