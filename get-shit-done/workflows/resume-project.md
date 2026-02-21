@@ -25,6 +25,13 @@ INIT=$(node ~/.claude/qgsd/bin/gsd-tools.cjs init resume)
 
 Parse JSON for: `state_exists`, `roadmap_exists`, `project_exists`, `planning_exists`, `has_interrupted_agent`, `interrupted_agent_id`, `commit_docs`.
 
+```bash
+# Check for mid-workflow interruption
+ACTIVITY=$(node ~/.claude/qgsd/bin/gsd-tools.cjs activity-get)
+```
+
+Parse ACTIVITY JSON: if the result is `{}` or empty, set `HAS_ACTIVITY=false`. Otherwise set `HAS_ACTIVITY=true` and extract `activity`, `sub_activity`, `phase`, `plan`, `debug_round`, `quorum_round`, `checkpoint`, `updated` fields.
+
 **If `state_exists` is true:** Proceed to load_state
 **If `state_exists` is false but `roadmap_exists` or `project_exists` is true:** Offer to reconstruct STATE.md
 **If `planning_exists` is false:** This is a new project - route to /qgsd:new-project
@@ -111,6 +118,17 @@ Present complete project status to user:
 ║  Last activity: [date] - [what happened]                     ║
 ╚══════════════════════════════════════════════════════════════╝
 
+[If HAS_ACTIVITY is true:]
+
+⚡ Mid-workflow interruption detected:
+    Activity:  [activity] / [sub_activity]
+    Phase:     [phase if present]
+    Plan:      [plan if present]
+    [If debug_round present:] Debug round: [debug_round]/3
+    [If quorum_round present:] Quorum round: [quorum_round]
+    [If checkpoint present:] Checkpoint: [checkpoint]
+    Interrupted: [updated timestamp]
+
 [If incomplete work found:]
 ⚠️  Incomplete work detected:
     - [.continue-here file or incomplete plan]
@@ -139,6 +157,27 @@ Present complete project status to user:
 
 <step name="determine_next_action">
 Based on project state, determine the most logical next action:
+
+**If HAS_ACTIVITY is true (mid-workflow interruption):**
+Route based on `activity` + `sub_activity`:
+
+| sub_activity | Recovery |
+|---|---|
+| executing_plan | `/qgsd:execute-phase {phase}` — executor will skip completed plans and resume from the interrupted plan |
+| checkpoint_verify | `/qgsd:execute-phase {phase}` — re-enter checkpoint:verify for plan {plan} |
+| debug_loop | `/qgsd:execute-phase {phase}` — re-enter debug loop (was on round {debug_round}) |
+| awaiting_human_verify | `/qgsd:execute-phase {phase}` — checkpoint is waiting for human approval |
+| verifying_phase | `/qgsd:execute-phase {phase}` — verifier was running, re-trigger phase verification |
+| researching | `/qgsd:plan-phase {phase}` — researcher was running, re-trigger with --research flag |
+| planning | `/qgsd:plan-phase {phase}` — planner was running, re-trigger plan-phase |
+| checking_plan | `/qgsd:plan-phase {phase}` — checker was running, re-trigger plan-phase |
+| quorum | `/qgsd:plan-phase {phase}` — QUORUM was in progress (round {quorum_round}), re-trigger plan-phase |
+| oscillation_diagnosis | `/qgsd:execute-phase {phase}` — oscillation resolution quorum was running |
+| awaiting_approval | `/qgsd:execute-phase {phase}` — unified solution is ready, user approval is needed |
+| executing | `/qgsd:quick` — quick task execution was in progress |
+| planning (activity=quick) | `/qgsd:quick` — quick task planning was in progress |
+
+Present the matched recovery option to the user as the PRIMARY action.
 
 **If interrupted agent exists:**
 → Primary: Resume interrupted agent (Task tool with resume parameter)
@@ -176,6 +215,10 @@ Present contextual options based on project state:
 
 ```
 What would you like to do?
+
+[If HAS_ACTIVITY is true:]
+1. Resume interrupted workflow: {recovery command from routing table}
+   (Was in: {activity}/{sub_activity} at {updated})
 
 [Primary action based on state - e.g.:]
 1. Resume interrupted agent [if interrupted agent found]
