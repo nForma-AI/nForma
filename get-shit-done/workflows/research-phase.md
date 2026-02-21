@@ -8,17 +8,17 @@ Standalone research command. For most workflows, use `/qgsd:plan-phase` which in
 
 ## Step 0: Resolve Model Profile
 
-@~/.claude/get-shit-done/references/model-profile-resolution.md
+@~/.claude/qgsd/references/model-profile-resolution.md
 
 Resolve model for:
 - `gsd-phase-researcher`
 
 ## Step 1: Normalize and Validate Phase
 
-@~/.claude/get-shit-done/references/phase-argument-parsing.md
+@~/.claude/qgsd/references/phase-argument-parsing.md
 
 ```bash
-PHASE_INFO=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs roadmap get-phase "${PHASE}")
+PHASE_INFO=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE}")
 ```
 
 If `found` is false: Error and exit.
@@ -34,7 +34,7 @@ If exists: Offer update/view/skip options.
 ## Step 3: Gather Phase Context
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init phase-op "${PHASE}")
+INIT=$(node ~/.claude/qgsd/bin/gsd-tools.cjs init phase-op "${PHASE}")
 # Extract: phase_dir, padded_phase, phase_number, state_path, requirements_path, context_path
 ```
 
@@ -59,7 +59,7 @@ Phase description: {description}
 <output>
 Write to: .planning/phases/${PHASE}-{slug}/${PHASE}-RESEARCH.md
 </output>",
-  subagent_type="gsd-phase-researcher",
+  subagent_type="qgsd-phase-researcher",
   model="{researcher_model}"
 )
 ```

@@ -863,6 +863,8 @@ function cleanupOrphanedHooks(settings) {
     'gsd-intel-index.js',  // Removed in v1.9.2
     'gsd-intel-session.js',  // Removed in v1.9.2
     'gsd-intel-prune.js',  // Removed in v1.9.2
+    'hooks/gsd-check-update.js',  // Renamed to qgsd-check-update.js in v0.2
+    'hooks/gsd-statusline.js',  // Renamed to qgsd-statusline.js in v0.2
   ];
 
   let cleanedHooks = false;

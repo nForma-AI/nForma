@@ -1,5 +1,6 @@
 node_modules/
 .DS_Store
+.vscode/
 TO-DOS.md
 CLAUDE.md
 /research.claude/
