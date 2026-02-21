@@ -533,6 +533,67 @@ test('TC13: MCP-06 regression — renamed prefix detected and matched correctly'
   }
 });
 
+// ── TC-COPILOT: deriveMissingToolName returns 'ask' for modelKey 'copilot' ──────────────────────
+//
+// Verifies that when copilot is a required model and is not called on a decision turn,
+// the block reason correctly names mcp__copilot-cli__ask (not mcp__copilot-cli__copilot).
+//
+// Uses QGSD_CLAUDE_JSON with copilot-cli in mcpServers to force it to be treated as available,
+// so it triggers a block (not unavailable skip).
+
+test('TC-COPILOT: deriveMissingToolName returns "ask" for copilot — block reason names mcp__copilot-cli__ask', () => {
+  // claude.json with copilot-cli in mcpServers → available
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-tc-copilot-${Date.now()}.json`);
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers: { 'copilot-cli': {} } }), 'utf8');
+
+  // Config: only copilot required
+  const configPayload = JSON.stringify({
+    quorum_commands: ['plan-phase'],
+    fail_mode: 'open',
+    required_models: {
+      copilot: { tool_prefix: 'mcp__copilot-cli__', required: true },
+    },
+  });
+  const qgsdConfigDir = path.join(os.tmpdir(), `qgsd-home-tc-copilot-${Date.now()}`);
+  fs.mkdirSync(qgsdConfigDir, { recursive: true });
+  fs.writeFileSync(path.join(qgsdConfigDir, 'qgsd.json'), configPayload, 'utf8');
+
+  // Transcript: plan-phase command + PLAN.md artifact commit + no copilot tool call
+  const tmpFile = writeTempTranscript([
+    userLine('/gsd:plan-phase 1', 'human-msg'),
+    assistantLine([
+      bashCommitBlock('node /path/gsd-tools.cjs commit "feat: plan" --files 04-01-PLAN.md'),
+    ], 'assistant-commit'),
+    assistantLine([{ type: 'text', text: 'Here is the plan.' }], 'assistant-1'),
+  ]);
+
+  try {
+    const { stdout, exitCode } = runHookWithEnv(
+      {
+        stop_hook_active: false,
+        hook_event_name: 'Stop',
+        transcript_path: tmpFile,
+        last_assistant_message: 'Here is the plan.',
+      },
+      {
+        QGSD_CLAUDE_JSON: claudeJsonTmp,
+        HOME: qgsdConfigDir,
+      }
+    );
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.ok(stdout.length > 0, 'stdout must contain block decision');
+    const parsed = JSON.parse(stdout);
+    assert.strictEqual(parsed.decision, 'block', 'should block — copilot available+missing');
+    assert.ok(
+      parsed.reason.includes('mcp__copilot-cli__ask'),
+      'block reason must name mcp__copilot-cli__ask (not mcp__copilot-cli__copilot)'
+    );
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
 // ── TC14-TC19: GUARD 5 — Decision turn detection (SCOPE-01/02/03/05/06/07) ─────────────────────
 //
 // TC14: intermediate plan-phase turn (no artifact commit, no marker) → PASS (not a decision turn)

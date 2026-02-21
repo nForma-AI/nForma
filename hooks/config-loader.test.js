@@ -204,11 +204,14 @@ test('TC8: loadConfig() never writes to stdout', async (t) => {
 test('TC9: DEFAULT_CONFIG exported and has correct shape', async (t) => {
   assert.ok(DEFAULT_CONFIG, 'DEFAULT_CONFIG must be exported');
   assert.ok(Array.isArray(DEFAULT_CONFIG.quorum_commands), 'quorum_commands must be array');
+  assert.ok(DEFAULT_CONFIG.quorum_commands.includes('quick'), 'quorum_commands must include "quick"');
   assert.equal(DEFAULT_CONFIG.fail_mode, 'open');
   assert.ok(typeof DEFAULT_CONFIG.required_models === 'object' && DEFAULT_CONFIG.required_models !== null);
   assert.ok(DEFAULT_CONFIG.required_models.codex);
   assert.ok(DEFAULT_CONFIG.required_models.gemini);
   assert.ok(DEFAULT_CONFIG.required_models.opencode);
+  assert.ok(DEFAULT_CONFIG.required_models.copilot, 'required_models must include copilot');
+  assert.strictEqual(DEFAULT_CONFIG.required_models.copilot.tool_prefix, 'mcp__copilot-cli__', 'copilot tool_prefix must be mcp__copilot-cli__');
   assert.ok(DEFAULT_CONFIG.required_models.codex.tool_prefix.startsWith('mcp__'));
 });
 
