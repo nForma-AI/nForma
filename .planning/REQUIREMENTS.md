@@ -153,7 +153,7 @@ All features are v1. No deferral.
 - [x] **ACT-03**: `gsd-tools.cjs activity-set <json>` CLI command writes the current-activity.json file with atomic replace; `activity-clear` removes it
 - [ ] **ACT-04**: `resume-work` reads current-activity.json and routes to the exact recovery point — displaying the interrupted state before resuming execution
 - [x] **ACT-05**: `execute-phase` writes activity at every stage boundary: entering/exiting plan execution, checkpoint:verify, debug loop rounds, awaiting_human_verify, and verifying_phase
-- [ ] **ACT-06**: `plan-phase`, `new-milestone`, `debug`, `quorum`, and `circuit-breaker` resolution workflows write activity at every stage boundary
+- [x] **ACT-06**: `plan-phase`, `new-milestone`, `debug`, `quorum`, and `circuit-breaker` resolution workflows write activity at every stage boundary
 - [x] **ACT-07**: Activity file is cleared on successful completion of any top-level workflow; it persists across context resets when mid-workflow
 
 ## Future Requirements (v0.3+)

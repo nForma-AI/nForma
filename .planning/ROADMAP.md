@@ -231,7 +231,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 11. Changelog & Build | 2/2 | Complete | 2026-02-21 |
 | 12. Version & Publish | 2/2 | Complete (RLS-04 deferred) | 2026-02-21 |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
-| 14. Activity Tracking | 2/4 | In Progress|  |
+| 14. Activity Tracking | 3/4 | In Progress|  |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
 
@@ -249,7 +249,7 @@ Plans:
 **Goal:** Every QGSD workflow writes its current state to `.planning/current-activity.json` at each transition point so that resume-work can recover to the exact sub-step interrupted — not just the last committed plan.
 **Depends on:** Phase 13
 **Requirements:** ACT-01, ACT-02, ACT-03, ACT-04, ACT-05, ACT-06, ACT-07
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 
 Plans:
 - [ ] 14-01-PLAN.md — gsd-tools.cjs activity-set/clear/get CLI + schema validation + unit tests (TDD)

@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 14 in progress — activity-set/clear/get CLI commands + execute-phase workflow injection complete (plans 01–02 of 4 done). Plan 14-03 ready to execute.
+**Current focus:** Phase 14 in progress — plans 01–03 of 4 done. Activity tracking injected into execute-phase, plan-phase, quick, oscillation-resolution-mode, and new-milestone workflows. Plan 14-04 (resume-work integration) is next.
 
 ## Current Position
 
 Phase: 14 — activity-tracking (IN PROGRESS)
-Plan: 02 complete (2/4 plans done)
-Status: ACT-01 ✓, ACT-02 ✓, ACT-03 ✓, ACT-05 ✓, ACT-07 ✓ — activity-set/clear/get deployed; execute-phase workflow injected with 5 activity-set + 1 activity-clear calls; 148 tests pass
-Last activity: 2026-02-21 — Injected activity tracking into execute-phase workflow (installed + source); all 5 stage boundaries covered: executing_plan, checkpoint_verify, debug_loop, awaiting_human_verify, verifying_phase
+Plan: 03 complete (3/4 plans done)
+Status: ACT-01 ✓, ACT-02 ✓, ACT-03 ✓, ACT-05 ✓, ACT-06 ✓, ACT-07 ✓ — activity tracking injected into all major non-execute workflows; 148 tests pass
+Last activity: 2026-02-21 — Injected activity tracking into plan-phase (researching/planning/quorum/checking_plan), quick (planning/executing), oscillation-resolution-mode (oscillation_diagnosis/awaiting_approval), new-milestone (researching/creating_roadmap); all 8 files (4 workflows x 2 locations) updated
 
 Progress: [████████████████████████████████] 12/13 phases complete (92%)
 
@@ -67,6 +67,7 @@ Progress: [███████████████████████
 | Phase 12-version-publish P01 | 2 min | 3 tasks | 2 files |
 | Phase 14-activity-tracking P01 | 2min | 2 tasks | 2 files |
 | Phase 14-activity-tracking P02 | 2 | 2 tasks | 2 files |
+| Phase 14-activity-tracking P03 | 3 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -140,6 +141,7 @@ Recent decisions affecting current work:
 - [Phase 14-activity-tracking]: activity-set always overwrites updated with new Date().toISOString() for timestamp consistency — caller values are discarded
 - [Phase 14-activity-tracking]: activity-get returns {} on missing file (not an error) — resume-work can safely call without checking file existence first
 - [Phase 14-activity-tracking]: Activity tracking in execute-phase: variable names ${PHASE_NUMBER} (existing), ${PLAN_FILE}/${WAVE_N}/${DEBUG_ROUND} introduced; prose instruction blocks format matching workflow style
+- [Phase 14-03]: quorum activity-set added in Step 8.5 (new section) in plan-phase — most accurate point where per-R3 quorum runs before user output; oscillation-resolution-mode.md does NOT get activity-clear as circuit_breaker states persist until parent workflow completes
 
 ### Roadmap Evolution
 
@@ -188,5 +190,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 14-activity-tracking plan 01. activity-set/clear/get commands in gsd-tools.cjs; deployed to both installed locations; 148/148 tests passing. Next: execute plan 14-02.
+Stopped at: Completed 14-activity-tracking plan 03. Activity tracking injected into plan-phase, quick, oscillation-resolution-mode, and new-milestone workflows (all 8 files). Next: execute plan 14-04.
 Resume file: N/A
