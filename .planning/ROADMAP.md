@@ -168,7 +168,7 @@ Plans:
 **Depends on:** Phase 9
 **Requirements:** ENFC-01, ENFC-02, ENFC-03, CONF-06, CONF-07, CONF-08, CONF-09, INST-08, INST-09, INST-10, RECV-01
 **Gap Closure:** Closes gaps from v0.2 audit — Phases 7 and 8 unverified + 3 integration bugs + Flow D partial
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 Plans:
 - [x] 10-01-PLAN.md — Bug fixes: INST-08 uninstall cleanup, RECV-01 git root path, INST-10 sub-key backfill + CONF-09 template docs
@@ -217,7 +217,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Enforcement & Config Integration | 2/2 | Complete | 2026-02-21 |
 | 8. Installer Integration | 1/1 | Complete   | 2026-02-21 |
 | 9. Verify Phases 5-6 | 3/3 | Complete   | 2026-02-21 |
-| 10. Fix Bugs + Verify Phases 7-8 | 4/4 | Complete | 2026-02-21 |
+| 10. Fix Bugs + Verify Phases 7-8 | 4/4 | Complete   | 2026-02-21 |
 | 11. Changelog & Build | 0/TBD | Not started | — |
 | 12. Version & Publish | 0/TBD | Not started | — |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
