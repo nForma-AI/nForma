@@ -168,6 +168,7 @@ Recent decisions affecting current work:
 | 12 | Fix /qgsd:debug Step 7 to auto-execute consensus next step instead of user-permission gate | 2026-02-21 | a39d422 | Verified | [12-fix-qgsd-debug-to-auto-proceed-when-quor](./quick/12-fix-qgsd-debug-to-auto-proceed-when-quor/) |
 | 14 | Add Circuit Breaker & Oscillation Resolution diagram to docs/USER-GUIDE.md | 2026-02-21 | b637f65 | Complete | [14-add-oscillation-resolution-mode-diagram-](./quick/14-add-oscillation-resolution-mode-diagram-/) |
 | 15 | Rename gsd-statusline.js, gsd-check-update.js, gsd-file-manifest.json to qgsd-* namespace | 2026-02-21 | 061df09 | Complete | [15-rename-shared-gsd-files-to-qgsd-to-elimi](./quick/15-rename-shared-gsd-files-to-qgsd-to-elimi/) |
+| 16 | Improve discuss-phase skill with quorum pre-filter: add quorum_filter step, auto-resolve classification, preference questions with Claude recommendations | 2026-02-21 | — | Complete | [16-improve-discuss-phase-skill-with-quorum-](./quick/16-improve-discuss-phase-skill-with-quorum-/) |
 
 ### Blockers/Concerns
 
@@ -178,5 +179,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed quick-15 — Renamed gsd-statusline.js, gsd-check-update.js hook files to qgsd-* namespace; updated install.js (MANIFEST_NAME, buildHookCommand, uninstall, cleanupOrphanedFiles, migration block) and build-hooks.js (HOOKS_TO_COPY); npm test 141/141 passing.
+Stopped at: Completed quick-16 — Added quorum_filter step to discuss-phase workflow (auto-resolve vs preference classification, assumptions[] and preference_questions[] lists, Claude recommends guidance per preference option); updated command entry point with step 3.5 and quorum success criteria; fixed stale get-shit-done references.
 Resume file: N/A
