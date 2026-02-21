@@ -529,7 +529,7 @@ test('CB-TC16: Read-only command passes even when circuit breaker is active', ()
 });
 
 // Test CB-TC17 (NEW): active state + write command — verify block reason content
-test('CB-TC17: Block reason includes file names, root cause, git log, and reset-breaker instructions', () => {
+test('CB-TC17: Block reason includes file names, R5 reference, git log, and reset-breaker instructions', () => {
   const repoDir = createTempGitRepo();
   try {
     const stateDir = path.join(repoDir, '.claude');
@@ -558,8 +558,8 @@ test('CB-TC17: Block reason includes file names, root cause, git log, and reset-
     // File names from state.file_set
     assert.ok(reason.includes('src/feature.js'), 'reason must include oscillating file names');
     assert.ok(reason.includes('src/utils.js'), 'reason must include oscillating file names');
-    // Root cause analysis instruction
-    assert.ok(reason.includes('root cause'), 'reason must include root cause analysis instruction');
+    // Oscillation Resolution Mode per R5 reference
+    assert.ok(reason.includes('Oscillation Resolution Mode per R5'), 'reason must include R5 reference');
     // Allowed read-only operations
     assert.ok(reason.includes('git log'), 'reason must include git log as allowed operation');
     // Reset breaker instruction
@@ -608,6 +608,51 @@ test('CB-TC18: Project config oscillation_depth:2 triggers oscillation detection
   } finally {
     fs.rmSync(repoDir, { recursive: true, force: true });
   }
+});
+
+// --- Direct unit tests for buildBlockReason() (CB-TC-BR series) ---
+// These test buildBlockReason() directly via module.exports rather than via spawnSync.
+
+const { buildBlockReason } = require('../hooks/qgsd-circuit-breaker.js');
+
+// Test CB-TC-BR1: Deny message includes commit graph when snapshot present
+test('CB-TC-BR1: Deny message includes commit graph when snapshot present', () => {
+  const state = {
+    active: true,
+    file_set: ['a.js', 'b.js'],
+    activated_at: '2026-01-01T00:00:00Z',
+    commit_window_snapshot: [['a.js', 'b.js'], ['c.js'], ['a.js', 'b.js']],
+  };
+  const reason = buildBlockReason(state);
+  assert.ok(reason.includes('Commit Graph'), 'deny reason must contain "Commit Graph"');
+  assert.ok(reason.includes('a.js, b.js'), 'deny reason must contain file names from snapshot');
+  assert.ok(reason.includes('Oscillation Resolution Mode per R5'), 'deny reason must contain R5 reference');
+});
+
+// Test CB-TC-BR2: Deny message handles missing snapshot gracefully
+test('CB-TC-BR2: Deny message handles missing snapshot gracefully', () => {
+  const state = {
+    active: true,
+    file_set: ['x.js'],
+    activated_at: '2026-01-01T00:00:00Z',
+    // no commit_window_snapshot
+  };
+  let reason;
+  assert.doesNotThrow(() => { reason = buildBlockReason(state); }, 'buildBlockReason must not throw when snapshot missing');
+  assert.ok(reason.includes('CIRCUIT BREAKER ACTIVE'), 'deny reason must contain CIRCUIT BREAKER ACTIVE');
+  assert.ok(reason.includes('commit graph unavailable'), 'deny reason must note unavailable commit graph');
+});
+
+// Test CB-TC-BR3: Deny message still references --reset-breaker
+test('CB-TC-BR3: Deny message still references --reset-breaker instruction', () => {
+  const state = {
+    active: true,
+    file_set: ['any.js'],
+    activated_at: '2026-01-01T00:00:00Z',
+    commit_window_snapshot: [['any.js']],
+  };
+  const reason = buildBlockReason(state);
+  assert.ok(reason.includes('npx qgsd --reset-breaker'), 'deny reason must include --reset-breaker command');
 });
 
 // Test CB-TC19 (NEW): config commit_window integration — project config window:3 excludes older commits
