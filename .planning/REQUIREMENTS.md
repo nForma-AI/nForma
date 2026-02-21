@@ -142,6 +142,20 @@ All features are v1. No deferral.
 - [ ] **RLS-03**: Git tag `v0.2.0` created at release commit and pushed to remote
 - [ ] **RLS-04**: `qgsd@0.2.0` published to npm registry — `npx qgsd@0.2.0` installs successfully
 
+## v0.4 Requirements — Activity Tracking (ACT)
+
+**Goal:** Every QGSD workflow writes its current state to `.planning/current-activity.json` at each transition point so that `resume-work` can recover to the exact sub-step that was interrupted.
+
+### Activity Tracking (ACT)
+
+- [ ] **ACT-01**: `.planning/current-activity.json` is written atomically at every major workflow state transition (execute-phase, plan-phase, debug, quorum, circuit-breaker, new-milestone stages)
+- [ ] **ACT-02**: Activity schema: `{ activity, sub_activity, phase?, plan?, wave?, debug_round?, checkpoint?, quorum_round?, updated }` — all fields except `activity` and `updated` are optional; unknown fields are preserved
+- [ ] **ACT-03**: `gsd-tools.cjs activity-set <json>` CLI command writes the current-activity.json file with atomic replace; `activity-clear` removes it
+- [ ] **ACT-04**: `resume-work` reads current-activity.json and routes to the exact recovery point — displaying the interrupted state before resuming execution
+- [ ] **ACT-05**: `execute-phase` writes activity at every stage boundary: entering/exiting plan execution, checkpoint:verify, debug loop rounds, awaiting_human_verify, and verifying_phase
+- [ ] **ACT-06**: `plan-phase`, `new-milestone`, `debug`, `quorum`, and `circuit-breaker` resolution workflows write activity at every stage boundary
+- [ ] **ACT-07**: Activity file is cleared on successful completion of any top-level workflow; it persists across context resets when mid-workflow
+
 ## Future Requirements (v0.3+)
 
 ### Circuit Breaker Recovery
