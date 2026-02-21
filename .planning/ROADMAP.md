@@ -4,6 +4,8 @@
 
 QGSD enforces multi-model quorum for GSD planning commands through Claude Code hooks. Phase 1 builds the core enforcement layer — the Stop hook hard gate and UserPromptSubmit injection — plus the meta-behavior that governs how this repo itself uses quorum during development. Phase 2 adds the config system and MCP auto-detection that makes the enforcement configurable and resilient to renamed servers. Phase 3 packages everything into a distributable npm installer that writes directly to `~/.claude/settings.json` and establishes the GSD version sync strategy.
 
+v0.2 (Phases 6–8) moves R5 (Circuit Breaker) from CLAUDE.md behavioral policy into structural Claude Code hooks. Phase 6 delivers the PreToolUse hook with oscillation detection and state persistence. Phase 7 wires in execution blocking and extends the config system. Phase 8 integrates everything into the installer.
+
 ## Phases
 
 **Phase Numbering:**
@@ -15,6 +17,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Hook Enforcement** - Stop hook hard gate + UserPromptSubmit injection + meta quorum behavior for this repo (completed 2026-02-20)
 - [x] **Phase 2: Config & MCP Detection** - User-editable config system with MCP auto-detection and fail-open behavior (completed 2026-02-20)
 - [x] **Phase 3: Installer & Distribution** - npm installer that writes hooks to ~/.claude/settings.json and GSD version sync strategy (completed 2026-02-20)
+- [x] **Phase 4: Narrow Quorum Scope** - Stop hook restricted to actual project decision turns via GUARD 5 (completed 2026-02-21)
+- [ ] **Phase 5: Fix GUARD 5 Delivery Gaps** - hooks/dist/ rebuilt + marker path propagated to installer users
+- [ ] **Phase 6: Circuit Breaker Detection & State** - PreToolUse hook detects oscillation in git history and persists breaker state across invocations
+- [ ] **Phase 7: Enforcement & Config Integration** - Bash execution blocked when breaker is active; circuit_breaker config block added to config-loader
+- [ ] **Phase 8: Installer Integration** - Installer registers PreToolUse hook and writes default circuit_breaker config block idempotently
 
 ## Phase Details
 
@@ -75,19 +82,7 @@ Plans:
 - [x] 03-02-PLAN.md — Installer enhancements: INST-05 MCP validation warning + INST-06 reinstall summary + --redetect-mcps flag
 - [x] 03-03-PLAN.md — Build dist + human verify checkpoint + mark Phase 3 complete
 
-## Progress
-
-**Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Hook Enforcement | 5/5 | Complete   | 2026-02-20 |
-| 2. Config & MCP Detection | 4/4 | Complete | 2026-02-20 |
-| 3. Installer & Distribution | 3/3 | Complete   | 2026-02-20 |
-
-### Phase 4: Narrow quorum scope to project decisions only
-
+### Phase 4: Narrow Quorum Scope
 **Goal:** Stop hook only fires quorum on turns where Claude delivers a project decision (plan, roadmap, research, verification report) — not on intermediate GSD-internal operations (agent spawning, routing, questioning, status messages)
 **Depends on:** Phase 3
 **Requirements**: SCOPE-01, SCOPE-02, SCOPE-03, SCOPE-04, SCOPE-05, SCOPE-06, SCOPE-07
@@ -105,3 +100,55 @@ Plans:
 
 Plans:
 - [ ] 05-01-PLAN.md — Three-surface quorum_instructions sync (bin/install.js + templates/qgsd.json) + hooks/dist/ rebuild (GAP-01 + GAP-02) + CHANGELOG [Unreleased] entry
+
+### Phase 6: Circuit Breaker Detection & State
+**Goal**: Claude cannot execute write Bash commands when oscillation has been detected — a PreToolUse hook reads git history and persists breaker state so the block survives across tool calls
+**Depends on**: Phase 5
+**Requirements**: DETECT-01, DETECT-02, DETECT-03, DETECT-04, DETECT-05, STATE-01, STATE-02, STATE-03, STATE-04
+**Success Criteria** (what must be TRUE):
+  1. When a Bash command arrives and no state file exists (or state is inactive), the hook runs git log and correctly identifies whether the exact same file set (strict set equality, not intersection) has appeared in the configured number of commits in the window — a TDD cycle where different files are touched per commit does not trigger a false positive
+  2. When a Bash command is a read-only operation (git log, git diff, grep, cat, ls, head, tail, find), the hook passes through without running oscillation detection or triggering a block
+  3. When oscillation is detected, the hook writes `.claude/circuit-breaker-state.json` with the active flag, the oscillating file set, activation timestamp, and the commit window snapshot — and that state survives to the next tool call invocation
+  4. When the hook reads an existing state file with `active: true`, it applies enforcement immediately without re-running git log — confirming that a persistent block requires no repeat detection
+  5. When no git repository exists in the working directory, the hook passes without error
+**Plans**: TBD
+
+### Phase 7: Enforcement & Config Integration
+**Goal**: An active circuit breaker makes further Bash execution impossible until Claude performs root cause analysis — and all circuit breaker thresholds are user-configurable through the existing config system
+**Depends on**: Phase 6
+**Requirements**: ENFC-01, ENFC-02, ENFC-03, CONF-06, CONF-07, CONF-08, CONF-09
+**Success Criteria** (what must be TRUE):
+  1. When the circuit breaker is active, any non-read-only Bash command returns `{"decision": "block", ...}` — Claude cannot execute it
+  2. The block reason message names the oscillating file set, confirms the breaker is active, lists the operations Claude is allowed to perform (read-only Bash), instructs Claude to perform root cause analysis and dependency mapping before resuming, and explicitly tells the user to manually commit the fix (since Claude cannot run git commit while blocked)
+  3. A user can set `circuit_breaker.oscillation_depth` and `circuit_breaker.commit_window` in qgsd.json and the hook uses those values; invalid values fall back to defaults (3 and 6 respectively) with a stderr warning
+  4. A per-project `.claude/qgsd.json` `circuit_breaker` block overrides the global config using the same two-layer merge already in place for existing config keys
+**Plans**: TBD
+
+### Phase 8: Installer Integration
+**Goal**: Running `npx qgsd@latest` registers the circuit breaker PreToolUse hook and writes a default circuit_breaker config block — idempotently, without overwriting user-modified values
+**Depends on**: Phase 7
+**Requirements**: INST-08, INST-09, INST-10, RECV-01
+**Success Criteria** (what must be TRUE):
+  1. After running `npx qgsd@latest` on a fresh install, `~/.claude/settings.json` contains a PreToolUse hook entry for the circuit breaker hook alongside the existing Stop and UserPromptSubmit entries
+  2. After running `npx qgsd@latest` on a fresh install, `~/.claude/qgsd.json` contains a `circuit_breaker` block with `oscillation_depth: 3` and `commit_window: 6`
+  3. Running `npx qgsd@latest` a second time when a `circuit_breaker` block already exists (with or without user modifications) does not overwrite it — a missing block is added, an existing block is left intact
+  4. Running `npx qgsd --reset-breaker` deletes `.claude/circuit-breaker-state.json` and logs a confirmation message — the circuit breaker is cleared and Claude can resume Bash execution
+**Plans**: TBD
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+
+**v0.2 Coverage:** 20 requirements across Phases 6–8 (DETECT: 5, STATE: 4, ENFC: 3, CONF: 4, INST: 3, RECV: 1)
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Hook Enforcement | 5/5 | Complete   | 2026-02-20 |
+| 2. Config & MCP Detection | 4/4 | Complete | 2026-02-20 |
+| 3. Installer & Distribution | 3/3 | Complete   | 2026-02-20 |
+| 4. Narrow Quorum Scope | 2/2 | Complete | 2026-02-21 |
+| 5. Fix GUARD 5 Delivery Gaps | 0/1 | Not started | - |
+| 6. Circuit Breaker Detection & State | 0/TBD | Not started | - |
+| 7. Enforcement & Config Integration | 0/TBD | Not started | - |
+| 8. Installer Integration | 0/TBD | Not started | - |

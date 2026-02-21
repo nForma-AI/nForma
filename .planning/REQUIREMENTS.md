@@ -75,7 +75,7 @@ All features are v1. No deferral.
 
 - [ ] **DETECT-01**: PreToolUse hook intercepts Bash tool calls and checks whether the current context has an active circuit breaker before running detection
 - [ ] **DETECT-02**: Hook retrieves last N commits' changed files via `git log --name-only` (N = commit_window config) when detection is needed
-- [ ] **DETECT-03**: Hook identifies oscillation when the same file or file set appears in ≥ oscillation_depth of the last commit_window commits
+- [ ] **DETECT-03**: Hook identifies oscillation when the exact same file set (strict set equality, not intersection) appears in ≥ oscillation_depth of the last commit_window commits — strict equality prevents false positives during TDD cycles where different files are touched per commit
 - [ ] **DETECT-04**: Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) pass through without detection or blocking
 - [ ] **DETECT-05**: Detection is skipped (returns pass) when no git repository exists in the current working directory
 
@@ -90,7 +90,11 @@ All features are v1. No deferral.
 
 - [ ] **ENFC-01**: When circuit breaker is active, hook returns `{ "decision": "block", "reason": "..." }` blocking Bash execution
 - [ ] **ENFC-02**: Block reason names the oscillating file set, confirms circuit breaker is active, and lists allowed operations (read-only Bash)
-- [ ] **ENFC-03**: Block reason instructs Claude to perform root cause analysis and map dependencies before resuming
+- [ ] **ENFC-03**: Block reason instructs Claude to perform root cause analysis and map dependencies before resuming; explicitly instructs the user to manually commit the fix (since Claude cannot run git commit while blocked)
+
+### Recovery (RECV)
+
+- [ ] **RECV-01**: `npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation — enables manual recovery when circuit breaker deadlocks due to blocked git commit
 
 ### Config Extensions (CONF)
 
@@ -109,7 +113,6 @@ All features are v1. No deferral.
 
 ### Circuit Breaker Recovery
 
-- **RECV-01**: Manual reset command (`npx qgsd@latest --reset-breaker`) clears active circuit breaker state
 - **RECV-02**: Auto-clear: circuit breaker resets when a commit on the oscillating file set does not match the oscillation pattern (non-oscillating forward progress)
 
 ### Reliability Enhancements (from v0.1 v2 backlog)
@@ -178,12 +181,32 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SYNC-02 | Phase 3 | Complete |
 | SYNC-03 | Phase 3 | Complete |
 | SYNC-04 | Phase 3 | Complete |
+| DETECT-01 | Phase 6 | Pending |
+| DETECT-02 | Phase 6 | Pending |
+| DETECT-03 | Phase 6 | Pending |
+| DETECT-04 | Phase 6 | Pending |
+| DETECT-05 | Phase 6 | Pending |
+| STATE-01 | Phase 6 | Pending |
+| STATE-02 | Phase 6 | Pending |
+| STATE-03 | Phase 6 | Pending |
+| STATE-04 | Phase 6 | Pending |
+| ENFC-01 | Phase 7 | Pending |
+| ENFC-02 | Phase 7 | Pending |
+| ENFC-03 | Phase 7 | Pending |
+| CONF-06 | Phase 7 | Pending |
+| CONF-07 | Phase 7 | Pending |
+| CONF-08 | Phase 7 | Pending |
+| CONF-09 | Phase 7 | Pending |
+| INST-08 | Phase 8 | Pending |
+| INST-09 | Phase 8 | Pending |
+| INST-10 | Phase 8 | Pending |
+| RECV-01 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 39 total — all complete (v0.1)
-- v0.2 requirements: 20 total — mapped to phases by roadmapper
-- Unmapped v0.2: 20 ⚠️ (pending roadmap)
+- v0.2 requirements: 20 total — 20/20 mapped (Phases 6–8)
+- Unmapped v0.2: 0 ✓
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-21 — v0.2 Anti-Oscillation Pattern: 20 new requirements added (DETECT-01–05, STATE-01–04, ENFC-01–03, CONF-06–09, INST-08–10)*
+*Last updated: 2026-02-21 — v0.2 Anti-Oscillation Pattern: 20 requirements mapped to Phases 6–8. Quorum Round 1 revision: RECV-01 moved from Future to Phase 8 (deadlock fix, consensus: Gemini+OpenCode+Copilot); DETECT-03 clarified to strict set equality; ENFC-03 updated with explicit user commit instruction.*
