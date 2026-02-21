@@ -169,6 +169,7 @@ Recent decisions affecting current work:
 | 14 | Add Circuit Breaker & Oscillation Resolution diagram to docs/USER-GUIDE.md | 2026-02-21 | b637f65 | Complete | [14-add-oscillation-resolution-mode-diagram-](./quick/14-add-oscillation-resolution-mode-diagram-/) |
 | 15 | Rename gsd-statusline.js, gsd-check-update.js, gsd-file-manifest.json to qgsd-* namespace | 2026-02-21 | 061df09 | Complete | [15-rename-shared-gsd-files-to-qgsd-to-elimi](./quick/15-rename-shared-gsd-files-to-qgsd-to-elimi/) |
 | 16 | Improve discuss-phase skill with quorum pre-filter: add quorum_filter step, auto-resolve classification, preference questions with Claude recommendations | 2026-02-21 | 9a33365 | Complete | [16-improve-discuss-phase-skill-with-quorum-](./quick/16-improve-discuss-phase-skill-with-quorum-/) |
+| 18 | Clarify Claude as full voting quorum member in CLAUDE.md Appendix table, R3.2 step 1, and scoreboard Notes | 2026-02-21 | disk-only | Complete | [18-clarify-claude-as-full-quorum-member-wit](./quick/18-clarify-claude-as-full-quorum-member-wit/) |
 
 ### Blockers/Concerns
 
@@ -179,5 +180,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed quick-16 — Added quorum_filter step to discuss-phase workflow (auto-resolve vs preference classification, assumptions[] and preference_questions[] lists, Claude recommends guidance per preference option); updated command entry point with step 3.5 and quorum success criteria; fixed stale get-shit-done references.
+Stopped at: Completed quick-18 — Clarified Claude as full voting quorum member: updated CLAUDE.md Appendix table (Voting quorum member role), R3.2 step 1 (position = vote, active quorum contribution), and scoreboard Notes bullet (Claude rows are participant votes, not orchestration overhead). Both files are disk-only (gitignored by project design).
 Resume file: N/A
