@@ -94,7 +94,7 @@ All features are v1. No deferral.
 
 ### Recovery (RECV)
 
-- [ ] **RECV-01**: `npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation — enables manual recovery when circuit breaker deadlocks due to blocked git commit
+- [x] **RECV-01**: `npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation — enables manual recovery when circuit breaker deadlocks due to blocked git commit
 
 ### Config Extensions (CONF)
 
@@ -105,9 +105,9 @@ All features are v1. No deferral.
 
 ### Installer Extensions (INST)
 
-- [ ] **INST-08**: Installer registers PreToolUse circuit breaker hook in `~/.claude/settings.json` alongside existing hooks
-- [ ] **INST-09**: Installer writes default `circuit_breaker` config block to qgsd.json on first install
-- [ ] **INST-10**: Reinstall (idempotent) adds missing `circuit_breaker` config block without overwriting user-modified values
+- [x] **INST-08**: Installer registers PreToolUse circuit breaker hook in `~/.claude/settings.json` alongside existing hooks
+- [x] **INST-09**: Installer writes default `circuit_breaker` config block to qgsd.json on first install
+- [x] **INST-10**: Reinstall (idempotent) adds missing `circuit_breaker` config block without overwriting user-modified values
 
 ## v0.2 Requirements — Oscillation Resolution Mode (ORES)
 
@@ -230,10 +230,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONF-07 | Phase 10 (gap closure for Phase 7) | Complete |
 | CONF-08 | Phase 10 (gap closure for Phase 7) | Complete |
 | CONF-09 | Phase 10 (gap closure for Phase 7) | Complete |
-| INST-08 | Phase 10 (gap closure for Phase 8) | Pending |
-| INST-09 | Phase 10 (gap closure for Phase 8) | Pending |
-| INST-10 | Phase 10 (gap closure for Phase 8) | Pending |
-| RECV-01 | Phase 10 (gap closure for Phase 8) | Pending |
+| INST-08 | Phase 10 (gap closure for Phase 8) | Complete |
+| INST-09 | Phase 10 (gap closure for Phase 8) | Complete |
+| INST-10 | Phase 10 (gap closure for Phase 8) | Complete |
+| RECV-01 | Phase 10 (gap closure for Phase 8) | Complete |
 | ORES-01 | Phase 13 | Complete |
 | ORES-02 | Phase 13 | Complete |
 | ORES-03 | Phase 13 | Complete |
@@ -254,8 +254,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 - v0.3 requirements: 8 total — 8/8 mapped (Phases 11–12)
 - Unmapped v0.2: 0 ✓
 - Unmapped v0.3: 0 ✓
-- Pending (awaiting verification): 24 (v0.2: ENFC-01..03, CONF-06..09, INST-08..10, RECV-01, ORES-01..05 + v0.3: CL-01..02, BLD-01..02, RLS-01..04)
+- Pending (awaiting verification): 20 (v0.2: ORES-01..05 + v0.3: CL-01..02, BLD-01..02, RLS-01..04)
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-21 — Phase 13: ORES-01..05 added (oscillation resolution mode requirements, pending).*
+*Last updated: 2026-02-21 — Phase 10 Plan 03: INST-08, INST-09, INST-10, RECV-01 marked Complete (independently verified by gsd-verifier, 08-VERIFICATION.md).*

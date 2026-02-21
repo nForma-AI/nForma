@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 13 complete — Plan 02 complete (buildBlockReason() enhanced with commit graph + R5 reference; 141 tests passing)
+**Current focus:** Phase 10 complete — Plan 03 complete (08-VERIFICATION.md produced: 4/4 requirements PASS — INST-08..10, RECV-01; 141 tests green)
 
 ## Current Position
 
-Phase: 13 — circuit-breaker-oscillation-resolution-mode
-Plan: 02 complete (2 plans done — Phase 13 complete)
-Status: Phase 13 Plan 02 complete — buildBlockReason() renders commit_window_snapshot as markdown table; deny message references Oscillation Resolution Mode per R5; ORES-04..05 marked Complete in REQUIREMENTS.md
-Last activity: 2026-02-21 — Phase 13 Plan 02 complete; REQUIREMENTS.md updated (ORES-04..05 marked Complete)
+Phase: 10 — fix-bugs-verify-phases-7-8
+Plan: 03 complete (3 plans done — Phase 10 complete)
+Status: Phase 10 Plan 03 complete — 08-VERIFICATION.md produced; INST-08 (install+uninstall), INST-09, INST-10 (sub-key backfill), RECV-01 (git root) all PASS; 3 Plan 10-01 bug fixes confirmed
+Last activity: 2026-02-21 — Phase 10 Plan 03 complete; 08-VERIFICATION.md committed; INST-08..10, RECV-01 marked Complete in REQUIREMENTS.md
 
 Progress: [████████████████████░░░░░░░░░░░░░] 8/13 phases complete (62%)
 
@@ -169,5 +169,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 10-02-PLAN.md — Phase 7 verification (07-VERIFICATION.md): 7/7 requirements PASS (ENFC-01..03, CONF-06..09), 141/141 tests green.
+Stopped at: Completed 10-03-PLAN.md — Phase 8 verification (08-VERIFICATION.md): 4/4 requirements PASS (INST-08..10, RECV-01), 141/141 tests green. Phase 10 complete.
 Resume file: N/A
