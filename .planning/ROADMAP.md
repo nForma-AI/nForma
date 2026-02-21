@@ -30,6 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 12: Version & Publish** - Bump version to 0.2.0, archive v0.2 milestone, create git tag v0.2.0, publish qgsd@0.2.0 to npm (RLS-04 npm publish deferred)
 - [x] **Phase 13: Circuit Breaker Oscillation Resolution Mode** - When the circuit breaker fires, Claude enters structured resolution mode with commit graph, quorum diagnosis, and unified solution approval
 - [x] **Phase 14: Activity Tracking** - `.planning/current-activity.json` sidecar tracks current workflow state for granular resume-work recovery across all QGSD workflow stages (completed 2026-02-21)
+- [ ] **Phase 15: v0.4 Gap Closure — Activity Resume Routing** - Fix ACT-02 schema violations (add phase field to oscillation-resolution-mode activity-set calls) and ACT-04 routing gaps (add new_milestone routing rows to resume-project.md)
 
 ## Phase Details
 
@@ -232,6 +233,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Version & Publish | 2/2 | Complete (RLS-04 deferred) | 2026-02-21 |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
 | 14. Activity Tracking | 4/4 | Complete    | 2026-02-21 |
+| 15. v0.4 Gap Closure — Activity Resume Routing | 0/1 | Planned | — |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
 
@@ -256,3 +258,14 @@ Plans:
 - [ ] 14-02-PLAN.md — execute-phase workflow: activity injection at executing_plan, checkpoint_verify, debug_loop, awaiting_human_verify, verifying_phase, and clear on completion
 - [ ] 14-03-PLAN.md — plan-phase + quick + oscillation-resolution workflows: activity injection at all stage boundaries
 - [ ] 14-04-PLAN.md — resume-project: read activity-get, display interrupted state, route to exact recovery command
+
+### Phase 15: v0.4 Gap Closure — Activity Resume Routing
+
+**Goal:** Close ACT-02 schema violation (missing `phase` field in circuit_breaker activity-set calls) and ACT-04 routing gaps (no routing rows for activity=new_milestone, and oscillation_diagnosis/awaiting_approval produce unusable recovery commands due to missing phase field) — enabling correct resume-work recovery from all interrupted workflow states.
+**Depends on:** Phase 14
+**Requirements:** ACT-02, ACT-04
+**Gap Closure:** Closes gaps from v0.4 audit — 2 requirement gaps (ACT-02 partial, ACT-04 unsatisfied), 2 integration gaps, 2 broken E2E flows
+**Plans:** 0/1 planned
+
+Plans:
+- [ ] 15-01-PLAN.md — Fix oscillation-resolution-mode.md (add phase field to circuit_breaker activity-set calls at Step 4 and Step 5) + fix resume-project.md routing table (add new_milestone rows; note oscillation_diagnosis/awaiting_approval phase limitation)
