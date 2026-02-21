@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21 after v0.3 milestone start)
 Phase: 17 — fix-installed-agent-name-typos (Ready to plan)
 Plan: Not started
 Status: Phase 16 complete — 15-VERIFICATION.md produced, ACT-02/ACT-04 traceability = Complete, pending count = 18, INT-02 planning row disambiguation applied
-Last activity: 2026-02-21 — Phase 16 complete: verify Phase 15 ACT-02/ACT-04, fix INT-02, close traceability
+Last activity: 2026-02-21 — Completed quick task 26: apply two copy tweaks to Ping-Pong Commit Breaker section in README and USER-GUIDE
 
 Progress: [███████████████████░] 38/39 plans (97%)
 
@@ -192,6 +192,7 @@ Recent decisions affecting current work:
 | 24 | Canonicalize quorum pattern: role visibility (CONTRARIAN/AGREEING/IMPROVING), improvement round in debug.md, auto-execute gate | 2026-02-21 | 0a9b773 | Complete | [24-improve-qgsd-debug-quorum-discussion-flo](./quick/24-improve-qgsd-debug-quorum-discussion-flo/) |
 | 25 | Convert quorum scoreboard from markdown to JSON with bin/update-scoreboard.cjs script | 2026-02-21 | 30078e8 | Complete | [25-convert-quorum-scoreboard-from-markdown-](./quick/25-convert-quorum-scoreboard-from-markdown-/) |
 | 25 | Convert quorum scoreboard from markdown to JSON with CLI script (update-scoreboard.cjs) | 2026-02-21 | d24f1ad | Complete | [25-convert-quorum-scoreboard-from-markdown-](./quick/25-convert-quorum-scoreboard-from-markdown-/) |
+| 26 | apply two copy tweaks to Ping-Pong Commit Breaker section in README and USER-GUIDE | 2026-02-21 | TBD | Complete | [26-apply-two-copy-tweaks-to-ping-pong-commi](./quick/26-apply-two-copy-tweaks-to-ping-pong-commi/) |
 
 ### Blockers/Concerns
 
