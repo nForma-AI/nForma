@@ -233,7 +233,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Version & Publish | 2/2 | Complete (RLS-04 deferred) | 2026-02-21 |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
 | 14. Activity Tracking | 4/4 | Complete    | 2026-02-21 |
-| 15. v0.4 Gap Closure — Activity Resume Routing | 0/1 | Planned | — |
+| 15. v0.4 Gap Closure — Activity Resume Routing | 1/1 | In Progress | — |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
 
@@ -265,7 +265,7 @@ Plans:
 **Depends on:** Phase 14
 **Requirements:** ACT-02, ACT-04
 **Gap Closure:** Closes gaps from v0.4 audit — 2 requirement gaps (ACT-02 partial, ACT-04 unsatisfied), 2 integration gaps, 2 broken E2E flows
-**Plans:** 0/1 planned
+**Plans:** 1/1 planned
 
 Plans:
 - [ ] 15-01-PLAN.md — Fix oscillation-resolution-mode.md (add phase field to circuit_breaker activity-set calls at Step 4 and Step 5) + fix resume-project.md routing table (add new_milestone rows; note oscillation_diagnosis/awaiting_approval phase limitation)
