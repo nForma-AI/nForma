@@ -28,6 +28,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Fix Bugs + Verify Phases 7-8** - Fix INST-08 uninstall dead hook, RECV-01 path mismatch, INST-10 sub-key backfill + CONF-09 docs; create VERIFICATION.md for Phases 7 and 8; close all remaining v0.2 requirements (completed 2026-02-21)
 - [x] **Phase 11: Changelog & Build** - Write CHANGELOG [0.2.0] entry, clear [Unreleased], rebuild hooks/dist/, validate full test suite (completed 2026-02-21)
 - [x] **Phase 12: Version & Publish** - Bump version to 0.2.0, archive v0.2 milestone, create git tag v0.2.0, publish qgsd@0.2.0 to npm (RLS-04 npm publish deferred)
+- [x] **Phase 13: Circuit Breaker Oscillation Resolution Mode** - When the circuit breaker fires, Claude enters structured resolution mode with commit graph, quorum diagnosis, and unified solution approval
+- [ ] **Phase 14: Activity Tracking** - `.planning/current-activity.json` sidecar tracks current workflow state for granular resume-work recovery across all QGSD workflow stages
 
 ## Phase Details
 
@@ -229,6 +231,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 11. Changelog & Build | 2/2 | Complete | 2026-02-21 |
 | 12. Version & Publish | 2/2 | Complete (RLS-04 deferred) | 2026-02-21 |
 | 13. Circuit Breaker Oscillation Resolution Mode | 2/2 | Complete    | 2026-02-21 |
+| 14. Activity Tracking | 0/4 | Planned | — |
 
 ### Phase 13: Circuit Breaker Oscillation Resolution Mode
 
@@ -240,3 +243,16 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 Plans:
 - [x] 13-01-PLAN.md — Update CLAUDE.md R5 to oscillation resolution mode + create get-shit-done/workflows/oscillation-resolution-mode.md
 - [ ] 13-02-PLAN.md — Enhance buildBlockReason() in circuit-breaker hook with commit graph + R5 reference + tests
+
+### Phase 14: Activity Tracking
+
+**Goal:** Every QGSD workflow writes its current state to `.planning/current-activity.json` at each transition point so that resume-work can recover to the exact sub-step interrupted — not just the last committed plan.
+**Depends on:** Phase 13
+**Requirements:** ACT-01, ACT-02, ACT-03, ACT-04, ACT-05, ACT-06, ACT-07
+**Plans:** 4 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — gsd-tools.cjs activity-set/clear/get CLI + schema validation + unit tests (TDD)
+- [ ] 14-02-PLAN.md — execute-phase workflow: activity injection at executing_plan, checkpoint_verify, debug_loop, awaiting_human_verify, verifying_phase, and clear on completion
+- [ ] 14-03-PLAN.md — plan-phase + quick + oscillation-resolution workflows: activity injection at all stage boundaries
+- [ ] 14-04-PLAN.md — resume-project: read activity-get, display interrupted state, route to exact recovery command
