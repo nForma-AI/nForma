@@ -125,7 +125,11 @@ Plans:
   2. The block reason message names the oscillating file set, confirms the breaker is active, lists the operations Claude is allowed to perform (read-only Bash), instructs Claude to perform root cause analysis and dependency mapping before resuming, and explicitly tells the user to manually commit the fix (since Claude cannot run git commit while blocked)
   3. A user can set `circuit_breaker.oscillation_depth` and `circuit_breaker.commit_window` in qgsd.json and the hook uses those values; invalid values fall back to defaults (3 and 6 respectively) with a stderr warning
   4. A per-project `.claude/qgsd.json` `circuit_breaker` block overrides the global config using the same two-layer merge already in place for existing config keys
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — config-loader TDD: circuit_breaker sub-object in DEFAULT_CONFIG + validateConfig() with TC-CB1 through TC-CB7
+- [ ] 07-02-PLAN.md — Hook enforcement TDD: blocking output (hookSpecificOutput.permissionDecision:deny) + config-driven thresholds, CB-TC7 update + CB-TC16 through CB-TC19
 
 ### Phase 8: Installer Integration
 **Goal**: Running `npx qgsd@latest` registers the circuit breaker PreToolUse hook and writes a default circuit_breaker config block — idempotently, without overwriting user-modified values
@@ -153,5 +157,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 4. Narrow Quorum Scope | 2/2 | Complete | 2026-02-21 |
 | 5. Fix GUARD 5 Delivery Gaps | 0/1 | Not started | - |
 | 6. Circuit Breaker Detection & State | 0/1 | Not started | - |
-| 7. Enforcement & Config Integration | 0/TBD | Not started | - |
+| 7. Enforcement & Config Integration | 0/2 | Not started | - |
 | 8. Installer Integration | 0/TBD | Not started | - |
