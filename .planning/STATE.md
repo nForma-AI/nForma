@@ -119,6 +119,7 @@ Recent decisions affecting current work:
 | 4 | Quorum agent scoring: track initial votes vs final consensus (TP/TN/FP/FN + improvement rates) | 2026-02-21 | 177c2c1 | Verified | [4-quorum-agent-scoring-track-initial-votes](./quick/4-quorum-agent-scoring-track-initial-votes/) |
 | 5 | qgsd:quorum-test pre-flight validation — validate artifact collection before running tests | 2026-02-21 | 072c755 | Verified | [5-an-qgsd-quorum-test-should-probably-firs](./quick/5-an-qgsd-quorum-test-should-probably-firs/) |
 | 6 | Build checkpoint:verify flow into qgsd:execute-phase with debug loop and escalation | 2026-02-21 | 8b4d4ad | Verified | [6-build-checkpoint-verify-flow-into-qgsd-e](./quick/6-build-checkpoint-verify-flow-into-qgsd-e/) |
+| 7 | Update docs/USER-GUIDE.md Execution Wave Coordination diagram with checkpoint:verify pipeline | 2026-02-21 | 6cffc3f | Verified | [7-update-docs-user-guide-md-with-checkpoin](./quick/7-update-docs-user-guide-md-with-checkpoin/) |
 
 ### Blockers/Concerns
 
@@ -129,5 +130,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Phase 6 complete (1a0527b). Phase 7 next — research PreToolUse blocking format before planning.
+Stopped at: Quick task 7 complete — USER-GUIDE.md Execution Wave Coordination diagram updated with checkpoint:verify pipeline (6cffc3f).
 Resume file: N/A
