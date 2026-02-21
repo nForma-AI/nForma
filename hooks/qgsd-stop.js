@@ -253,6 +253,7 @@ function deriveMissingToolName(modelKey, modelDef) {
   if (modelKey === 'codex') return prefix + 'review';
   if (modelKey === 'gemini') return prefix + 'gemini';
   if (modelKey === 'opencode') return prefix + 'opencode';
+  if (modelKey === 'copilot') return prefix + 'ask';
   return prefix + modelKey;
 }
 
