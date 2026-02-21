@@ -198,6 +198,7 @@ Recent decisions affecting current work:
 | 29 | Make executor auto-proceed with CI failures revealed by a masking fix (SCOPE BOUNDARY exception) | 2026-02-21 | 1c12561 | Complete | [29-make-executor-auto-proceed-with-ci-failu](./quick/29-make-executor-auto-proceed-with-ci-failu/) |
 | 30 | fix execute-phase orchestrator CI failure gate: auto-spawn quick task when executor SUMMARY.md has diagnosed root causes | 2026-02-21 | f13a22d | Complete | [30-fix-execute-phase-orchestrator-ci-failur](.planning/quick/30-fix-execute-phase-orchestrator-ci-failur/) |
 | 31 | Tighten execute-phase auto-spawn resume: replace vague resume line with post-fix verification block (cap: 1 retry) | 2026-02-21 | 845e627 | Complete | [31-tighten-execute-phase-auto-spawn-resume-](./quick/31-tighten-execute-phase-auto-spawn-resume-/) |
+| 33 | Make workflow.auto_advance default to true — YOLO on by default without explicit config entry | 2026-02-21 | 3a64716 | Complete | [33-make-workflow-auto-advance-default-to-tr](./quick/33-make-workflow-auto-advance-default-to-tr/) |
 
 ### Blockers/Concerns
 
@@ -208,5 +209,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: quick-31 complete — replaced vague resume line with post-fix verification block (cap: 1 retry) in execute-phase auto-spawn mechanism (source + installed)
+Stopped at: quick-33 complete — set workflow.auto_advance default to true in loadConfig, all 4 shell fallbacks, transition.md, and config template (source + installed)
 Resume file: None
