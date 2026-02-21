@@ -118,6 +118,7 @@ Recent decisions affecting current work:
 | 4 | Quorum agent scoring: TP/TN/FP/FN schema, weighted scoreboard per model | 2026-02-21 | b075c01 | Verified | [4-quorum-agent-scoring-track-initial-votes](./quick/4-quorum-agent-scoring-track-initial-votes/) |
 | 4 | Quorum agent scoring: track initial votes vs final consensus (TP/TN/FP/FN + improvement rates) | 2026-02-21 | 177c2c1 | Verified | [4-quorum-agent-scoring-track-initial-votes](./quick/4-quorum-agent-scoring-track-initial-votes/) |
 | 5 | qgsd:quorum-test pre-flight validation — validate artifact collection before running tests | 2026-02-21 | 072c755 | Verified | [5-an-qgsd-quorum-test-should-probably-firs](./quick/5-an-qgsd-quorum-test-should-probably-firs/) |
+| 6 | Build checkpoint:verify flow into qgsd:execute-phase with debug loop and escalation | 2026-02-21 | 8b4d4ad | Verified | [6-build-checkpoint-verify-flow-into-qgsd-e](./quick/6-build-checkpoint-verify-flow-into-qgsd-e/) |
 
 ### Blockers/Concerns
 
@@ -128,5 +129,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Quick task 4 complete — R8 agent score tracking added to CLAUDE.md; quorum-scoreboard.md created with cumulative scores and backfilled round data from QT2/QT4/QT5.
+Stopped at: Quick task 6 complete — checkpoint:verify flow built into qgsd:execute-phase; CLAUDE.md R1 definitions extended with checkpoint:verify and checkpoint:human-verify.
 Resume file: N/A
