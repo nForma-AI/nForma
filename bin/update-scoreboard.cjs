@@ -11,7 +11,8 @@
  * Usage:
  *   node bin/update-scoreboard.cjs \
  *     --model <name> --result <code> --task <label> --round <n> --verdict <v> \
- *     [--scoreboard <path>]
+ *     [--scoreboard <path>] [--category <cat>] [--subcategory <subcat>] \
+ *     [--task-description <text>]
  */
 
 const fs = require('fs');
@@ -58,12 +59,15 @@ function parseArgs(argv) {
 // Usage / validation
 // ---------------------------------------------------------------------------
 
-const USAGE = `Usage: node bin/update-scoreboard.cjs --model <name> --result <code> --task <label> --round <n> --verdict <v> [--scoreboard <path>]
-  --model     claude | gemini | opencode | copilot | codex
-  --result    TP | TN | FP | FN | TP+ | UNAVAIL | (empty for not scored)
-  --task      task label, e.g. "quick-25"
-  --round     round number (integer)
-  --verdict   APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND | —`;
+const USAGE = `Usage: node bin/update-scoreboard.cjs --model <name> --result <code> --task <label> --round <n> --verdict <v> [--scoreboard <path>] [--category <cat>] [--subcategory <subcat>] [--task-description <text>]
+  --model             claude | gemini | opencode | copilot | codex
+  --result            TP | TN | FP | FN | TP+ | UNAVAIL | (empty for not scored)
+  --task              task label, e.g. "quick-25"
+  --round             round number (integer)
+  --verdict           APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND | —
+  --category          (optional) explicit parent category name
+  --subcategory       (optional) explicit subcategory name
+  --task-description  (optional) debate question/topic text; used by Haiku auto-classification when --category/--subcategory omitted`;
 
 function validate(args) {
   const errors = [];
@@ -95,12 +99,15 @@ function validate(args) {
   }
 
   return {
-    model:      args.model,
-    result:     result,
-    task:       args.task,
-    round:      roundNum,
-    verdict:    args.verdict,
-    scoreboard: args.scoreboard || '.planning/quorum-scoreboard.json',
+    model:           args.model,
+    result:          result,
+    task:            args.task,
+    round:           roundNum,
+    verdict:         args.verdict,
+    scoreboard:      args.scoreboard || '.planning/quorum-scoreboard.json',
+    category:        args.category        || null,
+    subcategory:     args.subcategory     || null,
+    taskDescription: args['task-description'] || null,
   };
 }
 
@@ -121,6 +128,7 @@ function emptyData() {
       copilot:  emptyModelStats(),
       codex:    emptyModelStats(),
     },
+    categories: {},
     rounds: [],
   };
 }
@@ -132,7 +140,12 @@ function loadData(scoreboard) {
   }
   try {
     const raw = fs.readFileSync(absPath, 'utf8');
-    return JSON.parse(raw);
+    const data = JSON.parse(raw);
+    // Backward compat: ensure categories exists
+    if (!data.categories) {
+      data.categories = {};
+    }
+    return data;
   } catch (e) {
     process.stderr.write(`[update-scoreboard] WARNING: could not parse ${absPath}: ${e.message}\n`);
     return emptyData();
@@ -189,10 +202,68 @@ function todayMMDD() {
 }
 
 // ---------------------------------------------------------------------------
+// Haiku auto-classification
+// ---------------------------------------------------------------------------
+
+/**
+ * Attempt to classify a task description using claude-haiku-4-5-20251001.
+ * Returns { category, subcategory, is_new } or null on any failure (fail-open).
+ */
+async function classifyWithHaiku(taskDescription, categories) {
+  // SDK availability guard
+  let Anthropic;
+  try {
+    require.resolve('@anthropic-ai/sdk');
+    Anthropic = require('@anthropic-ai/sdk');
+  } catch (_) {
+    return null; // SDK not installed — skip silently
+  }
+
+  try {
+    // Build formatted taxonomy list for prompt
+    const taxonomyLines = Object.entries(categories).map(([cat, subs]) => {
+      const subsStr = subs.map(s => `    - ${s}`).join('\n');
+      return `  ${cat}:\n${subsStr}`;
+    }).join('\n');
+
+    const prompt = `You are classifying a quorum debate topic into a category taxonomy.
+
+Debate topic: ${taskDescription}
+
+Taxonomy:
+${taxonomyLines}
+
+Return ONLY valid JSON (no markdown, no explanation):
+{"category": "<parent category name>", "subcategory": "<subcategory name>", "is_new": false}
+
+If the topic does not match any existing category or subcategory well, propose new names:
+{"category": "<new parent name>", "subcategory": "<new subcategory name>", "is_new": true}
+
+Choose the single best match. Return nothing except the JSON object.`;
+
+    const client = new Anthropic.default({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 128,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const text = message.content[0].text.trim();
+    const result = JSON.parse(text);
+    if (typeof result.category !== 'string' || typeof result.subcategory !== 'string') {
+      return null;
+    }
+    return result;
+  } catch (_) {
+    return null; // any error — fail-open
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
-function main() {
+async function main() {
   const rawArgs = process.argv.slice(2);
   const parsed  = parseArgs(rawArgs);
   const cfg     = validate(parsed);
@@ -202,6 +273,37 @@ function main() {
   // Ensure all model keys exist
   for (const model of VALID_MODELS) {
     if (!data.models[model]) data.models[model] = emptyModelStats();
+  }
+
+  // Resolve category/subcategory
+  let resolvedCategory    = cfg.category;
+  let resolvedSubcategory = cfg.subcategory;
+
+  if (!resolvedCategory && !resolvedSubcategory && cfg.taskDescription) {
+    // Auto-classify via Haiku
+    const classification = await classifyWithHaiku(cfg.taskDescription, data.categories);
+    if (classification) {
+      resolvedCategory    = classification.category;
+      resolvedSubcategory = classification.subcategory;
+
+      if (classification.is_new) {
+        // Add new category/subcategory dynamically
+        if (!data.categories[resolvedCategory]) {
+          data.categories[resolvedCategory] = [];
+        }
+        if (!data.categories[resolvedCategory].includes(resolvedSubcategory)) {
+          data.categories[resolvedCategory].push(resolvedSubcategory);
+        }
+      } else {
+        // Existing category — if subcategory is a variant not yet listed, append it
+        if (data.categories[resolvedCategory] && !data.categories[resolvedCategory].includes(resolvedSubcategory)) {
+          data.categories[resolvedCategory].push(resolvedSubcategory);
+        }
+      }
+    }
+  } else if (resolvedCategory && resolvedSubcategory) {
+    // Explicit flags provided — no Haiku needed
+    // (categories map is not modified for explicit flags)
   }
 
   // Find existing round entry matching task + round number
@@ -215,15 +317,25 @@ function main() {
     data.rounds[existingIdx].votes[cfg.model] = cfg.result;
     // Allow verdict update too
     data.rounds[existingIdx].verdict = cfg.verdict;
+    // Set category if resolved
+    if (resolvedCategory && resolvedSubcategory) {
+      data.rounds[existingIdx].category    = resolvedCategory;
+      data.rounds[existingIdx].subcategory = resolvedSubcategory;
+    }
   } else {
     // Append new round entry
-    data.rounds.push({
+    const newEntry = {
       date:    todayMMDD(),
       task:    cfg.task,
       round:   cfg.round,
       votes:   { [cfg.model]: cfg.result },
       verdict: cfg.verdict,
-    });
+    };
+    if (resolvedCategory && resolvedSubcategory) {
+      newEntry.category    = resolvedCategory;
+      newEntry.subcategory = resolvedSubcategory;
+    }
+    data.rounds.push(newEntry);
   }
 
   // Recompute all cumulative stats from scratch
@@ -239,9 +351,14 @@ function main() {
   const sign     = delta >= 0 ? '+' : '';
   const newScore = data.models[cfg.model].score;
   const deltaStr = cfg.result === '' ? '(not scored)' : `${cfg.result} (${sign}${delta})`;
-  process.stdout.write(
-    `[update-scoreboard] ${cfg.model}: ${deltaStr} → score: ${newScore} | ${cfg.task} R${cfg.round} ${cfg.verdict}\n`
-  );
+  let confirmation = `[update-scoreboard] ${cfg.model}: ${deltaStr} → score: ${newScore} | ${cfg.task} R${cfg.round} ${cfg.verdict}`;
+  if (resolvedCategory && resolvedSubcategory) {
+    confirmation += ` | category: ${resolvedCategory} > ${resolvedSubcategory}`;
+  }
+  process.stdout.write(confirmation + '\n');
 }
 
-main();
+main().catch(err => {
+  process.stderr.write(`[update-scoreboard] FATAL: ${err.message}\n`);
+  process.exit(1);
+});
