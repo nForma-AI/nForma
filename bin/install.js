@@ -139,8 +139,9 @@ const banner = '\n' +
   salmon + '  ╚══▀▀═╝ ' + cyan + ' ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
   '\n' +
   '  Quorum Gets Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
-  '  A meta-prompting, context engineering and spec-driven\n' +
-  '  development system for Claude Code, OpenCode, and Gemini by TÂCHES.\n';
+  '  Inspired by Get Shit Done by TÂCHES — extended with a quorum of\n' +
+  '  independent agents (Codex, Gemini, OpenCode, Copilot) for deeper,\n' +
+  '  more resilient planning and decision loops.\n';
 
 // QGSD: MCP auto-detection — keyword map for quorum model server matching
 const QGSD_KEYWORD_MAP = {
