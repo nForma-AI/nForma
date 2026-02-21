@@ -133,7 +133,7 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
                      └── Human confirms before continuing
 ```
 
-### Circuit Breaker & Oscillation Resolution
+### Ping-Pong Commit Loop Breaker
 
 ```
   CIRCUIT BREAKER ACTIVE (PreToolUse deny)

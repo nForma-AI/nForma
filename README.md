@@ -478,6 +478,60 @@ The orchestrator never does heavy lifting. It spawns agents, waits, integrates r
 
 **The result:** You can run an entire phase — deep research, multiple plans created and verified, thousands of lines of code written across parallel executors, automated verification against goals — and your main context window stays at 30-40%. The work happens in fresh subagent contexts. Your session stays fast and responsive.
 
+### Ping-Pong Commit Loop Breaker
+
+**The problem no one talks about:** AI agents get stuck in ping-pong commit loops.
+
+Not randomly. In a specific, predictable way. A bug exists at the boundary between two components — a contract mismatch, a shared assumption that's subtly wrong. The agent fixes the symptom in file A. That shifts the pressure to file B. The agent fixes file B. That breaks file A again. Repeat.
+
+Each individual fix is locally correct. The agent is reasoning well about the immediate problem. But it's applying a **local fix to a global problem** — and no amount of trying harder at the local level solves a structural coupling issue.
+
+```text
+Agent fixes file A  →  File B breaks  →  Agent fixes file B  →  File A breaks
+       ↑                                                               |
+       └───────────────────────────────────────────────────────────────┘
+                        The loop runs indefinitely
+```
+
+This isn't a hypothetical. It happens in production. It wastes hours. And it leaves your git history looking like:
+
+```text
+fix: correct auth token handling        ← file A
+fix: fix session expiry logic           ← file B
+fix: auth token was wrong               ← file A again
+fix: session expiry broke again         ← file B again
+```
+
+**What QGSD does about it:**
+
+QGSD's circuit breaker watches your git history for exactly this pattern. It collapses consecutive commits on the same file set into run-groups, then flags when the same file set alternates across 3+ run-groups. That's the structural signal: not "these files changed a lot," but "these files are ping-ponging."
+
+When the pattern is detected, a Haiku reviewer first checks whether this is genuine oscillation or normal iterative refinement (polishing the same files toward a clear goal). If it's genuine, the circuit breaker fires.
+
+**When the breaker fires:**
+
+All write commands are blocked. Read-only commands (git log, diff, grep) remain available. The system doesn't just stop — it activates **Oscillation Resolution Mode**:
+
+1. **Build the commit graph** — Makes the A→B→A→B ping-pong visually obvious
+2. **Quorum diagnosis** — Every available model diagnoses the *structural coupling* causing both sides to oscillate — not the surface symptom
+3. **Unified solution required** — Partial or incremental fixes are explicitly rejected. The quorum must propose a single change that resolves both sides simultaneously
+4. **User approval gate** — No code runs until you approve the plan *and* run `npx qgsd --reset-breaker`
+
+The key constraint in the resolution prompt: *"Diagnose the structural coupling — not the surface symptoms. Propose a unified solution. Partial fixes are not acceptable."*
+
+This is the difference between a local fix and a global fix. A local fix patches the symptom. A global fix identifies why the two components are structurally coupled in a way that makes each fix shift the problem elsewhere — then eliminates the coupling.
+
+```bash
+# After approving the unified fix and committing it:
+npx qgsd --reset-breaker
+
+# For deliberate iterative work (temporary):
+npx qgsd --disable-breaker
+npx qgsd --enable-breaker
+```
+
+---
+
 ### Atomic Git Commits
 
 Each task gets its own commit immediately after completion:
