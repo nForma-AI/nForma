@@ -244,6 +244,30 @@ Offer: 1) Force proceed, 2) Abort
 
 ---
 
+**Step 5.7: Quorum review of plan (required by R3.1)**
+
+This step is MANDATORY regardless of `--full` mode. R3.1 requires quorum for any planning output from `/qgsd:quick`.
+
+Form your own position on the plan first: does it correctly address the task description? Are tasks atomic and safe?
+
+Then query each available quorum model **sequentially** (separate tool calls per R3.2 — never sibling calls):
+
+```
+Plan for quick task ${next_num}: ${DESCRIPTION}
+
+[Paste full plan content from ${QUICK_DIR}/${next_num}-PLAN.md]
+
+Review this plan. Is it correct, safe to execute, and well-scoped?
+Vote APPROVE or BLOCK with 1-2 sentence rationale.
+```
+
+Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.
+
+**On APPROVE consensus:** Include `<!-- GSD_DECISION -->` in your response summarizing quorum results, then proceed to Step 6.
+**On BLOCK:** Report the blocker to the user. Do not execute.
+
+---
+
 **Step 6: Spawn executor**
 
 Spawn qgsd-executor with plan reference:
