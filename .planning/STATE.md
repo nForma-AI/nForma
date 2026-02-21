@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-21 after Phase 5 and v0.2 milestone s
 
 ## Current Position
 
-Phase: 7 of 8 (Enforcement & Config Integration) — v0.2 milestone
-Plan: 2 of 2 in current phase (COMPLETE)
-Status: Phase 7 complete 2026-02-21
-Last activity: 2026-02-21 - Completed quick task 11: Change GSD ASCII art to QGSD with Q in a contrasting color to blue
+Phase: 8 of 8 (Installer Integration) — v0.2 milestone
+Plan: 1 of 1 in current phase (COMPLETE)
+Status: Phase 8 complete 2026-02-21 — v0.2 milestone complete
+Last activity: 2026-02-21 - Completed quick task 10: review all docs for QGSD framework sync — add /qgsd:quorum-test to tables, fix GSD prose in README + CHANGELOG
 
-Progress: [█████████████████████░░░░░░░░░░░] 75% (Phases 1–7 complete, Phase 8 remaining)
+Progress: [█████████████████████████████████] 100% (All phases complete — v0.2 milestone done)
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [█████████████████████░░
 | Phase 04-narrow-quorum-scope P02 | 1 min | 1 task | 1 file |
 | Phase 07-enforcement-config-integration P01 | 8 min | 2 tasks (TDD) | 2 files |
 | Phase 07-enforcement-config-integration P02 | 10 min | 2 tasks (TDD) | 2 files |
+| Phase 08-installer-integration P01 | 2 | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,9 @@ Recent decisions affecting current work:
 - [v0.2 roadmap revision]: RECV-01 moved from Future to Phase 8 — deadlock fix; npx qgsd --reset-breaker clears state file; consensus Gemini+OpenCode+Copilot. DETECT-03 clarified to strict set equality (not intersection). ENFC-03 updated to explicitly instruct user to manually commit the fix.
 - [quick-4 scoring]: CLAUDE.md gitignored by project design — R8 rule applied to disk only, no git commit (matches quick-2/R3.6 precedent); scoreboard at .planning/quorum-scoreboard.md committed separately
 - [quick-4 scoring]: Improvement Accepted rows recorded as separate round log entries (not merged with TP row) to allow independent point visibility per round
+- [Phase 08-installer-integration]: --reset-breaker uses process.cwd() for state file path (project-relative, not global dir)
+- [Phase 08-installer-integration]: PreToolUse registration inside !isOpencode guard — circuit breaker is Claude Code-only in v0.2; timeout:10 (lighter than Stop hook's 30)
+- [Phase 08-installer-integration]: Reinstall backfill checks only top-level circuit_breaker key presence — user-modified sub-keys never touched
 
 ### Roadmap Evolution
 
@@ -141,5 +145,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Quick task 10 complete — added /qgsd:quorum-test to command tables, fixed GSD prose in README.md + CHANGELOG.md (4066bb4).
+Stopped at: Completed 08-01-PLAN.md — Phase 8 and v0.2 milestone complete (29d4b2e).
 Resume file: N/A
