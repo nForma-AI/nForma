@@ -1,6 +1,6 @@
 ---
 created: 2026-02-20T19:26:27.611Z
-title: Add gsd:quorum command for consensus answers
+title: Add qgsd:quorum command for consensus answers
 area: planning
 files: []
 ---
@@ -13,7 +13,7 @@ Currently, quorum is only invoked internally by CLAUDE.md rules (R3) during spec
 
 ## Solution
 
-Create `/gsd:quorum` command with two modes based on the input context:
+Create `/qgsd:quorum` command with two modes based on the input context:
 
 ### Mode A — Pure Question (no commands required)
 1. Takes a question/prompt as input

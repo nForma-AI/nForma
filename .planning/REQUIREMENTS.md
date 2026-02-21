@@ -16,7 +16,7 @@ All features are v1. No deferral.
 - [x] **STOP-05**: Stop hook reads transcript JSONL as the authoritative source of quorum evidence — no fast-path pre-check (design decision: last_assistant_message substring matching is not a reliable signal; JSONL parse is synchronous and correct for all transcript sizes)
 - [x] **STOP-06**: Stop hook verifies quorum only when a configured planning command was issued in the current turn (scope filtering)
 - [x] **STOP-07**: Stop hook blocks with `{"decision": "block", "reason": "..."}` when quorum is missing — reason includes exact tool names and instructions
-- [x] **STOP-08**: Block reason message format: "QUORUM REQUIRED: Before completing this /gsd:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output."
+- [x] **STOP-08**: Block reason message format: "QUORUM REQUIRED: Before completing this /qgsd:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output."
 - [x] **STOP-09**: Stop hook passes (exits 0, no decision field) when quorum evidence found or no planning command in scope
 
 ### UserPromptSubmit Hook — Proactive Injection

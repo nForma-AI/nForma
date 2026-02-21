@@ -82,7 +82,7 @@ The GSD codebase already has hooks infrastructure (see `hooks/` directory). QGSD
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | A+C: UserPromptSubmit injection + Stop hook gate | Three-model quorum (Claude + Codex + OpenCode) reached consensus; Option B (direct CLI calls) is fragile and maintenance-heavy | Implemented — Phase 1 |
-| High-stakes commands as default scope | All /gsd:* is too broad (execute-phase doesn't need quorum); user-configurable override future-proofs against GSD command evolution | Implemented — Phase 1 (6-command allowlist) |
+| High-stakes commands as default scope | All /qgsd:* is too broad (execute-phase doesn't need quorum); user-configurable override future-proofs against GSD command evolution | Implemented — Phase 1 (6-command allowlist) |
 | Fail-open | Matches CLAUDE.md R6 behavior; prevents blocking work when models have quota issues | Implemented — Phase 1 (loadConfig fallback, fail_mode: "open") |
 | Plugin extension, not fork | No trade-offs vs fork — hooks are additive; GSD updates don't require QGSD changes | Confirmed — Phase 1 (zero GSD source modifications) |
 | Global install | Matches GSD's default behavior; quorum should apply everywhere, not require per-project opt-in | Implemented — Phase 1 (hooks in ~/.claude/, config in ~/.claude/qgsd.json) |
