@@ -1,0 +1,322 @@
+#!/usr/bin/env node
+'use strict';
+// Test suite for bin/update-scoreboard.cjs
+// Uses Node.js built-in test runner: node --test bin/update-scoreboard.test.cjs
+//
+// Tests spawn the CLI as a subprocess to avoid process.exit() contaminating the runner.
+
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { spawnSync } = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
+const SCOREBOARD_PATH = path.join(__dirname, '..', 'bin', 'update-scoreboard.cjs');
+
+// Helper: spawn the update-scoreboard CLI with given args
+function runCLI(args, extraEnv) {
+  const result = spawnSync('node', [SCOREBOARD_PATH, ...args], {
+    encoding: 'utf8',
+    timeout: 5000,
+    env: extraEnv ? { ...process.env, ...extraEnv } : process.env,
+  });
+  return {
+    stdout: result.stdout || '',
+    stderr: result.stderr || '',
+    exitCode: result.status,
+  };
+}
+
+// Helper: generate a unique temp scoreboard path
+function tmpScoreboard() {
+  return path.join(os.tmpdir(), 'qgsd-sb-test-' + Date.now() + '-' + Math.random().toString(36).slice(2) + '.json');
+}
+
+// Helper: safe cleanup — wraps unlinkSync in try/catch
+function cleanup(filePath) {
+  try { fs.unlinkSync(filePath); } catch (_) {}
+}
+
+// SC-TC1: missing required args → exits 1 and writes USAGE to stderr
+test('SC-TC1: missing required args exits 1 with --model is required in stderr', () => {
+  const { stderr, exitCode } = runCLI([]);
+  assert.strictEqual(exitCode, 1, 'exit code must be 1 for missing args');
+  assert.ok(stderr.includes('--model is required'), 'stderr must include "--model is required"');
+});
+
+// SC-TC2: valid round vote creates scoreboard file and prints confirmation
+test('SC-TC2: valid round vote creates scoreboard file and prints confirmation', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { stdout, exitCode } = runCLI([
+      '--model', 'claude',
+      '--result', 'TP',
+      '--task', 'quick-53',
+      '--round', '1',
+      '--verdict', 'APPROVE',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 for valid vote');
+    assert.ok(fs.existsSync(sb), 'scoreboard file must be created');
+    assert.ok(stdout.includes('[update-scoreboard]'), 'stdout must contain [update-scoreboard] prefix');
+    assert.ok(stdout.includes('claude'), 'stdout must mention the model name');
+    assert.ok(stdout.includes('TP'), 'stdout must mention the result code');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC3: TP result increments score by +1
+test('SC-TC3: TP result increments score by +1', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { stdout, exitCode } = runCLI([
+      '--model', 'claude',
+      '--result', 'TP',
+      '--task', 'quick-53',
+      '--round', '1',
+      '--verdict', 'APPROVE',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.ok(stdout.includes('score: 1'), 'stdout must show score: 1 after TP (+1)');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC4: TN result increments score by +5
+test('SC-TC4: TN result increments score by +5', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { stdout, exitCode } = runCLI([
+      '--model', 'gemini',
+      '--result', 'TN',
+      '--task', 'quick-53',
+      '--round', '1',
+      '--verdict', 'APPROVE',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.ok(stdout.includes('score: 5'), 'stdout must show score: 5 after TN (+5)');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC5: FP result decrements score by -3
+test('SC-TC5: FP result decrements score by -3', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { stdout, exitCode } = runCLI([
+      '--model', 'claude',
+      '--result', 'FP',
+      '--task', 'quick-53',
+      '--round', '1',
+      '--verdict', 'BLOCK',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.ok(stdout.includes('score: -3'), 'stdout must show score: -3 after FP (-3)');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC6: FN result decrements score by -1
+test('SC-TC6: FN result decrements score by -1', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { stdout, exitCode } = runCLI([
+      '--model', 'claude',
+      '--result', 'FN',
+      '--task', 'quick-53',
+      '--round', '1',
+      '--verdict', 'BLOCK',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.ok(stdout.includes('score: -1'), 'stdout must show score: -1 after FN (-1)');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC7: TP+ result increments score by +3
+test('SC-TC7: TP+ result increments score by +3', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { stdout, exitCode } = runCLI([
+      '--model', 'claude',
+      '--result', 'TP+',
+      '--task', 'quick-53',
+      '--round', '1',
+      '--verdict', 'APPROVE',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.ok(stdout.includes('score: 3'), 'stdout must show score: 3 after TP+ (+3)');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC8: second vote on same task+round updates existing entry (no duplicate round)
+test('SC-TC8: second vote on same task+round updates existing entry (data.rounds.length === 1)', () => {
+  const sb = tmpScoreboard();
+  try {
+    // First vote: claude on round 1
+    runCLI(['--model', 'claude', '--result', 'TP', '--task', 'quick-53', '--round', '1', '--verdict', 'APPROVE', '--scoreboard', sb]);
+    // Second vote: gemini on same task+round
+    runCLI(['--model', 'gemini', '--result', 'TN', '--task', 'quick-53', '--round', '1', '--verdict', 'APPROVE', '--scoreboard', sb]);
+
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    assert.strictEqual(data.rounds.length, 1, 'rounds must have exactly 1 entry (no duplicate for same round)');
+    // Both models should appear in the single round's votes
+    assert.ok(data.rounds[0].votes.claude, 'claude vote must be in the round');
+    assert.ok(data.rounds[0].votes.gemini, 'gemini vote must be in the round');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC9: second vote on different round appends new entry
+test('SC-TC9: second vote on different round appends new entry (data.rounds.length === 2)', () => {
+  const sb = tmpScoreboard();
+  try {
+    // Round 1 vote
+    runCLI(['--model', 'claude', '--result', 'TP', '--task', 'quick-53', '--round', '1', '--verdict', 'APPROVE', '--scoreboard', sb]);
+    // Round 2 vote (different round number)
+    runCLI(['--model', 'claude', '--result', 'TN', '--task', 'quick-53', '--round', '2', '--verdict', 'APPROVE', '--scoreboard', sb]);
+
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    assert.strictEqual(data.rounds.length, 2, 'rounds must have 2 entries for 2 different rounds');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC10: recompute stats from scratch — cumulative score reflects all rounds
+test('SC-TC10: cumulative score reflects all rounds after recompute (two TP = score 2)', () => {
+  const sb = tmpScoreboard();
+  try {
+    // First TP vote for claude on round 1
+    runCLI(['--model', 'claude', '--result', 'TP', '--task', 'quick-53', '--round', '1', '--verdict', 'APPROVE', '--scoreboard', sb]);
+    // Second TP vote for claude on round 2
+    runCLI(['--model', 'claude', '--result', 'TP', '--task', 'quick-53', '--round', '2', '--verdict', 'APPROVE', '--scoreboard', sb]);
+
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    assert.strictEqual(data.models.claude.score, 2, 'claude score must be 2 after two TP votes (+1 each)');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC11: invalid --model value → exits 1, stderr contains valid options list
+test('SC-TC11: invalid --model value exits 1', () => {
+  const { stderr, exitCode } = runCLI([
+    '--model', 'notamodel',
+    '--result', 'TP',
+    '--task', 'quick-53',
+    '--round', '1',
+    '--verdict', 'APPROVE',
+  ]);
+  assert.strictEqual(exitCode, 1, 'exit code must be 1 for invalid model');
+  assert.ok(
+    stderr.includes('--model must be one of') || stderr.includes('notamodel'),
+    'stderr must mention the invalid model constraint'
+  );
+});
+
+// SC-TC12: invalid --result value → exits 1
+test('SC-TC12: invalid --result value exits 1', () => {
+  const { stderr, exitCode } = runCLI([
+    '--model', 'claude',
+    '--result', 'BADCODE',
+    '--task', 'quick-53',
+    '--round', '1',
+    '--verdict', 'APPROVE',
+  ]);
+  assert.strictEqual(exitCode, 1, 'exit code must be 1 for invalid result code');
+  assert.ok(
+    stderr.includes('--result must be one of') || stderr.includes('BADCODE'),
+    'stderr must mention the invalid result constraint'
+  );
+});
+
+// SC-TC13: UNAVAIL result → score stays at 0 (score delta is 0), prints "UNAVAIL (0)"
+test('SC-TC13: UNAVAIL result keeps score at 0 and prints UNAVAIL (0)', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { stdout, exitCode } = runCLI([
+      '--model', 'codex',
+      '--result', 'UNAVAIL',
+      '--task', 'quick-53',
+      '--round', '1',
+      '--verdict', 'APPROVE',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 for UNAVAIL result');
+    // UNAVAIL delta is 0 — output format is "UNAVAIL (+0)" (sign is always shown)
+    assert.ok(stdout.includes('UNAVAIL (+0)'), 'stdout must include "UNAVAIL (+0)"');
+    assert.ok(stdout.includes('score: 0'), 'stdout must show score: 0 after UNAVAIL');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC14: init-team subcommand writes team fingerprint to scoreboard
+test('SC-TC14: init-team writes fingerprint to scoreboard (16-char hex string)', () => {
+  const sb = tmpScoreboard();
+  // Point to a temp ~/.claude.json substitute to avoid reading production mcpServers
+  const claudeJsonTmp = path.join(os.tmpdir(), 'qgsd-test-claude-' + Date.now() + '.json');
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers: {} }), 'utf8');
+  try {
+    const { exitCode } = runCLI(
+      [
+        'init-team',
+        '--claude-model', 'claude-opus-4-6',
+        '--team', JSON.stringify({ gemini: 'gemini-2.0' }),
+        '--scoreboard', sb,
+      ],
+      { QGSD_CLAUDE_JSON: claudeJsonTmp }
+    );
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 for init-team');
+    assert.ok(fs.existsSync(sb), 'scoreboard file must be created by init-team');
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    assert.ok(data.team, 'scoreboard must have a team field');
+    assert.ok(data.team.fingerprint, 'team must have a fingerprint field');
+    assert.match(data.team.fingerprint, /^[0-9a-f]{16}$/, 'fingerprint must be a 16-char hex string');
+  } finally {
+    cleanup(sb);
+    cleanup(claudeJsonTmp);
+  }
+});
+
+// SC-TC15: init-team idempotent — second call with same composition writes "no change"
+test('SC-TC15: init-team is idempotent — second identical call outputs "no change"', () => {
+  const sb = tmpScoreboard();
+  const claudeJsonTmp = path.join(os.tmpdir(), 'qgsd-test-claude-' + Date.now() + '.json');
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers: {} }), 'utf8');
+  const args = [
+    'init-team',
+    '--claude-model', 'claude-opus-4-6',
+    '--team', JSON.stringify({ gemini: 'gemini-2.0' }),
+    '--scoreboard', sb,
+  ];
+  const env = { QGSD_CLAUDE_JSON: claudeJsonTmp };
+  try {
+    // First call: writes the fingerprint
+    const first = runCLI(args, env);
+    assert.strictEqual(first.exitCode, 0, 'first init-team must exit 0');
+
+    // Second call with identical args: fingerprint unchanged → "no change"
+    const second = runCLI(args, env);
+    assert.strictEqual(second.exitCode, 0, 'second init-team must exit 0');
+    assert.ok(second.stdout.includes('no change'), 'second call stdout must include "no change"');
+  } finally {
+    cleanup(sb);
+    cleanup(claudeJsonTmp);
+  }
+});
