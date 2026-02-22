@@ -53,7 +53,9 @@ If `context_path` is not null, display: `Using phase context from: ${context_pat
 
 **If `context_path` is null (no CONTEXT.md exists):**
 
-Use AskUserQuestion:
+**If `--auto` flag is present:** Log `⚡ Auto-continuing without context (--auto mode)` and proceed to step 5 — no question asked.
+
+**Otherwise:** Use AskUserQuestion:
 - header: "No context"
 - question: "No CONTEXT.md found for Phase {X}. Plans will use research and requirements only — your design preferences won't be included. Continue or capture context first?"
 - options:

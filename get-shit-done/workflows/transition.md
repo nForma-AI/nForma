@@ -387,10 +387,10 @@ Phase [X] marked complete.
 
 Next: Phase [X+1] — [Name]
 
-⚡ Auto-continuing: Discuss Phase [X+1] first
+⚡ Auto-continuing: Plan Phase [X+1] directly (no context, --auto mode)
 ```
 
-Exit skill and invoke SlashCommand("/qgsd:discuss-phase [X+1] --auto")
+Exit skill and invoke SlashCommand("/qgsd:plan-phase [X+1] --auto")
 
 </if>
 
