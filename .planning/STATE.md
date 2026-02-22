@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after v0.5 roadmap creation)
+See: .planning/PROJECT.md (updated 2026-02-22 after v0.4 gap closure)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.5 MCP Setup Wizard — Phase 29 (Wizard Scaffold)
+**Current focus:** v0.4 MCP Ecosystem gap closure — Phase 30 (Fix gemini-cli Package Reference)
 
 ## Current Position
 
-Phase: 29 of 33 (Wizard Scaffold)
+Phase: 30 of 36 (Fix gemini-cli Package Reference)
 Plan: — (not yet planned)
 Status: Ready to plan
-Last activity: 2026-02-22 — Completed 29-01: restored mcp-status.md v2, marked OBS-01–04 complete
+Last activity: 2026-02-22 — Completed Phase 29: restored mcp-status.md v2, marked OBS-01–04 complete
 
-Progress: [████████████████████████░░░░] 28/33 phases (85%)
+Progress: [████████████████████████░░░░░░░░] 29/36 phases (81%)
 
 ## Performance Metrics
 
@@ -67,5 +67,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 2026-02-22 — Completed 29-01-PLAN.md (mcp-status v2 recovery + OBS checkbox cleanup)
+Stopped at: 2026-02-22 — Phase 29 complete, ready to plan Phase 30 (Fix gemini-cli Package Reference)
 Resume file: None

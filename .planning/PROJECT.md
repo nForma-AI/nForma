@@ -19,7 +19,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - Agent roster: add new claude-mcp-server instances or remove existing ones with identity verification
 - Install nudge: installer prompts `/qgsd:mcp-setup` when no agents are configured
 
-**Phase range:** 29–33
+**Phase range:** 32–36
 
 ---
 
@@ -160,4 +160,4 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | npx restart: kill npm exec parent first, then node child | npm exec parent respawns node child if only child is killed; parent kill prevents stale respawn | Phase 28 — Plan 02 |
 
 ---
-*Last updated: 2026-02-22 after Phase 28 — v0.4 MCP Ecosystem complete; v0.5 MCP Setup Wizard started*
+*Last updated: 2026-02-22 after Phase 29 — v0.4 gap closure in progress (phases 30–31 pending); v0.5 MCP Setup Wizard at phases 32–36*
