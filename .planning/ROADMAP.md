@@ -154,7 +154,10 @@
   1. All 6 repos expose an `identity` MCP tool that returns `{name, version, model, available_models, install_method}` — calling the tool via Claude returns all 5 fields with non-empty values
   2. All 6 repos have `src/constants.ts` defining at least the server name and default model constants — no magic strings for these values remain in `index.ts` or tool files
   3. All 6 repos have `src/utils/logger.ts` providing a `Logger` utility used for structured log output — direct `console.log` calls for operational output are replaced with Logger calls
-**Plans**: TBD
+**Plans**: 3 plans
+  - [ ] 25-01-PLAN.md — constants.ts for 4 Gen1-ported repos (claude, codex, copilot, openhands) + SERVER_NAME in gemini/opencode if missing (STD-08 partial) [Wave 1]
+  - [ ] 25-02-PLAN.md — logger.ts for 4 Gen1-ported repos + console.log replacement (STD-08 completion) [Wave 2]
+  - [ ] 25-03-PLAN.md — identity tool for all 6 repos: create (claude, openhands) + schema update (codex, copilot, gemini, opencode) (STD-04) [Wave 2]
 
 ### Phase 26: MCP Status Command
 **Goal**: Users can run `/qgsd:mcp-status` from any project and see a formatted table of all connected MCP agents with their name, version, model, health state, available models, and recent UNAVAIL count
@@ -217,7 +220,7 @@
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
-| 25. Identity Tool and Shared Utilities | v0.4 | 0/? | Not started | - |
+| 25. Identity Tool and Shared Utilities | v0.4 | 0/3 | Not started | - |
 | 26. MCP Status Command | v0.4 | 0/? | Not started | - |
 | 27. Model Switching | v0.4 | 0/? | Not started | - |
 | 28. Update and Restart Commands | v0.4 | 0/? | Not started | - |
