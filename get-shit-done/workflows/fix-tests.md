@@ -274,6 +274,104 @@ IF iteration_count >= ITERATION_CAP AND B == total_batches - 1:
 If no terminal condition: continue to next batch (or loop back to batch 0 if `B == total_batches - 1`).
 When looping back: increment `iteration_count` by 1 before resetting B to 0.
 
+### 6h. Group and dispatch actionable failures (CATG-03)
+
+**Skip if terminal condition fired in 6g.** Only dispatch if the loop will continue after this batch.
+
+**Collect new verdicts from this batch:**
+Identify all entries in `state.categorization_verdicts` that correspond to files in the current batch's `confirmed_failures` AND have not yet been recorded in `state.dispatched_tasks[].test_files`. These are the new verdicts eligible for dispatch.
+
+**Filter actionable categories:**
+- Actionable: `adapt`, `fixture`, `isolate`
+- Not actionable: `real-bug` (→ `state.deferred_report.real_bug`), `deferred` / context_score < 2 (already in `state.deferred_report.low_context`)
+
+For each new verdict with category == "real-bug": append `result.file` to `state.deferred_report.real_bug` (if not already present).
+
+**Grouping algorithm:**
+Group actionable verdicts by composite key:
+```
+group_key = category + "_" + error_type + "_" + directory_prefix
+```
+Where `directory_prefix` = first 2 path segments of `verdict.file`
+(e.g., file "src/auth/user.test.js" → directory_prefix = "src/auth")
+
+For each group, collect all verdict files with that group_key.
+
+**Chunking (max 20 per task):**
+For each group, split files into chunks of at most 20.
+If a group has N chunks (N > 1), number them: batch 1/N, batch 2/N, etc.
+
+**Deduplication check:**
+Before dispatching a chunk, check `state.dispatched_tasks` for an entry with the same `category`, `error_type`, `directory`, and `test_files` list. If found: skip (already dispatched, likely a resume).
+
+**For each chunk: save state record THEN dispatch Task:**
+
+1. Build task description:
+```
+Fix {count} {category} test failures in {directory_prefix} — {error_type}{chunk_suffix}
+
+Test files:
+- {file1} (reason: {verdict1.reason})
+- {file2} (reason: {verdict2.reason})
+[...up to 20 files]
+
+Category: {category}
+Error pattern: {error_type}
+{if category == "adapt" AND pickaxe_context.commits is non-empty:
+"Git context (recent commits touching code under test):
+{pickaxe_context.commits[0]}
+{pickaxe_context.commits[1] if exists}"}
+```
+Where `{chunk_suffix}` = "" if only 1 chunk, or " (batch {n}/{total})" if multiple chunks.
+
+2. Build dispatched_task record:
+```json
+{
+  "task_id": "<ISO timestamp + chunk index>",
+  "category": "<category>",
+  "error_type": "<error_type>",
+  "directory": "<directory_prefix>",
+  "test_count": "<chunk file count>",
+  "test_files": ["<file1>", "<file2>", "..."],
+  "dispatched_at": "<ISO timestamp>"
+}
+```
+
+3. Save state with this record appended to `dispatched_tasks` BEFORE spawning the Task:
+```bash
+node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs maintain-tests save-state \
+  --state-json '<state with new dispatched_task appended>'
+```
+
+4. Spawn the /qgsd:quick Task agent:
+```
+Task(
+  prompt="First, read ~/.claude/agents/qgsd-planner.md for your role and instructions.
+
+<planning_context>
+Mode: quick
+Description: {task_description}
+
+<files_to_read>
+- .planning/STATE.md
+- ./CLAUDE.md (if exists)
+</files_to_read>
+</planning_context>
+",
+  subagent_type="qgsd-planner",
+  description="Fix {category}/{error_type}: {directory_prefix}{chunk_suffix}"
+)
+```
+
+Print after each dispatch: `QGSD fix-tests: Dispatched task — {category}/{error_type} in {directory_prefix} ({test_count} tests)`
+
+**Print dispatch summary after all chunks dispatched:**
+```
+QGSD fix-tests: Batch {B+1} dispatch complete — {N} tasks dispatched, {M} real-bug failures deferred
+```
+
+After 6h, proceed to next batch or loop termination.
+
 ## Step 7: Re-enable Circuit Breaker
 
 ```bash
@@ -314,6 +412,26 @@ node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs activity-clear
 
  State saved to:  .planning/maintain-tests-state.json
  Dispatched:      {len(dispatched_tasks)} quick tasks
+
+{if state.deferred_report.real_bug is non-empty OR state.deferred_report.low_context is non-empty:}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► FIX-TESTS: Deferred Failures (Action Required)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Real bugs (requires developer judgment):
+{for each file in state.deferred_report.real_bug:}
+  - {file} — {matching verdict.reason from categorization_verdicts}
+
+Low context (could not classify reliably):
+{for each file in state.deferred_report.low_context:}
+  - {file} — context_score: {matching verdict.context_score or "<1"}
+
+These failures were NOT auto-actioned. Review manually.
+Full details: .planning/maintain-tests-state.json → deferred_report
+
+{if state.deferred_report.real_bug is empty AND state.deferred_report.low_context is empty:}
+ All failures were classified and dispatched.
 ```
 
 ---
