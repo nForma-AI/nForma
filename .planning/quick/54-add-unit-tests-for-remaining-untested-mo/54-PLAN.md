@@ -93,9 +93,10 @@ TC3: Context at 20% remaining (80% used → 100% scaled) — skull emoji or red,
 - Input: `{ model: { display_name: 'M' }, context_window: { remaining_percentage: 20 } }`
 - Assert: stdout includes '100%' (scaled = 100%), stdout contains '██████████' (full bar)
 
-TC4: Context at 50% remaining (50% used → 62% scaled) — should be green (scaled < 63)
-- Input: `{ model: { display_name: 'M' }, context_window: { remaining_percentage: 50 } }`
-- Assert: stdout includes '62%', stdout includes green ANSI code '\x1b[32m'
+TC4: Context at 51% remaining (49% used → 61% scaled) — should be green (scaled < 63)
+- Input: `{ model: { display_name: 'M' }, context_window: { remaining_percentage: 51 } }`
+- Assert: stdout includes '61%', stdout includes green ANSI code '\x1b[32m'
+- Note: remaining_percentage: 50 would produce Math.round(62.5)=63 which hits the yellow threshold (used >= 63), so 51 is used here to stay safely in the green zone at 61%.
 
 TC5: Context at 36% remaining (64% used → 80% scaled) — should be yellow (63 <= scaled < 81)
 - Input: `{ model: { display_name: 'M' }, context_window: { remaining_percentage: 36 } }`
@@ -143,9 +144,9 @@ const DEBUG_DIR = path.join(os.homedir(), '.claude', 'debug');
 **Test cases:**
 
 TC1: No debug dir or empty — exits 0 with appropriate message
-- If `~/.claude/debug/` does not exist: exits 0 (the CLI prints a message and exits 0 when no files found)
-- If it exists but has no `.txt` files from last 7 days: exits 0
-- Approach: spawn with `--days 0` to force empty result (cutoff = now → no files qualify)
+- The CLI's readdirSync catch block calls process.exit(1) when the dir is missing, so the dir must exist.
+- Before spawning, call `fs.mkdirSync(DEBUG_DIR, { recursive: true })` to guarantee the dir exists.
+- Spawn with `--days 0` to force the cutoff to now — no files qualify (none were created in the future), producing an empty result.
 - Assert: exitCode 0
 
 TC2: Synthetic log file with a successful tool call — --json output contains server entry
@@ -196,7 +197,7 @@ function runCLI(args) {
 }
 ```
 
-For TC1, use `--days 0` to force the cutoff to now (no files from the future qualify).
+For TC1, call `fs.mkdirSync(DEBUG_DIR, { recursive: true })` before spawning, then use `--days 0` to force the cutoff to now (no files from the future qualify), ensuring exit 0.
 
 After writing both test files, update `package.json` `scripts.test` to append both new test files to the `node --test` invocation:
 ```
