@@ -39,6 +39,7 @@ Progress: [████████████████████] 3/3 pla
 | Phase quick-45 P01 | 334 | 2 tasks | 2 files |
 | Phase 18 P03 | 15min | 3 tasks | 2 files |
 | Phase 18 P04 | 12min | 3 tasks | 1 files |
+| Phase 19 P02 | 4 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,8 @@ Recent decisions affecting current work:
 - [Phase 18]: Use spawn (not spawnSync) for test runner invocation — prevents maxBuffer crash on large jest JSON output; each file run individually for result isolation
 - [18-04]: Test parsePytestCollectOutput via Option A (replicate parser inline in test describe block) rather than mock scripts — isolates parsing logic from CLI invocation
 - [18-04]: Test deduplication invariant via Set.size == array.length rather than mock CLI injection — works without jest/playwright/pytest installed
+- [Phase 19-02]: Edit source and installed resume-project.md copies independently (not via cp) — installed copy uses absolute paths, source uses tilde paths
+- [Phase 19-02]: All 6 maintain_tests sub_activities carry (activity=maintain_tests) qualifier — prevents mis-routing when future activities reuse same sub_activity names (Pitfall 5)
 
 ### Pending Todos
 
@@ -94,5 +97,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Phase 23 complete, ready to plan Phase 24 (Gen1→Gen2 Architecture Port)
+Stopped at: Completed 19-02-PLAN.md — maintain_tests routing rows added to both resume-project.md copies (INTG-02 closed)
 Resume file: None

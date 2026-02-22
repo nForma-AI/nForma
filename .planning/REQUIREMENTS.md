@@ -31,7 +31,7 @@
 ### Integration
 
 - [ ] **INTG-01**: Tool disables QGSD circuit breaker at run start and re-enables on completion (prevent false oscillation detection during iterative fix commits)
-- [ ] **INTG-02**: Tool activity state integrates with `/qgsd:resume-work` routing so interrupted maintenance runs recover to the correct step
+- [x] **INTG-02**: Tool activity state integrates with `/qgsd:resume-work` routing so interrupted maintenance runs recover to the correct step
 - [ ] **INTG-03**: `/qgsd:fix-tests` is implemented as execution-only — not added to `quorum_commands` (R2.1 compliance)
 
 ## v0.4 Requirements — MCP Ecosystem
@@ -100,7 +100,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-02 | Phase 18 | Complete |
 | EXEC-04 | Phase 18 | Complete |
 | EXEC-03 | Phase 19 | Pending |
-| INTG-02 | Phase 19 | Pending |
+| INTG-02 | Phase 19 | Complete |
 | ITER-01 | Phase 20 | Pending |
 | ITER-02 | Phase 20 | Pending |
 | INTG-01 | Phase 20 | Pending |
