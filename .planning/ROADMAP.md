@@ -323,7 +323,9 @@
   2. Option 2 (Swap Provider) apply path calls `syncToClaudeJson` after patching `ANTHROPIC_BASE_URL` — symmetric with all other apply flows (first-run, Option 1, add-agent, shared confirm+apply)
   3. First-run Step 3b shows a warning when `CLAUDE_MCP_PATH` is empty, matching the explicit guard present in the add-agent flow — no silent `args: ['']` write
   4. Add-agent keytar fallback includes an explicit bash snippet for the audit log entry — not prose-only, matching the Option 1 pattern
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 37-01-PLAN.md — Replace 9 hardcoded secrets.cjs paths with dynamic require.resolve; fix Option 2 missing syncToClaudeJson; add first-run CLAUDE_MCP_PATH empty guard; add-agent keytar fallback bash snippet (INTEGRATION-01, INTEGRATION-02)
 
 ### Phase 38: v0.5 Bookkeeping — Requirements & SUMMARY Updates
 **Goal**: REQUIREMENTS.md and SUMMARY.md files fully reflect the completed v0.5 milestone — all 16 requirement checkboxes are checked, traceability phase assignments match actual implementation phases, and SUMMARY files have complete frontmatter
