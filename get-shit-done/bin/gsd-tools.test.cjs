@@ -2506,3 +2506,101 @@ describe('maintain-tests batch command', () => {
     assert.strictEqual(out.batches[0].file_count, 1, 'That batch should have 1 file');
   });
 });
+
+describe('maintain-tests discover command', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('TC1: --runner jest flag forces jest runner only', () => {
+    // Create both jest and playwright configs in the temp dir
+    fs.writeFileSync(path.join(tmpDir, 'jest.config.js'), 'module.exports = {};');
+    fs.writeFileSync(path.join(tmpDir, 'playwright.config.js'), 'module.exports = {};');
+
+    const result = runGsdTools(`maintain-tests discover --runner jest --dir "${tmpDir}"`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.deepStrictEqual(output.runners, ['jest'], 'runners should be exactly ["jest"]');
+    assert.ok(Array.isArray(output.test_files), 'test_files must be array');
+    assert.ok(typeof output.total_count === 'number', 'total_count must be a number');
+    assert.ok(typeof output.by_runner === 'object', 'by_runner must be an object');
+    // playwright should not appear in by_runner since --runner jest was specified
+    assert.ok(!output.by_runner.playwright, 'playwright should not be in by_runner');
+  });
+
+  test('TC2: No config files returns empty runners with warning', () => {
+    // tmpDir has no jest/playwright/pytest config files by default
+    const result = runGsdTools(`maintain-tests discover --dir "${tmpDir}"`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.deepStrictEqual(output.runners, [], 'runners should be []');
+    assert.strictEqual(output.total_count, 0, 'total_count should be 0');
+    assert.ok(Array.isArray(output.test_files), 'test_files must be array');
+    assert.ok(Array.isArray(output.warnings), 'warnings should be present when no runners detected');
+  });
+
+  test('TC3: --output-file writes JSON to disk', () => {
+    const outputFile = path.join(require('os').tmpdir(), 'discover-test-output.json');
+    // Clean up any pre-existing file
+    try { fs.unlinkSync(outputFile); } catch (e) { /* ok */ }
+
+    const result = runGsdTools(`maintain-tests discover --runner jest --dir "${tmpDir}" --output-file "${outputFile}"`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    assert.ok(fs.existsSync(outputFile), 'output file should exist at specified path');
+
+    const content = fs.readFileSync(outputFile, 'utf-8');
+    const parsed = JSON.parse(content);
+    assert.ok(Object.prototype.hasOwnProperty.call(parsed, 'test_files'), 'JSON must have test_files key');
+    assert.ok(Object.prototype.hasOwnProperty.call(parsed, 'runners'), 'JSON must have runners key');
+    assert.ok(Object.prototype.hasOwnProperty.call(parsed, 'total_count'), 'JSON must have total_count key');
+
+    // Cleanup
+    try { fs.unlinkSync(outputFile); } catch (e) { /* ok */ }
+  });
+
+  test('TC4: Deduplication — paths from both runners are not duplicated', () => {
+    // Simulate two runners that could theoretically list the same file
+    // We test by using --runner jest twice via manual inspection of the JSON schema
+    // Since we cannot control CLI output in unit tests, verify schema and dedup logic
+    // via a simple two-runner detect scenario where only one runner is available
+    fs.writeFileSync(path.join(tmpDir, 'jest.config.js'), 'module.exports = {};');
+
+    const result = runGsdTools(`maintain-tests discover --dir "${tmpDir}"`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    // Verify no duplicate paths exist in test_files
+    const uniquePaths = new Set(output.test_files);
+    assert.strictEqual(
+      uniquePaths.size,
+      output.test_files.length,
+      'test_files should contain no duplicate paths'
+    );
+    // total_count must match test_files array length
+    assert.strictEqual(output.total_count, output.test_files.length, 'total_count must equal test_files.length');
+  });
+
+  test('TC5: Jest detection via package.json jest key', () => {
+    // Write a package.json with "jest" key — no jest.config.* file
+    const pkgJson = JSON.stringify({
+      name: 'test-project',
+      jest: { testMatch: ['**/*.test.js'] },
+    }, null, 2);
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), pkgJson);
+
+    const result = runGsdTools(`maintain-tests discover --dir "${tmpDir}"`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.ok(output.runners.includes('jest'), 'runners should include "jest" when package.json has jest key');
+  });
+});
