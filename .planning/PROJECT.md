@@ -8,6 +8,20 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Next Milestone: v0.4 MCP Ecosystem
+
+**Goal:** Standardize the 6 coding-agent MCP server repos to a unified Gen2 architecture, then add QGSD commands to observe, configure, and update connected agents (`/qgsd:mcp-status`, `/qgsd:mcp-set-model`, `/qgsd:mcp-update`, `/qgsd:mcp-restart`).
+
+**Target features:**
+- MCP repo standardization: Gen1→Gen2 port for claude/codex/copilot/openhands, openhands rename fix, identity tool everywhere, MIT license, unified Makefile, constants/Logger, CHANGELOG
+- Read layer: `/qgsd:mcp-status` showing all agents, models, health, and UNAVAIL counts
+- Write layer: model switching persisted to qgsd.json, auto-detect update commands, process restart
+
+**Starts after:** v0.3 complete (phases 19–22 pending)
+**Phase range:** 23–TBD (roadmapper pending)
+
+---
+
 ## Current Milestone: v0.3 Test Suite Maintenance
 
 **Goal:** Build `/qgsd:fix-tests` — a single autonomous command that discovers, batches, runs, AI-categorizes, and iteratively fixes test failures across large suites (20k+ tests), looping until no failures remain.
@@ -96,4 +110,4 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | gsd-tools.cjs monolith noted as tech debt | Parallel wave agents all modifying same file triggered circuit breaker false positive; modularization deferred to future phase | Phase 18 — architectural note |
 
 ---
-*Last updated: 2026-02-22 after Phase 18 — CLI Foundation (maintain-tests mechanical layer complete)*
+*Last updated: 2026-02-22 — v0.4 MCP Ecosystem milestone defined (requirements + roadmap pending execution after v0.3)*

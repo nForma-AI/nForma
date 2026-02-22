@@ -34,13 +34,48 @@
 - [ ] **INTG-02**: Tool activity state integrates with `/qgsd:resume-work` routing so interrupted maintenance runs recover to the correct step
 - [ ] **INTG-03**: `/qgsd:fix-tests` is implemented as execution-only — not added to `quorum_commands` (R2.1 compliance)
 
-## v0.4 Requirements
+## v0.4 Requirements — MCP Ecosystem
 
-### Scale & CI
+**Defined:** 2026-02-22
+**Goal:** Standardize the 6 coding-agent MCP server repos to a unified Gen2 architecture, then build a QGSD management layer that can observe, configure, and update connected agents.
 
-- Multi-framework mixed batching (jest + playwright in same batch) — deferred, adds CLI-switching complexity
+### MCP Standardization (STD)
+
+- [ ] **STD-01**: openhands-mcp-server package.json name, class name, and server config are corrected to `openhands-mcp-server` (currently all say `codex-mcp-server`)
+- [ ] **STD-02**: All 4 Gen1 repos (claude, codex, copilot, openhands) use Gen2 per-tool `*.tool.ts` + `registry.ts` architecture
+- [ ] **STD-03**: All 6 repos read version dynamically from `package.json` (no hardcoded string in `index.ts`)
+- [ ] **STD-04**: All 6 repos expose an `identity` tool returning `{name, version, model, available_models, install_method}`
+- [ ] **STD-05**: All 6 repos use MIT license with a `LICENSE` file present
+- [ ] **STD-06**: All 6 repos have `engines: node>=18`, `prepublishOnly` build script, `publishConfig: {access: public}`
+- [ ] **STD-07**: All 6 repos have a comprehensive Makefile with lint/format/test/build/clean/dev targets
+- [ ] **STD-08**: All 6 repos have `constants.ts` and a `Logger` utility in `src/utils/logger.ts`
+- [ ] **STD-09**: All 6 repos have `CHANGELOG.md` and `CLAUDE.md`
+- [ ] **STD-10**: All 6 repos use consistent npm scoping (uniform: all `@tuannvm/` or all unscoped)
+
+### MCP Observation (OBS)
+
+- [ ] **OBS-01**: User can run `/qgsd:mcp-status` to see all connected MCPs with name, version, current model, and availability
+- [ ] **OBS-02**: Status display shows health state (available / quota-exceeded / error) derived from scoreboard data
+- [ ] **OBS-03**: Status shows available models for each agent (from `identity` tool response)
+- [ ] **OBS-04**: Status shows recent UNAVAIL count per agent from quorum scoreboard
+
+### MCP Management (MGR)
+
+- [ ] **MGR-01**: User can run `/qgsd:mcp-set-model <agent> <model>` to set the default model for a quorum worker
+- [ ] **MGR-02**: Default model preference persists in `qgsd.json` and is injected into subsequent quorum tool calls
+- [ ] **MGR-03**: User can run `/qgsd:mcp-update <agent>` to auto-detect installation method and run the correct update command
+- [ ] **MGR-04**: `/qgsd:mcp-update` detects npm global / brew / pipx / binary and runs appropriate update command
+- [ ] **MGR-05**: User can run `/qgsd:mcp-update all` to update all agents sequentially
+- [ ] **MGR-06**: User can run `/qgsd:mcp-restart <agent>` to restart a specific MCP server process
+
+## v0.5 Requirements (Deferred)
+
+- Multi-framework mixed batching (jest + playwright in same batch) — adds CLI-switching complexity
 - CI/scheduled maintenance runs — periodic automated maintenance
 - Per-test ownership tracking — link tests to code owners for routing fix tasks
+- Actual OpenHands CLI integration in openhands-mcp-server (CLI to wrap is unclear)
+- Model benchmark comparison (`/qgsd:mcp-benchmark`)
+- Version rollback (`/qgsd:mcp-rollback`)
 
 ## Out of Scope
 
@@ -49,6 +84,9 @@
 | Installing test plugins in target projects | Non-invasive observer model — QGSD doesn't modify target codebases |
 | Concurrent batch execution | Sequential by design — test runners parallelize internally, outer concurrency counterproductive |
 | Auto-fixing real-bug failures | Safety boundary — source changes require user approval |
+| Real-time MCP metrics dashboard | UI complexity — v0.x is CLI-only |
+| Per-project MCP configurations | Global-only install pattern; per-project adds auth complexity |
+| Automatic model switching based on task type | Requires categorization engine (v0.3 Phase 21 prerequisite) |
 
 ## Traceability
 
@@ -71,11 +109,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CATG-02 | Phase 21 | Pending |
 | CATG-03 | Phase 21 | Pending |
 
-**Coverage:**
+**v0.3 Coverage:**
 - v0.3 requirements: 14 total
 - Mapped to phases: 14
 - Unmapped: 0 ✓
 
+**v0.4 Coverage:**
+- v0.4 requirements: 16 total (STD: 10, OBS: 4, MGR: 6 — minus STD-10 merged into STD phases)
+- Mapped to phases: TBD (roadmapper pending)
+- Unmapped: 16 ⚠️ (roadmap not yet created)
+
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 — traceability populated after roadmap creation (Phases 18–22)*
+*Last updated: 2026-02-22 — v0.4 MCP Ecosystem requirements added (STD/OBS/MGR)*
