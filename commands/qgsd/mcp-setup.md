@@ -431,24 +431,192 @@ Use AskUserQuestion:
 - header: "Actions — {agent-name}"
 - question: "Choose an action:"
 - options:
-  - "1 — Set / update API key (Phase 33)"
+  - "1 — Set / update API key"
   - "2 — Swap provider (Phase 34)"
   - "3 — Remove agent (Phase 35)"
   - "Back — return to agent list"
 
 **Option 1 — Set / update API key:**
 
+**Step A — Check existing key status**
+
+Run an inline node script to check whether a key is already stored in keytar for the selected agent:
+
+```bash
+KEY_CHECK_RESULT=$(node -e "
+const { get, SERVICE } = require('/Users/jonathanborduas/code/QGSD/bin/secrets.cjs');
+(async () => {
+  try {
+    const agentName = process.env.AGENT_NAME;
+    const keyName   = 'ANTHROPIC_API_KEY_' + agentName.toUpperCase().replace(/-/g,'_');
+    const stored    = await get(SERVICE, keyName);
+    if (stored) {
+      process.stdout.write(JSON.stringify({ hasKey: true, method: 'keytar' }) + '\n');
+    } else {
+      // Check env block fallback
+      const fs = require('fs'), path = require('path'), os = require('os');
+      let envVal = '';
+      try {
+        const cj = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude.json'), 'utf8'));
+        envVal = (cj.mcpServers && cj.mcpServers[agentName] && cj.mcpServers[agentName].env && cj.mcpServers[agentName].env.ANTHROPIC_API_KEY) || '';
+      } catch (e) {}
+      if (envVal) {
+        process.stdout.write(JSON.stringify({ hasKey: true, method: 'env_block' }) + '\n');
+      } else {
+        process.stdout.write(JSON.stringify({ hasKey: false, method: 'none' }) + '\n');
+      }
+    }
+  } catch (e) {
+    process.stdout.write(JSON.stringify({ hasKey: false, method: 'none', error: e.message }) + '\n');
+  }
+})();
+" AGENT_NAME="{agent-name}")
 ```
-⚠ Full API key management is implemented in Phase 33.
 
-  Quick key update (available now):
-    node /Users/jonathanborduas/code/QGSD/bin/set-secret.cjs \
-      ANTHROPIC_API_KEY_{AGENT_UPPER} <your-key>
+Parse KEY_CHECK_RESULT for: `hasKey` (boolean), `method` ('keytar'|'env_block'|'none').
 
-  Then restart:  /qgsd:mcp-restart {agent-name}
+**Step B — Prompt user with key-status hint**
+
+Use AskUserQuestion:
+- header: "Set API Key — {agent-name}"
+- question: one of:
+  - If `hasKey` is true and `method` is `keytar`: `"API key already stored in system keychain (key stored). Enter a new key to overwrite it, or skip.\n\nThe key will be stored in your system keychain (keytar). It will not appear in any log or plain-text file."`
+  - If `method` is `env_block`: `"API key currently stored in ~/.claude.json env block. Enter a new key to move it to the system keychain, or skip.\n\nThe key will be stored in your system keychain (keytar). It will not appear in any log or plain-text file."`
+  - If `method` is `none`: `"No API key configured for {agent-name}. Enter a key to store it in your system keychain.\n\nThe key will be stored in your system keychain (keytar). It will not appear in any log or plain-text file."`
+- options:
+  - "Continue (I have my key ready)"
+  - "Skip — back to agent menu"
+
+If "Skip — back to agent menu": display "No changes made." Return to Agent Sub-Menu (re-display sub-menu for the same agent).
+
+**Step C — Collect the key value**
+
+Use a second AskUserQuestion to receive the actual key:
+- header: "Enter API Key — {agent-name}"
+- question: `"Paste your API key for {agent-name}:"`
+- options:
+  - "Confirm key"
+  - "Cancel"
+
+If "Cancel": display "No changes made." Return to Agent Sub-Menu.
+
+**Step D — Store in keytar**
+
+Run inline node script using `set()` from `bin/secrets.cjs`. Pass key via environment variable only — never interpolate into the script body:
+
+```bash
+KEY_STORE_RESULT=$(node -e "
+const { set, SERVICE } = require('/Users/jonathanborduas/code/QGSD/bin/secrets.cjs');
+(async () => {
+  try {
+    const agentName = process.env.AGENT_NAME;
+    const apiKey    = process.env.API_KEY;
+    const keyName   = 'ANTHROPIC_API_KEY_' + agentName.toUpperCase().replace(/-/g,'_');
+    await set(SERVICE, keyName, apiKey);
+    process.stdout.write(JSON.stringify({ stored: true, method: 'keytar', keyName }) + '\n');
+  } catch (e) {
+    process.stdout.write(JSON.stringify({ stored: false, error: e.message }) + '\n');
+  }
+})();
+" AGENT_NAME="{agent-name}" API_KEY="{user-entered-key}")
 ```
 
-Return to sub-menu.
+Parse KEY_STORE_RESULT:
+- `stored: true` — continue to Step E
+- `stored: false` — handle keytar fallback:
+
+  Use AskUserQuestion:
+  - header: "Keychain Unavailable"
+  - question: "System keychain unavailable. API key will be stored unencrypted in ~/.claude.json (less secure). Confirm?\n\nLinux users: sudo apt install libsecret-1-dev gnome-keyring"
+  - options:
+    - "Store unencrypted in ~/.claude.json (less secure)"
+    - "Skip — back to agent menu"
+
+  If "Skip — back to agent menu": display "No changes made." Return to Agent Sub-Menu.
+
+  If "Store unencrypted in ~/.claude.json (less secure)": write audit log then proceed to Step E with `method: env_block`:
+  ```bash
+  mkdir -p ~/.claude/debug
+  node -e "
+  const fs = require('fs');
+  const ts = new Date().toISOString();
+  const msg = ts + ' QGSD mcp-setup: keytar unavailable for ' + process.env.AGENT_KEY + ' — API key stored unencrypted in env block\n';
+  fs.appendFileSync(require('os').homedir() + '/.claude/debug/mcp-setup-audit.log', msg);
+  " AGENT_KEY="{agent-name}"
+  ```
+
+**Step E — Confirm + apply**
+
+Show pending summary using the existing "Confirm + Apply + Restart Flow" pattern:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► REVIEW PENDING CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ◆ {agent-name} — API key updated (stored in system keychain)
+```
+
+Use AskUserQuestion:
+- header: "Apply Key Change"
+- question: "Apply key change to ~/.claude.json and restart {agent-name}?"
+- options:
+  - "Apply and restart"
+  - "Cancel — discard changes"
+
+If "Cancel — discard changes": display "Changes discarded." Return to Agent Sub-Menu.
+
+If "Apply and restart":
+
+1. Backup ~/.claude.json:
+```bash
+cp ~/.claude.json ~/.claude.json.backup-$(date +%Y-%m-%d-%H%M%S) 2>/dev/null || true
+```
+
+2. Patch ANTHROPIC_API_KEY in the agent's env block. Pass key via environment variable only — never interpolate the value into the script body:
+```bash
+node -e "
+const fs   = require('fs');
+const path = require('path');
+const os   = require('os');
+const claudeJsonPath = path.join(os.homedir(), '.claude.json');
+let claudeJson = {};
+try { claudeJson = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8')); } catch (e) {}
+const agentName = process.env.AGENT_NAME;
+const apiKey    = process.env.API_KEY;
+if (claudeJson.mcpServers && claudeJson.mcpServers[agentName]) {
+  if (!claudeJson.mcpServers[agentName].env) claudeJson.mcpServers[agentName].env = {};
+  claudeJson.mcpServers[agentName].env.ANTHROPIC_API_KEY = apiKey;
+}
+fs.writeFileSync(claudeJsonPath, JSON.stringify(claudeJson, null, 2));
+process.stdout.write(JSON.stringify({ written: true }) + '\n');
+" AGENT_NAME="{agent-name}" API_KEY="{user-entered-key}"
+```
+
+3. Sync all keytar secrets back to ~/.claude.json:
+```bash
+node -e "
+const { syncToClaudeJson, SERVICE } = require('/Users/jonathanborduas/code/QGSD/bin/secrets.cjs');
+syncToClaudeJson(SERVICE).then(() => process.stdout.write('synced\n')).catch(e => process.stderr.write(e.message + '\n'));
+"
+```
+
+4. Invoke `/qgsd:mcp-restart {agent-name}` (sequential). If restart fails, leave config written and display:
+```
+⚠ {agent-name}: restart failed. Config applied — reload on next Claude Code restart.
+  Manual retry: /qgsd:mcp-restart {agent-name}
+```
+
+5. Display:
+```
+✓ API key updated and agent restarted.
+
+  ✓ {agent-name} — key updated, restarted
+
+Run /qgsd:mcp-status to verify agent health.
+```
+
+Return to Agent Sub-Menu (user can make further changes or go Back).
 
 **Option 2 — Swap provider:**
 
@@ -544,8 +712,10 @@ If a restart fails, leave config written and display:
 <success_criteria>
 - First-run (no mcpServers): welcome banner + agent template list + key collection (keytar/fallback) + batch-write + backup + restart + summary
 - Re-run (existing entries): numbered agent roster with model/provider/key-status columns
-- Sub-menu per agent: set key stub (Phase 33), swap provider stub (Phase 34), remove stub (Phase 35)
+- Sub-menu per agent: full API key set/update flow (Option 1), swap provider stub (Phase 34), remove stub (Phase 35)
+- Option 1 API key flow: key-status check → "(key stored)" hint → key input → keytar store → confirm → backup → patch ~/.claude.json → syncToClaudeJson → mcp-restart
 - Confirm+apply+restart: backup then write then sync keytar then mcp-restart per agent then confirmation
 - No changes applied without explicit user confirmation
 - Keytar failure: warning + Linux hint + confirmation before env-block fallback + audit log
+- Key value never appears in displayed text, log output, or shell history (passed via env var only)
 </success_criteria>
