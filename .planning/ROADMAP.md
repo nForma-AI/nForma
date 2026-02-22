@@ -228,5 +228,5 @@
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
 | 25. Identity Tool and Shared Utilities | 3/3 | Complete    | 2026-02-22 | - |
 | 26. MCP Status Command | 1/1 | Complete    | 2026-02-22 | - |
-| 27. Model Switching | v0.4 | 0/2 | Not started | - |
+| 27. Model Switching | v0.4 | Complete    | 2026-02-22 | - |
 | 28. Update and Restart Commands | v0.4 | 0/? | Not started | - |

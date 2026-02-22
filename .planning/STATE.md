@@ -2,10 +2,10 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after Phase 26)
+See: .planning/PROJECT.md (updated 2026-02-22 after Phase 27)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Phase 27 — Model Switching (v0.4 MCP Ecosystem)
+**Current focus:** Phase 28 — Update & Restart Commands (v0.4 MCP Ecosystem)
 
 ## Current Position
 
@@ -90,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 24]: Gen1→Gen2 architecture port: per-tool *.tool.ts + registry.ts for claude/codex/copilot/openhands
 - [Phase 25]: identity tool (5-field schema: name/version/model/available_models/install_method) + constants.ts + logger.ts (stderr-only via console.warn) in all 6 repos
 - [Phase 26]: /qgsd:mcp-status reads identity tool on all 10 quorum agents + scoreboard UNAVAIL counts; health = available/quota-exceeded/error; claude-glm is 10th agent; NOT in quorum_commands (R2.1)
+- [Phase 27]: model_preferences global-only (no per-project); agent name validated before identity call (no hang on typos); AGENT_TOOL_MAP in qgsd-prompt.js maps 10 agents to primary quorum tools
+- [Phase 27]: /qgsd:mcp-set-model NOT in quorum_commands (R2.1); validates model via identity available_models (live truth); old model captured before write for confirmation
 
 ### Pending Todos
 
@@ -118,5 +120,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Phase 26 complete — /qgsd:mcp-status live with 10 agents, scoreboard UNAVAIL, health state; Phases 23–26 all done; ready to plan Phase 27 (Model Switching)
+Stopped at: Phase 27 complete — /qgsd:mcp-set-model live, model_preferences config + override injection shipped; Phases 23–27 all done; ready to plan Phase 28 (Update & Restart Commands)
 Resume file: None
