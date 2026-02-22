@@ -250,6 +250,26 @@ function warnMissingMcpServers() {
   }
 }
 
+// INST-01: Detects whether any claude-mcp-server quorum agents are configured.
+// Used in finishInstall() to nudge new users to run /qgsd:mcp-setup.
+// Fail-open: returns false on read errors (never blocks install).
+function hasClaudeMcpAgents() {
+  const claudeJsonPath = path.join(os.homedir(), '.claude.json');
+  try {
+    if (!fs.existsSync(claudeJsonPath)) return false;
+    const d = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8'));
+    const mcpServers = d.mcpServers || {};
+    const knownNames = ['claude-deepseek', 'claude-minimax', 'claude-qwen-coder', 'claude-llama4', 'claude-kimi'];
+    return Object.entries(mcpServers).some(([name, cfg]) => {
+      if (knownNames.includes(name)) return true;
+      if ((cfg.args || []).some(a => String(a).includes('claude-mcp-server'))) return true;
+      return false;
+    });
+  } catch (e) {
+    return false;
+  }
+}
+
 // Parse --config-dir argument
 function parseConfigDirArg() {
   const configDirIndex = args.findIndex(arg => arg === '--config-dir' || arg === '-c');
@@ -1904,9 +1924,15 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
   if (runtime === 'gemini') program = 'Gemini';
 
   const command = isOpencode ? '/qgsd-help' : '/qgsd:help';
+
+  let nudge = '';
+  if (runtime === 'claude' && !hasClaudeMcpAgents()) {
+    nudge = `\n  ${yellow}⚠${reset} No quorum agents configured.\n    Run ${cyan}/qgsd:mcp-setup${reset} in Claude Code to set up your agents.\n`;
+  }
+
   console.log(`
   ${green}Done!${reset} Launch ${program} and run ${cyan}${command}${reset}.
-
+${nudge}
   ${cyan}Join the community:${reset} https://discord.gg/5JJgD5svVS
 `);
 }
