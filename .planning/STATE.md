@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-22 after Phase 21)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.3 Fix-Tests Tool — Phase 22 plans written (integration tests: 11 new gsd-tools tests + VERIFICATION.md for 14 v0.3 requirements), ready to execute
+**Current focus:** v0.3 Fix-Tests Tool — Phase 22 in progress (22-01 complete: 11 integration tests added; 22-02 pending: VERIFICATION.md for 14 v0.3 requirements)
 
 ## Current Position
 
 Phase: 22 of 28 (Integration Tests)
-Plan: 22-01 (Wave 1), 22-02 (Wave 2) — both written
-Status: Ready to execute — Phase 22 planned (2 plans: integration tests + VERIFICATION.md for 14 v0.3 requirements)
-Last activity: 2026-02-22 - Completed Phase 22 planning (22-01: 11 tests, 22-02: VERIFICATION.md)
+Plan: 22-02 (Wave 2) — pending
+Status: Executing Phase 22 — 22-01 complete (11 tests, 135 total, 0 failures); 22-02 ready to execute
+Last activity: 2026-02-22 - Completed Phase 22 Plan 01 (11 integration tests: TC-INTG03-1, TC-CB-1/2/3, TC-RESUME-1/2, TC-TERM-1/2/3, TC-SCHEMA21-1/2)
 
-Progress: [████████████████████] 21/22 plans (95%)
+Progress: [████████████████████] 22/23 plans (96%)
 
 ## Performance Metrics
 
@@ -41,6 +41,7 @@ Progress: [████████████████████] 21/22 p
 | Phase 18 P04 | 12min | 3 tasks | 1 files |
 | Phase 19 P02 | 4 | 2 tasks | 2 files |
 | Phase 19 P01 | 5 | 3 tasks | 3 files |
+| Phase 22 P01 | 5min | 5 tasks | 1 file |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 21]: pickaxe enrichment is non-gating — commits=[] still dispatches as adapt; git absent → pickaxe_context=null but adapt still dispatched
 - [Phase 21]: dispatched_task state saved BEFORE Task spawn — idempotent on resume; dedup check skips already-dispatched chunks
 - [Phase 21]: Phase 20 stub detection in Step 6d — clears stale state when categorization_verdicts==[] AND results_by_category non-empty
+- [22-01]: runInstall() helper uses cwd: tmpDir so --disable-breaker git fallback writes state to tmpDir/.claude/ (not real project root)
+- [22-01]: TC-RESUME-2 uses 3-batch manifest with empty files arrays — exercises --batch-index 2 routing without needing real test runner
 
 ### Pending Todos
 
@@ -107,5 +110,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Phase 22 plans written — 22-01 (11 integration tests: TC-INTG03-1, TC-CB-1/2/3, TC-RESUME-1/2, TC-TERM-1/2/3, TC-SCHEMA21-1/2) and 22-02 (VERIFICATION.md for 14 v0.3 requirements + REQUIREMENTS.md traceability update); quorum approved (3/3 available); ready to execute Phase 22
+Stopped at: Completed 22-01-PLAN.md — 11 integration tests added to gsd-tools.test.cjs (135 total, 0 failures); commit bff8570; 22-02 ready to execute
 Resume file: None
