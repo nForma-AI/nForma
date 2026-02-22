@@ -39,7 +39,7 @@
 
 - [x] **Phase 18: CLI Foundation** — gsd-tools.cjs maintain-tests sub-commands: discover, batch, run-batch + integration tests (4 plans) (completed 2026-02-22)
 - [x] **Phase 19: State Schema & Activity Integration** — maintain-tests-state.json schema + resume-work routing rows (completed 2026-02-22)
-- [ ] **Phase 20: Workflow Orchestrator** — fix-tests.md command + orchestrator: batch loop, circuit breaker lifecycle, loop termination
+- [x] **Phase 20: Workflow Orchestrator** — fix-tests.md command + orchestrator: batch loop, circuit breaker lifecycle, loop termination (completed 2026-02-22)
 - [ ] **Phase 21: Categorization Engine** — 5-category AI diagnosis, git pickaxe context, quick task dispatch grouping
 - [ ] **Phase 22: Integration Test** — End-to-end validation of the full fix-tests loop
 
@@ -216,7 +216,7 @@
 | 17. Fix Agent Name Typos | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 18. CLI Foundation | v0.3 | 4/4 | Complete | 2026-02-22 |
 | 19. State Schema & Activity Integration | v0.3 | 2/2 | Complete | 2026-02-22 |
-| 20. Workflow Orchestrator | v0.3 | 0/1 | Not started | - |
+| 20. Workflow Orchestrator | 1/1 | Complete   | 2026-02-22 | - |
 | 21. Categorization Engine | v0.3 | 0/? | Not started | - |
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
