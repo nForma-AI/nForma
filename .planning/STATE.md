@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-22 after Phase 21)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.3 Fix-Tests Tool — Phase 22 in progress (22-01 complete: 11 integration tests added; 22-02 pending: VERIFICATION.md for 14 v0.3 requirements)
+**Current focus:** v0.3 milestone COMPLETE — Phase 22 complete (22-01: 135 integration tests; 22-02: VERIFICATION.md for 14 v0.3 requirements, all PASSED). Next: v0.4 MCP Ecosystem (Phase 23+)
 
 ## Current Position
 
-Phase: 22 of 28 (Integration Tests)
-Plan: 22-02 (Wave 2) — pending
-Status: Executing Phase 22 — 22-01 complete (11 tests, 135 total, 0 failures); 22-02 ready to execute
-Last activity: 2026-02-22 - Completed Phase 22 Plan 01 (11 integration tests: TC-INTG03-1, TC-CB-1/2/3, TC-RESUME-1/2, TC-TERM-1/2/3, TC-SCHEMA21-1/2)
+Phase: 22 of 28 (Integration Tests) — COMPLETE
+Plan: 22-02 (Wave 2) — complete
+Status: Phase 22 complete — v0.3 milestone verified; all 14 v0.3 requirements PASSED; 135 tests, 0 failures
+Last activity: 2026-02-22 - Completed Phase 22 Plan 02 (VERIFICATION.md for 14 v0.3 requirements; CATG/ITER/INTG marked Complete in REQUIREMENTS.md)
 
 Progress: [████████████████████] 22/23 plans (96%)
 
@@ -42,6 +42,7 @@ Progress: [████████████████████] 22/23 p
 | Phase 19 P02 | 4 | 2 tasks | 2 files |
 | Phase 19 P01 | 5 | 3 tasks | 3 files |
 | Phase 22 P01 | 5min | 5 tasks | 1 file |
+| Phase 22 P02 | 2 | 4 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Recent decisions affecting current work:
 - [Phase 21]: Phase 20 stub detection in Step 6d — clears stale state when categorization_verdicts==[] AND results_by_category non-empty
 - [22-01]: runInstall() helper uses cwd: tmpDir so --disable-breaker git fallback writes state to tmpDir/.claude/ (not real project root)
 - [22-01]: TC-RESUME-2 uses 3-batch manifest with empty files arrays — exercises --batch-index 2 routing without needing real test runner
+- [Phase 22]: 22-VERIFICATION.md written with evidence chains for all 14 v0.3 requirements — 135 tests passing, all verdicts PASSED, v0.3 milestone complete
+- [Phase 22]: REQUIREMENTS.md: 7 requirements (CATG-01/02/03, ITER-01/02, INTG-01/03) marked Complete with Phase 22 as verifying phase
 
 ### Pending Todos
 
@@ -110,5 +113,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 22-01-PLAN.md — 11 integration tests added to gsd-tools.test.cjs (135 total, 0 failures); commit bff8570; 22-02 ready to execute
+Stopped at: Completed 22-02-PLAN.md — VERIFICATION.md written for 14 v0.3 requirements (all PASSED); REQUIREMENTS.md updated (7 requirements Complete); commit bc0d959; v0.3 milestone complete
 Resume file: None
