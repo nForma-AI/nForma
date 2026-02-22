@@ -5403,6 +5403,22 @@ async function main() {
           }, raw);
           break;
         }
+        case 'save-state': {
+          const stateFileIdx = args.indexOf('--state-file');
+          const stateJsonIdx = args.indexOf('--state-json');
+          cmdMaintainTestsSaveState(cwd, {
+            stateFile: stateFileIdx !== -1 ? args[stateFileIdx + 1] : null,
+            stateJson: stateJsonIdx !== -1 ? args[stateJsonIdx + 1] : null,
+          }, raw);
+          break;
+        }
+        case 'load-state': {
+          const stateFileIdx = args.indexOf('--state-file');
+          cmdMaintainTestsLoadState(cwd, {
+            stateFile: stateFileIdx !== -1 ? args[stateFileIdx + 1] : null,
+          }, raw);
+          break;
+        }
         default:
           error(`Unknown maintain-tests subcommand: ${subCmd}\nAvailable: discover, batch, run-batch, save-state, load-state`);
       }
@@ -5415,6 +5431,12 @@ async function main() {
 }
 
 // ─── Maintain Tests: Batch Commands ──────────────────────────────────────────
+
+// Detect whether node:sqlite (DatabaseSync) is available (Node >= 22.5.0)
+function hasSqliteSupport() {
+  const [major, minor] = process.version.slice(1).split('.').map(Number);
+  return major > 22 || (major === 22 && minor >= 5);
+}
 
 // Mulberry32 — deterministic PRNG (no external dependency)
 function mulberry32(seed) {
@@ -5533,6 +5555,91 @@ function cmdMaintainTestsBatch(cwd, options, raw) {
 
   // Always output to stdout
   output(manifest, raw);
+}
+
+function cmdMaintainTestsSaveState(cwd, options, raw) {
+  const { stateFile: stateFileOpt, stateJson } = options;
+  const defaultStatePath = path.join(cwd, '.planning', 'maintain-tests-state.json');
+  const absStatePath = stateFileOpt
+    ? (path.isAbsolute(stateFileOpt) ? stateFileOpt : path.join(cwd, stateFileOpt))
+    : defaultStatePath;
+
+  if (!stateJson) {
+    error('maintain-tests save-state: --state-json is required');
+  }
+  let stateObj;
+  try {
+    stateObj = JSON.parse(stateJson);
+  } catch (e) {
+    error('maintain-tests save-state: invalid JSON \u2014 ' + e.message);
+  }
+  stateObj.updated = new Date().toISOString();
+
+  if (hasSqliteSupport()) {
+    try {
+      const { DatabaseSync } = require('node:sqlite');
+      const db = new DatabaseSync(absStatePath);
+      db.exec('CREATE TABLE IF NOT EXISTS state (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated TEXT NOT NULL)');
+      const upsert = db.prepare('INSERT OR REPLACE INTO state (key, value, updated) VALUES (?, ?, ?)');
+      upsert.run('session', JSON.stringify(stateObj), stateObj.updated);
+      db.close();
+      output({ written: true, path: absStatePath, backend: 'sqlite' }, raw);
+    } catch (e) {
+      error('maintain-tests save-state: SQLite write failed \u2014 ' + e.message);
+    }
+  } else {
+    try {
+      fs.writeFileSync(absStatePath, JSON.stringify(stateObj, null, 2), 'utf-8');
+      output({ written: true, path: absStatePath, backend: 'json' }, raw);
+    } catch (e) {
+      error('maintain-tests save-state: JSON write failed \u2014 ' + e.message);
+    }
+  }
+}
+
+function cmdMaintainTestsLoadState(cwd, options, raw) {
+  const { stateFile: stateFileOpt } = options;
+  const defaultStatePath = path.join(cwd, '.planning', 'maintain-tests-state.json');
+  const absStatePath = stateFileOpt
+    ? (path.isAbsolute(stateFileOpt) ? stateFileOpt : path.join(cwd, stateFileOpt))
+    : defaultStatePath;
+
+  if (!fs.existsSync(absStatePath)) {
+    output(null, raw);
+    return;
+  }
+
+  if (hasSqliteSupport()) {
+    try {
+      const { DatabaseSync } = require('node:sqlite');
+      const db = new DatabaseSync(absStatePath);
+      let state = null;
+      try {
+        const select = db.prepare('SELECT value FROM state WHERE key = ?');
+        const row = select.get('session');
+        state = row ? JSON.parse(row.value) : null;
+      } catch (_e) {
+        // Table does not exist or schema mismatch
+      }
+      db.close();
+      output(state, raw);
+    } catch (_e) {
+      // SQLite open failed (may be JSON file from fallback path)
+      try {
+        const state = JSON.parse(fs.readFileSync(absStatePath, 'utf-8'));
+        output(state, raw);
+      } catch (__e) {
+        output(null, raw);
+      }
+    }
+  } else {
+    try {
+      const state = JSON.parse(fs.readFileSync(absStatePath, 'utf-8'));
+      output(state, raw);
+    } catch (_e) {
+      output(null, raw);
+    }
+  }
 }
 
 // ─── Maintain-Tests: Discover ─────────────────────────────────────────────────
