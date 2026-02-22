@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-22 after Phase 23)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.4 MCP Ecosystem — Phase 23 complete, ready to plan Phase 24
+**Current focus:** v0.4 MCP Ecosystem — Phase 24 complete, ready to plan Phase 25
 
 ## Current Position
 
-Phase: 23 of 28 (MCP Repo Surface Fixes)
-Plan: 3 of 3 in current phase
-Status: Complete — Phase 23 done (openhands rename, dynamic versioning, MIT license, metadata, Makefile, CHANGELOG/CLAUDE.md)
-Last activity: 2026-02-22 - Completed Phase 23 execution (3 plans, 7 requirements closed: STD-01/03/05/06/07/09/10)
+Phase: 24 of 28 (Gen1-to-Gen2 Architecture Port)
+Plan: 4 of 4 in current phase
+Status: Complete — Phase 24 done (all 4 MCP servers ported to Gen2 per-tool architecture, 210 tests passing)
+Last activity: 2026-02-22 - Completed Phase 24 execution (4 plans, Gen2 migration: claude 62✓, codex 77✓, copilot 58✓, openhands 13✓)
 
 Progress: [████████████████████] 3/3 plans (100%)
 
@@ -101,5 +101,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 19-02-PLAN.md — maintain_tests routing rows added to both resume-project.md copies (INTG-02 closed)
+Stopped at: Completed Phase 24 — all 4 MCP servers ported from Gen1 to Gen2 architecture; 210 tests passing across 4 repos
 Resume file: None
