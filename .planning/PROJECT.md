@@ -58,7 +58,8 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 - ✓ User can run `/qgsd:fix-tests` to discover all jest/playwright/pytest tests in a project — Phase 20
 - ✓ Tool randomly batches tests into groups of 100 and iterates through batches with progress banners — Phase 20
-- [ ] Claude categorizes each failure into 5 action types (valid skip / adapt / isolate / real bug / fixture)
+- ✓ Claude categorizes each failure into 5 action types (valid skip / adapt / isolate / real bug / fixture) with context_score gating and git pickaxe enrichment for adapt — Phase 21
+- ✓ Actionable failures (adapt/fixture/isolate) are grouped by category+error_type+directory and dispatched as /qgsd:quick Tasks (max 20/task); real-bug failures deferred to user report — Phase 21
 - [ ] Tool iterates via debug→quick→debug loop until all tests are classified and actioned
 - [ ] npm publish qgsd@0.2.0 deferred — run `npm publish --access public` when ready (RLS-04)
 
@@ -112,10 +113,14 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | gsd-tools.cjs monolith noted as tech debt | Parallel wave agents all modifying same file triggered circuit breaker false positive; modularization deferred to future phase | Phase 18 — architectural note |
 | Stub categorization marks all failures as real_bug | Conservative placeholder for Phase 20; Phase 21 replaces with AI classification (CATG-01/02/03); never dispatches auto-actions in Phase 20 | Phase 20 — ITER-01/02 |
 | consecutive_no_progress stored in state JSON | Survives interruption; resume logic can correctly continue progress guard count without resetting | Phase 20 — ITER-02 |
+| Phase 20 stub detection in fix-tests Step 6d | Checks categorization_verdicts == [] AND results_by_category non-empty → clears stale state and re-classifies; ensures Phase 20 runs resume correctly under Phase 21 workflow | Phase 21 — CATG-01 |
+| real-bug conservative fallback | When uncertain, classify as real-bug (never auto-action incorrectly); better to surface to user than wrong dispatch | Phase 21 — CATG-01 |
+| Pickaxe enrichment is non-gating | commits = [] still dispatches as adapt; pickaxe_context = null if git unavailable — categorization not blocked by git absence | Phase 21 — CATG-02 |
+| Dispatch state saved BEFORE Task spawn | dispatched_task record written to state before Task() call — idempotent on resume; dedup check skips already-dispatched chunks | Phase 21 — CATG-03 |
 | ToolArguments re-export skipped in constants.ts | None of the 4 Gen1-ported repos define ToolArguments in types.ts — each uses specific Zod schemas; re-export would TypeScript error | Phase 25 — Plan 01 |
 | No console.log replacements in Phase 25 | Gen2 port (Phase 24) already eliminated all console.log from operational source files in all 4 repos | Phase 25 — Plan 02 |
 | gemini identityTool was registered but export-only | identityTool was exported from simple-tools.ts but never pushed to toolRegistry in index.ts — registered in Plan 03 | Phase 25 — Plan 03 bug fix |
 | AVAILABLE_OPENCODE_MODELS defined inline in simple-tools.ts | opencode types.ts uses interface pattern without MODELS/TOOLS consts; inline avoids misfit import | Phase 25 — Plan 03 |
 
 ---
-*Last updated: 2026-02-22 after Phase 20 — /qgsd:fix-tests workflow orchestrator complete; ITER-01/02 INTG-01/03 satisfied; Phase 21 (Categorization Engine) ready to plan*
+*Last updated: 2026-02-22 after Phase 21 — categorization engine (5-category AI classification + git pickaxe + dispatch loop) complete; CATG-01/02/03 satisfied; Phase 22 (Integration Test) ready to plan*
