@@ -5739,6 +5739,316 @@ function cmdMaintainTestsDiscover(cwd, options, raw) {
   }
 }
 
+// ─── Maintain-Tests: Run-Batch ────────────────────────────────────────────────
+
+/**
+ * spawnToFile — Spawn a subprocess, piping stdout+stderr to a file.
+ * Uses spawn (async streaming) NOT spawnSync — avoids Node.js maxBuffer overflow.
+ */
+function spawnToFile(cmd, cmdArgs, opts, outputPath) {
+  return new Promise((resolve, reject) => {
+    const outStream = fs.createWriteStream(outputPath);
+    const proc = spawn(cmd, cmdArgs, {
+      cwd: opts.cwd || process.cwd(),
+      env: opts.env || process.env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    proc.stdout.pipe(outStream);
+    proc.stderr.pipe(outStream); // capture both to same file
+
+    let timedOut = false;
+    const timer = opts.timeoutMs ? setTimeout(() => {
+      timedOut = true;
+      proc.kill('SIGTERM');
+    }, opts.timeoutMs) : null;
+
+    proc.on('close', (code) => {
+      if (timer) clearTimeout(timer);
+      outStream.end(() => {
+        resolve({ exitCode: code, timedOut, outputPath });
+      });
+    });
+
+    proc.on('error', reject);
+  });
+}
+
+/**
+ * truncateErrorSummary — Truncate error output to first 500 chars.
+ */
+function truncateErrorSummary(text) {
+  if (!text) return null;
+  const str = String(text);
+  return str.length > 500 ? str.slice(0, 500) : str;
+}
+
+/**
+ * runTestFile — Run a single test file using the appropriate framework CLI.
+ * Returns an array of per-test result records.
+ */
+async function runTestFile(testFile, runner, opts, batchTmpPrefix) {
+  const os = require('os');
+  const timestamp = Date.now();
+  const safeFile = path.basename(testFile).replace(/[^a-zA-Z0-9._-]/g, '_');
+  const tmpOutput = path.join(os.tmpdir(), `${batchTmpPrefix}-${safeFile}-${timestamp}.tmp`);
+  const startMs = Date.now();
+  let spawnResult;
+  let durationMs = 0;
+  const perTestResults = [];
+
+  try {
+    if (runner === 'jest') {
+      const jestJsonOutput = path.join(os.tmpdir(), `${batchTmpPrefix}-${safeFile}-${timestamp}-jest.json`);
+      spawnResult = await spawnToFile(
+        'npx',
+        ['jest', testFile, '--json', `--outputFile=${jestJsonOutput}`, '--passWithNoTests', '--forceExit'],
+        { cwd: opts.cwd, env: opts.env, timeoutMs: opts.fileTimeoutMs },
+        tmpOutput
+      );
+      durationMs = Date.now() - startMs;
+
+      if (spawnResult.timedOut) {
+        perTestResults.push({ file: testFile, runner, status: 'timeout', duration_ms: durationMs, error_summary: 'timed out', flaky: false, flaky_pass_count: 0 });
+      } else {
+        try {
+          const jestJson = JSON.parse(fs.readFileSync(jestJsonOutput, 'utf-8'));
+          const testResults = (jestJson.testResults && jestJson.testResults[0] && jestJson.testResults[0].testResults) || [];
+          if (testResults.length === 0) {
+            perTestResults.push({ file: testFile, runner, status: 'passed', duration_ms: durationMs, error_summary: null, flaky: false, flaky_pass_count: 0 });
+          } else {
+            for (const t of testResults) {
+              const tStatus = t.status === 'passed' ? 'passed' : t.status === 'pending' ? 'skipped' : 'failed';
+              const errMsg = t.failureMessages && t.failureMessages.length > 0 ? t.failureMessages.join('\n') : null;
+              perTestResults.push({ file: testFile, runner, status: tStatus, duration_ms: t.duration || durationMs, error_summary: truncateErrorSummary(errMsg), flaky: false, flaky_pass_count: 0 });
+            }
+          }
+        } catch (e) {
+          const rawOutput = safeReadFile(tmpOutput) || '';
+          perTestResults.push({ file: testFile, runner, status: 'failed', duration_ms: durationMs, error_summary: truncateErrorSummary(rawOutput), flaky: false, flaky_pass_count: 0 });
+        }
+        try { fs.unlinkSync(jestJsonOutput); } catch (e) { /* ignore */ }
+      }
+
+    } else if (runner === 'playwright') {
+      spawnResult = await spawnToFile(
+        'npx',
+        ['playwright', 'test', testFile, '--reporter=json'],
+        { cwd: opts.cwd, env: opts.env, timeoutMs: opts.fileTimeoutMs },
+        tmpOutput
+      );
+      durationMs = Date.now() - startMs;
+
+      if (spawnResult.timedOut) {
+        perTestResults.push({ file: testFile, runner, status: 'timeout', duration_ms: durationMs, error_summary: 'timed out', flaky: false, flaky_pass_count: 0 });
+      } else {
+        try {
+          const pwJson = JSON.parse(fs.readFileSync(tmpOutput, 'utf-8'));
+          const suites = pwJson.suites || [];
+          for (const suite of suites) {
+            for (const spec of (suite.specs || [])) {
+              for (const t of (spec.tests || [])) {
+                for (const r of (t.results || [])) {
+                  const tStatus = r.status === 'passed' ? 'passed' : r.status === 'skipped' ? 'skipped' : 'failed';
+                  perTestResults.push({ file: testFile, runner, status: tStatus, duration_ms: r.duration || durationMs, error_summary: truncateErrorSummary(r.error ? (r.error.message || JSON.stringify(r.error)) : null), flaky: false, flaky_pass_count: 0 });
+                }
+              }
+            }
+          }
+          if (perTestResults.length === 0) {
+            perTestResults.push({ file: testFile, runner, status: 'passed', duration_ms: durationMs, error_summary: null, flaky: false, flaky_pass_count: 0 });
+          }
+        } catch (e) {
+          const rawOutput = safeReadFile(tmpOutput) || '';
+          perTestResults.push({ file: testFile, runner, status: 'failed', duration_ms: durationMs, error_summary: truncateErrorSummary(rawOutput), flaky: false, flaky_pass_count: 0 });
+        }
+      }
+
+    } else if (runner === 'pytest') {
+      const pytestJsonOutput = path.join(os.tmpdir(), `${batchTmpPrefix}-${safeFile}-${timestamp}-pytest.json`);
+      spawnResult = await spawnToFile(
+        'python',
+        ['-m', 'pytest', testFile, '--json-report', `--json-report-file=${pytestJsonOutput}`, '-q'],
+        { cwd: opts.cwd, env: opts.env, timeoutMs: opts.fileTimeoutMs },
+        tmpOutput
+      );
+      durationMs = Date.now() - startMs;
+
+      if (spawnResult.timedOut) {
+        perTestResults.push({ file: testFile, runner, status: 'timeout', duration_ms: durationMs, error_summary: 'timed out', flaky: false, flaky_pass_count: 0 });
+      } else {
+        let parsed = false;
+        try {
+          if (fs.existsSync(pytestJsonOutput)) {
+            const pytestJson = JSON.parse(fs.readFileSync(pytestJsonOutput, 'utf-8'));
+            const tests = pytestJson.tests || [];
+            for (const t of tests) {
+              const tStatus = t.outcome === 'passed' ? 'passed' : t.outcome === 'skipped' ? 'skipped' : 'failed';
+              const errMsg = t.call && t.call.longrepr ? t.call.longrepr : null;
+              perTestResults.push({ file: testFile, runner, status: tStatus, duration_ms: Math.round((t.duration || 0) * 1000), error_summary: truncateErrorSummary(errMsg), flaky: false, flaky_pass_count: 0 });
+            }
+            parsed = tests.length > 0;
+            try { fs.unlinkSync(pytestJsonOutput); } catch (e) { /* ignore */ }
+          }
+        } catch (e) { /* fall through to stdout parsing */ }
+
+        if (!parsed) {
+          // Fallback: parse stdout for PASSED/FAILED/SKIPPED lines
+          const rawOutput = safeReadFile(tmpOutput) || '';
+          const lines = rawOutput.split('\n');
+          let parsedLines = false;
+          for (const line of lines) {
+            const m = line.match(/^(.+::[\w\[\]]+)\s+(PASSED|FAILED|SKIPPED)/);
+            if (m) {
+              parsedLines = true;
+              const tStatus = m[2] === 'PASSED' ? 'passed' : m[2] === 'SKIPPED' ? 'skipped' : 'failed';
+              perTestResults.push({ file: testFile, runner, status: tStatus, duration_ms: durationMs, error_summary: tStatus === 'failed' ? truncateErrorSummary(rawOutput) : null, flaky: false, flaky_pass_count: 0 });
+            }
+          }
+          if (!parsedLines) {
+            const exitStatus = spawnResult.exitCode === 0 ? 'passed' : 'failed';
+            perTestResults.push({ file: testFile, runner, status: exitStatus, duration_ms: durationMs, error_summary: exitStatus === 'failed' ? truncateErrorSummary(rawOutput) : null, flaky: false, flaky_pass_count: 0 });
+          }
+        }
+      }
+
+    } else {
+      perTestResults.push({ file: testFile, runner, status: 'error', duration_ms: 0, error_summary: `Unknown runner: ${runner}`, flaky: false, flaky_pass_count: 0 });
+    }
+  } catch (e) {
+    durationMs = Date.now() - startMs;
+    perTestResults.push({ file: testFile, runner, status: 'error', duration_ms: durationMs, error_summary: truncateErrorSummary(e.message), flaky: false, flaky_pass_count: 0 });
+  }
+
+  // Cleanup temp output file
+  try { fs.unlinkSync(tmpOutput); } catch (e) { /* log warning but do not error */ }
+
+  return perTestResults;
+}
+
+/**
+ * cmdMaintainTestsRunBatch — Execute a batch manifest and record per-test pass/fail/skip.
+ *
+ * EXEC-02: Batch execution with file-based output capture (not memory buffers).
+ * EXEC-04: 3-run flakiness pre-check for all failing tests.
+ */
+async function cmdMaintainTestsRunBatch(cwd, options, raw) {
+  const os = require('os');
+  const { batchFile, timeoutSec, outputFile, env } = options;
+
+  if (!batchFile) {
+    error('maintain-tests run-batch: --batch-file is required');
+  }
+
+  // Read batch manifest
+  const resolvedBatchFile = path.isAbsolute(batchFile) ? batchFile : path.join(cwd, batchFile);
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(resolvedBatchFile, 'utf-8'));
+  } catch (e) {
+    error(`maintain-tests run-batch: could not read batch file "${batchFile}" — ${e.message}`);
+  }
+
+  // Support both top-level batch object and manifest with batches array
+  // If manifest has a `batches` array, use the first batch
+  let batchObj;
+  if (manifest.batches && Array.isArray(manifest.batches)) {
+    batchObj = manifest.batches[0] || { batch_id: manifest.batch_id || 1, files: [], file_count: 0 };
+  } else {
+    batchObj = manifest;
+  }
+
+  const batchId = batchObj.batch_id || manifest.batch_id || 1;
+  const runner = batchObj.runner || manifest.runner || 'jest';
+  const files = batchObj.files || [];
+
+  const timeoutMs = (timeoutSec || 300) * 1000;
+  const batchStartMs = Date.now();
+  const batchTmpPrefix = `maintain-tests-batch-${batchId}-${batchStartMs}`;
+
+  const results = [];
+  let batchTimedOut = false;
+
+  // Execute each file individually — NOT all at once — for per-file result isolation
+  for (const testFile of files) {
+    // Check batch-level timeout
+    if (Date.now() - batchStartMs >= timeoutMs) {
+      batchTimedOut = true;
+      results.push({ file: testFile, runner, status: 'timeout', duration_ms: 0, error_summary: 'batch timeout exceeded', flaky: false, flaky_pass_count: 0 });
+      continue;
+    }
+
+    const fileOpts = { cwd, env, fileTimeoutMs: undefined };
+    const perTestResults = await runTestFile(testFile, runner, fileOpts, batchTmpPrefix);
+    results.push(...perTestResults);
+  }
+
+  // 3-run flakiness pre-check for failing tests (EXEC-04)
+  // Sequential — not parallel — to preserve predictability
+  for (const result of results) {
+    if (result.status !== 'failed') continue;
+
+    if (Date.now() - batchStartMs >= timeoutMs) {
+      batchTimedOut = true;
+      break;
+    }
+
+    let passCount = 0;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (Date.now() - batchStartMs >= timeoutMs) {
+        batchTimedOut = true;
+        break;
+      }
+      const rerunResults = await runTestFile(result.file, runner, { cwd, env }, `${batchTmpPrefix}-rerun${attempt}`);
+      const anyPassed = rerunResults.some(r => r.status === 'passed');
+      if (anyPassed) passCount++;
+    }
+
+    if (passCount >= 1) {
+      result.flaky = true;
+      result.flaky_pass_count = passCount;
+      result.status = 'flaky';
+    }
+  }
+
+  // Tally counts
+  let passedCount = 0;
+  let failedCount = 0;
+  let skippedCount = 0;
+  let flakyCount = 0;
+  let timeoutCount = 0;
+
+  for (const r of results) {
+    if (r.status === 'passed') passedCount++;
+    else if (r.status === 'failed' || r.status === 'error') failedCount++;
+    else if (r.status === 'skipped') skippedCount++;
+    else if (r.status === 'flaky') flakyCount++;
+    else if (r.status === 'timeout') timeoutCount++;
+  }
+
+  const batchOutput = {
+    batch_id: batchId,
+    runner,
+    executed_count: results.length,
+    passed_count: passedCount,
+    failed_count: failedCount,
+    skipped_count: skippedCount,
+    flaky_count: flakyCount,
+    timeout_count: timeoutCount,
+    batch_timed_out: batchTimedOut,
+    results,
+  };
+
+  // Write to --output-file if specified; otherwise output() to stdout
+  if (outputFile) {
+    const resolvedOutputFile = path.isAbsolute(outputFile) ? outputFile : path.join(cwd, outputFile);
+    fs.writeFileSync(resolvedOutputFile, JSON.stringify(batchOutput, null, 2), 'utf-8');
+    output({ written: true, path: outputFile, executed_count: results.length }, raw);
+  } else {
+    output(batchOutput, raw);
+  }
+}
+
 // ─── Activity Commands ────────────────────────────────────────────────────────
 
 function cmdActivitySet(cwd, jsonStr, raw) {
