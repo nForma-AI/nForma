@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-22 after Phase 33)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.5 MCP Setup Wizard — Phase 34 ready to plan (Provider Swap)
+**Current focus:** v0.5 MCP Setup Wizard — Phase 34 executed (Provider Swap complete)
 
 ## Current Position
 
 Phase: 34 of 36 (Provider Swap)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-22 - Phase 33 complete (KEY-01..KEY-04 shipped); advanced to Phase 34
+Plan: 01 of 01
+Status: Executed — pending phase verification
+Last activity: 2026-02-22 - Phase 34 plan 01 complete: full provider swap flow in mcp-setup.md Option 2
 
 Progress: [████████████████████] 30/30 plans (100%)
 
@@ -77,5 +77,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 2026-02-22 — Phase 33 complete; transitioned to Phase 34 (Provider Swap) ready to plan
+Stopped at: 2026-02-22 — Phase 34 plan 01 executed; provider swap flow (PROV-01..PROV-03) implemented in mcp-setup.md
 Resume file: None
