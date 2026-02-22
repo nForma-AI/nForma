@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-22 after v0.3 milestone started)
 ## Current Position
 
 Phase: 18 of 22 (CLI Foundation)
-Plan: 0 of 4 in current phase
-Status: Planned — ready to execute (4 plans written, quorum consensus reached)
-Last activity: 2026-02-22 - Phase 18 planned: 4 PLAN.md files written (18-01 through 18-04); quorum consensus in 2 rounds (reduced: Codex UNAVAILABLE)
+Plan: 2 of 4 in current phase
+Status: Executing — 18-02 complete (batch sub-command)
+Last activity: 2026-02-22 - Phase 18-02 complete: cmdMaintainTestsBatch with Mulberry32 PRNG; 155 tests pass
 
-Progress: [████████████████████░░░░░] 40/44 plans (v0.2 100% — v0.3 Phase 18 planned)
+Progress: [████████████████████░░░░░] 42/44 plans (v0.2 100% — v0.3 Phase 18: 2/4 plans done)
 
 ## Performance Metrics
 
@@ -54,6 +54,9 @@ Recent decisions affecting current work:
 - [v0.3 arch]: Always use framework CLIs for discovery (never independent globs) — prevents monorepo cross-discovery collision (DISC-02)
 - [RLS-04 carry-forward]: npm publish qgsd@0.2.0 deferred — user decision; run when ready
 - [quick-40]: Research always runs on /qgsd:plan-phase; has_research shortcut removed from plan-phase.md Step 5
+- [18-02]: Mulberry32 PRNG implemented inline (no external dep) for deterministic test batch shuffling
+- [18-02]: Batch manifest written to disk BEFORE returning when --manifest-file provided — enables crashed-run resume
+- [18-02]: Batch manifest schema: seed, batch_size, total_files, total_batches, batches[].{batch_id, files, file_count}
 
 ### Pending Todos
 
@@ -75,5 +78,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Phase 18 planned — 4 PLAN.md files written in .planning/phases/18-cli-foundation/. Quorum consensus reached in 2 rounds (Codex UNAVAILABLE). Ready to execute Phase 18.
+Stopped at: Phase 18-02 complete — cmdMaintainTestsBatch implemented; 18-03 and 18-04 remaining.
 Resume file: None
