@@ -14,7 +14,7 @@
 
 - [x] **EXEC-01**: Tool randomly shuffles all discovered tests and splits them into batches of 100 (batch size configurable via `.claude/qgsd.json`)
 - [x] **EXEC-02**: Tool executes each batch, captures JSON-formatted output, and records pass/fail/skip status per test
-- [ ] **EXEC-03**: Tool persists batch progress to a local state file so interrupted runs on 20,000+ test suites can resume from the last completed batch
+- [x] **EXEC-03**: Tool persists batch progress to a local state file so interrupted runs on 20,000+ test suites can resume from the last completed batch
 - [x] **EXEC-04**: Tool runs each failing test 3 times before AI categorization to detect flakiness (eliminates false positives from non-convergent loops)
 
 ### Categorization
@@ -99,7 +99,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-01 | Phase 18 | Complete |
 | EXEC-02 | Phase 18 | Complete |
 | EXEC-04 | Phase 18 | Complete |
-| EXEC-03 | Phase 19 | Pending |
+| EXEC-03 | Phase 19 | Complete |
 | INTG-02 | Phase 19 | Complete |
 | ITER-01 | Phase 20 | Pending |
 | ITER-02 | Phase 20 | Pending |

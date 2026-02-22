@@ -40,6 +40,7 @@ Progress: [████████████████████] 3/3 pla
 | Phase 18 P03 | 15min | 3 tasks | 2 files |
 | Phase 18 P04 | 12min | 3 tasks | 1 files |
 | Phase 19 P02 | 4 | 2 tasks | 2 files |
+| Phase 19 P01 | 5 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [18-04]: Test deduplication invariant via Set.size == array.length rather than mock CLI injection — works without jest/playwright/pytest installed
 - [Phase 19-02]: Edit source and installed resume-project.md copies independently (not via cp) — installed copy uses absolute paths, source uses tilde paths
 - [Phase 19-02]: All 6 maintain_tests sub_activities carry (activity=maintain_tests) qualifier — prevents mis-routing when future activities reuse same sub_activity names (Pitfall 5)
+- [Phase 19]: load-state returns null for missing file (not {}) — Phase 20 can distinguish fresh start from corrupted state
+- [Phase 19]: require('node:sqlite') inside hasSqliteSupport() branch only — avoids ExperimentalWarning on Node < 22.5
+- [Phase 19]: --batch-index is zero-based array subscript; out-of-bounds emits error containing 'out of range'
 
 ### Pending Todos
 
