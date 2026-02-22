@@ -44,11 +44,11 @@
 - [ ] **STD-01**: openhands-mcp-server package.json name, class name, and server config are corrected to `openhands-mcp-server` (currently all say `codex-mcp-server`)
 - [ ] **STD-02**: All 4 Gen1 repos (claude, codex, copilot, openhands) use Gen2 per-tool `*.tool.ts` + `registry.ts` architecture
 - [ ] **STD-03**: All 6 repos read version dynamically from `package.json` (no hardcoded string in `index.ts`)
-- [ ] **STD-04**: All 6 repos expose an `identity` tool returning `{name, version, model, available_models, install_method}`
+- [x] **STD-04**: All 6 repos expose an `identity` tool returning `{name, version, model, available_models, install_method}`
 - [ ] **STD-05**: All 6 repos use MIT license with a `LICENSE` file present
 - [ ] **STD-06**: All 6 repos have `engines: node>=18`, `prepublishOnly` build script, `publishConfig: {access: public}`
 - [ ] **STD-07**: All 6 repos have a comprehensive Makefile with lint/format/test/build/clean/dev targets
-- [ ] **STD-08**: All 6 repos have `constants.ts` and a `Logger` utility in `src/utils/logger.ts`
+- [x] **STD-08**: All 6 repos have `constants.ts` and a `Logger` utility in `src/utils/logger.ts`
 - [ ] **STD-09**: All 6 repos have `CHANGELOG.md` and `CLAUDE.md`
 - [ ] **STD-10**: All 6 repos use consistent npm scoping (uniform: all `@tuannvm/` or all unscoped)
 
@@ -116,8 +116,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STD-09 | Phase 23 | Pending |
 | STD-10 | Phase 23 | Pending |
 | STD-02 | Phase 24 | Pending |
-| STD-04 | Phase 25 | Pending |
-| STD-08 | Phase 25 | Pending |
+| STD-04 | Phase 25 | Complete |
+| STD-08 | Phase 25 | Complete |
 | OBS-01 | Phase 26 | Pending |
 | OBS-02 | Phase 26 | Pending |
 | OBS-03 | Phase 26 | Pending |
