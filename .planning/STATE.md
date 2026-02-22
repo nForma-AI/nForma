@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-22 after v0.3 milestone started)
 Phase: 18 of 22 (CLI Foundation)
 Plan: 4 of 4 in current phase
 Status: Complete — 18-04 done (integration + edge-case tests for all maintain-tests sub-commands)
-Last activity: 2026-02-22 - Completed quick task 44: if somebody run the /qgsd:execute-phase N --auto commands, i want it to cycle through all the phases of that milestone: execute -> plan -> execute -> plan
+Last activity: 2026-02-22 - Completed quick task 46: Review all quorum invocation sites and reduce verbosity of banners and step labels
 
 Progress: [█████████████████████░░░░] 44/44 plans (v0.2 100% — v0.3 Phase 18: 4/4 plans done)
 
@@ -86,6 +86,7 @@ Recent decisions affecting current work:
 | 42 | adapt claude-mcp-server fork: replace Codex CLI with Claude CLI end-to-end | 2026-02-22 | 4c05844 | Verified | [42-adapt-claude-mcp-server-fork-replace-cod](./quick/42-adapt-claude-mcp-server-fork-replace-cod/) |
 | 43 | we need to review the qgsd quick command | 2026-02-22 | 22a15de | Verified | [43-we-need-to-review-the-qgsd-quick-command](./quick/43-we-need-to-review-the-qgsd-quick-command/) |
 | 44 | enable /qgsd:execute-phase N --auto to chain through all milestone phases | 2026-02-22 | a0400d9 | Verified | [44-if-somebody-run-the-qgsd-execute-phase-n](./quick/44-if-somebody-run-the-qgsd-execute-phase-n/) |
+| 46 | Review all quorum invocation sites and reduce verbosity of banners and step labels | 2026-02-22 | {commit_hash} | Pending | [46-review-all-quorum-invocation-sites-and-r](./quick/46-review-all-quorum-invocation-sites-and-r/) |
 
 ## Session Continuity
 
