@@ -221,7 +221,7 @@
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
-| 25. Identity Tool and Shared Utilities | 1/3 | In Progress|  | - |
+| 25. Identity Tool and Shared Utilities | 2/3 | In Progress|  | - |
 | 26. MCP Status Command | v0.4 | 0/? | Not started | - |
 | 27. Model Switching | v0.4 | 0/? | Not started | - |
 | 28. Update and Restart Commands | v0.4 | 0/? | Not started | - |
