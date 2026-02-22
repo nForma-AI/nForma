@@ -220,7 +220,7 @@
 | 19. State Schema & Activity Integration | v0.3 | 2/2 | Complete | 2026-02-22 |
 | 20. Workflow Orchestrator | 1/1 | Complete    | 2026-02-22 | - |
 | 21. Categorization Engine | 2/2 | Complete    | 2026-02-22 | - |
-| 22. Integration Test | 2/2 | Complete   | 2026-02-22 | 2026-02-22 |
+| 22. Integration Test | 2/2 | Complete    | 2026-02-22 | 2026-02-22 |
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
 | 25. Identity Tool and Shared Utilities | 3/3 | Complete    | 2026-02-22 | - |
