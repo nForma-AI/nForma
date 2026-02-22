@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-22 after v0.4 gap closure)
 Phase: 32 of 36 (Wizard Scaffold — v0.5 start)
 Plan: — (not yet planned)
 Status: Ready to plan
-Last activity: 2026-02-22 - Completed quick task 52: is it clean ?
+Last activity: 2026-02-22 - Completed quick task 53: we need full unit test coverage
 
 Progress: [████████████████████] 30/30 plans (100%)
 
@@ -69,6 +69,7 @@ Recent decisions affecting current work:
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 52 | is it clean ? | 2026-02-22 | a7e4c9f | Complete | [52-is-it-clean](./quick/52-is-it-clean/) |
+| 53 | we need full unit test coverage | 2026-02-22 | 76b24b5 | Pending | [53-we-need-full-unit-test-coverage](./quick/53-we-need-full-unit-test-coverage/) |
 
 ## Session Continuity
 
