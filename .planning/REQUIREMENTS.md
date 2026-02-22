@@ -61,8 +61,8 @@
 
 ### MCP Management (MGR)
 
-- [ ] **MGR-01**: User can run `/qgsd:mcp-set-model <agent> <model>` to set the default model for a quorum worker
-- [ ] **MGR-02**: Default model preference persists in `qgsd.json` and is injected into subsequent quorum tool calls
+- [x] **MGR-01**: User can run `/qgsd:mcp-set-model <agent> <model>` to set the default model for a quorum worker
+- [x] **MGR-02**: Default model preference persists in `qgsd.json` and is injected into subsequent quorum tool calls
 - [ ] **MGR-03**: User can run `/qgsd:mcp-update <agent>` to auto-detect installation method and run the correct update command
 - [ ] **MGR-04**: `/qgsd:mcp-update` detects npm global / brew / pipx / binary and runs appropriate update command
 - [ ] **MGR-05**: User can run `/qgsd:mcp-update all` to update all agents sequentially
@@ -122,8 +122,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OBS-02 | Phase 26 | Complete |
 | OBS-03 | Phase 26 | Complete |
 | OBS-04 | Phase 26 | Complete |
-| MGR-01 | Phase 27 | Pending |
-| MGR-02 | Phase 27 | Pending |
+| MGR-01 | Phase 27 | Complete |
+| MGR-02 | Phase 27 | Complete |
 | MGR-03 | Phase 28 | Pending |
 | MGR-04 | Phase 28 | Pending |
 | MGR-05 | Phase 28 | Pending |

@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-22 after Phase 26)
 
 ## Current Position
 
-Phase: 26 of 28 (MCP Status Command) — COMPLETE
-Plan: 26-01 — complete
-Status: Phase 26 complete — /qgsd:mcp-status live; OBS-01..04 satisfied; 10 agents in identity table; Phases 23–26 all done
-Last activity: 2026-02-22 - Completed Phase 26: /qgsd:mcp-status command with scoreboard UNAVAIL counts and health state
+Phase: 27 of 28 (Model Switching) — COMPLETE
+Plan: 27-02 — complete
+Status: Phase 27 complete — /qgsd:mcp-set-model live; MGR-01 and MGR-02 satisfied; model_preferences persistence + quorum injection both working
+Last activity: 2026-02-22 - Completed Phase 27: /qgsd:mcp-set-model slash command + model_preferences config + override injection
 
-Progress: [████████████████████░] 26/28 phases (93%)
+Progress: [█████████████████████░] 27/28 phases (96%)
 
 ## Performance Metrics
 
