@@ -49,6 +49,10 @@ Requirements satisfied during v0.4 MCP Ecosystem milestone.
 - [x] **OBS-03**: Status shows available models for each agent (from `identity` tool response)
 - [x] **OBS-04**: Status shows recent UNAVAIL count per agent from quorum scoreboard
 
+### Standardization (STD)
+
+- [x] **STD-10**: gemini-mcp-server npm package name is unscoped (`gemini-mcp-server`, not `@tuannvm/gemini-mcp-server`) — `~/.claude.json` mcpServers["gemini-cli"].args reflects the unscoped name
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -102,13 +106,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OBS-02 | Phase 29 (gap closure) | Complete |
 | OBS-03 | Phase 29 (gap closure) | Complete |
 | OBS-04 | Phase 29 (gap closure) | Complete |
+| STD-10 | Phase 23 + Phase 30 (gap closure) | Complete |
 
 **Coverage:**
 - v0.5 requirements: 16 total
 - Mapped to phases: 16
 - Unmapped: 0 ✓
-- v0.4 requirements completed: 4 (OBS-01–04)
+- v0.4 requirements completed: 5 (OBS-01–04, STD-10)
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 — v0.4 OBS-01–04 marked Complete (Phase 29 gap closure)*
+*Last updated: 2026-02-22 — STD-10 marked Complete (Phase 30 gap closure)*
