@@ -1,8 +1,22 @@
 # Stack Research
 
-**Domain:** Claude Code hook-based plugin extension
-**Researched:** 2026-02-20
-**Confidence:** HIGH — all hook schemas verified from official docs at code.claude.com/docs/en/hooks and cross-validated against the live GSD codebase (gsd-guardian.py, gsd-statusline.js, gsd-check-update.js, settings.json)
+**Domain:** Test suite maintenance tool — Node.js CLI command within QGSD plugin
+**Researched:** 2026-02-22
+**Confidence:** HIGH — all library choices verified against official docs, npm current versions confirmed, Node.js built-in capabilities verified from v25.6.1 docs
+
+---
+
+## Scope
+
+This STACK.md covers ONLY the new capabilities needed for v0.3 (`/qgsd:maintain-tests`). The existing QGSD stack (Claude Code hooks API, Node.js stdlib for hooks, esbuild for build, hook registration via settings.json) is already documented in the v0.1/v0.2 STACK.md and is not re-documented here.
+
+**New capabilities required:**
+1. Test file discovery (jest / playwright / pytest) across unknown project layouts
+2. Batch execution (100 tests/batch, sequential)
+3. Structured failure capture (machine-readable JSON output from each runner)
+4. Persistent state across interrupted runs (20k+ test suites means multi-session)
+5. AI categorization loop (Claude subagent reads failures, writes category decisions)
+6. Git history integration (optional: determine when test last passed for context)
 
 ---
 
@@ -12,471 +26,92 @@
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| Node.js | >=16.7.0 | Hook runtime | GSD hooks are Node.js; Claude Code itself ships Node; zero install overhead for users who have Claude Code. The existing gsd-statusline.js and gsd-check-update.js confirm Node is already the runtime of record. |
-| Python 3 | system (3.9+) | Alternative hook runtime | gsd-guardian.py demonstrates Python works equally well for stateful, complex hooks. Python is preferred when logic involves subprocess calls to external CLIs (gemini, codex). Either runtime is valid; choose based on what the hook does. |
-| JSON/JSONL | (no lib) | Transcript parsing | Claude Code transcript files are newline-delimited JSON (one JSON object per line). Node's `JSON.parse()` on each line is the only dependency. No external library needed. |
+| Node.js `child_process.spawnSync` | built-in (Node >=16.7.0) | Execute jest/playwright/pytest as subprocesses | Already used in qgsd-circuit-breaker.js for git operations. Synchronous variant is correct for sequential batch execution — simpler control flow, exit code and stdout/stderr available immediately after the call returns. |
+| Node.js `fs` | built-in | Read/write batch state file, read jest/playwright JSON output, write categorization log | The stdlib of record in every existing QGSD hook. No external library needed. |
+| Node.js `path` | built-in | Resolve project root, construct runner command paths | Already the stdlib of record in all QGSD hooks. |
+| Node.js `child_process.spawn` (async) | built-in | Execute long-running batches where stdout must stream | Use the async variant when a batch may produce >1MB stdout (e.g. 100 slow playwright tests). Pipe stdout/stderr to a temp file rather than buffering in memory to avoid pipe-buffer blocking. |
 
-### Supporting Libraries
+### Test Discovery
 
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
-| `fs` (Node built-in) | built-in | Read transcript JSONL files, read/write settings.json | Always — the Stop hook reads transcript_path with `fs.readFileSync` |
-| `readline` (Node built-in) | built-in | Stream-parse large JSONL transcripts line by line | When transcript files are large (>1MB) and reading the whole file wastes memory |
-| `path` (Node built-in) | built-in | Resolve transcript_path and hook script paths | Always |
-| `os` (Node built-in) | built-in | Resolve home directory (~/.claude) in install scripts | Install logic only |
-| `json` (Python built-in) | built-in | Parse stdin hook input in Python hooks | Always for Python hooks |
-| `subprocess` (Python built-in) | built-in | Call gemini/codex CLIs from hooks | When Stage 2 AI analysis is needed (see gsd-guardian.py pattern) |
-| `re` (Python built-in) | built-in | Pattern-match user prompts and commit messages | When hook needs to detect command names from prompt text |
+| `fast-glob` | 3.3.3 | Discover test files matching framework patterns (`**/*.test.{js,ts}`, `**/*.spec.{js,ts}`, `**/test_*.py`, `**/*_test.py`) across the project directory | Use when the project does NOT have a jest/playwright config to delegate discovery to. fast-glob handles negations, gitignore-style ignore patterns, and resolves symlinks. Version 3.3.3 is the current stable release (Jan 2025), MIT license, zero transitive dependencies in production use. |
+| Jest `--testPathPattern` + `--json` | Jest built-in | When the project uses Jest: delegate discovery AND execution to Jest itself by passing a regex of test file paths for one batch, capture JSON output via `--json --outputFile` | Preferred over re-implementing discovery for Jest projects. Jest's project config (testMatch, testPathIgnorePatterns) is authoritative. |
+| Playwright `--reporter=json` | Playwright built-in | When the project uses Playwright: pass explicit file list or a shard (`--shard=N/M`), capture structured JSON output | Preferred over re-implementing discovery for Playwright projects. |
+| `pytest --collect-only -q --no-header` | pytest built-in | Discover pytest tests: spawn the command and parse each `path/to/test_file.py::test_name` line from stdout | Output is NOT JSON natively but is line-delimited and parseable. Filter lines matching `^[^\s].*::` to exclude the summary line. No extra library needed. |
 
-### Development Tools
+**Discovery strategy:** Auto-detect which runner(s) the project uses by checking for presence of `jest.config.*`, `playwright.config.*`, or `pytest.ini` / `pyproject.toml` with `[tool.pytest.ini_options]`. Fall back to fast-glob pattern scan. This avoids re-implementing runner config logic.
 
-| Tool | Purpose | Notes |
-|------|---------|-------|
-| `node scripts/build-hooks.js` | Copy hooks from source to `hooks/dist/` for packaging | GSD's existing build script; QGSD will need the same pattern if hooks are bundled in an npm package |
-| `/hooks` menu in Claude Code | Interactive hook registration UI | Verify hooks are registered correctly during development without editing settings.json manually |
-| `claude --debug` | Show which hooks matched, exit codes, stdout | Primary debugging tool; add `Ctrl+O` for verbose mode in TUI |
-| `chmod +x` | Make shell scripts executable | Required for any hook that is not invoked as `node script.js` or `python3 script.py` |
+### Failure Output Capture
 
----
+| Format | Command flags | Key fields |
+|--------|---------|-----------------|
+| Jest JSON | `--json --outputFile=.qgsd-batch-result.json` | `testResults[].testResults[].failureMessages[]`, `testResults[].testResults[].status`, `testResults[].testResults[].fullName`, `testFilePath` |
+| Playwright JSON | `--reporter=json` (capture stdout to temp file) | `suites[].specs[].tests[].results[].error.message`, `suites[].specs[].tests[].results[].status`, `suites[].file` |
+| pytest text | `--tb=short -q` stdout capture | Parse `FAILED path::name - ErrorType: message` lines. Sufficient for AI categorization — the AI only needs the failure message string, not a structured schema. |
 
-## Hook System Architecture
+**Do not install pytest-json-report.** Installing a pytest plugin requires modifying the target project, which violates the QGSD constraint of being a pure observer/runner. Capturing `--tb=short` stdout is sufficient.
 
-This section documents the actual Claude Code hooks API that QGSD will use.
+### Persistent State (Batch Checkpoint)
 
-### How Hooks Register
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Node.js `node:sqlite` | built-in (Node >=22.5.0, no flag needed as of v22.13.0) | Store batch results, categorization decisions, and run state persistently across sessions | Zero external dependency. Synchronous API (DatabaseSync) matches the existing hook pattern. At 20k tests, a JSON file becomes unwieldy — slow reads/writes on every batch update, no indexed queries. SQLite handles 20k rows trivially with proper indexing. The module is experimental at "active development" (stability 1.1) — appropriate for a dev tool. |
+| JSON flat file fallback | built-in | Fallback for Node < 22.5.0 | If `node:sqlite` import fails (Node 16-21), fall back to a `.qgsd-maintain-state.json` file with a compatibility shim. At 20k tests the JSON approach is 10-30x slower on writes but functional. |
 
-Hooks are registered in `settings.json` (global: `~/.claude/settings.json`, project: `.claude/settings.json`). The structure is:
+**Why not better-sqlite3?** It requires a native addon compiled against the target Node.js version (`node-gyp`). This breaks the QGSD constraint of zero external dependencies in installed scripts. `node:sqlite` is pure built-in — no compile step, no `node_modules` in the installed path.
 
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/.../.claude/hooks/qgsd-quorum-inject.js\""
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"/Users/.../.claude/hooks/qgsd-quorum-verify.py\""
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+**Why not a plain JSON file as primary?** A 20k-test state file serialized as JSON is ~5-10MB. Each batch write requires reading and rewriting the whole file. SQLite writes only the changed rows. For iterative runs (debug→categorize→fix→re-run loop), the write amplification of JSON becomes a real bottleneck over many iterations.
 
-The three-level nesting is: event name → array of matcher groups → each group has a `hooks` array of handlers. `UserPromptSubmit` and `Stop` do not support `matcher` (they fire on every occurrence). Adding a `matcher` field to these events is silently ignored.
+### Concurrency Control
 
-For plugin distribution via `.claude-plugin/`, hooks go in `hooks/hooks.json` at the plugin root. Claude Code merges plugin hooks with user/project hooks when the plugin is enabled.
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Sequential `spawnSync` | built-in | Execute one batch at a time | The correct default. Test runners themselves use parallelism internally (Jest workers, Playwright workers). Running multiple batches concurrently causes port conflicts (Playwright), worker pool exhaustion (Jest), and interleaved stdout that breaks JSON parsing. Sequential outer batching with internal runner parallelism is the right model. |
+| Manual bounded queue with `setImmediate` | built-in | If a future phase needs bounded parallelism (e.g. 3 concurrent pytest batches) | Do NOT add p-limit. p-limit v6+ is ESM-only; QGSD is CommonJS (confirmed: no `"type":"module"` in package.json, all hooks use `require()`). Calling `require('p-limit')` will throw `ERR_REQUIRE_ESM`. |
 
-### UserPromptSubmit Hook
+### AI Categorization Integration
 
-**When it fires:** Before Claude processes the user's prompt.
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Claude Code subagent (`.claude/agents/`) | QGSD agents dir | Categorize failure batches into 5 categories | QGSD already has an `agents/` directory. The categorization agent receives a batch of failure messages and returns structured JSON decisions. This matches the existing QGSD agent pattern. No new library needed — Claude Code's built-in subagent system handles this. |
+| JSON.parse / JSON.stringify | built-in | Serialize batch failures for prompt, deserialize category decisions | The categorization interface is: input = JSON array of `{testId, failureMessage}`, output = JSON array of `{testId, category, rationale}`. Pure JSON over the agent prompt/response. |
 
-**Input schema (received on stdin as JSON):**
+**Categorization loop architecture:** The maintain-tests command is a Node.js script (not a hook) that orchestrates: discover → batch → run batch → capture failures → invoke categorizer agent → write decisions to SQLite → act on decisions → re-run until clean. Each step is a synchronous function call. No async library needed.
 
-```json
-{
-  "session_id": "abc123",
-  "transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "cwd": "/Users/.../my-project",
-  "permission_mode": "default",
-  "hook_event_name": "UserPromptSubmit",
-  "prompt": "/gsd:plan-phase 3"
-}
-```
+### Git History Integration (Optional, Phase 2)
 
-Key field: `prompt` — the raw text the user submitted. This is what you match against to detect GSD planning commands.
-
-**Output (written to stdout, exit 0):**
-
-Two equivalent ways to inject context into Claude's conversation:
-
-1. Plain text to stdout (shown as hook output in transcript)
-2. JSON with `additionalContext` (injected more discretely, not shown as hook output)
-
-```json
-{
-  "hookSpecificOutput": {
-    "hookEventName": "UserPromptSubmit",
-    "additionalContext": "Instructions Claude sees but user does not see as hook output"
-  }
-}
-```
-
-To block the prompt entirely (reject it, erase from context):
-
-```json
-{
-  "decision": "block",
-  "reason": "Shown to user, not to Claude"
-}
-```
-
-**What `additionalContext` actually does:** It injects a string into Claude's context window as if it were part of the system prompt, but scoped to this turn. Claude sees it and follows it. The user does not see it in the chat UI as a hook output (unlike plain stdout). This is the mechanism for injecting quorum instructions without the user seeing a noisy output block every time they run a command.
-
-**What `systemMessage` does:** A warning shown to the user in the UI. Not added to Claude's context. Use for user-facing warnings only.
-
-**Exit code 2 behavior:** Blocks the prompt and erases it. The user sees stderr text as an error. Use only for hard rejection (blocked commands, policy violations).
-
-### Stop Hook
-
-**When it fires:** When Claude finishes responding and would stop. Does NOT fire on user interrupts.
-
-**Input schema (received on stdin as JSON):**
-
-```json
-{
-  "session_id": "abc123",
-  "transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "cwd": "/Users/.../my-project",
-  "permission_mode": "default",
-  "hook_event_name": "Stop",
-  "stop_hook_active": false,
-  "last_assistant_message": "Here is the plan for Phase 3..."
-}
-```
-
-Key fields:
-- `stop_hook_active`: `true` when Claude Code is already continuing because a Stop hook previously blocked. **You MUST check this field to prevent infinite loops.** If `stop_hook_active` is already `true`, your hook must allow Claude to stop (exit 0 with no blocking decision).
-- `transcript_path`: Path to the JSONL file containing the full session. Read this to verify quorum evidence.
-- `last_assistant_message`: The text of Claude's last response, available without parsing the transcript. Useful for quick checks on response content.
-
-**Output to block Claude from stopping (prevent response delivery):**
-
-```json
-{
-  "decision": "block",
-  "reason": "Quorum not complete. You must call mcp__codex-cli__review and mcp__gemini-cli__gemini before delivering this planning output."
-}
-```
-
-The `reason` string is fed back to Claude as an instruction — it becomes Claude's next prompt. Claude then continues working based on that reason.
-
-**Output to allow Claude to stop (no-op):**
-
-Exit 0 with no output, or exit 0 with any JSON that omits `decision`.
-
-**What "preventDefault" means in Stop hooks:** The `decision: "block"` field is the mechanism. There is no literal `preventDefault` function — it is conceptual. Returning `{"decision": "block", "reason": "..."}` prevents the stop event from completing (i.e., prevents Claude from delivering its response) and feeds `reason` back as Claude's next instruction.
-
-**Critical: the infinite loop problem.** If the Stop hook always returns `decision: "block"`, Claude will loop forever. The pattern is:
-1. Check `stop_hook_active`. If `true`, exit 0 (allow stop).
-2. Read the transcript. If quorum evidence is present, exit 0.
-3. If quorum is missing, return `decision: "block"` with instructions to run quorum.
-
-### Transcript JSONL Format
-
-The `transcript_path` file is a newline-delimited JSON file. Each line is a JSON object. From inspection of live transcripts at `~/.claude/projects/`:
-
-**User message entry:**
-```json
-{
-  "parentUuid": null,
-  "isSidechain": false,
-  "userType": "external",
-  "cwd": "/Users/.../my-project",
-  "sessionId": "abc123",
-  "version": "2.1.32",
-  "type": "user",
-  "message": {
-    "role": "user",
-    "content": "/gsd:plan-phase 3"
-  },
-  "uuid": "ea5a2a16-...",
-  "timestamp": "2026-02-12T06:21:50.976Z"
-}
-```
-
-**Assistant message with tool use:**
-```json
-{
-  "parentUuid": "...",
-  "isSidechain": false,
-  "type": "assistant",
-  "message": {
-    "role": "assistant",
-    "model": "claude-sonnet-4-6",
-    "id": "msg_01...",
-    "content": [
-      {
-        "type": "tool_use",
-        "id": "toolu_01...",
-        "name": "mcp__codex-cli__review",
-        "input": { "prompt": "..." }
-      }
-    ],
-    "stop_reason": "tool_use"
-  },
-  "uuid": "...",
-  "timestamp": "2026-02-12T06:21:53.941Z"
-}
-```
-
-**What to look for in a Stop hook verifying quorum:** Search transcript lines where `message.content` is an array and any element has `type === "tool_use"` and `name` matches `mcp__codex-cli__review`, `mcp__gemini-cli__gemini`, or `mcp__opencode__opencode`. The presence of those tool_use entries confirms quorum tool calls were made.
-
-**Parsing pattern (Node.js):**
-
-```javascript
-const fs = require('fs');
-
-function readTranscript(transcriptPath) {
-  const lines = fs.readFileSync(transcriptPath, 'utf8')
-    .split('\n')
-    .filter(line => line.trim());
-  return lines.map(line => {
-    try { return JSON.parse(line); }
-    catch { return null; }
-  }).filter(Boolean);
-}
-
-function findToolUseCalls(entries, toolNamePattern) {
-  const found = [];
-  for (const entry of entries) {
-    if (!entry.message || !Array.isArray(entry.message.content)) continue;
-    for (const block of entry.message.content) {
-      if (block.type === 'tool_use' && toolNamePattern.test(block.name)) {
-        found.push({ name: block.name, id: block.id, input: block.input });
-      }
-    }
-  }
-  return found;
-}
-```
-
-**Parsing pattern (Python):**
-
-```python
-import json
-
-def read_transcript(transcript_path):
-    entries = []
-    with open(transcript_path, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entries.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return entries
-
-def find_tool_use_calls(entries, tool_names):
-    found = []
-    for entry in entries:
-        msg = entry.get('message', {})
-        content = msg.get('content', [])
-        if not isinstance(content, list):
-            continue
-        for block in content:
-            if block.get('type') == 'tool_use' and block.get('name') in tool_names:
-                found.append(block)
-    return found
-```
-
-### Plugin manifest (`.claude-plugin/plugin.json`)
-
-For distributing QGSD as a Claude Code plugin (vs. a standalone npm installer), the manifest lives at `.claude-plugin/plugin.json`. Only `name` is required; all other fields are metadata:
-
-```json
-{
-  "name": "qgsd",
-  "version": "1.0.0",
-  "description": "Quorum enforcement layer for GSD planning commands",
-  "author": {
-    "name": "TACHES"
-  },
-  "hooks": "./hooks/hooks.json"
-}
-```
-
-All component directories (`commands/`, `agents/`, `hooks/`) must be at the **plugin root**, not inside `.claude-plugin/`. Only `plugin.json` goes in `.claude-plugin/`.
-
-The `hooks/hooks.json` file in the plugin root uses the same format as `settings.json` hooks but wraps them:
-
-```json
-{
-  "description": "QGSD quorum enforcement hooks",
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/qgsd-quorum-inject.js"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/qgsd-quorum-verify.py",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-`${CLAUDE_PLUGIN_ROOT}` is the environment variable Claude Code sets to the plugin's absolute path. Always use it instead of hardcoded paths so the plugin works regardless of where it is installed.
-
-**Plugin installation scope:** Plugins install to `~/.claude/settings.json` (user scope, default) or `.claude/settings.json` (project scope). QGSD targets user scope to match GSD's global install behavior.
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| `spawnSync('git', ['log', '--follow', '-1', '--format=%H', '--', file])` | built-in | Find last commit touching a test file | Already the established pattern in qgsd-circuit-breaker.js for git log parsing. Provides AI categorizer with context: "this test hasn't been touched in 2 years" = likely stale-needs-adaptation. |
+| `spawnSync('git', ['log', '--oneline', '-n', '10', '--', file])` | built-in | Get recent commit history for a failing test file | Same pattern. No git library (simple-git, nodegit) needed. |
 
 ---
 
-## Complete Stop Hook Example (Node.js)
+## Installation
 
-A full Stop hook that reads the transcript, checks for quorum evidence, and blocks with `decision: "block"` if quorum is missing:
+```bash
+# No new runtime dependencies for hooks/command scripts.
+# All new capabilities use Node.js built-ins only.
 
-```javascript
-#!/usr/bin/env node
-/**
- * QGSD Stop Hook — Quorum verification gate
- * Reads transcript JSONL, looks for Codex/Gemini/OpenCode tool_use calls,
- * blocks if quorum is missing and stop_hook_active is false.
- */
+# For test file discovery when runner config is unavailable:
+npm install fast-glob@3.3.3
 
-const fs = require('fs');
-
-const QUORUM_TOOLS = [
-  'mcp__codex-cli__review',
-  'mcp__gemini-cli__gemini',
-  'mcp__opencode__opencode',
-];
-
-// Minimum number of distinct quorum tools that must appear
-const QUORUM_MIN = 2;
-
-function main() {
-  let input = '';
-  process.stdin.setEncoding('utf8');
-  process.stdin.on('data', chunk => input += chunk);
-  process.stdin.on('end', () => {
-    try {
-      const hookData = JSON.parse(input);
-
-      // CRITICAL: prevent infinite loops
-      if (hookData.stop_hook_active) {
-        process.exit(0);
-      }
-
-      const transcriptPath = hookData.transcript_path;
-      if (!transcriptPath || !fs.existsSync(transcriptPath)) {
-        process.exit(0); // fail-open: can't read transcript
-      }
-
-      // Parse transcript JSONL
-      const lines = fs.readFileSync(transcriptPath, 'utf8')
-        .split('\n')
-        .filter(l => l.trim());
-
-      const toolsFound = new Set();
-      for (const line of lines) {
-        let entry;
-        try { entry = JSON.parse(line); } catch { continue; }
-        const content = entry?.message?.content;
-        if (!Array.isArray(content)) continue;
-        for (const block of content) {
-          if (block.type === 'tool_use' && QUORUM_TOOLS.includes(block.name)) {
-            toolsFound.add(block.name);
-          }
-        }
-      }
-
-      if (toolsFound.size < QUORUM_MIN) {
-        const missing = QUORUM_TOOLS.filter(t => !toolsFound.has(t));
-        console.log(JSON.stringify({
-          decision: 'block',
-          reason: `QUORUM INCOMPLETE. You must call these tools before delivering planning output: ${missing.join(', ')}. Call them now with the full plan content, resolve any concerns, then respond to the user.`
-        }));
-        return;
-      }
-
-      // Quorum verified — allow Claude to stop
-      process.exit(0);
-
-    } catch (e) {
-      // Fail-open: parse error means we can't verify, let Claude stop
-      process.exit(0);
-    }
-  });
-}
-
-main();
+# fast-glob is the ONLY new external dependency.
+# Add to package.json dependencies (not devDependencies) since
+# the maintain-tests command ships as part of the installed package.
 ```
 
----
+**Where fast-glob lives:** The maintain-tests command runs from the global install at `~/.claude/commands/maintain-tests.js`. To avoid node_modules resolution issues in the global install path, bundle fast-glob into the output file using esbuild (already a devDependency):
 
-## Complete UserPromptSubmit Hook Example (Python)
-
-A UserPromptSubmit hook that detects GSD planning commands and injects quorum instructions:
-
-```python
-#!/usr/bin/env python3
-"""
-QGSD Quorum Inject — UserPromptSubmit hook
-Detects GSD planning commands and injects multi-model review instructions.
-"""
-
-import json
-import re
-import sys
-
-GSD_GUARDED_COMMANDS = [
-    "plan-phase", "verify-work", "new-milestone",
-    "new-project", "discuss-phase", "research-phase",
-]
-
-QUORUM_INJECTION = """
-QUORUM REQUIRED (QGSD enforcement — cannot be skipped)
-
-Before presenting any planning output to the user, you MUST:
-  1. Call mcp__codex-cli__review with the full plan content
-  2. Call mcp__gemini-cli__gemini with the full plan content
-  3. Resolve ALL concerns raised before presenting to the user
-
-If a model is UNAVAILABLE (quota/error), note it and proceed with available models.
-Do not skip this step. A Stop hook will verify compliance in the transcript.
-""".strip()
-
-
-def main():
-    try:
-        hook_input = json.load(sys.stdin)
-    except Exception:
-        sys.exit(0)
-
-    prompt = hook_input.get("prompt", "")
-    pattern = "|".join(re.escape(cmd) for cmd in GSD_GUARDED_COMMANDS)
-    if not re.search(rf"/(gsd:)?({pattern})", prompt):
-        sys.exit(0)  # Not a guarded command — do nothing
-
-    output = {
-        "hookSpecificOutput": {
-            "hookEventName": "UserPromptSubmit",
-            "additionalContext": QUORUM_INJECTION
-        }
-    }
-    print(json.dumps(output))
-
-
-if __name__ == "__main__":
-    main()
+```bash
+# Add to build-hooks.js or a new build-commands.js script:
+npx esbuild commands/maintain-tests.js \
+  --bundle --platform=node --target=node16 \
+  --outfile=commands/dist/maintain-tests.js
 ```
+
+This bundles fast-glob into a single output file, eliminating the runtime node_modules dependency entirely. Aligns with the existing esbuild devDependency already in package.json.
 
 ---
 
@@ -484,44 +119,58 @@ if __name__ == "__main__":
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|-------------------------|
-| Command hook (`type: "command"`) | Prompt hook (`type: "prompt"`) | Use prompt hooks for simple yes/no decisions where you want an LLM to evaluate rather than deterministic logic. For QGSD, command hooks are correct because quorum verification is deterministic (scan transcript for tool names). |
-| Command hook (`type: "command"`) | Agent hook (`type: "agent"`) | Use agent hooks when verification requires using Claude Code tools (Read, Grep, Glob). For QGSD, the transcript is a single file at a known path — `fs.readFileSync` is sufficient, no agent needed. |
-| Node.js for Stop hook | Python for Stop hook | Either works. Node matches GSD's existing hook runtime. Python is better when subprocess calls to external CLIs are needed (gsd-guardian.py pattern). For QGSD's Stop hook (pure transcript parsing), Node.js is simpler. |
-| Global install (`~/.claude/`) | Plugin distribution (`.claude-plugin/`) | Plugin distribution is correct for distributing to other users via a marketplace. For v1 (personal use, matches GSD's install model), global install via npm installer is simpler and avoids marketplace setup. |
-| `additionalContext` field | Plain stdout | Plain stdout works but appears as visible hook output in the transcript UI. `additionalContext` injects context discretely. Use `additionalContext` for instructions you want Claude to follow but don't want cluttering the user's view. |
-| `stop_hook_active` guard | Counter/session state | The `stop_hook_active` flag is the correct mechanism — it is provided by Claude Code precisely for this purpose. Do not try to implement your own counter. |
+| `spawnSync` for batch execution | Jest's programmatic `runCLI()` API | Only if you need to intercept test results mid-run (streaming). For QGSD, the final JSON output is sufficient — the spawnSync + `--json` flag approach uses Jest's stable CLI contract instead of its undocumented internal API (which has broken across jest 25→26, 27→28, 28→29). |
+| `node:sqlite` for state | better-sqlite3 | If Node >=22 cannot be guaranteed AND the 5-10MB JSON file is unacceptable. better-sqlite3 requires native compile, breaking QGSD's zero-dependency install model. Only use if `node:sqlite` proves too unstable. |
+| `node:sqlite` for state | Plain JSON `.qgsd-maintain-state.json` | Acceptable for projects with <1,000 tests where write amplification doesn't matter. Make JSON the fallback, not the primary. |
+| fast-glob bundled via esbuild | fast-glob as a runtime npm dependency | If QGSD moves to requiring npm install in the project (not global). Currently QGSD is globally installed — bundling is the right answer to avoid node_modules resolution issues in the global install path. |
+| Playwright `--reporter=json` stdout capture | playwright-ctrf-json-reporter | Use CTRF reporter only if you need a standardized multi-runner format for dashboard integration. For AI categorization, the built-in JSON reporter is sufficient and avoids installing a dev dependency in the target project. |
+| pytest stdout parsing | pytest-json-report plugin | Use only if the target project already has it installed. Never install it on behalf of the user — QGSD is a pure observer. |
+
+---
 
 ## What NOT to Use
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| Calling gemini/codex CLIs directly from Stop hook | Fragile (auth, PATH, quota), adds latency to every response, breaks in CI/remote environments | Verify via transcript evidence that the MCP tool calls already happened during Claude's turn |
-| `exit 2` in Stop hook to block | Exit 2 does block the stop, but stderr is shown to the user as an error — wrong UX. Also doesn't feed instructions to Claude | Return `{"decision": "block", "reason": "..."}` via stdout with exit 0 |
-| `systemMessage` for quorum instructions | `systemMessage` is shown as a warning to the user in the UI, not injected into Claude's context | `additionalContext` inside `hookSpecificOutput` — this goes into Claude's context, not the user's view |
-| Async hooks for Stop/UserPromptSubmit | `async: true` means the hook cannot block or return decisions — the action has already proceeded | Synchronous command hooks (the default) |
-| Hardcoded absolute paths in hook scripts | Breaks for other users, breaks after moving `~/.claude` | Use `${CLAUDE_PLUGIN_ROOT}` in plugin hooks.json, or compute path from `os.homedir()` at runtime in the hook script |
+| `p-limit` (v6+) | ESM-only module. QGSD is CommonJS (no `"type":"module"` in package.json, all hooks use `require()`). Will throw `ERR_REQUIRE_ESM` at runtime. | Sequential `spawnSync` — test runners parallelize internally, so sequential outer batching is the correct model anyway. No concurrency library needed. |
+| `better-sqlite3` | Native addon requires `node-gyp` compile against target Node.js version. Breaks QGSD's zero-dependency install model. Compilation fails in minimal environments (no Python 3, no build tools). | `node:sqlite` (built-in, Node >=22.5.0) with JSON flat file fallback for older Node. |
+| `nodegit` / `simple-git` | nodegit is a native addon (same problem as better-sqlite3). simple-git v3+ requires dynamic import for ESM compatibility — incompatible with QGSD CommonJS codebase. | `spawnSync('git', ['log', ...])` — already the QGSD pattern for git operations in qgsd-circuit-breaker.js. |
+| Jest `runCLI()` programmatic API | Not publicly documented. Has broken silently across every Jest major version since v25. Coupling to it means maintain-tests breaks when users upgrade Jest without any error in QGSD's own tests. | Spawn `npx jest --json` as a subprocess — uses Jest's stable CLI contract. |
+| Storing full test output in memory | 100 tests × average 10KB output = 1MB per batch. 200 batches (20k tests) = 200MB of in-process memory if buffered. spawnSync buffers in memory by default. | Write each batch output to a temp file using `outputFile` flag (Jest) or stdout redirect (Playwright/pytest), parse it, then delete it. |
+| pytest-json-report as a requirement | Requires modifying the target project's pytest configuration. QGSD is a non-invasive observer — it must not add dependencies to the projects it tests. | Parse `--tb=short` stdout text. The failure message string is all the AI categorizer needs. |
+| Async/await throughout the command script | Not wrong, but adds unnecessary complexity. All subprocess calls are naturally sequential (run batch → capture output → categorize → write state → next batch). Forcing async introduces callback coordination with no benefit. | Synchronous `spawnSync` + `fs.readFileSync` + `sqlite.prepare().all()` — reads like a shell script, straightforward to debug and test. |
 
 ---
 
 ## Stack Patterns by Variant
 
-**If distributing via npm (matching GSD's pattern):**
-- Write hooks as standalone Node.js or Python scripts
-- Place in `hooks/` directory in the repo
-- Build step copies to `hooks/dist/` (see `scripts/build-hooks.js`)
-- Installer (`bin/install.js`) copies `hooks/dist/` to `~/.claude/hooks/` and registers them in `settings.json`
-- No bundling needed — hooks are pure Node.js/Python with stdlib only
+**If target project uses Jest:**
+- Discovery: Jest handles it. No fast-glob needed.
+- Execution per batch: `spawnSync('npx', ['jest', '--json', '--outputFile', tmpFile, '--testPathPattern', batchPattern])`
+- Parse `tmpFile` as JSON after spawnSync returns.
 
-**If distributing as a Claude Code plugin:**
-- Place hook scripts in `hooks/` or `scripts/` at plugin root
-- Register them in `hooks/hooks.json` using `${CLAUDE_PLUGIN_ROOT}/...` paths
-- Create `.claude-plugin/plugin.json` with `"hooks": "./hooks/hooks.json"`
-- Users install with `claude plugin install qgsd@your-marketplace`
+**If target project uses Playwright:**
+- Discovery: Playwright handles it. No fast-glob needed.
+- Execution per batch: `spawnSync('npx', ['playwright', 'test', '--reporter=json', '--shard', batchN + '/' + totalBatches])`
+- Capture stdout to temp file (Playwright JSON reporter writes to stdout by default).
 
-**If hooks need to scope by project (per-project quorum config):**
-- Read a config file from `process.cwd()` or `hookData.cwd` at hook runtime
-- Fall back to global defaults if no project config exists
-- This avoids per-project install while supporting per-project customization
+**If target project uses pytest:**
+- Discovery: `spawnSync('python3', ['-m', 'pytest', '--collect-only', '-q', '--no-header'])` → parse stdout lines for `path::name` pattern.
+- Execution per batch: `spawnSync('python3', ['-m', 'pytest', '--tb=short', '-q', ...batchTestIds])`
+- Parse stdout for `FAILED` lines.
+
+**If project uses multiple runners (jest + playwright):**
+- Run each runner's discovery separately.
+- Maintain separate batch queues per runner in SQLite state.
+- Same categorization agent handles all — the 5-category schema is runner-agnostic.
+
+**If Node.js version is < 22.5.0:**
+- Skip `node:sqlite`, use JSON flat file state.
+- Add compatibility check at startup:
+  ```javascript
+  const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
+  const state = nodeVersion >= 22 ? new SqliteState(dbPath) : new JsonState(jsonPath);
+  ```
 
 ---
 
@@ -529,24 +178,29 @@ if __name__ == "__main__":
 
 | Package | Compatible With | Notes |
 |---------|-----------------|-------|
-| Claude Code hooks API | claude-code >= 1.x | The `additionalContext`, `stop_hook_active`, `last_assistant_message` fields are present in the current API (verified from code.claude.com/docs/en/hooks, 2026-02). `stop_hook_active` is critical for QGSD — verify it exists before shipping. |
-| Node.js | >= 16.7.0 | Matches GSD's engine requirement. All stdlib APIs used (fs, path, readline, os) are available in Node 16+. |
-| Python | >= 3.6 | f-strings and json stdlib used. No external dependencies. |
+| `node:sqlite` | Node >=22.5.0 | Experimental (stability 1.1 — active development). No compile flag needed as of v22.13.0. Claude Code users typically run recent Node — high confidence this is safe as the primary path. |
+| `fast-glob@3.3.3` | Node >=12.0.0 | Well within QGSD's >=16.7.0 engine requirement. Bundled via esbuild so no runtime resolution needed. |
+| `esbuild@^0.24.0` | Node >=12.17.0 | Already a devDependency in package.json. No version change needed — just add a build step for the maintain-tests command. |
+| Jest `--json` flag | Jest >=24 | Available since Jest 24 (2018). Output schema is stable across Jest 27/28/29/30. The `testResults[].testResults[].failureMessages` field exists in all modern versions. |
+| Playwright JSON reporter | Playwright >=1.20 | JSON reporter is built-in since v1.0, stabilized by v1.20. |
+| pytest `--collect-only -q` | pytest >=3.0 | Line format (`path::name`) is stable since pytest 3. Present in all modern projects. |
 
 ---
 
 ## Sources
 
-- `https://code.claude.com/docs/en/hooks` — Official hooks reference. All input/output schemas, exit code behavior, `stop_hook_active`, `additionalContext`, `decision: "block"`, `preventDefault` equivalent. Confidence: HIGH.
-- `https://code.claude.com/docs/en/plugins-reference` — Official plugin manifest schema (`.claude-plugin/plugin.json`), hooks.json format, `${CLAUDE_PLUGIN_ROOT}`, component directory layout. Confidence: HIGH.
-- `/Users/jonathanborduas/.claude/hooks/gsd-guardian.py` — Live production UserPromptSubmit hook. Shows stdin JSON parsing, prompt regex matching, `systemMessage` output, subprocess calls to gemini/codex CLIs. Confidence: HIGH (first-party codebase evidence).
-- `/Users/jonathanborduas/.claude/hooks/gsd-statusline.js` — Live production StatusLine hook. Shows stdin JSON schema fields (`model`, `session_id`, `context_window`, `workspace`). Confidence: HIGH.
-- `/Users/jonathanborduas/.claude/hooks/gsd-check-update.js` — Live production SessionStart hook. Shows detached subprocess pattern for background work. Confidence: HIGH.
-- `/Users/jonathanborduas/.claude/settings.json` — Live settings.json. Confirms hooks registration schema (three-level nesting: event → matcher group array → hooks array). Confidence: HIGH.
-- `/Users/jonathanborduas/.claude/projects/*/subagents/*.jsonl` (sampled) — Live transcript JSONL files. Confirms per-line JSON format, fields: `parentUuid`, `isSidechain`, `sessionId`, `type` (user/assistant/progress), `message.role`, `message.content` (array of blocks), `message.content[].type` (text/tool_use), `message.content[].name` (tool name), `timestamp`. Confidence: HIGH.
-- `/Users/jonathanborduas/code/QGSD/bin/install.js` — GSD installer. Shows how hooks are registered into settings.json programmatically, how hook paths are built (`buildHookCommand`), and the `{"type":"commonjs"}` package.json trick to prevent ESM conflicts. Confidence: HIGH.
+- `https://nodejs.org/docs/latest/api/sqlite.html` — `node:sqlite` stability (1.1 active development), version requirement (>=22.5.0, no flag from v22.13.0), DatabaseSync API. Confidence: HIGH.
+- `https://nodejs.org/api/child_process.html` — spawnSync API, pipe buffer limitations for large stdout (must write to file when output >1MB), encoding options. Confidence: HIGH.
+- `https://jestjs.io/docs/cli` — `--json` flag behavior (diverts test output to stderr, results to stdout), `--outputFile`, `--testPathPattern`. Confidence: HIGH.
+- `https://playwright.dev/docs/test-reporters` — JSON reporter configuration, `outputFile` option, `PLAYWRIGHT_JSON_OUTPUT_FILE` env var. Confidence: HIGH.
+- `https://github.com/mrmlnc/fast-glob/releases` — Version 3.3.3 is current stable (Jan 2025), zero transitive dependencies, MIT license. Confidence: HIGH.
+- `https://github.com/pytest-dev/pytest/issues/9704` — pytest `--collect-only` output is NOT machine-readable JSON natively; line parsing of `path::name` is the correct approach. Confidence: HIGH (primary source issue thread).
+- `https://github.com/sindresorhus/p-limit/issues/63` — p-limit v6+ is ESM-only. Incompatible with QGSD CommonJS codebase. Decision: avoid entirely — sequential spawnSync is the correct batching model. Confidence: HIGH.
+- `/Users/jonathanborduas/code/QGSD/hooks/qgsd-circuit-breaker.js` — Confirms QGSD uses CommonJS (`require()`), uses `spawnSync` for git operations, uses `fs.readFileSync`/`fs.writeFileSync` for state. This is the integration pattern that maintain-tests must follow. Confidence: HIGH (first-party).
+- `/Users/jonathanborduas/code/QGSD/package.json` — No `"type":"module"` field → defaults to CommonJS. `esbuild@^0.24.0` already a devDependency. `"engines": {"node": ">=16.7.0"}`. Confidence: HIGH (first-party).
+- `/Users/jonathanborduas/code/QGSD/scripts/build-hooks.js` — Build system is file-copy only for hooks. Confirms maintain-tests command needs its own esbuild bundle step to handle the fast-glob dependency cleanly. Confidence: HIGH (first-party).
 
 ---
 
-*Stack research for: Claude Code hook-based plugin (QGSD — quorum enforcement layer)*
-*Researched: 2026-02-20*
+*Stack research for: QGSD v0.3 test suite maintenance tool (`/qgsd:maintain-tests`)*
+*Researched: 2026-02-22*

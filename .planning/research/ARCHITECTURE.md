@@ -1,571 +1,655 @@
 # Architecture Research
 
-**Domain:** Claude Code plugin extension for hook-based multi-model quorum enforcement
-**Researched:** 2026-02-20
-**Confidence:** HIGH (Claude Code hooks API verified against official docs; transcript format verified against live QGSD session data)
-
-## Standard Architecture
-
-### System Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    User (Claude Code session)                    │
-│                                                                  │
-│   /gsd:plan-phase, /gsd:new-project, /gsd:new-milestone ...     │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │ UserPromptSubmit fires
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                 QGSD Hook Layer (~/.claude/hooks/)               │
-│                                                                  │
-│  ┌────────────────────┐        ┌──────────────────────────────┐  │
-│  │ qgsd-prompt.js     │        │ qgsd-stop.js                 │  │
-│  │ (UserPromptSubmit) │        │ (Stop hook)                  │  │
-│  │                    │        │                              │  │
-│  │ 1. Read stdin JSON │        │ 1. Read stdin JSON           │  │
-│  │ 2. Check prompt    │        │ 2. Check stop_hook_active    │  │
-│  │ 3. Match against   │        │ 3. Parse transcript_path     │  │
-│  │    quorum-commands │        │ 4. Scan for MCP tool_use     │  │
-│  │    from config     │        │ 5. Verify Codex+Gemini+OC    │  │
-│  │ 4. If match:       │        │ 6. PASS: exit 0              │  │
-│  │    inject quorum   │        │    BLOCK: decision:"block"   │  │
-│  │    instructions    │        │    + reason                  │  │
-│  │    via stdout      │        └──────────────────────────────┘  │
-│  └────────────────────┘                                          │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │ qgsd-config.js  (shared config reader)                     │  │
-│  │  - Reads ~/.claude/qgsd-config.json                        │  │
-│  │  - Provides: quorum_commands[], fail_mode, model_names{}   │  │
-│  └────────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              GSD Layer (unmodified, zero coupling)               │
-│  ~/.claude/commands/gsd/plan-phase.md                            │
-│  ~/.claude/commands/gsd/new-project.md                           │
-│  ~/.claude/agents/gsd-planner.md                                 │
-│  ... (GSD continues operating normally)                          │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Component Responsibilities
-
-| Component | Responsibility | Communicates With |
-|-----------|----------------|-------------------|
-| `qgsd-prompt.js` (UserPromptSubmit hook) | Detect GSD planning commands; inject quorum instructions into Claude's context via stdout | Claude Code (via stdout `additionalContext`); reads `qgsd-config.json` |
-| `qgsd-stop.js` (Stop hook) | Read transcript JSONL; verify Codex/Gemini/OpenCode tool_use evidence exists; block or pass | Claude Code (via `decision`/`reason` JSON output); reads `qgsd-config.json` and `transcript_path` |
-| `qgsd-config.js` (shared module) | Parse `~/.claude/qgsd-config.json`; provide quorum command list, model names, fail_mode | Both hooks require it |
-| `qgsd-config.json` (config file) | User-editable configuration: which commands require quorum, which models count, fail_mode | Read by `qgsd-config.js` at hook runtime |
-| `bin/install.js` (installer) | Copy hooks to `~/.claude/hooks/`; register hook events in `~/.claude/settings.json`; write default config | `~/.claude/settings.json`, `~/.claude/hooks/` |
+**Domain:** QGSD v0.3 — `/qgsd:maintain-tests` integration into existing Claude Code plugin
+**Researched:** 2026-02-22
+**Confidence:** HIGH (existing QGSD codebase read directly; integration points derived from live source; no novel APIs involved)
 
 ---
 
-## Recommended Project Structure
+## Context: This Is a Subsequent Milestone
+
+The existing QGSD architecture (v0.1–v0.2) is stable and documented. This file answers a specific integration question for v0.3:
+
+> How does `/qgsd:maintain-tests` fit into the existing QGSD plugin without breaking what exists?
+
+The answer covers five questions:
+1. Where the new workflow file lives
+2. How the discovery + batch execution engine integrates
+3. How the AI categorization loop connects to existing debug/quick patterns
+4. How state tracking works across batch iterations
+5. Build order for phases 18+
+
+---
+
+## System Overview — Existing Architecture (v0.2 Stable)
+
+```
+~/.claude/
+├── hooks/
+│   ├── qgsd-prompt.js          # UserPromptSubmit: injects quorum instructions
+│   ├── qgsd-stop.js            # Stop: verifies quorum evidence in transcript
+│   └── qgsd-circuit-breaker.js # PreToolUse: detects oscillation, blocks Bash
+├── qgsd/
+│   ├── bin/
+│   │   ├── gsd-tools.cjs       # CLI utility (state, phase ops, activity tracking)
+│   │   └── update-scoreboard.cjs
+│   ├── workflows/              # Installed workflow orchestrators (md files)
+│   │   ├── plan-phase.md
+│   │   ├── execute-phase.md
+│   │   ├── quick.md
+│   │   └── ...
+│   ├── templates/              # Research/planning templates
+│   └── references/             # UI brand, etc.
+├── commands/qgsd/              # Slash commands (frontmatter + execution_context refs)
+│   ├── plan-phase.md
+│   ├── quick.md
+│   ├── debug.md
+│   └── ...
+└── agents/
+    ├── qgsd-planner.md
+    ├── qgsd-executor.md
+    ├── qgsd-debugger.md
+    └── ...
+```
+
+QGSD source (`~/code/QGSD/`):
+```
+QGSD/
+├── hooks/                      # Source hooks + config-loader.js
+│   └── dist/                   # esbuild-bundled (installed to ~/.claude/hooks/)
+├── bin/install.js              # Installer
+├── commands/qgsd/              # Source slash commands (synced to ~/.claude/commands/qgsd/)
+├── agents/                     # Source agents (synced to ~/.claude/agents/)
+└── ...
+```
+
+---
+
+## Integration Architecture: `/qgsd:maintain-tests`
+
+### Where the New Command Lives
+
+The new command follows the identical pattern as all other QGSD commands:
+
+```
+Source:    QGSD/commands/qgsd/maintain-tests.md
+Installed: ~/.claude/commands/qgsd/maintain-tests.md
+Invoked:   /qgsd:maintain-tests [args]
+```
+
+The command file uses the standard frontmatter + workflow reference pattern:
+
+```yaml
+---
+name: qgsd:maintain-tests
+description: Discover, batch, and categorize test failures across large suites
+argument-hint: "[--batch-size N] [--runner jest|playwright|pytest] [--dir path]"
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Task
+  - Glob
+  - Grep
+  - AskUserQuestion
+---
+```
+
+The workflow logic lives in a separate file referenced via `<execution_context>`:
+
+```
+Source:    QGSD/workflows/maintain-tests.md   (NEW)
+Installed: ~/.claude/qgsd/workflows/maintain-tests.md
+```
+
+This separation (command stub + workflow file) matches every existing QGSD command and avoids the installer having to manage inline logic in slash command files. The installer's `WORKFLOWS_TO_COPY` array gains one entry: `maintain-tests.md`.
+
+**No hook changes.** The Stop hook's `quorum_commands` allowlist does NOT include `maintain-tests` by default. This command is an execution operation (it runs tests and categorizes failures) rather than a planning command. Adding it to the quorum allowlist would be wrong per CLAUDE.md R2.2. The existing hook layer is untouched.
+
+---
+
+### Discovery + Batch Execution Engine: Node.js Module vs Claude Agent Spawning
+
+**Decision: Node.js CLI module in `gsd-tools.cjs`, invoked from the Claude workflow.**
+
+The discovery and batching logic should be a new `gsd-tools.cjs` sub-command, not a spawned Claude agent. Rationale:
+
+| Criterion | Node.js CLI in gsd-tools.cjs | Separate Claude agent |
+|-----------|------------------------------|----------------------|
+| Test file discovery (find/glob) | Straightforward `glob` + `fs` | Overkill — agents are for reasoning, not filesystem glob |
+| Random batching into groups of 100 | Trivial array shuffle + slice | Agent would call Bash for this anyway |
+| Execution (jest/playwright/pytest run) | Bash via `execSync` or `spawnSync` | Agent spawns Bash — same result, more overhead |
+| Output capture (structured JSON) | Direct `spawnSync` output capture | Agent parses text output — fragile |
+| Resumability (save batch index to disk) | Write JSON file directly | Agent would use gsd-tools.cjs anyway |
+| Context window | Zero impact | Consumes 10k+ tokens per batch |
+
+The workflow (Claude) handles the reasoning layer: reading batch outputs, calling categorization logic, deciding what to skip/adapt/isolate/fix. The Node.js CLI handles the mechanical layer: discover, batch, run, capture, persist state.
+
+**New `gsd-tools.cjs` sub-commands to add:**
+
+```
+maintain-tests discover [--runner auto|jest|playwright|pytest] [--dir path]
+  → JSON: { runner, test_files[], total_count, detected_runner }
+
+maintain-tests batch --size N --seed S [--state-file path]
+  → JSON: { batch_id, batch_files[], remaining_count, is_last_batch }
+  (reads prior state from state-file to skip already-processed files)
+
+maintain-tests run-batch [--state-file path] [--timeout N]
+  → JSON: { batch_id, results[], passed_count, failed_count, skipped_count }
+  (runs tests in the current batch, captures output per-file)
+
+maintain-tests save-state [--state-file path] <json>
+  → writes JSON to state file (used after categorization decisions)
+
+maintain-tests load-state [--state-file path]
+  → JSON: current maintenance session state
+```
+
+These are thin orchestration commands. They do no AI reasoning. All reasoning stays in the Claude workflow.
+
+**Runner detection priority** (matches existing `/qgsd:quorum-test` pattern in `debug.md`):
+1. `package.json` devDependencies/dependencies — jest, vitest, playwright
+2. `package.json` scripts.test content
+3. Presence of `pytest.ini`, `pyproject.toml` with `[tool.pytest]`
+4. Fallback: `node --test`
+
+---
+
+### AI Categorization Loop: Connection to Existing debug/quick Patterns
+
+The categorization loop is the core reasoning layer. It maps to existing patterns as follows:
+
+**Existing patterns it builds on:**
+
+| Existing Pattern | How maintain-tests uses it |
+|-----------------|---------------------------|
+| `/qgsd:debug` — quorum workers diagnose a failure, reach consensus on next step | Categorization uses the same quorum worker dispatch but for bulk classification, not single-failure diagnosis |
+| `/qgsd:quick` — spawns planner + executor for an ad-hoc task | After categorization identifies "adapt" failures, a quick task is spawned to implement the fix |
+| `execute-phase` checkpoint:verify loop — debug → fix → verify → repeat | Batch iteration loop mirrors this: run batch → categorize → action → verify → next batch |
+| `qgsd-debugger` agent — autonomous multi-step investigation | Replaced here by structured 5-category classification (not open-ended debugging) |
+
+**Categorization loop design:**
+
+```
+For each batch:
+  1. run-batch (Node.js CLI) → results JSON
+  2. Claude reads results, spawns parallel categorization workers (Task) per failing test
+     Each worker classifies into 5 categories:
+       - valid_skip: test is permanently irrelevant (outdated, wrong environment)
+       - adapt: test logic needs updating for current codebase state
+       - isolate: test has flaky/env dependency, needs isolation wrapper
+       - real_bug: test found a genuine regression, needs code fix
+       - fixture: test needs data/fixture update only
+  3. Claude aggregates classifications → action plan per category
+  4. Action dispatch:
+       valid_skip → mark in state as skipped; update test file with skip annotation
+       fixture    → spawn /qgsd:quick to update fixtures
+       adapt      → spawn /qgsd:quick to adapt test logic
+       isolate    → spawn /qgsd:quick to add isolation wrapper
+       real_bug   → surface to user with diagnosis; do NOT auto-fix (requires human)
+  5. After actioning: re-run affected tests to confirm categorization was correct
+  6. Save state (Node.js CLI): mark batch complete, record outcomes
+  7. Load next batch if remaining_count > 0
+```
+
+**Connection to `/qgsd:debug`:**
+
+The categorization workers use the same quorum dispatch pattern as `/qgsd:debug` Step 3 (parallel Task calls to Gemini, OpenCode, Copilot, Codex). The key difference is the prompt:
+
+- `/qgsd:debug`: "What is the root cause? What is the next debugging step?" (investigative)
+- `maintain-tests` categorization: "Which of the 5 categories does this failure belong to? Why?" (classificatory)
+
+The consensus mechanism is identical: 3+ workers agree → consensus category. Disagreement → Claude as tiebreaker (same as R3.3 deliberation).
+
+**Connection to `/qgsd:quick`:**
+
+After categorization, `adapt`, `fixture`, and `isolate` failures are actioned via `/qgsd:quick` spawns. This uses the existing quick workflow without modification. The maintain-tests workflow calls quick as a sub-task:
+
+```
+Task(
+  subagent_type="general-purpose",
+  prompt="Run /qgsd:quick: [specific fix description for this test adaptation]"
+)
+```
+
+This keeps quick tasks atomic and tracked in `.planning/quick/` as usual. Each quick task produces a SUMMARY.md. The maintain-tests session state references the quick task number for traceability.
+
+---
+
+### State Tracking Across Batch Iterations
+
+For 20k+ test suites, batch progress must survive interruption. The state tracking uses two mechanisms:
+
+**1. Session state file: `.planning/maintain-tests-state.json`**
+
+Written by `gsd-tools.cjs maintain-tests save-state`. Gitignored (alongside `circuit-breaker-state.json`). Structure:
+
+```json
+{
+  "session_id": "2026-02-22T14:30:00Z",
+  "runner": "jest",
+  "total_tests": 21000,
+  "batch_size": 100,
+  "seed": 42,
+  "batches_complete": 15,
+  "batches_total": 210,
+  "processed_files": ["path/to/test1.test.js", "..."],
+  "results_by_category": {
+    "valid_skip": ["..."],
+    "adapt": ["..."],
+    "isolate": ["..."],
+    "real_bug": ["..."],
+    "fixture": ["..."]
+  },
+  "actioned": {
+    "valid_skip": ["..."],
+    "adapt": { "quick-task-42": ["test-file-1.js"] },
+    "isolate": { "quick-task-43": ["test-file-2.js"] },
+    "fixture": { "quick-task-44": ["test-file-3.js"] }
+  },
+  "pending_real_bugs": [
+    { "file": "test-file-4.js", "diagnosis": "...", "surfaced_to_user": false }
+  ],
+  "updated": "2026-02-22T15:45:00Z"
+}
+```
+
+**2. Activity sidecar: `.planning/current-activity.json`**
+
+Existing `gsd-tools.cjs activity-set` is called at each state transition. Structure for maintain-tests:
+
+```json
+{
+  "activity": "maintain_tests",
+  "sub_activity": "categorizing_batch",
+  "batch": 15,
+  "batch_total": 210,
+  "state_file": ".planning/maintain-tests-state.json",
+  "updated": "2026-02-22T15:45:00Z"
+}
+```
+
+`sub_activity` values for the routing table (resume-work):
+
+| sub_activity | Resume action |
+|---|---|
+| `discovering_tests` | Re-run discovery |
+| `running_batch` | Re-run current batch (batch N in state file) |
+| `categorizing_batch` | Load batch results from state, resume categorization |
+| `actioning_batch` | Resume quick task dispatch for current batch |
+| `verifying_batch` | Re-run verification for actioned tests |
+| `complete` | Report summary, clear activity |
+
+**Resumability design:**
+
+The batch iterator uses a deterministic seed stored in state. The same seed + full processed_files list allows the next session to skip already-processed tests and resume from batch N+1. This means `maintain-tests batch` always takes `--state-file` and excludes files in `processed_files`. The 20k+ scale is handled by array filtering (O(n) in memory), which is acceptable for Node.js with arrays up to ~100k entries.
+
+**No new `gsd-tools.cjs init maintain-tests` compound command needed.** Unlike `plan-phase` or `execute-phase` which need rich init context (model profiles, roadmap state, phase structure), maintain-tests needs only: state file path, runner, batch size. These are simple enough to construct inline in the workflow without a compound init call.
+
+---
+
+## Recommended File Structure — New Files Only
 
 ```
 QGSD/
+├── commands/qgsd/
+│   └── maintain-tests.md       # NEW: slash command stub (frontmatter + execution_context ref)
+├── workflows/
+│   └── maintain-tests.md       # NEW: full workflow orchestrator
 ├── bin/
-│   └── install.js              # Installer: copies hooks, writes settings.json entries, writes default config
-├── hooks/
-│   ├── qgsd-prompt.js          # Source: UserPromptSubmit hook
-│   ├── qgsd-stop.js            # Source: Stop hook
-│   ├── qgsd-config.js          # Source: shared config reader (bundled into each hook at build time)
-│   └── dist/
-│       ├── qgsd-prompt.js      # Bundled (esbuild): self-contained, no require('../qgsd-config')
-│       └── qgsd-stop.js        # Bundled (esbuild): self-contained
-├── scripts/
-│   └── build-hooks.js          # esbuild: bundle hooks/src → hooks/dist
-├── templates/
-│   └── qgsd-config.json        # Default config written during install
-└── package.json
+│   └── install.js              # MODIFIED: add maintain-tests.md to WORKFLOWS_TO_COPY
+└── .planning/
+    └── phases/18-*/             # NEW: phase directories for v0.3 plans
 ```
 
-### Structure Rationale
+No new agents. No new hooks. No new Node.js modules outside `gsd-tools.cjs`.
 
-- **`hooks/dist/`**: GSD pattern — hooks are bundled with esbuild into self-contained files before distribution. No `require()` resolution issues after install since there is no `node_modules` at `~/.claude/`.
-- **`qgsd-config.js` as shared module**: Both hooks need the same config parsing logic. Bundle time (not runtime) dependency avoids inter-file require at `~/.claude/hooks/`.
-- **`templates/qgsd-config.json`**: Installer writes a default config so the system works out-of-the-box with zero user config required.
+Gitignore additions (`.gitignore` or `.claude/.gitignore`):
+
+```
+.planning/maintain-tests-state.json
+```
 
 ---
 
-## Architectural Patterns
+## Component Boundaries
 
-### Pattern 1: UserPromptSubmit — Pattern Matching and Context Injection
-
-**What:** The `UserPromptSubmit` hook receives the user's raw prompt text in the `prompt` field of stdin JSON. It checks whether the prompt starts with or contains a known GSD planning command. If matched, it prints quorum instructions to stdout, which Claude Code adds to Claude's context before processing begins.
-
-**When to use:** The only moment QGSD can inject instructions at the right time — before Claude processes the command, so Claude knows to run quorum before producing planning output.
-
-**Pattern detection logic:**
-
-```javascript
-// stdin JSON from Claude Code
-const input = JSON.parse(stdinData);
-const prompt = input.prompt || '';
-
-// Command matching: slash-prefixed GSD planning commands
-// Matches "/gsd:plan-phase", "/gsd:plan-phase 2", "  /gsd:new-project ..."
-const COMMAND_PATTERN = /^\s*\/gsd:(plan-phase|new-project|new-milestone|discuss-phase|verify-work|research-phase)/;
-
-if (COMMAND_PATTERN.test(prompt)) {
-  // Inject quorum instructions via additionalContext
-  process.stdout.write(JSON.stringify({
-    hookSpecificOutput: {
-      hookEventName: "UserPromptSubmit",
-      additionalContext: quorumInstructions
-    }
-  }));
-}
-process.exit(0);
-```
-
-**Trade-offs:**
-- Regex on prompt text is the only mechanism available (no structured command metadata in the hook payload)
-- Risk: user can invoke commands with leading whitespace or in different capitalizations — pattern must be robust
-- Pattern must match the config's `quorum_commands` list dynamically, not be hardcoded
-
-### Pattern 2: Stop Hook — Transcript Parsing for Evidence
-
-**What:** The `Stop` hook fires when Claude finishes responding. It reads the `transcript_path` JSONL file, scans for `tool_use` content blocks with MCP tool names matching Codex, Gemini, and OpenCode, and blocks if the required evidence is missing.
-
-**When to use:** The only moment that provides a hard gate — Claude cannot deliver planning output without passing this check.
-
-**Transcript JSONL structure (verified against live QGSD sessions):**
-
-Each line in the JSONL is a JSON object. The relevant lines for quorum detection:
-
-```jsonl
-{"type":"assistant","timestamp":"...","uuid":"...","message":{"model":"...","id":"...","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_01...","name":"mcp__codex-cli__codex","input":{...}}],"stop_reason":"tool_use","usage":{...}}}
-{"type":"assistant","timestamp":"...","uuid":"...","message":{"role":"assistant","content":[{"type":"tool_use","id":"toolu_02...","name":"mcp__gemini-cli__gemini","input":{...}}]}}
-{"type":"assistant","timestamp":"...","uuid":"...","message":{"role":"assistant","content":[{"type":"tool_use","id":"toolu_03...","name":"mcp__opencode__opencode","input":{...}}]}}
-```
-
-**Stop hook parsing logic:**
-
-```javascript
-const input = JSON.parse(stdinData);
-
-// Infinite loop guard: if already in a stop hook continuation, pass
-if (input.stop_hook_active) {
-  process.exit(0);
-}
-
-// Read and parse transcript
-const lines = fs.readFileSync(input.transcript_path, 'utf8').trim().split('\n');
-const foundModels = new Set();
-
-for (const line of lines) {
-  try {
-    const entry = JSON.parse(line);
-    if (entry.type !== 'assistant') continue;
-    if (!entry.message || !Array.isArray(entry.message.content)) continue;
-
-    for (const block of entry.message.content) {
-      if (block.type !== 'tool_use') continue;
-      const name = block.name || '';
-      if (name.startsWith('mcp__codex-cli__')) foundModels.add('codex');
-      if (name.startsWith('mcp__gemini-cli__')) foundModels.add('gemini');
-      if (name.startsWith('mcp__opencode__')) foundModels.add('opencode');
-    }
-  } catch (e) { /* skip malformed lines */ }
-}
-
-const required = config.required_models; // ['codex', 'gemini', 'opencode']
-const missing = required.filter(m => !foundModels.has(m));
-
-if (missing.length > 0) {
-  // BLOCK: quorum not satisfied
-  process.stdout.write(JSON.stringify({
-    decision: "block",
-    reason: `Quorum incomplete. Missing: ${missing.join(', ')}. Run quorum then retry.`
-  }));
-  process.exit(0);  // exit 0 required for JSON output to be processed
-}
-// PASS: exit 0 with no output
-process.exit(0);
-```
-
-**Trade-offs:**
-- `stop_hook_active` guard is critical — without it, the Stop hook blocks indefinitely. Must check this before scanning.
-- Transcript scanning is O(n) on session length — acceptable for typical session sizes (hundreds of lines)
-- The hook reads the full transcript each time Stop fires, not just the current turn. This means quorum evidence anywhere in the session suffices — this is intentional (quorum is per-session for the planning command, not per-response)
-- JSONL parsing must be defensive: malformed lines should be skipped, not crash the hook
-
-### Pattern 3: Scope Filtering — Only Block When a Planning Command Was Detected
-
-**What:** The Stop hook must distinguish between sessions where a planning command was issued (and quorum is required) versus general sessions (where Stop should always pass). This is solved by checking whether the transcript contains a user message matching a quorum command.
-
-**Why:** Without scope filtering, every Claude Code session in every project would be blocked at Stop if quorum tool calls were not present, breaking all non-GSD work.
-
-**Implementation options (in priority order):**
-
-1. **Preferred:** Scan transcript for user messages matching quorum commands. If none found, Stop hook passes immediately.
-2. **Alternative:** UserPromptSubmit hook writes a session marker file (`/tmp/qgsd-{session_id}.json`) that the Stop hook reads. Clean up on SessionEnd. Downside: file system coordination, cleanup complexity.
-
-Option 1 is self-contained and has no side effects. The transcript already contains all the information needed.
-
-```javascript
-// In qgsd-stop.js — check if this session had a planning command
-function sessionHasPlanningCommand(lines, quorumCommands) {
-  const cmdPattern = new RegExp(
-    '\\/gsd:(' + quorumCommands.join('|').replace(/-/g, '\\-') + ')'
-  );
-  for (const line of lines) {
-    try {
-      const entry = JSON.parse(line);
-      if (entry.type !== 'user') continue;
-      // User messages: content can be string or array
-      const text = typeof entry.message === 'string'
-        ? entry.message
-        : JSON.stringify(entry.message);
-      if (cmdPattern.test(text)) return true;
-    } catch (e) {}
-  }
-  return false;
-}
-```
+| Component | Responsibility | Communicates With |
+|-----------|----------------|-------------------|
+| `commands/qgsd/maintain-tests.md` | Command entry point; routes to workflow | Claude Code (slash command dispatch) |
+| `workflows/maintain-tests.md` | Orchestrates the full maintain-tests session; spawns workers; dispatches quick tasks | gsd-tools.cjs, Task() workers, /qgsd:quick via Task |
+| `gsd-tools.cjs` (extended) | Discovery, batching, run, state I/O | Filesystem, test runners (jest/playwright/pytest via spawnSync) |
+| Task workers (inline, not agents) | Parallel failure categorization using quorum models | Gemini/OpenCode/Copilot/Codex MCP tools |
+| `/qgsd:quick` (existing, unmodified) | Implements adapt/fixture/isolate fixes as atomic tasks | Existing planner + executor agents |
+| `current-activity.json` (existing) | Session resume routing | resume-work workflow |
+| `maintain-tests-state.json` (new) | Batch progress, processed files, categorization results | gsd-tools.cjs, maintain-tests workflow |
 
 ---
 
 ## Data Flow
 
-### Command Invocation to Quorum Verification
+### Full Maintain-Tests Session
 
 ```
-User types: /gsd:plan-phase 2
-          │
-          │ UserPromptSubmit fires
-          ▼
-qgsd-prompt.js
-  reads stdin: { prompt: "/gsd:plan-phase 2", transcript_path: "...", session_id: "..." }
-  matches COMMAND_PATTERN → true
-  reads qgsd-config.json → quorum_commands, quorum_instructions
-  writes to stdout: { hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: "..." } }
-  exit 0
-          │
-          │ Claude Code adds additionalContext to Claude's context window
-          ▼
-Claude processes /gsd:plan-phase 2
-  Sees quorum instructions in context
-  Calls mcp__codex-cli__review (or mcp__codex-cli__codex)
-  Calls mcp__gemini-cli__gemini
-  Calls mcp__opencode__opencode
-  Produces planning output
-          │
-          │ Claude finishes responding → Stop fires
-          ▼
-qgsd-stop.js
-  reads stdin: { transcript_path: "...", stop_hook_active: false, ... }
-  stop_hook_active = false → proceed
-  reads transcript_path JSONL line by line
-  scans for type=="assistant" lines → message.content[] → tool_use blocks
-    finds name=="mcp__codex-cli__review" → adds 'codex' to foundModels
-    finds name=="mcp__gemini-cli__gemini" → adds 'gemini' to foundModels
-    finds name=="mcp__opencode__opencode" → adds 'opencode' to foundModels
-  checks user messages for planning command → found
-  missing = [] (all models present)
-  exit 0 (no output = PASS)
-          │
-          ▼
-Claude delivers planning output to user
+User: /qgsd:maintain-tests [--batch-size 100]
+          |
+          v
+maintain-tests.md workflow
+  1. Read state (gsd-tools.cjs maintain-tests load-state)
+     - If no state: start fresh (discover → batch)
+     - If state exists: resume from last complete batch
+          |
+          v
+  2. Discovery
+     gsd-tools.cjs maintain-tests discover
+     → { runner, test_files[], total_count }
+          |
+          v
+  3. Batch loop (repeats until all files processed)
+     a. gsd-tools.cjs maintain-tests batch --size 100 --seed S --state-file ...
+        → { batch_id, batch_files[], remaining_count }
+     b. activity-set { activity: maintain_tests, sub_activity: running_batch, batch: N }
+     c. gsd-tools.cjs maintain-tests run-batch --state-file ...
+        → { results[] }  (passed/failed/error per file)
+     d. activity-set { sub_activity: categorizing_batch }
+     e. Parallel Task dispatch: categorization workers per failed test
+        - 4 workers (Gemini, OpenCode, Copilot, Codex)
+        - Each returns: { category, confidence, reasoning }
+        - Claude aggregates → consensus category per test
+     f. activity-set { sub_activity: actioning_batch }
+     g. Action dispatch:
+        - valid_skip → write skip annotation directly
+        - adapt/fixture/isolate → spawn /qgsd:quick per group
+        - real_bug → surface to user, do NOT auto-fix
+     h. activity-set { sub_activity: verifying_batch }
+     i. Re-run actioned tests to confirm
+     j. gsd-tools.cjs maintain-tests save-state (batch complete)
+     k. activity-set { sub_activity: categorizing_batch, batch: N+1 }  (next iteration)
+          |
+          v
+  4. Session complete
+     - Print summary: total/passed/skipped/adapted/isolated/real_bugs
+     - gsd-tools.cjs activity-clear
+     - Write quick task summary to .planning/quick/ (if any quick tasks spawned)
 ```
 
-### Quorum Missing — Block Path
+### Batch→Categorize→Iterate Loop Detail
 
 ```
-Claude finishes WITHOUT calling quorum models
-          │
-          │ Stop fires
-          ▼
-qgsd-stop.js
-  scans transcript → foundModels = { 'codex' } (gemini missing, opencode missing)
-  missing = ['gemini', 'opencode']
-  writes to stdout: { decision: "block", reason: "Quorum incomplete. Missing: gemini, opencode. ..." }
-  exit 0
-          │
-          │ Claude Code reads decision:"block"
-          │ Claude continues with reason as instruction
-          ▼
-Claude calls mcp__gemini-cli__gemini, mcp__opencode__opencode
-          │
-          │ Stop fires again
-          ▼
-qgsd-stop.js
-  stop_hook_active = true → exit 0 immediately (pass)
-  (This prevents infinite loop when Claude was already caused to continue by a stop hook)
-```
-
-**Important:** `stop_hook_active` is `true` on the second Stop invocation when Claude continued due to a prior Stop hook block. The hook must pass immediately in this case to avoid infinite loops. The correct logic is: if `stop_hook_active` is `true`, check if quorum is now satisfied; if yes, pass; if no, also pass (to avoid loop) and rely on the prior block having injected the instructions.
-
-**Revised stop_hook_active handling:**
-
-```javascript
-if (input.stop_hook_active) {
-  // Don't re-block: Claude was already instructed to run quorum.
-  // If it still didn't, blocking again creates an infinite loop.
-  // Trust that the prior block message was seen.
-  process.exit(0);
-}
+Batch N results JSON
+    ↓
+Claude reads: test_file, error_output, stack_trace per failed test
+    ↓
+For each failed test (parallel Task dispatch):
+    Worker prompt:
+      "Given this test failure, classify into ONE of:
+       valid_skip / adapt / isolate / real_bug / fixture
+       Respond: category: X, confidence: HIGH|MED|LOW, reason: ..."
+    Workers: Gemini, OpenCode, Copilot, Codex
+    ↓
+Claude aggregates (same consensus logic as /qgsd:debug):
+    - 3+ workers agree → consensus category
+    - Disagreement → Claude tiebreaker
+    ↓
+action_plan = group tests by consensus category
+    ↓
+For adapt/fixture/isolate groups:
+    Task( /qgsd:quick "Fix [N] tests: [category] - [brief description]" )
+    → each quick task tracked in .planning/quick/ with SUMMARY.md
+    ↓
+For real_bug tests:
+    Collect diagnosis + test file path
+    Surface to user at session end (not mid-loop)
+    ↓
+Batch state saved → advance to batch N+1
 ```
 
 ---
 
-## Config File Design
+## Architectural Patterns
 
-### `~/.claude/qgsd-config.json`
+### Pattern 1: Thin CLI + Reasoning Workflow Separation
 
-```json
-{
-  "quorum_commands": [
-    "plan-phase",
-    "new-project",
-    "new-milestone",
-    "discuss-phase",
-    "verify-work",
-    "research-phase"
-  ],
-  "fail_mode": "open",
-  "required_models": {
-    "codex": { "tool_prefix": "mcp__codex-cli__", "required": true },
-    "gemini": { "tool_prefix": "mcp__gemini-cli__", "required": true },
-    "opencode": { "tool_prefix": "mcp__opencode__", "required": true }
-  },
-  "quorum_instructions": "QUORUM REQUIRED: Before producing planning output, you MUST call Codex (mcp__codex-cli__review), Gemini (mcp__gemini-cli__gemini), and OpenCode (mcp__opencode__opencode) per CLAUDE.md R3. The Stop hook will verify this. Fail-open: if a model is UNAVAILABLE (returns error), note it and proceed with remaining models."
-}
-```
+**What:** Node.js CLI (`gsd-tools.cjs`) handles all mechanical operations (discovery, batching, test execution, state I/O). The workflow (Claude) handles all reasoning (categorization, action decisions, quorum consensus).
 
-**Field semantics:**
+**When to use:** Always, for QGSD features. This mirrors how `execute-phase` uses `gsd-tools.cjs init execute-phase` for mechanical context gathering while Claude handles wave coordination and plan reading.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `quorum_commands` | string[] | Command slugs (after `/gsd:`) that trigger quorum injection and verification |
-| `fail_mode` | `"open"` | `"open"` = proceed when models are unavailable (v1 only; `"closed"` is future). Must match CLAUDE.md R6 |
-| `required_models` | object | Map of model keys to tool prefix and required flag. `tool_prefix` used for transcript scanning |
-| `quorum_instructions` | string | The additionalContext text injected by UserPromptSubmit hook. User-editable to customize instructions |
+**Trade-offs:**
+- Pro: Testable CLI operations; reasoning is separate from mechanics
+- Pro: Workflow stays readable (no embedded subprocess logic)
+- Con: State passing via JSON files requires careful schema design
 
-**Config loading:**
+### Pattern 2: Deterministic Batching with Resumable State
+
+**What:** Batches are determined by a fixed seed + processed_files exclusion list. The same seed always produces the same ordering; the exclusion list ensures already-processed tests are skipped.
+
+**When to use:** Any large-dataset iteration where interruption is likely (20k+ tests can take hours).
+
+**Example:**
 
 ```javascript
-function loadConfig() {
-  const configPath = path.join(os.homedir(), '.claude', 'qgsd-config.json');
-  if (!fs.existsSync(configPath)) {
-    // Return hardcoded defaults — do not fail if config missing
-    return DEFAULT_CONFIG;
-  }
-  try {
-    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  } catch (e) {
-    // Malformed config = fail open, use defaults
-    return DEFAULT_CONFIG;
-  }
+// gsd-tools.cjs maintain-tests batch
+function seededShuffle(arr, seed) {
+  // Mulberry32 or similar fast PRNG — no external dependency
+  let s = seed;
+  return arr.slice().sort(() => {
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+    return (s >>> 0) / 0xFFFFFFFF - 0.5;
+  });
 }
+const unprocessed = allFiles.filter(f => !processedFiles.includes(f));
+const shuffled = seededShuffle(unprocessed, state.seed);
+const batch = shuffled.slice(0, batchSize);
 ```
 
----
+**Trade-offs:**
+- Pro: Resumable without re-running completed batches
+- Pro: No external shuffle dependency
+- Con: Must persist `processed_files` array; grows to 20k+ entries (acceptable in JSON)
 
-## Installer Design
+### Pattern 3: Category-Grouped Quick Task Dispatch
 
-### How QGSD Installs Into `~/.claude/settings.json`
+**What:** Instead of spawning one quick task per failing test (which could be thousands), group by category and description similarity, then spawn one quick task per group (e.g., "adapt 12 snapshot tests after model schema change").
 
-GSD's installer pattern (verified from `bin/install.js`): read `settings.json`, add hook entries, write back. QGSD follows the identical pattern.
+**When to use:** Any time categorization produces many similar failures. Anti-pattern: spawning a quick task per individual test.
 
-**Entries to add in `settings.json`:**
+**Grouping heuristic:**
+- Same category + same error type + same directory → same group
+- Cap group size at 20 tests per quick task (keeps tasks atomic)
+- If group > 20: spawn multiple quick tasks for the same fix
 
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/username/.claude/hooks/qgsd-prompt.js\""
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/username/.claude/hooks/qgsd-stop.js\"",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
-  }
-}
+**Trade-offs:**
+- Pro: Manageable quick task count (likely 10–50 tasks, not thousands)
+- Pro: Each quick task has a clear, focused scope
+- Con: Grouping heuristic must be conservative — wrong grouping misses test-specific context
+
+### Pattern 4: Real Bug Deferral (No Auto-Fix)
+
+**What:** Tests classified as `real_bug` are collected into a summary but NOT actioned. They are surfaced to the user at session end with diagnosis.
+
+**When to use:** Any time auto-fixing a failure could hide a genuine regression.
+
+**Why this is architectural:** Real bugs represent code that is genuinely broken. Auto-fixing by adapting the test would mask the bug, defeating the purpose of the test suite. The maintain-tests command's job is to maximize test suite value, not to make CI green at any cost.
+
+**Surface format:**
+
 ```
+## Real Bugs Found (require human attention)
 
-**Notes:**
-- `UserPromptSubmit` has no matcher support (always fires on every prompt) — no `matcher` field needed
-- `Stop` has no matcher support — no `matcher` field needed
-- The `timeout` on the Stop hook should be conservative (30s) since transcript parsing is synchronous I/O
-- Hook commands use absolute paths with the actual home directory expanded (same as GSD's `buildHookCommand()`)
-
-**Installer responsibilities:**
-
-1. Detect `~/.claude/` (global install target — v1 is global only, matching GSD)
-2. Copy `hooks/dist/qgsd-prompt.js` → `~/.claude/hooks/qgsd-prompt.js`
-3. Copy `hooks/dist/qgsd-stop.js` → `~/.claude/hooks/qgsd-stop.js`
-4. Write default `~/.claude/qgsd-config.json` (if not already present — preserve user customizations)
-5. Read `~/.claude/settings.json`, add `UserPromptSubmit` and `Stop` hook entries, write back
-6. Report success with instructions
+| Test File | Error Summary | Diagnosis |
+|-----------|---------------|-----------|
+| path/to/test.js | TypeError: cannot read X of undefined | Model.findById() returns null after schema migration; fixture needs seeding |
+```
 
 ---
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Blocking on Every Stop
+### Anti-Pattern 1: Running Full Test Suite Per Batch Iteration
 
-**What people do:** Register a Stop hook that always scans for quorum and blocks if not found, regardless of whether the session involved a GSD planning command.
+**What people do:** Run `jest` with no file filter, then manually extract per-file results.
 
-**Why it's wrong:** Every Claude Code session in every project gets blocked. Non-GSD work, non-planning commands (like `/gsd:execute-phase`), and general coding sessions all fail until the user calls three external model CLIs.
+**Why it's wrong:** For 20k+ tests, a full suite run may take 30+ minutes per iteration. Batching requires targeted per-file execution. Jest, pytest, and playwright all support file-targeted execution.
 
-**Do this instead:** Scope the Stop hook. Scan user messages in the transcript first — only proceed with quorum verification if a planning command was detected in this session.
+**Do this instead:**
 
-### Anti-Pattern 2: Infinite Stop Hook Loop
+```bash
+# Jest: target specific files
+npx jest path/to/test1.js path/to/test2.js --passWithNoTests
 
-**What people do:** Always block in the Stop hook when quorum is missing, including when `stop_hook_active` is `true`.
+# pytest: target specific files
+pytest path/to/test1.py path/to/test2.py
 
-**Why it's wrong:** When Claude continues due to a Stop hook block, Claude Code sets `stop_hook_active: true` on the next Stop invocation. Blocking again creates an infinite loop that never terminates the session.
+# playwright: target specific spec files
+npx playwright test path/to/test1.spec.ts
+```
 
-**Do this instead:** Check `stop_hook_active` first. If `true`, exit 0 immediately. Claude was already instructed to run quorum; trust the instruction.
+The `gsd-tools.cjs run-batch` command builds the correct invocation per runner.
 
-### Anti-Pattern 3: Calling Model CLIs Directly From Hooks
+### Anti-Pattern 2: One Quick Task Per Failing Test
 
-**What people do:** From the Stop or UserPromptSubmit hook, spawn subprocess calls to `codex`, `gemini`, or `opencode` CLIs to actually run the quorum.
+**What people do:** For each categorized test, spawn `/qgsd:quick` to fix it.
 
-**Why it's wrong:** Hooks execute in Claude Code's environment, not inside Claude's context. Spawning CLIs from hooks adds auth complexity (each CLI needs its own credentials), fragile subprocess management, and timeout risks. The quorum tools (`mcp__codex-cli__review` etc.) are already available to Claude through MCPs — Claude should call them, not the hook.
+**Why it's wrong:** 200 failing tests → 200 quick tasks → 200 STATE.md entries + 200 commits. The quick task table becomes unreadable. Each task also has planning + execution overhead.
 
-**Do this instead:** The hook's job is injection (UserPromptSubmit) and verification (Stop). Claude itself calls the quorum tools. The Stop hook only reads evidence, it never produces quorum output.
+**Do this instead:** Group by category + similarity. One quick task fixes a batch of related failures. Cap at 20 tests per task.
 
-### Anti-Pattern 4: Modifying GSD Source Files
+### Anti-Pattern 3: Adding maintain-tests to quorum_commands
 
-**What people do:** Patch `gsd-planner.md` or `gsd-roadmapper.md` to include quorum instructions directly.
+**What people do:** Add `maintain-tests` to the Stop hook's quorum command allowlist so quorum runs before delivering results.
 
-**Why it's wrong:** GSD updates overwrite those files. QGSD must be zero-coupling — it works on top of GSD without touching any GSD file. Any GSD update must be transparent to QGSD.
+**Why it's wrong:** `maintain-tests` is an EXECUTION command, not a PLANNING command. CLAUDE.md R2.2 prohibits quorum during execution. Quorum on execution is also impractical here: batch iterations happen dozens to hundreds of times; quorum on every batch output would be non-functional.
 
-**Do this instead:** All QGSD logic lives in the hook layer only. QGSD installs independently alongside GSD with no shared files.
+**Do this instead:** Quorum is only needed when maintain-tests is first planned (that planning happens in `/qgsd:plan-phase` for the feature being worked on, which already has quorum). Execution remains Claude-only per R2.2.
 
-### Anti-Pattern 5: Hardcoding Tool Names in Stop Hook
+### Anti-Pattern 4: Storing Full Test Output in State File
 
-**What people do:** Check for `mcp__codex-cli__codex` specifically (the interactive codex tool) rather than `mcp__codex-cli__*` prefix.
+**What people do:** Write the full stderr/stdout of each test run into `maintain-tests-state.json`.
 
-**Why it's wrong:** Claude may use `mcp__codex-cli__review` (the review-specific tool) rather than `mcp__codex-cli__codex`. The CLAUDE.md policy specifies "Codex" as a model, not a specific tool name. Hardcoding the tool name breaks when users call different Codex MCP tools.
+**Why it's wrong:** A failing test can produce 50KB of output. 100 failing tests in a batch → 5MB per batch iteration → state file grows to gigabytes over a 20k-test session.
 
-**Do this instead:** Match on tool name prefix (`mcp__codex-cli__`), not exact tool name. This matches any tool from the Codex MCP server.
+**Do this instead:** Store only: test file path, exit code, error type classification, and first 500 chars of error output (for categorization context). Full output is captured in a per-batch temp file that is replaced each iteration and not persisted.
+
+### Anti-Pattern 5: Spawning gsd-tools.cjs as a Claude Subagent
+
+**What people do:** `Task("Run gsd-tools.cjs maintain-tests discover and report back")`.
+
+**Why it's wrong:** `gsd-tools.cjs` is a CLI tool, not an agent. Spawning it as a Task burns context window and adds agent spawn overhead for work that is trivially done with a direct `Bash` call in the workflow.
+
+**Do this instead:**
+
+```bash
+DISCOVERY=$(node ~/.claude/qgsd/bin/gsd-tools.cjs maintain-tests discover --runner auto)
+```
+
+Bash calls to `gsd-tools.cjs` are the standard pattern across all existing QGSD workflows.
 
 ---
 
-## Build Order — Dependencies Between Components
+## Build Order — Phases 18+
+
+The build order is constrained by: (a) existing QGSD phase numbering (v0.2 ended at Phase 17), (b) the dependency chain within maintain-tests itself.
 
 ```
-1. qgsd-config.js           (no dependencies — pure config parsing)
-        ↓
-2. qgsd-prompt.js           (depends on: qgsd-config.js)
-   qgsd-stop.js             (depends on: qgsd-config.js)
-        ↓
-3. build-hooks.js           (bundles qgsd-prompt + qgsd-config → dist/qgsd-prompt.js)
-                            (bundles qgsd-stop + qgsd-config → dist/qgsd-stop.js)
-        ↓
-4. templates/qgsd-config.json  (no code dependencies — data only; defines defaults)
-        ↓
-5. bin/install.js           (depends on: dist/hooks, templates/qgsd-config.json, package.json)
-        ↓
-6. package.json             (ties it all together: bin, files, build scripts)
+Phase 18: CLI Foundation (gsd-tools.cjs extension)
+  - maintain-tests discover sub-command
+  - maintain-tests batch sub-command
+  - maintain-tests run-batch sub-command (jest/playwright/pytest runners)
+  - maintain-tests save-state / load-state sub-commands
+  - Unit tests for all new sub-commands
+  Dependency: none (extends existing gsd-tools.cjs)
+  Risk: runner detection logic across 3 test frameworks; pytest subprocess on non-Python projects
+
+Phase 19: State Schema + Activity Tracking Integration
+  - maintain-tests-state.json schema definition
+  - .gitignore addition
+  - activity-set sub_activity values for resume-work routing table
+  - resume-work.md routing table addition (6 new rows for maintain-tests sub_activities)
+  Dependency: Phase 18 (state schema informed by CLI commands)
+  Risk: resume-work routing table already has 15+ rows; adding 6 more requires careful disambiguation
+
+Phase 20: Workflow Orchestrator
+  - workflows/maintain-tests.md (full workflow: discovery → batch loop → categorize → action → verify)
+  - commands/qgsd/maintain-tests.md (slash command stub)
+  - Installer addition: WORKFLOWS_TO_COPY entry
+  Dependency: Phase 18 (CLI commands), Phase 19 (state schema, activity tracking)
+  Risk: workflow complexity; batch loop with categorization workers is the most complex workflow in QGSD
+
+Phase 21: Categorization Engine
+  - Quorum worker prompt design (5-category classification)
+  - Consensus aggregation logic in workflow
+  - Category-grouped quick task dispatch logic
+  - Real bug deferral and surface format
+  Dependency: Phase 20 (workflow structure must exist to add categorization)
+  Risk: Quorum model availability during categorization; LOW confidence in consensus rate for novel test failure patterns
+
+Phase 22: Integration Test + Verification
+  - End-to-end test on a real failing test suite
+  - VERIFICATION.md for Phases 18–21
+  - Update installer to install maintain-tests command + workflow
+  Dependency: All prior phases
+  Risk: Integration test requires a project with controllable test failures; use QGSD's own test suite or a fixture project
 ```
 
-**Build constraints:**
-- Hooks must be bundled before distribution (same as GSD). `hooks/dist/` is in `package.json` `files`, not `hooks/` (source).
-- `qgsd-config.js` must be bundled INTO each hook (not a separate file at `~/.claude/hooks/`) because there is no `node_modules` in the install target directory.
-- The Stop hook must handle missing `transcript_path` gracefully (e.g., empty session) — exit 0 silently.
+**Phase ordering rationale:**
 
-**Implementation sequence for a single developer:**
+- Phase 18 first: CLI foundation is mechanically testable before any workflow logic exists. Unit tests for `discover`/`batch`/`run-batch` catch runner detection bugs before they block workflow development.
+- Phase 19 before Phase 20: The workflow needs a stable state schema and activity tracking hooks. Getting these wrong after the workflow is built would require a rewrite.
+- Phase 20 before Phase 21: Categorization is a feature of the workflow, not a standalone component. The workflow shell must exist before categorization logic is added.
+- Phase 21 is the highest-risk phase: quorum worker prompt design for 5-category classification is novel. It should be isolated in its own phase so prompt failures don't block the rest of the workflow.
+- Phase 22 last: Integration testing requires all prior phases to be functional.
 
-```
-Phase 1: Foundation
-  1a. qgsd-config.js        — config schema + defaults
-  1b. templates/config.json — matching default config file
+**No research flag needed for Phases 18–19.** CLI extension and state schema follow established patterns in `gsd-tools.cjs`.
 
-Phase 2: Hook Bodies (can develop in parallel after Phase 1)
-  2a. qgsd-prompt.js        — UserPromptSubmit: pattern match + inject
-  2b. qgsd-stop.js          — Stop: transcript parse + verify
-
-Phase 3: Build
-  3a. build-hooks.js        — esbuild bundler (copy from GSD's build-hooks.js pattern)
-  3b. Verify: node hooks/dist/qgsd-prompt.js (with mock stdin)
-  3c. Verify: node hooks/dist/qgsd-stop.js (with real transcript JSONL)
-
-Phase 4: Installer
-  4a. bin/install.js        — copy hooks, write settings.json entries, write config
-  4b. Test: npx . → verify ~/.claude/hooks/ and settings.json entries
-
-Phase 5: Integration Test
-  5a. Install, trigger /gsd:plan-phase, verify injection in Claude context
-  5b. Verify Stop blocks when quorum missing
-  5c. Verify Stop passes when quorum present
-  5d. Verify non-planning commands pass Stop without quorum requirement
-```
-
----
-
-## How QGSD Coexists With GSD
-
-**Zero coupling design:**
-
-| Dimension | GSD | QGSD | Coupling |
-|-----------|-----|------|---------|
-| Commands (`~/.claude/commands/gsd/`) | owns all `/gsd:*` commands | never touches | none |
-| Agents (`~/.claude/agents/`) | owns all `gsd-*.md` agents | never touches | none |
-| Workflows (`~/.claude/get-shit-done/`) | owns all workflows | never touches | none |
-| Hooks (`~/.claude/hooks/`) | owns `gsd-statusline.js`, `gsd-check-update.js` | adds `qgsd-prompt.js`, `qgsd-stop.js` | file-level coexistence only |
-| `settings.json` | adds `SessionStart` hook, `statusLine` | adds `UserPromptSubmit` hook, `Stop` hook | additive merge, no conflicts |
-| Config | none relevant | `qgsd-config.json` (separate file) | none |
-
-**GSD updates:** When the user runs `npx get-shit-done-cc@latest`, GSD updates its own files. QGSD's `qgsd-prompt.js`, `qgsd-stop.js`, and `qgsd-config.json` are untouched. The `settings.json` hook registrations persist.
-
-**QGSD updates:** When QGSD updates, it overwrites `qgsd-prompt.js` and `qgsd-stop.js`, and merges new hook entries (idempotent: check before adding). GSD files are untouched.
+**Research flag for Phase 21:** Quorum worker classification prompts for test categorization are novel. Phase-specific research should verify: (a) whether 5-category classification is achievable with the quorum models at HIGH confidence, (b) whether categorization prompts need examples/few-shot to be reliable, (c) what consensus rate to expect and how to handle persistent disagreement.
 
 ---
 
 ## Integration Points
 
+### New vs Modified Components
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| `commands/qgsd/maintain-tests.md` | NEW | Slash command stub |
+| `workflows/maintain-tests.md` | NEW | Full workflow orchestrator |
+| `gsd-tools.cjs` (maintain-tests sub-commands) | MODIFIED | Additive — no existing commands changed |
+| `bin/install.js` (WORKFLOWS_TO_COPY) | MODIFIED | One array entry added |
+| `resume-work.md` (routing table) | MODIFIED | 6 new rows for maintain-tests sub_activities |
+| `.gitignore` | MODIFIED | One new entry for maintain-tests-state.json |
+| `config-loader.js` | UNMODIFIED | No new config keys needed |
+| `qgsd-prompt.js` | UNMODIFIED | maintain-tests not a quorum command |
+| `qgsd-stop.js` | UNMODIFIED | No scope change |
+| `qgsd-circuit-breaker.js` | UNMODIFIED | No new Bash patterns to exempt |
+| Existing agents (planner, executor, debugger) | UNMODIFIED | Quick tasks use them as-is |
+
 ### Internal Boundaries
 
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| Claude Code → qgsd-prompt.js | JSON via stdin (UserPromptSubmit payload) | `prompt`, `transcript_path`, `session_id`, `cwd` |
-| qgsd-prompt.js → Claude Code | JSON via stdout (additionalContext) | `hookSpecificOutput.additionalContext` string |
-| Claude Code → qgsd-stop.js | JSON via stdin (Stop payload) | `transcript_path`, `stop_hook_active`, `last_assistant_message` |
-| qgsd-stop.js → Claude Code | JSON via stdout OR exit 0 | `decision:"block"` + `reason`, or silent exit 0 for pass |
-| qgsd-stop.js → transcript_path JSONL | Filesystem read (synchronous) | JSONL at `~/.claude/projects/{project_hash}/{session_id}.jsonl` |
-| qgsd-config.js → qgsd-config.json | Filesystem read (synchronous) | `~/.claude/qgsd-config.json` |
-
-### External Services
-
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| Codex MCP | Claude Code calls `mcp__codex-cli__*` tools | Quorum evidence only; QGSD never calls directly |
-| Gemini MCP | Claude Code calls `mcp__gemini-cli__*` tools | Quorum evidence only; QGSD never calls directly |
-| OpenCode MCP | Claude Code calls `mcp__opencode__*` tools | Quorum evidence only; QGSD never calls directly |
-| npm registry | Version check on install (future) | Same pattern as GSD's `gsd-check-update.js` |
+| maintain-tests.md workflow → gsd-tools.cjs | Bash call, JSON stdout | Same pattern as all existing workflows |
+| maintain-tests.md → test runners | Bash via gsd-tools.cjs run-batch | gsd-tools.cjs owns runner invocation |
+| maintain-tests.md → categorization workers | Task() parallel spawns | Same pattern as /qgsd:debug Step 3 |
+| maintain-tests.md → /qgsd:quick | Task() sequential spawn | Existing quick workflow, unmodified |
+| gsd-tools.cjs → maintain-tests-state.json | fs.readFileSync / writeFileSync | JSON, gitignored |
+| gsd-tools.cjs → current-activity.json | activity-set (existing command) | Same as execute-phase |
+| resume-work.md → maintain-tests-state.json | Bash read via gsd-tools.cjs load-state | Resume routing reads state to recover position |
 
 ---
 
 ## Sources
 
-- [Claude Code Hooks Reference](https://code.claude.com/docs/en/hooks) — HIGH confidence (official Anthropic docs). UserPromptSubmit payload, Stop payload, `stop_hook_active`, `decision`/`reason` JSON output, `additionalContext` in hookSpecificOutput, exit code behavior.
-- Live QGSD session transcript (`~/.claude/projects/-Users-jonathanborduas-code-QGSD/8053c02f...jsonl`) — HIGH confidence (first-party data). Verified: `type:"assistant"`, `message.content[].type:"tool_use"`, `name:"mcp__codex-cli__codex"`, `name:"mcp__gemini-cli__gemini"`, `name:"mcp__opencode__opencode"`. Found 4 MCP calls total (1 Codex, 1 Gemini, 2 OpenCode).
-- GSD installer source (`/Users/jonathanborduas/code/QGSD/bin/install.js`) — HIGH confidence (source code). `buildHookCommand()`, `settings.json` merge pattern, hooks/dist/ copy logic, global install path resolution.
-- GSD hooks source (`/Users/jonathanborduas/code/QGSD/hooks/gsd-statusline.js`, `gsd-check-update.js`) — HIGH confidence (source code). Stdin JSON parsing pattern, error handling, silent fail approach.
-- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — HIGH confidence (authoritative project context). Architecture decision: UserPromptSubmit + Stop hook (A+C), fail-open, plugin extension only.
+- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — HIGH confidence (authoritative project scope). v0.3 goal: discover, batch, categorize, iterate.
+- `/Users/jonathanborduas/code/QGSD/commands/qgsd/debug.md` — HIGH confidence (source read). Quorum worker dispatch pattern, consensus logic, parallel Task dispatch.
+- `/Users/jonathanborduas/code/QGSD/commands/qgsd/quick.md` — HIGH confidence (source read). Quick task pattern for atomic fixes.
+- `/Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs` — HIGH confidence (source read). Existing sub-command interface, init compound commands, activity-set pattern.
+- `/Users/jonathanborduas/.claude/qgsd/workflows/execute-phase.md` — HIGH confidence (source read). Activity-set usage across step transitions; checkpoint:verify pattern.
+- `/Users/jonathanborduas/.claude/qgsd/workflows/quick.md` — HIGH confidence (source read). Quick task workflow structure, init call, STATE.md update pattern.
+- `/Users/jonathanborduas/code/QGSD/hooks/config-loader.js` — HIGH confidence (source read). Two-layer config, DEFAULT_CONFIG structure, no changes required.
+- `/Users/jonathanborduas/code/QGSD/.planning/STATE.md` — HIGH confidence (source read). Phase numbering (last phase = 17), key decisions table.
 
 ---
-*Architecture research for: QGSD — Claude Code plugin, hook-based multi-model quorum enforcement*
-*Researched: 2026-02-20*
+
+*Architecture research for: QGSD v0.3 — /qgsd:maintain-tests integration*
+*Researched: 2026-02-22*

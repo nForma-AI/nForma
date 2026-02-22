@@ -1,184 +1,372 @@
 # Pitfalls Research
 
-**Domain:** Claude Code hook-based quorum enforcement (Stop hook + UserPromptSubmit hook)
-**Researched:** 2026-02-20
-**Confidence:** HIGH (official docs verified + confirmed via GitHub issues + existing codebase analysis)
+**Domain:** AI-driven test suite maintenance tool added to an existing Claude Code plugin (QGSD v0.3)
+**Researched:** 2026-02-22
+**Confidence:** HIGH (confirmed via official docs + GitHub issues + community reports + QGSD codebase analysis)
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Stop Hook Infinite Loop from Missing stop_hook_active Guard
+### Pitfall 1: Test Discovery Counts Diverge Between Frameworks in the Same Repo
 
 **What goes wrong:**
 
-The Stop hook fires, detects missing quorum, returns `{"decision": "block", "reason": "Quorum required"}`, Claude continues and responds again without doing quorum, the Stop hook fires again, blocks again, and this repeats without end. The session never terminates and burns through API tokens indefinitely.
+When a monorepo contains jest, playwright, and pytest tests, a naive discovery pass double-counts or misses files. The specific failure mode: a `*.spec.ts` file in a Next.js app is discovered by both Jest (via `testMatch: **/*.spec.ts`) and Playwright (via `**/*.@(spec|test).?(c|m)[jt]s?(x)`). The tool reports 22,000 tests found; 4,000 of them are duplicates that belong to Playwright and get counted again under Jest. When batching is based on the inflated count, batches contain wrong tests for the wrong runner, and those runs produce 100% failure rates that look like real bugs.
 
 **Why it happens:**
 
-`stop_hook_active` is a field Claude Code injects into the Stop hook input when the hook has already forced a continuation. Developers either don't know this field exists or forget to check it. Once blocked, Claude gets the reason injected as context, responds again (potentially without completing quorum), and the hook fires again for the same outcome.
+Each framework has its own discovery glob. Jest's `testMatch` and `testRegex` are configured per-project; Playwright's `testDir` and Playwright-for-Python's `pytestmark` patterns are separate. A tool that runs its own discovery scan outside the framework config cannot know which framework owns which file — unless it reads the framework config first. Developers assume file suffix is sufficient to distinguish frameworks; it is not when both frameworks use `.spec.ts`.
 
 **How to avoid:**
 
-Every Stop hook MUST begin with this guard as the first logic executed:
+Discovery must be config-driven, not suffix-driven. For each framework:
+- **Jest**: Run `jest --listTests --json` using the project's existing `jest.config.js` — never glob independently. In monorepos, run once per package that has its own `jest.config.js`.
+- **Playwright**: Run `npx playwright test --list` to get the authoritative file list. Do not glob for `.spec.ts` files directly.
+- **pytest**: Run `pytest --collect-only -q` with the project's `pytest.ini` or `pyproject.toml` rootdir in scope.
 
-```javascript
-const input = JSON.parse(fs.readFileSync('/dev/stdin', 'utf8'));
-if (input.stop_hook_active === true) {
-  process.exit(0); // Let Claude stop — already continued once
-}
+Use framework CLI output as the canonical source of truth. Never independently glob to discover tests — the framework's own config is the source of truth for what it owns.
+
+**Warning signs:**
+
+- Batch failure rate is 100% across an entire batch (not a realistic distribution)
+- Same file path appears in multiple framework discovery results
+- `jest --listTests` count differs from a grep count of `*.test.ts` files
+- Discovery tool runs faster than expected — frameworks skip some files the tool found
+
+**Phase to address:** Phase 1 (Test Discovery). Discovery must be implemented through framework CLIs, not file system globbing. This is a design decision that cannot be retrofitted.
+
+---
+
+### Pitfall 2: Jest Monorepo rootDir Resolution Breaks Discovery at Scale
+
+**What goes wrong:**
+
+In a monorepo with 20k+ tests, a root-level `jest.config.js` uses `projects: ['<rootDir>/packages/*']`. When the discovery tool invokes `jest --listTests` from the project root, Jest resolves `<rootDir>` to the current working directory. If the tool is invoked from a subdirectory (e.g., a package inside the monorepo), `<rootDir>` resolves differently, and `jest --listTests` returns 0 tests — or worse, crashes with "No tests found" without a non-zero exit code. The tool interprets 0 as success and proceeds with empty batches, creating spurious "all tests pass" reporting.
+
+**Why it happens:**
+
+Jest's rootDir resolution is invocation-directory-sensitive. The `<rootDir>` token resolves relative to the config file location in Jest 29+, but the CWD of the jest process determines where relative paths in the config are resolved. In monorepos with nested configs, there is a second failure mode: each package has its own `jest.config.js`, and those nested configs have `rootDir: '../../'` pointing to the monorepo root. Running `jest --listTests` in the nested package finds only that package's tests; running from the root finds all packages via `projects:`. The tool must know which invocation mode to use.
+
+**How to avoid:**
+
+For each jest project, always pass `--rootDir` explicitly and always invoke from the directory that contains the config file. Before discovery:
+1. Walk upward from each candidate config file to find the effective rootDir.
+2. Invoke `jest --listTests --config=<absolute-path-to-config>` with `cwd` set to the directory containing that config.
+3. Treat empty results as a failure requiring investigation, never as "zero tests found" success.
+
+Add a post-discovery sanity check: if discovered count is more than 20% below the previous run's count, emit a warning before proceeding.
+
+**Warning signs:**
+
+- `jest --listTests` returns 0 when executed from a package subdirectory
+- Discovery count varies depending on which directory the tool was invoked from
+- `No tests found, exiting with code 1` in Jest output but the tool's exit code handling swallows it
+- Different runs produce different test counts without any test files being added or deleted
+
+**Phase to address:** Phase 1 (Test Discovery). The cwd/rootDir invariant must be established during initial discovery design and tested with a real monorepo fixture.
+
+---
+
+### Pitfall 3: pytest conftest.py Ancestor Traversal Causes Import Collisions
+
+**What goes wrong:**
+
+pytest crawls upward from the test file to collect all `conftest.py` files in ancestor directories. In a monorepo with two separate Python services — `/services/auth/` and `/services/billing/` — each with their own `conftest.py`, running `pytest services/` from the root causes pytest to load both conftest files into the same import namespace. If both conftest files define a fixture named `db_client`, pytest raises `ValueError: duplicate fixture` and discovery fails entirely. With 20k+ tests, this failure silently aborts collection for affected packages, making the tool undercount tests without a clear error.
+
+**Why it happens:**
+
+pytest's `rootdir` detection walks upward from the specified path until it finds a `pyproject.toml`, `setup.cfg`, `pytest.ini`, or `tox.ini`. In a monorepo, this lands at the repo root. From that root, pytest discovers all conftest.py files in all subdirectories during collection. The ancestor traversal that makes fixtures "just work" inside a single project becomes a collision source across multiple independent projects.
+
+**How to avoid:**
+
+Invoke pytest per-package, never from the monorepo root. For each package directory that contains a `pytest.ini` or `pyproject.toml` with `[tool.pytest.ini_options]`:
+1. Invoke `pytest --collect-only -q --rootdir=<package-dir>` with `cwd` set to that package directory.
+2. Use `--ignore` flags to exclude sibling packages from collection.
+3. For packages without their own pytest config, add a minimal `pytest.ini` with `testpaths = tests` before running discovery.
+
+Do not rely on the pytest rootdir auto-detection when invoking from above the package root.
+
+**Warning signs:**
+
+- `ImportPathMismatchError` or `ValueError: duplicate fixture` in pytest output
+- Discovery aborts for some packages but not others
+- Running `pytest path/to/package/` from inside the package succeeds, but from the monorepo root it fails
+- Two packages share a fixture name (check by grepping for duplicate fixture definitions)
+
+**Phase to address:** Phase 1 (Test Discovery). Per-package pytest invocation must be the implementation pattern from the start.
+
+---
+
+### Pitfall 4: Child Process stdout Truncation Silently Drops Test Output
+
+**What goes wrong:**
+
+The batch executor spawns test runners as child processes. Using Node.js's `exec()` or `execFile()` (which buffer all output in memory) with a 20k test suite produces test output that can easily exceed `maxBuffer` default of 1MB. When maxBuffer is exceeded, Node.js kills the child process and emits a `maxBuffer exceeded` error. If the executor does not handle this error explicitly, it propagates as an uncaught exception, which the executor treats as if the batch completed successfully with empty stdout. AI categorization then receives empty output and hallucinates all failures as "test framework did not run."
+
+**Why it happens:**
+
+Node.js `exec()`/`execFile()` default `maxBuffer: 1 * 1024 * 1024` (1MB) was designed for small command output, not test suite JSON reports. Jest with `--json` reporter produces `{"testResults": [...]}` output that grows linearly with the number of tests. At 100 tests per batch with verbose output, a single batch's stdout can be 2-5MB. The error is easy to miss because `child_process` fires the `'error'` event rather than rejecting, and many developers only listen for `'close'`.
+
+**How to avoid:**
+
+Use `spawn()` with stream event handlers instead of `exec()`/`execFile()`. Pipe test runner output to a temp file:
+
+```text
+const outPath = path.join(os.tmpdir(), 'qgsd-batch-' + batchId + '.json');
+spawn the runner with stdio: ['ignore', outFd, 'pipe']
+read outPath after child close
 ```
 
-The guard must be unconditional. Do not check quorum again when `stop_hook_active` is true. The purpose of the flag is to break the loop regardless of what the transcript says.
+This avoids maxBuffer entirely. The streaming/file approach is more robust for variable-size output than increasing maxBuffer. Read the temp file after the child process emits its `'close'` event.
 
 **Warning signs:**
 
-- Session runs indefinitely without user action
-- Claude keeps repeating "I need to run quorum" messages in a loop
-- API usage spikes with no corresponding task completion
-- Terminal shows repeated "Stop hook feedback" lines
+- AI categorization input is empty or contains only partial JSON (malformed)
+- `Error: maxBuffer exceeded` anywhere in executor stderr
+- Batch shows 0 failures even though tests are known to be broken
+- Output from `jest --json` is truncated mid-object (starts with `{` but has no closing `}`)
 
-**Phase to address:** Phase 1 (Stop hook foundation). This guard must be in the initial implementation, not added later.
+**Phase to address:** Phase 2 (Batch Execution). Output collection method must be decided before writing the batch executor — switching from buffered to streaming mid-implementation causes a test rewrite.
 
 ---
 
-### Pitfall 2: Plugin-Delivered UserPromptSubmit Hook Output Not Injected into Context
+### Pitfall 5: Flaky Tests Classified as Real Bugs Exhaust the Debug Loop
 
 **What goes wrong:**
 
-UserPromptSubmit hooks defined in a plugin's `hooks/hooks.json` register correctly and even execute, but their stdout output is silently discarded. Claude never sees the quorum injection instructions the hook is meant to provide. This creates a silent failure: the hook reports success, but quorum injection never happens.
+The `/qgsd:maintain-tests` debug loop runs a batch, sends failures to Claude for categorization, Claude assigns "real bug" to flaky tests (tests that fail intermittently due to timing, network, or shared state), the loop spawns a `/qgsd:quick` to fix the "bug," the fix makes no difference, the test fails again in the next run, and the loop classifies it as "real bug" again. This cycles indefinitely. The convergence criterion "all tests classified and actioned" is never met because the flaky test keeps re-entering the "real bug" queue.
 
 **Why it happens:**
 
-This is a confirmed Claude Code bug (GitHub issue #10225, duplicated as #9708, also confirmed in #12151). The plugin hook execution pipeline is missing the stdout capture and context injection step that exists for settings-based hooks. The bug affects UserPromptSubmit and SessionStart specifically — Stop hooks installed via plugins work correctly for exit-code-based blocking, but their output is also affected by a related issue (#10875).
+Claude's categorization is based on a single failure report: the stack trace plus the test code. A flaky test's stack trace is indistinguishable from a real bug's stack trace on any single failure. Without multi-run history, there is no evidence of intermittency. The AI receives a snapshot, not a trend, and correctly classifies the snapshot as "the test failed" — it simply lacks the context to distinguish one-time from intermittent.
 
 **How to avoid:**
 
-Install the UserPromptSubmit hook in `~/.claude/settings.json` (user settings) rather than in the plugin's `hooks/hooks.json`. This is the confirmed workaround. The installer should write directly to user settings, not rely on plugin hook infrastructure for the injection path. For the Stop hook, use exit-code-based blocking (exit 2 + stderr) rather than JSON stdout output to avoid the plugin output capture bug.
+Before sending failures to AI categorization, re-run each failing test in isolation at least 3 times. Track the pass/fail pattern:
+- Fails 3/3: send to categorization with `failure_pattern: consistent`
+- Fails 1-2/3: pre-classify as `flaky`, mark for isolation category, skip AI categorization
+- Passes 3/3: the original failure was environment noise; drop from the queue
+
+Implement a flaky test registry in the batch run state. Tests already classified as flaky in a previous iteration should not re-enter the categorization loop.
+
+Add `failure_history` to the context sent to Claude: "This test failed in 2 of the last 3 isolated runs." This single piece of evidence significantly reduces misclassification.
 
 **Warning signs:**
 
-- Hook shows as registered in `/hooks` menu
-- Debug log shows "Matched N hooks" but no "Hook output" line follows
-- Claude proceeds without quorum context after a GSD planning command
-- Adding the same hook to `~/.claude/settings.json` makes it work immediately
+- Same test appears in "real bug" queue across multiple loop iterations
+- Fixes spawned by the loop produce no code changes but tests still fail
+- Batch failure rate stays constant across iterations (convergence not occurring)
+- Tests in CI environments fail more often than in local runs (environment-sensitive flakiness)
 
-**Phase to address:** Phase 1 (installation architecture). Decide install target before writing any hook code — this affects where scripts are registered.
+**Phase to address:** Phase 2 (Batch Execution) for the multi-run isolation mechanism; Phase 3 (AI Categorization) for the flaky context injection.
 
 ---
 
-### Pitfall 3: Transcript Quorum Detection Fails on Compact or Session Resume
+### Pitfall 6: AI Categorization Produces Hallucinated Root Causes Without Source Access
 
 **What goes wrong:**
 
-The Stop hook reads `transcript_path` to check for Codex/Gemini/OpenCode tool call evidence. After context compaction, the transcript is summarized and tool_use entries may be omitted or collapsed. The hook reads the compacted transcript, finds no MCP tool calls, and incorrectly blocks Claude even though quorum was performed before compaction. Every response from that point on gets blocked until the session is restarted.
+Claude receives: test name, failure message, stack trace. It correctly identifies that `TypeError: Cannot read property 'userId' of undefined` suggests a null dereference. It then produces a specific, confident root cause: "The `getUser()` function in `auth/user-service.ts` is returning null when the session token is expired. Fix: add a null check before calling `.userId`." This is plausible but wrong — the actual failure is a missing test fixture that should have populated the user object. The `/qgsd:quick` task runs, adds a null check, the test still fails (now for a different reason), and the loop has done net negative work.
 
 **Why it happens:**
 
-Claude Code's compaction mechanism rewrites the transcript to free context window space. The JSONL at `transcript_path` after compaction contains a summary message rather than the original turn-by-turn tool_use entries. The hook's string search or JSON parse finds no `mcp__codex-cli__*` or `mcp__gemini-cli__*` entries, concludes quorum was skipped, and blocks.
+Claude is performing root cause inference from symptoms, not from reading the source. Without seeing the actual source file, it generates the most statistically likely explanation for the error pattern. This is different from deliberate hallucination — it is confident inference on incomplete evidence. The model does not flag uncertainty when stack traces fit well-known patterns, because the pattern match is genuinely high-confidence; it is the mapping from pattern to specific code that is wrong.
 
 **How to avoid:**
 
-Scope transcript search to the current turn only — specifically, to lines added since the last assistant message before the current Stop event. Use the `last_assistant_message` field provided directly in the Stop hook input (no transcript parsing required) as the primary evidence anchor. If searching the transcript file, only scan backward from the end of the file until the previous user message boundary, not the entire JSONL. Add an explicit check: if the transcript was compacted (look for a summary entry type), skip quorum enforcement for that turn and re-request quorum via `reason`.
+Always provide Claude with the actual source of the failing test AND the source of the implementation under test. The minimum context payload for AI categorization must include:
+1. Full stack trace with file paths resolved to actual content
+2. The failing test's source code (the full `it()` / `test()` / `def test_` block)
+3. The top-2 source files referenced in the stack trace (read them, embed them)
+4. Any test fixtures or setup hooks invoked by the test
+
+A categorization without source context must be treated as LOW confidence and not trigger automatic action. Add a `context_score: 0-3` field to categorization output and only spawn `/qgsd:quick` tasks for categorizations where `context_score >= 2`.
 
 **Warning signs:**
 
-- Quorum blocking starts mid-session after a long planning conversation
-- User reports hook never fires at session start but starts blocking later
-- `/compact` command triggers a wave of block decisions
-- Hook works for fresh sessions but not resumed ones
+- Categorization output references specific function names or line numbers not in the stack trace
+- The proposed fix is in a different file than the stack trace points to
+- Claude says "the issue is in X.ts" but the stack trace shows a different file
+- Fix tasks produce no diff (Claude found nothing wrong where it looked)
 
-**Phase to address:** Phase 1 (Stop hook implementation). Transcript parsing scope must be defined during initial design, not discovered in testing.
+**Phase to address:** Phase 3 (AI Categorization). Context payload design must be a first-class requirement, not added after categorization is wired up.
 
 ---
 
-### Pitfall 4: Overly Broad GSD Command Pattern Matching Blocks Non-Planning Prompts
+### Pitfall 7: Categorization Loop Never Converges — Missing Termination Conditions
 
 **What goes wrong:**
 
-The UserPromptSubmit hook uses a regex or string match to detect GSD planning commands like `/gsd:plan-phase`. The pattern is too broad: it matches `/gsd:execute-phase` (which explicitly does NOT need quorum per PROJECT.md), or it matches any prompt that contains the word "plan" or "/gsd:", blocking non-planning workflows. Users trying to execute work get quorum injection in contexts where it is actively harmful (execution is single-model only per CLAUDE.md R2.2).
+The iterative debug->quick->debug loop is designed to run "until all tests are classified and actioned." Without explicit termination conditions, the loop runs forever: some tests cannot be fixed in a single session (require upstream dependency updates, require infrastructure changes, require human decision), but the convergence check only looks at whether they are classified. Since they remain "real bug" and no fix lands, the loop re-queues them on every iteration.
+
+A secondary failure mode: the loop makes progress (classifying 90% of tests) but stalls on the last 10%, burning through the context window iterating over the same unfixable tests. Claude Code's context is finite; a stalled loop eventually hits the context limit, the session terminates, and no state is persisted.
 
 **Why it happens:**
 
-The intersection of "what needs quorum" and "what contains certain keywords" is not perfectly aligned. Developers write patterns that are easy to construct but imprecise. The full list of quorum-required commands from PROJECT.md is: `new-project`, `plan-phase`, `new-milestone`, `discuss-phase`, `verify-work`, `research-phase`. Execution commands must be excluded: `execute-phase`, `quick`, `debug`, `update`, `map-codebase`, `complete-milestone`.
+"Iterate until done" loops require an explicit definition of "done" that covers stuck states. Developers define the happy path ("done = all classified") but miss the unhappy path ("done = maximum iterations reached, or no progress for N consecutive iterations").
 
 **How to avoid:**
 
-Use an explicit allowlist, not a blocklist or broad regex. Match the exact command names:
-
-```javascript
-const QUORUM_REQUIRED = [
-  '/gsd:plan-phase',
-  '/gsd:new-project',
-  '/gsd:new-milestone',
-  '/gsd:discuss-phase',
-  '/gsd:verify-work',
-  '/gsd:research-phase',
-];
-const prompt = input.prompt.trim();
-const requiresQuorum = QUORUM_REQUIRED.some(cmd => prompt.startsWith(cmd));
-```
-
-`startsWith` prevents partial matches within longer strings. Do not use `includes` — it would match "I want to /gsd:execute-phase my plan".
+Define explicit termination conditions before implementing the loop:
+1. **Progress guard**: If the number of unresolved tests did not decrease in the last 2 iterations, halt and report. Do not continue a loop that is not making progress.
+2. **Iteration cap**: Hard cap at a configurable number of iterations (default: 5). After the cap, emit a "maintenance report" with the current state and stop.
+3. **Deferral category**: Add a 6th category to the 5-category taxonomy: `deferred` — test requires human decision or out-of-scope change. Tests in `deferred` count as "actioned" for convergence purposes.
+4. **State persistence**: After each iteration, write the current classification state to a file (e.g., `.planning/maintain-tests-state.json`). If the session is interrupted, the next run reads the state and resumes from where it stopped.
 
 **Warning signs:**
 
-- Users report quorum injection on `/gsd:execute-phase` commands
-- Quorum injection fires when users type natural language containing "plan" near a GSD command
-- CLAUDE.md R2.2 violations (quorum injection during execution)
-- Config file `quorum_commands` list diverges from default without user review
+- Same tests appear in the queue across 3+ consecutive iterations
+- Loop iteration count keeps incrementing with no classification changes
+- Context window is being consumed rapidly with no output commits
+- Claude reports "still working on the same failures" in consecutive summaries
 
-**Phase to address:** Phase 1 (UserPromptSubmit hook). The allowlist definition is a first-class design artifact, not an implementation detail.
+**Phase to address:** Phase 3 (AI Categorization) and Phase 4 (Iterative Loop). Termination conditions must be designed in the loop spec before implementation begins.
 
 ---
 
-### Pitfall 5: False Negative Quorum Detection — MCP Tool Name Unstable Across Versions
+### Pitfall 8: Git Shallow Clone Breaks git log Integration
 
 **What goes wrong:**
 
-The Stop hook parses the transcript searching for evidence of `mcp__codex-cli__*`, `mcp__gemini-cli__*`, and `mcp__opencode__*` tool calls. If the MCP server name changes (e.g., `codex-cli` renamed to `codex`, or OpenCode registers as `opencode-mcp`), the string search finds nothing and blocks every response, even when quorum was completed correctly.
+The tool's git history integration reads commit messages to identify which tests were recently modified (for prioritizing batches) and to detect when a failure was introduced. In CI environments and GitHub Codespaces, the repository is frequently a shallow clone (the default `--depth=1` in GitHub Actions). `git log -- path/to/test.ts` on a shallow clone returns only the most recent commit if that commit touched the file; it returns nothing if the file was last modified before the shallow cutoff. The tool interprets empty `git log` output as "this test was never modified" and assigns lowest priority to it — the opposite of what a freshly-broken test deserves.
 
 **Why it happens:**
 
-MCP server names are configured in Claude Code's MCP settings and can vary between users. The QGSD codebase in PROJECT.md names `mcp__codex-cli__review`, `mcp__gemini-cli__gemini`, and `mcp__opencode__opencode` — but these match the current GSD CLAUDE.md R1 quorum members, which a user could theoretically rename. The hooks directory in GSD shows tool patterns like `mcp__*` used in matching, but quorum tool names are not centrally documented as a stable contract.
+Shallow clones are the CI default for speed. `git log` on a shallow clone does not warn that the history is truncated — it simply returns whatever commits are available. There is no flag that distinguishes "file not in any commit" from "file not in any commit within the shallow window." Automated tooling that does not check for shallow clone status silently operates on incomplete data.
 
 **How to avoid:**
 
-Make the MCP server name patterns configurable in the QGSD config file (`.planning/config.json` or a dedicated `qgsd.json`). Do not hardcode names deep in hook logic. On first install, read the actual MCP server registrations from `~/.claude/settings.json` to auto-detect what names are in use. Document in the config file: "These must match the MCP server names in your Claude Code settings." Provide a verification command (`/qgsd:verify`) that tests detection end-to-end.
+At initialization, check for shallow clone status using `git rev-parse --is-shallow-repository`. If the repository is shallow:
+1. Deepen the clone before relying on git history: `git fetch --deepen=50` (or `--unshallow` if time budget allows).
+2. If deepening is not possible (read-only CI), disable git history integration and fall back to alphabetical or random batching. Document the degradation in the run report.
+3. Never treat empty `git log` output as conclusive evidence that a file was not recently modified.
 
 **Warning signs:**
 
-- Hook blocks after confirmed quorum runs
-- User has renamed or reinstalled MCP servers
-- Tool names in transcript don't match configured pattern list
-- Hook never passes on any transcript inspection
+- `git log -- tests/foo.test.ts` returns nothing for tests that clearly exist
+- `git rev-parse --is-shallow-repository` returns `true`
+- The tool always prioritizes the same tests (those in the initial shallow commit)
+- Running the tool locally produces different batch ordering than in CI
 
-**Phase to address:** Phase 1 (Stop hook) and Phase 2 (config system). Detection patterns are config, not constants.
+**Phase to address:** Phase 4 (Git History Integration). Shallow clone detection must be the first operation in the git integration module.
 
 ---
 
-### Pitfall 6: Stop Hook Fires for Every Subagent, Not Just the Main Session
+### Pitfall 9: Commit Message Parsing Fails on Non-ASCII Characters
 
 **What goes wrong:**
 
-GSD workflows spawn multiple subagents (gsd-planner, gsd-executor, gsd-verifier, etc.) using the Task tool. Stop hooks in settings files are inherited by subagents. The quorum Stop hook fires when each subagent finishes, not just when the main orchestrator finishes. Each subagent's transcript only contains its own narrow work — no MCP quorum tool calls — so the hook blocks every subagent from completing, making all GSD workflows non-functional.
+The tool parses `git log --oneline` to extract test-relevant commit messages. In repositories with international team members, commit messages may contain UTF-8 characters, emoji, or CJK characters. If git's `i18n.commitEncoding` is set to a non-UTF-8 encoding (e.g., `ISO-8859-1`), `git log` outputs bytes in that encoding, and the Node.js UTF-8 decoder silently replaces invalid byte sequences with the Unicode replacement character. Regex patterns matching test file names in commit messages then fail to match because the message contains garbage characters around the path.
 
 **Why it happens:**
 
-Claude Code documentation explicitly states: "any settings defined for your main agent—including powerful hooks—are inherited by any sub-agents it creates." The Stop hook at the settings level fires for both the main session Stop event AND every subagent's stop. Subagents have their own transcript at `agent_transcript_path`, not the main `transcript_path`. The quorum hook checks the wrong transcript or fires at the wrong scope entirely.
+Git's commit encoding is per-commit, stored in the commit object header. The `git log` command tries to recode output to the configured `i18n.logOutputEncoding`, defaulting to UTF-8, but only if the commit encoding header is present and recognized. Old commits without encoding headers or commits from legacy systems are output as raw bytes. This is rare but happens in repositories with long histories or multi-origin merges.
 
 **How to avoid:**
 
-Use `SubagentStop` awareness: in the Stop hook input, check if `agent_id` is present (non-null), which indicates the hook is firing for a subagent context. If the hook is installed as a settings-level Stop hook, it will also receive SubagentStop events. The correct pattern: only enforce quorum enforcement when `stop_hook_active` is false AND the input does not indicate a subagent context. Alternatively, scope the hook to fire only from a skill or agent frontmatter (which confines it to that component's lifecycle), but this approach may not work for the main session gate. The safest approach: check `hook_event_name` in the input — it will be `"Stop"` for the main session and `"SubagentStop"` for subagents.
+Always pass `--encoding=UTF-8` to `git log` invocations. This forces git to recode to UTF-8. For commits where recoding fails, git falls back to raw bytes, which the tool should detect (presence of `\ufffd`) and skip rather than attempt to parse.
+
+Use `%x00` as a field separator in `--format` strings instead of spaces. Delimiter-based parsing is robust to arbitrary message content, including multi-byte characters.
 
 **Warning signs:**
 
-- GSD execution commands (execute-phase, plan-phase) hang indefinitely
-- Every Task() spawned agent gets blocked
-- Logs show Stop hook blocking on subagent transcripts with no MCP tool calls
-- Sessions time out during normal GSD workflows
+- Commit messages contain replacement characters in unexpected positions
+- Regex matching commit messages fails for some commits but not others
+- Tool works in repos created by the team but fails in forks or upstream clones
+- `git log` output differs when run interactively vs. via spawnSync
 
-**Phase to address:** Phase 1 (Stop hook). Subagent scope exclusion must be tested before any GSD command is exercised against the hook.
+**Phase to address:** Phase 4 (Git History Integration). Encoding flags must be in the initial spawnSync calls, not added when encoding bugs are reported.
+
+---
+
+### Pitfall 10: The maintain-tests Command Triggers the QGSD Circuit Breaker
+
+**What goes wrong:**
+
+The `/qgsd:maintain-tests` iterative loop runs multiple `/qgsd:quick` fix tasks. Each quick task produces a commit. After 3+ quick tasks touching the same test file, the circuit breaker's oscillation detection fires: it sees the same file set appearing in 3 alternating commit groups and activates. The circuit breaker blocks all Bash write operations, halting the test maintenance loop mid-iteration. The user is told to enter Oscillation Resolution Mode (R5) for a situation that is not oscillation — it is legitimate iterative test improvement.
+
+**Why it happens:**
+
+The circuit breaker's run-collapse algorithm collapses consecutive commits on the same file set into run-groups and fires when a file set appears in 3+ alternating groups. A test maintenance workflow that applies successive fixes to the same test file naturally produces this pattern: fix attempt 1, verify, fix attempt 2, verify, fix attempt 3 — three alternating groups on the same file set. The Haiku reviewer (`consultHaiku()`) is the circuit breaker's safeguard against this, but if Haiku is unavailable (no `ANTHROPIC_API_KEY` in the hook environment) or classifies the pattern as GENUINE, the breaker fires.
+
+**How to avoid:**
+
+Two mitigations, both required:
+
+1. **Disable the circuit breaker during maintain-tests runs.** At the start of `/qgsd:maintain-tests`, call `npx qgsd --disable-breaker`. At the end (or on interrupt), call `npx qgsd --enable-breaker`. This is the documented escape hatch for "deliberate iterative work."
+
+2. **Batch fixes by file set.** Instead of one quick task per failing test, group all fixes for the same file into a single quick task. This produces one commit per file set instead of N commits, preventing alternating groups from forming.
+
+Do not attempt to tune the oscillation_depth config to avoid this — increasing the depth makes the circuit breaker less sensitive system-wide, degrading its protection for actual oscillation.
+
+**Warning signs:**
+
+- Circuit breaker activates shortly after the first few quick-task commits
+- `circuit-breaker-state.json` is written with a file set that contains test files
+- The maintain-tests loop stalls with "CIRCUIT BREAKER ACTIVE" in hook output
+- The Haiku reviewer is unavailable (no ANTHROPIC_API_KEY or quota exceeded)
+
+**Phase to address:** Phase 2 (Batch Execution) when the quick task integration is designed. The `--disable-breaker` / `--enable-breaker` lifecycle must be part of the maintain-tests command wrapper, not an afterthought.
+
+---
+
+### Pitfall 11: AI Categorization Context Window Overflow on Large Batch Reports
+
+**What goes wrong:**
+
+A batch of 100 tests runs and 40 fail. The executor collects all 40 failure reports (stack trace + test source + implementation source = ~5-15KB per failure) and sends them in a single categorization prompt. For 40 failures at 10KB average, the prompt is 400KB+ of text. Either the prompt is silently truncated by the SDK, or the API returns a 400 error. In the truncation case, the last N failures in the prompt receive no categorization, and the tool emits empty categories for them — which the convergence check treats as "categorized" (category = empty string), causing the loop to terminate with unclassified tests.
+
+**Why it happens:**
+
+Developers design the categorization payload for the average case (10-15 failures per 100 tests, 3-5KB each = 30-75KB, well within context). The edge case — a regression that breaks 60-80% of a batch — produces payloads that exceed practical context limits. The SDK may truncate or return an API error that the executor treats as a transient failure and retries with the same oversized payload.
+
+**How to avoid:**
+
+Categorize failures in sub-batches of maximum 10 failures per Claude call. For each sub-batch:
+1. Send failures sequentially with a consistent prompt structure.
+2. Merge categorization results before proceeding.
+
+Set a hard limit on context per categorization call: if the constructed prompt exceeds 100KB, split it further. Track token usage via the `usage` field in the API response and log it for monitoring.
+
+Never wait for all batch failures before starting categorization — pipeline them: as soon as each test failure arrives from the batch runner, add it to a categorization queue and process in sub-batches of 10.
+
+**Warning signs:**
+
+- Categorization API calls take longer than 60 seconds (large payload processing)
+- Some failures in a batch have empty or null categories
+- Claude returns "I notice you've provided many test failures — I'll focus on the first N"
+- API 400 errors or context length errors in executor logs
+
+**Phase to address:** Phase 3 (AI Categorization). Sub-batch sizing must be a first-class design parameter, not an optimization applied after seeing failures.
+
+---
+
+### Pitfall 12: Adding /qgsd:maintain-tests Breaks the Stop Hook Quorum Gate
+
+**What goes wrong:**
+
+If `/qgsd:maintain-tests` is mistakenly added to the `quorum_commands` allowlist in `qgsd.json`, the Stop hook's `hasQuorumCommand()` matches it. But `maintain-tests` is an execution command — it discovers, runs, categorizes, and fixes tests. It is not a planning artifact command. The Stop hook fires at the end of the maintain-tests session, finds no MCP quorum tool calls (Claude ran jest, not Codex or Gemini), and blocks Claude from completing the session. The user is told to run quorum before completing a test maintenance run, which is nonsensical.
+
+**Why it happens:**
+
+`maintain-tests` sounds like a planning command by name but is execution by nature. The QGSD quorum enforcement architecture checks whether the current turn contains a planning command (GUARD 4 in `qgsd-stop.js`). The `hasArtifactCommit` GUARD 5 check catches cases where an artifact commit (e.g., a PLAN.md) is produced — but `maintain-tests` produces commits to test files, not planning artifacts, so GUARD 5 does not fire. The stop hook over-fires only if maintain-tests is in quorum_commands.
+
+**How to avoid:**
+
+Do NOT add `/qgsd:maintain-tests` to `quorum_commands`. It is an execution command. The stop hook's GUARD 4 correctly passes it through when it is not in the allowlist.
+
+Instead, if maintain-tests involves a planning step (e.g., generating a maintenance plan before running), implement that step as a separate `/qgsd:plan-phase` invocation. The plan phase runs quorum; the maintain-tests execution runs without quorum enforcement. This maintains the clean planning/execution separation defined in CLAUDE.md R2.1.
+
+Verify the decision by asking: does `maintain-tests` write a PLAN.md? If yes, split it. If no, do not add it to quorum_commands.
+
+**Warning signs:**
+
+- Stop hook blocks at the end of a test maintenance run
+- Claude is asked to call Codex/Gemini before completing a test run report
+- The quorum_commands list includes execution verbs (run, maintain, fix)
+
+**Phase to address:** Phase 1 (Command Registration) when the `/qgsd:maintain-tests` command is added to the plugin. The quorum_commands decision is permanent once users have it in their config.
 
 ---
 
@@ -186,11 +374,13 @@ Use `SubagentStop` awareness: in the Stop hook input, check if `agent_id` is pre
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Hardcode MCP tool names in hook script | Faster first implementation | Breaks silently when users rename MCP servers; config drift undetectable | Never — always use config |
-| Scan entire transcript for quorum evidence | Simpler parsing logic | False positives after compaction; false negatives from stale quorum in earlier turns | Never — always scope to current turn |
-| Single static regex for GSD command detection | One-liner match | Matches execution commands; blocks non-planning workflows; breaks when GSD adds commands | Never — use explicit allowlist |
-| Omit stop_hook_active guard in early version | Skip edge case handling | First session that triggers the loop burns tokens and confuses user | Never — must be in v1 |
-| Install UserPromptSubmit hook via plugin hooks.json | Matches plugin architecture | Silent failure due to confirmed Claude Code bug (#10225, #12151) | Never — install to user settings |
+| Glob for `*.test.ts` instead of running `jest --listTests` | Faster discovery, no framework dependency | Double-counts files owned by multiple frameworks; misses jest-configured exclusions | Never — always use framework CLI |
+| Using `exec()` for batch runner output | Less code | Silently truncates output at maxBuffer (1MB default); corrupts JSON test reports | Never — use `spawn()` with file-based output |
+| Single large Claude call for all failures | One API call per batch | Context overflow on high-failure batches; truncation produces silent classification gaps | Never at scale — max 10 failures per call |
+| Run maintain-tests without disabling circuit breaker | No setup step required | Circuit breaker fires after 3 fix commits on same test file; halts loop | Never — always bracket with --disable-breaker |
+| Add maintain-tests to quorum_commands | "Feels like a planning command" | Stop hook blocks execution sessions; user experience broken | Never — it is an execution command |
+| Skip multi-run flakiness check | Faster iteration loop | Flaky tests classified as real bugs; fix tasks produce no diffs; loop stalls | Never — 3-run isolation check is required |
+| Send stack trace without source to Claude | Simpler context assembly | Claude hallucinates root causes; fix tasks look in the wrong place | Never — minimum: test source + top-2 stack trace sources |
 
 ---
 
@@ -198,12 +388,14 @@ Use `SubagentStop` awareness: in the Stop hook input, check if `agent_id` is pre
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Claude Code plugin hooks.json | Putting UserPromptSubmit hook in plugin for clean packaging | Install to ~/.claude/settings.json via installer; plugin bugs prevent output injection |
-| Claude Code plugin hooks.json | Putting Stop hook JSON output in plugin and relying on stdout capture | Use exit 2 + stderr for Stop hook blocking; JSON output from plugin Stop hooks is unreliable (#10875) |
-| Claude Code subagent spawning | Assuming Stop hook only fires for main session | Explicitly check hook_event_name to exclude SubagentStop scope |
-| Transcript JSONL parsing | Reading entire transcript for quorum evidence | Scope search to current turn only; respect compaction boundaries |
-| MCP tool call detection | Searching for tool name substring in raw JSONL text | Parse JSONL lines properly; MCP tool names appear in tool_use content blocks as `"name": "mcp__server__tool"` |
-| GSD execute-phase workflows | Quorum injection during execution (CLAUDE.md R2.2 violation) | Only inject on planning commands; execute-phase must be excluded by name |
+| QGSD circuit breaker | Running maintain-tests without disabling the breaker | Call `npx qgsd --disable-breaker` at start of maintain-tests; `--enable-breaker` at end |
+| QGSD Stop hook | Adding maintain-tests to quorum_commands | Keep maintain-tests out of quorum_commands; it is execution, not planning |
+| Jest monorepo | Invoking `jest --listTests` from monorepo root without specifying config | Pass `--config=<absolute-path>` and set `cwd` to the config's directory |
+| pytest monorepo | Running `pytest --collect-only` from repo root | Invoke per-package with `--rootdir=<package>` and `cwd` set to package directory |
+| Playwright discovery | Globbing `**/*.spec.ts` to find Playwright tests | Run `npx playwright test --list` to get the canonical file list |
+| Node.js child_process | Using `exec()` for test runner output | Use `spawn()` with output piped to a temp file to avoid maxBuffer |
+| Git shallow clone | Using `git log` output without checking clone depth | Check `git rev-parse --is-shallow-repository` first; deepen or disable git integration if shallow |
+| Claude API | Sending all batch failures in one categorization call | Sub-batch at max 10 failures per call; track token usage per call |
 
 ---
 
@@ -211,9 +403,11 @@ Use `SubagentStop` awareness: in the Stop hook input, check if `agent_id` is pre
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Reading entire transcript JSONL for each Stop event | Hook takes 2-5s on long sessions; user sees spinner on every response | Only read last N lines (configurable, default 200) or use `last_assistant_message` field directly | Transcripts >10MB (sessions running for hours with many tool calls) |
-| Spawning a full node.js process for every Stop event | 100-200ms startup overhead per response turn | Use a compiled or startup-fast hook; keep dependencies minimal (no npm imports beyond stdlib) | Noticeable on rapid multi-turn sessions |
-| Blocking Stop hook with timeout not set | Default 10-minute timeout; hung hook blocks session for 10 minutes | Set explicit `timeout: 30` on the Stop hook | Any hook that hangs (file read fails, JSON parse error) |
+| Synchronous test discovery across 20k+ tests | Discovery step takes 5-10 minutes; appears hung | Run framework CLIs in parallel (one per package); aggregate results | At 10+ packages each with 2k+ tests |
+| Sequential batch execution (one batch at a time) | 20k tests in 100-test batches = 200 sequential runs; takes hours | Run 4-8 batches in parallel per CPU core; use process pools | At 5k+ tests when sequential takes >30 min |
+| Reading all source files for categorization context | Context assembly per failure: 500ms for 3 file reads x 40 failures = 20s | Cache file reads per batch; a file read once should not be re-read for a second failure in the same batch | At 40+ failures per batch |
+| Re-discovering tests on every loop iteration | Discovery re-runs every iteration; takes 2-5 min per run | Cache discovery results for the session; only re-discover when explicitly requested | After the first iteration — discovery should be once per maintain-tests invocation |
+| Writing batch results to separate files per batch | 200 files created for 20k tests in 100-test batches | Write to a single state file with batch results appended; or use a single JSON array | When operating on 20k+ tests (200 batches x multiple iterations) |
 
 ---
 
@@ -221,9 +415,9 @@ Use `SubagentStop` awareness: in the Stop hook input, check if `agent_id` is pre
 
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| Reading transcript file without path validation | transcript_path from hook input could theoretically point to sensitive files if tampered with | Use only the transcript_path field as-is (not user-constructed); validate it points to expected ~/.claude/projects/ prefix before reading |
-| Emitting quorum block reason that reveals internal policy text | Could expose CLAUDE.md R-rule details users should not see | Keep block messages user-facing and action-oriented ("Quorum required — run Codex, Gemini, and OpenCode checks first") |
-| Hook script executable by all users | In multi-user environments, hook script is world-writable | Install with chmod 755 (owner write, group/world execute only) |
+| Passing raw test failure output to Claude without sanitization | A malicious test failure message could contain prompt injection content | Wrap failure output in code fences before embedding in prompts; treat test output as untrusted user content |
+| Storing API responses with test source code in temp files without cleanup | Test source in temp files could persist after the session ends, leaking code to shared filesystems | Use `os.tmpdir()` with unique session IDs; register cleanup handlers for SIGINT and SIGTERM; delete temp files on exit |
+| Executing discovered test commands without validation | A malicious `jest.config.js` in a cloned repo could configure `testRunner` to run arbitrary code | Validate that test runner binaries exist in `node_modules/.bin` or are standard system binaries (`pytest`, `npx`); do not shell-execute arbitrary strings from config files |
 
 ---
 
@@ -231,24 +425,26 @@ Use `SubagentStop` awareness: in the Stop hook input, check if `agent_id` is pre
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| Cryptic block message: "Quorum failed" | User doesn't know what quorum is or what to do | Message must name the missing models and provide the exact tool call names to run: "Quorum incomplete. Missing: Codex (mcp__codex-cli__review), Gemini (mcp__gemini-cli__gemini). Run these before continuing." |
-| Silent injection of quorum instructions | User sees no acknowledgment that a GSD planning command triggered extra requirements | UserPromptSubmit can echo a brief "QGSD: Quorum enforcement active for /gsd:plan-phase" line to stderr (visible in verbose mode) |
-| Hook blocks with no path to resolution | User is stuck in a blocked session with no clear next step | Block reason MUST include the exact next action: "Run mcp__codex-cli__review, mcp__gemini-cli__gemini, mcp__opencode__opencode, then retry your response." |
-| Hook blocks `/gsd:execute-phase` by mistake | Execution is halted; CLAUDE.md R2.2 violated (quorum during execution is prohibited) | Test allowlist against all GSD commands; execute-phase must never trigger quorum injection |
-| Hook blocks non-GSD conversations | User loses ability to use Claude Code for normal work | UserPromptSubmit must only activate on GSD planning commands; all other prompts pass through with exit 0 |
-| Fail-closed on model unavailability | If Gemini is quota-limited, all GSD planning is blocked indefinitely | Implement fail-open per CLAUDE.md R6: note reduced quorum but proceed |
+| No progress reporting during batch execution | User sees no output for minutes during a 200-batch run; appears hung | Emit progress: "Batch 47/200 complete — 12 failures found so far" after each batch |
+| Reporting test counts before deduplication | User sees "22,000 tests found" but 4,000 are duplicates; later the count drops and user is confused | Report per-framework counts clearly: "Jest: 14,000, Playwright: 5,000, pytest: 3,000 — total: 22,000 (no overlap after dedup)" |
+| Silently re-categorizing the same tests every iteration | User cannot tell the loop is making progress | Show a diff: "Iteration 3: 8 tests moved from real_bug to flaky, 3 tests newly classified" |
+| No deferral category | Tests that require human action block convergence indefinitely | Implement the 6th category: `deferred`. Show deferred count explicitly: "Maintenance complete: 18,000 passing, 1,200 adapted, 400 skipped, 350 deferred (require human review)" |
+| Emitting raw stack traces in the run report | Users see 50-line stack traces in their terminal | Truncate stack traces to first 5 lines in progress output; link to full output in a temp file |
 
 ---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **stop_hook_active guard:** Verify the guard is the very first logic in the Stop hook, before any transcript read. Test by running the hook twice in sequence without quorum and confirming the second run exits 0.
-- [ ] **Subagent exclusion:** Run `/gsd:plan-phase` with the hook active and confirm that subagents spawned during the workflow complete normally. A false positive here blocks all GSD execution.
-- [ ] **Plugin output delivery:** If using plugin hooks.json for UserPromptSubmit, verify the hook output actually appears in Claude's context by asking Claude to repeat back the injected text. Confirm the workaround (settings.json install) is in use.
-- [ ] **Compaction robustness:** Start a long planning session, trigger compaction (`/compact`), and then verify the Stop hook does not false-block on the next response.
-- [ ] **Execute-phase exclusion:** Run `/gsd:execute-phase 1` and verify no quorum injection occurs (check that Claude does not see quorum instructions in context).
-- [ ] **Fail-open on quota:** Simulate Gemini unavailability (comment out detection) and confirm the hook proceeds with reduced quorum rather than blocking indefinitely.
-- [ ] **MCP name configurability:** Change the Codex MCP server name in config and verify the hook uses the new name without a code change.
+- [ ] **Discovery deduplication:** Verify that files matching both `jest --listTests` and `playwright --list` are counted once per framework, not twice. Run with a repo that has `.spec.ts` files owned by Playwright and confirm they do not appear in Jest's list.
+- [ ] **maxBuffer check:** Deliberately create a batch where all 100 tests fail with verbose output. Confirm that the output collection does not truncate and AI categorization receives all 100 failures.
+- [ ] **Circuit breaker lifecycle:** Run 4 consecutive fix commits on the same test file. Confirm the circuit breaker does not activate (it was disabled at maintain-tests start) and activates correctly after `--enable-breaker` is called.
+- [ ] **Shallow clone handling:** Clone the target repo with `--depth=1`, run maintain-tests, and confirm the tool detects the shallow clone and either deepens or disables git history integration with a clear warning.
+- [ ] **Flakiness pre-check:** Add a test that fails 50% of the time. Run maintain-tests and confirm it is classified as `flaky`, not `real_bug`, and does not trigger a fix task.
+- [ ] **Categorization sub-batching:** Construct a scenario with 50 failures in one batch. Confirm the tool makes multiple Claude API calls (max 10 failures each), not one call with 50 failures.
+- [ ] **Loop termination:** Run maintain-tests on a repo with 10 unfixable tests (e.g., tests requiring external service). Confirm the loop terminates after the configured max iterations with a "deferred" classification, not indefinitely.
+- [ ] **Stop hook exclusion:** Run `/qgsd:maintain-tests` and confirm the Stop hook does not fire at session end requesting quorum. Verify `maintain-tests` is not in quorum_commands.
+- [ ] **pytest rootdir isolation:** Run discovery on a monorepo with two Python services that both have a `conftest.py` with a fixture named `session`. Confirm no `ValueError: duplicate fixture` error.
+- [ ] **Convergence state persistence:** Interrupt a maintain-tests run mid-iteration. Restart and confirm it resumes from the saved state rather than starting over.
 
 ---
 
@@ -256,12 +452,16 @@ Use `SubagentStop` awareness: in the Stop hook input, check if `agent_id` is pre
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Infinite Stop hook loop | LOW | Restart the Claude Code session; add stop_hook_active guard before re-enabling hook |
-| Plugin hook silent failure | LOW | Move hook definition to ~/.claude/settings.json; re-run installer to register there |
-| Transcript compaction false block | MEDIUM | Restart session; narrow transcript search window in hook code; redeploy |
-| Wrong MCP names blocking everything | LOW | Update qgsd config with correct MCP server names; hook picks up on next session |
-| Subagent scope fires on all tasks | HIGH | Disable hook immediately; add hook_event_name guard; full regression test of GSD workflows before re-enabling |
-| Overly broad command pattern | MEDIUM | Update allowlist in hook; restart session; verify execute-phase is unaffected |
+| Discovery double-counting | MEDIUM | Re-run discovery with explicit framework flags; deduplicate by absolute file path; compare against known test count |
+| maxBuffer truncation | LOW | Switch to spawn() with file-based output; re-run affected batch |
+| Circuit breaker fires mid-loop | LOW | Run `npx qgsd --reset-breaker`; add `--disable-breaker` to maintain-tests start; re-run from saved state |
+| AI categorization hallucinations | MEDIUM | Review fix diffs before applying; add source context to prompt; re-categorize with source included |
+| Loop stuck on flaky tests | LOW | Add the flaky tests to a skip list manually; re-run; implement multi-run isolation check |
+| Shallow clone breaks git integration | LOW | Run `git fetch --unshallow` or `git fetch --deepen=100`; re-run; or add `--skip-git-history` flag |
+| Stop hook blocks maintain-tests | LOW | Remove maintain-tests from quorum_commands in qgsd.json; restart session |
+| Context overflow in categorization | LOW | Implement sub-batching (max 10 failures per call); re-run the affected categorization step |
+| pytest conftest collision | MEDIUM | Add per-package `pytest.ini` files with explicit `testpaths`; re-run discovery with per-package invocation |
+| Loop never terminates | LOW | Add `max_iterations: 5` to maintain-tests config; set `deferred` as a valid convergence state |
 
 ---
 
@@ -269,33 +469,44 @@ Use `SubagentStop` awareness: in the Stop hook input, check if `agent_id` is pre
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Infinite Stop loop (missing stop_hook_active) | Phase 1: Stop hook foundation | Test: run hook twice in sequence, confirm second run exits 0 |
-| Plugin hook output not delivered | Phase 1: Installation architecture | Test: add hook to settings.json; verify injected text appears in Claude context |
-| Transcript compaction false block | Phase 1: Stop hook transcript parsing | Test: compact a session, confirm hook does not block on next turn |
-| Broad command pattern (false positives/negatives) | Phase 1: UserPromptSubmit allowlist | Test: exercise every GSD command; verify only planning set triggers injection |
-| MCP name instability | Phase 1 + Phase 2 (config system) | Test: change config MCP names; verify hook uses new names immediately |
-| Subagent scope fires for all Task() agents | Phase 1: Stop hook scope guard | Test: run execute-phase, verify all subagents complete without hook blocking |
-| Cryptic block messages | Phase 1: UX messaging | Test: intentionally fail quorum; verify block message names missing models and exact next steps |
-| Fail-closed on model unavailability | Phase 1: Fail-open logic | Test: disable one model; verify reduced quorum proceeds rather than blocking |
+| Framework cross-discovery collision | Phase 1 (Test Discovery) | Test: discover a repo with jest + playwright `.spec.ts` files; verify no duplicates |
+| Jest rootDir resolution breaks at scale | Phase 1 (Test Discovery) | Test: invoke discovery from a package subdirectory; verify correct count |
+| pytest conftest ancestor collision | Phase 1 (Test Discovery) | Test: two packages with same fixture name; verify no duplicate fixture error |
+| maxBuffer truncation | Phase 2 (Batch Execution) | Test: 100-test batch all failing with verbose output; verify output collection completeness |
+| Flaky tests classified as real bugs | Phase 2 (Batch Execution) + Phase 3 (AI Categorization) | Test: add a 50%-flaky test; verify it is classified as flaky after 3-run isolation |
+| AI categorization hallucinations | Phase 3 (AI Categorization) | Test: categorize a failure with and without source context; verify fix targets correct file |
+| Loop never converges | Phase 3 (AI Categorization) + Phase 4 (Loop Design) | Test: run maintain-tests on unfixable tests; verify loop terminates at max_iterations |
+| Shallow clone breaks git integration | Phase 4 (Git History Integration) | Test: run on `--depth=1` clone; verify detection and fallback |
+| Commit encoding failures | Phase 4 (Git History Integration) | Test: repo with non-ASCII commit messages; verify no replacement characters in parsed output |
+| Circuit breaker fires mid-loop | Phase 2 (Batch Execution) | Test: run 4+ fix commits on same file; verify breaker disabled during maintain-tests |
+| maintain-tests breaks Stop hook | Phase 1 (Command Registration) | Test: run maintain-tests end-to-end; verify Stop hook does not block |
+| AI context overflow | Phase 3 (AI Categorization) | Test: batch with 50+ failures; verify multiple API calls, each max 10 failures |
 
 ---
 
 ## Sources
 
-- [Claude Code Hooks Reference — official docs](https://code.claude.com/docs/en/hooks) — HIGH confidence (official, current)
-- [Claude Code Hooks Guide — official docs](https://code.claude.com/docs/en/hooks-guide) — HIGH confidence (official, troubleshooting section)
-- [GitHub Issue #10225: UserPromptSubmit hooks from plugins match but never execute](https://github.com/anthropics/claude-code/issues/10225) — HIGH confidence (confirmed bug, closed as duplicate)
-- [GitHub Issue #12151: Plugin hook output not captured for UserPromptSubmit/SessionStart](https://github.com/anthropics/claude-code/issues/12151) — HIGH confidence (open bug with reproduction, 22 confirmations)
-- [GitHub Issue #10412: Stop hooks with exit code 2 fail via plugins](https://github.com/anthropics/claude-code/issues/10412) — HIGH confidence (confirmed bug with workaround)
-- [GitHub Issue #10205: Claude Code enters infinite loop when hooks enabled](https://github.com/anthropics/claude-code/issues/10205) — HIGH confidence (confirmed systemic issue)
-- [GitHub Issue #3573: Stop hook infinite loop in GitHub Actions](https://github.com/anthropics/claude-code/issues/3573) — HIGH confidence (confirmed environment incompatibility)
-- [GitHub Issue #10610: Feature request for model response in Stop event](https://github.com/anthropics/claude-code/issues/10610) — MEDIUM confidence (closed as not planned, confirms last_assistant_message is not yet exposed via Stop)
-- [Egghead: Settings Pollution in Subagents, Hooks, and Scripts](https://egghead.io/avoid-the-dangers-of-settings-pollution-in-subagents-hooks-and-scripts~xrecv) — MEDIUM confidence (community tutorial, confirms inheritance behavior)
-- [Taskmaster Stop Hook](https://github.com/blader/taskmaster) — MEDIUM confidence (real-world Stop hook implementation, confirms stop_hook_active pattern)
-- QGSD codebase analysis: `.planning/codebase/CONCERNS.md`, `.planning/codebase/ARCHITECTURE.md`, `.planning/codebase/INTEGRATIONS.md` — HIGH confidence (direct codebase audit)
-- QGSD project definition: `.planning/PROJECT.md` — HIGH confidence (authoritative project scope)
+- [Jest Configuration — rootDir, projects, testMatch](https://jestjs.io/docs/configuration) — HIGH confidence (official docs, current)
+- [Jest Monorepo Setup Guide (2026)](https://copyprogramming.com/howto/jest-projects-in-a-monorepo-unable-to-find-config-files-in-projects) — MEDIUM confidence (community guide, confirmed by official docs)
+- [pytest import mechanisms and conftest.py](https://docs.pytest.org/en/stable/explanation/pythonpath.html) — HIGH confidence (official docs)
+- [pytest configuration and rootdir](https://docs.pytest.org/en/stable/reference/customize.html) — HIGH confidence (official docs)
+- [Resolving Jest and Playwright Test Conflicts](https://ray.run/discord-forum/threads/5978-jest-tests-clashing-with-playwright-tests) — MEDIUM confidence (community, confirmed by Playwright docs)
+- [Playwright Best Practices — testDir](https://playwright.dev/docs/best-practices) — HIGH confidence (official docs)
+- [Node.js child_process documentation](https://nodejs.org/api/child_process.html) — HIGH confidence (official Node.js docs)
+- [Flaky tests — pytest documentation](https://docs.pytest.org/en/stable/explanation/flaky.html) — HIGH confidence (official docs)
+- [Flaky Tests in Playwright (BrowserStack 2026)](https://www.browserstack.com/guide/playwright-flaky-tests) — MEDIUM confidence (community guide)
+- [pytest subprocess isolation for large suites (case study)](https://johal.in/forked-python-parallel-pytest-plugin-subprocess-testing-isolation-2025/) — MEDIUM confidence (case study, 20k test suite, 2025)
+- [LLM context window degradation research](https://demiliani.com/2025/11/02/understanding-llm-performance-degradation-a-deep-dive-into-context-window-limits/) — MEDIUM confidence (research report)
+- [Context window overflow practical guide](https://redis.io/blog/context-window-overflow/) — MEDIUM confidence (community guide)
+- [Multi-agent system reliability failure patterns](https://www.getmaxim.ai/articles/multi-agent-system-reliability-failure-patterns-root-causes-and-production-validation-strategies/) — MEDIUM confidence (industry report)
+- [Git shallow clone pitfalls for automated tooling](https://devops.aibit.im/article/git-shallow-clones-guide) — MEDIUM confidence (community guide, consistent with git-scm docs)
+- [Git log encoding documentation](https://git-scm.com/docs/git-log) — HIGH confidence (official git docs)
+- [Claude Code background process hang issue #1481](https://github.com/anthropics/claude-code/issues/1481) — HIGH confidence (confirmed Claude Code issue)
+- [Claude Code zombie process issue #10078](https://github.com/anthropics/claude-code/issues/10078) — HIGH confidence (confirmed Claude Code issue)
+- [ML-powered test failure analysis](https://www.parasoft.com/blog/ml-powered-test-failure-analysis/) — MEDIUM confidence (vendor blog, consistent with general LLM research)
+- QGSD codebase analysis: `hooks/qgsd-circuit-breaker.js`, `hooks/qgsd-stop.js`, `.planning/PROJECT.md`, `.planning/STATE.md` — HIGH confidence (direct source review)
 
 ---
 
-*Pitfalls research for: Claude Code hook-based multi-model quorum enforcement (QGSD)*
-*Researched: 2026-02-20*
+*Pitfalls research for: AI-driven test suite maintenance tool (QGSD v0.3 /qgsd:maintain-tests command)*
+*Researched: 2026-02-22*

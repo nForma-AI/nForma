@@ -1,167 +1,228 @@
 # Project Research Summary
 
-**Project:** QGSD — Quorum enforcement layer for GSD planning commands
-**Domain:** Claude Code hook-based plugin extension
-**Researched:** 2026-02-20
+**Project:** QGSD v0.3 — `/qgsd:maintain-tests`
+**Domain:** AI-driven test suite maintenance tool — Claude Code plugin command
+**Researched:** 2026-02-22
 **Confidence:** HIGH
 
 ## Executive Summary
 
-QGSD is a Claude Code hook-based plugin that enforces structural multi-model quorum for GSD planning commands. Rather than relying on behavioral compliance with CLAUDE.md policy (R3), the plugin uses two hooks — UserPromptSubmit and Stop — to inject quorum instructions at invocation time and verify quorum evidence in the transcript before allowing Claude to deliver planning output. This is a novel problem with no direct competitors: the closest analogues (claude-flow, manual CLAUDE.md governance) either operate at compile time or rely on Claude's willingness to follow policy.
+QGSD v0.3 adds a `/qgsd:maintain-tests` command that discovers, batches, categorizes, and iteratively fixes failing tests across large test suites (20k+ tests). This is a subsequent milestone — the existing QGSD architecture (hooks, quorum enforcement, circuit breaker, quick task pipeline) is stable and must not be broken. The correct approach is narrow: extend `gsd-tools.cjs` with new CLI sub-commands for the mechanical layer (discovery, batching, execution, state I/O), add a workflow orchestrator that handles all reasoning (categorization, action dispatch, loop control), and integrate with existing patterns (activity sidecar, quick tasks, resume-work routing). The only new external dependency is `fast-glob@3.3.3`, bundled via the existing esbuild build step.
 
-The recommended architecture is zero-coupling to GSD: two standalone hook scripts (`qgsd-prompt.js`, `qgsd-stop.js`) plus a shared config reader and installer, distributed as an npm package in the same pattern as GSD itself. The UserPromptSubmit hook injects quorum instructions via `additionalContext` (discrete, invisible to user) when a guarded planning command is detected. The Stop hook reads the session transcript JSONL and scans for `tool_use` content blocks matching Codex, Gemini, and OpenCode MCP tool prefixes. If quorum evidence is absent, the hook returns `{"decision":"block","reason":"..."}` which re-feeds instructions to Claude. This is a hard gate — Claude cannot deliver output without passing it.
+The recommended stack is pure Node.js built-ins plus `fast-glob`. `node:sqlite` (Node >= 22.5.0) is the correct state persistence mechanism at 20k+ test scale; plain JSON is the fallback for older Node. The AI categorization loop uses a 5-category taxonomy (valid-skip, stale/adapt, isolation-issue, real-bug, fixture-improvement) with quorum workers dispatched via the same parallel Task pattern used in `/qgsd:debug`. Fixes for adapt/fixture/isolate categories are dispatched as `/qgsd:quick` tasks grouped by similarity — never one task per failing test. Real bugs are deferred to the user, never auto-fixed.
 
-The primary risk is the Stop hook infinite loop when the `stop_hook_active` guard is omitted. A secondary structural risk is installing the UserPromptSubmit hook via the plugin's `hooks/hooks.json` — a confirmed Claude Code bug (#10225, #12151) causes plugin UserPromptSubmit hook output to be silently discarded, making quorum injection invisible to Claude. Both risks are fully preventable with known workarounds and must be addressed in Phase 1 before any integration testing. All other pitfalls (subagent scope bleed, compaction false blocks, broad command patterns) are similarly addressable at the design level if caught early.
+The three critical risks are: (1) framework discovery cross-contamination in monorepos (always use framework CLIs, never independent globbing), (2) the QGSD circuit breaker triggering mid-loop on legitimate iterative commits (disable at maintain-tests start, re-enable at end), and (3) the AI categorization loop never converging due to missing termination conditions (implement a `deferred` 6th category, a progress guard, and a hard iteration cap). These risks must be addressed in the design phase, not retrofitted.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The entire implementation requires only Node.js (>=16.7.0) stdlib — `fs`, `path`, `os`, `readline` — with no external npm dependencies. Python 3.9+ is a valid alternative for hooks needing subprocess calls to external CLIs, but Node.js matches GSD's existing hook runtime and is preferred for consistency. All Claude Code hook I/O is plain JSON over stdin/stdout; transcript files are newline-delimited JSONL parsed line by line with `JSON.parse`. Hooks must be bundled with esbuild into self-contained files (same pattern as GSD's `build-hooks.js`) because there is no `node_modules` at the `~/.claude/hooks/` install target. Distribution follows GSD's npm installer pattern rather than the Claude Code plugin marketplace, avoiding per-project install fragmentation.
+The maintain-tests command is built entirely from Node.js built-ins and one bundled external dependency. `child_process.spawnSync` handles all test runner invocations — the existing pattern in `qgsd-circuit-breaker.js` for git operations applies directly. `node:sqlite` (built-in, Node >= 22.5.0, stability 1.1) replaces a JSON state file at 20k+ test scale; write amplification of JSON flat files becomes a real bottleneck over many iterations. `fast-glob@3.3.3` is needed only when no framework config is present; bundle it via esbuild to eliminate runtime node_modules resolution issues in the global install path.
 
 **Core technologies:**
-- Node.js (>=16.7.0): Hook runtime — already installed for any GSD user; zero additional dependency
-- JSON/JSONL (no library): Transcript and hook I/O format — Claude Code's native format; stdlib `JSON.parse` is sufficient
-- esbuild (build only): Bundler — required to make `qgsd-config.js` importable by both hooks after install without a `node_modules` directory
+- `node:sqlite` (built-in, Node >= 22.5.0): persistent batch state across sessions — avoids write amplification of JSON at 20k+ tests
+- `child_process.spawnSync` and `child_process.spawn`: test runner execution (jest/playwright/pytest) — already the established QGSD pattern; use spawn with file-based output capture for variable-size test reports to avoid buffer limits
+- `fast-glob@3.3.3` (bundled via esbuild): fallback test file discovery when framework configs are absent — only external dependency
+- `node:fs` / `node:path`: state file I/O, path resolution — QGSD standard throughout
+- Claude Code Task workers (parallel spawns): failure categorization using quorum models — no new library needed
+- JSON flat file: fallback state for Node < 22.5.0 — functional but 10-30x slower on writes
+
+Critical avoidances: `p-limit` is ESM-only and will throw `ERR_REQUIRE_ESM` in QGSD's CommonJS codebase. `better-sqlite3` requires a native `node-gyp` compile and breaks the zero-dependency install model. Jest's `runCLI()` programmatic API has broken silently across every major version since v25 — always use the stable CLI contract (`npx jest --json`). Buffering large test runner output in memory (using APIs with default maxBuffer limits) causes silent truncation on high-failure batches — always pipe output to a temp file.
 
 ### Expected Features
 
-Research confirms a tight MVP scope. The six table-stakes features form a dependency chain; none can be deferred without breaking the enforcement guarantee.
+The 8 P1 table-stakes features are the minimum viable loop. Everything else is additive.
 
-**Must have (table stakes):**
-- UserPromptSubmit hook: detect GSD planning commands, inject quorum instructions via `additionalContext` — the trigger without which Claude never knows to run quorum
-- Stop hook: parse transcript JSONL, verify tool_use evidence for 3 external MCP models, return `decision: "block"` with specific missing model names — the hard gate
-- Infinite-loop prevention via `stop_hook_active` guard — without this the system deadlocks unconditionally
-- Fail-open behavior: require at least 1 of 3 external models; note absent models in block reason — required by CLAUDE.md R6
-- Config file at `~/.claude/qgsd-config.json` with `commands` array and configurable MCP tool name prefixes — prevents silent failure when users rename MCP servers
-- Clear, specific block message naming the exact missing models and exact tool calls to run — the block message is the primary UX surface due to Claude Code's "Stop hook error:" label limitation
+**Must have (table stakes — v0.3 launch):**
+- Test discovery (auto-detect jest/playwright/pytest from config files; framework CLI output is canonical, never independent globbing)
+- Random batching at 100 tests/batch with batch manifest written to disk before execution (Fisher-Yates shuffle, deterministic seed for resumability)
+- Batch execution per framework with output captured to temp file (not in-memory buffering) and configurable timeout (default 5 minutes per batch)
+- AI categorization into 5 categories (valid-skip, stale/adapt, isolation-issue, real-bug, fixture-improvement) with 1-sentence diagnosis and action item per failure
+- State persistence and resume via `maintain-tests-state.json` + activity sidecar integration
+- Iterative loop with explicit termination: progress guard (no decrease in 2 iterations = halt), iteration cap (default 5), `deferred` 6th category for convergence
+- Progress banner after each batch completion (user feedback is mandatory for 20k+ suites)
+- SUMMARY.md artifact on completion or interruption
 
-**Should have (v1.x after validation):**
-- Per-project config override at `.planning/qgsd-config.json`
-- `last_assistant_message` fast path to skip JSONL scan when Claude confirmed quorum in its response
-- Session-scoped quorum cache via `/tmp/qgsd-{session_id}-quorum.json`
-- Install-time MCP registration validation to warn users with missing MCPs before activation
-- Dry-run mode for initial rollout without enforcement
+**Should have (v0.3.x — after core loop validates on a real 20k suite):**
+- Git history context for stale/adapt classification (`git log -S` pickaxe evidence embedded in categorization prompt)
+- Isolation re-run verification (re-run isolation-issue candidates in single-test mode to distinguish from real bugs)
+- Configurable batch size/timeout via `.claude/qgsd.json` `maintain_tests` key
+- Cross-batch pattern detection (surface recurring root causes after every 5 batches)
 
-**Defer (v2+):**
-- Direct CLI invocation from hooks (auth complexity, external dependencies)
-- Quorum enforcement for execute-phase (contradicts CLAUDE.md R2.2)
-- Named quorum profiles / multiple config sets
+**Defer to v0.4+:**
+- Quorum on valid-skip/real-bug categorizations (adds latency; validate category reliability first)
+- Categorization confidence scores (need enough categorizations to evaluate false positive rate)
+- Multiple framework priority ordering for polyglot suites
+
+**Anti-features to reject:**
+- Auto-fix all tests without review (miscategorizing real-bug as stale/adapt hides regressions)
+- Running all 20k tests in one batch (Jest OOM without batching — workers restart under `workerIdleMemoryLimit`)
+- Storing full test output in state file (20k suite produces gigabytes; store only first 500 chars of error per test)
+- Retrying failed tests before categorization (retry evidence IS the flakiness signal — do not eliminate it before categorization)
 
 ### Architecture Approach
 
-QGSD follows a two-hook, zero-coupling architecture. The UserPromptSubmit hook fires before Claude processes the prompt; it pattern-matches the `prompt` field against an explicit allowlist of planning command slugs and injects quorum instructions as `additionalContext`. The Stop hook fires after Claude finishes responding; it checks `stop_hook_active`, scans user messages in the transcript to confirm a planning command was invoked, then scans assistant messages for tool_use blocks with MCP tool name prefixes matching Codex/Gemini/OpenCode. Scope filtering (only enforce when a planning command was detected in this session, only enforce on the main session not subagents) is critical to prevent the hook from interfering with all Claude Code usage and GSD subagent workflows.
+The maintain-tests integration adds exactly 2 new files (command stub + workflow orchestrator) and extends 4 existing files (gsd-tools.cjs, install.js, resume-work.md, .gitignore). No hooks are changed. No new agents are added. The command is NOT added to `quorum_commands` — it is an execution command per CLAUDE.md R2.2.
+
+The architectural split is thin CLI + reasoning workflow: `gsd-tools.cjs` owns all mechanical operations (discover, batch, run-batch, save-state, load-state); the workflow orchestrator owns all reasoning (categorization, action dispatch, loop control, quick task grouping). This mirrors how every existing QGSD workflow uses `gsd-tools.cjs` for context gathering while Claude handles coordination.
 
 **Major components:**
-1. `hooks/qgsd-prompt.js` (UserPromptSubmit hook) — command detection and quorum instruction injection; reads config; writes `additionalContext` to stdout
-2. `hooks/qgsd-stop.js` (Stop hook) — stop_hook_active guard; subagent scope guard; transcript JSONL scan; quorum evidence verification; block or pass decision
-3. `hooks/qgsd-config.js` (shared module, bundled into each hook) — config loading with fail-open defaults; MCP tool name prefix definitions; quorum command allowlist
-4. `templates/qgsd-config.json` — default config written on install; user-editable without code changes
-5. `bin/install.js` (installer) — copies bundled hooks to `~/.claude/hooks/`; writes hook entries into `~/.claude/settings.json`; writes default config; validates MCP registrations
+1. `commands/qgsd/maintain-tests.md` (NEW) — slash command stub; routes to workflow via `execution_context`
+2. `workflows/maintain-tests.md` (NEW) — full orchestrator: discovery loop, batch iteration, categorization worker dispatch, action grouping, real bug deferral, session state management
+3. `gsd-tools.cjs maintain-tests` sub-commands (MODIFIED: additive) — discover, batch, run-batch, save-state, load-state; thin wrappers around filesystem and spawnSync operations
+4. `maintain-tests-state.json` (NEW, gitignored) — SQLite or JSON fallback; stores per-test state, batch progress, categorization results, actioned quick task references
+5. Categorization workers (inline Task dispatches, NOT new agents) — parallel Gemini/OpenCode/Copilot/Codex calls using same quorum dispatch pattern as `/qgsd:debug`
+6. `/qgsd:quick` (EXISTING, unmodified) — receives grouped fix tasks for adapt/fixture/isolate categories; cap 20 tests per task
+
+Build order is strictly: Phase 18 CLI foundation → Phase 19 state schema + activity tracking → Phase 20 workflow orchestrator → Phase 21 categorization engine → Phase 22 integration test.
 
 ### Critical Pitfalls
 
-1. **Stop hook infinite loop (missing `stop_hook_active` guard)** — The very first line of the Stop hook must unconditionally check `stop_hook_active === true` and exit 0 if so. This guard must be present in v1; it cannot be added later as a patch without risk of burning API tokens in production.
+1. **Framework cross-discovery collision in monorepos** — A `.spec.ts` file owned by Playwright is also discovered by Jest's `testMatch` glob, inflating counts and producing 100% batch failure rates. Avoid by always using framework CLI output (`jest --listTests`, `npx playwright test --list`, `pytest --collect-only`) as the canonical source of truth. Never independently glob for test files. This is a Phase 18 design decision that cannot be retrofitted.
 
-2. **Plugin hook output silently discarded (confirmed Claude Code bug #10225, #12151)** — Never install the UserPromptSubmit hook via the plugin's `hooks/hooks.json`. Always install to `~/.claude/settings.json` via the installer. This is the only confirmed workaround.
+2. **Circuit breaker fires mid-maintenance loop** — After 3+ quick-task commits on the same test file, the QGSD circuit breaker's oscillation detector fires and blocks all Bash write operations. This is legitimate iterative work, not oscillation. Avoid by calling `npx qgsd --disable-breaker` at maintain-tests start and `npx qgsd --enable-breaker` at end. Also group fixes by file set so one commit covers multiple tests rather than N commits per test.
 
-3. **Stop hook fires for every subagent (GSD Task() spawning)** — Check `hook_event_name` in Stop hook input; only enforce when value is `"Stop"` (main session), never `"SubagentStop"`. Without this guard, every GSD subagent gets blocked.
+3. **AI categorization loop never converges** — Without explicit termination conditions, the loop runs forever on unfixable tests. Avoid by implementing: (a) a progress guard that halts if unresolved count does not decrease in 2 consecutive iterations, (b) a hard iteration cap (default 5), (c) a `deferred` 6th category that counts as "actioned" for convergence purposes. Design termination conditions in the loop spec before implementation begins.
 
-4. **Transcript compaction causes false blocks** — Scope quorum evidence search to the current turn only (scan backward from end of JSONL to previous user message boundary), not the entire session. After compaction, prior tool_use entries are replaced with a summary and would not be found.
+4. **AI categorization hallucinations without source context** — Claude receives a stack trace and produces a confident but wrong root cause. The proposed fix task finds nothing to change. Avoid by always including the failing test's full source code AND the top-2 stack trace source files in every categorization prompt. Add a `context_score` field and only auto-action categorizations with score >= 2.
 
-5. **Overly broad command pattern allows execution-phase quorum injection** — Use `startsWith` matching against an explicit allowlist (not a regex with `includes`), and explicitly exclude all execution commands. CLAUDE.md R2.2 prohibits quorum during EXECUTION.
+5. **Stdout buffer overflow on large test runner output** — Node.js subprocess APIs with default maxBuffer limits (1MB) are insufficient for Jest's JSON reporter output at 100 tests/batch. When the buffer is exceeded, the child process is killed and the error may be swallowed, causing AI categorization to receive empty output. Avoid by using `spawn()` with output piped to a temp file, read after the child's `close` event. This is a Phase 18 batch execution design decision.
+
+6. **Flaky tests classified as real bugs exhaust the loop** — A flaky test's stack trace is indistinguishable from a real bug's on a single run. Avoid by running each failing test 3 times in isolation before categorization: fails 3/3 = consistent; fails 1-2/3 = pre-classify flaky; passes 3/3 = environment noise, drop from queue.
 
 ## Implications for Roadmap
 
-Based on combined research, a 3-phase structure is recommended. All pitfalls are addressable in Phase 1, which is the right time to establish the invariants that the rest of the system depends on.
+Based on research, suggested phase structure for Phases 18-22 (continuing from v0.2 Phase 17):
 
-### Phase 1: Hook Foundation and Core Enforcement
+### Phase 18: CLI Foundation
 
-**Rationale:** All six table-stakes features form a single dependency chain. None can be deferred. The critical pitfalls (infinite loop, plugin bug, subagent scope, compaction) must all be resolved here before any integration testing — each one can render the system non-functional or actively harmful. Phase 1 is the whole core; there is no useful partial state.
+**Rationale:** The gsd-tools.cjs sub-commands are mechanically testable before any workflow logic exists. Unit testing discover/batch/run-batch catches runner detection bugs early — including the framework cross-discovery collision and stdout buffer overflow pitfalls — before they block workflow development. No workflow dependency; this phase is independent of all others.
 
-**Delivers:** A working quorum enforcement system. UserPromptSubmit injects instructions. Stop hook verifies evidence. Config is user-editable. Fail-open behavior matches CLAUDE.md R6. Block messages are specific and actionable.
+**Delivers:** `gsd-tools.cjs maintain-tests` with 5 sub-commands (discover, batch, run-batch, save-state, load-state). Runner auto-detection for jest/playwright/pytest. Per-framework output capture to temp files via spawn with stream piping (not buffered subprocess APIs). Unit tests for all sub-commands including monorepo fixture tests for framework collision and per-package invocation.
 
-**Addresses features:** UserPromptSubmit detection + injection, Stop hook transcript scan + block decision, `stop_hook_active` infinite-loop guard, fail-open logic, `qgsd-config.json` with configurable MCP prefixes, specific block message with model attribution.
+**Addresses:** Test discovery, random batching, batch execution (FEATURES.md P1)
 
-**Avoids pitfalls:** Stop hook infinite loop (guard is P1 requirement), plugin hook output bug (installer writes to settings.json), subagent scope bleed (hook_event_name check), compaction false blocks (scoped transcript search), broad command pattern (explicit allowlist).
+**Avoids:** Framework cross-discovery collision (Pitfall 1) — framework CLIs are the implementation from the start. Stdout buffer overflow (Pitfall 4) — spawn with file-based output is baked in. pytest conftest ancestor collision (Pitfall 3) — per-package invocation is the pattern.
 
-**Research flag:** STANDARD — all patterns are well-documented in official Claude Code hooks docs, confirmed against live GSD codebase and live transcripts. No research-phase needed.
+### Phase 19: State Schema and Activity Tracking Integration
 
-### Phase 2: Distribution and Install Hardening
+**Rationale:** The workflow needs a stable state schema and activity sidecar hooks before the orchestrator is written. Getting the schema wrong after the workflow is built requires a rewrite. The resume-work.md routing table must be extended before the workflow relies on it for interrupt recovery. Termination condition fields (iteration_count, last_unresolved_count) belong in the schema, not added as an afterthought in Phase 21.
 
-**Rationale:** Once the hook logic is correct, distribution packaging and install-time validation make the system adoptable and prevent first-run failure modes. Phase 2 cannot come before Phase 1 because distribution requires the hooks to exist.
+**Delivers:** `maintain-tests-state.json` schema definition (SQLite primary, JSON fallback for Node < 22.5.0). `.gitignore` addition. Six new sub_activity values and routing table rows in `resume-work.md`. Node version compatibility check at startup. Termination state fields in schema (iteration_count, last_unresolved_count, deferred_tests[]).
 
-**Delivers:** npm installer that writes to `~/.claude/settings.json`, copies bundled hooks, writes default config, and validates MCP registration. esbuild bundling of hooks with config reader. Distribution-ready package following GSD's install model.
+**Addresses:** State persistence and resume (FEATURES.md P1), progress tracking (FEATURES.md P1)
 
-**Uses stack:** esbuild (bundling), Node.js `os`/`path`/`fs` (installer I/O), npm package structure matching GSD pattern.
+**Avoids:** Loop never terminates (Pitfall 7) — iteration cap and progress guard are schema-enforced from the start.
 
-**Implements architecture:** `bin/install.js`, `scripts/build-hooks.js`, `hooks/dist/` output, `templates/qgsd-config.json`, `package.json`.
+### Phase 20: Workflow Orchestrator
 
-**Research flag:** STANDARD — GSD's existing installer (`bin/install.js`) is a direct template. No novel patterns.
+**Rationale:** The workflow shell (command stub + orchestration logic) must exist before categorization is added. Building the orchestrator without categorization allows the full batch loop to be validated end-to-end with placeholder categories before the high-risk categorization engine is wired in. The circuit breaker lifecycle and Stop hook exclusion are verified here before any fix commits are generated.
 
-### Phase 3: UX and Reliability Enhancements
+**Delivers:** `commands/qgsd/maintain-tests.md` (slash command stub). `workflows/maintain-tests.md` (full orchestrator: discovery call, batch loop, activity-set transitions, placeholder categorization, action dispatch skeleton, real bug deferral surface format, session SUMMARY.md). Installer addition (WORKFLOWS_TO_COPY). Explicit verification that maintain-tests is NOT in quorum_commands.
 
-**Rationale:** After core enforcement is validated in production, the v1.x enhancements reduce friction and address performance on long sessions. Per-project config, fast path, session cache, dry-run mode, and install MCP validation all improve reliability without affecting the enforcement guarantee established in Phase 1.
+**Addresses:** Iterative loop (FEATURES.md P1), progress banner (FEATURES.md P1), SUMMARY.md artifact (FEATURES.md P1)
 
-**Delivers:** Per-project config override, `last_assistant_message` fast path, session-scoped quorum cache, dry-run mode, install-time MCP validation with warning output.
+**Avoids:** maintain-tests added to quorum_commands (Pitfall 12) — verified at design time. Circuit breaker fires mid-loop (Pitfall 10) — `--disable-breaker`/`--enable-breaker` lifecycle is in the command wrapper from the start.
 
-**Research flag:** MINIMAL — per-project config layering and temp file session cache are straightforward patterns. The `last_assistant_message` fast path requires verifying the exact field name in the Stop hook payload (confirmed present per official docs).
+### Phase 21: Categorization Engine
+
+**Rationale:** Categorization is the highest-risk phase — quorum worker prompt design for 5+1 category classification is novel, and consensus rate is unknown. Isolating it in its own phase means prompt failures do not block the workflow structure. Prompt design should be validated with few-shot examples before wiring into the loop. This phase also incorporates the flakiness pre-check, source context payload design, and sub-batching — all of which interact with categorization quality.
+
+**Delivers:** Quorum worker prompt for 5-category + `deferred` 6th category classification. Consensus aggregation logic (3+ workers agree = consensus; disagreement = Claude tiebreaker). Context payload design (test source + top-2 stack trace sources + failure_history field). Sub-batching at max 10 failures per Claude call. Flakiness pre-check (3-run isolation before AI categorization). Category-grouped quick task dispatch (group by category + error type + directory; cap 20 tests per quick task).
+
+**Addresses:** AI categorization (FEATURES.md P1, highest complexity), isolation re-run verification (FEATURES.md P2), git history context for stale/adapt (FEATURES.md P2)
+
+**Avoids:** AI categorization hallucinations (Pitfall 6) — source context is mandatory. Loop never converges (Pitfall 7) — deferred category and termination conditions are already in schema from Phase 19. Flaky tests misclassified as real bugs (Pitfall 5) — 3-run isolation check gates categorization. Context window overflow (Pitfall 11) — sub-batching at max 10 failures per call.
+
+**Research flag:** NEEDED. Quorum worker classification prompts for 5-category test failure categorization are novel. Phase-specific research should verify: (a) whether few-shot examples are required for reliable classification at the quorum models' capability level, (b) expected consensus rate and how to handle persistent disagreement, (c) whether 5 categories is the right granularity or whether a coarser taxonomy would achieve higher consensus rates with acceptable precision loss.
+
+### Phase 22: Integration Test and Verification
+
+**Rationale:** End-to-end validation requires all prior phases. A real failing test suite (QGSD's own test suite or a fixture project with controllable failures) is needed to validate that the full loop converges, the circuit breaker lifecycle works, state persists across interruption, and the Stop hook does not fire erroneously.
+
+**Delivers:** End-to-end test covering all 10 items in the PITFALLS.md "Looks Done But Isn't" checklist: discovery deduplication, buffer overflow handling, circuit breaker lifecycle, shallow clone detection, flakiness pre-check, categorization sub-batching, loop termination on unfixable tests, Stop hook exclusion, pytest rootdir isolation, convergence state persistence. VERIFICATION.md for Phases 18-21. Updated installer.
+
+**Addresses:** All integration gotchas in PITFALLS.md integration table.
 
 ### Phase Ordering Rationale
 
-- Phase 1 before Phase 2: hooks must be correct before packaging; install a broken hook breaks the user's Claude Code session globally.
-- Phase 1 handles all 8 pitfalls: every pitfall in PITFALLS.md maps to Phase 1 in the Pitfall-to-Phase Mapping. Deferring any pitfall mitigation risks a broken v1 in production.
-- Phase 3 after Phase 1 validation: reliability enhancements are responsive to real usage patterns (transcript scan latency, session length); building them speculatively before validating the core would be over-engineering.
-- No Phase 2 research needed: the GSD codebase is a direct reference implementation for all installer patterns.
+- Phase 18 before 19: CLI commands inform the state schema design. Building schema before understanding what data the CLI produces inverts the dependency.
+- Phase 19 before 20: Workflow relies on stable state schema and resume routing. Schema changes after workflow is written cause a workflow rewrite.
+- Phase 20 before 21: Categorization is a feature of the workflow, not a standalone component. The workflow shell must be validated before the most complex logic is added.
+- Phase 21 is isolated: Prompt design for novel classification is high-risk and benefits from being the sole focus of a phase. Prompt failures here do not affect the workflow shell built in Phase 20.
+- Phase 22 last: Integration testing requires all components functional. The "Looks Done But Isn't" checklist in PITFALLS.md has 10 verification scenarios that require the full stack.
 
 ### Research Flags
 
-Phases needing deeper research during planning: None. All three phases operate on well-documented Claude Code APIs verified against official docs, and have reference implementations in the existing GSD codebase.
+Phases needing deeper research during planning:
+- **Phase 21 (Categorization Engine):** Quorum worker prompt design for 5+1 category classification is novel. Research should verify: (a) whether few-shot examples are required for reliable classification, (b) expected consensus rate and how to handle persistent disagreement, (c) whether 5 categories is the right granularity or whether a coarser 3-category taxonomy would achieve higher consensus rates with acceptable precision loss. This is the only HIGH research-risk phase.
 
-One area requiring ongoing attention during Phase 1 implementation (not a research gap, but an integration test requirement): the `stop_hook_active` behavior on second Stop invocations must be empirically confirmed against the live Claude Code runtime, not just against documentation. The behavior is documented but the interaction with GSD subagent spawning has not been tested end-to-end.
+Phases with standard patterns (skip research-phase):
+- **Phase 18 (CLI Foundation):** All patterns established in existing `gsd-tools.cjs` and `qgsd-circuit-breaker.js`. spawnSync, fs, path — no novel APIs.
+- **Phase 19 (State Schema):** Schema design is mechanical. SQLite built-in API is documented. Activity sidecar pattern is already used in execute-phase.
+- **Phase 20 (Workflow Orchestrator):** Follows identical structure to existing QGSD workflows (plan-phase.md, execute-phase.md). The slash command + execution_context pattern is established.
+- **Phase 22 (Integration Test):** Standard verification phase. Test scenarios are fully defined in PITFALLS.md "Looks Done But Isn't" checklist.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All technologies verified against official Claude Code hooks docs and cross-validated against live GSD codebase (hooks, installer, settings.json) |
-| Features | HIGH | MVP feature set derived from official docs, confirmed Claude Code bugs documented with issue numbers and reproduction reports |
-| Architecture | HIGH | Architecture verified against live QGSD session transcript showing actual tool_use entries; GSD installer is a direct reference for all installer patterns |
-| Pitfalls | HIGH | All 6 critical pitfalls confirmed via official docs, GitHub issues with reproduction cases (8+ separate issues cited), and real GSD codebase analysis |
+| Stack | HIGH | All library choices verified against official docs and npm. CommonJS constraint confirmed from package.json. node:sqlite version requirement and stability level confirmed from Node.js docs. p-limit ESM incompatibility confirmed from GitHub issue thread. esbuild bundling confirmed from existing build-hooks.js. |
+| Features | HIGH (table stakes) / LOW (5-category taxonomy) | Jest/playwright/pytest API behavior verified against official docs and GitHub issues at scale. The 5-category taxonomy is QGSD-defined — it maps to industry patterns (Parasoft, Google) but is not an industry standard. Taxonomy reliability in practice against real suites is unvalidated. |
+| Architecture | HIGH | Integration points derived from direct source reads of gsd-tools.cjs, execute-phase.md, debug.md, quick.md, config-loader.js, qgsd-circuit-breaker.js, STATE.md. No novel APIs involved. Phase numbering (18+) confirmed against STATE.md. |
+| Pitfalls | HIGH (technical) / MEDIUM (AI behavior) | Framework cross-discovery, buffer overflow, circuit breaker collision, and shallow clone issues are confirmed from official docs and GitHub issue threads with reproduction cases. AI categorization hallucination rate and quorum consensus rate predictions are based on general LLM research patterns, not QGSD-specific measurement. |
 
-**Overall confidence:** HIGH
+**Overall confidence:** HIGH for implementation approach; MEDIUM for AI categorization reliability at scale.
 
 ### Gaps to Address
 
-- **`stop_hook_active` second-invocation behavior with subagents:** Documentation says it is `true` when Claude continues due to a prior Stop hook block. The interaction between this flag and GSD's Task()-spawned subagents should be empirically tested in Phase 1 integration testing before marking the Stop hook as complete.
+- **5-category taxonomy validation:** The QGSD-defined categories have not been tested against a real 20k suite. Categories may need refinement after Phase 22 end-to-end testing. Treat Phase 22 as a hypothesis-validation pass, not just a QA pass. Budget for a post-Phase-22 taxonomy adjustment iteration.
 
-- **Claude Code "Stop hook error:" label (GitHub issue #12667):** The misleading UX label on intentional blocks is a known open Claude Code bug. The block message design must compensate for this. If Anthropic ships a fix during development, the messaging strategy may be adjustable. Monitor the issue.
+- **Quorum consensus rate for test failure classification:** Unknown what percentage of test failures will reach quorum consensus on first categorization attempt. If the rate is low (< 60%), the categorization loop will be slower than expected due to Claude tiebreaker invocations. Design the workflow with a per-test categorization timeout and a fallback to Claude-only categorization to prevent stalls.
 
-- **Plugin distribution as future option:** The plugin distribution path (`hooks/hooks.json` + `.claude-plugin/plugin.json`) is documented but cannot be used for UserPromptSubmit due to confirmed bugs. If Anthropic fixes the plugin hook output capture bug, plugin distribution becomes viable and cleaner. This is a future option, not a v1 path.
+- **Performance at 20k+ scale:** Discovery time (30-120 seconds) and total loop time (8-48 hours) estimates are based on documented framework behavior and scale analysis, not empirical measurement. Phase 22 should benchmark discovery and batch execution time against a realistic fixture to validate these estimates before the tool ships.
+
+- **pytest output format edge cases:** `pytest --collect-only -q` line parsing works for standard test IDs but may fail for parametrized tests with complex parameter strings (brackets, special characters). Validate pytest parsing in Phase 18 unit tests with parametrized test fixtures specifically.
 
 ## Sources
 
 ### Primary (HIGH confidence)
 
-- `https://code.claude.com/docs/en/hooks` — Official hooks reference. All input/output schemas, `stop_hook_active`, `decision: "block"`, `additionalContext`, `last_assistant_message`, exit code behavior.
-- `https://code.claude.com/docs/en/plugins-reference` — Official plugin manifest schema, `hooks/hooks.json` format, `${CLAUDE_PLUGIN_ROOT}`, component directory layout.
-- `/Users/jonathanborduas/.claude/hooks/gsd-guardian.py` — Live UserPromptSubmit hook. Stdin parsing, prompt regex, subprocess pattern.
-- `/Users/jonathanborduas/.claude/hooks/gsd-statusline.js` — Live StatusLine hook. Stdin schema fields.
-- `/Users/jonathanborduas/.claude/settings.json` — Live settings. Three-level hook nesting structure confirmed.
-- `/Users/jonathanborduas/code/QGSD/bin/install.js` — GSD installer. Direct reference for settings.json merge, hook path construction, package structure.
-- Live QGSD session transcript (`~/.claude/projects/.../8053c02f...jsonl`) — Verified actual tool_use entry structure in production transcripts.
-- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — Authoritative project scope, key decisions, out-of-scope items.
+- `/Users/jonathanborduas/code/QGSD/hooks/qgsd-circuit-breaker.js` — CommonJS require() pattern, spawnSync for git, fs.readFileSync/writeFileSync for state; integration blueprint for maintain-tests CLI
+- `/Users/jonathanborduas/code/QGSD/package.json` — no `"type":"module"` (CommonJS confirmed), esbuild@^0.24.0 devDep, engines.node >= 16.7.0
+- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — v0.3 target features and constraints (authoritative scope)
+- `/Users/jonathanborduas/code/QGSD/.planning/STATE.md` — phase numbering (last phase = 17), key decisions table
+- `/Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs` — existing sub-command interface, activity-set pattern, compound init commands
+- `/Users/jonathanborduas/.claude/qgsd/workflows/execute-phase.md` — activity-set usage across step transitions; checkpoint:verify pattern
+- `https://nodejs.org/docs/latest/api/sqlite.html` — node:sqlite stability (1.1), version (>= 22.5.0, no flag from v22.13.0), DatabaseSync API
+- `https://nodejs.org/api/child_process.html` — spawnSync API, spawn streaming API, maxBuffer behavior with buffered subprocess calls
+- `https://jestjs.io/docs/cli` — --json flag, --outputFile, --testPathPattern, --listTests, workerIdleMemoryLimit behavior
+- `https://playwright.dev/docs/test-reporters` — JSON reporter, --list flag, --shard deterministic splitting
+- `https://jestjs.io/docs/configuration` — rootDir, projects, testMatch behavior in monorepos
+- `https://docs.pytest.org/en/stable/explanation/pythonpath.html` — conftest.py ancestor traversal and import collision
+- `https://docs.pytest.org/en/stable/reference/customize.html` — rootdir detection, per-package invocation required
+- `https://git-scm.com/docs/git-log` — pickaxe (-S), --encoding=UTF-8, --is-shallow-repository
 
 ### Secondary (MEDIUM confidence)
 
-- GitHub issue #12667 and duplicates (#17139, #18424, #21504, #22761) — "Stop hook error:" UX label; confirmed ongoing as of 2026-02-20
-- GitHub issue #10225 / #12151 — Plugin UserPromptSubmit hook output not captured; 22 confirmed reproductions
-- Egghead community tutorial on subagent hook inheritance — confirms Stop hook fires for SubagentStop events
+- `https://github.com/mrmlnc/fast-glob/releases` — version 3.3.3 current stable, zero transitive deps, MIT license
+- `https://github.com/pytest-dev/pytest/issues/9704` — collect-only output is not machine-readable JSON; line parsing is the correct approach
+- `https://github.com/jestjs/jest/issues/13792` (and #15216, #7311) — workerIdleMemoryLimit behavior, OOM at large scale confirmed
+- `https://github.com/sindresorhus/p-limit/issues/63` — p-limit v6+ ESM-only; incompatible with CommonJS
+- `https://www.parasoft.com/blog/ml-powered-test-failure-analysis/` — industry failure taxonomy (Bug/Regression, Flaky, Unstable Environment, Bad Data, Outliers)
+- `https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html` — async timing (46%), order dependency as top flakiness root causes
+- `https://dl.acm.org/doi/fullHtml/10.1145/3476105` — ACM survey of flaky test root causes; confirms QGSD taxonomy maps to research categories
+- `https://playwright.dev/docs/best-practices` — testDir configuration, Playwright test file ownership patterns in monorepos
+- `https://devops.aibit.im/article/git-shallow-clones-guide` — shallow clone detection strategy; consistent with git-scm docs
+- `https://redis.io/blog/context-window-overflow/` — context window overflow practical patterns; informs 10-failure sub-batch limit
 
 ### Tertiary (LOW confidence)
 
-- Hooks mastery repo (disler/claude-code-hooks-mastery) — patterns only; WebFetch returned partial content; not used for schema facts
+- `https://www.browserstack.com/guide/playwright-flaky-tests` — Playwright-specific flaky test patterns (community guide, not official)
+- `https://johal.in/forked-python-parallel-pytest-plugin-subprocess-testing-isolation-2025/` — 20k test suite pytest isolation case study (2025); validates per-package invocation approach
+- `https://demiliani.com/2025/11/02/understanding-llm-performance-degradation-a-deep-dive-into-context-window-limits/` — LLM context window degradation research; informs categorization sub-batching design
+- `https://www.getmaxim.ai/articles/multi-agent-system-reliability-failure-patterns-root-causes-and-production-validation-strategies/` — multi-agent reliability failure modes; informs quorum consensus rate gap assessment
 
 ---
-*Research completed: 2026-02-20*
+*Research completed: 2026-02-22*
 *Ready for roadmap: yes*
