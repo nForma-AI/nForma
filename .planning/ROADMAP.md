@@ -183,7 +183,9 @@
   2. After running `/qgsd:mcp-set-model`, the `qgsd.json` file (global or project, as appropriate) contains the updated model preference for that agent — inspecting the file confirms the value changed
   3. The next quorum invocation after a model switch injects the new model value into the tool call for that agent — verified by inspecting the quorum instructions injected by the UserPromptSubmit hook
   4. Running `/qgsd:mcp-set-model` with an unrecognized agent name or a model not in the agent's `available_models` list produces a clear error message — it does not silently write an invalid value
-**Plans**: TBD
+**Plans**: 2 plans
+  - [ ] 27-01-PLAN.md — config-loader model_preferences key + qgsd-prompt override injection + hooks/dist sync (MGR-02) [Wave 1]
+  - [ ] 27-02-PLAN.md — mcp-set-model.md slash command: agent validation, identity validation, qgsd.json write, install (MGR-01) [Wave 1]
 
 ### Phase 28: Update and Restart Commands
 **Goal**: Users can update any MCP server to its latest version using the correct install-method-aware command, update all agents in one command, and restart a specific server process — without knowing the install method or process ID
@@ -226,5 +228,5 @@
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
 | 25. Identity Tool and Shared Utilities | 3/3 | Complete    | 2026-02-22 | - |
 | 26. MCP Status Command | 1/1 | Complete    | 2026-02-22 | - |
-| 27. Model Switching | v0.4 | 0/? | Not started | - |
+| 27. Model Switching | v0.4 | 0/2 | Not started | - |
 | 28. Update and Restart Commands | v0.4 | 0/? | Not started | - |
