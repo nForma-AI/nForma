@@ -3,8 +3,9 @@
 ## Milestones
 
 - ✅ **v0.2 — Gap Closure & Activity Resume Routing** — Phases 1–17 (shipped 2026-02-21)
-- 🚧 **v0.3 — Test Suite Maintenance Tool** — Phases 18–22 (in progress)
-- 🚧 **v0.4 — MCP Ecosystem** — Phases 23–31 (in progress, gap closure phases added)
+- ✅ **v0.3 — Test Suite Maintenance Tool** — Phases 18–22 (shipped 2026-02-22)
+- ✅ **v0.4 — MCP Ecosystem** — Phases 23–28 (shipped 2026-02-22)
+- 🚧 **v0.5 — MCP Setup Wizard** — Phases 29–33 (in progress)
 
 ## Phases
 
@@ -33,19 +34,19 @@
 
 </details>
 
-### 🚧 v0.3 — Test Suite Maintenance Tool (In Progress)
+<details>
+<summary>✅ v0.3 — Test Suite Maintenance Tool (Phases 18–22) — SHIPPED 2026-02-22</summary>
 
-**Milestone Goal:** Build `/qgsd:fix-tests` — a single command that discovers, batches, runs, AI-categorizes, and iteratively fixes test failures across large suites (20k+ tests). Fully autonomous.
-
-- [x] **Phase 18: CLI Foundation** — gsd-tools.cjs maintain-tests sub-commands: discover, batch, run-batch + integration tests (4 plans) (completed 2026-02-22)
+- [x] **Phase 18: CLI Foundation** — gsd-tools.cjs maintain-tests sub-commands: discover, batch, run-batch + integration tests (completed 2026-02-22)
 - [x] **Phase 19: State Schema & Activity Integration** — maintain-tests-state.json schema + resume-work routing rows (completed 2026-02-22)
 - [x] **Phase 20: Workflow Orchestrator** — fix-tests.md command + orchestrator: batch loop, circuit breaker lifecycle, loop termination (completed 2026-02-22)
 - [x] **Phase 21: Categorization Engine** — 5-category AI diagnosis, git pickaxe context, quick task dispatch grouping (completed 2026-02-22)
 - [x] **Phase 22: Integration Test** — End-to-end validation of the full fix-tests loop (completed 2026-02-22)
 
-### ⏳ v0.4 — MCP Ecosystem (Pending v0.3 Completion)
+</details>
 
-**Milestone Goal:** Standardize the 6 coding-agent MCP server repos to a unified Gen2 architecture, then build QGSD commands to observe, configure, and update connected agents.
+<details>
+<summary>✅ v0.4 — MCP Ecosystem (Phases 23–28) — SHIPPED 2026-02-22</summary>
 
 - [x] **Phase 23: MCP Repo Surface Fixes** — openhands rename, dynamic versioning, MIT license, package.json metadata, Makefile, CHANGELOG/CLAUDE.md, npm scoping across all 6 repos (completed 2026-02-22)
 - [x] **Phase 24: Gen1→Gen2 Architecture Port** — Per-tool *.tool.ts + registry.ts structure for claude/codex/copilot/openhands repos (completed 2026-02-22)
@@ -53,9 +54,18 @@
 - [x] **Phase 26: MCP Status Command** — /qgsd:mcp-status showing all agents, models, health state, and UNAVAIL counts (completed 2026-02-22)
 - [x] **Phase 27: Model Switching** — /qgsd:mcp-set-model with qgsd.json persistence and quorum call injection (completed 2026-02-22)
 - [x] **Phase 28: Update & Restart Commands** — /qgsd:mcp-update (all install methods) + /qgsd:mcp-restart (completed 2026-02-22)
-- [ ] **Phase 29: Restore mcp-status v2 + Requirements Checkbox Cleanup** — Restore v2 mcp-status.md (regression fix) + update Phase 23/26 REQUIREMENTS.md checkboxes
-- [ ] **Phase 30: Fix gemini-cli Package Reference** — Update ~/.claude.json gemini-cli args to unscoped package name
-- [ ] **Phase 31: Merge Gen2 Branches + Phase 24 Verification** — Merge codex/copilot Gen2 branches to main + create Phase 24 VERIFICATION.md
+
+</details>
+
+### 🚧 v0.5 — MCP Setup Wizard (In Progress)
+
+**Milestone Goal:** Ship `/qgsd:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (model, provider, API key) without touching config files manually.
+
+- [x] **Phase 29: Wizard Scaffold** — /qgsd:mcp-setup command: first-run vs re-run detection, main menu with live status, confirm+apply+restart flow (WIZ-01..05) (completed 2026-02-22)
+- [ ] **Phase 30: API Key Management** — Wizard flow for set/update API keys via keytar; writes to ~/.claude.json env block and restarts agent (KEY-01..04)
+- [ ] **Phase 31: Provider Swap** — Wizard flow for changing agent base URL; curated provider list + custom entry; writes ANTHROPIC_BASE_URL and restarts (PROV-01..03)
+- [ ] **Phase 32: Agent Roster** — Wizard flow for add/remove claude-mcp-server instances; identity ping after provisioning (AGENT-01..03)
+- [ ] **Phase 33: Install Integration** — Installer detects no configured quorum agents and prompts user to run /qgsd:mcp-setup (INST-01)
 
 ## Phase Details
 
@@ -201,37 +211,57 @@
   4. All three commands (`mcp-update <agent>`, `mcp-update all`, `mcp-restart`) produce actionable error output when the agent is unrecognized, the update command fails, or the process cannot be found — they never fail silently
 **Plans**: TBD
 
-### Phase 29: Restore mcp-status v2 + Requirements Checkbox Cleanup
-**Goal**: The live mcp-status.md is restored to its verified v2 state (10-agent, scoreboard-aware) and REQUIREMENTS.md OBS-01–04 checkboxes reflect actual verification outcomes
+### Phase 29: Wizard Scaffold
+**Goal**: Users can run `/qgsd:mcp-setup` and reach a working wizard — first-run linear onboarding for new installs, a live-status agent menu for re-runs, and a confirm+apply+restart flow that writes changes to `~/.claude.json`
 **Depends on**: Phase 28
-**Requirements**: OBS-01, OBS-02, OBS-03, OBS-04
-**Gap Closure**: Closes mcp-status.md regression (OBS-01–04); STD-01/03/05/06/07/09 already [x] — only OBS checkboxes need updating
-**Plans**: 1 plan
-  - [ ] 29-01-PLAN.md — git checkout v2 mcp-status.md, copy to ~/.claude, update OBS-01–04 checkboxes in REQUIREMENTS.md [Wave 1]
+**Requirements**: WIZ-01, WIZ-02, WIZ-03, WIZ-04, WIZ-05
+**Success Criteria** (what must be TRUE):
+  1. Typing `/qgsd:mcp-setup` on a fresh install (no mcpServers entries in `~/.claude.json`) presents a step-by-step onboarding flow — the user is guided through configuring their first agent without seeing an empty menu
+  2. Typing `/qgsd:mcp-setup` on an existing install shows a numbered agent menu listing each agent with its current model, provider base URL, and whether an API key is stored in keytar
+  3. Selecting an agent from the menu opens a sub-menu of actions (set key, swap provider, remove) — the user never has to manually edit `~/.claude.json`
+  4. After the user selects an action and confirms, the wizard writes the change to `~/.claude.json` and invokes `/qgsd:mcp-restart` on the affected agent — the user sees a "changes applied and agent restarted" confirmation
+  5. Typing `/qgsd:mcp-setup` without any quorum agents configured (all entries missing or empty) leads to the first-run flow, not an empty menu
+**Plans**: TBD
 
-### Phase 30: Fix gemini-cli Package Reference
-**Goal**: Running `/qgsd:mcp-update gemini-cli` installs the correct unscoped `gemini-mcp-server` package — `~/.claude.json` reflects Phase 23's unscoping work
+### Phase 30: API Key Management
+**Goal**: Users can set or update the API key for any agent entirely through the wizard — the key is stored in keytar, written to `~/.claude.json` on confirm, and the agent is automatically restarted
 **Depends on**: Phase 29
-**Requirements**: STD-10
-**Gap Closure**: Closes STD-10 partial — `~/.claude.json` `mcpServers["gemini-cli"].args` not updated when Phase 23 unscoped the package name
+**Requirements**: KEY-01, KEY-02, KEY-03, KEY-04
 **Success Criteria** (what must be TRUE):
-  1. `~/.claude.json` `mcpServers["gemini-cli"].args` contains `gemini-mcp-server` (not `@tuannvm/gemini-mcp-server`)
-  2. Running `/qgsd:mcp-update gemini-cli` would invoke `npm install -g gemini-mcp-server` — confirmed by inspecting the resolved args
-**Plans**:
-  - [ ] 30-01-PLAN.md — Update ~/.claude.json gemini-cli args + REQUIREMENTS.md STD-10 [Wave 1]
+  1. Choosing "Set API key" for an agent prompts the user to enter the key; the key is saved to the system keychain via `bin/secrets.cjs` and does not appear in any log or plain-text file
+  2. After confirming a key change, `~/.claude.json` `mcpServers[agent].env` block is updated with the new key value — inspecting the file confirms the value changed
+  3. After the key is written to `~/.claude.json`, the affected MCP server process is restarted automatically — the user does not need to manually restart it
+  4. If a key is already stored for the agent, the wizard shows "(key stored)" next to the prompt and allows the user to overwrite it — it does not expose the existing key value
+**Plans**: TBD
 
-### Phase 31: Merge Gen2 Branches + Phase 24 Verification
-**Goal**: codex-mcp-server and copilot-mcp-server Gen2 architecture is merged to main and Phase 24 VERIFICATION.md confirms all 4 Gen1 repos are fully ported — STD-02 is production-stable
+### Phase 31: Provider Swap
+**Goal**: Users can change the base URL (provider) for any existing agent through the wizard — they choose from a curated list or enter a custom URL, the wizard updates `~/.claude.json` and restarts the agent
 **Depends on**: Phase 30
-**Requirements**: STD-02
-**Gap Closure**: Closes STD-02 — codex-mcp-server Gen2 on `fix/progress-after-done` and copilot-mcp-server Gen2 on `feat/02-error-handling-and-resilience`; no Phase 24 VERIFICATION.md
+**Requirements**: PROV-01, PROV-02, PROV-03
 **Success Criteria** (what must be TRUE):
-  1. `codex-mcp-server` main branch contains Gen2 per-tool `*.tool.ts` + `registry.ts` architecture
-  2. `copilot-mcp-server` main branch contains Gen2 per-tool `*.tool.ts` + `registry.ts` architecture
-  3. Phase 24 VERIFICATION.md exists with status `passed` covering all STD-02 success criteria for all 4 repos
-**Plans**:
-  - [ ] 31-01-PLAN.md — Merge codex-mcp-server fix/progress-after-done → main; merge copilot-mcp-server feat/02-error-handling-and-resilience → main [Wave 1]
-  - [ ] 31-02-PLAN.md — Create Phase 24 VERIFICATION.md confirming STD-02 across all 4 repos [Wave 2]
+  1. Choosing "Swap provider" for an agent shows a numbered list of providers: AkashML, Together.xyz, Fireworks, and a "Custom URL" option
+  2. Selecting a curated provider fills in the canonical base URL automatically — the user does not have to type it; selecting "Custom URL" opens a free-text prompt
+  3. After confirming a provider change, `~/.claude.json` `mcpServers[agent].env.ANTHROPIC_BASE_URL` is updated to the new value and the agent is restarted — the running agent reaches the new provider on the next quorum call
+**Plans**: TBD
+
+### Phase 32: Agent Roster
+**Goal**: Users can add a new claude-mcp-server instance or remove an existing one entirely through the wizard — adding a new agent completes with a live identity ping to confirm connectivity
+**Depends on**: Phase 31
+**Requirements**: AGENT-01, AGENT-02, AGENT-03
+**Success Criteria** (what must be TRUE):
+  1. Choosing "Add agent" in the wizard prompts for a name, provider, model, and API key — on confirm, a new `mcpServers` entry is written to `~/.claude.json` with the correct `command`, `args`, and `env` block for a claude-mcp-server instance
+  2. Choosing "Remove agent" in the wizard shows the existing agent list; selecting an agent and confirming deletes its `mcpServers` entry from `~/.claude.json` — the entry is gone after the operation
+  3. After adding a new agent, the wizard waits for the MCP server to start and calls its `identity` tool — the user sees the agent's reported name, version, and model as confirmation that it is live and responding
+**Plans**: TBD
+
+### Phase 33: Install Integration
+**Goal**: New users who run `npx qgsd@latest` are nudged to configure their agents immediately — the installer detects no configured quorum agents and prompts the user to run `/qgsd:mcp-setup`
+**Depends on**: Phase 32
+**Requirements**: INST-01
+**Success Criteria** (what must be TRUE):
+  1. Running `npx qgsd@latest` on a machine where `~/.claude.json` has no recognized quorum agent entries prints a clear prompt: "No quorum agents configured. Run /qgsd:mcp-setup in Claude Code to set up your agents."
+  2. Running `npx qgsd@latest` on a machine that already has quorum agents configured does not show the nudge — the prompt appears only on first install or after all agents are removed
+**Plans**: TBD
 
 ## Progress
 
@@ -256,15 +286,17 @@
 | 17. Fix Agent Name Typos | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 18. CLI Foundation | v0.3 | 4/4 | Complete | 2026-02-22 |
 | 19. State Schema & Activity Integration | v0.3 | 2/2 | Complete | 2026-02-22 |
-| 20. Workflow Orchestrator | 1/1 | Complete    | 2026-02-22 | - |
-| 21. Categorization Engine | 2/2 | Complete    | 2026-02-22 | - |
-| 22. Integration Test | 2/2 | Complete    | 2026-02-22 | 2026-02-22 |
+| 20. Workflow Orchestrator | v0.3 | 1/1 | Complete | 2026-02-22 |
+| 21. Categorization Engine | v0.3 | 2/2 | Complete | 2026-02-22 |
+| 22. Integration Test | v0.3 | 2/2 | Complete | 2026-02-22 |
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
-| 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
-| 25. Identity Tool and Shared Utilities | 3/3 | Complete    | 2026-02-22 | - |
-| 26. MCP Status Command | 1/1 | Complete    | 2026-02-22 | - |
-| 27. Model Switching | v0.4 | Complete    | 2026-02-22 | - |
-| 28. Update and Restart Commands | v0.4 | Complete    | 2026-02-22 | - |
-| 29. Restore mcp-status v2 + Checkbox Cleanup | v0.4 | 0/1 | Not started | - |
-| 30. Fix gemini-cli Package Reference | v0.4 | 0/1 | Not started | - |
-| 31. Merge Gen2 Branches + Phase 24 Verification | v0.4 | 0/2 | Not started | - |
+| 24. Gen1 to Gen2 Architecture Port | v0.4 | 4/4 | Complete | 2026-02-22 |
+| 25. Identity Tool and Shared Utilities | v0.4 | 3/3 | Complete | 2026-02-22 |
+| 26. MCP Status Command | v0.4 | 1/1 | Complete | 2026-02-22 |
+| 27. Model Switching | v0.4 | 2/2 | Complete | 2026-02-22 |
+| 28. Update and Restart Commands | v0.4 | TBD | Complete | 2026-02-22 |
+| 29. Wizard Scaffold | 1/1 | Complete   | 2026-02-22 | - |
+| 30. API Key Management | v0.5 | 0/TBD | Not started | - |
+| 31. Provider Swap | v0.5 | 0/TBD | Not started | - |
+| 32. Agent Roster | v0.5 | 0/TBD | Not started | - |
+| 33. Install Integration | v0.5 | 0/TBD | Not started | - |
