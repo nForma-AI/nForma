@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after Phase 18)
+See: .planning/PROJECT.md (updated 2026-02-22 after Phase 23)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.3 — Milestone complete, ready to archive
+**Current focus:** v0.4 MCP Ecosystem — Phase 23 complete, ready to plan Phase 24
 
 ## Current Position
 
-Phase: 18 of 22 (CLI Foundation)
-Plan: 4 of 4 in current phase
-Status: Complete — 18-04 done (integration + edge-case tests for all maintain-tests sub-commands)
-Last activity: 2026-02-22 - Completed quick task 48: it should have automatically proceed through the verification if it deemed it necessary and used our quorum-test mechanism to go through test testing tasks
+Phase: 23 of 28 (MCP Repo Surface Fixes)
+Plan: 3 of 3 in current phase
+Status: Complete — Phase 23 done (openhands rename, dynamic versioning, MIT license, metadata, Makefile, CHANGELOG/CLAUDE.md)
+Last activity: 2026-02-22 - Completed Phase 23 execution (3 plans, 7 requirements closed: STD-01/03/05/06/07/09/10)
 
-Progress: [████████████████████] 4/4 plans (100%)
+Progress: [████████████████████] 3/3 plans (100%)
 
 ## Performance Metrics
 
@@ -94,5 +94,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed quick-48 (auto-proceed verification gap closure in qgsd:quick --full mode)
+Stopped at: Phase 23 complete, ready to plan Phase 24 (Gen1→Gen2 Architecture Port)
 Resume file: None

@@ -8,17 +8,17 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Next Milestone: v0.4 MCP Ecosystem
+## Current Milestone: v0.4 MCP Ecosystem
 
 **Goal:** Standardize the 6 coding-agent MCP server repos to a unified Gen2 architecture, then add QGSD commands to observe, configure, and update connected agents (`/qgsd:mcp-status`, `/qgsd:mcp-set-model`, `/qgsd:mcp-update`, `/qgsd:mcp-restart`).
 
 **Target features:**
-- MCP repo standardization: Gen1→Gen2 port for claude/codex/copilot/openhands, openhands rename fix, identity tool everywhere, MIT license, unified Makefile, constants/Logger, CHANGELOG
+- MCP repo standardization: Gen1→Gen2 port for claude/codex/copilot/openhands, identity tool everywhere, constants/Logger ✓ Phase 23 shipped surface fixes
 - Read layer: `/qgsd:mcp-status` showing all agents, models, health, and UNAVAIL counts
 - Write layer: model switching persisted to qgsd.json, auto-detect update commands, process restart
 
-**Starts after:** v0.3 complete (phases 19–22 pending)
-**Phase range:** 23–TBD (roadmapper pending)
+**Phase range:** 23–28
+**Phase 23 complete:** 2026-02-22
 
 ---
 
@@ -110,4 +110,4 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | gsd-tools.cjs monolith noted as tech debt | Parallel wave agents all modifying same file triggered circuit breaker false positive; modularization deferred to future phase | Phase 18 — architectural note |
 
 ---
-*Last updated: 2026-02-22 — v0.4 MCP Ecosystem milestone defined (requirements + roadmap pending execution after v0.3)*
+*Last updated: 2026-02-22 after Phase 23 — v0.4 MCP Ecosystem Phase 23 complete (surface fixes: identity rename, licenses, metadata, Makefiles, CHANGELOG/CLAUDE.md)*
