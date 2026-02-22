@@ -60,6 +60,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ Tool randomly batches tests into groups of 100 and iterates through batches with progress banners — Phase 20
 - ✓ Claude categorizes each failure into 5 action types (valid skip / adapt / isolate / real bug / fixture) with context_score gating and git pickaxe enrichment for adapt — Phase 21
 - ✓ Actionable failures (adapt/fixture/isolate) are grouped by category+error_type+directory and dispatched as /qgsd:quick Tasks (max 20/task); real-bug failures deferred to user report — Phase 21
+- ✓ 135 integration tests verify all v0.3 seams end-to-end: INTG-03 compliance, circuit breaker lifecycle, resume mid-batch, termination state, Phase 21 schema round-trips — Phase 22
 - [ ] Tool iterates via debug→quick→debug loop until all tests are classified and actioned
 - [ ] npm publish qgsd@0.2.0 deferred — run `npm publish --access public` when ready (RLS-04)
 
@@ -117,10 +118,13 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | real-bug conservative fallback | When uncertain, classify as real-bug (never auto-action incorrectly); better to surface to user than wrong dispatch | Phase 21 — CATG-01 |
 | Pickaxe enrichment is non-gating | commits = [] still dispatches as adapt; pickaxe_context = null if git unavailable — categorization not blocked by git absence | Phase 21 — CATG-02 |
 | Dispatch state saved BEFORE Task spawn | dispatched_task record written to state before Task() call — idempotent on resume; dedup check skips already-dispatched chunks | Phase 21 — CATG-03 |
+| runInstall() helper uses cwd: tmpDir | --disable-breaker uses git fallback for project root; tmpDir not a git repo, so state writes to tmpDir/.claude/ — real project untouched during tests | Phase 22 — TC-CB-1/2/3 |
+| TC-RESUME-2 uses empty-files 3-batch manifest | Exercises --batch-index 2 routing without real test runner — manifest schema sufficient for resume path validation | Phase 22 — TC-RESUME-2 |
+| VERIFICATION.md evidence chain format | Per-requirement sections: file reference + line number + test case reference + PASSED/GAPS verdict — consumed by gsd-verifier | Phase 22 — established pattern |
 | ToolArguments re-export skipped in constants.ts | None of the 4 Gen1-ported repos define ToolArguments in types.ts — each uses specific Zod schemas; re-export would TypeScript error | Phase 25 — Plan 01 |
 | No console.log replacements in Phase 25 | Gen2 port (Phase 24) already eliminated all console.log from operational source files in all 4 repos | Phase 25 — Plan 02 |
 | gemini identityTool was registered but export-only | identityTool was exported from simple-tools.ts but never pushed to toolRegistry in index.ts — registered in Plan 03 | Phase 25 — Plan 03 bug fix |
 | AVAILABLE_OPENCODE_MODELS defined inline in simple-tools.ts | opencode types.ts uses interface pattern without MODELS/TOOLS consts; inline avoids misfit import | Phase 25 — Plan 03 |
 
 ---
-*Last updated: 2026-02-22 after Phase 21 — categorization engine (5-category AI classification + git pickaxe + dispatch loop) complete; CATG-01/02/03 satisfied; Phase 22 (Integration Test) ready to plan*
+*Last updated: 2026-02-22 after Phase 22 — integration tests (135 passing, 0 failures) + VERIFICATION.md close all 14 v0.3 requirements; v0.3 milestone COMPLETE; Phase 23 (MCP Repo Surface Fixes) next*

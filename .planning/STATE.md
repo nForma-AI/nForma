@@ -2,10 +2,10 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after Phase 21)
+See: .planning/PROJECT.md (updated 2026-02-22 after Phase 22)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.3 milestone COMPLETE — Phase 22 complete (22-01: 135 integration tests; 22-02: VERIFICATION.md for 14 v0.3 requirements, all PASSED). Next: v0.4 MCP Ecosystem (Phase 23+)
+**Current focus:** Phase 23 — MCP Repo Surface Fixes (v0.4 MCP Ecosystem)
 
 ## Current Position
 
@@ -14,7 +14,7 @@ Plan: 22-02 (Wave 2) — complete
 Status: Phase 22 complete — v0.3 milestone verified; all 14 v0.3 requirements PASSED; 135 tests, 0 failures
 Last activity: 2026-02-22 - Completed Phase 22 Plan 02 (VERIFICATION.md for 14 v0.3 requirements; CATG/ITER/INTG marked Complete in REQUIREMENTS.md)
 
-Progress: [████████████████████] 22/23 plans (96%)
+Progress: [███████████████████░] 21/22 plans (95%)
 
 ## Performance Metrics
 
@@ -113,5 +113,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 22-02-PLAN.md — VERIFICATION.md written for 14 v0.3 requirements (all PASSED); REQUIREMENTS.md updated (7 requirements Complete); commit bc0d959; v0.3 milestone complete
+Stopped at: Phase 22 complete — v0.3 milestone verified (135 tests, 14/14 requirements PASSED); PROJECT.md and STATE.md evolved; ready to plan Phase 23 (MCP Repo Surface Fixes)
 Resume file: None
