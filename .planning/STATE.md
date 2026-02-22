@@ -2,7 +2,7 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after Phase 25)
+See: .planning/PROJECT.md (updated 2026-02-22 after Phase 21)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 **Current focus:** v0.3 Fix-Tests Tool — Phase 21 complete (categorization engine + dispatch), Phase 22 (integration tests) ready to plan
@@ -14,7 +14,7 @@ Plan: Not started
 Status: Ready to plan — Phase 21 complete (5-category AI classification + dispatch engine in fix-tests.md, CATG-01/02/03 done)
 Last activity: 2026-02-22 - Completed Phase 21 execution (2 plans, categorization engine + dispatch loop)
 
-Progress: [████████████████████] 3/3 plans (100%)
+Progress: [███████████████████░] 19/20 plans (95%)
 
 ## Performance Metrics
 
@@ -76,6 +76,10 @@ Recent decisions affecting current work:
 - [Phase 20]: Stub categorization marks all confirmed failures as real_bug — conservative placeholder; Phase 21 replaces with AI classification (CATG-01/02/03)
 - [Phase 20]: consecutive_no_progress stored in state JSON (not workflow variable) so progress guard survives interruption and resumes correctly
 - [Phase 20]: fix-tests is execution-only — must NOT appear in quorum_commands (INTG-03 / R2.1); verified by grep
+- [Phase 21]: real-bug is conservative fallback category — when uncertain, classify as real-bug; never auto-actioned
+- [Phase 21]: pickaxe enrichment is non-gating — commits=[] still dispatches as adapt; git absent → pickaxe_context=null but adapt still dispatched
+- [Phase 21]: dispatched_task state saved BEFORE Task spawn — idempotent on resume; dedup check skips already-dispatched chunks
+- [Phase 21]: Phase 20 stub detection in Step 6d — clears stale state when categorization_verdicts==[] AND results_by_category non-empty
 
 ### Pending Todos
 
@@ -84,7 +88,6 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- [Phase 21 research flag]: Quorum worker classification prompts for 5+1 category test failure categorization are novel — research-phase recommended before plan-phase for Phase 21
 - [Phase 12 carry-forward]: npm publish qgsd@0.2.0 deferred; run `npm publish --access public` when user decides to publish
 - [Phase 1 carry-forward] Integration test: `stop_hook_active` behavior on second Stop invocations with GSD subagents must be empirically confirmed against live Claude Code runtime
 
