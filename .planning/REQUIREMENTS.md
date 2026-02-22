@@ -19,20 +19,20 @@
 
 ### Categorization
 
-- [ ] **CATG-01**: Claude classifies each confirmed failure into one of 5 categories: `valid-skip` / `adapt` / `isolate` / `real-bug` / `fixture`
-- [ ] **CATG-02**: For `adapt`-categorized failures, tool provides git pickaxe context (`git log -S`) linking the failing test to the commit that changed the code under test
-- [ ] **CATG-03**: `adapt`, `fixture`, and `isolate` classifications automatically trigger a `/qgsd:quick` fix task; `real-bug` failures go to a deferred user report
+- [x] **CATG-01**: Claude classifies each confirmed failure into one of 5 categories: `valid-skip` / `adapt` / `isolate` / `real-bug` / `fixture`
+- [x] **CATG-02**: For `adapt`-categorized failures, tool provides git pickaxe context (`git log -S`) linking the failing test to the commit that changed the code under test
+- [x] **CATG-03**: `adapt`, `fixture`, and `isolate` classifications automatically trigger a `/qgsd:quick` fix task; `real-bug` failures go to a deferred user report
 
 ### Iteration
 
-- [ ] **ITER-01**: Tool iterates through remaining uncategorized/unactioned tests continuously until terminal state is reached
-- [ ] **ITER-02**: Loop terminates when: all tests classified, no progress in last 5 batches, or configurable iteration cap reached
+- [x] **ITER-01**: Tool iterates through remaining uncategorized/unactioned tests continuously until terminal state is reached
+- [x] **ITER-02**: Loop terminates when: all tests classified, no progress in last 5 batches, or configurable iteration cap reached
 
 ### Integration
 
-- [ ] **INTG-01**: Tool disables QGSD circuit breaker at run start and re-enables on completion (prevent false oscillation detection during iterative fix commits)
+- [x] **INTG-01**: Tool disables QGSD circuit breaker at run start and re-enables on completion (prevent false oscillation detection during iterative fix commits)
 - [x] **INTG-02**: Tool activity state integrates with `/qgsd:resume-work` routing so interrupted maintenance runs recover to the correct step
-- [ ] **INTG-03**: `/qgsd:fix-tests` is implemented as execution-only — not added to `quorum_commands` (R2.1 compliance)
+- [x] **INTG-03**: `/qgsd:fix-tests` is implemented as execution-only — not added to `quorum_commands` (R2.1 compliance)
 
 ## v0.4 Requirements — MCP Ecosystem
 
@@ -101,13 +101,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-04 | Phase 18 | Complete |
 | EXEC-03 | Phase 19 | Complete |
 | INTG-02 | Phase 19 | Complete |
-| ITER-01 | Phase 20 | Pending |
-| ITER-02 | Phase 20 | Pending |
-| INTG-01 | Phase 20 | Pending |
-| INTG-03 | Phase 20 | Pending |
-| CATG-01 | Phase 21 | Pending |
-| CATG-02 | Phase 21 | Pending |
-| CATG-03 | Phase 21 | Pending |
+| ITER-01 | Phase 20 (impl), Phase 22 (verify) | Complete |
+| ITER-02 | Phase 20 (impl), Phase 22 (verify) | Complete |
+| INTG-01 | Phase 20 (impl), Phase 22 (verify) | Complete |
+| INTG-03 | Phase 20 (impl), Phase 22 (verify) | Complete |
+| CATG-01 | Phase 21 (impl), Phase 22 (verify) | Complete |
+| CATG-02 | Phase 21 (impl), Phase 22 (verify) | Complete |
+| CATG-03 | Phase 21 (impl), Phase 22 (verify) | Complete |
 | STD-01 | Phase 23 | Pending |
 | STD-03 | Phase 23 | Pending |
 | STD-05 | Phase 23 | Pending |
