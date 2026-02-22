@@ -2,17 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after v0.4 gap closure)
+See: .planning/PROJECT.md (updated 2026-02-22 after Phase 33)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.5 MCP Setup Wizard — Phase 33 executed (API key management complete)
+**Current focus:** v0.5 MCP Setup Wizard — Phase 34 ready to plan (Provider Swap)
 
 ## Current Position
 
-Phase: 33 of 36 (API Key Management)
-Plan: 01 of 01
-Status: Executed — pending phase verification
-Last activity: 2026-02-22 - Phase 33 plan 01 complete: full API key flow in mcp-setup.md Option 1
+Phase: 34 of 36 (Provider Swap)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-02-22 - Phase 33 complete (KEY-01..KEY-04 shipped); advanced to Phase 34
 
 Progress: [████████████████████] 30/30 plans (100%)
 
@@ -53,6 +53,8 @@ Recent decisions affecting current work:
 - [Phase quick-51]: keytar-based cross-platform secret management shipped; bin/secrets.cjs + bin/set-secret.cjs available
 - [RLS-04 carry-forward]: npm publish qgsd@0.2.0 deferred — run when user decides to publish
 - [Phase 29]: OBS-01–04 absent from REQUIREMENTS.md (v0.5 rewrite removed them) — added v0.4 Requirements (Complete) section with [x] entries rather than flip-from-[ ]
+- [Phase 33]: Key value always passed via environment variable in node -e scripts (AGENT_NAME + API_KEY) — prevents shell history leaks; pattern established for Phase 34
+- [Phase 33]: syncToClaudeJson called after per-agent ANTHROPIC_API_KEY patch — ensures all keytar secrets propagate to all env blocks as a second pass
 
 ### Pending Todos
 
@@ -75,5 +77,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 2026-02-22 — Phase 33 plan 01 executed; API key management (KEY-01..KEY-04) implemented in mcp-setup.md
+Stopped at: 2026-02-22 — Phase 33 complete; transitioned to Phase 34 (Provider Swap) ready to plan
 Resume file: None

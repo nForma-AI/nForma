@@ -162,5 +162,8 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | gemini-mcp-server unscoping in ~/.claude.json | Phase 23 unscoped the npm package name but didn't update ~/.claude.json args — mcp-update derives install target from args[-1]; Phase 30 closed the gap | ~/.claude.json gemini-cli args now ["-y", "gemini-mcp-server"] |
 | Gen2 branch merge for codex/copilot | Phase 24 ported both to Gen2 but left work on feature branches; codex origin/main had a diverged PR merge requiring a merge commit rather than ff-only | Both repos Gen2 on main and origin/main via Phase 31 |
 
+| Key passed via env var in node -e scripts | Prevents key value from appearing in shell history, audit logs, or displayed text — pattern used in both keytar store and ~/.claude.json patch steps | Phase 33 — KEY-02 |
+| syncToClaudeJson called after ANTHROPIC_API_KEY patch | Ensures all keytar secrets propagate to all agent env blocks after any single-agent update — order: patch → sync | Phase 33 — KEY-03 |
+
 ---
-*Last updated: 2026-02-22 after Phase 31 — all v0.4 gap closure phases complete (STD-02, STD-10, OBS-01–04); v0.5 MCP Setup Wizard starts at Phase 32*
+*Last updated: 2026-02-22 after Phase 33 — API key management complete (KEY-01..KEY-04); mcp-setup.md Option 1 fully implemented; Phase 34 provider swap next*
