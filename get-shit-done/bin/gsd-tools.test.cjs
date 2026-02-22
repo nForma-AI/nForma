@@ -3316,3 +3316,216 @@ describe('maintain-tests load-state command', () => {
     assert.strictEqual(state.session_id, 'default-path-test', 'TC-LOADSTATE-3: session_id must match');
   });
 });
+
+// ============================================================================
+// Task 1 — INTG-03 compliance test
+// ============================================================================
+
+describe('maintain-tests INTG-03 compliance', () => {
+  test('TC-INTG03-1: fix-tests absent from quorum_commands in ~/.claude/qgsd.json', () => {
+    const os = require('os');
+    const qgsdJsonPath = path.join(os.homedir(), '.claude', 'qgsd.json');
+    if (!fs.existsSync(qgsdJsonPath)) {
+      assert.ok(true, 'qgsd.json not installed — INTG-03 N/A');
+      return;
+    }
+    const config = JSON.parse(fs.readFileSync(qgsdJsonPath, 'utf8'));
+    const quorumCommands = config.quorum_commands || [];
+    assert.ok(
+      !quorumCommands.includes('fix-tests'),
+      'TC-INTG03-1: fix-tests must NOT appear in quorum_commands (INTG-03 / R2.1), found: ' + JSON.stringify(quorumCommands)
+    );
+  });
+});
+
+// ============================================================================
+// Task 2 — Circuit breaker lifecycle tests
+// ============================================================================
+
+const INSTALL_PATH = path.join(__dirname, '../../bin/install.js');
+
+function runInstall(args, cwd) {
+  try {
+    const result = execSync('node "' + INSTALL_PATH + '" ' + args, {
+      cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { success: true, output: result.trim() };
+  } catch (err) {
+    return { success: false, output: err.stdout?.toString().trim() || '', error: err.stderr?.toString().trim() || err.message };
+  }
+}
+
+describe('circuit-breaker --disable-breaker / --enable-breaker', () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = createTempProject(); });
+  afterEach(() => { cleanup(tmpDir); });
+
+  test('TC-CB-1: --disable-breaker writes disabled:true to circuit-breaker-state.json', () => {
+    const result = runInstall('--disable-breaker', tmpDir);
+    assert.ok(result.success, 'TC-CB-1: --disable-breaker must exit 0, got: ' + result.error);
+    const stateFile = path.join(tmpDir, '.claude', 'circuit-breaker-state.json');
+    assert.ok(fs.existsSync(stateFile), 'TC-CB-1: circuit-breaker-state.json must be created');
+    const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+    assert.strictEqual(state.disabled, true, 'TC-CB-1: disabled must be true after --disable-breaker');
+  });
+
+  test('TC-CB-2: --enable-breaker after disable writes disabled:false', () => {
+    runInstall('--disable-breaker', tmpDir);
+    const result = runInstall('--enable-breaker', tmpDir);
+    assert.ok(result.success, 'TC-CB-2: --enable-breaker must exit 0, got: ' + result.error);
+    const stateFile = path.join(tmpDir, '.claude', 'circuit-breaker-state.json');
+    assert.ok(fs.existsSync(stateFile), 'TC-CB-2: circuit-breaker-state.json must exist after enable');
+    const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+    assert.strictEqual(state.disabled, false, 'TC-CB-2: disabled must be false after --enable-breaker');
+  });
+
+  test('TC-CB-3: --enable-breaker when no state file exits 0 without error', () => {
+    const stateFile = path.join(tmpDir, '.claude', 'circuit-breaker-state.json');
+    assert.ok(!fs.existsSync(stateFile), 'TC-CB-3: state file must not exist before test');
+    const result = runInstall('--enable-breaker', tmpDir);
+    assert.ok(result.success, 'TC-CB-3: --enable-breaker with no state file must exit 0, got: ' + result.error);
+    assert.ok(result.output.includes('enabled'), 'TC-CB-3: output must mention "enabled", got: ' + result.output);
+  });
+});
+
+// ============================================================================
+// Task 3 — Resume mid-batch safety tests
+// ============================================================================
+
+describe('maintain-tests resume mid-batch', () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = createTempProject(); });
+  afterEach(() => { cleanup(tmpDir); });
+
+  test('TC-RESUME-1: load-state with batches_complete:2 returns state with correct batches_complete', () => {
+    const stateFile = path.join(tmpDir, 'state.db');
+    const stateJson = JSON.stringify({
+      schema_version: 1,
+      session_id: 'resume-test',
+      batches_complete: 2,
+    });
+    const stateJsonArg = stateJson.replace(/'/g, "'\\''");
+    const saveResult = runGsdTools("maintain-tests save-state --state-file \"" + stateFile + "\" --state-json '" + stateJsonArg + "'", tmpDir);
+    assert.ok(saveResult.success, 'TC-RESUME-1: save must succeed: ' + saveResult.error);
+    const loadResult = runGsdTools('maintain-tests load-state --state-file "' + stateFile + '"', tmpDir);
+    assert.ok(loadResult.success, 'TC-RESUME-1: load must succeed: ' + loadResult.error);
+    const state = JSON.parse(loadResult.output);
+    assert.ok(state !== null, 'TC-RESUME-1: state must not be null');
+    assert.strictEqual(state.batches_complete, 2, 'TC-RESUME-1: batches_complete must be 2, got: ' + state.batches_complete);
+  });
+
+  test('TC-RESUME-2: run-batch --batch-index 2 on a 3-batch manifest returns executed_count', () => {
+    const manifest = {
+      seed: 1,
+      batch_size: 10,
+      total_files: 0,
+      total_batches: 3,
+      batches: [
+        { batch_id: 1, files: [], file_count: 0 },
+        { batch_id: 2, files: [], file_count: 0 },
+        { batch_id: 3, files: [], file_count: 0 },
+      ],
+    };
+    const manifestPath = path.join(tmpDir, 'batch-manifest.json');
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
+    const result = runGsdTools('maintain-tests run-batch --batch-file "' + manifestPath + '" --batch-index 2', tmpDir);
+    assert.ok(result.success, 'TC-RESUME-2: run-batch with --batch-index 2 must succeed: ' + result.error);
+    const out = JSON.parse(result.output);
+    assert.ok(out.executed_count !== undefined, 'TC-RESUME-2: output must include executed_count');
+  });
+});
+
+// ============================================================================
+// Task 4 — Termination condition state tests
+// ============================================================================
+
+describe('maintain-tests termination state conditions', () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = createTempProject(); });
+  afterEach(() => { cleanup(tmpDir); });
+
+  function saveAndLoad(stateObj, dir) {
+    const stateFile = path.join(dir, 'state.db');
+    const stateJson = JSON.stringify(stateObj);
+    const stateJsonArg = stateJson.replace(/'/g, "'\\''");
+    const saveResult = runGsdTools("maintain-tests save-state --state-file \"" + stateFile + "\" --state-json '" + stateJsonArg + "'", dir);
+    if (!saveResult.success) return { success: false, error: saveResult.error };
+    const loadResult = runGsdTools('maintain-tests load-state --state-file "' + stateFile + '"', dir);
+    if (!loadResult.success) return { success: false, error: loadResult.error };
+    return { success: true, state: JSON.parse(loadResult.output) };
+  }
+
+  test('TC-TERM-1: state with consecutive_no_progress:5 round-trips correctly', () => {
+    const res = saveAndLoad({ schema_version: 1, session_id: 'term-test', consecutive_no_progress: 5 }, tmpDir);
+    assert.ok(res.success, 'TC-TERM-1: save/load must succeed: ' + res.error);
+    assert.strictEqual(res.state.consecutive_no_progress, 5, 'TC-TERM-1: consecutive_no_progress must be 5, got: ' + res.state.consecutive_no_progress);
+  });
+
+  test('TC-TERM-2: state with iteration_count:10 round-trips correctly', () => {
+    const res = saveAndLoad({ schema_version: 1, session_id: 'term-test', iteration_count: 10 }, tmpDir);
+    assert.ok(res.success, 'TC-TERM-2: save/load must succeed: ' + res.error);
+    assert.strictEqual(res.state.iteration_count, 10, 'TC-TERM-2: iteration_count must be 10, got: ' + res.state.iteration_count);
+  });
+
+  test('TC-TERM-3: state with last_unresolved_count:0 round-trips correctly', () => {
+    const res = saveAndLoad({ schema_version: 1, session_id: 'term-test', last_unresolved_count: 0 }, tmpDir);
+    assert.ok(res.success, 'TC-TERM-3: save/load must succeed: ' + res.error);
+    assert.strictEqual(res.state.last_unresolved_count, 0, 'TC-TERM-3: last_unresolved_count must be 0, got: ' + res.state.last_unresolved_count);
+  });
+});
+
+// ============================================================================
+// Task 5 — Phase 21 schema round-trip tests
+// ============================================================================
+
+describe('maintain-tests Phase 21 schema fields round-trip', () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = createTempProject(); });
+  afterEach(() => { cleanup(tmpDir); });
+
+  test('TC-SCHEMA21-1: save-state with categorization_verdicts + dispatched_tasks + deferred_report round-trips all three fields', () => {
+    const stateFile = path.join(tmpDir, 'state.db');
+    const stateObj = {
+      schema_version: 1,
+      session_id: 'schema21-test',
+      categorization_verdicts: [{ test: 'foo.test.js', category: 'real_bug' }],
+      dispatched_tasks: [{ task_id: 'task-1', category: 'real_bug', files: ['foo.test.js'] }],
+      deferred_report: {
+        real_bug: ['foo.test.js'],
+        low_context: ['bar.test.js'],
+      },
+    };
+    const stateJsonArg = JSON.stringify(stateObj).replace(/'/g, "'\\''");
+    const saveResult = runGsdTools("maintain-tests save-state --state-file \"" + stateFile + "\" --state-json '" + stateJsonArg + "'", tmpDir);
+    assert.ok(saveResult.success, 'TC-SCHEMA21-1: save must succeed: ' + saveResult.error);
+    const loadResult = runGsdTools('maintain-tests load-state --state-file "' + stateFile + '"', tmpDir);
+    assert.ok(loadResult.success, 'TC-SCHEMA21-1: load must succeed: ' + loadResult.error);
+    const state = JSON.parse(loadResult.output);
+    assert.ok(Array.isArray(state.categorization_verdicts), 'TC-SCHEMA21-1: categorization_verdicts must be an array');
+    assert.strictEqual(state.categorization_verdicts.length, 1, 'TC-SCHEMA21-1: categorization_verdicts must have 1 entry');
+    assert.ok(Array.isArray(state.dispatched_tasks), 'TC-SCHEMA21-1: dispatched_tasks must be an array');
+    assert.strictEqual(state.dispatched_tasks.length, 1, 'TC-SCHEMA21-1: dispatched_tasks must have 1 entry');
+    assert.strictEqual(state.deferred_report.real_bug[0], 'foo.test.js', 'TC-SCHEMA21-1: deferred_report.real_bug[0] must match');
+  });
+
+  test('TC-SCHEMA21-2: save-state with Phase 21 schema preserves nested structure of deferred_report', () => {
+    const stateFile = path.join(tmpDir, 'state.db');
+    const stateObj = {
+      schema_version: 1,
+      session_id: 'schema21-nested-test',
+      deferred_report: {
+        real_bug: ['foo.test.js'],
+        low_context: ['bar.test.js'],
+      },
+    };
+    const stateJsonArg = JSON.stringify(stateObj).replace(/'/g, "'\\''");
+    const saveResult = runGsdTools("maintain-tests save-state --state-file \"" + stateFile + "\" --state-json '" + stateJsonArg + "'", tmpDir);
+    assert.ok(saveResult.success, 'TC-SCHEMA21-2: save must succeed: ' + saveResult.error);
+    const loadResult = runGsdTools('maintain-tests load-state --state-file "' + stateFile + '"', tmpDir);
+    assert.ok(loadResult.success, 'TC-SCHEMA21-2: load must succeed: ' + loadResult.error);
+    const state = JSON.parse(loadResult.output);
+    assert.strictEqual(state.deferred_report.low_context[0], 'bar.test.js', 'TC-SCHEMA21-2: deferred_report.low_context[0] must match');
+    assert.ok('real_bug' in state.deferred_report, 'TC-SCHEMA21-2: deferred_report must have real_bug key');
+    assert.ok('low_context' in state.deferred_report, 'TC-SCHEMA21-2: deferred_report must have low_context key');
+  });
+});
