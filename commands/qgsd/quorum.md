@@ -32,7 +32,7 @@ If `$ARGUMENTS` is empty: use the most recent open question or decision from the
 
 ---
 
-## Step 0: Team identity capture (idempotent — run once per session)
+### Team identity capture (idempotent — run once per session)
 
 Before any quorum round, capture the active team fingerprint. The scoreboard only updates if the composition has changed.
 
@@ -60,7 +60,7 @@ The command prints `[init-team] fingerprint: <fp> | no change` if unchanged, or 
 
 ## Mode A — Pure Question
 
-### Step 1: Parse question
+### Parse question
 
 If $ARGUMENTS is empty, scan the current conversation using this priority order:
 
@@ -84,11 +84,9 @@ Display:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Question: [question]
-
-Forming Claude's position...
 ```
 
-### Step 2: Claude forms position (Round 1)
+### Claude's position (Round 1)
 
 Before querying any model, state Claude's own answer and reasoning:
 ```
@@ -97,7 +95,7 @@ Claude (Round 1): [answer + reasoning — 2–4 sentences]
 
 Store as `$CLAUDE_POSITION`.
 
-### Step 3: Query each model sequentially
+### Query models (sequential)
 
 Query each model with identical prompts — each call MUST be a **separate, sequential tool call** (not sibling calls in the same message, per R3.2):
 
@@ -118,7 +116,7 @@ Call order (sequential):
 
 Handle UNAVAILABLE per R6: note unavailability, continue with remaining models.
 
-### Step 4: Evaluate Round 1 — check for consensus
+### Evaluate Round 1 — check for consensus
 
 Display all positions:
 ```
@@ -133,9 +131,9 @@ Display all positions:
 └──────────────┴──────────────────────────────────────────────────────────┘
 ```
 
-If all available models agree → skip to **Step 6 (consensus output)**.
+If all available models agree → skip to **Consensus output**.
 
-### Step 5: Deliberation rounds (R3.3)
+### Deliberation rounds (R3.3)
 
 Run up to 3 deliberation rounds (max 4 total rounds including Round 1).
 
@@ -161,9 +159,9 @@ Each model is called **sequentially** (not as sibling calls).
 
 Stop deliberation **immediately** upon CONSENSUS (all available models agree).
 
-After 4 total rounds with no consensus → **Step 7 (escalate)**.
+After 4 total rounds with no consensus → **Escalate**.
 
-### Step 6: Consensus output
+### Consensus output
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -205,7 +203,7 @@ node bin/update-scoreboard.cjs \
 
 Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
 
-### Step 7: Escalate — no consensus after 4 rounds
+### Escalate — no consensus after 4 rounds
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -251,7 +249,7 @@ Run one command per model per round. Each call is atomic and idempotent — if r
 
 ## Mode B — Execution + Trace Review
 
-### Step 1: Parse commands
+### Parse commands
 
 Extract command(s) to run from `$ARGUMENTS`. If unclear, ask the user to specify.
 
@@ -267,7 +265,7 @@ Commands: [list]
 Running commands...
 ```
 
-### Step 2: Execute and capture traces
+### Execute and capture traces
 
 Run each command, capturing full stdout + stderr + exit code.
 
@@ -281,7 +279,7 @@ Output:
 
 Claude also gives its own verdict before dispatching workers.
 
-### Step 3: Assemble review bundle
+### Assemble review bundle
 
 ```
 QUESTION: [original question]
@@ -290,7 +288,7 @@ QUESTION: [original question]
 $TRACES
 ```
 
-### Step 4: Dispatch parallel quorum workers via Task
+### Dispatch parallel quorum workers via Task
 
 Task subagents are isolated subprocesses — parallel dispatch is safe (a failing Task does not propagate to co-submitted Tasks, unlike direct sibling MCP calls).
 
@@ -318,7 +316,7 @@ Dispatch (single parallel message — all four as sibling Task calls):
 - `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-cli__ask with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli__review with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 
-### Step 5: Collect verdicts
+### Collect verdicts
 
 Parse each worker response for `verdict:` and `reasoning:` lines. Mark non-parseable as `UNAVAIL`.
 
@@ -331,7 +329,7 @@ Determine consensus:
 
 If split: run deliberation (up to 3 rounds) with traces always included in context.
 
-### Step 6: Output consensus verdict
+### Output consensus verdict
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
