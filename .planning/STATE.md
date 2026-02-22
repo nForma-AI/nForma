@@ -59,6 +59,7 @@ Recent decisions affecting current work:
 - [18-02]: Batch manifest written to disk BEFORE returning when --manifest-file provided — enables crashed-run resume
 - [18-02]: Batch manifest schema: seed, batch_size, total_files, total_batches, batches[].{batch_id, files, file_count}
 - [Phase quick-45]: Use total net change (additions - deletions) across consecutive oscillating commit pairs to distinguish TDD growth (positive) from true oscillation (zero/negative)
+- [Phase 18-01]: Use spawnSync (not execSync) for all CLI invocations in cmdMaintainTestsDiscover — eliminates shell injection risk
 
 ### Pending Todos
 

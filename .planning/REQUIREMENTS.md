@@ -7,8 +7,8 @@
 
 ### Discovery
 
-- [ ] **DISC-01**: User can run `/qgsd:maintain-tests` and have the tool auto-detect jest, playwright, and pytest by reading project config files (jest.config.*, playwright.config.*, pytest.ini/pyproject.toml)
-- [ ] **DISC-02**: Tool uses each framework's own CLI as the authoritative test source (jest --listTests, playwright --list, pytest --collect-only) — never file system globs
+- [x] **DISC-01**: User can run `/qgsd:maintain-tests` and have the tool auto-detect jest, playwright, and pytest by reading project config files (jest.config.*, playwright.config.*, pytest.ini/pyproject.toml)
+- [x] **DISC-02**: Tool uses each framework's own CLI as the authoritative test source (jest --listTests, playwright --list, pytest --collect-only) — never file system globs
 
 ### Execution
 
@@ -56,8 +56,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DISC-01 | Phase 18 | Pending |
-| DISC-02 | Phase 18 | Pending |
+| DISC-01 | Phase 18 | Complete |
+| DISC-02 | Phase 18 | Complete |
 | EXEC-01 | Phase 18 | Complete |
 | EXEC-02 | Phase 18 | Pending |
 | EXEC-04 | Phase 18 | Pending |
