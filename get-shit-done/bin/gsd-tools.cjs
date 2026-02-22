@@ -127,11 +127,17 @@
  *                                      (always overwrites `updated` with current ISO timestamp)
  *   activity-clear                     Remove .planning/current-activity.json (idempotent)
  *   activity-get                       Read .planning/current-activity.json; returns {} if missing
+ *
+ * Test Maintenance:
+ *   maintain-tests batch --input-file <path> [--size N] [--seed N] [--exclude-file <path>] [--manifest-file <path>]
+ *                              Shuffle and split test list into batches; write manifest to disk before execution
+ *   maintain-tests run-batch --batch-file <path> [--timeout N] [--env KEY=VALUE...] [--output-file <path>]
+ *                              Execute a single batch from manifest; capture output to temp file; 3-run flakiness check
  */
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, spawnSync, spawn } = require('child_process');
 
 // ─── Model Profile Table ─────────────────────────────────────────────────────
 
@@ -5340,9 +5346,177 @@ async function main() {
       break;
     }
 
+    case 'maintain-tests': {
+      const subCmd = args[1];
+      switch (subCmd) {
+        case 'run-batch': {
+          const batchFileIdx = args.indexOf('--batch-file');
+          const timeoutIdx = args.indexOf('--timeout');
+          const outputIdx = args.indexOf('--output-file');
+          // Collect all --env KEY=VALUE pairs
+          const envPairs = {};
+          for (let i = 0; i < args.length; i++) {
+            if (args[i] === '--env' && args[i + 1]) {
+              const [key, ...vals] = args[i + 1].split('=');
+              envPairs[key] = vals.join('=');
+              i++;
+            }
+          }
+          await cmdMaintainTestsRunBatch(cwd, {
+            batchFile: batchFileIdx !== -1 ? args[batchFileIdx + 1] : null,
+            timeoutSec: timeoutIdx !== -1 ? parseInt(args[timeoutIdx + 1], 10) : 300,
+            outputFile: outputIdx !== -1 ? args[outputIdx + 1] : null,
+            env: { ...process.env, ...envPairs },
+          }, raw);
+          break;
+        }
+        case 'batch': {
+          const inputFileIdx = args.indexOf('--input-file');
+          const inputJsonIdx = args.indexOf('--input-json');
+          const sizeIdx = args.indexOf('--size');
+          const seedIdx = args.indexOf('--seed');
+          const excludeIdx = args.indexOf('--exclude-file');
+          const manifestIdx = args.indexOf('--manifest-file');
+          const outputIdx = args.indexOf('--output-file');
+          cmdMaintainTestsBatch(cwd, {
+            inputFile: inputFileIdx !== -1 ? args[inputFileIdx + 1] : null,
+            inputJson: inputJsonIdx !== -1 ? args[inputJsonIdx + 1] : null,
+            size: sizeIdx !== -1 ? parseInt(args[sizeIdx + 1], 10) : null,
+            seed: seedIdx !== -1 ? parseInt(args[seedIdx + 1], 10) : null,
+            excludeFile: excludeIdx !== -1 ? args[excludeIdx + 1] : null,
+            manifestFile: manifestIdx !== -1 ? args[manifestIdx + 1] : (outputIdx !== -1 ? args[outputIdx + 1] : null),
+          }, raw);
+          break;
+        }
+        default:
+          error(`Unknown maintain-tests subcommand: ${subCmd}\nAvailable: batch, run-batch`);
+      }
+      break;
+    }
+
     default:
       error(`Unknown command: ${command}`);
   }
+}
+
+// ─── Maintain Tests: Batch Commands ──────────────────────────────────────────
+
+// Mulberry32 — deterministic PRNG (no external dependency)
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// Fisher-Yates shuffle with Mulberry32 PRNG — deterministic for same seed + input
+function seededShuffle(arr, seed) {
+  const rng = mulberry32(seed);
+  const result = arr.slice();
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function cmdMaintainTestsBatch(cwd, options, raw) {
+  const {
+    inputFile,
+    inputJson,
+    size: sizeOpt,
+    seed: seedOpt,
+    excludeFile,
+    manifestFile,
+  } = options;
+
+  // Read input
+  let discoverData;
+  if (inputFile) {
+    const absInput = path.isAbsolute(inputFile) ? inputFile : path.join(cwd, inputFile);
+    try {
+      discoverData = JSON.parse(fs.readFileSync(absInput, 'utf-8'));
+    } catch (e) {
+      error(`maintain-tests batch: failed to read --input-file "${inputFile}" — ${e.message}`);
+    }
+  } else if (inputJson) {
+    try {
+      discoverData = JSON.parse(inputJson);
+    } catch (e) {
+      error(`maintain-tests batch: failed to parse --input-json — ${e.message}`);
+    }
+  } else {
+    error('maintain-tests batch: either --input-file or --input-json is required');
+  }
+
+  if (!Array.isArray(discoverData.test_files)) {
+    error('maintain-tests batch: input JSON must have a "test_files" array');
+  }
+
+  // Read config for default batch_size
+  let configBatchSize = 100;
+  try {
+    const qgsdConfigPath = path.join(cwd, '.claude', 'qgsd.json');
+    const qgsdConfig = JSON.parse(fs.readFileSync(qgsdConfigPath, 'utf-8'));
+    if (qgsdConfig.maintain_tests && typeof qgsdConfig.maintain_tests.batch_size === 'number') {
+      configBatchSize = qgsdConfig.maintain_tests.batch_size;
+    }
+  } catch { /* config absent — use default */ }
+
+  const batchSize = (sizeOpt !== null && sizeOpt !== undefined && !isNaN(sizeOpt)) ? sizeOpt : configBatchSize;
+  const seed = (seedOpt !== null && seedOpt !== undefined && !isNaN(seedOpt)) ? seedOpt : (Date.now() % 2147483647);
+
+  // Apply exclude filter if provided
+  let testFiles = discoverData.test_files.slice();
+  if (excludeFile) {
+    const absExclude = path.isAbsolute(excludeFile) ? excludeFile : path.join(cwd, excludeFile);
+    try {
+      const excludeList = JSON.parse(fs.readFileSync(absExclude, 'utf-8'));
+      if (!Array.isArray(excludeList)) {
+        error(`maintain-tests batch: --exclude-file must contain a JSON array`);
+      }
+      const excludeSet = new Set(excludeList.map(p => path.resolve(p)));
+      testFiles = testFiles.filter(p => !excludeSet.has(path.resolve(p)));
+    } catch (e) {
+      if (e.message && e.message.startsWith('maintain-tests batch')) throw e;
+      error(`maintain-tests batch: failed to read --exclude-file "${excludeFile}" — ${e.message}`);
+    }
+  }
+
+  // Deterministic shuffle
+  const shuffled = seededShuffle(testFiles, seed);
+
+  // Split into batches
+  const batches = [];
+  for (let i = 0; i < shuffled.length; i += batchSize) {
+    const chunk = shuffled.slice(i, i + batchSize);
+    batches.push({
+      batch_id: batches.length + 1,
+      files: chunk,
+      file_count: chunk.length,
+    });
+  }
+
+  const manifest = {
+    seed,
+    batch_size: batchSize,
+    total_files: testFiles.length,
+    total_batches: batches.length,
+    batches,
+  };
+
+  const manifestJson = JSON.stringify(manifest, null, 2);
+
+  // Write to disk if --manifest-file / --output-file was specified (before returning)
+  if (manifestFile) {
+    const absManifest = path.isAbsolute(manifestFile) ? manifestFile : path.join(cwd, manifestFile);
+    fs.writeFileSync(absManifest, manifestJson, 'utf-8');
+  }
+
+  // Always output to stdout
+  output(manifest, raw);
 }
 
 // ─── Activity Commands ────────────────────────────────────────────────────────
