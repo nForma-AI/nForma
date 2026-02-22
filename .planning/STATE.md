@@ -2,17 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after Phase 34)
+See: .planning/PROJECT.md (updated 2026-02-22 after Phase 35)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.5 MCP Setup Wizard — Phase 35 ready to plan (Agent Roster)
+**Current focus:** v0.5 MCP Setup Wizard — Phase 36 ready to plan (Install Integration)
 
 ## Current Position
 
-Phase: 35 of 36 (Agent Roster)
+Phase: 36 of 36 (Install Integration)
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-02-22 - Phase 34 complete (PROV-01..PROV-03 shipped); advanced to Phase 35
+Last activity: 2026-02-22 - Phase 35 complete (AGENT-01..AGENT-03 shipped); advanced to Phase 36
 
 Progress: [████████████████████] 30/30 plans (100%)
 
@@ -56,6 +56,7 @@ Recent decisions affecting current work:
 - [Phase 33]: Key value always passed via environment variable in node -e scripts (AGENT_NAME + API_KEY) — prevents shell history leaks; pattern established for Phase 34
 - [Phase 33]: syncToClaudeJson called after per-agent ANTHROPIC_API_KEY patch — ensures all keytar secrets propagate to all env blocks as a second pass
 - [Phase 34]: URL value passed via NEW_URL env var in provider swap scripts — same security pattern as Phase 33 KEY env var; applies to both curated and custom URL paths
+- [Phase 35]: Add-agent CLAUDE_MCP_PATH resolved via 2-strategy fallback (read from existing entries, then npm root); identity ping after restart to confirm live connectivity (AGENT-03)
 
 ### Pending Todos
 
@@ -78,5 +79,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 2026-02-22 — Phase 34 complete; transitioned to Phase 35 (Agent Roster) ready to plan
+Stopped at: 2026-02-22 — Phase 35 complete; transitioned to Phase 36 (Install Integration) ready to plan
 Resume file: None
