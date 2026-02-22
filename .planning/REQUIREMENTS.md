@@ -56,26 +56,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DISC-01 | — | Pending |
-| DISC-02 | — | Pending |
-| EXEC-01 | — | Pending |
-| EXEC-02 | — | Pending |
-| EXEC-03 | — | Pending |
-| EXEC-04 | — | Pending |
-| CATG-01 | — | Pending |
-| CATG-02 | — | Pending |
-| CATG-03 | — | Pending |
-| ITER-01 | — | Pending |
-| ITER-02 | — | Pending |
-| INTG-01 | — | Pending |
-| INTG-02 | — | Pending |
-| INTG-03 | — | Pending |
+| DISC-01 | Phase 18 | Pending |
+| DISC-02 | Phase 18 | Pending |
+| EXEC-01 | Phase 18 | Pending |
+| EXEC-02 | Phase 18 | Pending |
+| EXEC-04 | Phase 18 | Pending |
+| EXEC-03 | Phase 19 | Pending |
+| INTG-02 | Phase 19 | Pending |
+| ITER-01 | Phase 20 | Pending |
+| ITER-02 | Phase 20 | Pending |
+| INTG-01 | Phase 20 | Pending |
+| INTG-03 | Phase 20 | Pending |
+| CATG-01 | Phase 21 | Pending |
+| CATG-02 | Phase 21 | Pending |
+| CATG-03 | Phase 21 | Pending |
 
 **Coverage:**
-- v0.3 requirements: 13 total
-- Mapped to phases: 0
-- Unmapped: 13 ⚠️
+- v0.3 requirements: 14 total
+- Mapped to phases: 14
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after initial definition*
+*Last updated: 2026-02-22 — traceability populated after roadmap creation (Phases 18–22)*
