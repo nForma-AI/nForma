@@ -70,7 +70,7 @@ Recent decisions affecting current work:
 |---|-------------|------|--------|--------|-----------|
 | 52 | is it clean ? | 2026-02-22 | a7e4c9f | Complete | [52-is-it-clean](./quick/52-is-it-clean/) |
 | 53 | we need full unit test coverage | 2026-02-22 | 76b24b5 | Verified | [53-we-need-full-unit-test-coverage](./quick/53-we-need-full-unit-test-coverage/) |
-| 54 | add unit tests for remaining untested modules | 2026-02-22 | 98d8c62 | Pending | [54-add-unit-tests-for-remaining-untested-mo](./quick/54-add-unit-tests-for-remaining-untested-mo/) |
+| 54 | add unit tests for remaining untested modules | 2026-02-22 | 98d8c62 | Verified | [54-add-unit-tests-for-remaining-untested-mo](./quick/54-add-unit-tests-for-remaining-untested-mo/) |
 
 ## Session Continuity
 
