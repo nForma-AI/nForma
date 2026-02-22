@@ -432,7 +432,7 @@ Use AskUserQuestion:
 - question: "Choose an action:"
 - options:
   - "1 — Set / update API key"
-  - "2 — Swap provider (Phase 34)"
+  - "2 — Swap provider"
   - "3 — Remove agent (Phase 35)"
   - "Back — return to agent list"
 
@@ -620,19 +620,124 @@ Return to Agent Sub-Menu (user can make further changes or go Back).
 
 **Option 2 — Swap provider:**
 
-```
-⚠ Full provider swap with validation is implemented in Phase 34.
+**Step A — Show current provider**
 
-  To change provider manually:
-    1. Edit ~/.claude.json
-       Set: mcpServers["{agent-name}"].env.ANTHROPIC_BASE_URL to one of:
-         AkashML    → https://api.akashml.com/v1
-         Together   → https://api.together.xyz/v1
-         Fireworks  → https://api.fireworks.ai/inference/v1
-    2. Run /qgsd:mcp-restart {agent-name}
+Read the agent's current `ANTHROPIC_BASE_URL` from `~/.claude.json`:
+
+```bash
+CURRENT_PROVIDER=$(node -e "
+const fs = require('fs'), path = require('path'), os = require('os');
+let url = '—';
+try {
+  const cj = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude.json'), 'utf8'));
+  url = (cj.mcpServers && cj.mcpServers[process.env.AGENT_NAME] && cj.mcpServers[process.env.AGENT_NAME].env && cj.mcpServers[process.env.AGENT_NAME].env.ANTHROPIC_BASE_URL) || '—';
+} catch (e) {}
+process.stdout.write(url + '\n');
+" AGENT_NAME="{agent-name}")
 ```
 
-Return to sub-menu.
+Map the raw URL to a friendly provider name for display:
+- `https://api.akashml.com/v1` → `AkashML`
+- `https://api.together.xyz/v1` → `Together.xyz`
+- `https://api.fireworks.ai/inference/v1` → `Fireworks`
+- anything else → the raw URL value
+
+**Step B — Prompt user with provider selection**
+
+Use AskUserQuestion:
+- header: "Swap Provider — {agent-name}"
+- question: `"Current provider: {friendly-provider-name}\n\nSelect a new provider for {agent-name}:"`
+- options:
+  - "1 — AkashML (https://api.akashml.com/v1)"
+  - "2 — Together.xyz (https://api.together.xyz/v1)"
+  - "3 — Fireworks (https://api.fireworks.ai/inference/v1)"
+  - "4 — Custom URL"
+  - "Skip — back to agent menu"
+
+If "Skip — back to agent menu": display "No changes made." Return to Agent Sub-Menu.
+
+**Step C — Resolve new URL**
+
+For curated selections (1–3): resolve the canonical URL from the selection:
+- "1 — AkashML…" → `NEW_URL="https://api.akashml.com/v1"`, `NEW_PROVIDER_NAME="AkashML"`
+- "2 — Together.xyz…" → `NEW_URL="https://api.together.xyz/v1"`, `NEW_PROVIDER_NAME="Together.xyz"`
+- "3 — Fireworks…" → `NEW_URL="https://api.fireworks.ai/inference/v1"`, `NEW_PROVIDER_NAME="Fireworks"`
+
+For "4 — Custom URL": use a second AskUserQuestion to collect the URL:
+- header: "Custom Provider URL — {agent-name}"
+- question: `"Enter the full base URL for the custom provider (e.g. https://openrouter.ai/api/v1):"`
+- options:
+  - "Confirm URL"
+  - "Cancel"
+
+If "Cancel": display "No changes made." Return to Agent Sub-Menu.
+
+Store the user-entered value as `NEW_URL` and `NEW_PROVIDER_NAME="custom"`.
+
+**Step D — Confirm + apply**
+
+Show pending summary:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► REVIEW PENDING CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ◆ {agent-name} — provider changed to {NEW_PROVIDER_NAME} ({NEW_URL})
+```
+
+Use AskUserQuestion:
+- header: "Apply Provider Change"
+- question: "Apply provider change to ~/.claude.json and restart {agent-name}?"
+- options:
+  - "Apply and restart"
+  - "Cancel — discard changes"
+
+If "Cancel — discard changes": display "Changes discarded." Return to Agent Sub-Menu.
+
+If "Apply and restart":
+
+1. Backup ~/.claude.json:
+```bash
+cp ~/.claude.json ~/.claude.json.backup-$(date +%Y-%m-%d-%H%M%S) 2>/dev/null || true
+```
+
+2. Patch ANTHROPIC_BASE_URL in the agent's env block. Pass the new URL via environment variable — never interpolate into the script body:
+```bash
+node -e "
+const fs   = require('fs');
+const path = require('path');
+const os   = require('os');
+const claudeJsonPath = path.join(os.homedir(), '.claude.json');
+let claudeJson = {};
+try { claudeJson = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8')); } catch (e) {}
+const agentName = process.env.AGENT_NAME;
+const newUrl    = process.env.NEW_URL;
+if (claudeJson.mcpServers && claudeJson.mcpServers[agentName]) {
+  if (!claudeJson.mcpServers[agentName].env) claudeJson.mcpServers[agentName].env = {};
+  claudeJson.mcpServers[agentName].env.ANTHROPIC_BASE_URL = newUrl;
+}
+fs.writeFileSync(claudeJsonPath, JSON.stringify(claudeJson, null, 2));
+process.stdout.write(JSON.stringify({ written: true }) + '\n');
+" AGENT_NAME="{agent-name}" NEW_URL="{new-url}"
+```
+
+3. Invoke `/qgsd:mcp-restart {agent-name}` (sequential). If restart fails, leave config written and display:
+```
+⚠ {agent-name}: restart failed. Config applied — reload on next Claude Code restart.
+  Manual retry: /qgsd:mcp-restart {agent-name}
+```
+
+4. Display:
+```
+✓ Provider updated and agent restarted.
+
+  ✓ {agent-name} — provider changed to {NEW_PROVIDER_NAME}, restarted
+
+Run /qgsd:mcp-status to verify agent health.
+```
+
+Return to Agent Sub-Menu (user can make further changes or go Back).
 
 **Option 3 — Remove agent:**
 
@@ -712,8 +817,9 @@ If a restart fails, leave config written and display:
 <success_criteria>
 - First-run (no mcpServers): welcome banner + agent template list + key collection (keytar/fallback) + batch-write + backup + restart + summary
 - Re-run (existing entries): numbered agent roster with model/provider/key-status columns
-- Sub-menu per agent: full API key set/update flow (Option 1), swap provider stub (Phase 34), remove stub (Phase 35)
+- Sub-menu per agent: full API key set/update flow (Option 1), full provider swap flow (Option 2), remove stub (Phase 35)
 - Option 1 API key flow: key-status check → "(key stored)" hint → key input → keytar store → confirm → backup → patch ~/.claude.json → syncToClaudeJson → mcp-restart
+- Option 2 provider swap flow: current provider display → curated list (AkashML/Together.xyz/Fireworks) + Custom URL → confirm → backup → patch ANTHROPIC_BASE_URL → mcp-restart
 - Confirm+apply+restart: backup then write then sync keytar then mcp-restart per agent then confirmation
 - No changes applied without explicit user confirmation
 - Keytar failure: warning + Linux hint + confirmation before env-block fallback + audit log
