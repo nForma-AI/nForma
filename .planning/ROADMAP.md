@@ -36,7 +36,7 @@
 
 **Milestone Goal:** Build `/qgsd:maintain-tests` — a command that discovers, batches, AI-categorizes, and iteratively actions test failures across large suites (20k+ tests).
 
-- [ ] **Phase 18: CLI Foundation** — gsd-tools.cjs maintain-tests sub-commands: discover, batch, run-batch, save-state, load-state
+- [ ] **Phase 18: CLI Foundation** — gsd-tools.cjs maintain-tests sub-commands: discover, batch, run-batch + integration tests (4 plans)
 - [ ] **Phase 19: State Schema & Activity Integration** — maintain-tests-state.json schema + resume-work routing rows
 - [ ] **Phase 20: Workflow Orchestrator** — maintain-tests.md command + orchestrator: batch loop, circuit breaker lifecycle, loop termination
 - [ ] **Phase 21: Categorization Engine** — 5-category AI diagnosis, git pickaxe context, quick task dispatch grouping
@@ -54,7 +54,11 @@
   3. `gsd-tools.cjs maintain-tests run-batch` executes a single batch, captures output to a temp file via spawn (not in-memory buffering), and records pass/fail/skip per test
   4. Before AI categorization, each failing test is automatically re-run 3 times in isolation; tests that pass at least once are pre-classified as flaky and excluded from the categorization queue
   5. Unit tests pass for all sub-commands including monorepo fixture tests covering framework cross-discovery collision prevention
-**Plans**: TBD
+**Plans**:
+  - 18-01: `maintain-tests discover` — config detection + framework CLI invocation + dedup (DISC-01, DISC-02) [Wave 1]
+  - 18-02: `maintain-tests batch` — seeded Fisher-Yates shuffle + disk manifest (EXEC-01) [Wave 1]
+  - 18-03: `maintain-tests run-batch` + 3-run flakiness pre-check — spawn file-based capture + timeout + env passthrough (EXEC-02, EXEC-04) [Wave 1]
+  - 18-04: Integration tests — monorepo collision, parametrized pytest IDs, buffer overflow regression [Wave 2]
 
 ### Phase 19: State Schema & Activity Integration
 **Goal**: The maintain-tests workflow has a stable, version-correct state file schema and is reachable by `/qgsd:resume-work` — interrupted runs on 20k+ suites can be recovered to the exact interrupted step
@@ -120,7 +124,7 @@
 | 15. v0.4 Gap Closure — Activity Resume Routing | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 16. Verify Phase 15 | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 17. Fix Agent Name Typos | v0.2 | 1/1 | Complete | 2026-02-21 |
-| 18. CLI Foundation | v0.3 | 0/? | Not started | - |
+| 18. CLI Foundation | v0.3 | 0/4 | Planned | - |
 | 19. State Schema & Activity Integration | v0.3 | 0/? | Not started | - |
 | 20. Workflow Orchestrator | v0.3 | 0/? | Not started | - |
 | 21. Categorization Engine | v0.3 | 0/? | Not started | - |
