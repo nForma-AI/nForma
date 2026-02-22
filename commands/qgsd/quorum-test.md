@@ -18,7 +18,7 @@ This command extends QGSD quorum from *planning* (consensus on direction) to *ve
 
 <process>
 
-**Step 0: Detect test runner**
+**Detect test runner**
 
 Read `package.json` if it exists (use the Read tool, not bash). Inspect `devDependencies`, `dependencies`, and `scripts.test`.
 
@@ -41,9 +41,9 @@ Set `$RUN_CMD` based on `$RUNNER`:
 
 Display: `Detected runner: $RUNNER`
 
-**Step 1: Parse and validate target**
+**Parse and validate target**
 
-**1a. Parse `$ARGUMENTS`:**
+Parse `$ARGUMENTS`:
 - If non-empty and points to a **file**: use it directly as `$TEST_FILES`
 - If non-empty and points to a **directory**: search within that directory using `$TEST_PATTERNS`
 - If empty: search from repo root using `$TEST_PATTERNS`
@@ -64,7 +64,7 @@ find <root> \( -name "*.test.js" -o -name "*.test.cjs" -o -name "*.test.mjs" \) 
 
 Store the list as `$TEST_FILES`.
 
-**1b. Empty check:**
+Empty check:
 
 If `$TEST_FILES` is empty, display:
 
@@ -82,7 +82,7 @@ Proceed with human verification or add automated tests before invoking quorum-te
 
 STOP — do not proceed.
 
-**1c. File existence check:**
+File existence check:
 
 For each file in `$TEST_FILES`, verify it exists on disk:
 ```bash
@@ -102,7 +102,7 @@ Fix: Re-run discovery with `find . -name "*.test.*" | grep -v node_modules`
 
 STOP — do not proceed to test execution.
 
-**1d. Validation summary:**
+Validation summary:
 
 Display:
 ```
@@ -111,7 +111,7 @@ Display:
 Proceeding to test execution...
 ```
 
-**Step 2: Capture execution bundle**
+**Capture execution bundle**
 
 ```bash
 node --version
@@ -141,7 +141,7 @@ When reading each test source file:
 
 This lets quorum workers see exactly what happened per file rather than silently receiving an incomplete bundle.
 
-**Step 3: Immediate BLOCK if exit code ≠ 0**
+**Immediate BLOCK if exit code is non-zero**
 
 If exit code is non-zero, stop immediately and display:
 
@@ -158,7 +158,7 @@ Fix the infrastructure failure before requesting quorum review.
 
 Do NOT invoke quorum workers. Stop here.
 
-**Step 4: Assemble bundle**
+**Assemble bundle**
 
 Compose `$BUNDLE`:
 
@@ -174,7 +174,7 @@ $TEST_OUTPUT
 $TEST_SOURCES
 ```
 
-**Step 5: Dispatch parallel quorum workers**
+**Dispatch parallel quorum workers**
 
 Display:
 ```
@@ -217,7 +217,7 @@ Dispatch (each call in a single parallel message — Task subagents are isolated
 
 Note: `agents/qgsd-quorum-test-worker.md` defines this same role and output format and can be invoked directly with a bundle as `$ARGUMENTS`. The parallel Task dispatch above is used when targeting specific external models (Gemini, OpenCode, Copilot, Codex) rather than a single agent.
 
-**Step 6: Collect verdicts and render table**
+**Collect verdicts and render table**
 
 Parse each worker response for `verdict:` and `concerns:` lines.
 When parsing concerns: if a bullet reads `none`, treat it as absent and display `—` in the table.
@@ -252,7 +252,7 @@ Display:
 
 If any model has multiple concerns, list them below the table.
 
-**Step 7: Save artifact**
+**Save artifact**
 
 Write `.planning/quick/quorum-test-latest.md`:
 
