@@ -52,7 +52,7 @@
 - [x] **Phase 25: Identity Tool & Shared Utilities** — identity tool + constants.ts + Logger utility in src/utils/logger.ts across all 6 repos (completed 2026-02-22)
 - [x] **Phase 26: MCP Status Command** — /qgsd:mcp-status showing all agents, models, health state, and UNAVAIL counts (completed 2026-02-22)
 - [x] **Phase 27: Model Switching** — /qgsd:mcp-set-model with qgsd.json persistence and quorum call injection (completed 2026-02-22)
-- [ ] **Phase 28: Update & Restart Commands** — /qgsd:mcp-update (all install methods) + /qgsd:mcp-restart
+- [x] **Phase 28: Update & Restart Commands** — /qgsd:mcp-update (all install methods) + /qgsd:mcp-restart (completed 2026-02-22)
 
 ## Phase Details
 
@@ -229,4 +229,4 @@
 | 25. Identity Tool and Shared Utilities | 3/3 | Complete    | 2026-02-22 | - |
 | 26. MCP Status Command | 1/1 | Complete    | 2026-02-22 | - |
 | 27. Model Switching | v0.4 | Complete    | 2026-02-22 | - |
-| 28. Update and Restart Commands | v0.4 | 0/? | Not started | - |
+| 28. Update and Restart Commands | v0.4 | Complete    | 2026-02-22 | - |
