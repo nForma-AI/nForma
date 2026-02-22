@@ -80,7 +80,9 @@
   1. `maintain-tests-state.json` is written to disk on first batch completion and updated after every subsequent batch, containing per-test state, batch progress, categorization results, and termination condition fields (iteration_count, last_unresolved_count, deferred_tests)
   2. Running `/qgsd:resume-work` after an interrupted maintain-tests session routes back to the exact interrupted step (discovery, batch N, categorization, quick task dispatch) using the activity sidecar and the extended resume-work routing table
   3. Node version is detected at startup; state persistence uses node:sqlite on Node >= 22.5.0 and JSON flat file as fallback; the fallback is explicit and does not silently fail
-**Plans**: TBD
+**Plans**: 2 plans
+  - [ ] 19-01-PLAN.md — Runner bug fix + --batch-index flag + save-state/load-state commands + tests (EXEC-03) [Wave 1]
+  - [ ] 19-02-PLAN.md — resume-project.md routing rows for 6 maintain_tests sub-activities (INTG-02) [Wave 1]
 
 ### Phase 20: Workflow Orchestrator
 **Goal**: The `/qgsd:fix-tests` command exists and runs the complete batch loop with placeholder categorization — the full mechanical orchestration is validated before the high-risk categorization logic is added
@@ -202,7 +204,7 @@
 | 16. Verify Phase 15 | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 17. Fix Agent Name Typos | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 18. CLI Foundation | v0.3 | 4/4 | Complete | 2026-02-22 |
-| 19. State Schema & Activity Integration | v0.3 | 0/? | Not started | - |
+| 19. State Schema & Activity Integration | v0.3 | 0/2 | Planned | - |
 | 20. Workflow Orchestrator | v0.3 | 0/? | Not started | - |
 | 21. Categorization Engine | v0.3 | 0/? | Not started | - |
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
