@@ -127,7 +127,10 @@
   3. All 6 repos have a `LICENSE` file containing MIT license text with the correct author
   4. All 6 repos have `engines: {node: ">=18"}`, a `prepublishOnly` build script, and `publishConfig: {access: "public"}` in package.json
   5. All 6 repos have a Makefile with at least lint, format, test, build, clean, and dev targets; all 6 repos have CHANGELOG.md and CLAUDE.md present; npm scoping is uniform across all 6 repos (all `@tuannvm/` or all unscoped — not mixed)
-**Plans**: TBD
+**Plans**: 3 plans
+  - [ ] 23-01-PLAN.md — openhands rename + dynamic version (claude/codex/copilot/openhands) + openhands metadata (STD-01, STD-03) [Wave 1]
+  - [ ] 23-02-PLAN.md — Gen1 package.json metadata (claude/codex/copilot) + gemini unscoping + MIT LICENSE all 6 repos (STD-05, STD-06, STD-10) [Wave 1]
+  - [ ] 23-03-PLAN.md — Full Makefile for 4 Gen1 repos + CHANGELOG.md/CLAUDE.md for missing repos (STD-07, STD-09) [Wave 1]
 
 ### Phase 24: Gen1 to Gen2 Architecture Port
 **Goal**: The 4 Gen1 MCP server repos (claude, codex, copilot, openhands) use the Gen2 per-tool file architecture — each tool lives in its own `*.tool.ts` file and is wired through a `registry.ts`, matching the gemini and opencode repos
@@ -208,7 +211,7 @@
 | 20. Workflow Orchestrator | v0.3 | 0/? | Not started | - |
 | 21. Categorization Engine | v0.3 | 0/? | Not started | - |
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
-| 23. MCP Repo Surface Fixes | v0.4 | 0/? | Not started | - |
+| 23. MCP Repo Surface Fixes | v0.4 | 0/3 | Planned | - |
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/? | Not started | - |
 | 25. Identity Tool and Shared Utilities | v0.4 | 0/? | Not started | - |
 | 26. MCP Status Command | v0.4 | 0/? | Not started | - |
