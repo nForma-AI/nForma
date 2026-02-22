@@ -82,9 +82,10 @@ Recent decisions affecting current work:
 | 45 | fix circuit breaker false positive for TDD patterns (diff-based reversion detection) | 2026-02-22 | 7eedb28 | Verified | [45-fix-circuit-breaker-false-positive-repla](./quick/45-fix-circuit-breaker-false-positive-repla/) |
 | 42 | adapt claude-mcp-server fork: replace Codex CLI with Claude CLI end-to-end | 2026-02-22 | 4c05844 | Verified | [42-adapt-claude-mcp-server-fork-replace-cod](./quick/42-adapt-claude-mcp-server-fork-replace-cod/) |
 | 43 | we need to review the qgsd quick command | 2026-02-22 | 22a15de | Verified | [43-we-need-to-review-the-qgsd-quick-command](./quick/43-we-need-to-review-the-qgsd-quick-command/) |
+| 44 | enable /qgsd:execute-phase N --auto to chain through all milestone phases | 2026-02-22 | a0400d9 | Complete | [44-if-somebody-run-the-qgsd-execute-phase-n](./quick/44-if-somebody-run-the-qgsd-execute-phase-n/) |
 
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed quick-42 — claude-mcp-server fork fully migrated from Codex to Claude CLI.
+Stopped at: Completed quick-44 — execute-phase --auto chains through all phases; two workflow gates fixed.
 Resume file: None
