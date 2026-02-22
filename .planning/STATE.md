@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-22 after v0.4 gap closure)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.4 MCP Ecosystem gap closure — Phase 30 (Fix gemini-cli Package Reference)
+**Current focus:** v0.4 MCP Ecosystem gap closure — Phase 31 (Merge Gen2 Branches and Phase 24 Verification)
 
 ## Current Position
 
-Phase: 30 of 36 (Fix gemini-cli Package Reference)
+Phase: 31 of 36 (Merge Gen2 Branches and Phase 24 Verification)
 Plan: — (not yet planned)
 Status: Ready to plan
-Last activity: 2026-02-22 — Completed Phase 29: restored mcp-status.md v2, marked OBS-01–04 complete
+Last activity: 2026-02-22 — Completed Phase 30: fixed gemini-cli package reference (@tuannvm → unscoped), marked STD-10 complete
 
-Progress: [████████████████████████░░░░░░░░] 29/36 phases (81%)
+Progress: [████████████████████] 28/28 plans (100%)
 
 ## Performance Metrics
 
@@ -67,5 +67,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 2026-02-22 — Phase 29 complete, ready to plan Phase 30 (Fix gemini-cli Package Reference)
+Stopped at: 2026-02-22 — Phase 30 complete, ready to plan Phase 31 (Merge Gen2 Branches and Phase 24 Verification)
 Resume file: None

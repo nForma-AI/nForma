@@ -159,5 +159,7 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | pkill -f for MCP restart (not claude mcp restart) | No `claude mcp restart` subcommand exists; process kill + Claude Code auto-restart is the only mechanism | Phase 28 — Plan 02 |
 | npx restart: kill npm exec parent first, then node child | npm exec parent respawns node child if only child is killed; parent kill prevents stale respawn | Phase 28 — Plan 02 |
 
+| gemini-mcp-server unscoping in ~/.claude.json | Phase 23 unscoped the npm package name but didn't update ~/.claude.json args — mcp-update derives install target from args[-1]; Phase 30 closed the gap | ~/.claude.json gemini-cli args now ["-y", "gemini-mcp-server"] |
+
 ---
-*Last updated: 2026-02-22 after Phase 29 — v0.4 gap closure in progress (phases 30–31 pending); v0.5 MCP Setup Wizard at phases 32–36*
+*Last updated: 2026-02-22 after Phase 30 — v0.4 gap closure phase 30 complete; Phase 31 pending; v0.5 MCP Setup Wizard at phases 32–36*
