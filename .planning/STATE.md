@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-22 after Phase 23)
 
 ## Current Position
 
-Phase: 24 of 28 (Gen1-to-Gen2 Architecture Port)
-Plan: 4 of 4 in current phase
-Status: Complete — Phase 24 done (all 4 MCP servers ported to Gen2 per-tool architecture, 210 tests passing)
-Last activity: 2026-02-22 - Completed Phase 24 execution (4 plans, Gen2 migration: claude 62✓, codex 77✓, copilot 58✓, openhands 13✓)
+Phase: 25 of 28 (Identity Tool and Shared Utilities)
+Plan: 1 of 3 in current phase
+Status: In Progress — Plan 25-01 complete (constants.ts created in all 6 repos)
+Last activity: 2026-02-22 - Completed Plan 25-01 execution (constants.ts for 4 repos + SERVER_NAME added to gemini/opencode)
 
-Progress: [████████████████████] 3/3 plans (100%)
+Progress: [███████░░░░░░░░░░░░░] 1/3 plans (33%)
 
 ## Performance Metrics
 
