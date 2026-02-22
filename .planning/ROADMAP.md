@@ -93,7 +93,8 @@
   2. The loop terminates cleanly on all three terminal conditions: all tests classified, no progress in last 5 batches (progress guard), or configurable iteration cap reached (default 5)
   3. The circuit breaker is disabled at fix-tests start (`npx qgsd --disable-breaker`) and re-enabled at completion or interruption (`npx qgsd --enable-breaker`) — verified by checking circuit-breaker-state.json before and after a run
   4. `/qgsd:fix-tests` is NOT listed in `quorum_commands` in any config file — confirmed by inspection of installed config and source; R2.1 compliance verified
-**Plans**: TBD
+**Plans**: 1 plan
+  - [ ] 20-01-PLAN.md — fix-tests command stub + workflow orchestration + INTG-03 compliance verification (ITER-01, ITER-02, INTG-01, INTG-03) [Wave 1]
 
 ### Phase 21: Categorization Engine
 **Goal**: Claude reliably classifies confirmed test failures into one of the 5 categories, provides git pickaxe context for adapt failures, and automatically dispatches grouped fix tasks — the full categorization → action pipeline is end-to-end functional
@@ -215,7 +216,7 @@
 | 17. Fix Agent Name Typos | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 18. CLI Foundation | v0.3 | 4/4 | Complete | 2026-02-22 |
 | 19. State Schema & Activity Integration | v0.3 | 2/2 | Complete | 2026-02-22 |
-| 20. Workflow Orchestrator | v0.3 | 0/? | Not started | - |
+| 20. Workflow Orchestrator | v0.3 | 0/1 | Not started | - |
 | 21. Categorization Engine | v0.3 | 0/? | Not started | - |
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
