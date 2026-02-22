@@ -3116,3 +3116,203 @@ describe('maintain-tests integration — buffer overflow regression', () => {
     assert.strictEqual(out.results.length, 0, 'TC-BUFFER-2: results must be empty for empty batch');
   });
 });
+
+describe('maintain-tests batch \u2014 runner field propagation', () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = createTempProject(); });
+  afterEach(() => { cleanup(tmpDir); });
+
+  test('TC-RUNNER-1: playwright runner propagated into all batch entries', () => {
+    const discoverPath = path.join(tmpDir, 'discover-out.json');
+    fs.writeFileSync(discoverPath, JSON.stringify({
+      runners: ['playwright'],
+      test_files: ['/project/a.spec.ts', '/project/b.spec.ts', '/project/c.spec.ts'],
+      total_count: 3,
+    }), 'utf-8');
+    const result = runGsdTools('maintain-tests batch --input-file "' + discoverPath + '" --size 10 --seed 1', tmpDir);
+    assert.ok(result.success, 'TC-RUNNER-1: batch must succeed: ' + result.error);
+    const out = JSON.parse(result.output);
+    assert.ok(out.batches.length > 0, 'TC-RUNNER-1: must have at least one batch');
+    for (const batch of out.batches) {
+      assert.strictEqual(batch.runner, 'playwright', 'TC-RUNNER-1: all batches must have runner=playwright, got: ' + batch.runner);
+    }
+  });
+
+  test('TC-RUNNER-2: pytest runner propagated into all batch entries', () => {
+    const discoverPath = path.join(tmpDir, 'discover-out.json');
+    fs.writeFileSync(discoverPath, JSON.stringify({
+      runners: ['pytest'],
+      test_files: ['/project/test_a.py', '/project/test_b.py'],
+      total_count: 2,
+    }), 'utf-8');
+    const result = runGsdTools('maintain-tests batch --input-file "' + discoverPath + '" --size 10 --seed 1', tmpDir);
+    assert.ok(result.success, 'TC-RUNNER-2: batch must succeed: ' + result.error);
+    const out = JSON.parse(result.output);
+    assert.ok(out.batches.length > 0, 'TC-RUNNER-2: must have at least one batch');
+    assert.strictEqual(out.batches[0].runner, 'pytest', 'TC-RUNNER-2: batch must have runner=pytest');
+  });
+
+  test('TC-RUNNER-3: defaults to jest when runners array is empty', () => {
+    const discoverPath = path.join(tmpDir, 'discover-out.json');
+    fs.writeFileSync(discoverPath, JSON.stringify({
+      runners: [],
+      test_files: ['/project/a.test.js'],
+      total_count: 1,
+    }), 'utf-8');
+    const result = runGsdTools('maintain-tests batch --input-file "' + discoverPath + '" --size 10 --seed 1', tmpDir);
+    assert.ok(result.success, 'TC-RUNNER-3: batch must succeed: ' + result.error);
+    const out = JSON.parse(result.output);
+    assert.strictEqual(out.batches[0].runner, 'jest', 'TC-RUNNER-3: empty runners should default to jest');
+  });
+});
+
+describe('maintain-tests run-batch \u2014 --batch-index flag', () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = createTempProject(); });
+  afterEach(() => { cleanup(tmpDir); });
+
+  function writeManifest(dir, numBatches) {
+    const batches = Array.from({ length: numBatches }, (_, i) => ({
+      batch_id: i + 1,
+      files: [],
+      file_count: 0,
+      runner: 'jest',
+    }));
+    const manifestPath = path.join(dir, 'manifest.json');
+    fs.writeFileSync(manifestPath, JSON.stringify({
+      seed: 42,
+      batch_size: 100,
+      total_files: 0,
+      total_batches: numBatches,
+      batches,
+    }), 'utf-8');
+    return manifestPath;
+  }
+
+  test('TC-BATCHIDX-1: --batch-index 0 executes batches[0] (default behavior)', () => {
+    const manifestPath = writeManifest(tmpDir, 3);
+    const result = runGsdTools('maintain-tests run-batch --batch-file "' + manifestPath + '" --batch-index 0', tmpDir);
+    assert.ok(result.success, 'TC-BATCHIDX-1: run-batch must succeed: ' + result.error);
+    const out = JSON.parse(result.output);
+    assert.ok(Object.prototype.hasOwnProperty.call(out, 'executed_count'), 'TC-BATCHIDX-1: must have executed_count');
+  });
+
+  test('TC-BATCHIDX-2: --batch-index 2 executes batches[2] (third batch)', () => {
+    const manifestPath = writeManifest(tmpDir, 3);
+    const result = runGsdTools('maintain-tests run-batch --batch-file "' + manifestPath + '" --batch-index 2', tmpDir);
+    assert.ok(result.success, 'TC-BATCHIDX-2: run-batch must succeed for valid index: ' + result.error);
+    const out = JSON.parse(result.output);
+    assert.ok(Object.prototype.hasOwnProperty.call(out, 'executed_count'), 'TC-BATCHIDX-2: must have executed_count');
+  });
+
+  test('TC-BATCHIDX-3: --batch-index out of range returns error', () => {
+    const manifestPath = writeManifest(tmpDir, 3);
+    const result = runGsdTools('maintain-tests run-batch --batch-file "' + manifestPath + '" --batch-index 99', tmpDir);
+    assert.ok(!result.success, 'TC-BATCHIDX-3: out-of-range index must fail');
+    assert.ok(result.error.includes('out of range'), 'TC-BATCHIDX-3: error must say "out of range", got: ' + result.error);
+  });
+});
+
+describe('maintain-tests save-state command', () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = createTempProject(); });
+  afterEach(() => { cleanup(tmpDir); });
+
+  function minimalStateJson() {
+    return JSON.stringify({
+      schema_version: 1,
+      session_id: '2026-01-01T00:00:00Z',
+      manifest_path: '.planning/manifest.json',
+      runner: 'jest',
+      total_tests: 100,
+      batch_size: 10,
+      seed: 42,
+      total_batches: 10,
+      batches_complete: 3,
+      batch_status: { '1': 'complete', '2': 'complete', '3': 'complete' },
+      processed_files: [],
+      results_by_category: { valid_skip: [], adapt: [], isolate: [], real_bug: [], fixture: [], flaky: [] },
+      iteration_count: 1,
+      last_unresolved_count: 70,
+      deferred_tests: [],
+    });
+  }
+
+  test('TC-SAVESTATE-1: save-state writes file and returns written=true', () => {
+    const stateFile = path.join(tmpDir, 'state.db');
+    const stateJsonArg = minimalStateJson().replace(/'/g, "'\\''");
+    const result = runGsdTools("maintain-tests save-state --state-file \"" + stateFile + "\" --state-json '" + stateJsonArg + "'", tmpDir);
+    assert.ok(result.success, 'TC-SAVESTATE-1: save-state must succeed: ' + result.error);
+    const out = JSON.parse(result.output);
+    assert.strictEqual(out.written, true, 'TC-SAVESTATE-1: written must be true');
+    assert.ok(['sqlite', 'json'].includes(out.backend), 'TC-SAVESTATE-1: backend must be sqlite or json, got: ' + out.backend);
+    assert.ok(fs.existsSync(stateFile), 'TC-SAVESTATE-1: state file must exist on disk');
+  });
+
+  test('TC-SAVESTATE-2: save-state requires --state-json', () => {
+    const stateFile = path.join(tmpDir, 'state.db');
+    const result = runGsdTools('maintain-tests save-state --state-file "' + stateFile + '"', tmpDir);
+    assert.ok(!result.success, 'TC-SAVESTATE-2: save-state without --state-json must fail');
+    assert.ok(result.error.includes('--state-json is required'), 'TC-SAVESTATE-2: error must mention --state-json: ' + result.error);
+  });
+
+  test('TC-SAVESTATE-3: save-state rejects invalid JSON', () => {
+    const stateFile = path.join(tmpDir, 'state.db');
+    const result = runGsdTools("maintain-tests save-state --state-file \"" + stateFile + "\" --state-json 'not-json'", tmpDir);
+    assert.ok(!result.success, 'TC-SAVESTATE-3: invalid JSON must fail');
+    assert.ok(result.error.includes('invalid JSON'), 'TC-SAVESTATE-3: error must say invalid JSON: ' + result.error);
+  });
+
+  test('TC-SAVESTATE-4: save-state auto-sets updated timestamp', () => {
+    const stateFile = path.join(tmpDir, 'state.db');
+    const stateJsonArg = minimalStateJson().replace(/'/g, "'\\''");
+    runGsdTools("maintain-tests save-state --state-file \"" + stateFile + "\" --state-json '" + stateJsonArg + "'", tmpDir);
+    const loadResult = runGsdTools('maintain-tests load-state --state-file "' + stateFile + '"', tmpDir);
+    assert.ok(loadResult.success, 'TC-SAVESTATE-4: load-state must succeed: ' + loadResult.error);
+    const state = JSON.parse(loadResult.output);
+    assert.ok(state !== null, 'TC-SAVESTATE-4: state must not be null');
+    assert.ok(typeof state.updated === 'string' && state.updated.length > 0, 'TC-SAVESTATE-4: updated field must be set');
+  });
+});
+
+describe('maintain-tests load-state command', () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = createTempProject(); });
+  afterEach(() => { cleanup(tmpDir); });
+
+  test('TC-LOADSTATE-1: load-state returns null when file does not exist', () => {
+    const stateFile = path.join(tmpDir, 'nonexistent.db');
+    const result = runGsdTools('maintain-tests load-state --state-file "' + stateFile + '"', tmpDir);
+    assert.ok(result.success, 'TC-LOADSTATE-1: load-state must succeed even when file missing: ' + result.error);
+    assert.strictEqual(result.output, 'null', 'TC-LOADSTATE-1: output must be null for missing file, got: ' + result.output);
+  });
+
+  test('TC-LOADSTATE-2: load-state round-trips save-state data correctly', () => {
+    const stateFile = path.join(tmpDir, 'state.db');
+    const stateJson = JSON.stringify({ schema_version: 1, session_id: 'round-trip-test', batches_complete: 7 });
+    const stateJsonArg = stateJson.replace(/'/g, "'\\''");
+    const saveResult = runGsdTools("maintain-tests save-state --state-file \"" + stateFile + "\" --state-json '" + stateJsonArg + "'", tmpDir);
+    assert.ok(saveResult.success, 'TC-LOADSTATE-2: save must succeed: ' + saveResult.error);
+    const loadResult = runGsdTools('maintain-tests load-state --state-file "' + stateFile + '"', tmpDir);
+    assert.ok(loadResult.success, 'TC-LOADSTATE-2: load must succeed: ' + loadResult.error);
+    const state = JSON.parse(loadResult.output);
+    assert.ok(state !== null, 'TC-LOADSTATE-2: state must not be null');
+    assert.strictEqual(state.schema_version, 1, 'TC-LOADSTATE-2: schema_version must round-trip');
+    assert.strictEqual(state.session_id, 'round-trip-test', 'TC-LOADSTATE-2: session_id must round-trip');
+    assert.strictEqual(state.batches_complete, 7, 'TC-LOADSTATE-2: batches_complete must round-trip');
+  });
+
+  test('TC-LOADSTATE-3: load-state uses default path .planning/maintain-tests-state.json when --state-file omitted', () => {
+    const stateJson = JSON.stringify({ schema_version: 1, session_id: 'default-path-test', batches_complete: 0 });
+    const stateJsonArg = stateJson.replace(/'/g, "'\\''");
+    const saveResult = runGsdTools("maintain-tests save-state --state-json '" + stateJsonArg + "'", tmpDir);
+    assert.ok(saveResult.success, 'TC-LOADSTATE-3: save to default path must succeed: ' + saveResult.error);
+    const expectedPath = path.join(tmpDir, '.planning', 'maintain-tests-state.json');
+    assert.ok(fs.existsSync(expectedPath), 'TC-LOADSTATE-3: file must exist at default path');
+    const loadResult = runGsdTools('maintain-tests load-state', tmpDir);
+    assert.ok(loadResult.success, 'TC-LOADSTATE-3: load from default path must succeed: ' + loadResult.error);
+    const state = JSON.parse(loadResult.output);
+    assert.ok(state !== null, 'TC-LOADSTATE-3: state must not be null');
+    assert.strictEqual(state.session_id, 'default-path-test', 'TC-LOADSTATE-3: session_id must match');
+  });
+});
