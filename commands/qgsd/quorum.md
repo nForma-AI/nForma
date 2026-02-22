@@ -1,6 +1,6 @@
 ---
 name: qgsd:quorum
-description: Answer a question using full quorum consensus (Claude + Codex + Gemini + OpenCode + Copilot + DeepSeek + MiniMax + QwenCoder + Kimi + Llama4) following CLAUDE.md R3 protocol. Use when no arguments provided to answer the current conversation's open question.
+description: Answer a question using full quorum consensus (Claude + native CLI agents + all configured claude-mcp-server instances) following CLAUDE.md R3 protocol. Use when no arguments provided to answer the current conversation's open question.
 argument-hint: "[question or prompt]"
 allowed-tools:
   - Read
@@ -12,7 +12,7 @@ allowed-tools:
 ---
 
 <objective>
-Run a question or prompt through the full QGSD quorum (R3 protocol): Claude + Codex + Gemini + OpenCode + Copilot + DeepSeek + MiniMax + QwenCoder + Kimi + Llama4.
+Run a question or prompt through the full QGSD quorum (R3 protocol): Claude + native CLI agents (Codex, Gemini, OpenCode, Copilot) + all claude-mcp-server instances configured in `~/.claude.json`.
 
 **Two modes** based on context:
 - **Mode A — Pure Question**: No commands required. Claude forms its own position first, then queries each model sequentially, deliberates to consensus.
@@ -32,25 +32,60 @@ If `$ARGUMENTS` is empty: use the most recent open question or decision from the
 
 ---
 
+> **SEQUENTIAL CALLS ONLY — NO SIBLING TOOL CALLS**
+> Every MCP tool call and every Task spawn in this command MUST be issued as a separate, standalone message turn — never batched or co-submitted as sibling calls. This applies to identity checks, health checks, inference calls, and Task subagent dispatches. A single failure in a sibling batch propagates "Sibling tool call errored" to all co-submitted calls, corrupting the entire quorum. When in doubt: one call, then wait for the response, then proceed.
+
+---
+
+### Provider pre-flight (run once before team capture)
+
+Before any model calls, run a fast HTTP probe of the underlying LLM providers:
+
+```bash
+node bin/check-provider-health.cjs --json
+```
+
+Parse the JSON output. Build two structures:
+
+1. **`$PROVIDER_STATUS`**: `{ providerName: healthy }` — map of provider name to up/down status.
+
+2. **`$CLAUDE_MCP_SERVERS`**: flat list of `{ serverName, model, providerName, available }` — extracted from the `servers[]` and `models[]` arrays in each provider entry. A server's `available` is `false` if its provider's `healthy` is `false`.
+
+Any server with `available: false` must be marked UNAVAIL immediately — skip its health_check and inference calls entirely. This prevents hangs from unresponsive provider endpoints.
+
+Display pre-flight result inline (one line):
+```
+Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
+```
+
+---
+
 ### Team identity capture (idempotent — run once per session)
 
 Before any quorum round, capture the active team fingerprint. The scoreboard only updates if the composition has changed.
 
-Call the `identity` tool on each available model **sequentially** (skip UNAVAIL per R6):
+**Native CLI agents** — call `identity` sequentially (skip UNAVAIL per R6):
 
 1. `mcp__codex-cli__identity` → parse JSON response
 2. `mcp__gemini-cli__identity` → parse JSON response
 3. `mcp__opencode__identity` → parse JSON response
 4. `mcp__copilot-cli__identity` → parse JSON response
 
-The claude-mcp-server instances (deepseek, minimax, qwen-coder, kimi, llama4) have no `identity` tool — include them with static identity using their configured model name:
-5. `mcp__claude-deepseek__ping` → if available, add `"deepseek": {"type":"claude-mcp","model":"deepseek-ai/DeepSeek-V3.2"}` to TEAM_JSON
-6. `mcp__claude-minimax__ping` → if available, add `"minimax": {"type":"claude-mcp","model":"MiniMaxAI/MiniMax-M2.5"}` to TEAM_JSON
-7. `mcp__claude-qwen-coder__ping` → if available, add `"qwen-coder": {"type":"claude-mcp","model":"Qwen/Qwen3-Coder-480B"}` to TEAM_JSON
-8. `mcp__claude-kimi__ping` → if available, add `"kimi": {"type":"claude-mcp","model":"accounts/fireworks/models/kimi-k2p5"}` to TEAM_JSON
-9. `mcp__claude-llama4__ping` → if available, add `"llama4": {"type":"claude-mcp","model":"meta-llama/Llama-4-Maverick"}` to TEAM_JSON
+**claude-mcp-server instances** — iterate over `$CLAUDE_MCP_SERVERS` in order:
 
-Build `TEAM_JSON` as a JSON object keyed by QGSD model name (`codex`, `gemini`, `opencode`, `copilot`, `deepseek`, `minimax`, `qwen-coder`, `kimi`, `llama4`), using each model's identity/ping response. Omit UNAVAIL models entirely.
+For each server in `$CLAUDE_MCP_SERVERS` (skip if `available: false`):
+- Call `mcp__<serverName>__health_check`
+- If response contains `"healthy": true` → add to TEAM_JSON:
+  `"<serverName>": { "type": "claude-mcp", "model": "<model>" }`
+- Else → mark that server UNAVAIL
+
+The display name for a claude-mcp server is the server name with the leading `claude-` prefix stripped (e.g., `claude-deepseek` → `deepseek`, `claude-qwen-coder` → `qwen-coder`).
+
+Build `TEAM_JSON` as a JSON object keyed by display name:
+- Native agents use keys: `codex`, `gemini`, `opencode`, `copilot`
+- claude-mcp servers use their stripped display name
+
+Omit UNAVAIL models entirely.
 
 Detect Claude's model ID from: `CLAUDE_MODEL` env var → `ANTHROPIC_MODEL` env var → current session model name from system context.
 
@@ -112,25 +147,27 @@ QGSD Quorum — Round 1
 
 Question: [question]
 
-You are one of five quorum members evaluating this question independently. Give your honest answer with reasoning. Be concise (3–6 sentences). State your position clearly. Do not defer to other models.
+You are one of the quorum members evaluating this question independently. Give your honest answer with reasoning. Be concise (3–6 sentences). State your position clearly. Do not defer to other models.
 ```
 
 Call order (sequential):
+
+**Native CLI agents** (hardcoded tool names):
 1. `mcp__codex-cli__review`
 2. `mcp__gemini-cli__gemini`
 3. `mcp__opencode__opencode`
 4. `mcp__copilot-cli__ask`
-5. `mcp__claude-deepseek__claude` (prompt field: `prompt`)
-6. `mcp__claude-minimax__claude` (prompt field: `prompt`)
-7. `mcp__claude-qwen-coder__claude` (prompt field: `prompt`)
-8. `mcp__claude-kimi__claude` (prompt field: `prompt`)
-9. `mcp__claude-llama4__claude` (prompt field: `prompt`)
+
+**claude-mcp instances** (dynamic — iterate over available servers in `$CLAUDE_MCP_SERVERS` order):
+For each server with `available: true` and healthy from team capture:
+- Call `mcp__<serverName>__claude` with the query prompt (field name: `prompt`)
 
 Handle UNAVAILABLE per R6: note unavailability, continue with remaining models.
 
 ### Evaluate Round 1 — check for consensus
 
-Display all positions:
+Display all positions as a table with one row per team member (native agents first, then claude-mcp servers in discovery order):
+
 ```
 ┌──────────────┬──────────────────────────────────────────────────────────┐
 │ Model        │ Round 1 Position                                         │
@@ -140,11 +177,7 @@ Display all positions:
 │ Gemini       │ [summary or UNAVAIL]                                     │
 │ OpenCode     │ [summary or UNAVAIL]                                     │
 │ Copilot      │ [summary or UNAVAIL]                                     │
-│ DeepSeek     │ [summary or UNAVAIL]                                     │
-│ MiniMax      │ [summary or UNAVAIL]                                     │
-│ QwenCoder    │ [summary or UNAVAIL]                                     │
-│ Kimi         │ [summary or UNAVAIL]                                     │
-│ Llama4       │ [summary or UNAVAIL]                                     │
+│ <display-name for each claude-mcp server, dynamically> │ [summary or UNAVAIL] │
 └──────────────┴──────────────────────────────────────────────────────────┘
 ```
 
@@ -168,11 +201,7 @@ Prior positions:
 • Gemini:    [position or UNAVAIL]
 • OpenCode:  [position or UNAVAIL]
 • Copilot:   [position or UNAVAIL]
-• DeepSeek:  [position or UNAVAIL]
-• MiniMax:   [position or UNAVAIL]
-• QwenCoder: [position or UNAVAIL]
-• Kimi:      [position or UNAVAIL]
-• Llama4:    [position or UNAVAIL]
+[one line per claude-mcp server: • <display-name>: [position or UNAVAIL]]
 
 Given the above, do you maintain your answer or revise it? State your updated position clearly (2–4 sentences).
 ```
@@ -202,11 +231,7 @@ Supporting positions:
 • Gemini:    [brief or UNAVAIL]
 • OpenCode:  [brief or UNAVAIL]
 • Copilot:   [brief or UNAVAIL]
-• DeepSeek:  [brief or UNAVAIL]
-• MiniMax:   [brief or UNAVAIL]
-• QwenCoder: [brief or UNAVAIL]
-• Kimi:      [brief or UNAVAIL]
-• Llama4:    [brief or UNAVAIL]
+[one line per claude-mcp server: • <display-name>: [brief or UNAVAIL]]
 ```
 
 Update the scoreboard: for each model that voted this round, run:
@@ -221,7 +246,8 @@ node bin/update-scoreboard.cjs \
   --task-description "<question or topic being debated>"
 ```
 
-`--model` values: claude, gemini, opencode, copilot, codex, deepseek, minimax, qwen-coder, kimi, llama4
+`--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
+`--model` for claude-mcp servers: strip the `claude-` prefix from the server name (e.g., `claude-deepseek` → `deepseek`, `claude-qwen-coder` → `qwen-coder`)
 `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
 `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 `--round`: the round number that just completed
@@ -245,37 +271,14 @@ Final positions:
 • Gemini:    [position + key reasoning or UNAVAIL]
 • OpenCode:  [position + key reasoning or UNAVAIL]
 • Copilot:   [position + key reasoning or UNAVAIL]
-• DeepSeek:  [position + key reasoning or UNAVAIL]
-• MiniMax:   [position + key reasoning or UNAVAIL]
-• QwenCoder: [position + key reasoning or UNAVAIL]
-• Kimi:      [position + key reasoning or UNAVAIL]
-• Llama4:    [position + key reasoning or UNAVAIL]
+[one line per claude-mcp server: • <display-name>: [position + key reasoning or UNAVAIL]]
 
 Core disagreement: [1–2 sentences on what models disagree about]
 
 Claude's recommendation: [Claude's position with rationale]
 ```
 
-Update the scoreboard: for each model that voted this round, run:
-
-```bash
-node bin/update-scoreboard.cjs \
-  --model <model_name> \
-  --result <vote_code> \
-  --task "<task_label>" \
-  --round <round_number> \
-  --verdict <VERDICT> \
-  --task-description "<question or topic being debated>"
-```
-
-`--model` values: claude, gemini, opencode, copilot, codex, deepseek, minimax, qwen-coder, kimi, llama4
-`--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
-`--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
-`--round`: the round number that just completed
-`--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
-`--task-description`: the full debate question/topic (the `[question]` value). Used by Haiku to auto-classify the category. Omit if the question is too long (>500 chars) — use a shortened summary instead.
-
-Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
+Update the scoreboard with the same `update-scoreboard.cjs` pattern as Consensus output above.
 
 ---
 
@@ -320,9 +323,9 @@ QUESTION: [original question]
 $TRACES
 ```
 
-### Dispatch parallel quorum workers via Task
+### Dispatch quorum workers via Task (sequential — one at a time)
 
-Task subagents are isolated subprocesses — parallel dispatch is safe (a failing Task does not propagate to co-submitted Tasks, unlike direct sibling MCP calls).
+Task subagents must be dispatched **sequentially**, one per message turn. Do NOT co-submit multiple Task calls in the same message, even though Task subagents are isolated. Sibling Task calls still produce "Sibling tool call errored" propagation in Claude Code when any one fails.
 
 Worker prompt template:
 ```
@@ -342,16 +345,17 @@ REJECT if output shows it is NOT satisfied.
 FLAG if output is ambiguous or requires human judgment.
 ```
 
-Dispatch (single parallel message — all nine as sibling Task calls):
+Dispatch (sequential — one Task per message turn):
+
+**Native agents** (hardcoded):
 - `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli__gemini with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__opencode__opencode with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-cli__ask with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli__review with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-deepseek__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-minimax__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-qwen-coder__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-kimi__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-llama4__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
+
+**claude-mcp instances** (dynamic — one Task per available server in `$CLAUDE_MCP_SERVERS`):
+For each server with `available: true` and healthy from team capture:
+- `Task(subagent_type="general-purpose", prompt="Call mcp__<serverName>__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
 
 ### Collect verdicts
 
@@ -381,11 +385,7 @@ If split: run deliberation (up to 3 rounds) with traces always included in conte
 │ OpenCode     │ [verdict]    │ [summary or UNAVAIL]                     │
 │ Copilot      │ [verdict]    │ [summary or UNAVAIL]                     │
 │ Codex        │ [verdict]    │ [summary or UNAVAIL]                     │
-│ DeepSeek     │ [verdict]    │ [summary or UNAVAIL]                     │
-│ MiniMax      │ [verdict]    │ [summary or UNAVAIL]                     │
-│ QwenCoder    │ [verdict]    │ [summary or UNAVAIL]                     │
-│ Kimi         │ [verdict]    │ [summary or UNAVAIL]                     │
-│ Llama4       │ [verdict]    │ [summary or UNAVAIL]                     │
+│ <display-name for each claude-mcp server, dynamically> │ [verdict] │ [summary or UNAVAIL] │
 ├──────────────┼──────────────┼──────────────────────────────────────────┤
 │ CONSENSUS    │ [verdict]    │ [N APPROVE, N REJECT, N FLAG, N UNAVAIL] │
 └──────────────┴──────────────┴──────────────────────────────────────────┘
@@ -393,19 +393,10 @@ If split: run deliberation (up to 3 rounds) with traces always included in conte
 [rationale — what the traces showed]
 ```
 
-Update the scoreboard: for each model that voted this round, run:
+Update the scoreboard with the same `update-scoreboard.cjs` pattern as Mode A.
 
-```bash
-node bin/update-scoreboard.cjs \
-  --model <model_name> \
-  --result <vote_code> \
-  --task "<task_label>" \
-  --round <round_number> \
-  --verdict <VERDICT> \
-  --task-description "<debate topic from $ARGUMENTS>"
-```
-
-`--model` values: claude, gemini, opencode, copilot, codex, deepseek, minimax, qwen-coder, kimi, llama4
+`--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
+`--model` for claude-mcp servers: strip the `claude-` prefix from the server name
 `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
 `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 `--round`: the round number that just completed
