@@ -5355,6 +5355,7 @@ async function main() {
           const batchFileIdx = args.indexOf('--batch-file');
           const timeoutIdx = args.indexOf('--timeout');
           const outputIdx = args.indexOf('--output-file');
+          const batchIndexIdx = args.indexOf('--batch-index');
           // Collect all --env KEY=VALUE pairs
           const envPairs = {};
           for (let i = 0; i < args.length; i++) {
@@ -5368,6 +5369,7 @@ async function main() {
             batchFile: batchFileIdx !== -1 ? args[batchFileIdx + 1] : null,
             timeoutSec: timeoutIdx !== -1 ? parseInt(args[timeoutIdx + 1], 10) : 300,
             outputFile: outputIdx !== -1 ? args[outputIdx + 1] : null,
+            batchIndex: batchIndexIdx !== -1 ? parseInt(args[batchIndexIdx + 1], 10) : 0,
             env: { ...process.env, ...envPairs },
           }, raw);
           break;
@@ -5402,7 +5404,7 @@ async function main() {
           break;
         }
         default:
-          error(`Unknown maintain-tests subcommand: ${subCmd}\nAvailable: discover, batch, run-batch`);
+          error(`Unknown maintain-tests subcommand: ${subCmd}\nAvailable: discover, batch, run-batch, save-state, load-state`);
       }
       break;
     }
@@ -5509,6 +5511,7 @@ function cmdMaintainTestsBatch(cwd, options, raw) {
       batch_id: batches.length + 1,
       files: chunk,
       file_count: chunk.length,
+      runner: discoverData.runners && discoverData.runners[0] ? discoverData.runners[0] : 'jest',
     });
   }
 
@@ -5934,7 +5937,7 @@ async function runTestFile(testFile, runner, opts, batchTmpPrefix) {
  */
 async function cmdMaintainTestsRunBatch(cwd, options, raw) {
   const os = require('os');
-  const { batchFile, timeoutSec, outputFile, env } = options;
+  const { batchFile, timeoutSec = 300, outputFile, batchIndex = 0, env } = options;
 
   if (!batchFile) {
     error('maintain-tests run-batch: --batch-file is required');
@@ -5950,10 +5953,14 @@ async function cmdMaintainTestsRunBatch(cwd, options, raw) {
   }
 
   // Support both top-level batch object and manifest with batches array
-  // If manifest has a `batches` array, use the first batch
+  // If manifest has a `batches` array, use batches[batchIndex] (zero-based)
   let batchObj;
   if (manifest.batches && Array.isArray(manifest.batches)) {
-    batchObj = manifest.batches[0] || { batch_id: manifest.batch_id || 1, files: [], file_count: 0 };
+    const batch = manifest.batches[batchIndex];
+    if (!batch) {
+      error('maintain-tests run-batch: --batch-index ' + batchIndex + ' out of range (manifest has ' + manifest.batches.length + ' batches)');
+    }
+    batchObj = batch;
   } else {
     batchObj = manifest;
   }
