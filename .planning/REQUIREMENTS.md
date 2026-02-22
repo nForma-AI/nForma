@@ -51,6 +51,7 @@ Requirements satisfied during v0.4 MCP Ecosystem milestone.
 
 ### Standardization (STD)
 
+- [x] **STD-02**: All 4 Gen1 MCP server repos (claude, codex, copilot, openhands) ported to Gen2 per-tool architecture (`*.tool.ts` + `registry.ts`) with Gen1 files (`definitions.ts`, `handlers.ts`) removed — all repos on main branch
 - [x] **STD-10**: gemini-mcp-server npm package name is unscoped (`gemini-mcp-server`, not `@tuannvm/gemini-mcp-server`) — `~/.claude.json` mcpServers["gemini-cli"].args reflects the unscoped name
 
 ## v2 Requirements
@@ -106,14 +107,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OBS-02 | Phase 29 (gap closure) | Complete |
 | OBS-03 | Phase 29 (gap closure) | Complete |
 | OBS-04 | Phase 29 (gap closure) | Complete |
+| STD-02 | Phase 24 + Phase 31 (gap closure) | Complete |
 | STD-10 | Phase 23 + Phase 30 (gap closure) | Complete |
 
 **Coverage:**
 - v0.5 requirements: 16 total
 - Mapped to phases: 16
 - Unmapped: 0 ✓
-- v0.4 requirements completed: 5 (OBS-01–04, STD-10)
+- v0.4 requirements completed: 6 (OBS-01–04, STD-02, STD-10)
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 — STD-10 marked Complete (Phase 30 gap closure)*
+*Last updated: 2026-02-22 — STD-02 marked Complete (Phase 31 gap closure)*
