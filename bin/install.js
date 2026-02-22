@@ -1077,7 +1077,11 @@ function uninstall(isGlobal, runtime = 'claude') {
         if (entry.hooks && Array.isArray(entry.hooks)) {
           // Filter out GSD hooks
           const hasGsdHook = entry.hooks.some(h =>
-            h.command && (h.command.includes('qgsd-check-update') || h.command.includes('qgsd-statusline'))
+            h.command && (
+              h.command.includes('qgsd-check-update') ||
+              h.command.includes('qgsd-statusline') ||
+              h.command.includes('qgsd-session-start')
+            )
           );
           return !hasGsdHook;
         }
@@ -1673,6 +1677,20 @@ function install(isGlobal, runtime = 'claude') {
     }
   }
 
+  // Copy bin/*.cjs scripts to qgsd-bin/ (used by commands with absolute paths)
+  const binSrc = path.join(src, 'bin');
+  if (fs.existsSync(binSrc)) {
+    const binDest = path.join(targetDir, 'qgsd-bin');
+    fs.mkdirSync(binDest, { recursive: true });
+    const binEntries = fs.readdirSync(binSrc);
+    for (const entry of binEntries) {
+      if (entry.endsWith('.cjs')) {
+        fs.copyFileSync(path.join(binSrc, entry), path.join(binDest, entry));
+      }
+    }
+    console.log(`  ${green}✓${reset} Installed qgsd-bin scripts`);
+  }
+
   if (failures.length > 0) {
     console.error(`\n  ${yellow}Installation incomplete!${reset} Failed: ${failures.join(', ')}`);
     process.exit(1);
@@ -1723,6 +1741,22 @@ function install(isGlobal, runtime = 'claude') {
         ]
       });
       console.log(`  ${green}✓${reset} Configured update check hook`);
+    }
+
+    // Register QGSD session-start secret sync hook
+    const hasGsdSessionStartHook = settings.hooks.SessionStart.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-session-start'))
+    );
+    if (!hasGsdSessionStartHook) {
+      settings.hooks.SessionStart.push({
+        hooks: [
+          {
+            type: 'command',
+            command: buildHookCommand(targetDir, 'qgsd-session-start.js')
+          }
+        ]
+      });
+      console.log(`  ${green}✓${reset} Configured QGSD secret sync hook (SessionStart)`);
     }
 
     // INST-05: Warn (yellow) if quorum MCP servers are absent — runs every install
