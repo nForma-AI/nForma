@@ -5,8 +5,8 @@
 - ✅ **v0.2 — Gap Closure & Activity Resume Routing** — Phases 1–17 (shipped 2026-02-21)
 - ✅ **v0.3 — Test Suite Maintenance Tool** — Phases 18–22 (shipped 2026-02-22)
 - 🚧 **v0.4 — MCP Ecosystem** — Phases 23–31 (in progress, gap closure phases 29–31 added)
-- ⏳ **v0.5 — MCP Setup Wizard** — Phases 32–36 (pending v0.4 completion)
-- 📋 **v0.6 — Agent Slots & Quorum Composition** — Phases 37–40 (planned)
+- 🚧 **v0.5 — MCP Setup Wizard** — Phases 32–38 (gap closure phases 37–38 added)
+- 📋 **v0.6 — Agent Slots & Quorum Composition** — Phases 39–42 (planned)
 
 ## Phases
 
@@ -60,24 +60,26 @@
 - [x] **Phase 30: Fix gemini-cli Package Reference** — Update ~/.claude.json gemini-cli args to unscoped package name; mark STD-10 complete (completed 2026-02-22)
 - [x] **Phase 31: Merge Gen2 Branches + Phase 24 Verification** — Merge codex/copilot Gen2 branches to main + create Phase 24 VERIFICATION.md; close STD-02 (completed 2026-02-22)
 
-### ⏳ v0.5 — MCP Setup Wizard (Pending v0.4 Completion)
+### 🚧 v0.5 — MCP Setup Wizard (Gap Closure)
 
-**Milestone Goal:** Ship `/qgsd:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (model, provider, API key) without touching config files manually.
+**Milestone Goal:** Ship `/qgsd:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (model, provider, API key) without touching config files manually. Gap closure phases 37–38 close outstanding v0.5 audit findings.
 
 - [x] **Phase 32: Wizard Scaffold** — /qgsd:mcp-setup command: first-run vs re-run detection, main menu with live status, confirm+apply+restart flow (WIZ-01..05) (completed 2026-02-22)
 - [x] **Phase 33: API Key Management** — Wizard flow for set/update API keys via keytar; writes to ~/.claude.json env block and restarts agent (KEY-01..04) (completed 2026-02-22)
 - [x] **Phase 34: Provider Swap** — Wizard flow for changing agent base URL; curated provider list + custom entry; writes ANTHROPIC_BASE_URL and restarts (PROV-01..03) (completed 2026-02-22)
 - [x] **Phase 35: Agent Roster** — Wizard flow for add/remove claude-mcp-server instances; identity ping after provisioning (AGENT-01..03) (completed 2026-02-22)
 - [x] **Phase 36: Install Integration** — Installer detects no configured quorum agents and prompts user to run /qgsd:mcp-setup (INST-01) (completed 2026-02-22)
+- [ ] **Phase 37: Fix mcp-setup.md Distribution Issues** — Replace 9 hardcoded secrets.cjs absolute paths; add syncToClaudeJson to provider swap; add CLAUDE_MCP_PATH guard; add keytar fallback bash snippet (INTEGRATION-01, INTEGRATION-02)
+- [ ] **Phase 38: v0.5 Bookkeeping — Requirements & SUMMARY Updates** — Mark 16 v0.5 checkboxes [x]; correct traceability phase assignments; add requirements frontmatter to Phase 32/35/36 SUMMARY files
 
 ### 📋 v0.6 — Agent Slots & Quorum Composition (Planned)
 
 **Milestone Goal:** Rename all quorum agents to slot-based names (`claude-1`, `copilot-1`, `gemini-cli-1`, etc.), ship a `quorum.active` composition config that the orchestrator reads instead of a hardcoded list, support multiple slots per family, and extend `/qgsd:mcp-setup` with a composition screen for managing which slots participate in quorum.
 
-- [ ] **Phase 37: Rename and Migration** — Rename all 10 agents to `<family>-<N>` slot names; migration script for `~/.claude.json`; update all QGSD source files and commands (SLOT-01..04)
-- [ ] **Phase 38: Composition Architecture** — `quorum.active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03)
-- [ ] **Phase 39: Multiple Slots** — Support N instances per family; `~/.claude.json` entries for copilot-1/2, opencode-1/2, etc.; add-slot supported by config and wizard (MULTI-01..03)
-- [ ] **Phase 40: Wizard Composition Screen** — "Edit Quorum Composition" option in mcp-setup re-run menu; slot toggle on/off; add new slot from within wizard (WIZ-08..10)
+- [ ] **Phase 39: Rename and Migration** — Rename all 10 agents to `<family>-<N>` slot names; migration script for `~/.claude.json`; update all QGSD source files and commands (SLOT-01..04)
+- [ ] **Phase 40: Composition Architecture** — `quorum.active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03)
+- [ ] **Phase 41: Multiple Slots** — Support N instances per family; `~/.claude.json` entries for copilot-1/2, opencode-1/2, etc.; add-slot supported by config and wizard (MULTI-01..03)
+- [ ] **Phase 42: Wizard Composition Screen** — "Edit Quorum Composition" option in mcp-setup re-run menu; slot toggle on/off; add new slot from within wizard (WIZ-08..10)
 
 ## Phase Details
 
@@ -311,9 +313,32 @@
   2. Running `npx qgsd@latest` on a machine that already has quorum agents configured does not show the nudge — the prompt appears only on first install or after all agents are removed
 **Plans**: TBD
 
-### Phase 37: Rename and Migration
-**Goal**: All quorum agents are known by slot-based names (`claude-1`, `copilot-1`, `gemini-cli-1`, etc.) everywhere in QGSD — a migration script renames existing `~/.claude.json` entries automatically, and all commands accept and display slot names correctly
+### Phase 37: Fix mcp-setup.md Distribution Issues
+**Goal**: `commands/qgsd/mcp-setup.md` is safe to distribute — all 9 hardcoded developer-machine paths are replaced with dynamic resolution, and all apply flows are internally consistent
 **Depends on**: Phase 36
+**Requirements**: (Gap closure — INTEGRATION-01, INTEGRATION-02 from v0.5 audit)
+**Gap Closure**: Closes INTEGRATION-01 (hardcoded `secrets.cjs` path, HIGH) and INTEGRATION-02 (missing `syncToClaudeJson` in provider swap, LOW) from v0.5 audit
+**Success Criteria** (what must be TRUE):
+  1. `commands/qgsd/mcp-setup.md` contains no hardcoded absolute paths — all `require('/Users/jonathanborduas/code/QGSD/bin/secrets.cjs')` calls replaced with a path resolved at runtime from the installed package location
+  2. Option 2 (Swap Provider) apply path calls `syncToClaudeJson` after patching `ANTHROPIC_BASE_URL` — symmetric with all other apply flows (first-run, Option 1, add-agent, shared confirm+apply)
+  3. First-run Step 3b shows a warning when `CLAUDE_MCP_PATH` is empty, matching the explicit guard present in the add-agent flow — no silent `args: ['']` write
+  4. Add-agent keytar fallback includes an explicit bash snippet for the audit log entry — not prose-only, matching the Option 1 pattern
+**Plans**: TBD
+
+### Phase 38: v0.5 Bookkeeping — Requirements & SUMMARY Updates
+**Goal**: REQUIREMENTS.md and SUMMARY.md files fully reflect the completed v0.5 milestone — all 16 requirement checkboxes are checked, traceability phase assignments match actual implementation phases, and SUMMARY files have complete frontmatter
+**Depends on**: Phase 37
+**Requirements**: (Bookkeeping — no new feature requirements)
+**Gap Closure**: Closes stale REQUIREMENTS.md checkboxes, wrong phase assignments (KEY→Ph30, PROV→Ph31, INST→Ph33), and missing `requirements` frontmatter fields from v0.5 audit
+**Success Criteria** (what must be TRUE):
+  1. All 16 v0.5 requirements (WIZ-01–05, KEY-01–04, PROV-01–03, AGENT-01–03, INST-01) show `[x]` in REQUIREMENTS.md
+  2. Traceability table shows correct phase assignments: WIZ-01–05 → Phase 32, KEY-01–04 → Phase 33, PROV-01–03 → Phase 34, AGENT-01–03 → Phase 35, INST-01 → Phase 36, all with Status = Complete
+  3. Phase 32, 35, and 36 SUMMARY.md files each include a `requirements` frontmatter field listing the requirements covered by that phase
+**Plans**: TBD
+
+### Phase 39: Rename and Migration
+**Goal**: All quorum agents are known by slot-based names (`claude-1`, `copilot-1`, `gemini-cli-1`, etc.) everywhere in QGSD — a migration script renames existing `~/.claude.json` entries automatically, and all commands accept and display slot names correctly
+**Depends on**: Phase 38
 **Requirements**: SLOT-01, SLOT-02, SLOT-03, SLOT-04
 **Success Criteria** (what must be TRUE):
   1. Running the migration script renames all existing `~/.claude.json` mcpServers entries from model-based names to `<family>-<N>` slot names without destroying any existing config fields — running it a second time is a no-op
@@ -322,9 +347,9 @@
   4. All QGSD output visible to the user (status tables, quorum instructions, scoreboard display, wizard menus) shows slot names — no old model-based names appear in any user-facing surface
 **Plans**: TBD
 
-### Phase 38: Composition Architecture
+### Phase 40: Composition Architecture
 **Goal**: The quorum orchestrator reads its agent list from a `quorum.active` config array instead of a hardcoded list — which slots participate in quorum is now a config decision, not a code change; the scoreboard tracks each slot by name with the loaded model shown as context
-**Depends on**: Phase 37
+**Depends on**: Phase 39
 **Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, SCBD-01, SCBD-02, SCBD-03
 **Success Criteria** (what must be TRUE):
   1. A user can add or remove a slot name from the `quorum.active` array in `qgsd.json` and the next quorum call includes or excludes that slot without any code change — verified by toggling a slot and inspecting the quorum instructions injected by the UserPromptSubmit hook
@@ -334,9 +359,9 @@
   5. When a slot's model changes (via `/qgsd:mcp-set-model`), the scoreboard creates a new row for that slot+model combination — historical rows for prior models are preserved, not overwritten
 **Plans**: TBD
 
-### Phase 39: Multiple Slots
+### Phase 41: Multiple Slots
 **Goal**: Any quorum agent family can have N independently-configured instances — a user can run `copilot-1` and `copilot-2` as separate `~/.claude.json` entries each pointing to a different model or provider, and adding a new slot is supported via both direct config edit and the mcp-setup wizard
-**Depends on**: Phase 38
+**Depends on**: Phase 40
 **Requirements**: MULTI-01, MULTI-02, MULTI-03
 **Success Criteria** (what must be TRUE):
   1. A user with `claude-1` and `claude-2` defined in `~/.claude.json` and both listed in `quorum.active` sees both slots called independently during quorum — each returns its own response sourced from its own model
@@ -344,9 +369,9 @@
   3. Adding a new slot for any family via direct `~/.claude.json` edit and then running `npx qgsd@latest` causes the new slot to appear in `quorum.active` on the next migration/install pass
 **Plans**: TBD
 
-### Phase 40: Wizard Composition Screen
+### Phase 42: Wizard Composition Screen
 **Goal**: Users can manage which slots participate in quorum and add new slots entirely through the `/qgsd:mcp-setup` wizard — no manual editing of `qgsd.json` or `~/.claude.json` is needed for composition changes
-**Depends on**: Phase 39
+**Depends on**: Phase 41
 **Requirements**: WIZ-08, WIZ-09, WIZ-10
 **Success Criteria** (what must be TRUE):
   1. The `/qgsd:mcp-setup` re-run menu includes an "Edit Quorum Composition" option alongside the existing agent list — selecting it opens the composition screen without disrupting other wizard flows
@@ -394,7 +419,9 @@
 | 34. Provider Swap | v0.5 | 1/1 | Complete | 2026-02-22 | - |
 | 35. Agent Roster | v0.5 | Complete | 2026-02-22 | - |
 | 36. Install Integration | v0.5 | Complete | 2026-02-22 | - |
-| 37. Rename and Migration | v0.6 | TBD | Not started | - |
-| 38. Composition Architecture | v0.6 | TBD | Not started | - |
-| 39. Multiple Slots | v0.6 | TBD | Not started | - |
-| 40. Wizard Composition Screen | v0.6 | TBD | Not started | - |
+| 37. Fix mcp-setup.md Distribution Issues | v0.5 | TBD | Pending | - |
+| 38. v0.5 Bookkeeping — Requirements & SUMMARY | v0.5 | TBD | Pending | - |
+| 39. Rename and Migration | v0.6 | TBD | Not started | - |
+| 40. Composition Architecture | v0.6 | TBD | Not started | - |
+| 41. Multiple Slots | v0.6 | TBD | Not started | - |
+| 42. Wizard Composition Screen | v0.6 | TBD | Not started | - |
