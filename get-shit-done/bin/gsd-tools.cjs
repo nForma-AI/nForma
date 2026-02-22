@@ -5783,8 +5783,13 @@ function cmdMaintainTestsDiscover(cwd, options, raw) {
     addPaths('playwright', files);
   }
 
+  function getPythonCmd() {
+    const test = spawnSync('python3', ['--version'], { encoding: 'utf-8', stdio: 'pipe' });
+    return (test.status === 0 && !test.error) ? 'python3' : 'python';
+  }
+
   function invokePytest() {
-    const result = spawnSync('python', ['-m', 'pytest', '--collect-only', '-q'], {
+    const result = spawnSync(getPythonCmd(), ['-m', 'pytest', '--collect-only', '-q'], {
       cwd: searchDir,
       encoding: 'utf-8',
     });
@@ -5977,7 +5982,7 @@ async function runTestFile(testFile, runner, opts, batchTmpPrefix) {
     } else if (runner === 'pytest') {
       const pytestJsonOutput = path.join(os.tmpdir(), `${batchTmpPrefix}-${safeFile}-${timestamp}-pytest.json`);
       spawnResult = await spawnToFile(
-        'python',
+        getPythonCmd(),
         ['-m', 'pytest', testFile, '--json-report', `--json-report-file=${pytestJsonOutput}`, '-q'],
         { cwd: opts.cwd, env: opts.env, timeoutMs: opts.fileTimeoutMs },
         tmpOutput

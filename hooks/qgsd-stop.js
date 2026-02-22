@@ -138,6 +138,8 @@ function extractCommand(currentTurnLines, cmdPattern) {
 
 // Scans assistant entries in currentTurnLines for tool_use blocks whose
 // name starts with a required model's tool_prefix.
+// Also accepts a Task call to qgsd-quorum-orchestrator as full quorum evidence —
+// the orchestrator handles all model calls internally in its own sub-transcript.
 // Returns a Set of model keys (e.g. 'codex', 'gemini', 'opencode') found.
 function findQuorumEvidence(currentTurnLines, requiredModels) {
   const found = new Set();
@@ -149,6 +151,20 @@ function findQuorumEvidence(currentTurnLines, requiredModels) {
       if (!Array.isArray(content)) continue;
       for (const block of content) {
         if (block.type !== 'tool_use') continue;
+        // Accept Task(subagent_type=qgsd-quorum-orchestrator) as full quorum evidence.
+        // The orchestrator handles all model calls in its own sub-transcript.
+        if (block.name === 'Task') {
+          const input = block.input || {};
+          const subagentType = input.subagent_type || input.subagentType || '';
+          if (subagentType === 'qgsd-quorum-orchestrator') {
+            // Mark all required models as satisfied
+            for (const modelKey of Object.keys(requiredModels)) {
+              found.add(modelKey);
+            }
+            return found; // No need to scan further
+          }
+        }
+        // Standard MCP tool call evidence
         for (const [modelKey, modelDef] of Object.entries(requiredModels)) {
           if (block.name && block.name.startsWith(modelDef.tool_prefix)) {
             found.add(modelKey);

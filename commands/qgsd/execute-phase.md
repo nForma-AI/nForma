@@ -19,7 +19,7 @@ Execute all plans in a phase. Delegates to the gsd:execute-phase workflow for wa
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/execute-phase.md
+@~/.claude/qgsd/workflows/execute-phase.md
 </execution_context>
 
 <context>
@@ -31,7 +31,18 @@ Phase: $ARGUMENTS
 
 <process>
 
-Execute the execute-phase workflow from @~/.claude/get-shit-done/workflows/execute-phase.md end-to-end, applying the checkpoint type handling rules below at every plan step.
+Execute the execute-phase workflow from @~/.claude/qgsd/workflows/execute-phase.md end-to-end, applying the checkpoint type handling rules below at every plan step.
+
+## Agent Substitution (QGSD override)
+
+The GSD workflow uses GSD-specific agent types. When following that workflow, substitute:
+
+| GSD agent type (in workflow) | Use instead (QGSD) |
+|------------------------------|---------------------|
+| `gsd-executor` | `qgsd-executor` |
+| `gsd-verifier` | `qgsd-verifier` |
+
+This applies everywhere the workflow calls `Task(subagent_type="gsd-executor", ...)` or `Task(subagent_type="gsd-verifier", ...)`. All other agent types pass through unchanged.
 
 ## Checkpoint Type Handling Rules
 

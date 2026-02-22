@@ -23,13 +23,13 @@ STATE_JSON=$(node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs maintain
 
 Run:
 ```bash
-npx qgsd --disable-breaker
+node ~/.claude/qgsd-bin/qgsd.cjs --disable-breaker
 ```
 
 This writes `{ "disabled": true, "active": false }` to `.claude/circuit-breaker-state.json`.
 The breaker MUST be re-enabled on every exit path (normal completion AND error). If the workflow
 aborts mid-run, print the re-enable command so the user can run it manually:
-`npx qgsd --enable-breaker`
+`node ~/.claude/qgsd-bin/qgsd.cjs --enable-breaker`
 
 ## Step 3: Discover Tests (fresh start only)
 
@@ -375,7 +375,7 @@ After 6h, proceed to next batch or loop termination.
 ## Step 7: Re-enable Circuit Breaker
 
 ```bash
-npx qgsd --enable-breaker
+node ~/.claude/qgsd-bin/qgsd.cjs --enable-breaker
 ```
 
 This writes `{ "disabled": false, "active": false }` to `.claude/circuit-breaker-state.json`.
@@ -440,7 +440,7 @@ Full details: .planning/maintain-tests-state.json → deferred_report
 
 If any Bash step fails (non-zero exit code):
 1. Print: `QGSD fix-tests: ERROR at <step name> — <error output>`
-2. Run: `npx qgsd --enable-breaker` (always — do not skip)
+2. Run: `node ~/.claude/qgsd-bin/qgsd.cjs --enable-breaker` (always — do not skip)
 3. Run: `node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs activity-clear`
 4. Surface the original error to the user
 

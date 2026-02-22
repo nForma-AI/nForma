@@ -19,6 +19,40 @@ Run a question or prompt through the full QGSD quorum (R3 protocol): Claude + na
 - **Mode B — Execution + Trace Review**: Running commands is necessary before a verdict is possible. Claude runs them, preserves full traces, quorum reviews traces and gives verdicts.
 </objective>
 
+<orchestrator_delegation>
+**Preferred execution path:** spawn the `qgsd-quorum-orchestrator` agent, which encapsulates
+the full R3 protocol (provider pre-flight, team identity, Mode A/B, deliberation, scoreboard).
+
+Resolve the question to pass:
+
+1. If `$ARGUMENTS` is non-empty → use it directly as the question/prompt.
+2. If `$ARGUMENTS` is empty → scan the current conversation using this priority order:
+   - **Priority 1** — Most recent message containing `?` without a substantive answer yet.
+   - **Priority 2** — Most recent message describing a choice/trade-off (keywords: "should we", "which approach", "option A vs", "do we", "whether to").
+   - **Priority 3** — Most recent open concern or blocker ("not sure", "concern", "blocker", "unclear", "wondering").
+   - If none found: stop with `"No open question found. Provide one explicitly: /qgsd:quorum <question>"`
+
+When question is inferred, display before spawning:
+```
+Using conversation context as question (Priority N - [type]):
+"[inferred question text]"
+```
+
+Then spawn the orchestrator:
+
+```
+Task(
+  subagent_type="qgsd-quorum-orchestrator",
+  prompt="[resolved question or bundle]"
+)
+```
+
+The orchestrator returns a structured consensus verdict. Relay it to the user.
+
+**Fallback:** If the orchestrator is unavailable, execute the full protocol inline using
+the steps in the `<mode_detection>` and subsequent sections below.
+</orchestrator_delegation>
+
 <mode_detection>
 **Default: Mode A.**
 
@@ -42,7 +76,7 @@ If `$ARGUMENTS` is empty: use the most recent open question or decision from the
 Before any model calls, run a fast HTTP probe of the underlying LLM providers:
 
 ```bash
-node bin/check-provider-health.cjs --json
+node "$HOME/.claude/qgsd-bin/check-provider-health.cjs" --json
 ```
 
 Parse the JSON output. Build two structures:
@@ -91,7 +125,7 @@ Detect Claude's model ID from: `CLAUDE_MODEL` env var → `ANTHROPIC_MODEL` env 
 
 Run:
 ```bash
-node bin/update-scoreboard.cjs init-team \
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" init-team \
   --claude-model "<claude_model_id>" \
   --team '<TEAM_JSON>'
 ```
@@ -237,7 +271,7 @@ Supporting positions:
 Update the scoreboard: for each model that voted this round, run:
 
 ```bash
-node bin/update-scoreboard.cjs \
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
   --model <model_name> \
   --result <vote_code> \
   --task "<task_label>" \

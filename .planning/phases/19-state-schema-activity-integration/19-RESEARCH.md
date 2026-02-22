@@ -367,13 +367,23 @@ The manifest file has the seed, but if the manifest file is deleted or moved, th
 
 ---
 
-### Pitfall 3: Forgetting to update the installed copy of resume-project.md
+### Pitfall 3: Wrong installed copy target for resume-project.md (CRITICAL — planner got this wrong in first attempt)
 
-**What goes wrong:** Source file at get-shit-done/workflows/resume-project.md gets new routing rows, but installed copy at ~/.claude/qgsd/workflows/resume-project.md does not. Resume-work reads the installed copy — routing rows never take effect in practice.
+**What goes wrong:** Plan updates `~/.claude/get-shit-done/workflows/resume-project.md` instead of `~/.claude/qgsd/workflows/resume-project.md`. `/qgsd:resume-work` reads the **qgsd** installed copy (verified: `~/.claude/gsd-local-patches/commands/qgsd/resume-work.md` overrides the skill to reference `~/.claude/qgsd/workflows/resume-project.md`). The get-shit-done copy is never read by qgsd:resume-work and updating it has zero runtime effect.
 
-**Why it happens:** The installer copies workflows on install, but not on every code change. Without a reinstall, the installed copy is stale.
+**TWO files to update:**
+1. Source: `get-shit-done/workflows/resume-project.md` — edit in place, add 6 rows
+2. Installed: `~/.claude/qgsd/workflows/resume-project.md` — edit in place, add the same 6 rows
 
-**How to avoid:** Any plan that modifies get-shit-done/workflows/resume-project.md must also update ~/.claude/qgsd/workflows/resume-project.md. Established pattern from Phase 14 and Phase 15.
+**DO NOT use `cp get-shit-done/workflows/resume-project.md ~/.claude/qgsd/workflows/resume-project.md`**: The source file uses tilde paths (`~/.claude/qgsd/bin/gsd-tools.cjs`), the installed copy uses absolute paths (`/Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs`). A straight cp would overwrite absolute paths with tilde paths, breaking the installed runtime file. Use Edit tool on each file independently.
+
+**Verification:** After edits, run:
+  `grep -c 'discovering_tests\|running_batch.*maintain\|categorizing_batch\|actioning_batch\|verifying_batch.*maintain\|complete.*maintain' ~/.claude/qgsd/workflows/resume-project.md`
+  Expected: 6
+
+**Why it happens:** Planner confused the gsd upstream install path with the qgsd override path. The local-patches mechanism makes this non-obvious.
+
+**How to avoid:** Always edit both files independently. Established pattern from Phase 14 and Phase 15.
 
 ---
 

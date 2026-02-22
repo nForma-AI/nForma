@@ -96,7 +96,7 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
 Present the unified solution plan to the user with:
 - Summary of structural coupling diagnosed
 - The unified solution (files to change, what to change, why this breaks the oscillation)
-- Instructions: "To implement: [steps]. After committing the fix, run `npx qgsd --reset-breaker` to clear the circuit breaker."
+- Instructions: "To implement: [steps]. After committing the fix, run `node ~/.claude/qgsd-bin/qgsd.cjs --reset-breaker` to clear the circuit breaker."
 
 Wait for explicit user approval before any implementation.
 
@@ -119,7 +119,7 @@ User must make the final call.
 <constraints>
 - EXECUTION is single-model only (R2.2) — quorum diagnoses and plans, never executes
 - Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) are allowed throughout
-- No write Bash commands until user approves the plan AND runs `npx qgsd --reset-breaker`
+- No write Bash commands until user approves the plan AND runs `node ~/.claude/qgsd-bin/qgsd.cjs --reset-breaker`
 - Environmental file fast-path skips quorum entirely — human escalation only
 - See CLAUDE.md R5 for the full policy definition
 </constraints>
