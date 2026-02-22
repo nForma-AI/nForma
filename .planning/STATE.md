@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-22 after Phase 36)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.5 MCP Setup Wizard — ALL PHASES COMPLETE (Phases 32-36)
+**Current focus:** v0.6 Agent Slots & Quorum Composition — Roadmap appended (Phases 37–40); v0.5 all phases complete
 
 ## Current Position
 
-Phase: 36 of 36 (Install Integration) — COMPLETE
-Plan: Complete
-Status: v0.5 milestone complete — ready for /qgsd:audit-milestone
-Last activity: 2026-02-22 - Phase 36 complete (INST-01 shipped); v0.5 all 5 phases done
+Phase: 36 of 40 (v0.5 complete; v0.6 roadmap appended, execution not yet started)
+Plan: Complete (v0.5)
+Status: v0.5 milestone complete; v0.6 roadmap created — ready for /qgsd:plan-phase 37
+Last activity: 2026-02-22 - v0.6 roadmap appended (Phases 37–40; SLOT/COMP/MULTI/WIZ-08-10/SCBD; 17 requirements mapped)
 
-Progress: [████████████████████] 30/30 plans (100%)
+Progress: [████████████████████] 36/40 phases defined (v0.6 phases pending execution)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 40+ (across v0.2–v0.4)
+- Total plans completed: 40+ (across v0.2–v0.5)
 - Average duration: 3.5 min
 - Total execution time: ~2.3 hours
 
@@ -58,6 +58,8 @@ Recent decisions affecting current work:
 - [Phase 34]: URL value passed via NEW_URL env var in provider swap scripts — same security pattern as Phase 33 KEY env var; applies to both curated and custom URL paths
 - [Phase 35]: Add-agent CLAUDE_MCP_PATH resolved via 2-strategy fallback (read from existing entries, then npm root); identity ping after restart to confirm live connectivity (AGENT-03)
 - [Phase 36]: hasClaudeMcpAgents() detection checks both known template names and args path for 'claude-mcp-server' substring; nudge only for Claude Code runtime; fail-open on read errors
+- [v0.6 roadmap]: SCBD-01..03 assigned to Phase 38 (not Phase 37) — scoreboard slot tracking is part of composition data model; slot names must exist (Phase 37) before scoreboard schema adopts them (Phase 38)
+- [v0.6 roadmap]: MULTI-03 ("add slot via wizard") assigned to Phase 39 alongside MULTI-01/02 — wizard composition screen (Phase 40) depends on multi-slot support existing in config first
 
 ### Pending Todos
 
@@ -80,5 +82,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 2026-02-22 — Phase 36 complete; v0.5 milestone all phases done (32-36). Ready for /qgsd:audit-milestone
+Stopped at: 2026-02-22 — v0.6 roadmap appended (Phases 37–40); v0.5 all phases complete. Ready for /qgsd:plan-phase 37
 Resume file: None
