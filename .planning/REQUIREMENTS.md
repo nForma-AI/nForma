@@ -41,23 +41,23 @@
 
 ### MCP Standardization (STD)
 
-- [ ] **STD-01**: openhands-mcp-server package.json name, class name, and server config are corrected to `openhands-mcp-server` (currently all say `codex-mcp-server`)
+- [x] **STD-01**: openhands-mcp-server package.json name, class name, and server config are corrected to `openhands-mcp-server` (currently all say `codex-mcp-server`)
 - [ ] **STD-02**: All 4 Gen1 repos (claude, codex, copilot, openhands) use Gen2 per-tool `*.tool.ts` + `registry.ts` architecture
-- [ ] **STD-03**: All 6 repos read version dynamically from `package.json` (no hardcoded string in `index.ts`)
+- [x] **STD-03**: All 6 repos read version dynamically from `package.json` (no hardcoded string in `index.ts`)
 - [x] **STD-04**: All 6 repos expose an `identity` tool returning `{name, version, model, available_models, install_method}`
-- [ ] **STD-05**: All 6 repos use MIT license with a `LICENSE` file present
-- [ ] **STD-06**: All 6 repos have `engines: node>=18`, `prepublishOnly` build script, `publishConfig: {access: public}`
-- [ ] **STD-07**: All 6 repos have a comprehensive Makefile with lint/format/test/build/clean/dev targets
+- [x] **STD-05**: All 6 repos use MIT license with a `LICENSE` file present
+- [x] **STD-06**: All 6 repos have `engines: node>=18`, `prepublishOnly` build script, `publishConfig: {access: public}`
+- [x] **STD-07**: All 6 repos have a comprehensive Makefile with lint/format/test/build/clean/dev targets
 - [x] **STD-08**: All 6 repos have `constants.ts` and a `Logger` utility in `src/utils/logger.ts`
-- [ ] **STD-09**: All 6 repos have `CHANGELOG.md` and `CLAUDE.md`
+- [x] **STD-09**: All 6 repos have `CHANGELOG.md` and `CLAUDE.md`
 - [ ] **STD-10**: All 6 repos use consistent npm scoping (uniform: all `@tuannvm/` or all unscoped)
 
 ### MCP Observation (OBS)
 
-- [x] **OBS-01**: User can run `/qgsd:mcp-status` to see all connected MCPs with name, version, current model, and availability
-- [x] **OBS-02**: Status display shows health state (available / quota-exceeded / error) derived from scoreboard data
-- [x] **OBS-03**: Status shows available models for each agent (from `identity` tool response)
-- [x] **OBS-04**: Status shows recent UNAVAIL count per agent from quorum scoreboard
+- [ ] **OBS-01**: User can run `/qgsd:mcp-status` to see all connected MCPs with name, version, current model, and availability
+- [ ] **OBS-02**: Status display shows health state (available / quota-exceeded / error) derived from scoreboard data
+- [ ] **OBS-03**: Status shows available models for each agent (from `identity` tool response)
+- [ ] **OBS-04**: Status shows recent UNAVAIL count per agent from quorum scoreboard
 
 ### MCP Management (MGR)
 
@@ -108,20 +108,20 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CATG-01 | Phase 21 (impl), Phase 22 (verify) | Complete |
 | CATG-02 | Phase 21 (impl), Phase 22 (verify) | Complete |
 | CATG-03 | Phase 21 (impl), Phase 22 (verify) | Complete |
-| STD-01 | Phase 23 | Pending |
-| STD-03 | Phase 23 | Pending |
-| STD-05 | Phase 23 | Pending |
-| STD-06 | Phase 23 | Pending |
-| STD-07 | Phase 23 | Pending |
-| STD-09 | Phase 23 | Pending |
-| STD-10 | Phase 23 | Pending |
-| STD-02 | Phase 24 | Pending |
+| STD-01 | Phase 23 | Complete |
+| STD-03 | Phase 23 | Complete |
+| STD-05 | Phase 23 | Complete |
+| STD-06 | Phase 23 | Complete |
+| STD-07 | Phase 23 | Complete |
+| STD-09 | Phase 23 | Complete |
+| STD-10 | Phase 30 (gap closure) | Pending |
+| STD-02 | Phase 31 (gap closure) | Pending |
 | STD-04 | Phase 25 | Complete |
 | STD-08 | Phase 25 | Complete |
-| OBS-01 | Phase 26 | Complete |
-| OBS-02 | Phase 26 | Complete |
-| OBS-03 | Phase 26 | Complete |
-| OBS-04 | Phase 26 | Complete |
+| OBS-01 | Phase 29 (gap closure) | Pending |
+| OBS-02 | Phase 29 (gap closure) | Pending |
+| OBS-03 | Phase 29 (gap closure) | Pending |
+| OBS-04 | Phase 29 (gap closure) | Pending |
 | MGR-01 | Phase 27 | Complete |
 | MGR-02 | Phase 27 | Complete |
 | MGR-03 | Phase 28 | Complete |
@@ -138,6 +138,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 - v0.4 requirements: 20 total (STD: 10, OBS: 4, MGR: 6)
 - Mapped to phases: 20
 - Unmapped: 0 ✓
+- Gap closure phases: 29 (OBS-01–04), 30 (STD-10), 31 (STD-02)
 
 ---
 *Requirements defined: 2026-02-22*

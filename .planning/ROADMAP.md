@@ -4,7 +4,7 @@
 
 - ✅ **v0.2 — Gap Closure & Activity Resume Routing** — Phases 1–17 (shipped 2026-02-21)
 - 🚧 **v0.3 — Test Suite Maintenance Tool** — Phases 18–22 (in progress)
-- ⏳ **v0.4 — MCP Ecosystem** — Phases 23–28 (pending v0.3 completion)
+- 🚧 **v0.4 — MCP Ecosystem** — Phases 23–31 (in progress, gap closure phases added)
 
 ## Phases
 
@@ -53,6 +53,9 @@
 - [x] **Phase 26: MCP Status Command** — /qgsd:mcp-status showing all agents, models, health state, and UNAVAIL counts (completed 2026-02-22)
 - [x] **Phase 27: Model Switching** — /qgsd:mcp-set-model with qgsd.json persistence and quorum call injection (completed 2026-02-22)
 - [x] **Phase 28: Update & Restart Commands** — /qgsd:mcp-update (all install methods) + /qgsd:mcp-restart (completed 2026-02-22)
+- [ ] **Phase 29: Restore mcp-status v2 + Requirements Checkbox Cleanup** — Restore v2 mcp-status.md (regression fix) + update Phase 23/26 REQUIREMENTS.md checkboxes
+- [ ] **Phase 30: Fix gemini-cli Package Reference** — Update ~/.claude.json gemini-cli args to unscoped package name
+- [ ] **Phase 31: Merge Gen2 Branches + Phase 24 Verification** — Merge codex/copilot Gen2 branches to main + create Phase 24 VERIFICATION.md
 
 ## Phase Details
 
@@ -198,6 +201,42 @@
   4. All three commands (`mcp-update <agent>`, `mcp-update all`, `mcp-restart`) produce actionable error output when the agent is unrecognized, the update command fails, or the process cannot be found — they never fail silently
 **Plans**: TBD
 
+### Phase 29: Restore mcp-status v2 + Requirements Checkbox Cleanup
+**Goal**: The live mcp-status.md is restored to its verified v2 state (10-agent, scoreboard-aware) and all Phase 23/26 REQUIREMENTS.md checkboxes reflect actual verification outcomes
+**Depends on**: Phase 28
+**Requirements**: OBS-01, OBS-02, OBS-03, OBS-04
+**Gap Closure**: Closes mcp-status.md regression (OBS-01–04); closes Phase 23 tech debt (STD-01, 03, 05, 06, 07, 09 checkbox drift)
+**Success Criteria** (what must be TRUE):
+  1. `commands/qgsd/mcp-status.md` and `~/.claude/commands/qgsd/mcp-status.md` both contain v2 (10-agent, scoreboard-aware) — line count ≥125
+  2. REQUIREMENTS.md checkboxes for OBS-01–04 are `[x]`
+  3. REQUIREMENTS.md checkboxes for STD-01, STD-03, STD-05, STD-06, STD-07, STD-09 are `[x]`
+**Plans**:
+  - [ ] 29-01-PLAN.md — git checkout v2 mcp-status.md, copy to ~/.claude, update REQUIREMENTS.md checkboxes (OBS-01–04, STD-01, 03, 05, 06, 07, 09) [Wave 1]
+
+### Phase 30: Fix gemini-cli Package Reference
+**Goal**: Running `/qgsd:mcp-update gemini-cli` installs the correct unscoped `gemini-mcp-server` package — `~/.claude.json` reflects Phase 23's unscoping work
+**Depends on**: Phase 29
+**Requirements**: STD-10
+**Gap Closure**: Closes STD-10 partial — `~/.claude.json` `mcpServers["gemini-cli"].args` not updated when Phase 23 unscoped the package name
+**Success Criteria** (what must be TRUE):
+  1. `~/.claude.json` `mcpServers["gemini-cli"].args` contains `gemini-mcp-server` (not `@tuannvm/gemini-mcp-server`)
+  2. Running `/qgsd:mcp-update gemini-cli` would invoke `npm install -g gemini-mcp-server` — confirmed by inspecting the resolved args
+**Plans**:
+  - [ ] 30-01-PLAN.md — Update ~/.claude.json gemini-cli args + REQUIREMENTS.md STD-10 [Wave 1]
+
+### Phase 31: Merge Gen2 Branches + Phase 24 Verification
+**Goal**: codex-mcp-server and copilot-mcp-server Gen2 architecture is merged to main and Phase 24 VERIFICATION.md confirms all 4 Gen1 repos are fully ported — STD-02 is production-stable
+**Depends on**: Phase 30
+**Requirements**: STD-02
+**Gap Closure**: Closes STD-02 — codex-mcp-server Gen2 on `fix/progress-after-done` and copilot-mcp-server Gen2 on `feat/02-error-handling-and-resilience`; no Phase 24 VERIFICATION.md
+**Success Criteria** (what must be TRUE):
+  1. `codex-mcp-server` main branch contains Gen2 per-tool `*.tool.ts` + `registry.ts` architecture
+  2. `copilot-mcp-server` main branch contains Gen2 per-tool `*.tool.ts` + `registry.ts` architecture
+  3. Phase 24 VERIFICATION.md exists with status `passed` covering all STD-02 success criteria for all 4 repos
+**Plans**:
+  - [ ] 31-01-PLAN.md — Merge codex-mcp-server fix/progress-after-done → main; merge copilot-mcp-server feat/02-error-handling-and-resilience → main [Wave 1]
+  - [ ] 31-02-PLAN.md — Create Phase 24 VERIFICATION.md confirming STD-02 across all 4 repos [Wave 2]
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -230,3 +269,6 @@
 | 26. MCP Status Command | 1/1 | Complete    | 2026-02-22 | - |
 | 27. Model Switching | v0.4 | Complete    | 2026-02-22 | - |
 | 28. Update and Restart Commands | v0.4 | Complete    | 2026-02-22 | - |
+| 29. Restore mcp-status v2 + Checkbox Cleanup | v0.4 | 0/1 | Not started | - |
+| 30. Fix gemini-cli Package Reference | v0.4 | 0/1 | Not started | - |
+| 31. Merge Gen2 Branches + Phase 24 Verification | v0.4 | 0/2 | Not started | - |
