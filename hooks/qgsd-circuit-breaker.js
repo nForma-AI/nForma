@@ -76,6 +76,73 @@ function getCommitFileSets(gitRoot, hashes) {
   return sets;
 }
 
+// Gets the unified diff between two commits for a specific set of files.
+// Returns the raw diff string, or empty string on error (fail-open).
+// olderHash is the earlier commit, newerHash is the later commit (forward in time).
+function getCommitDiff(gitRoot, olderHash, newerHash, files) {
+  const result = spawnSync(
+    'git',
+    ['diff', olderHash, newerHash, '--', ...files],
+    { cwd: gitRoot, encoding: 'utf8', timeout: 5000 }
+  );
+  if (result.status !== 0 || result.error) return '';
+  return result.stdout || '';
+}
+
+// Second-pass reversion check: given the hashes (newest-first) belonging to
+// run-groups for an oscillating file set key, and the files in that set,
+// check whether any consecutive pair shows net deletions (true reversion) or
+// all pairs are purely additive (TDD progression).
+//
+// hashes: all commit hashes (newest-first) in the oscillating run-groups
+// files: file paths in the oscillating set
+// gitRoot: git repository root
+//
+// Returns true if real oscillation (net deletions found), false if TDD progression.
+// Returns true also if ALL pairs errored out (git unavailable → fall back to original behavior).
+function hasReversionInHashes(gitRoot, hashes, files) {
+  // hashes are newest-first; consecutive pairs: (hashes[i], hashes[i-1]) where
+  // hashes[i] is older (higher index = earlier in time), hashes[i-1] is newer.
+  // We diff older → newer: git diff <hashes[i]> <hashes[i-1]>
+  let pairsChecked = 0;
+  let errorsOnly = true;
+
+  for (let i = hashes.length - 1; i >= 1; i--) {
+    const olderHash = hashes[i];
+    const newerHash = hashes[i - 1];
+    const diff = getCommitDiff(gitRoot, olderHash, newerHash, files);
+
+    if (diff === '') {
+      // git error — skip this pair (fail-open for individual pair)
+      continue;
+    }
+
+    errorsOnly = false;
+    pairsChecked++;
+
+    // Parse diff: count net deletions (lines starting with '-' but not '---')
+    const lines = diff.split('\n');
+    let additions = 0;
+    let deletions = 0;
+    for (const line of lines) {
+      if (line.startsWith('---') || line.startsWith('+++')) continue;
+      if (line.startsWith('+')) additions++;
+      else if (line.startsWith('-')) deletions++;
+    }
+
+    // Any net deletions in this pair → real oscillation (content was removed)
+    if (deletions > 0) {
+      return true;
+    }
+  }
+
+  // If all pairs errored out → fall back to original behavior (treat as oscillation)
+  if (errorsOnly) return true;
+
+  // All pairs were purely additive → TDD progression, not oscillation
+  return false;
+}
+
 // Detects true oscillation: returns { detected: bool, fileSet: string[] }
 //
 // Algorithm: collapse consecutive identical file sets into run-groups first,
@@ -83,26 +150,57 @@ function getCommitFileSets(gitRoot, hashes) {
 // sequence. This correctly handles patterns like A A A B B A A B B B A A
 // (3 A-groups, 2 B-groups → oscillation at depth 3) while ignoring simple
 // iterative refinement like A A A (1 A-group → not oscillation).
-function detectOscillation(fileSets, depth) {
-  // Step 1: collapse consecutive identical file sets into runs
+//
+// Second-pass reversion check: when a file set reaches >= depth run-groups,
+// diff consecutive pairs to confirm content was actually reverted (net deletions).
+// If all pairs are purely additive (TDD progression), do NOT flag as oscillation.
+//
+// hashes: commit hashes array (newest-first, same order as fileSets)
+// gitRoot: git repository root (used for diff-based reversion check)
+function detectOscillation(fileSets, depth, hashes, gitRoot) {
+  // Step 1: collapse consecutive identical file sets into runs, tracking indices
   const runs = [];
-  for (const files of fileSets) {
+  for (let i = 0; i < fileSets.length; i++) {
+    const files = fileSets[i];
     const key = files.slice().sort().join('\0');
     if (runs.length === 0 || runs[runs.length - 1].key !== key) {
-      runs.push({ key, files });
+      runs.push({ key, files, indices: [i] });
+    } else {
+      runs[runs.length - 1].indices.push(i);
     }
   }
 
-  // Step 2: count run-group occurrences per file set key
-  const count = new Map();
+  // Step 2: count run-group occurrences per file set key, tracking which runs belong to each key
+  const keyRuns = new Map(); // key → array of run objects
   for (const run of runs) {
-    count.set(run.key, (count.get(run.key) || 0) + 1);
+    if (!keyRuns.has(run.key)) keyRuns.set(run.key, []);
+    keyRuns.get(run.key).push(run);
   }
 
-  // Step 3: any file set with >= depth run-groups is oscillating
-  for (const [key, occurrences] of count) {
-    if (occurrences >= depth) {
-      return { detected: true, fileSet: key.split('\0').filter(f => f.length > 0) };
+  // Step 3: any file set with >= depth run-groups is a candidate for oscillation
+  for (const [key, keyRunList] of keyRuns) {
+    if (keyRunList.length >= depth) {
+      const files = key.split('\0').filter(f => f.length > 0);
+
+      // Second-pass reversion check (if hashes and gitRoot provided)
+      if (hashes && gitRoot && hashes.length > 0) {
+        // Collect all hashes from the oscillating run-groups (newest-first order preserved)
+        const oscillatingHashes = [];
+        for (const run of keyRunList) {
+          for (const idx of run.indices) {
+            if (idx < hashes.length) oscillatingHashes.push(hashes[idx]);
+          }
+        }
+        // Sort by index position (newest-first as they appear in hashes array)
+        // The indices are already ordered since we iterate runs in order
+        const isRealOscillation = hasReversionInHashes(gitRoot, oscillatingHashes, files);
+        if (!isRealOscillation) {
+          // All additive → TDD progression, not a real loop
+          return { detected: false, fileSet: [] };
+        }
+      }
+
+      return { detected: true, fileSet: files };
     }
   }
   return { detected: false, fileSet: [] };
@@ -286,7 +384,7 @@ function main() {
       const fileSets = getCommitFileSets(gitRoot, hashes);
 
       // Detect oscillation
-      const result = detectOscillation(fileSets, config.circuit_breaker.oscillation_depth);
+      const result = detectOscillation(fileSets, config.circuit_breaker.oscillation_depth, hashes, gitRoot);
       if (!result.detected) {
         process.exit(0);
       }
