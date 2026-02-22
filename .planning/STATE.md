@@ -121,7 +121,7 @@ Recent decisions affecting current work:
 | 48 | it should have automatically proceed through the verification if it deemed it necessary and used our quorum-test mechanism to go through test testing tasks | 2026-02-22 | 14116e0 | Verified | [48-it-should-have-automatically-proceed-thr](./quick/48-it-should-have-automatically-proceed-thr/) |
 | 49 | fix sibling tool call errors in quorum by making calls sequential | 2026-02-22 | 81f3d02 | Verified | [49-fix-sibling-tool-call-errors-in-quorum-b](./quick/49-fix-sibling-tool-call-errors-in-quorum-b/) |
 | 50 | Fix claude-mcp-server health_check subprocess env passthrough | 2026-02-22 | 65b540d | Pending | [50-fix-claude-mcp-server-health-check-subpr](.planning/quick/50-fix-claude-mcp-server-health-check-subpr/) |
-| 51 | Add keytar-based cross-platform secret management | 2026-02-22 | {FINAL_HASH} | Pending | [51-add-keytar-based-cross-platform-secret-m](.planning/quick/51-add-keytar-based-cross-platform-secret-m/) |
+| 51 | Add keytar-based cross-platform secret management | 2026-02-22 | fe67e5d | Pending | [51-add-keytar-based-cross-platform-secret-m](.planning/quick/51-add-keytar-based-cross-platform-secret-m/) |
 
 ## Session Continuity
 
