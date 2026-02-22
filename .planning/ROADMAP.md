@@ -171,7 +171,8 @@
   2. The status display shows each agent's health state (available / quota-exceeded / error) derived from the quorum scoreboard file — an agent that has logged quota errors in the scoreboard shows `quota-exceeded`, not `available`
   3. The status display shows the `available_models` list for each agent, sourced from the `identity` tool response — the list reflects what the running MCP server reports, not a hardcoded config value
   4. The status display shows a per-agent UNAVAIL count from the quorum scoreboard — the count matches the number of failed quorum attempts recorded for that agent
-**Plans**: TBD
+**Plans**: 1 plan
+  - [ ] 26-01-PLAN.md — mcp-status command: identity polling for all 10 agents, scoreboard UNAVAIL counts, health state derivation, formatted table (OBS-01, OBS-02, OBS-03, OBS-04) [Wave 1]
 
 ### Phase 27: Model Switching
 **Goal**: Users can change the default model for any quorum worker and have that preference persist across sessions — the next quorum call uses the new model without any manual config editing
@@ -224,6 +225,6 @@
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
 | 25. Identity Tool and Shared Utilities | 3/3 | Complete    | 2026-02-22 | - |
-| 26. MCP Status Command | v0.4 | 0/? | Not started | - |
+| 26. MCP Status Command | v0.4 | 0/1 | Planned | - |
 | 27. Model Switching | v0.4 | 0/? | Not started | - |
 | 28. Update and Restart Commands | v0.4 | 0/? | Not started | - |
