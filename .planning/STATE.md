@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-22 after Phase 21)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.3 Fix-Tests Tool — Phase 21 complete (categorization engine + dispatch), Phase 22 (integration tests) ready to plan
+**Current focus:** v0.3 Fix-Tests Tool — Phase 22 plans written (integration tests: 11 new gsd-tools tests + VERIFICATION.md for 14 v0.3 requirements), ready to execute
 
 ## Current Position
 
 Phase: 22 of 28 (Integration Tests)
-Plan: Not started
-Status: Ready to plan — Phase 21 complete (5-category AI classification + dispatch engine in fix-tests.md, CATG-01/02/03 done)
-Last activity: 2026-02-22 - Completed Phase 21 execution (2 plans, categorization engine + dispatch loop)
+Plan: 22-01 (Wave 1), 22-02 (Wave 2) — both written
+Status: Ready to execute — Phase 22 planned (2 plans: integration tests + VERIFICATION.md for 14 v0.3 requirements)
+Last activity: 2026-02-22 - Completed Phase 22 planning (22-01: 11 tests, 22-02: VERIFICATION.md)
 
-Progress: [███████████████████░] 19/20 plans (95%)
+Progress: [████████████████████] 21/22 plans (95%)
 
 ## Performance Metrics
 
@@ -107,5 +107,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Phase 21 complete — AI classification engine (Step 6d) and dispatch loop (Step 6h) delivered; both source and installed fix-tests.md updated; CATG-01/02/03 closed; Phase 22 (Integration Tests) ready to plan
+Stopped at: Phase 22 plans written — 22-01 (11 integration tests: TC-INTG03-1, TC-CB-1/2/3, TC-RESUME-1/2, TC-TERM-1/2/3, TC-SCHEMA21-1/2) and 22-02 (VERIFICATION.md for 14 v0.3 requirements + REQUIREMENTS.md traceability update); quorum approved (3/3 available); ready to execute Phase 22
 Resume file: None
