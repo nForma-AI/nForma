@@ -2,17 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after Phase 35)
+See: .planning/PROJECT.md (updated 2026-02-22 after Phase 36)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.5 MCP Setup Wizard — Phase 36 ready to plan (Install Integration)
+**Current focus:** v0.5 MCP Setup Wizard — ALL PHASES COMPLETE (Phases 32-36)
 
 ## Current Position
 
-Phase: 36 of 36 (Install Integration)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-22 - Phase 35 complete (AGENT-01..AGENT-03 shipped); advanced to Phase 36
+Phase: 36 of 36 (Install Integration) — COMPLETE
+Plan: Complete
+Status: v0.5 milestone complete — ready for /qgsd:audit-milestone
+Last activity: 2026-02-22 - Phase 36 complete (INST-01 shipped); v0.5 all 5 phases done
 
 Progress: [████████████████████] 30/30 plans (100%)
 
@@ -57,6 +57,7 @@ Recent decisions affecting current work:
 - [Phase 33]: syncToClaudeJson called after per-agent ANTHROPIC_API_KEY patch — ensures all keytar secrets propagate to all env blocks as a second pass
 - [Phase 34]: URL value passed via NEW_URL env var in provider swap scripts — same security pattern as Phase 33 KEY env var; applies to both curated and custom URL paths
 - [Phase 35]: Add-agent CLAUDE_MCP_PATH resolved via 2-strategy fallback (read from existing entries, then npm root); identity ping after restart to confirm live connectivity (AGENT-03)
+- [Phase 36]: hasClaudeMcpAgents() detection checks both known template names and args path for 'claude-mcp-server' substring; nudge only for Claude Code runtime; fail-open on read errors
 
 ### Pending Todos
 
@@ -79,5 +80,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 2026-02-22 — Phase 35 complete; transitioned to Phase 36 (Install Integration) ready to plan
+Stopped at: 2026-02-22 — Phase 36 complete; v0.5 milestone all phases done (32-36). Ready for /qgsd:audit-milestone
 Resume file: None
