@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-22 after Phase 27)
 Phase: 27 of 28 (Model Switching) — COMPLETE
 Plan: 27-02 — complete
 Status: Phase 27 complete — /qgsd:mcp-set-model live; MGR-01 and MGR-02 satisfied; model_preferences persistence + quorum injection both working
-Last activity: 2026-02-22 - Completed Phase 27: /qgsd:mcp-set-model slash command + model_preferences config + override injection
+Last activity: 2026-02-22 - Completed quick task 50: Fix claude-mcp-server health_check subprocess env passthrough
 
 Progress: [█████████████████████░] 27/28 phases (96%)
 
@@ -116,6 +116,7 @@ Recent decisions affecting current work:
 | 47 | Add multi-provider fallback support to claude-mcp-server | 2026-02-22 | 5d30af5 | Verified | [47-add-multi-provider-fallback-support-to-c](./quick/47-add-multi-provider-fallback-support-to-c/) |
 | 48 | it should have automatically proceed through the verification if it deemed it necessary and used our quorum-test mechanism to go through test testing tasks | 2026-02-22 | 14116e0 | Verified | [48-it-should-have-automatically-proceed-thr](./quick/48-it-should-have-automatically-proceed-thr/) |
 | 49 | fix sibling tool call errors in quorum by making calls sequential | 2026-02-22 | 81f3d02 | Verified | [49-fix-sibling-tool-call-errors-in-quorum-b](./quick/49-fix-sibling-tool-call-errors-in-quorum-b/) |
+| 50 | Fix claude-mcp-server health_check subprocess env passthrough | 2026-02-22 | 65b540d | Pending | [50-fix-claude-mcp-server-health-check-subpr](.planning/quick/50-fix-claude-mcp-server-health-check-subpr/) |
 
 ## Session Continuity
 
