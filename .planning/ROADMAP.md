@@ -202,16 +202,12 @@
 **Plans**: TBD
 
 ### Phase 29: Restore mcp-status v2 + Requirements Checkbox Cleanup
-**Goal**: The live mcp-status.md is restored to its verified v2 state (10-agent, scoreboard-aware) and all Phase 23/26 REQUIREMENTS.md checkboxes reflect actual verification outcomes
+**Goal**: The live mcp-status.md is restored to its verified v2 state (10-agent, scoreboard-aware) and REQUIREMENTS.md OBS-01–04 checkboxes reflect actual verification outcomes
 **Depends on**: Phase 28
 **Requirements**: OBS-01, OBS-02, OBS-03, OBS-04
-**Gap Closure**: Closes mcp-status.md regression (OBS-01–04); closes Phase 23 tech debt (STD-01, 03, 05, 06, 07, 09 checkbox drift)
-**Success Criteria** (what must be TRUE):
-  1. `commands/qgsd/mcp-status.md` and `~/.claude/commands/qgsd/mcp-status.md` both contain v2 (10-agent, scoreboard-aware) — line count ≥125
-  2. REQUIREMENTS.md checkboxes for OBS-01–04 are `[x]`
-  3. REQUIREMENTS.md checkboxes for STD-01, STD-03, STD-05, STD-06, STD-07, STD-09 are `[x]`
-**Plans**:
-  - [ ] 29-01-PLAN.md — git checkout v2 mcp-status.md, copy to ~/.claude, update REQUIREMENTS.md checkboxes (OBS-01–04, STD-01, 03, 05, 06, 07, 09) [Wave 1]
+**Gap Closure**: Closes mcp-status.md regression (OBS-01–04); STD-01/03/05/06/07/09 already [x] — only OBS checkboxes need updating
+**Plans**: 1 plan
+  - [ ] 29-01-PLAN.md — git checkout v2 mcp-status.md, copy to ~/.claude, update OBS-01–04 checkboxes in REQUIREMENTS.md [Wave 1]
 
 ### Phase 30: Fix gemini-cli Package Reference
 **Goal**: Running `/qgsd:mcp-update gemini-cli` installs the correct unscoped `gemini-mcp-server` package — `~/.claude.json` reflects Phase 23's unscoping work
