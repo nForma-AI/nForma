@@ -8,15 +8,23 @@
  * Reads current JSON, applies score delta for one model/round, recalculates
  * all cumulative stats from scratch, writes back.
  *
- * Usage:
+ * Usage (round vote):
  *   node bin/update-scoreboard.cjs \
  *     --model <name> --result <code> --task <label> --round <n> --verdict <v> \
  *     [--scoreboard <path>] [--category <cat>] [--subcategory <subcat>] \
  *     [--task-description <text>]
+ *
+ * Usage (team identity — once per session):
+ *   node bin/update-scoreboard.cjs init-team \
+ *     --claude-model <model-id> \
+ *     --team '<json-object-of-agent-identities>' \
+ *     [--scoreboard <path>]
  */
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+const os = require('os');
 
 // ---------------------------------------------------------------------------
 // Score delta lookup
@@ -260,11 +268,88 @@ Choose the single best match. Return nothing except the JSON object.`;
 }
 
 // ---------------------------------------------------------------------------
+// init-team: capture team fingerprint (idempotent — skips if unchanged)
+// ---------------------------------------------------------------------------
+
+async function initTeam(argv) {
+  const args = parseArgs(argv);
+  const scoreboardPath = args.scoreboard || '.planning/quorum-scoreboard.json';
+  const claudeModel = args['claude-model'] || process.env.CLAUDE_MODEL || process.env.ANTHROPIC_MODEL || 'unknown';
+
+  // Parse agent identities from --team JSON
+  let agents = {};
+  if (args.team) {
+    try {
+      agents = JSON.parse(args.team);
+    } catch (e) {
+      process.stderr.write(`[init-team] WARNING: could not parse --team JSON: ${e.message}\n`);
+    }
+  }
+
+  // Auto-detect MCPs and plugins from ~/.claude.json
+  let mcps = [];
+  let plugins = [];
+  try {
+    const claudeJsonPath = process.env.QGSD_CLAUDE_JSON || path.join(os.homedir(), '.claude.json');
+    const claudeJson = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8'));
+    mcps = Object.keys(claudeJson.mcpServers || {});
+    plugins = claudeJson.plugins || [];
+  } catch (e) {
+    process.stderr.write(`[init-team] WARNING: could not read ~/.claude.json: ${e.message}\n`);
+  }
+
+  // Compute fingerprint from canonical team composition
+  const canonical = JSON.stringify({
+    claude_model: claudeModel,
+    agents: Object.fromEntries(Object.entries(agents).sort()),
+    mcps: [...mcps].sort(),
+    plugins: [...plugins].sort(),
+  });
+  const fingerprint = crypto.createHash('sha256').update(canonical).digest('hex').slice(0, 16);
+
+  const data = loadData(scoreboardPath);
+
+  // Skip if fingerprint unchanged
+  if (data.team && data.team.fingerprint === fingerprint) {
+    process.stdout.write(`[init-team] fingerprint: ${fingerprint} | no change\n`);
+    return;
+  }
+
+  const prevFingerprint = data.team ? data.team.fingerprint : null;
+
+  data.team = {
+    fingerprint,
+    captured_at: new Date().toISOString(),
+    claude_model: claudeModel,
+    agents,
+    mcps,
+    plugins,
+  };
+
+  const absPath = path.resolve(process.cwd(), scoreboardPath);
+  fs.mkdirSync(path.dirname(absPath), { recursive: true });
+  fs.writeFileSync(absPath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+
+  const agentCount = Object.keys(agents).length;
+  if (prevFingerprint) {
+    process.stdout.write(`[init-team] fingerprint: ${fingerprint} (updated from ${prevFingerprint}) | ${agentCount} agents, ${mcps.length} MCPs, ${plugins.length} plugins\n`);
+  } else {
+    process.stdout.write(`[init-team] fingerprint: ${fingerprint} | ${agentCount} agents, ${mcps.length} MCPs, ${plugins.length} plugins\n`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
 async function main() {
   const rawArgs = process.argv.slice(2);
+
+  // Subcommand routing
+  if (rawArgs[0] === 'init-team') {
+    return initTeam(rawArgs.slice(1));
+  }
+
   const parsed  = parseArgs(rawArgs);
   const cfg     = validate(parsed);
 
@@ -334,6 +419,9 @@ async function main() {
     if (resolvedCategory && resolvedSubcategory) {
       newEntry.category    = resolvedCategory;
       newEntry.subcategory = resolvedSubcategory;
+    }
+    if (data.team && data.team.fingerprint) {
+      newEntry.team_fingerprint = data.team.fingerprint;
     }
     data.rounds.push(newEntry);
   }

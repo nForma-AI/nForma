@@ -53,6 +53,23 @@ From each VERIFICATION.md, extract:
 
 If a phase is missing VERIFICATION.md, flag it as "unverified phase" — this is a blocker.
 
+### 2b. Classify Missing Phases
+
+For any phase with no directory at all, determine whether a plan already exists:
+
+```bash
+# Check quick tasks for a plan referencing this phase
+ls .planning/quick/*/
+# Check if phase plan exists but was never executed
+node ~/.claude/qgsd/bin/gsd-tools.cjs find-phase {N} --raw
+```
+
+Classify each missing phase as:
+- **`plan_exists_not_executed`** — a PLAN.md exists in `.planning/quick/` or a phase plan directory with no SUMMARY.md → plan ready, never run
+- **`missing_no_plan`** — no plan found anywhere → needs planning before execution
+
+Track this classification for routing in Step 7.
+
 ## 3. Spawn Integration Checker
 
 With phase context collected:
@@ -179,6 +196,16 @@ Route by status (see `<offer_next>`).
 <offer_next>
 Output this markdown directly (not as a code block). Route based on status:
 
+**Pre-routing check (gaps_found only):** Before using the standard gaps_found output, check gap classification from Step 2b:
+
+- If ALL unsatisfied requirements are from phases classified as `plan_exists_not_executed` (zero `missing_no_plan` phases):
+  → Present the audit summary (gaps, cross-phase issues, broken flows)
+  → Then **auto-execute**: follow `@~/.claude/qgsd/workflows/execute-phase.md` for each missing phase in sequence (lowest phase number first)
+  → After all executions complete, re-run the audit check and present the final result
+  → Do NOT show the `/qgsd:plan-milestone-gaps` suggestion
+
+- If ANY phase is `missing_no_plan`: use standard gaps_found routing below
+
 ---
 
 **If passed:**
@@ -293,5 +320,7 @@ All requirements met. No critical blockers. Accumulated tech debt needs review.
 - [ ] Integration checker spawned with milestone requirement IDs
 - [ ] v{version}-MILESTONE-AUDIT.md created with structured requirement gap objects
 - [ ] FAIL gate enforced — any unsatisfied requirement forces gaps_found status
+- [ ] Missing phases classified as plan_exists_not_executed vs missing_no_plan (Step 2b)
+- [ ] If all gaps are executable: auto-execute phases then re-audit instead of routing to plan-milestone-gaps
 - [ ] Results presented with actionable next steps
 </success_criteria>
