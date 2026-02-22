@@ -269,7 +269,8 @@
   2. After confirming a key change, `~/.claude.json` `mcpServers[agent].env` block is updated with the new key value — inspecting the file confirms the value changed
   3. After the key is written to `~/.claude.json`, the affected MCP server process is restarted automatically — the user does not need to manually restart it
   4. If a key is already stored for the agent, the wizard shows "(key stored)" next to the prompt and allows the user to overwrite it — it does not expose the existing key value
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 33-01-PLAN.md — Full API key flow in Agent Sub-Menu Option 1: key-status check, "(key stored)" hint, keytar store, ~/.claude.json patch, sync, restart (KEY-01, KEY-02, KEY-03, KEY-04) [Wave 1]
 
 ### Phase 34: Provider Swap
 **Goal**: Users can change the base URL (provider) for any existing agent through the wizard — they choose from a curated list or enter a custom URL, the wizard updates `~/.claude.json` and restarts the agent
@@ -336,7 +337,7 @@
 | 30. Fix gemini-cli Package Reference | v0.4 | Complete    | 2026-02-22 | - |
 | 31. Merge Gen2 Branches + Phase 24 Verification | v0.4 | Complete    | 2026-02-22 | - |
 | 32. Wizard Scaffold | v0.5 | Complete    | 2026-02-22 | - |
-| 33. API Key Management | v0.5 | 0/TBD | Not started | - |
+| 33. API Key Management | v0.5 | 0/1 | Not started | - |
 | 34. Provider Swap | v0.5 | 0/TBD | Not started | - |
 | 35. Agent Roster | v0.5 | 0/TBD | Not started | - |
 | 36. Install Integration | v0.5 | 0/TBD | Not started | - |
