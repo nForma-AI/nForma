@@ -86,7 +86,7 @@ Recent decisions affecting current work:
 | 42 | adapt claude-mcp-server fork: replace Codex CLI with Claude CLI end-to-end | 2026-02-22 | 4c05844 | Verified | [42-adapt-claude-mcp-server-fork-replace-cod](./quick/42-adapt-claude-mcp-server-fork-replace-cod/) |
 | 43 | we need to review the qgsd quick command | 2026-02-22 | 22a15de | Verified | [43-we-need-to-review-the-qgsd-quick-command](./quick/43-we-need-to-review-the-qgsd-quick-command/) |
 | 44 | enable /qgsd:execute-phase N --auto to chain through all milestone phases | 2026-02-22 | a0400d9 | Verified | [44-if-somebody-run-the-qgsd-execute-phase-n](./quick/44-if-somebody-run-the-qgsd-execute-phase-n/) |
-| 46 | Review all quorum invocation sites and reduce verbosity of banners and step labels | 2026-02-22 | {commit_hash} | Pending | [46-review-all-quorum-invocation-sites-and-r](./quick/46-review-all-quorum-invocation-sites-and-r/) |
+| 46 | Review all quorum invocation sites and reduce verbosity of banners and step labels | 2026-02-22 | e2675c4 | Pending | [46-review-all-quorum-invocation-sites-and-r](./quick/46-review-all-quorum-invocation-sites-and-r/) |
 
 ## Session Continuity
 
