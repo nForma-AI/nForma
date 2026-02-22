@@ -8,6 +8,21 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Upcoming Milestone: v0.6 Agent Slots & Quorum Composition
+
+**Goal:** Rename all quorum agents to slot-based names (claude-1, copilot-1, gemini-cli-1, etc.), ship a `quorum.active` composition config that the orchestrator reads instead of a hardcoded list, and extend `/qgsd:mcp-setup` with a composition screen for managing which slots participate in quorum.
+
+**Target features:**
+- Slot naming: rename all 10 agents to `<family>-<N>` scheme + migration script for `~/.claude.json`
+- Composition config: `quorum.active` array in `qgsd.json` + orchestrator reads it dynamically
+- Multiple slots: any family can have N instances (copilot-1/2, opencode-1/2, codex-cli-1/2, gemini-cli-1/2)
+- mcp-setup extension: "Edit Quorum Composition" screen to toggle slots on/off and add new slots
+- Scoreboard: tracks by slot name, model shown as context
+
+**Phase range:** 37–40
+
+---
+
 ## Current Milestone: v0.5 MCP Setup Wizard
 
 **Goal:** Ship `/qgsd:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (model, provider, API key) without touching config files manually.
@@ -167,4 +182,4 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | URL passed via NEW_URL env var in provider swap node scripts | Same security pattern as KEY env var in Phase 33 — prevents URL injection into script body; canonical URLs hardcoded in step C resolution, user-entered custom URL also env-var-only | Phase 34 — PROV-03 |
 
 ---
-*Last updated: 2026-02-22 after Phase 34 — provider swap complete (PROV-01..PROV-03); mcp-setup.md Option 2 fully implemented; Phase 35 agent roster next*
+*Last updated: 2026-02-22 after v0.6 milestone planning — Agent Slots & Quorum Composition defined (SLOT/COMP/MULTI/WIZ/SCBD requirements; Phases 37–40)*
