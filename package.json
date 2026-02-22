@@ -54,6 +54,6 @@
     "generate-assets": "npm run generate-terminal && npm run generate-logo",
     "prepublishOnly": "npm run build:hooks",
     "lint:isolation": "node scripts/lint-isolation.js",
-    "test": "node scripts/lint-isolation.js && node --test hooks/qgsd-stop.test.js hooks/config-loader.test.js get-shit-done/bin/gsd-tools.test.cjs hooks/qgsd-circuit-breaker.test.js"
+    "test": "node scripts/lint-isolation.js && node --test hooks/qgsd-stop.test.js hooks/config-loader.test.js get-shit-done/bin/gsd-tools.test.cjs hooks/qgsd-circuit-breaker.test.js hooks/qgsd-prompt.test.js bin/update-scoreboard.test.cjs"
   }
 }
