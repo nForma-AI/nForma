@@ -138,9 +138,13 @@
 **Requirements**: STD-02
 **Success Criteria** (what must be TRUE):
   1. claude-mcp-server, codex-mcp-server, copilot-mcp-server, and openhands-mcp-server each have a `src/tools/` directory containing individual `*.tool.ts` files — no monolithic tool file remains
-  2. Each of the 4 repos has a `src/registry.ts` (or equivalent) that wires all tool files into the MCP server — adding a new tool requires only creating a new `*.tool.ts` and registering it
+  2. Each of the 4 repos has a `src/tools/registry.ts` that wires all tool files into the MCP server — adding a new tool requires only creating a new `*.tool.ts` and registering it in index.ts
   3. `npm run build` succeeds in all 4 repos after the port; existing tool behaviors are preserved (tools respond correctly to the same inputs as before the port)
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 24-01-PLAN.md — claude-mcp-server Gen2 port: registry.ts + per-tool files + session singleton + server.ts dispatch + tests (STD-02) [Wave 1]
+  - [ ] 24-02-PLAN.md — codex-mcp-server Gen2 port: registry.ts + per-tool files + session singleton + server.ts dispatch + tests (STD-02) [Wave 1]
+  - [ ] 24-03-PLAN.md — copilot-mcp-server Gen2 port: registry.ts + per-tool files + copilotExecutor helper + server.ts dispatch + tests (STD-02) [Wave 1]
+  - [ ] 24-04-PLAN.md — openhands-mcp-server Gen2 port: registry.ts + per-tool files + server.ts dispatch + tests (STD-02) [Wave 1]
 
 ### Phase 25: Identity Tool and Shared Utilities
 **Goal**: All 6 MCP server repos expose a consistent `identity` tool and share the same `constants.ts` and `Logger` utility structure — the identity tool response is the data source for the mcp-status command in the next phase
@@ -207,12 +211,12 @@
 | 16. Verify Phase 15 | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 17. Fix Agent Name Typos | v0.2 | 1/1 | Complete | 2026-02-21 |
 | 18. CLI Foundation | v0.3 | 4/4 | Complete | 2026-02-22 |
-| 19. State Schema & Activity Integration | 2/2 | Complete    | 2026-02-22 | - |
+| 19. State Schema & Activity Integration | v0.3 | 2/2 | Complete | 2026-02-22 |
 | 20. Workflow Orchestrator | v0.3 | 0/? | Not started | - |
 | 21. Categorization Engine | v0.3 | 0/? | Not started | - |
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
-| 23. MCP Repo Surface Fixes | v0.4 | Complete    | 2026-02-22 | - |
-| 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/? | Not started | - |
+| 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
+| 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
 | 25. Identity Tool and Shared Utilities | v0.4 | 0/? | Not started | - |
 | 26. MCP Status Command | v0.4 | 0/? | Not started | - |
 | 27. Model Switching | v0.4 | 0/? | Not started | - |
