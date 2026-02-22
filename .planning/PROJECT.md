@@ -118,4 +118,4 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | AVAILABLE_OPENCODE_MODELS defined inline in simple-tools.ts | opencode types.ts uses interface pattern without MODELS/TOOLS consts; inline avoids misfit import | Phase 25 — Plan 03 |
 
 ---
-*Last updated: 2026-02-22 after Phase 25 — constants.ts + Logger + identity tool standardized across all 6 MCP repos; STD-04 and STD-08 complete; Phase 26 (mcp-status command) ready to plan*
+*Last updated: 2026-02-22 after Phase 20 — /qgsd:fix-tests workflow orchestrator complete; ITER-01/02 INTG-01/03 satisfied; Phase 21 (Categorization Engine) ready to plan*

@@ -73,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 19]: load-state returns null for missing file (not {}) — Phase 20 can distinguish fresh start from corrupted state
 - [Phase 19]: require('node:sqlite') inside hasSqliteSupport() branch only — avoids ExperimentalWarning on Node < 22.5
 - [Phase 19]: --batch-index is zero-based array subscript; out-of-bounds emits error containing 'out of range'
+- [Phase 20]: Stub categorization marks all confirmed failures as real_bug — conservative placeholder; Phase 21 replaces with AI classification (CATG-01/02/03)
+- [Phase 20]: consecutive_no_progress stored in state JSON (not workflow variable) so progress guard survives interruption and resumes correctly
+- [Phase 20]: fix-tests is execution-only — must NOT appear in quorum_commands (INTG-03 / R2.1); verified by grep
 
 ### Pending Todos
 
@@ -101,5 +104,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Phase 25 complete, ready to plan Phase 26 (mcp-status command)
+Stopped at: Phase 20 complete — /qgsd:fix-tests workflow orchestrator delivered; all 4 files created; ITER-01/02 INTG-01/03 closed; Phase 21 (Categorization Engine) ready to plan
 Resume file: None
