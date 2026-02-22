@@ -8,6 +8,16 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Current Milestone: v0.3 Test Suite Maintenance
+
+**Goal:** Build a `/qgsd:maintain-tests` command that discovers, batches, and AI-categorizes test failures across large suites (20k+ tests), iterating until all tests are classified and actioned.
+
+**Target features:**
+- Test discovery across jest, playwright, and pytest suites in any project
+- Random batching into configurable groups (default 100) for large-suite support
+- AI-driven failure categorization with 5-category diagnosis (valid skip / adapt / isolate / real bug / fixture)
+- Iterative debug→quick→debug improvement loop until tests are maximized in value
+
 ## Requirements
 
 ### Validated
@@ -28,8 +38,12 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Active
 
-<!-- Next milestone scope — defined during /qgsd:new-milestone -->
+<!-- v0.3 scope: test suite maintenance tool -->
 
+- [ ] User can run `/qgsd:maintain-tests` to discover all jest/playwright/pytest tests in a project
+- [ ] Tool randomly batches tests into groups of 100 and executes each batch
+- [ ] Claude categorizes each failure into 5 action types (valid skip / adapt / isolate / real bug / fixture)
+- [ ] Tool iterates via debug→quick→debug loop until all tests are classified and actioned
 - [ ] npm publish qgsd@0.2.0 deferred — run `npm publish --access public` when ready (RLS-04)
 
 ### Out of Scope
@@ -78,4 +92,4 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | escapedReqId regex safety in gsd-tools | REQ-IDs with regex-special chars (e.g. from informal labels in ROADMAP) break new RegExp() construction | Phase 17 housekeeping |
 
 ---
-*Last updated: 2026-02-21 after v0.2 milestone complete — 17 phases, 40 plans, all requirements satisfied (RLS-04 deferred). Next: /qgsd:new-milestone*
+*Last updated: 2026-02-22 after v0.3 milestone started — test suite maintenance tool*
