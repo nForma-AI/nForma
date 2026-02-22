@@ -32,16 +32,50 @@ If `$ARGUMENTS` is empty: use the most recent open question or decision from the
 
 ---
 
+## Step 0: Team identity capture (idempotent — run once per session)
+
+Before any quorum round, capture the active team fingerprint. The scoreboard only updates if the composition has changed.
+
+Call the `identity` tool on each available model **sequentially** (skip UNAVAIL per R6):
+
+1. `mcp__codex-cli__identity` → parse JSON response
+2. `mcp__gemini-cli__identity` → parse JSON response
+3. `mcp__opencode__identity` → parse JSON response
+4. `mcp__copilot-cli__identity` → parse JSON response
+
+Build `TEAM_JSON` as a JSON object keyed by QGSD model name (`codex`, `gemini`, `opencode`, `copilot`), using each model's parsed identity response. Omit UNAVAIL models entirely.
+
+Detect Claude's model ID from: `CLAUDE_MODEL` env var → `ANTHROPIC_MODEL` env var → current session model name from system context.
+
+Run:
+```bash
+node bin/update-scoreboard.cjs init-team \
+  --claude-model "<claude_model_id>" \
+  --team '<TEAM_JSON>'
+```
+
+The command prints `[init-team] fingerprint: <fp> | no change` if unchanged, or `[init-team] fingerprint: <fp> (updated from <old>) | N agents, M MCPs, P plugins` if updated. Then proceed to Mode A or Mode B.
+
+---
+
 ## Mode A — Pure Question
 
 ### Step 1: Parse question
 
-Input is `$ARGUMENTS`. If empty, identify the open question from conversation context and display:
-```
-Using conversation context as question: "[inferred question]"
-```
+If $ARGUMENTS is empty, scan the current conversation using this priority order:
 
-If no question can be inferred, stop: "Usage: /qgsd:quorum <question or prompt>"
+Priority 1 - Explicit question: Find the most recent message containing a literal "?" that has not yet received a substantive answer. Use that as the question.
+
+Priority 2 - Pending decision: Find the most recent message that describes a choice or trade-off between options (keywords: "should we", "which approach", "option A vs", "do we", "whether to"). Use that as the question.
+
+Priority 3 - Open concern or blocker: Find the most recent message that raises a concern, flags a risk, or states something is unclear (keywords: "not sure", "concern", "blocker", "question:", "unclear", "wondering"). Restate it as a question.
+
+If none of the above applies: stop with:
+"No open question found. Looked for: explicit '?' question, pending decision, or open concern in recent conversation. Provide a question explicitly: /qgsd:quorum <question>"
+
+When a question is inferred via any priority, Claude MUST display before proceeding:
+"Using conversation context as question (Priority N - [type]):
+"[inferred question text]""
 
 Display:
 ```
