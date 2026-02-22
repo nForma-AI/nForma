@@ -204,6 +204,7 @@ Recent decisions affecting current work:
 | 36 | Add quorum resolution loop for human_needed verifier status in execute-phase and quick (--full) workflows | 2026-02-21 | 045f2fc | Verified | [36-add-quorum-resolution-loop-for-human-nee](./quick/36-add-quorum-resolution-loop-for-human-nee/) |
 | 37 | Refactor inline quorum model loops in 6 sites across 5 workflow files: replace with Task(qgsd-quorum-orchestrator) spawns | 2026-02-21 | 4200c40 | Complete | [37-refactor-inline-quorum-model-loops-in-6-](./quick/37-refactor-inline-quorum-model-loops-in-6-/) |
 | 38 | Codify trust + audit enforcement philosophy: add Design Principles section to CLAUDE.md with audit-trail principle, three named mechanisms, FSM contrast | 2026-02-21 | disk-only | Complete | [38-codify-trust-plus-audit-enforcement-phil](./quick/38-codify-trust-plus-audit-enforcement-phil/) |
+| 40 | Remove has_research shortcut from plan-phase Step 5: research now always runs on /qgsd:plan-phase invocation | 2026-02-22 | 8ac9ca8 | Complete | [40-we-should-never-skip-research-just-run-i](./quick/40-we-should-never-skip-research-just-run-i/) |
 
 ### Blockers/Concerns
 
@@ -213,6 +214,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-21
-Stopped at: quick-38 complete — trust + audit enforcement principle added to CLAUDE.md Design Principles section; three audit mechanisms (STATE.md, quorum scoreboard, SUMMARY.md) explicitly named; FSM contrast articulated
+Last session: 2026-02-22
+Stopped at: quick-40 complete — has_research shortcut removed from plan-phase.md Step 5; research now always runs on /qgsd:plan-phase unless --skip-research, --gaps, or research_enabled=false
 Resume file: None
