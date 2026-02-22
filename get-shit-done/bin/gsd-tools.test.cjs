@@ -2390,3 +2390,119 @@ describe('activity commands', () => {
     assert.strictEqual(output.cleared, true, 'should return cleared: true even when file absent');
   });
 });
+
+describe('maintain-tests batch command', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  function writeDiscoverJson(tmpDir, testFiles) {
+    const discoverPath = path.join(tmpDir, 'discover-out.json');
+    fs.writeFileSync(discoverPath, JSON.stringify({
+      runners: ['jest'],
+      test_files: testFiles,
+      total_count: testFiles.length,
+    }), 'utf-8');
+    return discoverPath;
+  }
+
+  test('TC1: Deterministic shuffle — same seed produces same order', () => {
+    const files = Array.from({ length: 20 }, (_, i) => `/project/test${i + 1}.test.js`);
+    const discoverPath = writeDiscoverJson(tmpDir, files);
+
+    const result1 = runGsdTools(`maintain-tests batch --input-file "${discoverPath}" --size 5 --seed 12345`);
+    const result2 = runGsdTools(`maintain-tests batch --input-file "${discoverPath}" --size 5 --seed 12345`);
+
+    assert.ok(result1.success, `First run failed: ${result1.error}`);
+    assert.ok(result2.success, `Second run failed: ${result2.error}`);
+
+    const out1 = JSON.parse(result1.output);
+    const out2 = JSON.parse(result2.output);
+
+    assert.deepStrictEqual(out1.batches[0].files, out2.batches[0].files, 'Same seed must produce same order');
+    assert.strictEqual(out1.seed, 12345, 'seed should be 12345');
+    assert.strictEqual(out1.total_batches, 4, 'Should produce 4 batches of 5 from 20 files');
+  });
+
+  test('TC2: Batch sizing — correct split', () => {
+    const files = Array.from({ length: 250 }, (_, i) => `/project/test${i + 1}.test.js`);
+    const discoverPath = writeDiscoverJson(tmpDir, files);
+
+    const result = runGsdTools(`maintain-tests batch --input-file "${discoverPath}" --size 100 --seed 1`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const out = JSON.parse(result.output);
+    assert.strictEqual(out.total_batches, 3, 'Should produce 3 batches (100+100+50)');
+    assert.strictEqual(out.batches[0].file_count, 100, 'First batch should have 100 files');
+    assert.strictEqual(out.batches[2].file_count, 50, 'Third batch should have 50 files');
+  });
+
+  test('TC3: --exclude-file filters already-processed files', () => {
+    const files = Array.from({ length: 10 }, (_, i) => `/a/${i + 1}.js`);
+    const discoverPath = writeDiscoverJson(tmpDir, files);
+
+    const excludedFiles = files.slice(0, 5);
+    const excludePath = path.join(tmpDir, 'exclude.json');
+    fs.writeFileSync(excludePath, JSON.stringify(excludedFiles), 'utf-8');
+
+    const result = runGsdTools(`maintain-tests batch --input-file "${discoverPath}" --exclude-file "${excludePath}" --size 100 --seed 1`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const out = JSON.parse(result.output);
+    assert.strictEqual(out.total_files, 5, 'Should have 5 files after excluding 5');
+
+    const allBatchedFiles = out.batches.flatMap(b => b.files);
+    for (const excluded of excludedFiles) {
+      assert.ok(!allBatchedFiles.includes(excluded), `Excluded file ${excluded} should not appear in batches`);
+    }
+  });
+
+  test('TC4: --manifest-file writes JSON to disk', () => {
+    const files = ['/project/a.test.js', '/project/b.test.js', '/project/c.test.js'];
+    const discoverPath = writeDiscoverJson(tmpDir, files);
+    const manifestPath = '/tmp/batch-manifest-test.json';
+
+    // Cleanup before test
+    try { fs.unlinkSync(manifestPath); } catch { /* ok */ }
+
+    const result = runGsdTools(`maintain-tests batch --input-file "${discoverPath}" --size 100 --seed 1 --manifest-file "${manifestPath}"`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    assert.ok(fs.existsSync(manifestPath), 'manifest file should exist at specified path');
+    const written = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    assert.ok(Array.isArray(written.batches), 'manifest should have batches array');
+    assert.ok(typeof written.total_batches === 'number', 'manifest should have total_batches');
+
+    // Cleanup
+    try { fs.unlinkSync(manifestPath); } catch { /* ok */ }
+  });
+
+  test('TC5: Empty input — returns zero batches', () => {
+    const discoverPath = writeDiscoverJson(tmpDir, []);
+
+    const result = runGsdTools(`maintain-tests batch --input-file "${discoverPath}" --size 100 --seed 1`);
+    assert.ok(result.success, `Command should succeed with empty input: ${result.error}`);
+
+    const out = JSON.parse(result.output);
+    assert.strictEqual(out.total_batches, 0, 'Should have 0 batches');
+    assert.deepStrictEqual(out.batches, [], 'batches should be empty array');
+    assert.strictEqual(out.total_files, 0, 'total_files should be 0');
+  });
+
+  test('TC6: Single file smaller than batch size — one batch with one file', () => {
+    const discoverPath = writeDiscoverJson(tmpDir, ['/project/only.test.js']);
+
+    const result = runGsdTools(`maintain-tests batch --input-file "${discoverPath}" --size 100 --seed 1`);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const out = JSON.parse(result.output);
+    assert.strictEqual(out.total_batches, 1, 'Should have 1 batch');
+    assert.strictEqual(out.batches[0].file_count, 1, 'That batch should have 1 file');
+  });
+});
