@@ -8,7 +8,22 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.4 MCP Ecosystem
+## Current Milestone: v0.5 MCP Setup Wizard
+
+**Goal:** Ship `/qgsd:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (model, provider, API key) without touching config files manually.
+
+**Target features:**
+- Wizard shell: first-run linear onboarding + re-run navigable agent menu with live status
+- API key management: keytar-backed secure storage, applied to `~/.claude.json` on confirm, auto-restart
+- Provider swap: change base URL (AkashML / Together / Fireworks / custom) on existing agents
+- Agent roster: add new claude-mcp-server instances or remove existing ones with identity verification
+- Install nudge: installer prompts `/qgsd:mcp-setup` when no agents are configured
+
+**Phase range:** 29–33
+
+---
+
+## Previous Milestone: v0.4 MCP Ecosystem
 
 **Goal:** Standardize the 6 coding-agent MCP server repos to a unified Gen2 architecture, then add QGSD commands to observe, configure, and update connected agents (`/qgsd:mcp-status`, `/qgsd:mcp-set-model`, `/qgsd:mcp-update`, `/qgsd:mcp-restart`).
 
@@ -145,4 +160,4 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | npx restart: kill npm exec parent first, then node child | npm exec parent respawns node child if only child is killed; parent kill prevents stale respawn | Phase 28 — Plan 02 |
 
 ---
-*Last updated: 2026-02-22 after Phase 28 — /qgsd:mcp-update + /qgsd:mcp-restart complete (MGR-03..06); v0.4 MCP Ecosystem milestone complete*
+*Last updated: 2026-02-22 after Phase 28 — v0.4 MCP Ecosystem complete; v0.5 MCP Setup Wizard started*

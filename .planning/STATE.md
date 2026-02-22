@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-22 after Phase 28)
 
 ## Current Position
 
-Phase: 28 of 28 (Update & Restart Commands) — COMPLETE
-Plan: 28-02 — complete
-Status: Phase 28 complete — /qgsd:mcp-update + /qgsd:mcp-restart live; MGR-03/04/05/06 satisfied; v0.4 MCP Ecosystem milestone complete
-Last activity: 2026-02-22 - Completed quick task 51: Add keytar-based cross-platform secret management
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v0.5 MCP Setup Wizard
+Last activity: 2026-02-22 — Milestone v0.5 MCP Setup Wizard started
 
 Progress: [██████████████████████] 28/28 phases (100%)
 
