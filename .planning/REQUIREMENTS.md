@@ -38,6 +38,17 @@ Requirements for the MCP Setup Wizard milestone. Each maps to roadmap phases 29�
 
 - [ ] **INST-01**: Installer detects no configured quorum agents and prompts user to run `/qgsd:mcp-setup`
 
+## v0.4 Requirements (Complete)
+
+Requirements satisfied during v0.4 MCP Ecosystem milestone.
+
+### Observability (OBS)
+
+- [x] **OBS-01**: User can run `/qgsd:mcp-status` to see all connected MCPs with name, version, current model, and availability
+- [x] **OBS-02**: Status display shows health state (available / quota-exceeded / error) derived from scoreboard data
+- [x] **OBS-03**: Status shows available models for each agent (from `identity` tool response)
+- [x] **OBS-04**: Status shows recent UNAVAIL count per agent from quorum scoreboard
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -87,12 +98,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGENT-02 | Phase 32 | Pending |
 | AGENT-03 | Phase 32 | Pending |
 | INST-01 | Phase 33 | Pending |
+| OBS-01 | Phase 29 (gap closure) | Complete |
+| OBS-02 | Phase 29 (gap closure) | Complete |
+| OBS-03 | Phase 29 (gap closure) | Complete |
+| OBS-04 | Phase 29 (gap closure) | Complete |
 
 **Coverage:**
 - v0.5 requirements: 16 total
 - Mapped to phases: 16
 - Unmapped: 0 ✓
+- v0.4 requirements completed: 4 (OBS-01–04)
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after initial definition*
+*Last updated: 2026-02-22 — v0.4 OBS-01–04 marked Complete (Phase 29 gap closure)*
