@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-22 after v0.4 gap closure)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.5 MCP Setup Wizard — Phase 32 executed (/qgsd:mcp-setup scaffold complete)
+**Current focus:** v0.5 MCP Setup Wizard — Phase 33 executed (API key management complete)
 
 ## Current Position
 
-Phase: 32 of 36 (Wizard Scaffold — v0.5 start)
-Plan: 02 of 02
-Status: Executed — pending verification
-Last activity: 2026-02-22 - Completed quick task 54: add unit tests for remaining untested modules
+Phase: 33 of 36 (API Key Management)
+Plan: 01 of 01
+Status: Executed — pending phase verification
+Last activity: 2026-02-22 - Phase 33 plan 01 complete: full API key flow in mcp-setup.md Option 1
 
 Progress: [████████████████████] 30/30 plans (100%)
 
@@ -75,5 +75,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 2026-02-22 — Phase 32 executed (2 plans complete); /qgsd:mcp-setup wizard scaffold ready for verification
+Stopped at: 2026-02-22 — Phase 33 plan 01 executed; API key management (KEY-01..KEY-04) implemented in mcp-setup.md
 Resume file: None

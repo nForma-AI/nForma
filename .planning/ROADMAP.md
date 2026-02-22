@@ -64,7 +64,7 @@
 **Milestone Goal:** Ship `/qgsd:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (model, provider, API key) without touching config files manually.
 
 - [x] **Phase 32: Wizard Scaffold** — /qgsd:mcp-setup command: first-run vs re-run detection, main menu with live status, confirm+apply+restart flow (WIZ-01..05) (completed 2026-02-22)
-- [ ] **Phase 33: API Key Management** — Wizard flow for set/update API keys via keytar; writes to ~/.claude.json env block and restarts agent (KEY-01..04)
+- [x] **Phase 33: API Key Management** — Wizard flow for set/update API keys via keytar; writes to ~/.claude.json env block and restarts agent (KEY-01..04) (completed 2026-02-22)
 - [ ] **Phase 34: Provider Swap** — Wizard flow for changing agent base URL; curated provider list + custom entry; writes ANTHROPIC_BASE_URL and restarts (PROV-01..03)
 - [ ] **Phase 35: Agent Roster** — Wizard flow for add/remove claude-mcp-server instances; identity ping after provisioning (AGENT-01..03)
 - [ ] **Phase 36: Install Integration** — Installer detects no configured quorum agents and prompts user to run /qgsd:mcp-setup (INST-01)
@@ -337,7 +337,7 @@
 | 30. Fix gemini-cli Package Reference | v0.4 | Complete    | 2026-02-22 | - |
 | 31. Merge Gen2 Branches + Phase 24 Verification | v0.4 | Complete    | 2026-02-22 | - |
 | 32. Wizard Scaffold | v0.5 | Complete    | 2026-02-22 | - |
-| 33. API Key Management | v0.5 | 0/1 | Not started | - |
+| 33. API Key Management | 1/1 | Complete   | 2026-02-22 | - |
 | 34. Provider Swap | v0.5 | 0/TBD | Not started | - |
 | 35. Agent Roster | v0.5 | 0/TBD | Not started | - |
 | 36. Install Integration | v0.5 | 0/TBD | Not started | - |
