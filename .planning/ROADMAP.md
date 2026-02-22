@@ -105,7 +105,9 @@
   2. For every `adapt`-classified failure, the categorization output includes git pickaxe context (`git log -S`) linking the failing test to the commit that changed the code under test
   3. `adapt`, `fixture`, and `isolate` failures are automatically grouped by category, error type, and directory — then dispatched as `/qgsd:quick` tasks (max 20 tests per task); `real-bug` failures are collected into a deferred user report and never auto-actioned
   4. The categorization prompt includes the full source of the failing test and the top-2 stack trace source files; categorizations with context_score < 2 are not auto-actioned
-**Plans**: TBD
+**Plans**: 2 plans
+  - [ ] 21-01-PLAN.md — Context assembly + 5-category inline classification + git pickaxe for adapt + state schema extensions (CATG-01, CATG-02) [Wave 1]
+  - [ ] 21-02-PLAN.md — Grouping algorithm + Task dispatch + deferred user report in terminal summary (CATG-03) [Wave 2]
 
 ### Phase 22: Integration Test
 **Goal**: The full `/qgsd:fix-tests` loop is validated end-to-end against a real or fixture test suite — all integration edge cases are verified and a VERIFICATION.md confirms the v0.3 milestone is shippable
@@ -217,7 +219,7 @@
 | 18. CLI Foundation | v0.3 | 4/4 | Complete | 2026-02-22 |
 | 19. State Schema & Activity Integration | v0.3 | 2/2 | Complete | 2026-02-22 |
 | 20. Workflow Orchestrator | 1/1 | Complete    | 2026-02-22 | - |
-| 21. Categorization Engine | v0.3 | 0/? | Not started | - |
+| 21. Categorization Engine | v0.3 | 0/2 | Not started | - |
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
