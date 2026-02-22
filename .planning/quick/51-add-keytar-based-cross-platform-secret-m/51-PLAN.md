@@ -8,6 +8,7 @@ files_modified:
   - bin/secrets.cjs
   - bin/set-secret.cjs
   - hooks/qgsd-session-start.js
+  - hooks/dist/qgsd-session-start.js
   - package.json
   - bin/install.js
 autonomous: true
@@ -29,7 +30,10 @@ must_haves:
       provides: "CLI entry: node bin/set-secret.cjs <KEY> <value>"
       contains: "syncToClaudeJson"
     - path: "hooks/qgsd-session-start.js"
-      provides: "SessionStart hook that syncs keychain -> ~/.claude.json"
+      provides: "SessionStart hook source file"
+      contains: "syncToClaudeJson"
+    - path: "hooks/dist/qgsd-session-start.js"
+      provides: "SessionStart hook installed copy (read by install.js via hooks/dist/)"
       contains: "syncToClaudeJson"
     - path: "package.json"
       provides: "keytar listed as dependency"
@@ -41,11 +45,11 @@ must_haves:
       pattern: "require.*secrets"
     - from: "hooks/qgsd-session-start.js"
       to: "bin/secrets.cjs"
-      via: "require from installed path"
+      via: "require from installed path (~/.claude/qgsd-bin/secrets.cjs)"
       pattern: "syncToClaudeJson"
     - from: "bin/install.js"
-      to: "hooks/qgsd-session-start.js"
-      via: "SessionStart hook registration"
+      to: "hooks/dist/qgsd-session-start.js"
+      via: "readdirSync(hooks/dist) copies all .js files to ~/.claude/qgsd/hooks/"
       pattern: "qgsd-session-start"
     - from: "bin/secrets.cjs syncToClaudeJson"
       to: "~/.claude.json mcpServers[*].env"
@@ -57,7 +61,7 @@ must_haves:
 Add keytar-based cross-platform secret management to QGSD so MCP API keys are stored in the OS keychain instead of plaintext in ~/.claude.json or ~/.zshrc.
 
 Purpose: QGSD becomes the owner of MCP secrets — set once, synced automatically on every session start.
-Output: bin/secrets.cjs, bin/set-secret.cjs, hooks/qgsd-session-start.js, package.json dep, install.js hook registration.
+Output: bin/secrets.cjs, bin/set-secret.cjs, hooks/qgsd-session-start.js, hooks/dist/qgsd-session-start.js, package.json dep, install.js hook registration.
 </objective>
 
 <execution_context>
@@ -230,10 +234,10 @@ const value = valueParts.join(' ');
 </task>
 
 <task type="auto">
-  <name>Task 2: Create hooks/qgsd-session-start.js and wire into install.js</name>
-  <files>hooks/qgsd-session-start.js, bin/install.js</files>
+  <name>Task 2: Create hooks/qgsd-session-start.js, hooks/dist/qgsd-session-start.js, and wire into install.js</name>
+  <files>hooks/qgsd-session-start.js, hooks/dist/qgsd-session-start.js, bin/install.js</files>
   <action>
-**hooks/qgsd-session-start.js** — create SessionStart hook:
+**hooks/qgsd-session-start.js** — create SessionStart hook source file (identical content also written to hooks/dist/qgsd-session-start.js — see below):
 
 ```js
 #!/usr/bin/env node
@@ -248,11 +252,15 @@ const value = valueParts.join(' ');
 const path = require('path');
 const os = require('os');
 
-// Locate secrets.cjs — try installed global path first, then local dev path
+// Locate secrets.cjs — try installed global path first, then local dev path.
+//
+// IMPORTANT: install.js copies bin/*.cjs to ~/.claude/qgsd-bin/ (not ~/.claude/qgsd/bin/).
+// See bin/install.js line ~1679: binDest = path.join(targetDir, 'qgsd-bin')
+// where targetDir = os.homedir() + '/.claude'.
 function findSecrets() {
   const candidates = [
-    path.join(os.homedir(), '.claude', 'qgsd', 'bin', 'secrets.cjs'),
-    path.join(__dirname, '..', 'bin', 'secrets.cjs'),
+    path.join(os.homedir(), '.claude', 'qgsd-bin', 'secrets.cjs'),  // installed path
+    path.join(__dirname, '..', 'bin', 'secrets.cjs'),                 // local dev path
   ];
   for (const p of candidates) {
     try {
@@ -277,6 +285,10 @@ function findSecrets() {
   process.exit(0);
 })();
 ```
+
+**hooks/dist/qgsd-session-start.js** — create the installed copy with identical content to hooks/qgsd-session-start.js above. This is the file that install.js picks up via `readdirSync(hooks/dist)` and copies into `~/.claude/qgsd/hooks/`. All other hooks follow this same source/dist dual-file pattern (e.g., hooks/qgsd-prompt.js + hooks/dist/qgsd-prompt.js).
+
+The content of hooks/dist/qgsd-session-start.js is byte-for-byte identical to hooks/qgsd-session-start.js above.
 
 **bin/install.js** — add session-start sync hook registration and uninstall cleanup.
 
@@ -314,15 +326,18 @@ Locate the uninstall block that filters SessionStart (~line 1076-1093). The filt
 
 Also extend the "Removed GSD hooks from settings" log message to mention the sync hook (optional but useful for clarity — only if the log is a single generic message, leave it as-is to avoid drift).
 
-The hook file must also be included in the installed `hooks/` directory. install.js copies hooks via a `copyDir` or file-by-file step. Verify the copy logic includes all `.js` files in the hooks/ directory; if it uses a glob or `fs.readdirSync`, it will pick up `qgsd-session-start.js` automatically without further changes. If it lists files explicitly, add `qgsd-session-start.js` to that list.
+Note: install.js already uses `readdirSync(hooksSrc)` to copy all `.js` files from `hooks/dist/` to the installed hooks directory. No additional copy-list changes are needed — placing the file in `hooks/dist/` is sufficient for it to be installed.
   </action>
   <verify>
     1. `node -e "require('./hooks/qgsd-session-start.js')"` exits 0 (secrets not installed → silently skips).
-    2. `grep 'qgsd-session-start' bin/install.js` returns at least 2 matches (registration + uninstall filter).
-    3. Run `node bin/install.js --help 2>&1 || true` — install.js parses without syntax errors.
+    2. `ls hooks/dist/qgsd-session-start.js` confirms the dist copy exists.
+    3. `grep 'qgsd-session-start' bin/install.js` returns at least 2 matches (registration + uninstall filter).
+    4. Run `node bin/install.js --help 2>&1 || true` — install.js parses without syntax errors.
+    5. `grep 'qgsd-bin/secrets.cjs' hooks/qgsd-session-start.js` confirms the correct installed path is the first candidate.
+    6. `grep 'qgsd-bin/secrets.cjs' hooks/dist/qgsd-session-start.js` confirms the dist copy also has the correct path.
   </verify>
   <done>
-    hooks/qgsd-session-start.js exists and exits 0 when secrets are absent. install.js registers it as a SessionStart hook and removes it on uninstall. The hook file is automatically included in the installed hooks/ directory (no manual copy-list needed if install uses readdirSync).
+    hooks/qgsd-session-start.js (source) and hooks/dist/qgsd-session-start.js (installed copy) both exist with identical content. findSecrets() first candidate is ~/.claude/qgsd-bin/secrets.cjs (matching install.js binDest). install.js registers the hook as a SessionStart entry and removes it on uninstall. The dist copy is automatically installed into ~/.claude/qgsd/hooks/ by the existing readdirSync loop.
   </done>
 </task>
 
@@ -333,14 +348,18 @@ After both tasks complete:
 1. Module loads cleanly: `node -e "const s = require('./bin/secrets.cjs'); console.log(Object.keys(s))"` → `[ 'set', 'get', 'delete', 'list', 'syncToClaudeJson', 'SERVICE' ]`
 2. CLI guards: `node bin/set-secret.cjs` exits 1 with usage message.
 3. Hook is silent on missing keytar: `node hooks/qgsd-session-start.js` exits 0.
-4. install.js registers and unregisters session-start hook: `grep -c 'qgsd-session-start' bin/install.js` ≥ 2.
-5. package.json: `grep '"keytar"' package.json` shows the dependency.
+4. Dist copy exists: `ls hooks/dist/qgsd-session-start.js` succeeds.
+5. install.js registers and unregisters session-start hook: `grep -c 'qgsd-session-start' bin/install.js` >= 2.
+6. package.json: `grep '"keytar"' package.json` shows the dependency.
+7. Correct installed path: `grep 'qgsd-bin/secrets.cjs' hooks/dist/qgsd-session-start.js` succeeds.
 </verification>
 
 <success_criteria>
 - bin/secrets.cjs: keytar wrapper with graceful fallback, syncToClaudeJson patches ~/.claude.json mcpServers env keys found in keychain
 - bin/set-secret.cjs: CLI stores to keychain then syncs; validates args
-- hooks/qgsd-session-start.js: SessionStart hook, silent on absent keytar, non-blocking on errors
+- hooks/qgsd-session-start.js: SessionStart hook source file, silent on absent keytar, non-blocking on errors
+- hooks/dist/qgsd-session-start.js: installed copy (identical content), picked up by install.js readdirSync loop
+- findSecrets() first candidate: ~/.claude/qgsd-bin/secrets.cjs (matching install.js binDest = path.join(targetDir, 'qgsd-bin'))
 - package.json: keytar listed under dependencies
 - bin/install.js: registers session-start hook on install, removes it on uninstall
 </success_criteria>
