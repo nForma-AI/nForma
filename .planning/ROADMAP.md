@@ -49,7 +49,7 @@
 
 - [x] **Phase 23: MCP Repo Surface Fixes** — openhands rename, dynamic versioning, MIT license, package.json metadata, Makefile, CHANGELOG/CLAUDE.md, npm scoping across all 6 repos (completed 2026-02-22)
 - [ ] **Phase 24: Gen1→Gen2 Architecture Port** — Per-tool *.tool.ts + registry.ts structure for claude/codex/copilot/openhands repos
-- [ ] **Phase 25: Identity Tool & Shared Utilities** — identity tool + constants.ts + Logger utility in src/utils/logger.ts across all 6 repos
+- [x] **Phase 25: Identity Tool & Shared Utilities** — identity tool + constants.ts + Logger utility in src/utils/logger.ts across all 6 repos (completed 2026-02-22)
 - [ ] **Phase 26: MCP Status Command** — /qgsd:mcp-status showing all agents, models, health state, and UNAVAIL counts
 - [ ] **Phase 27: Model Switching** — /qgsd:mcp-set-model with qgsd.json persistence and quorum call injection
 - [ ] **Phase 28: Update & Restart Commands** — /qgsd:mcp-update (all install methods) + /qgsd:mcp-restart
@@ -221,7 +221,7 @@
 | 22. Integration Test | v0.3 | 0/? | Not started | - |
 | 23. MCP Repo Surface Fixes | v0.4 | 3/3 | Complete | 2026-02-22 |
 | 24. Gen1 to Gen2 Architecture Port | v0.4 | 0/4 | Not started | - |
-| 25. Identity Tool and Shared Utilities | 2/3 | In Progress|  | - |
+| 25. Identity Tool and Shared Utilities | 3/3 | Complete   | 2026-02-22 | - |
 | 26. MCP Status Command | v0.4 | 0/? | Not started | - |
 | 27. Model Switching | v0.4 | 0/? | Not started | - |
 | 28. Update and Restart Commands | v0.4 | 0/? | Not started | - |
