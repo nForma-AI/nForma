@@ -1,6 +1,6 @@
 ---
 name: qgsd:quorum
-description: Answer a question using full quorum consensus (Claude + Codex + Gemini + OpenCode + Copilot) following CLAUDE.md R3 protocol. Use when no arguments provided to answer the current conversation's open question.
+description: Answer a question using full quorum consensus (Claude + Codex + Gemini + OpenCode + Copilot + DeepSeek + MiniMax + QwenCoder + Kimi + Llama4) following CLAUDE.md R3 protocol. Use when no arguments provided to answer the current conversation's open question.
 argument-hint: "[question or prompt]"
 allowed-tools:
   - Read
@@ -12,7 +12,7 @@ allowed-tools:
 ---
 
 <objective>
-Run a question or prompt through the full QGSD quorum (R3 protocol): Claude + Codex + Gemini + OpenCode + Copilot.
+Run a question or prompt through the full QGSD quorum (R3 protocol): Claude + Codex + Gemini + OpenCode + Copilot + DeepSeek + MiniMax + QwenCoder + Kimi + Llama4.
 
 **Two modes** based on context:
 - **Mode A — Pure Question**: No commands required. Claude forms its own position first, then queries each model sequentially, deliberates to consensus.
@@ -43,7 +43,14 @@ Call the `identity` tool on each available model **sequentially** (skip UNAVAIL 
 3. `mcp__opencode__identity` → parse JSON response
 4. `mcp__copilot-cli__identity` → parse JSON response
 
-Build `TEAM_JSON` as a JSON object keyed by QGSD model name (`codex`, `gemini`, `opencode`, `copilot`), using each model's parsed identity response. Omit UNAVAIL models entirely.
+The claude-mcp-server instances (deepseek, minimax, qwen-coder, kimi, llama4) have no `identity` tool — include them with static identity using their configured model name:
+5. `mcp__claude-deepseek__ping` → if available, add `"deepseek": {"type":"claude-mcp","model":"deepseek-ai/DeepSeek-V3.2"}` to TEAM_JSON
+6. `mcp__claude-minimax__ping` → if available, add `"minimax": {"type":"claude-mcp","model":"MiniMaxAI/MiniMax-M2.5"}` to TEAM_JSON
+7. `mcp__claude-qwen-coder__ping` → if available, add `"qwen-coder": {"type":"claude-mcp","model":"Qwen/Qwen3-Coder-480B"}` to TEAM_JSON
+8. `mcp__claude-kimi__ping` → if available, add `"kimi": {"type":"claude-mcp","model":"accounts/fireworks/models/kimi-k2p5"}` to TEAM_JSON
+9. `mcp__claude-llama4__ping` → if available, add `"llama4": {"type":"claude-mcp","model":"meta-llama/Llama-4-Maverick"}` to TEAM_JSON
+
+Build `TEAM_JSON` as a JSON object keyed by QGSD model name (`codex`, `gemini`, `opencode`, `copilot`, `deepseek`, `minimax`, `qwen-coder`, `kimi`, `llama4`), using each model's identity/ping response. Omit UNAVAIL models entirely.
 
 Detect Claude's model ID from: `CLAUDE_MODEL` env var → `ANTHROPIC_MODEL` env var → current session model name from system context.
 
@@ -113,6 +120,11 @@ Call order (sequential):
 2. `mcp__gemini-cli__gemini`
 3. `mcp__opencode__opencode`
 4. `mcp__copilot-cli__ask`
+5. `mcp__claude-deepseek__claude` (prompt field: `prompt`)
+6. `mcp__claude-minimax__claude` (prompt field: `prompt`)
+7. `mcp__claude-qwen-coder__claude` (prompt field: `prompt`)
+8. `mcp__claude-kimi__claude` (prompt field: `prompt`)
+9. `mcp__claude-llama4__claude` (prompt field: `prompt`)
 
 Handle UNAVAILABLE per R6: note unavailability, continue with remaining models.
 
@@ -128,6 +140,11 @@ Display all positions:
 │ Gemini       │ [summary or UNAVAIL]                                     │
 │ OpenCode     │ [summary or UNAVAIL]                                     │
 │ Copilot      │ [summary or UNAVAIL]                                     │
+│ DeepSeek     │ [summary or UNAVAIL]                                     │
+│ MiniMax      │ [summary or UNAVAIL]                                     │
+│ QwenCoder    │ [summary or UNAVAIL]                                     │
+│ Kimi         │ [summary or UNAVAIL]                                     │
+│ Llama4       │ [summary or UNAVAIL]                                     │
 └──────────────┴──────────────────────────────────────────────────────────┘
 ```
 
@@ -146,11 +163,16 @@ QGSD Quorum — Round [N] Deliberation
 Question: [question]
 
 Prior positions:
-• Claude: [position]
-• Codex: [position or UNAVAIL]
-• Gemini: [position or UNAVAIL]
-• OpenCode: [position or UNAVAIL]
-• Copilot: [position or UNAVAIL]
+• Claude:    [position]
+• Codex:     [position or UNAVAIL]
+• Gemini:    [position or UNAVAIL]
+• OpenCode:  [position or UNAVAIL]
+• Copilot:   [position or UNAVAIL]
+• DeepSeek:  [position or UNAVAIL]
+• MiniMax:   [position or UNAVAIL]
+• QwenCoder: [position or UNAVAIL]
+• Kimi:      [position or UNAVAIL]
+• Llama4:    [position or UNAVAIL]
 
 Given the above, do you maintain your answer or revise it? State your updated position clearly (2–4 sentences).
 ```
@@ -180,6 +202,11 @@ Supporting positions:
 • Gemini:    [brief or UNAVAIL]
 • OpenCode:  [brief or UNAVAIL]
 • Copilot:   [brief or UNAVAIL]
+• DeepSeek:  [brief or UNAVAIL]
+• MiniMax:   [brief or UNAVAIL]
+• QwenCoder: [brief or UNAVAIL]
+• Kimi:      [brief or UNAVAIL]
+• Llama4:    [brief or UNAVAIL]
 ```
 
 Update the scoreboard: for each model that voted this round, run:
@@ -194,7 +221,7 @@ node bin/update-scoreboard.cjs \
   --task-description "<question or topic being debated>"
 ```
 
-`--model` values: claude, gemini, opencode, copilot, codex
+`--model` values: claude, gemini, opencode, copilot, codex, deepseek, minimax, qwen-coder, kimi, llama4
 `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
 `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 `--round`: the round number that just completed
@@ -218,6 +245,11 @@ Final positions:
 • Gemini:    [position + key reasoning or UNAVAIL]
 • OpenCode:  [position + key reasoning or UNAVAIL]
 • Copilot:   [position + key reasoning or UNAVAIL]
+• DeepSeek:  [position + key reasoning or UNAVAIL]
+• MiniMax:   [position + key reasoning or UNAVAIL]
+• QwenCoder: [position + key reasoning or UNAVAIL]
+• Kimi:      [position + key reasoning or UNAVAIL]
+• Llama4:    [position + key reasoning or UNAVAIL]
 
 Core disagreement: [1–2 sentences on what models disagree about]
 
@@ -236,7 +268,7 @@ node bin/update-scoreboard.cjs \
   --task-description "<question or topic being debated>"
 ```
 
-`--model` values: claude, gemini, opencode, copilot, codex
+`--model` values: claude, gemini, opencode, copilot, codex, deepseek, minimax, qwen-coder, kimi, llama4
 `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
 `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 `--round`: the round number that just completed
@@ -310,11 +342,16 @@ REJECT if output shows it is NOT satisfied.
 FLAG if output is ambiguous or requires human judgment.
 ```
 
-Dispatch (single parallel message — all four as sibling Task calls):
+Dispatch (single parallel message — all nine as sibling Task calls):
 - `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli__gemini with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__opencode__opencode with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-cli__ask with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli__review with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-deepseek__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-minimax__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-qwen-coder__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-kimi__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__claude-llama4__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
 
 ### Collect verdicts
 
@@ -344,6 +381,11 @@ If split: run deliberation (up to 3 rounds) with traces always included in conte
 │ OpenCode     │ [verdict]    │ [summary or UNAVAIL]                     │
 │ Copilot      │ [verdict]    │ [summary or UNAVAIL]                     │
 │ Codex        │ [verdict]    │ [summary or UNAVAIL]                     │
+│ DeepSeek     │ [verdict]    │ [summary or UNAVAIL]                     │
+│ MiniMax      │ [verdict]    │ [summary or UNAVAIL]                     │
+│ QwenCoder    │ [verdict]    │ [summary or UNAVAIL]                     │
+│ Kimi         │ [verdict]    │ [summary or UNAVAIL]                     │
+│ Llama4       │ [verdict]    │ [summary or UNAVAIL]                     │
 ├──────────────┼──────────────┼──────────────────────────────────────────┤
 │ CONSENSUS    │ [verdict]    │ [N APPROVE, N REJECT, N FLAG, N UNAVAIL] │
 └──────────────┴──────────────┴──────────────────────────────────────────┘
@@ -363,7 +405,7 @@ node bin/update-scoreboard.cjs \
   --task-description "<debate topic from $ARGUMENTS>"
 ```
 
-`--model` values: claude, gemini, opencode, copilot, codex
+`--model` values: claude, gemini, opencode, copilot, codex, deepseek, minimax, qwen-coder, kimi, llama4
 `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
 `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 `--round`: the round number that just completed

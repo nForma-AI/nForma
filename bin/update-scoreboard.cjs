@@ -40,7 +40,7 @@ const SCORE_DELTAS = {
   '':      0,
 };
 
-const VALID_MODELS   = ['claude', 'gemini', 'opencode', 'copilot', 'codex'];
+const VALID_MODELS   = ['claude', 'gemini', 'opencode', 'copilot', 'codex', 'deepseek', 'minimax', 'qwen-coder', 'kimi', 'llama4'];
 const VALID_RESULTS  = ['TP', 'TN', 'FP', 'FN', 'TP+', 'UNAVAIL', ''];
 const VALID_VERDICTS = ['APPROVE', 'BLOCK', 'DELIBERATE', 'CONSENSUS', 'GAPS_FOUND', '—'];
 
@@ -130,11 +130,16 @@ function emptyModelStats() {
 function emptyData() {
   return {
     models: {
-      claude:   emptyModelStats(),
-      gemini:   emptyModelStats(),
-      opencode: emptyModelStats(),
-      copilot:  emptyModelStats(),
-      codex:    emptyModelStats(),
+      claude:      emptyModelStats(),
+      gemini:      emptyModelStats(),
+      opencode:    emptyModelStats(),
+      copilot:     emptyModelStats(),
+      codex:       emptyModelStats(),
+      deepseek:    emptyModelStats(),
+      minimax:     emptyModelStats(),
+      'qwen-coder': emptyModelStats(),
+      kimi:        emptyModelStats(),
+      llama4:      emptyModelStats(),
     },
     categories: {},
     rounds: [],
