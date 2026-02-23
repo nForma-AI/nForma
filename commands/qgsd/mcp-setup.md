@@ -413,28 +413,60 @@ If "Add new agent":
 
 **Step A — Select agent template**
 
-Read the current `~/.claude.json` mcpServers keys to build the exclusion list. Then use AskUserQuestion, filtering out templates whose agent name already appears as a key in mcpServers:
+First, detect which servers are already configured in `~/.claude.json`:
+
+```bash
+EXISTING_SERVERS=$(node -e "
+const fs = require('fs'), os = require('os');
+try {
+  const cj = JSON.parse(fs.readFileSync(os.homedir() + '/.claude.json', 'utf8'));
+  console.log(JSON.stringify(Object.keys(cj.mcpServers || {})));
+} catch(e) { console.log('[]'); }
+")
+```
+
+Parse `EXISTING_SERVERS` as a JSON array. Use this array to filter the options below.
+
+Then use AskUserQuestion with two sections of options:
 
 - header: "Add Agent — Select Template"
 - question: "Select an agent template to add:\n\n(Agents already configured are excluded)"
-- options (omit names already in mcpServers):
-  - "1 — claude-1 (AkashML, DeepSeek-V3)"
-  - "2 — claude-2 (AkashML, MiniMax-M2.5)"
-  - "3 — claude-3 (Together.xyz, Qwen3-Coder-480B)"
-  - "4 — claude-5 (Together.xyz, Llama-4-M)"
-  - "5 — claude-4 (Fireworks, kimi)"
+- options — build the list using these filtering rules:
+  - **Claude MCP slots** (omit if agent name already in EXISTING_SERVERS):
+    - "1 — claude-1 (AkashML, DeepSeek-V3)"
+    - "2 — claude-2 (AkashML, MiniMax-M2.5)"
+    - "3 — claude-3 (Together.xyz, Qwen3-Coder-480B)"
+    - "4 — claude-5 (Together.xyz, Llama-4-M)"
+    - "5 — claude-4 (Fireworks, kimi)"
+  - **Native CLI second slots** (omit if second slot already in EXISTING_SERVERS OR if first slot NOT in EXISTING_SERVERS):
+    - "6 — codex-cli-2 (second Codex slot — copies codex-cli-1 config)" [show only if codex-cli-1 is in EXISTING_SERVERS AND codex-cli-2 is NOT in EXISTING_SERVERS]
+    - "7 — gemini-cli-2 (second Gemini slot — copies gemini-cli-1 config)" [show only if gemini-cli-1 is in EXISTING_SERVERS AND gemini-cli-2 is NOT in EXISTING_SERVERS]
+    - "8 — opencode-2 (second OpenCode slot — copies opencode-1 config)" [show only if opencode-1 is in EXISTING_SERVERS AND opencode-2 is NOT in EXISTING_SERVERS]
+    - "9 — copilot-2 (second Copilot slot — copies copilot-1 config)" [show only if copilot-1 is in EXISTING_SERVERS AND copilot-2 is NOT in EXISTING_SERVERS]
   - "Cancel — back to roster"
 
 If "Cancel — back to roster": display "No changes made." Return to roster display.
 
-Resolve agent details from the selection using this template map:
+**Resolver — map selection to slot details:**
+
+Claude MCP slot resolver (options 1–5):
 - "1 — claude-1…" → agentName=`claude-1`, provider=`AkashML`, baseUrl=`https://api.akashml.com/v1`, model=`deepseek-ai/DeepSeek-V3`
 - "2 — claude-2…" → agentName=`claude-2`, provider=`AkashML`, baseUrl=`https://api.akashml.com/v1`, model=`MiniMaxAI/MiniMax-M2.5`
 - "3 — claude-3…" → agentName=`claude-3`, provider=`Together.xyz`, baseUrl=`https://api.together.xyz/v1`, model=`Qwen/Qwen3-Coder-480B`
 - "4 — claude-5…" → agentName=`claude-5`, provider=`Together.xyz`, baseUrl=`https://api.together.xyz/v1`, model=`meta-llama/Llama-4-M`
 - "5 — claude-4…" → agentName=`claude-4`, provider=`Fireworks`, baseUrl=`https://api.fireworks.ai/inference/v1`, model=`kimi`
 
-**Step B — Collect API key**
+→ When options 1–5 selected: continue to Step B (API key collection) as before.
+
+Native CLI second-slot resolver (options 6–9):
+- "6 — codex-cli-2…" → newSlot=`codex-cli-2`, sourceSlot=`codex-cli-1`
+- "7 — gemini-cli-2…" → newSlot=`gemini-cli-2`, sourceSlot=`gemini-cli-1`
+- "8 — opencode-2…" → newSlot=`opencode-2`, sourceSlot=`opencode-1`
+- "9 — copilot-2…" → newSlot=`copilot-2`, sourceSlot=`copilot-1`
+
+→ When options 6–9 selected: route to **Step B-native** below (skip the API key step).
+
+**Step B — Collect API key (claude-mcp-server slots only)**
 
 Use AskUserQuestion:
 - header: "API Key — {agent-name}"
@@ -628,6 +660,114 @@ Run /qgsd:mcp-status to verify agent health.
 Return to roster display (re-read roster to show new agent).
 
 Return to roster display.
+
+---
+
+**Step B-native — Add Native CLI Slot (options 6–9 from Step A)**
+
+This branch is entered when the user selected a native CLI second slot (options 6–9) in Step A. At this point `newSlot` and `sourceSlot` are set from the resolver.
+
+Show a confirmation screen:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► REVIEW PENDING CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ◆ {new-slot-name}  →  copied from {source-slot-name}
+    Binary: {path from source slot}
+    Auth: uses {source-slot-name}'s existing credentials
+    quorum_active: will be appended
+```
+
+Use AskUserQuestion:
+- header: "Add Native CLI Slot"
+- question: "Add {new-slot-name} to ~/.claude.json and quorum_active?"
+- options:
+  - "Add and start"
+  - "Cancel — discard changes"
+
+If "Cancel — discard changes": display "Changes discarded." Return to roster display.
+
+If "Add and start":
+
+1. Backup `~/.claude.json`:
+```bash
+cp ~/.claude.json ~/.claude.json.backup-$(date +%Y-%m-%d-%H%M%S) 2>/dev/null || true
+```
+
+2. Copy mcpServers entry from source slot to new slot (deep copy — command, args, env all preserved):
+```bash
+node -e "
+const fs   = require('fs');
+const os   = require('os');
+const claudeJsonPath = os.homedir() + '/.claude.json';
+let cj = {};
+try { cj = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8')); } catch(e) {}
+const srcSlot = process.env.SOURCE_SLOT;
+const newSlot = process.env.NEW_SLOT;
+const src = (cj.mcpServers || {})[srcSlot];
+if (!src) { process.stdout.write(JSON.stringify({ written: false, error: 'source slot not found' }) + '\n'); process.exit(1); }
+cj.mcpServers = cj.mcpServers || {};
+cj.mcpServers[newSlot] = JSON.parse(JSON.stringify(src)); // deep copy
+fs.writeFileSync(claudeJsonPath, JSON.stringify(cj, null, 2));
+process.stdout.write(JSON.stringify({ written: true, newSlot, sourceSlot: srcSlot }) + '\n');
+" SOURCE_SLOT="{source-slot-name}" NEW_SLOT="{new-slot-name}"
+```
+
+If `written: false`: display error and return to roster.
+
+3. Append new slot to `quorum_active` in `~/.claude/qgsd.json`:
+```bash
+node -e "
+const fs = require('fs'), os = require('os');
+const qgsdPath = os.homedir() + '/.claude/qgsd.json';
+let cfg = {};
+try { cfg = JSON.parse(fs.readFileSync(qgsdPath, 'utf8')); } catch(e) {}
+const active = Array.isArray(cfg.quorum_active) ? cfg.quorum_active : [];
+const newSlot = process.env.NEW_SLOT;
+if (!active.includes(newSlot)) {
+  cfg.quorum_active = [...active, newSlot];
+  fs.writeFileSync(qgsdPath, JSON.stringify(cfg, null, 2) + '\n');
+  process.stdout.write(JSON.stringify({ added: true, slot: newSlot }) + '\n');
+} else {
+  process.stdout.write(JSON.stringify({ added: false, slot: newSlot, reason: 'already present' }) + '\n');
+}
+" NEW_SLOT="{new-slot-name}"
+```
+
+4. Invoke `/qgsd:mcp-restart {new-slot-name}` to start the new agent process.
+
+**Step D — Identity ping** (same as claude-mcp-server path):
+
+After restart, display: `"◆ Waiting for {new-slot-name} to start... calling identity tool"`
+
+Invoke the `identity` tool on the newly started agent. Display the result:
+
+If identity responds:
+```
+✓ Agent added and verified live.
+
+  ✓ {new-slot-name} — added, restarted, identity confirmed
+    Name:    {identity.name}
+    Version: {identity.version}
+    Model:   {identity.model}
+
+Run /qgsd:mcp-status to see full agent roster.
+```
+
+If identity times out or errors:
+```
+✓ Agent added and restarted.
+
+  ◆ {new-slot-name} — added, restarted (identity ping timed out — agent may need a moment to start)
+
+Run /qgsd:mcp-status to verify agent health.
+```
+
+Return to roster display (re-read roster to show new agent).
+
+---
 
 If agent selected: continue to Agent Sub-Menu.
 
