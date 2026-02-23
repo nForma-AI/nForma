@@ -126,6 +126,12 @@
 
 **Requirements:** DDMIN-01, DDMIN-02, DDMIN-03, DDMIN-04, TRIAGE-01, TRIAGE-02, FIX-01, FIX-02, FIX-03, VERIFY-01
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] v0.8-01-01-PLAN.md — Add --run-cap flag to gsd-tools.cjs + write fix-tests.md Phases 1 and 2
+- [ ] v0.8-01-02-PLAN.md — Write fix-tests.md Phases 3 and 4 (complete pipeline)
+
 </details>
 
 ## Progress
@@ -175,4 +181,4 @@
 | v0.7-02. Multiple Slots | v0.7 | 2/2 | Complete | 2026-02-23 |
 | v0.7-03. Wizard Composition Screen | v0.7 | 2/2 | Complete | 2026-02-23 |
 | v0.7-04. Orchestrator Scoreboard Slot Wiring | v0.7 | 2/2 | Complete | 2026-02-23 |
-| v0.8-01. fix-tests ddmin Pipeline | v0.8 | 0/? | In Progress | — |
+| v0.8-01. fix-tests ddmin Pipeline | v0.8 | 0/2 | In Progress | — |
