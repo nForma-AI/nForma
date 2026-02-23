@@ -76,7 +76,7 @@
 
 **Milestone Goal:** Rename all quorum agents to slot-based names (`claude-1`, `copilot-1`, `gemini-cli-1`, etc.), ship a `quorum.active` composition config that the orchestrator reads instead of a hardcoded list, support multiple slots per family, and extend `/qgsd:mcp-setup` with a composition screen for managing which slots participate in quorum.
 
-- [ ] **Phase 39: Rename and Migration** — Rename all 10 agents to `<family>-<N>` slot names; migration script for `~/.claude.json`; update all QGSD source files and commands (SLOT-01..04)
+- [ ] **Phase 39: Rename and Migration** — Rename all 10 agents to `<family>-<N>` slot names; migration script for `~/.claude.json`; update all QGSD source files and commands (SLOT-01..04) **Plans:** 3 plans
 - [ ] **Phase 40: Composition Architecture** — `quorum.active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03)
 - [ ] **Phase 41: Multiple Slots** — Support N instances per family; `~/.claude.json` entries for copilot-1/2, opencode-1/2, etc.; add-slot supported by config and wizard (MULTI-01..03)
 - [ ] **Phase 42: Wizard Composition Screen** — "Edit Quorum Composition" option in mcp-setup re-run menu; slot toggle on/off; add new slot from within wizard (WIZ-08..10)
@@ -347,7 +347,11 @@ Plans:
   2. All QGSD source files (hooks, orchestrator, commands, scoreboard tooling, qgsd-prompt.js, config-loader.js) reference agents exclusively by slot names — `grep`-ing the source for any old model-based name returns zero matches
   3. Running `/qgsd:mcp-status`, `/qgsd:mcp-set-model`, `/qgsd:mcp-update`, and `/qgsd:mcp-restart` with a slot name argument (`claude-1`, `copilot-1`, etc.) resolves correctly — no command errors on valid slot names
   4. All QGSD output visible to the user (status tables, quorum instructions, scoreboard display, wizard menus) shows slot names — no old model-based names appear in any user-facing surface
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 39-01-PLAN.md — Migration script (bin/migrate-to-slots.cjs) + bin/install.js slot-name updates (SLOT-02, SLOT-03 partial)
+- [ ] 39-02-PLAN.md — Hooks source + dist sync + templates/qgsd.json slot-name updates (SLOT-03 partial)
+- [ ] 39-03-PLAN.md — Commands (mcp-status, mcp-set-model, mcp-restart, mcp-update, mcp-setup, quorum, quorum-test, debug) + orchestrator agent updates (SLOT-01, SLOT-03 completion, SLOT-04)
 
 ### Phase 40: Composition Architecture
 **Goal**: The quorum orchestrator reads its agent list from a `quorum.active` config array instead of a hardcoded list — which slots participate in quorum is now a config decision, not a code change; the scoreboard tracks each slot by name with the loaded model shown as context
