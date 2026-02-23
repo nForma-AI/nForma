@@ -63,7 +63,7 @@ Print: `QGSD fix-tests: Batching complete — {total_files} tests in {total_batc
 Build initial state JSON and save:
 ```bash
 node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs maintain-tests save-state \
-  --state-json '{"schema_version":1,"session_id":"<ISO timestamp>","manifest_path":".planning/maintain-tests-manifest.json","total_tests":<total_files>,"batches_complete":0,"batch_status":{},"processed_files":[],"results_by_category":{"valid_skip":[],"adapt":[],"isolate":[],"real_bug":[],"fixture":[]},"flaky_tests":[],"iteration_count":0,"last_unresolved_count":<total_files>,"consecutive_no_progress":0,"deferred_tests":[],"categorization_verdicts":[],"dispatched_tasks":[],"deferred_report":{"real_bug":[],"low_context":[]}}'
+  --state-json '{"schema_version":1,"session_id":"<ISO timestamp>","manifest_path":".planning/maintain-tests-manifest.json","total_tests":<total_files>,"batches_complete":0,"batch_status":{},"processed_files":[],"results_by_category":{"valid_skip":[],"adapt":[],"isolate":[],"real_bug":[],"fixture":[]},"flaky_tests":[],"iteration_count":0,"last_unresolved_count":<total_files>,"consecutive_no_progress":0,"deferred_tests":[],"categorization_verdicts":[],"dispatched_tasks":[],"deferred_report":{"real_bug":[],"low_context":[]},"ddmin_results":[]}'
 ```
 
 Read `ITERATION_CAP` from `.claude/qgsd.json` path `maintain_tests.iteration_cap` — default 5 if not set.
@@ -211,6 +211,42 @@ node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs maintain-tests save-s
 
 **Note on dispatch:** Adapt/fixture/isolate dispatch happens in Step 6h (added by Plan 02). This step (6d) only produces verdicts and updates state.
 
+### 6d.1. Ddmin enrichment for isolate verdicts
+
+For each verdict produced in 6d where `category == "isolate"` AND `verdict.polluter_set` is not yet set:
+
+1. Build a candidates list: all OTHER test files in the current batch (batch's `files` list minus the failing test itself).
+
+2. If `candidates` is empty: set `verdict.polluter_set = []`, `verdict.ddmin_ran = false`. Skip to next.
+
+3. Write candidates to a temp file:
+   ```bash
+   echo '{"test_files":["<file1>","<file2>","..."]}' > .planning/ddmin-candidates-temp.json
+   ```
+
+4. Run ddmin:
+   ```bash
+   node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs maintain-tests ddmin \
+     --failing-test <verdict.file> \
+     --candidates-file .planning/ddmin-candidates-temp.json \
+     --timeout 30 \
+     --output-file .planning/ddmin-result-temp.json
+   ```
+
+5. Read `.planning/ddmin-result-temp.json`. Extract `polluter_set` and `ddmin_ran`.
+
+6. Update the verdict in `state.categorization_verdicts`:
+   - Set `verdict.polluter_set = ddmin_result.polluter_set`
+   - Set `verdict.ddmin_ran = ddmin_result.ddmin_ran`
+   - Set `verdict.ddmin_reason = ddmin_result.reason`
+
+7. Save state after all isolate verdicts in this batch are enriched.
+
+Print after each enrichment:
+`QGSD fix-tests: ddmin [{verdict.file}] → {len(polluter_set)} polluters found`
+
+**Note:** Ddmin is best-effort — if it times out or returns no result, proceed with `polluter_set = []`. Never block dispatch on ddmin failure.
+
 ### 6e. Print progress banner
 
 ```
@@ -321,6 +357,16 @@ Error pattern: {error_type}
 "Git context (recent commits touching code under test):
 {pickaxe_context.commits[0]}
 {pickaxe_context.commits[1] if exists}"}
+{if category == "isolate" AND verdict.polluter_set is non-empty:
+"Polluter analysis (ddmin result — tests that cause this failure when run first):
+{polluter_set[0]}
+{polluter_set[1] if exists}
+{polluter_set[2] if exists}
+{polluter_set[3] if exists}
+{polluter_set[4] if exists}
+Tip: the polluter test(s) likely share state (global var, DB, port, file) with the failing test."}
+{if category == "isolate" AND (verdict.polluter_set is empty OR ddmin_ran == false):
+"Order dependency suspected but no specific polluter identified via ddmin. Check for shared global state, ports, or DB side-effects."}
 ```
 Where `{chunk_suffix}` = "" if only 1 chunk, or " (batch {n}/{total})" if multiple chunks.
 
@@ -412,6 +458,7 @@ node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs activity-clear
 
  State saved to:  .planning/maintain-tests-state.json
  Dispatched:      {len(dispatched_tasks)} quick tasks
+ Ddmin runs:      {count of categorization_verdicts where ddmin_ran == true} tests enriched
 
 {if state.deferred_report.real_bug is non-empty OR state.deferred_report.low_context is non-empty:}
 
