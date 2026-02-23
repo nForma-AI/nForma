@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-23 after Phase 39)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.6 MILESTONE COMPLETE — slot rename (SLOT-01..04) delivered in Phase 39; v0.7 not yet planned
+**Current focus:** v0.7 milestone in progress — Phase v0.7-01 (composition architecture) complete; quorum_active config field + slot-keyed scoreboard + dynamic quorum composition
 
 ## Current Position
 
-Phase: 39 of 39 (Phase 39 complete; v0.6 milestone complete — is_last_phase=true)
-Plan: 39-03 Complete
-Status: v0.6 milestone fully shipped; all 10 quorum agents use slot-based names; SLOT-01..04 verified
-Last activity: 2026-02-23 - Completed quick task 58: ddmin no-polluter dispatch clarity in fix-tests.md
+Phase: v0.7-01 of v0.7 (Phase v0.7-01 complete — 4/4 plans done)
+Plan: v0.7-01-04 Complete
+Status: v0.7-01 fully shipped; quorum_active config layer, scoreboard slots{}, dynamic quorum orchestration, installer/migration integration all complete
+Last activity: 2026-02-23 - Completed quick task 60: fix-tests.md circuit breaker removal + fresh-run default
 
 Progress: [████████████████████] 38/38 plans (100%)
 
@@ -67,6 +67,7 @@ Recent decisions affecting current work:
 - [Phase 39]: SLOT_MIGRATION_MAP in bin/migrate-to-slots.cjs — non-destructive (skip if newName present), idempotent, --dry-run supported
 - [Phase 39]: Display name = slot name as-is (no prefix stripping); scoreboard --model from health_check response, not server name
 - [Phase 39]: hasClaudeMcpAgents() regex updated to /^claude-\d+$/ for slot-based names; Install 39-01 adds --migrate-slots flag
+- [quick-59]: Phase numbering redesigned to milestone-scoped IDs (v0.7-01 format); v0.7 phases renamed from 40/41/42; gsd-tools.cjs updated to parse both integer and milestone-scoped formats
 
 ### Pending Todos
 
@@ -89,6 +90,7 @@ Recent decisions affecting current work:
 | 56 | softer circuit breaker with LLM false-negative detection and auto-continue | 2026-02-23 | 70175b7 | Verified | [56-softer-circuit-breaker-with-llm-false-ne](./quick/56-softer-circuit-breaker-with-llm-false-ne/) |
 | 57 | Fix GSD branding to QGSD in install.js statusline prompt and completion banners | 2026-02-23 | 74dc5f3 | Complete | [57-fix-gsd-branding-to-qgsd-in-install-js-s](./quick/57-fix-gsd-branding-to-qgsd-in-install-js-s/) |
 | 58 | in fix-tests.md step 6h dispatch template, when ddmin_ran is true but polluter_set is empty, make it crystal clear to the fixer agent that ddmin exhaustively searched and ruled out test pollution — show run count, candidate count, and explicitly redirect the agent away from shared-state investigation toward timing/async/io causes | 2026-02-23 | 0f9a0c7 | Pending | [58-in-fix-tests-md-step-6h-dispatch-templat](./quick/58-in-fix-tests-md-step-6h-dispatch-templat/) |
+| 60 | in fix-tests.md: (1) remove Steps 2 and 7 (circuit breaker disable/enable) entirely; (2) make fresh run the default, gate resume behind --resume flag | 2026-02-23 | 65808c6 | Pending | [60-in-fix-tests-md-1-remove-steps-2-and-7-c](./quick/60-in-fix-tests-md-1-remove-steps-2-and-7-c/) |
 
 ## Session Continuity
 
