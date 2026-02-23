@@ -1,0 +1,40 @@
+{
+  "providers": [
+    {
+      "name": "codex",
+      "description": "Execute Codex CLI agent non-interactively for AI coding assistance",
+      "cli": "/opt/homebrew/bin/codex",
+      "args_template": ["exec", "{prompt}"],
+      "prompt_key": "{prompt}",
+      "timeout_ms": 300000,
+      "env": {}
+    },
+    {
+      "name": "gemini",
+      "description": "Query Gemini CLI agent non-interactively",
+      "cli": "/opt/homebrew/bin/gemini",
+      "args_template": ["-p", "{prompt}"],
+      "prompt_key": "{prompt}",
+      "timeout_ms": 300000,
+      "env": {}
+    },
+    {
+      "name": "opencode",
+      "description": "Run OpenCode agent non-interactively with a message",
+      "cli": "/opt/homebrew/bin/opencode",
+      "args_template": ["run", "{prompt}"],
+      "prompt_key": "{prompt}",
+      "timeout_ms": 300000,
+      "env": {}
+    },
+    {
+      "name": "copilot",
+      "description": "Execute GitHub Copilot CLI non-interactively",
+      "cli": "/opt/homebrew/bin/copilot",
+      "args_template": ["-p", "{prompt}", "--yolo"],
+      "prompt_key": "{prompt}",
+      "timeout_ms": 300000,
+      "env": {}
+    }
+  ]
+}
