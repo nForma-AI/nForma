@@ -100,7 +100,7 @@ Recent decisions affecting current work:
 | 60 | in fix-tests.md: (1) remove Steps 2 and 7 (circuit breaker disable/enable) entirely; (2) make fresh run the default, gate resume behind --resume flag | 2026-02-23 | 65808c6 | Pending | [60-in-fix-tests-md-1-remove-steps-2-and-7-c](./quick/60-in-fix-tests-md-1-remove-steps-2-and-7-c/) |
 | 61 | in fix-tests.md: real-bug quorum investigation + dispatch (same pattern as adapt/fixture) + install sync | 2026-02-23 | 440d6ed | Pending | [61-in-fix-tests-md-when-tests-are-classifie](./quick/61-in-fix-tests-md-when-tests-are-classifie/) |
 | 62 | resume-work should also look at quick tasks and incomplete qgsd:debug sessions | 2026-02-23 | 15ab74f | Verified | [62-resume-work-should-also-look-at-quick-ta](.planning/quick/62-resume-work-should-also-look-at-quick-ta/) |
-| 63 | fix v0.7-03 gaps: run install sync and mark WIZ-08/09 complete in REQUIREMENTS.md | 2026-02-23 | {commit_hash} | Pending | [63-fix-v0-7-03-gaps-run-install-sync-and-ma](./quick/63-fix-v0-7-03-gaps-run-install-sync-and-ma/) |
+| 63 | fix v0.7-03 gaps: run install sync and mark WIZ-08/09 complete in REQUIREMENTS.md | 2026-02-23 | 351e42f | Pending | [63-fix-v0-7-03-gaps-run-install-sync-and-ma](./quick/63-fix-v0-7-03-gaps-run-install-sync-and-ma/) |
 
 ## Session Continuity
 
