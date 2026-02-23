@@ -87,7 +87,7 @@ Recent decisions affecting current work:
 | 54 | add unit tests for remaining untested modules | 2026-02-22 | 98d8c62 | Verified | [54-add-unit-tests-for-remaining-untested-mo](./quick/54-add-unit-tests-for-remaining-untested-mo/) |
 | 55 | in qgsd:fix-tests, we could use ddmin instead of batch to isolate tests that causes instabilities in other, and that would guide our isolation strategies! | 2026-02-23 | ab17b01 | Verified | [55-in-qgsd-fix-tests-we-could-use-ddmin-ins](./quick/55-in-qgsd-fix-tests-we-could-use-ddmin-ins/) |
 | 56 | softer circuit breaker with LLM false-negative detection and auto-continue | 2026-02-23 | 70175b7 | Verified | [56-softer-circuit-breaker-with-llm-false-ne](./quick/56-softer-circuit-breaker-with-llm-false-ne/) |
-| 57 | Fix GSD branding to QGSD in install.js statusline prompt and completion banners | 2026-02-23 | Pending | Pending | [57-fix-gsd-branding-to-qgsd-in-install-js-s](./quick/57-fix-gsd-branding-to-qgsd-in-install-js-s/) |
+| 57 | Fix GSD branding to QGSD in install.js statusline prompt and completion banners | 2026-02-23 | 74dc5f3 | Complete | [57-fix-gsd-branding-to-qgsd-in-install-js-s](./quick/57-fix-gsd-branding-to-qgsd-in-install-js-s/) |
 
 ## Session Continuity
 
