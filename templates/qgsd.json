@@ -26,7 +26,9 @@
     "  Example: { \"circuit_breaker\": { \"oscillation_depth\": 2, \"commit_window\": 6 } }",
     "",
     "MCP prefixes are auto-detected from ~/.claude.json mcpServers on first install.",
-    "  Edit required_models here to override detected values."
+    "  Edit required_models here to override detected values.",
+    "",
+    "quorum_active: Array of slot names that participate in quorum. E.g. [\"codex-cli-1\", \"gemini-cli-1\", \"opencode-1\", \"copilot-1\", \"claude-1\"]. Empty array (default) = all discovered slots participate. Populated automatically on install. Override to include/exclude specific slots."
   ],
   "quorum_commands": [
     "plan-phase", "new-project", "new-milestone",
@@ -42,5 +44,6 @@
   "circuit_breaker": {
     "oscillation_depth": 3,
     "commit_window": 6
-  }
+  },
+  "quorum_active": ["codex-cli-1", "gemini-cli-1", "opencode-1", "copilot-1", "claude-1"]
 }

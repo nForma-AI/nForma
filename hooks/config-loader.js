@@ -33,6 +33,12 @@ const DEFAULT_CONFIG = {
     haiku_model: 'claude-haiku-4-5-20251001', // model used for review
   },
   model_preferences: {},  // { "<mcp-server-name>": "<model-id>" }
+  // quorum_active: array of slot names that participate in quorum.
+  // [] = all discovered slots participate (fail-open, backward compatible with pre-Phase-40 installs).
+  // A non-empty array is an explicit allowlist.
+  // NOTE: loadConfig() uses shallow spread { ...DEFAULT_CONFIG, ...global, ...project } —
+  // if project config sets quorum_active, it entirely replaces the global value.
+  quorum_active: [],
 };
 
 // Reads and parses a JSON config file.
@@ -104,6 +110,16 @@ function validateConfig(config) {
       process.stderr.write('[qgsd] WARNING: qgsd.json: circuit_breaker.haiku_model must be a string; using default\n');
       config.circuit_breaker.haiku_model = DEFAULT_CONFIG.circuit_breaker.haiku_model;
     }
+  }
+
+  // Validate quorum_active
+  if (!Array.isArray(config.quorum_active)) {
+    process.stderr.write('[qgsd] WARNING: qgsd.json: quorum_active must be an array; using []\n');
+    config.quorum_active = [];
+  } else {
+    config.quorum_active = config.quorum_active.filter(
+      s => typeof s === 'string' && s.trim().length > 0
+    );
   }
 
   // Validate model_preferences

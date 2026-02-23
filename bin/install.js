@@ -154,6 +154,7 @@ const QGSD_KEYWORD_MAP = {
   codex:    { keywords: ['codex'],    defaultPrefix: 'mcp__codex-cli-1__'  },
   gemini:   { keywords: ['gemini'],   defaultPrefix: 'mcp__gemini-cli-1__' },
   opencode: { keywords: ['opencode'], defaultPrefix: 'mcp__opencode-1__'   },
+  copilot:  { keywords: ['copilot'],  defaultPrefix: 'mcp__copilot-1__'    },
 };
 
 // Reads ~/.claude.json to find MCP server names, keyword-matches to identify quorum candidates,
