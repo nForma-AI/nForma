@@ -31,6 +31,7 @@ const hasRedetectMcps = args.includes('--redetect-mcps');
 const hasResetBreaker = args.includes('--reset-breaker');
 const hasDisableBreaker = args.includes('--disable-breaker');
 const hasEnableBreaker = args.includes('--enable-breaker');
+const hasMigrateSlots = args.includes('--migrate-slots');
 
 // Runtime selection - can be set by flags or interactive prompt
 let selectedRuntimes = [];
@@ -150,9 +151,9 @@ const banner = '\n' +
 
 // QGSD: MCP auto-detection — keyword map for quorum model server matching
 const QGSD_KEYWORD_MAP = {
-  codex:    { keywords: ['codex'],    defaultPrefix: 'mcp__codex-cli__'  },
-  gemini:   { keywords: ['gemini'],   defaultPrefix: 'mcp__gemini-cli__' },
-  opencode: { keywords: ['opencode'], defaultPrefix: 'mcp__opencode__'   },
+  codex:    { keywords: ['codex'],    defaultPrefix: 'mcp__codex-cli-1__'  },
+  gemini:   { keywords: ['gemini'],   defaultPrefix: 'mcp__gemini-cli-1__' },
+  opencode: { keywords: ['opencode'], defaultPrefix: 'mcp__opencode-1__'   },
 };
 
 // Reads ~/.claude.json to find MCP server names, keyword-matches to identify quorum candidates,
@@ -259,9 +260,10 @@ function hasClaudeMcpAgents() {
     if (!fs.existsSync(claudeJsonPath)) return false;
     const d = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8'));
     const mcpServers = d.mcpServers || {};
-    const knownNames = ['claude-deepseek', 'claude-minimax', 'claude-qwen-coder', 'claude-llama4', 'claude-kimi'];
     return Object.entries(mcpServers).some(([name, cfg]) => {
-      if (knownNames.includes(name)) return true;
+      // Match slot pattern: claude-1 through claude-N
+      if (/^claude-\d+$/.test(name)) return true;
+      // Fallback: detect claude-mcp-server in args path (handles new installs before migration)
       if ((cfg.args || []).some(a => String(a).includes('claude-mcp-server'))) return true;
       return false;
     });
@@ -2178,6 +2180,28 @@ if (hasEnableBreaker) {
   }
   // If no state file, nothing to do — circuit breaker is already effectively enabled
   console.log(`  ${green}✓${reset} Circuit breaker ${green}enabled${reset}. Oscillation detection resumed.`);
+  process.exit(0);
+}
+
+// SLOT-02: --migrate-slots renames mcpServers keys and patches qgsd.json tool_prefix values
+if (hasMigrateSlots) {
+  const { migrateClaudeJson, migrateQgsdJson } = require('./migrate-to-slots.cjs');
+  const claudeJsonPath = path.join(os.homedir(), '.claude.json');
+  const qgsdJsonPath = path.join(os.homedir(), '.claude', 'qgsd.json');
+  const dryRun = args.includes('--dry-run');
+  const r1 = migrateClaudeJson(claudeJsonPath, dryRun);
+  const r2 = migrateQgsdJson(qgsdJsonPath, dryRun);
+  if (r1.changed === 0 && r2.changed === 0) {
+    console.log(`  ${green}✓${reset} Already migrated — no changes needed`);
+  } else {
+    if (r1.changed > 0) {
+      console.log(`  ${green}✓${reset} Migrated ${r1.changed} mcpServers entries:`);
+      r1.renamed.forEach(r => console.log(`      ${r.from} → ${r.to}`));
+    }
+    if (r2.changed > 0) {
+      console.log(`  ${green}✓${reset} Patched ${r2.changed} qgsd.json tool_prefix values`);
+    }
+  }
   process.exit(0);
 }
 
