@@ -40,6 +40,57 @@ Phase 4 scope requirements: SCOPE-01–07 (7/7)
 
 ---
 
+## v0.3 — Test Suite Maintenance Tool (Shipped: 2026-02-22)
+
+**Phases completed:** 5 phases (18–22), ~96 commits
+**Requirements:** 14/14 v0.3 requirements (DISC-01/02, EXEC-01..04, CATG-01..03, ITER-01/02, INTG-01..03)
+
+**Delivered:** Built `/qgsd:fix-tests` — a single autonomous command that discovers all jest/playwright/pytest tests, batches them, runs with flakiness detection, AI-categorizes failures into 5 types, dispatches fix tasks, and loops until all tests are classified. 135 integration tests verify all seams end-to-end.
+
+**Key accomplishments:**
+- `gsd-tools.cjs maintain-tests discover/batch/run-batch` — framework-native test discovery (never globs); random batch shuffling; spawnToFile capture prevents Node.js maxBuffer overflow on large suites (DISC-01/02, EXEC-01..04)
+- 5-category AI failure diagnosis (valid-skip / adapt / isolate / real-bug / fixture) with git pickaxe enrichment for `adapt` failures linking to the causative commit (CATG-01..03)
+- Autonomous dispatch: adapt/fixture/isolate failures grouped and dispatched as `/qgsd:quick` Tasks; real-bug failures deferred to user report (CATG-03)
+- Loop termination logic: no-progress guard (5 consecutive batches), configurable iteration cap, circuit breaker disable/re-enable lifecycle (ITER-01/02, INTG-01)
+- Activity sidecar integration: interrupted maintenance runs resume to exact batch step via `/qgsd:resume-work` routing table (INTG-02)
+- 135 integration tests covering INTG-03 compliance, circuit breaker lifecycle, resume mid-batch, Phase 21 schema round-trips (Phase 22)
+
+---
+
+## v0.4 — MCP Ecosystem (Shipped: 2026-02-22)
+
+**Phases completed:** 9 phases (23–31), ~853 commits
+**Requirements:** OBS-01..04, MGR-01..06, STD-02, STD-04, STD-08, STD-10 shipped; STD-01/03/05/06/07/09 deferred (out of scope per Phase 23 scope decision)
+
+**Delivered:** Standardized the 6 coding-agent MCP server repos to Gen2 architecture, shipped `/qgsd:mcp-status` (identity-based polling + scoreboard UNAVAIL counts), `/qgsd:mcp-set-model` (persistent model preferences + quorum injection), `/qgsd:mcp-update` (all install methods), and `/qgsd:mcp-restart` (pkill + auto-reconnect). 201/201 tests passing.
+
+**Key accomplishments:**
+- Gen1→Gen2 architecture port for claude/codex/copilot/openhands repos: per-tool `*.tool.ts` + `registry.ts` structure; Gen1 files removed; both repos merged to main from feature branches (STD-02, Phase 24/31)
+- `identity` tool + `constants.ts` + `Logger` utility shipped in all 6 repos; `gemini-mcp-server` unscoped to unscoped npm package name (STD-04, STD-08, STD-10, Phase 25/30)
+- `/qgsd:mcp-status` v2 — 10-agent identity polling + inline scoreboard UNAVAIL read; health state table with model and availability (OBS-01..04, Phase 26/29)
+- `/qgsd:mcp-set-model` — 6-step command with live identity validation, model_preferences persistence to global qgsd.json, quorum override injection in subsequent calls (MGR-01/02, Phase 27)
+- `/qgsd:mcp-update` — detects npm global / npx / git install method from `~/.claude.json` args; deduplicates 6 claude-* agents to single build; `all` mode sequential (MGR-03..05, Phase 28)
+- `/qgsd:mcp-restart` — pkill npm exec parent then node child (prevents stale respawn); Claude Code auto-reconnect + identity verification (MGR-06, Phase 28)
+
+---
+
+## v0.5 — MCP Setup Wizard (Shipped: 2026-02-23)
+
+**Phases completed:** 7 phases (32–38), ~613 commits
+**Requirements:** 17/17 v0.5 requirements (WIZ-01..05, KEY-01..04, PROV-01..03, AGENT-01..03, INST-01)
+
+**Delivered:** Built `/qgsd:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (key, provider, model) without touching config files. First-run = linear onboarding; re-run = navigable agent menu with live status.
+
+**Key accomplishments:**
+- Wizard scaffold: first-run vs re-run detection, AskUserQuestion agent menu with live identity status, confirm+apply+restart flow (WIZ-01..05, Phase 32)
+- API key management: keytar-backed secure storage via `bin/secrets.cjs`; key passed via env var (not shell history); `syncToClaudeJson` propagates to all agent env blocks after apply (KEY-01..04, Phase 33)
+- Provider swap: curated list (AkashML / Together.xyz / Fireworks) + custom URL; `NEW_URL` env var pattern prevents injection; `syncToClaudeJson` called on apply (PROV-01..03, Phase 34)
+- Agent roster: add new claude-mcp-server instances with `CLAUDE_MCP_PATH` 2-strategy fallback; identity ping verifies connectivity; remove existing agents (AGENT-01..03, Phase 35)
+- Install nudge: installer detects no configured quorum agents via `hasClaudeMcpAgents()` and prompts `/qgsd:mcp-setup` (INST-01, Phase 36)
+- Distribution fixes: 9 hardcoded `secrets.cjs` absolute paths replaced with `copyWithPathReplacement()` dynamic resolution; all 5 apply flows call `syncToClaudeJson` (Phase 37)
+
+---
+
 
 ## v0.6 Agent Slots & Quorum Composition (Shipped: 2026-02-23)
 
