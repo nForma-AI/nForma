@@ -82,6 +82,21 @@ done 2>/dev/null
 if [ "$has_interrupted_agent" = "true" ]; then
   echo "Interrupted agent: $interrupted_agent_id"
 fi
+
+# Check for incomplete quick tasks (PLAN without SUMMARY)
+for plan in .planning/quick/*/*-PLAN.md; do
+  [ ! -f "$plan" ] && continue
+  dir=$(dirname "$plan")
+  num=$(basename "$plan" -PLAN.md)
+  summary="$dir/$num-SUMMARY.md"
+  [ ! -f "$summary" ] && echo "Incomplete quick task: $plan"
+done 2>/dev/null
+
+# Check for incomplete qgsd:debug session (consensus found but no fix applied)
+if [ -f ".planning/quick/quorum-debug-latest.md" ]; then
+  grep -q "## fix applied" .planning/quick/quorum-debug-latest.md \
+    || echo "Incomplete debug session: .planning/quick/quorum-debug-latest.md (consensus found, fix not applied)"
+fi
 ```
 
 **If .continue-here file exists:**
@@ -100,6 +115,18 @@ fi
 - Subagent was spawned but session ended before completion
 - Read agent-history.json for task details
 - Flag: "Found interrupted agent"
+
+**If incomplete quick task found:**
+
+- A quick task was planned and execution started but no SUMMARY was written
+- Flag: "Found incomplete quick task"
+- Recovery: `/qgsd:quick` — the quick command will pick up the existing PLAN
+
+**If incomplete debug session found:**
+
+- /qgsd:debug ran and reached consensus, but no fix was applied before the session ended
+- Flag: "Found incomplete debug session"
+- Recovery: Read `.planning/quick/quorum-debug-latest.md` for the consensus next step, then apply it, or re-run `/qgsd:debug` to get a fresh analysis
   </step>
 
 <step name="present_status">
@@ -140,6 +167,17 @@ Present complete project status to user:
     Interrupted: [timestamp]
 
     Resume with: Task tool (resume parameter with agent ID)
+
+[If incomplete quick task found:]
+⚠️  Incomplete quick task:
+    - [path to PLAN.md]
+    Recovery: /qgsd:quick
+
+[If incomplete debug session found:]
+⚠️  Incomplete debug session:
+    - Consensus found but fix not applied
+    - File: .planning/quick/quorum-debug-latest.md
+    Recovery: apply consensus step or re-run /qgsd:debug
 
 [If pending todos exist:]
 📋 [N] pending todos — /qgsd:check-todos to review
@@ -198,6 +236,15 @@ Present the matched recovery option to the user as the PRIMARY action.
 **If incomplete plan (PLAN without SUMMARY):**
 → Primary: Complete the incomplete plan
 → Option: Abandon and move on
+
+**If incomplete quick task (quick PLAN without SUMMARY):**
+→ Primary: Complete the quick task (`/qgsd:quick`)
+→ Option: Abandon (delete the PLAN.md)
+
+**If incomplete debug session:**
+→ Primary: Read quorum-debug-latest.md, apply consensus step
+→ Option: Re-run `/qgsd:debug` for fresh analysis
+→ Option: Dismiss (delete quorum-debug-latest.md if stale)
 
 **If phase in progress, all plans complete:**
 → Primary: Transition to next phase
