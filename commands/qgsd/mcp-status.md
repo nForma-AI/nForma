@@ -32,9 +32,9 @@ This command is read-only (observation only). It does NOT invoke quorum and is N
 
 <process>
 
-> **IMPORTANT: Run every Bash call in this workflow sequentially (one at a time). Never issue two Bash calls in parallel. A failure in one parallel sibling cancels all other parallel siblings — sequential execution isolates failures.**
+> **IMPORTANT: Run every Bash call in this workflow sequentially (one at a time). Never issue two Bash calls in parallel. A failure in one parallel sibling cancels all other parallel siblings — sequential execution isolates failures. For each numbered step below: run this Bash command alone, wait for its full output, store the result, then proceed to the next step.**
 
-## Step 1: Read UNAVAIL counts from scoreboard (sequential — run this bash call first, alone, before any tool calls)
+## Step 1: Read UNAVAIL counts from scoreboard (run this Bash command first, wait for output before proceeding to Step 2)
 
 Run the following Bash command and store the output as SCOREBOARD_INFO:
 
@@ -75,7 +75,7 @@ For HTTP agents, derive UNAVAIL count using: `Math.max(counts[slot] || 0, counts
 
 If scoreboard file does not exist, treat all counts as 0.
 
-## Step 2: Display banner
+## Step 2: Display banner (run this Bash command second, after Step 1 output is stored; wait for output before proceeding to Step 3)
 
 Print:
 ```
@@ -86,7 +86,7 @@ Print:
 Querying 4 CLI agents + 6 HTTP providers...
 ```
 
-## Step 3: Call identity (and health_check for claude-N) on each agent (sequential — one at a time, never parallel)
+## Step 3: Call identity (and health_check for claude-N) on each agent (sequential — one at a time, never parallel; after Step 2 output is stored)
 
 For each of the 10 agents below, call their identity tool with `{}` as input. Wrap each call in try/catch — on error, mark health=`error` and fill version/model/available_models with `—`. Never let a single agent failure abort the loop.
 
