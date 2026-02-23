@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v0.7 milestone)
 Phase: MILESTONE COMPLETE — v0.7 archived
 Plan: —
 Status: v0.7 archived to .planning/milestones/; git tag v0.7 created; ready for /qgsd:new-milestone
-Last activity: 2026-02-23 - Completed quick task 90: Fix two quorum bugs
+Last activity: 2026-02-23 - Completed quick task 91: Tier 1 improvements to manage-agents.cjs
 
 Progress: [████████████████████] 46/46 plans (100%)
 
@@ -125,6 +125,7 @@ Recent decisions affecting current work:
 | 87 | fix quorum orchestrator: read artifact_path file and inject working directory + repo context into all MCP worker prompts | 2026-02-23 | c31950c | Verified | [87-fix-quorum-orchestrator-read-artifact-pa](.planning/quick/87-fix-quorum-orchestrator-read-artifact-pa/) |
 | 88 | Build interactive Node.js CLI interface for managing quorum agents (add, remove, edit, reorder) via node scripts | 2026-02-23 | 5f6049a | Verified | [88-build-interactive-node-js-cli-interface-](./quick/88-build-interactive-node-js-cli-interface-/) |
 | 90 | Fix two quorum bugs: check-provider-health.cjs filter mismatch for unified-mcp-server.mjs and add preferSub ordering to orchestrator dispatch loop | 2026-02-23 | 0ab5783 | Verified | [90-fix-two-quorum-bugs-check-provider-healt](./quick/90-fix-two-quorum-bugs-check-provider-healt/) |
+| 91 | Add Tier 1 improvements to manage-agents.cjs: provider pre-flight check on Add/Edit, agent health-check menu option, and performance intel in Edit | 2026-02-23 | fc58045 | Pending | [91-add-tier-1-improvements-to-manage-agents](./quick/91-add-tier-1-improvements-to-manage-agents/) |
 
 ## Session Continuity
 
