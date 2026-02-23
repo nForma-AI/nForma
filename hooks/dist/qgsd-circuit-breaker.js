@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // hooks/qgsd-circuit-breaker.js
-// PreToolUse hook — oscillation detection, state persistence, and enforcement for circuit breaker.
+// PreToolUse hook — oscillation detection, state persistence, and notification for circuit breaker.
 //
 // Reads JSON from stdin (Claude Code PreToolUse event payload), checks for oscillation
 // in git history when Bash commands are executed, and persists breaker state across
-// invocations. Phase 7: enforcement blocking + config-driven thresholds.
+// invocations. Non-blocking: all tool calls are allowed through; oscillation is reported
+// as a priority warning via the hook output so Claude sees it without being hard-blocked.
 //
 // Config-driven defaults via loadConfig(gitRoot): oscillation_depth and commit_window
 // State file: .claude/circuit-breaker-state.json (gitignored)
@@ -40,7 +41,7 @@ function readState(statePath) {
   }
 }
 
-// Returns true if command is read-only (should not trigger detection)
+// Returns true if command is read-only (skip detection on read-only commands)
 function isReadOnly(command) {
   return READ_ONLY_REGEX.test(command);
 }
@@ -331,14 +332,18 @@ function appendFalseNegative(statePath, fileSet) {
   }
 }
 
-// Builds the block reason message for the deny decision (ENFC-02/03)
-function buildBlockReason(state) {
+// Builds the priority warning notice for the allow decision
+// Returns a message Claude will see in the hook output (non-blocking notification)
+function buildWarningNotice(state) {
   const fileList = (state.file_set || []).join(', ') || '(unknown)';
   const snapshot = state.commit_window_snapshot;
   const lines = [
-    'CIRCUIT BREAKER ACTIVE',
+    'OSCILLATION DETECTED — PRIORITY NOTICE',
     '',
-    'Oscillating file set detected: ' + fileList,
+    'Oscillating file set: ' + fileList,
+    '',
+    'Fix the oscillation in the listed files before continuing.',
+    'Run git log to see the pattern. Do NOT make more commits to these files until the root cause is resolved.',
     '',
   ];
 
@@ -351,17 +356,12 @@ function buildBlockReason(state) {
       lines.push(`| ${index + 1} | ${fileStr} |`);
     });
     lines.push('');
-  } else {
-    lines.push('(commit graph unavailable)');
-    lines.push('');
   }
 
   lines.push(
     'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see get-shit-done/workflows/oscillation-resolution-mode.md for the full procedure.',
     '',
-    'Allowed read-only operations: git log, git diff, grep, cat, ls, head, tail, find',
-    '',
-    'After committing the fix manually, run \'npx qgsd --reset-breaker\' to clear the circuit breaker.',
+    'After committing the fix, run \'npx qgsd --reset-breaker\' to clear the circuit breaker state.',
     'To temporarily disable the circuit breaker for deliberate iterative work, run \'npx qgsd --disable-breaker\'.',
     'Re-enable with \'npx qgsd --enable-breaker\' when done.'
   );
@@ -389,26 +389,24 @@ function main() {
       const statePath = path.join(gitRoot, '.claude', 'circuit-breaker-state.json');
       const state = readState(statePath);
 
-      // DISABLE-01: If circuit breaker is disabled, skip all detection and enforcement
+      // DISABLE-01: If circuit breaker is disabled, skip all detection and notification
       if (state && state.disabled) {
         process.exit(0);
       }
 
       if (state && state.active) {
-        // ENFC-01/02/03: Enforce blocking on write commands; allow read-only
-        if (!isReadOnly(command)) {
-          process.stdout.write(JSON.stringify({
-            hookSpecificOutput: {
-              hookEventName: 'PreToolUse',
-              permissionDecision: 'deny',
-              permissionDecisionReason: buildBlockReason(state),
-            }
-          }));
-        }
+        // Breaker already active — emit priority warning but ALLOW the tool call through
+        process.stdout.write(JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: 'PreToolUse',
+            permissionDecision: 'allow',
+            permissionDecisionReason: buildWarningNotice(state),
+          }
+        }));
         process.exit(0);
       }
 
-      // Check if read-only
+      // Skip detection for read-only commands
       if (isReadOnly(command)) {
         process.exit(0); // DETECT-04: read-only command
       }
@@ -424,20 +422,31 @@ function main() {
         process.exit(0);
       }
 
-      // HAIKU-01: Consult Haiku to verify before blocking (if enabled)
+      // HAIKU-01: Consult Haiku to verify before notifying (if enabled)
       if (config.circuit_breaker.haiku_reviewer) {
         const verdict = await consultHaiku(gitRoot, result.fileSet, fileSets, config.circuit_breaker.haiku_model);
         if (verdict === 'REFINEMENT') {
-          // Haiku confirmed this is iterative refinement, not a bug loop — do not block.
+          // Haiku confirmed this is iterative refinement, not a bug loop — do not notify.
           // Log false-negative for auditability (stderr + persistent file).
           process.stderr.write(`[qgsd] INFO: circuit breaker false-negative — Haiku classified oscillation as REFINEMENT (files: ${result.fileSet.join(', ')}). Allowing tool call to proceed.\n`);
           appendFalseNegative(statePath, result.fileSet);
           process.exit(0);
         }
-        // verdict === 'GENUINE' or null (API unavailable) → trust the algorithm and block
+        // verdict === 'GENUINE' or null (API unavailable) → trust the algorithm and notify
       }
 
+      // Write state so qgsd-prompt.js picks it up on next user message
       writeState(statePath, result.fileSet, fileSets);
+
+      // Emit priority warning — allow the tool call through (non-blocking)
+      const newState = readState(statePath) || { file_set: result.fileSet, commit_window_snapshot: fileSets };
+      process.stdout.write(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'PreToolUse',
+          permissionDecision: 'allow',
+          permissionDecisionReason: buildWarningNotice(newState),
+        }
+      }));
       process.exit(0);
     } catch {
       process.exit(0); // Fail-open on any error
@@ -447,4 +456,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { buildBlockReason };
+module.exports = { buildWarningNotice };

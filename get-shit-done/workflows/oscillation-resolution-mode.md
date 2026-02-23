@@ -1,19 +1,21 @@
 <purpose>
-Step-by-step procedure Claude follows when the PreToolUse circuit breaker hook blocks execution with a CIRCUIT BREAKER ACTIVE deny message. Replaces hard-stop with structured quorum diagnosis and user approval gate.
+Step-by-step procedure Claude follows when the circuit breaker hook detects oscillation and emits a PRIORITY NOTICE. Tool calls are not blocked — but commits to the oscillating file set must stop until the root cause is resolved.
 </purpose>
 
 <trigger>
-Triggered when: The PreToolUse hook returns a CIRCUIT BREAKER ACTIVE deny message (permissionDecision: 'deny' with circuit breaker reason).
+Triggered when: The PreToolUse circuit breaker hook emits an OSCILLATION DETECTED — PRIORITY NOTICE message (permissionDecision: 'allow' with warning reason), or when qgsd-prompt.js injects CIRCUIT BREAKER ACTIVE context at the start of a user message.
 </trigger>
 
 <process>
 
-<step name="read_deny_message">
-## Step 1 — Read the Deny Message
+<step name="read_warning_notice">
+## Step 1 — Read the Warning Notice
 
-Extract from the hook's deny message:
-- The oscillating file set (listed under "Oscillating file set detected:")
-- The commit_window_snapshot data (if present in the deny payload)
+Extract from the hook's warning notice:
+- The oscillating file set (listed under "Oscillating file set:")
+- The commit_window_snapshot data (if present in the notice)
+
+Note: tool calls are still allowed. The priority is to diagnose and resolve the oscillation before committing more changes to the affected files.
 </step>
 
 <step name="fast_path_environmental_check">
@@ -40,7 +42,7 @@ STOP — do not proceed to Step 3.
 <step name="build_commit_graph">
 ## Step 3 — Build Commit Graph
 
-Run (read-only, always allowed during active breaker):
+Run:
 
 ```bash
 git log --oneline --name-only -N
@@ -100,7 +102,7 @@ Present the unified solution plan to the user with:
 
 Wait for explicit user approval before any implementation.
 
-Do NOT execute anything until the user confirms the plan.
+Do NOT commit anything until the user confirms the plan.
 </step>
 
 <step name="no_consensus_hard_stop">
@@ -118,17 +120,16 @@ User must make the final call.
 
 <constraints>
 - EXECUTION is single-model only (R2.2) — quorum diagnoses and plans, never executes
-- Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) are allowed throughout
-- No write Bash commands until user approves the plan AND runs `node ~/.claude/qgsd-bin/qgsd.cjs --reset-breaker`
+- No commits to the oscillating file set until user approves the plan AND runs `node ~/.claude/qgsd-bin/qgsd.cjs --reset-breaker`
 - Environmental file fast-path skips quorum entirely — human escalation only
 - See CLAUDE.md R5 for the full policy definition
 </constraints>
 
 <success_criteria>
-- [ ] Deny message parsed (oscillating file set extracted)
+- [ ] Warning notice parsed (oscillating file set extracted)
 - [ ] Environmental fast-path check applied
-- [ ] Commit graph built and displayed (read-only)
+- [ ] Commit graph built and displayed
 - [ ] Quorum diagnosis run with STRUCTURAL COUPLING framing
 - [ ] Unified solution (not partial fix) presented for user approval
-- [ ] No execution until user approves AND --reset-breaker is run
+- [ ] No commits to oscillating files until user approves AND --reset-breaker is run
 </success_criteria>

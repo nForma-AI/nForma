@@ -87,7 +87,7 @@ process.stdin.on('end', () => {
       const workflow = findResolutionWorkflow(cwd);
       const context = workflow
         ? `CIRCUIT BREAKER ACTIVE — OSCILLATION RESOLUTION MODE\n\nYou MUST follow this procedure immediately before doing anything else:\n\n${workflow}`
-        : `CIRCUIT BREAKER ACTIVE — OSCILLATION RESOLUTION MODE\n\nThe PreToolUse circuit breaker has blocked execution due to detected oscillation.\nYou MUST follow the oscillation resolution procedure in R5 of CLAUDE.md:\n1. Extract the oscillating file set from the deny message.\n2. Run: git log --oneline --name-only -6\n3. Run quorum diagnosis with structural coupling framing.\n4. Present unified solution to user for approval.\n5. Do NOT execute until user approves AND runs: npx qgsd --reset-breaker`;
+        : `CIRCUIT BREAKER ACTIVE — OSCILLATION RESOLUTION MODE\n\nOscillation has been detected in recent commits. Tool calls are NOT blocked — you can still read and write files — but you MUST resolve the oscillation before making further commits.\nFollow the oscillation resolution procedure in R5 of CLAUDE.md:\n1. Run: git log --oneline --name-only -6 to identify the oscillating file set.\n2. Run quorum diagnosis with structural coupling framing.\n3. Present unified solution to user for approval.\n4. Do NOT commit until user approves AND runs: npx qgsd --reset-breaker`;
       process.stdout.write(JSON.stringify({
         hookSpecificOutput: {
           hookEventName: 'UserPromptSubmit',
