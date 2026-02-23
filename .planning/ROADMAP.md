@@ -202,4 +202,4 @@ Plans:
 | v0.7-01. Composition Architecture | v0.7 | Complete    | 2026-02-23 | - |
 | v0.7-02. Multiple Slots | 0/2 | Complete    | 2026-02-23 | - |
 | v0.7-03. Wizard Composition Screen | 2/2 | Complete    | 2026-02-23 | - |
-| v0.7-04. Orchestrator Scoreboard Slot Wiring | v0.7 | 2/2 | Complete | 2026-02-23 |
+| v0.7-04. Orchestrator Scoreboard Slot Wiring | v0.7 | Complete    | 2026-02-23 | 2026-02-23 |
