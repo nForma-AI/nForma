@@ -203,7 +203,25 @@ test('TC5b: /qgsd:plan-phase — quorum present → pass', () => {
 // Test 6: /gsd:plan-phase in current turn + only codex tool_use → block with decision:block
 // TC6 updated (step 1a): includes a PLAN.md artifact commit so GUARD 5 classifies this as a
 // decision turn, preserving the invariant: quorum-command + decision-turn + partial quorum = block.
+// TC6 uses runHookWithEnv to isolate from ~/.claude/qgsd.json (which may override DEFAULT_CONFIG
+// prefixes with -1 suffixes). HOME points to an empty temp dir so loadConfig() uses DEFAULT_CONFIG.
+// QGSD_CLAUDE_JSON points to a temp file listing gemini-cli and opencode as available MCP servers
+// so they appear in the missing list and satisfy the string assertions.
 test('TC6: planning command with only codex tool call triggers block', () => {
+  // Create a temp HOME dir with no qgsd.json — forces DEFAULT_CONFIG usage
+  const homeDir = path.join(os.tmpdir(), `qgsd-home-tc6-${Date.now()}`);
+  fs.mkdirSync(homeDir, { recursive: true });
+
+  // Create a temp ~/.claude.json listing gemini-cli and opencode as available MCP servers
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-tc6-${Date.now()}.json`);
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({
+    mcpServers: {
+      'codex-cli': {},
+      'gemini-cli': {},
+      'opencode': {},
+    },
+  }), 'utf8');
+
   const tmpFile = writeTempTranscript([
     userLine('/gsd:plan-phase 1'),
     assistantLine([
@@ -215,22 +233,29 @@ test('TC6: planning command with only codex tool call triggers block', () => {
     assistantLine([{ type: 'text', text: 'Here is the plan.' }], 'assistant-2'),
   ]);
   try {
-    const { stdout, exitCode } = runHook({
-      stop_hook_active: false,
-      hook_event_name: 'Stop',
-      transcript_path: tmpFile,
-      last_assistant_message: 'Here is the plan.',
-    });
+    const { stdout, exitCode } = runHookWithEnv(
+      {
+        stop_hook_active: false,
+        hook_event_name: 'Stop',
+        transcript_path: tmpFile,
+        last_assistant_message: 'Here is the plan.',
+      },
+      {
+        HOME: homeDir,           // No ~/.claude/qgsd.json → loadConfig() uses DEFAULT_CONFIG
+        QGSD_CLAUDE_JSON: claudeJsonTmp, // Deterministic MCP server list
+      }
+    );
     assert.strictEqual(exitCode, 0, 'exit code must be 0 even when blocking');
     assert.ok(stdout.length > 0, 'stdout must contain block decision JSON');
     const parsed = JSON.parse(stdout);
     assert.strictEqual(parsed.decision, 'block', 'decision must be "block"');
     assert.ok(parsed.reason.startsWith('QUORUM REQUIRED:'), 'reason must start with QUORUM REQUIRED:');
-    // Should name the missing tools
+    // Should name the missing tools (DEFAULT_CONFIG prefixes)
     assert.ok(parsed.reason.includes('mcp__gemini-cli__'), 'reason must name missing gemini tool');
     assert.ok(parsed.reason.includes('mcp__opencode__'), 'reason must name missing opencode tool');
   } finally {
     fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
   }
 });
 
@@ -288,10 +313,19 @@ test('TC8: malformed JSONL lines are skipped gracefully', () => {
 // Test 9: config file missing → DEFAULT_CONFIG used, hook still works
 // TC9 updated (step 1a): includes a RESEARCH.md artifact commit so GUARD 5 classifies this as a
 // decision turn, preserving the invariant: quorum-command + decision-turn + no quorum = block.
+// TC9 uses runHookWithEnv to isolate from ~/.claude/qgsd.json (which may override DEFAULT_CONFIG
+// prefixes with -1 suffixes). HOME points to an empty temp dir so loadConfig() uses DEFAULT_CONFIG.
+// QGSD_CLAUDE_JSON points to a non-existent path so getAvailableMcpPrefixes() returns null,
+// meaning all models are treated as available (conservative enforcement) and DEFAULT_CONFIG names appear.
 test('TC9: missing config file falls back to DEFAULT_CONFIG', () => {
-  // This test passes because the hook uses DEFAULT_CONFIG when ~/.claude/qgsd.json is absent.
-  // The existing tests already exercise this (no config file written during tests).
-  // Explicitly verify: a planning command without quorum gets blocked with default model names.
+  // Create a temp HOME dir with no qgsd.json — forces DEFAULT_CONFIG usage
+  const homeDir = path.join(os.tmpdir(), `qgsd-home-tc9-${Date.now()}`);
+  fs.mkdirSync(homeDir, { recursive: true });
+
+  // Point QGSD_CLAUDE_JSON to a non-existent file → getAvailableMcpPrefixes() returns null
+  // → all models treated as available (conservative) → DEFAULT_CONFIG names appear in block reason
+  const nonExistentClaudeJson = path.join(os.tmpdir(), `qgsd-claude-tc9-nonexistent-${Date.now()}.json`);
+
   const tmpFile = writeTempTranscript([
     userLine('/gsd:research-phase 1'),
     assistantLine([
@@ -300,12 +334,18 @@ test('TC9: missing config file falls back to DEFAULT_CONFIG', () => {
     assistantLine([{ type: 'text', text: 'No quorum calls here.' }]),
   ]);
   try {
-    const { stdout, exitCode } = runHook({
-      stop_hook_active: false,
-      hook_event_name: 'Stop',
-      transcript_path: tmpFile,
-      last_assistant_message: 'No quorum calls here.',
-    });
+    const { stdout, exitCode } = runHookWithEnv(
+      {
+        stop_hook_active: false,
+        hook_event_name: 'Stop',
+        transcript_path: tmpFile,
+        last_assistant_message: 'No quorum calls here.',
+      },
+      {
+        HOME: homeDir,                         // No ~/.claude/qgsd.json → DEFAULT_CONFIG
+        QGSD_CLAUDE_JSON: nonExistentClaudeJson, // Missing → null prefixes → conservative enforcement
+      }
+    );
     assert.strictEqual(exitCode, 0, 'exit code must be 0 even when blocking');
     assert.ok(stdout.length > 0, 'stdout must contain block decision');
     const parsed = JSON.parse(stdout);
