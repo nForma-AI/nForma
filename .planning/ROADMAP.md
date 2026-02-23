@@ -70,7 +70,7 @@
 - [x] **Phase 35: Agent Roster** — Wizard flow for add/remove claude-mcp-server instances; identity ping after provisioning (AGENT-01..03) (completed 2026-02-22)
 - [x] **Phase 36: Install Integration** — Installer detects no configured quorum agents and prompts user to run /qgsd:mcp-setup (INST-01) (completed 2026-02-22)
 - [x] **Phase 37: Fix mcp-setup.md Distribution Issues** — Replace 9 hardcoded secrets.cjs absolute paths; add syncToClaudeJson to provider swap; add CLAUDE_MCP_PATH guard; add keytar fallback bash snippet (INTEGRATION-01, INTEGRATION-02) (completed 2026-02-22)
-- [ ] **Phase 38: v0.5 Bookkeeping — Requirements & SUMMARY Updates** — Mark 16 v0.5 checkboxes [x]; correct traceability phase assignments; add requirements frontmatter to Phase 32/35/36 SUMMARY files
+- [x] **Phase 38: v0.5 Bookkeeping — Requirements & SUMMARY Updates** — Mark 16 v0.5 checkboxes [x]; correct traceability phase assignments; add requirements frontmatter to Phase 32/35/36 SUMMARY files (completed 2026-02-23)
 
 ### 📋 v0.6 — Agent Slots & Quorum Composition (Planned)
 
@@ -422,7 +422,7 @@ Plans:
 | 35. Agent Roster | v0.5 | Complete | 2026-02-22 | - |
 | 36. Install Integration | v0.5 | Complete | 2026-02-22 | - |
 | 37. Fix mcp-setup.md Distribution Issues | 1/1 | Complete    | 2026-02-22 | - |
-| 38. v0.5 Bookkeeping — Requirements & SUMMARY | v0.5 | TBD | Pending | - |
+| 38. v0.5 Bookkeeping — Requirements & SUMMARY | 1/1 | Complete   | 2026-02-23 | - |
 | 39. Rename and Migration | v0.6 | TBD | Not started | - |
 | 40. Composition Architecture | v0.6 | TBD | Not started | - |
 | 41. Multiple Slots | v0.6 | TBD | Not started | - |
