@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v0.7 milestone)
 Phase: MILESTONE COMPLETE — v0.7 archived
 Plan: —
 Status: v0.7 archived to .planning/milestones/; git tag v0.7 created; ready for /qgsd:new-milestone
-Last activity: 2026-02-23 - Completed quick task 70: Build unified-mcp-server
+Last activity: 2026-02-23 - Completed quick task 71: Extend unified-mcp-server with HTTP transport and roster
 
 Progress: [████████████████████] 46/46 plans (100%)
 
@@ -108,9 +108,10 @@ Recent decisions affecting current work:
 | 68 | audit and update README and documentation to reflect all features shipped in v0.1-v0.7 | 2026-02-23 | fe2c3cd | Verified | [68-audit-and-update-readme-and-documentatio](./quick/68-audit-and-update-readme-and-documentatio/) |
 | 69 | qgsd:fix-tests must use more sub-agents, tasks, so that we do not fill the context of the top-level agent | 2026-02-23 | 160466a | Verified | [69-qgsd-fix-tests-must-use-more-sub-agents-](./quick/69-qgsd-fix-tests-must-use-more-sub-agents-/) |
 | 70 | Build unified-mcp-server: one Node.js MCP binary driven by JSON config that wraps Codex, Gemini, OpenCode, and Copilot CLIs as subprocess providers | 2026-02-23 | 28d9f5b | Verified | [70-build-unified-mcp-server-one-node-js-mcp](./quick/70-build-unified-mcp-server-one-node-js-mcp/) |
+| 71 | Extend unified-mcp-server with HTTP transport and roster support | 2026-02-23 | {FINAL_HASH} | Pending | [71-extend-unified-mcp-server-with-http-tran](./quick/71-extend-unified-mcp-server-with-http-tran/) |
 
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: 2026-02-23 - Completed quick task 70: Build unified-mcp-server
+Stopped at: 2026-02-23 - Completed quick task 71: Extend unified-mcp-server with HTTP transport and roster
 Resume file: None
