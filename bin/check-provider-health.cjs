@@ -131,7 +131,8 @@ const activeMcpServers = (quorumActive.length > 0)
 // Build: providerBaseUrl -> { servers: [], apiKey }
 const providers = {};
 for (const [name, cfg] of Object.entries(activeMcpServers)) {
-  if (!cfg.args?.some(a => a.includes('claude-mcp-server'))) continue;
+  // HTTP slots are identified by ANTHROPIC_BASE_URL presence (checked below).
+  // Subprocess slots (codex-1, gemini-1, etc.) have no ANTHROPIC_BASE_URL and are filtered by the !baseUrl guard.
   const env     = cfg.env ?? {};
   const baseUrl = env.ANTHROPIC_BASE_URL;
   const apiKey  = env.ANTHROPIC_API_KEY;
