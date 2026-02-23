@@ -319,10 +319,8 @@ When looping back: increment `iteration_count` by 1 before resetting B to 0.
 Identify all entries in `state.categorization_verdicts` that correspond to files in the current batch's `confirmed_failures` AND have not yet been recorded in `state.dispatched_tasks[].test_files`. These are the new verdicts eligible for dispatch.
 
 **Filter actionable categories:**
-- Actionable: `adapt`, `fixture`, `isolate`
-- Not actionable: `real-bug` (→ `state.deferred_report.real_bug`), `deferred` / context_score < 2 (already in `state.deferred_report.low_context`)
-
-For each new verdict with category == "real-bug": append `result.file` to `state.deferred_report.real_bug` (if not already present).
+- Actionable: `adapt`, `fixture`, `isolate`, `real-bug` (via quorum investigation — see Step 6h.1 below)
+- Not actionable: `deferred` / context_score < 2 (already in `state.deferred_report.low_context`)
 
 **Grouping algorithm:**
 Group actionable verdicts by composite key:
@@ -431,10 +429,197 @@ Print after each dispatch: `QGSD fix-tests: Dispatched task — {category}/{erro
 
 **Print dispatch summary after all chunks dispatched:**
 ```
-QGSD fix-tests: Batch {B+1} dispatch complete — {N} tasks dispatched, {M} real-bug failures deferred
+QGSD fix-tests: Batch {B+1} dispatch complete — {N} tasks dispatched (adapt/fixture/isolate); real-bug handled in 6h.1
 ```
 
 After 6h, proceed to next batch or loop termination.
+
+### 6h.1. Quorum investigation and dispatch for real-bug verdicts
+
+**Purpose:** For each real-bug verdict, run a focused quorum investigation to produce a fix hypothesis, then dispatch a /qgsd:quick fix task with that hypothesis as context.
+
+**Collect real-bug verdicts for this batch:**
+Identify all entries in the current batch's new verdicts (same set used in 6h) where `category == "real-bug"` AND the file has not already been recorded in `state.dispatched_tasks[].test_files`.
+
+If no real-bug verdicts in this batch: skip 6h.1 entirely.
+
+**For each real-bug verdict (process one at a time — sequential):**
+
+**Step A — Assemble investigation context:**
+
+1. Re-read the test file (or use already-read content from 6d):
+   ```
+   Read(verdict.file)
+   ```
+
+2. Extract docstring/describe context: scan the test file for the first `describe(`, `it(`, or `test(` block header, plus any leading block comment (`/** ... */` or `# ...`). Extract up to 10 lines. This is `$DOCSTRING_CONTEXT`.
+
+3. Assemble the investigation bundle:
+   ```
+   INVESTIGATION BUNDLE
+   ====================
+   Test file: {verdict.file}
+   Classification reason: {verdict.reason}
+   Error type: {verdict.error_type}
+   Context score: {verdict.context_score}
+
+   === Error / failure output ===
+   {verdict.error_summary — full, not truncated}
+
+   === Test file context (first 100 lines) ===
+   {first 100 lines of test file content}
+
+   === Docstring / describe context ===
+   {$DOCSTRING_CONTEXT}
+   ```
+
+**Step B — Claude's own fix hypothesis (Round 1):**
+
+Before querying any quorum model, Claude states its own hypothesis:
+
+```
+Claude (real-bug investigation): Based on the failure output and test context above, the most likely root cause is [1-3 sentences]. The most actionable fix hypothesis is: [specific, concrete, 1-2 sentence hypothesis about what code to change and why].
+```
+
+Store as `$CLAUDE_HYPOTHESIS`.
+
+**Step C — Query quorum models sequentially (Mode A style):**
+
+For each available quorum model, call sequentially (NEVER as sibling calls). Prompt template:
+
+```
+QGSD fix-tests — Real-bug Investigation
+
+{$INVESTIGATION_BUNDLE}
+
+You are reviewing a test failure classified as a real bug (not an environment issue, not a stale fixture). Your task: deliberate on the most likely fix hypothesis.
+
+Claude's hypothesis: {$CLAUDE_HYPOTHESIS}
+
+Do you agree with Claude's hypothesis, or do you have a different or more specific fix hypothesis? Give:
+- hypothesis: [1-2 sentence specific, actionable fix hypothesis]
+- confidence: high | medium | low
+- reasoning: [1-3 sentences grounded in the failure output and test context]
+
+Be concrete — name specific functions, variables, or code paths if visible in the context.
+```
+
+Call order (sequential, same as Mode A in quorum.md):
+
+**Native CLI agents:**
+1. `mcp__codex-cli-1__review`
+2. `mcp__gemini-cli-1__gemini`
+3. `mcp__opencode-1__opencode`
+4. `mcp__copilot-1__ask`
+
+**claude-mcp instances:** For each available claude-mcp server (from `$CLAUDE_MCP_SERVERS` built in quorum pre-flight — if pre-flight has not been run yet for this session, skip claude-mcp calls and proceed with native agents only):
+- Call `mcp__<serverName>__claude` with the investigation prompt
+
+Handle UNAVAILABLE: note and skip (same R6 handling as quorum.md). If ALL models are unavailable, fall back to Claude's own hypothesis as the sole input.
+
+**Step D — Deliberate to consensus hypothesis:**
+
+Collect all model hypotheses. Claude synthesizes a single CONSENSUS HYPOTHESIS:
+
+- If majority (>50% of available models) agree on a specific fix direction → use that as consensus.
+- If split: Claude picks the hypothesis with the most concrete, evidence-grounded reasoning.
+- If only Claude responded: Claude's hypothesis IS the consensus.
+
+Print consensus:
+```
+QGSD fix-tests: Real-bug consensus [{verdict.file}] → {one-sentence summary of consensus hypothesis}
+```
+
+Store as `$CONSENSUS_HYPOTHESIS` for this verdict.
+
+**Step E — Append to deferred_report and save state:**
+
+Append to `state.deferred_report.real_bug` (even though a task will be dispatched — this preserves the audit trail):
+```json
+{
+  "file": "{verdict.file}",
+  "reason": "{verdict.reason}",
+  "consensus_hypothesis": "{$CONSENSUS_HYPOTHESIS}"
+}
+```
+
+Save state:
+```bash
+node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs maintain-tests save-state \
+  --state-json '<state with updated deferred_report.real_bug>'
+```
+
+**Step F — Build and dispatch /qgsd:quick fix task:**
+
+Build task description:
+```
+Fix real-bug test failure: {verdict.file}
+
+Classification: real-bug
+Error type: {verdict.error_type}
+Failure reason: {verdict.reason}
+
+Quorum fix hypothesis (consensus from {N} models):
+{$CONSENSUS_HYPOTHESIS}
+
+Test file: {verdict.file}
+Error output summary:
+{verdict.error_summary — first 500 chars}
+
+Apply the quorum hypothesis. Run the test after fixing to confirm it passes.
+```
+
+Build dispatched_task record:
+```json
+{
+  "task_id": "<ISO timestamp + 'real-bug'>",
+  "category": "real-bug",
+  "error_type": "{verdict.error_type}",
+  "directory": "{first 2 path segments of verdict.file}",
+  "test_count": 1,
+  "test_files": ["{verdict.file}"],
+  "dispatched_at": "<ISO timestamp>",
+  "consensus_hypothesis": "{$CONSENSUS_HYPOTHESIS}"
+}
+```
+
+Save state with this record appended to `dispatched_tasks` BEFORE spawning the Task:
+```bash
+node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs maintain-tests save-state \
+  --state-json '<state with new dispatched_task appended>'
+```
+
+Spawn the /qgsd:quick Task agent:
+```
+Task(
+  prompt="First, read ~/.claude/agents/qgsd-planner.md for your role and instructions.
+
+<planning_context>
+Mode: quick
+Description: {task_description}
+
+<files_to_read>
+- .planning/STATE.md
+- ./CLAUDE.md (if exists)
+</files_to_read>
+</planning_context>
+",
+  subagent_type="qgsd-planner",
+  description="Fix real-bug: {verdict.file}"
+)
+```
+
+Print after each dispatch:
+```
+QGSD fix-tests: Dispatched real-bug task — {verdict.file} ({N} quorum models deliberated)
+```
+
+**After all real-bug verdicts in this batch are processed:**
+
+Print:
+```
+QGSD fix-tests: Batch {B+1} real-bug dispatch complete — {N} tasks dispatched via quorum investigation
+```
 
 ## Step 6: Clear Activity State
 
@@ -459,7 +644,7 @@ node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs activity-clear
    valid-skip:  {len(valid_skip)}
    adapt:       {len(adapt)}
    isolate:     {len(isolate)}
-   real-bug:    {len(real_bug)}   ← deferred (see report below)
+   real-bug:    {len(real_bug)}   ← investigated by quorum + dispatched (see report below)
    fixture:     {len(fixture)}
    flaky:       {len(flaky_tests)}
    deferred:    {len(deferred_tests)}   ← context_score < 2
@@ -476,9 +661,10 @@ node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs activity-clear
  QGSD ► FIX-TESTS: Deferred Failures (Action Required)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Real bugs (requires developer judgment):
-{for each file in state.deferred_report.real_bug:}
-  - {file} — {matching verdict.reason from categorization_verdicts}
+Real bugs (quorum-investigated, fix task dispatched):
+{for each entry in state.deferred_report.real_bug:}
+  - {entry.file} — {entry.reason}
+    Hypothesis: {entry.consensus_hypothesis}
 
 Low context (could not classify reliably):
 {for each file in state.deferred_report.low_context:}
@@ -517,6 +703,14 @@ On a RESUME (`--resume` passed AND STATE_JSON is not null):
 
 ## INTG-03 Compliance Note
 
-This workflow MUST NOT call any quorum worker (mcp__gemini-cli__, mcp__codex-cli__, etc.).
-It is execution-only. Adding fix-tests to quorum_commands violates R2.1 and will cause the
-Stop hook to block every response waiting for quorum that was never dispatched.
+This workflow calls quorum workers ONLY for real-bug investigation (Step 6h.1) — a targeted,
+per-test deliberation to produce a fix hypothesis before dispatching a /qgsd:quick task.
+
+Quorum MUST NOT be called for classification of adapt/fixture/isolate failures. Those categories
+dispatch /qgsd:quick tasks directly. fix-tests MUST NOT be added to `quorum_commands` in qgsd.json
+— that would cause the Stop hook to block every fix-tests response waiting for a planning quorum
+that was never dispatched (R2.1 violation).
+
+The real-bug quorum calls in Step 6h.1 are inline investigation calls, not planning quorum.
+They are safe because fix-tests is not in quorum_commands and the Stop hook only intercepts
+responses from commands listed there.
