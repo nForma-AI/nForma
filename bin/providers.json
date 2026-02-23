@@ -1,40 +1,112 @@
 {
   "providers": [
     {
-      "name": "codex",
-      "description": "Execute Codex CLI agent non-interactively for AI coding assistance",
+      "name": "codex-1",
+      "type": "subprocess",
+      "description": "Execute Codex CLI agent non-interactively (slot 1)",
       "cli": "/opt/homebrew/bin/codex",
       "args_template": ["exec", "{prompt}"],
-      "prompt_key": "{prompt}",
       "timeout_ms": 300000,
       "env": {}
     },
     {
-      "name": "gemini",
-      "description": "Query Gemini CLI agent non-interactively",
+      "name": "codex-2",
+      "type": "subprocess",
+      "description": "Execute Codex CLI agent non-interactively (slot 2)",
+      "cli": "/opt/homebrew/bin/codex",
+      "args_template": ["exec", "{prompt}"],
+      "timeout_ms": 300000,
+      "env": {}
+    },
+    {
+      "name": "gemini-1",
+      "type": "subprocess",
+      "description": "Query Gemini CLI agent non-interactively (slot 1)",
       "cli": "/opt/homebrew/bin/gemini",
       "args_template": ["-p", "{prompt}"],
-      "prompt_key": "{prompt}",
       "timeout_ms": 300000,
       "env": {}
     },
     {
-      "name": "opencode",
+      "name": "gemini-2",
+      "type": "subprocess",
+      "description": "Query Gemini CLI agent non-interactively (slot 2)",
+      "cli": "/opt/homebrew/bin/gemini",
+      "args_template": ["-p", "{prompt}"],
+      "timeout_ms": 300000,
+      "env": {}
+    },
+    {
+      "name": "opencode-1",
+      "type": "subprocess",
       "description": "Run OpenCode agent non-interactively with a message",
       "cli": "/opt/homebrew/bin/opencode",
       "args_template": ["run", "{prompt}"],
-      "prompt_key": "{prompt}",
       "timeout_ms": 300000,
       "env": {}
     },
     {
-      "name": "copilot",
+      "name": "copilot-1",
+      "type": "subprocess",
       "description": "Execute GitHub Copilot CLI non-interactively",
       "cli": "/opt/homebrew/bin/copilot",
       "args_template": ["-p", "{prompt}", "--yolo"],
-      "prompt_key": "{prompt}",
       "timeout_ms": 300000,
       "env": {}
+    },
+    {
+      "name": "deepseek-1",
+      "type": "http",
+      "description": "DeepSeek-V3.2 via AkashML HTTP API",
+      "baseUrl": "https://api.akashml.com/v1",
+      "model": "deepseek-ai/DeepSeek-V3.2",
+      "apiKeyEnv": "AKASHML_API_KEY",
+      "timeout_ms": 120000
+    },
+    {
+      "name": "minimax-1",
+      "type": "http",
+      "description": "MiniMax-M2.5 via AkashML HTTP API",
+      "baseUrl": "https://api.akashml.com/v1",
+      "model": "MiniMaxAI/MiniMax-M2.5",
+      "apiKeyEnv": "AKASHML_API_KEY",
+      "timeout_ms": 120000
+    },
+    {
+      "name": "qwen-1",
+      "type": "http",
+      "description": "Qwen3-Coder-480B via Together.xyz HTTP API",
+      "baseUrl": "https://api.together.xyz/v1",
+      "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
+      "apiKeyEnv": "TOGETHER_API_KEY",
+      "timeout_ms": 120000
+    },
+    {
+      "name": "kimi-1",
+      "type": "http",
+      "description": "Kimi-K2 via Fireworks HTTP API",
+      "baseUrl": "https://api.fireworks.ai/inference/v1",
+      "model": "accounts/fireworks/models/kimi-k2p5",
+      "apiKeyEnv": "FIREWORKS_API_KEY",
+      "timeout_ms": 120000
+    },
+    {
+      "name": "llama4-1",
+      "type": "http",
+      "description": "Llama-4-Maverick-17B via Together.xyz HTTP API",
+      "baseUrl": "https://api.together.xyz/v1",
+      "model": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "apiKeyEnv": "TOGETHER_API_KEY",
+      "timeout_ms": 120000
+    },
+    {
+      "name": "glm-1",
+      "type": "http",
+      "description": "GLM-5 via Fireworks HTTP API",
+      "baseUrl": "https://api.fireworks.ai/inference/v1",
+      "model": "accounts/fireworks/models/glm-5",
+      "apiKeyEnv": "FIREWORKS_API_KEY",
+      "timeout_ms": 120000
     }
   ]
 }
