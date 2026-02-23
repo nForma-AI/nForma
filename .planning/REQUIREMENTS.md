@@ -35,7 +35,7 @@ Requirements for the Composition Config & Multi-Slot milestone. Phases 40–42.
 
 - [ ] **WIZ-08**: `/qgsd:mcp-setup` re-run menu includes an "Edit Quorum Composition" option
 - [ ] **WIZ-09**: Composition screen shows all discovered slots with on/off toggle for `quorum.active` inclusion
-- [ ] **WIZ-10**: User can add a new slot for any family (claude, copilot, opencode, codex-cli, gemini-cli) from within the wizard, which writes the new entry to `~/.claude.json` and triggers restart
+- [x] **WIZ-10**: User can add a new slot for any family (claude, copilot, opencode, codex-cli, gemini-cli) from within the wizard, which writes the new entry to `~/.claude.json` and triggers restart
 
 ### Scoreboard Slot Tracking (SCBD)
 
@@ -92,7 +92,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MULTI-03 | Phase 41 | Pending |
 | WIZ-08 | Phase 42 | Pending |
 | WIZ-09 | Phase 42 | Pending |
-| WIZ-10 | Phase 42 | Pending |
+| WIZ-10 | Phase 42 | Complete |
 
 **Coverage:**
 - v0.6 SLOT requirements: 4 total — all Complete ✓
