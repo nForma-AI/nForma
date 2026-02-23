@@ -65,7 +65,22 @@ Verify with `/qgsd:help` inside your chosen runtime.
 
 ### Setting Up Your Quorum
 
+The fastest path is the interactive wizard — it handles everything from installing CLI tools to registering MCP servers and configuring API keys:
+
+```
+/qgsd:mcp-setup
+```
+
+**First run:** linear onboarding — picks provider, configures API key (stored in system keychain), registers MCP server with Claude Code, verifies live connectivity via identity ping.
+
+**Re-run:** navigable agent menu — reconfigure any agent's key, provider, model, or toggle which agents participate in quorum (composition screen).
+
+<details>
+<summary><strong>Manual setup (advanced)</strong></summary>
+
 QGSD's quorum requires each model to run as an MCP server inside Claude Code. This is a **one-time setup per machine** — three steps per model: install the CLI, authenticate, register with Claude Code.
+
+QGSD uses a **slot-based naming scheme** (`<family>-<N>`) so you can run multiple instances of the same agent family. `claude-1` is the first Claude slot, `copilot-1` is the first Copilot slot, etc. Adding a second Copilot would be `copilot-2`.
 
 ---
 
@@ -79,7 +94,7 @@ npm i -g @openai/codex
 codex login --api-key "your-openai-api-key"
 
 # 3. Register with Claude Code
-claude mcp add codex-cli -- npx -y codex-mcp-server
+claude mcp add codex-cli-1 -- npx -y codex-mcp-server
 ```
 
 ---
@@ -94,7 +109,7 @@ npm install -g @google/gemini-cli
 gemini  # follow the Google login flow
 
 # 3. Register with Claude Code
-claude mcp add gemini-cli -- npx -y @tuannvm/gemini-mcp-server
+claude mcp add gemini-cli-1 -- npx -y gemini-mcp-server
 ```
 
 ---
@@ -109,7 +124,7 @@ npm install -g opencode-ai
 opencode  # follow the auth flow
 
 # 3. Register with Claude Code
-claude mcp add opencode -- npx -y @tuannvm/opencode-mcp-server
+claude mcp add opencode-1 -- npx -y opencode-mcp-server
 ```
 
 ---
@@ -122,7 +137,16 @@ claude mcp add opencode -- npx -y @tuannvm/opencode-mcp-server
 gh auth login
 
 # 2. Register with Claude Code
-claude mcp add copilot-cli -- npx -y copilot-mcp-server
+claude mcp add copilot-1 -- npx -y copilot-mcp-server
+```
+
+---
+
+#### Claude MCP — [claude-mcp-server](https://github.com/LangBlaze-AI/claude-mcp-server)
+
+```bash
+# Register with Claude Code (API key configured via /qgsd:mcp-setup)
+claude mcp add claude-1 -- npx -y claude-mcp-server
 ```
 
 ---
@@ -136,6 +160,8 @@ npx qgsd@latest --redetect-mcps
 ```
 
 This re-reads `~/.claude.json`, re-derives tool prefixes from your registered servers, and rewrites `~/.claude/qgsd.json`. Without this step, QGSD's hooks may reference stale default prefixes.
+
+</details>
 
 > [!NOTE]
 > QGSD works with as few as one quorum member — more models means stronger consensus. Claude is always the fifth voting member in every quorum round.
@@ -422,6 +448,31 @@ Use for: bug fixes, small features, config changes, one-off tasks.
 
 ---
 
+### Test Suite Maintenance
+
+```
+/qgsd:fix-tests
+```
+
+An autonomous command that discovers every test in your project, runs them, diagnoses failures, and dispatches fix tasks — looping until all tests are either passing or classified.
+
+**How it works:**
+
+1. **Discover** — Framework-native discovery (Jest, Playwright, pytest); never globs
+2. **Batch & run** — Random batch order with flakiness detection (runs each batch twice)
+3. **Categorize** — AI classifies each failure into one of 5 types:
+   - `valid-skip` — Test is intentionally skipped; no action needed
+   - `adapt` — Test broke because code changed; links to the causative commit via git pickaxe
+   - `isolate` — Test only fails alongside specific other tests (pollution); ddmin algorithm finds the minimal polluter set
+   - `real-bug` — Genuine regression; deferred to user report
+   - `fixture` — Missing test data or environment setup
+4. **Dispatch** — `adapt`, `fixture`, and `isolate` failures are dispatched as `/qgsd:quick` fix tasks automatically
+5. **Loop** — Repeats until all tests pass or no progress for 5 consecutive batches
+
+Interrupted runs resume to the exact batch step via `/qgsd:resume-work`.
+
+---
+
 ## Why It Works
 
 ### Context Engineering
@@ -608,6 +659,22 @@ You're never locked in. The system adapts.
 | `/qgsd:pause-work` | Create handoff when stopping mid-phase |
 | `/qgsd:resume-work` | Restore from last session |
 
+### MCP Management
+
+| Command | What it does |
+|---------|--------------|
+| `/qgsd:mcp-setup` | Interactive wizard: first-run onboarding or reconfigure any agent (key, provider, model, composition) |
+| `/qgsd:mcp-status` | Poll all quorum agents for identity and availability; show scoreboard |
+| `/qgsd:mcp-set-model <agent> <model>` | Switch a quorum agent's model with live validation and preference persistence |
+| `/qgsd:mcp-update` | Update all quorum agent MCP servers (npm/npx/git install methods auto-detected) |
+| `/qgsd:mcp-restart` | Restart all quorum agent processes and verify reconnection via identity ping |
+
+### Test Maintenance
+
+| Command | What it does |
+|---------|--------------|
+| `/qgsd:fix-tests` | Discover all tests, AI-categorize failures into 5 types, dispatch fixes, loop until clean |
+
 ### Utilities
 
 | Command | What it does |
@@ -616,7 +683,7 @@ You're never locked in. The system adapts.
 | `/qgsd:set-profile <profile>` | Switch model profile (quality/balanced/budget) |
 | `/qgsd:add-todo [desc]` | Capture idea for later |
 | `/qgsd:check-todos` | List pending todos |
-| `/qgsd:debug [desc]` | Systematic debugging with persistent state |
+| `/qgsd:debug [desc]` | Start a debugging session with persistent state: spawns quorum diagnosis on failure, tracks hypotheses across invocations, resumes where it left off |
 | `/qgsd:quorum-test` | Run multi-model quorum on a plan or verification artifact |
 | `/qgsd:quorum [question]` | Ask a question and get full five-model consensus answer |
 | `/qgsd:quick [--full]` | Execute ad-hoc task with QGSD guarantees (`--full` adds plan-checking and verification) |
@@ -691,6 +758,20 @@ Control how QGSD handles branches during execution.
 - **`milestone`** — Creates one branch for entire milestone, merges at completion
 
 At milestone completion, QGSD offers squash merge (recommended) or merge with history.
+
+### Quorum Composition
+
+Control which agent slots participate in quorum via `quorum_active` in your `qgsd.json`:
+
+```json
+{
+  "quorum_active": ["claude-1", "gemini-cli-1", "copilot-1"]
+}
+```
+
+This is auto-populated at install time based on your registered MCP servers. Toggle slots on/off via `/qgsd:mcp-setup` → "Edit Quorum Composition" without editing config files directly.
+
+You can run multiple instances of the same agent family (multi-slot): `claude-1` and `claude-2` for two Claude agent slots, `copilot-1` and `copilot-2` for two Copilot slots, etc.
 
 ---
 
