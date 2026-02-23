@@ -99,7 +99,7 @@
 - [x] **Phase v0.7-01: Composition Architecture** — `quorum_active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03) (completed 2026-02-23)
 - [x] **Phase v0.7-02: Multiple Slots** — Support N instances per family; `~/.claude.json` entries for copilot-1/2, opencode-1/2, etc.; add-slot supported by config and wizard (MULTI-01..03) (completed 2026-02-23)
 - [x] **Phase v0.7-03: Wizard Composition Screen** — "Edit Quorum Composition" option in mcp-setup re-run menu; slot toggle on/off; add new slot from within wizard (WIZ-08..10) (completed 2026-02-23)
-- [ ] **Phase v0.7-04: Orchestrator Scoreboard Slot Wiring** — Propagate INT-04 fix to orchestrator Mode A; use --slot + --model-id for claude-mcp servers so SCBD-01..03 slot tracking works on all quorum paths (SCBD-01, SCBD-02, SCBD-03)
+- [x] **Phase v0.7-04: Orchestrator Scoreboard Slot Wiring** — Propagate INT-04 fix to orchestrator Mode A; use --slot + --model-id for claude-mcp servers so SCBD-01..03 slot tracking works on all quorum paths (SCBD-01, SCBD-02, SCBD-03) (completed 2026-02-23)
 
 ## Phase Details
 
@@ -153,8 +153,8 @@ Plans:
   2. When the same slot is used with two different models across two rounds, the scoreboard shows two separate rows — the older row is preserved with its historical vote data
 **Plans**: 2 plans
 Plans:
-- [ ] v0.7-04-01-PLAN.md — Fix orchestrator + quorum.md Mode A scoreboard --slot wiring + install sync
-- [ ] v0.7-04-02-PLAN.md — Verify fix + close SCBD-01..03 requirements
+- [x] v0.7-04-01-PLAN.md — Fix orchestrator + quorum.md Mode A scoreboard --slot wiring + install sync
+- [x] v0.7-04-02-PLAN.md — Verify fix + close SCBD-01..03 requirements
 
 ## Progress
 
@@ -202,4 +202,4 @@ Plans:
 | v0.7-01. Composition Architecture | v0.7 | Complete    | 2026-02-23 | - |
 | v0.7-02. Multiple Slots | 0/2 | Complete    | 2026-02-23 | - |
 | v0.7-03. Wizard Composition Screen | 2/2 | Complete    | 2026-02-23 | - |
-| v0.7-04. Orchestrator Scoreboard Slot Wiring | v0.7 | 0/2 | Pending | - |
+| v0.7-04. Orchestrator Scoreboard Slot Wiring | v0.7 | 2/2 | Complete | 2026-02-23 |

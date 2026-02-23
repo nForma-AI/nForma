@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23 after Phase v0.7-02)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.7 milestone in progress — Phase v0.7-02 complete; ready to plan Phase v0.7-03 (Wizard Composition Screen)
+**Current focus:** v0.7 milestone complete — all phases v0.7-01 through v0.7-04 done; ready for milestone close or next milestone
 
 ## Current Position
 
-Phase: v0.7-03 of v0.7 (next: Wizard Composition Screen)
-Plan: Not started
-Status: Ready to plan v0.7-03; v0.7-02 verified and complete
-Last activity: 2026-02-23 - Completed quick task 63: fix v0.7-03 gaps: run install sync and mark WIZ-08/09 complete in REQUIREMENTS.md
+Phase: v0.7-04 COMPLETE — all v0.7 phases done
+Plan: All plans complete (v0.7-04 = 2/2)
+Status: Phase v0.7-04 complete; v0.7 milestone all phases done; ready for /qgsd:complete-milestone or next milestone
+Last activity: 2026-02-23 - Completed phase v0.7-04: orchestrator + quorum.md Mode A --slot wiring; SCBD-01..03 closed
 
-Progress: [████████████████████] 44/44 plans (100%)
+Progress: [████████████████████] 46/46 plans (100%)
 
 ## Performance Metrics
 
@@ -74,6 +74,7 @@ Recent decisions affecting current work:
 - [Phase v0.7-01]: SLOT_TOOL_SUFFIX strips trailing -N digit index before family lookup — codex-cli-1 → codex-cli → review; claude-1 → claude → claude
 - [Phase v0.7-01]: buildActiveSlots() reads ~/.claude.json mcpServer keys at install time; populateActiveSlots() in migrate-to-slots.cjs is idempotent
 - [Phase v0.7-03]: WIZ-10 add-slot-from-composition routing: Plan 01 left content uncommitted; Plan 02 committed Return path markers + Add new slot handler + WIZ-08/09/10 in success_criteria
+- [Phase v0.7-04]: orchestrator Mode A and quorum.md Mode A now use --slot + --model-id for claude-mcp servers; data.slots{} populated on all quorum paths; Mode B was already correct from v0.7-01 INT-04
 
 ### Pending Todos
 
@@ -105,5 +106,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: 2026-02-23 - Completed quick task 63: fix v0.7-03 gaps: run install sync and mark WIZ-08/09 complete in REQUIREMENTS.md
+Stopped at: 2026-02-23 - Completed phase v0.7-04: orchestrator + quorum.md Mode A --slot wiring; SCBD-01..03 all [x] Complete; v0.7 milestone all phases done
 Resume file: None
