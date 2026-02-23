@@ -61,10 +61,10 @@ Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
 Capture the active team fingerprint (idempotent — run once per session).
 
 **Native CLI agents** (sequential — skip UNAVAIL per R6):
-1. `mcp__codex-cli__identity` → parse JSON
-2. `mcp__gemini-cli__identity` → parse JSON
-3. `mcp__opencode__identity` → parse JSON
-4. `mcp__copilot-cli__identity` → parse JSON
+1. `mcp__codex-cli-1__identity` → parse JSON
+2. `mcp__gemini-cli-1__identity` → parse JSON
+3. `mcp__opencode-1__identity` → parse JSON
+4. `mcp__copilot-1__identity` → parse JSON
 
 **claude-mcp-server instances** — iterate over `$CLAUDE_MCP_SERVERS` in order:
 
@@ -73,7 +73,7 @@ For each server with `available: true`:
 - If `"healthy": true` → add to TEAM_JSON: `"<display-name>": { "type": "claude-mcp", "model": "<model>" }`
 - Else → mark UNAVAIL
 
-Display name = server name with `claude-` prefix stripped (e.g. `claude-deepseek` → `deepseek`).
+Display name = slot name as-is (e.g. `claude-1`, `claude-2`) — no prefix stripping. For native CLI agents: `codex-cli-1`, `gemini-cli-1`, etc. The scoreboard `--model` key for claude-mcp servers is derived from the `model` field in the `health_check` response (e.g., `deepseek-ai/DeepSeek-V3` → `deepseek`).
 
 Build `TEAM_JSON` keyed by display name:
 - Native: `codex`, `gemini`, `opencode`, `copilot`
@@ -130,10 +130,10 @@ Do not defer to other models.
 Call order (sequential):
 
 **Native CLI agents:**
-1. `mcp__codex-cli__review`
-2. `mcp__gemini-cli__gemini`
-3. `mcp__opencode__opencode`
-4. `mcp__copilot-cli__ask`
+1. `mcp__codex-cli-1__review`
+2. `mcp__gemini-cli-1__gemini`
+3. `mcp__opencode-1__opencode`
+4. `mcp__copilot-1__ask`
 
 **claude-mcp instances** — iterate over `$CLAUDE_MCP_SERVERS` (skip `available: false`):
 - Call `mcp__<serverName>__claude` with the query prompt (field name: `prompt`)
@@ -218,7 +218,7 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 ```
 
 `--model`: native agents use `claude`, `gemini`, `opencode`, `copilot`, `codex`;
-claude-mcp servers use stripped display name (e.g. `deepseek`, `qwen-coder`).
+claude-mcp servers use the `model` field from the `health_check` response to derive the key (e.g., `deepseek-ai/DeepSeek-V3` → `deepseek`, `Qwen/Qwen3-Coder-480B` → `qwen-coder`).
 `--result`: TP, TN, FP, FN, TP+, UNAVAIL, or empty.
 `--verdict`: APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND.
 
@@ -293,10 +293,10 @@ reasoning: [2–4 sentences grounded in the actual trace output — not assumpti
 Dispatch sequentially (one Task per message turn — NOT sibling calls):
 
 **Native agents:**
-- `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli__gemini with: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__opencode__opencode with: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-cli__ask with: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli__review with: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli-1__gemini with: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__opencode-1__opencode with: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-1__ask with: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli-1__review with: [full worker prompt with bundle inlined]")`
 
 **claude-mcp instances** (one Task per available server):
 - `Task(subagent_type="general-purpose", prompt="Call mcp__<serverName>__claude with prompt=[full worker prompt with bundle inlined]")`

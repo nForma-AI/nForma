@@ -100,10 +100,10 @@ Before any quorum round, capture the active team fingerprint. The scoreboard onl
 
 **Native CLI agents** — call `identity` sequentially (skip UNAVAIL per R6):
 
-1. `mcp__codex-cli__identity` → parse JSON response
-2. `mcp__gemini-cli__identity` → parse JSON response
-3. `mcp__opencode__identity` → parse JSON response
-4. `mcp__copilot-cli__identity` → parse JSON response
+1. `mcp__codex-cli-1__identity` → parse JSON response
+2. `mcp__gemini-cli-1__identity` → parse JSON response
+3. `mcp__opencode-1__identity` → parse JSON response
+4. `mcp__copilot-1__identity` → parse JSON response
 
 **claude-mcp-server instances** — iterate over `$CLAUDE_MCP_SERVERS` in order:
 
@@ -113,7 +113,7 @@ For each server in `$CLAUDE_MCP_SERVERS` (skip if `available: false`):
   `"<serverName>": { "type": "claude-mcp", "model": "<model>" }`
 - Else → mark that server UNAVAIL
 
-The display name for a claude-mcp server is the server name with the leading `claude-` prefix stripped (e.g., `claude-deepseek` → `deepseek`, `claude-qwen-coder` → `qwen-coder`).
+The display name for a claude-mcp server is the slot name as-is (e.g., `claude-1`, `claude-2`). For native CLI agents: `codex-cli-1`, `gemini-cli-1`, etc. No prefix stripping. The scoreboard `--model` key for claude-mcp servers is derived from the `model` field returned by the `health_check` response (e.g., `deepseek-ai/DeepSeek-V3` → `deepseek`), not from the server name.
 
 Build `TEAM_JSON` as a JSON object keyed by display name:
 - Native agents use keys: `codex`, `gemini`, `opencode`, `copilot`
@@ -187,10 +187,10 @@ You are one of the quorum members evaluating this question independently. Give y
 Call order (sequential):
 
 **Native CLI agents** (hardcoded tool names):
-1. `mcp__codex-cli__review`
-2. `mcp__gemini-cli__gemini`
-3. `mcp__opencode__opencode`
-4. `mcp__copilot-cli__ask`
+1. `mcp__codex-cli-1__review`
+2. `mcp__gemini-cli-1__gemini`
+3. `mcp__opencode-1__opencode`
+4. `mcp__copilot-1__ask`
 
 **claude-mcp instances** (dynamic — iterate over available servers in `$CLAUDE_MCP_SERVERS` order):
 For each server with `available: true` and healthy from team capture:
@@ -281,7 +281,7 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 ```
 
 `--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
-`--model` for claude-mcp servers: strip the `claude-` prefix from the server name (e.g., `claude-deepseek` → `deepseek`, `claude-qwen-coder` → `qwen-coder`)
+`--model` for claude-mcp servers: use the `model` field from the `health_check` response to derive the scoreboard key (e.g., a server returning `model: "deepseek-ai/DeepSeek-V3"` → key `deepseek`)
 `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
 `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 `--round`: the round number that just completed
@@ -382,10 +382,10 @@ FLAG if output is ambiguous or requires human judgment.
 Dispatch (sequential — one Task per message turn):
 
 **Native agents** (hardcoded):
-- `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli__gemini with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__opencode__opencode with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-cli__ask with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli__review with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli-1__gemini with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__opencode-1__opencode with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-1__ask with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli-1__review with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
 
 **claude-mcp instances** (dynamic — one Task per available server in `$CLAUDE_MCP_SERVERS`):
 For each server with `available: true` and healthy from team capture:
