@@ -8,6 +8,8 @@ import { dirname, join } from 'path';
 import { spawn } from 'child_process';
 import { createInterface } from 'readline';
 import fs from 'fs';
+import https from 'https';
+import http from 'http';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -131,6 +133,73 @@ async function runProvider(provider, toolArgs) {
   });
 }
 
+// ─── HTTP provider execution ───────────────────────────────────────────────────
+async function runHttpProvider(provider, toolArgs) {
+  const prompt = toolArgs.prompt;
+  const timeoutMs = toolArgs.timeout_ms ?? provider.timeout_ms ?? 120000;
+  const apiKey = process.env[provider.apiKeyEnv] ?? '';
+
+  const body = JSON.stringify({
+    model: provider.model,
+    messages: [{ role: 'user', content: prompt }],
+    stream: false,
+  });
+
+  const url = new URL(provider.baseUrl + '/chat/completions');
+  const isHttps = url.protocol === 'https:';
+  const transport = isHttps ? https : http;
+
+  const options = {
+    hostname: url.hostname,
+    port: url.port || (isHttps ? 443 : 80),
+    path: url.pathname,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Length': Buffer.byteLength(body),
+    },
+  };
+
+  return new Promise((resolve) => {
+    let timedOut = false;
+    const req = transport.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        if (timedOut) return;
+        try {
+          const parsed = JSON.parse(data);
+          const content = parsed?.choices?.[0]?.message?.content;
+          if (content) {
+            resolve(content);
+          } else {
+            resolve(`[HTTP error: unexpected response shape] ${data.slice(0, 500)}`);
+          }
+        } catch (e) {
+          resolve(`[HTTP error: JSON parse failed] ${data.slice(0, 500)}`);
+        }
+      });
+    });
+
+    const timer = setTimeout(() => {
+      timedOut = true;
+      req.destroy();
+      resolve(`[TIMED OUT after ${timeoutMs}ms]`);
+    }, timeoutMs);
+
+    req.on('error', (err) => {
+      clearTimeout(timer);
+      resolve(`[HTTP request error: ${err.message}]`);
+    });
+
+    req.on('close', () => clearTimeout(timer));
+
+    req.write(body);
+    req.end();
+  });
+}
+
 // ─── Request handlers ──────────────────────────────────────────────────────────
 const toolMap = new Map(providers.map(p => [p.name, p]));
 
@@ -169,7 +238,9 @@ async function handleRequest(req) {
     }
 
     try {
-      const output = await runProvider(provider, toolArgs);
+      const output = provider.type === 'http'
+        ? await runHttpProvider(provider, toolArgs)
+        : await runProvider(provider, toolArgs);
       sendResult(id, {
         content: [{ type: 'text', text: output }],
         isError: false,
