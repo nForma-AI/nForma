@@ -55,7 +55,7 @@
       "env": {}
     },
     {
-      "name": "deepseek-1",
+      "name": "claude-1",
       "type": "http",
       "description": "DeepSeek-V3.2 via AkashML HTTP API",
       "baseUrl": "https://api.akashml.com/v1",
@@ -64,7 +64,7 @@
       "timeout_ms": 120000
     },
     {
-      "name": "minimax-1",
+      "name": "claude-2",
       "type": "http",
       "description": "MiniMax-M2.5 via AkashML HTTP API",
       "baseUrl": "https://api.akashml.com/v1",
@@ -73,7 +73,7 @@
       "timeout_ms": 120000
     },
     {
-      "name": "qwen-1",
+      "name": "claude-3",
       "type": "http",
       "description": "Qwen3-Coder-480B via Together.xyz HTTP API",
       "baseUrl": "https://api.together.xyz/v1",
@@ -82,7 +82,7 @@
       "timeout_ms": 120000
     },
     {
-      "name": "kimi-1",
+      "name": "claude-4",
       "type": "http",
       "description": "Kimi-K2 via Fireworks HTTP API",
       "baseUrl": "https://api.fireworks.ai/inference/v1",
@@ -91,7 +91,7 @@
       "timeout_ms": 120000
     },
     {
-      "name": "llama4-1",
+      "name": "claude-5",
       "type": "http",
       "description": "Llama-4-Maverick-17B via Together.xyz HTTP API",
       "baseUrl": "https://api.together.xyz/v1",
@@ -100,7 +100,7 @@
       "timeout_ms": 120000
     },
     {
-      "name": "glm-1",
+      "name": "claude-6",
       "type": "http",
       "description": "GLM-5 via Fireworks HTTP API",
       "baseUrl": "https://api.fireworks.ai/inference/v1",

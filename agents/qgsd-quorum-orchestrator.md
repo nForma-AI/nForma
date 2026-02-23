@@ -83,7 +83,7 @@ Capture the active team fingerprint (idempotent — run once per session).
 3. `mcp__unified-1__opencode-1` with prompt "identity" → parse JSON
 4. `mcp__unified-1__copilot-1` with prompt "identity" → parse JSON
 
-**HTTP provider slots** — deepseek-1, minimax-1, qwen-1, kimi-1, llama4-1, glm-1:
+**HTTP provider slots** — claude-1, claude-2, claude-3, claude-4, claude-5, claude-6:
 
 All HTTP providers are marked as participating. Availability is checked at call time via
 the timeout guard (no separate pre-flight health_check). For the TEAM_JSON entry, use the
@@ -94,13 +94,13 @@ If a call hangs or errors (including MCP timeout), immediately mark that slot UN
 log `[<slotName>] TIMEOUT — marked UNAVAIL`, and continue to the next slot.
 Do NOT wait for a hung call to resolve.
 
-Display name = slot name as-is (e.g. `deepseek-1`, `gemini-1`). For HTTP providers,
+Display name = slot name as-is (e.g. `claude-1`, `gemini-1`). For HTTP providers,
 the model-id is the full model string from providers.json (e.g. `deepseek-ai/DeepSeek-V3.2`)
 — use it as `--model-id` with `--slot` when updating the scoreboard; do NOT derive a short key.
 
 Build `TEAM_JSON` keyed by display name:
 - CLI slots: `codex-1`, `codex-2`, `gemini-1`, `gemini-2`, `opencode-1`, `copilot-1`
-- HTTP slots: `deepseek-1`, `minimax-1`, `qwen-1`, `kimi-1`, `llama4-1`, `glm-1`
+- HTTP slots: `claude-1`, `claude-2`, `claude-3`, `claude-4`, `claude-5`, `claude-6`
 
 Detect Claude model ID: `CLAUDE_MODEL` env → `ANTHROPIC_MODEL` env → session model from context.
 
@@ -172,12 +172,12 @@ Call order (all go through unified-1, call sequentially):
 - `mcp__unified-1__copilot-1` with prompt field
 
 **HTTP slots:**
-- `mcp__unified-1__deepseek-1` with prompt field
-- `mcp__unified-1__minimax-1` with prompt field
-- `mcp__unified-1__qwen-1` with prompt field
-- `mcp__unified-1__kimi-1` with prompt field
-- `mcp__unified-1__llama4-1` with prompt field
-- `mcp__unified-1__glm-1` with prompt field
+- `mcp__unified-1__claude-1` with prompt field
+- `mcp__unified-1__claude-2` with prompt field
+- `mcp__unified-1__claude-3` with prompt field
+- `mcp__unified-1__claude-4` with prompt field
+- `mcp__unified-1__claude-5` with prompt field
+- `mcp__unified-1__claude-6` with prompt field
 
 If `$QUORUM_ACTIVE` is empty, all 12 unified-1 slots participate.
 
@@ -273,7 +273,7 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 ```
 
 - `--model` for CLI slots: `claude`, `codex`, `gemini`, `opencode`, `copilot` (short family name)
-- For HTTP slots: use `--slot <slotName>` (e.g. `deepseek-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3.2` — the exact string from providers.json, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
+- For HTTP slots: use `--slot <slotName>` (e.g. `claude-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3.2` — the exact string from providers.json, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
 - `--result`: TP, TN, FP, FN, TP+, UNAVAIL, or empty.
 - `--verdict`: APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND.
 
@@ -320,7 +320,7 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 ```
 
 - `--model` for CLI slots: `claude`, `codex`, `gemini`, `opencode`, `copilot` (short family name)
-- For HTTP slots: use `--slot <slotName>` (e.g. `deepseek-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3.2` — the exact string from providers.json, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
+- For HTTP slots: use `--slot <slotName>` (e.g. `claude-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3.2` — the exact string from providers.json, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
 - `--result`: TP, TN, FP, FN, TP+, UNAVAIL, or empty.
 - `--verdict`: APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND.
 
@@ -382,12 +382,12 @@ Dispatch sequentially (one Task per message turn — NOT sibling calls):
 - `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__gemini-2 with prompt=[full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__opencode-1 with prompt=[full worker prompt with bundle inlined]")`
 - `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__copilot-1 with prompt=[full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__deepseek-1 with prompt=[full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__minimax-1 with prompt=[full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__qwen-1 with prompt=[full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__kimi-1 with prompt=[full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__llama4-1 with prompt=[full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__glm-1 with prompt=[full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__claude-1 with prompt=[full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__claude-2 with prompt=[full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__claude-3 with prompt=[full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__claude-4 with prompt=[full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__claude-5 with prompt=[full worker prompt with bundle inlined]")`
+- `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__claude-6 with prompt=[full worker prompt with bundle inlined]")`
 
 ### Collect verdicts and output consensus
 
