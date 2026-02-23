@@ -96,7 +96,7 @@
 
 **Milestone Goal:** Ship `quorum.active` composition config so which slots participate in quorum is a config decision (not a code change), support multiple slots per family, and extend `/qgsd:mcp-setup` with a composition management screen.
 
-- [ ] **Phase v0.7-01: Composition Architecture** — `quorum_active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03)
+- [x] **Phase v0.7-01: Composition Architecture** — `quorum_active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03) (completed 2026-02-23)
 - [ ] **Phase v0.7-02: Multiple Slots** — Support N instances per family; `~/.claude.json` entries for copilot-1/2, opencode-1/2, etc.; add-slot supported by config and wizard (MULTI-01..03)
 - [ ] **Phase v0.7-03: Wizard Composition Screen** — "Edit Quorum Composition" option in mcp-setup re-run menu; slot toggle on/off; add new slot from within wizard (WIZ-08..10)
 
@@ -185,6 +185,6 @@ Plans:
 | 37. Fix mcp-setup.md Distribution Issues | v0.5 | 1/1 | Complete | 2026-02-22 |
 | 38. v0.5 Bookkeeping — Requirements & SUMMARY | v0.5 | 1/1 | Complete | 2026-02-23 |
 | 39. Rename and Migration | v0.6 | 3/3 | Complete | 2026-02-23 |
-| v0.7-01. Composition Architecture | v0.7 | 0/4 | Pending | - |
+| v0.7-01. Composition Architecture | v0.7 | Complete    | 2026-02-23 | - |
 | v0.7-02. Multiple Slots | v0.7 | TBD | Pending | - |
 | v0.7-03. Wizard Composition Screen | v0.7 | TBD | Pending | - |
