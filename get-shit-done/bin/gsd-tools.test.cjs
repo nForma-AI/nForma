@@ -3529,3 +3529,82 @@ describe('maintain-tests Phase 21 schema fields round-trip', () => {
     assert.ok('low_context' in state.deferred_report, 'TC-SCHEMA21-2: deferred_report must have low_context key');
   });
 });
+
+// ─── Milestone-Scoped Phase IDs ───────────────────────────────────────────────
+
+describe('milestone-scoped phase IDs', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('MS-TC-01: roadmap analyze parses milestone-scoped phase headers', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap: QGSD\n\n### Phase v0.7-01: Composition Architecture\n**Goal:** Config-driven quorum\n\n### Phase v0.7-02: Multiple Slots\n**Goal:** N instances per family\n`
+    );
+
+    const result = runGsdTools('roadmap analyze', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.phase_count, 2, 'should find 2 phases');
+    assert.strictEqual(output.phases[0].number, 'v0.7-01', 'first phase number is v0.7-01');
+    assert.strictEqual(output.phases[1].number, 'v0.7-02', 'second phase number is v0.7-02');
+    assert.strictEqual(output.phases[0].name, 'Composition Architecture', 'phase name extracted');
+    assert.strictEqual(output.phases[0].goal, 'Config-driven quorum', 'goal extracted');
+  });
+
+  test('MS-TC-02: find-phase v0.7-01 finds milestone-scoped directory', () => {
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', 'v0.7-01-composition-architecture');
+    fs.mkdirSync(phaseDir, { recursive: true });
+
+    const result = runGsdTools('find-phase v0.7-01', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.found, true, 'phase must be found');
+    assert.ok(output.directory.includes('v0.7-01-composition-architecture'), 'directory contains phase ID');
+  });
+
+  test('MS-TC-03: phases list sorts v0.7-01, v0.7-01.1, v0.7-02 in correct order', () => {
+    const dirs = ['v0.7-02-multiple-slots', 'v0.7-01-composition', 'v0.7-01.1-gap-fix'];
+    for (const d of dirs) {
+      fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', d), { recursive: true });
+    }
+
+    const result = runGsdTools('phases list', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.directories.length, 3, '3 directories');
+    assert.ok(output.directories[0].startsWith('v0.7-01-'), 'first is v0.7-01');
+    assert.ok(output.directories[1].startsWith('v0.7-01.1-'), 'second is v0.7-01.1');
+    assert.ok(output.directories[2].startsWith('v0.7-02-'), 'third is v0.7-02');
+  });
+
+  test('MS-TC-04: roadmap analyze reads disk_status for milestone-scoped phase directories', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap\n\n### Phase v0.7-01: Composition Architecture\n**Goal:** Config-driven quorum\n`
+    );
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', 'v0.7-01-composition-architecture');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, 'v0.7-01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, 'v0.7-01-01-SUMMARY.md'), '# Summary');
+
+    const result = runGsdTools('roadmap analyze', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.phases[0].disk_status, 'complete', 'disk_status is complete');
+    assert.strictEqual(output.phases[0].plan_count, 1, '1 plan found');
+    assert.strictEqual(output.phases[0].summary_count, 1, '1 summary found');
+  });
+});
