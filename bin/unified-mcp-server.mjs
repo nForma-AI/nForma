@@ -14,6 +14,7 @@ import { createInterface } from 'readline';
 import fs from 'fs';
 import https from 'https';
 import http from 'http';
+import os from 'os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -128,6 +129,15 @@ function buildSlotTools(provider) {
         name: extra.name,
         description: extra.description,
         inputSchema: extra.checkUpdate ? NO_ARGS_SCHEMA : PROMPT_SCHEMA,
+      });
+    }
+
+    // health_check tool for subprocess providers
+    if (provider.health_check_args) {
+      tools.push({
+        name: 'health_check',
+        description: 'Test CLI availability by running a lightweight command (e.g. --version). Returns { healthy, latencyMs, type: "subprocess" }.',
+        inputSchema: NO_ARGS_SCHEMA,
       });
     }
   } else if (provider.type === 'http') {
@@ -466,9 +476,22 @@ function buildIdentityResult(provider) {
     version = pkg.version ?? version;
   } catch (_) { /* ignore */ }
 
-  const model = provider.type === 'http'
-    ? (process.env.CLAUDE_DEFAULT_MODEL ?? provider.model)
-    : (provider.mainTool ?? provider.cli);
+  let model;
+  if (provider.type === 'http') {
+    model = process.env.CLAUDE_DEFAULT_MODEL ?? provider.model;
+  } else {
+    // Start with static fallback from providers.json, or binary name
+    model = provider.model ?? provider.mainTool ?? provider.cli;
+    // Attempt dynamic detection via model_detect config
+    if (provider.model_detect?.file && provider.model_detect?.pattern) {
+      try {
+        const detectPath = provider.model_detect.file.replace(/^~/, os.homedir());
+        const content = fs.readFileSync(detectPath, 'utf8');
+        const match = content.match(new RegExp(provider.model_detect.pattern, 'm'));
+        if (match?.[1]) model = match[1];
+      } catch (_) { /* fall through to static value */ }
+    }
+  }
 
   return JSON.stringify({
     name: 'unified-mcp-server',
@@ -476,9 +499,19 @@ function buildIdentityResult(provider) {
     slot: provider.name,
     type: provider.type,
     model,
+    display_provider: provider.display_provider ?? null,
     provider: provider.description,
     install_method: 'qgsd-monorepo',
   });
+}
+
+async function runSubprocessHealthCheck(provider) {
+  const args = provider.health_check_args ?? ['--version'];
+  const startTime = Date.now();
+  const output = await runSubprocessWithArgs(provider, args, 10000);
+  const latencyMs = Date.now() - startTime;
+  const healthy = !output.startsWith('[spawn error') && !output.startsWith('[TIMED');
+  return JSON.stringify({ healthy, latencyMs, type: 'subprocess' });
 }
 
 // ─── Slot mode tool dispatcher ────────────────────────────────────────────────
@@ -506,6 +539,10 @@ async function handleSlotToolCall(toolName, toolArgs) {
       if (extra.checkUpdate) return runCheckUpdate();
       // Run with extra's own args_template
       return runProvider({ ...slotProvider, args_template: extra.args_template }, toolArgs);
+    }
+
+    if (toolName === 'health_check' && slotProvider.health_check_args) {
+      return runSubprocessHealthCheck(slotProvider);
     }
   }
 
