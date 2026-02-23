@@ -367,8 +367,25 @@ Error pattern: {error_type}
 {polluter_set[3] if exists}
 {polluter_set[4] if exists}
 Tip: the polluter test(s) likely share state (global var, DB, port, file) with the failing test."}
-{if category == "isolate" AND (verdict.polluter_set is empty OR ddmin_ran == false):
-"Order dependency suspected but no specific polluter identified via ddmin. Check for shared global state, ports, or DB side-effects."}
+{if category == "isolate" AND verdict.ddmin_ran == true AND verdict.polluter_set is empty:
+"Ddmin exhaustive search result — NO polluter found:
+  Candidates tested: {verdict.ddmin_candidates_tested}
+  Runs performed:    {verdict.ddmin_runs_performed}
+  Reason:            {verdict.ddmin_reason}
+
+Ddmin ran every co-runner against this test and could NOT reproduce the failure with any
+subset. Shared state from another test is NOT the cause. Do NOT investigate global vars,
+DB side-effects, or port conflicts.
+
+Instead, investigate:
+  - Timing / race condition: async teardown that doesn't fully await, timers not cleared
+  - I/O side-effects: file system writes in one test run that affect the next run (not another test)
+  - Process-level state: singleton caches, module-level variables reset between runs but not within a run
+  - Non-deterministic behavior: randomness, clock sensitivity, network calls without mocks
+  - Test harness ordering: beforeAll/afterAll hooks that run once but should run per-test"}
+{if category == "isolate" AND verdict.ddmin_ran == false AND verdict.polluter_set is empty:
+"Ddmin did not run (no candidates in this batch or skipped). Order dependency suspected but
+unconfirmed. Check for shared global state, ports, DB side-effects, or async teardown issues."}
 ```
 Where `{chunk_suffix}` = "" if only 1 chunk, or " (batch {n}/{total})" if multiple chunks.
 
