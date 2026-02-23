@@ -103,7 +103,7 @@ Recent decisions affecting current work:
 | 62 | resume-work should also look at quick tasks and incomplete qgsd:debug sessions | 2026-02-23 | 15ab74f | Verified | [62-resume-work-should-also-look-at-quick-ta](.planning/quick/62-resume-work-should-also-look-at-quick-ta/) |
 | 63 | fix v0.7-03 gaps: run install sync and mark WIZ-08/09 complete in REQUIREMENTS.md | 2026-02-23 | 351e42f | Verified | [63-fix-v0-7-03-gaps-run-install-sync-and-ma](./quick/63-fix-v0-7-03-gaps-run-install-sync-and-ma/) |
 | 64 | fix SCBD-01/02/03: propagate INT-04 --slot/--model-id fix from quorum.md Mode B to qgsd-quorum-orchestrator.md Mode A scoreboard block | 2026-02-23 | 8de229c | Verified | [64-fix-scbd-01-02-03-propagate-int-04-slot-](./quick/64-fix-scbd-01-02-03-propagate-int-04-slot-/) |
-| 65 | fix pytest discover in maintain-tests: add --override-ini=addopts= flag and fallback parsing for <Module> tree format | 2026-02-23 | {commit_hash} | Pending | [65-fix-pytest-discover-in-maintain-tests-ad](./quick/65-fix-pytest-discover-in-maintain-tests-ad/) |
+| 65 | fix pytest discover in maintain-tests: add --override-ini=addopts= flag and fallback parsing for <Module> tree format | 2026-02-23 | bd73e44 | Pending | [65-fix-pytest-discover-in-maintain-tests-ad](./quick/65-fix-pytest-discover-in-maintain-tests-ad/) |
 
 ## Session Continuity
 

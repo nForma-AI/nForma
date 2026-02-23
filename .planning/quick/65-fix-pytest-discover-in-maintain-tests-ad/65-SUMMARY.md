@@ -45,6 +45,8 @@ Two changes fix this:
 | 1 | Fix invokePytest — add --override-ini flag and Module fallback parser | e0a7461 | get-shit-done/bin/gsd-tools.cjs |
 | 2 | Install sync — propagate fix to ~/.claude/qgsd/ | (install sync, no new commit) | ~/.claude/qgsd/bin/gsd-tools.cjs |
 
+**Final docs commit:** bd73e44
+
 ## Verification
 
 - `grep "override-ini" get-shit-done/bin/gsd-tools.cjs` — match at line 5907 inside `invokePytest()`
