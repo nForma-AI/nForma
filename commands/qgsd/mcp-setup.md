@@ -405,9 +405,12 @@ Use AskUserQuestion:
 - options:
   - "1 — {agent-name}" (one per agent)
   - "Add new agent"
+  - "Edit Quorum Composition"
   - "Exit"
 
 If "Exit": display "No changes made." Stop.
+
+If "Edit Quorum Composition": route to **Composition Screen** section below.
 
 If "Add new agent":
 
@@ -770,6 +773,116 @@ Return to roster display (re-read roster to show new agent).
 ---
 
 If agent selected: continue to Agent Sub-Menu.
+
+---
+
+## Composition Screen
+
+This screen is entered when the user selects "Edit Quorum Composition" from the re-run menu. It shows all configured slots with their current `quorum_active` status and allows toggling.
+
+**Step CS-1: Read slots and quorum_active**
+
+```bash
+COMPOSITION_DATA=$(node -e "
+const fs = require('fs'), os = require('os');
+let slots = [];
+let active = [];
+try {
+  const cj = JSON.parse(fs.readFileSync(os.homedir() + '/.claude.json', 'utf8'));
+  slots = Object.keys(cj.mcpServers || {});
+} catch(e) {}
+try {
+  const qgsd = JSON.parse(fs.readFileSync(os.homedir() + '/.claude/qgsd.json', 'utf8'));
+  active = Array.isArray(qgsd.quorum_active) ? qgsd.quorum_active : [];
+} catch(e) {}
+process.stdout.write(JSON.stringify({ slots, active }) + '\n');
+")
+```
+
+Parse `COMPOSITION_DATA` for `slots` (array of all slot names from `~/.claude.json`) and `active` (current `quorum_active` array from `~/.claude/qgsd.json`).
+
+**Step CS-2: Display composition table**
+
+Display banner:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► QUORUM COMPOSITION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Render a numbered table. Status rules:
+- If `active` is **empty**: show `● ON (all)` for every slot — fail-open mode means all slots participate
+- If `active` is **non-empty** AND slot IS in `active`: show `● ON`
+- If `active` is **non-empty** AND slot NOT in `active`: show `○ OFF`
+
+```
+#   Slot              Status
+──  ────────────────  ──────
+1   codex-cli-1       ● ON
+2   gemini-cli-1      ● ON
+3   opencode-1        ○ OFF
+4   copilot-1         ● ON
+```
+
+If `active` is empty, display a note below the table:
+
+```
+ℹ  quorum_active is empty — all slots participate (fail-open mode)
+```
+
+**Step CS-3: AskUserQuestion for composition actions**
+
+Initialize `PENDING_ACTIVE` as a copy of `active` (in-memory working array).
+
+Use AskUserQuestion:
+- header: "Quorum Composition"
+- question: "Enter slot number to toggle ON/OFF, or choose an option:"
+- options:
+  - "1 — {slot-name} [{current PENDING_ACTIVE status}]" (one per slot — show ● ON or ○ OFF based on current PENDING_ACTIVE state)
+  - "Apply — save changes to qgsd.json"
+  - "Add new slot — add a slot to ~/.claude.json and quorum_active"
+  - "Cancel — discard changes"
+
+**Toggle handler:** When user selects slot number N:
+
+- If slot IS currently in `PENDING_ACTIVE`:
+  - If `PENDING_ACTIVE.length === 1` (removing would empty the array): use a second AskUserQuestion to warn: "Removing this slot will leave quorum_active empty — all slots will participate (fail-open). Continue?" with options "Yes — set fail-open mode" / "Cancel". If confirmed: set `PENDING_ACTIVE = []`. If cancelled: no change.
+  - Otherwise: remove slot from `PENDING_ACTIVE` → status becomes `○ OFF`
+- If slot is NOT in `PENDING_ACTIVE` AND `PENDING_ACTIVE` is **non-empty**: add slot to `PENDING_ACTIVE` → status becomes `● ON`
+- If slot is NOT in `PENDING_ACTIVE` AND `PENDING_ACTIVE` is **empty**: `PENDING_ACTIVE = [slot]` (switching from fail-open to explicit single-slot list — slot becomes `● ON`, others become `○ OFF`)
+
+Re-display the AskUserQuestion with updated statuses after each toggle.
+
+**Apply handler:** When "Apply" selected:
+
+```bash
+node -e "
+const fs = require('fs'), os = require('os');
+const qgsdPath = os.homedir() + '/.claude/qgsd.json';
+let cfg = {};
+try { cfg = JSON.parse(fs.readFileSync(qgsdPath, 'utf8')); } catch(e) {}
+cfg.quorum_active = JSON.parse(process.env.PENDING_ACTIVE);
+fs.writeFileSync(qgsdPath, JSON.stringify(cfg, null, 2) + '\n');
+process.stdout.write(JSON.stringify({ written: true, count: cfg.quorum_active.length }) + '\n');
+" PENDING_ACTIVE="{JSON.stringify(PENDING_ACTIVE)}"
+```
+
+If `written: true`: display:
+
+```
+✓ quorum_active updated — {N} slot(s) active.
+
+  Changes take effect on next quorum call (no restart required).
+```
+
+Return to roster display.
+
+If error: display error message and return to roster.
+
+**Cancel handler:** When "Cancel" selected:
+
+Display "No changes made." Return to roster display.
 
 ---
 
