@@ -14,6 +14,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const { loadConfig } = require('./config-loader');
 
@@ -332,6 +333,49 @@ function appendFalseNegative(statePath, fileSet) {
   }
 }
 
+// Returns path to oscillation log file for the given git root
+function getOscillationLogPath(gitRoot) {
+  return path.join(gitRoot, '.planning', 'oscillation-log.json');
+}
+
+// Reads oscillation log, returns {} on missing or parse error
+function readOscillationLog(logPath) {
+  if (!fs.existsSync(logPath)) return {};
+  try { return JSON.parse(fs.readFileSync(logPath, 'utf8')); }
+  catch { return {}; }
+}
+
+// Writes oscillation log, fails open with stderr warning
+function writeOscillationLog(logPath, log) {
+  try {
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.writeFileSync(logPath, JSON.stringify(log, null, 2), 'utf8');
+  } catch (e) {
+    process.stderr.write(`[qgsd] WARNING: Could not write oscillation log: ${e.message}\n`);
+  }
+}
+
+// SHA-1 of sorted file list, 12 hex chars
+function makeFileSetHash(files) {
+  return crypto.createHash('sha1')
+    .update(files.slice().sort().join('\0'))
+    .digest('hex').slice(0, 12);
+}
+
+// SHA-1 of run-group sequence (same collapse as detectOscillation step 1), 12 hex chars
+function makePatternHash(fileSets) {
+  const runKeys = [];
+  for (const files of fileSets) {
+    const key = files.slice().sort().join('\0');
+    if (runKeys.length === 0 || runKeys[runKeys.length - 1] !== key) {
+      runKeys.push(key);
+    }
+  }
+  return crypto.createHash('sha1')
+    .update(runKeys.join('|'))
+    .digest('hex').slice(0, 12);
+}
+
 // Builds the priority warning notice for the allow decision
 // Returns a message Claude will see in the hook output (non-blocking notification)
 function buildWarningNotice(state) {
@@ -376,14 +420,114 @@ function main() {
   process.stdin.on('end', async () => {
     try {
       const input = JSON.parse(raw);
-      const command = (input.tool_input && input.tool_input.command) || '';
       const cwd = input.cwd || process.cwd();
 
-      // Get git root
+      const hookEvent = input.hook_event_name || input.hookEventName || 'PreToolUse';
+      const toolName = input.tool_name || input.toolName || '';
+
+      // Get git root — shared by both handlers
       const gitRoot = getGitRoot(cwd);
       if (!gitRoot) {
         process.exit(0); // DETECT-05: not a git repo
       }
+
+      const config = loadConfig(gitRoot);
+      const logPath = getOscillationLogPath(gitRoot);
+
+      // ── PostToolUse: Haiku convergence check ─────────────────────────────
+      if (hookEvent === 'PostToolUse' && toolName === 'Bash') {
+        const log = readOscillationLog(logPath);
+        const activeKeys = Object.keys(log).filter(k => !log[k].resolvedAt);
+        if (activeKeys.length === 0) process.exit(0);
+
+        const toolOutput = (input.tool_response &&
+          (input.tool_response.output || input.tool_response.stdout)) || '';
+        const lastCommitResult = spawnSync('git', ['log', '--oneline', '-1'], {
+          cwd: gitRoot, encoding: 'utf8', timeout: 5000,
+        });
+        const lastCommit = (lastCommitResult.stdout || '').trim();
+
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) process.exit(0);
+
+        const activeEntry = log[activeKeys[0]];
+        const haikuPrompt =
+          `You are a circuit breaker monitor. An oscillation was detected on files: ${activeEntry.files.join(', ')}.\n\n` +
+          `A Bash command just completed. Output (truncated):\n${toolOutput.slice(0, 2000)}\n\n` +
+          `Last git commit: ${lastCommit}\n\n` +
+          `Does this output indicate the oscillation has been resolved (e.g. tests passing, fix committed)?\n` +
+          `Reply with exactly one word: YES or NO`;
+
+        const requestBody = JSON.stringify({
+          model: config.circuit_breaker.haiku_model,
+          max_tokens: 10,
+          messages: [{ role: 'user', content: haikuPrompt }],
+        });
+
+        const nodeScript = `
+const https = require('https');
+const body = process.env.HAIKU_BODY;
+const apiKey = process.env.ANTHROPIC_API_KEY;
+const req = https.request({
+  hostname: 'api.anthropic.com',
+  path: '/v1/messages',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': apiKey,
+    'anthropic-version': '2023-06-01',
+    'Content-Length': Buffer.byteLength(body),
+  },
+  timeout: 12000,
+}, (res) => {
+  let d = '';
+  res.on('data', c => { d += c; });
+  res.on('end', () => {
+    try {
+      const p = JSON.parse(d);
+      process.stdout.write(((p.content||[])[0]||{}).text||'NO');
+    } catch { process.stdout.write('NO'); }
+  });
+});
+req.on('error', () => process.stdout.write('NO'));
+req.on('timeout', () => { req.destroy(); process.stdout.write('NO'); });
+req.write(body);
+req.end();
+`;
+
+        try {
+          const spawnResult = spawnSync('node', ['-e', nodeScript], {
+            env: { ...process.env, HAIKU_BODY: requestBody },
+            encoding: 'utf8',
+            timeout: 15000,
+          });
+          const verdict = (spawnResult.stdout || '').trim().toUpperCase();
+
+          if (verdict.startsWith('YES')) {
+            const resolvedHashResult = spawnSync('git', ['log', '--format=%H', '-1'], {
+              cwd: gitRoot, encoding: 'utf8', timeout: 5000,
+            });
+            const resolvedCommit = (resolvedHashResult.stdout || '').trim() || null;
+            const now = new Date().toISOString();
+            for (const k of activeKeys) {
+              log[k].resolvedAt = now;
+              log[k].resolvedByCommit = resolvedCommit;
+              log[k].haikuRationale = `Haiku YES on Bash output; last commit: ${lastCommit}`;
+            }
+            writeOscillationLog(logPath, log);
+            // Clear state file so PreToolUse stops warning
+            const statePath = path.join(gitRoot, '.claude', 'circuit-breaker-state.json');
+            try { if (fs.existsSync(statePath)) fs.rmSync(statePath); } catch {}
+            process.stderr.write(`[qgsd] INFO: Oscillation resolved by Haiku — circuit breaker cleared.\n`);
+          }
+        } catch (e) {
+          process.stderr.write(`[qgsd] WARNING: PostToolUse Haiku check failed: ${e.message}\n`);
+        }
+        process.exit(0);
+      }
+
+      // ── PreToolUse: oscillation detection + notification ─────────────────
+      const command = (input.tool_input && input.tool_input.command) || '';
 
       // Check existing state
       const statePath = path.join(gitRoot, '.claude', 'circuit-breaker-state.json');
@@ -395,6 +539,13 @@ function main() {
       }
 
       if (state && state.active) {
+        // Check if already resolved in log
+        const fileSetHash = makeFileSetHash(state.file_set || []);
+        const logKey = `${fileSetHash}:legacy`;
+        const log = readOscillationLog(logPath);
+        if (log[logKey] && log[logKey].resolvedAt) {
+          process.exit(0); // Already resolved
+        }
         // Breaker already active — emit priority warning but ALLOW the tool call through
         process.stdout.write(JSON.stringify({
           hookSpecificOutput: {
@@ -411,8 +562,6 @@ function main() {
         process.exit(0); // DETECT-04: read-only command
       }
 
-      // Load config for detection thresholds
-      const config = loadConfig(gitRoot);
       const hashes = getCommitHashes(gitRoot, config.circuit_breaker.commit_window);
       const fileSets = getCommitFileSets(gitRoot, hashes);
 
@@ -434,6 +583,28 @@ function main() {
         }
         // verdict === 'GENUINE' or null (API unavailable) → trust the algorithm and notify
       }
+
+      // Log-based suppression: if this exact oscillation was already resolved, skip
+      const fileSetHash = makeFileSetHash(result.fileSet);
+      const patternHash = makePatternHash(fileSets);
+      const logKey = `${fileSetHash}:${patternHash}`;
+      const oscLog = readOscillationLog(logPath);
+      if (oscLog[logKey] && oscLog[logKey].resolvedAt) {
+        // Already resolved — suppress warning entirely
+        process.exit(0);
+      }
+      // Upsert log entry
+      oscLog[logKey] = {
+        files: result.fileSet.slice().sort(),
+        pattern: fileSets.map(s => s.slice().sort().join(',')).join(' | '),
+        firstSeen: (oscLog[logKey] && oscLog[logKey].firstSeen) ? oscLog[logKey].firstSeen : new Date().toISOString(),
+        lastSeen: new Date().toISOString(),
+        resolvedAt: null,
+        resolvedByCommit: null,
+        haikuRationale: null,
+        manualResetAt: (oscLog[logKey] && oscLog[logKey].manualResetAt) ? oscLog[logKey].manualResetAt : null,
+      };
+      writeOscillationLog(logPath, oscLog);
 
       // Write state so qgsd-prompt.js picks it up on next user message
       writeState(statePath, result.fileSet, fileSets);

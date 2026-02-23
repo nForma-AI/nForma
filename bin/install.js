@@ -2181,6 +2181,27 @@ if (hasResetBreaker) {
   } else {
     console.log(`  ${dim}No active circuit breaker state found at ${stateFile.replace(os.homedir(), '~')}${reset}`);
   }
+  // Stamp manualResetAt on all active oscillation-log.json entries
+  const oscLogFile = path.join(projectRoot, '.planning', 'oscillation-log.json');
+  if (fs.existsSync(oscLogFile)) {
+    try {
+      const oscLog = JSON.parse(fs.readFileSync(oscLogFile, 'utf8'));
+      const now = new Date().toISOString();
+      let touched = 0;
+      for (const key of Object.keys(oscLog)) {
+        if (!oscLog[key].resolvedAt) {
+          oscLog[key].manualResetAt = now;
+          touched++;
+        }
+      }
+      fs.writeFileSync(oscLogFile, JSON.stringify(oscLog, null, 2), 'utf8');
+      if (touched > 0) {
+        console.log(`  ${green}✓${reset} Stamped manualResetAt on ${touched} active oscillation log entr${touched === 1 ? 'y' : 'ies'}.`);
+      }
+    } catch (e) {
+      console.log(`  ${dim}Could not update oscillation log: ${e.message}${reset}`);
+    }
+  }
   process.exit(0);
 }
 
