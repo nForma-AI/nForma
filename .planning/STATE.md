@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-23 after Phase 39)
 Phase: 39 of 39 (Phase 39 complete; v0.6 milestone complete — is_last_phase=true)
 Plan: 39-03 Complete
 Status: v0.6 milestone fully shipped; all 10 quorum agents use slot-based names; SLOT-01..04 verified
-Last activity: 2026-02-23 - Completed quick task 57: Fix GSD branding to QGSD in install.js statusline prompt and completion banners
+Last activity: 2026-02-23 - Completed quick task 58: ddmin no-polluter dispatch clarity in fix-tests.md
 
 Progress: [████████████████████] 38/38 plans (100%)
 
@@ -88,6 +88,7 @@ Recent decisions affecting current work:
 | 55 | in qgsd:fix-tests, we could use ddmin instead of batch to isolate tests that causes instabilities in other, and that would guide our isolation strategies! | 2026-02-23 | ab17b01 | Verified | [55-in-qgsd-fix-tests-we-could-use-ddmin-ins](./quick/55-in-qgsd-fix-tests-we-could-use-ddmin-ins/) |
 | 56 | softer circuit breaker with LLM false-negative detection and auto-continue | 2026-02-23 | 70175b7 | Verified | [56-softer-circuit-breaker-with-llm-false-ne](./quick/56-softer-circuit-breaker-with-llm-false-ne/) |
 | 57 | Fix GSD branding to QGSD in install.js statusline prompt and completion banners | 2026-02-23 | 74dc5f3 | Complete | [57-fix-gsd-branding-to-qgsd-in-install-js-s](./quick/57-fix-gsd-branding-to-qgsd-in-install-js-s/) |
+| 58 | in fix-tests.md step 6h dispatch template, when ddmin_ran is true but polluter_set is empty, make it crystal clear to the fixer agent that ddmin exhaustively searched and ruled out test pollution — show run count, candidate count, and explicitly redirect the agent away from shared-state investigation toward timing/async/io causes | 2026-02-23 | Pending | Pending | [58-in-fix-tests-md-step-6h-dispatch-templat](./quick/58-in-fix-tests-md-step-6h-dispatch-templat/) |
 
 ## Session Continuity
 
