@@ -4,6 +4,9 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const https = require('https');
+const http = require('http');
+const { spawnSync } = require('child_process');
 const inquirer = require('inquirer');
 
 const CLAUDE_JSON_PATH = path.join(os.homedir(), '.claude.json');
@@ -17,22 +20,15 @@ function readClaudeJson() {
   if (!fs.existsSync(CLAUDE_JSON_PATH)) {
     throw new Error(`~/.claude.json not found at ${CLAUDE_JSON_PATH}`);
   }
-  let raw;
   try {
-    raw = fs.readFileSync(CLAUDE_JSON_PATH, 'utf8');
+    return JSON.parse(fs.readFileSync(CLAUDE_JSON_PATH, 'utf8'));
   } catch (err) {
-    throw new Error(`Cannot read ~/.claude.json: ${err.message}`);
-  }
-  try {
-    return JSON.parse(raw);
-  } catch (err) {
-    throw new Error(`~/.claude.json contains invalid JSON: ${err.message}`);
+    throw new Error(`~/.claude.json: ${err.message}`);
   }
 }
 
 function writeClaudeJson(data) {
-  const json = JSON.stringify(data, null, 2);
-  fs.writeFileSync(CLAUDE_JSON_TMP, json, 'utf8');
+  fs.writeFileSync(CLAUDE_JSON_TMP, JSON.stringify(data, null, 2), 'utf8');
   fs.renameSync(CLAUDE_JSON_TMP, CLAUDE_JSON_PATH);
 }
 
@@ -40,10 +36,140 @@ function getGlobalMcpServers(data) {
   return data.mcpServers || {};
 }
 
-function slotDisplayLine(name, cfg) {
-  const model = cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL ? cfg.env.CLAUDE_DEFAULT_MODEL : cfg.command || '?';
-  const url = cfg.env && cfg.env.ANTHROPIC_BASE_URL ? cfg.env.ANTHROPIC_BASE_URL : '';
-  return `${name}  [${model}]  ${url}`;
+// Fetch model list from a provider's /models endpoint (5s timeout, fail-silent)
+function fetchProviderModels(baseUrl, apiKey) {
+  return new Promise((resolve) => {
+    if (!baseUrl) return resolve(null);
+    let url;
+    try {
+      const base = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+      url = new URL(base + '/models');
+    } catch {
+      return resolve(null);
+    }
+    const lib = url.protocol === 'https:' ? https : http;
+    const req = lib.request(
+      {
+        hostname: url.hostname,
+        port: url.port || (url.protocol === 'https:' ? 443 : 80),
+        path: url.pathname + url.search,
+        method: 'GET',
+        headers: {
+          'Authorization': apiKey ? `Bearer ${apiKey}` : '',
+          'Accept': 'application/json',
+        },
+        timeout: 5000,
+      },
+      (res) => {
+        let body = '';
+        res.on('data', (c) => (body += c));
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(body);
+            const list = (parsed.data || parsed.models || [])
+              .map((m) => (typeof m === 'string' ? m : m.id))
+              .filter(Boolean)
+              .sort();
+            resolve(list.length ? list : null);
+          } catch {
+            resolve(null);
+          }
+        });
+      }
+    );
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+    req.end();
+  });
+}
+
+// Probe a provider URL — returns { healthy, latencyMs, statusCode, error }
+// Counts HTTP 200/401/403/404/422 as healthy (provider is reachable).
+function probeProviderUrl(baseUrl, apiKey) {
+  return new Promise((resolve) => {
+    if (!baseUrl) return resolve({ healthy: false, latencyMs: 0, statusCode: null, error: 'No URL provided' });
+    let url;
+    try {
+      const base = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+      url = new URL(base + '/models');
+    } catch {
+      return resolve({ healthy: false, latencyMs: 0, statusCode: null, error: `Invalid URL: ${baseUrl}` });
+    }
+    const lib = url.protocol === 'https:' ? https : http;
+    const start = Date.now();
+    const req = lib.request(
+      {
+        hostname: url.hostname,
+        port: url.port || (url.protocol === 'https:' ? 443 : 80),
+        path: url.pathname + url.search,
+        method: 'GET',
+        headers: {
+          'Authorization': apiKey ? `Bearer ${apiKey}` : '',
+          'Accept': 'application/json',
+          'User-Agent': 'qgsd-manage-agents/1.0',
+        },
+        timeout: 7000,
+      },
+      (res) => {
+        const latencyMs = Date.now() - start;
+        res.resume();
+        res.on('end', () => {
+          const healthy = [200, 401, 403, 404, 422].includes(res.statusCode);
+          resolve({ healthy, latencyMs, statusCode: res.statusCode, error: null });
+        });
+      }
+    );
+    req.on('error', (e) => {
+      resolve({ healthy: false, latencyMs: Date.now() - start, statusCode: null, error: e.message });
+    });
+    req.on('timeout', () => {
+      req.destroy();
+      resolve({ healthy: false, latencyMs: Date.now() - start, statusCode: null, error: 'Timed out after 7000ms' });
+    });
+    req.end();
+  });
+}
+
+// Return a likely upgrade model ID, or null if current is already latest
+function detectUpgrade(current, available) {
+  if (!current || !available) return null;
+  // Match: optional-namespace/Name-VX.Y  or  Name-VX-Y
+  const vRe = /^(.*?)[-./]?v?(\d+(?:[._]\d+)?)$/i;
+  const cm = current.match(vRe);
+  if (!cm) return null;
+  const [, cBase, cVer] = cm;
+  const cV = parseFloat(cVer.replace('_', '.'));
+  let best = null;
+  let bestV = cV;
+  const prefixLen = Math.max(4, Math.floor(cBase.length * 0.6));
+  for (const m of available) {
+    const mm = m.match(vRe);
+    if (!mm) continue;
+    const [, mBase, mVer] = mm;
+    if (!mBase.toLowerCase().startsWith(cBase.toLowerCase().slice(0, prefixLen))) continue;
+    const mV = parseFloat(mVer.replace('_', '.'));
+    if (mV > bestV) { bestV = mV; best = m; }
+  }
+  return best;
+}
+
+// Masked API key for display
+function maskKey(key) {
+  if (!key) return '(not set)';
+  if (key.length <= 12) return '***';
+  return key.slice(0, 8) + '...' + key.slice(-4);
+}
+
+// Short provider hostname for display
+function shortProvider(cfg) {
+  if (cfg.env && cfg.env.ANTHROPIC_BASE_URL) {
+    return cfg.env.ANTHROPIC_BASE_URL
+      .replace(/^https?:\/\//, '')
+      .replace(/\/v\d+\/?$/, '')
+      .replace(/\/.*$/, '');
+  }
+  if (cfg.command === 'npx') return 'npx';
+  return cfg.command || '—';
 }
 
 // ---------------------------------------------------------------------------
@@ -56,21 +182,43 @@ async function listAgents() {
   const entries = Object.entries(mcpServers);
 
   if (entries.length === 0) {
-    console.log('\n  (no agents configured in ~/.claude.json mcpServers)\n');
+    console.log('\n  (no agents configured)\n');
     return;
   }
 
-  console.log('\n  Current agents in ~/.claude.json mcpServers:\n');
+  const W = { n: 3, slot: 14, model: 38, provider: 26, key: 3, to: 8 };
+  const header = [
+    '#'.padEnd(W.n),
+    'Slot'.padEnd(W.slot),
+    'Model'.padEnd(W.model),
+    'Provider'.padEnd(W.provider),
+    'Key',
+    'Timeout',
+  ].join('  ');
 
-  const rows = entries.map(([name, cfg], i) => ({
-    '#': i + 1,
-    'Slot': name,
-    'Model / Command': (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) ? cfg.env.CLAUDE_DEFAULT_MODEL : cfg.command || '?',
-    'Base URL': (cfg.env && cfg.env.ANTHROPIC_BASE_URL) ? cfg.env.ANTHROPIC_BASE_URL : '—',
-    'Type': cfg.type || 'stdio',
-  }));
+  console.log('\n  ' + '\x1b[1m' + header + '\x1b[0m');
+  console.log('  ' + '─'.repeat(header.length));
 
-  console.table(rows);
+  entries.forEach(([name, cfg], i) => {
+    const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || `(${cfg.command || '?'})`;
+    const provider = shortProvider(cfg);
+    const hasKey = !!(cfg.env && cfg.env.ANTHROPIC_API_KEY);
+    const timeout = (cfg.env && cfg.env.CLAUDE_MCP_TIMEOUT_MS)
+      ? cfg.env.CLAUDE_MCP_TIMEOUT_MS + 'ms'
+      : '—';
+
+    const row = [
+      String(i + 1).padEnd(W.n),
+      name.padEnd(W.slot),
+      model.slice(0, W.model).padEnd(W.model),
+      provider.slice(0, W.provider).padEnd(W.provider),
+      hasKey ? '\x1b[32m ✓ \x1b[0m' : '\x1b[90m — \x1b[0m',
+      timeout,
+    ].join('  ');
+
+    console.log('  ' + row);
+  });
+
   console.log('');
 }
 
@@ -81,7 +229,6 @@ async function listAgents() {
 async function addAgent() {
   const data = readClaudeJson();
   const mcpServers = getGlobalMcpServers(data);
-
   const existingSlots = Object.keys(mcpServers);
 
   const answers = await inquirer.prompt([
@@ -90,54 +237,54 @@ async function addAgent() {
       name: 'slotName',
       message: 'Slot name (e.g. claude-7):',
       validate(val) {
-        if (!val || !val.trim()) return 'Slot name is required';
-        if (/\s/.test(val)) return 'Slot name must not contain spaces';
-        if (existingSlots.includes(val.trim())) return `Slot "${val.trim()}" already exists — use Edit to modify it`;
+        if (!val || !val.trim()) return 'Required';
+        if (/\s/.test(val)) return 'No spaces allowed';
+        if (existingSlots.includes(val.trim())) return `"${val.trim()}" already exists`;
         return true;
       },
     },
     {
       type: 'input',
       name: 'command',
-      message: 'Command (default: node):',
+      message: 'Command:',
       default: 'node',
     },
     {
       type: 'input',
       name: 'args',
-      message: 'Args (comma-separated, e.g. /path/to/server.mjs):',
+      message: 'Args (comma-separated):',
       default: '',
     },
     {
       type: 'input',
       name: 'baseUrl',
-      message: 'ANTHROPIC_BASE_URL (blank = skip):',
+      message: 'ANTHROPIC_BASE_URL:',
       default: '',
     },
     {
       type: 'password',
       name: 'apiKey',
-      message: 'ANTHROPIC_API_KEY (blank = skip):',
+      message: 'ANTHROPIC_API_KEY:',
       mask: '*',
       default: '',
     },
     {
       type: 'input',
       name: 'model',
-      message: 'CLAUDE_DEFAULT_MODEL (blank = skip):',
+      message: 'CLAUDE_DEFAULT_MODEL:',
       default: '',
     },
     {
       type: 'input',
       name: 'timeoutMs',
-      message: 'CLAUDE_MCP_TIMEOUT_MS (blank = 30000):',
+      message: 'CLAUDE_MCP_TIMEOUT_MS:',
       default: '30000',
     },
     {
       type: 'input',
       name: 'providerSlot',
       message: 'PROVIDER_SLOT (default = slot name):',
-      default: (answers) => answers.slotName || '',
+      default: (a) => a.slotName || '',
     },
   ]);
 
@@ -147,27 +294,45 @@ async function addAgent() {
     : [];
 
   const env = {};
-  if (answers.baseUrl && answers.baseUrl.trim()) env.ANTHROPIC_BASE_URL = answers.baseUrl.trim();
-  if (answers.apiKey && answers.apiKey.trim()) env.ANTHROPIC_API_KEY = answers.apiKey.trim();
-  if (answers.model && answers.model.trim()) env.CLAUDE_DEFAULT_MODEL = answers.model.trim();
-  if (answers.timeoutMs && answers.timeoutMs.trim()) env.CLAUDE_MCP_TIMEOUT_MS = answers.timeoutMs.trim();
-  env.PROVIDER_SLOT = (answers.providerSlot && answers.providerSlot.trim()) ? answers.providerSlot.trim() : slotName;
+  if (answers.baseUrl.trim()) env.ANTHROPIC_BASE_URL = answers.baseUrl.trim();
+  if (answers.apiKey.trim()) env.ANTHROPIC_API_KEY = answers.apiKey.trim();
+  if (answers.model.trim()) env.CLAUDE_DEFAULT_MODEL = answers.model.trim();
+  if (answers.timeoutMs.trim()) env.CLAUDE_MCP_TIMEOUT_MS = answers.timeoutMs.trim();
+  env.PROVIDER_SLOT = answers.providerSlot.trim() || slotName;
 
-  const entry = {
-    type: 'stdio',
-    command: answers.command.trim() || 'node',
-    args: argsArr,
-    env,
-  };
+  // ── Provider pre-flight check ──────────────────────────────────────────────
+  if (answers.baseUrl.trim()) {
+    process.stdout.write(`\n  Probing provider ${answers.baseUrl.trim()} ...`);
+    const probe = await probeProviderUrl(answers.baseUrl.trim(), answers.apiKey.trim());
+    if (probe.healthy) {
+      process.stdout.write(`\n  \x1b[32m✓ Provider UP (${probe.latencyMs}ms)\x1b[0m\n`);
+    } else {
+      process.stdout.write(`\n  \x1b[33m⚠ Provider DOWN or unreachable\x1b[0m\n`);
+      const { saveAnyway } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'saveAnyway',
+          message: 'Save anyway?',
+          default: false,
+        },
+      ]);
+      if (!saveAnyway) {
+        console.log('  Cancelled.');
+        return;
+      }
+    }
+  }
 
-  data.mcpServers = Object.assign({}, mcpServers, { [slotName]: entry });
+  data.mcpServers = Object.assign({}, mcpServers, {
+    [slotName]: { type: 'stdio', command: answers.command.trim() || 'node', args: argsArr, env },
+  });
   writeClaudeJson(data);
 
-  console.log(`\n  \x1b[32mAdded agent "${slotName}" to ~/.claude.json\x1b[0m\n`);
+  console.log(`\n  \x1b[32m✓ Added "${slotName}"\x1b[0m\n`);
 }
 
 // ---------------------------------------------------------------------------
-// Edit agent
+// Edit agent  (guided: summary card + checkbox + smart model picker)
 // ---------------------------------------------------------------------------
 
 async function editAgent() {
@@ -180,98 +345,321 @@ async function editAgent() {
     return;
   }
 
+  // Agent selector — show model inline so user knows what they're picking
   const { slotName } = await inquirer.prompt([
     {
       type: 'list',
       name: 'slotName',
       message: 'Select agent to edit:',
-      choices: slots,
+      choices: slots.map((name) => {
+        const cfg = mcpServers[name];
+        const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?';
+        const hasKey = !!(cfg.env && cfg.env.ANTHROPIC_API_KEY);
+        return {
+          name: `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${hasKey ? '\x1b[32m[key ✓]\x1b[0m' : '\x1b[90m[no key]\x1b[0m'}`,
+          value: name,
+          short: name,
+        };
+      }),
     },
   ]);
 
   const existing = mcpServers[slotName];
-  const existingEnv = existing.env || {};
+  const env = existing.env || {};
 
-  const answers = await inquirer.prompt([
+  // ── Summary card ─────────────────────────────────────────────────────────
+  const W = 52;
+  const row = (label, value) => {
+    const v = String(value || '—').slice(0, W - label.length - 4);
+    return `  │  \x1b[90m${label}\x1b[0m  ${v}`;
+  };
+
+  console.log(`\n  ┌${'─'.repeat(W + 2)}┐`);
+  console.log(`  │  \x1b[1m${slotName}\x1b[0m${' '.repeat(W - slotName.length)}  │`);
+  console.log(`  ├${'─'.repeat(W + 2)}┤`);
+  console.log(row('Model  ', env.CLAUDE_DEFAULT_MODEL));
+  console.log(row('URL    ', env.ANTHROPIC_BASE_URL));
+  console.log(row('Key    ', maskKey(env.ANTHROPIC_API_KEY)));
+  console.log(row('Timeout', env.CLAUDE_MCP_TIMEOUT_MS ? env.CLAUDE_MCP_TIMEOUT_MS + ' ms' : '—'));
+  console.log(row('Slot   ', env.PROVIDER_SLOT));
+  console.log(row('Cmd    ', [existing.command, ...(existing.args || [])].join(' ')));
+
+  // ── Performance intel from MCP logs ───────────────────────────────────────
+  const reviewLogsPath = path.join(__dirname, 'review-mcp-logs.cjs');
+  let perfRow = null;
+  try {
+    const res = spawnSync('node', [reviewLogsPath, '--json', '--tool', slotName], {
+      encoding: 'utf8',
+      timeout: 5000,
+    });
+    if (res.status === 0 && res.stdout) {
+      const logData = JSON.parse(res.stdout);
+      const stats = logData.serverStats && logData.serverStats[slotName];
+      if (stats && stats.totalCalls > 0) {
+        const p95s = stats.p95Ms ? (stats.p95Ms / 1000).toFixed(1) + 's' : '—';
+        const maxS = stats.maxMs ? (stats.maxMs / 1000).toFixed(1) + 's' : '—';
+        const failures = `${stats.failureCount}/${stats.totalCalls}`;
+        const suggested = stats.p95Ms
+          ? Math.max(15000, Math.ceil(stats.p95Ms * 1.5 / 5000) * 5000)
+          : null;
+        const suggestedStr = suggested ? `${suggested}ms` : '—';
+        perfRow = `p95: ${p95s}  max: ${maxS}  failures: ${failures}  suggested timeout: ${suggestedStr}`;
+      }
+    }
+  } catch (_) {}
+
+  if (perfRow) {
+    console.log(row('Perf   ', perfRow));
+  }
+  console.log(`  └${'─'.repeat(W + 2)}┘\n`);
+
+  // ── Choose what to edit ───────────────────────────────────────────────────
+  const { fields } = await inquirer.prompt([
     {
-      type: 'input',
-      name: 'command',
-      message: 'Command:',
-      default: existing.command || 'node',
-    },
-    {
-      type: 'input',
-      name: 'args',
-      message: 'Args (comma-separated):',
-      default: (existing.args || []).join(', '),
-    },
-    {
-      type: 'input',
-      name: 'baseUrl',
-      message: 'ANTHROPIC_BASE_URL (blank = remove):',
-      default: existingEnv.ANTHROPIC_BASE_URL || '',
-    },
-    {
-      type: 'password',
-      name: 'apiKey',
-      message: 'ANTHROPIC_API_KEY (blank = keep existing / remove if never set):',
-      mask: '*',
-      default: '',
-    },
-    {
-      type: 'input',
-      name: 'model',
-      message: 'CLAUDE_DEFAULT_MODEL (blank = remove):',
-      default: existingEnv.CLAUDE_DEFAULT_MODEL || '',
-    },
-    {
-      type: 'input',
-      name: 'timeoutMs',
-      message: 'CLAUDE_MCP_TIMEOUT_MS (blank = remove):',
-      default: existingEnv.CLAUDE_MCP_TIMEOUT_MS || '',
-    },
-    {
-      type: 'input',
-      name: 'providerSlot',
-      message: 'PROVIDER_SLOT:',
-      default: existingEnv.PROVIDER_SLOT || slotName,
+      type: 'checkbox',
+      name: 'fields',
+      message: 'What do you want to change?  (space = toggle, enter = confirm)',
+      choices: [
+        { name: `Model          ${env.CLAUDE_DEFAULT_MODEL ? '\x1b[90m' + env.CLAUDE_DEFAULT_MODEL.slice(0, 32) + '\x1b[0m' : '\x1b[90m(not set)\x1b[0m'}`, value: 'model' },
+        { name: `API Key        ${env.ANTHROPIC_API_KEY ? '\x1b[90m' + maskKey(env.ANTHROPIC_API_KEY) + '\x1b[0m' : '\x1b[90m(not set)\x1b[0m'}`, value: 'apiKey' },
+        { name: `Base URL       ${env.ANTHROPIC_BASE_URL ? '\x1b[90m' + env.ANTHROPIC_BASE_URL.slice(0, 30) + '\x1b[0m' : '\x1b[90m(not set)\x1b[0m'}`, value: 'baseUrl' },
+        { name: `Timeout        ${env.CLAUDE_MCP_TIMEOUT_MS ? '\x1b[90m' + env.CLAUDE_MCP_TIMEOUT_MS + ' ms\x1b[0m' : '\x1b[90m—\x1b[0m'}`, value: 'timeout' },
+        { name: `Provider Slot  \x1b[90m${env.PROVIDER_SLOT || slotName}\x1b[0m`, value: 'providerSlot' },
+        { name: `Command + Args \x1b[90m${[existing.command, ...(existing.args || [])].join(' ').slice(0, 30)}\x1b[0m`, value: 'command' },
+      ],
     },
   ]);
 
-  const argsArr = answers.args
-    ? answers.args.split(',').map((a) => a.trim()).filter(Boolean)
-    : [];
-
-  const env = {};
-  if (answers.baseUrl && answers.baseUrl.trim()) env.ANTHROPIC_BASE_URL = answers.baseUrl.trim();
-
-  // For API key: if user typed something new, use it; else preserve existing
-  if (answers.apiKey && answers.apiKey.trim()) {
-    env.ANTHROPIC_API_KEY = answers.apiKey.trim();
-  } else if (existingEnv.ANTHROPIC_API_KEY) {
-    env.ANTHROPIC_API_KEY = existingEnv.ANTHROPIC_API_KEY;
+  if (fields.length === 0) {
+    console.log('\n  Nothing selected — no changes made.\n');
+    return;
   }
 
-  if (answers.model && answers.model.trim()) env.CLAUDE_DEFAULT_MODEL = answers.model.trim();
-  if (answers.timeoutMs && answers.timeoutMs.trim()) env.CLAUDE_MCP_TIMEOUT_MS = answers.timeoutMs.trim();
-  env.PROVIDER_SLOT = (answers.providerSlot && answers.providerSlot.trim()) ? answers.providerSlot.trim() : slotName;
+  const updates = {};
+
+  // ── Model (with provider fetch + upgrade detection) ───────────────────────
+  if (fields.includes('model')) {
+    let modelChoices = [
+      { name: `Keep current  \x1b[90m${env.CLAUDE_DEFAULT_MODEL || '(none)'}\x1b[0m`, value: '__keep__' },
+      new inquirer.Separator('─────────────────────────────────────'),
+      { name: 'Enter manually', value: '__manual__' },
+    ];
+
+    if (env.ANTHROPIC_BASE_URL) {
+      process.stdout.write(`\n  Fetching models from ${shortProvider(existing)}...`);
+      const available = await fetchProviderModels(env.ANTHROPIC_BASE_URL, env.ANTHROPIC_API_KEY);
+
+      if (available && available.length) {
+        const upgrade = detectUpgrade(env.CLAUDE_DEFAULT_MODEL, available);
+        const current = env.CLAUDE_DEFAULT_MODEL;
+
+        if (upgrade) {
+          process.stdout.write(` \x1b[33m⬆  upgrade available: ${upgrade}\x1b[0m\n\n`);
+        } else {
+          process.stdout.write(` \x1b[32m✓  ${available.length} models\x1b[0m\n\n`);
+        }
+
+        const fetched = available.map((m) => {
+          let label = m;
+          if (m === current) label += '  \x1b[90m← current\x1b[0m';
+          else if (m === upgrade) label += '  \x1b[33m⬆ upgrade\x1b[0m';
+          return { name: label, value: m, short: m };
+        });
+
+        modelChoices = [
+          { name: `Keep current  \x1b[90m${current || '(none)'}\x1b[0m`, value: '__keep__' },
+          new inquirer.Separator(`── ${available.length} models from provider ──`),
+          ...fetched,
+          new inquirer.Separator('─────────────────────────────────────'),
+          { name: 'Enter manually', value: '__manual__' },
+        ];
+      } else {
+        process.stdout.write(' \x1b[90m(unreachable)\x1b[0m\n\n');
+      }
+    }
+
+    const { modelChoice } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'modelChoice',
+        message: 'Select model:',
+        choices: modelChoices,
+        default: '__keep__',
+        pageSize: 20,
+      },
+    ]);
+
+    if (modelChoice === '__manual__') {
+      const { modelManual } = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'modelManual',
+          message: 'Model ID:',
+          default: env.CLAUDE_DEFAULT_MODEL || '',
+        },
+      ]);
+      if (modelManual.trim()) updates.model = modelManual.trim();
+    } else if (modelChoice !== '__keep__') {
+      updates.model = modelChoice;
+    }
+  }
+
+  // ── API key ───────────────────────────────────────────────────────────────
+  if (fields.includes('apiKey')) {
+    const hasKey = !!env.ANTHROPIC_API_KEY;
+    const { keyAction } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'keyAction',
+        message: hasKey
+          ? `API Key — currently set (${maskKey(env.ANTHROPIC_API_KEY)}):`
+          : 'API Key — not currently set:',
+        choices: [
+          { name: hasKey ? 'Keep existing' : 'Leave unset', value: 'keep' },
+          { name: 'Set new key', value: 'set' },
+          ...(hasKey ? [{ name: 'Remove key', value: 'remove' }] : []),
+        ],
+      },
+    ]);
+
+    if (keyAction === 'set') {
+      const { newKey } = await inquirer.prompt([
+        {
+          type: 'password',
+          name: 'newKey',
+          message: 'New API key:',
+          mask: '*',
+          validate: (v) => (v && v.trim() ? true : 'Cannot be empty'),
+        },
+      ]);
+      updates.apiKey = newKey.trim();
+    } else if (keyAction === 'remove') {
+      updates.apiKey = '__REMOVE__';
+    }
+  }
+
+  // ── Base URL ──────────────────────────────────────────────────────────────
+  if (fields.includes('baseUrl')) {
+    const { baseUrl } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'baseUrl',
+        message: 'ANTHROPIC_BASE_URL (blank = remove):',
+        default: env.ANTHROPIC_BASE_URL || '',
+      },
+    ]);
+    updates.baseUrl = baseUrl.trim() || '__REMOVE__';
+
+    // Provider pre-flight check when a URL is set/changed
+    if (baseUrl.trim() && baseUrl.trim() !== '__REMOVE__') {
+      const apiKeyForProbe = env.ANTHROPIC_API_KEY || updates.apiKey || '';
+      process.stdout.write(`\n  Probing provider ${baseUrl.trim()} ...`);
+      const probe = await probeProviderUrl(baseUrl.trim(), apiKeyForProbe);
+      if (probe.healthy) {
+        process.stdout.write(`\n  \x1b[32m✓ Provider UP (${probe.latencyMs}ms)\x1b[0m\n\n`);
+      } else {
+        process.stdout.write(`\n  \x1b[33m⚠ Provider DOWN or unreachable\x1b[0m\n`);
+        const { saveAnyway } = await inquirer.prompt([
+          {
+            type: 'confirm',
+            name: 'saveAnyway',
+            message: 'Save anyway?',
+            default: false,
+          },
+        ]);
+        if (!saveAnyway) {
+          console.log('  Cancelled.');
+          return;
+        }
+        console.log('');
+      }
+    }
+  }
+
+  // ── Timeout ───────────────────────────────────────────────────────────────
+  if (fields.includes('timeout')) {
+    const { timeoutMs } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'timeoutMs',
+        message: 'CLAUDE_MCP_TIMEOUT_MS (ms, blank = remove):',
+        default: env.CLAUDE_MCP_TIMEOUT_MS || '30000',
+        validate: (v) => !v || !isNaN(parseInt(v)) ? true : 'Must be a number',
+      },
+    ]);
+    updates.timeout = timeoutMs.trim() || '__REMOVE__';
+  }
+
+  // ── Provider slot ─────────────────────────────────────────────────────────
+  if (fields.includes('providerSlot')) {
+    const { providerSlot } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'providerSlot',
+        message: 'PROVIDER_SLOT:',
+        default: env.PROVIDER_SLOT || slotName,
+      },
+    ]);
+    updates.providerSlot = providerSlot.trim() || slotName;
+  }
+
+  // ── Command + args ────────────────────────────────────────────────────────
+  if (fields.includes('command')) {
+    const cmdAnswers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'command',
+        message: 'Command:',
+        default: existing.command || 'node',
+      },
+      {
+        type: 'input',
+        name: 'args',
+        message: 'Args (comma-separated):',
+        default: (existing.args || []).join(', '),
+      },
+    ]);
+    updates.command = cmdAnswers.command.trim() || 'node';
+    updates.args = cmdAnswers.args
+      ? cmdAnswers.args.split(',').map((a) => a.trim()).filter(Boolean)
+      : [];
+  }
+
+  // ── Apply updates ─────────────────────────────────────────────────────────
+  const newEnv = Object.assign({}, env);
+
+  if ('model' in updates) newEnv.CLAUDE_DEFAULT_MODEL = updates.model;
+
+  if ('apiKey' in updates) {
+    if (updates.apiKey === '__REMOVE__') delete newEnv.ANTHROPIC_API_KEY;
+    else newEnv.ANTHROPIC_API_KEY = updates.apiKey;
+  }
+
+  if ('baseUrl' in updates) {
+    if (updates.baseUrl === '__REMOVE__') delete newEnv.ANTHROPIC_BASE_URL;
+    else newEnv.ANTHROPIC_BASE_URL = updates.baseUrl;
+  }
+
+  if ('timeout' in updates) {
+    if (updates.timeout === '__REMOVE__') delete newEnv.CLAUDE_MCP_TIMEOUT_MS;
+    else newEnv.CLAUDE_MCP_TIMEOUT_MS = updates.timeout;
+  }
+
+  if ('providerSlot' in updates) newEnv.PROVIDER_SLOT = updates.providerSlot;
 
   const updatedEntry = {
     type: existing.type || 'stdio',
-    command: answers.command.trim() || 'node',
-    args: argsArr,
-    env,
+    command: 'command' in updates ? updates.command : existing.command,
+    args: 'args' in updates ? updates.args : (existing.args || []),
+    env: newEnv,
   };
 
-  // Rebuild mcpServers preserving key order, replacing only the target key
-  const updatedMcpServers = Object.fromEntries(
+  data.mcpServers = Object.fromEntries(
     Object.entries(mcpServers).map(([k, v]) => [k, k === slotName ? updatedEntry : v])
   );
-
-  data.mcpServers = updatedMcpServers;
   writeClaudeJson(data);
 
-  console.log(`\n  \x1b[32mUpdated agent "${slotName}" in ~/.claude.json\x1b[0m\n`);
+  console.log(`\n  \x1b[32m✓ Updated "${slotName}"\x1b[0m\n`);
 }
 
 // ---------------------------------------------------------------------------
@@ -293,7 +681,11 @@ async function removeAgent() {
       type: 'list',
       name: 'slotName',
       message: 'Select agent to remove:',
-      choices: slots,
+      choices: slots.map((name) => {
+        const cfg = mcpServers[name];
+        const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?';
+        return { name: `${name.padEnd(14)} ${model}`, value: name, short: name };
+      }),
     },
   ]);
 
@@ -301,7 +693,7 @@ async function removeAgent() {
     {
       type: 'confirm',
       name: 'confirmed',
-      message: `Remove "${slotName}"? This cannot be undone.`,
+      message: `\x1b[31mRemove "${slotName}"? This cannot be undone.\x1b[0m`,
       default: false,
     },
   ]);
@@ -311,13 +703,11 @@ async function removeAgent() {
     return;
   }
 
-  const updated = Object.fromEntries(
+  data.mcpServers = Object.fromEntries(
     Object.entries(mcpServers).filter(([k]) => k !== slotName)
   );
-  data.mcpServers = updated;
   writeClaudeJson(data);
-
-  console.log(`\n  \x1b[32mRemoved agent "${slotName}" from ~/.claude.json\x1b[0m\n`);
+  console.log(`\n  \x1b[32m✓ Removed "${slotName}"\x1b[0m\n`);
 }
 
 // ---------------------------------------------------------------------------
@@ -336,25 +726,22 @@ async function reorderAgents() {
 
   console.log('\n  Current order:\n');
   slots.forEach((name, i) => {
-    console.log(`    ${i + 1}. ${slotDisplayLine(name, mcpServers[name])}`);
+    const cfg = mcpServers[name];
+    const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?';
+    console.log(`    \x1b[90m${String(i + 1).padStart(2)}.\x1b[0m ${name.padEnd(14)} ${model}`);
   });
   console.log('');
 
   const { slotName } = await inquirer.prompt([
     {
-      type: 'input',
+      type: 'list',
       name: 'slotName',
-      message: 'Enter slot name to move:',
-      validate(val) {
-        if (!val || !val.trim()) return 'Slot name is required';
-        if (!slots.includes(val.trim())) return `Slot "${val.trim()}" not found`;
-        return true;
-      },
+      message: 'Select slot to move:',
+      choices: slots,
     },
   ]);
 
-  const targetSlot = slotName.trim();
-  const currentIdx = slots.indexOf(targetSlot);
+  const currentIdx = slots.indexOf(slotName);
 
   const { newPos } = await inquirer.prompt([
     {
@@ -364,35 +751,87 @@ async function reorderAgents() {
       default: String(currentIdx + 1),
       validate(val) {
         const n = parseInt(val, 10);
-        if (isNaN(n) || n < 1 || n > slots.length) return `Enter a number between 1 and ${slots.length}`;
-        return true;
+        return !isNaN(n) && n >= 1 && n <= slots.length ? true : `Enter 1–${slots.length}`;
       },
     },
   ]);
 
   const entries = Object.entries(mcpServers);
-  const idx = entries.findIndex(([k]) => k === targetSlot);
+  const idx = entries.findIndex(([k]) => k === slotName);
   const [entry] = entries.splice(idx, 1);
   entries.splice(parseInt(newPos, 10) - 1, 0, entry);
-  const reordered = Object.fromEntries(entries);
-
-  data.mcpServers = reordered;
+  data.mcpServers = Object.fromEntries(entries);
   writeClaudeJson(data);
 
-  console.log('\n  \x1b[32mUpdated order:\x1b[0m\n');
-  Object.keys(reordered).forEach((name, i) => {
-    console.log(`    ${i + 1}. ${slotDisplayLine(name, reordered[name])}`);
+  console.log('\n  \x1b[32m✓ New order:\x1b[0m\n');
+  Object.keys(data.mcpServers).forEach((name, i) => {
+    const cfg = data.mcpServers[name];
+    const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?';
+    console.log(`    \x1b[90m${String(i + 1).padStart(2)}.\x1b[0m ${name.padEnd(14)} ${model}`);
   });
   console.log('');
 }
 
 // ---------------------------------------------------------------------------
-// Main menu loop
+// Check agent health
+// ---------------------------------------------------------------------------
+
+async function checkAgentHealth() {
+  const data = readClaudeJson();
+  const mcpServers = getGlobalMcpServers(data);
+  const slots = Object.keys(mcpServers);
+
+  if (slots.length === 0) {
+    console.log('\n  No agents configured.\n');
+    return;
+  }
+
+  const { slotName } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'slotName',
+      message: 'Select agent to check:',
+      choices: slots.map((name) => {
+        const cfg = mcpServers[name];
+        const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?';
+        const hasKey = !!(cfg.env && cfg.env.ANTHROPIC_API_KEY);
+        return {
+          name: `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${hasKey ? '\x1b[32m[key ✓]\x1b[0m' : '\x1b[90m[no key]\x1b[0m'}`,
+          value: name,
+          short: name,
+        };
+      }),
+    },
+  ]);
+
+  const cfg = mcpServers[slotName];
+  const env = cfg.env || {};
+
+  if (!env.ANTHROPIC_BASE_URL) {
+    console.log(`\n  ${slotName} is a subprocess provider — no HTTP endpoint to probe.\n`);
+    return;
+  }
+
+  process.stdout.write(`\n  Probing ${env.ANTHROPIC_BASE_URL} ...`);
+  const probe = await probeProviderUrl(env.ANTHROPIC_BASE_URL, env.ANTHROPIC_API_KEY || '');
+  const statusLine = probe.healthy
+    ? `\x1b[32m✓ UP (${probe.latencyMs}ms) [${probe.statusCode}]\x1b[0m`
+    : `\x1b[31m✗ DOWN [${probe.error || probe.statusCode || 'timeout'}]\x1b[0m`;
+
+  console.log(`\n`);
+  console.log(`  Agent:    ${slotName}`);
+  console.log(`  Status:   ${statusLine}`);
+  console.log(`  URL:      ${env.ANTHROPIC_BASE_URL}`);
+  console.log(`  Model:    ${env.CLAUDE_DEFAULT_MODEL || '—'}`);
+  console.log('');
+}
+
+// ---------------------------------------------------------------------------
+// Main menu
 // ---------------------------------------------------------------------------
 
 async function mainMenu() {
   let running = true;
-
   while (running) {
     const { action } = await inquirer.prompt([
       {
@@ -405,6 +844,7 @@ async function mainMenu() {
           { name: '3. Edit agent', value: 'edit' },
           { name: '4. Remove agent', value: 'remove' },
           { name: '5. Reorder agents', value: 'reorder' },
+          { name: '6. Check agent health', value: 'health' },
           new inquirer.Separator(),
           { name: '0. Exit', value: 'exit' },
         ],
@@ -412,29 +852,13 @@ async function mainMenu() {
     ]);
 
     try {
-      switch (action) {
-        case 'list':
-          await listAgents();
-          break;
-        case 'add':
-          await addAgent();
-          break;
-        case 'edit':
-          await editAgent();
-          break;
-        case 'remove':
-          await removeAgent();
-          break;
-        case 'reorder':
-          await reorderAgents();
-          break;
-        case 'exit':
-          running = false;
-          console.log('\n  Goodbye!\n');
-          break;
-        default:
-          console.log('\n  Unknown action.\n');
-      }
+      if (action === 'list') await listAgents();
+      else if (action === 'add') await addAgent();
+      else if (action === 'edit') await editAgent();
+      else if (action === 'remove') await removeAgent();
+      else if (action === 'reorder') await reorderAgents();
+      else if (action === 'health') await checkAgentHealth();
+      else if (action === 'exit') { running = false; console.log('\n  Goodbye!\n'); }
     } catch (err) {
       console.error(`\n  \x1b[31mError: ${err.message}\x1b[0m\n`);
     }
@@ -447,9 +871,9 @@ async function mainMenu() {
 
 if (require.main === module) {
   mainMenu().catch((err) => {
-    console.error('\x1b[31mFatal error:\x1b[0m', err.message);
+    console.error('\x1b[31mFatal:\x1b[0m', err.message);
     process.exit(1);
   });
 }
 
-module.exports = { readClaudeJson, writeClaudeJson, getGlobalMcpServers, slotDisplayLine, mainMenu };
+module.exports = { readClaudeJson, writeClaudeJson, getGlobalMcpServers, mainMenu };
