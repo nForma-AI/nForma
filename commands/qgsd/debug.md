@@ -25,7 +25,7 @@ This command augments the existing qgsd-debugger investigation loop with quorum 
 
 **Step 1: Collect failure context**
 
-If `$ARGUMENTS` is non-empty, use it as the initial failure description.
+If $ARGUMENTS is non-empty, use it as the initial failure description.
 
 Gather the execution bundle:
 
