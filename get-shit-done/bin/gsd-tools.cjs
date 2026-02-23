@@ -135,6 +135,8 @@
  *                              Shuffle and split test list into batches; write manifest to disk before execution
  *   maintain-tests run-batch --batch-file <path> [--timeout N] [--env KEY=VALUE...] [--output-file <path>]
  *                              Execute a single batch from manifest; capture output to temp file; 3-run flakiness check
+ *   maintain-tests ddmin --failing-test <path> --candidates-file <path> [--timeout N] [--runner auto|jest|playwright|pytest] [--output-file path]
+ *                              Delta-debugging: find minimal subset of co-runner tests causing failing-test to fail
  */
 
 const fs = require('fs');
@@ -5419,8 +5421,24 @@ async function main() {
           }, raw);
           break;
         }
+        case 'ddmin': {
+          const failingTestIdx = args.indexOf('--failing-test');
+          const candidatesIdx = args.indexOf('--candidates-file');
+          const timeoutIdx = args.indexOf('--timeout');
+          const outputIdx = args.indexOf('--output-file');
+          const runnerIdx = args.indexOf('--runner');
+          await cmdMaintainTestsDdmin(cwd, {
+            failingTest: failingTestIdx !== -1 ? args[failingTestIdx + 1] : null,
+            candidatesFile: candidatesIdx !== -1 ? args[candidatesIdx + 1] : null,
+            timeoutSec: timeoutIdx !== -1 ? parseInt(args[timeoutIdx + 1], 10) : 60,
+            outputFile: outputIdx !== -1 ? args[outputIdx + 1] : null,
+            runner: runnerIdx !== -1 ? args[runnerIdx + 1] : 'auto',
+            env: process.env,
+          }, raw);
+          break;
+        }
         default:
-          error(`Unknown maintain-tests subcommand: ${subCmd}\nAvailable: discover, batch, run-batch, save-state, load-state`);
+          error(`Unknown maintain-tests subcommand: ${subCmd}\nAvailable: discover, batch, run-batch, save-state, load-state, ddmin`);
       }
       break;
     }
@@ -6165,6 +6183,256 @@ async function cmdMaintainTestsRunBatch(cwd, options, raw) {
     output({ written: true, path: outputFile, executed_count: results.length }, raw);
   } else {
     output(batchOutput, raw);
+  }
+}
+
+// ─── Maintain Tests: Ddmin Command ───────────────────────────────────────────
+
+/**
+ * cmdMaintainTestsDdmin — Delta debugging: find the minimal subset of co-runner
+ * test files that causes `failingTest` to fail when those files are run first.
+ *
+ * Algorithm: standard ddmin2 adapted for test-order sensitivity.
+ * Run cap: 50 runs maximum to prevent runaway execution.
+ */
+async function cmdMaintainTestsDdmin(cwd, options, raw) {
+  const { failingTest, candidatesFile, timeoutSec = 60, outputFile, runner = 'auto', env } = options;
+
+  if (!failingTest) {
+    error('maintain-tests ddmin: --failing-test is required');
+  }
+  if (!candidatesFile) {
+    error('maintain-tests ddmin: --candidates-file is required');
+  }
+
+  const timeoutMs = timeoutSec * 1000;
+  const RUN_CAP = 50;
+  let runsPerformed = 0;
+
+  // Read candidates list
+  let candidates = [];
+  try {
+    const resolvedCandidates = path.isAbsolute(candidatesFile)
+      ? candidatesFile
+      : path.join(cwd, candidatesFile);
+    const raw2 = fs.readFileSync(resolvedCandidates, 'utf-8');
+    const parsed = JSON.parse(raw2);
+    candidates = Array.isArray(parsed.test_files) ? parsed.test_files : [];
+  } catch (e) {
+    error(`maintain-tests ddmin: failed to read --candidates-file "${candidatesFile}" — ${e.message}`);
+  }
+
+  // Fast path: no candidates
+  if (candidates.length === 0) {
+    const result = {
+      failing_test: failingTest,
+      polluter_set: [],
+      candidates_tested: 0,
+      runs_performed: 0,
+      ddmin_ran: false,
+      reason: 'no candidates',
+    };
+    if (outputFile) {
+      const resolved = path.isAbsolute(outputFile) ? outputFile : path.join(cwd, outputFile);
+      fs.writeFileSync(resolved, JSON.stringify(result, null, 2), 'utf-8');
+      output({ written: true, path: outputFile, ...result }, raw);
+    } else {
+      output(result, raw);
+    }
+    return;
+  }
+
+  /**
+   * runSequence — run prefixFiles in order, then target, return true if target failed.
+   * Returns null on timeout (inconclusive).
+   */
+  async function runSequence(prefixFiles, targetFile) {
+    const startMs = Date.now();
+    const allFiles = [...prefixFiles, targetFile];
+    const opts = { cwd, env };
+
+    for (const testFile of allFiles) {
+      if (Date.now() - startMs > timeoutMs) return null;
+      runsPerformed++;
+      const perTestResults = await runTestFile(testFile, runner, opts, `ddmin-seq-${runsPerformed}`);
+      const isTarget = testFile === targetFile;
+      if (isTarget) {
+        const targetResult = Array.isArray(perTestResults)
+          ? perTestResults.find(r => r.file === targetFile || r.file === path.basename(targetFile))
+          : perTestResults;
+        if (!targetResult) return false;
+        return targetResult.status === 'failed' || targetResult.status === 'error';
+      }
+      // For prefix files we just run them (side effects matter), ignore result
+    }
+    return false;
+  }
+
+  // Sanity check: does the failing test fail alone?
+  const failsAlone = await runSequence([], failingTest);
+  if (failsAlone === true) {
+    const result = {
+      failing_test: failingTest,
+      polluter_set: [],
+      candidates_tested: candidates.length,
+      runs_performed: runsPerformed,
+      ddmin_ran: false,
+      reason: 'test fails in isolation — not an ordering issue',
+    };
+    if (outputFile) {
+      const resolved = path.isAbsolute(outputFile) ? outputFile : path.join(cwd, outputFile);
+      fs.writeFileSync(resolved, JSON.stringify(result, null, 2), 'utf-8');
+      output({ written: true, path: outputFile, ...result }, raw);
+    } else {
+      output(result, raw);
+    }
+    return;
+  }
+
+  // Full set check: does the full candidate set trigger the failure?
+  if (runsPerformed >= RUN_CAP) {
+    const result = {
+      failing_test: failingTest,
+      polluter_set: [],
+      candidates_tested: candidates.length,
+      runs_performed: runsPerformed,
+      ddmin_ran: true,
+      reason: 'run cap reached',
+    };
+    if (outputFile) {
+      const resolved = path.isAbsolute(outputFile) ? outputFile : path.join(cwd, outputFile);
+      fs.writeFileSync(resolved, JSON.stringify(result, null, 2), 'utf-8');
+      output({ written: true, path: outputFile, ...result }, raw);
+    } else {
+      output(result, raw);
+    }
+    return;
+  }
+
+  const fullSetFails = await runSequence(candidates, failingTest);
+  if (fullSetFails === null) {
+    const result = {
+      failing_test: failingTest,
+      polluter_set: [],
+      candidates_tested: candidates.length,
+      runs_performed: runsPerformed,
+      ddmin_ran: true,
+      reason: 'timeout during ddmin',
+    };
+    if (outputFile) {
+      const resolved = path.isAbsolute(outputFile) ? outputFile : path.join(cwd, outputFile);
+      fs.writeFileSync(resolved, JSON.stringify(result, null, 2), 'utf-8');
+      output({ written: true, path: outputFile, ...result }, raw);
+    } else {
+      output(result, raw);
+    }
+    return;
+  }
+  if (fullSetFails === false) {
+    const result = {
+      failing_test: failingTest,
+      polluter_set: [],
+      candidates_tested: candidates.length,
+      runs_performed: runsPerformed,
+      ddmin_ran: true,
+      reason: 'full candidate set does not reproduce failure',
+    };
+    if (outputFile) {
+      const resolved = path.isAbsolute(outputFile) ? outputFile : path.join(cwd, outputFile);
+      fs.writeFileSync(resolved, JSON.stringify(result, null, 2), 'utf-8');
+      output({ written: true, path: outputFile, ...result }, raw);
+    } else {
+      output(result, raw);
+    }
+    return;
+  }
+
+  // Ddmin loop (standard ddmin2)
+  let remaining = candidates.slice();
+  let n = 2;
+  let ddminReason = 'minimal polluter set found';
+  let timedOut = false;
+
+  ddminLoop: while (remaining.length > 1 && runsPerformed < RUN_CAP) {
+    // Split remaining into n equal chunks
+    const chunkSize = Math.ceil(remaining.length / n);
+    const chunks = [];
+    for (let i = 0; i < remaining.length; i += chunkSize) {
+      chunks.push(remaining.slice(i, i + chunkSize));
+    }
+
+    let reduced = false;
+    for (let ci = 0; ci < chunks.length; ci++) {
+      if (runsPerformed >= RUN_CAP) {
+        ddminReason = 'run cap reached';
+        timedOut = true;
+        break ddminLoop;
+      }
+
+      const chunk = chunks[ci];
+
+      // Test: does just this chunk trigger the failure?
+      const chunkFails = await runSequence(chunk, failingTest);
+      if (chunkFails === null) {
+        ddminReason = 'timeout during ddmin';
+        timedOut = true;
+        break ddminLoop;
+      }
+      if (chunkFails === true) {
+        remaining = chunk;
+        n = Math.max(2, n - 1);
+        reduced = true;
+        break;
+      }
+
+      if (runsPerformed >= RUN_CAP) {
+        ddminReason = 'run cap reached';
+        timedOut = true;
+        break ddminLoop;
+      }
+
+      // Test: does remaining minus this chunk trigger the failure?
+      const complement = remaining.filter(f => !chunk.includes(f));
+      if (complement.length === 0) continue;
+      const compFails = await runSequence(complement, failingTest);
+      if (compFails === null) {
+        ddminReason = 'timeout during ddmin';
+        timedOut = true;
+        break ddminLoop;
+      }
+      if (compFails === true) {
+        remaining = complement;
+        n = Math.max(2, n - 1);
+        reduced = true;
+        break;
+      }
+    }
+
+    if (!reduced) {
+      if (n >= remaining.length) break;
+      n = Math.min(n * 2, remaining.length);
+    }
+  }
+
+  if (runsPerformed >= RUN_CAP && !timedOut) {
+    ddminReason = 'run cap reached';
+  }
+
+  const finalResult = {
+    failing_test: failingTest,
+    polluter_set: remaining,
+    candidates_tested: candidates.length,
+    runs_performed: runsPerformed,
+    ddmin_ran: true,
+    reason: ddminReason,
+  };
+
+  if (outputFile) {
+    const resolved = path.isAbsolute(outputFile) ? outputFile : path.join(cwd, outputFile);
+    fs.writeFileSync(resolved, JSON.stringify(finalResult, null, 2), 'utf-8');
+    output({ written: true, path: outputFile, ...finalResult }, raw);
+  } else {
+    output(finalResult, raw);
   }
 }
 
