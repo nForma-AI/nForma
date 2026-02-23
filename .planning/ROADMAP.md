@@ -98,7 +98,7 @@
 
 - [x] **Phase v0.7-01: Composition Architecture** — `quorum_active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03) (completed 2026-02-23)
 - [x] **Phase v0.7-02: Multiple Slots** — Support N instances per family; `~/.claude.json` entries for copilot-1/2, opencode-1/2, etc.; add-slot supported by config and wizard (MULTI-01..03) (completed 2026-02-23)
-- [ ] **Phase v0.7-03: Wizard Composition Screen** — "Edit Quorum Composition" option in mcp-setup re-run menu; slot toggle on/off; add new slot from within wizard (WIZ-08..10)
+- [x] **Phase v0.7-03: Wizard Composition Screen** — "Edit Quorum Composition" option in mcp-setup re-run menu; slot toggle on/off; add new slot from within wizard (WIZ-08..10) (completed 2026-02-23)
 
 ## Phase Details
 
@@ -187,4 +187,4 @@ Plans:
 | 39. Rename and Migration | v0.6 | 3/3 | Complete | 2026-02-23 |
 | v0.7-01. Composition Architecture | v0.7 | Complete    | 2026-02-23 | - |
 | v0.7-02. Multiple Slots | 0/2 | Complete    | 2026-02-23 | - |
-| v0.7-03. Wizard Composition Screen | v0.7 | TBD | Pending | - |
+| v0.7-03. Wizard Composition Screen | 2/2 | Complete   | 2026-02-23 | - |

@@ -37,6 +37,7 @@ Progress: [████████████████████] 44/44 p
 
 *Updated after each plan completion*
 | Phase 29 P01 | 2min | 2 tasks | 2 files |
+| Phase v0.7-03 P02 | 4 | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,7 @@ Recent decisions affecting current work:
 - [Phase v0.7-01]: Scoreboard composite key `<slot>:<model-id>` — same slot with different model = new row; historical rows preserved; fail-open on empty quorum_active (all slots participate)
 - [Phase v0.7-01]: SLOT_TOOL_SUFFIX strips trailing -N digit index before family lookup — codex-cli-1 → codex-cli → review; claude-1 → claude → claude
 - [Phase v0.7-01]: buildActiveSlots() reads ~/.claude.json mcpServer keys at install time; populateActiveSlots() in migrate-to-slots.cjs is idempotent
+- [Phase v0.7-03]: WIZ-10 add-slot-from-composition routing: Plan 01 left content uncommitted; Plan 02 committed Return path markers + Add new slot handler + WIZ-08/09/10 in success_criteria
 
 ### Pending Todos
 
