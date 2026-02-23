@@ -87,6 +87,23 @@ Parse the JSON output. Build two structures:
 
 Any server with `available: false` must be marked UNAVAIL immediately — skip its health_check and inference calls entirely. This prevents hangs from unresponsive provider endpoints.
 
+3. **`$QUORUM_ACTIVE`**: read from `~/.claude/qgsd.json` (project config takes precedence over global):
+```bash
+node -e "
+const fs = require('fs'), os = require('os'), path = require('path');
+const globalCfg = path.join(os.homedir(), '.claude', 'qgsd.json');
+const projCfg   = path.join(process.cwd(), '.claude', 'qgsd.json');
+let cfg = {};
+for (const f of [globalCfg, projCfg]) {
+  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_){}
+}
+console.log(JSON.stringify(cfg.quorum_active || []));
+"
+```
+If `$QUORUM_ACTIVE` is empty (`[]`), all entries in `$CLAUDE_MCP_SERVERS` participate.
+If non-empty, intersect: only servers whose `serverName` appears in `$QUORUM_ACTIVE` are called.
+A server in `$QUORUM_ACTIVE` but absent from `$CLAUDE_MCP_SERVERS` = skip silently (fail-open).
+
 Display pre-flight result inline (one line):
 ```
 Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
@@ -430,7 +447,7 @@ If split: run deliberation (up to 3 rounds) with traces always included in conte
 Update the scoreboard with the same `update-scoreboard.cjs` pattern as Mode A.
 
 `--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
-`--model` for claude-mcp servers: strip the `claude-` prefix from the server name
+`--slot` for claude-mcp servers: use the slot name (e.g. `claude-1`); `--model-id`: use the `model` field returned by the `health_check` response (e.g. `deepseek-ai/DeepSeek-V3`). Use `--slot` + `--model-id` instead of `--model` for all claude-mcp instances.
 `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
 `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 `--round`: the round number that just completed

@@ -100,7 +100,59 @@ process.stdin.on('end', () => {
     // ── Priority 2: Planning command → inject quorum instructions ────────────
     const config = loadConfig(cwd);
     const commands = config.quorum_commands;
-    let instructions = config.quorum_instructions || DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK;
+
+    // Dynamic fallback step generation from quorum_active (COMP-02)
+    // Tool suffix lookup for fallback step generation
+    // Keys match the slot name prefix (after stripping trailing -N index)
+    const SLOT_TOOL_SUFFIX = {
+      'codex-cli': 'review',
+      'codex':     'review',
+      'gemini-cli': 'gemini',
+      'gemini':    'gemini',
+      'opencode':  'opencode',
+      'copilot-cli': 'ask',
+      'copilot':   'ask',
+      'claude':    'claude',
+    };
+    function slotToolCall(slotName) {
+      // Strip trailing numeric index (e.g. codex-cli-1 → codex-cli, claude-1 → claude)
+      const family = slotName.replace(/-\d+$/, '');
+      const suffix = SLOT_TOOL_SUFFIX[family] || 'claude';
+      return `mcp__${slotName}__${suffix}`;
+    }
+
+    const activeSlots = (config.quorum_active && config.quorum_active.length > 0)
+      ? config.quorum_active
+      : null; // null = use hardcoded fallback list
+
+    let instructions;
+    if (config.quorum_instructions) {
+      // Explicit quorum_instructions in config — use as-is
+      instructions = config.quorum_instructions;
+    } else if (activeSlots) {
+      // Dynamic fallback: generate step list from quorum_active
+      const dynamicSteps = activeSlots.map((slot, i) =>
+        `  ${i + 1}. Call ${slotToolCall(slot)} with the full plan content`
+      ).join('\n');
+      const afterSteps = activeSlots.length + 1;
+      instructions = `QUORUM REQUIRED (structural enforcement — Stop hook will verify)\n\n` +
+        `**Preferred method — spawn the quorum orchestrator agent:**\n\n` +
+        `  Task(subagent_type="qgsd-quorum-orchestrator", prompt="[your plan/question/decision here]")\n\n` +
+        `  The orchestrator handles provider pre-flight, team identity, sequential model calls,\n` +
+        `  deliberation rounds, scoreboard updates, and returns a structured consensus verdict.\n` +
+        `  The Stop hook recognises this Task call as valid quorum evidence — no additional\n` +
+        `  model calls are needed in the main conversation.\n\n` +
+        `**Fallback (if orchestrator unavailable) — call models directly:**\n` +
+        dynamicSteps + '\n\n' +
+        `After quorum (either method):\n` +
+        `  ${afterSteps}. Present the consensus result and resolve any concerns\n` +
+        `  ${afterSteps + 1}. Include the token <!-- GSD_DECISION --> in your FINAL output\n\n` +
+        `Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.\n` +
+        `The Stop hook reads the transcript — skipping quorum will block your response.`;
+    } else {
+      // Neither quorum_instructions nor quorum_active configured — use hardcoded fallback
+      instructions = DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK;
+    }
 
     // Append model override block if any preferences are set
     const prefs = config.model_preferences || {};

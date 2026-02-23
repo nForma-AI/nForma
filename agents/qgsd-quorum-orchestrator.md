@@ -49,6 +49,23 @@ Parse the JSON output. Build:
 Any server with `available: false` → mark UNAVAIL immediately — skip health_check and
 inference calls. This prevents hangs from unresponsive provider endpoints.
 
+3. **`$QUORUM_ACTIVE`**: read from `~/.claude/qgsd.json` (project config takes precedence):
+```bash
+node -e "
+const fs = require('fs'), os = require('os'), path = require('path');
+const globalCfg = path.join(os.homedir(), '.claude', 'qgsd.json');
+const projCfg   = path.join(process.cwd(), '.claude', 'qgsd.json');
+let cfg = {};
+for (const f of [globalCfg, projCfg]) {
+  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_){}
+}
+console.log(JSON.stringify(cfg.quorum_active || []));
+"
+```
+If `$QUORUM_ACTIVE` is empty (`[]`), all entries in `$CLAUDE_MCP_SERVERS` participate.
+If non-empty, intersect: only servers whose `serverName` appears in `$QUORUM_ACTIVE` are called.
+A server in `$QUORUM_ACTIVE` but absent from `$CLAUDE_MCP_SERVERS` = skip silently (fail-open).
+
 Display (one line):
 ```
 Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
@@ -129,14 +146,19 @@ Do not defer to other models.
 
 Call order (sequential):
 
-**Native CLI agents:**
-1. `mcp__codex-cli-1__review`
-2. `mcp__gemini-cli-1__gemini`
-3. `mcp__opencode-1__opencode`
-4. `mcp__copilot-1__ask`
+**All quorum slots** — driven by `$QUORUM_ACTIVE` (read in provider pre-flight):
 
-**claude-mcp instances** — iterate over `$CLAUDE_MCP_SERVERS` (skip `available: false`):
-- Call `mcp__<serverName>__claude` with the query prompt (field name: `prompt`)
+Iterate over the participating slot list (intersection of `$QUORUM_ACTIVE` and `$CLAUDE_MCP_SERVERS`).
+Skip slots where `available: false`.
+
+For each slot in the participating list (call sequentially):
+- **Native CLI slots** (`codex-cli-*`, `gemini-cli-*`, `opencode-*`, `copilot-*`):
+  Call the appropriate tool: `mcp__<slotName>__review` (codex), `mcp__<slotName>__gemini` (gemini),
+  `mcp__<slotName>__opencode` (opencode), `mcp__<slotName>__ask` (copilot)
+- **claude-mcp slots** (`claude-*`):
+  Call `mcp__<slotName>__claude` with the query prompt (field name: `prompt`)
+
+If `$QUORUM_ACTIVE` is empty, all entries in `$CLAUDE_MCP_SERVERS` participate.
 
 Handle UNAVAILABLE per R6: note, continue with remaining models.
 
