@@ -119,90 +119,78 @@ Append `flaky` files to `state.flaky_tests`.
 **Skip already-classified failures (resume safety):**
 Before classifying a failure, check if `result.file` already appears in any `results_by_category` array OR in `categorization_verdicts[].file`. If found: skip classification, reuse existing verdict for dispatch grouping.
 
-**Context assembly for each confirmed failure:**
-For each failure in `confirmed_failures` in groups of 20 (to avoid context overflow):
+**Delegate categorization to a sub-agent:**
+Collect all `confirmed_failures` that are NOT already classified (after the resume-safety check above). Call these `unclassified_failures`.
 
-  1. Read the test file:
-     ```
-     Read(result.file)  — truncate mentally at 4000 chars if very large
-     ```
+If `unclassified_failures` is empty: skip to state save below.
 
-  2. Extract source file paths from `result.error_summary`:
-     - Lines matching pattern: `at .* \((src|lib|app)/` or `File "(src|lib|app)/`
-     - Take first 2 unique paths that are NOT node_modules and NOT the test file itself
-     - Read each: `Read(stack_path_1)`, `Read(stack_path_2)` — skip if file does not exist
+If `unclassified_failures` is non-empty, spawn a SINGLE Task sub-agent for the entire batch's unclassified failures:
 
-  3. Compute `context_score`:
-     - +1 if test file source is non-empty
-     - +1 if at least 1 stack trace source file was read successfully
-     - +1 if `result.error_summary` is non-null and non-empty
-     - Range: 0–3
+```
+Task(
+  prompt="You are a test failure categorizer. Classify each failing test below into exactly one of 5 categories and return ONLY a JSON array.
 
-  4. If `context_score < 2`: add to `state.deferred_tests` AND `state.deferred_report.low_context`. Do NOT classify. Continue to next failure.
+## Failures to classify
 
-**5-category classification (inline Claude reasoning for context_score >= 2):**
+{for each unclassified failure in confirmed_failures:}
+File: {result.file}
+Error summary:
+{result.error_summary}
+---
 
-For the current group of up to 20 failures with their assembled context, produce a JSON verdict array. Use the following decision rules:
+## Classification rules
 
 | Category | Classify when |
 |----------|--------------|
-| `valid-skip` | Test was already skipped/pending in test file source; tests a removed/deprecated feature; checks `process.env.CI` to skip itself |
-| `adapt` | Failure caused by a real code change that mutated asserted behavior; error_summary shows assertion mismatch ("expected X got Y") clearly traceable to a code change; no environment dependency |
-| `isolate` | Fails only due to environment/ordering dependency with no real code change; error shows missing env var, port conflict, race condition, or depends on another test's side effects |
-| `real-bug` | Failure reveals a genuine defect requiring developer judgment; stack trace shows panic/crash/wrong logic not explainable by environment or code change |
-| `fixture` | Fails because a fixture file, test data, snapshot, or generated mock is stale/missing/mismatched |
+| valid-skip | Test was already skipped/pending in test file source; tests a removed/deprecated feature; checks process.env.CI to skip itself |
+| adapt | Failure caused by a real code change that mutated asserted behavior; error_summary shows assertion mismatch clearly traceable to a code change; no environment dependency |
+| isolate | Fails only due to environment/ordering dependency; error shows missing env var, port conflict, race condition, or depends on another test's side effects |
+| real-bug | Failure reveals a genuine defect requiring developer judgment; stack trace shows panic/crash/wrong logic not explainable by environment or code change |
+| fixture | Fails because a fixture file, test data, snapshot, or generated mock is stale/missing/mismatched |
 
-If uncertain: classify as `real-bug` (conservative — better to defer than to auto-action incorrectly).
+If uncertain: classify as real-bug (conservative).
 
-Produce for each classified failure:
-```json
-{
-  "file": "path/to/test.test.js",
-  "category": "<one of the 5>",
-  "confidence": "high|medium|low",
-  "context_score": "<0-3>",
-  "reason": "<one sentence explaining classification>",
-  "error_type": "<assertion_mismatch|import_error|snapshot_mismatch|fixture_missing|env_missing|port_conflict|timeout|unknown>",
-  "pickaxe_context": null
-}
+## Instructions
+
+For each failure:
+1. Read the test file: Read({result.file})
+2. Extract source file paths from error_summary matching pattern: at .* \\((src|lib|app)/ or File \"(src|lib|app)/
+   — take first 2 unique non-node_modules, non-test paths
+3. Read each source path (skip if does not exist)
+4. Compute context_score: +1 if test file non-empty, +1 if at least 1 source file read, +1 if error_summary non-empty (range 0-3)
+5. If context_score < 2: category = \"deferred\", add to low_context list
+6. Classify using the rules above
+7. For adapt verdicts: extract describe() or primary import identifier (<=60 chars), run:
+   git -C $(git rev-parse --show-toplevel 2>/dev/null) log -S\"<identifier>\" --oneline --diff-filter=M -- src/ lib/ app/ 2>/dev/null | head -10
+   If empty, run broader: git log -S\"<identifier>\" --oneline -10 2>/dev/null
+   Set pickaxe_context = { identifier, commits: [...], command_run: \"...\" }
+
+Return ONLY a JSON array (no markdown, no explanation):
+[
+  {
+    \"file\": \"path/to/test.test.js\",
+    \"category\": \"<valid-skip|adapt|isolate|real-bug|fixture|deferred>\",
+    \"confidence\": \"high|medium|low\",
+    \"context_score\": 0,
+    \"reason\": \"one sentence\",
+    \"error_type\": \"<assertion_mismatch|import_error|snapshot_mismatch|fixture_missing|env_missing|port_conflict|timeout|unknown>\",
+    \"pickaxe_context\": null
+  }
+]
+",
+  description="Categorize batch {B+1} failures ({count} tests)"
+)
 ```
 
-Append each verdict to `state.categorization_verdicts`.
-Append each file to the matching `state.results_by_category.<category>` array.
+**Parse verdicts from sub-agent response:**
+- If the Task returns valid JSON array: use it as the verdict list.
+- If the Task returns malformed JSON or errors out: treat ALL failures in this batch as deferred (low_context) — set `category = "deferred"` for each — and continue. Never block the loop on a categorization failure.
 
-**Git pickaxe enrichment for adapt failures (CATG-02):**
-After producing verdicts for a group, for each verdict where `category == "adapt"`:
+**Process verdicts:**
+- For each verdict where `category == "deferred"`: add file to `state.deferred_tests` AND `state.deferred_report.low_context`
+- For all other verdicts: append to `state.categorization_verdicts`, append file to matching `state.results_by_category` array
 
-  1. Extract the primary identifier from the test source:
-     - Try regex: `describe\(['"](\w[\w\s]+)['"]` → first match
-     - Fallback: primary import name from `import .* from ['"](.+)['"]` → last path segment
-     - Keep identifier <= 60 chars; strip quotes
-
-  2. Run pickaxe (scoped search first):
-     ```bash
-     PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-     git -C "$PROJECT_ROOT" log -S"<identifier>" --oneline --diff-filter=M -- src/ lib/ app/ 2>/dev/null | head -10
-     ```
-
-  3. If empty, run broader fallback:
-     ```bash
-     git -C "$PROJECT_ROOT" log -S"<identifier>" --oneline -10 2>/dev/null
-     ```
-
-  4. Set `pickaxe_context`:
-     ```json
-     {
-       "identifier": "<identifier>",
-       "commits": ["<hash> <message>", "..."],
-       "command_run": "git log -S\"<identifier>\" --oneline -10"
-     }
-     ```
-     If git is unavailable or project is not a git repo: set `pickaxe_context = null` — still categorize as adapt.
-     If no commits returned: set `commits = []` — still dispatch as adapt (pickaxe is enhancement, not gating).
-
-  5. Update the verdict in `state.categorization_verdicts` with the `pickaxe_context` value.
-
-**Update state after each group of 20:**
+**Save state after processing verdicts:**
 ```bash
 node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs maintain-tests save-state \
   --state-json '<state with updated results_by_category, categorization_verdicts, deferred_tests, deferred_report>'
@@ -339,7 +327,9 @@ If a group has N chunks (N > 1), number them: batch 1/N, batch 2/N, etc.
 **Deduplication check:**
 Before dispatching a chunk, check `state.dispatched_tasks` for an entry with the same `category`, `error_type`, `directory`, and `test_files` list. If found: skip (already dispatched, likely a resume).
 
-**For each chunk: save state record THEN dispatch Task:**
+**For each chunk: save state record THEN dispatch Task — SEQUENTIAL ONLY:**
+
+> **RAM SAFETY — ONE TASK AT A TIME:** Process chunks one by one. Spawn the Task for chunk N, wait for it to fully complete and return, THEN proceed to chunk N+1. Never dispatch multiple Task agents simultaneously. Running several agents in parallel exhausts RAM and will crash VS Code when Claude Code runs inside its integrated terminal.
 
 1. Build task description:
 ```
@@ -424,6 +414,8 @@ Description: {task_description}
   description="Fix {category}/{error_type}: {directory_prefix}{chunk_suffix}"
 )
 ```
+
+**WAIT:** Do not proceed to the next chunk until this Task has returned. The Task agent must finish completely before the next chunk is dispatched.
 
 Print after each dispatch: `QGSD fix-tests: Dispatched task — {category}/{error_type} in {directory_prefix} ({test_count} tests)`
 
@@ -608,6 +600,8 @@ Description: {task_description}
   description="Fix real-bug: {verdict.file}"
 )
 ```
+
+**WAIT:** Do not move to the next real-bug verdict until this Task has returned. One real-bug Task at a time.
 
 Print after each dispatch:
 ```
