@@ -126,10 +126,10 @@ Recent decisions affecting current work:
 | 88 | Build interactive Node.js CLI interface for managing quorum agents (add, remove, edit, reorder) via node scripts | 2026-02-23 | 5f6049a | Verified | [88-build-interactive-node-js-cli-interface-](./quick/88-build-interactive-node-js-cli-interface-/) |
 | 89 | make sure that every time we spawn a Task sub-agent we include the task description in the allowedPrompts list | 2026-02-23 | d33fa43 | Pending | [89-make-sure-that-every-time-we-spawn-a-tas](./quick/89-make-sure-that-every-time-we-spawn-a-tas/) |
 | 90 | Fix two quorum bugs: check-provider-health.cjs filter mismatch for unified-mcp-server.mjs and add preferSub ordering to orchestrator dispatch loop | 2026-02-23 | 0ab5783 | Verified | [90-fix-two-quorum-bugs-check-provider-healt](./quick/90-fix-two-quorum-bugs-check-provider-healt/) |
-| 91 | Add Tier 1 improvements to manage-agents.cjs: provider pre-flight check on Add/Edit, agent health-check menu option, and performance intel in Edit | 2026-02-23 | fc58045 | Pending | [91-add-tier-1-improvements-to-manage-agents](./quick/91-add-tier-1-improvements-to-manage-agents/) |
+| 91 | Add Tier 1 improvements to manage-agents.cjs: provider pre-flight check on Add/Edit, agent health-check menu option, and performance intel in Edit | 2026-02-23 | fc58045 | Verified | [91-add-tier-1-improvements-to-manage-agents](./quick/91-add-tier-1-improvements-to-manage-agents/) |
 
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: 2026-02-23 - Completed quick task 90: Fix two quorum bugs
+Stopped at: 2026-02-23 - Completed quick task 91: Tier 1 improvements to manage-agents.cjs
 Resume file: None
