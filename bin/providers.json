@@ -7,6 +7,7 @@
       "cli": "/opt/homebrew/bin/codex",
       "args_template": ["exec", "{prompt}"],
       "timeout_ms": 300000,
+      "quorum_timeout_ms": 30000,
       "env": {}
     },
     {
@@ -16,6 +17,7 @@
       "cli": "/opt/homebrew/bin/codex",
       "args_template": ["exec", "{prompt}"],
       "timeout_ms": 300000,
+      "quorum_timeout_ms": 30000,
       "env": {}
     },
     {
@@ -25,6 +27,7 @@
       "cli": "/opt/homebrew/bin/gemini",
       "args_template": ["-p", "{prompt}"],
       "timeout_ms": 300000,
+      "quorum_timeout_ms": 30000,
       "env": {}
     },
     {
@@ -34,6 +37,7 @@
       "cli": "/opt/homebrew/bin/gemini",
       "args_template": ["-p", "{prompt}"],
       "timeout_ms": 300000,
+      "quorum_timeout_ms": 30000,
       "env": {}
     },
     {
@@ -43,6 +47,7 @@
       "cli": "/opt/homebrew/bin/opencode",
       "args_template": ["run", "{prompt}"],
       "timeout_ms": 300000,
+      "quorum_timeout_ms": 30000,
       "env": {}
     },
     {
@@ -52,6 +57,7 @@
       "cli": "/opt/homebrew/bin/copilot",
       "args_template": ["-p", "{prompt}", "--yolo"],
       "timeout_ms": 300000,
+      "quorum_timeout_ms": 30000,
       "env": {}
     },
     {
@@ -61,7 +67,8 @@
       "baseUrl": "https://api.akashml.com/v1",
       "model": "deepseek-ai/DeepSeek-V3.2",
       "apiKeyEnv": "AKASHML_API_KEY",
-      "timeout_ms": 120000
+      "timeout_ms": 120000,
+      "quorum_timeout_ms": 20000
     },
     {
       "name": "claude-2",
@@ -70,7 +77,8 @@
       "baseUrl": "https://api.akashml.com/v1",
       "model": "MiniMaxAI/MiniMax-M2.5",
       "apiKeyEnv": "AKASHML_API_KEY",
-      "timeout_ms": 120000
+      "timeout_ms": 120000,
+      "quorum_timeout_ms": 20000
     },
     {
       "name": "claude-3",
@@ -79,7 +87,8 @@
       "baseUrl": "https://api.together.xyz/v1",
       "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
       "apiKeyEnv": "TOGETHER_API_KEY",
-      "timeout_ms": 120000
+      "timeout_ms": 120000,
+      "quorum_timeout_ms": 30000
     },
     {
       "name": "claude-4",
@@ -88,7 +97,8 @@
       "baseUrl": "https://api.fireworks.ai/inference/v1",
       "model": "accounts/fireworks/models/kimi-k2p5",
       "apiKeyEnv": "FIREWORKS_API_KEY",
-      "timeout_ms": 120000
+      "timeout_ms": 120000,
+      "quorum_timeout_ms": 30000
     },
     {
       "name": "claude-5",
@@ -97,7 +107,8 @@
       "baseUrl": "https://api.together.xyz/v1",
       "model": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
       "apiKeyEnv": "TOGETHER_API_KEY",
-      "timeout_ms": 120000
+      "timeout_ms": 120000,
+      "quorum_timeout_ms": 10000
     },
     {
       "name": "claude-6",
@@ -106,7 +117,8 @@
       "baseUrl": "https://api.fireworks.ai/inference/v1",
       "model": "accounts/fireworks/models/glm-5",
       "apiKeyEnv": "FIREWORKS_API_KEY",
-      "timeout_ms": 120000
+      "timeout_ms": 120000,
+      "quorum_timeout_ms": 8000
     }
   ]
 }
