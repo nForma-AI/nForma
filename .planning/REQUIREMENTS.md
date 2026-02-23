@@ -14,22 +14,22 @@ Requirements for the Agent Slots & Quorum Composition milestone. Phase 39 satisf
 - [x] **SLOT-03**: All QGSD source files (hooks, orchestrator, commands, scoreboard tooling) updated to use new slot names — no old names remain
 - [x] **SLOT-04**: `mcp-status`, `mcp-set-model`, `mcp-update`, `mcp-restart` accept and display slot names correctly
 
-## v0.7 Requirements (Pending)
+## v0.7 Requirements (Complete)
 
-Requirements for the Composition Config & Multi-Slot milestone. Phases 40–42.
+Requirements for the Composition Config & Multi-Slot milestone. Completed 2026-02-23.
 
 ### Composition Config (COMP)
 
-- [ ] **COMP-01**: User can define a `quorum.active` array in `qgsd.json` listing which slots participate in quorum
-- [ ] **COMP-02**: Quorum orchestrator reads `quorum.active` from config instead of a hardcoded agent list; only active slots are called
-- [ ] **COMP-03**: `check-provider-health.cjs` and scoreboard tooling derive agent list from `quorum.active` rather than hardcoded arrays
-- [ ] **COMP-04**: Default `quorum.active` is auto-populated at install/migration time based on discovered slots in `~/.claude.json`
+- [x] **COMP-01**: User can define a `quorum.active` array in `qgsd.json` listing which slots participate in quorum
+- [x] **COMP-02**: Quorum orchestrator reads `quorum.active` from config instead of a hardcoded agent list; only active slots are called
+- [x] **COMP-03**: `check-provider-health.chs` and scoreboard tooling derive agent list from `quorum.active` rather than hardcoded arrays
+- [x] **COMP-04**: Default `quorum.active` is auto-populated at install/migration time based on discovered slots in `~/.claude.json`
 
 ### Multiple Slots (MULTI)
 
-- [ ] **MULTI-01**: User can have multiple `claude-*` slots (`claude-1` through `claude-N`) each running a different model or provider
-- [ ] **MULTI-02**: User can have multiple `copilot-N`, `opencode-N`, `codex-cli-N`, and `gemini-cli-N` slots as separate `~/.claude.json` entries
-- [ ] **MULTI-03**: Adding a new slot of any family is supported by both direct config edit and via the mcp-setup wizard
+- [x] **MULTI-01**: User can have multiple `claude-*` slots (`claude-1` through `claude-N`) each running a different model or provider
+- [x] **MULTI-02**: User can have multiple `copilot-N`, `opencode-N`, `codex-cli-N`, and `gemini-cli-N` slots as separate `~/.claude.json` entries
+- [x] **MULTI-03**: Adding a new slot of any family is supported by both direct config edit and via the mcp-setup wizard
 
 ### Wizard Composition Screen (WIZ)
 
@@ -39,9 +39,9 @@ Requirements for the Composition Config & Multi-Slot milestone. Phases 40–42.
 
 ### Scoreboard Slot Tracking (SCBD)
 
-- [ ] **SCBD-01**: Scoreboard tracks performance by slot name (`claude-1`, `copilot-1`) — slot is the stable key
-- [ ] **SCBD-02**: Each scoreboard entry displays the current model loaded in that slot as context
-- [ ] **SCBD-03**: When a slot's model changes, a new scoreboard row is created for that slot
+- [x] **SCBD-01**: Scoreboard tracks performance by slot name (`claude-1`, `copilot-1`) — slot is the stable key
+- [x] **SCBD-02**: Each scoreboard entry displays the current model loaded in that slot as context
+- [x] **SCBD-03**: When a slot's model changes, a new scoreboard row is created for that slot
 
 ## v2 Requirements
 
@@ -80,26 +80,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SLOT-02 | Phase 39 | Complete |
 | SLOT-03 | Phase 39 | Complete |
 | SLOT-04 | Phase 39 | Complete |
-| COMP-01 | Phase 40 | Pending |
-| COMP-02 | Phase 40 | Pending |
-| COMP-03 | Phase 40 | Pending |
-| COMP-04 | Phase 40 | Pending |
-| SCBD-01 | Phase 40 | Pending |
-| SCBD-02 | Phase 40 | Pending |
-| SCBD-03 | Phase 40 | Pending |
-| MULTI-01 | Phase 41 | Pending |
-| MULTI-02 | Phase 41 | Pending |
-| MULTI-03 | Phase 41 | Pending |
+| COMP-01 | Phase v0.7-01 | Complete |
+| COMP-02 | Phase v0.7-01 | Complete |
+| COMP-03 | Phase v0.7-01 | Complete |
+| COMP-04 | Phase v0.7-01 | Complete |
+| SCBD-01 | Phase v0.7-01 | Complete |
+| SCBD-02 | Phase v0.7-01 | Complete |
+| SCBD-03 | Phase v0.7-01 | Complete |
+| MULTI-01 | Phase v0.7-02 | Complete |
+| MULTI-02 | Phase v0.7-02 | Complete |
+| MULTI-03 | Phase v0.7-02 | Complete |
 | WIZ-08 | Phase v0.7-03 | Complete |
 | WIZ-09 | Phase v0.7-03 | Complete |
 | WIZ-10 | Phase v0.7-03 | Complete |
 
 **Coverage:**
 - v0.6 SLOT requirements: 4 total — all Complete ✓
-- v0.7 requirements: 13 total
-- Mapped to phases: 13 (Phases 40–42)
+- v0.7 requirements: 13 total — all Complete ✓
+- Mapped to phases: 17 (SLOT + COMP + SCBD + MULTI + WIZ)
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-23 — v0.7 active requirements file created from v0.6 archive; SLOT-01..04 marked [x] per Phase 39 VERIFICATION.md; COMP/SCBD/MULTI/WIZ-08..10 Phase assignments confirmed as gap closure from v0.6 audit*
+*Last updated: 2026-02-23 — v0.7 milestone complete; all COMP-01..04, SCBD-01..03, MULTI-01..03, WIZ-08..10 marked [x] per phase VERIFICATION.md evidence; traceability table updated from Phase 40/41 to v0.7-01/v0.7-02*
