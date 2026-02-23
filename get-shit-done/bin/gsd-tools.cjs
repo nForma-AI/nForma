@@ -257,7 +257,28 @@ function execGit(cwd, args) {
   }
 }
 
+/**
+ * Parse a milestone-scoped phase ID like "v0.7-01" or "v0.7-01.1"
+ * Returns null if input is not in milestone-scoped format.
+ * Returns { milestone: 'v0.7', seq: '01', decimal: null, full: 'v0.7-01' }
+ * or      { milestone: 'v0.7', seq: '01', decimal: '1', full: 'v0.7-01.1' }
+ */
+function parseMilestonePhaseId(phase) {
+  const match = phase.match(/^(v\d+\.\d+)-(\d+)(?:\.(\d+))?/i);
+  if (!match) return null;
+  const milestone = match[1].toLowerCase();
+  const seq = match[2].padStart(2, '0');
+  const decimal = match[3] || null;
+  const full = decimal ? `${milestone}-${seq}.${decimal}` : `${milestone}-${seq}`;
+  return { milestone, seq, decimal, full };
+}
+
 function normalizePhaseName(phase) {
+  // Milestone-scoped format: v0.7-01, v0.7-01.1
+  const msp = parseMilestonePhaseId(phase);
+  if (msp) return msp.full;
+
+  // Legacy integer format: 40, 39.1
   const match = phase.match(/^(\d+(?:\.\d+)?)/);
   if (!match) return phase;
   const num = match[1];
@@ -870,11 +891,25 @@ function cmdPhasesList(cwd, options, raw) {
       }
     }
 
-    // Sort numerically (handles decimals: 01, 02, 02.1, 02.2, 03)
+    // Sort numerically (handles decimals: 01, 02, 02.1, 02.2, 03) and milestone-scoped IDs
     dirs.sort((a, b) => {
-      const aNum = parseFloat(a.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0');
-      const bNum = parseFloat(b.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0');
-      return aNum - bNum;
+      const parseSortKey = (d) => {
+        // Milestone-scoped: v0.7-01, v0.7-01.1
+        const msp = parseMilestonePhaseId(d);
+        if (msp) {
+          // Sort by milestone version numerically, then by sequence
+          const versionParts = msp.milestone.replace('v', '').split('.');
+          const major = parseInt(versionParts[0] || '0', 10);
+          const minor = parseInt(versionParts[1] || '0', 10);
+          const seqNum = parseInt(msp.seq, 10);
+          const dec = msp.decimal ? parseFloat(`0.${msp.decimal}`) : 0;
+          // Encode as large number to sort after legacy integers
+          return 1000000 + major * 10000 + minor * 100 + seqNum + dec;
+        }
+        // Legacy integer
+        return parseFloat(d.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0');
+      };
+      return parseSortKey(a) - parseSortKey(b);
     });
 
     // If filtering by phase number
@@ -973,7 +1008,7 @@ function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
 
     // Find the end of this section (next ## or ### phase header, or end of file)
     const restOfContent = content.slice(headerIndex);
-    const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
+    const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+(?:\d|v\d)/i);
     const sectionEnd = nextHeaderMatch
       ? headerIndex + nextHeaderMatch.index
       : content.length;
@@ -2559,8 +2594,8 @@ function cmdRoadmapAnalyze(cwd, raw) {
   const content = fs.readFileSync(roadmapPath, 'utf-8');
   const phasesDir = path.join(cwd, '.planning', 'phases');
 
-  // Extract all phase headings: ## Phase N: Name or ### Phase N: Name
-  const phasePattern = /#{2,4}\s*Phase\s+(\d+(?:\.\d+)?)\s*:\s*([^\n]+)/gi;
+  // Extract all phase headings: ## Phase N: Name or ### Phase N: Name (integer or milestone-scoped)
+  const phasePattern = /#{2,4}\s*Phase\s+(v\d+\.\d+-\d+(?:\.\d+)?|\d+(?:\.\d+)?)\s*:\s*([^\n]+)/gi;
   const phases = [];
   let match;
 
@@ -2571,7 +2606,7 @@ function cmdRoadmapAnalyze(cwd, raw) {
     // Extract goal from the section
     const sectionStart = match.index;
     const restOfContent = content.slice(sectionStart);
-    const nextHeader = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
+    const nextHeader = restOfContent.match(/\n#{2,4}\s+Phase\s+(?:\d|v\d)/i);
     const sectionEnd = nextHeader ? sectionStart + nextHeader.index : content.length;
     const section = content.slice(sectionStart, sectionEnd);
 
@@ -2611,7 +2646,8 @@ function cmdRoadmapAnalyze(cwd, raw) {
     } catch {}
 
     // Check ROADMAP checkbox status
-    const checkboxPattern = new RegExp(`-\\s*\\[(x| )\\]\\s*.*Phase\\s+${phaseNum.replace('.', '\\.')}`, 'i');
+    const escapedPhaseNum = phaseNum.replace(/\./g, '\\.').replace(/-/g, '\\-');
+    const checkboxPattern = new RegExp(`-\\s*\\[(x| )\\]\\s*.*Phase\\s+${escapedPhaseNum}`, 'i');
     const checkboxMatch = content.match(checkboxPattern);
     const roadmapComplete = checkboxMatch ? checkboxMatch[1] === 'x' : false;
 
@@ -2650,7 +2686,7 @@ function cmdRoadmapAnalyze(cwd, raw) {
   const completedPhases = phases.filter(p => p.disk_status === 'complete').length;
 
   // Detect phases in summary list without detail sections (malformed ROADMAP)
-  const checklistPattern = /-\s*\[[ x]\]\s*\*\*Phase\s+(\d+(?:\.\d+)?)/gi;
+  const checklistPattern = /-\s*\[[ x]\]\s*\*\*Phase\s+(v\d+\.\d+-\d+(?:\.\d+)?|\d+(?:\.\d+)?)/gi;
   const checklistPhases = new Set();
   let checklistMatch;
   while ((checklistMatch = checklistPattern.exec(content)) !== null) {
@@ -2690,18 +2726,41 @@ function cmdPhaseAdd(cwd, description, raw) {
   const content = fs.readFileSync(roadmapPath, 'utf-8');
   const slug = generateSlugInternal(description);
 
-  // Find highest integer phase number
-  const phasePattern = /#{2,4}\s*Phase\s+(\d+)(?:\.\d+)?:/gi;
-  let maxPhase = 0;
-  let m;
-  while ((m = phasePattern.exec(content)) !== null) {
-    const num = parseInt(m[1], 10);
-    if (num > maxPhase) maxPhase = num;
-  }
+  // Detect if project uses milestone-scoped phase IDs
+  const msHeaderPat = /#{2,4}\s*Phase\s+(v\d+\.\d+-\d+)(?:\.\d+)?\s*:/gi;
+  const msMatches = [...content.matchAll(msHeaderPat)];
 
-  const newPhaseNum = maxPhase + 1;
-  const paddedNum = String(newPhaseNum).padStart(2, '0');
-  const dirName = `${paddedNum}-${slug}`;
+  let newPhaseNum, paddedNum, dirName, prevPhaseNum;
+
+  if (msMatches.length > 0) {
+    const milestoneSeqs = {};
+    for (const mm of msMatches) {
+      const msp = parseMilestonePhaseId(mm[1]);
+      if (!msp) continue;
+      if (!milestoneSeqs[msp.milestone]) milestoneSeqs[msp.milestone] = 0;
+      const seqNum = parseInt(msp.seq, 10);
+      if (seqNum > milestoneSeqs[msp.milestone]) milestoneSeqs[msp.milestone] = seqNum;
+    }
+    const latestMilestone = Object.keys(milestoneSeqs).pop();
+    const maxSeq = milestoneSeqs[latestMilestone] || 0;
+    const nextSeq = maxSeq + 1;
+    paddedNum = String(nextSeq).padStart(2, '0');
+    prevPhaseNum = `${latestMilestone}-${String(maxSeq).padStart(2, '0')}`;
+    newPhaseNum = `${latestMilestone}-${paddedNum}`;
+    dirName = `${newPhaseNum}-${slug}`;
+  } else {
+    const intPhasePat = /#{2,4}\s*Phase\s+(\d+)(?:\.\d+)?:/gi;
+    let maxPhase = 0;
+    let m;
+    while ((m = intPhasePat.exec(content)) !== null) {
+      const num = parseInt(m[1], 10);
+      if (num > maxPhase) maxPhase = num;
+    }
+    prevPhaseNum = maxPhase;
+    newPhaseNum = maxPhase + 1;
+    paddedNum = String(newPhaseNum).padStart(2, '0');
+    dirName = `${paddedNum}-${slug}`;
+  }
   const dirPath = path.join(cwd, '.planning', 'phases', dirName);
 
   // Create directory with .gitkeep so git tracks empty folders
@@ -2709,7 +2768,7 @@ function cmdPhaseAdd(cwd, description, raw) {
   fs.writeFileSync(path.join(dirPath, '.gitkeep'), '');
 
   // Build phase entry
-  const phaseEntry = `\n### Phase ${newPhaseNum}: ${description}\n\n**Goal:** [To be planned]\n**Depends on:** Phase ${maxPhase}\n**Plans:** 0 plans\n\nPlans:\n- [ ] TBD (run /gsd:plan-phase ${newPhaseNum} to break down)\n`;
+  const phaseEntry = `\n### Phase ${newPhaseNum}: ${description}\n\n**Goal:** [To be planned]\n**Depends on:** Phase ${prevPhaseNum}\n**Plans:** 0 plans\n\nPlans:\n- [ ] TBD (run /gsd:plan-phase ${newPhaseNum} to break down)\n`;
 
   // Find insertion point: before last "---" or at end
   let updatedContent;
@@ -2750,9 +2809,13 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
 
   // Normalize input then strip leading zeros for flexible matching
   const normalizedAfter = normalizePhaseName(afterPhase);
-  const unpadded = normalizedAfter.replace(/^0+/, '');
-  const afterPhaseEscaped = unpadded.replace(/\./g, '\\.');
-  const targetPattern = new RegExp(`#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:`, 'i');
+  const isMilestoneScoped = parseMilestonePhaseId(normalizedAfter) !== null;
+  const unpadded = isMilestoneScoped ? normalizedAfter : normalizedAfter.replace(/^0+/, '');
+  const afterPhaseEscaped = unpadded.replace(/\./g, '\\.').replace(/-/g, '\\-');
+  // For milestone-scoped IDs match exact text; for legacy integers allow optional leading zeros
+  const targetPattern = isMilestoneScoped
+    ? new RegExp(`#{2,4}\\s*Phase\\s+${afterPhaseEscaped}:`, 'i')
+    : new RegExp(`#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:`, 'i');
   if (!targetPattern.test(content)) {
     error(`Phase ${afterPhase} not found in ROADMAP.md`);
   }
@@ -2765,7 +2828,7 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
   try {
     const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
     const dirs = entries.filter(e => e.isDirectory()).map(e => e.name);
-    const decimalPattern = new RegExp(`^${normalizedBase}\\.(\\d+)`);
+    const decimalPattern = new RegExp(`^${normalizedBase.replace(/\./g, '\\.')}\\.(\\d+)`);
     for (const dir of dirs) {
       const dm = dir.match(decimalPattern);
       if (dm) existingDecimals.push(parseInt(dm[1], 10));
@@ -2785,7 +2848,9 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
   const phaseEntry = `\n### Phase ${decimalPhase}: ${description} (INSERTED)\n\n**Goal:** [Urgent work - to be planned]\n**Depends on:** Phase ${afterPhase}\n**Plans:** 0 plans\n\nPlans:\n- [ ] TBD (run /gsd:plan-phase ${decimalPhase} to break down)\n`;
 
   // Insert after the target phase section
-  const headerPattern = new RegExp(`(#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:[^\\n]*\\n)`, 'i');
+  const headerPattern = isMilestoneScoped
+    ? new RegExp(`(#{2,4}\\s*Phase\\s+${afterPhaseEscaped}:[^\\n]*\\n)`, 'i')
+    : new RegExp(`(#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:[^\\n]*\\n)`, 'i');
   const headerMatch = content.match(headerPattern);
   if (!headerMatch) {
     error(`Could not find Phase ${afterPhase} header`);
@@ -2793,7 +2858,7 @@ function cmdPhaseInsert(cwd, afterPhase, description, raw) {
 
   const headerIdx = content.indexOf(headerMatch[0]);
   const afterHeader = content.slice(headerIdx + headerMatch[0].length);
-  const nextPhaseMatch = afterHeader.match(/\n#{2,4}\s+Phase\s+\d/i);
+  const nextPhaseMatch = afterHeader.match(/\n#{2,4}\s+Phase\s+(?:\d|v\d)/i);
 
   let insertIdx;
   if (nextPhaseMatch) {
