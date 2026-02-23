@@ -106,7 +106,7 @@ Store result as `$PREFER_SUB_CONFIG`.
 
 - **preferSub ordering:** If `$PREFER_SUB_CONFIG.preferSub` is true, read `agent_config` from the same config and sort the working slot list: slots with `auth_type=sub` first, then slots with `auth_type=api` (stable sort, preserving original order within each group). This ensures subscription CLI slots (codex-1, gemini-1, opencode-1, copilot-1) are always attempted before API slots regardless of providers.json discovery order.
   - If `$PREFER_SUB_CONFIG.preferSub` is false or absent: skip this partition step.
-- **Reorder:** Within the sub group and within the api group separately, healthy servers first (preserving relative order within healthy/unhealthy subgroups). Final order when preferSub=true: healthy-sub, unhealthy-sub, healthy-api, unhealthy-api. When preferSub=false: healthy first, unhealthy last, discovery order preserved.
+- **Reorder:** Within the sub group and within the api group separately, healthy servers first. **Shuffle within each subgroup** to spread load across models. Final order when preferSub=true: shuffle(healthy-sub), shuffle(unhealthy-sub), shuffle(healthy-api), shuffle(unhealthy-api). When preferSub=false: shuffle(healthy), shuffle(unhealthy).
 - Log: `Active slots: <slot1>, <slot2>, ...`
 
 **min_quorum_size check:** Read from `~/.claude/qgsd.json` (project config takes precedence; default: 3 if absent):
