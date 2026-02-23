@@ -124,7 +124,7 @@ Recent decisions affecting current work:
 | 86 | deep investigation: quick workflow does not iterate after quorum BLOCK in Step 5.7 — needs revision loop | 2026-02-23 | 94bcdb4 | Verified | [86-deep-investigation-quick-workflow-does-n](.planning/quick/86-deep-investigation-quick-workflow-does-n/) |
 | 87 | fix quorum orchestrator: read artifact_path file and inject working directory + repo context into all MCP worker prompts | 2026-02-23 | c31950c | Verified | [87-fix-quorum-orchestrator-read-artifact-pa](.planning/quick/87-fix-quorum-orchestrator-read-artifact-pa/) |
 | 88 | Build interactive Node.js CLI interface for managing quorum agents (add, remove, edit, reorder) via node scripts | 2026-02-23 | 5f6049a | Verified | [88-build-interactive-node-js-cli-interface-](./quick/88-build-interactive-node-js-cli-interface-/) |
-| 90 | Fix two quorum bugs: check-provider-health.cjs filter mismatch for unified-mcp-server.mjs and add preferSub ordering to orchestrator dispatch loop | 2026-02-23 | {commit_hash} | Pending | [90-fix-two-quorum-bugs-check-provider-healt](./quick/90-fix-two-quorum-bugs-check-provider-healt/) |
+| 90 | Fix two quorum bugs: check-provider-health.cjs filter mismatch for unified-mcp-server.mjs and add preferSub ordering to orchestrator dispatch loop | 2026-02-23 | 0ab5783 | Pending | [90-fix-two-quorum-bugs-check-provider-healt](./quick/90-fix-two-quorum-bugs-check-provider-healt/) |
 
 ## Session Continuity
 
