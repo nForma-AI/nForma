@@ -172,6 +172,56 @@ function wasSlotCalled(currentTurnLines, prefix) {
   return false;
 }
 
+// Returns true if the slot was called AND its tool_result was NOT an error.
+// Specifically:
+// 1. Scans for assistant entries with tool_use blocks whose name starts with prefix. Records IDs.
+// 2. Scans for user entries whose content contains a tool_result matching one of those IDs.
+// 3. If the tool_result content contains "type":"tool_error" or is_error:true, returns false.
+// 4. If a matching non-error tool_result exists, returns true.
+// 5. If no tool_use found for this prefix, returns false.
+// Errors and quota responses do NOT count toward the ceiling.
+function wasSlotCalledSuccessfully(currentTurnLines, prefix) {
+  // Step 1: collect tool_use IDs for this prefix
+  const toolUseIds = new Set();
+  for (const line of currentTurnLines) {
+    try {
+      const entry = JSON.parse(line);
+      if (entry.type !== 'assistant') continue;
+      const content = entry.message && entry.message.content;
+      if (!Array.isArray(content)) continue;
+      for (const block of content) {
+        if (block.type === 'tool_use' && block.name && block.name.startsWith(prefix)) {
+          if (block.id) toolUseIds.add(block.id);
+        }
+      }
+    } catch { /* skip */ }
+  }
+
+  if (toolUseIds.size === 0) return false; // No tool_use found for this prefix
+
+  // Step 2: find matching tool_result entries and check for errors
+  for (const line of currentTurnLines) {
+    try {
+      const entry = JSON.parse(line);
+      if (entry.type !== 'user') continue;
+      const content = entry.message && entry.message.content;
+      if (!Array.isArray(content)) continue;
+      for (const block of content) {
+        if (block.type !== 'tool_result') continue;
+        if (!toolUseIds.has(block.tool_use_id)) continue;
+        // Matching tool_result found — check for error
+        const contentStr = JSON.stringify(block.content || '');
+        const isError = block.is_error === true || contentStr.includes('"type":"tool_error"');
+        if (isError) return false; // Error/quota response — does not count
+        return true; // Non-error response — counts toward ceiling
+      }
+    } catch { /* skip */ }
+  }
+
+  // tool_use found but no tool_result yet — treat as not successfully called
+  return false;
+}
+
 // Builds the ordered agent pool from config.
 // If quorum_active is set, derives pool from it (preferred path).
 // Falls back to required_models for backward compat.
@@ -366,29 +416,42 @@ function main() {
         process.exit(0);
       }
 
-      // Determine missing agents (available but not called)
-      const missingNames = [];
+      // Ceiling: require minSize successful (non-error) responses from the full pool.
+      // Named minSize for consistency with qgsd-prompt.js and the config schema.
+      const minSize = (config.quorum && Number.isInteger(config.quorum.minSize) && config.quorum.minSize >= 1)
+        ? config.quorum.minSize
+        : 5;
+
+      // Iterate the full agentPool (already sorted sub-first when preferSub is set).
+      // Count successful (non-error) responses. Stop once ceiling is satisfied.
+      // missingAgents is populated for failure reporting — only read in the block path below.
+      let successCount = 0;
+      const missingAgents = []; // only read when successCount < minSize (block path)
       for (const agent of agentPool) {
         // If availablePrefixes is null (unknown), treat as available (conservative enforcement)
         const isAvailable = availablePrefixes === null || availablePrefixes.includes(agent.prefix);
         if (!isAvailable) continue; // Model not installed — skip
 
-        if (!wasSlotCalled(currentTurnLines, agent.prefix)) {
-          // Derive the canonical tool name for the block reason
+        if (wasSlotCalledSuccessfully(currentTurnLines, agent.prefix)) {
+          successCount++;
+          if (successCount >= minSize) break; // ceiling satisfied — stop counting
+        } else {
+          // Track failures for error reporting (only used in the block path below)
           let toolName;
           if (agent.callTool) {
             toolName = agent.callTool;
           } else {
             toolName = deriveMissingToolName(agent.slot, { tool_prefix: agent.prefix });
           }
-          missingNames.push(toolName);
+          missingAgents.push(toolName);
         }
       }
 
-      if (missingNames.length > 0) {
+      if (successCount < minSize) {
+        // Only read missingAgents here — never in the success path
         process.stdout.write(JSON.stringify({
           decision: 'block',
-          reason: 'QUORUM REQUIRED: Missing tool calls for: ' + missingNames.join(', ') + '. Run the required quorum agent(s) before completing this planning command.'
+          reason: 'QUORUM REQUIRED: Missing tool calls for: ' + missingAgents.join(', ') + '. Run the required quorum agent(s) before completing this planning command.'
         }));
         process.exit(0);
       }

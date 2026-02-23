@@ -18,7 +18,7 @@ const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
 const { spawnSync } = require('child_process');
-const { loadConfig } = require('./config-loader');
+const { loadConfig, slotToToolCall } = require('./config-loader');
 
 const DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK = `QUORUM REQUIRED (structural enforcement — Stop hook will verify)
 
@@ -43,6 +43,7 @@ After quorum (either method):
      the completed plan, research, verification report, or filtered question list)
 
 Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.
+Failover rule: if an agent returns an error or quota exceeded, skip it and call the next agent until you have 5 successful (non-error) responses. Errors do not count toward the ceiling.
 The Stop hook reads the transcript — skipping quorum will block your response.`;
 
 // Locate the oscillation-resolution-mode workflow.
@@ -102,25 +103,6 @@ process.stdin.on('end', () => {
     const commands = config.quorum_commands;
 
     // Dynamic fallback step generation from quorum_active (COMP-02)
-    // Tool suffix lookup for fallback step generation
-    // Keys match the slot name prefix (after stripping trailing -N index)
-    const SLOT_TOOL_SUFFIX = {
-      'codex-cli': 'review',
-      'codex':     'review',
-      'gemini-cli': 'gemini',
-      'gemini':    'gemini',
-      'opencode':  'opencode',
-      'copilot-cli': 'ask',
-      'copilot':   'ask',
-      'claude':    'claude',
-    };
-    function slotToolCall(slotName) {
-      // Strip trailing numeric index (e.g. codex-cli-1 → codex-cli, claude-1 → claude)
-      const family = slotName.replace(/-\d+$/, '');
-      const suffix = SLOT_TOOL_SUFFIX[family] || 'claude';
-      return `mcp__${slotName}__${suffix}`;
-    }
-
     const activeSlots = (config.quorum_active && config.quorum_active.length > 0)
       ? config.quorum_active
       : null; // null = use hardcoded fallback list
@@ -130,12 +112,45 @@ process.stdin.on('end', () => {
       // Explicit quorum_instructions in config — use as-is
       instructions = config.quorum_instructions;
     } else if (activeSlots) {
-      // Dynamic fallback: generate step list from quorum_active
-      const dynamicSteps = activeSlots.map((slot, i) =>
-        `  ${i + 1}. Call ${slotToolCall(slot)} with the full plan content`
-      ).join('\n');
+      // Build ordered slot list, sub agents first when preferSub is set
+      const agentCfg = config.agent_config || {};
+      const preferSub = config.quorum && config.quorum.preferSub === true;
+      const minSize = (config.quorum && Number.isInteger(config.quorum.minSize) && config.quorum.minSize >= 1)
+        ? config.quorum.minSize
+        : activeSlots.length;
+
+      let orderedSlots = activeSlots.map(slot => ({
+        slot,
+        authType: (agentCfg[slot] && agentCfg[slot].auth_type) || 'api',
+      }));
+      if (preferSub) {
+        orderedSlots.sort((a, b) => {
+          if (a.authType === 'sub' && b.authType !== 'sub') return -1;
+          if (a.authType !== 'sub' && b.authType === 'sub') return 1;
+          return 0;
+        });
+      }
+
+      // Generate step list, with optional section headers when preferSub is on
+      let stepLines = [];
+      let stepNum = 1;
+      const hasMixed = preferSub && orderedSlots.some(s => s.authType === 'sub') && orderedSlots.some(s => s.authType !== 'sub');
+      let inApiSection = false;
+      for (const { slot, authType } of orderedSlots) {
+        if (hasMixed && authType !== 'sub' && !inApiSection) {
+          stepLines.push('  [API agents — overflow if sub count insufficient]');
+          inApiSection = true;
+        }
+        stepLines.push(`  ${stepNum}. Call ${slotToToolCall(slot)} with the full plan content`);
+        stepNum++;
+      }
+      const dynamicSteps = stepLines.join('\n');
       const afterSteps = activeSlots.length + 1;
-      instructions = `QUORUM REQUIRED (structural enforcement — Stop hook will verify)\n\n` +
+      const minNote = minSize < activeSlots.length
+        ? ` (hard ceiling: ${minSize} successful responses required — sub agents first)`
+        : '';
+
+      instructions = `QUORUM REQUIRED${minNote} (structural enforcement — Stop hook will verify)\n\n` +
         `**Preferred method — spawn the quorum orchestrator agent:**\n\n` +
         `  Task(subagent_type="qgsd-quorum-orchestrator", prompt="[your plan/question/decision here]")\n\n` +
         `  The orchestrator handles provider pre-flight, team identity, sequential model calls,\n` +
@@ -143,7 +158,9 @@ process.stdin.on('end', () => {
         `  The Stop hook recognises this Task call as valid quorum evidence — no additional\n` +
         `  model calls are needed in the main conversation.\n\n` +
         `**Fallback (if orchestrator unavailable) — call models directly:**\n` +
+        (hasMixed ? '  [Subscription agents — preferred, flat-fee]\n' : '') +
         dynamicSteps + '\n\n' +
+        `Failover rule: if an agent returns an error or quota exceeded, skip it immediately and call the next agent in the list (sub agents first, then API agents) until you have ${minSize} successful (non-error) responses. Errors and UNAVAIL do not count toward the ceiling.\n\n` +
         `After quorum (either method):\n` +
         `  ${afterSteps}. Present the consensus result and resolve any concerns\n` +
         `  ${afterSteps + 1}. Include the token <!-- GSD_DECISION --> in your FINAL output\n\n` +
