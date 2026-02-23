@@ -1722,7 +1722,7 @@ function install(isGlobal, runtime = 'claude') {
     fs.mkdirSync(binDest, { recursive: true });
     const binEntries = fs.readdirSync(binSrc);
     for (const entry of binEntries) {
-      if (entry.endsWith('.cjs')) {
+      if (entry.endsWith('.cjs') || entry === 'providers.json') {
         fs.copyFileSync(path.join(binSrc, entry), path.join(binDest, entry));
       }
     }

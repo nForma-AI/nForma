@@ -83,11 +83,20 @@ if(fs.existsSync(claudeSettingsPath)){
   } catch(_){}
 }
 
-console.log(JSON.stringify({totalRounds,lastUpdate,providers,claudeModel}));
+// Claude orchestrator auth type — oauthAccount present = subscription (sub), absent = API key (api)
+let claudeAuth='api'; // default: API key
+if(fs.existsSync(cfgPath)){
+  try {
+    const cfg=JSON.parse(fs.readFileSync(cfgPath,'utf8'));
+    if(cfg.oauthAccount && typeof cfg.oauthAccount==='object') claudeAuth='sub';
+  } catch(_){}
+}
+
+console.log(JSON.stringify({totalRounds,lastUpdate,providers,claudeModel,claudeAuth}));
 EOF
 ```
 
-Parse `totalRounds`, `lastUpdate`, `providers` (map of slot → provider name or null), and `claudeModel`.
+Parse `totalRounds`, `lastUpdate`, `providers` (map of slot → provider name or null), `claudeModel`, and `claudeAuth`.
 
 **Provider for CLI agents** — prefer `identity.display_provider` when present. If absent, infer from model name:
 - `gpt-*` or `o[0-9]*` → OpenAI
@@ -205,7 +214,7 @@ Auto-size each column to the widest value (including header). Use box-drawing ch
 
 Before rendering, prepend a claude orchestrator row at the TOP of the table. This row does NOT come from AGENT_RESULTS — it comes from INIT_INFO:
 - Agent: `claude`
-- Auth: `api`
+- Auth: `claudeAuth` (from INIT_INFO — derived from `oauthAccount.billingType` in `~/.claude.json`; `sub` for stripe_subscription/pro, `api` if `ANTHROPIC_API_KEY` is set or billingType indicates API billing)
 - Provider: `Anthropic`
 - Model: `claudeModel` (from INIT_INFO, e.g. `claude-sonnet-4-6`)
 - Health: `orchestrator`
@@ -217,7 +226,7 @@ Example output format:
 ┌─────────────┬──────┬──────────────┬───────────────────────────────────────────────────┬──────────────┬─────────┐
 │ Agent       │ Auth │ Provider     │ Model                                             │ Health       │ Latency │
 ├─────────────┼──────┼──────────────┼───────────────────────────────────────────────────┼──────────────┼─────────┤
-│ claude      │ api  │ Anthropic    │ claude-sonnet-4-6                                 │ orchestrator │ —       │
+│ claude      │ sub  │ Anthropic    │ claude-sonnet-4-6                                 │ orchestrator │ —       │
 │ codex-1     │ sub  │ OpenAI       │ gpt-5.3-codex                                     │ available    │ 245ms   │
 │ gemini-1    │ sub  │ Google       │ gemini-2.5-pro                                    │ available    │ 312ms   │
 │ opencode-1  │ sub  │ OpenCode     │ xai/grok-3                                        │ available    │ 891ms   │
