@@ -4,16 +4,16 @@ description: Show status of all connected quorum agents — name, version, model
 allowed-tools:
   - Read
   - Bash
-  - mcp__codex-cli__identity
-  - mcp__gemini-cli__identity
-  - mcp__opencode__identity
-  - mcp__copilot-cli__identity
-  - mcp__claude-deepseek__identity
-  - mcp__claude-minimax__identity
-  - mcp__claude-qwen-coder__identity
-  - mcp__claude-kimi__identity
-  - mcp__claude-llama4__identity
-  - mcp__claude-glm__identity
+  - mcp__codex-cli-1__identity
+  - mcp__gemini-cli-1__identity
+  - mcp__opencode-1__identity
+  - mcp__copilot-1__identity
+  - mcp__claude-1__identity
+  - mcp__claude-2__identity
+  - mcp__claude-3__identity
+  - mcp__claude-4__identity
+  - mcp__claude-5__identity
+  - mcp__claude-6__identity
 ---
 
 <objective>
@@ -62,22 +62,22 @@ For each of the 10 agents below, call their identity tool with `{}` as input. Wr
 
 **Agent list and tool mapping (complete — 10 agents):**
 
-| Display Name      | Identity Tool                 | Scoreboard Key |
+| Display Name    | Identity Tool                   | Scoreboard Key |
 |---|---|---|
-| codex-cli         | mcp__codex-cli__identity      | codex          |
-| gemini-cli        | mcp__gemini-cli__identity     | gemini         |
-| opencode          | mcp__opencode__identity       | opencode       |
-| copilot-cli       | mcp__copilot-cli__identity    | copilot        |
-| claude-deepseek   | mcp__claude-deepseek__identity | deepseek      |
-| claude-minimax    | mcp__claude-minimax__identity  | minimax       |
-| claude-qwen-coder | mcp__claude-qwen-coder__identity | qwen-coder  |
-| claude-kimi       | mcp__claude-kimi__identity    | kimi           |
-| claude-llama4     | mcp__claude-llama4__identity  | llama4         |
-| claude-glm        | mcp__claude-glm__identity     | glm            |
+| codex-cli-1     | mcp__codex-cli-1__identity      | codex          |
+| gemini-cli-1    | mcp__gemini-cli-1__identity     | gemini         |
+| opencode-1      | mcp__opencode-1__identity       | opencode       |
+| copilot-1       | mcp__copilot-1__identity        | copilot        |
+| claude-1        | mcp__claude-1__identity         | deepseek       |
+| claude-2        | mcp__claude-2__identity         | minimax        |
+| claude-3        | mcp__claude-3__identity         | qwen-coder     |
+| claude-4        | mcp__claude-4__identity         | kimi           |
+| claude-5        | mcp__claude-5__identity         | llama4         |
+| claude-6        | mcp__claude-6__identity         | glm            |
 
 After each successful identity call, parse the JSON response to extract: `name`, `version`, `model`, `available_models`, `install_method`. If `available_models` has more than 3 entries, display the first 3 joined by ", " followed by ", ..." truncation. If `available_models` is empty or null, display `—`.
 
-Note: `glm` is not yet in the scoreboard VALID_MODELS list — `counts['glm']` will be undefined. Treat as 0 (correct, not an error).
+Note: `glm` is not yet in the scoreboard VALID_MODELS list — `counts['glm']` will be undefined for `claude-6`. Treat as 0 (correct, not an error).
 
 ## Step 4: Derive health state per agent
 
@@ -95,16 +95,16 @@ Example output format:
 ┌─────────────────────┬─────────┬──────────────────────────┬────────────────┬───────────────────────────────┬─────────┐
 │ Agent               │ Version │ Model                    │ Health         │ Available Models              │ UNAVAIL │
 ├─────────────────────┼─────────┼──────────────────────────┼────────────────┼───────────────────────────────┼─────────┤
-│ codex-cli           │ 1.2.3   │ codex                    │ quota-exceeded │ codex, o3-mini, gpt-4o, ...   │ 56      │
-│ gemini-cli          │ 1.1.0   │ gemini-3-pro-preview     │ quota-exceeded │ gemini-3-pro, flash, ...      │ 34      │
-│ opencode            │ 1.0.0   │ claude-sonnet-4-6        │ available      │ claude-sonnet-4-6, gpt-4o     │ 4       │
-│ copilot-cli         │ 1.2.0   │ gpt-4.1                  │ available      │ gpt-4.1, gpt-4o, claude-3.5   │ 0       │
-│ claude-deepseek     │ 1.0.0   │ deepseek-ai/DeepSeek-V3  │ available      │ —                             │ 0       │
-│ claude-minimax      │ 1.0.0   │ MiniMaxAI/MiniMax-M2.5   │ available      │ —                             │ 0       │
-│ claude-qwen-coder   │ 1.0.0   │ Qwen/Qwen3-Coder-480B    │ available      │ —                             │ 0       │
-│ claude-kimi         │ 1.0.0   │ kimi                     │ available      │ —                             │ 0       │
-│ claude-llama4       │ 1.0.0   │ meta-llama/Llama-4-M     │ available      │ —                             │ 0       │
-│ claude-glm          │ 1.0.0   │ glm-5                    │ available      │ —                             │ 0       │
+│ codex-cli-1         │ 1.2.3   │ codex                    │ quota-exceeded │ codex, o3-mini, gpt-4o, ...   │ 56      │
+│ gemini-cli-1        │ 1.1.0   │ gemini-3-pro-preview     │ quota-exceeded │ gemini-3-pro, flash, ...      │ 34      │
+│ opencode-1          │ 1.0.0   │ claude-sonnet-4-6        │ available      │ claude-sonnet-4-6, gpt-4o     │ 4       │
+│ copilot-1           │ 1.2.0   │ gpt-4.1                  │ available      │ gpt-4.1, gpt-4o, claude-3.5   │ 0       │
+│ claude-1            │ 1.0.0   │ deepseek-ai/DeepSeek-V3  │ available      │ —                             │ 0       │
+│ claude-2            │ 1.0.0   │ MiniMaxAI/MiniMax-M2.5   │ available      │ —                             │ 0       │
+│ claude-3            │ 1.0.0   │ Qwen/Qwen3-Coder-480B    │ available      │ —                             │ 0       │
+│ claude-4            │ 1.0.0   │ kimi                     │ available      │ —                             │ 0       │
+│ claude-5            │ 1.0.0   │ meta-llama/Llama-4-M     │ available      │ —                             │ 0       │
+│ claude-6            │ 1.0.0   │ glm-5                    │ available      │ —                             │ 0       │
 └─────────────────────┴─────────┴──────────────────────────┴────────────────┴───────────────────────────────┴─────────┘
 
 Scoreboard: {totalRounds} rounds recorded | Last update: {lastUpdate}
@@ -121,5 +121,5 @@ Scoreboard: no data yet (run /qgsd:quorum first to populate)
 - available_models shown (truncated at 3 + "..." if longer)
 - Command handles missing scoreboard gracefully (no crash)
 - Command handles individual agent identity failures gracefully (no crash)
-- claude-glm row present with UNAVAIL=0 (scoreboard does not yet record glm votes)
+- claude-6 row present with UNAVAIL=0 (scoreboard does not yet record glm votes)
 </success_criteria>

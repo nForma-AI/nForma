@@ -4,16 +4,16 @@ description: Set the default model for a quorum agent — validates against the 
 argument-hint: "<agent> <model>"
 allowed-tools:
   - Bash
-  - mcp__codex-cli__identity
-  - mcp__gemini-cli__identity
-  - mcp__opencode__identity
-  - mcp__copilot-cli__identity
-  - mcp__claude-deepseek__identity
-  - mcp__claude-minimax__identity
-  - mcp__claude-qwen-coder__identity
-  - mcp__claude-kimi__identity
-  - mcp__claude-llama4__identity
-  - mcp__claude-glm__identity
+  - mcp__codex-cli-1__identity
+  - mcp__gemini-cli-1__identity
+  - mcp__opencode-1__identity
+  - mcp__copilot-1__identity
+  - mcp__claude-1__identity
+  - mcp__claude-2__identity
+  - mcp__claude-3__identity
+  - mcp__claude-4__identity
+  - mcp__claude-5__identity
+  - mcp__claude-6__identity
 ---
 
 <objective>
@@ -31,18 +31,16 @@ If either token is missing, print usage and stop:
 Usage: /qgsd:mcp-set-model <agent> <model>
 
 Valid agents:
-  codex-cli, gemini-cli, opencode, copilot-cli,
-  claude-deepseek, claude-minimax, claude-qwen-coder,
-  claude-kimi, claude-llama4, claude-glm
+  codex-cli-1, gemini-cli-1, opencode-1, copilot-1,
+  claude-1, claude-2, claude-3, claude-4, claude-5, claude-6
 ```
 
 ## Step 2 — Validate agent name
 
 Check `$AGENT` against the known agent list:
 ```
-codex-cli, gemini-cli, opencode, copilot-cli,
-claude-deepseek, claude-minimax, claude-qwen-coder,
-claude-kimi, claude-llama4, claude-glm
+codex-cli-1, gemini-cli-1, opencode-1, copilot-1,
+claude-1, claude-2, claude-3, claude-4, claude-5, claude-6
 ```
 
 If not in the list, print an error and stop:
@@ -50,9 +48,9 @@ If not in the list, print an error and stop:
 Error: Unknown agent "$AGENT"
 
 Valid agents:
-  codex-cli       gemini-cli       opencode         copilot-cli
-  claude-deepseek claude-minimax   claude-qwen-coder claude-kimi
-  claude-llama4   claude-glm
+  codex-cli-1   gemini-cli-1   opencode-1   copilot-1
+  claude-1      claude-2       claude-3     claude-4
+  claude-5      claude-6
 ```
 
 ## Step 3 — Fetch available_models from identity tool
@@ -61,7 +59,7 @@ Call the identity tool for `$AGENT` — one sequential call:
 
 `mcp__<$AGENT>__identity`
 
-(Replace hyphens in the agent name with hyphens as-is: `codex-cli` → `mcp__codex-cli__identity`)
+(Replace hyphens in the agent name with hyphens as-is: `codex-cli-1` → `mcp__codex-cli-1__identity`)
 
 Parse the response. Extract the `available_models` array.
 

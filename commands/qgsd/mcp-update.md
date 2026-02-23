@@ -21,9 +21,8 @@ If `$TARGET` is missing, print usage and stop:
 Usage: /qgsd:mcp-update <agent|all>
 
 Valid agents:
-  codex-cli, gemini-cli, opencode, copilot-cli,
-  claude-deepseek, claude-minimax, claude-qwen-coder,
-  claude-kimi, claude-llama4, claude-glm
+  codex-cli-1, gemini-cli-1, opencode-1, copilot-1,
+  claude-1, claude-2, claude-3, claude-4, claude-5, claude-6
 
 Use "all" to update all configured agents sequentially.
 ```
@@ -34,9 +33,8 @@ If `$TARGET` is not `"all"`:
 
 Check `$TARGET` against the known agent list:
 ```
-codex-cli, gemini-cli, opencode, copilot-cli,
-claude-deepseek, claude-minimax, claude-qwen-coder,
-claude-kimi, claude-llama4, claude-glm
+codex-cli-1, gemini-cli-1, opencode-1, copilot-1,
+claude-1, claude-2, claude-3, claude-4, claude-5, claude-6
 ```
 
 If not in the list, print an error and stop:
@@ -44,9 +42,9 @@ If not in the list, print an error and stop:
 Error: Unknown agent "$TARGET"
 
 Valid agents:
-  codex-cli       gemini-cli       opencode         copilot-cli
-  claude-deepseek claude-minimax   claude-qwen-coder claude-kimi
-  claude-llama4   claude-glm
+  codex-cli-1   gemini-cli-1   opencode-1   copilot-1
+  claude-1      claude-2       claude-3     claude-4
+  claude-5      claude-6
 
 Use "all" to update all configured agents.
 ```
@@ -161,9 +159,8 @@ const path = require('path');
 const os = require('os');
 
 const KNOWN_AGENTS = [
-  'codex-cli', 'gemini-cli', 'opencode', 'copilot-cli',
-  'claude-deepseek', 'claude-minimax', 'claude-qwen-coder',
-  'claude-kimi', 'claude-llama4', 'claude-glm'
+  'codex-cli-1', 'gemini-cli-1', 'opencode-1', 'copilot-1',
+  'claude-1', 'claude-2', 'claude-3', 'claude-4', 'claude-5', 'claude-6'
 ];
 
 const claudeJsonPath = path.join(os.homedir(), '.claude.json');
@@ -220,21 +217,21 @@ process.stdout.write(JSON.stringify(tasks) + '\n');
 ```
 Update results:
 
-  codex-cli       npm install -g codex-mcp-server      ✓ UPDATED
-  gemini-cli      npm install -g @tuannvm/gemini-...   ✓ UPDATED
-  opencode        git pull + build in /code/opencode   ✓ UPDATED
-  copilot-cli     git pull + build in /code/copilot    ✓ UPDATED
-  claude-deepseek git pull + build in /code/claude-m   ✓ UPDATED
-  claude-minimax  (shared repo with claude-deepseek)   ⚡ SKIPPED
-  claude-qwen-coder (shared repo)                      ⚡ SKIPPED
-  claude-kimi     (shared repo)                        ⚡ SKIPPED
-  claude-llama4   (shared repo)                        ⚡ SKIPPED
-  claude-glm      (shared repo)                        ⚡ SKIPPED
+  codex-cli-1   npm install -g codex-mcp-server      ✓ UPDATED
+  gemini-cli-1  npm install -g @tuannvm/gemini-...   ✓ UPDATED
+  opencode-1    git pull + build in /code/opencode   ✓ UPDATED
+  copilot-1     git pull + build in /code/copilot    ✓ UPDATED
+  claude-1      git pull + build in /code/claude-m   ✓ UPDATED
+  claude-2      (shared repo with claude-1)          ⚡ SKIPPED
+  claude-3      (shared repo)                        ⚡ SKIPPED
+  claude-4      (shared repo)                        ⚡ SKIPPED
+  claude-5      (shared repo)                        ⚡ SKIPPED
+  claude-6      (shared repo)                        ⚡ SKIPPED
 
 To load new binaries, restart updated agents:
-  /qgsd:mcp-restart codex-cli
-  /qgsd:mcp-restart gemini-cli
-  /qgsd:mcp-restart opencode
+  /qgsd:mcp-restart codex-cli-1
+  /qgsd:mcp-restart gemini-cli-1
+  /qgsd:mcp-restart opencode-1
   (etc. — list only agents that were UPDATED, not SKIPPED)
 ```
 

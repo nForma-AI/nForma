@@ -66,11 +66,11 @@ different LLM provider. You need at least one to use quorum.
 
 | Agent | Provider | Base URL | Model |
 |---|---|---|---|
-| claude-deepseek | AkashML | https://api.akashml.com/v1 | deepseek-ai/DeepSeek-V3 |
-| claude-minimax | AkashML | https://api.akashml.com/v1 | MiniMaxAI/MiniMax-M2.5 |
-| claude-qwen-coder | Together.xyz | https://api.together.xyz/v1 | Qwen/Qwen3-Coder-480B |
-| claude-llama4 | Together.xyz | https://api.together.xyz/v1 | meta-llama/Llama-4-M |
-| claude-kimi | Fireworks | https://api.fireworks.ai/inference/v1 | kimi |
+| claude-1 | AkashML | https://api.akashml.com/v1 | deepseek-ai/DeepSeek-V3 |
+| claude-2 | AkashML | https://api.akashml.com/v1 | MiniMaxAI/MiniMax-M2.5 |
+| claude-3 | Together.xyz | https://api.together.xyz/v1 | Qwen/Qwen3-Coder-480B |
+| claude-5 | Together.xyz | https://api.together.xyz/v1 | meta-llama/Llama-4-M |
+| claude-4 | Fireworks | https://api.fireworks.ai/inference/v1 | kimi |
 
 ### Step 2a: Select agent template
 
@@ -78,11 +78,11 @@ Use AskUserQuestion:
 - header: "Choose an agent to configure"
 - question: "Select an agent template to set up. You can add more after."
 - options (omit agents already configured or skipped in this session):
-  - "1 — claude-deepseek (AkashML, DeepSeek-V3)"
-  - "2 — claude-minimax (AkashML, MiniMax-M2.5)"
-  - "3 — claude-qwen-coder (Together.xyz, Qwen3-Coder-480B)"
-  - "4 — claude-llama4 (Together.xyz, Llama-4-M)"
-  - "5 — claude-kimi (Fireworks, kimi)"
+  - "1 — claude-1 (AkashML, DeepSeek-V3)"
+  - "2 — claude-2 (AkashML, MiniMax-M2.5)"
+  - "3 — claude-3 (Together.xyz, Qwen3-Coder-480B)"
+  - "4 — claude-5 (Together.xyz, Llama-4-M)"
+  - "5 — claude-4 (Fireworks, kimi)"
   - "Skip — configure later via /qgsd:mcp-setup"
 
 If "Skip" is chosen, display:
@@ -395,8 +395,8 @@ Render a numbered table with columns: #, Agent, Model, Provider, Key:
 ```
 #   Agent                Model                       Provider                               Key
 ──  ───────────────────  ──────────────────────────  ─────────────────────────────────────  ──────────
-1   claude-deepseek      deepseek-ai/DeepSeek-V3     https://api.akashml.com/v1             key stored
-2   claude-minimax       MiniMaxAI/MiniMax-M2.5      https://api.akashml.com/v1             no key
+1   claude-1             deepseek-ai/DeepSeek-V3     https://api.akashml.com/v1             key stored
+2   claude-2             MiniMaxAI/MiniMax-M2.5      https://api.akashml.com/v1             no key
 ```
 
 Use AskUserQuestion:
@@ -418,21 +418,21 @@ Read the current `~/.claude.json` mcpServers keys to build the exclusion list. T
 - header: "Add Agent — Select Template"
 - question: "Select an agent template to add:\n\n(Agents already configured are excluded)"
 - options (omit names already in mcpServers):
-  - "1 — claude-deepseek (AkashML, DeepSeek-V3)"
-  - "2 — claude-minimax (AkashML, MiniMax-M2.5)"
-  - "3 — claude-qwen-coder (Together.xyz, Qwen3-Coder-480B)"
-  - "4 — claude-llama4 (Together.xyz, Llama-4-M)"
-  - "5 — claude-kimi (Fireworks, kimi)"
+  - "1 — claude-1 (AkashML, DeepSeek-V3)"
+  - "2 — claude-2 (AkashML, MiniMax-M2.5)"
+  - "3 — claude-3 (Together.xyz, Qwen3-Coder-480B)"
+  - "4 — claude-5 (Together.xyz, Llama-4-M)"
+  - "5 — claude-4 (Fireworks, kimi)"
   - "Cancel — back to roster"
 
 If "Cancel — back to roster": display "No changes made." Return to roster display.
 
 Resolve agent details from the selection using this template map:
-- "1 — claude-deepseek…" → agentName=`claude-deepseek`, provider=`AkashML`, baseUrl=`https://api.akashml.com/v1`, model=`deepseek-ai/DeepSeek-V3`
-- "2 — claude-minimax…" → agentName=`claude-minimax`, provider=`AkashML`, baseUrl=`https://api.akashml.com/v1`, model=`MiniMaxAI/MiniMax-M2.5`
-- "3 — claude-qwen-coder…" → agentName=`claude-qwen-coder`, provider=`Together.xyz`, baseUrl=`https://api.together.xyz/v1`, model=`Qwen/Qwen3-Coder-480B`
-- "4 — claude-llama4…" → agentName=`claude-llama4`, provider=`Together.xyz`, baseUrl=`https://api.together.xyz/v1`, model=`meta-llama/Llama-4-M`
-- "5 — claude-kimi…" → agentName=`claude-kimi`, provider=`Fireworks`, baseUrl=`https://api.fireworks.ai/inference/v1`, model=`kimi`
+- "1 — claude-1…" → agentName=`claude-1`, provider=`AkashML`, baseUrl=`https://api.akashml.com/v1`, model=`deepseek-ai/DeepSeek-V3`
+- "2 — claude-2…" → agentName=`claude-2`, provider=`AkashML`, baseUrl=`https://api.akashml.com/v1`, model=`MiniMaxAI/MiniMax-M2.5`
+- "3 — claude-3…" → agentName=`claude-3`, provider=`Together.xyz`, baseUrl=`https://api.together.xyz/v1`, model=`Qwen/Qwen3-Coder-480B`
+- "4 — claude-5…" → agentName=`claude-5`, provider=`Together.xyz`, baseUrl=`https://api.together.xyz/v1`, model=`meta-llama/Llama-4-M`
+- "5 — claude-4…" → agentName=`claude-4`, provider=`Fireworks`, baseUrl=`https://api.fireworks.ai/inference/v1`, model=`kimi`
 
 **Step B — Collect API key**
 
