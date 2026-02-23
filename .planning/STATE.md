@@ -118,7 +118,7 @@ Recent decisions affecting current work:
 | 78 | improve the QGSD quorum system: harden, faster, stronger | 2026-02-23 | 2222f2f | Pending | [78-improve-the-qgsd-quorum-system-harden-fa](./quick/78-improve-the-qgsd-quorum-system-harden-fa/) |
 | 079 | generalize fix-tests workflow for extremely large test suites | 2026-02-23 | 28296e8 | Verified | [79-generalize-fix-tests-workflow-for-extrem](.planning/quick/79-generalize-fix-tests-workflow-for-extrem/) |
 | 81 | make mcp-status sub-agent its MCP tool calls to reduce output verbosity | 2026-02-23 | 597a038 | Pending | [81-make-mcp-status-sub-agent-its-mcp-tool-c](./quick/81-make-mcp-status-sub-agent-its-mcp-tool-c/) |
-| 82 | enrich mcp-status table with real CLI model names, latency for all agents, and main Claude agent row | 2026-02-23 | TBD | Pending | [82-enrich-mcp-status-table-with-real-cli-mo](./quick/82-enrich-mcp-status-table-with-real-cli-mo/) |
+| 82 | enrich mcp-status table with real CLI model names, latency for all agents, and main Claude agent row | 2026-02-23 | 3cbffc3 | Pending | [82-enrich-mcp-status-table-with-real-cli-mo](./quick/82-enrich-mcp-status-table-with-real-cli-mo/) |
 
 ## Session Continuity
 
