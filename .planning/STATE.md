@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v0.7 milestone)
 Phase: MILESTONE COMPLETE — v0.7 archived
 Plan: —
 Status: v0.7 archived to .planning/milestones/; git tag v0.7 created; ready for /qgsd:new-milestone
-Last activity: 2026-02-23 - Completed quick task 74: Replace blocking circuit breaker with non-blocking notification
+Last activity: 2026-02-23 - Completed quick task 075: isolate each calls to avoid Sibling tool call errored
 
 Progress: [████████████████████] 46/46 plans (100%)
 
@@ -112,6 +112,7 @@ Recent decisions affecting current work:
 | 72 | Fix mcp-status: replace mcp__claude-N__identity calls with providers.json reads for unified-1 HTTP providers | 2026-02-23 | 11f31a3 | Verified | [72-fix-mcp-status-replace-mcp-claude-n-iden](./quick/72-fix-mcp-status-replace-mcp-claude-n-iden/) |
 | 73 | modify so that mcp status already pulls real fresh info | 2026-02-23 | 810090a | Verified | [73-modify-so-that-mcp-status-already-pulls-](./quick/73-modify-so-that-mcp-status-already-pulls-/) |
 | 74 | Replace blocking circuit breaker PreToolUse hook with non-blocking notification | 2026-02-23 | 03b4800 | Pending | [74-replace-blocking-circuit-breaker-pretool](./quick/74-replace-blocking-circuit-breaker-pretool/) |
+| 075 | isolate each calls to avoid Sibling tool call errored | 2026-02-23 | 9a348a0 | Pending | [075-isolate-each-calls-to-avoid-sibling-tool](.planning/quick/75-isolate-each-calls-to-avoid-sibling-tool/) |
 
 ## Session Continuity
 
