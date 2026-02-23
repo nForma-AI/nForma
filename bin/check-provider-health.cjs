@@ -13,8 +13,14 @@
  *
  * No LLM inference is performed — this completes in ~2–3 seconds.
  *
+ * TTL cache at ~/.claude/qgsd-provider-cache.json:
+ *   - DOWN entries: 5 minutes TTL
+ *   - UP entries:   3 minutes TTL
+ *   Cache is read before probing; stale or missing → probe runs normally.
+ *   After each probe, result is written back to cache.
+ *
  * Usage:
- *   node bin/check-provider-health.cjs [--timeout-ms N] [--json]
+ *   node bin/check-provider-health.cjs [--timeout-ms N] [--json] [--no-cache] [--cache-status]
  *
  * Exit codes:
  *   0 = all providers healthy
@@ -27,11 +33,72 @@ const fs    = require('fs');
 const path  = require('path');
 const os    = require('os');
 
-const args       = process.argv.slice(2);
-const getArg     = (f) => { const i = args.indexOf(f); return i !== -1 && args[i+1] ? args[i+1] : null; };
-const hasFlag    = (f) => args.includes(f);
-const TIMEOUT_MS = parseInt(getArg('--timeout-ms') ?? '7000', 10);
-const JSON_OUT   = hasFlag('--json');
+const args         = process.argv.slice(2);
+const getArg       = (f) => { const i = args.indexOf(f); return i !== -1 && args[i+1] ? args[i+1] : null; };
+const hasFlag      = (f) => args.includes(f);
+const TIMEOUT_MS   = parseInt(getArg('--timeout-ms') ?? '7000', 10);
+const JSON_OUT     = hasFlag('--json');
+const NO_CACHE     = hasFlag('--no-cache');
+const CACHE_STATUS = hasFlag('--cache-status');
+
+// ─── TTL cache constants ──────────────────────────────────────────────────────
+const CACHE_FILE    = path.join(os.homedir(), '.claude', 'qgsd-provider-cache.json');
+const TTL_DOWN_MS   = 300000; // 5 minutes
+const TTL_UP_MS     = 180000; // 3 minutes
+
+// ─── Load / save cache ────────────────────────────────────────────────────────
+function loadCache() {
+  try {
+    const raw = fs.readFileSync(CACHE_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed.entries === 'object') return parsed;
+  } catch (_) {}
+  return { entries: {} };
+}
+
+function saveCache(cache) {
+  try {
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2), 'utf8');
+  } catch (e) {
+    // Non-fatal: cache write failure does not abort health check
+    process.stderr.write('[cache] Write failed: ' + e.message + '\n');
+  }
+}
+
+function getCachedResult(cache, baseUrl) {
+  const entry = cache.entries[baseUrl];
+  if (!entry) return null;
+  const ttl = entry.healthy ? TTL_UP_MS : TTL_DOWN_MS;
+  const age = Date.now() - entry.cachedAt;
+  if (age < ttl) return entry;
+  return null; // stale
+}
+
+// --cache-status: print cache file contents and exit
+if (CACHE_STATUS) {
+  const cache = loadCache();
+  const now = Date.now();
+  const entries = Object.entries(cache.entries);
+  if (entries.length === 0) {
+    console.log('Cache file: ' + CACHE_FILE);
+    console.log('No entries cached yet.');
+    process.exit(0);
+  }
+  console.log('Cache file: ' + CACHE_FILE);
+  console.log('Entries: ' + entries.length);
+  console.log('');
+  for (const [baseUrl, entry] of entries) {
+    const ttl = entry.healthy ? TTL_UP_MS : TTL_DOWN_MS;
+    const age = now - entry.cachedAt;
+    const remaining = ttl - age;
+    const status = entry.healthy ? 'UP' : 'DOWN';
+    const fresh = remaining > 0;
+    const expiresIn = fresh ? Math.round(remaining / 1000) + 's' : 'EXPIRED';
+    console.log(`  ${status.padEnd(5)} ${baseUrl}`);
+    console.log(`         latencyMs=${entry.latencyMs}  statusCode=${entry.statusCode}  expires=${expiresIn}`);
+  }
+  process.exit(0);
+}
 
 // ─── Load provider map from ~/.claude.json ────────────────────────────────────
 let mcpServers = {};
@@ -143,15 +210,46 @@ function probeUrl(baseUrl, apiKey) {
 // ─── Run probes (sequential to avoid thundering-herd on same provider) ────────
 async function main() {
   const results = [];
+  const cache = loadCache();
 
   for (const [baseUrl, { servers, apiKey }] of Object.entries(providers)) {
-    const probe = await probeUrl(baseUrl, apiKey);
     // Extract a friendly provider name from the URL
     let providerName;
     try {
       providerName = new URL(baseUrl).hostname.replace(/^api\./, '').replace(/\.com$|\.ai$|\.xyz$/, '');
     } catch {
       providerName = baseUrl;
+    }
+
+    let probe;
+    const cached = NO_CACHE ? null : getCachedResult(cache, baseUrl);
+
+    if (cached) {
+      // Use cached result — log to stderr only in non-JSON mode to avoid polluting JSON output
+      probe = {
+        healthy:    cached.healthy,
+        statusCode: cached.statusCode,
+        error:      cached.error ?? null,
+        latencyMs:  cached.latencyMs,
+      };
+      if (!JSON_OUT) {
+        const ttl = cached.healthy ? TTL_UP_MS : TTL_DOWN_MS;
+        const remaining = Math.round((ttl - (Date.now() - cached.cachedAt)) / 1000);
+        const statusStr = cached.healthy ? 'UP' : 'DOWN';
+        process.stderr.write(`[cache] ${providerName} = ${statusStr} (cached, expires in ${remaining}s)\n`);
+      }
+    } else {
+      // Run the HTTP probe
+      probe = await probeUrl(baseUrl, apiKey);
+      // Write result back to cache
+      cache.entries[baseUrl] = {
+        healthy:    probe.healthy,
+        statusCode: probe.statusCode,
+        error:      probe.error,
+        latencyMs:  probe.latencyMs,
+        cachedAt:   Date.now(),
+      };
+      saveCache(cache);
     }
 
     results.push({
