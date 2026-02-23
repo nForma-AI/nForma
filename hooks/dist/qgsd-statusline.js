@@ -66,14 +66,14 @@ process.stdin.on('end', () => {
       }
     }
 
-    // GSD update available?
+    // QGSD update available?
     let gsdUpdate = '';
-    const cacheFile = path.join(homeDir, '.claude', 'cache', 'gsd-update-check.json');
+    const cacheFile = path.join(homeDir, '.claude', 'cache', 'qgsd-update-check.json');
     if (fs.existsSync(cacheFile)) {
       try {
         const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
         if (cache.update_available) {
-          gsdUpdate = '\x1b[33m⬆ /gsd:update\x1b[0m │ ';
+          gsdUpdate = '\x1b[33m⬆ /qgsd:update\x1b[0m │ ';
         }
       } catch (e) {}
     }
