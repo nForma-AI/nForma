@@ -113,7 +113,7 @@ Recent decisions affecting current work:
 | 73 | modify so that mcp status already pulls real fresh info | 2026-02-23 | 810090a | Verified | [73-modify-so-that-mcp-status-already-pulls-](./quick/73-modify-so-that-mcp-status-already-pulls-/) |
 | 74 | Replace blocking circuit breaker PreToolUse hook with non-blocking notification | 2026-02-23 | 03b4800 | Pending | [74-replace-blocking-circuit-breaker-pretool](./quick/74-replace-blocking-circuit-breaker-pretool/) |
 | 075 | isolate each calls to avoid Sibling tool call errored | 2026-02-23 | 9a348a0 | Verified | [075-isolate-each-calls-to-avoid-sibling-tool](.planning/quick/75-isolate-each-calls-to-avoid-sibling-tool/) |
-| 76 | isolate each bash call in mcp-status to avoid Sibling tool call errored | 2026-02-23 | 20b3660 | Pending | [76-isolate-each-bash-call-in-mcp-status-to-](./quick/76-isolate-each-bash-call-in-mcp-status-to-/) |
+| 76 | isolate each bash call in mcp-status to avoid Sibling tool call errored | 2026-02-23 | 20b3660 | Verified | [76-isolate-each-bash-call-in-mcp-status-to-](./quick/76-isolate-each-bash-call-in-mcp-status-to-/) |
 | 77 | oscillation memory log: persist each detected oscillation keyed by fileSetHash+patternHash, PostToolUse Haiku classifier checks if new commit resolves active entries, PreToolUse suppresses warning if already resolved | 2026-02-23 | 15c0966 | Pending | [77-oscillation-memory-log-persist-each-dete](./quick/77-oscillation-memory-log-persist-each-dete/) |
 
 ## Session Continuity
