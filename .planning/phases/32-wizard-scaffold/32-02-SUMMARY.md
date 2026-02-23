@@ -8,6 +8,10 @@ tasks_completed: 4
 tasks_total: 4
 commits:
   - 444de06
+requirements:
+  - WIZ-03
+  - WIZ-04
+  - WIZ-05
 ---
 
 # Summary: Phase 32-02 — Re-run Menu + Documentation Updates

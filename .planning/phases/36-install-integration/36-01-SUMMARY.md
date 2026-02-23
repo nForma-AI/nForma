@@ -1,3 +1,12 @@
+---
+plan: 36-01
+phase: 36-install-integration
+status: complete
+completed: 2026-02-22
+requirements:
+  - INST-01
+---
+
 # Phase 36 — Plan 01 Summary
 
 ## Plan: 36-01 Install Integration (INST-01)

@@ -1,3 +1,14 @@
+---
+plan: 35-01
+phase: 35-agent-roster
+status: complete
+completed: 2026-02-22
+requirements:
+  - AGENT-01
+  - AGENT-02
+  - AGENT-03
+---
+
 # Phase 35 — Plan 01 Summary
 
 ## Plan: 35-01 Agent Roster (Add/Remove Agent Flows)

@@ -8,6 +8,9 @@ tasks_completed: 2
 tasks_total: 2
 commits:
   - 7fdb4b8
+requirements:
+  - WIZ-01
+  - WIZ-02
 ---
 
 # Summary: Phase 32-01 — Command Scaffold + First-Run Path
