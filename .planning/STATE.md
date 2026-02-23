@@ -120,7 +120,7 @@ Recent decisions affecting current work:
 | 81 | make mcp-status sub-agent its MCP tool calls to reduce output verbosity | 2026-02-23 | 597a038 | Pending | [81-make-mcp-status-sub-agent-its-mcp-tool-c](./quick/81-make-mcp-status-sub-agent-its-mcp-tool-c/) |
 | 82 | enrich mcp-status table with real CLI model names, latency for all agents, and main Claude agent row | 2026-02-23 | 3cbffc3 | Pending | [82-enrich-mcp-status-table-with-real-cli-mo](./quick/82-enrich-mcp-status-table-with-real-cli-mo/) |
 | 83 | implement the fixes | 2026-02-23 | 6034604 | Verified | [83-implement-the-fixes](./quick/83-implement-the-fixes/) |
-| 86 | deep investigation: quick workflow does not iterate after quorum BLOCK in Step 5.7 — needs revision loop | 2026-02-23 | 94bcdb4 | Pending | [86-deep-investigation-quick-workflow-does-n](.planning/quick/86-deep-investigation-quick-workflow-does-n/) |
+| 86 | deep investigation: quick workflow does not iterate after quorum BLOCK in Step 5.7 — needs revision loop | 2026-02-23 | 94bcdb4 | Verified | [86-deep-investigation-quick-workflow-does-n](.planning/quick/86-deep-investigation-quick-workflow-does-n/) |
 
 ## Session Continuity
 
