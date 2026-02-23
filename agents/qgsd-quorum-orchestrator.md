@@ -90,7 +90,7 @@ For each server with `available: true`:
 - If `"healthy": true` → add to TEAM_JSON: `"<display-name>": { "type": "claude-mcp", "model": "<model>" }`
 - Else → mark UNAVAIL
 
-Display name = slot name as-is (e.g. `claude-1`, `claude-2`) — no prefix stripping. For native CLI agents: `codex-cli-1`, `gemini-cli-1`, etc. The scoreboard `--model` key for claude-mcp servers is derived from the `model` field in the `health_check` response (e.g., `deepseek-ai/DeepSeek-V3` → `deepseek`).
+Display name = slot name as-is (e.g. `claude-1`, `claude-2`) — no prefix stripping. For native CLI agents: `codex-cli-1`, `gemini-cli-1`, etc. For claude-mcp servers, capture the full `model` field from `health_check` (e.g. `deepseek-ai/DeepSeek-V3`) — use it as `--model-id` with `--slot` when updating the scoreboard; do NOT derive a short key.
 
 Build `TEAM_JSON` keyed by display name:
 - Native: `codex`, `gemini`, `opencode`, `copilot`
@@ -230,6 +230,7 @@ Supporting positions:
 Update scoreboard — one command per model per round:
 
 ```bash
+# For native agents:
 node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
   --model <model_name> \
   --result <vote_code> \
@@ -237,12 +238,22 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
   --round <round_number> \
   --verdict <VERDICT> \
   --task-description "<question or topic>"
+
+# For each claude-mcp server (use slot + full model-id, NOT --model):
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+  --slot <slotName> \
+  --model-id <fullModelId> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT> \
+  --task-description "<question or topic>"
 ```
 
-`--model`: native agents use `claude`, `gemini`, `opencode`, `copilot`, `codex`;
-claude-mcp servers use the `model` field from the `health_check` response to derive the key (e.g., `deepseek-ai/DeepSeek-V3` → `deepseek`, `Qwen/Qwen3-Coder-480B` → `qwen-coder`).
-`--result`: TP, TN, FP, FN, TP+, UNAVAIL, or empty.
-`--verdict`: APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND.
+- `--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
+- For claude-mcp servers: use `--slot <slotName>` (e.g. `claude-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3` — the exact string from health_check, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
+- `--result`: TP, TN, FP, FN, TP+, UNAVAIL, or empty.
+- `--verdict`: APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND.
 
 ### Escalate — no consensus after 4 rounds
 
@@ -263,7 +274,33 @@ Core disagreement: [1–2 sentences]
 Claude's recommendation: [position with rationale]
 ```
 
-Update scoreboard using same pattern as Consensus output above.
+Update scoreboard — one command per model per round:
+
+```bash
+# For native agents:
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+  --model <model_name> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT> \
+  --task-description "<question or topic>"
+
+# For each claude-mcp server (use slot + full model-id, NOT --model):
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+  --slot <slotName> \
+  --model-id <fullModelId> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT> \
+  --task-description "<question or topic>"
+```
+
+- `--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
+- For claude-mcp servers: use `--slot <slotName>` (e.g. `claude-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3` — the exact string from health_check, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
+- `--result`: TP, TN, FP, FN, TP+, UNAVAIL, or empty.
+- `--verdict`: APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND.
 
 ---
 

@@ -25,8 +25,8 @@ the full R3 protocol (provider pre-flight, team identity, Mode A/B, deliberation
 
 Resolve the question to pass:
 
-1. If `$ARGUMENTS` is non-empty → use it directly as the question/prompt.
-2. If `$ARGUMENTS` is empty → scan the current conversation using this priority order:
+1. If $ARGUMENTS is non-empty → use it directly as the question/prompt.
+2. If $ARGUMENTS is empty → scan the current conversation using this priority order:
    - **Priority 1** — Most recent message containing `?` without a substantive answer yet.
    - **Priority 2** — Most recent message describing a choice/trade-off (keywords: "should we", "which approach", "option A vs", "do we", "whether to").
    - **Priority 3** — Most recent open concern or blocker ("not sure", "concern", "blocker", "unclear", "wondering").
@@ -61,7 +61,7 @@ Switch to **Mode B** only if the question/prompt explicitly requires running com
 - "run [command] and tell me if...", "verify that [thing] works"
 - "review the output of...", "check if the tests pass and then..."
 
-If `$ARGUMENTS` is empty: use the most recent open question or decision from the current conversation context as the question.
+If $ARGUMENTS is empty: use the most recent open question or decision from the current conversation context as the question.
 </mode_detection>
 
 ---
@@ -130,7 +130,7 @@ For each server in `$CLAUDE_MCP_SERVERS` (skip if `available: false`):
   `"<serverName>": { "type": "claude-mcp", "model": "<model>" }`
 - Else → mark that server UNAVAIL
 
-The display name for a claude-mcp server is the slot name as-is (e.g., `claude-1`, `claude-2`). For native CLI agents: `codex-cli-1`, `gemini-cli-1`, etc. No prefix stripping. The scoreboard `--model` key for claude-mcp servers is derived from the `model` field returned by the `health_check` response (e.g., `deepseek-ai/DeepSeek-V3` → `deepseek`), not from the server name.
+The display name for a claude-mcp server is the slot name as-is (e.g., `claude-1`, `claude-2`). For native CLI agents: `codex-cli-1`, `gemini-cli-1`, etc. No prefix stripping. For claude-mcp servers, capture the full `model` field from `health_check` (e.g. `deepseek-ai/DeepSeek-V3`) — use it as `--model-id` with `--slot` when updating the scoreboard; do NOT derive a short key.
 
 Build `TEAM_JSON` as a JSON object keyed by display name:
 - Native agents use keys: `codex`, `gemini`, `opencode`, `copilot`
@@ -288,6 +288,7 @@ Supporting positions:
 Update the scoreboard: for each model that voted this round, run:
 
 ```bash
+# For native agents:
 node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
   --model <model_name> \
   --result <vote_code> \
@@ -295,15 +296,25 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
   --round <round_number> \
   --verdict <VERDICT> \
   --task-description "<question or topic being debated>"
+
+# For each claude-mcp server (use slot + full model-id, NOT --model):
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+  --slot <slotName> \
+  --model-id <fullModelId> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT> \
+  --task-description "<question or topic being debated>"
 ```
 
-`--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
-`--model` for claude-mcp servers: use the `model` field from the `health_check` response to derive the scoreboard key (e.g., a server returning `model: "deepseek-ai/DeepSeek-V3"` → key `deepseek`)
-`--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
-`--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
-`--round`: the round number that just completed
-`--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
-`--task-description`: the full debate question/topic (the `[question]` value). Used by Haiku to auto-classify the category. Omit if the question is too long (>500 chars) — use a shortened summary instead.
+- `--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
+- For claude-mcp servers: use `--slot <slotName>` (e.g. `claude-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3` — the exact string returned by health_check, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
+- `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
+- `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
+- `--round`: the round number that just completed
+- `--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
+- `--task-description`: the full debate question/topic (the `[question]` value). Used by Haiku to auto-classify the category. Omit if the question is too long (>500 chars) — use a shortened summary instead.
 
 Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
 
@@ -329,7 +340,36 @@ Core disagreement: [1–2 sentences on what models disagree about]
 Claude's recommendation: [Claude's position with rationale]
 ```
 
-Update the scoreboard with the same `update-scoreboard.cjs` pattern as Consensus output above.
+Update the scoreboard: for each model that voted this round, run:
+
+```bash
+# For native agents:
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+  --model <model_name> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT> \
+  --task-description "<question or topic being debated>"
+
+# For each claude-mcp server (use slot + full model-id, NOT --model):
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+  --slot <slotName> \
+  --model-id <fullModelId> \
+  --result <vote_code> \
+  --task "<task_label>" \
+  --round <round_number> \
+  --verdict <VERDICT> \
+  --task-description "<question or topic being debated>"
+```
+
+- `--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
+- For claude-mcp servers: use `--slot <slotName>` (e.g. `claude-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3` — the exact string returned by health_check, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
+- `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
+- `--round`: the round number that just completed
+- `--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
+
+Run one command per model per round. Each call is atomic and idempotent.
 
 ---
 
@@ -337,7 +377,7 @@ Update the scoreboard with the same `update-scoreboard.cjs` pattern as Consensus
 
 ### Parse commands
 
-Extract command(s) to run from `$ARGUMENTS`. If unclear, ask the user to specify.
+Extract command(s) to run from $ARGUMENTS. If unclear, ask the user to specify.
 
 Display:
 ```
@@ -452,6 +492,6 @@ Update the scoreboard with the same `update-scoreboard.cjs` pattern as Mode A.
 `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 `--round`: the round number that just completed
 `--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
-`--task-description`: a brief description of what was being verified/reviewed (from `$ARGUMENTS` or a short summary). Used by Haiku to auto-classify. Optional — omit if not meaningful.
+`--task-description`: a brief description of what was being verified/reviewed (from $ARGUMENTS or a short summary). Used by Haiku to auto-classify. Optional — omit if not meaningful.
 
 Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
