@@ -99,7 +99,7 @@ Recent decisions affecting current work:
 | 59 | phase numbering scheme redesign to avoid milestone collision | 2026-02-23 | 4b370c0 | Verified | [59-phase-numbering-scheme-redesign-to-avoid](./quick/59-phase-numbering-scheme-redesign-to-avoid/) |
 | 60 | in fix-tests.md: (1) remove Steps 2 and 7 (circuit breaker disable/enable) entirely; (2) make fresh run the default, gate resume behind --resume flag | 2026-02-23 | 65808c6 | Pending | [60-in-fix-tests-md-1-remove-steps-2-and-7-c](./quick/60-in-fix-tests-md-1-remove-steps-2-and-7-c/) |
 | 61 | in fix-tests.md: real-bug quorum investigation + dispatch (same pattern as adapt/fixture) + install sync | 2026-02-23 | 440d6ed | Pending | [61-in-fix-tests-md-when-tests-are-classifie](./quick/61-in-fix-tests-md-when-tests-are-classifie/) |
-| 62 | resume-work should also look at quick tasks and incomplete qgsd:debug sessions | 2026-02-23 | {commit_hash} | Pending | [62-resume-work-should-also-look-at-quick-ta](.planning/quick/62-resume-work-should-also-look-at-quick-ta/) |
+| 62 | resume-work should also look at quick tasks and incomplete qgsd:debug sessions | 2026-02-23 | 15ab74f | Pending | [62-resume-work-should-also-look-at-quick-ta](.planning/quick/62-resume-work-should-also-look-at-quick-ta/) |
 
 ## Session Continuity
 
