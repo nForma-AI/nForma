@@ -57,11 +57,11 @@
       "type": "subprocess",
       "description": "Query Gemini CLI agent non-interactively (slot 1)",
       "mainTool": "gemini",
-      "model": "gemini-2.5-pro",
+      "model": "gemini-3-pro-preview",
       "health_check_args": ["--version"],
       "display_provider": "Google",
       "cli": "/opt/homebrew/bin/gemini",
-      "args_template": ["-p", "{prompt}"],
+      "args_template": ["-m", "gemini-3-pro-preview", "-p", "{prompt}"],
       "helpArgs": ["--help"],
       "extraTools": [],
       "timeout_ms": 300000,
@@ -73,11 +73,11 @@
       "type": "subprocess",
       "description": "Query Gemini CLI agent non-interactively (slot 2)",
       "mainTool": "gemini",
-      "model": "gemini-2.5-pro",
+      "model": "gemini-3-pro-preview",
       "health_check_args": ["--version"],
       "display_provider": "Google",
       "cli": "/opt/homebrew/bin/gemini",
-      "args_template": ["-p", "{prompt}"],
+      "args_template": ["-m", "gemini-3-pro-preview", "-p", "{prompt}"],
       "helpArgs": ["--help"],
       "extraTools": [],
       "timeout_ms": 300000,
@@ -89,7 +89,11 @@
       "type": "subprocess",
       "description": "Run OpenCode agent non-interactively with a message",
       "mainTool": "opencode",
-      "model": "xai/grok-3",
+      "model": "grok-code-fast-1",
+      "model_detect": {
+        "file": "~/.local/state/opencode/model.json",
+        "pattern": "\"recent\":\\[{\"providerID\":\"[^\"]*\",\"modelID\":\"([^\"]+)\""
+      },
       "health_check_args": ["--version"],
       "display_provider": "OpenCode",
       "cli": "/opt/homebrew/bin/opencode",
@@ -115,18 +119,18 @@
       "health_check_args": ["--version"],
       "display_provider": "GitHub",
       "cli": "/opt/homebrew/bin/copilot",
-      "args_template": ["ask", "--", "{prompt}"],
+      "args_template": ["-p", "{prompt}", "--allow-all-tools", "--no-color", "-s"],
       "helpArgs": ["--help"],
       "extraTools": [
         {
           "name": "suggest",
           "description": "Ask GitHub Copilot to suggest a shell, git, or gh CLI command for a given task.",
-          "args_template": ["suggest", "--shell", "--", "{prompt}"]
+          "args_template": ["-p", "Suggest a shell command for the following task: {prompt}", "--allow-all-tools", "--no-color", "-s"]
         },
         {
           "name": "explain",
           "description": "Ask GitHub Copilot to explain what a shell command does in plain language.",
-          "args_template": ["explain", "--", "{prompt}"]
+          "args_template": ["-p", "Explain what the following shell command does: {prompt}", "--allow-all-tools", "--no-color", "-s"]
         }
       ],
       "timeout_ms": 300000,
