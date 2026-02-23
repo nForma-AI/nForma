@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-23 after Phase 39)
+See: .planning/PROJECT.md (updated 2026-02-23 after Phase v0.7-01)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.7 milestone in progress — Phase v0.7-01 (composition architecture) complete; quorum_active config field + slot-keyed scoreboard + dynamic quorum composition
+**Current focus:** v0.7 milestone in progress — Phase v0.7-01 complete; ready to plan Phase v0.7-02 (Multiple Slots)
 
 ## Current Position
 
-Phase: v0.7-01 of v0.7 (Phase v0.7-01 complete — 4/4 plans done)
-Plan: v0.7-01-04 Complete
-Status: v0.7-01 fully shipped; quorum_active config layer, scoreboard slots{}, dynamic quorum orchestration, installer/migration integration all complete
-Last activity: 2026-02-23 - Completed quick task 60: fix-tests.md circuit breaker removal + fresh-run default
+Phase: v0.7-02 of v0.7 (next: Multiple Slots)
+Plan: Not started
+Status: Ready to plan v0.7-02; v0.7-01 verified and complete
+Last activity: 2026-02-23 - Phase v0.7-01 complete — quorum_active config layer + scoreboard slots{} + dynamic quorum composition + INT-04/INT-05 fixes
 
-Progress: [████████████████████] 38/38 plans (100%)
+Progress: [████████████████████] 42/42 plans (100%)
 
 ## Performance Metrics
 
@@ -68,6 +68,10 @@ Recent decisions affecting current work:
 - [Phase 39]: Display name = slot name as-is (no prefix stripping); scoreboard --model from health_check response, not server name
 - [Phase 39]: hasClaudeMcpAgents() regex updated to /^claude-\d+$/ for slot-based names; Install 39-01 adds --migrate-slots flag
 - [quick-59]: Phase numbering redesigned to milestone-scoped IDs (v0.7-01 format); v0.7 phases renamed from 40/41/42; gsd-tools.cjs updated to parse both integer and milestone-scoped formats
+- [Phase v0.7-01]: quorum_active uses shallow-merge semantics — project config entirely replaces global value (same pattern as required_models)
+- [Phase v0.7-01]: Scoreboard composite key `<slot>:<model-id>` — same slot with different model = new row; historical rows preserved; fail-open on empty quorum_active (all slots participate)
+- [Phase v0.7-01]: SLOT_TOOL_SUFFIX strips trailing -N digit index before family lookup — codex-cli-1 → codex-cli → review; claude-1 → claude → claude
+- [Phase v0.7-01]: buildActiveSlots() reads ~/.claude.json mcpServer keys at install time; populateActiveSlots() in migrate-to-slots.cjs is idempotent
 
 ### Pending Todos
 
@@ -95,5 +99,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Phase 39 complete — v0.6 milestone complete; is_last_phase=true; slot rename fully shipped; transition workflow complete
+Stopped at: Phase v0.7-01 complete — composition architecture fully shipped and verified; transition workflow complete; ready to plan v0.7-02
 Resume file: None

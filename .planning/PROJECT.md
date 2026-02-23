@@ -8,6 +8,21 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Current Milestone: v0.7 Composition Config & Multi-Slot
+
+**Goal:** Ship `quorum_active` composition config so the orchestrator reads its agent list from config instead of hardcoded code; extend to N-instance-per-family multi-slot support; add composition management screen to the mcp-setup wizard.
+
+**Target features:**
+- Composition config: `quorum_active` array in `qgsd.json` + orchestrator + health-check + prompt injection all driven by it dynamically
+- Scoreboard: slot-keyed `slots{}` map, `--slot`/`--model-id` CLI path, composite key `<slot>:<model-id>` for per-model tracking
+- Multiple slots: any family can have N instances (copilot-1/2, opencode-1/2, codex-cli-1/2, gemini-cli-1/2)
+- mcp-setup extension: "Edit Quorum Composition" screen to toggle slots on/off and add new slots
+
+**Phase range:** v0.7-01..v0.7-03
+**Phase v0.7-01 complete:** 2026-02-23 (composition architecture — quorum_active config layer + scoreboard slots{} + dynamic orchestration; COMP-01..04, SCBD-01..03, INT-04, INT-05 all shipped)
+
+---
+
 ## Previous Milestone: v0.6 Agent Slots & Quorum Composition
 
 **Goal:** Rename all quorum agents to slot-based names (claude-1, copilot-1, gemini-cli-1, etc.), ship a `quorum.active` composition config that the orchestrator reads instead of a hardcoded list, and extend `/qgsd:mcp-setup` with a composition screen for managing which slots participate in quorum.
@@ -112,17 +127,17 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 <!-- v0.7 scope: composition config & multi-slot -->
 
-- [ ] User can define a `quorum.active` array in `qgsd.json` listing which slots participate in quorum (COMP-01)
-- [ ] Quorum orchestrator reads `quorum.active` from config instead of hardcoded list (COMP-02)
-- [ ] `check-provider-health.cjs` and scoreboard tooling derive agent list from `quorum.active` (COMP-03)
-- [ ] Default `quorum.active` auto-populated at install/migration time from discovered slots (COMP-04)
+- ✓ User can define a `quorum_active` array in `qgsd.json` listing which slots participate in quorum — Phase v0.7-01 (COMP-01)
+- ✓ Quorum orchestrator reads `quorum_active` from config instead of hardcoded list; qgsd-prompt.js generates dynamic fallback steps from it — Phase v0.7-01 (COMP-02)
+- ✓ `check-provider-health.cjs` filters by `quorum_active`; no hardcoded agent arrays remain — Phase v0.7-01 (COMP-03)
+- ✓ `quorum_active` auto-populated at install/migration time via `buildActiveSlots()` + `populateActiveSlots()` — Phase v0.7-01 (COMP-04)
+- ✓ Scoreboard tracks performance by slot name as stable key; composite `<slot>:<model-id>` key separates per-model stats; historical rows preserved — Phase v0.7-01 (SCBD-01..03)
 - [ ] User can have multiple `claude-*` slots each running a different model or provider (MULTI-01)
 - [ ] User can have multiple `copilot-N`, `opencode-N`, `codex-cli-N`, `gemini-cli-N` slots (MULTI-02)
 - [ ] Adding a new slot supported by both direct config edit and mcp-setup wizard (MULTI-03)
 - [ ] `/qgsd:mcp-setup` re-run includes "Edit Quorum Composition" option (WIZ-08)
 - [ ] Composition screen shows all slots with on/off toggle for `quorum.active` inclusion (WIZ-09)
 - [ ] User can add a new slot for any family from within the wizard (WIZ-10)
-- [ ] Scoreboard tracks performance by slot name as stable key with current model as context (SCBD-01..03)
 
 ### Out of Scope
 
@@ -210,6 +225,12 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | SLOT_MIGRATION_MAP: 10 hardcoded old→new entries in bin/migrate-to-slots.cjs | Migration is non-destructive (skip if newName already present) and idempotent — safe to run multiple times; `--dry-run` flag shows all renames without applying | Phase 39 — SLOT-02 |
 | Display name = slot name as-is (no prefix stripping) | Model-based names needed stripping (claude-deepseek → deepseek); slot names are already short and stable — identity output shows full slot name in scoreboard and quorum display | Phase 39 — SLOT-01 |
 | Scoreboard --model derived from health_check response, not server name | Slot names (claude-1) carry no model info; model field in health_check API response is the authoritative source for scoreboard model column | Phase 39 — SLOT-04 |
+| quorum_active uses shallow-merge semantics; project config entirely replaces global | Same pattern as required_models — project can fully restrict quorum to a subset of global slots | Phase v0.7-01 — COMP-01 |
+| Scoreboard composite key `<slot>:<model-id>` (not just slot) | Same slot with different model = new row; historical rows preserved for model comparison; stable slot key anchors the series | Phase v0.7-01 — SCBD-01 |
+| SLOT_TOOL_SUFFIX strips trailing -N digit index before lookup | `codex-cli-1` → family `codex-cli`; `claude-1` → family `claude`; allows arbitrary N without map explosion | Phase v0.7-01 — COMP-02 |
+| Fail-open on empty quorum_active | Empty = all discovered slots participate — matches existing fail-open philosophy; zero-config installs work without any qgsd.json | Phase v0.7-01 — COMP-01 |
+| buildActiveSlots() reads ~/.claude.json mcpServer keys at install time | Avoids hardcoding slot list; discovers whatever is present in the real install; silently skips if file unreadable | Phase v0.7-01 — COMP-04 |
+| INT-04 fix: --slot + --model-id replaces "strip claude- prefix" in quorum.md Mode B | Slot names like `claude-2` would need only the digit stripped — prefix-stripping was wrong; --slot passes the full slot name; --model-id from health_check response is the correct model source | Phase v0.7-01 — INT-04 |
 
 ---
-*Last updated: 2026-02-23 after Phase 39 — v0.6 slot rename complete; all 10 quorum agents use slot-based names; SLOT-01..04 delivered*
+*Last updated: 2026-02-23 after Phase v0.7-01 — composition architecture complete; quorum_active config layer + scoreboard slots{} + dynamic orchestration shipped; COMP-01..04, SCBD-01..03, INT-04, INT-05 all delivered*
