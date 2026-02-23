@@ -104,6 +104,36 @@ If `$QUORUM_ACTIVE` is empty (`[]`), all entries in `$CLAUDE_MCP_SERVERS` partic
 If non-empty, intersect: only servers whose `serverName` appears in `$QUORUM_ACTIVE` are called.
 A server in `$QUORUM_ACTIVE` but absent from `$CLAUDE_MCP_SERVERS` = skip silently (fail-open).
 
+**Pre-flight slot skip:** After building `$CLAUDE_MCP_SERVERS`, immediately filter the list for the quorum run:
+- For each server with `available: false`, log: `Pre-flight skip: <serverName> (<providerName> DOWN)`
+- Remove these servers from the working list for all subsequent steps (team capture, Round 1, deliberation).
+- Reorder the remaining working list: healthy servers first (preserving discovery order within each group).
+- Log the final working list as: `Active slots: <slot1>, <slot2>, ...`
+
+**min_quorum_size check:** Read `min_quorum_size` from `~/.claude/qgsd.json` (project config takes precedence; default: 3 if absent):
+```bash
+node -e "
+const fs = require('fs'), os = require('os'), path = require('path');
+const globalCfg = path.join(os.homedir(), '.claude', 'qgsd.json');
+const projCfg   = path.join(process.cwd(), '.claude', 'qgsd.json');
+let cfg = {};
+for (const f of [globalCfg, projCfg]) {
+  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_){}
+}
+console.log(cfg.min_quorum_size ?? 3);
+"
+```
+Count available slots (those not marked UNAVAIL and passing $QUORUM_ACTIVE filter). Include Claude itself as +1.
+If `availableCount < min_quorum_size`:
+  - If $ARGUMENTS contains `--force-quorum`: log warning `[WARN] Quorum below min_quorum_size (N available, min M) — proceeding due to --force-quorum` and continue.
+  - Otherwise: stop with:
+    ```
+    QUORUM BLOCKED: Only N model(s) available (min_quorum_size = M).
+    Available: [list slots]
+    UNAVAIL:   [list skipped slots with reason]
+    Re-run with --force-quorum to override, or wait for providers to recover.
+    ```
+
 Display pre-flight result inline (one line):
 ```
 Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
@@ -129,6 +159,8 @@ For each server in `$CLAUDE_MCP_SERVERS` (skip if `available: false`):
 - If response contains `"healthy": true` → add to TEAM_JSON:
   `"<serverName>": { "type": "claude-mcp", "model": "<model>" }`
 - Else → mark that server UNAVAIL
+
+**Timeout guard:** Each `mcp__<serverName>__health_check` and inference call must complete within the slot's `quorum_timeout_ms` value from `providers.json` (fallback: 30000ms if field absent). Read the full providers.json once at the start of team capture and build a lookup map `$SLOT_TIMEOUTS: { slotName: quorum_timeout_ms }`. Apply the slot's timeout to every subsequent call to that slot (team capture, Round 1, deliberation).
 
 The display name for a claude-mcp server is the slot name as-is (e.g., `claude-1`, `claude-2`). For native CLI agents: `codex-cli-1`, `gemini-cli-1`, etc. No prefix stripping. For claude-mcp servers, capture the full `model` field from `health_check` (e.g. `deepseek-ai/DeepSeek-V3`) — use it as `--model-id` with `--slot` when updating the scoreboard; do NOT derive a short key.
 
@@ -310,7 +342,7 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 
 - `--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
 - For claude-mcp servers: use `--slot <slotName>` (e.g. `claude-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3` — the exact string returned by health_check, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
-- `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
+- `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), or leave as empty string if model did not participate. Skip calling update-scoreboard entirely for models that were UNAVAIL.
 - `--task` label: short identifier, e.g. "quick-25" or "plan-ph17"
 - `--round`: the round number that just completed
 - `--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
@@ -365,7 +397,7 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 
 - `--model` for native agents: `claude`, `gemini`, `opencode`, `copilot`, `codex`
 - For claude-mcp servers: use `--slot <slotName>` (e.g. `claude-1`) and `--model-id <fullModelId>` (e.g. `deepseek-ai/DeepSeek-V3` — the exact string returned by health_check, NOT a derived short key). This writes to `data.slots{}` with composite key `<slot>:<model-id>`.
-- `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), UNAVAIL (model skipped), or leave as empty string if model did not participate
+- `--result` values: TP, TN, FP, FN, TP+ (improvement accepted), or leave as empty string if model did not participate. Skip calling update-scoreboard entirely for models that were UNAVAIL.
 - `--round`: the round number that just completed
 - `--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
 

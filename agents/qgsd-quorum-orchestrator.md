@@ -66,6 +66,36 @@ If `$QUORUM_ACTIVE` is empty (`[]`), all entries in `$CLAUDE_MCP_SERVERS` partic
 If non-empty, intersect: only servers whose `serverName` appears in `$QUORUM_ACTIVE` are called.
 A server in `$QUORUM_ACTIVE` but absent from `$CLAUDE_MCP_SERVERS` = skip silently (fail-open).
 
+**Pre-flight slot skip:** After building `$CLAUDE_MCP_SERVERS`, immediately filter the list for the quorum run:
+- For each server with `available: false`, log: `Pre-flight skip: <serverName> (<providerName> DOWN)`
+- Remove these servers from the working list for all subsequent steps (team capture, Round 1, deliberation).
+- Reorder the remaining working list: healthy servers first (preserving discovery order within each group).
+- Log the final working list as: `Active slots: <slot1>, <slot2>, ...`
+
+**min_quorum_size check:** Read `min_quorum_size` from `~/.claude/qgsd.json` (project config takes precedence; default: 3 if absent):
+```bash
+node -e "
+const fs = require('fs'), os = require('os'), path = require('path');
+const globalCfg = path.join(os.homedir(), '.claude', 'qgsd.json');
+const projCfg   = path.join(process.cwd(), '.claude', 'qgsd.json');
+let cfg = {};
+for (const f of [globalCfg, projCfg]) {
+  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_){}
+}
+console.log(cfg.min_quorum_size ?? 3);
+"
+```
+Count available slots (those not marked UNAVAIL and passing $QUORUM_ACTIVE filter). Include Claude itself as +1.
+If `availableCount < min_quorum_size`:
+  - If $ARGUMENTS contains `--force-quorum`: log warning `[WARN] Quorum below min_quorum_size (N available, min M) — proceeding due to --force-quorum` and continue.
+  - Otherwise: stop with:
+    ```
+    QUORUM BLOCKED: Only N model(s) available (min_quorum_size = M).
+    Available: [list slots]
+    UNAVAIL:   [list skipped slots with reason]
+    Re-run with --force-quorum to override, or wait for providers to recover.
+    ```
+
 Display (one line):
 ```
 Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
@@ -89,7 +119,7 @@ All HTTP providers are marked as participating. Availability is checked at call 
 the timeout guard (no separate pre-flight health_check). For the TEAM_JSON entry, use the
 slot name and the model string from providers.json as the model-id.
 
-**Timeout guard:** Each `mcp__unified-1__<slotName>` call must complete within 30 seconds.
+**Timeout guard:** Each `mcp__unified-1__<slotName>` call must complete within the slot's `quorum_timeout_ms` value from `providers.json` (fallback: 30000ms if field absent). Read the full providers.json once at the start of Step 2 and build a lookup map `$SLOT_TIMEOUTS: { slotName: quorum_timeout_ms }`. Apply the slot's timeout to every subsequent call to that slot (Steps 2, Mode A, Mode B, deliberation).
 If a call hangs or errors (including MCP timeout), immediately mark that slot UNAVAIL,
 log `[<slotName>] TIMEOUT — marked UNAVAIL`, and continue to the next slot.
 Do NOT wait for a hung call to resolve.
@@ -156,7 +186,7 @@ Call order (sequential):
 
 Iterate over the participating slot list. Skip slots where `available: false`.
 
-**Per-model timeout:** Each `mcp__unified-1__<slotName>` call must resolve within 30 seconds.
+**Per-model timeout:** Each `mcp__unified-1__<slotName>` call must resolve within the slot's `quorum_timeout_ms` from `$SLOT_TIMEOUTS` (fallback: 30000ms).
 If the MCP tool call hangs, times out, or returns an error, mark that slot UNAVAIL immediately,
 log `[<slotName>] TIMEOUT — marked UNAVAIL`, and proceed to the next slot. Do not retry.
 Continue quorum with remaining available models.
@@ -224,7 +254,7 @@ clearly (2–4 sentences).
 ```
 
 Each model called **sequentially**. Stop immediately upon CONSENSUS.
-Apply the same 30 seconds timeout guard: any `mcp__unified-1__<slotName>` call that hangs or errors during deliberation is marked UNAVAIL for the remainder of this quorum run.
+Apply the same timeout guard: any `mcp__unified-1__<slotName>` call that hangs or errors during deliberation is marked UNAVAIL for the remainder of this quorum run (timeout = slot's `quorum_timeout_ms` from `$SLOT_TIMEOUTS`, fallback: 30000ms).
 After 4 total rounds with no consensus → **Escalate**.
 
 ### Consensus output
@@ -373,7 +403,7 @@ reasoning: [2–4 sentences grounded in the actual trace output — not assumpti
 
 Dispatch sequentially (one Task per message turn — NOT sibling calls):
 
-**Per-worker timeout:** If a Task worker spawn or the underlying MCP call within it takes longer than 30 seconds without a response, treat that worker's verdict as UNAVAIL. Continue collecting verdicts from remaining workers.
+**Per-worker timeout:** If a Task worker spawn or the underlying MCP call within it takes longer than the slot's `quorum_timeout_ms` from `$SLOT_TIMEOUTS` (fallback: 30000ms) without a response, treat that worker's verdict as UNAVAIL. Continue collecting verdicts from remaining workers.
 
 **All slots via unified-1** (one Task per available slot, call sequentially):
 - `Task(subagent_type="general-purpose", prompt="Call mcp__unified-1__codex-1 with prompt=[full worker prompt with bundle inlined]")`
