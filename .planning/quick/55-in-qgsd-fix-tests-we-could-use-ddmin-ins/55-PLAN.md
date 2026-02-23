@@ -6,7 +6,7 @@ wave: 1
 depends_on: []
 files_modified:
   - get-shit-done/workflows/fix-tests.md
-  - bin/gsd-tools.cjs
+  - get-shit-done/bin/gsd-tools.cjs
 autonomous: true
 requirements: []
 
@@ -16,7 +16,7 @@ must_haves:
     - "The fix-tests workflow enriches 'isolate' verdicts with a polluter_set before dispatch"
     - "Dispatched tasks for isolate failures include the polluter context so the fixer knows which test to address"
   artifacts:
-    - path: "bin/gsd-tools.cjs"
+    - path: "get-shit-done/bin/gsd-tools.cjs"
       provides: "maintain-tests ddmin subcommand"
       contains: "cmdMaintainTestsDdmin"
     - path: "get-shit-done/workflows/fix-tests.md"
@@ -24,7 +24,7 @@ must_haves:
       contains: "ddmin"
   key_links:
     - from: "get-shit-done/workflows/fix-tests.md (step 6d)"
-      to: "bin/gsd-tools.cjs cmdMaintainTestsDdmin"
+      to: "get-shit-done/bin/gsd-tools.cjs cmdMaintainTestsDdmin"
       via: "maintain-tests ddmin CLI call"
       pattern: "maintain-tests ddmin"
     - from: "ddmin result polluter_set"
@@ -54,7 +54,7 @@ Output: A `maintain-tests ddmin` CLI subcommand in gsd-tools.cjs and an updated 
 
 <task type="auto">
   <name>Task 1: Add maintain-tests ddmin subcommand to gsd-tools.cjs</name>
-  <files>bin/gsd-tools.cjs</files>
+  <files>get-shit-done/bin/gsd-tools.cjs</files>
   <action>
 Add a `maintain-tests ddmin` subcommand to gsd-tools.cjs. This implements the classic delta debugging algorithm (ddmin) adapted for test order sensitivity.
 
@@ -149,17 +149,17 @@ Run:
 ```bash
 # Smoke test: no candidates → fast exit
 echo '{"test_files":[]}' > /tmp/ddmin-candidates.json
-node /Users/jonathanborduas/code/QGSD/bin/gsd-tools.cjs maintain-tests ddmin \
+node /Users/jonathanborduas/code/QGSD/get-shit-done/bin/gsd-tools.cjs maintain-tests ddmin \
   --failing-test some/test.test.js \
   --candidates-file /tmp/ddmin-candidates.json
 # Should print JSON with ddmin_ran: false, reason: "no candidates"
 
 # Syntax check
-node --check /Users/jonathanborduas/code/QGSD/bin/gsd-tools.cjs && echo "syntax OK"
+node --check /Users/jonathanborduas/code/QGSD/get-shit-done/bin/gsd-tools.cjs && echo "syntax OK"
 ```
   </verify>
   <done>
-`node --check bin/gsd-tools.cjs` passes with no syntax errors. The `maintain-tests ddmin --failing-test ... --candidates-file /tmp/empty.json` call returns JSON with `ddmin_ran: false` and `reason: "no candidates"`. The `Available:` error message includes `ddmin`.
+`node --check get-shit-done/bin/gsd-tools.cjs` passes with no syntax errors. The `maintain-tests ddmin --failing-test ... --candidates-file /tmp/empty.json` call returns JSON with `ddmin_ran: false` and `reason: "no candidates"`. The `Available:` error message includes `ddmin`.
   </done>
 </task>
 
@@ -244,20 +244,51 @@ Should show references in: step 6d.1 header, the CLI call, the polluter_set verd
   </done>
 </task>
 
+<task type="auto">
+  <name>Task 3: Sync source changes to installed copies via install</name>
+  <files>get-shit-done/bin/gsd-tools.cjs</files>
+  <action>
+The QGSD repo's `get-shit-done/` directory is the authoritative source. The install script copies it to `~/.claude/qgsd/` (and optionally to `~/.claude/get-shit-done/`). After Tasks 1 and 2 modify the source files, run the install to propagate changes to the installed copies so the updated `maintain-tests ddmin` subcommand and workflow are live for Claude Code.
+
+Run from the QGSD repo root:
+```bash
+node /Users/jonathanborduas/code/QGSD/bin/install.js --claude --global
+```
+
+This copies `get-shit-done/bin/gsd-tools.cjs` → `~/.claude/qgsd/bin/gsd-tools.cjs` and `get-shit-done/workflows/fix-tests.md` → `~/.claude/qgsd/workflows/fix-tests.md`.
+
+After install, spot-verify the installed copy has the new subcommand:
+```bash
+grep -c "cmdMaintainTestsDdmin" /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs
+```
+  </action>
+  <verify>
+```bash
+grep "ddmin" /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs | grep "cmdMaintainTestsDdmin" | head -3
+grep "ddmin" /Users/jonathanborduas/.claude/qgsd/workflows/fix-tests.md | head -3
+```
+Both greps return matches confirming installed copies were updated.
+  </verify>
+  <done>
+`~/.claude/qgsd/bin/gsd-tools.cjs` contains `cmdMaintainTestsDdmin`. `~/.claude/qgsd/workflows/fix-tests.md` contains references to `ddmin`. Installed copies are in sync with source.
+  </done>
+</task>
+
 </tasks>
 
 <verification>
-1. `node --check /Users/jonathanborduas/code/QGSD/bin/gsd-tools.cjs` — syntax clean
-2. `node /Users/jonathanborduas/code/QGSD/bin/gsd-tools.cjs maintain-tests ddmin --failing-test x --candidates-file /dev/stdin <<< '{"test_files":[]}' ` — returns `{ ddmin_ran: false }`
+1. `node --check /Users/jonathanborduas/code/QGSD/get-shit-done/bin/gsd-tools.cjs` — syntax clean
+2. `node /Users/jonathanborduas/code/QGSD/get-shit-done/bin/gsd-tools.cjs maintain-tests ddmin --failing-test x --candidates-file /dev/stdin <<< '{"test_files":[]}' ` — returns `{ ddmin_ran: false }`
 3. `grep -c "ddmin" /Users/jonathanborduas/code/QGSD/get-shit-done/workflows/fix-tests.md` — returns >= 8
 4. `grep "ddmin" /Users/jonathanborduas/code/QGSD/get-shit-done/workflows/fix-tests.md | grep "6d.1"` — step exists
+5. `grep "cmdMaintainTestsDdmin" /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs` — installed copy updated
 </verification>
 
 <success_criteria>
 - `maintain-tests ddmin` CLI subcommand exists and handles edge cases (empty candidates, test fails alone, full set doesn't reproduce)
 - fix-tests.md workflow runs ddmin on all isolate verdicts in step 6d.1 before dispatch
 - Dispatch task descriptions for isolate failures include polluter context when ddmin found one
-- Both files sync back to ~/.claude/qgsd/ as part of standard install sync (note: executor should confirm if install sync is needed, or just update source files)
+- Both source files (`get-shit-done/bin/gsd-tools.cjs` and `get-shit-done/workflows/fix-tests.md`) are propagated to `~/.claude/qgsd/` via `node bin/install.js --claude --global` (Task 3). The installed copies are the live versions used by Claude Code.
 </success_criteria>
 
 <output>

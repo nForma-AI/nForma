@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-23 after Phase 38)
 Phase: 38 of 42 (Phase 38 complete; v0.5 gap closure phases 37–38 done; v0.6 Phase 39 up next)
 Plan: 38-01 Complete
 Status: v0.5 milestone fully audited and documented; v0.6 Phases 39–42 not yet planned
-Last activity: 2026-02-23 - Phase 38 executed — v0.5 SUMMARY.md requirements frontmatter added; all v0.5 bookkeeping complete
+Last activity: 2026-02-23 - Completed quick task 55: in qgsd:fix-tests, we could use ddmin instead of batch to isolate tests that causes instabilities in other, and that would guide our isolation strategies!
 
 Progress: [████████████████████] 38/38 plans (100%)
 
@@ -81,6 +81,7 @@ Recent decisions affecting current work:
 | 52 | is it clean ? | 2026-02-22 | a7e4c9f | Complete | [52-is-it-clean](./quick/52-is-it-clean/) |
 | 53 | we need full unit test coverage | 2026-02-22 | 76b24b5 | Verified | [53-we-need-full-unit-test-coverage](./quick/53-we-need-full-unit-test-coverage/) |
 | 54 | add unit tests for remaining untested modules | 2026-02-22 | 98d8c62 | Verified | [54-add-unit-tests-for-remaining-untested-mo](./quick/54-add-unit-tests-for-remaining-untested-mo/) |
+| 55 | in qgsd:fix-tests, we could use ddmin instead of batch to isolate tests that causes instabilities in other, and that would guide our isolation strategies! | 2026-02-23 | TBD | Pending | [55-in-qgsd-fix-tests-we-could-use-ddmin-ins](./quick/55-in-qgsd-fix-tests-we-could-use-ddmin-ins/) |
 
 ## Session Continuity
 
