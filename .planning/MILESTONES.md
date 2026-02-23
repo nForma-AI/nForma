@@ -40,3 +40,22 @@ Phase 4 scope requirements: SCOPE-01–07 (7/7)
 
 ---
 
+
+## v0.6 Agent Slots & Quorum Composition (Shipped: 2026-02-23)
+
+**Phases completed:** Phase 39 (+ Phases 37–38 as v0.5 gap closure), 5 plans
+**Git range:** 1e84b15..dae3af6 (23 commits, 43 files changed, +3243/-231 lines)
+
+**Delivered:** Renamed all 10 quorum agents to slot-based `<family>-<N>` names everywhere in QGSD, shipped a non-destructive idempotent migration script, and eliminated all old model-based names from every source file.
+
+**Key accomplishments:**
+- Shipped `bin/migrate-to-slots.cjs` — idempotent migration script with `--dry-run`; renames 10 `~/.claude.json` mcpServers keys and patches `qgsd.json` required_models tool_prefix values (SLOT-02)
+- Updated all runtime hooks (`qgsd-prompt.js`, `config-loader.js`, `qgsd-stop.js`) and `templates/qgsd.json` to slot-based tool prefixes — zero old names in hook layer (SLOT-03)
+- Updated all 8 command `.md` files and the quorum orchestrator agent to slot names in allowed-tools, validation lists, KNOWN_AGENTS arrays — zero old names in command layer (SLOT-01, SLOT-03, SLOT-04)
+- Fixed `mcp-setup.md` distribution defects: replaced 9 hardcoded `secrets.cjs` absolute paths with dynamic resolution, added missing `syncToClaudeJson` to provider swap flow (Phase 37)
+- Established `requirements:` frontmatter as the canonical traceability link in SUMMARY.md files (Phase 38)
+
+**Known gaps (deferred to v0.7):** COMP-01..04, MULTI-01..03, WIZ-08..10, SCBD-01..03
+
+---
+

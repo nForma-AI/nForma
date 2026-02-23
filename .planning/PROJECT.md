@@ -93,6 +93,10 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ All qqgsd-* agent name typos corrected to qgsd-* across 12 installed + source files — v0.2 (Phase 17)
 - ✓ User can run `/qgsd:mcp-set-model <agent> <model>` to set the default model for a quorum worker — v0.4 (Phase 27 — MGR-01)
 - ✓ Default model preference persists in `qgsd.json` and is injected into subsequent quorum tool calls via "Model overrides" block — v0.4 (Phase 27 — MGR-02)
+- ✓ All 10 quorum agents use slot-based names (`claude-1`..`claude-6`, `codex-cli-1`, `gemini-cli-1`, `opencode-1`, `copilot-1`) in all QGSD output and commands — v0.6 (Phase 39 — SLOT-01)
+- ✓ `bin/migrate-to-slots.cjs` migration script renames existing `~/.claude.json` mcpServers entries to slot names non-destructively and idempotently — v0.6 (Phase 39 — SLOT-02)
+- ✓ All QGSD source files (hooks, orchestrator, commands, templates) updated to slot names — zero old model-based names in source — v0.6 (Phase 39 — SLOT-03)
+- ✓ `mcp-status`, `mcp-set-model`, `mcp-update`, `mcp-restart` accept and display slot names correctly — v0.6 (Phase 39 — SLOT-04)
 
 ### Active
 
@@ -105,6 +109,20 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ 135 integration tests verify all v0.3 seams end-to-end: INTG-03 compliance, circuit breaker lifecycle, resume mid-batch, termination state, Phase 21 schema round-trips — Phase 22
 - [ ] Tool iterates via debug→quick→debug loop until all tests are classified and actioned
 - [ ] npm publish qgsd@0.2.0 deferred — run `npm publish --access public` when ready (RLS-04)
+
+<!-- v0.7 scope: composition config & multi-slot -->
+
+- [ ] User can define a `quorum.active` array in `qgsd.json` listing which slots participate in quorum (COMP-01)
+- [ ] Quorum orchestrator reads `quorum.active` from config instead of hardcoded list (COMP-02)
+- [ ] `check-provider-health.cjs` and scoreboard tooling derive agent list from `quorum.active` (COMP-03)
+- [ ] Default `quorum.active` auto-populated at install/migration time from discovered slots (COMP-04)
+- [ ] User can have multiple `claude-*` slots each running a different model or provider (MULTI-01)
+- [ ] User can have multiple `copilot-N`, `opencode-N`, `codex-cli-N`, `gemini-cli-N` slots (MULTI-02)
+- [ ] Adding a new slot supported by both direct config edit and mcp-setup wizard (MULTI-03)
+- [ ] `/qgsd:mcp-setup` re-run includes "Edit Quorum Composition" option (WIZ-08)
+- [ ] Composition screen shows all slots with on/off toggle for `quorum.active` inclusion (WIZ-09)
+- [ ] User can add a new slot for any family from within the wizard (WIZ-10)
+- [ ] Scoreboard tracks performance by slot name as stable key with current model as context (SCBD-01..03)
 
 ### Out of Scope
 
