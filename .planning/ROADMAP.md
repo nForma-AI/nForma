@@ -422,7 +422,7 @@ Plans:
 | 35. Agent Roster | v0.5 | Complete | 2026-02-22 | - |
 | 36. Install Integration | v0.5 | Complete | 2026-02-22 | - |
 | 37. Fix mcp-setup.md Distribution Issues | 1/1 | Complete    | 2026-02-22 | - |
-| 38. v0.5 Bookkeeping — Requirements & SUMMARY | 1/1 | Complete   | 2026-02-23 | - |
+| 38. v0.5 Bookkeeping — Requirements & SUMMARY | 1/1 | Complete    | 2026-02-23 | - |
 | 39. Rename and Migration | v0.6 | TBD | Not started | - |
 | 40. Composition Architecture | v0.6 | TBD | Not started | - |
 | 41. Multiple Slots | v0.6 | TBD | Not started | - |
