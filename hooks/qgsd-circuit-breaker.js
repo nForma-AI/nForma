@@ -303,6 +303,34 @@ function writeState(statePath, fileSet, snapshot) {
   }
 }
 
+// Appends a false-negative entry to .claude/circuit-breaker-false-negatives.json
+// for audit trail when Haiku classifies detected oscillation as REFINEMENT.
+// Fail-open: any error is logged to stderr but does not block the tool call.
+function appendFalseNegative(statePath, fileSet) {
+  try {
+    const fnLogPath = statePath.replace('circuit-breaker-state.json', 'circuit-breaker-false-negatives.json');
+    let existing = [];
+    if (fs.existsSync(fnLogPath)) {
+      try {
+        existing = JSON.parse(fs.readFileSync(fnLogPath, 'utf8'));
+        if (!Array.isArray(existing)) existing = [];
+      } catch {
+        existing = [];
+      }
+    }
+    existing.push({
+      detected_at: new Date().toISOString(),
+      file_set: fileSet,
+      reviewer: 'haiku',
+      verdict: 'REFINEMENT',
+    });
+    fs.writeFileSync(fnLogPath, JSON.stringify(existing, null, 2), 'utf8');
+  } catch (e) {
+    process.stderr.write(`[qgsd] WARNING: Could not write false-negative log: ${e.message}\n`);
+    // Fail-open: do not block execution
+  }
+}
+
 // Builds the block reason message for the deny decision (ENFC-02/03)
 function buildBlockReason(state) {
   const fileList = (state.file_set || []).join(', ') || '(unknown)';
@@ -400,7 +428,10 @@ function main() {
       if (config.circuit_breaker.haiku_reviewer) {
         const verdict = await consultHaiku(gitRoot, result.fileSet, fileSets, config.circuit_breaker.haiku_model);
         if (verdict === 'REFINEMENT') {
-          // Haiku confirmed this is iterative refinement, not a bug loop — do not block
+          // Haiku confirmed this is iterative refinement, not a bug loop — do not block.
+          // Log false-negative for auditability (stderr + persistent file).
+          process.stderr.write(`[qgsd] INFO: circuit breaker false-negative — Haiku classified oscillation as REFINEMENT (files: ${result.fileSet.join(', ')}). Allowing tool call to proceed.\n`);
+          appendFalseNegative(statePath, result.fileSet);
           process.exit(0);
         }
         // verdict === 'GENUINE' or null (API unavailable) → trust the algorithm and block
