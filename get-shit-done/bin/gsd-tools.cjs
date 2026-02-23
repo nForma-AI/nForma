@@ -5434,7 +5434,7 @@ async function main() {
           }
           await cmdMaintainTestsRunBatch(cwd, {
             batchFile: batchFileIdx !== -1 ? args[batchFileIdx + 1] : null,
-            timeoutSec: timeoutIdx !== -1 ? parseInt(args[timeoutIdx + 1], 10) : 300,
+            timeoutSec: timeoutIdx !== -1 ? parseInt(args[timeoutIdx + 1], 10) : 3600,
             outputFile: outputIdx !== -1 ? args[outputIdx + 1] : null,
             batchIndex: batchIndexIdx !== -1 ? parseInt(args[batchIndexIdx + 1], 10) : 0,
             env: { ...process.env, ...envPairs },
@@ -6177,7 +6177,7 @@ async function runTestFile(testFile, runner, opts, batchTmpPrefix) {
  */
 async function cmdMaintainTestsRunBatch(cwd, options, raw) {
   const os = require('os');
-  const { batchFile, timeoutSec = 300, outputFile, batchIndex = 0, env } = options;
+  const { batchFile, timeoutSec = 3600, outputFile, batchIndex = 0, env } = options;
 
   if (!batchFile) {
     error('maintain-tests run-batch: --batch-file is required');
@@ -6209,7 +6209,7 @@ async function cmdMaintainTestsRunBatch(cwd, options, raw) {
   const runner = batchObj.runner || manifest.runner || 'jest';
   const files = batchObj.files || [];
 
-  const timeoutMs = (timeoutSec || 300) * 1000;
+  const timeoutMs = (timeoutSec || 3600) * 1000;
   const batchStartMs = Date.now();
   const batchTmpPrefix = `maintain-tests-batch-${batchId}-${batchStartMs}`;
 
