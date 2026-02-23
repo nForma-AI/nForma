@@ -135,8 +135,8 @@
  *                              Shuffle and split test list into batches; write manifest to disk before execution
  *   maintain-tests run-batch --batch-file <path> [--timeout N] [--env KEY=VALUE...] [--output-file <path>]
  *                              Execute a single batch from manifest; capture output to temp file; 3-run flakiness check
- *   maintain-tests ddmin --failing-test <path> --candidates-file <path> [--timeout N] [--runner auto|jest|playwright|pytest] [--output-file path]
- *                              Delta-debugging: find minimal subset of co-runner tests causing failing-test to fail
+ *   maintain-tests ddmin --failing-test <path> --candidates-file <path> [--timeout N] [--run-cap N] [--runner auto|jest|playwright|pytest] [--output-file path]
+ *                              Delta-debugging: find minimal subset of co-runner tests causing failing-test to fail (default run cap: 50)
  */
 
 const fs = require('fs');
@@ -5492,12 +5492,14 @@ async function main() {
           const timeoutIdx = args.indexOf('--timeout');
           const outputIdx = args.indexOf('--output-file');
           const runnerIdx = args.indexOf('--runner');
+          const runCapIdx = args.indexOf('--run-cap');
           await cmdMaintainTestsDdmin(cwd, {
             failingTest: failingTestIdx !== -1 ? args[failingTestIdx + 1] : null,
             candidatesFile: candidatesIdx !== -1 ? args[candidatesIdx + 1] : null,
             timeoutSec: timeoutIdx !== -1 ? parseInt(args[timeoutIdx + 1], 10) : 60,
             outputFile: outputIdx !== -1 ? args[outputIdx + 1] : null,
             runner: runnerIdx !== -1 ? args[runnerIdx + 1] : 'auto',
+            runCap: runCapIdx !== -1 ? parseInt(args[runCapIdx + 1], 10) : 50,
             env: process.env,
           }, raw);
           break;
@@ -6303,10 +6305,11 @@ async function cmdMaintainTestsRunBatch(cwd, options, raw) {
  * test files that causes `failingTest` to fail when those files are run first.
  *
  * Algorithm: standard ddmin2 adapted for test-order sensitivity.
- * Run cap: 50 runs maximum to prevent runaway execution.
+ * Run cap: configurable via --run-cap N (default 50 for backward compatibility).
+ *   Use --run-cap 200 for whole-suite ddmin isolation.
  */
 async function cmdMaintainTestsDdmin(cwd, options, raw) {
-  const { failingTest, candidatesFile, timeoutSec = 60, outputFile, runner = 'auto', env } = options;
+  const { failingTest, candidatesFile, timeoutSec = 60, outputFile, runner = 'auto', runCap = 50, env } = options;
 
   if (!failingTest) {
     error('maintain-tests ddmin: --failing-test is required');
@@ -6316,7 +6319,7 @@ async function cmdMaintainTestsDdmin(cwd, options, raw) {
   }
 
   const timeoutMs = timeoutSec * 1000;
-  const RUN_CAP = 50;
+  const RUN_CAP = parseInt(runCap, 10) || 50;
   let runsPerformed = 0;
 
   // Read candidates list
