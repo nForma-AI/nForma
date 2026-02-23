@@ -8,7 +8,7 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.7 Composition Config & Multi-Slot
+## Completed Milestone: v0.7 Composition Config & Multi-Slot
 
 **Goal:** Ship `quorum_active` composition config so the orchestrator reads its agent list from config instead of hardcoded code; extend to N-instance-per-family multi-slot support; add composition management screen to the mcp-setup wizard.
 
@@ -18,8 +18,13 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - Multiple slots: any family can have N instances (copilot-1/2, opencode-1/2, codex-cli-1/2, gemini-cli-1/2)
 - mcp-setup extension: "Edit Quorum Composition" screen to toggle slots on/off and add new slots
 
-**Phase range:** v0.7-01..v0.7-03
+**Phase range:** v0.7-01..v0.7-04
 **Phase v0.7-01 complete:** 2026-02-23 (composition architecture — quorum_active config layer + scoreboard slots{} + dynamic orchestration; COMP-01..04, SCBD-01..03, INT-04, INT-05 all shipped)
+**Phase v0.7-02 complete:** 2026-02-23 (multiple slots per family — MULTI-01..03)
+**Phase v0.7-03 complete:** 2026-02-23 (wizard composition screen — WIZ-08..10)
+**Phase v0.7-04 complete:** 2026-02-23 (orchestrator Mode A + quorum.md Mode A --slot wiring gap closure; SCBD-01..03 all verified on all quorum paths)
+
+**v0.7 MILESTONE COMPLETE** — All 13 v0.7 requirements shipped (COMP-01..04, SCBD-01..03, MULTI-01..03, WIZ-08..10).
 
 ---
 
@@ -131,13 +136,14 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ Quorum orchestrator reads `quorum_active` from config instead of hardcoded list; qgsd-prompt.js generates dynamic fallback steps from it — Phase v0.7-01 (COMP-02)
 - ✓ `check-provider-health.cjs` filters by `quorum_active`; no hardcoded agent arrays remain — Phase v0.7-01 (COMP-03)
 - ✓ `quorum_active` auto-populated at install/migration time via `buildActiveSlots()` + `populateActiveSlots()` — Phase v0.7-01 (COMP-04)
-- ✓ Scoreboard tracks performance by slot name as stable key; composite `<slot>:<model-id>` key separates per-model stats; historical rows preserved — Phase v0.7-01 (SCBD-01..03)
-- [ ] User can have multiple `claude-*` slots each running a different model or provider (MULTI-01)
-- [ ] User can have multiple `copilot-N`, `opencode-N`, `codex-cli-N`, `gemini-cli-N` slots (MULTI-02)
-- [ ] Adding a new slot supported by both direct config edit and mcp-setup wizard (MULTI-03)
-- [ ] `/qgsd:mcp-setup` re-run includes "Edit Quorum Composition" option (WIZ-08)
-- [ ] Composition screen shows all slots with on/off toggle for `quorum.active` inclusion (WIZ-09)
-- [ ] User can add a new slot for any family from within the wizard (WIZ-10)
+- ✓ Scoreboard tracks performance by slot name as stable key; composite `<slot>:<model-id>` key separates per-model stats; historical rows preserved — Phase v0.7-01 (SCBD-01..03 infrastructure)
+- ✓ Orchestrator Mode A + quorum.md Mode A use `--slot + --model-id` for claude-mcp servers; data.slots{} populated on all quorum paths — Phase v0.7-04 (SCBD-01..03 gap closure)
+- ✓ User can have multiple `claude-*` slots each running a different model or provider — Phase v0.7-02 (MULTI-01)
+- ✓ User can have multiple `copilot-N`, `opencode-N`, `codex-cli-N`, `gemini-cli-N` slots — Phase v0.7-02 (MULTI-02)
+- ✓ Adding a new slot supported by both direct config edit and mcp-setup wizard — Phase v0.7-02 (MULTI-03)
+- ✓ `/qgsd:mcp-setup` re-run includes "Edit Quorum Composition" option — Phase v0.7-03 (WIZ-08)
+- ✓ Composition screen shows all slots with on/off toggle for `quorum.active` inclusion — Phase v0.7-03 (WIZ-09)
+- ✓ User can add a new slot for any family from within the wizard — Phase v0.7-03 (WIZ-10)
 
 ### Out of Scope
 
@@ -231,6 +237,7 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | Fail-open on empty quorum_active | Empty = all discovered slots participate — matches existing fail-open philosophy; zero-config installs work without any qgsd.json | Phase v0.7-01 — COMP-01 |
 | buildActiveSlots() reads ~/.claude.json mcpServer keys at install time | Avoids hardcoding slot list; discovers whatever is present in the real install; silently skips if file unreadable | Phase v0.7-01 — COMP-04 |
 | INT-04 fix: --slot + --model-id replaces "strip claude- prefix" in quorum.md Mode B | Slot names like `claude-2` would need only the digit stripped — prefix-stripping was wrong; --slot passes the full slot name; --model-id from health_check response is the correct model source | Phase v0.7-01 — INT-04 |
+| Orchestrator Mode A + quorum.md Mode A Escalate sections expanded (not back-referenced) | Escalate section previously said "same pattern as Consensus above" — expanded to explicit dual-variant block so Escalate is self-contained; prevents misinterpretation in future edits | Phase v0.7-04 — MC-1/Flow-4/Flow-5 |
 
 ---
-*Last updated: 2026-02-23 after Phase v0.7-01 — composition architecture complete; quorum_active config layer + scoreboard slots{} + dynamic orchestration shipped; COMP-01..04, SCBD-01..03, INT-04, INT-05 all delivered*
+*Last updated: 2026-02-23 after Phase v0.7-04 — v0.7 milestone complete; all 13 requirements (COMP-01..04, SCBD-01..03, MULTI-01..03, WIZ-08..10) shipped across phases v0.7-01..v0.7-04*
