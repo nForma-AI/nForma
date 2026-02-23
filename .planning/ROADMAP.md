@@ -96,26 +96,31 @@
 
 **Milestone Goal:** Ship `quorum.active` composition config so which slots participate in quorum is a config decision (not a code change), support multiple slots per family, and extend `/qgsd:mcp-setup` with a composition management screen.
 
-- [ ] **Phase 40: Composition Architecture** — `quorum.active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03)
+- [ ] **Phase 40: Composition Architecture** — `quorum_active` config array; orchestrator reads it dynamically; scoreboard tracks by slot name with model as context (COMP-01..04, SCBD-01..03)
 - [ ] **Phase 41: Multiple Slots** — Support N instances per family; `~/.claude.json` entries for copilot-1/2, opencode-1/2, etc.; add-slot supported by config and wizard (MULTI-01..03)
 - [ ] **Phase 42: Wizard Composition Screen** — "Edit Quorum Composition" option in mcp-setup re-run menu; slot toggle on/off; add new slot from within wizard (WIZ-08..10)
 
 ## Phase Details
 
 ### Phase 40: Composition Architecture
-**Goal**: The quorum orchestrator reads its agent list from a `quorum.active` config array instead of a hardcoded list — which slots participate in quorum is now a config decision, not a code change; the scoreboard tracks each slot by name with the loaded model shown as context
+**Goal**: The quorum orchestrator reads its agent list from a `quorum_active` config array instead of a hardcoded list — which slots participate in quorum is now a config decision, not a code change; the scoreboard tracks each slot by name with the loaded model shown as context
 **Depends on**: Phase 39
 **Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, SCBD-01, SCBD-02, SCBD-03
 **Also closes (tech debt from Phase 39)**:
   - INT-04: Fix `quorum.md` Mode B scoreboard key derivation — change "strip `claude-` prefix from server name" to "use model field from health_check response" (matches Mode A and orchestrator)
   - INT-05: Add `copilot` to `QGSD_KEYWORD_MAP` in `bin/install.js` — installer currently won't auto-detect/write copilot-1 to `qgsd.json` required_models
 **Success Criteria** (what must be TRUE):
-  1. A user can add or remove a slot name from the `quorum.active` array in `qgsd.json` and the next quorum call includes or excludes that slot without any code change — verified by toggling a slot and inspecting the quorum instructions injected by the UserPromptSubmit hook
-  2. `check-provider-health.cjs` and scoreboard tooling derive the agent list from `quorum.active` at runtime — hardcoded agent arrays no longer exist in those files
-  3. Running `npx qgsd@latest` (install or migration) writes a `quorum.active` array to `qgsd.json` containing every slot name discovered in `~/.claude.json` — a fresh install produces a populated, non-empty `quorum.active`
+  1. A user can add or remove a slot name from the `quorum_active` array in `qgsd.json` and the next quorum call includes or excludes that slot without any code change — verified by toggling a slot and inspecting the quorum instructions injected by the UserPromptSubmit hook
+  2. `check-provider-health.cjs` and scoreboard tooling derive the agent list from `quorum_active` at runtime — hardcoded agent arrays no longer exist in those files
+  3. Running `npx qgsd@latest` (install or migration) writes a `quorum_active` array to `qgsd.json` containing every slot name discovered in `~/.claude.json` — a fresh install produces a populated, non-empty `quorum_active`
   4. The quorum scoreboard tracks each entry by slot name (`claude-1`, `copilot-1`) as the stable key — the model currently loaded in each slot appears as a context field alongside the slot name
   5. When a slot's model changes (via `/qgsd:mcp-set-model`), the scoreboard creates a new row for that slot+model combination — historical rows for prior models are preserved, not overwritten
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 40-01-PLAN.md — Config layer: quorum_active in DEFAULT_CONFIG + validateConfig + templates/qgsd.json + INT-05 copilot keyword
+- [ ] 40-02-PLAN.md — Scoreboard slots schema: slots{} map, --slot/--model-id CLI path, recomputeSlots(), test coverage
+- [ ] 40-03-PLAN.md — Orchestrator + quorum.md: dynamic quorum_active reads, INT-04 fix, qgsd-prompt.js dynamic fallback
+- [ ] 40-04-PLAN.md — Installer + migration + check-provider-health: auto-populate and filter by quorum_active
 
 ### Phase 41: Multiple Slots
 **Goal**: Any quorum agent family can have N independently-configured instances — a user can run `copilot-1` and `copilot-2` as separate `~/.claude.json` entries each pointing to a different model or provider, and adding a new slot is supported via both direct config edit and the mcp-setup wizard
@@ -180,6 +185,6 @@
 | 37. Fix mcp-setup.md Distribution Issues | v0.5 | 1/1 | Complete | 2026-02-22 |
 | 38. v0.5 Bookkeeping — Requirements & SUMMARY | v0.5 | 1/1 | Complete | 2026-02-23 |
 | 39. Rename and Migration | v0.6 | 3/3 | Complete | 2026-02-23 |
-| 40. Composition Architecture | v0.7 | TBD | Pending | - |
+| 40. Composition Architecture | v0.7 | 0/4 | Pending | - |
 | 41. Multiple Slots | v0.7 | TBD | Pending | - |
 | 42. Wizard Composition Screen | v0.7 | TBD | Pending | - |
