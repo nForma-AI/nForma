@@ -69,7 +69,7 @@ function parseArgs(argv) {
 
 const USAGE = `Usage: node bin/update-scoreboard.cjs --model <name> --result <code> --task <label> --round <n> --verdict <v> [--scoreboard <path>] [--category <cat>] [--subcategory <subcat>] [--task-description <text>]
   --model             claude | gemini | opencode | copilot | codex
-  --result            TP | TN | FP | FN | TP+ | UNAVAIL | (empty for not scored)
+  --result            TP | TN | FP | FN | TP+ | (empty for not scored)
   --task              task label, e.g. "quick-25"
   --round             round number (integer)
   --verdict           APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND | —
@@ -104,7 +104,7 @@ function validate(args) {
 
   const result = args.result || '';
   if (!VALID_RESULTS.includes(result)) {
-    errors.push(`--result must be one of: TP, TN, FP, FN, TP+, UNAVAIL, (empty)`);
+    errors.push(`--result must be one of: TP, TN, FP, FN, TP+, (empty)`);
   }
 
   const roundNum = parseInt(args.round, 10);
@@ -204,7 +204,7 @@ function recomputeStats(data) {
     const votes = round.votes || {};
     for (const model of VALID_MODELS) {
       const vote = votes[model];
-      if (!vote || vote === 'UNAVAIL' || vote === '') continue;
+      if (!vote || vote === '') continue;
 
       const m = data.models[model];
       const delta = SCORE_DELTAS[vote];
@@ -240,7 +240,7 @@ function recomputeSlots(data) {
     const votes = round.votes || {};
     for (const [key, vote] of Object.entries(votes)) {
       if (!key.includes(':')) continue;  // slot keys contain ':'
-      if (!vote || vote === 'UNAVAIL' || vote === '') continue;
+      if (!vote || vote === '') continue;
       if (!data.slots[key]) continue;  // key not in slots map — skip
       const s = data.slots[key];
       const delta = SCORE_DELTAS[vote];

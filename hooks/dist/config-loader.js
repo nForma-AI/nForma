@@ -14,6 +14,27 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+// Maps the family name of a slot (trailing -N stripped) to the MCP tool suffix to call.
+// Used by both qgsd-prompt.js (step generation) and qgsd-stop.js (evidence detection).
+const SLOT_TOOL_SUFFIX = {
+  'codex-cli': 'review',
+  'codex':     'review',
+  'gemini-cli':'gemini',
+  'gemini':    'gemini',
+  'opencode':  'opencode',
+  'copilot-cli':'ask',
+  'copilot':   'ask',
+  'claude':    'claude',
+  'unified':   'claude',
+};
+
+// Returns the recommended tool call name for a slot (e.g. "codex-1" → "mcp__codex-1__review").
+function slotToToolCall(slotName) {
+  const family = slotName.replace(/-\d+$/, '');
+  const suffix = SLOT_TOOL_SUFFIX[family] || 'claude';
+  return 'mcp__' + slotName + '__' + suffix;
+}
+
 const DEFAULT_CONFIG = {
   quorum_commands: [
     'plan-phase', 'new-project', 'new-milestone',
@@ -21,11 +42,22 @@ const DEFAULT_CONFIG = {
   ],
   fail_mode: 'open',
   required_models: {
-    codex:    { tool_prefix: 'mcp__codex-cli-1__',  required: true },
-    gemini:   { tool_prefix: 'mcp__gemini-cli-1__', required: true },
-    opencode: { tool_prefix: 'mcp__opencode-1__',   required: true },
-    copilot:  { tool_prefix: 'mcp__copilot-1__',    required: true },
+    codex:    { tool_prefix: 'mcp__codex-cli__',  required: true },
+    gemini:   { tool_prefix: 'mcp__gemini-cli__', required: true },
+    opencode: { tool_prefix: 'mcp__opencode__',   required: true },
+    copilot:  { tool_prefix: 'mcp__copilot-cli__',  required: true },
   },
+  // quorum: pool-based enforcement (supersedes required_models when quorum_active is set).
+  // minSize — minimum number of agents that must be called (from the available pool).
+  //   Default 4 preserves backward compat with the 4-model required_models check.
+  // preferSub — sort sub (subscription) agents before api agents in pool and prompt steps.
+  quorum: {
+    minSize: 4,
+    preferSub: false,
+  },
+  // agent_config: per-slot metadata.
+  //   auth_type: "sub" (subscription, flat-fee) | "api" (pay-per-token)
+  agent_config: {},
   circuit_breaker: {
     oscillation_depth: 3,          // how many run-groups of same file set to trigger
     commit_window: 6,              // how many commits to look back
@@ -33,6 +65,12 @@ const DEFAULT_CONFIG = {
     haiku_model: 'claude-haiku-4-5-20251001', // model used for review
   },
   model_preferences: {},  // { "<mcp-server-name>": "<model-id>" }
+  // quorum_active: array of slot names that participate in quorum.
+  // [] = all discovered slots participate (fail-open, backward compatible with pre-Phase-40 installs).
+  // A non-empty array is an explicit allowlist.
+  // NOTE: loadConfig() uses shallow spread { ...DEFAULT_CONFIG, ...global, ...project } —
+  // if project config sets quorum_active, it entirely replaces the global value.
+  quorum_active: [],
 };
 
 // Reads and parses a JSON config file.
@@ -106,6 +144,45 @@ function validateConfig(config) {
     }
   }
 
+  // Validate quorum_active
+  if (!Array.isArray(config.quorum_active)) {
+    process.stderr.write('[qgsd] WARNING: qgsd.json: quorum_active must be an array; using []\n');
+    config.quorum_active = [];
+  } else {
+    config.quorum_active = config.quorum_active.filter(
+      s => typeof s === 'string' && s.trim().length > 0
+    );
+  }
+
+  // Validate quorum object
+  if (typeof config.quorum !== 'object' || config.quorum === null) {
+    config.quorum = { ...DEFAULT_CONFIG.quorum };
+  } else {
+    if (!Number.isInteger(config.quorum.minSize) || config.quorum.minSize < 1) {
+      process.stderr.write('[qgsd] WARNING: qgsd.json: quorum.minSize must be a positive integer; defaulting to 4\n');
+      config.quorum.minSize = DEFAULT_CONFIG.quorum.minSize;
+    }
+    if (typeof config.quorum.preferSub !== 'boolean') {
+      config.quorum.preferSub = DEFAULT_CONFIG.quorum.preferSub;
+    }
+  }
+
+  // Validate agent_config
+  if (typeof config.agent_config !== 'object' || config.agent_config === null || Array.isArray(config.agent_config)) {
+    process.stderr.write('[qgsd] WARNING: qgsd.json: agent_config must be an object; using {}\n');
+    config.agent_config = {};
+  } else {
+    for (const [slot, meta] of Object.entries(config.agent_config)) {
+      if (typeof meta !== 'object' || meta === null) {
+        process.stderr.write('[qgsd] WARNING: qgsd.json: agent_config.' + slot + ' must be an object; removing\n');
+        delete config.agent_config[slot];
+      } else if (meta.auth_type && !['sub', 'api'].includes(meta.auth_type)) {
+        process.stderr.write('[qgsd] WARNING: qgsd.json: agent_config.' + slot + '.auth_type must be "sub" or "api"; defaulting to "api"\n');
+        meta.auth_type = 'api';
+      }
+    }
+  }
+
   // Validate model_preferences
   if (typeof config.model_preferences !== 'object' || config.model_preferences === null || Array.isArray(config.model_preferences)) {
     process.stderr.write('[qgsd] WARNING: qgsd.json: model_preferences must be an object; using {}\n');
@@ -150,4 +227,4 @@ function loadConfig(projectDir) {
   return config;
 }
 
-module.exports = { loadConfig, DEFAULT_CONFIG };
+module.exports = { loadConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall };

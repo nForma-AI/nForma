@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const { loadConfig, DEFAULT_CONFIG } = require('./config-loader');
+const { loadConfig, DEFAULT_CONFIG, slotToToolCall } = require('./config-loader');
 
 // Builds the regex that matches /gsd:<quorum-command> or /qgsd:<quorum-command> in any text.
 function buildCommandPattern(quorumCommands) {
@@ -136,13 +136,9 @@ function extractCommand(currentTurnLines, cmdPattern) {
   return '/qgsd:plan-phase';
 }
 
-// Scans assistant entries in currentTurnLines for tool_use blocks whose
-// name starts with a required model's tool_prefix.
-// Also accepts a Task call to qgsd-quorum-orchestrator as full quorum evidence —
-// the orchestrator handles all model calls internally in its own sub-transcript.
-// Returns a Set of model keys (e.g. 'codex', 'gemini', 'opencode') found.
-function findQuorumEvidence(currentTurnLines, requiredModels) {
-  const found = new Set();
+// Returns true if any assistant turn used Task(subagent_type=qgsd-quorum-orchestrator).
+// The orchestrator handles all model calls internally — treat as full quorum evidence.
+function wasOrchestratorUsed(currentTurnLines) {
   for (const line of currentTurnLines) {
     try {
       const entry = JSON.parse(line);
@@ -150,32 +146,69 @@ function findQuorumEvidence(currentTurnLines, requiredModels) {
       const content = entry.message && entry.message.content;
       if (!Array.isArray(content)) continue;
       for (const block of content) {
-        if (block.type !== 'tool_use') continue;
-        // Accept Task(subagent_type=qgsd-quorum-orchestrator) as full quorum evidence.
-        // The orchestrator handles all model calls in its own sub-transcript.
-        if (block.name === 'Task') {
-          const input = block.input || {};
-          const subagentType = input.subagent_type || input.subagentType || '';
-          if (subagentType === 'qgsd-quorum-orchestrator') {
-            // Mark all required models as satisfied
-            for (const modelKey of Object.keys(requiredModels)) {
-              found.add(modelKey);
-            }
-            return found; // No need to scan further
-          }
-        }
-        // Standard MCP tool call evidence
-        for (const [modelKey, modelDef] of Object.entries(requiredModels)) {
-          if (block.name && block.name.startsWith(modelDef.tool_prefix)) {
-            found.add(modelKey);
-          }
-        }
+        if (block.type !== 'tool_use' || block.name !== 'Task') continue;
+        const input = block.input || {};
+        const subagentType = input.subagent_type || input.subagentType || '';
+        if (subagentType === 'qgsd-quorum-orchestrator') return true;
       }
-    } catch {
-      // Skip malformed lines
-    }
+    } catch { /* skip */ }
   }
-  return found;
+  return false;
+}
+
+// Returns true if any assistant turn made a tool_use call whose name starts with prefix.
+function wasSlotCalled(currentTurnLines, prefix) {
+  for (const line of currentTurnLines) {
+    try {
+      const entry = JSON.parse(line);
+      if (entry.type !== 'assistant') continue;
+      const content = entry.message && entry.message.content;
+      if (!Array.isArray(content)) continue;
+      for (const block of content) {
+        if (block.type === 'tool_use' && block.name && block.name.startsWith(prefix)) return true;
+      }
+    } catch { /* skip */ }
+  }
+  return false;
+}
+
+// Builds the ordered agent pool from config.
+// If quorum_active is set, derives pool from it (preferred path).
+// Falls back to required_models for backward compat.
+// Returns array of { slot, prefix, authType, callTool }.
+function buildAgentPool(config) {
+  const agentConfig = config.agent_config || {};
+  const quorumActive = config.quorum_active || [];
+
+  let entries;
+  if (quorumActive.length > 0) {
+    entries = quorumActive.map(slot => ({
+      slot,
+      prefix:   'mcp__' + slot + '__',
+      authType: (agentConfig[slot] && agentConfig[slot].auth_type) || 'api',
+      callTool: slotToToolCall(slot),
+    }));
+  } else {
+    // Backward compat: derive from required_models
+    // Use deriveMissingToolName to get canonical tool names (e.g. copilot → __ask not __copilot)
+    entries = Object.entries(config.required_models || {}).map(([key, def]) => ({
+      slot:     key,
+      prefix:   def.tool_prefix,
+      authType: 'api',
+      callTool: deriveMissingToolName(key, def),
+    }));
+  }
+
+  // Sort sub before api when preferSub is enabled
+  if (config.quorum && config.quorum.preferSub) {
+    entries.sort((a, b) => {
+      if (a.authType === 'sub' && b.authType !== 'sub') return -1;
+      if (a.authType !== 'sub' && b.authType === 'sub') return 1;
+      return 0;
+    });
+  }
+
+  return entries;
 }
 
 // Reads ~/.claude.json to determine which MCP servers are registered.
@@ -322,58 +355,44 @@ function main() {
         process.exit(0); // GSD-internal operation — not a project decision turn
       }
 
-      // Scan for quorum tool_use evidence in current turn (STOP-01)
-      const foundModels = findQuorumEvidence(currentTurnLines, config.required_models);
+      // Build agent pool from config
+      const agentPool = buildAgentPool(config);
 
-      // Check which MCP servers are actually registered (for fail-open unavailability detection)
-      const availablePrefixes = getAvailableMcpPrefixes(); // null = unknown (conservative)
+      // Get available MCP prefixes from ~/.claude.json
+      const availablePrefixes = getAvailableMcpPrefixes();
 
-      // Identify missing required models — separate unavailable (skip) from missing (block)
-      const unavailableKeys = [];
-      const missingKeys = Object.entries(config.required_models)
-        .filter(([modelKey, modelDef]) => {
-          if (!modelDef.required) return false;
-          if (foundModels.has(modelKey)) return false; // called — not missing
-          // Check unavailability only when we have a definitive server list
-          if (availablePrefixes !== null) {
-            const isConfigured = availablePrefixes.some(p => p === modelDef.tool_prefix);
-            if (!isConfigured) {
-              // Model's prefix not in mcpServers → unavailable → fail-open: skip
-              unavailableKeys.push({ modelKey, prefix: modelDef.tool_prefix });
-              return false;
-            }
-          }
-          // Required, not called, and either available or unknown → block candidate
-          return true;
-        })
-        .map(([modelKey]) => modelKey);
-
-      // PASS: all required (available) models found or all missing were unavailable (STOP-09)
-      if (missingKeys.length === 0) {
-        if (unavailableKeys.length > 0) {
-          const note = unavailableKeys.map(u => u.modelKey + ' (' + u.prefix + ')').join(', ');
-          process.stderr.write('[qgsd] INFO: Quorum passed. Note: ' + note + ' was unavailable and skipped.\n');
-        }
+      // Check if orchestrator handled quorum (counts as full quorum evidence)
+      if (wasOrchestratorUsed(currentTurnLines)) {
         process.exit(0);
       }
 
-      // BLOCK: quorum incomplete — some required available models were not called (STOP-07, STOP-08)
-      const missingTools = missingKeys.map(modelKey =>
-        deriveMissingToolName(modelKey, config.required_models[modelKey])
-      );
+      // Determine missing agents (available but not called)
+      const missingNames = [];
+      for (const agent of agentPool) {
+        // If availablePrefixes is null (unknown), treat as available (conservative enforcement)
+        const isAvailable = availablePrefixes === null || availablePrefixes.includes(agent.prefix);
+        if (!isAvailable) continue; // Model not installed — skip
 
-      const command = extractCommand(currentTurnLines, cmdPattern);
+        if (!wasSlotCalled(currentTurnLines, agent.prefix)) {
+          // Derive the canonical tool name for the block reason
+          let toolName;
+          if (agent.callTool) {
+            toolName = agent.callTool;
+          } else {
+            toolName = deriveMissingToolName(agent.slot, { tool_prefix: agent.prefix });
+          }
+          missingNames.push(toolName);
+        }
+      }
 
-      const unavailNote = unavailableKeys.length > 0
-        ? ' [Note: ' + unavailableKeys.map(u => u.modelKey + ' (' + u.prefix + ')').join(', ') + ' was unavailable and skipped per fail-open policy]'
-        : '';
+      if (missingNames.length > 0) {
+        process.stdout.write(JSON.stringify({
+          decision: 'block',
+          reason: 'QUORUM REQUIRED: Missing tool calls for: ' + missingNames.join(', ') + '. Run the required quorum agent(s) before completing this planning command.'
+        }));
+        process.exit(0);
+      }
 
-      const blockReason =
-        `QUORUM REQUIRED: Before completing this ${command} response, call ` +
-        `${missingTools.join(', ')} with your current plan. ` +
-        'Present their responses, then deliver your final output.' + unavailNote;
-
-      process.stdout.write(JSON.stringify({ decision: 'block', reason: blockReason }));
       process.exit(0);
 
     } catch {

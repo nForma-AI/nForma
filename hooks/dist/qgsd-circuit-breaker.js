@@ -376,6 +376,41 @@ function makePatternHash(fileSets) {
     .digest('hex').slice(0, 12);
 }
 
+// Builds the deny reason block for when the circuit breaker is active.
+// Returns a message explaining the block and how to resolve it.
+function buildBlockReason(state) {
+  const fileList = (state.file_set || []).join(', ') || '(unknown)';
+  const snapshot = state.commit_window_snapshot;
+  const lines = [
+    'CIRCUIT BREAKER ACTIVE',
+    '',
+    'Oscillating file set: ' + fileList,
+    '',
+  ];
+  if (Array.isArray(snapshot) && snapshot.length > 0) {
+    lines.push('Commit Graph (most recent first):');
+    lines.push('| # | Files Changed |');
+    lines.push('|---|---------------|');
+    snapshot.forEach((files, index) => {
+      const fileStr = Array.isArray(files) && files.length > 0 ? files.join(', ') : '(empty)';
+      lines.push(`| ${index + 1} | ${fileStr} |`);
+    });
+    lines.push('');
+  } else {
+    lines.push('(commit graph unavailable)');
+    lines.push('');
+  }
+  lines.push(
+    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see get-shit-done/workflows/oscillation-resolution-mode.md for the full procedure.',
+    '',
+    'Read-only operations are still allowed (e.g. git log --oneline to review the commit history).',
+    'You must manually commit a root-cause fix before write operations are unblocked.',
+    '',
+    "After committing the fix, run 'npx qgsd --reset-breaker' to clear the circuit breaker state.",
+  );
+  return lines.join('\n');
+}
+
 // Builds the priority warning notice for the allow decision
 // Returns a message Claude will see in the hook output (non-blocking notification)
 function buildWarningNotice(state) {
@@ -538,6 +573,11 @@ req.end();
         process.exit(0);
       }
 
+      // DETECT-04: Skip detection for read-only commands (BEFORE active state check)
+      if (isReadOnly(command)) {
+        process.exit(0);
+      }
+
       if (state && state.active) {
         // Check if already resolved in log
         const fileSetHash = makeFileSetHash(state.file_set || []);
@@ -546,20 +586,15 @@ req.end();
         if (log[logKey] && log[logKey].resolvedAt) {
           process.exit(0); // Already resolved
         }
-        // Breaker already active — emit priority warning but ALLOW the tool call through
+        // Breaker already active — emit deny decision
         process.stdout.write(JSON.stringify({
           hookSpecificOutput: {
             hookEventName: 'PreToolUse',
-            permissionDecision: 'allow',
-            permissionDecisionReason: buildWarningNotice(state),
+            permissionDecision: 'deny',
+            permissionDecisionReason: buildBlockReason(state),
           }
         }));
         process.exit(0);
-      }
-
-      // Skip detection for read-only commands
-      if (isReadOnly(command)) {
-        process.exit(0); // DETECT-04: read-only command
       }
 
       const hashes = getCommitHashes(gitRoot, config.circuit_breaker.commit_window);
@@ -609,15 +644,7 @@ req.end();
       // Write state so qgsd-prompt.js picks it up on next user message
       writeState(statePath, result.fileSet, fileSets);
 
-      // Emit priority warning — allow the tool call through (non-blocking)
-      const newState = readState(statePath) || { file_set: result.fileSet, commit_window_snapshot: fileSets };
-      process.stdout.write(JSON.stringify({
-        hookSpecificOutput: {
-          hookEventName: 'PreToolUse',
-          permissionDecision: 'allow',
-          permissionDecisionReason: buildWarningNotice(newState),
-        }
-      }));
+      // State written — exit silently on first detection (warning emitted on next call via active state path)
       process.exit(0);
     } catch {
       process.exit(0); // Fail-open on any error
@@ -627,4 +654,4 @@ req.end();
 
 if (require.main === module) main();
 
-module.exports = { buildWarningNotice };
+module.exports = { buildWarningNotice, buildBlockReason };
