@@ -437,92 +437,80 @@ If no real-bug verdicts in this batch: skip 6h.1 entirely.
 
 **For each real-bug verdict (process one at a time — sequential):**
 
-**Step A — Assemble investigation context:**
-
-1. Re-read the test file (or use already-read content from 6d):
-   ```
-   Read(verdict.file)
-   ```
-
-2. Extract docstring/describe context: scan the test file for the first `describe(`, `it(`, or `test(` block header, plus any leading block comment (`/** ... */` or `# ...`). Extract up to 10 lines. This is `$DOCSTRING_CONTEXT`.
-
-3. Assemble the investigation bundle:
-   ```
-   INVESTIGATION BUNDLE
-   ====================
-   Test file: {verdict.file}
-   Classification reason: {verdict.reason}
-   Error type: {verdict.error_type}
-   Context score: {verdict.context_score}
-
-   === Error / failure output ===
-   {verdict.error_summary — full, not truncated}
-
-   === Test file context (first 100 lines) ===
-   {first 100 lines of test file content}
-
-   === Docstring / describe context ===
-   {$DOCSTRING_CONTEXT}
-   ```
-
-**Step B — Claude's own fix hypothesis (Round 1):**
-
-Before querying any quorum model, Claude states its own hypothesis:
+Spawn an investigation Task for this verdict and wait for it to return before proceeding to the next verdict:
 
 ```
-Claude (real-bug investigation): Based on the failure output and test context above, the most likely root cause is [1-3 sentences]. The most actionable fix hypothesis is: [specific, concrete, 1-2 sentence hypothesis about what code to change and why].
+Task(
+  prompt="You are investigating a real-bug test failure to produce a fix hypothesis.
+
+## Failure details
+
+Test file: {verdict.file}
+Classification reason: {verdict.reason}
+Error type: {verdict.error_type}
+Context score: {verdict.context_score}
+
+Error / failure output:
+{verdict.error_summary — full, not truncated}
+
+## Instructions
+
+1. Read the test file: Read({verdict.file})
+2. Extract first 100 lines of test content for context
+3. Extract docstring/describe context: first describe(), it(), or test() block header plus leading block comment (up to 10 lines)
+4. Assemble an investigation bundle from the above
+
+5. State your own fix hypothesis (1-3 sentences: root cause + specific, concrete fix recommendation naming specific functions/variables/code paths visible in the context). This is Round 1 / Claude hypothesis.
+
+6. Query quorum models SEQUENTIALLY to get their hypotheses. Use this prompt template for each model:
+
+   QGSD fix-tests — Real-bug Investigation
+
+   [paste investigation bundle]
+
+   You are reviewing a test failure classified as a real bug. Your task: deliberate on the most likely fix hypothesis.
+
+   Claude's hypothesis: [your hypothesis from step 5]
+
+   Do you agree with Claude's hypothesis, or do you have a different or more specific fix hypothesis? Give:
+   - hypothesis: [1-2 sentence specific, actionable fix hypothesis]
+   - confidence: high | medium | low
+   - reasoning: [1-3 sentences grounded in the failure output and test context]
+
+   Query order (sequential, NEVER parallel):
+   1. mcp__codex-cli-1__review
+   2. mcp__gemini-cli-1__gemini
+   3. mcp__opencode-1__opencode
+   4. mcp__copilot-1__ask
+   Then any available claude-mcp instances.
+   Handle UNAVAILABLE: note and skip.
+
+7. Synthesize consensus hypothesis:
+   - If majority (>50% of available models) agree on a specific fix direction → use that
+   - If split: pick the hypothesis with the most concrete, evidence-grounded reasoning
+   - If only you responded: your hypothesis IS the consensus
+
+8. Return ONLY a single JSON object (no markdown, no explanation):
+{
+  \"consensus_hypothesis\": \"<one paragraph specific actionable fix hypothesis>\",
+  \"model_count\": <number of models that responded>,
+  \"confidence\": \"high|medium|low\"
+}
+",
+  description="Investigate real-bug: {verdict.file}"
+)
 ```
 
-Store as `$CLAUDE_HYPOTHESIS`.
+**WAIT:** Do not move to the next real-bug verdict until this investigation Task has returned.
 
-**Step C — Query quorum models sequentially (Mode A style):**
-
-For each available quorum model, call sequentially (NEVER as sibling calls). Prompt template:
-
-```
-QGSD fix-tests — Real-bug Investigation
-
-{$INVESTIGATION_BUNDLE}
-
-You are reviewing a test failure classified as a real bug (not an environment issue, not a stale fixture). Your task: deliberate on the most likely fix hypothesis.
-
-Claude's hypothesis: {$CLAUDE_HYPOTHESIS}
-
-Do you agree with Claude's hypothesis, or do you have a different or more specific fix hypothesis? Give:
-- hypothesis: [1-2 sentence specific, actionable fix hypothesis]
-- confidence: high | medium | low
-- reasoning: [1-3 sentences grounded in the failure output and test context]
-
-Be concrete — name specific functions, variables, or code paths if visible in the context.
-```
-
-Call order (sequential, same as Mode A in quorum.md):
-
-**Native CLI agents:**
-1. `mcp__codex-cli-1__review`
-2. `mcp__gemini-cli-1__gemini`
-3. `mcp__opencode-1__opencode`
-4. `mcp__copilot-1__ask`
-
-**claude-mcp instances:** For each available claude-mcp server (from `$CLAUDE_MCP_SERVERS` built in quorum pre-flight — if pre-flight has not been run yet for this session, skip claude-mcp calls and proceed with native agents only):
-- Call `mcp__<serverName>__claude` with the investigation prompt
-
-Handle UNAVAILABLE: note and skip (same R6 handling as quorum.md). If ALL models are unavailable, fall back to Claude's own hypothesis as the sole input.
-
-**Step D — Deliberate to consensus hypothesis:**
-
-Collect all model hypotheses. Claude synthesizes a single CONSENSUS HYPOTHESIS:
-
-- If majority (>50% of available models) agree on a specific fix direction → use that as consensus.
-- If split: Claude picks the hypothesis with the most concrete, evidence-grounded reasoning.
-- If only Claude responded: Claude's hypothesis IS the consensus.
+**Parse result from investigation Task:**
+- If the Task returns valid JSON: extract `consensus_hypothesis` as `$CONSENSUS_HYPOTHESIS`.
+- If the Task returns malformed JSON or errors out: use fallback `"Quorum investigation failed — review {verdict.file} manually: {verdict.reason}"` as `$CONSENSUS_HYPOTHESIS`.
 
 Print consensus:
 ```
-QGSD fix-tests: Real-bug consensus [{verdict.file}] → {one-sentence summary of consensus hypothesis}
+QGSD fix-tests: Real-bug consensus [{verdict.file}] → {one-sentence summary of $CONSENSUS_HYPOTHESIS}
 ```
-
-Store as `$CONSENSUS_HYPOTHESIS` for this verdict.
 
 **Step E — Append to deferred_report and save state:**
 
