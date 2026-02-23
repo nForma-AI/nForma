@@ -86,7 +86,27 @@ A server in `$QUORUM_ACTIVE` but absent from `$CLAUDE_MCP_SERVERS` = skip silent
 **Pre-flight slot skip:** After building `$CLAUDE_MCP_SERVERS`, immediately filter:
 - For each server with `available: false`, log: `Pre-flight skip: <serverName> (<providerName> DOWN)`
 - Remove these from the working list for all subsequent steps.
-- Reorder: healthy servers first (preserving discovery order within each group).
+
+Read `preferSub` and `agent_config` from qgsd.json (project config takes precedence):
+```bash
+node -e "
+const fs = require('fs'), os = require('os'), path = require('path');
+const globalCfg = path.join(os.homedir(), '.claude', 'qgsd.json');
+const projCfg   = path.join(process.cwd(), '.claude', 'qgsd.json');
+let cfg = {};
+for (const f of [globalCfg, projCfg]) {
+  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_) {}
+}
+const preferSub  = cfg.quorum && cfg.quorum.preferSub === true;
+const agentCfg   = cfg.agent_config || {};
+console.log(JSON.stringify({ preferSub, agentCfg }));
+"
+```
+Store result as `$PREFER_SUB_CONFIG`.
+
+- **preferSub ordering:** If `$PREFER_SUB_CONFIG.preferSub` is true, read `agent_config` from the same config and sort the working slot list: slots with `auth_type=sub` first, then slots with `auth_type=api` (stable sort, preserving original order within each group). This ensures subscription CLI slots (codex-1, gemini-1, opencode-1, copilot-1) are always attempted before API slots regardless of providers.json discovery order.
+  - If `$PREFER_SUB_CONFIG.preferSub` is false or absent: skip this partition step.
+- **Reorder:** Within the sub group and within the api group separately, healthy servers first (preserving relative order within healthy/unhealthy subgroups). Final order when preferSub=true: healthy-sub, unhealthy-sub, healthy-api, unhealthy-api. When preferSub=false: healthy first, unhealthy last, discovery order preserved.
 - Log: `Active slots: <slot1>, <slot2>, ...`
 
 **min_quorum_size check:** Read from `~/.claude/qgsd.json` (project config takes precedence; default: 3 if absent):
