@@ -208,12 +208,23 @@ Call each model with this prompt — **each call is a separate sequential Bash t
 ```
 QGSD Quorum — Round 1
 
+Repository: [value of $REPO_DIR]
+
 Question: [question]
+
+[If $ARTIFACT_PATH is non-empty:]
+=== Artifact ===
+Path: [value of $ARTIFACT_PATH] (read this file for full context)
+Lines: ~[value of $ARTIFACT_LINE_COUNT] lines
+================
+[End conditional]
 
 You are one of the quorum members evaluating this question independently. Give your
 honest answer with reasoning. Be concise (3–6 sentences). State your position clearly.
 Do not defer to other models.
 ```
+
+Always include the `Repository:` header. If `$ARTIFACT_PATH` is non-empty, include the artifact block so workers can read the plan file themselves.
 
 **Bash call pattern** (one Bash call per slot, strictly sequential):
 
@@ -221,7 +232,15 @@ Do not defer to other models.
 node "$HOME/.claude/qgsd-bin/call-quorum-slot.cjs" --slot <slotName> --timeout <quorum_timeout_ms> <<'QUORUM_PROMPT'
 QGSD Quorum — Round 1
 
+Repository: [value of $REPO_DIR]
+
 Question: [question]
+
+[If $ARTIFACT_PATH is non-empty, include:]
+=== Artifact ===
+Path: [value of $ARTIFACT_PATH] (read this file for full context)
+Lines: ~[value of $ARTIFACT_LINE_COUNT] lines
+================
 
 You are one of the quorum members evaluating this question independently. Give your
 honest answer with reasoning. Be concise (3–6 sentences). State your position clearly.
@@ -282,7 +301,15 @@ Deliberation prompt:
 ```
 QGSD Quorum — Round [N] Deliberation
 
+Repository: [value of $REPO_DIR]
+
 Question: [question]
+
+[If $ARTIFACT_PATH is non-empty, include:]
+=== Artifact ===
+Path: [value of $ARTIFACT_PATH] (read this file for full context)
+Lines: ~[value of $ARTIFACT_LINE_COUNT] lines
+================
 
 Prior positions:
 • Claude:    [position]
@@ -295,6 +322,8 @@ Prior positions:
 Given the above, do you maintain your answer or revise it? State your updated position
 clearly (2–4 sentences).
 ```
+
+Always include the `Repository:` header. If `$ARTIFACT_PATH` is non-empty, include the artifact block before the prior positions.
 
 Each model called with one Bash `call-quorum-slot.cjs` call per turn (sequential).
 Apply the same timeout guard: exit non-zero → slot UNAVAIL for remainder.
@@ -407,7 +436,15 @@ Use the same `call-quorum-slot.cjs` pattern as Mode A, but pass the full review 
 node "$HOME/.claude/qgsd-bin/call-quorum-slot.cjs" --slot <slotName> --timeout <quorum_timeout_ms> <<'QUORUM_PROMPT'
 QGSD Quorum — Execution Review
 
+Repository: [value of $REPO_DIR]
+
 QUESTION: [original question]
+
+[If $ARTIFACT_PATH is non-empty, include:]
+=== Artifact ===
+Path: [value of $ARTIFACT_PATH] (read this file for full context)
+Lines: ~[value of $ARTIFACT_LINE_COUNT] lines
+================
 
 === EXECUTION TRACES ===
 [full $TRACES — not summarized or truncated]
@@ -422,6 +459,8 @@ REJECT if output shows it is NOT satisfied.
 FLAG if output is ambiguous or requires human judgment.
 QUORUM_PROMPT
 ```
+
+Always include the `Repository:` header. If `$ARTIFACT_PATH` is non-empty, include the artifact block before the execution traces so workers have plan context.
 
 Call each available slot sequentially (same order and UNAVAIL handling as Mode A).
 
