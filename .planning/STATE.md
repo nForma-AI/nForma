@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v0.7 milestone)
 Phase: MILESTONE COMPLETE — v0.7 archived
 Plan: —
 Status: v0.7 archived to .planning/milestones/; git tag v0.7 created; ready for /qgsd:new-milestone
-Last activity: 2026-02-23 - Archived v0.7 milestone (Composition Config & Multi-Slot)
+Last activity: 2026-02-23 - Completed quick task 67: harden all quorum calls against hangs
 
 Progress: [████████████████████] 46/46 plans (100%)
 
@@ -104,9 +104,10 @@ Recent decisions affecting current work:
 | 63 | fix v0.7-03 gaps: run install sync and mark WIZ-08/09 complete in REQUIREMENTS.md | 2026-02-23 | 351e42f | Verified | [63-fix-v0-7-03-gaps-run-install-sync-and-ma](./quick/63-fix-v0-7-03-gaps-run-install-sync-and-ma/) |
 | 64 | fix SCBD-01/02/03: propagate INT-04 --slot/--model-id fix from quorum.md Mode B to qgsd-quorum-orchestrator.md Mode A scoreboard block | 2026-02-23 | 8de229c | Verified | [64-fix-scbd-01-02-03-propagate-int-04-slot-](./quick/64-fix-scbd-01-02-03-propagate-int-04-slot-/) |
 | 65 | fix pytest discover in maintain-tests: add --override-ini=addopts= flag and fallback parsing for <Module> tree format | 2026-02-23 | bd73e44 | Verified | [65-fix-pytest-discover-in-maintain-tests-ad](./quick/65-fix-pytest-discover-in-maintain-tests-ad/) |
+| 67 | harden all quorum calls against hangs — add per-model timeout wrapper so hung models are skipped with UNAVAIL status | 2026-02-23 | fccf683 | Pending | [67-harden-all-quorum-calls-against-hangs-ad](./quick/67-harden-all-quorum-calls-against-hangs-ad/) |
 
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: 2026-02-23 - Completed quick task 65: fix pytest discover in maintain-tests: add --override-ini=addopts= flag and fallback parsing for <Module> tree format
+Stopped at: 2026-02-23 - Completed quick task 67: harden all quorum calls against hangs
 Resume file: None
