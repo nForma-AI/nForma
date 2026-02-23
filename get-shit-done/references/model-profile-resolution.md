@@ -20,7 +20,8 @@ Look up the agent in the table for the resolved profile. Pass the model paramete
 Task(
   prompt="...",
   subagent_type="qgsd-planner",
-  model="{resolved_model}"  # "inherit", "sonnet", or "haiku"
+  model="{resolved_model}",  # "inherit", "sonnet", or "haiku"
+  description="[descriptive label for this sub-agent]"
 )
 ```
 

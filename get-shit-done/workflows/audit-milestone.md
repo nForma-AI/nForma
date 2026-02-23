@@ -91,7 +91,8 @@ MUST map each integration finding to affected requirement IDs where applicable.
 
 Verify cross-phase wiring and E2E user flows.",
   subagent_type="qgsd-integration-checker",
-  model="{integration_checker_model}"
+  model="{integration_checker_model}",
+  description="Audit milestone: integration check"
 )
 ```
 

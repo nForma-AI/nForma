@@ -139,7 +139,8 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
        - [ ] STATE.md updated with position and decisions
        - [ ] ROADMAP.md updated with plan progress (via `roadmap update-plan-progress`)
        </success_criteria>
-     "
+     ",
+     description="Execute plan {plan_number}: {phase_number}-{phase_name}"
    )
    ```
 
@@ -197,7 +198,7 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
    ```
    Then spawn qgsd-planner Task with the description and QUICK_DIR (same prompt as quick.md Step 5 standard mode).
    After planner returns, run quorum review (quick.md Step 5.7).
-   After quorum approves, spawn qgsd-executor Task (same prompt as quick.md Step 6).
+   After quorum approves, spawn qgsd-executor Task (description="Execute quick task {task_number}: {slug}", same prompt as quick.md Step 6).
    After executor completes, update STATE.md quick tasks table and commit (same as quick.md Steps 7-8).
 
    **Post-fix verification (cap: 1 retry):**
@@ -373,7 +374,8 @@ Check must_haves against actual codebase.
 Cross-reference requirement IDs from PLAN frontmatter against REQUIREMENTS.md — every ID MUST be accounted for.
 Create VERIFICATION.md.",
   subagent_type="qgsd-verifier",
-  model="{verifier_model}"
+  model="{verifier_model}",
+  description="Verify phase {phase_number}"
 )
 ```
 
