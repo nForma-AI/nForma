@@ -179,7 +179,7 @@ function findQuorumEvidence(currentTurnLines, requiredModels) {
 }
 
 // Reads ~/.claude.json to determine which MCP servers are registered.
-// Returns an array of derived tool prefixes (e.g. ['mcp__codex-cli__', 'mcp__gemini-cli__']).
+// Returns an array of derived tool prefixes (e.g. ['mcp__codex-cli-1__', 'mcp__gemini-cli-1__']).
 // Returns null if the file is missing or malformed — callers treat null as "unknown" (conservative).
 //
 // TESTING ONLY: set QGSD_CLAUDE_JSON env var to override the file path.

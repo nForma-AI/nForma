@@ -21,10 +21,10 @@ const DEFAULT_CONFIG = {
   ],
   fail_mode: 'open',
   required_models: {
-    codex:    { tool_prefix: 'mcp__codex-cli__',  required: true },
-    gemini:   { tool_prefix: 'mcp__gemini-cli__', required: true },
-    opencode: { tool_prefix: 'mcp__opencode__',   required: true },
-    copilot:  { tool_prefix: 'mcp__copilot-cli__', required: true },
+    codex:    { tool_prefix: 'mcp__codex-cli-1__',  required: true },
+    gemini:   { tool_prefix: 'mcp__gemini-cli-1__', required: true },
+    opencode: { tool_prefix: 'mcp__opencode-1__',   required: true },
+    copilot:  { tool_prefix: 'mcp__copilot-1__',    required: true },
   },
   circuit_breaker: {
     oscillation_depth: 3,          // how many run-groups of same file set to trigger

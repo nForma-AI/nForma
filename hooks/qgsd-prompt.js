@@ -32,10 +32,10 @@ const DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK = `QUORUM REQUIRED (structural enforc
   model calls are needed in the main conversation.
 
 **Fallback (if orchestrator unavailable) — call models directly:**
-  1. Call mcp__codex-cli__review with the full plan content
-  2. Call mcp__gemini-cli__gemini with the full plan content
-  3. Call mcp__opencode__opencode with the full plan content
-  4. Call mcp__copilot-cli__ask with the full plan content
+  1. Call mcp__codex-cli-1__review with the full plan content
+  2. Call mcp__gemini-cli-1__gemini with the full plan content
+  3. Call mcp__opencode-1__opencode with the full plan content
+  4. Call mcp__copilot-1__ask with the full plan content
 
 After quorum (either method):
   5. Present the consensus result and resolve any concerns
@@ -108,16 +108,16 @@ process.stdin.on('end', () => {
     if (overrideEntries.length > 0) {
       // Agent key → primary quorum tool call mapping
       const AGENT_TOOL_MAP = {
-        'codex-cli':         'mcp__codex-cli__review',
-        'gemini-cli':        'mcp__gemini-cli__gemini',
-        'opencode':          'mcp__opencode__opencode',
-        'copilot-cli':       'mcp__copilot-cli__ask',
-        'claude-deepseek':   'mcp__claude-deepseek__claude',
-        'claude-minimax':    'mcp__claude-minimax__claude',
-        'claude-qwen-coder': 'mcp__claude-qwen-coder__claude',
-        'claude-kimi':       'mcp__claude-kimi__claude',
-        'claude-llama4':     'mcp__claude-llama4__claude',
-        'claude-glm':        'mcp__claude-glm__claude',
+        'codex-cli-1':  'mcp__codex-cli-1__review',
+        'gemini-cli-1': 'mcp__gemini-cli-1__gemini',
+        'opencode-1':   'mcp__opencode-1__opencode',
+        'copilot-1':    'mcp__copilot-1__ask',
+        'claude-1':     'mcp__claude-1__claude',
+        'claude-2':     'mcp__claude-2__claude',
+        'claude-3':     'mcp__claude-3__claude',
+        'claude-4':     'mcp__claude-4__claude',
+        'claude-5':     'mcp__claude-5__claude',
+        'claude-6':     'mcp__claude-6__claude',
       };
       const lines = overrideEntries.map(([agent, model]) => {
         const tool = AGENT_TOOL_MAP[agent] || ('mcp__' + agent);
