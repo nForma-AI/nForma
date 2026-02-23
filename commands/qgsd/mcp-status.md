@@ -4,6 +4,7 @@ description: Show status of all connected quorum agents — provider, model, hea
 allowed-tools:
   - Read
   - Bash
+  - Task
   - mcp__codex-1__identity
   - mcp__gemini-1__identity
   - mcp__opencode-1__identity
