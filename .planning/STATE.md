@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after Phase 37)
+See: .planning/PROJECT.md (updated 2026-02-23 after Phase 38)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.6 Agent Slots & Quorum Composition — Phase 38 (v0.5 bookkeeping) up next
+**Current focus:** v0.6 Agent Slots & Quorum Composition — v0.5 gap closure complete; Phase 39 (Rename and Migration) up next
 
 ## Current Position
 
-Phase: 37 of 40 (Phase 37 complete; Phase 38 up next)
-Plan: 37-01 Complete
-Status: Phase 37 gap-closure plans executed; mcp-setup.md distributable — ready for /qgsd:verify-work or /qgsd:execute-phase 38
-Last activity: 2026-02-22 - Phase 37 executed — mcp-setup.md distribution defects fixed (9 hardcoded paths removed, 3 apply-flow fixes applied)
+Phase: 38 of 42 (Phase 38 complete; v0.5 gap closure phases 37–38 done; v0.6 Phase 39 up next)
+Plan: 38-01 Complete
+Status: v0.5 milestone fully audited and documented; v0.6 Phases 39–42 not yet planned
+Last activity: 2026-02-23 - Phase 38 executed — v0.5 SUMMARY.md requirements frontmatter added; all v0.5 bookkeeping complete
 
-Progress: [████████████████████] 37/37 plans (100%)
+Progress: [████████████████████] 38/38 plans (100%)
 
 ## Performance Metrics
 
@@ -58,10 +58,11 @@ Recent decisions affecting current work:
 - [Phase 34]: URL value passed via NEW_URL env var in provider swap scripts — same security pattern as Phase 33 KEY env var; applies to both curated and custom URL paths
 - [Phase 35]: Add-agent CLAUDE_MCP_PATH resolved via 2-strategy fallback (read from existing entries, then npm root); identity ping after restart to confirm live connectivity (AGENT-03)
 - [Phase 36]: hasClaudeMcpAgents() detection checks both known template names and args path for 'claude-mcp-server' substring; nudge only for Claude Code runtime; fail-open on read errors
-- [v0.6 roadmap]: SCBD-01..03 assigned to Phase 38 (not Phase 37) — scoreboard slot tracking is part of composition data model; slot names must exist (Phase 37) before scoreboard schema adopts them (Phase 38)
-- [v0.6 roadmap]: MULTI-03 ("add slot via wizard") assigned to Phase 39 alongside MULTI-01/02 — wizard composition screen (Phase 40) depends on multi-slot support existing in config first
-- [Phase 37]: `~/.claude/qgsd-bin/secrets.cjs` placeholder pattern confirmed for distributable commands; source retains placeholder, copyWithPathReplacement() substitutes at install time
-- [Phase 37]: All 5 apply flows now call syncToClaudeJson — Option 2 (Swap Provider) was the only missing one; symmetry enforced
+- [v0.6 roadmap]: SCBD-01..03 assigned to Phase 40 — scoreboard slot tracking is part of composition data model
+- [v0.6 roadmap]: MULTI-03 ("add slot via wizard") in Phase 41; wizard composition screen (Phase 42) depends on multi-slot support first
+- [Phase 37]: `~/.claude/qgsd-bin/secrets.cjs` placeholder pattern confirmed; copyWithPathReplacement() substitutes at install time
+- [Phase 37]: All 5 apply flows now call syncToClaudeJson — Option 2 was the only missing one
+- [Phase 38]: SUMMARY.md requirements frontmatter is the canonical way to link plans to requirements; body sections are supplemental
 
 ### Pending Todos
 
@@ -83,6 +84,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-22
-Stopped at: Phase 37 complete — mcp-setup.md distribution defects fixed; auto-advancing to Phase 38 (v0.5 bookkeeping)
+Last session: 2026-02-23
+Stopped at: Phase 38 complete — v0.5 gap closure fully done; v0.6 Phase 39 (Rename and Migration) ready to plan
 Resume file: None

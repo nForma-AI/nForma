@@ -185,4 +185,4 @@ QGSD v0.2 shipped 2026-02-21. qgsd@0.2.0 git tag pushed; npm publish deferred by
 | syncToClaudeJson required in every apply flow | All 5 apply paths (first-run, add-agent, Option 1, Option 2, Confirm+Apply+Restart) must call syncToClaudeJson after writing ~/.claude.json — ensures keytar secrets propagate symmetrically | Phase 37 — INTEGRATION-02 closure |
 
 ---
-*Last updated: 2026-02-22 after Phase 37 — mcp-setup.md distribution defects closed (INTEGRATION-01, INTEGRATION-02); file safe to distribute*
+*Last updated: 2026-02-23 after Phase 38 — v0.5 gap closure complete; all SUMMARY.md files have requirements frontmatter; v0.5 milestone fully audited and documented*
