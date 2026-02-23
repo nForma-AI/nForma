@@ -43,9 +43,27 @@ try {
   process.exit(1);
 }
 
+// Load quorum_active from ~/.claude/qgsd.json (project config takes precedence)
+let quorumActive = [];
+try {
+  const globalQgsd = path.join(os.homedir(), '.claude', 'qgsd.json');
+  const projQgsd   = path.join(process.cwd(), '.claude', 'qgsd.json');
+  for (const cfgPath of [globalQgsd, projQgsd]) {
+    try {
+      const cfgRaw = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+      if (Array.isArray(cfgRaw.quorum_active)) quorumActive = cfgRaw.quorum_active;
+    } catch (_) {}
+  }
+} catch (_) {}
+
+// Filter mcpServers by quorum_active (empty quorumActive = all servers participate)
+const activeMcpServers = (quorumActive.length > 0)
+  ? Object.fromEntries(Object.entries(mcpServers).filter(([name]) => quorumActive.includes(name)))
+  : mcpServers;
+
 // Build: providerBaseUrl -> { servers: [], apiKey }
 const providers = {};
-for (const [name, cfg] of Object.entries(mcpServers)) {
+for (const [name, cfg] of Object.entries(activeMcpServers)) {
   if (!cfg.args?.some(a => a.includes('claude-mcp-server'))) continue;
   const env     = cfg.env ?? {};
   const baseUrl = env.ANTHROPIC_BASE_URL;

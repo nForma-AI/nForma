@@ -197,6 +197,21 @@ function buildRequiredModelsFromMcp() {
   return requiredModels;
 }
 
+// Returns all mcpServer slot names from ~/.claude.json as the default quorum composition.
+// Used for COMP-04: fresh install writes quorum_active; reinstall backfills if absent/empty.
+function buildActiveSlots() {
+  const claudeJsonPath = path.join(os.homedir(), '.claude.json');
+  try {
+    if (fs.existsSync(claudeJsonPath)) {
+      const d = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8'));
+      return Object.keys(d.mcpServers || {});
+    }
+  } catch (e) {
+    console.warn(`  ${yellow}⚠${reset} Could not read ~/.claude.json for quorum_active: ${e.message}`);
+  }
+  return [];
+}
+
 // Generates quorum_instructions text from detected required_models.
 // Uses detected tool_prefix values so behavioral instructions (UserPromptSubmit injection)
 // name the same tools as the structural enforcement (Stop hook), preventing mismatch
@@ -1841,6 +1856,7 @@ function install(isGlobal, runtime = 'claude') {
         ],
         fail_mode: 'open',
         required_models: detectedModels,
+        quorum_active: buildActiveSlots(),   // COMP-04: populated from all discovered slots
         // Generated from detected prefixes — behavioral instructions match structural enforcement
         quorum_instructions: buildQuorumInstructions(detectedModels),
         // INST-09: Must match DEFAULT_CONFIG.circuit_breaker in hooks/config-loader.js
@@ -1852,6 +1868,7 @@ function install(isGlobal, runtime = 'claude') {
 
       fs.writeFileSync(qgsdConfigPath, JSON.stringify(qgsdConfig, null, 2) + '\n', 'utf8');
       console.log(`  ${green}✓${reset} Wrote QGSD config with detected MCP prefixes (~/.claude/qgsd.json)`);
+      console.log(`  ${green}✓${reset} Wrote quorum_active (${qgsdConfig.quorum_active.length} slots) to qgsd.json`);
     } else {
       // INST-06: print active config summary on reinstall
       try {
@@ -1884,6 +1901,17 @@ function install(isGlobal, runtime = 'claude') {
             console.log(`  ${green}✓${reset} Added missing circuit_breaker sub-keys to qgsd.json`);
           }
         }
+
+        // COMP-04: Backfill quorum_active if absent or empty (same pattern as circuit_breaker backfill)
+        if (!existingConfig.quorum_active || existingConfig.quorum_active.length === 0) {
+          const discoveredSlots = buildActiveSlots();
+          if (discoveredSlots.length > 0) {
+            existingConfig.quorum_active = discoveredSlots;
+            fs.writeFileSync(qgsdConfigPath, JSON.stringify(existingConfig, null, 2) + '\n', 'utf8');
+            console.log(`  ${green}✓${reset} Backfilled quorum_active (${discoveredSlots.length} slots) in qgsd.json`);
+          }
+        }
+        // If quorum_active is already set and non-empty: do NOT overwrite (user config preserved)
       } catch {
         console.log(`  ${dim}↳ ~/.claude/qgsd.json already exists — skipping (user config preserved)${reset}`);
       }

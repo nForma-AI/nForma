@@ -114,6 +114,49 @@ function migrateQgsdJson(qgsdJsonPath, dryRun = false) {
   return { changed, patched };
 }
 
+/**
+ * Populate quorum_active in ~/.claude/qgsd.json from current mcpServers in ~/.claude.json.
+ * Idempotent: skips if quorum_active already present and non-empty.
+ * @param {string} qgsdJsonPath - Absolute path to ~/.claude/qgsd.json
+ * @param {string} claudeJsonPath - Absolute path to ~/.claude.json
+ * @param {boolean} dryRun - If true, do not write changes
+ * @returns {{ skipped: boolean, slots: string[] }}
+ */
+function populateActiveSlots(qgsdJsonPath, claudeJsonPath, dryRun = false) {
+  // Read current slot names from ~/.claude.json
+  let slotNames = [];
+  try {
+    const raw = JSON.parse(fs.readFileSync(claudeJsonPath, 'utf8'));
+    slotNames = Object.keys(raw.mcpServers || {});
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw new Error(`Failed to read ${claudeJsonPath}: ${e.message}`);
+    // ~/.claude.json absent — nothing to populate
+    return { skipped: true, slots: [] };
+  }
+
+  // Read or create qgsd.json
+  let qgsdConfig = {};
+  try {
+    qgsdConfig = JSON.parse(fs.readFileSync(qgsdJsonPath, 'utf8'));
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw new Error(`Failed to read ${qgsdJsonPath}: ${e.message}`);
+    // qgsd.json absent — create minimal object
+  }
+
+  // Idempotent: skip if already set and non-empty
+  if (Array.isArray(qgsdConfig.quorum_active) && qgsdConfig.quorum_active.length > 0) {
+    return { skipped: true, slots: qgsdConfig.quorum_active };
+  }
+
+  // Populate and write
+  qgsdConfig.quorum_active = slotNames;
+  if (!dryRun) {
+    fs.mkdirSync(path.dirname(qgsdJsonPath), { recursive: true });
+    fs.writeFileSync(qgsdJsonPath, JSON.stringify(qgsdConfig, null, 2) + '\n', 'utf8');
+  }
+  return { skipped: false, slots: slotNames };
+}
+
 // CLI entrypoint
 if (require.main === module) {
   const dryRun = process.argv.includes('--dry-run');
@@ -132,6 +175,19 @@ if (require.main === module) {
     r2 = migrateQgsdJson(qgsdJsonPath, dryRun);
   } catch (e) {
     console.error(`Error migrating ~/.claude/qgsd.json: ${e.message}`);
+    process.exit(1);
+  }
+
+  let r3;
+  try {
+    r3 = populateActiveSlots(qgsdJsonPath, claudeJsonPath, dryRun);
+    if (!r3.skipped) {
+      console.log(`[migrate-to-slots] quorum_active populated: ${r3.slots.join(', ')}`);
+    } else {
+      console.log(`[migrate-to-slots] quorum_active already set (${r3.slots.length} slots) — skipped`);
+    }
+  } catch (e) {
+    console.error(`Error populating quorum_active: ${e.message}`);
     process.exit(1);
   }
 
@@ -164,4 +220,4 @@ if (require.main === module) {
   process.exit(0);
 }
 
-module.exports = { migrateClaudeJson, migrateQgsdJson, SLOT_MIGRATION_MAP };
+module.exports = { migrateClaudeJson, migrateQgsdJson, populateActiveSlots, SLOT_MIGRATION_MAP };
