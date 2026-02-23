@@ -123,7 +123,7 @@ Recent decisions affecting current work:
 | 85 | Implement hard ceiling of 5 agents in Stop hook + automatic failover on quota/error for quorum enforcement | 2026-02-23 | a39e655 | Verified | [85-implement-hard-ceiling-of-5-agents-in-st](./quick/85-implement-hard-ceiling-of-5-agents-in-st/) |
 | 86 | deep investigation: quick workflow does not iterate after quorum BLOCK in Step 5.7 — needs revision loop | 2026-02-23 | 94bcdb4 | Verified | [86-deep-investigation-quick-workflow-does-n](.planning/quick/86-deep-investigation-quick-workflow-does-n/) |
 | 87 | fix quorum orchestrator: read artifact_path file and inject working directory + repo context into all MCP worker prompts | 2026-02-23 | c31950c | Verified | [87-fix-quorum-orchestrator-read-artifact-pa](.planning/quick/87-fix-quorum-orchestrator-read-artifact-pa/) |
-| 88 | Build interactive Node.js CLI interface for managing quorum agents (add, remove, edit, reorder) via node scripts | 2026-02-23 | 5f6049a | Pending | [88-build-interactive-node-js-cli-interface-](./quick/88-build-interactive-node-js-cli-interface-/) |
+| 88 | Build interactive Node.js CLI interface for managing quorum agents (add, remove, edit, reorder) via node scripts | 2026-02-23 | 5f6049a | Verified | [88-build-interactive-node-js-cli-interface-](./quick/88-build-interactive-node-js-cli-interface-/) |
 
 ## Session Continuity
 
