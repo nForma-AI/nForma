@@ -10,6 +10,8 @@ files_modified:
   - get-shit-done/templates/roadmap.md
   - get-shit-done/references/decimal-phase-calculation.md
   - .planning/ROADMAP.md
+  - .planning/phases/v0.7-01-composition-architecture/v0.7-01-03-PLAN.md
+  - .planning/phases/v0.7-01-composition-architecture/v0.7-01-04-PLAN.md
 autonomous: true
 requirements: []
 
@@ -154,8 +156,8 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     });
     ```
 
-    **4. Update next-header detection regexes** — there are two instances of the pattern
-    `/\n#{2,4}\s+Phase\s+\d/i` that mark the end of a phase section. Update both to also
+    **4. Update next-header detection regexes** — there are THREE instances of the pattern
+    `/\n#{2,4}\s+Phase\s+\d/i` that mark the end of a phase section. Update all three to also
     match milestone-scoped headers that start with 'v':
 
     In cmdRoadmapGetPhase() (around line 976):
@@ -172,6 +174,14 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     const nextHeader = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
     // After:
     const nextHeader = restOfContent.match(/\n#{2,4}\s+Phase\s+(?:\d|v\d)/i);
+    ```
+
+    In cmdPhaseInsert() (around line 2796) — the third instance:
+    ```javascript
+    // Before:
+    const nextPhaseMatch = afterHeader.match(/\n#{2,4}\s+Phase\s+\d/i);
+    // After:
+    const nextPhaseMatch = afterHeader.match(/\n#{2,4}\s+Phase\s+(?:\d|v\d)/i);
     ```
 
     **5. Update cmdRoadmapAnalyze() main phase extraction pattern** (around line 2563):
@@ -242,7 +252,9 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     }
     ```
 
-    **7. Fix decimal pattern escaping in cmdPhaseInsert()** (around line 2768).
+    **7. Fix cmdPhaseInsert() for milestone-scoped IDs** — three related fixes:
+
+    **7a. Fix decimal pattern escaping** (around line 2768).
     The existing `decimalPattern` regex is built from `normalizedBase` which for milestone-scoped
     IDs contains dots that need escaping:
 
@@ -253,8 +265,47 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     const decimalPattern = new RegExp(`^${normalizedBase.replace(/\./g, '\\.')}\\.(\\d+)`);
     ```
 
-    No other changes needed in cmdPhaseInsert() — the decimal output `v0.7-01.1` is generated
-    naturally by `${normalizedBase}.${nextDecimal}` and the directory becomes `v0.7-01.1-slug`.
+    **7b. Fix leading-zero strip in targetPattern** (around lines 2751-2755).
+    The current code does `.replace(/^0+/, '')` to strip leading zeros from the normalized phase
+    ID before building the targetPattern regex. For milestone-scoped IDs like `v0.7-01`, this
+    transforms `v0.7-01` into `v.7-01` (stripping the `0` after `v`), breaking the match entirely.
+    Skip the strip when the input is milestone-scoped:
+
+    ```javascript
+    // Before:
+    const normalizedAfter = normalizePhaseName(afterPhase);
+    const unpadded = normalizedAfter.replace(/^0+/, '');
+    const afterPhaseEscaped = unpadded.replace(/\./g, '\\.');
+    const targetPattern = new RegExp(`#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:`, 'i');
+
+    // After:
+    const normalizedAfter = normalizePhaseName(afterPhase);
+    const isMilestoneScoped = parseMilestonePhaseId(normalizedAfter) !== null;
+    const unpadded = isMilestoneScoped ? normalizedAfter : normalizedAfter.replace(/^0+/, '');
+    const afterPhaseEscaped = unpadded.replace(/\./g, '\\.').replace(/-/g, '\\-');
+    // For milestone-scoped IDs match exact text; for legacy integers allow optional leading zeros
+    const targetPattern = isMilestoneScoped
+      ? new RegExp(`#{2,4}\\s*Phase\\s+${afterPhaseEscaped}:`, 'i')
+      : new RegExp(`#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:`, 'i');
+    ```
+
+    **7c. Fix headerPattern to also accept v-prefixed phase IDs** (around line 2788).
+    The `headerPattern` used to locate the insertion point also uses `afterPhaseEscaped`
+    with a leading `0*` that would produce `0*v\.7\-01` for milestone-scoped IDs (matching
+    nothing). Apply the same conditional:
+
+    ```javascript
+    // Before:
+    const headerPattern = new RegExp(`(#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:[^\\n]*\\n)`, 'i');
+
+    // After:
+    const headerPattern = isMilestoneScoped
+      ? new RegExp(`(#{2,4}\\s*Phase\\s+${afterPhaseEscaped}:[^\\n]*\\n)`, 'i')
+      : new RegExp(`(#{2,4}\\s*Phase\\s+0*${afterPhaseEscaped}:[^\\n]*\\n)`, 'i');
+    ```
+
+    The decimal output `v0.7-01.1` is generated naturally by `${normalizedBase}.${nextDecimal}`
+    and the directory becomes `v0.7-01.1-slug` without further changes.
 
     After all edits, run npm test to confirm no regressions.
   </action>
@@ -309,6 +360,8 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     .planning/ROADMAP.md
     .planning/phases/v0.7-01-composition-architecture/v0.7-01-01-PLAN.md
     .planning/phases/v0.7-01-composition-architecture/v0.7-01-02-PLAN.md
+    .planning/phases/v0.7-01-composition-architecture/v0.7-01-03-PLAN.md
+    .planning/phases/v0.7-01-composition-architecture/v0.7-01-04-PLAN.md
   </files>
   <action>
     **Step A: Rename phase directories and plan files on disk.**
@@ -320,12 +373,16 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     mv .planning/phases/42-wizard-composition-screen .planning/phases/v0.7-03-wizard-composition-screen
     ```
 
-    Within the renamed composition-architecture directory:
+    Within the renamed composition-architecture directory (all 4 plan files):
     ```
     mv .planning/phases/v0.7-01-composition-architecture/40-01-PLAN.md \
        .planning/phases/v0.7-01-composition-architecture/v0.7-01-01-PLAN.md
     mv .planning/phases/v0.7-01-composition-architecture/40-02-PLAN.md \
        .planning/phases/v0.7-01-composition-architecture/v0.7-01-02-PLAN.md
+    mv .planning/phases/v0.7-01-composition-architecture/40-03-PLAN.md \
+       .planning/phases/v0.7-01-composition-architecture/v0.7-01-03-PLAN.md
+    mv .planning/phases/v0.7-01-composition-architecture/40-04-PLAN.md \
+       .planning/phases/v0.7-01-composition-architecture/v0.7-01-04-PLAN.md
     ```
 
     If a `40-RESEARCH.md` file exists in that directory, also rename it:
@@ -350,6 +407,18 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     - Keep `plan: 02` as-is
     - Update `<output>` section SUMMARY path: `40-02-SUMMARY.md` to `v0.7-01-02-SUMMARY.md`
     - Update `<context>` section RESEARCH reference the same way
+
+    In `v0.7-01-03-PLAN.md`:
+    - Change `phase: 40-composition-architecture` to `phase: v0.7-01-composition-architecture`
+    - Keep `plan: 03` as-is
+    - Update `<output>` section SUMMARY path: `40-03-SUMMARY.md` to `v0.7-01-03-SUMMARY.md`
+    - Update any `<context>` RESEARCH/PLAN references from `40-` prefix to `v0.7-01-` prefix
+
+    In `v0.7-01-04-PLAN.md`:
+    - Change `phase: 40-composition-architecture` to `phase: v0.7-01-composition-architecture`
+    - Keep `plan: 04` as-is
+    - Update `<output>` section SUMMARY path: `40-04-SUMMARY.md` to `v0.7-01-04-SUMMARY.md`
+    - Update any `<context>` RESEARCH/PLAN references from `40-` prefix to `v0.7-01-` prefix
 
     **Step C: Update .planning/ROADMAP.md.**
 
@@ -465,7 +534,7 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     ```
     ls /Users/jonathanborduas/code/QGSD/.planning/phases/v0.7-01-composition-architecture/
     ```
-    Expected: v0.7-01-01-PLAN.md, v0.7-01-02-PLAN.md
+    Expected: v0.7-01-01-PLAN.md, v0.7-01-02-PLAN.md, v0.7-01-03-PLAN.md, v0.7-01-04-PLAN.md
 
     Verify ROADMAP.md updated:
     ```
@@ -495,7 +564,7 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
     roadmap.md template documents milestone-scoped numbering as preferred convention with examples.
     decimal-phase-calculation.md includes milestone-scoped insertion examples.
     .planning/ROADMAP.md uses v0.7-01/02/03 for all three v0.7 phases; no Phase 40/41/42 references remain.
-    Phase directories renamed on disk. Plan files renamed. Frontmatter phase field updated.
+    Phase directories renamed on disk. All 4 plan files (40-01..40-04) renamed to v0.7-01-01..v0.7-01-04. Frontmatter phase field and SUMMARY/RESEARCH references updated in each.
     gsd-tools find-phase v0.7-01 returns found:true.
     npm test passes with no regressions.
   </done>
@@ -632,7 +701,7 @@ Output: gsd-tools.cjs understands milestone-scoped phase IDs alongside existing 
 - Phase list sort: v0.7-01 appears before v0.7-01.1 appears before v0.7-02
 - QGSD .planning/ROADMAP.md: Phase v0.7-01/02/03 used; old Phase 40/41/42 references removed
 - Phase directories renamed on disk to v0.7-01/02/03 format
-- Plan files in v0.7-01 directory renamed from 40-0N-PLAN.md to v0.7-01-0N-PLAN.md; frontmatter updated
+- All 4 plan files in v0.7-01 directory renamed from 40-0N-PLAN.md to v0.7-01-0N-PLAN.md (01..04); frontmatter updated in each
 - roadmap.md template documents milestone-scoped numbering as preferred convention
 - decimal-phase-calculation.md documents milestone-scoped decimal insertion
 - 4 new MS-TC-01..04 tests pass; all prior tests pass; npm test green
