@@ -5725,6 +5725,42 @@ function cmdMaintainTestsLoadState(cwd, options, raw) {
   }
 }
 
+// ─── Python environment resolver ──────────────────────────────────────────────
+
+/**
+ * Resolve the best Python executable for the given project directory.
+ * Priority (lock files are the discriminating signal — pyproject.toml alone is ambiguous):
+ *   1. uv run python    — uv.lock present AND uv in PATH
+ *   2. poetry run python — poetry.lock present AND poetry in PATH
+ *   3. pipenv run python — Pipfile.lock present AND pipenv in PATH
+ *   4. .venv/bin/python3 or venv/bin/python3 — local in-project virtualenv
+ *   5. python3 in PATH
+ *   6. python  (fallback)
+ *
+ * Returns an array [cmd, ...prefixArgs] for spreading into spawnSync / spawn:
+ *   const [exe, ...pre] = getPythonArgs(dir);
+ *   spawnSync(exe, [...pre, '-m', 'pytest', ...]);
+ */
+function getPythonArgs(dir) {
+  function inPath(cmd) {
+    const r = spawnSync(cmd, ['--version'], { encoding: 'utf-8', stdio: 'pipe' });
+    return r.status === 0 && !r.error;
+  }
+  // 1. uv — lock file is the definitive uv signal
+  if (fs.existsSync(path.join(dir, 'uv.lock')) && inPath('uv')) return ['uv', 'run', 'python'];
+  // 2. poetry
+  if (fs.existsSync(path.join(dir, 'poetry.lock')) && inPath('poetry')) return ['poetry', 'run', 'python'];
+  // 3. pipenv
+  if (fs.existsSync(path.join(dir, 'Pipfile.lock')) && inPath('pipenv')) return ['pipenv', 'run', 'python'];
+  // 4. local in-project virtualenv (covers uv --project-local, plain venv, conda envs exported here)
+  for (const rel of ['.venv/bin/python3', '.venv/bin/python', 'venv/bin/python3', 'venv/bin/python']) {
+    const abs = path.join(dir, rel);
+    if (fs.existsSync(abs)) return [abs];
+  }
+  // 5. python3 / python in PATH
+  return inPath('python3') ? ['python3'] : ['python'];
+}
+
 // ─── Maintain-Tests: Discover ─────────────────────────────────────────────────
 
 /**
@@ -5866,13 +5902,9 @@ function cmdMaintainTestsDiscover(cwd, options, raw) {
     addPaths('playwright', files);
   }
 
-  function getPythonCmd() {
-    const test = spawnSync('python3', ['--version'], { encoding: 'utf-8', stdio: 'pipe' });
-    return (test.status === 0 && !test.error) ? 'python3' : 'python';
-  }
-
   function invokePytest() {
-    const result = spawnSync(getPythonCmd(), ['-m', 'pytest', '--collect-only', '-q'], {
+    const [pyExe, ...pyPre] = getPythonArgs(searchDir);
+    const result = spawnSync(pyExe, [...pyPre, '-m', 'pytest', '--collect-only', '-q', '--override-ini=addopts='], {
       cwd: searchDir,
       encoding: 'utf-8',
     });
@@ -5891,6 +5923,18 @@ function cmdMaintainTestsDiscover(cwd, options, raw) {
       if (line.includes('::')) {
         const filePart = line.split('::')[0].trim();
         if (filePart) {
+          const abs = path.isAbsolute(filePart) ? filePart : path.resolve(searchDir, filePart);
+          files.add(abs);
+        }
+      }
+    }
+    // Fallback: if no :: lines found, try parsing verbose <Module filename.py> tree format
+    if (files.size === 0) {
+      const modulePattern = /^<Module\s+(.+\.py)>/;
+      for (const line of lines) {
+        const m = line.trim().match(modulePattern);
+        if (m) {
+          const filePart = m[1].trim();
           const abs = path.isAbsolute(filePart) ? filePart : path.resolve(searchDir, filePart);
           files.add(abs);
         }
@@ -6064,9 +6108,10 @@ async function runTestFile(testFile, runner, opts, batchTmpPrefix) {
 
     } else if (runner === 'pytest') {
       const pytestJsonOutput = path.join(os.tmpdir(), `${batchTmpPrefix}-${safeFile}-${timestamp}-pytest.json`);
+      const [pyExe, ...pyPre] = getPythonArgs(opts.cwd || cwd);
       spawnResult = await spawnToFile(
-        getPythonCmd(),
-        ['-m', 'pytest', testFile, '--json-report', `--json-report-file=${pytestJsonOutput}`, '-q'],
+        pyExe,
+        [...pyPre, '-m', 'pytest', testFile, '--json-report', `--json-report-file=${pytestJsonOutput}`, '-q'],
         { cwd: opts.cwd, env: opts.env, timeoutMs: opts.fileTimeoutMs },
         tmpOutput
       );
