@@ -107,7 +107,7 @@ Recent decisions affecting current work:
 | 67 | harden all quorum calls against hangs — add per-model timeout wrapper so hung models are skipped with UNAVAIL status | 2026-02-23 | fccf683 | Verified | [67-harden-all-quorum-calls-against-hangs-ad](./quick/67-harden-all-quorum-calls-against-hangs-ad/) |
 | 68 | audit and update README and documentation to reflect all features shipped in v0.1-v0.7 | 2026-02-23 | fe2c3cd | Verified | [68-audit-and-update-readme-and-documentatio](./quick/68-audit-and-update-readme-and-documentatio/) |
 | 69 | qgsd:fix-tests must use more sub-agents, tasks, so that we do not fill the context of the top-level agent | 2026-02-23 | 160466a | Verified | [69-qgsd-fix-tests-must-use-more-sub-agents-](./quick/69-qgsd-fix-tests-must-use-more-sub-agents-/) |
-| 70 | Build unified-mcp-server: one Node.js MCP binary driven by JSON config that wraps Codex, Gemini, OpenCode, and Copilot CLIs as subprocess providers | 2026-02-23 | 28d9f5b | Pending | [70-build-unified-mcp-server-one-node-js-mcp](./quick/70-build-unified-mcp-server-one-node-js-mcp/) |
+| 70 | Build unified-mcp-server: one Node.js MCP binary driven by JSON config that wraps Codex, Gemini, OpenCode, and Copilot CLIs as subprocess providers | 2026-02-23 | 28d9f5b | Verified | [70-build-unified-mcp-server-one-node-js-mcp](./quick/70-build-unified-mcp-server-one-node-js-mcp/) |
 
 ## Session Continuity
 
