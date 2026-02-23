@@ -109,8 +109,8 @@ Recent decisions affecting current work:
 | 69 | qgsd:fix-tests must use more sub-agents, tasks, so that we do not fill the context of the top-level agent | 2026-02-23 | 160466a | Verified | [69-qgsd-fix-tests-must-use-more-sub-agents-](./quick/69-qgsd-fix-tests-must-use-more-sub-agents-/) |
 | 70 | Build unified-mcp-server: one Node.js MCP binary driven by JSON config that wraps Codex, Gemini, OpenCode, and Copilot CLIs as subprocess providers | 2026-02-23 | 28d9f5b | Verified | [70-build-unified-mcp-server-one-node-js-mcp](./quick/70-build-unified-mcp-server-one-node-js-mcp/) |
 | 71 | Extend unified-mcp-server with HTTP transport and roster support | 2026-02-23 | d1c6e79 | Verified | [71-extend-unified-mcp-server-with-http-tran](./quick/71-extend-unified-mcp-server-with-http-tran/) |
-| 72 | Fix mcp-status: replace mcp__claude-N__identity calls with providers.json reads for unified-1 HTTP providers | 2026-02-23 | 11f31a3 | Pending | [72-fix-mcp-status-replace-mcp-claude-n-iden](./quick/72-fix-mcp-status-replace-mcp-claude-n-iden/) |
-| 73 | modify so that mcp status already pulls real fresh info | 2026-02-23 | 810090a | Pending | [73-modify-so-that-mcp-status-already-pulls-](./quick/73-modify-so-that-mcp-status-already-pulls-/) |
+| 72 | Fix mcp-status: replace mcp__claude-N__identity calls with providers.json reads for unified-1 HTTP providers | 2026-02-23 | 11f31a3 | Verified | [72-fix-mcp-status-replace-mcp-claude-n-iden](./quick/72-fix-mcp-status-replace-mcp-claude-n-iden/) |
+| 73 | modify so that mcp status already pulls real fresh info | 2026-02-23 | 810090a | Verified | [73-modify-so-that-mcp-status-already-pulls-](./quick/73-modify-so-that-mcp-status-already-pulls-/) |
 
 ## Session Continuity
 
