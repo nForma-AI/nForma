@@ -65,6 +65,13 @@ const DEFAULT_CONFIG = {
     haiku_model: 'claude-haiku-4-5-20251001', // model used for review
   },
   model_preferences: {},  // { "<mcp-server-name>": "<model-id>" }
+  // context_monitor: PostToolUse hook thresholds for context window warnings.
+  // warn_pct — inject WARNING when context used % >= this value (default 70)
+  // critical_pct — inject CRITICAL when context used % >= this value (default 90)
+  context_monitor: {
+    warn_pct: 70,
+    critical_pct: 90,
+  },
   // quorum_active: array of slot names that participate in quorum.
   // [] = all discovered slots participate (fail-open, backward compatible with pre-Phase-40 installs).
   // A non-empty array is an explicit allowlist.
@@ -194,6 +201,35 @@ function validateConfig(config) {
         process.stderr.write('[qgsd] WARNING: qgsd.json: model_preferences.' + key + ' must be a non-empty string; removing\n');
         delete config.model_preferences[key];
       }
+    }
+  }
+
+  // Validate context_monitor sub-object
+  if (typeof config.context_monitor !== 'object' || config.context_monitor === null) {
+    process.stderr.write('[qgsd] WARNING: qgsd.json: context_monitor must be an object; using defaults\n');
+    config.context_monitor = { ...DEFAULT_CONFIG.context_monitor };
+  } else {
+    if (!Number.isInteger(config.context_monitor.warn_pct) ||
+        config.context_monitor.warn_pct < 1 || config.context_monitor.warn_pct > 99) {
+      process.stderr.write('[qgsd] WARNING: qgsd.json: context_monitor.warn_pct must be an integer 1-99; defaulting to 70\n');
+      config.context_monitor.warn_pct = DEFAULT_CONFIG.context_monitor.warn_pct;
+    }
+    if (!Number.isInteger(config.context_monitor.critical_pct) ||
+        config.context_monitor.critical_pct < 1 || config.context_monitor.critical_pct > 100) {
+      process.stderr.write('[qgsd] WARNING: qgsd.json: context_monitor.critical_pct must be an integer 1-100; defaulting to 90\n');
+      config.context_monitor.critical_pct = DEFAULT_CONFIG.context_monitor.critical_pct;
+    }
+    if (config.context_monitor.warn_pct >= config.context_monitor.critical_pct) {
+      process.stderr.write('[qgsd] WARNING: qgsd.json: context_monitor.warn_pct must be less than critical_pct; resetting to defaults\n');
+      config.context_monitor.warn_pct = DEFAULT_CONFIG.context_monitor.warn_pct;
+      config.context_monitor.critical_pct = DEFAULT_CONFIG.context_monitor.critical_pct;
+    }
+    // Fill missing sub-keys with defaults
+    if (config.context_monitor.warn_pct === undefined) {
+      config.context_monitor.warn_pct = DEFAULT_CONFIG.context_monitor.warn_pct;
+    }
+    if (config.context_monitor.critical_pct === undefined) {
+      config.context_monitor.critical_pct = DEFAULT_CONFIG.context_monitor.critical_pct;
     }
   }
 
