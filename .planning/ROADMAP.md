@@ -12,6 +12,7 @@
 - 🚧 **v0.9 — GSD Sync** — Phases v0.9-01..v0.9-05 (in progress)
 - 🚧 **v0.10 — Roster Toolkit** — Phases v0.10-01..v0.10-06 (in progress)
 - ✅ **v0.11 — Parallel Quorum** — Phase v0.11-01 (shipped 2026-02-24)
+- 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-03 (in progress)
 
 ## Phases
 
@@ -137,6 +138,22 @@
 - [ ] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit
 - [ ] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check
 - [ ] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup
+
+<details>
+<summary>✅ v0.11 — Parallel Quorum (Phase v0.11-01) — SHIPPED 2026-02-24</summary>
+
+- [x] **Phase v0.11-01: Parallel Quorum Wave-Barrier** — `qgsd-quorum-worker.md` + `qgsd-quorum-synthesizer.md` agents; atomic rename at all scoreboard write sites; `merge-wave` subcommand; orchestrator rewritten with wave-barrier pattern (PAR-01..PAR-05) (completed 2026-02-24)
+
+**Archive:** `.planning/milestones/v0.11-ROADMAP.md`
+</details>
+
+### 🚧 v0.12 — Formal Verification (In Progress)
+
+**Milestone Goal:** Implement formal verification tooling for QGSD's agent state machine — conformance event logger shipped as a bin/ script, TLA+ specification with TLC model checking, XState executable TypeScript machine, and Alloy/PRISM/Petri models for vote-counting and probabilistic analysis.
+
+- [ ] **Phase v0.12-01: Conformance Event Infrastructure** — Shared schema module, appendConformanceEvent() helper in hooks, hook instrumentation across all three hooks, XState machine compiled to CJS, and validate-traces.cjs user CLI (LOG-01..03, XST-01..03, VAL-01..03)
+- [ ] **Phase v0.12-02: TLA+ Formal Spec** — QGSDQuorum.tla spec with named invariants, safety and liveness TLC configs, and bin/run-tlc.cjs runner (TLA-01..04)
+- [ ] **Phase v0.12-03: Static Analysis Suite** — Alloy vote-counting model + runner, PRISM probabilistic DTMC + scoreboard rate exporter, Petri Net generator with WASM SVG rendering and structural deadlock detection (ALY-01..02, PRM-01..03, PET-01..03)
 
 ## Phase Details
 
@@ -282,13 +299,37 @@ Plans:
   4. Before any import changes are written, a timestamped backup of `~/.claude.json` is created at `~/.claude.json.pre-import.<ISO-timestamp>` and the backup path is displayed to the user; if the backup write fails, the import is aborted entirely
 **Plans**: TBD
 
-<details>
-<summary>✅ v0.11 — Parallel Quorum (Phase v0.11-01) — SHIPPED 2026-02-24</summary>
+### Phase v0.12-01: Conformance Event Infrastructure
+**Goal**: Hooks emit structured conformance events to a shared NDJSON log, the XState machine is compiled and available for replay, and developers and users can run validate-traces.cjs to check execution conformance
+**Depends on**: Nothing (first v0.12 phase)
+**Requirements**: LOG-01, LOG-02, LOG-03, XST-01, XST-02, XST-03, VAL-01, VAL-02, VAL-03
+**Success Criteria** (what must be TRUE):
+  1. Developer can `require('./bin/conformance-schema.cjs')` and get `VALID_ACTIONS`, `VALID_PHASES`, `VALID_OUTCOMES`, and `schema_version` — both hooks and validate-traces.cjs import from this single module with no independent field lists
+  2. After a quorum decision turn, `.planning/conformance-events.jsonl` contains a new NDJSON line with `{ ts, phase, action, slots_available, vote_result, outcome }` — confirmed by reading the file; the hook critical path shows no timing regression and no stdout output added
+  3. Developer can find `src/machines/qgsd-workflow.machine.ts` with 4 states (`IDLE`, `COLLECTING_VOTES`, `DELIBERATING`, `DECIDED`) and 3 guards (`minQuorumMet`, `noInfiniteDeliberation`, `phaseMonotonicallyAdvances`); `tsup` build compiles it to CJS without touching any hook file
+  4. User can run `node ~/.claude/qgsd-bin/validate-traces.cjs` and see a deviation score (% of valid XState executions) plus any flagged divergences — exit code 0 on clean log, non-zero on violations
+**Plans**: TBD
 
-- [x] **Phase v0.11-01: Parallel Quorum Wave-Barrier** — `qgsd-quorum-worker.md` + `qgsd-quorum-synthesizer.md` agents; atomic rename at all scoreboard write sites; `merge-wave` subcommand; orchestrator rewritten with wave-barrier pattern (PAR-01..PAR-05) (completed 2026-02-24)
+### Phase v0.12-02: TLA+ Formal Spec
+**Goal**: A TLA+ specification of QGSD's quorum workflow exists with named safety and liveness invariants, two TLC model configurations are verified, and developers can invoke TLC via a bin/ script
+**Depends on**: Phase v0.12-01
+**Requirements**: TLA-01, TLA-02, TLA-03, TLA-04
+**Success Criteria** (what must be TRUE):
+  1. Developer can find `formal/tla/QGSDQuorum.tla` with named invariants `MinQuorumMet`, `NoInvalidTransition`, and `EventualConsensus` — state names mirror the XState machine from v0.12-01
+  2. Running TLC with `formal/tla/MCsafety.cfg` (symmetry sets, N=5) completes with no violations; running TLC with `formal/tla/MCliveness.cfg` (no symmetry, N=3) completes with no liveness violations
+  3. Developer can run `node bin/run-tlc.cjs` — the script checks for Java ≥17, invokes the TLC JAR, and exits with a clear error message if `JAVA_HOME` is unset; `npm test` passes without Java installed
+**Plans**: TBD
 
-**Archive:** `.planning/milestones/v0.11-ROADMAP.md`
-</details>
+### Phase v0.12-03: Static Analysis Suite
+**Goal**: Alloy vote-counting model, PRISM probabilistic DTMC, and Petri Net token model are all authored and runnable; Java ≥17 is documented once as the shared prerequisite for all three JVM tools
+**Depends on**: Phase v0.12-01
+**Requirements**: ALY-01, ALY-02, PRM-01, PRM-02, PRM-03, PET-01, PET-02, PET-03
+**Success Criteria** (what must be TRUE):
+  1. Developer can find `formal/alloy/quorum-votes.als` with `pred`-based vote-counting predicates (not `fact`) and a `check` assertion for `NoSpuriousApproval`; running `bin/run-alloy.cjs` invokes Alloy 6 JAR headless and is gated on `JAVA_HOME`
+  2. Developer can find `formal/prism/quorum.pm` — a DTMC model of quorum convergence; running `bin/export-prism-constants.cjs` reads scoreboard TP/TN/UNAVAIL data and writes a `.const` file; the script warns and uses conservative priors when any slot has fewer than 30 rounds
+  3. Developer can run `bin/generate-petri-net.cjs` to get a DOT-format Petri Net rendered to SVG via `@hpcc-js/wasm-graphviz` with no system Graphviz install; the script prints a structural deadlock warning if `min_quorum_size > available_slots`
+  4. `VERIFICATION_TOOLS.md` documents Java 17 as the single installation prerequisite for TLA+, Alloy, and PRISM; all three JVM invocations are gated on `JAVA_HOME`/`PRISM_BIN`; `npm test` passes on a machine without Java
+**Plans**: TBD
 
 ## Progress
 
@@ -350,3 +391,6 @@ Plans:
 | v0.10-05. Policy UIs | v0.10 | 0/? | Not started | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
+| v0.12-01. Conformance Event Infrastructure | v0.12 | 0/? | Not started | - |
+| v0.12-02. TLA+ Formal Spec | v0.12 | 0/? | Not started | - |
+| v0.12-03. Static Analysis Suite | v0.12 | 0/? | Not started | - |
