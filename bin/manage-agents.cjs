@@ -1728,7 +1728,9 @@ async function mainMenu() {
           new inquirer.Separator(),
           { name: '10. Manage CCR provider keys', value: 'ccr-keys' },
           new inquirer.Separator(),
-          { name: '11. Update coding agents', value: 'update-agents' },
+          { name: '11. Batch rotate keys', value: 'batch-rotate' },
+          new inquirer.Separator(),
+          { name: '12. Update coding agents', value: 'update-agents' },
           new inquirer.Separator(),
           { name: '0. Exit', value: 'exit' },
         ],
@@ -1746,6 +1748,7 @@ async function mainMenu() {
       else if (action === 'add-sub') await addSubprocessProvider();
       else if (action === 'edit-sub') await editSubprocessProvider();
       else if (action === 'ccr-keys') await manageCcrProviders();
+      else if (action === 'batch-rotate') await batchRotateKeys();
       else if (action === 'update-agents') await updateAgents();
       else if (action === 'exit') { running = false; console.log('\n  Goodbye!\n'); }
     } catch (err) {
