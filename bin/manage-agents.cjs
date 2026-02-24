@@ -2219,6 +2219,46 @@ function buildCloneEntry(sourceCfg, newName) {
   };
 }
 
+/**
+ * Build display rows for the timeout tuning screen.
+ * slots: string[] — slot names from mcpServers keys
+ * mcpServers: object — from ~/.claude.json (each entry may have env.PROVIDER_SLOT)
+ * providersData: object — full providers.json parsed object
+ * Returns: array of { slotName, providerSlot, currentMs } objects.
+ * currentMs is quorum_timeout_ms if present, timeout_ms as fallback, null if no match.
+ * Pure function — no side effects.
+ */
+function buildTimeoutChoices(slots, mcpServers, providersData) {
+  const providers = (providersData && providersData.providers) || [];
+  return slots.map((slotName) => {
+    const cfg = mcpServers[slotName] || {};
+    const providerSlot = (cfg.env && cfg.env.PROVIDER_SLOT) || slotName;
+    const provider = providers.find((p) => p.name === providerSlot) || null;
+    const currentMs = provider
+      ? (provider.quorum_timeout_ms != null ? provider.quorum_timeout_ms
+         : provider.timeout_ms != null ? provider.timeout_ms
+         : null)
+      : null;
+    return { slotName, providerSlot, currentMs };
+  });
+}
+
+/**
+ * Return updated providers data with quorum_timeout_ms set for providerSlot.
+ * providersData: the full providers.json parsed object (NOT mutated)
+ * providerSlot: the provider name (string) to update
+ * newTimeoutMs: number — the new timeout value in ms
+ * Returns: new providersData object with updated providers array.
+ * If providerSlot not found, returns clone of providersData with no changes.
+ * Pure function — no file I/O, does not mutate input.
+ */
+function applyTimeoutUpdate(providersData, providerSlot, newTimeoutMs) {
+  const providers = (providersData.providers || []).map((p) =>
+    p.name === providerSlot ? { ...p, quorum_timeout_ms: newTimeoutMs } : { ...p }
+  );
+  return { ...providersData, providers };
+}
+
 module.exports._pure = {
   deriveKeytarAccount,
   maskKey,
@@ -2240,4 +2280,7 @@ module.exports._pure = {
   writeKeyStatus,
   formatTimestamp,
   buildDashboardLines,
+  // v0.10-05 additions
+  buildTimeoutChoices,
+  applyTimeoutUpdate,
 };
