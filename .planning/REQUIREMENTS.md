@@ -21,12 +21,14 @@ Requirements for the GSD Sync milestone. Ports GSD 1.20.6 improvements into QGSD
 - [ ] **NYQ-02**: `plan-phase.md` step 5.5 inserted after research step — generates `VALIDATION.md` for the phase before roadmap creation
 - [ ] **NYQ-03**: VALIDATION.md structure includes: per-task test-map (what to test per plan), Wave 0 pre-execution requirements, sampling rate spec
 - [ ] **NYQ-04**: `nyquist_validation_enabled` field appears in `gsd-tools.cjs init plan-phase` JSON output (boolean, defaults true)
+- [ ] **NYQ-05**: Plan-phase step 5.5 includes an explicit adoption verification step — if `nyquist_validation_enabled` is true and `VALIDATION.md` is absent after step 5.5 executes, the workflow halts with a clear error before proceeding to plan creation
 
 ### Discuss — UX Improvements
 
 - [ ] **DSC-01**: In `discuss-phase.md` `present_gray_areas` step, each option includes a recommended choice with brief reasoning explaining why
 - [ ] **DSC-02**: After all selected areas conclude, user sees "Explore more gray areas" option instead of hard-stopping at "I'm ready for context"
 - [ ] **DSC-03**: Gray-area loop re-runs `present_gray_areas` with 2-4 newly identified areas on each re-entry (not the same ones already explored)
+- [ ] **DSC-04**: Gray-area loop has an explicit termination rule — after 3 re-entry loops or when no new areas can be identified, the workflow exits to "I'm ready for context" automatically
 
 ### Fixes — Tier 3
 
@@ -63,17 +65,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NYQ-02 | v0.9-02 | Pending |
 | NYQ-03 | v0.9-02 | Pending |
 | NYQ-04 | v0.9-02 | Pending |
+| NYQ-05 | v0.9-02 | Pending |
 | DSC-01 | v0.9-03 | Pending |
 | DSC-02 | v0.9-03 | Pending |
 | DSC-03 | v0.9-03 | Pending |
+| DSC-04 | v0.9-03 | Pending |
 | FIX-01 | v0.9-04 | Pending |
 | FIX-02 | v0.9-04 | Pending |
 | FIX-03 | v0.9-04 | Pending |
 | FIX-04 | v0.9-04 | Pending |
 
 **Coverage:**
-- v0.9 requirements: 16 total
-- Mapped to phases: 16 (roadmap complete)
+- v0.9 requirements: 18 total (16 original + NYQ-05 + DSC-04 added post-quorum)
+- Mapped to phases: 18 (roadmap complete)
 - Unmapped: 0
 
 ---
