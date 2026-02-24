@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.12 Formal Verification — Phase v0.12-01 (Conformance Event Infrastructure)
+**Current focus:** v0.10 Agent Display — Phase v0.10-01-foundation (Plan 01 complete, Plan 02 next)
 
 ## Current Position
 
-Phase: v0.12-01 of v0.12-03 (Conformance Event Infrastructure)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-24 — v0.12 roadmap created (3 phases, 21/21 requirements mapped)
+Phase: v0.10-01-foundation of v0.10-01 (Six pure display helper functions)
+Plan: 1 of TBD in current phase (Plan 01 COMPLETE)
+Status: Plan 01 complete — ready for Plan 02
+Last activity: 2026-02-24 — v0.10-01-01 complete (7 pure functions + 22 tests via TDD)
 
-Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 0/6 phases | v0.9 parallel: 3/5 phases
+Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 1/6 phases (v0.10-01-01 done) | v0.9 parallel: 3/5 phases
 
 ## Performance Metrics
 
@@ -33,6 +33,7 @@ Progress: [████████████████████] 46/46 p
 | v0.9-01 P01 | 1 | ~2 min | 2 min |
 | v0.11-01 P01 | 2 | 2 min | 1 min |
 | v0.11-01 P03 | 1 | 3 min | 3 min |
+| v0.10-01 P01 | 2 | 2 min | 1 min |
 
 **Recent Trend:**
 - Last 5 plans: stable
@@ -54,6 +55,9 @@ Recent decisions affecting current work:
 - [v0.12 roadmap]: Java ≥17 is the shared prerequisite for TLA+, Alloy, PRISM — documented once in VERIFICATION_TOOLS.md
 - [v0.11-01-03]: SEQUENTIAL CALLS ONLY exception: worker Task spawns per round ARE sibling calls; all Bash remains sequential
 - [v0.11-01-03]: Scoreboard update uses merge-wave per round (temp vote files → single atomic transaction)
+- [v0.10-01-01]: readQgsdJson/writeQgsdJson use optional filePath parameter for testability — avoids fs mocking
+- [v0.10-01-01]: getKeyInvalidBadge uses dependency-injected hasKeyFn — keeps pure function testable without secretsLib
+- [v0.10-01-01]: listAgents() deduplication — 2 separate inline qgsd.json reads replaced by single readQgsdJson() call
 
 ### Pending Todos
 
@@ -78,5 +82,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: v0.12 roadmap created — 3 phases, 21/21 requirements mapped; ready to plan v0.12-01
+Stopped at: Completed v0.10-01-01-PLAN.md — 7 pure functions + 22 tests, ready for v0.10-01-02
 Resume file: None
