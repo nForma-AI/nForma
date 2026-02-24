@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 ## Current Position
 
-Phase: v0.10-01-foundation of v0.10-01 (W/L + CCR + key-invalid display columns)
-Plan: 2 of 2 in current phase (Plan 02 COMPLETE — checkpoint:human-verify pending)
-Status: Plan 02 complete — awaiting human visual verification of listAgents() table output
-Last activity: 2026-02-24 — v0.10-01-02 complete (W/L + CCR + key-invalid badge in listAgents())
+Phase: v0.10-03-credential-management of v0.10 (Roster Toolkit)
+Plan: 3 of 3 in current phase (all plans COMPLETE — pending human verify on Plan 03 Task 4)
+Status: v0.10-03 automated tasks complete — awaiting human visual verification of batch rotate flow + key_status persistence
+Last activity: 2026-02-24 — v0.10-03-03 complete (classifyProbeResult + writeKeyStatus + batchRotateKeys + mainMenu wiring)
 
 Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 2/6 phases (v0.10-01 both plans done) | v0.9 parallel: 3/5 phases
 
@@ -85,5 +85,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed v0.10-01-02-PLAN.md — W/L + CCR + key-invalid badge in listAgents(); checkpoint:human-verify pending user sign-off
+Stopped at: v0.10-03 all 3 plans executed; checkpoint:human-verify on Plan 03 Task 4 (batch rotate flow + key_status persistence)
 Resume file: None
