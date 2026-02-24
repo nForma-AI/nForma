@@ -412,7 +412,7 @@ Plans:
 | v0.10-02. Presets and Cloning | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-03. Credential Management | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
-| v0.10-05. Policy UIs | 3/3 | Complete   | 2026-02-24 | - |
+| v0.10-05. Policy UIs | 3/3 | Complete    | 2026-02-24 | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
 | v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
