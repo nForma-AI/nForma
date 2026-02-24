@@ -139,63 +139,123 @@
     },
     {
       "name": "claude-1",
-      "type": "http",
-      "description": "DeepSeek-V3.2 via AkashML HTTP API",
-      "baseUrl": "https://api.akashml.com/v1",
+      "type": "subprocess",
+      "description": "DeepSeek-V3.2 via AkashML — real Claude Code CLI",
+      "mainTool": "claude",
       "model": "deepseek-ai/DeepSeek-V3.2",
-      "apiKeyEnv": "AKASHML_API_KEY",
+      "display_provider": "AkashML",
+      "cli": "/opt/homebrew/bin/claude",
+      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
+      "health_check_args": ["--version"],
+      "helpArgs": ["--help"],
+      "extraTools": [],
       "timeout_ms": 120000,
-      "quorum_timeout_ms": 20000
+      "quorum_timeout_ms": 20000,
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://api.akashml.com/v1",
+        "ANTHROPIC_API_KEY": "akml-NodRYQ-I4AoG1kDwtTVWBbGd1qbC5KbA",
+        "ANTHROPIC_MODEL": "deepseek-ai/DeepSeek-V3.2"
+      }
     },
     {
       "name": "claude-2",
-      "type": "http",
-      "description": "MiniMax-M2.5 via AkashML HTTP API",
-      "baseUrl": "https://api.akashml.com/v1",
+      "type": "subprocess",
+      "description": "MiniMax-M2.5 via AkashML — real Claude Code CLI",
+      "mainTool": "claude",
       "model": "MiniMaxAI/MiniMax-M2.5",
-      "apiKeyEnv": "AKASHML_API_KEY",
+      "display_provider": "AkashML",
+      "cli": "/opt/homebrew/bin/claude",
+      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
+      "health_check_args": ["--version"],
+      "helpArgs": ["--help"],
+      "extraTools": [],
       "timeout_ms": 120000,
-      "quorum_timeout_ms": 20000
+      "quorum_timeout_ms": 20000,
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://api.akashml.com/v1",
+        "ANTHROPIC_API_KEY": "akml-NodRYQ-I4AoG1kDwtTVWBbGd1qbC5KbA",
+        "ANTHROPIC_MODEL": "MiniMaxAI/MiniMax-M2.5"
+      }
     },
     {
       "name": "claude-3",
-      "type": "http",
-      "description": "Qwen3-Coder-480B via Together.xyz HTTP API",
-      "baseUrl": "https://api.together.xyz/v1",
+      "type": "subprocess",
+      "description": "Qwen3-Coder-480B via Together.xyz — real Claude Code CLI",
+      "mainTool": "claude",
       "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
-      "apiKeyEnv": "TOGETHER_API_KEY",
+      "display_provider": "Together.xyz",
+      "cli": "/opt/homebrew/bin/claude",
+      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
+      "health_check_args": ["--version"],
+      "helpArgs": ["--help"],
+      "extraTools": [],
       "timeout_ms": 120000,
-      "quorum_timeout_ms": 30000
+      "quorum_timeout_ms": 30000,
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://api.together.xyz/v1",
+        "ANTHROPIC_API_KEY": "tgp_v1_WsoeKW05FB7ymwK7hjJrMKRgR0FB3UId-_etMVp7InE",
+        "ANTHROPIC_MODEL": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
+      }
     },
     {
       "name": "claude-4",
-      "type": "http",
-      "description": "Kimi-K2 via Fireworks HTTP API",
-      "baseUrl": "https://api.fireworks.ai/inference/v1",
+      "type": "subprocess",
+      "description": "Kimi-K2 via Fireworks — real Claude Code CLI",
+      "mainTool": "claude",
       "model": "accounts/fireworks/models/kimi-k2p5",
-      "apiKeyEnv": "FIREWORKS_API_KEY",
+      "display_provider": "Fireworks",
+      "cli": "/opt/homebrew/bin/claude",
+      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
+      "health_check_args": ["--version"],
+      "helpArgs": ["--help"],
+      "extraTools": [],
       "timeout_ms": 120000,
-      "quorum_timeout_ms": 30000
+      "quorum_timeout_ms": 30000,
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://api.fireworks.ai/inference/v1",
+        "ANTHROPIC_API_KEY": "fw_3ZRUprvwRJAsGpexjYdnDC8A",
+        "ANTHROPIC_MODEL": "accounts/fireworks/models/kimi-k2p5"
+      }
     },
     {
       "name": "claude-5",
-      "type": "http",
-      "description": "Llama-4-Maverick-17B via Together.xyz HTTP API",
-      "baseUrl": "https://api.together.xyz/v1",
+      "type": "subprocess",
+      "description": "Llama-4-Maverick-17B via Together.xyz — real Claude Code CLI",
+      "mainTool": "claude",
       "model": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-      "apiKeyEnv": "TOGETHER_API_KEY",
+      "display_provider": "Together.xyz",
+      "cli": "/opt/homebrew/bin/claude",
+      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
+      "health_check_args": ["--version"],
+      "helpArgs": ["--help"],
+      "extraTools": [],
       "timeout_ms": 120000,
-      "quorum_timeout_ms": 10000
+      "quorum_timeout_ms": 10000,
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://api.together.xyz/v1",
+        "ANTHROPIC_API_KEY": "tgp_v1_WsoeKW05FB7ymwK7hjJrMKRgR0FB3UId-_etMVp7InE",
+        "ANTHROPIC_MODEL": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+      }
     },
     {
       "name": "claude-6",
-      "type": "http",
-      "description": "GLM-5 via Fireworks HTTP API",
-      "baseUrl": "https://api.fireworks.ai/inference/v1",
+      "type": "subprocess",
+      "description": "GLM-5 via Fireworks — real Claude Code CLI",
+      "mainTool": "claude",
       "model": "accounts/fireworks/models/glm-5",
-      "apiKeyEnv": "FIREWORKS_API_KEY",
+      "display_provider": "Fireworks",
+      "cli": "/opt/homebrew/bin/claude",
+      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
+      "health_check_args": ["--version"],
+      "helpArgs": ["--help"],
+      "extraTools": [],
       "timeout_ms": 120000,
-      "quorum_timeout_ms": 8000
+      "quorum_timeout_ms": 8000,
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://api.fireworks.ai/inference/v1",
+        "ANTHROPIC_API_KEY": "fw_3ZRUprvwRJAsGpexjYdnDC8A",
+        "ANTHROPIC_MODEL": "accounts/fireworks/models/glm-5"
+      }
     }
   ]
 }
