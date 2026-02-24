@@ -1,85 +1,94 @@
-# Requirements: QGSD
+# Requirements: QGSD v0.10 Roster Toolkit
 
 **Defined:** 2026-02-24
 **Core Value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## v0.9 Requirements
+## v0.10 Requirements
 
-Requirements for the GSD Sync milestone. Ports GSD 1.20.6 improvements into QGSD.
+Roster management features for `bin/manage-agents.cjs`. All additive to the existing CJS monolith. Zero new npm dependencies.
 
-### Hooks — Context Window Monitor
+### Display
 
-- [x] **CTX-01**: Context window monitor hook (`hooks/gsd-context-monitor.js`) created and registered as PostToolUse in `bin/install.js`
-- [x] **CTX-02**: Hook injects WARNING into `additionalContext` when context usage exceeds configurable threshold (default: 70%)
-- [x] **CTX-03**: Hook injects CRITICAL into `additionalContext` when context usage exceeds configurable threshold (default: 90%)
-- [x] **CTX-04**: Thresholds configurable via `qgsd.json` (`context_monitor.warn_pct`, `context_monitor.critical_pct`); two-layer merge applies
-- [x] **CTX-05**: Hook copied to `hooks/dist/` and global install sync run (`node bin/install.js --claude --global`)
+- [ ] **DISP-01**: `listAgents()` shows quorum W/L column per slot (graceful empty state when scoreboard file absent)
+- [ ] **DISP-02**: `listAgents()` shows CCR provider name per slot when CCR routing applies to that slot
+- [ ] **DISP-03**: `listAgents()` shows `[key invalid]` badge when last health probe returned 401 AND a key is configured for that slot
 
-### Plan — Nyquist Validation Layer
+### Presets & Cloning
 
-- [ ] **NYQ-01**: `get-shit-done/templates/VALIDATION.md` template created with per-task test-map structure
-- [ ] **NYQ-02**: `plan-phase.md` step 5.5 inserted after research step — generates `VALIDATION.md` for the phase before roadmap creation
-- [ ] **NYQ-03**: VALIDATION.md structure includes: per-task test-map (what to test per plan), Wave 0 pre-execution requirements, sampling rate spec
-- [ ] **NYQ-04**: `nyquist_validation_enabled` field appears in `gsd-tools.cjs init plan-phase` JSON output (boolean, defaults true)
-- [ ] **NYQ-05**: Plan-phase step 5.5 includes an explicit adoption verification step — if `nyquist_validation_enabled` is true and `VALIDATION.md` is absent after step 5.5 executes, the workflow halts with a clear error before proceeding to plan creation
+- [ ] **PRST-01**: User can select a named provider preset (AkashML / Together.xyz / Fireworks.ai) in addAgent/editAgent flow instead of manually typing a URL
+- [ ] **PRST-02**: User can clone an existing slot — copies provider URL and model config, prompts for new slot name
 
-### Discuss — UX Improvements
+### Credentials
 
-- [ ] **DSC-01**: In `discuss-phase.md` `present_gray_areas` step, each option includes a recommended choice with brief reasoning explaining why
-- [ ] **DSC-02**: After all selected areas conclude, user sees "Explore more gray areas" option instead of hard-stopping at "I'm ready for context"
-- [ ] **DSC-03**: Gray-area loop re-runs `present_gray_areas` with 2-4 newly identified areas on each re-entry (not the same ones already explored)
-- [ ] **DSC-04**: Gray-area loop has an explicit termination rule — after 3 re-entry loops or when no new areas can be identified, the workflow exits to "I'm ready for context" automatically
+- [ ] **CRED-01**: User can rotate API keys across multiple slots in a single batch flow from the main menu
+- [ ] **CRED-02**: Key validity status persists to `qgsd.json` after each health probe (enables DISP-03 badge to survive across sessions without re-probing)
 
-### Fixes — Tier 3
+### Dashboard
 
-- [ ] **FIX-01**: `plan-phase.md` Task spawn points include a "do NOT use the Skill tool" guard note
-- [ ] **FIX-02**: `discuss-phase.md` Task spawn points include a "do NOT use the Skill tool" guard note
-- [ ] **FIX-03**: QGSD Gemini quorum templates checked for TOML conversion issue; fix applied if affected (Gemini is a quorum slot — matters for quorum consistency)
-- [ ] **FIX-04**: `gsd-tools.cjs` decimal phase number parsing (N.M format) consistent with integer format across all subcommands
+- [ ] **DASH-01**: User can open a live health dashboard from main menu showing all slots' provider, model, and health status
+- [ ] **DASH-02**: Dashboard refreshes on keypress (space / r) with a visible "last updated" timestamp shown at bottom
+- [ ] **DASH-03**: Dashboard exits cleanly on Q or Escape, returning to main menu with stdin fully restored (no character-swallowing)
 
-## Deferred
+### Policy
 
-### Carry-forward
+- [ ] **PLCY-01**: User can set quorum timeout (ms) per slot from a dedicated menu shortcut — not buried inside editAgent
+- [ ] **PLCY-02**: User can configure update policy per slot: auto / prompt / skip
+- [ ] **PLCY-03**: Auto-update policy check runs on manage-agents startup for slots configured as `auto`
 
-- npm publish qgsd@0.2.0 — run `npm publish --access public` when user decides (RLS-04)
+### Portability
+
+- [ ] **PORT-01**: User can export full roster config to a portable JSON file — all API key values replaced with `__redacted__` placeholders
+- [ ] **PORT-02**: User can import roster config from JSON file — validates schema, prompts to re-enter any redacted key, confirms before applying
+- [ ] **PORT-03**: Import creates a timestamped backup of `~/.claude.json` before applying any changes
+
+## Future Requirements
+
+Deferred to v0.11 or later.
+
+### Presets
+
+- **PRST-03**: User-extensible preset library — custom presets persisted under `custom_presets` key in `qgsd.json`
+
+### Dashboard
+
+- **DASH-04**: Dashboard auto-refresh on configurable interval (requires resolving inquirer stdin conflict in a TTY-safe way)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Installer 11-module refactor | GSD's module split doesn't map to QGSD's surface (keychain, quorum slots, circuit breaker); would need QGSD-native refactor |
-| Pending quick tasks (74, 77, 78, 81, 82, 89) | Addressed opportunistically as quick tasks, not milestone phases |
+| blessed / ink terminal UI | blessed unmaintained since 2019; ink requires React rewrite incompatible with existing CJS inquirer tool |
+| TOML / env-file export format | No ecosystem precedent; env-file format is a security risk (keys in plaintext) |
+| Inquirer v9 upgrade | ESM-only; breaks require() in existing CJS monolith |
+| Per-project roster config | Global-only matches existing QGSD install pattern |
+| Key export in plaintext | Security invariant — export must always redact |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CTX-01 | v0.9-01 | Complete |
-| CTX-02 | v0.9-01 | Complete |
-| CTX-03 | v0.9-01 | Complete |
-| CTX-04 | v0.9-01 | Complete |
-| CTX-05 | v0.9-01 | Complete |
-| NYQ-01 | v0.9-02 | Pending |
-| NYQ-02 | v0.9-02 | Pending |
-| NYQ-03 | v0.9-02 | Pending |
-| NYQ-04 | v0.9-02 | Pending |
-| NYQ-05 | v0.9-02 | Pending |
-| DSC-01 | v0.9-03 | Pending |
-| DSC-02 | v0.9-03 | Pending |
-| DSC-03 | v0.9-03 | Pending |
-| DSC-04 | v0.9-03 | Pending |
-| FIX-01 | v0.9-04 | Pending |
-| FIX-02 | v0.9-04 | Pending |
-| FIX-03 | v0.9-04 | Pending |
-| FIX-04 | v0.9-04 | Pending |
+| DISP-01 | v0.10-01 | Pending |
+| DISP-02 | v0.10-01 | Pending |
+| DISP-03 | v0.10-01 | Pending |
+| PRST-01 | v0.10-02 | Pending |
+| PRST-02 | v0.10-02 | Pending |
+| CRED-01 | v0.10-03 | Pending |
+| CRED-02 | v0.10-03 | Pending |
+| DASH-01 | v0.10-04 | Pending |
+| DASH-02 | v0.10-04 | Pending |
+| DASH-03 | v0.10-04 | Pending |
+| PLCY-01 | v0.10-05 | Pending |
+| PLCY-02 | v0.10-05 | Pending |
+| PLCY-03 | v0.10-05 | Pending |
+| PORT-01 | v0.10-06 | Pending |
+| PORT-02 | v0.10-06 | Pending |
+| PORT-03 | v0.10-06 | Pending |
 
 **Coverage:**
-- v0.9 requirements: 18 total (16 original + NYQ-05 + DSC-04 added post-quorum)
-- Mapped to phases: 18 (roadmap complete)
-- Unmapped: 0
+- v0.10 requirements: 16 total
+- Mapped to phases: 16
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-24*
-*Last updated: 2026-02-24 — traceability filled after v0.9 roadmap creation*
+*Last updated: 2026-02-24 after initial definition*
