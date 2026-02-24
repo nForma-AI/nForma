@@ -23,6 +23,9 @@ animation/
 # Compiled TypeScript machine artifacts
 dist/machines/
 
+# Conformance event log — per-user runtime artifact
+.planning/conformance-events.jsonl
+
 # Internal planning documents
 reports/
 RAILROAD_ARCHITECTURE.md

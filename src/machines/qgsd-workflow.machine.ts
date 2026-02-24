@@ -1,4 +1,5 @@
-import { setup, assign } from 'xstate';
+import { setup, assign, createActor } from 'xstate';
+export { createActor };
 
 export interface QGSDContext {
   slotsAvailable:     number;
