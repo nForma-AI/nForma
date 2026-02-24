@@ -22,6 +22,11 @@ for the question or bundle passed in `$ARGUMENTS`.
 Every model call and every Task spawn MUST be issued as a separate, standalone message
 turn — never batched or co-submitted as sibling calls. One call → wait → proceed.
 
+**Exception — parallel worker wave:** When dispatching a quorum worker round, ALL worker
+Task spawns for that round ARE issued as sibling calls in one message turn (one Task per
+active slot). This is the only case where sibling tool calls are permitted. All Bash calls
+(including set-availability, merge-wave, and scoreboard updates) remain sequential.
+
 **Two modes** — detect automatically from `$ARGUMENTS`:
 
 - **Mode A — Pure Question**: The input is a question or decision prompt. No execution required.
@@ -211,8 +216,7 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" init-team \
   --team '<TEAM_JSON>'
 ```
 
-**Timeout guard:** Build `$SLOT_TIMEOUTS` from providers.json: `{ slotName: quorum_timeout_ms }`.
-Use this as the `--timeout` value for each `call-quorum-slot.cjs` call (fallback: 30000ms).
+**Pre-resolve slot timeouts:** Build `$SLOT_TIMEOUTS` by reading `providers.json` using the same search paths as Step 1. For each slot in the active working list, record `quorum_timeout_ms` (fallback: 30000). Store as a map `{ slotName: timeoutMs }`. Workers receive their specific timeout in `timeout_ms:` — they do NOT read `providers.json` themselves.
 
 ---
 
