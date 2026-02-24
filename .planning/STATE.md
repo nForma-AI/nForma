@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10 Agent Display — Phase v0.10-05-policy-uis in progress — Plan 02 (GREEN: 5 pure functions implemented, 118 pass 0 fail) complete
+**Current focus:** v0.10 Agent Display — Phase v0.10-05-policy-uis — Plan 03 COMPLETE (PLCY-01, PLCY-02, PLCY-03 verified; tuneTimeouts/setUpdatePolicy/runAutoUpdateCheck wired into manage-agents.cjs, human verification gate passed)
 
 ## Current Position
 
 Phase: v0.10-05-policy-uis of v0.10 (Roster Toolkit)
-Plan: 2 of N in current phase (Plan 02 COMPLETE — 5 pure functions implemented, 118 pass 0 fail GREEN state)
-Status: v0.10-05-02 complete — 118 pass / 0 fail; buildTimeoutChoices, applyTimeoutUpdate, buildPolicyChoices, buildUpdateLogEntry, parseUpdateLogErrors all implemented and exported
-Last activity: 2026-02-24 - Completed quick task 100: Add global wall-clock timeout to quorum orchestrator
+Plan: 3 of N in current phase (Plan 03 COMPLETE — all interactive flows verified, 116 pass 0 fail)
+Status: v0.10-05-03 complete — PLCY-01/02/03 implemented and verified via quorum-test PASS (378/0, 3 models PASS); tuneTimeouts(), setUpdatePolicy(), runAutoUpdateCheck(), listAgents() warning banner all wired
+Last activity: 2026-02-24 — v0.10-05-03 complete (integration wiring + human verification gate passed)
 
 Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 2/6 phases (v0.10-01 both plans done) | v0.9 parallel: 3/5 phases
 
@@ -39,6 +39,7 @@ Progress: [████████████████████] 46/46 p
 | v0.10-04 P02 | 2 | 1 min | 1 min |
 | v0.10-05 P01 | 1 | 2 min | 2 min |
 | v0.10-05 P02 | 2 | 2 min | 1 min |
+| v0.10-05 P03 | 3 | 28 min | 9 min |
 
 **Recent Trend:**
 - Last 5 plans: stable
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [v0.10-05-01]: Plan stated 22 stubs but action block contained 24 (4+4+4+5+7); applied all 24 — code specification is authoritative over prose count
 - [v0.10-05-02]: 118 tests pass (not 116 as plan expected) — 94+24=118 is correct GREEN state; count discrepancy carried forward from Plan 01
 - [v0.10-05-02]: POLICY_MENU_CHOICES and UPDATE_LOG_DEFAULT_MAX_AGE_MS are module-level constants, not exported — internal implementation details
+- [v0.10-05-03]: runAutoUpdateCheck() is fail-open with 20s Promise.race timeout — never throws or blocks mainMenu
+- [v0.10-05-03]: listAgents() reads tail 500 lines of update log — prevents unbounded memory growth on large logs
+- [v0.10-05-03]: writeUpdatePolicy() persists to qgsd.json agent_config[slot].update_policy; tuneTimeouts() writes to providers.json via writeProvidersJson()
 
 ### Pending Todos
 
@@ -98,5 +102,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: 2026-02-24 - Completed quick task 100: Add global wall-clock timeout to quorum orchestrator
+Stopped at: 2026-02-24 — Completed v0.10-05-03-PLAN.md (PLCY-01/02/03 verified, SUMMARY.md created)
 Resume file: None

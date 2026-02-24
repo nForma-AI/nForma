@@ -136,7 +136,7 @@
 - [x] **Phase v0.10-02: Presets and Cloning** — Provider preset library wired into addAgent/editAgent + slot cloning flow (completed 2026-02-24)
 - [x] **Phase v0.10-03: Credential Management** — Key expiry detection with classifyProbeResult() + batch key rotation with sequential-only write loop (completed 2026-02-24)
 - [x] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit (completed 2026-02-24)
-- [ ] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check
+- [x] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check (completed 2026-02-24)
 - [ ] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup
 
 <details>
@@ -327,7 +327,12 @@ Plans:
   2. After a quorum decision turn, `.planning/conformance-events.jsonl` contains a new NDJSON line with `{ ts, phase, action, slots_available, vote_result, outcome }` — confirmed by reading the file; the hook critical path shows no timing regression and no stdout output added
   3. Developer can find `src/machines/qgsd-workflow.machine.ts` with 4 states (`IDLE`, `COLLECTING_VOTES`, `DELIBERATING`, `DECIDED`) and 3 guards (`minQuorumMet`, `noInfiniteDeliberation`, `phaseMonotonicallyAdvances`); `tsup` build compiles it to CJS without touching any hook file
   4. User can run `node ~/.claude/qgsd-bin/validate-traces.cjs` and see a deviation score (% of valid XState executions) plus any flagged divergences — exit code 0 on clean log, non-zero on violations
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.12-01-01-PLAN.md — Wave 0 stubs + conformance-schema.cjs + hook instrumentation in qgsd-stop.js and qgsd-prompt.js (LOG-01, LOG-02, LOG-03)
+- [ ] v0.12-01-02-PLAN.md — XState v5 machine TypeScript source + tsconfig.formal.json + tsup CJS build (XST-01, XST-02, XST-03)
+- [ ] v0.12-01-03-PLAN.md — validate-traces.cjs implementation + integration tests + install distribution (VAL-01, VAL-02, VAL-03)
 
 ### Phase v0.12-02: TLA+ Formal Spec
 **Goal**: A TLA+ specification of QGSD's quorum workflow exists with named safety and liveness invariants, two TLC model configurations are verified, and developers can invoke TLC via a bin/ script
@@ -407,9 +412,9 @@ Plans:
 | v0.10-02. Presets and Cloning | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-03. Credential Management | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
-| v0.10-05. Policy UIs | 2/3 | In Progress|  | - |
+| v0.10-05. Policy UIs | 3/3 | Complete   | 2026-02-24 | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
-| v0.12-01. Conformance Event Infrastructure | v0.12 | 0/? | Not started | - |
+| v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
 | v0.12-02. TLA+ Formal Spec | v0.12 | 0/? | Not started | - |
 | v0.12-03. Static Analysis Suite | v0.12 | 0/? | Not started | - |
