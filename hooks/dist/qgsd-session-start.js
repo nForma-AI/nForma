@@ -40,5 +40,25 @@ function findSecrets() {
     // Non-fatal — write to stderr for debug logs, but never block session start
     process.stderr.write('[qgsd-session-start] sync error: ' + e.message + '\n');
   }
+
+  // Populate CCR config from keytar (fail-silent — CCR may not be installed)
+  try {
+    const { execFileSync } = require('child_process');
+    const nodeFsRef = require('fs');
+    const ccrCandidates = [
+      path.join(os.homedir(), '.claude', 'qgsd-bin', 'ccr-secure-config.cjs'),
+      path.join(__dirname, '..', 'bin', 'ccr-secure-config.cjs'),
+    ];
+    let ccrConfigPath = null;
+    for (const p of ccrCandidates) {
+      if (nodeFsRef.existsSync(p)) { ccrConfigPath = p; break; }
+    }
+    if (ccrConfigPath) {
+      execFileSync(process.execPath, [ccrConfigPath], { stdio: 'pipe', timeout: 10000 });
+    }
+  } catch (e) {
+    process.stderr.write('[qgsd-session-start] CCR config error: ' + e.message + '\n');
+  }
+
   process.exit(0);
 })();
