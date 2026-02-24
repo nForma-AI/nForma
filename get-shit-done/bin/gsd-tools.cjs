@@ -184,6 +184,7 @@ function loadConfig(cwd) {
     parallelization: true,
     brave_search: false,
     auto_advance: true,
+    nyquist_validation: true,
   };
 
   try {
@@ -218,6 +219,7 @@ function loadConfig(cwd) {
       parallelization,
       brave_search: get('brave_search') ?? defaults.brave_search,
       auto_advance: get('auto_advance', { section: 'workflow', field: 'auto_advance' }) ?? defaults.auto_advance,
+      nyquist_validation: get('nyquist_validation', { section: 'workflow', field: 'nyquist_validation' }) ?? defaults.nyquist_validation,
     };
   } catch {
     return defaults;
@@ -663,6 +665,7 @@ function cmdConfigEnsureSection(cwd, raw) {
       research: true,
       plan_check: true,
       verifier: true,
+      nyquist_validation: true,
     },
     parallelization: true,
     brave_search: hasBraveSearch,
@@ -4402,6 +4405,7 @@ function cmdInitPlanPhase(cwd, phase, raw) {
     // Workflow flags
     research_enabled: config.research,
     plan_checker_enabled: config.plan_checker,
+    nyquist_validation_enabled: config.nyquist_validation,
     commit_docs: config.commit_docs,
 
     // Phase info

@@ -112,6 +112,11 @@ Answer: "What do I need to know to PLAN this phase well?"
 
 **Project instructions:** Read ./CLAUDE.md if exists — follow project-specific guidelines
 **Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, research should account for project skill patterns
+
+**Nyquist Validation:** If `nyquist_validation_enabled` is true (from INIT JSON), your RESEARCH.md MUST include a `## Validation Architecture` section covering:
+- Test framework and commands (quick run command, full suite command)
+- Wave 0 test scaffolding requirements (which test files need to exist before implementation starts)
+- Per-task test type (unit / integration / smoke / manual) for each planned task
 </additional_context>
 
 <output>
@@ -132,6 +137,39 @@ Task(
 
 - **`## RESEARCH COMPLETE`:** Display confirmation, continue to step 6
 - **`## RESEARCH BLOCKED`:** Display blocker, offer: 1) Provide context, 2) Skip research, 3) Abort
+
+## 5.5. Create Validation Strategy (if Nyquist enabled)
+
+**Skip if:** `nyquist_validation_enabled` is false from INIT JSON.
+
+After researcher completes, check if RESEARCH.md contains a Validation Architecture section:
+
+```bash
+grep -l "## Validation Architecture" "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null
+```
+
+**If found:**
+1. Read validation template from `/Users/jonathanborduas/.claude/qgsd/templates/VALIDATION.md`
+2. Write to `${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md`
+3. Fill frontmatter: replace `{N}` with phase number, `{phase-slug}` with phase slug, `{date}` with current date
+4. If `commit_docs` is true:
+```bash
+node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs commit "docs(phase-${PHASE}): add validation strategy" --files "${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md"
+```
+
+**If not found (and nyquist enabled):**
+
+HALT with error:
+```
+ERROR: Nyquist validation is enabled but no "## Validation Architecture" section was found in RESEARCH.md.
+       VALIDATION.md cannot be generated.
+
+To fix: Either
+  1. Re-run research (the researcher must include ## Validation Architecture in its output), or
+  2. Disable Nyquist: node /Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs config-set workflow.nyquist_validation false
+
+Do NOT proceed to plan creation without VALIDATION.md when nyquist_validation_enabled is true.
+```
 
 ## 6. Check Existing Plans
 
