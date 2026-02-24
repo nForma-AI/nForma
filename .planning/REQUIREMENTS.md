@@ -41,6 +41,15 @@ Roster management features for `bin/manage-agents.cjs`. All additive to the exis
 - [ ] **PORT-02**: User can import roster config from JSON file — validates schema, prompts to re-enter any redacted key, confirms before applying
 - [ ] **PORT-03**: Import creates a timestamped backup of `~/.claude.json` before applying any changes
 
+## v0.9 Requirements (Addendum)
+
+Rename the source directory from `get-shit-done/` to `qgsd-core/` to match QGSD identity.
+
+- [ ] **REN-01**: `git mv get-shit-done/ qgsd-core/` — directory renamed, git history preserved
+- [ ] **REN-02**: `bin/install.js` updated to read from `qgsd-core/` instead of `get-shit-done/` — `node bin/install.js --claude --global` succeeds
+- [ ] **REN-03**: All hardcoded `get-shit-done/` path strings removed from `bin/gsd-tools.cjs`, workflow files, agent files, and template files
+- [ ] **REN-04**: `~/.claude/qgsd/` installed runtime is functionally identical before and after rename (verified by spot-check)
+
 ## Future Requirements
 
 Deferred to v0.11 or later.
