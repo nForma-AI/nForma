@@ -19,6 +19,7 @@ const path = require('path');
 const os   = require('os');
 const { spawnSync } = require('child_process');
 const { loadConfig, slotToToolCall } = require('./config-loader');
+const { schema_version } = require('./conformance-schema.cjs');
 
 const DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK = `QUORUM REQUIRED (structural enforcement — Stop hook will verify)
 
@@ -45,6 +46,20 @@ After quorum (either method):
 Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.
 Failover rule: if an agent returns an error or quota exceeded, skip it and call the next agent until you have 5 successful (non-error) responses. Errors do not count toward the ceiling.
 The Stop hook reads the transcript — skipping quorum will block your response.`;
+
+// Appends a structured conformance event to .planning/conformance-events.jsonl.
+// Uses appendFileSync (atomic for writes < POSIX PIPE_BUF = 4096 bytes).
+// Always wrapped in try/catch — hooks are fail-open; never crashes on logging failure.
+// NEVER writes to stdout — stdout is the Claude Code hook decision channel.
+function appendConformanceEvent(event) {
+  try {
+    const logPath = path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.appendFileSync(logPath, JSON.stringify(event) + '\n', 'utf8');
+  } catch (err) {
+    process.stderr.write('[qgsd] conformance log write failed: ' + err.message + '\n');
+  }
+}
 
 // Locate the oscillation-resolution-mode workflow.
 // Tries global install path first (~/.claude/qgsd/), then local (.claude/qgsd/).
@@ -202,6 +217,16 @@ process.stdin.on('end', () => {
     if (!cmdPattern.test(prompt)) {
       process.exit(0); // Silent pass — UPS-05
     }
+
+    appendConformanceEvent({
+      ts:              new Date().toISOString(),
+      phase:           'IDLE',
+      action:          'quorum_start',
+      slots_available: 0,
+      vote_result:     null,
+      outcome:         null,
+      schema_version,
+    });
 
     process.stdout.write(JSON.stringify({
       hookSpecificOutput: {

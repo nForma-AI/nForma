@@ -18,6 +18,21 @@ const path = require('path');
 const os = require('os');
 
 const { loadConfig, DEFAULT_CONFIG, slotToToolCall } = require('./config-loader');
+const { schema_version } = require('./conformance-schema.cjs');
+
+// Appends a structured conformance event to .planning/conformance-events.jsonl.
+// Uses appendFileSync (atomic for writes < POSIX PIPE_BUF = 4096 bytes).
+// Always wrapped in try/catch — hooks are fail-open; never crashes on logging failure.
+// NEVER writes to stdout — stdout is the Claude Code hook decision channel.
+function appendConformanceEvent(event) {
+  try {
+    const logPath = path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.appendFileSync(logPath, JSON.stringify(event) + '\n', 'utf8');
+  } catch (err) {
+    process.stderr.write('[qgsd] conformance log write failed: ' + err.message + '\n');
+  }
+}
 
 // Builds the regex that matches /gsd:<quorum-command> or /qgsd:<quorum-command> in any text.
 function buildCommandPattern(quorumCommands) {
@@ -449,6 +464,15 @@ function main() {
 
       if (successCount < minSize) {
         // Only read missingAgents here — never in the success path
+        appendConformanceEvent({
+          ts:              new Date().toISOString(),
+          phase:           'DECIDING',
+          action:          'quorum_block',
+          slots_available: agentPool.length,
+          vote_result:     successCount,
+          outcome:         'BLOCK',
+          schema_version,
+        });
         process.stdout.write(JSON.stringify({
           decision: 'block',
           reason: 'QUORUM REQUIRED: Missing tool calls for: ' + missingAgents.join(', ') + '. Run the required quorum agent(s) before completing this planning command.'
@@ -456,6 +480,15 @@ function main() {
         process.exit(0);
       }
 
+      appendConformanceEvent({
+        ts:              new Date().toISOString(),
+        phase:           'DECIDING',
+        action:          'quorum_complete',
+        slots_available: agentPool.length,
+        vote_result:     successCount,
+        outcome:         'APPROVE',
+        schema_version,
+      });
       process.exit(0);
 
     } catch {
