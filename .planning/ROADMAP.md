@@ -253,7 +253,11 @@ Plans:
   2. Selecting a provider preset triggers a pre-flight provider probe before the slot is written; if the probe fails the user sees an error and is offered a retry or cancel — no partial slot is written on probe failure
   3. A "Clone slot" option appears in the main menu; selecting it presents the existing slot list, copies the chosen slot's provider URL and model config to a new slot name the user provides, and validates that the new slot name is unique before writing
   4. After cloning, the user is prompted to set an API key for the new slot; skipping is allowed but the slot is shown with `[no key]`; the original slot's key is never copied to the clone (keytar isolation)
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] v0.10-02-01-PLAN.md — TDD: buildPresetChoices + findPresetForUrl + buildCloneEntry pure functions + unit tests (PRST-01, PRST-02)
+- [ ] v0.10-02-02-PLAN.md — Integration: preset selector in addAgent/editAgent + probeWithRetryOrCancel + cloneSlot + mainMenu wiring (PRST-01, PRST-02)
 
 ### Phase v0.10-03: Credential Management
 **Goal**: Users can rotate API keys across multiple slots in one flow, and key validity status persists across sessions without requiring a re-probe on restart
@@ -385,7 +389,7 @@ Plans:
 | v0.9-04. Tier 3 Fixes | v0.9 | 0/1 | Not started | - |
 | v0.9-05. Rename get-shit-done/ → qgsd-core/ | v0.9 | 0/1 | Not started | - |
 | v0.10-01. Foundation | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
-| v0.10-02. Presets and Cloning | v0.10 | 0/? | Not started | - |
+| v0.10-02. Presets and Cloning | v0.10 | 0/2 | Not started | - |
 | v0.10-03. Credential Management | v0.10 | 0/? | Not started | - |
 | v0.10-04. Live Health Dashboard | v0.10 | 0/? | Not started | - |
 | v0.10-05. Policy UIs | v0.10 | 0/? | Not started | - |
