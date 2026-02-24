@@ -9,6 +9,7 @@ const http = require('http');
 const { spawnSync } = require('child_process');
 const inquirer = require('inquirer');
 const { resolveCli } = require('./resolve-cli.cjs');
+const { updateAgents, getUpdateStatuses } = require('./update-agents.cjs');
 
 const CLAUDE_JSON_PATH = path.join(os.homedir(), '.claude.json');
 const CLAUDE_JSON_TMP = CLAUDE_JSON_PATH + '.tmp';
@@ -187,6 +188,12 @@ async function listAgents() {
     return;
   }
 
+  // Fetch update statuses in parallel (defensive: never throws)
+  let updateStatuses = new Map();
+  try {
+    updateStatuses = await getUpdateStatuses();
+  } catch (_) {}
+
   // Read orchestrator config from qgsd.json
   let orchestrator = { model: 'claude-sonnet-4-6', provider: 'Anthropic', billing: 'sub' };
   try {
@@ -210,7 +217,7 @@ async function listAgents() {
     agentConfig = qgsd.agent_config || {};
   } catch (_) {}
 
-  const W = { n: 3, slot: 14, model: 38, provider: 26, type: 16, billing: 7 };
+  const W = { n: 3, slot: 14, model: 38, provider: 26, type: 16, billing: 7, upd: 3 };
   const header = [
     '#'.padEnd(W.n),
     'Slot'.padEnd(W.slot),
@@ -218,6 +225,7 @@ async function listAgents() {
     'Provider'.padEnd(W.provider),
     'Type'.padEnd(W.type),
     'Billing'.padEnd(W.billing),
+    'Upd'.padEnd(W.upd),
     'Timeout',
   ].join('  ');
 
@@ -232,6 +240,7 @@ async function listAgents() {
     orchestrator.provider.slice(0, W.provider).padEnd(W.provider),
     'claude-code-cli'.padEnd(W.type),
     orchestrator.billing.padEnd(W.billing),
+    ' — '.padEnd(W.upd),
     '— (active)',
   ].join('  ');
   console.log('  \x1b[1m' + orchRow + '\x1b[0m');
@@ -275,6 +284,18 @@ async function listAgents() {
                   : authType === 'ccr' ? 'ccr'
                   : '—';
 
+    // Upd column: look up binary name via provider's cli field
+    let updCell = '\x1b[2m?\x1b[0m';
+    if (p && p.cli) {
+      const binName = path.basename(p.cli);
+      const upd = updateStatuses.get(binName);
+      if (upd) {
+        if (upd.status === 'up-to-date')       updCell = '\x1b[2m\u2713\x1b[0m';
+        else if (upd.status === 'update-available') updCell = '\x1b[33m\u2191\x1b[0m';
+        else                                   updCell = '\x1b[2m?\x1b[0m';
+      }
+    }
+
     const row = [
       String(i + 1).padEnd(W.n),
       name.padEnd(W.slot),
@@ -282,6 +303,7 @@ async function listAgents() {
       provider.slice(0, W.provider).padEnd(W.provider),
       connType.padEnd(W.type),
       billing.padEnd(W.billing),
+      updCell,
       timeout,
     ].join('  ');
 
@@ -1400,6 +1422,8 @@ async function mainMenu() {
           new inquirer.Separator(),
           { name: '9. Manage CCR provider keys', value: 'ccr-keys' },
           new inquirer.Separator(),
+          { name: '10. Update coding agents', value: 'update-agents' },
+          new inquirer.Separator(),
           { name: '0. Exit', value: 'exit' },
         ],
       },
@@ -1415,6 +1439,7 @@ async function mainMenu() {
       else if (action === 'add-sub') await addSubprocessProvider();
       else if (action === 'edit-sub') await editSubprocessProvider();
       else if (action === 'ccr-keys') await manageCcrProviders();
+      else if (action === 'update-agents') await updateAgents();
       else if (action === 'exit') { running = false; console.log('\n  Goodbye!\n'); }
     } catch (err) {
       console.error(`\n  \x1b[31mError: ${err.message}\x1b[0m\n`);
