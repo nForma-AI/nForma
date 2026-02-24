@@ -1,23 +1,25 @@
 # Feature Research
 
-**Domain:** Test suite maintenance / triage tool — Claude Code plugin command (`/qgsd:maintain-tests`)
-**Researched:** 2026-02-22
-**Confidence:** HIGH for test framework APIs and taxonomy; MEDIUM for scale patterns; LOW for the 5-category taxonomy (project-defined, not an industry standard)
+**Domain:** CLI roster management UI — managing multi-model quorum agent slots
+**Researched:** 2026-02-24
+**Confidence:** HIGH for inquirer patterns and JSON/keytar mechanics (existing codebase verified); MEDIUM for live dashboard approaches; LOW for CCR routing display conventions (no direct industry analogs)
 
 ---
 
 ## Context: What Is Already Built
 
-This is a SUBSEQUENT MILESTONE. The following QGSD features are DONE and must not be re-scoped:
+This is a SUBSEQUENT MILESTONE. The following `bin/manage-agents.cjs` features are DONE and must not be re-scoped:
 
-- Quorum enforcement hooks (UserPromptSubmit + Stop)
-- Circuit breaker (PreToolUse oscillation detection)
-- Activity sidecar (current-activity.json)
-- Quorum scoreboard
-- `/qgsd:quick` → planner → executor pipeline
-- Debug/diagnosis agent pattern (`diagnose-issues.md`)
+- Agent list view: columns for `#`, `Slot`, `Model`, `Provider`, `Type`, `Billing`, `Upd`, `Timeout` — ASCII table via padded `console.log`
+- Edit agent: summary card (box drawing), checkbox field picker, API key via keytar, base URL with provider probe, model list fetch from `/models` endpoint
+- Add agent: guided prompts for slot name, command, args, base URL, API key (keytar-stored), model, timeout, providerSlot
+- Remove agent: list selector + confirm gate
+- Reorder agents: list selector + numeric position input
+- Check agent health: per-slot HTTP probe to `/models` endpoint with latency
+- Add/edit subprocess provider: full `providers.json` CRUD via guided prompts
+- Manage CCR provider keys: set/view/remove AkashML, Together.xyz, Fireworks keys via keytar
 
-The features below are ONLY for the new `/qgsd:maintain-tests` command in v0.3.
+The 10 features below are NEW additions for v0.10.
 
 ---
 
@@ -25,141 +27,137 @@ The features below are ONLY for the new `/qgsd:maintain-tests` command in v0.3.
 
 ### Table Stakes (Users Expect These)
 
-Features that must exist for the command to feel functional. Missing any of these = the tool is not usable for its stated purpose.
+Features that must exist for the Roster Toolkit to feel functional. These are expected based on how comparable CLI management tools work.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Test discovery across jest, playwright, pytest | Core premise of the tool — must know what tests exist before doing anything | MEDIUM | Each framework has a different discovery mechanism. Jest: `npx jest --listTests` gives file list; `npx jest --collect-only --json` gives test names. Playwright: `npx playwright test --list` outputs test titles and file paths. Pytest: `pytest --collect-only -q` gives node IDs. Each requires its own shell invocation and output parser. Discovery must be auto-detected (find `jest.config.*`, `playwright.config.*`, `pytest.ini`/`pyproject.toml`/`setup.cfg`) — the user should not specify framework. |
-| Random batching into groups of 100 | Prevents memory exhaustion and context overflow on 20k+ suites; makes progress visible and recoverable | LOW | Shuffle discovered test IDs using Fisher-Yates then chunk into arrays of `batch_size` (default 100, configurable). Randomness ensures coverage sampling — sequential ordering risks never reaching tests in later files if iteration halts. Write batch manifest to disk before execution so restart is possible mid-suite. |
-| Execute each batch and capture output | Tests must actually run to surface failures | MEDIUM | Per-framework invocation: Jest uses `--testPathPattern` + `--testNamePattern` or node IDs; Playwright uses `--grep` or explicit test file + title arguments; pytest accepts node IDs directly as positional args. Capture stdout+stderr per batch. Set a timeout per batch (default: 5 minutes for 100 tests). Store raw output to disk per batch for later AI categorization. |
-| AI-driven failure categorization into 5 categories | The core value of the tool — turning raw failures into actionable decisions | HIGH | 5 categories defined by project spec: (1) **valid-skip** — test covers a use case that no longer applies (feature removed or deprecated); (2) **stale/adapt** — test expectation is wrong due to code evolution, needs updating via git history analysis; (3) **isolation-issue** — test fails due to shared state, ordering dependency, or missing cleanup (passes in isolation); (4) **real-bug** — test is correct and exposes a genuine regression in production code; (5) **fixture-improvement** — test infrastructure (setup/teardown, mocks, test data) needs repair to be reliable. Note: this 5-category taxonomy is QGSD-defined, not an industry standard. Parasoft DTP uses: Bug/Regression, Flaky, Unstable Environment, Bad Data, Outliers. Google's research identifies: async timing (46% of flaky), order dependency, environment. The QGSD taxonomy maps to industry categories but uses domain-specific names. |
-| Per-failure categorization output with action | User needs to know what to do with each test — not just a label | MEDIUM | For each failure, the AI must produce: category label, 1-2 sentence diagnosis, and a specific action item (e.g., "delete test — validates X which was removed in commit abc1234", "update assertion at line 42 to reflect new return shape", "add `afterEach(() => jest.clearAllMocks())` to isolate from suite", "open bug report for failing null check in UserService.login", "replace hardcoded fixture with factory function"). |
-| Iterative improvement loop until all tests classified | The tool must continue until the job is done, not just run once | HIGH | Loop structure: discover → batch → execute → categorize → action → re-execute unresolved batch → repeat. The loop continues while any test remains in state `unresolved` or `real-bug` (real bugs may stay as bugs; others should reach resolution). Loop termination: all tests reach a terminal state (skipped, adapted, passing, or filed-as-bug). Loop uses QGSD's existing `/qgsd:quick` and debug pattern. Circuit breaker must not fire on batch-execute repetition (different file sets each batch). |
-| Progress tracking across batches | 20k+ test suites take hours — the user must know where they are | LOW | Write a manifest file (`.planning/maintain-tests/state.json`) tracking: total discovered, batches total, batches completed, per-test state (unresolved/categorized/actioned). Display progress banner at each batch completion: `Batch 3/47 complete — 287/4700 tests processed, 12 failures found`. |
-| Persist state for resume | A 20k suite won't finish in one session | MEDIUM | Integrate with the existing activity sidecar pattern (`.planning/current-activity.json`). Write batch manifest before execution so a restart picks up where it left off. State file records which batches have been processed and which test IDs have been categorized. On resume, skip already-processed batches. |
+| Provider preset library | Any tool managing multiple endpoints should let users pick by name, not type URLs | LOW | `providers.json` already encodes AkashML/Together/Fireworks. Preset picker = `list` prompt over known providers with their canonical base URLs auto-filled. Pattern: `aws configure` picks region from a list, not free-form URL entry. |
+| Slot cloning | Any entity manager with N-slot support needs "duplicate and modify" to avoid re-entering 8 fields | LOW | Pattern from `kubectl cp`, `docker cp`, `git checkout -b <name> <source>`: clone source slot, prompt for new name, optionally swap one field. All keytar keys should NOT be cloned — new slot gets no key until user sets one. |
+| Key expiry warnings | Credential managers always surface invalid keys visually rather than making users probe manually | MEDIUM | Detect on-list: probe keytar key → if 401 on `/models`, annotate slot with `[key 401]` badge in list view. Already know to probe because `probeProviderUrl` exists. Badge pattern: `\x1b[31m[key 401]\x1b[0m` analogous to existing `[key ✓]`/`[no key]` badges. |
+| Auto-update policy | Any tool with updates shows update behavior preference per-entity | LOW | Pattern: `npm config set update-notifier false`. For agents, store `auto_update: "always" | "ask" | "never"` in `qgsd.json agent_config[slot]`. Display in edit menu. Integrates with existing `update-agents.cjs`. |
+| Per-agent timeout tuning | Any tool managing N entities with latency differences needs per-entity numeric config | LOW | Already partially built: `editAgent()` has `timeout` field. Gap: edit flow shows current value + `perfRow` suggestion from MCP logs. Enhancement: surface suggested timeout more prominently in the summary card. Subprocess providers already have `quorum_timeout_ms` in `providers.json`. |
+| Import/export config | Roster portability is expected for any multi-slot config tool | MEDIUM | Export: write sanitized JSON with keys redacted (replace with `"__redacted__"`). Import: read JSON, validate structure, prompt before overwriting any existing slot. JSON is the right format — already the native format for `~/.claude.json` and `providers.json`. Do NOT export env files (keys in plaintext) or TOML (no ecosystem precedent here). |
 
 ---
 
 ### Differentiators (Competitive Advantage)
 
-Features that make `/qgsd:maintain-tests` better than running test frameworks manually and reading output. Aligned with QGSD's core value of AI-driven decision-making with multi-model verification.
+Features that go beyond table stakes and leverage QGSD's unique quorum/scoreboard architecture.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Git history context for stale/adapt classification | The most defensible evidence for why a test needs updating is the commit that changed the production code it tests. `git log -S <symbol>` (pickaxe search) finds the commit that removed or changed the code under test. | MEDIUM | When a test fails and the category looks like `stale/adapt`, run `git log --oneline -S <extracted_symbol>` on the function/class being tested. Include the top matching commit message in the AI categorization prompt as evidence. This converts "this test seems stale" into "this test was testing X which was removed in commit abc1234 (message: 'remove legacy UserV1 API')". HIGH confidence the git pickaxe approach works — verified via git-scm docs. |
-| Isolation verification via single-test re-run | Distinguishes isolation-issue from real-bug: if the test passes when run alone but fails in a batch, it's isolation. If it fails alone, it's a real bug. | MEDIUM | For any test categorized as `isolation-issue`, automatically re-run it in isolation (single test, no other tests in the same process) and record the result. If it passes in isolation, confirm isolation-issue. If it still fails, recategorize as `real-bug`. This verification step eliminates the most common miscategorization. |
-| Quorum on categorization decisions | Uses QGSD's existing quorum pattern to verify AI categorization before action, preventing automated misclassification at scale | HIGH | Apply quorum specifically on ambiguous categorizations or high-stakes categories (real-bug, valid-skip). `valid-skip` means deleting a test — that's destructive and warrants multi-model consensus. `real-bug` means filing an issue. Both benefit from quorum. `isolation-issue` and `fixture-improvement` are lower stakes and can proceed without quorum. Integrates with existing `qgsd-quorum-orchestrator` agent. |
-| Configurable batch size and timeout | Different CI environments have different resource constraints | LOW | `batch_size` (default 100), `batch_timeout_ms` (default 300000 = 5 minutes), configurable via `.claude/qgsd.json` project config under a `maintain_tests` key. Follows existing two-layer config system. |
-| Categorization confidence scores | Lets the user see which classifications are certain vs. ambiguous without reading all the AI rationale | LOW | AI returns `confidence: high/medium/low` with each categorization. Low-confidence items are surfaced in a dedicated review section at the end. User can override or re-run with additional context. |
-| Cross-batch pattern detection | If the same root cause (e.g., a specific broken mock, a deleted API) appears across many batches, identifying it once and applying the fix across all affected tests is far more efficient than per-test fixes | HIGH | After N batches (configurable, default 5), analyze the accumulated categorizations for patterns: same error message appearing across multiple tests, same file implicated, same category dominating. Surface as "Pattern detected: 23 tests failing with `TypeError: Cannot read property 'user' of undefined` — likely single root cause in auth mock setup." Then propose a single `/qgsd:quick` fix task that addresses the root cause. |
-| Actionable SUMMARY.md per session | Consistent with QGSD's artifact pattern — every command produces a summary | LOW | After each full pass, write `.planning/maintain-tests/SESSION-{n}-SUMMARY.md` with: tests processed, categories breakdown, actions taken, remaining, time taken. Committed to git. |
+| Quorum scoreboard inline | Surfacing win/loss stats per slot in the main list closes the feedback loop — users can see which agents are performing before deciding to edit/rotate/remove | MEDIUM | Read from `.planning/quorum-scoreboard.md` (disk-only per design). Parse per-slot W/L counts. Add `W/L` column to `listAgents()` table. Column width: 7 chars max (`999/999`). Must gracefully omit if scoreboard file not found (no quorum data yet). |
+| Live health dashboard | Single-screen auto-refreshing view of all slots' probe results — removes need for "Check agent health" per slot | HIGH | Pattern recommendation: simple `setInterval` loop with ANSI cursor-up rewrite — NOT blessed/ink. Reason: blessed is unmaintained (no commits since 2019); ink requires React + full rewrite of existing inquirer-based tool (incompatible stdin handling). Implementation: print N lines, wait 5s, write `\x1b[{N}A` to move cursor up, overwrite. Probe all slots in parallel with Promise.all. Must exit on any keypress to return to menu. Constraint: inquirer cannot run concurrently with an active setInterval that writes to stdout — dashboard must be a separate non-inquirer subcommand mode. |
+| CCR routing visibility | Shows which CCR backend (`ccr` CLI + which slot name) each agent uses — transparency into the routing layer | LOW | Data already in `providers.json` (`display_type: "claude-code-router"`, `cli: "/opt/homebrew/bin/ccr"`, `args_template[0]` = slot name like `"claude-1"`). Add `CCR-slot` column to list view for ccr-type providers. Reads from providers.json cross-reference that `listAgents()` already performs. |
+| Batch key rotation | Lets user rotate keys across multiple slots in one flow instead of editing each slot individually | MEDIUM | Pattern: checkbox selector (multi-select) → for each selected slot, prompt for new key sequentially → apply all at once → summary of what changed. Follows same keytar storage pattern as single-key edit. Critical: old key must still be valid when user starts rotation — warn not to revoke until all slots are updated. Quorum parallel call note: sequential key setting is correct (keys are independent, no race). |
 
 ---
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-| Anti-Feature | Why Requested | Why Problematic | Alternative |
-|--------------|---------------|-----------------|-------------|
-| Auto-fix all tests without review | "Just fix everything automatically" | Automated fixes to production-touching tests are high-risk. A misclassification of `stale/adapt` that should be `real-bug` causes an automated test deletion that hides a real regression. This is the worst possible outcome — the tool would actively suppress bugs. | Show the proposed fix and require user confirmation for destructive actions (delete, skip). Non-destructive actions (add mock cleanup, update assertion) can auto-apply but must produce a git commit with a reversible diff. |
-| Run all 20k tests in one batch | "Get results faster" | Jest with 20k tests loaded simultaneously will OOM. Jest itself warns about `workerIdleMemoryLimit` — workers restart when memory exceeds the limit, causing partial output and unreliable results. Playwright with 20k tests in one invocation saturates workers. | Fixed batch size (100) with configurable override. 100 is chosen to fit in ~2-3 worker contexts without memory exhaustion. |
-| Always run tests in parallel across all workers | "Maximize speed" | Parallel execution causes false isolation-issue categorizations — a test that fails due to worker-level state sharing looks like an isolation issue but is actually deterministic when run serially. The categorization becomes unreliable. | Run each batch with `--maxWorkers 2` (or pytest's `-n 2`) to balance speed and isolation detection reliability. Single-worker re-run for isolation verification. |
-| Store all test output in memory | "Keep it simple" | A 20k suite produces gigabytes of stdout/stderr. Storing in memory means OOM before categorization begins. | Write raw output to disk per batch under `.planning/maintain-tests/batches/batch-{n}-output.txt`. Read batch output on demand for categorization. |
-| Global test runner config mutation | "Configure Jest to output JSON for easier parsing" | Mutating jest.config.js or playwright.config.ts in the user's project is a destructive side-effect of running a maintenance tool. If the config change causes issues, it's not obvious the maintenance tool caused it. | Use CLI flags (`--json`, `--reporter json`) to control output format at invocation time without touching project config files. |
-| Retry failed tests automatically before categorization | "Eliminate transient flakiness before we even categorize" | Auto-retry before categorization hides flakiness evidence. If a test passes on retry, the isolation-issue or environment category is lost. The retry is precisely the evidence needed for classification. | Record retry behavior as part of the categorization input: "failed on run 1, passed on run 2 = flaky indicator". Let AI use retry evidence in categorization, not eliminate it. |
-| Integrate with external CI/reporting services | "Send results to Jira, Datadog, etc." | External integrations add dependencies, auth secrets, and configuration complexity that are orthogonal to the maintenance goal. Launchable and Parasoft DTP address this use case with full platforms. | QGSD produces actionable local artifacts (SUMMARY.md, state.json, per-batch output). Users can pipe these to external tools if needed. QGSD stays focused on the local maintenance loop. |
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| Replace inquirer with ink/blessed for live dashboard | "Blessed/ink would make a real TUI" | Blessed is unmaintained (last commit 2019, multiple forks but no single active maintainer). Ink requires full React rewrite — all existing prompts (checkbox, list, password, input) would need replacement with `@inkjs/ui` equivalents. Significant scope creep. Inquirer stdin conflicts with ink's React renderer if mixed. | Use ANSI cursor-up rewrite pattern for dashboard. Keep all existing inquirer flows intact. Dashboard is a separate non-interactive display mode with a "press any key to exit" trap. |
+| Store API keys in export file | "I want a full backup" | API keys in JSON files on disk are a security incident waiting to happen. Even with file permissions, keys appear in backups, synced drives, version control. | Export with `__redacted__` placeholders. Provide import flow that lets user paste keys interactively after import (re-uses existing `editAgent()` key flow). |
+| Auto-revoke old key on rotation | "Full rotation automation" | If the new key fails before the old one is revoked, the slot goes dark with no recovery path. Batch rotation with auto-revoke = potential for cascading outages. | Separate step: "I have confirmed the new key works — remove old key from keytar." User is gate, not automation. |
+| Real-time quorum dashboard (live stream results as they happen) | "I want to watch quorum votes come in" | Quorum tool calls are long-running (10-300s each). Live streaming requires a persistent process, websocket or IPC plumbing, and a separate daemon — far outside the manage-agents scope. | Quorum scoreboard inline (static W/L from finished rounds) gives the same signal without any daemon. |
+| TOML or env-file export format | "TOML is more readable / env is more portable" | TOML has no precedent in the QGSD/Claude Code ecosystem. Env files put secrets in plaintext. Both add parse complexity with no user benefit beyond aesthetics. | JSON is the native format. All existing config files (`~/.claude.json`, `providers.json`, `qgsd.json`) are JSON. Consistency wins. |
+| Per-slot update version pinning | "I want claude-1 on v1.2 and claude-2 on v2.0" | Version pinning across npm global packages requires per-package directory isolation (`npm install -g --prefix ~/.local/claude-1/ claude-mcp-server@1.2`). This is a complex install architecture change, not a UI feature. | `auto_update: "never"` policy effectively pins by suppressing updates. For actual version differences, user manages separately. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Test discovery (framework auto-detection)
-    └──required by──> Batch manifest creation
-                          └──required by──> Batch execution
-                                                └──required by──> AI categorization
-                                                                      └──required by──> Action application
-                                                                      └──required by──> State update
+Provider preset library
+    └──requires──> providers.json canonical URL mapping (already exists)
+    └──enhances──> Add agent flow (auto-fills baseUrl)
 
-State persistence (state.json + activity sidecar)
-    └──required by──> Resume capability
-    └──required by──> Cross-batch pattern detection
+Slot cloning
+    └──requires──> readClaudeJson + writeClaudeJson (already built)
+    └──requires──> Slot name input with uniqueness validation (already built in addAgent)
+    └──MUST NOT clone──> keytar keys (security: new slot has no key until explicitly set)
 
-Git history context
-    └──enhances──> AI categorization (stale/adapt category)
-    └──requires──> git available in working directory
+Live health dashboard
+    └──requires──> probeProviderUrl (already built)
+    └──CONFLICTS WITH──> concurrent inquirer prompts (stdout conflict)
+    └──implementation pattern──> ANSI cursor-up rewrite + setInterval (not blessed/ink)
 
-Isolation re-run verification
-    └──enhances──> AI categorization (isolation-issue vs real-bug)
-    └──requires──> Batch execution (must already know how to run a single test)
+Quorum scoreboard inline
+    └──requires──> quorum-scoreboard.md on disk (written by quorum hooks, gitignored)
+    └──enhances──> listAgents() table (adds W/L column)
+    └──MUST degrade gracefully if──> scoreboard file not found
 
-Quorum on categorization
-    └──enhances──> valid-skip and real-bug actions
-    └──requires──> Existing qgsd-quorum-orchestrator agent (already built)
-    └──requires──> AI categorization (input to quorum)
+CCR routing visibility
+    └──requires──> providers.json display_type + args_template (already exists)
+    └──enhances──> listAgents() table (adds CCR-slot column for ccr-type providers)
 
-Cross-batch pattern detection
-    └──requires──> State persistence (needs accumulated categorizations)
-    └──requires──> Multiple completed batches
+Batch key rotation
+    └──requires──> keytar secrets.cjs (already built)
+    └──requires──> Multi-select checkbox prompt (inquirer checkbox, already used)
+    └──sequentially calls──> existing applyKeyUpdate() for each slot
 
-Configurable batch size/timeout
-    └──enhances──> Batch execution
-    └──requires──> Existing two-layer config system (already built)
+Key expiry warnings
+    └──requires──> probeProviderUrl (already built)
+    └──requires──> keytar key retrieval (already built in editAgent)
+    └──enhances──> listAgents() (adds 401 badge to relevant slots)
+    └──performance note──> parallel probe of all slots on list; must cap to 5s timeout
 
-Progress tracking
-    └──enhances──> State persistence
-    └──requires──> Batch manifest (needs total count)
+Per-agent timeout tuning
+    └──requires──> editAgent() timeout field (already built)
+    └──requires──> perfRow MCP log data (already built in editAgent summary card)
+    └──enhancement only──> surface suggested timeout at edit time with explicit label
 
-SUMMARY.md artifact
-    └──requires──> Completed categorizations
-    └──integrates with──> Existing QGSD artifact pattern (STATE.md, quick SUMMARY.md)
+Import/export config
+    └──requires──> readClaudeJson + writeClaudeJson (already built)
+    └──requires──> readProvidersJson + writeProvidersJson (already built)
+    └──requires──> Key redaction on export (new: replace keytar values with __redacted__)
+    └──requires──> Conflict detection on import (new: check if slot names collide)
+
+Auto-update policy
+    └──requires──> qgsd.json agent_config section (already built for auth_type)
+    └──integrates with──> updateAgents() from update-agents.cjs (already built)
+    └──stored in──> qgsd.json agent_config[slot].auto_update field (new field)
 ```
-
-### Dependency Notes
-
-- **Discovery requires framework auto-detection:** The user should not have to specify `--framework jest`. The tool reads the project root for `jest.config.*`, `playwright.config.*`, `pytest.ini`, `pyproject.toml`. If multiple frameworks exist, it discovers all and merges the test lists before batching. If no framework config is found, it fails with a clear error.
-
-- **Batch execution depends on discovery output format:** Jest discovery returns file paths (`npx jest --listTests`). Playwright discovery returns "test title > file" pairs. Pytest discovery returns node IDs (`path/test_file.py::TestClass::test_method`). Each format requires different execution invocation. The batch manifest stores test IDs in framework-native format so execution re-uses them directly.
-
-- **Isolation re-run conflicts with speed:** Verifying every isolation-issue candidate doubles execution time for that category. Accept this — the isolation-issue category is the most important to get right (a real bug misclassified as isolation-issue is a missed regression). Speed is not the constraint; correctness is.
-
-- **Quorum integration must not create deadlock:** If all quorum models are UNAVAILABLE, fail-open per R6. Do not block the maintenance loop waiting for quorum. Record "quorum unavailable — proceeding with Claude categorization only" in the SUMMARY.md.
-
-- **State persistence integrates with activity sidecar:** On start, set `activity: "maintain-tests"` in `.planning/current-activity.json`. On completion, call `activity-clear`. On resume, the activity sidecar tells `/qgsd:resume-work` that a maintenance session was interrupted.
 
 ---
 
 ## MVP Definition
 
-### Launch With (v0.3 — this milestone)
+### Launch With (v0.10 — this milestone)
 
-Minimum viable product — what's needed to validate that the core loop works on a real project.
+All 10 features are in scope for this milestone. Priority order reflects implementation risk and dependency chain.
 
-- [ ] **Test discovery** — auto-detect jest/playwright/pytest from config files; output unified list of test IDs in framework-native format
-- [ ] **Random batching** — shuffle and chunk into groups of 100; write batch manifest to `.planning/maintain-tests/manifest.json`
-- [ ] **Batch execution** — run each batch with per-framework CLI invocation; capture output to disk; respect batch timeout
-- [ ] **AI categorization** — for each failure, produce category (5-category taxonomy) + 1-sentence diagnosis + action item
-- [ ] **State persistence** — write per-test state to `state.json`; integrate with activity sidecar for resume
-- [ ] **Iterative loop** — continue until all tests reach terminal state (categorized + actioned); loop cap of N iterations (configurable, default 3 passes) to prevent runaway
-- [ ] **Progress banner** — display batch N/total after each completion
-- [ ] **SUMMARY.md** — write session summary artifact on completion or interruption
-- [ ] **Git integration** — commit state.json and SUMMARY.md changes after each pass
+- [ ] **Provider preset library** — lowest risk, highest payoff; no new infrastructure
+- [ ] **Slot cloning** — pure data manipulation, builds on existing add/edit patterns
+- [ ] **CCR routing visibility** — read-only display enhancement to existing list table
+- [ ] **Quorum scoreboard inline** — read-only display enhancement; needs graceful degradation
+- [ ] **Key expiry warnings** — probe enhancement to list; parallel probes with cap
+- [ ] **Per-agent timeout tuning** — edit enhancement; surface perfRow suggestion with label
+- [ ] **Auto-update policy** — new field in agent_config; integrates with update-agents.cjs
+- [ ] **Batch key rotation** — new flow; builds on applyKeyUpdate, multi-select checkbox
+- [ ] **Import/export config** — new flow; needs key redaction + conflict detection logic
+- [ ] **Live health dashboard** — highest implementation complexity; ANSI rewrite pattern, separate from inquirer menu
 
-### Add After Validation (v0.3.x — if loop proves useful on real suites)
+### Suggested Phase Split
 
-Features to add once the core loop has run on at least one real 20k suite.
+Based on complexity and dependency chains:
 
-- [ ] **Git history context for stale/adapt** — add `git log -S` evidence to categorization prompt; trigger: categorization is producing too many stale/adapt without clear evidence
-- [ ] **Isolation re-run verification** — auto re-run isolation-issue candidates in single-test mode; trigger: too many real bugs being misclassified as isolation issues
-- [ ] **Configurable batch size/timeout** — via `.claude/qgsd.json` `maintain_tests` key; trigger: first user with a different CI constraint
-- [ ] **Cross-batch pattern detection** — surface recurring root causes after every 5 batches; trigger: users reporting repetitive per-test fixes for same underlying issue
+**Phase v0.10-01 (display + read-only):** Provider presets, slot cloning, CCR routing visibility, quorum scoreboard inline. These are all either read-only display enhancements or simple data manipulation with no new infrastructure.
 
-### Future Consideration (v0.4+)
+**Phase v0.10-02 (key lifecycle):** Key expiry warnings, batch key rotation, per-agent timeout tuning, auto-update policy. These touch the credential layer and need careful sequencing.
 
-Features to defer until the command has real users.
+**Phase v0.10-03 (portability + dashboard):** Import/export config, live health dashboard. These are the most novel patterns relative to existing code.
 
-- [ ] **Quorum on valid-skip/real-bug categorizations** — apply existing quorum orchestrator to high-stakes decisions; defer because quorum adds latency and the v0.3 loop must first prove it produces reliable categories
-- [ ] **Categorization confidence scores** — low-confidence review section; defer until enough categorizations exist to evaluate false positive rate
-- [ ] **Multiple framework discovery with priority ordering** — if a project has both pytest and jest, choose which to run first; defer until a user with polyglot test suites reports confusion
+### Add After Validation (v0.10.x)
+
+- [ ] **Scoreboard reset per slot** — wipe W/L counts for a slot; useful after provider swap changes performance baseline
+- [ ] **Key health history** — track 401 timestamps, not just current state; surface "key failed 3 times this week"
+
+### Future Consideration (v0.11+)
+
+- [ ] **Live quorum vote streaming** — requires daemon architecture, out of scope for manage-agents.cjs
+- [ ] **Export to shareable provider preset** — share a `providers.json` entry as a gist or file; deferred
 
 ---
 
@@ -167,98 +165,293 @@ Features to defer until the command has real users.
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Test discovery (jest/playwright/pytest auto-detect) | HIGH | MEDIUM | P1 |
-| Random batching (100/batch, manifest to disk) | HIGH | LOW | P1 |
-| Batch execution with timeout | HIGH | MEDIUM | P1 |
-| AI categorization (5 categories + action) | HIGH | HIGH | P1 |
-| State persistence + resume | HIGH | MEDIUM | P1 — 20k suite won't finish in one session |
-| Iterative loop until terminal state | HIGH | MEDIUM | P1 |
-| Progress banner | MEDIUM | LOW | P1 — without this, 20k suite feels dead |
-| SUMMARY.md artifact | MEDIUM | LOW | P1 — aligns with QGSD artifact pattern |
-| Git history for stale/adapt | HIGH | MEDIUM | P2 — significantly improves categorization quality |
-| Isolation re-run verification | HIGH | MEDIUM | P2 — reduces most dangerous miscategorization |
-| Configurable batch size/timeout | MEDIUM | LOW | P2 |
-| Cross-batch pattern detection | HIGH | HIGH | P2 — transforms per-test work into single-fix work |
-| Quorum on valid-skip/real-bug | MEDIUM | LOW | P3 — requires working quorum, adds latency |
-| Categorization confidence scores | LOW | LOW | P3 |
+| Provider preset library | HIGH | LOW | P1 |
+| Slot cloning | HIGH | LOW | P1 |
+| CCR routing visibility | MEDIUM | LOW | P1 |
+| Quorum scoreboard inline | HIGH | MEDIUM | P1 |
+| Key expiry warnings | HIGH | MEDIUM | P1 |
+| Per-agent timeout tuning | MEDIUM | LOW | P1 |
+| Auto-update policy | MEDIUM | LOW | P2 |
+| Batch key rotation | HIGH | MEDIUM | P2 |
+| Import/export config | HIGH | MEDIUM | P2 |
+| Live health dashboard | HIGH | HIGH | P2 — novel pattern, separate from inquirer |
 
 **Priority key:**
-- P1: Must have for v0.3 launch — the command fails its stated purpose without it
-- P2: Should have, add when possible — improves classification quality significantly
-- P3: Nice to have, future consideration
+- P1: Must have — directly addresses a friction point in current daily use
+- P2: Should have — significantly improves the tool but not a daily blocker
+- P3: Nice to have — deferred
 
 ---
 
-## Industry Comparison: What Similar Tools Do
+## Feature-by-Feature UX Pattern Research
 
-| Feature | Parasoft DTP | Launchable (CloudBees Smart Tests) | Google's internal approach | QGSD maintain-tests approach |
-|---------|--------------|-------------------------------------|---------------------------|-------------------------------|
-| Failure categories | Bug/Regression, Flaky, Unstable Environment, Bad Data, Outliers | ML-based: historical failure pattern matching | Async timing, order dependency, env issues | valid-skip, stale/adapt, isolation-issue, real-bug, fixture-improvement |
-| Scale mechanism | ML model trained on labeled instances | ML on commit history + code change correlation | Statistical retry analysis | Random batching (100/batch), disk-persisted state |
-| Action output | Routes to Jira automatically | Prioritized test list per commit | Quarantine flaky tests | Per-test action item + iterative fix loop |
-| Git history use | Not documented | Code change → test correlation | Not documented | git pickaxe for stale/adapt classification |
-| Human review gate | Label instances for ML training | Autonomous | Not documented | Quorum on valid-skip and real-bug |
-| Integration model | SaaS platform, CI plugin | SaaS, CI plugin, Jira integration | Internal tooling | Local CLI command, git artifacts |
+### 1. Provider Preset Library
 
-**Key insight:** Industry tools (Parasoft, Launchable) are SaaS platforms optimized for ongoing CI integration and historical learning. QGSD maintain-tests is a one-time or periodic triage tool optimized for bringing a neglected or inherited test suite back to health. Different use case — not direct competition.
+**How similar tools do it:** AWS CLI `aws configure` shows a list of regions from a hardcoded preset list. Heroku CLI `heroku regions` returns a list. The pattern is: `type: 'list'` prompt populated from a known-good set of options, with a "custom" escape hatch for advanced users.
 
----
+**Recommended UX for QGSD:**
+```
+Select provider:
+  > AkashML (api.akashml.com/v1)
+    Together.xyz (api.together.xyz/v1)
+    Fireworks (api.fireworks.ai/inference/v1)
+    ── custom ──
+    Enter URL manually
+```
+Selecting a preset auto-fills `ANTHROPIC_BASE_URL`. Probe still runs. Manual entry fallback preserved. Preset list sourced from a `KNOWN_PROVIDERS` constant in `manage-agents.cjs` (not from `providers.json` — that file covers subprocess providers, not MCP-server HTTP providers).
 
-## Scale Considerations (20k+ Tests)
+**Implementation note:** `KNOWN_PROVIDERS` array is about 5-10 entries. No fetch needed — these URLs are stable. Provider probe runs after selection.
 
-These are not optional for a suite of this size.
-
-| Concern | At 1k tests | At 10k tests | At 20k+ tests |
-|---------|-------------|--------------|----------------|
-| Discovery time | < 5 seconds | 10-30 seconds | 30-120 seconds (pytest is slower than jest --listTests) |
-| Memory during execution | Negligible | Jest workers restart with workerIdleMemoryLimit | Jest OOM without batching — must use ≤ 100/batch or --maxWorkers 2 |
-| AI categorization context window | 1 batch fits easily | 1 batch fits easily | Multiple batches must NOT be accumulated in memory — categorize per-batch, persist, discard output |
-| Total loop time | < 1 hour | 2-8 hours | 8-48 hours across sessions — resume is mandatory |
-| State file size | < 1MB | ~5MB | ~20-100MB — JSON is fine, avoid storing raw test output in state |
-| Batch manifest | Simple array | Simple array | Simple array — O(n) by test count, not by batch count |
-
-**Critical scale constraint (HIGH confidence):** Jest with 20k tests cannot run in a single invocation without memory issues. The `workerIdleMemoryLimit` config exists precisely because of this problem — workers are restarted when they exceed the limit. Batching to 100 tests per invocation prevents this entirely. Source: Jest docs + multiple GitHub issues (#13792, #15216, #7311).
-
-**Pytest output parsing (MEDIUM confidence):** `pytest --collect-only -q` output is not machine-readable by default (GitHub issue #9704 tracking this since 2021). Use `pytest --collect-only --quiet` and strip the summary line (`| head -n -2`) or use the `pytest-collect-formatter` plugin for JSON output. Node IDs from `--collect-only` output can be passed directly as positional arguments to `pytest` for subset execution.
-
-**Playwright test listing (HIGH confidence):** `npx playwright test --list` outputs test titles and file paths in a readable format. JSON reporter (`--reporter json`) produces machine-readable output during test runs. The `--shard` option splits tests deterministically — useful if QGSD needs to parallelize across multiple Claude sessions in the future.
+**Dependency on existing code:** Slots into existing `addAgent()` and `editAgent()` `baseUrl` prompts — replaces free-form `input` with `list` + escape hatch to `input`.
 
 ---
 
-## Integration with Existing QGSD Patterns
+### 2. Slot Cloning
 
-The following QGSD patterns must be reused, not reimplemented.
+**How similar tools do it:** `docker container cp`, `git checkout -b <name> <source>`, `kubectl copy`. Pattern: specify source, specify new name, optional modification of one field. The clone gets a new identity but copies all non-sensitive config.
 
-| QGSD Pattern | How maintain-tests Uses It |
-|---|---|
-| `/qgsd:quick` planner → executor | Each actionable fix (add mock cleanup, update assertion) is a quick task — planner creates the fix plan, executor applies it |
-| Debug agent (`diagnose-issues.md`) | Per-failure diagnosis for complex failures can spawn debug agents; for batch failures, the AI categorization replaces debug agents (diagnose at categorization time) |
-| Activity sidecar (current-activity.json) | Set on start, cleared on completion, read by resume-work for interrupt recovery |
-| Two-layer config (qgsd.json) | `maintain_tests.batch_size`, `maintain_tests.batch_timeout_ms` keys under existing config structure |
-| Quorum orchestrator | Applied to valid-skip and real-bug categorizations (P2 feature) |
-| gsd-tools.cjs commit | All state and summary artifacts committed via existing commit helper |
-| STATE.md update | Add a "Test Maintenance Sessions" section tracking session dates and summary paths |
+**Recommended UX for QGSD:**
+```
+Select slot to clone: claude-3
+New slot name: claude-7
+Provider to use? [keep same / select preset / enter URL]
+```
+Clone copies: `command`, `args`, `env.ANTHROPIC_BASE_URL`, `env.CLAUDE_DEFAULT_MODEL`, `env.CLAUDE_MCP_TIMEOUT_MS`, `env.PROVIDER_SLOT`. Clone does NOT copy: any keytar key (new slot has `[no key]` until explicitly set). User is informed: "claude-7 created. API key not cloned — set one via Edit agent."
+
+**Dependency on existing code:** Uses `readClaudeJson` + `writeClaudeJson`. Slot name validation reuses the same `validate()` logic from `addAgent()`. Provider preset library (feature 1) optionally slots into the clone flow.
+
+---
+
+### 3. Live Health Dashboard
+
+**How similar tools do it:** `watch -n 5 curl ...` pattern (repeat command, full redraw). `htop`/`btop` use full-screen TUI with ncurses. `docker stats` uses ANSI cursor-up rewrite without a TUI library.
+
+**Why not blessed or ink:**
+- `blessed`: original repo (`chjj/blessed`) has zero commits since 2019. The forks (`neo-blessed`, `blessedjs/neo-blessed`, `neo-neo-blessed`) each have 2-5 recent commits but no unified active maintainer. Adding any of these as a dependency is a maintenance debt.
+- `ink`: Requires React, JSX, a TypeScript compiler step, and incompatible stdin handling with inquirer's legacy prompt API. Cannot be mixed with existing inquirer flows without a full rewrite.
+- Adding either library as a new dependency is an anti-feature (see anti-features section).
+
+**Recommended UX for QGSD:** ANSI cursor-up rewrite pattern.
+
+```javascript
+// Pseudocode — not production code
+async function healthDashboard() {
+  process.stdout.write('\x1b[?25l'); // hide cursor
+  let lines = 0;
+  const refresh = async () => {
+    const results = await Promise.all(slots.map(s => probeSlot(s)));
+    const output = renderTable(results);
+    if (lines > 0) process.stdout.write(`\x1b[${lines}A`);
+    process.stdout.write(output);
+    lines = output.split('\n').length;
+  };
+  await refresh();
+  const timer = setInterval(refresh, 5000);
+  // Press any key to exit
+  process.stdin.setRawMode(true);
+  process.stdin.resume();
+  process.stdin.once('data', () => {
+    clearInterval(timer);
+    process.stdin.setRawMode(false);
+    process.stdin.pause();
+    process.stdout.write('\x1b[?25h'); // restore cursor
+    console.log('\n  Exited health dashboard.\n');
+  });
+}
+```
+
+**Constraint:** This function must be invoked as a separate non-inquirer menu action. The `mainMenu()` loop must not call `inquirer.prompt()` while the dashboard's `setInterval` is active. The cleanest approach: menu dispatches to `healthDashboard()`, which blocks (stdin-trapped) until exit, then returns to `mainMenu()`.
+
+**Probe parallelism:** `Promise.all` across all slots, each with the existing 7s `probeProviderUrl` timeout. Refresh period: 5 seconds between probe cycles (not 5 seconds between display updates — wait for all probes to complete, then wait 5s).
+
+**Confidence:** MEDIUM. The cursor-up pattern is well-established (`docker stats` uses it, `npm install` uses it). The stdin conflict constraint is documented in Inquirer GitHub issue #894 (process.stdin conflicts when passing input/output streams). Risk: raw mode stdin on macOS vs Linux may behave slightly differently.
+
+---
+
+### 4. Quorum Scoreboard Inline
+
+**How similar tools do it:** GitHub CLI `gh run list` appends status badges (`✓`, `✗`, `⏳`) inline with entity names. `kubectl get pods` adds `READY 2/3` and `STATUS Running` as columns. The pattern is: static data columns appended to an existing list table.
+
+**Recommended UX for QGSD:** Add `W/L` column (7 chars wide) to `listAgents()` output. Parse `.planning/quorum-scoreboard.md` at list time. If file absent, column shows `—`. If slot found, show `12/3` (wins/losses). Column is informational only — no interactivity.
+
+**Parsing approach:** The scoreboard file is gitignored and disk-only. Parse with a simple regex per slot name: find the slot's section, extract W/L counts. Do not crash if format changes — fail silently to `—`.
+
+**Dependency on existing code:** Column added to the `W` width object and `header`/`row` construction in `listAgents()`. Scoreboard file path: `.planning/quorum-scoreboard.md` relative to `process.cwd()` (project-specific). Must handle "not in a project directory" gracefully (file not found = all `—`).
+
+---
+
+### 5. CCR Routing Visibility
+
+**How similar tools do it:** Load balancers show "backend: server-3" per request log. Proxy tools show upstream selection in verbose mode. For a static config display, the pattern is simply surfacing the routing decision in the list view rather than burying it in a detail view.
+
+**Recommended UX for QGSD:** For `display_type: "claude-code-router"` providers, the `args_template[0]` field contains the CCR slot name (e.g., `"claude-1"`). Add `CCR` column to list view showing this value for ccr-type entries, `—` for all others. Column width: 10 chars.
+
+**Dependency on existing code:** `listAgents()` already cross-references `providers.json` via `PROVIDER_SLOT`. The `args_template[0]` field is available in the provider object. Add one conditional column to the display logic.
+
+**Low risk:** Read-only, no new data source, no new prompts.
+
+---
+
+### 6. Batch Key Rotation
+
+**How similar tools do it:** AWS IAM key rotation: generate new key → update all consumers → verify → delete old key. The "batch update consumers" step is the one CLI tools help with. Pattern: multi-select list of entities, then sequential prompts for new value per entity.
+
+**Recommended UX for QGSD:**
+```
+Select slots to rotate keys for:
+  [x] claude-1  (AkashML)
+  [x] claude-2  (AkashML)
+  [ ] claude-3  (Together.xyz)
+  [x] claude-4  (Fireworks)
+  [ ] claude-5  (Together.xyz)
+
+Rotating 3 slots. For each, enter new key (blank = skip).
+
+claude-1 — enter new key: ************
+claude-2 — enter new key: ************
+claude-4 — enter new key: (skipped)
+
+Summary: 2 updated, 1 skipped.
+Note: Old keys are still active. Revoke them from your provider dashboard once you confirm the new keys work.
+```
+
+**Critical UX principle:** Never auto-revoke. Always show the "old keys still active" note. Sequential key prompts (not parallel) so user has time to locate each key. `type: 'password'` for each key input.
+
+**Dependency on existing code:** Uses `inquirer.Separator` + `checkbox` (already used in `editAgent()`). Calls `secretsLib.set()` (already used throughout). The `applyKeyUpdate()` pure function (already extracted) handles the keytar write.
+
+---
+
+### 7. Key Expiry Warnings
+
+**How similar tools do it:** GitHub CLI shows `[expired]` for stale OAuth tokens inline with auth status. Vault shows `ttl: expired` in `vault token lookup`. The pattern is: probe once at list/display time, annotate inline with a colored badge.
+
+**Recommended UX for QGSD:** When `listAgents()` is called, for each slot with an API key set (not `sub` billing), probe the provider with that key. If response is HTTP 401, override the key badge from `[key ✓]` to `[key 401]` in red. Probe happens in parallel with `Promise.all`, capped at 5s timeout.
+
+**Performance caveat:** This adds N parallel HTTP probes on every `listAgents()` call. If user has 10 slots, that's 10 parallel 5s-max probes. Acceptable for an interactive management tool but must not hang. Solution: run probes with `Promise.allSettled` (never rejects), 5s per probe, timeout handled by existing `probeProviderUrl`.
+
+**Implementation note:** 401 detection requires distinguishing "401 = key invalid" from "401 = wrong auth format" (some providers return 401 even without a key). The existing `probeProviderUrl` counts 401 as "healthy" (reachable). For expiry detection, a second probe layer is needed: if `statusCode === 401` AND a key IS configured, that is a key-invalid signal. If `statusCode === 401` AND no key, it's just "auth required" (expected, not an error).
+
+---
+
+### 8. Per-Agent Timeout Tuning
+
+**How similar tools do it:** `kubectl edit deployment <name>` opens the full YAML for editing. `heroku config:set TIMEOUT=30` is direct. For CLI tools managing N entities, the pattern is a guided edit with current value displayed and a suggestion if available.
+
+**Recommended UX for QGSD:** Already partially built — `editAgent()` has a `timeout` field. The enhancement is: surface `perfRow` suggestion at the top of the summary card (not buried at the bottom), and in the timeout edit prompt, pre-fill with the MCP-log-derived suggested value rather than the current configured value.
+
+```
+Timeout (currently 30000ms, suggested: 45000ms based on p95 29.3s):
+```
+
+For subprocess providers, `editSubprocessProvider()` already has `timeout_ms` and `quorum_timeout_ms` fields. Enhancement: fetch the suggested timeout from MCP logs (same `review-mcp-logs.cjs` call used in `editAgent()`) and display it in the summary card.
+
+**Dependency on existing code:** `review-mcp-logs.cjs --json --tool <slot>` (already called in `editAgent()`). The suggestion logic (`Math.max(15000, Math.ceil(p95Ms * 1.5 / 5000) * 5000)`) is already implemented. This feature is mostly a display enhancement — surfacing the existing suggestion more prominently.
+
+---
+
+### 9. Import/Export Config
+
+**How similar tools do it:**
+- `heroku config:get --json` exports env vars as JSON.
+- `docker export`/`docker import` dump container filesystems.
+- Terraform's `terraform show -json` exports state as JSON with redaction.
+- AWS CLI `aws configure export-credentials` redacts secret access keys.
+
+**Recommended format:** JSON. Rationale: `~/.claude.json` is JSON, `providers.json` is JSON, `qgsd.json` is JSON. No format conversion needed. TOML has no ecosystem precedent here. Env files put secrets in plaintext.
+
+**Export schema:**
+```json
+{
+  "version": 1,
+  "exported_at": "2026-02-24T...",
+  "mcpServers": {
+    "claude-1": { "type": "stdio", "command": "node", "args": [...], "env": { "ANTHROPIC_BASE_URL": "...", "ANTHROPIC_API_KEY": "__redacted__" } }
+  },
+  "providers": [...],
+  "agent_config": { "claude-1": { "auth_type": "api", "auto_update": "ask" } }
+}
+```
+
+**Key redaction:** On export, scan all `env` blocks for any key containing `API_KEY` or `KEY` — replace value with `"__redacted__"`. Do NOT read from keytar for export (keytar keys are not in the `env` block by design — the redaction is for any legacy entries that may still be there).
+
+**Import conflict detection:** Before writing, compare imported slot names against existing slots. For each conflict: "Slot claude-1 already exists — overwrite? Keep existing? Rename imported?" Three-way choice. Defers to user per slot.
+
+**Dependency on existing code:** `readClaudeJson` + `writeClaudeJson` + `readProvidersJson` + `writeProvidersJson` all already built. New logic: redaction pass on export, conflict resolution on import.
+
+---
+
+### 10. Auto-Update Policy
+
+**How similar tools do it:**
+- `npm config set update-notifier false` — global disable
+- `apt-get unattended-upgrades` — always/ask/never for different package classes
+- macOS Software Update: "Automatically check for updates" + "Automatically install updates" as separate toggles
+
+**Recommended UX for QGSD:** Per-slot policy stored in `qgsd.json agent_config[slot].auto_update`. Three values: `"always"` (update on check, no prompt), `"ask"` (prompt before update — default), `"never"` (skip slot during `updateAgents()`).
+
+Policy display in list view: add `AutoUpd` column (7 chars) showing `always`/`ask`/`never`. Or surface in `editAgent()` summary card as a new editable field.
+
+Edit flow:
+```
+Auto-update policy  ← ask (current)
+  always — update without asking
+  > ask — prompt before each update
+  never — skip this slot during updates
+```
+
+**Integration with `update-agents.cjs`:** `updateAgents()` must check `agent_config[slot].auto_update` before prompting or applying updates. Already has the infrastructure to read `qgsd.json`. Policy `"never"` skips the slot entirely. Policy `"always"` skips the confirm prompt. Policy `"ask"` (default) shows existing confirm behavior.
+
+---
+
+## Dependency Matrix: Existing Code Touchpoints
+
+| Feature | Files Modified | Pattern |
+|---------|---------------|---------|
+| Provider preset library | `manage-agents.cjs` — `addAgent()`, `editAgent()` baseUrl prompt | List prompt replaces input prompt |
+| Slot cloning | `manage-agents.cjs` — new `cloneAgent()` function | Reads existing slot, writes new slot |
+| Live health dashboard | `manage-agents.cjs` — new `healthDashboard()` function | ANSI cursor-up, setInterval, stdin raw mode |
+| Quorum scoreboard inline | `manage-agents.cjs` — `listAgents()` | Reads scoreboard file, adds W/L column |
+| CCR routing visibility | `manage-agents.cjs` — `listAgents()` | Reads providers.json args_template[0] |
+| Batch key rotation | `manage-agents.cjs` — new `batchRotateKeys()` function | Multi-select checkbox + sequential key prompts |
+| Key expiry warnings | `manage-agents.cjs` — `listAgents()` | Parallel probeProviderUrl, 401 badge |
+| Per-agent timeout tuning | `manage-agents.cjs` — `editAgent()`, `editSubprocessProvider()` | Surfacing existing perfRow suggestion |
+| Import/export config | `manage-agents.cjs` — new `exportConfig()`, `importConfig()` | JSON serialization with redaction |
+| Auto-update policy | `manage-agents.cjs` — `editAgent()`, `mainMenu()`; `update-agents.cjs` | New qgsd.json field, policy check in updateAgents |
+
+All 10 features are additive modifications to `bin/manage-agents.cjs` or tight integrations with existing adjacent files. No file replacements. No new npm dependencies required (the ANSI cursor-up dashboard requires no library). The zero-new-dependencies constraint is achievable for all 10 features.
+
+---
+
+## Complexity Summary
+
+| Feature | Phase Fit | Complexity | Reason |
+|---------|-----------|------------|--------|
+| Provider preset library | v0.10-01 | LOW | Replace one prompt type, add KNOWN_PROVIDERS const |
+| Slot cloning | v0.10-01 | LOW | Data manipulation, existing validation patterns |
+| CCR routing visibility | v0.10-01 | LOW | Read-only list column, data already in providers.json |
+| Quorum scoreboard inline | v0.10-01 | MEDIUM | Parse scoreboard file, graceful degradation |
+| Key expiry warnings | v0.10-02 | MEDIUM | Parallel probes on list, 401 detection logic |
+| Per-agent timeout tuning | v0.10-02 | LOW | Display enhancement, logic already exists |
+| Auto-update policy | v0.10-02 | LOW | New qgsd.json field, update-agents.cjs check |
+| Batch key rotation | v0.10-02 | MEDIUM | Multi-select flow, sequential key prompts |
+| Import/export config | v0.10-03 | MEDIUM | Key redaction, conflict detection on import |
+| Live health dashboard | v0.10-03 | HIGH | ANSI cursor-up, stdin raw mode, setInterval |
 
 ---
 
 ## Sources
 
-- [Jest CLI Options (official)](https://jestjs.io/docs/cli) — HIGH confidence. Verified: `--listTests`, `--json`, `--maxWorkers`, `workerIdleMemoryLimit`.
-- [Pytest documentation — collection](https://docs.pytest.org/en/stable/how-to/usage.html) — HIGH confidence. Verified: `--collect-only`, node ID format, positional arguments for subset execution.
-- [Playwright CLI documentation (official)](https://playwright.dev/docs/test-cli) — HIGH confidence. Verified: `--list` flag, `--reporter json`, `--shard` option.
-- [Playwright Sharding docs (official)](https://playwright.dev/docs/test-sharding) — HIGH confidence. Verified: deterministic shard splitting, blob report merging.
-- [Parasoft DTP ML-powered failure analysis](https://www.parasoft.com/blog/ml-powered-test-failure-analysis/) — MEDIUM confidence. Verified: categories (Bug/Regression, Flaky, Unstable Environment, Bad Data, Outliers), ML training requirements.
-- [Google Testing Blog — Flaky Tests at Google](https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html) — HIGH confidence. Verified: async timing (46%), order dependency as top flakiness causes.
-- [ACM Survey of Flaky Tests](https://dl.acm.org/doi/fullHtml/10.1145/3476105) — HIGH confidence. Verified: systematic taxonomy of flakiness root causes including order dependency, resource handling, environment.
-- [pytest issue #9704 — collect-only not machine readable](https://github.com/pytest-dev/pytest/issues/9704) — HIGH confidence. Verified: output format limitation confirmed.
-- [Jest memory issues — GitHub #13792, #15216, #7311](https://github.com/jestjs/jest/issues/13792) — HIGH confidence. Verified: workerIdleMemoryLimit behavior with large suites.
-- [git-scm pickaxe documentation](https://git-scm.com/docs/git-log) — HIGH confidence. Verified: `git log -S` finds commits that added or removed a given string.
-- [Launchable / CloudBees Smart Tests](https://www.cloudbees.com/capabilities/cloudbees-smart-tests) — MEDIUM confidence. Capabilities inferred from search results; main page redirected.
-- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — PRIMARY SOURCE. Defines v0.3 target features and constraints.
-- `/Users/jonathanborduas/code/QGSD/get-shit-done/workflows/quick.md` — PRIMARY SOURCE. Defines existing planner/executor/quorum pattern that maintain-tests integrates with.
-- `/Users/jonathanborduas/code/QGSD/get-shit-done/workflows/diagnose-issues.md` — PRIMARY SOURCE. Defines debug agent pattern reusable for per-failure investigation.
+- `/Users/jonathanborduas/code/QGSD/bin/manage-agents.cjs` — PRIMARY SOURCE. Full existing implementation reviewed: listAgents, editAgent, addAgent, removeAgent, reorderAgents, checkAgentHealth, addSubprocessProvider, editSubprocessProvider, manageCcrProviders, mainMenu. Existing patterns (probeProviderUrl, fetchProviderModels, keytar via secretsLib, summary card box drawing, checkbox field picker) understood and mapped to each new feature.
+- `/Users/jonathanborduas/code/QGSD/bin/providers.json` — PRIMARY SOURCE. Provider entries for claude-1..6, codex-1, gemini-1, opencode-1, copilot-1. CCR routing via `args_template[0]`, `display_type: "claude-code-router"`, `quorum_timeout_ms` fields verified.
+- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — PRIMARY SOURCE. v0.10 milestone goal and 10 target features confirmed.
+- [Inquirer.js GitHub — process.stdin conflict issue #894](https://github.com/SBoudrias/Inquirer.js/issues/894) — MEDIUM confidence. Documents stdin conflict between inquirer and custom raw mode. Informs live dashboard architectural constraint.
+- [blessed GitHub (chjj/blessed)](https://github.com/chjj/blessed) — HIGH confidence. Last commit 2019. Confirms unmaintained status. Anti-feature rationale validated.
+- [ink GitHub (vadimdemedes/ink)](https://github.com/vadimdemedes/ink) — HIGH confidence. 28k+ stars, actively maintained. React-based, incompatible with existing inquirer-based code without full rewrite.
+- [update-notifier — sindresorhus](https://github.com/sindresorhus/update-notifier) — HIGH confidence. "Automatic updating was first tried but wasn't popular" — validates ask/never policy pattern.
+- [Docker stats ANSI rewrite pattern](https://github.com/docker/cli/blob/master/cli/command/container/stats.go) — MEDIUM confidence (pattern verified in multiple tools including npm install progress). Cursor-up rewrite is the standard approach for non-TUI live refresh.
+- WebSearch: credential rotation batch UX, 401 detection patterns, JSON export redaction best practices — LOW confidence (WebSearch only, supporting general direction).
 
 ---
 
-*Feature research for: QGSD v0.3 — `/qgsd:maintain-tests` test suite maintenance command*
-*Researched: 2026-02-22*
+*Feature research for: QGSD v0.10 — Roster Toolkit (10 new manage-agents.cjs features)*
+*Researched: 2026-02-24*

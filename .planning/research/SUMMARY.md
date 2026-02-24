@@ -1,228 +1,244 @@
 # Project Research Summary
 
-**Project:** QGSD v0.3 — `/qgsd:maintain-tests`
-**Domain:** AI-driven test suite maintenance tool — Claude Code plugin command
-**Researched:** 2026-02-22
+**Project:** QGSD v0.10 — Roster Toolkit
+**Domain:** Node.js CJS CLI extension — interactive agent roster management (manage-agents.cjs)
+**Researched:** 2026-02-24
 **Confidence:** HIGH
 
 ## Executive Summary
 
-QGSD v0.3 adds a `/qgsd:maintain-tests` command that discovers, batches, categorizes, and iteratively fixes failing tests across large test suites (20k+ tests). This is a subsequent milestone — the existing QGSD architecture (hooks, quorum enforcement, circuit breaker, quick task pipeline) is stable and must not be broken. The correct approach is narrow: extend `gsd-tools.cjs` with new CLI sub-commands for the mechanical layer (discovery, batching, execution, state I/O), add a workflow orchestrator that handles all reasoning (categorization, action dispatch, loop control), and integrate with existing patterns (activity sidecar, quick tasks, resume-work routing). The only new external dependency is `fast-glob@3.3.3`, bundled via the existing esbuild build step.
+QGSD v0.10 adds 10 roster management features to an existing, stable CJS Node.js CLI tool (`bin/manage-agents.cjs`). The codebase is a well-structured 1569-line monolith with a proven pattern: inquirer@8 menus, `module.exports._pure` for testable pure functions, atomic JSON writes via tmp-rename, and keytar for credential storage. All 10 features are achievable as additive modifications to this single file — no new npm dependencies are required, and the monolith should not be split. The one new artifact is a static data file (`bin/provider-presets.json`) with no runtime library backing it.
 
-The recommended stack is pure Node.js built-ins plus `fast-glob`. `node:sqlite` (Node >= 22.5.0) is the correct state persistence mechanism at 20k+ test scale; plain JSON is the fallback for older Node. The AI categorization loop uses a 5-category taxonomy (valid-skip, stale/adapt, isolation-issue, real-bug, fixture-improvement) with quorum workers dispatched via the same parallel Task pattern used in `/qgsd:debug`. Fixes for adapt/fixture/isolate categories are dispatched as `/qgsd:quick` tasks grouped by similarity — never one task per failing test. Real bugs are deferred to the user, never auto-fixed.
+The recommended build order is six phases ordered by dependency risk: read-only display enhancements first (zero write-path risk), then the `readQgsdJson`/`writeQgsdJson` helper that later phases depend on, then credential-touching features (slot cloning, batch key rotation, key expiry detection), then the live dashboard (highest implementation complexity), then policy UIs, and finally import/export (broadest data model coverage). This ordering ensures each phase validates a narrow surface area before the next phase builds on it, and the most novel pattern (the mode-switch dashboard) is introduced only after all credential and config infrastructure is stable.
 
-The three critical risks are: (1) framework discovery cross-contamination in monorepos (always use framework CLIs, never independent globbing), (2) the QGSD circuit breaker triggering mid-loop on legitimate iterative commits (disable at maintain-tests start, re-enable at end), and (3) the AI categorization loop never converging due to missing termination conditions (implement a `deferred` 6th category, a progress guard, and a hard iteration cap). These risks must be addressed in the design phase, not retrofitted.
+The principal risks are all known and documented with precise prevention strategies: the `setInterval`/inquirer stdin conflict that corrupts the terminal if the dashboard is built incorrectly; API key leakage via the keytar fallback path in the export serializer; keychain concurrency errors if batch key rotation uses `Promise.all` instead of sequential iteration; fragile CCR provider name mapping due to a hardcoded name list; and silent partial-apply on import if schema validation is skipped. None of these are novel — they all stem from existing codebase patterns that must be respected rather than bypassed.
+
+---
 
 ## Key Findings
 
 ### Recommended Stack
 
-The maintain-tests command is built entirely from Node.js built-ins and one bundled external dependency. `child_process.spawnSync` handles all test runner invocations — the existing pattern in `qgsd-circuit-breaker.js` for git operations applies directly. `node:sqlite` (built-in, Node >= 22.5.0, stability 1.1) replaces a JSON state file at 20k+ test scale; write amplification of JSON flat files becomes a real bottleneck over many iterations. `fast-glob@3.3.3` is needed only when no framework config is present; bundle it via esbuild to eliminate runtime node_modules resolution issues in the global install path.
+All 10 features are implementable with Node.js stdlib and extensions to existing in-file functions. Zero new npm packages are added to `package.json`. The constraint is CJS-only: inquirer@8.2.7 is installed and confirmed CJS; inquirer@9, `log-update@4+`, `ansi-escapes@5+`, `blessed`, and `ink` are all ESM-only or stdin-conflicting and must not be introduced. Pin inquirer to `~8.2.7` (tilde, not caret) to prevent minor-version drift.
 
 **Core technologies:**
-- `node:sqlite` (built-in, Node >= 22.5.0): persistent batch state across sessions — avoids write amplification of JSON at 20k+ tests
-- `child_process.spawnSync` and `child_process.spawn`: test runner execution (jest/playwright/pytest) — already the established QGSD pattern; use spawn with file-based output capture for variable-size test reports to avoid buffer limits
-- `fast-glob@3.3.3` (bundled via esbuild): fallback test file discovery when framework configs are absent — only external dependency
-- `node:fs` / `node:path`: state file I/O, path resolution — QGSD standard throughout
-- Claude Code Task workers (parallel spawns): failure categorization using quorum models — no new library needed
-- JSON flat file: fallback state for Node < 22.5.0 — functional but 10-30x slower on writes
 
-Critical avoidances: `p-limit` is ESM-only and will throw `ERR_REQUIRE_ESM` in QGSD's CommonJS codebase. `better-sqlite3` requires a native `node-gyp` compile and breaks the zero-dependency install model. Jest's `runCLI()` programmatic API has broken silently across every major version since v25 — always use the stable CLI contract (`npx jest --json`). Buffering large test runner output in memory (using APIs with default maxBuffer limits) causes silent truncation on high-failure batches — always pipe output to a temp file.
+- `node:readline` (stdlib) — cursor movement, line clearing, and `emitKeypressEvents` for the live dashboard; replaces all ESM-only ANSI libraries; all methods verified present in Node v25.6.1
+- `inquirer@8.2.7` (existing, CJS) — all interactive prompts; must not be upgraded; `~8.2.7` pin
+- `node:fs` + atomic `renameSync` (existing pattern) — all config reads and writes; extend to cover `qgsd.json` with new `readQgsdJson`/`writeQgsdJson` helpers using the same tmp-rename pattern
+- `probeProviderUrl()` (existing in-file function) — provider health probes; extended to classify 401 responses for key expiry detection via new `classifyProbeResult()` pure function
+- `bin/provider-presets.json` (new static data file, no npm dep) — curated provider preset library; loaded via native CJS `require('./provider-presets.json')`
+
+**Do not use:** `Promise.all` for keytar writes (causes keychain concurrency errors and index file race), background polling daemons for 401 detection (unnecessary complexity), schema validation libraries (`ajv`/`zod` are overkill for flat JSON with ~10 known fields), or any ESM-only library in a CJS file.
 
 ### Expected Features
 
-The 8 P1 table-stakes features are the minimum viable loop. Everything else is additive.
+All 10 features are in scope for v0.10. Priority ordering reflects implementation risk and dependency chain.
 
-**Must have (table stakes — v0.3 launch):**
-- Test discovery (auto-detect jest/playwright/pytest from config files; framework CLI output is canonical, never independent globbing)
-- Random batching at 100 tests/batch with batch manifest written to disk before execution (Fisher-Yates shuffle, deterministic seed for resumability)
-- Batch execution per framework with output captured to temp file (not in-memory buffering) and configurable timeout (default 5 minutes per batch)
-- AI categorization into 5 categories (valid-skip, stale/adapt, isolation-issue, real-bug, fixture-improvement) with 1-sentence diagnosis and action item per failure
-- State persistence and resume via `maintain-tests-state.json` + activity sidecar integration
-- Iterative loop with explicit termination: progress guard (no decrease in 2 iterations = halt), iteration cap (default 5), `deferred` 6th category for convergence
-- Progress banner after each batch completion (user feedback is mandatory for 20k+ suites)
-- SUMMARY.md artifact on completion or interruption
+**Must have (table stakes — P1):**
+- Provider preset library — name-based provider selection (`aws configure` pattern); auto-fills base URL; `Custom` escape hatch
+- Slot cloning — "duplicate and modify" for any N-slot config manager; keytar keys are NOT cloned (new slot has no key until explicitly set)
+- CCR routing visibility — read-only list column showing which CCR backend each slot routes through; cross-references `providers.json` `args_template[0]`
+- Quorum scoreboard inline — W/L stats per slot in the main list from `.planning/quorum-scoreboard.json`; fail-silent when file absent
+- Key expiry warnings — 401 probe badge (`[key invalid]`) in `listAgents()` using TTL cache; live probe in health dashboard only
 
-**Should have (v0.3.x — after core loop validates on a real 20k suite):**
-- Git history context for stale/adapt classification (`git log -S` pickaxe evidence embedded in categorization prompt)
-- Isolation re-run verification (re-run isolation-issue candidates in single-test mode to distinguish from real bugs)
-- Configurable batch size/timeout via `.claude/qgsd.json` `maintain_tests` key
-- Cross-batch pattern detection (surface recurring root causes after every 5 batches)
+**Should have (differentiators — P2):**
+- Per-agent timeout tuning — surface existing `perfRow` MCP log suggestion more prominently in `editAgent()` summary card; mandatory restart note after every timeout write
+- Auto-update policy — `"auto"` / `"ask"` / `"never"` per slot in `qgsd.json agent_config`; audit log at `~/.claude/qgsd-update.log`
+- Batch key rotation — multi-select checkbox + sequential key prompts (`for...of`, never `Promise.all`) + single `syncToClaudeJson()` at end
+- Import/export config — portable JSON with explicit credential stripping; per-slot three-way conflict resolution (overwrite/keep/rename)
+- Live health dashboard — full-screen ANSI cursor-up rewrite; mode-switch architecture (exit inquirer before entering refresh loop); 5s `setInterval`; mandatory "Last updated" timestamp footer
 
-**Defer to v0.4+:**
-- Quorum on valid-skip/real-bug categorizations (adds latency; validate category reliability first)
-- Categorization confidence scores (need enough categorizations to evaluate false positive rate)
-- Multiple framework priority ordering for polyglot suites
-
-**Anti-features to reject:**
-- Auto-fix all tests without review (miscategorizing real-bug as stale/adapt hides regressions)
-- Running all 20k tests in one batch (Jest OOM without batching — workers restart under `workerIdleMemoryLimit`)
-- Storing full test output in state file (20k suite produces gigabytes; store only first 500 chars of error per test)
-- Retrying failed tests before categorization (retry evidence IS the flakiness signal — do not eliminate it before categorization)
+**Defer to v0.10.x or v0.11+:**
+- Scoreboard reset per slot — useful post-provider-swap; not blocking for launch
+- Key health history — timestamp tracking of 401 events; additive to key expiry warnings
+- Live quorum vote streaming — requires daemon/IPC; out of `manage-agents.cjs` scope
+- Export to shareable provider preset (gist/file) — deferred
 
 ### Architecture Approach
 
-The maintain-tests integration adds exactly 2 new files (command stub + workflow orchestrator) and extends 4 existing files (gsd-tools.cjs, install.js, resume-work.md, .gitignore). No hooks are changed. No new agents are added. The command is NOT added to `quorum_commands` — it is an execution command per CLAUDE.md R2.2.
+The architecture decision is to extend `manage-agents.cjs` as a single CJS monolith. The `_pure` export pattern scales to 10+ new pure functions without any test infrastructure change. Splitting would require new `require()` chains, install-sync steps, and test file updates — high cost for cosmetic gain. Eight new pure functions are exported via `module.exports._pure` for unit testing. The new `readQgsdJson`/`writeQgsdJson` helper pair (using the existing atomic tmp-rename pattern) is the one structural addition that unlocks Group 2 features.
 
-The architectural split is thin CLI + reasoning workflow: `gsd-tools.cjs` owns all mechanical operations (discover, batch, run-batch, save-state, load-state); the workflow orchestrator owns all reasoning (categorization, action dispatch, loop control, quick task grouping). This mirrors how every existing QGSD workflow uses `gsd-tools.cjs` for context gathering while Claude handles coordination.
+**Major components and responsibilities:**
 
-**Major components:**
-1. `commands/qgsd/maintain-tests.md` (NEW) — slash command stub; routes to workflow via `execution_context`
-2. `workflows/maintain-tests.md` (NEW) — full orchestrator: discovery loop, batch iteration, categorization worker dispatch, action grouping, real bug deferral, session state management
-3. `gsd-tools.cjs maintain-tests` sub-commands (MODIFIED: additive) — discover, batch, run-batch, save-state, load-state; thin wrappers around filesystem and spawnSync operations
-4. `maintain-tests-state.json` (NEW, gitignored) — SQLite or JSON fallback; stores per-test state, batch progress, categorization results, actioned quick task references
-5. Categorization workers (inline Task dispatches, NOT new agents) — parallel Gemini/OpenCode/Copilot/Codex calls using same quorum dispatch pattern as `/qgsd:debug`
-6. `/qgsd:quick` (EXISTING, unmodified) — receives grouped fix tasks for adapt/fixture/isolate categories; cap 20 tests per task
+1. `manage-agents.cjs` — interactive roster UI; all 10 new features as new functions + `_pure` exports; extends `mainMenu()` with 4+ new items
+2. `secrets.cjs` — keytar wrapper; key index; `syncToClaudeJson`; unchanged for v0.10 (existing API sufficient for batch rotation)
+3. `update-agents.cjs` — CLI update flow; gains policy check (`agent_config[slot].update_policy`) before each install; gains audit log writes
+4. `check-provider-health.cjs` — HTTP probe + TTL cache; `listAgents()` reads cache read-only; no write path change
+5. Config files (`~/.claude.json`, `~/.claude/qgsd.json`, `bin/providers.json`) — unchanged structure; new fields only (`update_policy`, `key_status`)
 
-Build order is strictly: Phase 18 CLI foundation → Phase 19 state schema + activity tracking → Phase 20 workflow orchestrator → Phase 21 categorization engine → Phase 22 integration test.
+**Key patterns to follow:**
+
+- Fail-silent reads for optional display data (scoreboard, CCR config): `try/catch` returns `null`; UI renders `—`
+- Mode switch for non-inquirer UIs: exit inquirer loop, run raw stdin loop, re-enter `mainMenu()` on exit — never run `setInterval` while inquirer is active
+- Collect-all-inputs-then-apply-once: batch operations show full change set and confirm before any write
+- Atomic write via tmp-rename: all `writeXxx()` helpers use `.tmp` + `renameSync`; `writeQgsdJson()` must follow same pattern
 
 ### Critical Pitfalls
 
-1. **Framework cross-discovery collision in monorepos** — A `.spec.ts` file owned by Playwright is also discovered by Jest's `testMatch` glob, inflating counts and producing 100% batch failure rates. Avoid by always using framework CLI output (`jest --listTests`, `npx playwright test --list`, `pytest --collect-only`) as the canonical source of truth. Never independently glob for test files. This is a Phase 18 design decision that cannot be retrofitted.
+1. **setInterval inside inquirer corrupts stdin ownership** — `setInterval` writing to stdout while inquirer holds the TTY garbles the display with interleaved ANSI sequences. Prevention: mode-switch pattern is mandatory for the live dashboard — exit the inquirer menu loop before starting any refresh timer, re-enter `mainMenu()` on exit. Never call `inquirer.prompt()` while a timer has stdout write access.
 
-2. **Circuit breaker fires mid-maintenance loop** — After 3+ quick-task commits on the same test file, the QGSD circuit breaker's oscillation detector fires and blocks all Bash write operations. This is legitimate iterative work, not oscillation. Avoid by calling `npx qgsd --disable-breaker` at maintain-tests start and `npx qgsd --enable-breaker` at end. Also group fixes by file set so one commit covers multiple tests rather than N commits per test.
+2. **Export leaks API keys via keytar fallback path** — `addAgent()` has a keytar-unavailable fallback that writes `ANTHROPIC_API_KEY` directly into `~/.claude.json` env blocks; `syncToClaudeJson()` patches live key values back before serialization. Prevention: `buildExportPayload()` must call `sanitizeEnvForExport()` unconditionally, stripping any env key matching `/_KEY$|_SECRET$|_TOKEN$|_PASSWORD$/i`. Never call `syncToClaudeJson()` before reading for export. Unit test: assert zero credential keys in any export payload.
 
-3. **AI categorization loop never converges** — Without explicit termination conditions, the loop runs forever on unfixable tests. Avoid by implementing: (a) a progress guard that halts if unresolved count does not decrease in 2 consecutive iterations, (b) a hard iteration cap (default 5), (c) a `deferred` 6th category that counts as "actioned" for convergence purposes. Design termination conditions in the loop spec before implementation begins.
+3. **Batch key rotation — keychain concurrency and index file race** — `Promise.all` with `secretsLib.set()` triggers macOS keychain lock contention; concurrent `writeIndex()` calls have a read-modify-write race that silently drops entries from `qgsd-key-index.json`. Prevention: sequential `for...of` loop only; print per-slot progress after each `await`; unit test verifies all entries appear in the index after a multi-slot run.
 
-4. **AI categorization hallucinations without source context** — Claude receives a stack trace and produces a confident but wrong root cause. The proposed fix task finds nothing to change. Avoid by always including the failing test's full source code AND the top-2 stack trace source files in every categorization prompt. Add a `context_score` field and only auto-action categorizations with score >= 2.
+4. **CCR config name mismatch from hardcoded `CCR_KEY_NAMES`** — the current hardcoded list (`akashml`, `together`, `fireworks`) breaks silently when the user renames providers in `~/.claude-code-router/config.json`. Prevention: read CCR config dynamically via `readCcrConfigSafe()`; derive provider names from the live file; normalize to lowercase before matching.
 
-5. **Stdout buffer overflow on large test runner output** — Node.js subprocess APIs with default maxBuffer limits (1MB) are insufficient for Jest's JSON reporter output at 100 tests/batch. When the buffer is exceeded, the child process is killed and the error may be swallowed, causing AI categorization to receive empty output. Avoid by using `spawn()` with output piped to a temp file, read after the child's `close` event. This is a Phase 18 batch execution design decision.
+5. **Import partial-apply with non-portable absolute paths** — imported slot configs from other machines contain absolute paths (e.g., `/Users/other-user/...`) in `args` arrays; these fail silently at agent startup. Prevention: `validateImportSlot()` checks all `args` entries for `/Users/` or `/home/` patterns; reports all validation errors before any write; zero partial applies.
 
-6. **Flaky tests classified as real bugs exhaust the loop** — A flaky test's stack trace is indistinguishable from a real bug's on a single run. Avoid by running each failing test 3 times in isolation before categorization: fails 3/3 = consistent; fails 1-2/3 = pre-classify flaky; passes 3/3 = environment noise, drop from queue.
+---
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure for Phases 18-22 (continuing from v0.2 Phase 17):
+Based on the dependency build order in ARCHITECTURE.md and the phase groupings in FEATURES.md, 6 phases are recommended.
 
-### Phase 18: CLI Foundation
+### Phase v0.10-01: Foundation — Read-Only Display and Helper Infrastructure
 
-**Rationale:** The gsd-tools.cjs sub-commands are mechanically testable before any workflow logic exists. Unit testing discover/batch/run-batch catches runner detection bugs early — including the framework cross-discovery collision and stdout buffer overflow pitfalls — before they block workflow development. No workflow dependency; this phase is independent of all others.
+**Rationale:** These additions carry zero write-path risk. They only modify `listAgents()` output and add read-only helpers. Building them first validates the new column structure (scoreboard, CCR, key-expiry-from-cache) before any mutation feature builds on top. The `readQgsdJson`/`writeQgsdJson` helper pair is also introduced here as a precondition for all later phases.
 
-**Delivers:** `gsd-tools.cjs maintain-tests` with 5 sub-commands (discover, batch, run-batch, save-state, load-state). Runner auto-detection for jest/playwright/pytest. Per-framework output capture to temp files via spawn with stream piping (not buffered subprocess APIs). Unit tests for all sub-commands including monorepo fixture tests for framework collision and per-package invocation.
+**Delivers:** `PROVIDER_PRESETS` const and `bin/provider-presets.json`; `readQgsdJson`/`writeQgsdJson` atomic helper pair; `readScoreboardSafe()`; `readCcrConfigSafe()` + `buildCcrRouteMap()`; extended `listAgents()` table with Score (W/L), CCR, and stale-cache key status columns; all new `_pure` exports and unit tests including missing-file edge cases.
 
-**Addresses:** Test discovery, random batching, batch execution (FEATURES.md P1)
+**Addresses:** Provider preset const (data layer), quorum scoreboard inline, CCR routing visibility.
 
-**Avoids:** Framework cross-discovery collision (Pitfall 1) — framework CLIs are the implementation from the start. Stdout buffer overflow (Pitfall 4) — spawn with file-based output is baked in. pytest conftest ancestor collision (Pitfall 3) — per-package invocation is the pattern.
+**Avoids:** Scoreboard ENOENT crash on fresh install — `existsSync` guard required (Pitfall 9). CCR name mismatch — dynamic read from CCR config, not hardcoded list (Pitfall 4).
 
-### Phase 19: State Schema and Activity Tracking Integration
+---
 
-**Rationale:** The workflow needs a stable state schema and activity sidecar hooks before the orchestrator is written. Getting the schema wrong after the workflow is built requires a rewrite. The resume-work.md routing table must be extended before the workflow relies on it for interrupt recovery. Termination condition fields (iteration_count, last_unresolved_count) belong in the schema, not added as an afterthought in Phase 21.
+### Phase v0.10-02: Preset-Aware Add and Slot Cloning
 
-**Delivers:** `maintain-tests-state.json` schema definition (SQLite primary, JSON fallback for Node < 22.5.0). `.gitignore` addition. Six new sub_activity values and routing table rows in `resume-work.md`. Node version compatibility check at startup. Termination state fields in schema (iteration_count, last_unresolved_count, deferred_tests[]).
+**Rationale:** Provider presets slot into the existing `addAgent()` and `editAgent()` base-URL prompts as a `list` prompt replacing an `input` prompt. Slot cloning reuses the same `readClaudeJson`/`writeClaudeJson` data flow with a new function. Both are pure config manipulation with no credential writes except the optional new-key prompt in cloning.
 
-**Addresses:** State persistence and resume (FEATURES.md P1), progress tracking (FEATURES.md P1)
+**Delivers:** `PROVIDER_PRESETS` wired into `addAgent()` and `editAgent()` base-URL steps with pre-flight provider probe before committing; `cloneAgent()` function and menu item; post-clone prompt to set API key on new slot; slot name uniqueness validation reusing `addAgent()` pattern.
 
-**Avoids:** Loop never terminates (Pitfall 7) — iteration cap and progress guard are schema-enforced from the start.
+**Addresses:** Provider preset library (full UX), slot cloning.
 
-### Phase 20: Workflow Orchestrator
+**Avoids:** Cloned slot showing `[no key]` without explanation — explicit post-clone key prompt (UX Pitfalls table). Provider preset showing unreachable provider — probe runs on selection before slot is written (UX Pitfalls table).
 
-**Rationale:** The workflow shell (command stub + orchestration logic) must exist before categorization is added. Building the orchestrator without categorization allows the full batch loop to be validated end-to-end with placeholder categories before the high-risk categorization engine is wired in. The circuit breaker lifecycle and Stop hook exclusion are verified here before any fix commits are generated.
+---
 
-**Delivers:** `commands/qgsd/maintain-tests.md` (slash command stub). `workflows/maintain-tests.md` (full orchestrator: discovery call, batch loop, activity-set transitions, placeholder categorization, action dispatch skeleton, real bug deferral surface format, session SUMMARY.md). Installer addition (WORKFLOWS_TO_COPY). Explicit verification that maintain-tests is NOT in quorum_commands.
+### Phase v0.10-03: Key Credential Features (Expiry Detection + Batch Rotation)
 
-**Addresses:** Iterative loop (FEATURES.md P1), progress banner (FEATURES.md P1), SUMMARY.md artifact (FEATURES.md P1)
+**Rationale:** Both features touch the credential layer and share `probeProviderUrl()` and `secretsLib` as dependencies. Grouping them means `classifyProbeResult()` is available for both the key expiry badge (used here in `listAgents()` via TTL cache) and the live dashboard in the next phase.
 
-**Avoids:** maintain-tests added to quorum_commands (Pitfall 12) — verified at design time. Circuit breaker fires mid-loop (Pitfall 10) — `--disable-breaker`/`--enable-breaker` lifecycle is in the command wrapper from the start.
+**Delivers:** `classifyProbeResult()` pure function; `[key invalid]` badge in `listAgents()` driven by TTL cache (not live probe on every render); `batchKeyRotation()` function and menu item; sequential `for...of` key-set loop with per-slot progress output; unit test verifying all rotated slots appear in `qgsd-key-index.json`.
 
-### Phase 21: Categorization Engine
+**Addresses:** Key expiry warnings, batch key rotation.
 
-**Rationale:** Categorization is the highest-risk phase — quorum worker prompt design for 5+1 category classification is novel, and consensus rate is unknown. Isolating it in its own phase means prompt failures do not block the workflow structure. Prompt design should be validated with few-shot examples before wiring into the loop. This phase also incorporates the flakiness pre-check, source context payload design, and sub-batching — all of which interact with categorization quality.
+**Avoids:** `Promise.all` keychain concurrency and index race — sequential loop is the only acceptable pattern (Pitfall 3). Key expiry badge persisting after valid key rotation — badge derives from live probe in dashboard, cache-based in list; cache invalidated on rotation (Security Mistakes table).
 
-**Delivers:** Quorum worker prompt for 5-category + `deferred` 6th category classification. Consensus aggregation logic (3+ workers agree = consensus; disagreement = Claude tiebreaker). Context payload design (test source + top-2 stack trace sources + failure_history field). Sub-batching at max 10 failures per Claude call. Flakiness pre-check (3-run isolation before AI categorization). Category-grouped quick task dispatch (group by category + error type + directory; cap 20 tests per quick task).
+---
 
-**Addresses:** AI categorization (FEATURES.md P1, highest complexity), isolation re-run verification (FEATURES.md P2), git history context for stale/adapt (FEATURES.md P2)
+### Phase v0.10-04: Live Health Dashboard
 
-**Avoids:** AI categorization hallucinations (Pitfall 6) — source context is mandatory. Loop never converges (Pitfall 7) — deferred category and termination conditions are already in schema from Phase 19. Flaky tests misclassified as real bugs (Pitfall 5) — 3-run isolation check gates categorization. Context window overflow (Pitfall 11) — sub-batching at max 10 failures per call.
+**Rationale:** The dashboard is the highest-complexity feature and depends on `classifyProbeResult()` (Phase 3) for key expiry badges and `readScoreboardSafe()` (Phase 1) for inline score display. Deferring it until all supporting helpers are stable ensures the render surface is complete before the non-trivial stdin/stdout architecture is introduced.
 
-**Research flag:** NEEDED. Quorum worker classification prompts for 5-category test failure categorization are novel. Phase-specific research should verify: (a) whether few-shot examples are required for reliable classification at the quorum models' capability level, (b) expected consensus rate and how to handle persistent disagreement, (c) whether 5 categories is the right granularity or whether a coarser taxonomy would achieve higher consensus rates with acceptable precision loss.
+**Delivers:** `liveHealthDashboard()` with mode-switch architecture (exits inquirer, runs raw stdin loop, re-enters `mainMenu()` on exit); `Promise.all` parallel probes with shared 5s timeout; 5s `setInterval` refresh; mandatory "Last updated: HH:MM:SS" footer; yellow stale warning after 60s; `[q]` / Ctrl-C exit with `setRawMode(false)` + `removeAllListeners` teardown before returning; TTY guard falls back to static one-time print in non-TTY contexts.
 
-### Phase 22: Integration Test and Verification
+**Addresses:** Live health dashboard.
 
-**Rationale:** End-to-end validation requires all prior phases. A real failing test suite (QGSD's own test suite or a fixture project with controllable failures) is needed to validate that the full loop converges, the circuit breaker lifecycle works, state persists across interruption, and the Stop hook does not fire erroneously.
+**Avoids:** setInterval/inquirer stdin conflict — mode-switch pattern enforced by architecture (Pitfall 1). Missing "Last updated" timestamp — mandatory render element, not optional (Pitfall 6). Sequential probes blocking dashboard — `Promise.all` with shared timeout is required for parallelism (Performance Traps table).
 
-**Delivers:** End-to-end test covering all 10 items in the PITFALLS.md "Looks Done But Isn't" checklist: discovery deduplication, buffer overflow handling, circuit breaker lifecycle, shallow clone detection, flakiness pre-check, categorization sub-batching, loop termination on unfixable tests, Stop hook exclusion, pytest rootdir isolation, convergence state persistence. VERIFICATION.md for Phases 18-21. Updated installer.
+---
 
-**Addresses:** All integration gotchas in PITFALLS.md integration table.
+### Phase v0.10-05: Policy UIs (Timeout Tuning + Auto-Update Policy)
+
+**Rationale:** Both features read/write `qgsd.json` via the helper pair built in Phase 1. They are naturally grouped as the "per-slot policy settings" surface. Per-agent timeout is primarily a display enhancement on existing edit flows; auto-update policy introduces a new `qgsd.json` field and a light `update-agents.cjs` integration.
+
+**Delivers:** Dedicated "Tune timeouts" sub-screen surfacing `perfRow` suggestion with explicit label at top of summary card; mandatory restart-required note after every timeout write; `agent_config[slot].update_policy` field (`"auto"` / `"ask"` / `"never"`); auto-update policy settings screen in `mainMenu()`; `update-agents.cjs` policy check before each CLI install; `~/.claude/qgsd-update.log` audit file with timestamped entries; `listAgents()` banner when log contains recent ERROR entries.
+
+**Addresses:** Per-agent timeout tuning, auto-update policy.
+
+**Avoids:** Timeout change with no restart note — restart note is mandatory after every timeout write (Pitfall 7). Auto-update silent failures — audit log is a mandatory component; banner surfaces failures on next `listAgents()` call (Pitfall 8).
+
+---
+
+### Phase v0.10-06: Import/Export and Milestone Verification
+
+**Rationale:** Import/export has the broadest data model coverage — it touches every config source (`~/.claude.json`, `providers.json`, `qgsd.json`, CCR config). Building it last means all config write helpers and the complete `agent_config` schema (including `update_policy` from Phase 5) are stable before the export payload is defined. The verification step covers all 10 features end-to-end.
+
+**Delivers:** `exportRoster()` and `importRoster()` functions; `buildExportPayload()`, `validateImportPayload()`, `mergeImportedSlots()` pure functions; `sanitizeEnvForExport()` with defense-in-depth credential stripping (regex + explicit key list); pre-import backup to `~/.claude.json.pre-import.<timestamp>`; per-slot three-way conflict resolution (overwrite/keep existing/rename incoming); `import` command whitelist (`command` must be `node` or `npx`); VERIFICATION.md for all v0.10 requirements.
+
+**Addresses:** Import/export config.
+
+**Avoids:** Export leaking API keys via keytar fallback path — `sanitizeEnvForExport()` runs unconditionally; tested against slot with known plaintext key (Pitfall 2). Import partial-apply with non-portable paths — `validateImportSlot()` checks all `args` before any write (Pitfall 5). Import overwriting production slots silently — per-slot three-way confirmation before write (Anti-Pattern 2 in ARCHITECTURE.md).
+
+---
 
 ### Phase Ordering Rationale
 
-- Phase 18 before 19: CLI commands inform the state schema design. Building schema before understanding what data the CLI produces inverts the dependency.
-- Phase 19 before 20: Workflow relies on stable state schema and resume routing. Schema changes after workflow is written cause a workflow rewrite.
-- Phase 20 before 21: Categorization is a feature of the workflow, not a standalone component. The workflow shell must be validated before the most complex logic is added.
-- Phase 21 is isolated: Prompt design for novel classification is high-risk and benefits from being the sole focus of a phase. Prompt failures here do not affect the workflow shell built in Phase 20.
-- Phase 22 last: Integration testing requires all components functional. The "Looks Done But Isn't" checklist in PITFALLS.md has 10 verification scenarios that require the full stack.
+- **Read-only first (Phases 1-2):** Zero write-path risk. If a column rendering bug exists, it cannot cause data loss. The new column structure is validated on a real roster before any mutation feature builds on top.
+- **Credentials together (Phase 3):** All `secretsLib` write paths are in one phase. The sequential-write constraint and keychain behavior are validated once; the lesson is not spread across phases.
+- **Dashboard after credential features (Phase 4):** The live dashboard incorporates key expiry badges and scoreboard inline — both helpers must be validated before the dashboard render loop uses them.
+- **Policy after dashboard (Phase 5):** Policy settings write only to `qgsd.json`. Sequencing them after the most complex feature (dashboard) keeps each phase's risk surface bounded.
+- **Import/export last (Phase 6):** The broadest data model coverage requires all prior schemas (agent_config, update_policy, providers, CCR routes) to be stable. The full `_pure` export surface is available for comprehensive verification.
 
 ### Research Flags
 
-Phases needing deeper research during planning:
-- **Phase 21 (Categorization Engine):** Quorum worker prompt design for 5+1 category classification is novel. Research should verify: (a) whether few-shot examples are required for reliable classification, (b) expected consensus rate and how to handle persistent disagreement, (c) whether 5 categories is the right granularity or whether a coarser 3-category taxonomy would achieve higher consensus rates with acceptable precision loss. This is the only HIGH research-risk phase.
+**Phases needing deeper research during planning:**
 
-Phases with standard patterns (skip research-phase):
-- **Phase 18 (CLI Foundation):** All patterns established in existing `gsd-tools.cjs` and `qgsd-circuit-breaker.js`. spawnSync, fs, path — no novel APIs.
-- **Phase 19 (State Schema):** Schema design is mechanical. SQLite built-in API is documented. Activity sidecar pattern is already used in execute-phase.
-- **Phase 20 (Workflow Orchestrator):** Follows identical structure to existing QGSD workflows (plan-phase.md, execute-phase.md). The slash command + execution_context pattern is established.
-- **Phase 22 (Integration Test):** Standard verification phase. Test scenarios are fully defined in PITFALLS.md "Looks Done But Isn't" checklist.
+- **Phase v0.10-03 (Key Credential Features):** macOS keychain sequential write behavior under rapid `secretsLib.set()` calls needs a manual test to confirm the `for...of` loop is sufficient. The `qgsd-key-index.json` read-modify-write race has not been stress-tested with 5+ rapid writes. Validate before shipping batch rotation.
+- **Phase v0.10-04 (Live Health Dashboard):** stdin raw mode teardown sequence (`setRawMode(false)`, `removeAllListeners`, cursor restore) on macOS has MEDIUM confidence from community sources. Linux raw mode behavior in non-TTY contexts (CI environments) is not validated. The TTY guard (`process.stdout.isTTY` check before entering dashboard) needs an explicit test.
+
+**Phases with standard patterns (skip research-phase):**
+
+- **Phase v0.10-01 (Foundation):** All patterns are read-only `listAgents()` column extensions. Fail-silent try/catch is a two-liner. No novel patterns.
+- **Phase v0.10-02 (Preset + Cloning):** Provider preset is a `list` prompt replacing an `input` prompt — standard inquirer substitution. Slot cloning reuses `readClaudeJson`/`writeClaudeJson` exactly.
+- **Phase v0.10-05 (Policy UIs):** Both features use the `readQgsdJson`/`writeQgsdJson` helper pair from Phase 1. Auto-update policy check in `update-agents.cjs` is a single conditional before the existing `runUpdate()` call.
+- **Phase v0.10-06 (Import/Export):** Full data model documented in ARCHITECTURE.md with field-by-field export decisions. `sanitizeEnvForExport()` is a straightforward regex + allowlist pass.
+
+---
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All library choices verified against official docs and npm. CommonJS constraint confirmed from package.json. node:sqlite version requirement and stability level confirmed from Node.js docs. p-limit ESM incompatibility confirmed from GitHub issue thread. esbuild bundling confirmed from existing build-hooks.js. |
-| Features | HIGH (table stakes) / LOW (5-category taxonomy) | Jest/playwright/pytest API behavior verified against official docs and GitHub issues at scale. The 5-category taxonomy is QGSD-defined — it maps to industry patterns (Parasoft, Google) but is not an industry standard. Taxonomy reliability in practice against real suites is unvalidated. |
-| Architecture | HIGH | Integration points derived from direct source reads of gsd-tools.cjs, execute-phase.md, debug.md, quick.md, config-loader.js, qgsd-circuit-breaker.js, STATE.md. No novel APIs involved. Phase numbering (18+) confirmed against STATE.md. |
-| Pitfalls | HIGH (technical) / MEDIUM (AI behavior) | Framework cross-discovery, buffer overflow, circuit breaker collision, and shallow clone issues are confirmed from official docs and GitHub issue threads with reproduction cases. AI categorization hallucination rate and quorum consensus rate predictions are based on general LLM research patterns, not QGSD-specific measurement. |
+| Stack | HIGH | All technology decisions validated against live source files. Node.js stdlib methods verified against Node v25.6.1 runtime. inquirer@8.2.7 CJS confirmed from `node_modules`. ESM-only rejection of log-update/ansi-escapes/ink confirmed from GitHub release notes. Zero new npm deps. |
+| Features | HIGH | All 10 features derived from direct read of `bin/manage-agents.cjs` and `bin/providers.json`. Existing patterns (probeProviderUrl, fetchProviderModels, keytar via secretsLib, summary card, checkbox picker) confirmed for each feature's implementation approach. Complexity estimates based on actual line-count analysis. |
+| Architecture | HIGH | All source files read directly. All integration points traced from live code at specific line numbers. No novel external APIs. Build order derived from actual dependency graph, not assumptions. |
+| Pitfalls | HIGH | All 10 pitfalls derived from direct inspection of specific line numbers in existing source (e.g., keytar fallback at lines 394-399, CCR_KEY_NAMES at lines 1295-1299, syncToClaudeJson at lines 117-127). Failure modes are documented from real codebase patterns, not hypothetical scenarios. |
 
-**Overall confidence:** HIGH for implementation approach; MEDIUM for AI categorization reliability at scale.
+**Overall confidence: HIGH**
 
 ### Gaps to Address
 
-- **5-category taxonomy validation:** The QGSD-defined categories have not been tested against a real 20k suite. Categories may need refinement after Phase 22 end-to-end testing. Treat Phase 22 as a hypothesis-validation pass, not just a QA pass. Budget for a post-Phase-22 taxonomy adjustment iteration.
+- **Dashboard raw mode teardown on Linux:** The `process.stdin.setRawMode(false)` + `removeAllListeners('keypress')` sequence is documented as safe for macOS. Linux behavior (particularly in non-TTY contexts like CI) has MEDIUM confidence only. Address during Phase v0.10-04 with an explicit TTY guard (`process.stdout.isTTY`) before entering dashboard mode and an explicit test covering a non-TTY fallback path.
 
-- **Quorum consensus rate for test failure classification:** Unknown what percentage of test failures will reach quorum consensus on first categorization attempt. If the rate is low (< 60%), the categorization loop will be slower than expected due to Claude tiebreaker invocations. Design the workflow with a per-test categorization timeout and a fallback to Claude-only categorization to prevent stalls.
+- **Scoreboard composite key format for partial quorum history:** The scoreboard `slots{}` map uses `"<slot>:<model-id>"` composite keys. If a slot has never participated in a quorum round it has no key in the map. Validate `readScoreboardSafe()` against a project with partial quorum participation (some slots present, some absent) during Phase v0.10-01 testing.
 
-- **Performance at 20k+ scale:** Discovery time (30-120 seconds) and total loop time (8-48 hours) estimates are based on documented framework behavior and scale analysis, not empirical measurement. Phase 22 should benchmark discovery and batch execution time against a realistic fixture to validate these estimates before the tool ships.
+- **CCR config absent (no CCR installed):** If `~/.claude-code-router/config.json` does not exist (user has no CCR), the CCR column must show `—` for all slots without any error banner. The `readCcrConfigSafe()` fail-silent pattern handles this, but the test should include a machine state where the CCR config file is absent entirely.
 
-- **pytest output format edge cases:** `pytest --collect-only -q` line parsing works for standard test IDs but may fail for parametrized tests with complex parameter strings (brackets, special characters). Validate pytest parsing in Phase 18 unit tests with parametrized test fixtures specifically.
+---
 
 ## Sources
 
-### Primary (HIGH confidence)
+### Primary (HIGH confidence — first-party source reads)
 
-- `/Users/jonathanborduas/code/QGSD/hooks/qgsd-circuit-breaker.js` — CommonJS require() pattern, spawnSync for git, fs.readFileSync/writeFileSync for state; integration blueprint for maintain-tests CLI
-- `/Users/jonathanborduas/code/QGSD/package.json` — no `"type":"module"` (CommonJS confirmed), esbuild@^0.24.0 devDep, engines.node >= 16.7.0
-- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — v0.3 target features and constraints (authoritative scope)
-- `/Users/jonathanborduas/code/QGSD/.planning/STATE.md` — phase numbering (last phase = 17), key decisions table
-- `/Users/jonathanborduas/.claude/qgsd/bin/gsd-tools.cjs` — existing sub-command interface, activity-set pattern, compound init commands
-- `/Users/jonathanborduas/.claude/qgsd/workflows/execute-phase.md` — activity-set usage across step transitions; checkpoint:verify pattern
-- `https://nodejs.org/docs/latest/api/sqlite.html` — node:sqlite stability (1.1), version (>= 22.5.0, no flag from v22.13.0), DatabaseSync API
-- `https://nodejs.org/api/child_process.html` — spawnSync API, spawn streaming API, maxBuffer behavior with buffered subprocess calls
-- `https://jestjs.io/docs/cli` — --json flag, --outputFile, --testPathPattern, --listTests, workerIdleMemoryLimit behavior
-- `https://playwright.dev/docs/test-reporters` — JSON reporter, --list flag, --shard deterministic splitting
-- `https://jestjs.io/docs/configuration` — rootDir, projects, testMatch behavior in monorepos
-- `https://docs.pytest.org/en/stable/explanation/pythonpath.html` — conftest.py ancestor traversal and import collision
-- `https://docs.pytest.org/en/stable/reference/customize.html` — rootdir detection, per-package invocation required
-- `https://git-scm.com/docs/git-log` — pickaxe (-S), --encoding=UTF-8, --is-shallow-repository
+- `/Users/jonathanborduas/code/QGSD/bin/manage-agents.cjs` — full 1569-line source; all existing flows, data paths, `_pure` export pattern, keytar fallback at lines 394-399, CCR_KEY_NAMES at lines 1295-1299
+- `/Users/jonathanborduas/code/QGSD/bin/secrets.cjs` — keytar wrapper, `syncToClaudeJson` credential patch at lines 117-127, key index read-modify-write pattern at lines 18-21
+- `/Users/jonathanborduas/code/QGSD/bin/update-agents.cjs` — CLI update flow, `buildCliList()`, `spawnSync` pattern, `runUpdate()` error reporting
+- `/Users/jonathanborduas/code/QGSD/bin/check-provider-health.cjs` — TTL cache structure, probe logic, `quorum_active` filtering
+- `/Users/jonathanborduas/code/QGSD/bin/ccr-secure-config.cjs` — CCR config path (line 15), hardcoded `providerKeyMap` (lines 69-73) identified as fragility
+- `/Users/jonathanborduas/code/QGSD/bin/providers.json` — all 10 provider entries, CCR routing fields (`args_template`, `display_type`)
+- `/Users/jonathanborduas/.claude/qgsd.json` — `agent_config` structure, quorum_active, circuit_breaker
+- `/Users/jonathanborduas/.claude-code-router/config.json` — live CCR provider names and `Router.default`; `api_key` fields confirmed present (must not export)
+- `/Users/jonathanborduas/code/QGSD/.planning/quorum-scoreboard.json` — `slots{}` composite key format `"<slot>:<model-id>"`, `models{}` family map
+- `node_modules/inquirer/package.json` — confirmed version 8.2.7, `"type": "commonjs"`
+- Node.js readline official docs — `cursorTo`, `moveCursor`, `clearLine`, `clearScreenDown`, `emitKeypressEvents` all confirmed present in Node v25.6.1 via `node -e` runtime verification
 
-### Secondary (MEDIUM confidence)
+### Secondary (MEDIUM confidence — community sources)
 
-- `https://github.com/mrmlnc/fast-glob/releases` — version 3.3.3 current stable, zero transitive deps, MIT license
-- `https://github.com/pytest-dev/pytest/issues/9704` — collect-only output is not machine-readable JSON; line parsing is the correct approach
-- `https://github.com/jestjs/jest/issues/13792` (and #15216, #7311) — workerIdleMemoryLimit behavior, OOM at large scale confirmed
-- `https://github.com/sindresorhus/p-limit/issues/63` — p-limit v6+ ESM-only; incompatible with CommonJS
-- `https://www.parasoft.com/blog/ml-powered-test-failure-analysis/` — industry failure taxonomy (Bug/Regression, Flaky, Unstable Environment, Bad Data, Outliers)
-- `https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html` — async timing (46%), order dependency as top flakiness root causes
-- `https://dl.acm.org/doi/fullHtml/10.1145/3476105` — ACM survey of flaky test root causes; confirms QGSD taxonomy maps to research categories
-- `https://playwright.dev/docs/best-practices` — testDir configuration, Playwright test file ownership patterns in monorepos
-- `https://devops.aibit.im/article/git-shallow-clones-guide` — shallow clone detection strategy; consistent with git-scm docs
-- `https://redis.io/blog/context-window-overflow/` — context window overflow practical patterns; informs 10-failure sub-batch limit
+- GitHub sindresorhus/log-update issue #54 — ESM-only from v4 confirmed; `require()` throws `ERR_REQUIRE_ESM`
+- GitHub sindresorhus/ansi-escapes releases — ESM-only from v5.0.0 (April 2020); v4.3.2 last CJS
+- GitHub SBoudrias/Inquirer.js discussion #1126 — v9 is ESM-only; v8 is CJS confirmed
+- GitHub SBoudrias/Inquirer.js issues #495, #1358, #811, #870, #894 — stdin raw mode conflicts with concurrent TUI libraries; process.stdin ownership during active prompt
+- GitHub chjj/blessed — last commit 2019; confirms unmaintained status; anti-feature rationale validated
+- Docker stats ANSI cursor-up rewrite pattern — standard approach for non-TUI live refresh; confirmed in multiple tools (npm install progress, `docker stats` source)
 
-### Tertiary (LOW confidence)
+### Tertiary (LOW confidence — general direction only)
 
-- `https://www.browserstack.com/guide/playwright-flaky-tests` — Playwright-specific flaky test patterns (community guide, not official)
-- `https://johal.in/forked-python-parallel-pytest-plugin-subprocess-testing-isolation-2025/` — 20k test suite pytest isolation case study (2025); validates per-package invocation approach
-- `https://demiliani.com/2025/11/02/understanding-llm-performance-degradation-a-deep-dive-into-context-window-limits/` — LLM context window degradation research; informs categorization sub-batching design
-- `https://www.getmaxim.ai/articles/multi-agent-system-reliability-failure-patterns-root-causes-and-production-validation-strategies/` — multi-agent reliability failure modes; informs quorum consensus rate gap assessment
+- WebSearch results on credential rotation batch UX patterns (AWS IAM rotation flow)
+- WebSearch results on JSON export redaction best practices (Terraform `show -json`, AWS CLI `export-credentials`)
 
 ---
-*Research completed: 2026-02-22*
+*Research completed: 2026-02-24*
 *Ready for roadmap: yes*

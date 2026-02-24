@@ -1,130 +1,293 @@
 # Stack Research
 
-**Domain:** Test suite maintenance tool — Node.js CLI command within QGSD plugin
-**Researched:** 2026-02-22
-**Confidence:** HIGH — all library choices verified against official docs, npm current versions confirmed, Node.js built-in capabilities verified from v25.6.1 docs
+**Domain:** Node.js CLI tool — agent roster management UI additions (v0.10 Roster Toolkit)
+**Researched:** 2026-02-24
+**Confidence:** HIGH
+
+## Context: What Already Exists (Do NOT Re-Research)
+
+The following capabilities are validated and out of scope for this research:
+
+- `inquirer@8.2.7` (CommonJS, confirmed installed — `type: "commonjs"` in package, `new inquirer.Separator()` API works as-is)
+- `keytar@7.9.0` with `qgsd-key-index.json` sidecar — secrets storage
+- `node:child_process` `spawnSync` — CLI updates
+- `node:test` suite — pure function testing
+
+**Confirmed installed inquirer version: 8.2.7.** All new code must stay CJS (`require()`-only).
+Inquirer v9 is ESM-only — upgrading would break every existing `require('inquirer')` call.
+No ESM migration is in scope for v0.10.
 
 ---
 
-## Scope
+## Feature 1: Live Auto-Refreshing Terminal Status Dashboard
 
-This STACK.md covers ONLY the new capabilities needed for v0.3 (`/qgsd:maintain-tests`). The existing QGSD stack (Claude Code hooks API, Node.js stdlib for hooks, esbuild for build, hook registration via settings.json) is already documented in the v0.1/v0.2 STACK.md and is not re-documented here.
+### Decision: Pure `node:readline` — zero new dependencies
 
-**New capabilities required:**
-1. Test file discovery (jest / playwright / pytest) across unknown project layouts
-2. Batch execution (100 tests/batch, sequential)
-3. Structured failure capture (machine-readable JSON output from each runner)
-4. Persistent state across interrupted runs (20k+ test suites means multi-session)
-5. AI categorization loop (Claude subagent reads failures, writes category decisions)
-6. Git history integration (optional: determine when test last passed for context)
+**Rationale:** Node.js `readline` module (stdlib, no install) exposes `readline.cursorTo()`,
+`readline.moveCursor()`, `readline.clearLine()`, and `readline.clearScreenDown()` for in-place
+terminal redraws. Combined with `setInterval()`, this gives a live-refresh dashboard with no deps.
+Verified present in Node.js v25.6.1 (the runtime in this environment).
 
----
+**Why not `log-update`:** `log-update` (sindresorhus) went ESM-only starting at v4.
+It cannot be `require()`'d from CJS. Pinning to v3 would add a dep for functionality stdlib already
+provides. Confirmed ESM-only from v4+ via GitHub issue #54 and sindresorhus's ESM migration gist.
 
-## Recommended Stack
+**Why not `ansi-escapes`:** Went ESM-only at v5.0.0 (released April 2020). Last CJS version was
+4.3.2 — a 5-year-old pinned release is not an acceptable dep. `readline` covers all needed cursor
+ops. The only ANSI sequences NOT in readline are hide/show cursor (`\x1b[?25l` / `\x1b[?25h`),
+which are safe to inline as 4-byte literal strings.
 
-### Core Technologies
+**Why not `blessed` or `ink`:** Both take full stdin ownership, which conflicts with inquirer's
+stdin takeover when the user returns from the dashboard to the main menu. Multiple Inquirer.js
+GitHub issues document that concurrent stdin raw mode management causes raw mode conflicts, silent
+character swallowing, and prompt hangs. The dashboard must fully release stdin before handing
+control back to `inquirer.prompt()`.
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| Node.js `child_process.spawnSync` | built-in (Node >=16.7.0) | Execute jest/playwright/pytest as subprocesses | Already used in qgsd-circuit-breaker.js for git operations. Synchronous variant is correct for sequential batch execution — simpler control flow, exit code and stdout/stderr available immediately after the call returns. |
-| Node.js `fs` | built-in | Read/write batch state file, read jest/playwright JSON output, write categorization log | The stdlib of record in every existing QGSD hook. No external library needed. |
-| Node.js `path` | built-in | Resolve project root, construct runner command paths | Already the stdlib of record in all QGSD hooks. |
-| Node.js `child_process.spawn` (async) | built-in | Execute long-running batches where stdout must stream | Use the async variant when a batch may produce >1MB stdout (e.g. 100 slow playwright tests). Pipe stdout/stderr to a temp file rather than buffering in memory to avoid pipe-buffer blocking. |
+**Implementation pattern (no external deps):**
 
-### Test Discovery
+```javascript
+const readline = require('readline');
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `fast-glob` | 3.3.3 | Discover test files matching framework patterns (`**/*.test.{js,ts}`, `**/*.spec.{js,ts}`, `**/test_*.py`, `**/*_test.py`) across the project directory | Use when the project does NOT have a jest/playwright config to delegate discovery to. fast-glob handles negations, gitignore-style ignore patterns, and resolves symlinks. Version 3.3.3 is the current stable release (Jan 2025), MIT license, zero transitive dependencies in production use. |
-| Jest `--testPathPattern` + `--json` | Jest built-in | When the project uses Jest: delegate discovery AND execution to Jest itself by passing a regex of test file paths for one batch, capture JSON output via `--json --outputFile` | Preferred over re-implementing discovery for Jest projects. Jest's project config (testMatch, testPathIgnorePatterns) is authoritative. |
-| Playwright `--reporter=json` | Playwright built-in | When the project uses Playwright: pass explicit file list or a shard (`--shard=N/M`), capture structured JSON output | Preferred over re-implementing discovery for Playwright projects. |
-| `pytest --collect-only -q --no-header` | pytest built-in | Discover pytest tests: spawn the command and parse each `path/to/test_file.py::test_name` line from stdout | Output is NOT JSON natively but is line-delimited and parseable. Filter lines matching `^[^\s].*::` to exclude the summary line. No extra library needed. |
+const REFRESH_MS = 5000; // 5s default — fast enough to feel live, slow enough for no flicker
 
-**Discovery strategy:** Auto-detect which runner(s) the project uses by checking for presence of `jest.config.*`, `playwright.config.*`, or `pytest.ini` / `pyproject.toml` with `[tool.pytest.ini_options]`. Fall back to fast-glob pattern scan. This avoids re-implementing runner config logic.
+async function liveDashboard(fetchRows) {
+  // Hide cursor
+  process.stdout.write('\x1b[?25l');
+  readline.cursorTo(process.stdout, 0, 0);
+  readline.clearScreenDown(process.stdout);
 
-### Failure Output Capture
+  const render = () => {
+    readline.cursorTo(process.stdout, 0, 0);
+    readline.clearScreenDown(process.stdout);
+    const rows = fetchRows(); // synchronous or cached async result
+    for (const row of rows) process.stdout.write(row + '\n');
+    process.stdout.write('\n  [any key to return to menu]\n');
+  };
 
-| Format | Command flags | Key fields |
-|--------|---------|-----------------|
-| Jest JSON | `--json --outputFile=.qgsd-batch-result.json` | `testResults[].testResults[].failureMessages[]`, `testResults[].testResults[].status`, `testResults[].testResults[].fullName`, `testFilePath` |
-| Playwright JSON | `--reporter=json` (capture stdout to temp file) | `suites[].specs[].tests[].results[].error.message`, `suites[].specs[].tests[].results[].status`, `suites[].file` |
-| pytest text | `--tb=short -q` stdout capture | Parse `FAILED path::name - ErrorType: message` lines. Sufficient for AI categorization — the AI only needs the failure message string, not a structured schema. |
+  render();
+  const timer = setInterval(render, REFRESH_MS);
 
-**Do not install pytest-json-report.** Installing a pytest plugin requires modifying the target project, which violates the QGSD constraint of being a pure observer/runner. Capturing `--tb=short` stdout is sufficient.
-
-### Persistent State (Batch Checkpoint)
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| Node.js `node:sqlite` | built-in (Node >=22.5.0, no flag needed as of v22.13.0) | Store batch results, categorization decisions, and run state persistently across sessions | Zero external dependency. Synchronous API (DatabaseSync) matches the existing hook pattern. At 20k tests, a JSON file becomes unwieldy — slow reads/writes on every batch update, no indexed queries. SQLite handles 20k rows trivially with proper indexing. The module is experimental at "active development" (stability 1.1) — appropriate for a dev tool. |
-| JSON flat file fallback | built-in | Fallback for Node < 22.5.0 | If `node:sqlite` import fails (Node 16-21), fall back to a `.qgsd-maintain-state.json` file with a compatibility shim. At 20k tests the JSON approach is 10-30x slower on writes but functional. |
-
-**Why not better-sqlite3?** It requires a native addon compiled against the target Node.js version (`node-gyp`). This breaks the QGSD constraint of zero external dependencies in installed scripts. `node:sqlite` is pure built-in — no compile step, no `node_modules` in the installed path.
-
-**Why not a plain JSON file as primary?** A 20k-test state file serialized as JSON is ~5-10MB. Each batch write requires reading and rewriting the whole file. SQLite writes only the changed rows. For iterative runs (debug→categorize→fix→re-run loop), the write amplification of JSON becomes a real bottleneck over many iterations.
-
-### Concurrency Control
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| Sequential `spawnSync` | built-in | Execute one batch at a time | The correct default. Test runners themselves use parallelism internally (Jest workers, Playwright workers). Running multiple batches concurrently causes port conflicts (Playwright), worker pool exhaustion (Jest), and interleaved stdout that breaks JSON parsing. Sequential outer batching with internal runner parallelism is the right model. |
-| Manual bounded queue with `setImmediate` | built-in | If a future phase needs bounded parallelism (e.g. 3 concurrent pytest batches) | Do NOT add p-limit. p-limit v6+ is ESM-only; QGSD is CommonJS (confirmed: no `"type":"module"` in package.json, all hooks use `require()`). Calling `require('p-limit')` will throw `ERR_REQUIRE_ESM`. |
-
-### AI Categorization Integration
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| Claude Code subagent (`.claude/agents/`) | QGSD agents dir | Categorize failure batches into 5 categories | QGSD already has an `agents/` directory. The categorization agent receives a batch of failure messages and returns structured JSON decisions. This matches the existing QGSD agent pattern. No new library needed — Claude Code's built-in subagent system handles this. |
-| JSON.parse / JSON.stringify | built-in | Serialize batch failures for prompt, deserialize category decisions | The categorization interface is: input = JSON array of `{testId, failureMessage}`, output = JSON array of `{testId, category, rationale}`. Pure JSON over the agent prompt/response. |
-
-**Categorization loop architecture:** The maintain-tests command is a Node.js script (not a hook) that orchestrates: discover → batch → run batch → capture failures → invoke categorizer agent → write decisions to SQLite → act on decisions → re-run until clean. Each step is a synchronous function call. No async library needed.
-
-### Git History Integration (Optional, Phase 2)
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `spawnSync('git', ['log', '--follow', '-1', '--format=%H', '--', file])` | built-in | Find last commit touching a test file | Already the established pattern in qgsd-circuit-breaker.js for git log parsing. Provides AI categorizer with context: "this test hasn't been touched in 2 years" = likely stale-needs-adaptation. |
-| `spawnSync('git', ['log', '--oneline', '-n', '10', '--', file])` | built-in | Get recent commit history for a failing test file | Same pattern. No git library (simple-git, nodegit) needed. |
-
----
-
-## Installation
-
-```bash
-# No new runtime dependencies for hooks/command scripts.
-# All new capabilities use Node.js built-ins only.
-
-# For test file discovery when runner config is unavailable:
-npm install fast-glob@3.3.3
-
-# fast-glob is the ONLY new external dependency.
-# Add to package.json dependencies (not devDependencies) since
-# the maintain-tests command ships as part of the installed package.
+  await new Promise((resolve) => {
+    readline.emitKeypressEvents(process.stdin);
+    if (process.stdin.isTTY) process.stdin.setRawMode(true);
+    process.stdin.once('keypress', () => {
+      clearInterval(timer);
+      process.stdin.setRawMode(false);
+      process.stdin.removeAllListeners('keypress');
+      process.stdout.write('\x1b[?25h'); // restore cursor
+      resolve();
+    });
+  });
+  // Control returns here — inquirer.prompt() will re-acquire stdin cleanly
+}
 ```
 
-**Where fast-glob lives:** The maintain-tests command runs from the global install at `~/.claude/commands/maintain-tests.js`. To avoid node_modules resolution issues in the global install path, bundle fast-glob into the output file using esbuild (already a devDependency):
+**Inquirer compatibility note:** The dashboard MUST call `process.stdin.setRawMode(false)` and
+remove all keypress listeners before returning. Inquirer v8 sets raw mode internally on each
+prompt call; leaving it set causes input to swallow characters silently. The `once` listener
+pattern plus explicit `removeAllListeners` is the safe teardown sequence.
 
-```bash
-# Add to build-hooks.js or a new build-commands.js script:
-npx esbuild commands/maintain-tests.js \
-  --bundle --platform=node --target=node16 \
-  --outfile=commands/dist/maintain-tests.js
-```
+### Recommended Stack — Feature 1
 
-This bundles fast-glob into a single output file, eliminating the runtime node_modules dependency entirely. Aligns with the existing esbuild devDependency already in package.json.
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| `node:readline` | Node.js stdlib | Cursor movement, line clearing, emitKeypressEvents | Built-in; all needed methods present; zero CJS/ESM issues |
+| `setInterval` / `clearInterval` | Node.js stdlib | Periodic refresh loop | Standard timer; no external dep |
+| Raw ANSI strings `\x1b[?25l` / `\x1b[?25h` | N/A | Hide/show cursor | Only 2 sequences not in readline; inline as literals |
 
 ---
 
-## Alternatives Considered
+## Feature 2: JSON Import/Export of Agent Roster Config
 
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| `spawnSync` for batch execution | Jest's programmatic `runCLI()` API | Only if you need to intercept test results mid-run (streaming). For QGSD, the final JSON output is sufficient — the spawnSync + `--json` flag approach uses Jest's stable CLI contract instead of its undocumented internal API (which has broken across jest 25→26, 27→28, 28→29). |
-| `node:sqlite` for state | better-sqlite3 | If Node >=22 cannot be guaranteed AND the 5-10MB JSON file is unacceptable. better-sqlite3 requires native compile, breaking QGSD's zero-dependency install model. Only use if `node:sqlite` proves too unstable. |
-| `node:sqlite` for state | Plain JSON `.qgsd-maintain-state.json` | Acceptable for projects with <1,000 tests where write amplification doesn't matter. Make JSON the fallback, not the primary. |
-| fast-glob bundled via esbuild | fast-glob as a runtime npm dependency | If QGSD moves to requiring npm install in the project (not global). Currently QGSD is globally installed — bundling is the right answer to avoid node_modules resolution issues in the global install path. |
-| Playwright `--reporter=json` stdout capture | playwright-ctrf-json-reporter | Use CTRF reporter only if you need a standardized multi-runner format for dashboard integration. For AI categorization, the built-in JSON reporter is sufficient and avoids installing a dev dependency in the target project. |
-| pytest stdout parsing | pytest-json-report plugin | Use only if the target project already has it installed. Never install it on behalf of the user — QGSD is a pure observer. |
+### Decision: Pure `node:fs` + `JSON.parse` / `JSON.stringify` — zero new dependencies
+
+The existing codebase already uses `fs.readFileSync` + `JSON.parse` + `writeFileSync` with
+tmp-file atomic write (`renameSync`) for `~/.claude.json` and `providers.json`. The same pattern
+applies directly to import/export. No schema validation library is needed.
+
+**Export sources:** Two structures must be combined into a single portable file:
+- `mcpServers` entries from `~/.claude.json`
+- Matching provider entries from `providers.json`
+
+**Import targets:** Read the portable file, validate the version sentinel, merge or replace
+existing entries, write atomically to both files.
+
+**API keys are NOT exported.** Keys live in keytar (OS keychain), which is machine-local.
+The export file documents the config shape; the user re-enters keys on the target machine via
+"Edit agent". Exporting keytar values would require the keytar native addon and matching
+OS keychain access on the target machine — cannot be assumed. This is the correct security posture.
+
+**Portable file format:**
+
+```json
+{
+  "qgsd_roster_version": 1,
+  "exported_at": "2026-02-24T00:00:00Z",
+  "mcpServers": {},
+  "providers": []
+}
+```
+
+**Schema validation:** Simple inline `typeof` + field-presence checks are sufficient. `ajv` or
+`zod` are overkill for a flat JSON shape with 8-10 known fields. Adding a validation library
+for a one-time import path violates the zero-dep philosophy.
+
+**Collision handling in import:** When a slot name in the import file already exists in
+`~/.claude.json`, prompt with inquirer `list`: "Skip / Overwrite / Rename incoming". This uses
+the existing inquirer flow — no new library needed.
+
+### Recommended Stack — Feature 2
+
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| `node:fs` | Node.js stdlib | Read/write export file | Already used for ~/.claude.json; identical pattern |
+| `JSON.stringify(data, null, 2)` | Node.js stdlib | Human-readable export | Matches existing codebase style (all existing JSON writes use 2-space indent) |
+| `fs.renameSync` (tmp → target) | Node.js stdlib | Atomic write on import | Already used in `writeClaudeJson()` and `writeProvidersJson()` |
+| `inquirer` list prompt | 8.2.7 (existing) | Collision resolution UI | Already in use; single new prompt for import collision |
+
+---
+
+## Feature 3: API Key Expiry Detection via 401 Responses
+
+### Decision: Extend existing `probeProviderUrl()` — zero new dependencies
+
+`probeProviderUrl()` (lines 88–133 of `bin/manage-agents.cjs`) already returns
+`{ healthy, latencyMs, statusCode, error }`. The `statusCode` field is already there.
+Key expiry detection is a **pure logic change**, not a library addition.
+
+**Current behaviour:**
+
+```javascript
+// Line 119 — current:
+const healthy = [200, 401, 403, 404, 422].includes(res.statusCode);
+```
+
+All of these status codes are treated as "provider reachable". This is correct for connectivity
+checks but loses the 401 signal needed for key expiry detection.
+
+**New behaviour needed:** A call site that reads `probe.statusCode === 401` separately from the
+`probe.healthy` boolean. The existing probe already sends `Authorization: Bearer <key>`, so a
+401 from `/models` definitively means the key is rejected by that provider.
+
+**Key expiry state storage:** Persist `key_status` per slot in `qgsd.json` under
+`agent_config[slot].key_status`. Values: `"ok"` | `"invalid"` | `"unknown"`.
+The manage-agents list view reads this field and renders a `[key invalid]` badge in ANSI red
+next to the slot. No new file, no new database — piggybacks the existing `agent_config` structure
+already read by `listAgents()` and `editAgent()`.
+
+**Probe trigger points (opportunistic, not polling):**
+1. Manual — user selects "Check agent health" in the menu (already exists; extend output to show key status).
+2. Passive — during live dashboard refresh loop, 401 from any slot updates `key_status` in qgsd.json.
+
+**No polling daemon, no file watcher, no background process.** 401 detection is opportunistic: it
+runs whenever the user opens the health check or dashboard. This matches the fail-open design
+philosophy of the broader QGSD project.
+
+**Edge cases:**
+- Empty or missing key → set `key_status: "unknown"` (cannot distinguish from "valid key not
+  yet tested"). Do not set `"invalid"` when the key field is empty.
+- 401 with non-empty key → set `key_status: "invalid"`.
+- 200 → set `key_status: "ok"` (clear any prior invalid flag).
+- Network error / timeout → leave `key_status` unchanged (don't clobber valid status with a
+  transient connectivity failure).
+
+### Recommended Stack — Feature 3
+
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| `probeProviderUrl()` (existing) | — | HTTP probe returning statusCode | Already implemented; read `probe.statusCode` at call site |
+| `qgsd.json` `agent_config[slot].key_status` | — | Persist expiry state per slot | Existing config structure; no new file or schema |
+| `node:fs` (existing) | stdlib | Read/write qgsd.json for status update | Already used throughout codebase |
+
+---
+
+## Feature 4: Provider Preset Library (Curated Name → URL Map)
+
+### Decision: Static `bin/provider-presets.json` — zero new dependencies
+
+A provider preset library is a curated mapping of human-readable provider names to base URLs,
+recommended models, and metadata. It is a **data file**, not a runtime library. No library is
+needed to implement it.
+
+**Shipping mechanism:** `bin/provider-presets.json` alongside the existing `bin/providers.json`.
+Include in `package.json` `"files"` array (already covers `"bin"`). Read-only at runtime — users
+select from presets but cannot edit the preset list directly.
+
+**Preset schema:**
+
+```json
+{
+  "presets": [
+    {
+      "name": "AkashML",
+      "base_url": "https://api.akashml.com/v1",
+      "notes": "Multiple open-source models; free tier available",
+      "featured_models": ["deepseek-ai/DeepSeek-V3.2", "MiniMaxAI/MiniMax-M2.5"],
+      "auth": "api_key"
+    },
+    {
+      "name": "Together.xyz",
+      "base_url": "https://api.together.xyz/v1",
+      "notes": "Large open-source model catalog; /v1/models endpoint available",
+      "featured_models": ["Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"],
+      "auth": "api_key"
+    },
+    {
+      "name": "Fireworks",
+      "base_url": "https://api.fireworks.ai/inference/v1",
+      "notes": "Fast inference; serverless function format",
+      "featured_models": ["accounts/fireworks/models/kimi-k2p5"],
+      "auth": "api_key"
+    },
+    {
+      "name": "Custom",
+      "base_url": "",
+      "notes": "Enter a custom base URL",
+      "featured_models": [],
+      "auth": "api_key"
+    }
+  ]
+}
+```
+
+**Integration with Add Agent flow:** In `addAgent()`, before the current manual URL prompt,
+add a new inquirer `list` prompt that shows preset names. Selecting a preset pre-fills
+`ANTHROPIC_BASE_URL` and sets `featured_models` as a `list` prompt for `CLAUDE_DEFAULT_MODEL`.
+The "Custom" sentinel skips to the existing manual input prompt unchanged.
+
+**Why not a remote-fetched preset list:** Network dependency in a management CLI is a worse UX
+issue than a slightly stale preset URL. Presets ship with the package. User can always override
+any pre-filled field. Freshness can be addressed in a future version (v0.11 feature flag).
+
+**Loading in CJS:** `require('./provider-presets.json')` works natively in CommonJS Node.js
+for JSON files. No `fs.readFileSync` needed for the preset file specifically.
+
+### Recommended Stack — Feature 4
+
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| `bin/provider-presets.json` (new static file) | — | Curated preset data | Data-only; zero runtime library needed |
+| `require('./provider-presets.json')` | Node.js CJS | Load preset file | Native JSON require in CJS; no fs.readFileSync needed |
+| `inquirer` list prompt | 8.2.7 (existing) | Preset selector UI | Single new prompt step before existing URL input |
+
+---
+
+## Net New Dependencies: 0
+
+All four features are implementable with Node.js stdlib and extensions to existing code.
+No new packages are added to `package.json`.
+
+| Technology | Version | New? | Feature |
+|------------|---------|------|---------|
+| `node:readline` cursor methods | stdlib | No (stdlib) | Live dashboard |
+| `setInterval` / `clearInterval` | stdlib | No (stdlib) | Live dashboard |
+| Raw ANSI hide/show cursor | N/A | No | Live dashboard |
+| `node:fs` read/write/rename | stdlib | No (already used) | Import/export |
+| `JSON.stringify` / `JSON.parse` | stdlib | No (already used) | Import/export |
+| `probeProviderUrl()` extension | — | No (existing function) | 401 key expiry |
+| `qgsd.json` `key_status` field | — | No (existing config file) | 401 key expiry |
+| `bin/provider-presets.json` | — | Yes (data file, no npm dep) | Provider presets |
+| `require('./provider-presets.json')` | CJS | No (native CJS JSON require) | Provider presets |
 
 ---
 
@@ -132,45 +295,27 @@ This bundles fast-glob into a single output file, eliminating the runtime node_m
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| `p-limit` (v6+) | ESM-only module. QGSD is CommonJS (no `"type":"module"` in package.json, all hooks use `require()`). Will throw `ERR_REQUIRE_ESM` at runtime. | Sequential `spawnSync` — test runners parallelize internally, so sequential outer batching is the correct model anyway. No concurrency library needed. |
-| `better-sqlite3` | Native addon requires `node-gyp` compile against target Node.js version. Breaks QGSD's zero-dependency install model. Compilation fails in minimal environments (no Python 3, no build tools). | `node:sqlite` (built-in, Node >=22.5.0) with JSON flat file fallback for older Node. |
-| `nodegit` / `simple-git` | nodegit is a native addon (same problem as better-sqlite3). simple-git v3+ requires dynamic import for ESM compatibility — incompatible with QGSD CommonJS codebase. | `spawnSync('git', ['log', ...])` — already the QGSD pattern for git operations in qgsd-circuit-breaker.js. |
-| Jest `runCLI()` programmatic API | Not publicly documented. Has broken silently across every Jest major version since v25. Coupling to it means maintain-tests breaks when users upgrade Jest without any error in QGSD's own tests. | Spawn `npx jest --json` as a subprocess — uses Jest's stable CLI contract. |
-| Storing full test output in memory | 100 tests × average 10KB output = 1MB per batch. 200 batches (20k tests) = 200MB of in-process memory if buffered. spawnSync buffers in memory by default. | Write each batch output to a temp file using `outputFile` flag (Jest) or stdout redirect (Playwright/pytest), parse it, then delete it. |
-| pytest-json-report as a requirement | Requires modifying the target project's pytest configuration. QGSD is a non-invasive observer — it must not add dependencies to the projects it tests. | Parse `--tb=short` stdout text. The failure message string is all the AI categorizer needs. |
-| Async/await throughout the command script | Not wrong, but adds unnecessary complexity. All subprocess calls are naturally sequential (run batch → capture output → categorize → write state → next batch). Forcing async introduces callback coordination with no benefit. | Synchronous `spawnSync` + `fs.readFileSync` + `sqlite.prepare().all()` — reads like a shell script, straightforward to debug and test. |
+| `log-update@4+` | ESM-only from v4; `require()` throws `ERR_REQUIRE_ESM` | `node:readline` cursor control |
+| `log-update@3` (pinned) | Last CJS version; adds dep for stdlib-covered functionality | `node:readline` |
+| `ansi-escapes@5+` | ESM-only from v5.0.0 (April 2020) | `node:readline` + inline `\x1b` strings |
+| `ansi-escapes@4.3.2` (pinned) | 5-year-old release pin; adds dep for 2 escape sequences | Inline `\x1b[?25l` / `\x1b[?25h` as string literals |
+| `blessed` / `neo-blessed` | Takes full stdin ownership; confirmed conflict with inquirer raw mode | `node:readline` in-place rewrite pattern |
+| `ink` (React terminal) | ESM + JSX; completely incompatible with CJS codebase | `node:readline` |
+| `inquirer@^9` | ESM-only; breaks all existing `require('inquirer')` calls | Stay on `8.2.7` — no upgrade path without full ESM migration |
+| `ajv` / `zod` for import validation | Overkill for flat JSON with 8-10 known fields | Inline `typeof` + field presence checks |
+| Background polling process for 401 detection | Adds complexity; daemon requires process management | Opportunistic probe on user action (health check / dashboard) |
 
 ---
 
-## Stack Patterns by Variant
+## Alternatives Considered
 
-**If target project uses Jest:**
-- Discovery: Jest handles it. No fast-glob needed.
-- Execution per batch: `spawnSync('npx', ['jest', '--json', '--outputFile', tmpFile, '--testPathPattern', batchPattern])`
-- Parse `tmpFile` as JSON after spawnSync returns.
-
-**If target project uses Playwright:**
-- Discovery: Playwright handles it. No fast-glob needed.
-- Execution per batch: `spawnSync('npx', ['playwright', 'test', '--reporter=json', '--shard', batchN + '/' + totalBatches])`
-- Capture stdout to temp file (Playwright JSON reporter writes to stdout by default).
-
-**If target project uses pytest:**
-- Discovery: `spawnSync('python3', ['-m', 'pytest', '--collect-only', '-q', '--no-header'])` → parse stdout lines for `path::name` pattern.
-- Execution per batch: `spawnSync('python3', ['-m', 'pytest', '--tb=short', '-q', ...batchTestIds])`
-- Parse stdout for `FAILED` lines.
-
-**If project uses multiple runners (jest + playwright):**
-- Run each runner's discovery separately.
-- Maintain separate batch queues per runner in SQLite state.
-- Same categorization agent handles all — the 5-category schema is runner-agnostic.
-
-**If Node.js version is < 22.5.0:**
-- Skip `node:sqlite`, use JSON flat file state.
-- Add compatibility check at startup:
-  ```javascript
-  const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
-  const state = nodeVersion >= 22 ? new SqliteState(dbPath) : new JsonState(jsonPath);
-  ```
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| `node:readline` for dashboard | `log-update@3` (last CJS) | Only if codebase migrates fully to ESM and wants cleaner log-update API |
+| Static `provider-presets.json` | Remote-fetched preset list | If preset freshness becomes user pain point — add as v0.11 opt-in with `--refresh-presets` flag |
+| Opportunistic 401 detection | LLM health_check call (deep probe) | If shallow HTTP /models probe produces too many false positives; make deep check opt-in, not default |
+| `agent_config[slot].key_status` in `qgsd.json` | Separate `key-status.json` file | Never — one more config file adds reader complexity with no benefit |
+| Inline collision handling in import | Separate "dry run" import mode | Add as `--dry-run` flag on the import subcommand in a later phase |
 
 ---
 
@@ -178,29 +323,55 @@ This bundles fast-glob into a single output file, eliminating the runtime node_m
 
 | Package | Compatible With | Notes |
 |---------|-----------------|-------|
-| `node:sqlite` | Node >=22.5.0 | Experimental (stability 1.1 — active development). No compile flag needed as of v22.13.0. Claude Code users typically run recent Node — high confidence this is safe as the primary path. |
-| `fast-glob@3.3.3` | Node >=12.0.0 | Well within QGSD's >=16.7.0 engine requirement. Bundled via esbuild so no runtime resolution needed. |
-| `esbuild@^0.24.0` | Node >=12.17.0 | Already a devDependency in package.json. No version change needed — just add a build step for the maintain-tests command. |
-| Jest `--json` flag | Jest >=24 | Available since Jest 24 (2018). Output schema is stable across Jest 27/28/29/30. The `testResults[].testResults[].failureMessages` field exists in all modern versions. |
-| Playwright JSON reporter | Playwright >=1.20 | JSON reporter is built-in since v1.0, stabilized by v1.20. |
-| pytest `--collect-only -q` | pytest >=3.0 | Line format (`path::name`) is stable since pytest 3. Present in all modern projects. |
+| `inquirer@8.2.7` | Node.js >=12 (CJS) | Confirmed installed; `new inquirer.Separator()` API works as-is |
+| `keytar@7.9.0` | Node.js >=10; macOS Keychain, libsecret on Linux | Confirmed installed; no change needed for any v0.10 feature |
+| `node:readline` cursor methods | Node.js >=0.7.7 | `cursorTo`, `moveCursor`, `clearLine`, `clearScreenDown`, `emitKeypressEvents` all verified present in Node v25.6.1 |
+| `node:readline` `emitKeypressEvents` | Node.js >=0.7.7 | Required for keypress exit from dashboard; verified present |
+| CJS `require('./file.json')` | All Node.js versions | Native JSON require in CJS; works without `fs.readFileSync` |
+
+---
+
+## Stack Patterns by Feature
+
+**If building the live dashboard:**
+- Implement as a self-contained async function; caller is `mainMenu()` `try` block (already wraps async calls)
+- Use `readline.cursorTo(process.stdout, 0, 0)` + `readline.clearScreenDown(process.stdout)` for full-screen rewrite on each tick
+- Default refresh interval: 5000ms (5s) — fast enough to feel live, slow enough to avoid flicker
+- Exit key: `process.stdin.once('keypress', ...)` with `setRawMode(false)` teardown before returning
+- TTY guard: check `process.stdout.isTTY` before entering dashboard mode; fall back to a static one-time print if not a TTY
+
+**If building import/export:**
+- Export: `JSON.stringify({ qgsd_roster_version: 1, exported_at: new Date().toISOString(), mcpServers, providers }, null, 2)`
+- Strip secrets: delete any `ANTHROPIC_API_KEY` env fields before stringifying; document in export file header comment
+- Import: read file → check `qgsd_roster_version === 1` → iterate slots → inquirer collision prompt → `writeClaudeJson()` + `writeProvidersJson()` (existing atomic writers)
+
+**If adding provider presets:**
+- Load: `const { presets } = require('./provider-presets.json');`
+- Display: inquirer `list` prompt with preset names + `notes` in choice labels; `Custom` is last choice
+- Pre-fill: set `ANTHROPIC_BASE_URL = preset.base_url`; if `featured_models.length > 0`, offer them as a `list` for model selection
+
+**If adding 401 key expiry detection:**
+- Call `probeProviderUrl(baseUrl, apiKey)` → read `result.statusCode`
+- `statusCode === 401 && apiKey` → write `agent_config[slot].key_status = "invalid"` to `qgsd.json`
+- `statusCode === 200` → write `agent_config[slot].key_status = "ok"`
+- Network error / timeout → leave `key_status` unchanged
+- Display in `listAgents()`: read `agent_config[slot].key_status`; render `\x1b[31m[key invalid]\x1b[0m` if `"invalid"`
 
 ---
 
 ## Sources
 
-- `https://nodejs.org/docs/latest/api/sqlite.html` — `node:sqlite` stability (1.1 active development), version requirement (>=22.5.0, no flag from v22.13.0), DatabaseSync API. Confidence: HIGH.
-- `https://nodejs.org/api/child_process.html` — spawnSync API, pipe buffer limitations for large stdout (must write to file when output >1MB), encoding options. Confidence: HIGH.
-- `https://jestjs.io/docs/cli` — `--json` flag behavior (diverts test output to stderr, results to stdout), `--outputFile`, `--testPathPattern`. Confidence: HIGH.
-- `https://playwright.dev/docs/test-reporters` — JSON reporter configuration, `outputFile` option, `PLAYWRIGHT_JSON_OUTPUT_FILE` env var. Confidence: HIGH.
-- `https://github.com/mrmlnc/fast-glob/releases` — Version 3.3.3 is current stable (Jan 2025), zero transitive dependencies, MIT license. Confidence: HIGH.
-- `https://github.com/pytest-dev/pytest/issues/9704` — pytest `--collect-only` output is NOT machine-readable JSON natively; line parsing of `path::name` is the correct approach. Confidence: HIGH (primary source issue thread).
-- `https://github.com/sindresorhus/p-limit/issues/63` — p-limit v6+ is ESM-only. Incompatible with QGSD CommonJS codebase. Decision: avoid entirely — sequential spawnSync is the correct batching model. Confidence: HIGH.
-- `/Users/jonathanborduas/code/QGSD/hooks/qgsd-circuit-breaker.js` — Confirms QGSD uses CommonJS (`require()`), uses `spawnSync` for git operations, uses `fs.readFileSync`/`fs.writeFileSync` for state. This is the integration pattern that maintain-tests must follow. Confidence: HIGH (first-party).
-- `/Users/jonathanborduas/code/QGSD/package.json` — No `"type":"module"` field → defaults to CommonJS. `esbuild@^0.24.0` already a devDependency. `"engines": {"node": ">=16.7.0"}`. Confidence: HIGH (first-party).
-- `/Users/jonathanborduas/code/QGSD/scripts/build-hooks.js` — Build system is file-copy only for hooks. Confirms maintain-tests command needs its own esbuild bundle step to handle the fast-glob dependency cleanly. Confidence: HIGH (first-party).
+- Node.js readline official docs (https://nodejs.org/api/readline.html) — `cursorTo`, `moveCursor`, `clearLine`, `clearScreenDown`, `emitKeypressEvents` all confirmed present. Confidence: HIGH.
+- `node -e` runtime verification against Node v25.6.1 — confirmed all four readline cursor methods are `function` type. Confidence: HIGH (direct runtime check).
+- GitHub sindresorhus/log-update issue #54 (https://github.com/sindresorhus/log-update/issues/54) — confirmed ESM-only from v4, `require()` throws `ERR_REQUIRE_ESM`. Confidence: HIGH.
+- GitHub sindresorhus/ansi-escapes releases (https://github.com/sindresorhus/ansi-escapes/releases) — confirmed ESM-only from v5.0.0 (April 2020); v4.3.2 last CJS. Confidence: HIGH.
+- GitHub SBoudrias/Inquirer.js discussion #1126 (https://github.com/SBoudrias/Inquirer.js/discussions/1126) — confirmed v9 is ESM-only, v8 is CJS. Confidence: HIGH.
+- `node_modules/inquirer/package.json` direct read — confirmed installed version is `8.2.7`, `type: "commonjs"`. Confidence: HIGH (first-party).
+- `bin/manage-agents.cjs` lines 88–133 direct read — confirmed `probeProviderUrl` already returns `{ healthy, latencyMs, statusCode, error }`; `statusCode` is in the return value. Confidence: HIGH (first-party).
+- `bin/manage-agents.cjs` lines 196–219 direct read — confirmed `agent_config` structure already read from `qgsd.json` in `listAgents()`. Confidence: HIGH (first-party).
+- Multiple Inquirer.js GitHub issues (#495, #1358, #811, #870) — confirmed stdin raw mode conflicts when TUI libraries run alongside inquirer; `setRawMode` must be explicitly released. Confidence: MEDIUM.
+- `bin/providers.json` direct read — confirmed existing provider data structure; `provider-presets.json` schema designed to complement it. Confidence: HIGH (first-party).
 
 ---
-
-*Stack research for: QGSD v0.3 test suite maintenance tool (`/qgsd:maintain-tests`)*
-*Researched: 2026-02-22*
+*Stack research for: QGSD v0.10 Roster Toolkit — new feature additions to bin/manage-agents.cjs*
+*Researched: 2026-02-24*
