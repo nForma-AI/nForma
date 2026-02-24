@@ -436,6 +436,14 @@ test('findPresetForUrl: undefined returns __custom__', () => {
   assert.strictEqual(findPresetForUrl(undefined), '__custom__');
 });
 
+test('findPresetForUrl: AkashML URL without /v1 suffix returns __custom__ (exact table lookup, not startsWith)', () => {
+  assert.strictEqual(findPresetForUrl('https://api.akashml.com'), '__custom__');
+});
+
+test('findPresetForUrl: Together.xyz URL without /v1 suffix returns __custom__ (exact table lookup, not startsWith)', () => {
+  assert.strictEqual(findPresetForUrl('https://api.together.xyz'), '__custom__');
+});
+
 // ---------------------------------------------------------------------------
 // buildCloneEntry
 // ---------------------------------------------------------------------------
@@ -552,39 +560,72 @@ test('classifyProbeResult: healthy=true, statusCode=422 -> \'ok\'', () => {
   );
 });
 
+test("classifyProbeResult: healthy=true, statusCode=null -> 'ok' (statusCode absent from probe response)", () => {
+  // probeProviderUrl marks healthy=true only for [200,401,403,404,422], so this input
+  // is theoretically unreachable from production. Documented here so the 'ok' fallthrough
+  // for null statusCode is an explicit, understood choice rather than an unexamined gap.
+  assert.strictEqual(
+    classifyProbeResult({ healthy: true, latencyMs: 50, statusCode: null, error: null }),
+    'ok'
+  );
+});
+
 // ---------------------------------------------------------------------------
 // writeKeyStatus
 // Note: writeKeyStatus is impure (file I/O) but exported via _pure because it accepts
 // an optional filePath parameter for testability — matching the readQgsdJson/writeQgsdJson
 // precedent from v0.10-01.
+//
+// 'unreachable' guard: the invariant that writeKeyStatus is never called for status
+// 'unreachable' lives in checkAgentHealth (the caller), not here. That guard is
+// integration-level and verified by reading checkAgentHealth's conditional:
+//   if (classification !== 'unreachable') writeKeyStatus(slotName, classification)
+// Unit tests here verify the read-mutate-write correctness (existing keys preserved).
 // ---------------------------------------------------------------------------
 
-test('writeKeyStatus: writes {status: \'invalid\', checkedAt: ISO} to qgsd.json agent_config[slotName].key_status', () => {
+test('writeKeyStatus: writes {status: \'invalid\', checkedAt: ISO} and preserves unrelated qgsd.json keys', () => {
   const os = require('os');
+  const fs = require('fs');
   const tmpPath = os.tmpdir() + '/qgsd_ws_test_' + Date.now() + '.json';
   try {
+    // Seed with existing data — simulates a real qgsd.json with other top-level keys
+    fs.writeFileSync(tmpPath, JSON.stringify({ orchestrator: { model: 'test-model' }, agent_config: {} }), 'utf8');
     writeKeyStatus('claude-1', 'invalid', tmpPath);
     const result = readQgsdJson(tmpPath);
     assert.strictEqual(result.agent_config['claude-1'].key_status.status, 'invalid');
     assert.strictEqual(typeof result.agent_config['claude-1'].key_status.checkedAt, 'string');
     assert.ok(!isNaN(new Date(result.agent_config['claude-1'].key_status.checkedAt).getTime()));
+    // Preservation assertion: unrelated top-level key must survive the write
+    assert.strictEqual(result.orchestrator.model, 'test-model', 'writeKeyStatus must not truncate existing qgsd.json keys');
   } finally {
-    const fs = require('fs');
     if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
   }
 });
 
-test('writeKeyStatus: writes {status: \'ok\', checkedAt: ISO} to qgsd.json agent_config[slotName].key_status', () => {
+test('writeKeyStatus: writes {status: \'ok\', checkedAt: ISO} and overwrites prior key_status for same slot', () => {
   const os = require('os');
+  const fs = require('fs');
   const tmpPath = os.tmpdir() + '/qgsd_ws_test2_' + Date.now() + '.json';
   try {
+    // Seed with a prior 'invalid' status and an unrelated agent slot + top-level key
+    const seed = {
+      plugins: { enabled: true },
+      agent_config: {
+        'gemini-1': { key_status: { status: 'invalid', checkedAt: '2024-01-01T00:00:00.000Z' } },
+        'claude-1': { key_status: { status: 'ok', checkedAt: '2024-01-01T00:00:00.000Z' } },
+      },
+    };
+    fs.writeFileSync(tmpPath, JSON.stringify(seed), 'utf8');
     writeKeyStatus('gemini-1', 'ok', tmpPath);
     const result = readQgsdJson(tmpPath);
+    // Target slot: status must update from 'invalid' to 'ok'
     assert.strictEqual(result.agent_config['gemini-1'].key_status.status, 'ok');
     assert.strictEqual(typeof result.agent_config['gemini-1'].key_status.checkedAt, 'string');
     assert.ok(!isNaN(new Date(result.agent_config['gemini-1'].key_status.checkedAt).getTime()));
+    // Preservation assertions: unrelated agent slot and top-level key must survive
+    assert.strictEqual(result.agent_config['claude-1'].key_status.status, 'ok', 'sibling agent slot must not be disturbed');
+    assert.strictEqual(result.plugins.enabled, true, 'top-level plugins key must survive the write');
   } finally {
-    const fs = require('fs');
     if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
   }
 });
