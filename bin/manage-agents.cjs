@@ -1124,6 +1124,83 @@ async function checkAgentHealth() {
 }
 
 // ---------------------------------------------------------------------------
+// Batch key rotation
+// ---------------------------------------------------------------------------
+
+async function batchRotateKeys() {
+  const data = readClaudeJson();
+  const mcpServers = getGlobalMcpServers(data);
+  const slots = Object.keys(mcpServers);
+
+  if (slots.length === 0) {
+    console.log('\n  No agents configured.\n');
+    return;
+  }
+
+  let secretsLib = null;
+  try { secretsLib = require('./secrets.cjs'); } catch (_) {}
+
+  // Step 1: Multi-select slot picker (checkbox — already used in editAgent())
+  const { selectedSlots } = await inquirer.prompt([
+    {
+      type: 'checkbox',
+      name: 'selectedSlots',
+      message: 'Select slots to rotate keys for:',
+      choices: slots.map((name) => {
+        const cfg = mcpServers[name];
+        const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?';
+        const account = deriveKeytarAccount(name);
+        const hasKey = (secretsLib && secretsLib.hasKey(account)) ||
+                       !!(cfg.env && cfg.env.ANTHROPIC_API_KEY);
+        return {
+          name: `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${hasKey ? '[key set]' : '[no key]'}`,
+          value: name,
+          short: name,
+        };
+      }),
+    },
+  ]);
+
+  if (selectedSlots.length === 0) {
+    console.log('\n  Nothing selected.\n');
+    return;
+  }
+
+  // Step 2: Sequential for...of rotation loop — NEVER Promise.all
+  // Invariant: writeClaudeJson() is called ONCE after the loop, not inside it.
+  // Invariant: writeKeyStatus() is NOT called here — key_status is only updated during health probes.
+  for (const slotName of selectedSlots) {
+    const { newKey } = await inquirer.prompt([
+      {
+        type: 'password',
+        name: 'newKey',
+        message: `New API key for ${slotName}:`,
+        mask: '*',
+        validate: (v) => (v && v.trim() ? true : 'Cannot be empty'),
+      },
+    ]);
+
+    const account = deriveKeytarAccount(slotName);
+    if (secretsLib) {
+      await secretsLib.set('qgsd', account, newKey.trim());
+    } else {
+      // Plaintext fallback: accumulate in data.mcpServers — applied in single writeClaudeJson below
+      if (!mcpServers[slotName].env) mcpServers[slotName].env = {};
+      mcpServers[slotName].env.ANTHROPIC_API_KEY = newKey.trim();
+    }
+
+    // Per-slot confirmation BEFORE next prompt (success criteria requirement)
+    console.log(`  ${slotName}: key updated`);
+  }
+
+  // Step 3: Single writeClaudeJson() after ALL slots processed
+  // For keytar path: data.mcpServers is unchanged (keys in keychain only)
+  // For plaintext fallback: data.mcpServers.env.ANTHROPIC_API_KEY was mutated above
+  writeClaudeJson(data);
+  console.log(`\n  \x1b[32m✓ ${selectedSlots.length} slot(s) updated\x1b[0m\n`);
+}
+
+// ---------------------------------------------------------------------------
 // Subprocess provider helpers (providers.json)
 // ---------------------------------------------------------------------------
 
