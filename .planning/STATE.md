@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10 Agent Display — Phase v0.10-05-policy-uis — Plan 03 COMPLETE (PLCY-01, PLCY-02, PLCY-03 verified; tuneTimeouts/setUpdatePolicy/runAutoUpdateCheck wired into manage-agents.cjs, human verification gate passed)
+**Current focus:** v0.12 Conformance Event Infrastructure — Phase v0.12-01 COMPLETE (conformance-schema.cjs, hook instrumentation, XState machine, validate-traces.cjs all implemented; 268 tests pass)
 
 ## Current Position
 
-Phase: v0.10-05-policy-uis of v0.10 (Roster Toolkit)
-Plan: 3 of N in current phase (Plan 03 COMPLETE — all interactive flows verified, 116 pass 0 fail)
-Status: v0.10-05-03 complete — PLCY-01/02/03 implemented and verified via quorum-test PASS (378/0, 3 models PASS); tuneTimeouts(), setUpdatePolicy(), runAutoUpdateCheck(), listAgents() warning banner all wired
-Last activity: 2026-02-24 — v0.10-05-03 complete (integration wiring + human verification gate passed)
+Phase: v0.12-01-conformance-event-infrastructure of v0.12 (COMPLETE)
+Plan: 3 of 3 in current phase (ALL COMPLETE)
+Status: v0.12-01 complete — LOG-01/02/03, XST-01/02/03, VAL-01/02/03 all satisfied; hooks emit NDJSON events; XState machine compiled to CJS; validate-traces.cjs ships via install; 268 tests pass
+Last activity: 2026-02-24 — v0.12-01-01, v0.12-01-02, v0.12-01-03 all complete
 
-Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 2/6 phases (v0.10-01 both plans done) | v0.9 parallel: 3/5 phases
+Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 1/3 phases COMPLETE | v0.10: 2/6 phases (v0.10-01 both plans done) | v0.9 parallel: 3/5 phases
 
 ## Performance Metrics
 
