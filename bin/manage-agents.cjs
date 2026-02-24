@@ -202,7 +202,7 @@ async function listAgents() {
     agentConfig = qgsd.agent_config || {};
   } catch (_) {}
 
-  const W = { n: 3, slot: 14, model: 38, provider: 26, type: 10, billing: 7 };
+  const W = { n: 3, slot: 14, model: 38, provider: 26, type: 16, billing: 7 };
   const header = [
     '#'.padEnd(W.n),
     'Slot'.padEnd(W.slot),
@@ -227,7 +227,9 @@ async function listAgents() {
       model = p.model || p.mainTool || '—';
       provider = p.display_provider || p.name;
       timeout = p.timeout_ms ? (p.timeout_ms / 1000) + 's' : '—';
-      if (p.type === 'subprocess') {
+      if (p.display_type) {
+        connType = p.display_type;
+      } else if (p.type === 'subprocess') {
         connType = p.cli ? path.basename(p.cli) : (p.mainTool || 'cli');
       } else if (p.type === 'ccr') {
         connType = 'ccr';
@@ -235,12 +237,21 @@ async function listAgents() {
         connType = 'http';
       }
     } else {
-      model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || `(${cfg.command || '?'})`;
-      provider = shortProvider(cfg);
-      timeout = (cfg.env && cfg.env.CLAUDE_MCP_TIMEOUT_MS)
-        ? cfg.env.CLAUDE_MCP_TIMEOUT_MS + 'ms'
-        : '—';
-      connType = cfg.command || '—';
+      // Check if this is the unified all-providers fan-out server (no PROVIDER_SLOT)
+      const isUnified = cfg.args && cfg.args.some(a => String(a).includes('unified-mcp-server'));
+      if (isUnified) {
+        model = 'all providers';
+        provider = 'unified';
+        timeout = '—';
+        connType = 'unified';
+      } else {
+        model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || `(${cfg.command || '?'})`;
+        provider = shortProvider(cfg);
+        timeout = (cfg.env && cfg.env.CLAUDE_MCP_TIMEOUT_MS)
+          ? cfg.env.CLAUDE_MCP_TIMEOUT_MS + 'ms'
+          : '—';
+        connType = cfg.command || '—';
+      }
     }
 
     const authType = (agentConfig[name] && agentConfig[name].auth_type) || '—';

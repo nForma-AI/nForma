@@ -10,21 +10,32 @@
         "file": "~/.codex/config.toml",
         "pattern": "^model = \"([^\"]+)\""
       },
-      "health_check_args": ["--version"],
+      "health_check_args": [
+        "--version"
+      ],
       "display_provider": "OpenAI",
       "cli": "/opt/homebrew/bin/codex",
-      "args_template": ["exec", "{prompt}"],
-      "helpArgs": ["--help"],
+      "args_template": [
+        "exec",
+        "{prompt}"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [
         {
           "name": "review",
           "description": "Run a code review against the current repository using Codex CLI",
-          "args_template": ["review", "{prompt}"]
+          "args_template": [
+            "review",
+            "{prompt}"
+          ]
         }
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
-      "env": {}
+      "env": {},
+      "display_type": "codex-cli"
     },
     {
       "name": "codex-2",
@@ -36,16 +47,26 @@
         "file": "~/.codex/config.toml",
         "pattern": "^model = \"([^\"]+)\""
       },
-      "health_check_args": ["--version"],
+      "health_check_args": [
+        "--version"
+      ],
       "display_provider": "OpenAI",
       "cli": "/opt/homebrew/bin/codex",
-      "args_template": ["exec", "{prompt}"],
-      "helpArgs": ["--help"],
+      "args_template": [
+        "exec",
+        "{prompt}"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [
         {
           "name": "review",
           "description": "Run a code review against the current repository using Codex CLI",
-          "args_template": ["review", "{prompt}"]
+          "args_template": [
+            "review",
+            "{prompt}"
+          ]
         }
       ],
       "timeout_ms": 300000,
@@ -58,15 +79,25 @@
       "description": "Query Gemini CLI agent non-interactively (slot 1)",
       "mainTool": "gemini",
       "model": "gemini-3-pro-preview",
-      "health_check_args": ["--version"],
+      "health_check_args": [
+        "--version"
+      ],
       "display_provider": "Google",
       "cli": "/opt/homebrew/bin/gemini",
-      "args_template": ["-m", "gemini-3-pro-preview", "-p", "{prompt}"],
-      "helpArgs": ["--help"],
+      "args_template": [
+        "-m",
+        "gemini-3-pro-preview",
+        "-p",
+        "{prompt}"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
-      "env": {}
+      "env": {},
+      "display_type": "gemini-cli"
     },
     {
       "name": "gemini-2",
@@ -74,11 +105,20 @@
       "description": "Query Gemini CLI agent non-interactively (slot 2)",
       "mainTool": "gemini",
       "model": "gemini-3-pro-preview",
-      "health_check_args": ["--version"],
+      "health_check_args": [
+        "--version"
+      ],
       "display_provider": "Google",
       "cli": "/opt/homebrew/bin/gemini",
-      "args_template": ["-m", "gemini-3-pro-preview", "-p", "{prompt}"],
-      "helpArgs": ["--help"],
+      "args_template": [
+        "-m",
+        "gemini-3-pro-preview",
+        "-p",
+        "{prompt}"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
@@ -94,11 +134,18 @@
         "file": "~/.local/state/opencode/model.json",
         "pattern": "\"recent\":\\[{\"providerID\":\"[^\"]*\",\"modelID\":\"([^\"]+)\""
       },
-      "health_check_args": ["--version"],
+      "health_check_args": [
+        "--version"
+      ],
       "display_provider": "OpenCode",
       "cli": "/opt/homebrew/bin/opencode",
-      "args_template": ["run", "{prompt}"],
-      "helpArgs": ["--help"],
+      "args_template": [
+        "run",
+        "{prompt}"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [
         {
           "name": "opencode_check_update",
@@ -108,7 +155,8 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
-      "env": {}
+      "env": {},
+      "display_type": "opencode-cli"
     },
     {
       "name": "copilot-1",
@@ -116,146 +164,205 @@
       "description": "Execute GitHub Copilot CLI non-interactively",
       "mainTool": "ask",
       "model": "gpt-4.1",
-      "health_check_args": ["--version"],
+      "health_check_args": [
+        "--version"
+      ],
       "display_provider": "GitHub",
       "cli": "/opt/homebrew/bin/copilot",
-      "args_template": ["-p", "{prompt}", "--allow-all-tools", "--no-color", "-s"],
-      "helpArgs": ["--help"],
+      "args_template": [
+        "-p",
+        "{prompt}",
+        "--allow-all-tools",
+        "--no-color",
+        "-s"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [
         {
           "name": "suggest",
           "description": "Ask GitHub Copilot to suggest a shell, git, or gh CLI command for a given task.",
-          "args_template": ["-p", "Suggest a shell command for the following task: {prompt}", "--allow-all-tools", "--no-color", "-s"]
+          "args_template": [
+            "-p",
+            "Suggest a shell command for the following task: {prompt}",
+            "--allow-all-tools",
+            "--no-color",
+            "-s"
+          ]
         },
         {
           "name": "explain",
           "description": "Ask GitHub Copilot to explain what a shell command does in plain language.",
-          "args_template": ["-p", "Explain what the following shell command does: {prompt}", "--allow-all-tools", "--no-color", "-s"]
+          "args_template": [
+            "-p",
+            "Explain what the following shell command does: {prompt}",
+            "--allow-all-tools",
+            "--no-color",
+            "-s"
+          ]
         }
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
-      "env": {}
+      "env": {},
+      "display_type": "copilot-cli"
     },
     {
       "name": "claude-1",
       "type": "subprocess",
-      "description": "DeepSeek-V3.2 via AkashML — real Claude Code CLI",
+      "description": "DeepSeek-V3.2 via AkashML — real Claude Code CLI via ccr",
       "mainTool": "claude",
       "model": "deepseek-ai/DeepSeek-V3.2",
       "display_provider": "AkashML",
-      "cli": "/opt/homebrew/bin/claude",
-      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
-      "health_check_args": ["--version"],
-      "helpArgs": ["--help"],
+      "cli": "/opt/homebrew/bin/ccr",
+      "args_template": [
+        "claude-1",
+        "-p",
+        "{prompt}",
+        "--dangerously-skip-permissions"
+      ],
+      "health_check_args": [
+        "-v"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [],
       "timeout_ms": 120000,
       "quorum_timeout_ms": 20000,
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://api.akashml.com/v1",
-        "ANTHROPIC_API_KEY": "akml-NodRYQ-I4AoG1kDwtTVWBbGd1qbC5KbA",
-        "ANTHROPIC_MODEL": "deepseek-ai/DeepSeek-V3.2"
-      }
+      "env": {},
+      "display_type": "claude-code-cli"
     },
     {
       "name": "claude-2",
       "type": "subprocess",
-      "description": "MiniMax-M2.5 via AkashML — real Claude Code CLI",
+      "description": "MiniMax-M2.5 via AkashML — real Claude Code CLI via ccr",
       "mainTool": "claude",
       "model": "MiniMaxAI/MiniMax-M2.5",
       "display_provider": "AkashML",
-      "cli": "/opt/homebrew/bin/claude",
-      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
-      "health_check_args": ["--version"],
-      "helpArgs": ["--help"],
+      "cli": "/opt/homebrew/bin/ccr",
+      "args_template": [
+        "claude-2",
+        "-p",
+        "{prompt}",
+        "--dangerously-skip-permissions"
+      ],
+      "health_check_args": [
+        "-v"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [],
       "timeout_ms": 120000,
       "quorum_timeout_ms": 20000,
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://api.akashml.com/v1",
-        "ANTHROPIC_API_KEY": "akml-NodRYQ-I4AoG1kDwtTVWBbGd1qbC5KbA",
-        "ANTHROPIC_MODEL": "MiniMaxAI/MiniMax-M2.5"
-      }
+      "env": {},
+      "display_type": "claude-code-cli"
     },
     {
       "name": "claude-3",
       "type": "subprocess",
-      "description": "Qwen3-Coder-480B via Together.xyz — real Claude Code CLI",
+      "description": "Qwen3-Coder-480B via Together.xyz — real Claude Code CLI via ccr",
       "mainTool": "claude",
       "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
       "display_provider": "Together.xyz",
-      "cli": "/opt/homebrew/bin/claude",
-      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
-      "health_check_args": ["--version"],
-      "helpArgs": ["--help"],
+      "cli": "/opt/homebrew/bin/ccr",
+      "args_template": [
+        "claude-3",
+        "-p",
+        "{prompt}",
+        "--dangerously-skip-permissions"
+      ],
+      "health_check_args": [
+        "-v"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [],
       "timeout_ms": 120000,
       "quorum_timeout_ms": 30000,
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://api.together.xyz/v1",
-        "ANTHROPIC_API_KEY": "tgp_v1_WsoeKW05FB7ymwK7hjJrMKRgR0FB3UId-_etMVp7InE",
-        "ANTHROPIC_MODEL": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
-      }
+      "env": {},
+      "display_type": "claude-code-cli"
     },
     {
       "name": "claude-4",
       "type": "subprocess",
-      "description": "Kimi-K2 via Fireworks — real Claude Code CLI",
+      "description": "Kimi-K2 via Fireworks — real Claude Code CLI via ccr",
       "mainTool": "claude",
       "model": "accounts/fireworks/models/kimi-k2p5",
       "display_provider": "Fireworks",
-      "cli": "/opt/homebrew/bin/claude",
-      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
-      "health_check_args": ["--version"],
-      "helpArgs": ["--help"],
+      "cli": "/opt/homebrew/bin/ccr",
+      "args_template": [
+        "claude-4",
+        "-p",
+        "{prompt}",
+        "--dangerously-skip-permissions"
+      ],
+      "health_check_args": [
+        "-v"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [],
       "timeout_ms": 120000,
       "quorum_timeout_ms": 30000,
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://api.fireworks.ai/inference/v1",
-        "ANTHROPIC_API_KEY": "fw_3ZRUprvwRJAsGpexjYdnDC8A",
-        "ANTHROPIC_MODEL": "accounts/fireworks/models/kimi-k2p5"
-      }
+      "env": {},
+      "display_type": "claude-code-cli"
     },
     {
       "name": "claude-5",
       "type": "subprocess",
-      "description": "Llama-4-Maverick-17B via Together.xyz — real Claude Code CLI",
+      "description": "Llama-4-Maverick-17B via Together.xyz — real Claude Code CLI via ccr",
       "mainTool": "claude",
       "model": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
       "display_provider": "Together.xyz",
-      "cli": "/opt/homebrew/bin/claude",
-      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
-      "health_check_args": ["--version"],
-      "helpArgs": ["--help"],
+      "cli": "/opt/homebrew/bin/ccr",
+      "args_template": [
+        "claude-5",
+        "-p",
+        "{prompt}",
+        "--dangerously-skip-permissions"
+      ],
+      "health_check_args": [
+        "-v"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [],
       "timeout_ms": 120000,
       "quorum_timeout_ms": 10000,
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://api.together.xyz/v1",
-        "ANTHROPIC_API_KEY": "tgp_v1_WsoeKW05FB7ymwK7hjJrMKRgR0FB3UId-_etMVp7InE",
-        "ANTHROPIC_MODEL": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
-      }
+      "env": {},
+      "display_type": "claude-code-cli"
     },
     {
       "name": "claude-6",
       "type": "subprocess",
-      "description": "GLM-5 via Fireworks — real Claude Code CLI",
+      "description": "GLM-5 via Fireworks — real Claude Code CLI via ccr",
       "mainTool": "claude",
       "model": "accounts/fireworks/models/glm-5",
       "display_provider": "Fireworks",
-      "cli": "/opt/homebrew/bin/claude",
-      "args_template": ["-p", "{prompt}", "--dangerously-skip-permissions"],
-      "health_check_args": ["--version"],
-      "helpArgs": ["--help"],
+      "cli": "/opt/homebrew/bin/ccr",
+      "args_template": [
+        "claude-6",
+        "-p",
+        "{prompt}",
+        "--dangerously-skip-permissions"
+      ],
+      "health_check_args": [
+        "-v"
+      ],
+      "helpArgs": [
+        "--help"
+      ],
       "extraTools": [],
       "timeout_ms": 120000,
       "quorum_timeout_ms": 8000,
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://api.fireworks.ai/inference/v1",
-        "ANTHROPIC_API_KEY": "fw_3ZRUprvwRJAsGpexjYdnDC8A",
-        "ANTHROPIC_MODEL": "accounts/fireworks/models/glm-5"
-      }
+      "env": {},
+      "display_type": "claude-code-cli"
     }
   ]
 }
