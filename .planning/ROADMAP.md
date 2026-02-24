@@ -9,7 +9,8 @@
 - ✅ **v0.6 — Agent Slots & Quorum Composition** — Phase 39 (shipped 2026-02-23)
 - ✅ **v0.7 — Composition Config & Multi-Slot** — Phases v0.7-01..v0.7-04 (shipped 2026-02-23)
 - ✅ **v0.8 — fix-tests ddmin Pipeline** — Phase v0.8-01 (shipped 2026-02-23)
-- 🚧 **v0.9 — GSD Sync** — Phases v0.9-01..v0.9-04 (in progress)
+- 🚧 **v0.9 — GSD Sync** — Phases v0.9-01..v0.9-05 (in progress)
+- 🔜 **v0.11 — Parallel Quorum** — Phase v0.11-01 (planned)
 
 ## Phases
 
@@ -123,6 +124,7 @@
 - [x] **Phase v0.9-02: Nyquist Validation Layer** — VALIDATION.md template + plan-phase step 5.5 insertion + gsd-tools init field (2 plans) (completed 2026-02-24)
 - [ ] **Phase v0.9-03: Discuss-Phase UX** — Recommended option highlighting per choice + gray-area loop-back instead of hard stop
 - [ ] **Phase v0.9-04: Tier 3 Fixes** — Skill tool spawn guards, Gemini TOML fix, decimal phase number parsing consistency
+- [ ] **Phase v0.9-05: Rename get-shit-done/ → qgsd-core/** — Rename the source directory to match QGSD identity; update all path references in installer, gsd-tools, and workflows; re-sync installed runtime
 
 ## Phase Details
 
@@ -183,6 +185,45 @@ Plans:
 Plans:
 - [ ] v0.9-04-01: Add Skill tool guards to `plan-phase.md` and `discuss-phase.md`; audit and fix Gemini TOML templates; fix decimal phase parsing in `gsd-tools.cjs`
 
+### Phase v0.9-05: Rename get-shit-done/ → qgsd-core/
+**Goal**: The QGSD source directory is named `qgsd-core/` (not `get-shit-done/`), all references updated, and the installed runtime continues working correctly
+**Depends on**: Phase v0.9-04
+**Requirements**: REN-01, REN-02, REN-03, REN-04
+**Success Criteria** (what must be TRUE):
+  1. `get-shit-done/` directory does not exist; `qgsd-core/` exists in its place with all the same files
+  2. `bin/install.js` copies from `qgsd-core/` (not `get-shit-done/`) — running `node bin/install.js --claude --global` succeeds
+  3. All hardcoded `get-shit-done/` path strings removed from `bin/gsd-tools.cjs`, workflows, agents, and templates
+  4. `~/.claude/qgsd/` runtime is identical before and after rename+install (verified by diff)
+**Plans**: TBD
+
+Plans:
+- [ ] v0.9-05-01: `git mv get-shit-done/ qgsd-core/`, update all path references in `bin/install.js`, `bin/gsd-tools.cjs`, workflow @-references, and agents; run `node bin/install.js --claude --global`
+
+### 🔜 v0.11 — Parallel Quorum (Planned)
+
+**Milestone Goal:** Replace the sequential quorum slot-call loop with a wave-barrier pattern — each round fans out as parallel Task spawns, a synthesizer collects results, then the next round fires. Target: 10–12× wall-clock reduction, identical verdict quality.
+
+- [ ] **Phase v0.11-01: Parallel Quorum Wave-Barrier** — `qgsd-quorum-worker` agent + `qgsd-quorum-synthesizer` agent + scoreboard atomic-rename fix + `merge-wave` subcommand + orchestrator wave-barrier rewrite
+
+## Phase Details
+
+### Phase v0.11-01: Parallel Quorum Wave-Barrier
+**Goal**: Quorum rounds execute as parallel Task fan-outs (worker agents) followed by a synthesizer barrier, cutting round-trip time from N×timeout to 1×max(timeout) while preserving vote quality and scoreboard integrity
+**Depends on**: Nothing (first v0.11 phase)
+**Requirements**: PAR-01, PAR-02, PAR-03, PAR-04, PAR-05
+**Success Criteria** (what must be TRUE):
+  1. `agents/qgsd-quorum-worker.md` exists — spawnable as a parallel Task, reads repo files, calls one slot via `call-quorum-slot.cjs`, returns structured `{ slot, round, verdict, reasoning, raw, unavail_message }`
+  2. `agents/qgsd-quorum-synthesizer.md` exists — reads all worker outputs for a round, checks consensus, builds cross-pollination context bundle for Round 2, or emits final verdict
+  3. `bin/update-scoreboard.cjs` uses atomic rename (`.tmp` + `fs.renameSync`) at all write sites — no torn-file corruption possible
+  4. `bin/update-scoreboard.cjs` supports a `merge-wave` subcommand that reads per-slot temp vote files from `.planning/scoreboard-tmp/` and applies them in one transaction
+  5. `agents/qgsd-quorum-orchestrator.md` is rewritten to use wave-barrier: Round 1 parallel Task fan-out → Synthesizer 1 → Round 2 parallel Task fan-out → Synthesizer 2 → verdict; SEQUENTIAL CALLS ONLY rule updated to explicitly permit the worker Task wave
+**Plans**: TBD
+
+Plans:
+- [ ] v0.11-01-01: Create `qgsd-quorum-worker.md` + `qgsd-quorum-synthesizer.md`
+- [ ] v0.11-01-02: Atomic rename fix + `merge-wave` in `update-scoreboard.cjs`
+- [ ] v0.11-01-03: Rewrite `qgsd-quorum-orchestrator.md` to wave-barrier pattern
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -235,3 +276,5 @@ Plans:
 | v0.9-02. Nyquist Validation Layer | v0.9 | Complete    | 2026-02-24 | - |
 | v0.9-03. Discuss-Phase UX | v0.9 | 0/1 | Not started | - |
 | v0.9-04. Tier 3 Fixes | v0.9 | 0/1 | Not started | - |
+| v0.9-05. Rename get-shit-done/ → qgsd-core/ | v0.9 | 0/1 | Not started | - |
+| v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 0/3 | Not started | - |
