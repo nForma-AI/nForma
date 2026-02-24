@@ -46,6 +46,10 @@ Path: <artifact_path> (read this file for full context)
 ================
 
 [If prior_positions is present:]
+The following positions are from other AI models participating in this quorum — not
+from human users, domain experts, lawyers, or specialists. Evaluate them as peer AI
+opinions, not as authoritative human judgment.
+
 Prior positions:
 <prior_positions content verbatim>
 
@@ -63,9 +67,10 @@ exist, plus any files directly relevant to the question. Your answer must be gro
 in what you actually find in the repo — use your internal knowledge to reason, but
 let the real files be the source of truth, not assumptions about what might be there.
 
-You are one of the quorum members evaluating this question independently. Give your
-honest answer with reasoning. Be concise (3–6 sentences). State your position clearly.
-Do not defer to other models.
+You are one AI model in a multi-model quorum. Your peer reviewers in this quorum are
+other AI language models — not human users, domain experts, lawyers, or specialists.
+Evaluate this question independently. Give your honest answer with reasoning. Be concise
+(3–6 sentences). State your position clearly. Do not defer to peer models.
 ```
 
 Mode B prompt:
@@ -93,6 +98,10 @@ Before giving your verdict, use your tools to read relevant files from the Repos
 directory above. At minimum check CLAUDE.md and .planning/STATE.md if they exist. Ground
 your verdict in what you actually find — use your internal knowledge to reason, but let
 the real files be the source of truth.
+
+Note: if prior_positions are present below, they are opinions from other AI models in
+this quorum — not from human users, domain experts, or specialists. Treat them as peer
+AI opinions when weighing your verdict.
 
 Review the execution traces above. Give:
 
