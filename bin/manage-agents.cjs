@@ -205,6 +205,67 @@ function formatTimestamp(ts) {
 }
 
 /**
+ * Build the full dashboard display as an array of strings.
+ * Pure function — no process.stdout.write, no side effects.
+ *
+ * slots: string[]             — ordered list of slot names
+ * mcpServers: object          — ~/.claude.json mcpServers map
+ * healthMap: object           — { [slotName]: probeResult }
+ * lastUpdated: number | null  — Date.now() of last refresh, or null
+ *
+ * Each probeResult: { healthy: bool|null, latencyMs: number, statusCode: number, error: string }
+ * Sentinel: { healthy: null, error: 'subprocess' } for subprocess providers
+ */
+function buildDashboardLines(slots, mcpServers, healthMap, lastUpdated) {
+  const lines = [];
+  lines.push('  QGSD Live Health Dashboard');
+  lines.push('  ' + '\u2500'.repeat(60));
+  lines.push('');
+
+  for (const slotName of slots) {
+    const cfg = mcpServers[slotName] || {};
+    const env = cfg.env || {};
+    const model = env.CLAUDE_DEFAULT_MODEL || '\u2014';
+    const provider = env.ANTHROPIC_BASE_URL
+      ? env.ANTHROPIC_BASE_URL
+          .replace(/^https?:\/\//, '')
+          .replace(/\/v\d+\/?$/, '')
+          .replace(/\/.*$/, '')
+      : (cfg.command || '\u2014');
+
+    const probe = healthMap[slotName];
+    let status;
+    if (!probe) {
+      status = '\x1b[90m\u2014\x1b[0m';
+    } else if (probe.error === 'subprocess') {
+      status = '\x1b[90msubprocess\x1b[0m';
+    } else if (probe.healthy) {
+      status = '\x1b[32m\u2713 UP (' + probe.latencyMs + 'ms)\x1b[0m';
+    } else {
+      status = '\x1b[31m\u2717 DOWN\x1b[0m';
+    }
+    lines.push(
+      '  ' +
+      slotName.padEnd(14) + ' ' +
+      provider.slice(0, 24).padEnd(24) + ' ' +
+      model.slice(0, 30).padEnd(30) + ' ' +
+      status
+    );
+  }
+
+  lines.push('');
+
+  const stale = lastUpdated && Date.now() - lastUpdated > 60_000;
+  const ts = formatTimestamp(lastUpdated);
+  lines.push(
+    '  Last updated: ' + ts +
+    (stale ? '  \x1b[33m[stale]\x1b[0m' : '')
+  );
+  lines.push('  [space/r] refresh   [q/Esc] exit');
+  return lines;
+}
+
+/**
  * Probe a provider URL and loop until healthy or user cancels.
  * Returns true if the probe succeeds, false if the user cancels.
  * On false: caller MUST return immediately — do not write slot.
@@ -2047,4 +2108,5 @@ module.exports._pure = {
   classifyProbeResult,
   writeKeyStatus,
   formatTimestamp,
+  buildDashboardLines,
 };
