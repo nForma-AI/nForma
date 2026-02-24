@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 Phase: v0.10-05-policy-uis of v0.10 (Roster Toolkit)
 Plan: 1 of N in current phase (Plan 01 COMPLETE — 24 RED stubs added, 94 existing tests unchanged)
 Status: v0.10-05-01 complete — 94 pass / 24 fail; 5 new function stubs not yet implemented; Plan 02 implements GREEN
-Last activity: 2026-02-24 — v0.10-05-01 complete (TDD RED: 24 failing stubs for buildTimeoutChoices, applyTimeoutUpdate, buildPolicyChoices, buildUpdateLogEntry, parseUpdateLogErrors)
+Last activity: 2026-02-24 - Completed quick task 99: in the quorum, we need to make sure that the LLMs understand that the other opinions comes from other LLMs, not from users, lawyers, specialist
 
 Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 2/6 phases (v0.10-01 both plans done) | v0.9 parallel: 3/5 phases
 
@@ -89,6 +89,7 @@ Recent decisions affecting current work:
 | 96 | Refactor manage-agents.cjs to extract pure logic functions and add node:test suite | 2026-02-24 | 114de1f | Verified | [96-refactor-manage-agents-cjs-to-extract-pu](./quick/96-refactor-manage-agents-cjs-to-extract-pu/) |
 | 97 | Add update management for all sub-coding agents to manage-agents.cjs | 2026-02-24 | 1ad0a6b | Verified | [97-add-update-management-for-all-sub-coding](./quick/97-add-update-management-for-all-sub-coding/) |
 | 98 | Apply three quorum-identified improvements to qgsd-quorum-orchestrator prompt wording | 2026-02-24 | 58dbb33 | Verified | [98-apply-three-quorum-identified-improvemen](.planning/quick/98-apply-three-quorum-identified-improvemen/) |
+| 99 | in the quorum, we need to make sure that the LLMs understand that the other opinions comes from other LLMs, not from users, lawyers, specialist | 2026-02-24 | Pending | Pending | [99-in-the-quorum-we-need-to-make-sure-that-](./quick/99-in-the-quorum-we-need-to-make-sure-that-/) |
 
 ## Session Continuity
 
