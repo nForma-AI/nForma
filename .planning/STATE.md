@@ -67,7 +67,7 @@ Recent decisions affecting current work:
 |---|------|------|--------|--------|------|
 | 95 | Comprehensive secure CCR credential management | 2026-02-24 | d0530ed | Verified | [95-comprehensive-secure-ccr-credential-mana](./quick/95-comprehensive-secure-ccr-credential-mana/) |
 | 96 | Refactor manage-agents.cjs to extract pure logic functions and add node:test suite | 2026-02-24 | 114de1f | Verified | [96-refactor-manage-agents-cjs-to-extract-pu](./quick/96-refactor-manage-agents-cjs-to-extract-pu/) |
-| 97 | Add update management for all sub-coding agents to manage-agents.cjs | 2026-02-24 | {commit_hash} | Pending | [97-add-update-management-for-all-sub-coding](./quick/97-add-update-management-for-all-sub-coding/) |
+| 97 | Add update management for all sub-coding agents to manage-agents.cjs | 2026-02-24 | 1ad0a6b | Pending | [97-add-update-management-for-all-sub-coding](./quick/97-add-update-management-for-all-sub-coding/) |
 
 ## Session Continuity
 
