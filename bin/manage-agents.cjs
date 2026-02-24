@@ -1267,6 +1267,115 @@ async function editSubprocessProvider() {
 }
 
 // ---------------------------------------------------------------------------
+// Manage CCR provider keys
+// ---------------------------------------------------------------------------
+
+const CCR_KEY_NAMES = [
+  { key: 'AKASHML_API_KEY',   label: 'AkashML API Key'     },
+  { key: 'TOGETHER_API_KEY',  label: 'Together.xyz API Key' },
+  { key: 'FIREWORKS_API_KEY', label: 'Fireworks API Key'    },
+];
+
+async function manageCcrProviders() {
+  // Lazy-load secretsLib
+  let secretsLib = null;
+  const secretsCandidates = [
+    path.join(os.homedir(), '.claude', 'qgsd-bin', 'secrets.cjs'),
+    path.join(__dirname, 'secrets.cjs'),
+  ];
+  for (const p of secretsCandidates) {
+    try {
+      if (fs.existsSync(p)) {
+        secretsLib = require(p);
+        break;
+      }
+    } catch (_) {}
+  }
+  if (!secretsLib) {
+    console.error('\n  \x1b[31mError: secrets.cjs not found — QGSD may not be installed.\x1b[0m\n');
+    return;
+  }
+
+  const { subAction } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'subAction',
+      message: 'Manage CCR Provider Keys',
+      choices: [
+        { name: 'Set / update a key', value: 'set' },
+        { name: 'View stored keys (masked)', value: 'view' },
+        { name: 'Remove a key', value: 'remove' },
+        new inquirer.Separator(),
+        { name: 'Back', value: 'back' },
+      ],
+    },
+  ]);
+
+  if (subAction === 'back') return;
+
+  if (subAction === 'view') {
+    console.log('\n  CCR Provider Keys:\n');
+    for (const { key, label } of CCR_KEY_NAMES) {
+      const value = await secretsLib.get('qgsd', key);
+      let display;
+      if (value && value.length > 10) {
+        display = value.slice(0, 6) + '...' + value.slice(-4);
+      } else if (value) {
+        display = value.slice(0, 2) + '...' + value.slice(-2);
+      } else {
+        display = '\x1b[2m(not set)\x1b[0m';
+      }
+      console.log('  ' + label + ': ' + display);
+    }
+    console.log('');
+    return;
+  }
+
+  // 'set' or 'remove' — pick which key
+  const { selectedKey } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'selectedKey',
+      message: subAction === 'set' ? 'Which key to set?' : 'Which key to remove?',
+      choices: CCR_KEY_NAMES.map((k) => ({ name: k.label, value: k.key })),
+    },
+  ]);
+
+  if (subAction === 'set') {
+    const { keyValue } = await inquirer.prompt([
+      {
+        type: 'password',
+        name: 'keyValue',
+        message: 'Enter value for ' + selectedKey + ':',
+        mask: '*',
+      },
+    ]);
+    const trimmed = keyValue.trim();
+    if (!trimmed) {
+      console.log('\n  \x1b[33m⚠ Empty value — key not stored.\x1b[0m\n');
+      return;
+    }
+    await secretsLib.set('qgsd', selectedKey, trimmed);
+    console.log('\n  \x1b[32m✓ ' + selectedKey + ' stored in keytar.\x1b[0m\n');
+  } else if (subAction === 'remove') {
+    const { confirmed } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'confirmed',
+        message: 'Remove ' + selectedKey + ' from keytar?',
+        default: false,
+      },
+    ]);
+    if (confirmed) {
+      await secretsLib.delete('qgsd', selectedKey);
+      console.log('\n  \x1b[33m✓ ' + selectedKey + ' removed.\x1b[0m\n');
+    } else {
+      console.log('\n  Cancelled.\n');
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main menu
 // ---------------------------------------------------------------------------
 
@@ -1289,6 +1398,8 @@ async function mainMenu() {
           { name: '7. Add subprocess provider', value: 'add-sub' },
           { name: '8. Edit subprocess provider', value: 'edit-sub' },
           new inquirer.Separator(),
+          { name: '9. Manage CCR provider keys', value: 'ccr-keys' },
+          new inquirer.Separator(),
           { name: '0. Exit', value: 'exit' },
         ],
       },
@@ -1303,6 +1414,7 @@ async function mainMenu() {
       else if (action === 'health') await checkAgentHealth();
       else if (action === 'add-sub') await addSubprocessProvider();
       else if (action === 'edit-sub') await editSubprocessProvider();
+      else if (action === 'ccr-keys') await manageCcrProviders();
       else if (action === 'exit') { running = false; console.log('\n  Goodbye!\n'); }
     } catch (err) {
       console.error(`\n  \x1b[31mError: ${err.message}\x1b[0m\n`);
