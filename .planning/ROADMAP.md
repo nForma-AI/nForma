@@ -221,7 +221,11 @@ Plans:
   3. Running `listAgents()` after a slot's last health probe returned 401 AND that slot has a configured key shows a `[key invalid]` badge for that slot; slots with no key or a valid last probe show no badge; badge state derives from `key_status` in `qgsd.json` (survives restart without re-probing)
   4. `readQgsdJson()` and `writeQgsdJson()` helpers exist in `manage-agents.cjs`, use the existing atomic tmp-rename write pattern, and are exported via `module.exports._pure` for unit testing
   5. Unit tests cover all three absent-file edge cases: no scoreboard file, no CCR config file, no `key_status` field in `qgsd.json`
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] v0.10-01-01-PLAN.md — Add readQgsdJson/writeQgsdJson helpers + slotToFamily/getWlDisplay/readCcrConfigSafe/getCcrProviderForSlot/getKeyInvalidBadge pure functions + TDD unit tests (DISP-01, DISP-02, DISP-03)
+- [ ] v0.10-01-02-PLAN.md — Integrate helpers into listAgents() to render W/L, CCR, and key-invalid columns; manual visual verification (DISP-01, DISP-02, DISP-03)
 
 ### Phase v0.10-02: Presets and Cloning
 **Goal**: Users can select a provider by name instead of typing a URL, and can duplicate any existing slot in one flow
@@ -348,7 +352,7 @@ Plans:
 | v0.9-03. Discuss-Phase UX | v0.9 | 0/1 | Not started | - |
 | v0.9-04. Tier 3 Fixes | v0.9 | 0/1 | Not started | - |
 | v0.9-05. Rename get-shit-done/ → qgsd-core/ | v0.9 | 0/1 | Not started | - |
-| v0.10-01. Foundation | v0.10 | 0/? | Not started | - |
+| v0.10-01. Foundation | v0.10 | 0/2 | Not started | - |
 | v0.10-02. Presets and Cloning | v0.10 | 0/? | Not started | - |
 | v0.10-03. Credential Management | v0.10 | 0/? | Not started | - |
 | v0.10-04. Live Health Dashboard | v0.10 | 0/? | Not started | - |
