@@ -2,7 +2,9 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { _pure } = require('./manage-agents.cjs');
-const { deriveKeytarAccount, maskKey, buildKeyStatus, buildAgentChoiceLabel, applyKeyUpdate, applyCcrProviderUpdate } = _pure;
+const { deriveKeytarAccount, maskKey, buildKeyStatus, buildAgentChoiceLabel, applyKeyUpdate, applyCcrProviderUpdate,
+        readQgsdJson, writeQgsdJson, slotToFamily, getWlDisplay, readCcrConfigSafe, getCcrProviderForSlot, getKeyInvalidBadge,
+        buildPresetChoices, findPresetForUrl, buildCloneEntry } = _pure;
 
 // ---------------------------------------------------------------------------
 // deriveKeytarAccount
@@ -216,8 +218,6 @@ test('applyCcrProviderUpdate: unknown subAction -> returns null, no secretsLib c
 // slotToFamily
 // ---------------------------------------------------------------------------
 
-const { slotToFamily, getWlDisplay, readCcrConfigSafe, getCcrProviderForSlot, getKeyInvalidBadge, readQgsdJson, writeQgsdJson } = _pure;
-
 test('slotToFamily: claude-3 -> claude', () => {
   assert.strictEqual(slotToFamily('claude-3'), 'claude');
 });
@@ -357,4 +357,150 @@ test('writeQgsdJson and readQgsdJson: roundtrip via tmp dir', () => {
   } finally {
     try { fs.unlinkSync(tmpPath); } catch (_) {}
   }
+});
+
+// ---------------------------------------------------------------------------
+// buildPresetChoices
+// ---------------------------------------------------------------------------
+
+test('buildPresetChoices: returns 4 choices (3 presets + Custom)', () => {
+  const choices = buildPresetChoices();
+  // Filter out Separator objects (they have .type === 'separator')
+  const realChoices = choices.filter((c) => c && typeof c === 'object' && c.value !== undefined);
+  assert.strictEqual(realChoices.length, 4);
+});
+
+test('buildPresetChoices: all preset values are valid HTTPS URLs', () => {
+  const choices = buildPresetChoices();
+  const presetChoices = choices.filter((c) => c && typeof c === 'object' && c.value && c.value !== '__custom__');
+  assert.ok(presetChoices.length >= 3, 'expected at least 3 preset choices');
+  for (const c of presetChoices) {
+    assert.ok(c.value.startsWith('https://'), `${c.value} is not an HTTPS URL`);
+  }
+});
+
+test('buildPresetChoices: Custom choice has value __custom__', () => {
+  const choices = buildPresetChoices();
+  const customChoice = choices.find((c) => c && typeof c === 'object' && c.value === '__custom__');
+  assert.ok(customChoice, 'Custom choice with value __custom__ not found');
+});
+
+test('buildPresetChoices: AkashML preset maps to api.akashml.com/v1', () => {
+  const choices = buildPresetChoices();
+  const akash = choices.find((c) => c && typeof c === 'object' && c.name && c.name.includes('AkashML'));
+  assert.ok(akash, 'AkashML choice not found');
+  assert.strictEqual(akash.value, 'https://api.akashml.com/v1');
+});
+
+test('buildPresetChoices: Together.xyz preset maps to api.together.xyz/v1', () => {
+  const choices = buildPresetChoices();
+  const together = choices.find((c) => c && typeof c === 'object' && c.name && c.name.includes('Together'));
+  assert.ok(together, 'Together.xyz choice not found');
+  assert.strictEqual(together.value, 'https://api.together.xyz/v1');
+});
+
+test('buildPresetChoices: Fireworks.ai preset maps to api.fireworks.ai/inference/v1', () => {
+  const choices = buildPresetChoices();
+  const fireworks = choices.find((c) => c && typeof c === 'object' && c.name && c.name.includes('Fireworks'));
+  assert.ok(fireworks, 'Fireworks.ai choice not found');
+  assert.strictEqual(fireworks.value, 'https://api.fireworks.ai/inference/v1');
+});
+
+// ---------------------------------------------------------------------------
+// findPresetForUrl
+// ---------------------------------------------------------------------------
+
+test('findPresetForUrl: AkashML URL returns the preset value', () => {
+  assert.strictEqual(findPresetForUrl('https://api.akashml.com/v1'), 'https://api.akashml.com/v1');
+});
+
+test('findPresetForUrl: Together.xyz URL returns the preset value', () => {
+  assert.strictEqual(findPresetForUrl('https://api.together.xyz/v1'), 'https://api.together.xyz/v1');
+});
+
+test('findPresetForUrl: Fireworks.ai URL returns the preset value', () => {
+  assert.strictEqual(findPresetForUrl('https://api.fireworks.ai/inference/v1'), 'https://api.fireworks.ai/inference/v1');
+});
+
+test('findPresetForUrl: unknown URL returns __custom__', () => {
+  assert.strictEqual(findPresetForUrl('https://api.example.com/v1'), '__custom__');
+});
+
+test('findPresetForUrl: null returns __custom__', () => {
+  assert.strictEqual(findPresetForUrl(null), '__custom__');
+});
+
+test('findPresetForUrl: undefined returns __custom__', () => {
+  assert.strictEqual(findPresetForUrl(undefined), '__custom__');
+});
+
+// ---------------------------------------------------------------------------
+// buildCloneEntry
+// ---------------------------------------------------------------------------
+
+test('buildCloneEntry: copies ANTHROPIC_BASE_URL from source', () => {
+  const sourceCfg = {
+    type: 'stdio',
+    command: 'node',
+    args: ['/path/to/server.cjs'],
+    env: { ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1', CLAUDE_DEFAULT_MODEL: 'my-model', ANTHROPIC_API_KEY: 'sk-secret' },
+  };
+  const entry = buildCloneEntry(sourceCfg, 'claude-7');
+  assert.strictEqual(entry.env.ANTHROPIC_BASE_URL, 'https://api.akashml.com/v1');
+});
+
+test('buildCloneEntry: copies CLAUDE_DEFAULT_MODEL from source', () => {
+  const sourceCfg = {
+    type: 'stdio',
+    command: 'node',
+    args: [],
+    env: { ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1', CLAUDE_DEFAULT_MODEL: 'deepseek-v3', ANTHROPIC_API_KEY: 'sk-secret' },
+  };
+  const entry = buildCloneEntry(sourceCfg, 'claude-7');
+  assert.strictEqual(entry.env.CLAUDE_DEFAULT_MODEL, 'deepseek-v3');
+});
+
+test('buildCloneEntry: sets PROVIDER_SLOT to newName', () => {
+  const sourceCfg = {
+    type: 'stdio',
+    command: 'node',
+    args: [],
+    env: { PROVIDER_SLOT: 'claude-3', ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1' },
+  };
+  const entry = buildCloneEntry(sourceCfg, 'claude-7');
+  assert.strictEqual(entry.env.PROVIDER_SLOT, 'claude-7');
+});
+
+test('buildCloneEntry: does NOT copy ANTHROPIC_API_KEY (keytar isolation)', () => {
+  const sourceCfg = {
+    type: 'stdio',
+    command: 'node',
+    args: [],
+    env: { ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1', ANTHROPIC_API_KEY: 'sk-super-secret' },
+  };
+  const entry = buildCloneEntry(sourceCfg, 'claude-7');
+  assert.ok(!('ANTHROPIC_API_KEY' in entry.env), 'ANTHROPIC_API_KEY must not be in cloned env');
+});
+
+test('buildCloneEntry: copies CLAUDE_MCP_TIMEOUT_MS when present', () => {
+  const sourceCfg = {
+    type: 'stdio',
+    command: 'node',
+    args: [],
+    env: { ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1', CLAUDE_MCP_TIMEOUT_MS: '60000' },
+  };
+  const entry = buildCloneEntry(sourceCfg, 'claude-7');
+  assert.strictEqual(entry.env.CLAUDE_MCP_TIMEOUT_MS, '60000');
+});
+
+test('buildCloneEntry: preserves command and args from source', () => {
+  const sourceCfg = {
+    type: 'stdio',
+    command: 'node',
+    args: ['/path/to/server.cjs'],
+    env: { ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1' },
+  };
+  const entry = buildCloneEntry(sourceCfg, 'claude-7');
+  assert.strictEqual(entry.command, 'node');
+  assert.deepStrictEqual(entry.args, ['/path/to/server.cjs']);
 });
