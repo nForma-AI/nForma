@@ -268,7 +268,12 @@ Plans:
   2. After each individual slot's key is updated within the batch flow, a per-slot confirmation line is displayed (e.g., `claude-1: key updated`) before the next slot's prompt appears; a single `syncToClaudeJson()` call is made after all slots are processed
   3. After a health probe returns a 401 for any slot, `key_status` for that slot is written to `qgsd.json` as `{ "status": "invalid", "checkedAt": "<ISO timestamp>" }`; this value persists to disk so the `[key invalid]` badge survives a process restart without requiring a new probe
   4. After a subsequent successful health probe for the same slot, `key_status` is updated to `{ "status": "ok", "checkedAt": "<ISO timestamp>" }`, causing the badge to clear on the next `listAgents()` call
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.10-03-01-PLAN.md — Wave 0: failing test stubs for classifyProbeResult and writeKeyStatus (CRED-01, CRED-02)
+- [ ] v0.10-03-02-PLAN.md — TDD: implement classifyProbeResult() pure function + writeKeyStatus() helper (CRED-02)
+- [ ] v0.10-03-03-PLAN.md — Integration: checkAgentHealth() key_status persistence + batchRotateKeys() + mainMenu() wiring (CRED-01, CRED-02)
 
 ### Phase v0.10-04: Live Health Dashboard
 **Goal**: Users can open a live health view from the main menu that refreshes on keypress and exits cleanly back to the menu with no stdin side effects
