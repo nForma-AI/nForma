@@ -414,7 +414,26 @@ async function editAgent() {
     return;
   }
 
-  // Agent selector — show model inline so user knows what they're picking
+  // Load keytar accounts + qgsd.json agent_config to show real key/billing status
+  let keytarAccounts = new Set();
+  try {
+    const secrets = require('./secrets.cjs');
+    const creds = await secrets.list('qgsd');
+    creds.forEach(c => keytarAccounts.add(c.account));
+  } catch (_) {}
+
+  let agentCfg = {};
+  try {
+    const qgsdPath = path.join(os.homedir(), '.claude', 'qgsd.json');
+    const q = JSON.parse(fs.readFileSync(qgsdPath, 'utf8'));
+    agentCfg = q.agent_config || {};
+  } catch (_) {}
+
+  // Build provider lookup for model name
+  let providerMap = {};
+  try { const pd = readProvidersJson(); (pd.providers||[]).forEach(p => { providerMap[p.name]=p; }); } catch(_) {}
+
+  // Agent selector — show model + key status inline
   const { slotName } = await inquirer.prompt([
     {
       type: 'list',
@@ -422,10 +441,22 @@ async function editAgent() {
       message: 'Select agent to edit:',
       choices: slots.map((name) => {
         const cfg = mcpServers[name];
-        const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?';
-        const hasKey = !!(cfg.env && cfg.env.ANTHROPIC_API_KEY);
+        const slot = cfg.env && cfg.env.PROVIDER_SLOT;
+        const p = slot ? providerMap[slot] : null;
+        const model = p ? (p.model || p.mainTool || '—') : ((cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?');
+        const authType = agentCfg[name] && agentCfg[name].auth_type;
+        let keyStatus;
+        if (authType === 'sub') {
+          keyStatus = '\x1b[36m[sub]\x1b[0m';
+        } else {
+          // Derive keytar account: ANTHROPIC_API_KEY_<SLOT_UPPER>
+          const account = 'ANTHROPIC_API_KEY_' + name.toUpperCase().replace(/-/g, '_');
+          keyStatus = keytarAccounts.has(account)
+            ? '\x1b[32m[key ✓]\x1b[0m'
+            : '\x1b[90m[no key]\x1b[0m';
+        }
         return {
-          name: `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${hasKey ? '\x1b[32m[key ✓]\x1b[0m' : '\x1b[90m[no key]\x1b[0m'}`,
+          name: `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${keyStatus}`,
           value: name,
           short: name,
         };
