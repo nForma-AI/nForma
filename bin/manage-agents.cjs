@@ -202,6 +202,18 @@ async function listAgents() {
   if (qgsd.orchestrator) Object.assign(orchestrator, qgsd.orchestrator);
   let agentConfig = qgsd.agent_config || {};
 
+  // Load quorum scoreboard (DISP-01) — existsSync guard: absent file → null
+  let scoreboardData = null;
+  const sbPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+  if (fs.existsSync(sbPath)) {
+    try {
+      scoreboardData = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
+    } catch (_) {}
+  }
+
+  // Load CCR config (DISP-02) — readCcrConfigSafe handles absent file → null
+  const ccrConfig = readCcrConfigSafe();
+
   // Build providers lookup for PROVIDER_SLOT cross-reference
   let providerMap = {};
   try {
@@ -209,7 +221,7 @@ async function listAgents() {
     for (const p of (pdata.providers || [])) providerMap[p.name] = p;
   } catch (_) {}
 
-  const W = { n: 3, slot: 14, model: 38, provider: 26, type: 16, billing: 7, upd: 3 };
+  const W = { n: 3, slot: 14, model: 38, provider: 26, type: 16, billing: 7, upd: 3, wl: 8, ccr: 12 };
   const header = [
     '#'.padEnd(W.n),
     'Slot'.padEnd(W.slot),
@@ -218,6 +230,8 @@ async function listAgents() {
     'Type'.padEnd(W.type),
     'Billing'.padEnd(W.billing),
     'Upd'.padEnd(W.upd),
+    'W/L'.padEnd(W.wl),
+    'CCR'.padEnd(W.ccr),
     'Timeout',
   ].join('  ');
 
@@ -233,6 +247,8 @@ async function listAgents() {
     'claude-code-cli'.padEnd(W.type),
     orchestrator.billing.padEnd(W.billing),
     ' — '.padEnd(W.upd),
+    '—'.padEnd(W.wl),
+    '—'.padEnd(W.ccr),
     '— (active)',
   ].join('  ');
   console.log('  \x1b[1m' + orchRow + '\x1b[0m');
@@ -288,14 +304,32 @@ async function listAgents() {
       }
     }
 
+    // W/L column (DISP-01)
+    const family = slotToFamily(name);
+    const wlCell = getWlDisplay(family, scoreboardData);
+
+    // CCR column (DISP-02) — derive model for this slot
+    const slotModel = p ? (p.model || p.mainTool) : (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || null;
+    const ccrProvider = getCcrProviderForSlot(slotModel, ccrConfig);
+    const ccrCell = ccrProvider || '—';
+
+    // Key-invalid badge (DISP-03) — inline annotation on Slot column
+    // badge shows whenever key_status.status === 'invalid' (key was configured at probe time)
+    const hasKeyFn = (_) => true;  // if key_status.invalid exists, a key was configured
+    const keyBadge = getKeyInvalidBadge(name, agentConfig, hasKeyFn);
+
+    const slotDisplay = (name + keyBadge).padEnd(W.slot);
+
     const row = [
       String(i + 1).padEnd(W.n),
-      name.padEnd(W.slot),
+      slotDisplay,
       model.slice(0, W.model).padEnd(W.model),
       provider.slice(0, W.provider).padEnd(W.provider),
       connType.padEnd(W.type),
       billing.padEnd(W.billing),
       updCell,
+      wlCell.padEnd(W.wl),
+      ccrCell.slice(0, W.ccr).padEnd(W.ccr),
       timeout,
     ].join('  ');
 
