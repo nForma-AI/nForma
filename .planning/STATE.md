@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.10 milestone started)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10 Roster Toolkit — defining requirements
+**Current focus:** v0.10 Roster Toolkit — Phase v0.10-01 (Foundation)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: v0.10-01 (Foundation) — Not started
 Plan: —
-Status: Defining requirements — Milestone v0.10 Roster Toolkit
-Last activity: 2026-02-24 - Completed quick task 98: Apply three quorum-identified improvements to qgsd-quorum-orchestrator prompt wording
+Status: Roadmap created — ready to plan Phase v0.10-01
+Last activity: 2026-02-24 — v0.10 roadmap written (6 phases, 16/16 requirements mapped)
 
-Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.10: 0/? phases | v0.9 parallel: 1/4 phases
+Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.10: 0/6 phases | v0.9 parallel: 2/5 phases
 
 ## Performance Metrics
 
@@ -50,7 +50,13 @@ Recent decisions affecting current work:
 - [v0.9 roadmap]: NYQ step 5.5 generates VALIDATION.md before plan artifacts — runs in plan-phase after research, before output
 - [quick-59]: Phase numbering is milestone-scoped (v0.9-01 format); gsd-tools.cjs parses both integer and milestone-scoped formats
 - [v0.9-01-01]: gsd-context-monitor is stateless (no debounce in v1); fires every PostToolUse when above threshold; hooks/dist/ is gitignored for new files
-- [v0.9-01 transition]: CTX-01..05 complete; v0.9-02 Nyquist Validation Layer is next
+- [v0.10 roadmap]: 6-phase structure derived from requirements — read-only display first (zero write-path risk), then preset/clone, then credential writes, then dashboard (highest complexity), then policy, then import/export (broadest data model coverage)
+- [v0.10 roadmap]: inquirer@8.2.7 CJS — must not be upgraded to v9 (ESM-only); no new npm dependencies for any v0.10 feature
+- [v0.10 roadmap]: Dashboard uses readline mode-switch (not setInterval while inquirer active) — mandatory architecture constraint for DASH-01..03
+- [v0.10 roadmap]: Batch key rotation sequential for...of only (never Promise.all) — keychain concurrency and index read-modify-write race constraint for CRED-01
+- [v0.10 roadmap]: Export unconditionally strips API keys via sanitizeEnvForExport() — never calls syncToClaudeJson() before reading for export (PORT-01)
+- [v0.10 roadmap]: Scoreboard reads need existsSync guard — ENOENT on fresh install must show `—` not crash (DISP-01)
+- [v0.10 roadmap]: CCR provider name derived dynamically via readCcrConfigSafe() — not hardcoded CCR_KEY_NAMES list (DISP-02)
 
 ### Pending Todos
 
@@ -73,5 +79,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Milestone v0.10 initialized, ready to define requirements and roadmap
+Stopped at: v0.10 roadmap created — 6 phases, 16/16 requirements mapped, ready to plan Phase v0.10-01
 Resume file: None
