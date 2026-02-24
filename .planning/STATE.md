@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v0.7 milestone)
 Phase: MILESTONE COMPLETE — v0.8 shipped
 Plan: —
 Status: v0.8-01 complete — 4-phase ddmin pipeline written, --run-cap flag added; ready for /qgsd:new-milestone
-Last activity: 2026-02-23 - Completed phase v0.8-01: fix-tests ddmin pipeline (plans 01 + 02)
+Last activity: 2026-02-24 - Completed quick task 93: Add CLI auto-discovery
 
 Progress: [████████████████████] 46/46 plans (100%)
 
@@ -130,9 +130,10 @@ Recent decisions affecting current work:
 | 89 | make sure that every time we spawn a Task sub-agent we include the task description in the allowedPrompts list | 2026-02-23 | d33fa43 | Pending | [89-make-sure-that-every-time-we-spawn-a-tas](./quick/89-make-sure-that-every-time-we-spawn-a-tas/) |
 | 90 | Fix two quorum bugs: check-provider-health.cjs filter mismatch for unified-mcp-server.mjs and add preferSub ordering to orchestrator dispatch loop | 2026-02-23 | 0ab5783 | Verified | [90-fix-two-quorum-bugs-check-provider-healt](./quick/90-fix-two-quorum-bugs-check-provider-healt/) |
 | 91 | Add Tier 1 improvements to manage-agents.cjs: provider pre-flight check on Add/Edit, agent health-check menu option, and performance intel in Edit | 2026-02-23 | fc58045 | Verified | [91-add-tier-1-improvements-to-manage-agents](./quick/91-add-tier-1-improvements-to-manage-agents/) |
+| 93 | Add CLI auto-discovery to resolve codex, gemini, opencode, copilot across PATH, Homebrew, npm, apt — write resolved path into providers.json via manage-agents.cjs | 2026-02-24 | eac362a | Pending | [93-add-cli-auto-discovery-to-resolve-codex-](./quick/93-add-cli-auto-discovery-to-resolve-codex-/) |
 
 ## Session Continuity
 
-Last session: 2026-02-23
-Stopped at: 2026-02-23 - Completed phase v0.8-01: fix-tests ddmin pipeline (plans 01 + 02)
+Last session: 2026-02-24
+Stopped at: 2026-02-24 - Completed quick task 93: Add CLI auto-discovery
 Resume file: None
