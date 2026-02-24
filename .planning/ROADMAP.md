@@ -120,7 +120,7 @@
 **Milestone Goal:** Port GSD 1.20.6 improvements into QGSD — context window self-monitoring hook, Nyquist validation layer, discuss-phase UX refinements, and Tier 3 fixes.
 
 - [x] **Phase v0.9-01: Context Window Monitor** — New PostToolUse hook that injects WARNING/CRITICAL into `additionalContext` at configurable thresholds + install sync (completed 2026-02-24)
-- [ ] **Phase v0.9-02: Nyquist Validation Layer** — VALIDATION.md template + plan-phase step 5.5 insertion + gsd-tools init field
+- [ ] **Phase v0.9-02: Nyquist Validation Layer** — VALIDATION.md template + plan-phase step 5.5 insertion + gsd-tools init field (2 plans)
 - [ ] **Phase v0.9-03: Discuss-Phase UX** — Recommended option highlighting per choice + gray-area loop-back instead of hard stop
 - [ ] **Phase v0.9-04: Tier 3 Fixes** — Skill tool spawn guards, Gemini TOML fix, decimal phase number parsing consistency
 
@@ -144,16 +144,17 @@ Plans:
 ### Phase v0.9-02: Nyquist Validation Layer
 **Goal**: Plan-phase generates a VALIDATION.md test-map before producing plans, and gsd-tools reports whether Nyquist validation is enabled
 **Depends on**: Phase v0.9-01
-**Requirements**: NYQ-01, NYQ-02, NYQ-03, NYQ-04
+**Requirements**: NYQ-01, NYQ-02, NYQ-03, NYQ-04, NYQ-05
 **Success Criteria** (what must be TRUE):
   1. `get-shit-done/templates/VALIDATION.md` exists with per-task test-map structure, Wave 0 pre-execution requirements, and sampling rate spec
   2. `plan-phase.md` step 5.5 appears after the research step and before roadmap creation — it generates `VALIDATION.md` for the phase
   3. Running `gsd-tools.cjs init plan-phase` produces JSON that includes a `nyquist_validation_enabled` boolean field (defaults true)
   4. A plan-phase session with Nyquist enabled produces a VALIDATION.md covering all tasks identified in the plan
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] v0.9-02-01: Create `VALIDATION.md` template + insert step 5.5 into `plan-phase.md` + add `nyquist_validation_enabled` to `gsd-tools.cjs`
+- [ ] v0.9-02-01-PLAN.md — Create VALIDATION.md template + insert step 5.5 into plan-phase.md (NYQ-01, NYQ-02, NYQ-03, NYQ-05)
+- [ ] v0.9-02-02-PLAN.md — Add nyquist_validation to gsd-tools.cjs + config.json files (NYQ-04)
 
 ### Phase v0.9-03: Discuss-Phase UX
 **Goal**: Discuss-phase presents clearer recommendations per option and allows users to keep exploring gray areas before finalizing
@@ -231,6 +232,6 @@ Plans:
 | v0.7-04. Orchestrator Scoreboard Slot Wiring | v0.7 | 2/2 | Complete | 2026-02-23 |
 | v0.8-01. fix-tests ddmin Pipeline | v0.8 | 2/2 | Complete | 2026-02-24 |
 | v0.9-01. Context Window Monitor | 1/1 | Complete    | 2026-02-24 | - |
-| v0.9-02. Nyquist Validation Layer | v0.9 | 0/1 | Not started | - |
+| v0.9-02. Nyquist Validation Layer | v0.9 | 0/2 | Not started | - |
 | v0.9-03. Discuss-Phase UX | v0.9 | 0/1 | Not started | - |
 | v0.9-04. Tier 3 Fixes | v0.9 | 0/1 | Not started | - |
