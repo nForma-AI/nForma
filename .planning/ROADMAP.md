@@ -303,8 +303,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.10-05-01-PLAN.md — Wave 0: 22 failing test stubs for 5 pure functions (buildTimeoutChoices, applyTimeoutUpdate, buildPolicyChoices, buildUpdateLogEntry, parseUpdateLogErrors)
-- [ ] v0.10-05-02-PLAN.md — Wave 1: implement pure functions (stubs turn GREEN, 116 tests pass)
+- [x] v0.10-05-01-PLAN.md — Wave 0: 22 failing test stubs for 5 pure functions (buildTimeoutChoices, applyTimeoutUpdate, buildPolicyChoices, buildUpdateLogEntry, parseUpdateLogErrors)
+- [x] v0.10-05-02-PLAN.md — Wave 1: implement pure functions (stubs turn GREEN, 118 tests pass)
 - [ ] v0.10-05-03-PLAN.md — Wave 2: integration wiring + checkpoint:human-verify (tuneTimeouts, setUpdatePolicy, runAutoUpdateCheck, listAgents banner)
 
 ### Phase v0.10-06: Import/Export
@@ -407,7 +407,7 @@ Plans:
 | v0.10-02. Presets and Cloning | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-03. Credential Management | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
-| v0.10-05. Policy UIs | 1/3 | In Progress|  | - |
+| v0.10-05. Policy UIs | 2/3 | In Progress|  | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
 | v0.12-01. Conformance Event Infrastructure | v0.12 | 0/? | Not started | - |
