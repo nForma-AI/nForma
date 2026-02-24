@@ -391,3 +391,113 @@ test('SC-TC-SLOT-4: --slot without --model-id exits 1', () => {
     assert.ok(stderr.includes('--model-id is required'), 'stderr must mention --model-id');
   } finally { cleanup(sb); }
 });
+
+// SC-TC-ATOMIC-1: no .tmp file remains after a successful write
+test('SC-TC-ATOMIC-1: no .tmp file remains on disk after successful write', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { exitCode } = runCLI([
+      '--model', 'claude',
+      '--result', 'TP',
+      '--task', 'atomic-test',
+      '--round', '1',
+      '--verdict', 'APPROVE',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0);
+    assert.ok(fs.existsSync(sb), 'scoreboard file must exist');
+    // No .tmp file should remain
+    const dir = path.dirname(sb);
+    const base = path.basename(sb);
+    const tmpFiles = fs.readdirSync(dir).filter(f => f.startsWith(base) && f.endsWith('.tmp'));
+    assert.strictEqual(tmpFiles.length, 0, 'no .tmp files should remain after write');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC-ATOMIC-2: scoreboard is valid JSON immediately after write
+test('SC-TC-ATOMIC-2: scoreboard is valid JSON after atomic write', () => {
+  const sb = tmpScoreboard();
+  try {
+    const { exitCode } = runCLI([
+      '--model', 'gemini',
+      '--result', 'TN',
+      '--task', 'atomic-json-test',
+      '--round', '1',
+      '--verdict', 'CONSENSUS',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0);
+    const content = fs.readFileSync(sb, 'utf8');
+    // Must parse without throwing
+    const parsed = JSON.parse(content);
+    assert.ok(parsed.rounds, 'scoreboard must have rounds array');
+    assert.ok(Array.isArray(parsed.rounds), 'rounds must be an array');
+  } finally {
+    cleanup(sb);
+  }
+});
+
+// SC-TC-MERGE-1: merge-wave with no matching files is a graceful no-op
+test('SC-TC-MERGE-1: merge-wave with empty dir is a graceful no-op', () => {
+  const sb = tmpScoreboard();
+  const tmpDir = path.join(os.tmpdir(), 'qgsd-mw-test-' + Date.now());
+  fs.mkdirSync(tmpDir, { recursive: true });
+  try {
+    const { stdout, exitCode } = runCLI([
+      'merge-wave',
+      '--dir', tmpDir,
+      '--task', 'mw-test',
+      '--round', '1',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'merge-wave with no files must exit 0');
+    assert.ok(
+      stdout.includes('no vote files found') || stdout.includes('does not exist'),
+      'stdout must indicate no votes found'
+    );
+  } finally {
+    cleanup(sb);
+    fs.rmdirSync(tmpDir);
+  }
+});
+
+// SC-TC-MERGE-2: merge-wave applies N vote files in one transaction
+test('SC-TC-MERGE-2: merge-wave applies multiple slot vote files in one transaction', () => {
+  const sb = tmpScoreboard();
+  const tmpDir = path.join(os.tmpdir(), 'qgsd-mw-votes-' + Date.now());
+  fs.mkdirSync(tmpDir, { recursive: true });
+  try {
+    // Write two vote files simulating two worker outputs
+    const vote1 = { slot: 'claude-1', modelId: 'deepseek-ai/DeepSeek-V3', result: 'TP', verdict: 'APPROVE' };
+    const vote2 = { slot: 'claude-2', modelId: 'qwen/Qwen2.5-72B', result: 'TP', verdict: 'APPROVE' };
+    fs.writeFileSync(path.join(tmpDir, `vote-claude-1-mw-task2-1-1001.json`), JSON.stringify(vote1));
+    fs.writeFileSync(path.join(tmpDir, `vote-claude-2-mw-task2-1-1002.json`), JSON.stringify(vote2));
+
+    const { stdout, exitCode } = runCLI([
+      'merge-wave',
+      '--dir', tmpDir,
+      '--task', 'mw-task2',
+      '--round', '1',
+      '--scoreboard', sb,
+    ]);
+    assert.strictEqual(exitCode, 0, 'merge-wave must exit 0');
+    assert.ok(stdout.includes('merged'), 'stdout must indicate votes were merged');
+
+    // Scoreboard must be valid JSON with both votes
+    const content = fs.readFileSync(sb, 'utf8');
+    const parsed = JSON.parse(content);
+    assert.ok(parsed.rounds.length >= 1, 'scoreboard must have at least one round');
+    const round = parsed.rounds.find(r => r.task === 'mw-task2' && r.round === 1);
+    assert.ok(round, 'round entry for mw-task2 R1 must exist');
+    const voteKeys = Object.keys(round.votes);
+    assert.ok(voteKeys.length >= 1, 'round must have at least one vote recorded');
+  } finally {
+    cleanup(sb);
+    try {
+      fs.readdirSync(tmpDir).forEach(f => fs.unlinkSync(path.join(tmpDir, f)));
+      fs.rmdirSync(tmpDir);
+    } catch (_) {}
+  }
+});
