@@ -1434,3 +1434,110 @@ if (require.main === module) {
 }
 
 module.exports = { readClaudeJson, writeClaudeJson, getGlobalMcpServers, mainMenu };
+
+// ---------------------------------------------------------------------------
+// Pure functions (exported via _pure for testing)
+// ---------------------------------------------------------------------------
+
+/**
+ * Derive the keytar account string for a given slot name.
+ * e.g. 'claude-7' -> 'ANTHROPIC_API_KEY_CLAUDE_7'
+ */
+function deriveKeytarAccount(slotName) {
+  return 'ANTHROPIC_API_KEY_' + slotName.toUpperCase().replace(/-/g, '_');
+}
+
+/**
+ * Build the ANSI-tagged key-status display for a slot.
+ * authType: 'sub' | 'api' | 'ccr' | undefined/null
+ * slotName: string
+ * secretsLib: object with hasKey(account) -> boolean, or null
+ */
+function buildKeyStatus(authType, slotName, secretsLib) {
+  if (authType === 'sub') return '\x1b[36m[sub]\x1b[0m';
+  const account = deriveKeytarAccount(slotName);
+  if (secretsLib && secretsLib.hasKey(account)) return '\x1b[32m[key \u2713]\x1b[0m';
+  return '\x1b[90m[no key]\x1b[0m';
+}
+
+/**
+ * Build the padded display string for an agent choice in the selector.
+ * name: string slot name
+ * cfg: mcp server config object (may have env.PROVIDER_SLOT, env.CLAUDE_DEFAULT_MODEL, command)
+ * providerMap: object mapping slot -> provider entry (may have model, mainTool)
+ * agentCfg: object mapping slot -> { auth_type } (from qgsd.json agent_config)
+ * secretsLib: object with hasKey(account) -> boolean, or null
+ */
+function buildAgentChoiceLabel(name, cfg, providerMap, agentCfg, secretsLib) {
+  cfg = cfg || {};
+  const env = cfg.env || {};
+  providerMap = providerMap || {};
+  agentCfg = agentCfg || {};
+
+  const slot = env.PROVIDER_SLOT;
+  const p = slot ? providerMap[slot] : null;
+  let model;
+  if (p) {
+    model = p.model || p.mainTool || '\u2014';
+  } else {
+    model = env.CLAUDE_DEFAULT_MODEL || cfg.command || '?';
+  }
+
+  const authType = agentCfg[name] && agentCfg[name].auth_type;
+  const keyStatus = buildKeyStatus(authType, name, secretsLib);
+
+  return `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${keyStatus}`;
+}
+
+/**
+ * Apply API key update to newEnv, firing keytar calls as fire-and-forget.
+ * updates: object that may contain apiKey key
+ * keytarAccount: string (keytar account for this slot)
+ * newEnv: plain object (mutated in-place)
+ * secretsLib: object with set/delete methods, or null
+ * Returns: newEnv
+ */
+function applyKeyUpdate(updates, keytarAccount, newEnv, secretsLib) {
+  if (!('apiKey' in updates)) return newEnv;
+  if (updates.apiKey === '__REMOVE__') {
+    delete newEnv.ANTHROPIC_API_KEY;
+    if (secretsLib) secretsLib.delete('qgsd', keytarAccount);
+  } else {
+    delete newEnv.ANTHROPIC_API_KEY;
+    if (secretsLib) {
+      secretsLib.set('qgsd', keytarAccount, updates.apiKey);
+    } else {
+      newEnv.ANTHROPIC_API_KEY = updates.apiKey;
+    }
+  }
+  return newEnv;
+}
+
+/**
+ * Apply CCR provider key set/remove via secretsLib.
+ * subAction: 'set' | 'remove'
+ * selectedKey: string (e.g. 'AKASHML_API_KEY')
+ * keyValue: string (used only for 'set')
+ * secretsLib: object with set/delete methods
+ * Returns Promise<{action, key}> or Promise<null>
+ */
+async function applyCcrProviderUpdate(subAction, selectedKey, keyValue, secretsLib) {
+  if (subAction === 'set') {
+    await secretsLib.set('qgsd', selectedKey, keyValue);
+    return { action: 'set', key: selectedKey };
+  }
+  if (subAction === 'remove') {
+    await secretsLib.delete('qgsd', selectedKey);
+    return { action: 'remove', key: selectedKey };
+  }
+  return null;
+}
+
+module.exports._pure = {
+  deriveKeytarAccount,
+  maskKey,
+  buildKeyStatus,
+  buildAgentChoiceLabel,
+  applyKeyUpdate,
+  applyCcrProviderUpdate,
+};
