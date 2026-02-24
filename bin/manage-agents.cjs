@@ -195,6 +195,16 @@ function writeKeyStatus(slotName, status, filePath) {
 }
 
 /**
+ * Format a Date.now() timestamp as HH:MM:SS.
+ * Returns '—' if ts is null/undefined/falsy.
+ * Pure function — no side effects.
+ */
+function formatTimestamp(ts) {
+  if (!ts) return '\u2014';
+  return new Date(ts).toTimeString().slice(0, 8);
+}
+
+/**
  * Probe a provider URL and loop until healthy or user cancels.
  * Returns true if the probe succeeds, false if the user cancels.
  * On false: caller MUST return immediately — do not write slot.
@@ -2036,4 +2046,5 @@ module.exports._pure = {
   buildCloneEntry,
   classifyProbeResult,
   writeKeyStatus,
+  formatTimestamp,
 };
