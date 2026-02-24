@@ -135,7 +135,7 @@
 - [x] **Phase v0.10-01: Foundation** — Read-only display columns (quorum W/L, CCR routing, key-invalid badge) + readQgsdJson/writeQgsdJson helper pair infrastructure (completed 2026-02-24)
 - [ ] **Phase v0.10-02: Presets and Cloning** — Provider preset library wired into addAgent/editAgent + slot cloning flow
 - [ ] **Phase v0.10-03: Credential Management** — Key expiry detection with classifyProbeResult() + batch key rotation with sequential-only write loop
-- [ ] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit
+- [x] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit (completed 2026-02-24)
 - [ ] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check
 - [ ] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup
 
@@ -401,7 +401,7 @@ Plans:
 | v0.10-01. Foundation | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-02. Presets and Cloning | v0.10 | 0/2 | Not started | - |
 | v0.10-03. Credential Management | v0.10 | 0/? | Not started | - |
-| v0.10-04. Live Health Dashboard | v0.10 | 2/3 | In progress | 2026-02-24 |
+| v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-05. Policy UIs | v0.10 | 0/? | Not started | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
