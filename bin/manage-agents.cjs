@@ -300,6 +300,10 @@ async function addAgent() {
   const mcpServers = getGlobalMcpServers(data);
   const existingSlots = Object.keys(mcpServers);
 
+  // Load secrets module for keytar-based key storage
+  let secretsLib = null;
+  try { secretsLib = require('./secrets.cjs'); } catch (_) {}
+
   const answers = await inquirer.prompt([
     {
       type: 'input',
@@ -364,7 +368,14 @@ async function addAgent() {
 
   const env = {};
   if (answers.baseUrl.trim()) env.ANTHROPIC_BASE_URL = answers.baseUrl.trim();
-  if (answers.apiKey.trim()) env.ANTHROPIC_API_KEY = answers.apiKey.trim();
+  // Key stored in keytar only — not written to ~/.claude.json
+  if (answers.apiKey.trim() && secretsLib) {
+    const keytarAccount = 'ANTHROPIC_API_KEY_' + slotName.toUpperCase().replace(/-/g, '_');
+    await secretsLib.set('qgsd', keytarAccount, answers.apiKey.trim());
+  } else if (answers.apiKey.trim()) {
+    // Fallback: write to env if keytar unavailable (graceful degradation)
+    env.ANTHROPIC_API_KEY = answers.apiKey.trim();
+  }
   if (answers.model.trim()) env.CLAUDE_DEFAULT_MODEL = answers.model.trim();
   if (answers.timeoutMs.trim()) env.CLAUDE_MCP_TIMEOUT_MS = answers.timeoutMs.trim();
   env.PROVIDER_SLOT = answers.providerSlot.trim() || slotName;
@@ -463,6 +474,15 @@ async function editAgent() {
   const existing = mcpServers[slotName];
   const env = existing.env || {};
 
+  // Load key from keytar for display (key is no longer in env block)
+  const keytarAccount = 'ANTHROPIC_API_KEY_' + slotName.toUpperCase().replace(/-/g, '_');
+  let keytarKey = null;
+  if (secretsLib) {
+    try { keytarKey = await secretsLib.get('qgsd', keytarAccount); } catch (_) {}
+  }
+  // Use for display: prefer keytar value, fallback to env (legacy)
+  const displayKey = keytarKey || env.ANTHROPIC_API_KEY || null;
+
   // ── Summary card ─────────────────────────────────────────────────────────
   const W = 52;
   const row = (label, value) => {
@@ -475,7 +495,7 @@ async function editAgent() {
   console.log(`  ├${'─'.repeat(W + 2)}┤`);
   console.log(row('Model  ', env.CLAUDE_DEFAULT_MODEL));
   console.log(row('URL    ', env.ANTHROPIC_BASE_URL));
-  console.log(row('Key    ', maskKey(env.ANTHROPIC_API_KEY)));
+  console.log(row('Key    ', maskKey(displayKey)));
   console.log(row('Timeout', env.CLAUDE_MCP_TIMEOUT_MS ? env.CLAUDE_MCP_TIMEOUT_MS + ' ms' : '—'));
   console.log(row('Slot   ', env.PROVIDER_SLOT));
   console.log(row('Cmd    ', [existing.command, ...(existing.args || [])].join(' ')));
@@ -517,7 +537,7 @@ async function editAgent() {
       message: 'What do you want to change?  (space = toggle, enter = confirm)',
       choices: [
         { name: `Model          ${env.CLAUDE_DEFAULT_MODEL ? '\x1b[90m' + env.CLAUDE_DEFAULT_MODEL.slice(0, 32) + '\x1b[0m' : '\x1b[90m(not set)\x1b[0m'}`, value: 'model' },
-        { name: `API Key        ${env.ANTHROPIC_API_KEY ? '\x1b[90m' + maskKey(env.ANTHROPIC_API_KEY) + '\x1b[0m' : '\x1b[90m(not set)\x1b[0m'}`, value: 'apiKey' },
+        { name: `API Key        ${displayKey ? '\x1b[90m' + maskKey(displayKey) + '\x1b[0m' : '\x1b[90m(not set)\x1b[0m'}`, value: 'apiKey' },
         { name: `Base URL       ${env.ANTHROPIC_BASE_URL ? '\x1b[90m' + env.ANTHROPIC_BASE_URL.slice(0, 30) + '\x1b[0m' : '\x1b[90m(not set)\x1b[0m'}`, value: 'baseUrl' },
         { name: `Timeout        ${env.CLAUDE_MCP_TIMEOUT_MS ? '\x1b[90m' + env.CLAUDE_MCP_TIMEOUT_MS + ' ms\x1b[0m' : '\x1b[90m—\x1b[0m'}`, value: 'timeout' },
         { name: `Provider Slot  \x1b[90m${env.PROVIDER_SLOT || slotName}\x1b[0m`, value: 'providerSlot' },
@@ -602,13 +622,13 @@ async function editAgent() {
 
   // ── API key ───────────────────────────────────────────────────────────────
   if (fields.includes('apiKey')) {
-    const hasKey = !!env.ANTHROPIC_API_KEY;
+    const hasKey = !!(displayKey || (secretsLib && secretsLib.hasKey(keytarAccount)));
     const { keyAction } = await inquirer.prompt([
       {
         type: 'list',
         name: 'keyAction',
         message: hasKey
-          ? `API Key — currently set (${maskKey(env.ANTHROPIC_API_KEY)}):`
+          ? `API Key — currently set (${maskKey(displayKey)}):`
           : 'API Key — not currently set:',
         choices: [
           { name: hasKey ? 'Keep existing' : 'Leave unset', value: 'keep' },
@@ -648,7 +668,7 @@ async function editAgent() {
 
     // Provider pre-flight check when a URL is set/changed
     if (baseUrl.trim() && baseUrl.trim() !== '__REMOVE__') {
-      const apiKeyForProbe = env.ANTHROPIC_API_KEY || updates.apiKey || '';
+      const apiKeyForProbe = keytarKey || env.ANTHROPIC_API_KEY || updates.apiKey || '';
       process.stdout.write(`\n  Probing provider ${baseUrl.trim()} ...`);
       const probe = await probeProviderUrl(baseUrl.trim(), apiKeyForProbe);
       if (probe.healthy) {
@@ -727,13 +747,18 @@ async function editAgent() {
   if ('model' in updates) newEnv.CLAUDE_DEFAULT_MODEL = updates.model;
 
   if ('apiKey' in updates) {
-    const keytarAccount = 'ANTHROPIC_API_KEY_' + slotName.toUpperCase().replace(/-/g, '_');
     if (updates.apiKey === '__REMOVE__') {
-      delete newEnv.ANTHROPIC_API_KEY;
+      delete newEnv.ANTHROPIC_API_KEY;  // clean up legacy plaintext entry
       if (secretsLib) secretsLib.delete('qgsd', keytarAccount).catch(() => {});
     } else {
-      newEnv.ANTHROPIC_API_KEY = updates.apiKey;
-      if (secretsLib) await secretsLib.set('qgsd', keytarAccount, updates.apiKey);
+      // Store in keytar only — remove plaintext from ~/.claude.json
+      delete newEnv.ANTHROPIC_API_KEY;
+      if (secretsLib) {
+        await secretsLib.set('qgsd', keytarAccount, updates.apiKey);
+      } else {
+        // Fallback: write plaintext if keytar unavailable
+        newEnv.ANTHROPIC_API_KEY = updates.apiKey;
+      }
     }
   }
 
@@ -888,6 +913,10 @@ async function checkAgentHealth() {
     return;
   }
 
+  // Load secrets module for index-based key existence checks (no keychain prompt)
+  let secretsLib = null;
+  try { secretsLib = require('./secrets.cjs'); } catch (_) {}
+
   const { slotName } = await inquirer.prompt([
     {
       type: 'list',
@@ -896,7 +925,8 @@ async function checkAgentHealth() {
       choices: slots.map((name) => {
         const cfg = mcpServers[name];
         const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || cfg.command || '?';
-        const hasKey = !!(cfg.env && cfg.env.ANTHROPIC_API_KEY);
+        const account = 'ANTHROPIC_API_KEY_' + name.toUpperCase().replace(/-/g, '_');
+        const hasKey = !!(cfg.env && cfg.env.ANTHROPIC_API_KEY) || (secretsLib && secretsLib.hasKey(account));
         return {
           name: `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${hasKey ? '\x1b[32m[key ✓]\x1b[0m' : '\x1b[90m[no key]\x1b[0m'}`,
           value: name,
@@ -914,8 +944,18 @@ async function checkAgentHealth() {
     return;
   }
 
+  // Resolve API key from keytar, fall back to env (legacy plaintext)
+  const healthAccount = 'ANTHROPIC_API_KEY_' + slotName.toUpperCase().replace(/-/g, '_');
+  let healthApiKey = env.ANTHROPIC_API_KEY || '';
+  if (secretsLib) {
+    try {
+      const keyed = await secretsLib.get('qgsd', healthAccount);
+      if (keyed) healthApiKey = keyed;
+    } catch (_) {}
+  }
+
   process.stdout.write(`\n  Probing ${env.ANTHROPIC_BASE_URL} ...`);
-  const probe = await probeProviderUrl(env.ANTHROPIC_BASE_URL, env.ANTHROPIC_API_KEY || '');
+  const probe = await probeProviderUrl(env.ANTHROPIC_BASE_URL, healthApiKey);
   const statusLine = probe.healthy
     ? `\x1b[32m✓ UP (${probe.latencyMs}ms) [${probe.statusCode}]\x1b[0m`
     : `\x1b[31m✗ DOWN [${probe.error || probe.statusCode || 'timeout'}]\x1b[0m`;
