@@ -142,6 +142,41 @@ function probeProviderUrl(baseUrl, apiKey) {
   });
 }
 
+/**
+ * Probe a provider URL and loop until healthy or user cancels.
+ * Returns true if the probe succeeds, false if the user cancels.
+ * On false: caller MUST return immediately — do not write slot.
+ */
+async function probeWithRetryOrCancel(baseUrl, apiKey) {
+  while (true) {
+    process.stdout.write(`\n  Probing ${baseUrl} ...`);
+    const probe = await probeProviderUrl(baseUrl, apiKey);
+    if (probe.healthy) {
+      process.stdout.write(`\n  \x1b[32m✓ Provider UP (${probe.latencyMs}ms)\x1b[0m\n`);
+      return true;
+    }
+    process.stdout.write(
+      `\n  \x1b[31m✗ Provider DOWN: ${probe.error || probe.statusCode || 'timeout'}\x1b[0m\n`
+    );
+    const { retryAction } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'retryAction',
+        message: 'Provider probe failed:',
+        choices: [
+          { name: 'Retry probe', value: 'retry' },
+          { name: 'Cancel — do not write slot', value: 'cancel' },
+        ],
+      },
+    ]);
+    if (retryAction === 'cancel') {
+      console.log('\n  Cancelled.\n');
+      return false;
+    }
+    // retryAction === 'retry' → loop continues
+  }
+}
+
 // Return a likely upgrade model ID, or null if current is already latest
 function detectUpgrade(current, available) {
   if (!current || !available) return null;
@@ -385,12 +420,6 @@ async function addAgent() {
       default: '',
     },
     {
-      type: 'input',
-      name: 'baseUrl',
-      message: 'ANTHROPIC_BASE_URL:',
-      default: '',
-    },
-    {
       type: 'password',
       name: 'apiKey',
       message: 'ANTHROPIC_API_KEY:',
@@ -417,13 +446,38 @@ async function addAgent() {
     },
   ]);
 
+  // ── Provider preset selector ───────────────────────────────────────────────
+  const { presetChoice } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'presetChoice',
+      message: 'Provider (select preset or Custom to type URL manually):',
+      choices: buildPresetChoices(),
+    },
+  ]);
+
+  let baseUrl = '';
+  if (presetChoice === '__custom__') {
+    const { customUrl } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'customUrl',
+        message: 'ANTHROPIC_BASE_URL:',
+        default: '',
+      },
+    ]);
+    baseUrl = customUrl.trim();
+  } else {
+    baseUrl = presetChoice; // preset value IS the base URL
+  }
+
   const slotName = answers.slotName.trim();
   const argsArr = answers.args
     ? answers.args.split(',').map((a) => a.trim()).filter(Boolean)
     : [];
 
   const env = {};
-  if (answers.baseUrl.trim()) env.ANTHROPIC_BASE_URL = answers.baseUrl.trim();
+  if (baseUrl) env.ANTHROPIC_BASE_URL = baseUrl;
   // Key stored in keytar only — not written to ~/.claude.json
   if (answers.apiKey.trim() && secretsLib) {
     const keytarAccount = 'ANTHROPIC_API_KEY_' + slotName.toUpperCase().replace(/-/g, '_');
@@ -437,26 +491,9 @@ async function addAgent() {
   env.PROVIDER_SLOT = answers.providerSlot.trim() || slotName;
 
   // ── Provider pre-flight check ──────────────────────────────────────────────
-  if (answers.baseUrl.trim()) {
-    process.stdout.write(`\n  Probing provider ${answers.baseUrl.trim()} ...`);
-    const probe = await probeProviderUrl(answers.baseUrl.trim(), answers.apiKey.trim());
-    if (probe.healthy) {
-      process.stdout.write(`\n  \x1b[32m✓ Provider UP (${probe.latencyMs}ms)\x1b[0m\n`);
-    } else {
-      process.stdout.write(`\n  \x1b[33m⚠ Provider DOWN or unreachable\x1b[0m\n`);
-      const { saveAnyway } = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'saveAnyway',
-          message: 'Save anyway?',
-          default: false,
-        },
-      ]);
-      if (!saveAnyway) {
-        console.log('  Cancelled.');
-        return;
-      }
-    }
+  if (baseUrl) {
+    const probeOk = await probeWithRetryOrCancel(baseUrl, answers.apiKey.trim());
+    if (!probeOk) return;
   }
 
   data.mcpServers = Object.assign({}, mcpServers, {
@@ -712,39 +749,49 @@ async function editAgent() {
 
   // ── Base URL ──────────────────────────────────────────────────────────────
   if (fields.includes('baseUrl')) {
-    const { baseUrl } = await inquirer.prompt([
+    const currentUrl = env.ANTHROPIC_BASE_URL || '';
+    const defaultPreset = findPresetForUrl(currentUrl);
+
+    const { presetChoice } = await inquirer.prompt([
       {
-        type: 'input',
-        name: 'baseUrl',
-        message: 'ANTHROPIC_BASE_URL (blank = remove):',
-        default: env.ANTHROPIC_BASE_URL || '',
+        type: 'list',
+        name: 'presetChoice',
+        message: 'Provider (select preset, Custom to type URL, or blank to remove):',
+        choices: [
+          { name: '(remove base URL)', value: '__remove__', short: 'Remove' },
+          new inquirer.Separator(),
+          ...buildPresetChoices(),
+        ],
+        default: defaultPreset === '__custom__' ? '__custom__' : defaultPreset,
       },
     ]);
-    updates.baseUrl = baseUrl.trim() || '__REMOVE__';
+
+    let newBaseUrl;
+    if (presetChoice === '__remove__') {
+      newBaseUrl = '';
+      updates.baseUrl = '__REMOVE__';
+    } else if (presetChoice === '__custom__') {
+      const { customUrl } = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'customUrl',
+          message: 'ANTHROPIC_BASE_URL (blank = remove):',
+          default: currentUrl,
+        },
+      ]);
+      newBaseUrl = customUrl.trim();
+      updates.baseUrl = newBaseUrl || '__REMOVE__';
+    } else {
+      newBaseUrl = presetChoice;
+      updates.baseUrl = newBaseUrl;
+    }
 
     // Provider pre-flight check when a URL is set/changed
-    if (baseUrl.trim() && baseUrl.trim() !== '__REMOVE__') {
+    if (newBaseUrl && newBaseUrl !== '__REMOVE__') {
       const apiKeyForProbe = keytarKey || env.ANTHROPIC_API_KEY || updates.apiKey || '';
-      process.stdout.write(`\n  Probing provider ${baseUrl.trim()} ...`);
-      const probe = await probeProviderUrl(baseUrl.trim(), apiKeyForProbe);
-      if (probe.healthy) {
-        process.stdout.write(`\n  \x1b[32m✓ Provider UP (${probe.latencyMs}ms)\x1b[0m\n\n`);
-      } else {
-        process.stdout.write(`\n  \x1b[33m⚠ Provider DOWN or unreachable\x1b[0m\n`);
-        const { saveAnyway } = await inquirer.prompt([
-          {
-            type: 'confirm',
-            name: 'saveAnyway',
-            message: 'Save anyway?',
-            default: false,
-          },
-        ]);
-        if (!saveAnyway) {
-          console.log('  Cancelled.');
-          return;
-        }
-        console.log('');
-      }
+      const probeOk = await probeWithRetryOrCancel(newBaseUrl, apiKeyForProbe);
+      if (!probeOk) return;
+      console.log('');
     }
   }
 
