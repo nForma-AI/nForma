@@ -348,6 +348,19 @@ function shortProvider(cfg) {
 // ---------------------------------------------------------------------------
 
 async function listAgents() {
+  // PLCY-03: show warning banner if recent ERROR entries in update log
+  try {
+    if (fs.existsSync(UPDATE_LOG_PATH)) {
+      const logContent = fs.readFileSync(UPDATE_LOG_PATH, 'utf8')
+        .split('\n').slice(-500).join('\n');  // tail 500 lines — prevent unbounded growth
+      const recentErrors = parseUpdateLogErrors(logContent);
+      if (recentErrors.length > 0) {
+        const slots = [...new Set(recentErrors.map((e) => e.slot))].join(', ');
+        console.log(`\n  \x1b[33m\u26a0 Auto-update errors in last 24h for: ${slots}\x1b[0m`);
+        console.log(`  \x1b[90mSee: ${UPDATE_LOG_PATH}\x1b[0m\n`);
+      }
+    }
+  } catch (_) {}
   const data = readClaudeJson();
   const mcpServers = getGlobalMcpServers(data);
   const entries = Object.entries(mcpServers);
@@ -1394,6 +1407,70 @@ async function setUpdatePolicy() {
 }
 
 /**
+ * runAutoUpdateCheck — PLCY-03
+ * Runs before mainMenu() on startup. Checks update status for all slots with
+ * update_policy === 'auto'. Writes timestamped NDJSON entries to UPDATE_LOG_PATH.
+ * NEVER throws — all errors are caught and written to log.
+ * 20s Promise.race timeout prevents blocking the menu.
+ */
+async function runAutoUpdateCheck() {
+  const check = async () => {
+    let qgsd;
+    try { qgsd = readQgsdJson(); } catch { return; }
+    const agentConfig = qgsd.agent_config || {};
+    const autoSlots = Object.keys(agentConfig).filter(
+      (s) => agentConfig[s] && agentConfig[s].update_policy === 'auto'
+    );
+    if (!autoSlots.length) return;
+
+    // Ensure log directory exists
+    try {
+      fs.mkdirSync(path.dirname(UPDATE_LOG_PATH), { recursive: true });
+    } catch (_) {}
+
+    // Get update statuses (uses existing getUpdateStatuses from update-agents.cjs)
+    let statuses;
+    try {
+      statuses = await getUpdateStatuses();
+    } catch (err) {
+      // Log a single ERROR entry covering all auto slots and return
+      for (const slot of autoSlots) {
+        fs.appendFileSync(UPDATE_LOG_PATH, buildUpdateLogEntry(slot, 'ERROR', `getUpdateStatuses failed: ${err.message}`));
+      }
+      return;
+    }
+
+    // Log one entry per auto slot
+    for (const slot of autoSlots) {
+      const statusEntry = statuses && statuses[slot];
+      let status, detail;
+      if (!statusEntry) {
+        status = 'SKIP';
+        detail = 'no update info available for slot';
+      } else if (statusEntry.error) {
+        status = 'ERROR';
+        detail = statusEntry.error;
+      } else if (statusEntry.updateAvailable) {
+        status = 'UPDATE_AVAILABLE';
+        detail = statusEntry.latestVersion || null;
+      } else {
+        status = 'OK';
+        detail = statusEntry.currentVersion || null;
+      }
+      try {
+        fs.appendFileSync(UPDATE_LOG_PATH, buildUpdateLogEntry(slot, status, detail));
+      } catch (_) {}
+    }
+  };
+
+  // 20s total timeout guard — never blocks mainMenu
+  const timeout = new Promise((resolve) => setTimeout(resolve, 20000));
+  try {
+    await Promise.race([check(), timeout]);
+  } catch (_) {}
+}
+
+/**
  * Full-screen live health dashboard.
  * Architecture: readline mode-switch — inquirer fully exits before raw stdin loop starts.
  * TTY guard: checks process.stdout.isTTY before entering raw mode; falls back to static print.
@@ -2027,6 +2104,9 @@ async function mainMenu() {
           new inquirer.Separator(),
           { name: '14. Update coding agents', value: 'update-agents' },
           new inquirer.Separator(),
+          { name: '15. Tune timeouts', value: 'tune-timeouts' },
+          { name: '16. Set update policy', value: 'update-policy' },
+          new inquirer.Separator(),
           { name: '0. Exit', value: 'exit' },
         ],
       },
@@ -2046,6 +2126,8 @@ async function mainMenu() {
       else if (action === 'batch-rotate') await batchRotateKeys();
       else if (action === 'dashboard') await liveDashboard();
       else if (action === 'update-agents') await updateAgents();
+      else if (action === 'tune-timeouts') await tuneTimeouts();
+      else if (action === 'update-policy') await setUpdatePolicy();
       else if (action === 'exit') { running = false; console.log('\n  Goodbye!\n'); }
     } catch (err) {
       console.error(`\n  \x1b[31mError: ${err.message}\x1b[0m\n`);
@@ -2058,9 +2140,17 @@ async function mainMenu() {
 // ---------------------------------------------------------------------------
 
 if (require.main === module) {
-  // Non-TTY: skip inquirer menu, go directly to liveDashboard static print
-  const entry = process.stdout.isTTY ? mainMenu : liveDashboard;
-  entry().catch((err) => {
+  const run = async () => {
+    if (process.stdout.isTTY) {
+      // PLCY-03: run auto-update check before showing main menu
+      await runAutoUpdateCheck();
+      await mainMenu();
+    } else {
+      // Non-TTY: single static health print
+      await liveDashboard();
+    }
+  };
+  run().catch((err) => {
     console.error('\x1b[31mFatal:\x1b[0m', err.message);
     process.exit(1);
   });
