@@ -80,7 +80,8 @@ Functions to define (as standalone named functions, defined just above the _pure
 
 4. **buildAgentChoiceLabel(name, cfg, providerMap, agentCfg, secretsLib)**
    - Extracted from editAgent() lines ~448-471.
-   - Logic: derive model from providerMap lookup via cfg.env.PROVIDER_SLOT, or fall back to cfg.env.CLAUDE_DEFAULT_MODEL or cfg.command or '?'. Get authType from agentCfg[name]?.auth_type. Get keyStatus via buildKeyStatus(authType, name, secretsLib). Return: `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${keyStatus}`.
+   - Logic: derive model from providerMap lookup via cfg.env.PROVIDER_SLOT, or fall back to cfg.env.CLAUDE_DEFAULT_MODEL or cfg.command || p.mainTool or '?'. Get authType from agentCfg[name]?.auth_type. Get keyStatus via buildKeyStatus(authType, name, secretsLib). Return: `${name.padEnd(14)} ${model.slice(0, 36).padEnd(36)} ${keyStatus}`.
+   - Model fallback chain: `p.model || p.mainTool || '—'` where p is the providerMap entry.
    - All arguments may be empty objects/null — handle gracefully.
 
 5. **applyKeyUpdate(updates, keytarAccount, newEnv, secretsLib)**
@@ -117,9 +118,9 @@ Important constraints:
 - maskKey is already defined at the top of the file; include it in _pure by reference only.
   </action>
   <verify>
-    node -e "const m = require('./bin/manage-agents.cjs'); const p = m._pure; console.log(Object.keys(p).join(', '));"
+    node -e "const m = require('/Users/jonathanborduas/code/QGSD/bin/manage-agents.cjs'); const p = m._pure; console.log(Object.keys(p).join(', '));"
     Expected output: deriveKeytarAccount, maskKey, buildKeyStatus, buildAgentChoiceLabel, applyKeyUpdate, applyCcrProviderUpdate (all six present).
-    Also verify: node -e "const {_pure:p} = require('./bin/manage-agents.cjs'); console.log(p.deriveKeytarAccount('claude-7'));"
+    Also verify: node -e "const {_pure:p} = require('/Users/jonathanborduas/code/QGSD/bin/manage-agents.cjs'); console.log(p.deriveKeytarAccount('claude-7'));"
     Expected output: ANTHROPIC_API_KEY_CLAUDE_7
   </verify>
   <done>
@@ -174,7 +175,7 @@ For cases 2-3, mock secretsLib as: `{ hasKey: (account) => account === 'ANTHROPI
 1. No apiKey in updates → newEnv returned unchanged (same reference or same keys)
 2. updates.apiKey = '__REMOVE__', secretsLib=null → ANTHROPIC_API_KEY deleted from newEnv (if it was there)
 3. updates.apiKey = '__REMOVE__', secretsLib mock → secretsLib.delete called with ('qgsd', 'ACCOUNT') — track calls
-4. updates.apiKey = 'sk-real-key', secretsLib mock → ANTHROPIC_API_KEY removed from newEnv, secretsLib.set called with ('qgsd', 'ACCOUNT', 'sk-real-key')
+4. updates.apiKey = 'sk-real-key', secretsLib mock → ANTHROPIC_API_KEY removed from newEnv, secretsLib.set called with ('qgsd', 'ACCOUNT', 'sk-real-key'); assert `result.ANTHROPIC_API_KEY === undefined` (the key must be absent from newEnv after the call)
 5. updates.apiKey = 'sk-real-key', secretsLib=null → newEnv.ANTHROPIC_API_KEY = 'sk-real-key' (fallback plaintext)
 
 For cases 3-4, create a tracking mock:
@@ -185,7 +186,9 @@ const mockLib = {
   delete: (s, k) => { calls.push(['del', s, k]); return Promise.resolve(); },
 };
 ```
-After calling applyKeyUpdate, assert on calls array.
+After calling applyKeyUpdate, assert on the calls array AND on newEnv mutation:
+- Case 3: assert `calls` contains the delete entry.
+- Case 4: assert `calls` contains the set entry AND `assert.strictEqual(result.ANTHROPIC_API_KEY, undefined)` — the key must be deleted from newEnv when secretsLib is present (not kept as plaintext).
 
 **applyCcrProviderUpdate — 4 cases:**
 1. subAction='set', selectedKey='AKASHML_API_KEY', keyValue='abc123' → returns {action:'set', key:'AKASHML_API_KEY'}, secretsLib.set called with ('qgsd','AKASHML_API_KEY','abc123')

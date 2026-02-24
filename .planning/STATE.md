@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-24 after v0.9 roadmap creation)
 Phase: v0.9-01 of 4 (Context Window Monitor)
 Plan: — (not yet planned)
 Status: Ready to plan
-Last activity: 2026-02-24 — quick-95 complete: Comprehensive secure CCR credential management
+Last activity: 2026-02-24 — quick-96 complete: Refactor manage-agents.cjs to extract pure logic functions and add node:test suite
 
 Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.9: 0/4 phases
 
@@ -63,6 +63,7 @@ Recent decisions affecting current work:
 | # | Name | Date | Commit | Status | Link |
 |---|------|------|--------|--------|------|
 | 95 | Comprehensive secure CCR credential management | 2026-02-24 | d0530ed | Verified | [95-comprehensive-secure-ccr-credential-mana](./quick/95-comprehensive-secure-ccr-credential-mana/) |
+| 96 | Refactor manage-agents.cjs to extract pure logic functions and add node:test suite | 2026-02-24 | 114de1f | Pending | [96-refactor-manage-agents-cjs-to-extract-pu](./quick/96-refactor-manage-agents-cjs-to-extract-pu/) |
 
 ## Session Continuity
 
