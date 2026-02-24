@@ -229,7 +229,7 @@
         "--help"
       ],
       "extraTools": [],
-      "timeout_ms": 120000,
+      "timeout_ms": 300000,
       "quorum_timeout_ms": 20000,
       "env": {},
       "display_type": "claude-code-cli"
@@ -255,7 +255,7 @@
         "--help"
       ],
       "extraTools": [],
-      "timeout_ms": 120000,
+      "timeout_ms": 300000,
       "quorum_timeout_ms": 20000,
       "env": {},
       "display_type": "claude-code-cli"
@@ -281,7 +281,7 @@
         "--help"
       ],
       "extraTools": [],
-      "timeout_ms": 120000,
+      "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
       "env": {},
       "display_type": "claude-code-cli"
@@ -307,7 +307,7 @@
         "--help"
       ],
       "extraTools": [],
-      "timeout_ms": 120000,
+      "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
       "env": {},
       "display_type": "claude-code-cli"
@@ -333,7 +333,7 @@
         "--help"
       ],
       "extraTools": [],
-      "timeout_ms": 120000,
+      "timeout_ms": 300000,
       "quorum_timeout_ms": 10000,
       "env": {},
       "display_type": "claude-code-cli"
@@ -359,7 +359,7 @@
         "--help"
       ],
       "extraTools": [],
-      "timeout_ms": 120000,
+      "timeout_ms": 300000,
       "quorum_timeout_ms": 8000,
       "env": {},
       "display_type": "claude-code-cli"
