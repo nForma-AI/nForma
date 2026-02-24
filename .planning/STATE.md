@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10 Agent Display — Phase v0.10-01-foundation (Plan 01 complete, Plan 02 next)
+**Current focus:** v0.10 Agent Display — Phase v0.10-01-foundation COMPLETE (both plans done) — awaiting human visual verification of listAgents() output before advancing
 
 ## Current Position
 
-Phase: v0.10-01-foundation of v0.10-01 (Six pure display helper functions)
-Plan: 1 of TBD in current phase (Plan 01 COMPLETE)
-Status: Plan 01 complete — ready for Plan 02
-Last activity: 2026-02-24 — v0.10-01-01 complete (7 pure functions + 22 tests via TDD)
+Phase: v0.10-01-foundation of v0.10-01 (W/L + CCR + key-invalid display columns)
+Plan: 2 of 2 in current phase (Plan 02 COMPLETE — checkpoint:human-verify pending)
+Status: Plan 02 complete — awaiting human visual verification of listAgents() table output
+Last activity: 2026-02-24 — v0.10-01-02 complete (W/L + CCR + key-invalid badge in listAgents())
 
-Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 1/6 phases (v0.10-01-01 done) | v0.9 parallel: 3/5 phases
+Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 2/6 phases (v0.10-01 both plans done) | v0.9 parallel: 3/5 phases
 
 ## Performance Metrics
 
@@ -34,6 +34,7 @@ Progress: [████████████████████] 46/46 p
 | v0.11-01 P01 | 2 | 2 min | 1 min |
 | v0.11-01 P03 | 1 | 3 min | 3 min |
 | v0.10-01 P01 | 2 | 2 min | 1 min |
+| v0.10-01 P02 | 1 | 1 min | 1 min |
 
 **Recent Trend:**
 - Last 5 plans: stable
@@ -58,6 +59,8 @@ Recent decisions affecting current work:
 - [v0.10-01-01]: readQgsdJson/writeQgsdJson use optional filePath parameter for testability — avoids fs mocking
 - [v0.10-01-01]: getKeyInvalidBadge uses dependency-injected hasKeyFn — keeps pure function testable without secretsLib
 - [v0.10-01-01]: listAgents() deduplication — 2 separate inline qgsd.json reads replaced by single readQgsdJson() call
+- [v0.10-01-02]: hasKeyFn=()=>true in listAgents() — key_status is written only after health probe (key configured), so invalid status implies key existed at probe time; badge fires unconditionally on invalid status
+- [v0.10-01-02]: scoreboardData loaded from process.cwd()/.planning/quorum-scoreboard.json (project-relative, not home-relative)
 
 ### Pending Todos
 
@@ -82,5 +85,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed v0.10-01-01-PLAN.md — 7 pure functions + 22 tests, ready for v0.10-01-02
+Stopped at: Completed v0.10-01-02-PLAN.md — W/L + CCR + key-invalid badge in listAgents(); checkpoint:human-verify pending user sign-off
 Resume file: None

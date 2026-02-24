@@ -242,7 +242,7 @@ Plans:
 
 Plans:
 - [x] v0.10-01-01-PLAN.md — Add readQgsdJson/writeQgsdJson helpers + slotToFamily/getWlDisplay/readCcrConfigSafe/getCcrProviderForSlot/getKeyInvalidBadge pure functions + TDD unit tests (DISP-01, DISP-02, DISP-03) — COMPLETE 2026-02-24
-- [ ] v0.10-01-02-PLAN.md — Integrate helpers into listAgents() to render W/L, CCR, and key-invalid columns; manual visual verification (DISP-01, DISP-02, DISP-03)
+- [x] v0.10-01-02-PLAN.md — Integrate helpers into listAgents() to render W/L, CCR, and key-invalid columns; manual visual verification (DISP-01, DISP-02, DISP-03) — COMPLETE 2026-02-24 (checkpoint:human-verify pending)
 
 ### Phase v0.10-02: Presets and Cloning
 **Goal**: Users can select a provider by name instead of typing a URL, and can duplicate any existing slot in one flow
@@ -384,7 +384,7 @@ Plans:
 | v0.9-03. Discuss-Phase UX | v0.9 | 1/1 | Complete | 2026-02-24 |
 | v0.9-04. Tier 3 Fixes | v0.9 | 0/1 | Not started | - |
 | v0.9-05. Rename get-shit-done/ → qgsd-core/ | v0.9 | 0/1 | Not started | - |
-| v0.10-01. Foundation | v0.10 | 1/2 | In Progress|  |
+| v0.10-01. Foundation | v0.10 | 2/2 | Complete (human-verify pending) | 2026-02-24 |
 | v0.10-02. Presets and Cloning | v0.10 | 0/? | Not started | - |
 | v0.10-03. Credential Management | v0.10 | 0/? | Not started | - |
 | v0.10-04. Live Health Dashboard | v0.10 | 0/? | Not started | - |
