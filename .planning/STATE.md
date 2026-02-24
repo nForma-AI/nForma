@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 Phase: v0.10-05-policy-uis of v0.10 (Roster Toolkit)
 Plan: 2 of N in current phase (Plan 02 COMPLETE — 5 pure functions implemented, 118 pass 0 fail GREEN state)
 Status: v0.10-05-02 complete — 118 pass / 0 fail; buildTimeoutChoices, applyTimeoutUpdate, buildPolicyChoices, buildUpdateLogEntry, parseUpdateLogErrors all implemented and exported
-Last activity: 2026-02-24 — v0.10-05-02 complete (TDD GREEN: all 5 pure functions implemented, 118 tests pass 0 fail)
+Last activity: 2026-02-24 - Completed quick task 100: Add global wall-clock timeout to quorum orchestrator
 
 Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 0/3 phases | v0.10: 2/6 phases (v0.10-01 both plans done) | v0.9 parallel: 3/5 phases
 
@@ -93,9 +93,10 @@ Recent decisions affecting current work:
 | 97 | Add update management for all sub-coding agents to manage-agents.cjs | 2026-02-24 | 1ad0a6b | Verified | [97-add-update-management-for-all-sub-coding](./quick/97-add-update-management-for-all-sub-coding/) |
 | 98 | Apply three quorum-identified improvements to qgsd-quorum-orchestrator prompt wording | 2026-02-24 | 58dbb33 | Verified | [98-apply-three-quorum-identified-improvemen](.planning/quick/98-apply-three-quorum-identified-improvemen/) |
 | 99 | in the quorum, we need to make sure that the LLMs understand that the other opinions comes from other LLMs, not from users, lawyers, specialist | 2026-02-24 | 576014a | Verified | [99-in-the-quorum-we-need-to-make-sure-that-](./quick/99-in-the-quorum-we-need-to-make-sure-that-/) |
+| 100 | Add global wall-clock timeout to quorum orchestrator to prevent indefinite hangs when all external models are unavailable | 2026-02-24 | Pending | Pending | [100-add-global-wall-clock-timeout-to-quorum-](./quick/100-add-global-wall-clock-timeout-to-quorum-/) |
 
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: checkpoint:human-verify at v0.10-05-03 Task 3 — Tasks 1 and 2 complete (3e3e368, ca9cdda); awaiting human verification of PLCY-01/02/03 interactive flows
+Stopped at: 2026-02-24 - Completed quick task 100: Add global wall-clock timeout to quorum orchestrator
 Resume file: None
