@@ -92,10 +92,15 @@ Deferred to v0.11 or later.
 | PORT-01 | v0.10-06 | Pending |
 | PORT-02 | v0.10-06 | Pending |
 | PORT-03 | v0.10-06 | Pending |
+| REN-01 | v0.9-05 | Pending |
+| REN-02 | v0.9-05 | Pending |
+| REN-03 | v0.9-05 | Pending |
+| REN-04 | v0.9-05 | Pending |
 
 **Coverage:**
 - v0.10 requirements: 16 total
-- Mapped to phases: 16
+- v0.9 addendum requirements: 4 total
+- Mapped to phases: 20
 - Unmapped: 0 ✓
 
 ---
