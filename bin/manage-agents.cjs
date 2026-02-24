@@ -1966,7 +1966,9 @@ async function mainMenu() {
 // ---------------------------------------------------------------------------
 
 if (require.main === module) {
-  mainMenu().catch((err) => {
+  // Non-TTY: skip inquirer menu, go directly to liveDashboard static print
+  const entry = process.stdout.isTTY ? mainMenu : liveDashboard;
+  entry().catch((err) => {
     console.error('\x1b[31mFatal:\x1b[0m', err.message);
     process.exit(1);
   });
