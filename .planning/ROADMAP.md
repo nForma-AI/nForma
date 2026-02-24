@@ -134,7 +134,7 @@
 
 - [x] **Phase v0.10-01: Foundation** — Read-only display columns (quorum W/L, CCR routing, key-invalid badge) + readQgsdJson/writeQgsdJson helper pair infrastructure (completed 2026-02-24)
 - [x] **Phase v0.10-02: Presets and Cloning** — Provider preset library wired into addAgent/editAgent + slot cloning flow (completed 2026-02-24)
-- [ ] **Phase v0.10-03: Credential Management** — Key expiry detection with classifyProbeResult() + batch key rotation with sequential-only write loop
+- [x] **Phase v0.10-03: Credential Management** — Key expiry detection with classifyProbeResult() + batch key rotation with sequential-only write loop (completed 2026-02-24)
 - [x] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit (completed 2026-02-24)
 - [ ] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check
 - [ ] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup
@@ -400,7 +400,7 @@ Plans:
 | v0.9-05. Rename get-shit-done/ → qgsd-core/ | v0.9 | 0/1 | Not started | - |
 | v0.10-01. Foundation | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-02. Presets and Cloning | v0.10 | Complete    | 2026-02-24 | - |
-| v0.10-03. Credential Management | v0.10 | 0/? | Not started | - |
+| v0.10-03. Credential Management | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-05. Policy UIs | v0.10 | 0/? | Not started | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
