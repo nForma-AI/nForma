@@ -154,9 +154,10 @@ function emptyData() {
       kimi:        emptyModelStats(),
       llama4:      emptyModelStats(),
     },
-    slots: {},        // NEW: slot-keyed map; key = '<slot-name>:<model-id>'
+    slots: {},        // slot-keyed map; key = '<slot-name>:<model-id>'
     categories: {},
     rounds: [],
+    availability: {}, // per-slot availability windows: { slotOrModel: { available_at_iso, ... } }
   };
 }
 
@@ -175,6 +176,10 @@ function loadData(scoreboard) {
     // Backward compat: ensure slots exists
     if (!data.slots) {
       data.slots = {};
+    }
+    // Backward compat: ensure availability exists
+    if (!data.availability) {
+      data.availability = {};
     }
     return data;
   } catch (e) {
@@ -385,7 +390,9 @@ async function initTeam(argv) {
 
   const absPath = path.resolve(process.cwd(), scoreboardPath);
   fs.mkdirSync(path.dirname(absPath), { recursive: true });
-  fs.writeFileSync(absPath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  const tmpPath0 = absPath + '.' + process.pid + '.tmp';
+  fs.writeFileSync(tmpPath0, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  fs.renameSync(tmpPath0, absPath);
 
   const agentCount = Object.keys(agents).length;
   if (prevFingerprint) {
@@ -396,6 +403,346 @@ async function initTeam(argv) {
 }
 
 // ---------------------------------------------------------------------------
+// Availability tracking helpers
+// ---------------------------------------------------------------------------
+
+const MONTH_MAP = {
+  jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+  jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+};
+
+/**
+ * Parse a local date/time string like "Feb 24 8:37 PM" into a Date.
+ * Returns null if unparseable.
+ */
+function parseLocalDateTime(str) {
+  str = str.trim();
+  // Matches: "Feb 24 8:37 PM", "February 24 20:37", "Feb 24 8:37:00 PM"
+  const m = str.match(/^(\w{3,9})\s+(\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+  if (!m) return null;
+
+  const monthKey = m[1].slice(0, 3).toLowerCase();
+  const month    = MONTH_MAP[monthKey];
+  if (month === undefined) return null;
+
+  const day    = parseInt(m[2], 10);
+  let   hour   = parseInt(m[3], 10);
+  const minute = parseInt(m[4], 10);
+  const ampm   = (m[6] || '').toUpperCase();
+
+  if (ampm === 'PM' && hour < 12) hour += 12;
+  if (ampm === 'AM' && hour === 12) hour = 0;
+
+  const now = new Date();
+  let d = new Date(now.getFullYear(), month, day, hour, minute, 0, 0);
+  // If the computed time is already in the past, assume next year
+  if (d < now) d = new Date(now.getFullYear() + 1, month, day, hour, minute, 0, 0);
+  return d;
+}
+
+/**
+ * Parse availability hint from a raw UNAVAIL message.
+ * Supports:
+ *   "usage limit until Feb 24 8:37 PM"
+ *   "in 5 hours" / "restart in 5 hours"
+ *   "in 30 minutes"
+ * Returns { available_at: Date, reason: string } or null if no hint found.
+ */
+function parseAvailabilityHint(message) {
+  // "until <Month Day HH:MM AM/PM>" — absolute local time
+  const untilMatch = message.match(/until\s+([A-Za-z]{3,9}\s+\d{1,2}\s+\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?)/i);
+  if (untilMatch) {
+    const parsed = parseLocalDateTime(untilMatch[1]);
+    if (parsed) {
+      const reason = /usage.?limit/i.test(message) ? 'usage limit'
+                   : /quota/i.test(message)         ? 'quota exceeded'
+                   : /rate.?limit/i.test(message)   ? 'rate limit'
+                   : 'unavailable';
+      return { available_at: parsed, reason };
+    }
+  }
+
+  // "in N hours" — relative
+  const hoursMatch = message.match(/in\s+(\d+(?:\.\d+)?)\s*hours?/i);
+  if (hoursMatch) {
+    const hours = parseFloat(hoursMatch[1]);
+    const reason = /quota/i.test(message) ? 'quota exceeded'
+                 : /rate.?limit/i.test(message) ? 'rate limit'
+                 : 'unavailable';
+    return { available_at: new Date(Date.now() + hours * 3_600_000), reason };
+  }
+
+  // "in N minutes" — relative
+  const minsMatch = message.match(/in\s+(\d+)\s*minutes?/i);
+  if (minsMatch) {
+    const mins = parseInt(minsMatch[1], 10);
+    return { available_at: new Date(Date.now() + mins * 60_000), reason: 'unavailable' };
+  }
+
+  return null;
+}
+
+/** Format remaining milliseconds as "Xh Ym", "Zm", or "now". */
+function formatDuration(ms) {
+  if (ms <= 0) return 'now';
+  const totalMins = Math.ceil(ms / 60_000);
+  if (totalMins < 60) return `${totalMins}m`;
+  const hours = Math.floor(totalMins / 60);
+  const mins  = totalMins % 60;
+  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+}
+
+// ---------------------------------------------------------------------------
+// set-availability subcommand
+//
+// Usage:
+//   node update-scoreboard.cjs set-availability \
+//     --slot codex-1 --message "usage limit until Feb 24 8:37 PM" [--scoreboard <path>]
+//   node update-scoreboard.cjs set-availability \
+//     --model codex  --message "restart in 5 hours"               [--scoreboard <path>]
+//
+// --slot or --model is the key in data.availability (both accepted; no functional difference).
+// --message is the raw UNAVAIL output text from the agent.
+// ---------------------------------------------------------------------------
+
+async function setAvailability(argv) {
+  const args           = parseArgs(argv);
+  const scoreboardPath = args.scoreboard || '.planning/quorum-scoreboard.json';
+  const key            = args.slot || args.model;
+  const message        = args.message || '';
+
+  if (!key) {
+    process.stderr.write('[set-availability] --slot or --model is required\n');
+    process.exit(1);
+  }
+  if (!message) {
+    process.stderr.write('[set-availability] --message "<raw output text>" is required\n');
+    process.exit(1);
+  }
+
+  const hint = parseAvailabilityHint(message);
+  if (!hint) {
+    process.stdout.write(`[set-availability] ${key}: no availability hint found in message — skipping\n`);
+    return;
+  }
+
+  const data = loadData(scoreboardPath);
+  if (!data.availability) data.availability = {};
+
+  const now          = new Date();
+  const remaining_ms = Math.max(0, hint.available_at.getTime() - now.getTime());
+
+  data.availability[key] = {
+    available_at_iso:   hint.available_at.toISOString(),
+    available_at_local: hint.available_at.toLocaleString(),
+    reason:             hint.reason,
+    set_at:             now.toISOString(),
+  };
+
+  const absPath = path.resolve(process.cwd(), scoreboardPath);
+  fs.mkdirSync(path.dirname(absPath), { recursive: true });
+  const tmpPath1 = absPath + '.' + process.pid + '.tmp';
+  fs.writeFileSync(tmpPath1, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  fs.renameSync(tmpPath1, absPath);
+
+  const eta = remaining_ms > 0 ? `available in ${formatDuration(remaining_ms)}` : 'available now';
+  process.stdout.write(
+    `[set-availability] ${key}: ${hint.reason} | ${eta} | local: ${hint.available_at.toLocaleString()}\n`
+  );
+}
+
+// ---------------------------------------------------------------------------
+// get-availability subcommand
+//
+// Usage:
+//   node update-scoreboard.cjs get-availability [--scoreboard <path>]
+//
+// Outputs JSON: { "<slot-or-model>": { available_at_iso, available_at_local,
+//                                      reason, set_at, is_available,
+//                                      remaining_ms, remaining_display } }
+//
+// Use this to check dormant slots before invoking them in a quorum run.
+// ---------------------------------------------------------------------------
+
+async function getAvailability(argv) {
+  const args           = parseArgs(argv);
+  const scoreboardPath = args.scoreboard || '.planning/quorum-scoreboard.json';
+  const data           = loadData(scoreboardPath);
+  const now            = Date.now();
+
+  const result = {};
+  for (const [key, avail] of Object.entries(data.availability || {})) {
+    const available_at_ms = new Date(avail.available_at_iso).getTime();
+    const is_available    = available_at_ms <= now;
+    const remaining_ms    = Math.max(0, available_at_ms - now);
+    result[key] = {
+      available_at_iso:   avail.available_at_iso,
+      available_at_local: avail.available_at_local,
+      reason:             avail.reason,
+      set_at:             avail.set_at,
+      is_available,
+      remaining_ms,
+      remaining_display:  formatDuration(remaining_ms),
+    };
+  }
+
+  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+}
+
+// ---------------------------------------------------------------------------
+// merge-wave subcommand
+//
+// Usage:
+//   node update-scoreboard.cjs merge-wave \
+//     --dir .planning/scoreboard-tmp \
+//     --task "quick-97" --round 1 \
+//     [--scoreboard <path>]
+//
+// Reads all vote files matching vote-*-<task>-<round>-*.json in --dir,
+// applies them in one atomic transaction to the scoreboard.
+//
+// Vote file schema (JSON):
+// {
+//   "slot":    "<slotName>",          // for --slot path
+//   "model":   "<modelFamily>",       // for --model path (alternative)
+//   "modelId": "<fullModelId>",       // required when slot is set
+//   "result":  "TP|TN|FP|FN|TP+|UNAVAIL|",
+//   "verdict": "APPROVE|REJECT|FLAG|CONSENSUS|DELIBERATE|GAPS_FOUND",
+//   "taskDescription": "<optional>"
+// }
+// ---------------------------------------------------------------------------
+
+async function mergeWave(argv) {
+  const args           = parseArgs(argv);
+  const scoreboardPath = args.scoreboard || '.planning/quorum-scoreboard.json';
+  const dir            = args.dir        || '.planning/scoreboard-tmp';
+  const task           = args.task;
+  const round          = parseInt(args.round, 10);
+
+  if (!task) {
+    process.stderr.write('[merge-wave] --task is required\n');
+    process.exit(1);
+  }
+  if (isNaN(round) || round < 1) {
+    process.stderr.write('[merge-wave] --round must be a positive integer\n');
+    process.exit(1);
+  }
+
+  const absDir = path.resolve(process.cwd(), dir);
+  if (!fs.existsSync(absDir)) {
+    process.stdout.write(`[merge-wave] dir ${absDir} does not exist — no votes to merge\n`);
+    return;
+  }
+
+  // Find matching vote files: vote-*-<task>-<round>-*.json
+  const pattern = new RegExp(`^vote-.*-${round}-[^/]+\\.json$`);
+  const files = fs.readdirSync(absDir).filter(f => {
+    if (!pattern.test(f)) return false;
+    // Also filter by task name in file
+    return f.includes(`-${task}-`);
+  });
+
+  if (files.length === 0) {
+    process.stdout.write(`[merge-wave] no vote files found for task=${task} round=${round} in ${absDir}\n`);
+    return;
+  }
+
+  // Parse all vote files
+  const votes = [];
+  for (const file of files) {
+    try {
+      const filePath = path.join(absDir, file);
+      const vote = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      votes.push({ file, vote });
+    } catch (e) {
+      process.stderr.write(`[merge-wave] WARNING: could not parse ${file}: ${e.message}\n`);
+    }
+  }
+
+  if (votes.length === 0) {
+    process.stdout.write(`[merge-wave] all vote files unparseable — nothing to merge\n`);
+    return;
+  }
+
+  // Load scoreboard once
+  const data = loadData(scoreboardPath);
+
+  // Ensure all model keys exist
+  for (const model of VALID_MODELS) {
+    if (!data.models[model]) data.models[model] = emptyModelStats();
+  }
+
+  // Apply all votes to data in memory
+  for (const { file, vote } of votes) {
+    const result  = vote.result  || '';
+    const verdict = vote.verdict || '';
+
+    if (vote.slot && vote.modelId) {
+      // Slot mode
+      const compositeKey = `${vote.slot}:${vote.modelId}`;
+      if (!data.slots[compositeKey]) {
+        data.slots[compositeKey] = emptySlotStats(vote.slot, vote.modelId);
+      }
+      // Find or create round entry
+      const existingIdx = data.rounds.findIndex(r => r.task === task && r.round === round);
+      if (existingIdx !== -1) {
+        data.rounds[existingIdx].votes = data.rounds[existingIdx].votes || {};
+        data.rounds[existingIdx].votes[compositeKey] = result;
+        data.rounds[existingIdx].verdict = verdict;
+      } else {
+        const newEntry = {
+          date:    todayMMDD(),
+          task,
+          round,
+          votes:   { [compositeKey]: result },
+          verdict,
+        };
+        if (data.team && data.team.fingerprint) newEntry.team_fingerprint = data.team.fingerprint;
+        data.rounds.push(newEntry);
+      }
+    } else if (vote.model) {
+      // Model mode
+      const model = vote.model;
+      if (!VALID_MODELS.includes(model)) {
+        process.stderr.write(`[merge-wave] WARNING: unknown model "${model}" in ${file} — skipping\n`);
+        continue;
+      }
+      const existingIdx = data.rounds.findIndex(r => r.task === task && r.round === round);
+      if (existingIdx !== -1) {
+        data.rounds[existingIdx].votes = data.rounds[existingIdx].votes || {};
+        data.rounds[existingIdx].votes[model] = result;
+        data.rounds[existingIdx].verdict = verdict;
+      } else {
+        const newEntry = {
+          date:    todayMMDD(),
+          task,
+          round,
+          votes:   { [model]: result },
+          verdict,
+        };
+        if (data.team && data.team.fingerprint) newEntry.team_fingerprint = data.team.fingerprint;
+        data.rounds.push(newEntry);
+      }
+    } else {
+      process.stderr.write(`[merge-wave] WARNING: vote file ${file} missing slot+modelId or model — skipping\n`);
+    }
+  }
+
+  // Recompute stats from scratch
+  recomputeStats(data);
+  recomputeSlots(data);
+
+  // Single atomic write
+  const absPath = path.resolve(process.cwd(), scoreboardPath);
+  fs.mkdirSync(path.dirname(absPath), { recursive: true });
+  const tmpPath = absPath + '.' + process.pid + '.tmp';
+  fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  fs.renameSync(tmpPath, absPath);
+
+  process.stdout.write(`[merge-wave] merged ${votes.length} vote(s) for task=${task} round=${round} into ${scoreboardPath}\n`);
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -403,9 +750,10 @@ async function main() {
   const rawArgs = process.argv.slice(2);
 
   // Subcommand routing
-  if (rawArgs[0] === 'init-team') {
-    return initTeam(rawArgs.slice(1));
-  }
+  if (rawArgs[0] === 'init-team')        return initTeam(rawArgs.slice(1));
+  if (rawArgs[0] === 'set-availability') return setAvailability(rawArgs.slice(1));
+  if (rawArgs[0] === 'get-availability') return getAvailability(rawArgs.slice(1));
+  if (rawArgs[0] === 'merge-wave')       return mergeWave(rawArgs.slice(1));
 
   const parsed  = parseArgs(rawArgs);
   const cfg     = validate(parsed);
@@ -442,7 +790,9 @@ async function main() {
     // Write back
     const absPath = path.resolve(process.cwd(), cfg.scoreboard);
     fs.mkdirSync(path.dirname(absPath), { recursive: true });
-    fs.writeFileSync(absPath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+    const tmpPath2 = absPath + '.' + process.pid + '.tmp';
+    fs.writeFileSync(tmpPath2, JSON.stringify(data, null, 2) + '\n', 'utf8');
+    fs.renameSync(tmpPath2, absPath);
 
     // Print confirmation
     process.stdout.write(`[update-scoreboard] slot ${cfg.slot} (${cfg.modelId}): ${cfg.result} | score=${data.slots[compositeKey].score}\n`);
@@ -530,7 +880,9 @@ async function main() {
   // Write back
   const absPath = path.resolve(process.cwd(), cfg.scoreboard);
   fs.mkdirSync(path.dirname(absPath), { recursive: true });
-  fs.writeFileSync(absPath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  const tmpPath3 = absPath + '.' + process.pid + '.tmp';
+  fs.writeFileSync(tmpPath3, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  fs.renameSync(tmpPath3, absPath);
 
   // Print confirmation
   const delta    = SCORE_DELTAS[cfg.result] || 0;
