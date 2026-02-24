@@ -230,7 +230,7 @@ Plans:
 | v0.7-03. Wizard Composition Screen | v0.7 | 2/2 | Complete | 2026-02-23 |
 | v0.7-04. Orchestrator Scoreboard Slot Wiring | v0.7 | 2/2 | Complete | 2026-02-23 |
 | v0.8-01. fix-tests ddmin Pipeline | v0.8 | 2/2 | Complete | 2026-02-24 |
-| v0.9-01. Context Window Monitor | 1/1 | Complete   | 2026-02-24 | - |
+| v0.9-01. Context Window Monitor | 1/1 | Complete    | 2026-02-24 | - |
 | v0.9-02. Nyquist Validation Layer | v0.9 | 0/1 | Not started | - |
 | v0.9-03. Discuss-Phase UX | v0.9 | 0/1 | Not started | - |
 | v0.9-04. Tier 3 Fixes | v0.9 | 0/1 | Not started | - |
