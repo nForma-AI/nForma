@@ -140,6 +140,25 @@ function buildSlotTools(provider) {
         inputSchema: NO_ARGS_SCHEMA,
       });
     }
+  } else if (provider.type === 'ccr') {
+    // CCR (Claude Code Router) — proxy binary, exposes same interface as subprocess
+    tools.push({
+      name: 'ask',
+      description: provider.description,
+      inputSchema: PROMPT_SCHEMA,
+    });
+    tools.push({
+      name: 'help',
+      description: 'Display CCR CLI help and available options.',
+      inputSchema: NO_ARGS_SCHEMA,
+    });
+    if (provider.health_check_args) {
+      tools.push({
+        name: 'health_check',
+        description: 'Test CCR binary availability. Returns { healthy, latencyMs, type: "ccr" }.',
+        inputSchema: NO_ARGS_SCHEMA,
+      });
+    }
   } else if (provider.type === 'http') {
     // claude tool
     tools.push({
@@ -543,6 +562,23 @@ async function handleSlotToolCall(toolName, toolArgs) {
 
     if (toolName === 'health_check' && slotProvider.health_check_args) {
       return runSubprocessHealthCheck(slotProvider);
+    }
+  }
+
+  if (slotProvider.type === 'ccr') {
+    if (toolName === 'help') {
+      return runSubprocessWithArgs(slotProvider, slotProvider.helpArgs ?? ['--help']);
+    }
+    if (toolName === 'ask') {
+      return runProvider(slotProvider, toolArgs);
+    }
+    if (toolName === 'health_check' && slotProvider.health_check_args) {
+      const result = await runSubprocessHealthCheck(slotProvider);
+      // Override type field to 'ccr' for clarity
+      try {
+        const parsed = JSON.parse(result);
+        return JSON.stringify({ ...parsed, type: 'ccr' });
+      } catch (_) { return result; }
     }
   }
 
