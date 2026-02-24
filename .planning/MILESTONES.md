@@ -128,3 +128,13 @@ Phase 4 scope requirements: SCOPE-01–07 (7/7)
 
 ---
 
+
+## v0.11 Parallel Quorum (Shipped: 2026-02-24)
+
+**Phases completed:** 28 phases, 52 plans, 12 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+

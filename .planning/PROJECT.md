@@ -154,6 +154,8 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Validated
 
+- ✓ Quorum rounds execute as parallel Task fan-outs (wave-barrier): worker per slot → synthesizer barrier → optional Round 2 → final verdict; cuts round-trip from N×timeout to ~1×max(timeout) — v0.11 (Phase v0.11-01 — PAR-01..05)
+- ✓ Scoreboard writes atomic (tmpPath + renameSync at all sites); `merge-wave` subcommand applies N parallel worker votes in one transaction — v0.11 (Phase v0.11-01 — PAR-03/04)
 - ✓ Context window monitor hook injects WARNING/CRITICAL into `additionalContext` at configurable thresholds — v0.9 (Phase v0.9-01 — CTX-01..05)
 - ✓ Stop hook reads transcript JSONL and hard-gates all GSD planning commands — quorum cannot be skipped regardless of instructions — v0.1
 - ✓ UserPromptSubmit hook injects quorum instructions into Claude's context window when a planning command is detected — v0.1
@@ -297,6 +299,11 @@ QGSD v0.7 shipped 2026-02-23. v0.2.0 git tag pushed; npm publish deferred by use
 
 | PostToolUse hook fires stateless on every tool call | No debounce in v1 — stateless design satisfies test criteria cleanly; debounce deferred to v2 if desired | Phase v0.9-01 |
 | hooks/dist/ new files are gitignored | `.gitignore` covers `hooks/dist/`; new files (gsd-context-monitor.js) sync to disk but not tracked; existing tracked files (config-loader.js) updated via `git add -f` | Phase v0.9-01 |
+| Worker tools: Read/Bash/Glob/Grep (no Write); synthesizer: Read only | Workers never touch scoreboard directly — prevents concurrent write races; all scoreboard writes go through merge-wave at the barrier | Phase v0.11-01-01 — PAR-01/02 |
+| Atomic write: tmpPath + renameSync at all scoreboard write sites | POSIX rename() is atomic within same volume — eliminates torn-JSON from concurrent parallel worker writes | Phase v0.11-01-02 — PAR-03 |
+| merge-wave: N vote files → one atomic scoreboard transaction | Parallel workers write temp vote files; orchestrator merges in one call after barrier — zero intermediate scoreboard states | Phase v0.11-01-02 — PAR-04 |
+| Wave-barrier architecture: sibling Task fan-out only for worker waves | All Bash (set-availability, merge-wave) remains sequential; only Task spawns within a round are sibling calls | Phase v0.11-01-03 — PAR-05 |
+| voteCode mapping: Mode A = '' (no ground truth at vote time); Mode B peer-scored vs consensus | APPROVE∩APPROVE=TP, REJECT∩REJECT=TN, APPROVE∩REJECT=FP, REJECT∩APPROVE=FN, FLAG=TP+, UNAVAIL=UNAVAIL | Phase v0.11-01-03 tech debt fix |
 
 ---
-*Last updated: 2026-02-24 after Milestone v0.12 started — Formal Verification; v0.10 Roster Toolkit and v0.9 GSD Sync running in parallel*
+*Last updated: 2026-02-24 after v0.11 Parallel Quorum milestone complete; v0.10 Roster Toolkit and v0.9 GSD Sync running in parallel*
