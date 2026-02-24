@@ -143,6 +143,54 @@ function probeProviderUrl(baseUrl, apiKey) {
 }
 
 /**
+ * Classify a probeProviderUrl() result into a key validity verdict.
+ * probeResult: { healthy: bool, latencyMs: int, statusCode: int|null, error: string|null }
+ * Returns: 'ok' | 'invalid' | 'unreachable'
+ *
+ * Classification table:
+ *   healthy=false (or null input)   -> 'unreachable'  (provider DOWN; key validity unknown)
+ *   healthy=true, statusCode=401    -> 'invalid'       (provider UP; key rejected)
+ *   healthy=true, statusCode!=401   -> 'ok'            (provider UP; key not rejected)
+ *
+ * NOTE: 'unreachable' results must NOT be written to key_status in qgsd.json.
+ * Preserving the existing key_status on network failure is a design invariant.
+ * Pure function — no side effects, no file I/O.
+ */
+function classifyProbeResult(probeResult) {
+  if (!probeResult || !probeResult.healthy) {
+    return 'unreachable';
+  }
+  if (probeResult.statusCode === 401) {
+    return 'invalid';
+  }
+  return 'ok';
+}
+
+/**
+ * Write key validity status to qgsd.json under agent_config[slotName].key_status.
+ * slotName: string — the MCP server slot name (e.g. 'claude-1')
+ * status: 'ok' | 'invalid' — classification from classifyProbeResult()
+ * filePath: optional — override path for testability (matches readQgsdJson/writeQgsdJson pattern)
+ *
+ * IMPORTANT: Only call for 'ok' or 'invalid' classifications.
+ * Do NOT call for 'unreachable' — preserving the existing key_status on network failure
+ * is a design invariant. The caller (checkAgentHealth) is responsible for this guard.
+ *
+ * Writes: { status: 'ok'|'invalid', checkedAt: '<ISO timestamp>' }
+ * Uses read-mutate-write pattern with readQgsdJson/writeQgsdJson (atomic tmp-rename).
+ */
+function writeKeyStatus(slotName, status, filePath) {
+  const qgsd = readQgsdJson(filePath);
+  if (!qgsd.agent_config) qgsd.agent_config = {};
+  if (!qgsd.agent_config[slotName]) qgsd.agent_config[slotName] = {};
+  qgsd.agent_config[slotName].key_status = {
+    status,
+    checkedAt: new Date().toISOString(),
+  };
+  writeQgsdJson(qgsd, filePath);
+}
+
+/**
  * Probe a provider URL and loop until healthy or user cancels.
  * Returns true if the probe succeeds, false if the user cancels.
  * On false: caller MUST return immediately — do not write slot.
@@ -1898,4 +1946,6 @@ module.exports._pure = {
   buildPresetChoices,
   findPresetForUrl,
   buildCloneEntry,
+  classifyProbeResult,
+  writeKeyStatus,
 };
