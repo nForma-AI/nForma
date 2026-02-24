@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.10 milestone started)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10 Roster Toolkit — Phase v0.10-01 (Foundation)
+**Current focus:** v0.11-01 Parallel Quorum Wave-Barrier — Phase v0.11-01 (Plan 02 next)
 
 ## Current Position
 
-Phase: v0.10-01 (Foundation) — Not started
-Plan: —
-Status: Roadmap created — ready to plan Phase v0.10-01
-Last activity: 2026-02-24 — v0.10 roadmap written (6 phases, 16/16 requirements mapped)
+Phase: v0.11-01 — In progress (1/3 plans complete)
+Plan: v0.11-01-01 complete → v0.11-01-02 next
+Status: Plan 01 complete — worker and synthesizer agents created; Plan 02 (scoreboard) ready
+Last activity: 2026-02-24 — v0.11-01-01 complete: qgsd-quorum-worker.md + qgsd-quorum-synthesizer.md
 
-Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.10: 0/6 phases | v0.9 parallel: 2/5 phases
+Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 1/3 plans | v0.10: 0/6 phases | v0.9 parallel: 2/5 phases
 
 ## Performance Metrics
 
@@ -31,6 +31,7 @@ Progress: [████████████████████] 46/46 p
 | v0.8-01 P01 | 1 | ~5 min | 5 min |
 | v0.8-01 P02 | 1 | ~5 min | 5 min |
 | v0.9-01 P01 | 1 | ~2 min | 2 min |
+| v0.11-01 P01 | 2 | 2 min | 1 min |
 
 **Recent Trend:**
 - Last 5 plans: stable
@@ -57,6 +58,10 @@ Recent decisions affecting current work:
 - [v0.10 roadmap]: Export unconditionally strips API keys via sanitizeEnvForExport() — never calls syncToClaudeJson() before reading for export (PORT-01)
 - [v0.10 roadmap]: Scoreboard reads need existsSync guard — ENOENT on fresh install must show `—` not crash (DISP-01)
 - [v0.10 roadmap]: CCR provider name derived dynamically via readCcrConfigSafe() — not hardcoded CCR_KEY_NAMES list (DISP-02)
+- [v0.11-01-01]: Worker tools are Read/Bash/Glob/Grep (no Write); synthesizer tools are Read only — workers never touch scoreboard directly
+- [v0.11-01-01]: Mode A verdicts are free-form position summaries; Mode B verdicts are APPROVE/REJECT/FLAG/UNAVAIL
+- [v0.11-01-01]: UNAVAIL_HINT lines emitted by synthesizer before SYNTHESIS_RESULT: for sequential set-availability processing at barrier
+- [v0.11-01-01]: CROSS_POLLINATION_BUNDLE content is verbatim-pasteable into prior_positions: of Round 2 worker $ARGUMENTS
 
 ### Pending Todos
 
@@ -79,5 +84,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: v0.10 roadmap created — 6 phases, 16/16 requirements mapped, ready to plan Phase v0.10-01
+Stopped at: Completed v0.11-01-01-PLAN.md — qgsd-quorum-worker.md and qgsd-quorum-synthesizer.md created; v0.11-01-02 is next
 Resume file: None
