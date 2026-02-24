@@ -20,6 +20,9 @@ animation/
 # MCP server local data
 .playwright-mcp/
 
+# Compiled TypeScript machine artifacts
+dist/machines/
+
 # Internal planning documents
 reports/
 RAILROAD_ARCHITECTURE.md

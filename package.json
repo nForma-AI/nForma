@@ -46,10 +46,14 @@
     "keytar": "^7.9.0"
   },
   "devDependencies": {
-    "esbuild": "^0.24.0"
+    "esbuild": "^0.24.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "xstate": "^5.28.0"
   },
   "scripts": {
     "build:hooks": "node scripts/build-hooks.js",
+    "build:machines": "npx tsup src/machines/qgsd-workflow.machine.ts --format cjs --out-dir dist/machines --no-splitting --tsconfig tsconfig.formal.json",
     "generate-terminal": "node scripts/generate-terminal-svg.js",
     "generate-logo": "node scripts/generate-logo-svg.js",
     "generate-assets": "npm run generate-terminal && npm run generate-logo",

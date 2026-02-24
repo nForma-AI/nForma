@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target":      "ES2020",
+    "module":      "commonjs",
+    "strict":      true,
+    "outDir":      "dist/machines",
+    "rootDir":     "src/machines",
+    "declaration": true,
+    "esModuleInterop": true
+  },
+  "include": ["src/machines/**/*.ts"],
+  "exclude": ["node_modules", "hooks", "bin", "dist"]
+}
