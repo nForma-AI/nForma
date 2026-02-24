@@ -8,7 +8,19 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.10 Roster Toolkit
+## Current Milestone: v0.12 Formal Verification
+
+**Goal:** Implement formal verification tooling for QGSD's agent state machine — conformance event logger shipped as a bin/ script, TLA+ specification with TLC model checking, XState executable TypeScript machine, and Alloy/PRISM/Petri models for vote-counting and probabilistic analysis.
+
+**Target features:**
+- Conformance event logger — hooks emit structured JSON events (phase, action, slots_available, vote_result, outcome); shipped as `bin/validate-traces.cjs` for users
+- TLA+ spec — formal specification of QGSD phases and transitions with invariants (min_quorum_met, no_infinite_deliberation, phase_monotonically_advances); TLC-verified
+- XState machine — executable TypeScript state machine for QGSD 4-phase workflow with quorum guards; eliminates spec-to-code drift
+- Alloy model — vote-counting predicate logic (given N agents, M UNAVAIL, is this quorum count valid for a transition?); Alloy Analyzer counterexample generation
+- PRISM probabilistic model — uses scoreboard TP/TN/UNAVAIL data to verify probabilistic properties (consensus within 3 rounds with ≥0.95 probability)
+- Petri Net visualization — token-passing model of quorum votes; deadlock detection for min_quorum_size
+
+## Planned Milestone: v0.10 Roster Toolkit
 
 **Goal:** Extend `bin/manage-agents.cjs` into a full-featured agent roster management UI — provider presets, slot cloning, live health dashboard, key lifecycle management, scoreboard visibility, CCR routing, per-agent tuning, import/export, and auto-update policy.
 
@@ -23,6 +35,12 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - Per-agent quorum timeout tuning — configure quorum timeout per slot from the menu
 - Import/export config — save, restore, and share the full agent roster as a portable file
 - Auto-update policy — configure automatic vs. prompted update behavior per slot
+
+## Previous Milestone: v0.11 Parallel Quorum (COMPLETE 2026-02-24)
+
+**Goal:** Replace sequential quorum slot-call loop with wave-barrier pattern — parallel Task fan-outs per round, synthesizer barrier between rounds. 10–12× wall-clock reduction with identical verdict quality.
+
+**Phases:** v0.11-01 (Parallel Quorum Wave-Barrier)
 
 ## Parallel Milestone: v0.9 GSD Sync (in progress — 1/4 phases)
 
@@ -281,4 +299,4 @@ QGSD v0.7 shipped 2026-02-23. v0.2.0 git tag pushed; npm publish deferred by use
 | hooks/dist/ new files are gitignored | `.gitignore` covers `hooks/dist/`; new files (gsd-context-monitor.js) sync to disk but not tracked; existing tracked files (config-loader.js) updated via `git add -f` | Phase v0.9-01 |
 
 ---
-*Last updated: 2026-02-24 after Milestone v0.10 started — Roster Toolkit; v0.9 GSD Sync running in parallel*
+*Last updated: 2026-02-24 after Milestone v0.12 started — Formal Verification; v0.10 Roster Toolkit and v0.9 GSD Sync running in parallel*

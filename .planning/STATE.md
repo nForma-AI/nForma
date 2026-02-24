@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.10 milestone started)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.11-01 Parallel Quorum Wave-Barrier — Phase v0.11-01 COMPLETE (all 3 plans done)
+**Current focus:** v0.12 Formal Verification — defining requirements
 
 ## Current Position
 
-Phase: v0.11-01 — COMPLETE (3/3 plans complete)
-Plan: v0.11-01-03 complete → v0.11-01 phase done
-Status: All 3 plans complete — PAR-01 through PAR-05 satisfied; orchestrator uses wave-barrier pattern
-Last activity: 2026-02-24 — v0.11-01-03 complete: qgsd-quorum-orchestrator.md rewritten with wave-barrier
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v0.12 Formal Verification
+Last activity: 2026-02-24 — Milestone v0.12 started
 
 Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.10: 0/6 phases | v0.9 parallel: 2/5 phases
 
