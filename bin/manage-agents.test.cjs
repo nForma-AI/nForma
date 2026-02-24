@@ -6,7 +6,10 @@ const { deriveKeytarAccount, maskKey, buildKeyStatus, buildAgentChoiceLabel, app
         readQgsdJson, writeQgsdJson, slotToFamily, getWlDisplay, readCcrConfigSafe, getCcrProviderForSlot, getKeyInvalidBadge,
         buildPresetChoices, findPresetForUrl, buildCloneEntry,
         classifyProbeResult, writeKeyStatus,
-        buildDashboardLines, formatTimestamp } = _pure;
+        buildDashboardLines, formatTimestamp,
+        buildTimeoutChoices, applyTimeoutUpdate,
+        buildPolicyChoices,
+        buildUpdateLogEntry, parseUpdateLogErrors } = _pure;
 
 // ---------------------------------------------------------------------------
 // deriveKeytarAccount
@@ -792,4 +795,204 @@ test('buildDashboardLines: output contains header title and footer keybinding hi
   assert.ok(joined.includes('QGSD Live Health Dashboard'), 'must contain header title');
   assert.ok(joined.includes('[space/r] refresh'), 'must contain keybinding hint');
   assert.ok(joined.includes('[q/Esc] exit'), 'must contain exit hint');
+});
+
+// ---------------------------------------------------------------------------
+// buildTimeoutChoices
+// ---------------------------------------------------------------------------
+
+test('buildTimeoutChoices: slot with quorum_timeout_ms in providers returns that value as currentMs', () => {
+  const slots = ['claude-1'];
+  const mcpServers = { 'claude-1': { env: { PROVIDER_SLOT: 'claude-1' } } };
+  const providersData = { providers: [{ name: 'claude-1', type: 'http', quorum_timeout_ms: 45000 }] };
+  const rows = buildTimeoutChoices(slots, mcpServers, providersData);
+  assert.strictEqual(rows.length, 1);
+  assert.strictEqual(rows[0].slotName, 'claude-1');
+  assert.strictEqual(rows[0].currentMs, 45000);
+});
+
+test('buildTimeoutChoices: slot with only timeout_ms in providers falls back to timeout_ms', () => {
+  const slots = ['gemini-1'];
+  const mcpServers = { 'gemini-1': { env: { PROVIDER_SLOT: 'gemini-1' } } };
+  const providersData = { providers: [{ name: 'gemini-1', type: 'http', timeout_ms: 30000 }] };
+  const rows = buildTimeoutChoices(slots, mcpServers, providersData);
+  assert.strictEqual(rows[0].currentMs, 30000);
+});
+
+test('buildTimeoutChoices: slot with no matching provider in providers returns currentMs=null', () => {
+  const slots = ['unknown-1'];
+  const mcpServers = { 'unknown-1': { env: { PROVIDER_SLOT: 'unknown-1' } } };
+  const providersData = { providers: [] };
+  const rows = buildTimeoutChoices(slots, mcpServers, providersData);
+  assert.strictEqual(rows[0].currentMs, null);
+  assert.strictEqual(rows[0].providerSlot, 'unknown-1');
+});
+
+test('buildTimeoutChoices: providerSlot derived from PROVIDER_SLOT env var, not slotName when they differ', () => {
+  const slots = ['claude-1'];
+  const mcpServers = { 'claude-1': { env: { PROVIDER_SLOT: 'akashml-provider' } } };
+  const providersData = { providers: [{ name: 'akashml-provider', quorum_timeout_ms: 60000 }] };
+  const rows = buildTimeoutChoices(slots, mcpServers, providersData);
+  assert.strictEqual(rows[0].providerSlot, 'akashml-provider');
+  assert.strictEqual(rows[0].currentMs, 60000);
+});
+
+// ---------------------------------------------------------------------------
+// applyTimeoutUpdate
+// ---------------------------------------------------------------------------
+
+test('applyTimeoutUpdate: updates quorum_timeout_ms for the matching providerSlot', () => {
+  const providersData = { providers: [{ name: 'claude-1', quorum_timeout_ms: 30000 }] };
+  const updated = applyTimeoutUpdate(providersData, 'claude-1', 60000);
+  const found = updated.providers.find((p) => p.name === 'claude-1');
+  assert.strictEqual(found.quorum_timeout_ms, 60000);
+});
+
+test('applyTimeoutUpdate: does not mutate the input providersData object', () => {
+  const original = { providers: [{ name: 'claude-1', quorum_timeout_ms: 30000 }] };
+  const originalCopy = JSON.parse(JSON.stringify(original));
+  applyTimeoutUpdate(original, 'claude-1', 60000);
+  assert.deepStrictEqual(original, originalCopy, 'input must not be mutated');
+});
+
+test('applyTimeoutUpdate: leaves non-target providers unchanged', () => {
+  const providersData = {
+    providers: [
+      { name: 'claude-1', quorum_timeout_ms: 30000 },
+      { name: 'gemini-1', quorum_timeout_ms: 45000 },
+    ],
+  };
+  const updated = applyTimeoutUpdate(providersData, 'claude-1', 99000);
+  const gemini = updated.providers.find((p) => p.name === 'gemini-1');
+  assert.strictEqual(gemini.quorum_timeout_ms, 45000, 'gemini-1 must not change');
+});
+
+test('applyTimeoutUpdate: no-op when providerSlot not found — returns data with unchanged providers', () => {
+  const providersData = { providers: [{ name: 'claude-1', quorum_timeout_ms: 30000 }] };
+  const updated = applyTimeoutUpdate(providersData, 'nonexistent', 99000);
+  assert.strictEqual(updated.providers.length, 1);
+  assert.strictEqual(updated.providers[0].quorum_timeout_ms, 30000);
+});
+
+// ---------------------------------------------------------------------------
+// buildPolicyChoices
+// ---------------------------------------------------------------------------
+
+test('buildPolicyChoices: returns exactly 3 choices (auto, prompt, skip)', () => {
+  const choices = buildPolicyChoices(null);
+  assert.strictEqual(choices.length, 3);
+  const values = choices.map((c) => c.value);
+  assert.ok(values.includes('auto'));
+  assert.ok(values.includes('prompt'));
+  assert.ok(values.includes('skip'));
+});
+
+test('buildPolicyChoices: annotates current policy choice with left-arrow current marker', () => {
+  const choices = buildPolicyChoices('auto');
+  const autoCh = choices.find((c) => c.value === 'auto');
+  assert.ok(autoCh.name.includes('\u2190 current'), 'auto choice must have arrow current marker');
+});
+
+test('buildPolicyChoices: non-current choices do NOT contain the current marker', () => {
+  const choices = buildPolicyChoices('auto');
+  const promptCh = choices.find((c) => c.value === 'prompt');
+  const skipCh   = choices.find((c) => c.value === 'skip');
+  assert.ok(!promptCh.name.includes('\u2190 current'), 'prompt must not have marker');
+  assert.ok(!skipCh.name.includes('\u2190 current'), 'skip must not have marker');
+});
+
+test('buildPolicyChoices: null currentPolicy annotates no choice with current marker', () => {
+  const choices = buildPolicyChoices(null);
+  for (const c of choices) {
+    assert.ok(!c.name.includes('\u2190 current'), `choice ${c.value} must not have marker when currentPolicy is null`);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// buildUpdateLogEntry
+// ---------------------------------------------------------------------------
+
+test('buildUpdateLogEntry: returns a string ending in newline', () => {
+  const entry = buildUpdateLogEntry('claude-1', 'OK', null);
+  assert.ok(typeof entry === 'string', 'must return a string');
+  assert.ok(entry.endsWith('\n'), 'must end with newline');
+});
+
+test('buildUpdateLogEntry: returned string is valid JSON with slot, status, ts, detail fields', () => {
+  const entry = buildUpdateLogEntry('claude-1', 'UPDATE_AVAILABLE', 'v1.2.3');
+  const parsed = JSON.parse(entry.trim());
+  assert.strictEqual(parsed.slot, 'claude-1');
+  assert.strictEqual(parsed.status, 'UPDATE_AVAILABLE');
+  assert.ok(typeof parsed.ts === 'string', 'ts must be a string');
+  assert.strictEqual(parsed.detail, 'v1.2.3');
+});
+
+test('buildUpdateLogEntry: ts field is a valid ISO 8601 string', () => {
+  const entry = buildUpdateLogEntry('gemini-1', 'ERROR', 'network timeout');
+  const parsed = JSON.parse(entry.trim());
+  assert.ok(!isNaN(Date.parse(parsed.ts)), 'ts must be a valid ISO 8601 date string');
+});
+
+test('buildUpdateLogEntry: omitting detail produces null in JSON output', () => {
+  const entry = buildUpdateLogEntry('claude-1', 'SKIP');
+  const parsed = JSON.parse(entry.trim());
+  assert.strictEqual(parsed.detail, null);
+});
+
+test('buildUpdateLogEntry: status=ERROR is preserved verbatim in output', () => {
+  const entry = buildUpdateLogEntry('claude-1', 'ERROR', 'failed');
+  const parsed = JSON.parse(entry.trim());
+  assert.strictEqual(parsed.status, 'ERROR');
+});
+
+// ---------------------------------------------------------------------------
+// parseUpdateLogErrors
+// ---------------------------------------------------------------------------
+
+test('parseUpdateLogErrors: null logContent returns empty array', () => {
+  assert.deepStrictEqual(parseUpdateLogErrors(null), []);
+});
+
+test('parseUpdateLogErrors: empty string returns empty array', () => {
+  assert.deepStrictEqual(parseUpdateLogErrors(''), []);
+});
+
+test('parseUpdateLogErrors: filters out non-ERROR status entries', () => {
+  const logContent = [
+    JSON.stringify({ ts: new Date().toISOString(), slot: 'claude-1', status: 'OK', detail: null }),
+    JSON.stringify({ ts: new Date().toISOString(), slot: 'gemini-1', status: 'UPDATE_AVAILABLE', detail: 'v2' }),
+  ].join('\n') + '\n';
+  const result = parseUpdateLogErrors(logContent, 86400000);
+  assert.strictEqual(result.length, 0, 'OK and UPDATE_AVAILABLE entries must be filtered out');
+});
+
+test('parseUpdateLogErrors: filters out ERROR entries older than maxAgeMs', () => {
+  const twoHoursAgo = new Date(Date.now() - 2 * 3600 * 1000).toISOString();
+  const logContent = JSON.stringify({ ts: twoHoursAgo, slot: 'claude-1', status: 'ERROR', detail: 'old' }) + '\n';
+  // maxAgeMs = 1 hour = 3600000
+  const result = parseUpdateLogErrors(logContent, 3600000);
+  assert.strictEqual(result.length, 0, 'Entry older than maxAgeMs must be excluded');
+});
+
+test('parseUpdateLogErrors: returns ERROR entries within maxAgeMs window', () => {
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  const logContent = JSON.stringify({ ts: fiveMinutesAgo, slot: 'claude-1', status: 'ERROR', detail: 'recent' }) + '\n';
+  const result = parseUpdateLogErrors(logContent, 86400000);
+  assert.strictEqual(result.length, 1);
+  assert.strictEqual(result[0].slot, 'claude-1');
+});
+
+test('parseUpdateLogErrors: skips malformed JSON lines without throwing', () => {
+  const logContent = 'NOT_JSON\n' + JSON.stringify({ ts: new Date().toISOString(), slot: 'x', status: 'ERROR', detail: null }) + '\n';
+  let result;
+  assert.doesNotThrow(() => { result = parseUpdateLogErrors(logContent, 86400000); });
+  assert.strictEqual(result.length, 1, 'valid ERROR entry after malformed line must still be returned');
+});
+
+test('parseUpdateLogErrors: uses 24h window as default when maxAgeMs not provided', () => {
+  // Entry from 23 hours ago should be included with default 24h window
+  const twentyThreeHoursAgo = new Date(Date.now() - 23 * 3600 * 1000).toISOString();
+  const logContent = JSON.stringify({ ts: twentyThreeHoursAgo, slot: 'claude-1', status: 'ERROR', detail: 'almost old' }) + '\n';
+  const result = parseUpdateLogErrors(logContent);  // no maxAgeMs — uses default 24h
+  assert.strictEqual(result.length, 1, '23h old ERROR must be within 24h default window');
 });
