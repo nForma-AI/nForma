@@ -683,23 +683,47 @@ async function handleRequest(req) {
   }
 }
 
-// ─── Stdin line reader ─────────────────────────────────────────────────────────
-const rl = createInterface({ input: process.stdin });
-
-rl.on('line', async (line) => {
-  const trimmed = line.trim();
-  if (!trimmed) return;
-  let req;
-  try {
-    req = JSON.parse(trimmed);
-  } catch (e) {
-    sendError(null, -32700, 'Parse error');
-    return;
+// ─── Main entry point (async for keytar bootstrap) ────────────────────────────
+async function main() {
+  // ─── Keytar API key bootstrap ─────────────────────────────────────────────────
+  // If running in PROVIDER_SLOT mode, load the slot's API key from keytar at
+  // startup (one keychain access per process — no repeated prompts).
+  // Falls back to ANTHROPIC_API_KEY already in process.env (backward-compat).
+  if (SLOT && !process.env.ANTHROPIC_API_KEY) {
+    const keytarAccount = 'ANTHROPIC_API_KEY_' + SLOT.toUpperCase().replace(/-/g, '_');
+    try {
+      const { default: keytar } = await import('keytar');
+      const secret = await keytar.getPassword('qgsd', keytarAccount);
+      if (secret) {
+        process.env.ANTHROPIC_API_KEY = secret;
+        process.stderr.write(`[unified-mcp-server] Loaded API key for slot ${SLOT} from keychain\n`);
+      }
+    } catch (e) {
+      // keytar unavailable or no entry — continue without it
+      process.stderr.write(`[unified-mcp-server] keytar unavailable for slot ${SLOT}: ${e.message}\n`);
+    }
   }
-  await handleRequest(req);
-});
 
-rl.on('close', () => process.exit(0));
+  // ─── Stdin line reader ────────────────────────────────────────────────────────
+  const rl = createInterface({ input: process.stdin });
 
-const slotLabel = SLOT ? ` [slot: ${SLOT}]` : ' [all-providers]';
-process.stderr.write(`[unified-mcp-server] started${slotLabel}\n`);
+  rl.on('line', async (line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+    let req;
+    try {
+      req = JSON.parse(trimmed);
+    } catch (e) {
+      sendError(null, -32700, 'Parse error');
+      return;
+    }
+    await handleRequest(req);
+  });
+
+  rl.on('close', () => process.exit(0));
+
+  const slotLabel = SLOT ? ` [slot: ${SLOT}]` : ' [all-providers]';
+  process.stderr.write(`[unified-mcp-server] started${slotLabel}\n`);
+}
+
+main();
