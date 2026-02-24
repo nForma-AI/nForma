@@ -187,6 +187,14 @@ async function listAgents() {
     return;
   }
 
+  // Read orchestrator config from qgsd.json
+  let orchestrator = { model: 'claude-sonnet-4-6', provider: 'Anthropic', billing: 'sub' };
+  try {
+    const qgsdPath = path.join(os.homedir(), '.claude', 'qgsd.json');
+    const qgsd = JSON.parse(fs.readFileSync(qgsdPath, 'utf8'));
+    if (qgsd.orchestrator) Object.assign(orchestrator, qgsd.orchestrator);
+  } catch (_) {}
+
   // Build providers lookup for PROVIDER_SLOT cross-reference
   let providerMap = {};
   try {
@@ -215,6 +223,19 @@ async function listAgents() {
 
   console.log('\n  ' + '\x1b[1m' + header + '\x1b[0m');
   console.log('  ' + '─'.repeat(header.length));
+
+  // Slot 0: top-level orchestrator (this Claude Code session)
+  const orchRow = [
+    '★'.padEnd(W.n),
+    'orchestrator'.padEnd(W.slot),
+    orchestrator.model.slice(0, W.model).padEnd(W.model),
+    orchestrator.provider.slice(0, W.provider).padEnd(W.provider),
+    'claude-code-cli'.padEnd(W.type),
+    orchestrator.billing.padEnd(W.billing),
+    '— (active)',
+  ].join('  ');
+  console.log('  \x1b[1m' + orchRow + '\x1b[0m');
+  console.log('  ' + '·'.repeat(header.length));
 
   entries.forEach(([name, cfg], i) => {
     // Cross-reference providers.json via PROVIDER_SLOT
