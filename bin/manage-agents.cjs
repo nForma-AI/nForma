@@ -202,13 +202,14 @@ async function listAgents() {
     agentConfig = qgsd.agent_config || {};
   } catch (_) {}
 
-  const W = { n: 3, slot: 14, model: 38, provider: 26, key: 3, to: 8 };
+  const W = { n: 3, slot: 14, model: 38, provider: 26, type: 10, billing: 7 };
   const header = [
     '#'.padEnd(W.n),
     'Slot'.padEnd(W.slot),
     'Model'.padEnd(W.model),
     'Provider'.padEnd(W.provider),
-    'Type'.padEnd(10),
+    'Type'.padEnd(W.type),
+    'Billing'.padEnd(W.billing),
     'Timeout',
   ].join('  ');
 
@@ -226,16 +227,14 @@ async function listAgents() {
       model = p.model || p.mainTool || '—';
       provider = p.display_provider || p.name;
       timeout = p.timeout_ms ? (p.timeout_ms / 1000) + 's' : '—';
-      // Connection type: CLI name for subprocess, 'http' for API backends, 'ccr' for router
       if (p.type === 'subprocess') {
-        connType = p.cli ? require('path').basename(p.cli) : (p.mainTool || 'cli');
+        connType = p.cli ? path.basename(p.cli) : (p.mainTool || 'cli');
       } else if (p.type === 'ccr') {
         connType = 'ccr';
       } else {
         connType = 'http';
       }
     } else {
-      // Fallback: read from claude.json env (old-style entries)
       model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || `(${cfg.command || '?'})`;
       provider = shortProvider(cfg);
       timeout = (cfg.env && cfg.env.CLAUDE_MCP_TIMEOUT_MS)
@@ -244,19 +243,19 @@ async function listAgents() {
       connType = cfg.command || '—';
     }
 
-    const authType = agentConfig[name] && agentConfig[name].auth_type;
-    const typeColor = authType === 'sub'  ? '\x1b[36m' // cyan  — subscription CLI
-                    : authType === 'api'  ? '\x1b[32m' // green — API key
-                    : connType === 'ccr'  ? '\x1b[33m' // yellow — CCR
-                    : '\x1b[90m';                       // grey   — unknown
-    const typeDisplay = (typeColor + connType + '\x1b[0m').padEnd(10 + typeColor.length + 4);
+    const authType = (agentConfig[name] && agentConfig[name].auth_type) || '—';
+    const billing = authType === 'sub' ? 'sub'
+                  : authType === 'api' ? 'api'
+                  : authType === 'ccr' ? 'ccr'
+                  : '—';
 
     const row = [
       String(i + 1).padEnd(W.n),
       name.padEnd(W.slot),
       model.slice(0, W.model).padEnd(W.model),
       provider.slice(0, W.provider).padEnd(W.provider),
-      typeDisplay,
+      connType.padEnd(W.type),
+      billing.padEnd(W.billing),
       timeout,
     ].join('  ');
 
