@@ -10,6 +10,7 @@
 - ✅ **v0.7 — Composition Config & Multi-Slot** — Phases v0.7-01..v0.7-04 (shipped 2026-02-23)
 - ✅ **v0.8 — fix-tests ddmin Pipeline** — Phase v0.8-01 (shipped 2026-02-23)
 - 🚧 **v0.9 — GSD Sync** — Phases v0.9-01..v0.9-05 (in progress)
+- 🚧 **v0.10 — Roster Toolkit** — Phases v0.10-01..v0.10-06 (in progress)
 - 🔜 **v0.11 — Parallel Quorum** — Phase v0.11-01 (planned)
 
 ## Phases
@@ -126,6 +127,17 @@
 - [ ] **Phase v0.9-04: Tier 3 Fixes** — Skill tool spawn guards, Gemini TOML fix, decimal phase number parsing consistency
 - [ ] **Phase v0.9-05: Rename get-shit-done/ → qgsd-core/** — Rename the source directory to match QGSD identity; update all path references in installer, gsd-tools, and workflows; re-sync installed runtime
 
+### 🚧 v0.10 — Roster Toolkit (In Progress)
+
+**Milestone Goal:** Extend `bin/manage-agents.cjs` into a full-featured agent roster management UI — provider presets, slot cloning, live health dashboard, key lifecycle management, scoreboard visibility, CCR routing, per-agent tuning, import/export, and auto-update policy.
+
+- [ ] **Phase v0.10-01: Foundation** — Read-only display columns (quorum W/L, CCR routing, key-invalid badge) + readQgsdJson/writeQgsdJson helper pair infrastructure
+- [ ] **Phase v0.10-02: Presets and Cloning** — Provider preset library wired into addAgent/editAgent + slot cloning flow
+- [ ] **Phase v0.10-03: Credential Management** — Key expiry detection with classifyProbeResult() + batch key rotation with sequential-only write loop
+- [ ] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit
+- [ ] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check
+- [ ] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup
+
 ## Phase Details
 
 ### Phase v0.9-01: Context Window Monitor
@@ -199,13 +211,72 @@ Plans:
 Plans:
 - [ ] v0.9-05-01: `git mv get-shit-done/ qgsd-core/`, update all path references in `bin/install.js`, `bin/gsd-tools.cjs`, workflow @-references, and agents; run `node bin/install.js --claude --global`
 
-### 🔜 v0.11 — Parallel Quorum (Planned)
+### Phase v0.10-01: Foundation
+**Goal**: The manage-agents list view shows quorum W/L, CCR routing, and key-invalid status per slot, and the readQgsdJson/writeQgsdJson helper pair is available for all later phases
+**Depends on**: Nothing (first v0.10 phase)
+**Requirements**: DISP-01, DISP-02, DISP-03
+**Success Criteria** (what must be TRUE):
+  1. Running `listAgents()` on a project with a populated quorum-scoreboard.json shows a W/L column with win and loss counts per slot; when the scoreboard file is absent (fresh install), the column shows `—` for all slots with no crash — an existsSync guard prevents ENOENT from propagating
+  2. Running `listAgents()` on a machine with CCR routing configured shows the CCR provider name in a dedicated column per slot derived dynamically from `readCcrConfigSafe()`; slots with no CCR route show `—`; when `~/.claude-code-router/config.json` is absent entirely, all slots show `—` with no error banner
+  3. Running `listAgents()` after a slot's last health probe returned 401 AND that slot has a configured key shows a `[key invalid]` badge for that slot; slots with no key or a valid last probe show no badge; badge state derives from `key_status` in `qgsd.json` (survives restart without re-probing)
+  4. `readQgsdJson()` and `writeQgsdJson()` helpers exist in `manage-agents.cjs`, use the existing atomic tmp-rename write pattern, and are exported via `module.exports._pure` for unit testing
+  5. Unit tests cover all three absent-file edge cases: no scoreboard file, no CCR config file, no `key_status` field in `qgsd.json`
+**Plans**: TBD
 
-**Milestone Goal:** Replace the sequential quorum slot-call loop with a wave-barrier pattern — each round fans out as parallel Task spawns, a synthesizer collects results, then the next round fires. Target: 10–12× wall-clock reduction, identical verdict quality.
+### Phase v0.10-02: Presets and Cloning
+**Goal**: Users can select a provider by name instead of typing a URL, and can duplicate any existing slot in one flow
+**Depends on**: Phase v0.10-01
+**Requirements**: PRST-01, PRST-02
+**Success Criteria** (what must be TRUE):
+  1. When adding or editing an agent, the base URL step presents a named provider list (AkashML, Together.xyz, Fireworks.ai) plus a Custom escape hatch via an inquirer `list` prompt replacing the previous free-text `input` prompt; selecting a preset auto-fills the base URL without manual typing; inquirer@8.2.7 CJS is used — the package is not upgraded
+  2. Selecting a provider preset triggers a pre-flight provider probe before the slot is written; if the probe fails the user sees an error and is offered a retry or cancel — no partial slot is written on probe failure
+  3. A "Clone slot" option appears in the main menu; selecting it presents the existing slot list, copies the chosen slot's provider URL and model config to a new slot name the user provides, and validates that the new slot name is unique before writing
+  4. After cloning, the user is prompted to set an API key for the new slot; skipping is allowed but the slot is shown with `[no key]`; the original slot's key is never copied to the clone (keytar isolation)
+**Plans**: TBD
 
-- [ ] **Phase v0.11-01: Parallel Quorum Wave-Barrier** — `qgsd-quorum-worker` agent + `qgsd-quorum-synthesizer` agent + scoreboard atomic-rename fix + `merge-wave` subcommand + orchestrator wave-barrier rewrite
+### Phase v0.10-03: Credential Management
+**Goal**: Users can rotate API keys across multiple slots in one flow, and key validity status persists across sessions without requiring a re-probe on restart
+**Depends on**: Phase v0.10-02
+**Requirements**: CRED-01, CRED-02
+**Success Criteria** (what must be TRUE):
+  1. A "Batch rotate keys" option appears in the main menu; the user selects multiple slots via a checkbox picker, then enters a new key for each selected slot one at a time; the rotation loop uses a sequential `for...of` — never `Promise.all` — to avoid keychain concurrency errors and key-index read-modify-write race conditions
+  2. After each individual slot's key is updated within the batch flow, a per-slot confirmation line is displayed (e.g., `claude-1: key updated`) before the next slot's prompt appears; a single `syncToClaudeJson()` call is made after all slots are processed
+  3. After a health probe returns a 401 for any slot, `key_status` for that slot is written to `qgsd.json` as `{ "status": "invalid", "checkedAt": "<ISO timestamp>" }`; this value persists to disk so the `[key invalid]` badge survives a process restart without requiring a new probe
+  4. After a subsequent successful health probe for the same slot, `key_status` is updated to `{ "status": "ok", "checkedAt": "<ISO timestamp>" }`, causing the badge to clear on the next `listAgents()` call
+**Plans**: TBD
 
-## Phase Details
+### Phase v0.10-04: Live Health Dashboard
+**Goal**: Users can open a live health view from the main menu that refreshes on keypress and exits cleanly back to the menu with no stdin side effects
+**Depends on**: Phase v0.10-03
+**Requirements**: DASH-01, DASH-02, DASH-03
+**Success Criteria** (what must be TRUE):
+  1. Selecting "Live health dashboard" from the main menu enters a full-screen health view showing each slot's provider, model, and health status; the view uses a readline mode-switch architecture (inquirer is fully exited before the raw stdin loop starts) — no setInterval timer runs while inquirer holds the TTY
+  2. Pressing space or `r` triggers an immediate refresh of all slots' health status; a "Last updated: HH:MM:SS" timestamp is shown at the bottom of the screen after every refresh; if the displayed data becomes more than 60 seconds old without a refresh, a yellow "stale" warning appears next to the timestamp
+  3. Pressing `q` or Escape exits the dashboard and returns to the main menu with stdin fully restored — `setRawMode(false)` and `removeAllListeners('keypress')` are called before `mainMenu()` is re-entered, and no characters typed after exit are swallowed by a stale raw-mode listener
+  4. When the dashboard is invoked in a non-TTY context (piped output, CI), it falls back to a single static one-time health print and returns immediately rather than entering raw mode; the TTY guard checks `process.stdout.isTTY` before entering dashboard mode
+**Plans**: TBD
+
+### Phase v0.10-05: Policy UIs
+**Goal**: Users can configure quorum timeout and update policy per slot from the main menu, and slots set to auto are checked for updates on startup
+**Depends on**: Phase v0.10-04
+**Requirements**: PLCY-01, PLCY-02, PLCY-03
+**Success Criteria** (what must be TRUE):
+  1. A "Tune timeouts" option is accessible directly from the main menu (not nested inside editAgent); selecting it shows each slot with its current timeout value and allows entry of a new value; after saving, a "restart required" note is shown — a timeout change without this note is a defect
+  2. A "Set update policy" option is accessible from the main menu; the user can set each slot's policy to `auto`, `prompt`, or `skip`; the selected value is persisted under `agent_config[slot].update_policy` in `qgsd.json` via `writeQgsdJson()`
+  3. When `manage-agents.cjs` starts and at least one slot has `update_policy: "auto"`, those slots are checked for available updates before the main menu is shown; the check outcome is written to `~/.claude/qgsd-update.log` with a timestamped entry per slot
+  4. If `~/.claude/qgsd-update.log` contains recent ERROR entries, a warning banner is displayed at the top of the `listAgents()` output on the next run — users are not silently failing on auto-update errors
+**Plans**: TBD
+
+### Phase v0.10-06: Import/Export
+**Goal**: Users can save the full roster to a portable JSON file and restore it on any machine, with API keys unconditionally stripped on export and a timestamped backup created before any import applies
+**Depends on**: Phase v0.10-05
+**Requirements**: PORT-01, PORT-02, PORT-03
+**Success Criteria** (what must be TRUE):
+  1. An "Export roster" option in the main menu writes a portable JSON file; every env value matching `/_KEY$|_SECRET$|_TOKEN$|_PASSWORD$/i` is replaced with `__redacted__` unconditionally — the export path never calls `syncToClaudeJson()` before reading, so keytar fallback plaintext values cannot leak into the export file
+  2. An "Import roster" option reads a JSON file, validates the schema before writing anything (all `command` fields must be `node` or `npx`; no `args` entries may contain absolute user home paths like `/Users/` or `/home/`), and reports all validation errors up front — zero partial applies occur when validation fails
+  3. Any `__redacted__` key value in an imported file triggers a per-slot prompt asking the user to enter the real key; the user can skip individual slots, which are then imported with no key configured and shown as `[no key]` in the list view
+  4. Before any import changes are written, a timestamped backup of `~/.claude.json` is created at `~/.claude.json.pre-import.<ISO-timestamp>` and the backup path is displayed to the user; if the backup write fails, the import is aborted entirely
+**Plans**: TBD
 
 ### Phase v0.11-01: Parallel Quorum Wave-Barrier
 **Goal**: Quorum rounds execute as parallel Task fan-outs (worker agents) followed by a synthesizer barrier, cutting round-trip time from N×timeout to 1×max(timeout) while preserving vote quality and scoreboard integrity
@@ -217,12 +288,12 @@ Plans:
   3. `bin/update-scoreboard.cjs` uses atomic rename (`.tmp` + `fs.renameSync`) at all write sites — no torn-file corruption possible
   4. `bin/update-scoreboard.cjs` supports a `merge-wave` subcommand that reads per-slot temp vote files from `.planning/scoreboard-tmp/` and applies them in one transaction
   5. `agents/qgsd-quorum-orchestrator.md` is rewritten to use wave-barrier: Round 1 parallel Task fan-out → Synthesizer 1 → Round 2 parallel Task fan-out → Synthesizer 2 → verdict; SEQUENTIAL CALLS ONLY rule updated to explicitly permit the worker Task wave
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] v0.11-01-01: Create `qgsd-quorum-worker.md` + `qgsd-quorum-synthesizer.md`
-- [ ] v0.11-01-02: Atomic rename fix + `merge-wave` in `update-scoreboard.cjs`
-- [ ] v0.11-01-03: Rewrite `qgsd-quorum-orchestrator.md` to wave-barrier pattern
+- [ ] v0.11-01-01-PLAN.md — Create `agents/qgsd-quorum-worker.md` + `agents/qgsd-quorum-synthesizer.md` (PAR-01, PAR-02)
+- [ ] v0.11-01-02-PLAN.md — Atomic rename fix + `merge-wave` subcommand in `bin/update-scoreboard.cjs` (PAR-03, PAR-04)
+- [ ] v0.11-01-03-PLAN.md — Rewrite `agents/qgsd-quorum-orchestrator.md` to wave-barrier pattern (PAR-05)
 
 ## Progress
 
@@ -272,9 +343,15 @@ Plans:
 | v0.7-03. Wizard Composition Screen | v0.7 | 2/2 | Complete | 2026-02-23 |
 | v0.7-04. Orchestrator Scoreboard Slot Wiring | v0.7 | 2/2 | Complete | 2026-02-23 |
 | v0.8-01. fix-tests ddmin Pipeline | v0.8 | 2/2 | Complete | 2026-02-24 |
-| v0.9-01. Context Window Monitor | 1/1 | Complete    | 2026-02-24 | - |
-| v0.9-02. Nyquist Validation Layer | v0.9 | Complete    | 2026-02-24 | - |
+| v0.9-01. Context Window Monitor | v0.9 | 1/1 | Complete | 2026-02-24 |
+| v0.9-02. Nyquist Validation Layer | v0.9 | 2/2 | Complete | 2026-02-24 |
 | v0.9-03. Discuss-Phase UX | v0.9 | 0/1 | Not started | - |
 | v0.9-04. Tier 3 Fixes | v0.9 | 0/1 | Not started | - |
 | v0.9-05. Rename get-shit-done/ → qgsd-core/ | v0.9 | 0/1 | Not started | - |
+| v0.10-01. Foundation | v0.10 | 0/? | Not started | - |
+| v0.10-02. Presets and Cloning | v0.10 | 0/? | Not started | - |
+| v0.10-03. Credential Management | v0.10 | 0/? | Not started | - |
+| v0.10-04. Live Health Dashboard | v0.10 | 0/? | Not started | - |
+| v0.10-05. Policy UIs | v0.10 | 0/? | Not started | - |
+| v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 0/3 | Not started | - |
