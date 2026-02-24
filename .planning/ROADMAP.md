@@ -358,4 +358,4 @@ Plans:
 | v0.10-04. Live Health Dashboard | v0.10 | 0/? | Not started | - |
 | v0.10-05. Policy UIs | v0.10 | 0/? | Not started | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
-| v0.11-01. Parallel Quorum Wave-Barrier | 3/3 | Complete   | 2026-02-24 | - |
+| v0.11-01. Parallel Quorum Wave-Barrier | 3/3 | Complete    | 2026-02-24 | - |
