@@ -152,6 +152,10 @@ function probeProviderUrl(baseUrl, apiKey) {
  *   healthy=true, statusCode=401    -> 'invalid'       (provider UP; key rejected)
  *   healthy=true, statusCode!=401   -> 'ok'            (provider UP; key not rejected)
  *
+ * Edge case: healthy=true, statusCode=null -> 'ok' (null !== 401 fallthrough).
+ * probeProviderUrl only marks healthy=true for [200,401,403,404,422], so this path
+ * is theoretically unreachable from production — documented here as an explicit choice.
+ *
  * NOTE: 'unreachable' results must NOT be written to key_status in qgsd.json.
  * Preserving the existing key_status on network failure is a design invariant.
  * Pure function — no side effects, no file I/O.
