@@ -133,9 +133,28 @@ If `availableCount < min_quorum_size`:
     Re-run with --force-quorum to override, or wait for providers to recover.
     ```
 
+**Availability cache check:** After building the provider slot list but before the min_quorum_size check, read the scoreboard availability data:
+
+```bash
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" get-availability \
+  --scoreboard .planning/quorum-scoreboard.json 2>/dev/null || echo '{}'
+```
+
+Store result as `$AVAIL_CACHE` (a JSON object keyed by slot name or model family). For each entry where `is_available: false`:
+- Remove that slot from the working list
+- Mark it DORMANT (separate from provider-DOWN — this is quota/rate-limit state)
+- Log: `Dormant: <slot> (${reason} — available in <remaining_display>, at <available_at_local>)`
+
+If no availability data exists for a slot, it is assumed available (fail-open).
+
 Display (one line):
 ```
 Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
+```
+
+If any slots are DORMANT, add a second line:
+```
+Dormant slots:       <slot1> (available in <remaining_display>), <slot2> (available in ...)
 ```
 
 ---
@@ -225,31 +244,14 @@ Store as `$CLAUDE_POSITION`.
 
 Call each model with this prompt — **each call is a separate sequential Bash tool call**:
 
-```
-QGSD Quorum — Round 1
-
-Repository: [value of $REPO_DIR]
-
-Question: [question]
-
-[If $ARTIFACT_PATH is non-empty:]
-=== Artifact ===
-Path: [value of $ARTIFACT_PATH] (read this file for full context)
-Lines: ~[value of $ARTIFACT_LINE_COUNT] lines
-================
-[End conditional]
-
-You are one of the quorum members evaluating this question independently. Give your
-honest answer with reasoning. Be concise (3–6 sentences). State your position clearly.
-Do not defer to other models.
-```
+Use the grounding instruction shown in the heredoc below — the heredoc is the canonical form sent to workers.
 
 Always include the `Repository:` header. If `$ARTIFACT_PATH` is non-empty, include the artifact block so workers can read the plan file themselves.
 
 **Bash call pattern** (one Bash call per slot, strictly sequential):
 
 ```bash
-node "$HOME/.claude/qgsd-bin/call-quorum-slot.cjs" --slot <slotName> --timeout <quorum_timeout_ms> <<'QUORUM_PROMPT'
+node "$HOME/.claude/qgsd-bin/call-quorum-slot.cjs" --slot <slotName> --timeout <quorum_timeout_ms> --cwd "$REPO_DIR" <<'QUORUM_PROMPT'
 QGSD Quorum — Round 1
 
 Repository: [value of $REPO_DIR]
@@ -261,6 +263,12 @@ Question: [question]
 Path: [value of $ARTIFACT_PATH] (read this file for full context)
 Lines: ~[value of $ARTIFACT_LINE_COUNT] lines
 ================
+
+IMPORTANT: Before answering, use your available tools to read relevant files from the
+Repository directory above. At minimum check CLAUDE.md and .planning/STATE.md if they
+exist, plus any files directly relevant to the question. Your answer must be grounded
+in what you actually find in the repo — use your internal knowledge to reason, but
+let the real files be the source of truth, not assumptions about what might be there.
 
 You are one of the quorum members evaluating this question independently. Give your
 honest answer with reasoning. Be concise (3–6 sentences). State your position clearly.
@@ -292,6 +300,20 @@ If `$QUORUM_ACTIVE` is non-empty, only call slots in that list.
 **Timeout/error handling:** If `call-quorum-slot.cjs` exits non-zero (stderr contains TIMEOUT or error),
 mark that slot UNAVAIL, log `[<slotName>] TIMEOUT — marked UNAVAIL`, and proceed to the next slot.
 Do NOT retry.
+
+**UNAVAIL availability recording:** When a slot returns any output — whether exit 0 or non-zero — scan
+the output text for usage-limit or rate-limit patterns (`until <date/time>`, `in N hours`, `in N minutes`,
+`restart in N hours`). If found, record the ETA immediately:
+
+```bash
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" set-availability \
+  --slot <slotName> \
+  --message "<raw output text from the slot, first 500 chars>" \
+  --scoreboard .planning/quorum-scoreboard.json
+```
+
+Log the result: `[<slotName>] UNAVAIL recorded — available in <remaining_display> (<available_at_local>)`.
+This persists the ETA so future quorum runs skip this slot automatically via the availability cache check.
 
 Handle UNAVAILABLE per R6: note, continue with remaining models.
 
@@ -339,13 +361,17 @@ Prior positions:
 • Copilot:   [position or UNAVAIL]
 [• <display-name>: [position or UNAVAIL]]
 
+Before revising your position, use your tools to re-check any codebase files relevant
+to the disagreement. At minimum re-read CLAUDE.md and .planning/STATE.md if they exist,
+plus any files directly referenced in the question or prior positions.
+
 Given the above, do you maintain your answer or revise it? State your updated position
 clearly (2–4 sentences).
 ```
 
 Always include the `Repository:` header. If `$ARTIFACT_PATH` is non-empty, include the artifact block before the prior positions.
 
-Each model called with one Bash `call-quorum-slot.cjs` call per turn (sequential).
+Each model called with one Bash `call-quorum-slot.cjs` call per turn (sequential), using the same `--cwd "$REPO_DIR"` pattern as Round 1.
 Apply the same timeout guard: exit non-zero → slot UNAVAIL for remainder.
 Stop immediately upon CONSENSUS. After 4 total rounds with no consensus → **Escalate**.
 
@@ -453,7 +479,7 @@ Claude gives its own verdict before dispatching workers.
 Use the same `call-quorum-slot.cjs` pattern as Mode A, but pass the full review bundle as the prompt:
 
 ```bash
-node "$HOME/.claude/qgsd-bin/call-quorum-slot.cjs" --slot <slotName> --timeout <quorum_timeout_ms> <<'QUORUM_PROMPT'
+node "$HOME/.claude/qgsd-bin/call-quorum-slot.cjs" --slot <slotName> --timeout <quorum_timeout_ms> --cwd "$REPO_DIR" <<'QUORUM_PROMPT'
 QGSD Quorum — Execution Review
 
 Repository: [value of $REPO_DIR]
@@ -468,6 +494,11 @@ Lines: ~[value of $ARTIFACT_LINE_COUNT] lines
 
 === EXECUTION TRACES ===
 [full $TRACES — not summarized or truncated]
+
+Before giving your verdict, use your tools to read relevant files from the Repository
+directory above. At minimum check CLAUDE.md and .planning/STATE.md if they exist. Ground
+your verdict in what you actually find — use your internal knowledge to reason, but let
+the real files be the source of truth.
 
 Review the execution traces above. Give:
 
