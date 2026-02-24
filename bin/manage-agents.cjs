@@ -187,13 +187,28 @@ async function listAgents() {
     return;
   }
 
+  // Build providers lookup for PROVIDER_SLOT cross-reference
+  let providerMap = {};
+  try {
+    const pdata = readProvidersJson();
+    for (const p of (pdata.providers || [])) providerMap[p.name] = p;
+  } catch (_) {}
+
+  // Read auth_type from qgsd.json agent_config
+  let agentConfig = {};
+  try {
+    const qgsdPath = path.join(os.homedir(), '.claude', 'qgsd.json');
+    const qgsd = JSON.parse(fs.readFileSync(qgsdPath, 'utf8'));
+    agentConfig = qgsd.agent_config || {};
+  } catch (_) {}
+
   const W = { n: 3, slot: 14, model: 38, provider: 26, key: 3, to: 8 };
   const header = [
     '#'.padEnd(W.n),
     'Slot'.padEnd(W.slot),
     'Model'.padEnd(W.model),
     'Provider'.padEnd(W.provider),
-    'Key',
+    'Auth',
     'Timeout',
   ].join('  ');
 
@@ -201,19 +216,38 @@ async function listAgents() {
   console.log('  ' + '─'.repeat(header.length));
 
   entries.forEach(([name, cfg], i) => {
-    const model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || `(${cfg.command || '?'})`;
-    const provider = shortProvider(cfg);
-    const hasKey = !!(cfg.env && cfg.env.ANTHROPIC_API_KEY);
-    const timeout = (cfg.env && cfg.env.CLAUDE_MCP_TIMEOUT_MS)
-      ? cfg.env.CLAUDE_MCP_TIMEOUT_MS + 'ms'
-      : '—';
+    // Cross-reference providers.json via PROVIDER_SLOT
+    const slot = cfg.env && cfg.env.PROVIDER_SLOT;
+    const p = slot ? providerMap[slot] : null;
+    const authType = agentConfig[name] && agentConfig[name].auth_type;
+
+    let model, provider, timeout;
+
+    if (p) {
+      model = p.model || p.mainTool || '—';
+      provider = p.display_provider || p.name;
+      timeout = p.timeout_ms ? (p.timeout_ms / 1000) + 's' : '—';
+    } else {
+      // Fallback: read from claude.json env (old-style entries)
+      model = (cfg.env && cfg.env.CLAUDE_DEFAULT_MODEL) || `(${cfg.command || '?'})`;
+      provider = shortProvider(cfg);
+      timeout = (cfg.env && cfg.env.CLAUDE_MCP_TIMEOUT_MS)
+        ? cfg.env.CLAUDE_MCP_TIMEOUT_MS + 'ms'
+        : '—';
+    }
+
+    const keyDisplay = authType === 'sub'
+      ? '\x1b[36m sub\x1b[0m'   // subscription CLI — flat-fee
+      : authType === 'api'
+        ? '\x1b[32m api\x1b[0m' // API key required
+        : '\x1b[90m  — \x1b[0m';
 
     const row = [
       String(i + 1).padEnd(W.n),
       name.padEnd(W.slot),
       model.slice(0, W.model).padEnd(W.model),
       provider.slice(0, W.provider).padEnd(W.provider),
-      hasKey ? '\x1b[32m ✓ \x1b[0m' : '\x1b[90m — \x1b[0m',
+      keyDisplay,
       timeout,
     ].join('  ');
 
