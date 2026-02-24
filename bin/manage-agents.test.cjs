@@ -724,3 +724,72 @@ test('buildDashboardLines: lastUpdated less than 60s ago does NOT show [stale]',
   const joined = lines.join('\n');
   assert.ok(!joined.includes('stale'), 'must NOT show stale warning when <60s old');
 });
+
+// Additional precision tests addressing quorum-test REVIEW-NEEDED (v0.10-04)
+
+test('formatTimestamp: 0 (epoch) is treated as falsy and returns em-dash (design choice: 0 means never-updated)', () => {
+  // if (!ts) covers null, undefined, and 0 — epoch ms=0 is not a real dashboard timestamp
+  assert.strictEqual(formatTimestamp(0), '\u2014', 'epoch 0 should return em-dash (falsy sentinel for never-updated)');
+});
+
+test('buildDashboardLines: stale boundary — 60001ms ago shows [stale], 59999ms ago does NOT', () => {
+  const now = Date.now();
+  const staleEdge = now - 60_001;
+  const freshEdge = now - 59_999;
+  const staleLines = buildDashboardLines([], {}, {}, staleEdge);
+  const freshLines = buildDashboardLines([], {}, {}, freshEdge);
+  assert.ok(staleLines.join('\n').includes('stale'), 'must show stale at 60001ms past threshold');
+  assert.ok(!freshLines.join('\n').includes('stale'), 'must NOT show stale at 59999ms (below threshold)');
+});
+
+test('buildDashboardLines: UP status row contains green ANSI code and checkmark glyph', () => {
+  const slots = ['claude-1'];
+  const mcpServers = { 'claude-1': { env: { ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1', CLAUDE_DEFAULT_MODEL: 'claude-sonnet-4-5' } } };
+  const healthMap = { 'claude-1': { healthy: true, latencyMs: 42, statusCode: 200 } };
+  const lines = buildDashboardLines(slots, mcpServers, healthMap, Date.now());
+  // Find the specific slot row (contains slot name as padded prefix)
+  const slotRow = lines.find(l => l.trimStart().startsWith('claude-1'));
+  assert.ok(slotRow, 'slot row must exist');
+  assert.ok(slotRow.includes('\x1b[32m'), 'UP row must contain green ANSI code \\x1b[32m');
+  assert.ok(slotRow.includes('\u2713'), 'UP row must contain checkmark glyph \u2713');
+  assert.ok(slotRow.includes('42'), 'latency must appear in the same slot row, not elsewhere');
+});
+
+test('buildDashboardLines: DOWN status row contains red ANSI code and cross glyph', () => {
+  const slots = ['gemini-1'];
+  const mcpServers = { 'gemini-1': { env: { ANTHROPIC_BASE_URL: 'https://api.together.xyz/v1' } } };
+  const healthMap = { 'gemini-1': { healthy: false, latencyMs: 0, statusCode: 500 } };
+  const lines = buildDashboardLines(slots, mcpServers, healthMap, Date.now());
+  const slotRow = lines.find(l => l.trimStart().startsWith('gemini-1'));
+  assert.ok(slotRow, 'slot row must exist');
+  assert.ok(slotRow.includes('\x1b[31m'), 'DOWN row must contain red ANSI code \\x1b[31m');
+  assert.ok(slotRow.includes('\u2717'), 'DOWN row must contain cross glyph \u2717');
+});
+
+test('buildDashboardLines: per-slot data isolation — two-slot output has each slot in its own row', () => {
+  const slots = ['claude-1', 'gemini-1'];
+  const mcpServers = {
+    'claude-1': { env: { ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1' } },
+    'gemini-1': { env: { ANTHROPIC_BASE_URL: 'https://api.together.xyz/v1' } },
+  };
+  const healthMap = {
+    'claude-1': { healthy: true, latencyMs: 77 },
+    'gemini-1': { healthy: false, latencyMs: 0 },
+  };
+  const lines = buildDashboardLines(slots, mcpServers, healthMap, Date.now());
+  const claudeRow = lines.find(l => l.trimStart().startsWith('claude-1'));
+  const geminiRow = lines.find(l => l.trimStart().startsWith('gemini-1'));
+  assert.ok(claudeRow, 'claude-1 row must exist');
+  assert.ok(geminiRow, 'gemini-1 row must exist');
+  // Each slot's latency appears in its own row, not the other's
+  assert.ok(claudeRow.includes('77'), 'claude-1 latency (77ms) must appear in claude row');
+  assert.ok(!geminiRow.includes('77'), 'claude-1 latency must NOT bleed into gemini row');
+});
+
+test('buildDashboardLines: output contains header title and footer keybinding hint', () => {
+  const lines = buildDashboardLines([], {}, {}, null);
+  const joined = lines.join('\n');
+  assert.ok(joined.includes('QGSD Live Health Dashboard'), 'must contain header title');
+  assert.ok(joined.includes('[space/r] refresh'), 'must contain keybinding hint');
+  assert.ok(joined.includes('[q/Esc] exit'), 'must contain exit hint');
+});
