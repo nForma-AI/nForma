@@ -8,6 +8,7 @@ const https = require('https');
 const http = require('http');
 const { spawnSync } = require('child_process');
 const inquirer = require('inquirer');
+const { resolveCli } = require('./resolve-cli.cjs');
 
 const CLAUDE_JSON_PATH = path.join(os.homedir(), '.claude.json');
 const CLAUDE_JSON_TMP = CLAUDE_JSON_PATH + '.tmp';
@@ -827,6 +828,304 @@ async function checkAgentHealth() {
 }
 
 // ---------------------------------------------------------------------------
+// Subprocess provider helpers (providers.json)
+// ---------------------------------------------------------------------------
+
+const PROVIDERS_JSON_PATH = path.join(__dirname, 'providers.json');
+const PROVIDERS_JSON_TMP = PROVIDERS_JSON_PATH + '.tmp';
+
+function readProvidersJson() {
+  if (!fs.existsSync(PROVIDERS_JSON_PATH)) {
+    return { providers: [] };
+  }
+  try {
+    return JSON.parse(fs.readFileSync(PROVIDERS_JSON_PATH, 'utf8'));
+  } catch (err) {
+    throw new Error(`providers.json: ${err.message}`);
+  }
+}
+
+function writeProvidersJson(data) {
+  fs.writeFileSync(PROVIDERS_JSON_TMP, JSON.stringify(data, null, 2), 'utf8');
+  fs.renameSync(PROVIDERS_JSON_TMP, PROVIDERS_JSON_PATH);
+}
+
+// ---------------------------------------------------------------------------
+// Add subprocess provider
+// ---------------------------------------------------------------------------
+
+async function addSubprocessProvider() {
+  const data = readProvidersJson();
+  const providers = data.providers || [];
+  const existingNames = providers.map((p) => p.name);
+
+  const answers = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Provider name (e.g. codex-3):',
+      validate(val) {
+        if (!val || !val.trim()) return 'Required';
+        if (/\s/.test(val)) return 'No spaces allowed';
+        if (existingNames.includes(val.trim())) return `"${val.trim()}" already exists`;
+        return true;
+      },
+    },
+    {
+      type: 'input',
+      name: 'cli',
+      message: 'CLI name or full path (e.g. codex):',
+      validate(val) {
+        if (!val || !val.trim()) return 'Required';
+        return true;
+      },
+    },
+    {
+      type: 'input',
+      name: 'description',
+      message: 'Description:',
+      default: '',
+    },
+    {
+      type: 'input',
+      name: 'mainTool',
+      message: 'Main tool name (e.g. codex):',
+      default: (a) => a.name ? a.name.replace(/-\d+$/, '') : '',
+    },
+    {
+      type: 'input',
+      name: 'model',
+      message: 'Model ID:',
+      default: '',
+    },
+    {
+      type: 'input',
+      name: 'args_template',
+      message: 'Args template (comma-separated, use {prompt} placeholder):',
+      default: 'exec,{prompt}',
+    },
+    {
+      type: 'input',
+      name: 'timeout_ms',
+      message: 'Timeout (ms):',
+      default: '300000',
+      validate: (v) => !v || !isNaN(parseInt(v)) ? true : 'Must be a number',
+    },
+    {
+      type: 'input',
+      name: 'quorum_timeout_ms',
+      message: 'Quorum timeout (ms):',
+      default: '30000',
+      validate: (v) => !v || !isNaN(parseInt(v)) ? true : 'Must be a number',
+    },
+  ]);
+
+  const cliRaw = answers.cli.trim();
+  let resolvedCli = cliRaw;
+
+  // Auto-resolve bare names (no path separator)
+  if (!cliRaw.includes('/')) {
+    resolvedCli = resolveCli(cliRaw);
+    if (resolvedCli !== cliRaw) {
+      console.log(`  Resolved: ${resolvedCli}`);
+    } else {
+      console.log(`  Could not resolve "${cliRaw}" — will use as-is (bare name fallback)`);
+    }
+  }
+
+  const argsTemplate = answers.args_template
+    ? answers.args_template.split(',').map((a) => a.trim()).filter(Boolean)
+    : ['exec', '{prompt}'];
+
+  const entry = {
+    name: answers.name.trim(),
+    type: 'subprocess',
+    description: answers.description.trim() || `Execute ${answers.mainTool || answers.name} CLI non-interactively`,
+    mainTool: answers.mainTool.trim() || answers.name.trim().replace(/-\d+$/, ''),
+    model: answers.model.trim() || '',
+    cli: resolvedCli,
+    args_template: argsTemplate,
+    helpArgs: ['--help'],
+    health_check_args: ['--version'],
+    extraTools: [],
+    timeout_ms: parseInt(answers.timeout_ms, 10) || 300000,
+    quorum_timeout_ms: parseInt(answers.quorum_timeout_ms, 10) || 30000,
+    env: {},
+  };
+
+  providers.push(entry);
+  data.providers = providers;
+  writeProvidersJson(data);
+
+  console.log(`\n  \x1b[32m✓ Added subprocess provider "${entry.name}" with cli: ${resolvedCli}\x1b[0m\n`);
+}
+
+// ---------------------------------------------------------------------------
+// Edit subprocess provider
+// ---------------------------------------------------------------------------
+
+async function editSubprocessProvider() {
+  const data = readProvidersJson();
+  const providers = data.providers || [];
+  const subProviders = providers.filter((p) => p.type === 'subprocess');
+
+  if (subProviders.length === 0) {
+    console.log('\n  No subprocess providers found in providers.json.\n');
+    return;
+  }
+
+  const { providerName } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'providerName',
+      message: 'Select subprocess provider to edit:',
+      choices: subProviders.map((p) => ({
+        name: `${p.name.padEnd(16)} ${(p.model || '—').slice(0, 36).padEnd(36)} cli: ${p.cli || '—'}`,
+        value: p.name,
+        short: p.name,
+      })),
+    },
+  ]);
+
+  const existing = providers.find((p) => p.name === providerName);
+  if (!existing) {
+    console.log('\n  Provider not found.\n');
+    return;
+  }
+
+  // Summary card
+  const W = 60;
+  console.log(`\n  ┌${'─'.repeat(W + 2)}┐`);
+  console.log(`  │  \x1b[1m${providerName}\x1b[0m${' '.repeat(Math.max(0, W - providerName.length))}  │`);
+  console.log(`  ├${'─'.repeat(W + 2)}┤`);
+  const rowFn = (label, value) => {
+    const v = String(value || '—').slice(0, W - label.length - 4);
+    return `  │  \x1b[90m${label}\x1b[0m  ${v}`;
+  };
+  console.log(rowFn('CLI    ', existing.cli));
+  console.log(rowFn('Model  ', existing.model));
+  console.log(rowFn('Args   ', (existing.args_template || []).join(' ')));
+  console.log(rowFn('Timeout', existing.timeout_ms ? existing.timeout_ms + 'ms' : '—'));
+  console.log(`  └${'─'.repeat(W + 2)}┘\n`);
+
+  const { fields } = await inquirer.prompt([
+    {
+      type: 'checkbox',
+      name: 'fields',
+      message: 'What do you want to change?  (space = toggle, enter = confirm)',
+      choices: [
+        { name: `CLI            \x1b[90m${existing.cli || '(not set)'}\x1b[0m`, value: 'cli' },
+        { name: `Model          \x1b[90m${existing.model || '(not set)'}\x1b[0m`, value: 'model' },
+        { name: `Description    \x1b[90m${(existing.description || '').slice(0, 40)}\x1b[0m`, value: 'description' },
+        { name: `Args template  \x1b[90m${(existing.args_template || []).join(',')}\x1b[0m`, value: 'args_template' },
+        { name: `Timeout        \x1b[90m${existing.timeout_ms || 300000}ms\x1b[0m`, value: 'timeout_ms' },
+        { name: `Quorum timeout \x1b[90m${existing.quorum_timeout_ms || 30000}ms\x1b[0m`, value: 'quorum_timeout_ms' },
+      ],
+    },
+  ]);
+
+  if (fields.length === 0) {
+    console.log('\n  Nothing selected — no changes made.\n');
+    return;
+  }
+
+  const updates = {};
+
+  if (fields.includes('cli')) {
+    const { cliVal } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'cliVal',
+        message: 'CLI name or full path:',
+        default: existing.cli || '',
+      },
+    ]);
+    const cliRaw = cliVal.trim();
+    if (cliRaw && !cliRaw.includes('/')) {
+      const resolved = resolveCli(cliRaw);
+      if (resolved !== cliRaw) {
+        console.log(`  Resolved: ${resolved}`);
+      }
+      updates.cli = resolved;
+    } else {
+      updates.cli = cliRaw || existing.cli;
+    }
+  }
+
+  if (fields.includes('model')) {
+    const { model } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'model',
+        message: 'Model ID:',
+        default: existing.model || '',
+      },
+    ]);
+    updates.model = model.trim();
+  }
+
+  if (fields.includes('description')) {
+    const { description } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'description',
+        message: 'Description:',
+        default: existing.description || '',
+      },
+    ]);
+    updates.description = description.trim();
+  }
+
+  if (fields.includes('args_template')) {
+    const { args_template } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'args_template',
+        message: 'Args template (comma-separated):',
+        default: (existing.args_template || []).join(','),
+      },
+    ]);
+    updates.args_template = args_template
+      ? args_template.split(',').map((a) => a.trim()).filter(Boolean)
+      : existing.args_template;
+  }
+
+  if (fields.includes('timeout_ms')) {
+    const { timeout_ms } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'timeout_ms',
+        message: 'Timeout (ms):',
+        default: String(existing.timeout_ms || 300000),
+        validate: (v) => !isNaN(parseInt(v)) ? true : 'Must be a number',
+      },
+    ]);
+    updates.timeout_ms = parseInt(timeout_ms, 10);
+  }
+
+  if (fields.includes('quorum_timeout_ms')) {
+    const { quorum_timeout_ms } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'quorum_timeout_ms',
+        message: 'Quorum timeout (ms):',
+        default: String(existing.quorum_timeout_ms || 30000),
+        validate: (v) => !isNaN(parseInt(v)) ? true : 'Must be a number',
+      },
+    ]);
+    updates.quorum_timeout_ms = parseInt(quorum_timeout_ms, 10);
+  }
+
+  // Apply updates
+  const updated = Object.assign({}, existing, updates);
+  const updatedProviders = providers.map((p) => p.name === providerName ? updated : p);
+  data.providers = updatedProviders;
+  writeProvidersJson(data);
+
+  console.log(`\n  \x1b[32m✓ Updated "${providerName}"\x1b[0m\n`);
+}
+
+// ---------------------------------------------------------------------------
 // Main menu
 // ---------------------------------------------------------------------------
 
@@ -846,6 +1145,9 @@ async function mainMenu() {
           { name: '5. Reorder agents', value: 'reorder' },
           { name: '6. Check agent health', value: 'health' },
           new inquirer.Separator(),
+          { name: '7. Add subprocess provider', value: 'add-sub' },
+          { name: '8. Edit subprocess provider', value: 'edit-sub' },
+          new inquirer.Separator(),
           { name: '0. Exit', value: 'exit' },
         ],
       },
@@ -858,6 +1160,8 @@ async function mainMenu() {
       else if (action === 'remove') await removeAgent();
       else if (action === 'reorder') await reorderAgents();
       else if (action === 'health') await checkAgentHealth();
+      else if (action === 'add-sub') await addSubprocessProvider();
+      else if (action === 'edit-sub') await editSubprocessProvider();
       else if (action === 'exit') { running = false; console.log('\n  Goodbye!\n'); }
     } catch (err) {
       console.error(`\n  \x1b[31mError: ${err.message}\x1b[0m\n`);
