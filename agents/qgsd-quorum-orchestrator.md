@@ -292,7 +292,7 @@ Log: `[<slot>] UNAVAIL recorded — <remaining_display>`
 
 **Check SYNTHESIS_RESULT:**
 - If `$SYNTH1` contains `SYNTHESIS_RESULT: CONSENSUS REACHED` → skip Round 2, proceed to **Consensus output**.
-- If `$SYNTH1` contains `SYNTHESIS_RESULT: DELIBERATION NEEDED` → extract `CROSS_POLLINATION_BUNDLE:` block as `$DELIBERATION_BUNDLE`, proceed to Round 2.
+- If `$SYNTH1` contains `SYNTHESIS_RESULT: DELIBERATION NEEDED` → extract everything after the `CROSS_POLLINATION_BUNDLE:` marker (starting at the `Prior positions:` line, not including the marker itself) as `$DELIBERATION_BUNDLE`, proceed to Round 2.
 
 Display Round 1 positions table (from `$ROUND1_RESULTS`):
 ```
@@ -377,6 +377,21 @@ Write per-slot temp vote files to `.planning/scoreboard-tmp/`:
 mkdir -p .planning/scoreboard-tmp
 ```
 
+**`<voteCode>` mapping (scored per individual model against consensus verdict):**
+
+Mode A (pure question): `result: ''` — no binary ground truth at vote time; score is omitted.
+
+Mode B (execution + trace review) — peer-scored: individual verdict vs. final consensus:
+
+| Individual verdict | Consensus verdict | `<voteCode>` |
+|--------------------|-------------------|--------------|
+| `APPROVE`          | `APPROVE`         | `TP`         |
+| `REJECT`           | `REJECT`          | `TN`         |
+| `APPROVE`          | `REJECT`          | `FP`         |
+| `REJECT`           | `APPROVE`         | `FN`         |
+| `FLAG`             | any               | `TP+`        |
+| `UNAVAIL`          | —                 | `UNAVAIL`    |
+
 For each slot result in `$ROUND1_RESULTS` (and `$ROUND2_RESULTS` if Round 2 ran):
 ```bash
 node -e "
@@ -386,7 +401,7 @@ fs.writeFileSync(
   JSON.stringify({
     slot: '<slotName>',
     modelId: '<fullModelId from providers.json>',
-    result: '<voteCode>',
+    result: '<voteCode — from mapping table above>',
     verdict: '<VERDICT>',
     taskDescription: '<question first 100 chars>'
   })
@@ -509,7 +524,7 @@ Log: `[<slot>] UNAVAIL recorded — <remaining_display>`
 
 **Check SYNTHESIS_RESULT:**
 - If `$SYNTH1` contains `SYNTHESIS_RESULT: CONSENSUS REACHED` → proceed to **Consensus output (Mode B)**.
-- If `$SYNTH1` contains `SYNTHESIS_RESULT: DELIBERATION NEEDED` → extract `CROSS_POLLINATION_BUNDLE:` block as `$DELIBERATION_BUNDLE`, proceed to Round 2.
+- If `$SYNTH1` contains `SYNTHESIS_RESULT: DELIBERATION NEEDED` → extract everything after the `CROSS_POLLINATION_BUNDLE:` marker (starting at the `Prior positions:` line, not including the marker itself) as `$DELIBERATION_BUNDLE`, proceed to Round 2.
 
 ### Round 2 — Parallel deliberation wave (Mode B)
 
@@ -582,3 +597,25 @@ Parse `$SYNTH1` or `$SYNTH2` (whichever reached consensus) for verdicts. Display
 **Scoreboard update (single merge-wave transaction):**
 
 Write per-slot temp vote files to `.planning/scoreboard-tmp/` and apply via merge-wave — same pattern as Mode A Consensus output scoreboard update above.
+
+### Escalate (Mode B) — no consensus after Round 2
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► QUORUM ESCALATING — NO CONSENSUS AFTER ROUND 2
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Question: [original question]
+Commands run: [list]
+
+Final verdicts:
+• Claude:    [verdict + key reasoning]
+• <slot>:    [verdict + key reasoning or UNAVAIL]
+[... one line per model ...]
+
+Core disagreement: [1–2 sentences — what specifically split the models]
+
+Claude's recommendation: [APPROVE / REJECT / FLAG with rationale]
+```
+
+Update scoreboard using the same merge-wave pattern as Mode B Consensus output above (use `TP+` for FLAG verdicts, `FP`/`FN` for models that disagreed with Claude's final recommendation).
