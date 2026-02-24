@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.10 milestone started)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.11-01 Parallel Quorum Wave-Barrier — Phase v0.11-01 (Plan 02 next)
+**Current focus:** v0.11-01 Parallel Quorum Wave-Barrier — Phase v0.11-01 COMPLETE (all 3 plans done)
 
 ## Current Position
 
-Phase: v0.11-01 — In progress (1/3 plans complete)
-Plan: v0.11-01-01 complete → v0.11-01-02 next
-Status: Plan 01 complete — worker and synthesizer agents created; Plan 02 (scoreboard) ready
-Last activity: 2026-02-24 — v0.11-01-01 complete: qgsd-quorum-worker.md + qgsd-quorum-synthesizer.md
+Phase: v0.11-01 — COMPLETE (3/3 plans complete)
+Plan: v0.11-01-03 complete → v0.11-01 phase done
+Status: All 3 plans complete — PAR-01 through PAR-05 satisfied; orchestrator uses wave-barrier pattern
+Last activity: 2026-02-24 — v0.11-01-03 complete: qgsd-quorum-orchestrator.md rewritten with wave-barrier
 
-Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 1/3 plans | v0.10: 0/6 phases | v0.9 parallel: 2/5 phases
+Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.10: 0/6 phases | v0.9 parallel: 2/5 phases
 
 ## Performance Metrics
 
@@ -32,13 +32,13 @@ Progress: [████████████████████] 46/46 p
 | v0.8-01 P02 | 1 | ~5 min | 5 min |
 | v0.9-01 P01 | 1 | ~2 min | 2 min |
 | v0.11-01 P01 | 2 | 2 min | 1 min |
+| v0.11-01 P03 | 1 | 3 min | 3 min |
 
 **Recent Trend:**
 - Last 5 plans: stable
 - Trend: stable
 
 *Updated after each plan completion*
-| Phase v0.11-01 P02 | 3 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -65,6 +65,9 @@ Recent decisions affecting current work:
 - [v0.11-01-01]: CROSS_POLLINATION_BUNDLE content is verbatim-pasteable into prior_positions: of Round 2 worker $ARGUMENTS
 - [Phase v0.11-01]: atomic-write pattern: tmpPath + renameSync replaces all direct writeFileSync(absPath) in update-scoreboard.cjs
 - [Phase v0.11-01]: merge-wave: reads per-slot vote files from --dir, applies in memory, single atomic write; exits 0 gracefully when dir is empty or missing
+- [v0.11-01-03]: SEQUENTIAL CALLS ONLY exception: worker Task spawns per round ARE sibling calls; all Bash (set-availability, merge-wave, scoreboard) remains sequential
+- [v0.11-01-03]: Orchestrator pre-resolves $SLOT_TIMEOUTS in Step 2; workers receive timeout_ms in $ARGUMENTS and do not read providers.json
+- [v0.11-01-03]: Scoreboard update uses merge-wave per round (temp vote files → single atomic transaction) replacing per-model sequential calls in both Mode A and Mode B
 
 ### Pending Todos
 
@@ -87,5 +90,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed v0.11-01-01-PLAN.md — qgsd-quorum-worker.md and qgsd-quorum-synthesizer.md created; v0.11-01-02 is next
+Stopped at: Completed v0.11-01-03-PLAN.md — orchestrator rewritten with wave-barrier; v0.11-01 phase COMPLETE; PAR-01..05 satisfied
 Resume file: None
