@@ -322,9 +322,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.10-06-01-PLAN.md — Wave 0: failing test stubs for exportRoster, importRoster, backupClaudeJson, validateImportSchema pure logic (PORT-01, PORT-02, PORT-03)
-- [ ] v0.10-06-02-PLAN.md — Wave 1: implement exportRoster() with redaction + importRoster() schema validation + backupClaudeJson() + tests GREEN (PORT-01, PORT-02, PORT-03)
-- [ ] v0.10-06-03-PLAN.md — Wave 2: menu wiring (Export/Import options) + redacted key re-prompting flow + integration checkpoint:human-verify (PORT-01, PORT-02, PORT-03)
+- [ ] v0.10-06-01-PLAN.md — Wave 0: 15 failing test stubs for buildBackupPath, buildRedactedEnv, buildExportData, validateImportSchema (PORT-01, PORT-02, PORT-03)
+- [ ] v0.10-06-02-PLAN.md — Wave 1: implement 4 pure functions + add to _pure export block, ~140 tests GREEN (PORT-01, PORT-02, PORT-03)
+- [ ] v0.10-06-03-PLAN.md — Wave 2: backupClaudeJson + performExport + performImport I/O functions + mainMenu items 16/17 + checkpoint:human-verify (PORT-01, PORT-02, PORT-03)
 
 ### Phase v0.10-07: Retroactive Verification Closure
 **Goal**: Phases v0.10-02, v0.10-03, and v0.10-04 each have a VERIFICATION.md with explicit requirement traceability and implementing commit references; probeAllSlots and liveDashboard are unit-testable via _pure exports with an integration smoke test; menu numbering is sequential
