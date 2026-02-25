@@ -49,20 +49,20 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LOOP-01 | v0.13-01 | Pending |
-| LOOP-02 | v0.13-01 | Pending |
-| LOOP-03 | v0.13-01 | Pending |
-| STATE-01 | v0.13-01 | Pending |
-| QUORUM-01 | v0.13-02 | Pending |
-| LOOP-04 | v0.13-02 | Pending |
-| QUORUM-02 | v0.13-02 | Pending |
-| QUORUM-03 | v0.13-02 | Pending |
+| LOOP-01 | v0.13-01 (verified by v0.13-03) | Pending |
+| LOOP-02 | v0.13-01 (verified by v0.13-03) | Pending |
+| LOOP-03 | v0.13-01 (verified by v0.13-03) | Pending |
+| STATE-01 | v0.13-01 (verified by v0.13-03) | Pending |
+| QUORUM-01 | v0.13-02 (verified by v0.13-03) | Pending |
+| LOOP-04 | v0.13-02 (verified by v0.13-03) | Pending |
+| QUORUM-02 | v0.13-02 (verified by v0.13-03) | Pending |
+| QUORUM-03 | v0.13-02 (verified by v0.13-03) | Pending |
 
 **Coverage:**
 - v1 requirements: 8 total
-- Mapped to phases: 8
+- Mapped to phases: 8 (implemented in v0.13-01/02; formal verification in v0.13-03)
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after initial definition*
+*Last updated: 2026-02-25 — gap closure phases v0.13-03/04 added; traceability updated to reflect verifier phase*
