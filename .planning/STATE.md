@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-01 complete)
 Phase: v0.13-02 of 2 (Quorum Gates)
 Plan: —
 Status: v0.13-01 complete — ready to plan Phase v0.13-02
-Last activity: 2026-02-25 — v0.13-01 executed (transition.md Route B audit gate, audit-milestone.md STATE.md update + plan-milestone-gaps auto-spawn — LOOP-01/02/03, STATE-01 closed)
+Last activity: 2026-02-25 — v0.9-05 executed (rename get-shit-done/ → qgsd-core/ — REN-01/02/03/04 closed, all 4 requirements verified)
 
-Progress: [█████░░░░░] v0.13: 1/2 phases done | v0.12: v0.12-05 COMPLETE (5/8 phases done) | v0.9: 4/5 phases done
+Progress: [█████░░░░░] v0.13: 1/2 phases done | v0.12: v0.12-05 COMPLETE (5/8 phases done) | v0.9: COMPLETE (5/5 phases done)
 
 ## Performance Metrics
 
