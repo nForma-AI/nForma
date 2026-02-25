@@ -342,7 +342,12 @@ Plans:
   1. Developer can find `formal/tla/QGSDQuorum.tla` with named invariants `MinQuorumMet`, `NoInvalidTransition`, and `EventualConsensus` — state names mirror the XState machine from v0.12-01
   2. Running TLC with `formal/tla/MCsafety.cfg` (symmetry sets, N=5) completes with no violations; running TLC with `formal/tla/MCliveness.cfg` (no symmetry, N=3) completes with no liveness violations
   3. Developer can run `node bin/run-tlc.cjs` — the script checks for Java ≥17, invokes the TLC JAR, and exits with a clear error message if `JAVA_HOME` is unset; `npm test` passes without Java installed
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.12-02-01-PLAN.md — Wave 0 RED stubs for bin/run-tlc.test.cjs + package.json update (TLA-04)
+- [ ] v0.12-02-02-PLAN.md — Author QGSDQuorum.tla + MCsafety.cfg + MCliveness.cfg + formal/tla/ scaffolding (TLA-01, TLA-02, TLA-03)
+- [ ] v0.12-02-03-PLAN.md — Implement bin/run-tlc.cjs (GREEN phase) + full npm test verification (TLA-04)
 
 ### Phase v0.12-03: Static Analysis Suite
 **Goal**: Alloy vote-counting model, PRISM probabilistic DTMC, and Petri Net token model are all authored and runnable; Java ≥17 is documented once as the shared prerequisite for all three JVM tools
