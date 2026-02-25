@@ -636,7 +636,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] v0.13-06-01-PLAN.md — Sync qgsd-core/workflows/transition.md to ~/.claude/qgsd/workflows/transition.md via node bin/install.js --claude --global; verify installed copy uses anchored -A 4 pattern (LOOP-02)
+- [x] v0.13-06-01-PLAN.md — Sync qgsd-core/workflows/transition.md to ~/.claude/qgsd/workflows/transition.md via node bin/install.js --claude --global; verify installed copy uses anchored -A 4 pattern (LOOP-02)
 
 
 ## Progress
