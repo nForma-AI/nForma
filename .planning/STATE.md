@@ -52,6 +52,7 @@ Progress: [██████████] v0.13: 2/2 phases executed, audit gap
 | Phase v0.12-09 P02 | 1 | 1 tasks | 1 files |
 | Phase v0.12-09 P01 | 3 | 1 tasks | 2 files |
 | Phase v0.12-09 P05 | 3 | 1 tasks | 1 files |
+| Phase v0.12-09 P03 | 2 | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,7 @@ Recent decisions affecting current work:
 - [Phase v0.12-09]: TLA-04: Used identical conditional-skip guard pattern from run-audit-alloy.test.cjs (phases 06-08) for run-tlc.test.cjs JAR-not-found test
 - [Phase v0.12-09-01]: MCconvergence.cfg declares PROPERTY ConvergenceEventuallyResolves — liveness spec requires -workers 1; unconditional assignment replaces ternary
 - [Phase v0.12-09-05]: effectiveMinQuorum replaces MIN_QUORUM_SIZE in deadlock check — zero regression on default path (3>5=false unchanged)
+- [Phase v0.12-09]: ALY-02: JAR-existence skip guard pattern reused from run-audit-alloy.test.cjs for consistency
 
 ### Pending Todos
 
