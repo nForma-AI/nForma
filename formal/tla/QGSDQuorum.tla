@@ -15,7 +15,7 @@ EXTENDS Naturals, FiniteSets, TLC
 
 CONSTANTS
     Agents,          \* Set of quorum model slots (e.g., {"a1","a2","a3","a4","a5"})
-    MaxDeliberation  \* Maximum deliberation rounds before forced DECIDED (default: 4)
+    MaxDeliberation  \* Maximum deliberation rounds before forced DECIDED (default: 7)
 
 ASSUME MaxDeliberation \in Nat /\ MaxDeliberation > 0
 

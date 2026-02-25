@@ -14,8 +14,8 @@ P=? [ F s=1 ]
 // Conservative priors (tp_rate=0.85, unavail=0.15) give p=0.7225, E=~1.38 rounds.
 R{"rounds"}=? [ F s=1 ]
 
-// P3: Probability of deciding within MaxDeliberation=4 rounds
-P=? [ F<=4 s=1 ]
+// P3: Probability of deciding within MaxDeliberation=7 rounds
+P=? [ F<=7 s=1 ]
 
 // P4: Probability of deciding within 10 rounds (high-confidence bound)
 P=? [ F<=10 s=1 ]

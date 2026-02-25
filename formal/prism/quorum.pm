@@ -42,7 +42,7 @@ module quorum_convergence
             + (1 - tp_rate * (1 - unavail)) : (s'=2);
 
     // From DELIBERATING: same transition probabilities (memoryless DTMC)
-    // Note: MaxDeliberation (4) is enforced by XState guard, not modeled here.
+    // Note: MaxDeliberation (7) is enforced by XState guard, not modeled here.
     // The DTMC captures convergence probability per round, not the capped count.
     [] s=2 -> (tp_rate * (1 - unavail)) : (s'=1)
             + (1 - tp_rate * (1 - unavail)) : (s'=2);
@@ -61,5 +61,5 @@ endrewards
 // Properties checked in formal/prism/quorum.props (run with quorum.props file):
 // P1: Eventual convergence — P=? [ F s=1 ]   (should be 1.0)
 // P2: Expected rounds     — R{"rounds"}=? [ F s=1 ]   (should be ~1/p where p=tp_rate*(1-unavail))
-// P3: Decide within 4 rounds — P=? [ F<=4 s=1 ]
+// P3: Decide within 7 rounds — P=? [ F<=7 s=1 ]
 // P4: Decide within 10    — P=? [ F<=10 s=1 ]

@@ -13,6 +13,7 @@ on:
       - 'bin/run-prism.cjs'
       - 'bin/generate-formal-specs.cjs'
       - 'bin/check-spec-sync.cjs'
+      - 'bin/verify-quorum-health.cjs'
   pull_request:
     paths:
       - 'src/machines/qgsd-workflow.machine.ts'
@@ -24,6 +25,7 @@ on:
       - 'bin/run-prism.cjs'
       - 'bin/generate-formal-specs.cjs'
       - 'bin/check-spec-sync.cjs'
+      - 'bin/verify-quorum-health.cjs'
   workflow_dispatch:  # manual trigger
 
 jobs:
@@ -89,7 +91,7 @@ jobs:
       - name: TLC — liveness check (MCliveness, N=3)
         run: node bin/run-tlc.cjs MCliveness
 
-      - name: Alloy — NoSpuriousApproval check
+      - name: Alloy — majority threshold assertions (ThresholdPasses, BelowThresholdFails, ZeroApprovalsFail)
         run: node bin/run-alloy.cjs formal/alloy/quorum-votes.als
 
       - name: Cache PRISM binary
@@ -113,3 +115,7 @@ jobs:
         env:
           PRISM_BIN: /tmp/prism/bin/prism
         run: node bin/run-prism.cjs
+
+      - name: Quorum health check (requires scoreboard — advisory only in CI)
+        run: node bin/verify-quorum-health.cjs || echo "[verify-quorum-health] No scoreboard in CI — skipped (run locally against live data)"
+        continue-on-error: true

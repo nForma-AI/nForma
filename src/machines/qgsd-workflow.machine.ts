@@ -37,7 +37,7 @@ export const qgsdWorkflowMachine = setup({
     successCount:       0,
     deliberationRounds: 0,
     currentPhase:       'IDLE',
-    maxDeliberation:    4,
+    maxDeliberation:    7,
   },
   states: {
     IDLE: {
