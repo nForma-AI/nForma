@@ -46,6 +46,7 @@
     "keytar": "^7.9.0"
   },
   "devDependencies": {
+    "@hpcc-js/wasm-graphviz": "^1.21.0",
     "esbuild": "^0.24.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
@@ -59,6 +60,6 @@
     "generate-assets": "npm run generate-terminal && npm run generate-logo",
     "prepublishOnly": "npm run build:hooks",
     "lint:isolation": "node scripts/lint-isolation.js",
-    "test": "node scripts/lint-isolation.js && node --test hooks/qgsd-stop.test.js hooks/config-loader.test.js get-shit-done/bin/gsd-tools.test.cjs hooks/qgsd-circuit-breaker.test.js hooks/qgsd-prompt.test.js bin/update-scoreboard.test.cjs hooks/qgsd-statusline.test.js bin/review-mcp-logs.test.cjs bin/migrate-to-slots.test.cjs bin/validate-traces.test.cjs bin/run-tlc.test.cjs"
+    "test": "node scripts/lint-isolation.js && node --test hooks/qgsd-stop.test.js hooks/config-loader.test.js get-shit-done/bin/gsd-tools.test.cjs hooks/qgsd-circuit-breaker.test.js hooks/qgsd-prompt.test.js bin/update-scoreboard.test.cjs hooks/qgsd-statusline.test.js bin/review-mcp-logs.test.cjs bin/migrate-to-slots.test.cjs bin/validate-traces.test.cjs bin/run-tlc.test.cjs bin/run-alloy.test.cjs bin/export-prism-constants.test.cjs bin/generate-petri-net.test.cjs"
   }
 }
