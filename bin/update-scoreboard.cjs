@@ -36,12 +36,13 @@ const SCORE_DELTAS = {
   FP:     -3,
   FN:     -1,
   'TP+':   3,   // +1 TP effectiveness + +2 improvement bonus
+  'TN+':   7,   // +5 TN effectiveness + +2 constructive alternative adopted
   UNAVAIL: 0,
   '':      0,
 };
 
 const VALID_MODELS   = ['claude', 'gemini', 'opencode', 'copilot', 'codex', 'deepseek', 'minimax', 'qwen-coder', 'kimi', 'llama4'];
-const VALID_RESULTS  = ['TP', 'TN', 'FP', 'FN', 'TP+', 'UNAVAIL', ''];
+const VALID_RESULTS  = ['TP', 'TN', 'FP', 'FN', 'TP+', 'TN+', 'UNAVAIL', ''];
 const VALID_VERDICTS = ['APPROVE', 'BLOCK', 'DELIBERATE', 'CONSENSUS', 'GAPS_FOUND', '—'];
 
 // ---------------------------------------------------------------------------
@@ -69,7 +70,7 @@ function parseArgs(argv) {
 
 const USAGE = `Usage: node bin/update-scoreboard.cjs --model <name> --result <code> --task <label> --round <n> --verdict <v> [--scoreboard <path>] [--category <cat>] [--subcategory <subcat>] [--task-description <text>]
   --model             claude | gemini | opencode | copilot | codex
-  --result            TP | TN | FP | FN | TP+ | (empty for not scored)
+  --result            TP | TN | FP | FN | TP+ | TN+ | (empty for not scored)
   --task              task label, e.g. "quick-25"
   --round             round number (integer)
   --verdict           APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND | —
@@ -104,7 +105,7 @@ function validate(args) {
 
   const result = args.result || '';
   if (!VALID_RESULTS.includes(result)) {
-    errors.push(`--result must be one of: TP, TN, FP, FN, TP+, (empty)`);
+    errors.push(`--result must be one of: TP, TN, FP, FN, TP+, TN+, (empty)`);
   }
 
   const roundNum = parseInt(args.round, 10);
@@ -217,11 +218,11 @@ function recomputeStats(data) {
 
       m.score += delta;
 
-      if (vote === 'TP' || vote === 'TP+') m.tp += 1;
-      if (vote === 'TN')                   m.tn += 1;
-      if (vote === 'FP')                   m.fp += 1;
-      if (vote === 'FN')                   m.fn += 1;
-      if (vote === 'TP+')                  m.impr += 1;
+      if (vote === 'TP' || vote === 'TP+')  m.tp   += 1;
+      if (vote === 'TN' || vote === 'TN+')  m.tn   += 1;
+      if (vote === 'FP')                    m.fp   += 1;
+      if (vote === 'FN')                    m.fn   += 1;
+      if (vote === 'TP+' || vote === 'TN+') m.impr += 1;
     }
   }
 }
@@ -251,11 +252,11 @@ function recomputeSlots(data) {
       const delta = SCORE_DELTAS[vote];
       if (delta === undefined) continue;
       s.score += delta;
-      if (vote === 'TP' || vote === 'TP+') s.tp += 1;
-      if (vote === 'TN')  s.tn += 1;
+      if (vote === 'TP' || vote === 'TP+')  s.tp   += 1;
+      if (vote === 'TN' || vote === 'TN+')  s.tn   += 1;
       if (vote === 'FP')  s.fp += 1;
       if (vote === 'FN')  s.fn += 1;
-      if (vote === 'TP+') s.impr += 1;
+      if (vote === 'TP+' || vote === 'TN+') s.impr += 1;
     }
   }
 }
@@ -606,7 +607,7 @@ async function getAvailability(argv) {
 //   "slot":    "<slotName>",          // for --slot path
 //   "model":   "<modelFamily>",       // for --model path (alternative)
 //   "modelId": "<fullModelId>",       // required when slot is set
-//   "result":  "TP|TN|FP|FN|TP+|UNAVAIL|",
+//   "result":  "TP|TN|FP|FN|TP+|TN+|UNAVAIL|",
 //   "verdict": "APPROVE|REJECT|FLAG|CONSENSUS|DELIBERATE|GAPS_FOUND",
 //   "taskDescription": "<optional>"
 // }

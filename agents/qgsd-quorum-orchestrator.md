@@ -2,15 +2,8 @@
 ---
 name: qgsd-quorum-orchestrator
 description: >
-  Full QGSD quorum orchestrator — use whenever multi-model consensus is required.
-  Runs the R3 protocol end-to-end: provider pre-flight, team identity capture, then
-  Mode A (pure question / open decision) or Mode B (execution + trace review).
-  Spawned by /qgsd:quorum and any workflow, command, or planning gate that requires
-  multi-model approval before proceeding. Call this agent proactively whenever you
-  would otherwise query Codex, Gemini, OpenCode, Copilot, or claude-mcp instances
-  individually — let the orchestrator handle sequencing, UNAVAIL detection,
-  deliberation rounds, scoreboard updates, and consensus output. Returns a structured
-  verdict (APPROVE / BLOCK / CONSENSUS / ESCALATE) with full model positions.
+  DEPRECATED — do not spawn. Superseded by direct inline dispatch in
+  commands/qgsd/quorum.md as of quick-103. Retained for reference only.
 tools: Read, Write, Bash, Task, Glob, Grep
 color: purple
 ---
@@ -577,14 +570,16 @@ Parse final round results for verdicts. Display:
 
 Mode B (execution + trace review) — peer-scored: individual verdict vs. final consensus:
 
-| Individual verdict | Consensus verdict | `<voteCode>` |
-|--------------------|-------------------|--------------|
-| `APPROVE`          | `APPROVE`         | `TP`         |
-| `REJECT`           | `REJECT`          | `TN`         |
-| `APPROVE`          | `REJECT`          | `FP`         |
-| `REJECT`           | `APPROVE`         | `FN`         |
-| `FLAG`             | any               | `TP+`        |
-| `UNAVAIL`          | —                 | `UNAVAIL`    |
+| Individual verdict | Consensus verdict | Alternative adopted? | `<voteCode>` |
+|--------------------|-------------------|----------------------|--------------|
+| `APPROVE`          | `APPROVE`         | no                   | `TP`         |
+| `APPROVE`          | `APPROVE`         | yes (improvement)    | `TP+`        |
+| `REJECT`           | `REJECT`          | no                   | `TN`         |
+| `REJECT`           | `REJECT`          | yes (alt. adopted)   | `TN+`        |
+| `APPROVE`          | `REJECT`          | —                    | `FP`         |
+| `REJECT`           | `APPROVE`         | —                    | `FN`         |
+| `FLAG`             | any               | yes (improvement)    | `TP+`        |
+| `UNAVAIL`          | —                 | —                    | `UNAVAIL`    |
 
 Write per-slot temp vote files to `.planning/scoreboard-tmp/` and apply via merge-wave — same pattern as Mode A Consensus output scoreboard update above (per round from `$ALL_ROUND_RESULTS`).
 
