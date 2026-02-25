@@ -116,5 +116,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Phase v0.13-05 complete, gap closure chain finished — re-auditing milestone v0.13 (LOOP-02 path)
+Stopped at: Milestone v0.13 audit: gaps_found (7/8 requirements) — INT-03: v0.13-05 fix not deployed to installed transition.md; LOOP-02 broken at runtime
 Resume file: None
