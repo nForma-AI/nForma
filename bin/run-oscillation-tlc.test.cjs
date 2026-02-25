@@ -58,13 +58,18 @@ test('exits non-zero and lists valid configs (MCoscillation, MCconvergence) in e
   assert.match(result.stderr, /MCoscillation|MCconvergence/i);
 });
 
-test('MCoscillation config uses -workers 1 and MCconvergence does not specify -workers 1', () => {
+test('both MCoscillation and MCconvergence use -workers 1 (both have liveness PROPERTY)', () => {
   const fs = require('fs');
   if (!fs.existsSync(RUN_OSCILLATION_TLC)) {
     assert.fail('run-oscillation-tlc.cjs not yet implemented — Wave 0 RED stub');
   }
   const src = fs.readFileSync(RUN_OSCILLATION_TLC, 'utf8');
-  // Assert workers conditional: MCoscillation → '1', MCconvergence → 'auto'
-  assert.match(src, /MCoscillation.*workers.*['"]1['"]|['"]1['"].*MCoscillation/s);
-  assert.match(src, /MCconvergence.*workers.*['"]auto['"]|['"]auto['"].*MCconvergence/s);
+  // GAP-5 fix: both configs have PROPERTY (liveness); workers must always be '1'
+  // Assert unconditional workers assignment to '1'
+  assert.match(src, /const workers = '1';/);
+  // Assert no workers ternary conditional (the spec-file ternary for QGSDOscillation/QGSDConvergence
+  // is still valid — only the workers ternary must be gone)
+  assert.doesNotMatch(src, /workers\s*=\s*configName\s*===\s*['"]MCoscillation['"]\s*\?/);
+  // Assert 'auto' is not assigned as the workers value
+  assert.doesNotMatch(src, /workers\s*=.*['"]auto['"]/);
 });
