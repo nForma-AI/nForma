@@ -16,7 +16,10 @@
 
 module quorum_votes
 
--- Signatures
+-- Fix agent count to 5 (QGSD quorum slot count).
+-- This makes the numeric threshold assertions below concrete and verifiable.
+fact AgentCount { #Agent = 5 }
+
 sig Agent {}
 
 sig VoteRound {
@@ -24,30 +27,40 @@ sig VoteRound {
     total     : one Int
 }
 
--- MajorityReached: mirrors minQuorumMet guard.
--- mul avoids integer division: #approvals * 2 >= total  ≡  successCount * 2 >= N
+-- MajorityReached: mirrors minQuorumMet guard from XState machine.
+-- Equivalent to Math.ceil(N/2) <= successCount for all positive integers N.
+-- (Proof: n >= ceil(N/2) ↔ n*2 >= N for positive integers.)
 pred MajorityReached [r : VoteRound] {
     mul[#r.approvals, 2] >= r.total
 }
 
 pred ValidRound [r : VoteRound] {
-    r.total > 0
-    r.total = #Agent
-    #r.approvals <= r.total
+    r.total = #Agent        -- total must equal actual agent count
+    #r.approvals <= r.total -- can't have more approvals than participants
 }
 
-pred MinQuorumMet [r : VoteRound] {
-    -- Minimum: ceil(N/2) approvals. With N=5: at least 3 required.
-    #r.approvals >= div[r.total, 2].add[1]
-}
-
--- Assertion: no valid round can be accepted without satisfying MajorityReached.
-assert NoSpuriousApproval {
+-- ASSERTION 1: The threshold boundary — 3 approvals satisfies majority for N=5.
+-- Non-trivial: Alloy must verify mul[3, 2] >= 5 via integer arithmetic.
+assert ThresholdPasses {
     all r : VoteRound |
-        (ValidRound[r] and not MajorityReached[r])
-            implies (mul[#r.approvals, 2] < r.total)
+        (ValidRound[r] and #r.approvals = 3) implies MajorityReached[r]
 }
 
-check NoSpuriousApproval for 5 Agent, 5 VoteRound
+-- ASSERTION 2: One below threshold — 2 approvals do NOT satisfy majority for N=5.
+-- Non-trivial: Alloy must verify mul[2, 2] < 5 via integer arithmetic.
+assert BelowThresholdFails {
+    all r : VoteRound |
+        (ValidRound[r] and #r.approvals = 2) implies not MajorityReached[r]
+}
 
+-- ASSERTION 3: Zero approvals always fails — safety baseline regardless of N.
+assert ZeroApprovalsFail {
+    all r : VoteRound | ValidRound[r] implies (not (#r.approvals = 0 and MajorityReached[r]))
+}
+
+check ThresholdPasses   for 5 Agent, 5 VoteRound
+check BelowThresholdFails for 5 Agent, 5 VoteRound
+check ZeroApprovalsFail for 5 Agent, 5 VoteRound
+
+-- Show an example valid majority round
 run MajorityReached for 5 Agent, 1 VoteRound

@@ -46,11 +46,17 @@ if (!fs.existsSync(modelPath)) {
 
 // ── Build argument list ──────────────────────────────────────────────────────
 // Extra args passed to this script are forwarded to PRISM after the model path.
-// Default property: P=? [ F s=1 ] — probability of eventually reaching DECIDED.
+// If formal/prism/quorum.props exists, pass it as the properties file (runs all 4 properties).
+// Otherwise fall back to: -pf "P=? [ F s=1 ]"
 const extraArgs = process.argv.slice(2);
-const hasPf = extraArgs.some(a => a === '-pf' || a === '-prop');
+const hasPf    = extraArgs.some(a => a === '-pf' || a === '-prop');
+const propsFile = path.join(__dirname, '..', 'formal', 'prism', 'quorum.props');
+const hasProps  = !hasPf && fs.existsSync(propsFile);
+
 const prismArgs = [modelPath];
-if (!hasPf) {
+if (hasProps) {
+  prismArgs.push(propsFile);
+} else if (!hasPf) {
   prismArgs.push('-pf', 'P=? [ F s=1 ]');
 }
 prismArgs.push(...extraArgs);

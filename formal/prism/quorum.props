@@ -1,0 +1,21 @@
+// formal/prism/quorum.props
+// GENERATED — do not edit by hand.
+// Source of truth: src/machines/qgsd-workflow.machine.ts
+// Regenerate:      node bin/generate-formal-specs.cjs
+// Generated:       2026-02-25
+//
+// Run all properties:
+//   $PRISM_BIN formal/prism/quorum.pm formal/prism/quorum.props
+
+// P1: Eventual convergence — must be exactly 1.0 (certain termination)
+P=? [ F s=1 ]
+
+// P2: Expected deliberation rounds until DECIDED
+// Conservative priors (tp_rate=0.85, unavail=0.15) give p=0.7225, E=~1.38 rounds.
+R{"rounds"}=? [ F s=1 ]
+
+// P3: Probability of deciding within MaxDeliberation=4 rounds
+P=? [ F<=4 s=1 ]
+
+// P4: Probability of deciding within 10 rounds (high-confidence bound)
+P=? [ F<=10 s=1 ]
