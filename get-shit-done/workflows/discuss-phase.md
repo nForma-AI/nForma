@@ -200,29 +200,15 @@ Apply the R4 pre-filter (CLAUDE.md §R4) to every gray area candidate before pre
 
 1. **Form Claude's own position first** — Bias toward the long-term solution. Write a 1-2 sentence answer and classify as CONSENSUS-READY or USER-INPUT-NEEDED. This is Claude's active quorum vote.
 
-2. **Spawn the quorum orchestrator sub-agent** (one spawn per question — sequential, not parallel):
+2. **Run quorum inline** for this question (one quorum round per question — sequential, not parallel):
 
-   ```
-   Task(
-     subagent_type="qgsd-quorum-orchestrator",
-     description="R4 pre-filter: [question text excerpt]",
-     prompt="claude_vote: [CONSENSUS-READY: answer | USER-INPUT-NEEDED: reason] — Claude's position on whether this gray area can be resolved by quorum or needs user input.
-artifact: Context: We are planning [phase name] for the QGSD project.
-Phase goal: [goal from ROADMAP.md]
-Codebase context: [relevant patterns/decisions from STATE.md]
+   R3 dispatch_pattern from `commands/qgsd/quorum.md` — Mode A:
+   - Question: "Should '[question text]' be decided by quorum now (removing it from the user's question list), or does it genuinely require the user's vision/preference? If quorum can decide: provide the recommended answer biased toward the long-term solution. Vote APPROVE (quorum can decide — CONSENSUS-READY) or BLOCK (user input needed)."
+   - Include context: phase name, goal from ROADMAP.md, relevant patterns from STATE.md
+   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+   - Synthesize results inline, deliberate up to 3 rounds per R4
 
-Gray area question: [question text]
-
-Should this be decided by quorum now (removing it from the user's question list), or does it genuinely require the user's vision/preference to answer?
-
-If quorum can decide: provide the recommended answer biased toward the long-term solution.
-If user input is needed: explain why quorum cannot resolve this without user preference.
-
-Vote APPROVE (quorum can decide — equivalent to CONSENSUS-READY) or BLOCK (user input needed — equivalent to USER-INPUT-NEEDED)."
-   )
-   ```
-
-   Fail-open: if the Task itself errors (agent unavailable), note it and mark the question for user presentation per R6.
+   Fail-open: if all slots error (UNAVAIL), mark the question for user presentation per R6.
 
 3. **Route on quorum_result:**
    - **APPROVED** → Record as auto-resolved assumption. Add to `auto_resolved[]` with the consensus answer from the sub-agent's final_positions. Remove from user-facing question list.
@@ -529,6 +515,9 @@ Context captured. Spawning plan-phase...
 ```
 
 Spawn plan-phase as Task:
+
+> **Note:** Use the Task tool to spawn this sub-agent. Do NOT invoke any Skill tool (e.g., `mcp__gemini-cli-1__gemini`, `mcp__codex-cli-1__review`, `mcp__opencode__opencode`, `mcp__copilot-cli__ask`) as a substitute. Skill tool calls do not spawn sub-agents — they call external models directly, bypassing the agent system.
+
 ```
 Task(
   prompt="Run /qgsd:plan-phase ${PHASE} --auto",

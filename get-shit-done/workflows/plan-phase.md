@@ -124,6 +124,8 @@ Write to: {phase_dir}/{phase_num}-RESEARCH.md
 </output>
 ```
 
+> **Note:** Use the Task tool to spawn this sub-agent. Do NOT invoke any Skill tool (e.g., `mcp__gemini-cli-1__gemini`, `mcp__codex-cli-1__review`, `mcp__opencode__opencode`, `mcp__copilot-cli__ask`) as a substitute. Skill tool calls do not spawn sub-agents — they call external models directly, bypassing the agent system.
+
 ```
 Task(
   prompt="First, read ~/.claude/agents/qgsd-phase-researcher.md for your role and instructions.\n\n" + research_prompt,
@@ -250,6 +252,8 @@ Output consumed by /qgsd:execute-phase. Plans need:
 </quality_gate>
 ```
 
+> **Note:** Use the Task tool to spawn this sub-agent. Do NOT invoke any Skill tool (e.g., `mcp__gemini-cli-1__gemini`, `mcp__codex-cli-1__review`, `mcp__opencode__opencode`, `mcp__copilot-cli__ask`) as a substitute. Skill tool calls do not spawn sub-agents — they call external models directly, bypassing the agent system.
+
 ```
 Task(
   prompt="First, read ~/.claude/agents/qgsd-planner.md for your role and instructions.\n\n" + filled_prompt,
@@ -272,18 +276,13 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
   "{\"activity\":\"plan_phase\",\"sub_activity\":\"quorum\",\"phase\":${PHASE_NUMBER},\"quorum_round\":1}"
 ```
 
-Spawn the quorum orchestrator sub-agent:
+Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`):
+- Mode B — artifact review
+- artifact_path: all `${PHASE_DIR}/*-PLAN.md` files (pass paths; workers read them)
+- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+- Synthesize results inline, deliberate up to 10 rounds per R3.3
 
-```
-Task(
-  subagent_type="qgsd-quorum-orchestrator",
-  description="Quorum review: phase ${PHASE_NUMBER} plans",
-  prompt="claude_vote: [Your APPROVE/BLOCK vote with 1-2 sentence rationale]
-artifact: [Full content of all PLAN.md files from ${PHASE_DIR}]"
-)
-```
-
-Fail-open: if the Task itself errors (agent unavailable), note it and proceed — same as R6 policy for individual models.
+Fail-open: if a slot errors (UNAVAIL), note it and proceed — same as R6 policy.
 
 Route on quorum_result:
 - **APPROVED:** Include `<!-- GSD_DECISION -->` in your response summarizing quorum results. Proceed to step 9.
@@ -338,6 +337,8 @@ Checker prompt:
 </expected_output>
 ```
 
+> **Note:** Use the Task tool to spawn this sub-agent. Do NOT invoke any Skill tool (e.g., `mcp__gemini-cli-1__gemini`, `mcp__codex-cli-1__review`, `mcp__opencode__opencode`, `mcp__copilot-cli__ask`) as a substitute. Skill tool calls do not spawn sub-agents — they call external models directly, bypassing the agent system.
+
 ```
 Task(
   prompt=checker_prompt,
@@ -381,6 +382,8 @@ Do NOT replan from scratch unless issues are fundamental.
 Return what changed.
 </instructions>
 ```
+
+> **Note:** Use the Task tool to spawn this sub-agent. Do NOT invoke any Skill tool (e.g., `mcp__gemini-cli-1__gemini`, `mcp__codex-cli-1__review`, `mcp__opencode__opencode`, `mcp__copilot-cli__ask`) as a substitute. Skill tool calls do not spawn sub-agents — they call external models directly, bypassing the agent system.
 
 ```
 Task(
@@ -431,6 +434,9 @@ Plans ready. Spawning execute-phase...
 ```
 
 Spawn execute-phase as Task:
+
+> **Note:** Use the Task tool to spawn this sub-agent. Do NOT invoke any Skill tool (e.g., `mcp__gemini-cli-1__gemini`, `mcp__codex-cli-1__review`, `mcp__opencode__opencode`, `mcp__copilot-cli__ask`) as a substitute. Skill tool calls do not spawn sub-agents — they call external models directly, bypassing the agent system.
+
 ```
 Task(
   prompt="Run /qgsd:execute-phase ${PHASE} --auto",
