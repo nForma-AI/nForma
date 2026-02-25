@@ -1,0 +1,77 @@
+digraph account_manager_petri_net {
+  rankdir=LR;
+  label="QGSD Account Manager Petri Net\n(OAuth credential pool — 1-safe FSM encoding)";
+  node [fontname="Helvetica"];
+
+  // ── Places (FSM states — circles) ─────────────────────────────────────────
+  node [shape=circle, fixedsize=true, width=1.3, style=filled, fillcolor=white];
+  idle      [label="IDLE",      xlabel="●\n(token)"];
+  adding    [label="ADDING"];
+  saving    [label="SAVING"];
+  switching [label="SWITCHING"];
+  removing  [label="REMOVING"];
+  error     [label="ERROR",     style=filled, fillcolor="#ffe0e0"];
+
+  // ── Transitions (FSM events — filled rectangles) ───────────────────────────
+  node [shape=rect, height=0.35, width=1.6, style=filled, fillcolor=black, fontcolor=white, fixedsize=false];
+  t_start_add    [label="StartAdd(id)"];
+  t_oauth_ok     [label="OAuthSuccess"];
+  t_oauth_fail   [label="OAuthFail"];
+  t_save_ok      [label="SaveOk"];
+  t_save_fail    [label="SaveFail"];
+  t_start_switch [label="StartSwitch(id)"];
+  t_swap_ok      [label="SwapOk"];
+  t_swap_fail    [label="SwapFail"];
+  t_start_remove [label="StartRemove(id)"];
+  t_remove_ok    [label="RemoveOk"];
+  t_remove_fail  [label="RemoveFail"];
+  t_reset        [label="ResetError"];
+
+  // ── Arcs: IDLE ─────────────────────────────────────────────────────────────
+  idle      -> t_start_add;
+  t_start_add -> adding;
+
+  idle      -> t_start_switch;
+  t_start_switch -> switching;
+
+  idle      -> t_start_remove;
+  t_start_remove -> removing;
+
+  // ── Arcs: ADDING ──────────────────────────────────────────────────────────
+  adding    -> t_oauth_ok;
+  t_oauth_ok -> saving;
+
+  adding    -> t_oauth_fail;
+  t_oauth_fail -> error;
+
+  // ── Arcs: SAVING ──────────────────────────────────────────────────────────
+  saving    -> t_save_ok;
+  t_save_ok -> idle;
+
+  saving    -> t_save_fail;
+  t_save_fail -> error;
+
+  // ── Arcs: SWITCHING ───────────────────────────────────────────────────────
+  switching -> t_swap_ok;
+  t_swap_ok -> idle;
+
+  switching -> t_swap_fail;
+  t_swap_fail -> error;
+
+  // ── Arcs: REMOVING ────────────────────────────────────────────────────────
+  removing  -> t_remove_ok;
+  t_remove_ok -> idle;
+
+  removing  -> t_remove_fail;
+  t_remove_fail -> error;
+
+  // ── Arcs: ERROR ───────────────────────────────────────────────────────────
+  error     -> t_reset;
+  t_reset   -> idle;
+
+  // ── Layout hints ──────────────────────────────────────────────────────────
+  { rank=same; t_start_add; t_start_switch; t_start_remove; }
+  { rank=same; adding; switching; removing; }
+  { rank=same; t_oauth_ok; t_swap_ok; t_remove_ok; }
+  { rank=same; saving; }
+}

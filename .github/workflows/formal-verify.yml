@@ -119,3 +119,9 @@ jobs:
       - name: Quorum health check (requires scoreboard — advisory only in CI)
         run: node bin/verify-quorum-health.cjs || echo "[verify-quorum-health] No scoreboard in CI — skipped (run locally against live data)"
         continue-on-error: true
+
+      - name: Run full FV pipeline via master runner (run-formal-verify.cjs)
+        env:
+          PRISM_BIN: /tmp/prism/bin/prism
+        run: node bin/run-formal-verify.cjs
+        continue-on-error: true
