@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
+See: .planning/PROJECT.md (updated 2026-02-25 after v0.13 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10 Roster Toolkit — MILESTONE COMPLETE (shipped 2026-02-25). All 8 phases done (v0.10-01..v0.10-08). ROADMAP updated. v0.9-04 Tier 3 Fixes COMPLETE (2026-02-25). Next: v0.12-05 or remaining v0.9 phases.
+**Current focus:** v0.13 Autonomous Milestone Execution — roadmap created 2026-02-25. Phase v0.13-01 ready to plan.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: v0.13-01 of 2 (Loop Wiring)
 Plan: —
-Status: Defining requirements for v0.13 Autonomous Milestone Execution
-Last activity: 2026-02-25 — Milestone v0.13 started
+Status: Roadmap created — ready to plan Phase v0.13-01
+Last activity: 2026-02-25 — v0.13 roadmap written (ROADMAP.md, STATE.md, REQUIREMENTS.md traceability confirmed)
 
-Progress: [████████████████████] v0.10: 8/8 COMPLETE (SHIPPED) | v0.11: 3/3 COMPLETE (SHIPPED) | v0.12: v0.12-04 COMPLETE (3/3 plans done) | v0.9: 4/5 phases done
+Progress: [░░░░░░░░░░] v0.13: 0/2 phases started | v0.12: v0.12-04 COMPLETE (4/8 phases done) | v0.9: 4/5 phases done
 
 ## Performance Metrics
 
@@ -49,7 +49,6 @@ Progress: [████████████████████] v0.10: 
 - Trend: stable
 
 *Updated after each plan completion*
-| Phase v0.12-04 P03 | 2 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -58,36 +57,13 @@ Progress: [████████████████████] v0.10: 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [v0.12 roadmap]: Hook emission (LOG-02) uses fs.appendFile only — never stdout (stdout = Claude Code decision channel)
-- [v0.12 roadmap]: XState must NOT be imported in hook files — compiled CJS artifact only; hooks maintain zero npm runtime dependencies
-- [v0.12 roadmap]: conformance-schema.cjs is the first deliverable of v0.12-01 — prevents schema drift permanently
-- [v0.12 roadmap]: v0.12-03 depends on v0.12-01 only (not v0.12-02) — Alloy/PRISM/Petri can run in parallel after schema is stable
-- [v0.12 roadmap]: Java ≥17 is the shared prerequisite for TLA+, Alloy, PRISM — documented once in VERIFICATION_TOOLS.md
-- [v0.11-01-03]: SEQUENTIAL CALLS ONLY exception: worker Task spawns per round ARE sibling calls; all Bash remains sequential
-- [v0.11-01-03]: Scoreboard update uses merge-wave per round (temp vote files → single atomic transaction)
-- [v0.10-01-01]: readQgsdJson/writeQgsdJson use optional filePath parameter for testability — avoids fs mocking
-- [v0.10-01-01]: getKeyInvalidBadge uses dependency-injected hasKeyFn — keeps pure function testable without secretsLib
-- [v0.10-01-01]: listAgents() deduplication — 2 separate inline qgsd.json reads replaced by single readQgsdJson() call
-- [v0.10-01-02]: hasKeyFn=()=>true in listAgents() — key_status is written only after health probe (key configured), so invalid status implies key existed at probe time; badge fires unconditionally on invalid status
-- [v0.10-01-02]: scoreboardData loaded from process.cwd()/.planning/quorum-scoreboard.json (project-relative, not home-relative)
-- [v0.10-04-01]: formatTimestamp tests check format structure (length + colon positions) not exact HH:MM:SS to avoid UTC vs local timezone flakiness
-- [v0.10-04-01]: buildDashboardLines stale threshold: 60s — test uses 70s (stale) and 10s (fresh) as deterministic boundary cases
-- [v0.10-04-02]: formatTimestamp inserted after writeKeyStatus, before probeWithRetryOrCancel — keeps pure functions together near other pure functions
-- [v0.10-04-02]: ANSI escape codes embedded in buildDashboardLines return strings — caller (liveDashboard) renders as-is, no abstraction layer needed
-- [v0.10-05-01]: Plan stated 22 stubs but action block contained 24 (4+4+4+5+7); applied all 24 — code specification is authoritative over prose count
-- [v0.10-05-02]: 118 tests pass (not 116 as plan expected) — 94+24=118 is correct GREEN state; count discrepancy carried forward from Plan 01
-- [v0.10-05-02]: POLICY_MENU_CHOICES and UPDATE_LOG_DEFAULT_MAX_AGE_MS are module-level constants, not exported — internal implementation details
-- [v0.10-05-03]: runAutoUpdateCheck() is fail-open with 20s Promise.race timeout — never throws or blocks mainMenu
-- [v0.10-05-03]: listAgents() reads tail 500 lines of update log — prevents unbounded memory growth on large logs
-- [v0.10-05-03]: writeUpdatePolicy() persists to qgsd.json agent_config[slot].update_policy; tuneTimeouts() writes to providers.json via writeProvidersJson()
-- [v0.10-08-01]: Wave 0 stub 3 uses _pure.runAutoUpdateCheck existence check as RED trigger — simplest assertion that fails before Plan 02 adds the export
-- [v0.10-08-02]: runAutoUpdateCheck() fix uses providerMap[slot]→p.cli→path.basename() for slot→binary resolution — follows listAgents() pattern exactly; getStatusesFn default parameter for backwards-compatible injection
-- [v0.10-08-02]: MILESTONE-AUDIT status changed to gaps_found_plcy03_fixed — 9/16 unsatisfied (down from 10); PLCY-03 moves to satisfied_code_fix_pending_human
-- [v0.12-04-02]: No SYMMETRY directive in MCoscillation.cfg — labels appear in ordered sequences; permutation symmetry gives incorrect results for sequence-based models
-- [v0.12-04-02]: WF_vars(EvaluateFlag) + WF_vars(CollapseRuns) in Spec — algorithm is a bounded finite loop, WF is sufficient over SF
-- [v0.12-04-02]: HaikuReturnsYES preconditioned on logWritten=FALSE — mirrors JS guard; resolvedAt is set exactly once per oscillation event
+- [v0.13 roadmap]: Loop Wiring (v0.13-01) covers LOOP-01/02/03 + STATE-01 — all in transition.md and audit-milestone.md
+- [v0.13 roadmap]: Quorum Gates (v0.13-02) covers QUORUM-01/02/03 + LOOP-04 — plan-milestone-gaps, execute-phase, discuss-phase
+- [v0.13 roadmap]: Two phases total — natural delivery boundary between "wiring the chain" and "replacing AskUserQuestion with quorum"
 - [v0.12-04-03]: MCoscillation uses -workers 1 (liveness PROPERTY — avoids TLC v1.8.0 multi-worker liveness bug); MCconvergence uses -workers auto (safety-only)
 - [v0.12-04-03]: specPath dispatched from configName: MCoscillation → QGSDOscillation.tla, MCconvergence → QGSDConvergence.tla
+- [v0.12-04-02]: No SYMMETRY directive in MCoscillation.cfg — labels appear in ordered sequences; permutation symmetry gives incorrect results for sequence-based models
+- [v0.12-04-02]: WF_vars(EvaluateFlag) + WF_vars(CollapseRuns) in Spec — algorithm is a bounded finite loop, WF is sufficient over SF
 
 ### Pending Todos
 
@@ -120,5 +96,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed v0.12-04-03-PLAN.md — run-oscillation-tlc.cjs runner (all 3 plans done, v0.12-04 COMPLETE)
+Stopped at: v0.13 roadmap created — Phase v0.13-01 Loop Wiring ready to plan
 Resume file: None

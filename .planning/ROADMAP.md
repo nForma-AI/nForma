@@ -13,6 +13,7 @@
 - ✅ **v0.10 — Roster Toolkit** — Phases v0.10-01..v0.10-08 (shipped 2026-02-25)
 - ✅ **v0.11 — Parallel Quorum** — Phase v0.11-01 (shipped 2026-02-24)
 - 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-08 (in progress)
+- 🚧 **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-02 (in progress)
 
 ## Phases
 
@@ -161,6 +162,14 @@
 - [ ] **Phase v0.12-06: Audit Trail Invariants** — Alloy models for scoreboard recomputation idempotency/no-vote-loss/no-double-counting and availability hint date arithmetic (GAP-3, GAP-9)
 - [ ] **Phase v0.12-07: Hook Transcript Verification** — Alloy model for qgsd-stop.js transcript scanning: boundary detection, tool_use/tool_result pairing uniqueness, ceiling enforcement (GAP-4)
 - [ ] **Phase v0.12-08: Installer and Taxonomy Extensions** — Alloy extension to install-scope.als (rollback soundness, config sync completeness) and new taxonomy-safety.als (injection prevention, closed/open taxonomy consistency) (GAP-7, GAP-8)
+
+### 🚧 v0.13 — Autonomous Milestone Execution (In Progress)
+
+**Milestone Goal:** Remove all human checkpoints from the milestone execution loop and replace every uncertainty point with quorum consensus, enabling fully autonomous end-to-end milestone completion from new-milestone through complete-milestone with zero AskUserQuestion calls.
+
+- [ ] **Phase v0.13-01: Loop Wiring** — Wire audit-milestone into the last-phase transition chain; detect gap-closure re-audit vs. primary completion path; audit-milestone auto-spawns plan-milestone-gaps on gaps_found; STATE.md updated with audit result (LOOP-01, LOOP-02, LOOP-03, STATE-01)
+- [ ] **Phase v0.13-02: Quorum Gates** — Replace every AskUserQuestion in the autonomous loop with R3 quorum: plan-milestone-gaps confirmation gate, execute-phase gap resolution, discuss-phase gray-area routing in auto mode (QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03)
+
 
 ## Phase Details
 
@@ -489,6 +498,35 @@ Plans:
 - [ ] v0.12-08-02-PLAN.md — Extend install-scope.als + author taxonomy-safety.als (GAP-7, GAP-8)
 - [ ] v0.12-08-03-PLAN.md — Implement bin/run-installer-alloy.cjs + GREEN tests (GAP-7, GAP-8)
 
+### Phase v0.13-01: Loop Wiring
+**Goal**: The milestone execution chain runs audit-milestone automatically at the last-phase boundary, detects whether a re-audit or fresh completion is needed, and advances to plan-milestone-gaps without human input when gaps are found; STATE.md always reflects the current audit result
+**Depends on**: Nothing (first v0.13 phase)
+**Requirements**: LOOP-01, LOOP-02, LOOP-03, STATE-01
+**Success Criteria** (what must be TRUE):
+  1. Running the last-phase transition invokes audit-milestone before complete-milestone — no human prompt required to initiate the audit step
+  2. When the completed phase's ROADMAP entry contains the `**Gap Closure:**` marker, the transition routes to audit-milestone instead of complete-milestone — the re-audit path fires automatically
+  3. When audit-milestone produces a gaps_found result with at least one phase classified missing_no_plan, it auto-spawns a plan-milestone-gaps Task — no user confirmation step intervenes
+  4. After audit-milestone writes the MILESTONE-AUDIT.md artifact, STATE.md "Stopped at" and "Current Position" fields are updated to reflect the audit result (passed / gaps_found / tech_debt) before the workflow exits
+**Plans**: TBD
+
+Plans:
+- [ ] v0.13-01-01: Wire Route B audit gate in transition.md + Gap Closure marker detection; update audit-milestone.md auto-spawn logic + STATE.md update (LOOP-01, LOOP-02, LOOP-03, STATE-01)
+
+### Phase v0.13-02: Quorum Gates
+**Goal**: Every decision point in the autonomous loop that previously halted execution and asked the user a question now calls R3 quorum instead — gap phase approval, plan-phase auto-spawn, gap resolution during execution, and gray-area decisions during discuss-phase all proceed without human checkpoints
+**Depends on**: Phase v0.13-01
+**Requirements**: QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03
+**Success Criteria** (what must be TRUE):
+  1. When plan-milestone-gaps proposes new gap closure phases, it submits them to R3 quorum for approval before updating ROADMAP.md — the previous AskUserQuestion confirmation gate is gone; quorum APPROVE triggers the ROADMAP update; quorum BLOCK surfaces the objection for resolution
+  2. After quorum approves the proposed gap phases in plan-milestone-gaps, it auto-spawns a plan-phase Task for the first gap phase — no human prompt required to begin planning the first gap phase
+  3. When execute-phase detects a gaps_found condition mid-execution, it routes to quorum diagnosis and auto-resolution instead of halting the chain — quorum proposes the fix; execution resumes after APPROVE
+  4. When discuss-phase has remaining user_questions after the R4 pre-filter, it routes them to quorum in auto mode instead of presenting them to the user — quorum answers the gray areas; execution continues without any AskUserQuestion call
+**Plans**: TBD
+
+Plans:
+- [ ] v0.13-02-01: Add R3 quorum gate to plan-milestone-gaps + auto-spawn plan-phase after APPROVE; update execute-phase gaps_found path; update discuss-phase auto mode (QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03)
+
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -559,3 +597,5 @@ Plans:
 | v0.12-06. Audit Trail Invariants | v0.12 | 0/3 | Not started | - |
 | v0.12-07. Hook Transcript Verification | v0.12 | 0/3 | Not started | - |
 | v0.12-08. Installer and Taxonomy Extensions | v0.12 | 0/3 | Not started | - |
+| v0.13-01. Loop Wiring | v0.13 | 0/1 | Not started | - |
+| v0.13-02. Quorum Gates | v0.13 | 0/1 | Not started | - |
