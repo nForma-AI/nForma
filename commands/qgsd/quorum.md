@@ -437,37 +437,33 @@ $TRACES
 
 ### Dispatch quorum workers via Task (parallel per round)
 
-Task subagents for each round MAY be dispatched as **parallel sibling calls** in one message turn — one Task per slot. The description= field on each Task creates the "⏺ Running N agents" parallel UI. Use description="<slotName> quorum R<roundN>".
+Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", ...)` per active slot as **parallel sibling calls** in one message turn. Build a YAML prompt block per the slot-worker argument spec:
 
-Worker prompt template:
 ```
-QGSD Quorum — Execution Review
-
-[bundle]
-
-Question: [original question]
-
-Review the execution traces above. Give:
-
-verdict: APPROVE | REJECT | FLAG
-reasoning: [2–4 sentences grounded in the actual trace output — not assumptions]
-
-APPROVE if output clearly shows the question is satisfied.
-REJECT if output shows it is NOT satisfied.
-FLAG if output is ambiguous or requires human judgment.
+slot: <slotName>
+round: <round_number>
+timeout_ms: <slot_timeout from $SLOT_TIMEOUTS>
+repo_dir: <absolute path to working directory>
+mode: B
+question: <question text>
+traces: |
+  <full $TRACES content verbatim>
 ```
 
-Dispatch (parallel — all Tasks in one message turn):
+For Round 2+ deliberation, also append:
+```
+prior_positions: |
+  <all prior positions verbatim>
+```
 
-**Native agents** (hardcoded):
-- `Task(subagent_type="general-purpose", prompt="Call mcp__gemini-cli-1__gemini with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__opencode-1__opencode with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__copilot-1__ask with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
-- `Task(subagent_type="general-purpose", prompt="Call mcp__codex-cli-1__review with the following prompt. Pass the full literal bundle inline — do not summarize or truncate: [full worker prompt with bundle inlined]")`
+Example dispatch (all Tasks in one message turn):
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="gemini-1 quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="codex-1 quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="opencode-1 quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="copilot-1 quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="claude-1 quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
 
-**claude-mcp instances** (dynamic — one Task per available server in `$CLAUDE_MCP_SERVERS`):
-For each server with `available: true` and healthy from team capture:
-- `Task(subagent_type="general-purpose", prompt="Call mcp__<serverName>__claude with prompt=[full worker prompt with bundle inlined]. Pass the full literal bundle inline — do not summarize or truncate.")`
+The slot-worker reads repo context, builds the Mode B prompt (with execution traces) from the YAML arguments, calls the slot via `call-quorum-slot.cjs`, and returns a structured result block with a `verdict: APPROVE | REJECT | FLAG` field.
 
 ### Collect verdicts
 
