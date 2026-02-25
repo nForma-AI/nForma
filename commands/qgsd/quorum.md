@@ -15,7 +15,7 @@ allowed-tools:
 Run a question or prompt through the full QGSD quorum (R3 protocol): Claude + native CLI agents (Codex, Gemini, OpenCode, Copilot) + all claude-mcp-server instances configured in `~/.claude.json`.
 
 **Two modes** based on context:
-- **Mode A — Pure Question**: No commands required. Claude forms its own position first, then queries each model sequentially, deliberates to consensus.
+- **Mode A — Pure Question**: No commands required. Claude forms its own position first, then dispatches all slot-workers as parallel Tasks, deliberates to consensus.
 - **Mode B — Execution + Trace Review**: Running commands is necessary before a verdict is possible. Claude runs them, preserves full traces, quorum reviews traces and gives verdicts.
 </objective>
 
