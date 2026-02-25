@@ -411,6 +411,83 @@ Plans:
 - [ ] v0.12-03-03-PLAN.md — Wave 1 (parallel): formal/prism/quorum.pm DTMC + bin/export-prism-constants.cjs + GREEN tests (PRM-01, PRM-02, PRM-03)
 - [ ] v0.12-03-04-PLAN.md — Wave 2: bin/generate-petri-net.cjs + VERIFICATION_TOOLS.md + npm test update (PET-01, PET-02, PET-03)
 
+### Phase v0.12-04: Circuit Breaker Algorithm Verification
+**Goal**: The run-collapse oscillation detection algorithm and circuit breaker state persistence are formally verified — oscillation is flagged correctly (iff ≥3 alternating groups with net-negative diff), the algorithm terminates, resolvedAt is write-once, and Haiku unavailability cannot corrupt persisted state
+**Depends on**: Phase v0.12-03
+**Requirements**: GAP-1, GAP-5
+**Success Criteria** (what must be TRUE):
+  1. `formal/tla/QGSDOscillation.tla` exists with state vars `commits`, `runs`, `flagCount`; invariant `OscillationFlaggedCorrectly` (flag iff ≥3 alternating groups with net-negative diff); liveness property `AlgorithmTerminates`
+  2. TLC verifies `MCoscillation.cfg` with INVARIANT + PROPERTY — no violations
+  3. `formal/tla/QGSDConvergence.tla` exists with `resolvedAt` write-once invariant; log-write-before-state-delete ordering; Haiku unavailability cannot corrupt state
+  4. `bin/run-oscillation-tlc.cjs` exists, is gated on JAVA_HOME, and `npm test` passes without Java installed; 4 error-path tests in `bin/run-oscillation-tlc.test.cjs` are GREEN
+**Plans**: TBD
+
+Plans:
+- [ ] v0.12-04-01-PLAN.md — Wave 0 RED stubs for run-oscillation-tlc.test.cjs (GAP-1, GAP-5)
+- [ ] v0.12-04-02-PLAN.md — Author QGSDOscillation.tla + MCoscillation.cfg + QGSDConvergence.tla + MCconvergence.cfg (GAP-1, GAP-5)
+- [ ] v0.12-04-03-PLAN.md — Implement bin/run-oscillation-tlc.cjs + GREEN tests (GAP-1, GAP-5)
+
+### Phase v0.12-05: Protocol Termination Proofs
+**Goal**: The R3 deliberation loop (max 10 rounds) and R3.6 improvement iteration loop (max 10 iterations) are provably bounded and eventually terminate; the R4 pre-filter protocol terminates within 3 rounds; regression handling and auto-resolution soundness are formally specified
+**Depends on**: Phase v0.12-04
+**Requirements**: GAP-2, GAP-6
+**Success Criteria** (what must be TRUE):
+  1. `formal/tla/QGSDDeliberation.tla` exists with vars `deliberationRound`, `improvementIteration`, `voteState`; invariant `TotalRoundsBounded` (deliberationRound + improvementIteration ≤ 20); liveness `ProtocolTerminates` (<>(phase = "ESCALATED" \/ phase = "CONSENSUS")); regression rule: APPROVE→BLOCK transition treated as new blocker
+  2. TLC verifies `MCdeliberation.cfg` — no violations
+  3. `formal/tla/QGSDPreFilter.tla` exists with invariant `AutoResolutionSound` (auto-resolved iff all models agree + same answer) and liveness `PreFilterTerminates` (≤3 rounds)
+  4. `bin/run-protocol-tlc.cjs` exists, gated on JAVA_HOME; `npm test` passes without Java; `bin/run-protocol-tlc.test.cjs` has error-path tests GREEN
+**Plans**: TBD
+
+Plans:
+- [ ] v0.12-05-01-PLAN.md — Wave 0 RED stubs for run-protocol-tlc.test.cjs (GAP-2, GAP-6)
+- [ ] v0.12-05-02-PLAN.md — Author QGSDDeliberation.tla + MCdeliberation.cfg + QGSDPreFilter.tla + MCprefilter.cfg (GAP-2, GAP-6)
+- [ ] v0.12-05-03-PLAN.md — Implement bin/run-protocol-tlc.cjs + GREEN tests (GAP-2, GAP-6)
+
+### Phase v0.12-06: Audit Trail Invariants
+**Goal**: The scoreboard recomputation function is formally verified as idempotent with no vote loss and no double counting; the availability hint date arithmetic handles year rollover and returns null on unrecognized format
+**Depends on**: Phase v0.12-03
+**Requirements**: GAP-3, GAP-9
+**Success Criteria** (what must be TRUE):
+  1. `formal/alloy/scoreboard-recompute.als` exists with assertions `RecomputeIdempotent` (applying recompute twice = once), `NoVoteLoss` (every vote in rounds appears in final score), `NoDoubleCounting` (no vote counted twice); uses Alloy integer arithmetic for delta accumulation
+  2. `formal/alloy/availability-parsing.als` exists with assertions `ParseCorrect` (parsed timestamp ≥ now), `YearRolloverHandled` (Dec→Jan crossing), `FallbackIsNull` (unrecognized format → null, not crash)
+  3. `bin/run-audit-alloy.cjs` targets both .als files, is gated on JAVA_HOME; `npm test` passes without Java; `bin/run-audit-alloy.test.cjs` has error-path tests GREEN
+**Plans**: TBD
+
+Plans:
+- [ ] v0.12-06-01-PLAN.md — Wave 0 RED stubs for run-audit-alloy.test.cjs (GAP-3, GAP-9)
+- [ ] v0.12-06-02-PLAN.md — Author scoreboard-recompute.als + availability-parsing.als (GAP-3, GAP-9)
+- [ ] v0.12-06-03-PLAN.md — Implement bin/run-audit-alloy.cjs + GREEN tests (GAP-3, GAP-9)
+
+### Phase v0.12-07: Hook Transcript Verification
+**Goal**: The qgsd-stop.js transcript scanning algorithm is formally verified — the last human message boundary is correctly identified, every tool_use_id matches at most one tool_result, no tool_result is double-counted, and successCount never exceeds minSize
+**Depends on**: Phase v0.12-06
+**Requirements**: GAP-4
+**Success Criteria** (what must be TRUE):
+  1. `formal/alloy/transcript-scan.als` exists with sigs `Entry`, `ToolUse extends Entry`, `ToolResult extends Entry`, `HumanMessage extends Entry` modeling JSONL transcript as ordered sequence; predicates `BoundaryCorrect`, `PairingUnique`, `NoDuplicateCounting`, `CeilingEnforced`
+  2. All 4 predicates are asserted as checks — Alloy Analyzer finds no counterexamples
+  3. `bin/run-transcript-alloy.cjs` exists, gated on JAVA_HOME; `npm test` passes without Java; `bin/run-transcript-alloy.test.cjs` has error-path tests GREEN
+**Plans**: TBD
+
+Plans:
+- [ ] v0.12-07-01-PLAN.md — Wave 0 RED stubs for run-transcript-alloy.test.cjs (GAP-4)
+- [ ] v0.12-07-02-PLAN.md — Author formal/alloy/transcript-scan.als (GAP-4)
+- [ ] v0.12-07-03-PLAN.md — Implement bin/run-transcript-alloy.cjs + GREEN tests (GAP-4)
+
+### Phase v0.12-08: Installer and Taxonomy Extensions
+**Goal**: The install.js rollback is formally verified as sound (uninstall restores previous state) and config sync is verified complete (hooks/dist/ and ~/.claude/hooks/ in sync after install); the Haiku classification taxonomy is verified injection-safe and maintains closed/open category consistency
+**Depends on**: Phase v0.12-07
+**Requirements**: GAP-7, GAP-8
+**Success Criteria** (what must be TRUE):
+  1. `formal/alloy/install-scope.als` is extended with pred `RollbackSound` (uninstall restores previous state) and pred `ConfigSyncComplete` (after install, hooks/dist/ and ~/.claude/hooks/ are identical)
+  2. `formal/alloy/taxonomy-safety.als` exists with sigs `TaskDescription`, `Category`, `Subcategory`; asserts `NoInjection` (taskDescription content cannot alter category structure), `TaxonomyClosed` (is_new=false implies category already in sig), `NewCategoryConsistent` (is_new=true implies category not previously in sig)
+  3. `bin/run-installer-alloy.cjs` exists, targets both install-scope.als and taxonomy-safety.als, is gated on JAVA_HOME; `npm test` passes without Java; `bin/run-installer-alloy.test.cjs` has error-path tests GREEN
+**Plans**: TBD
+
+Plans:
+- [ ] v0.12-08-01-PLAN.md — Wave 0 RED stubs for run-installer-alloy.test.cjs (GAP-7, GAP-8)
+- [ ] v0.12-08-02-PLAN.md — Extend install-scope.als + author taxonomy-safety.als (GAP-7, GAP-8)
+- [ ] v0.12-08-03-PLAN.md — Implement bin/run-installer-alloy.cjs + GREEN tests (GAP-7, GAP-8)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -473,6 +550,11 @@ Plans:
 | v0.10-07. Retroactive Verification Closure | v0.10 | 3/3 | Complete | 2026-02-25 |
 | v0.10-08. PLCY-03 Auto-Update Bug Fix | 2/2 | Complete    | 2026-02-25 | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
-| v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
-| v0.12-02. TLA+ Formal Spec | v0.12 | 0/? | Not started | - |
-| v0.12-03. Static Analysis Suite | v0.12 | 0/4 | Not started | - |
+| v0.12-01. Conformance Event Infrastructure | v0.12 | 3/3 | Complete | 2026-02-25 |
+| v0.12-02. TLA+ Formal Spec | v0.12 | 3/3 | Complete | 2026-02-25 |
+| v0.12-03. Static Analysis Suite | v0.12 | 4/4 | Complete | 2026-02-25 |
+| v0.12-04. Circuit Breaker Algorithm Verification | v0.12 | 0/3 | Not started | - |
+| v0.12-05. Protocol Termination Proofs | v0.12 | 0/3 | Not started | - |
+| v0.12-06. Audit Trail Invariants | v0.12 | 0/3 | Not started | - |
+| v0.12-07. Hook Transcript Verification | v0.12 | 0/3 | Not started | - |
+| v0.12-08. Installer and Taxonomy Extensions | v0.12 | 0/3 | Not started | - |
