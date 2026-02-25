@@ -2,17 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-25 after v0.13 milestone completion)
+See: .planning/PROJECT.md (updated 2026-02-25 after v0.14 milestone started)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** Planning next milestone. v0.13 Autonomous Milestone Execution SHIPPED (8/8 requirements, all flows wired).
+**Current focus:** v0.14 FV Pipeline Integration — defining requirements and roadmap.
 
 ## Current Position
 
-Phase: v0.13 — SHIPPED (milestone archived 2026-02-25)
-Plan: All 6 phases complete and archived to .planning/milestones/v0.13-*
-Status: milestone-complete — ROADMAP.md reorganized, REQUIREMENTS.md archived, PROJECT.md updated, git tag pending
-Last activity: 2026-02-25 — v0.13 milestone archived; ready for /qgsd:new-milestone
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-25 — Milestone v0.14 FV Pipeline Integration started
 
 Progress: [██████████] v0.13: SHIPPED | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
 

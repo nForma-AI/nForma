@@ -8,6 +8,18 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Current Milestone: v0.14 FV Pipeline Integration
+
+**Goal:** Commit and wire the existing untracked formal verification tools into the npm test suite and CI, parallelize the 20-step runner from 10 min to ~2 min, upgrade regex-based drift detection to AST, and add PRISM config injection from the quorum scoreboard.
+
+**Target features:**
+- Commit + integrate untracked FV tools (`xstate-to-tla.cjs`, `run-formal-verify.cjs`, `.github/workflows/formal-verify.yml`) with tests
+- Drift detector wired into `npm test` — drift in TLA+/Alloy/PRISM vs XState machine fails `npm test`
+- Parallelize `run-formal-verify.cjs` — 20 sequential steps → parallel tool groups (~10 min → ~2 min)
+- AST-based XState parsing in drift detector — replace regex with proper TS compiler/AST walk
+- Standardize PRISM config injection — scoreboard TP/TN rates auto-fed to PRISM model parameters
+- `--watch` mode for `run-formal-verify.cjs` — re-run on XState machine file changes
+
 ## Just Shipped: v0.13 Autonomous Milestone Execution (2026-02-25)
 
 **Delivered:** Removed all human checkpoints from the milestone execution loop — zero AskUserQuestion calls from new-milestone through complete-milestone.
@@ -208,14 +220,14 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Active
 
-<!-- v0.9 scope: GSD 1.20.6 port -->
+<!-- v0.14 scope: FV Pipeline Integration -->
 
-- [ ] Nyquist validation layer generates `VALIDATION.md` at plan-phase step 5.5 with per-task test-map
-- [ ] Discuss-phase recommended option highlighting per choice with brief rationale
-- [ ] Discuss-phase gray-area looping — user can explore more areas before finalizing context
-- [ ] Skill tool spawn guards added to plan-phase and discuss-phase workflow spawn points
-- [ ] Gemini TOML fix applied to QGSD Gemini templates (quorum slot relevance)
-- [ ] Decimal phase number parsing consistent across gsd-tools.cjs
+- [ ] Commit and integrate untracked FV tools with test coverage (xstate-to-tla.cjs, run-formal-verify.cjs, formal-verify.yml)
+- [ ] Drift detector wired into `npm test` — drift in TLA+/Alloy/PRISM vs XState machine fails test suite
+- [ ] Parallelize `run-formal-verify.cjs` — 20 sequential steps → parallel tool groups (~10 min → ~2 min)
+- [ ] AST-based XState parsing in drift detector — replace regex with proper TS compiler/AST walk
+- [ ] Standardize PRISM config injection — scoreboard TP/TN rates auto-fed to PRISM model parameters
+- [ ] `--watch` mode for `run-formal-verify.cjs` — re-run on XState machine file changes
 
 <!-- Carry-forward: deferred from v0.3 -->
 - [ ] npm publish qgsd@0.2.0 deferred — run `npm publish --access public` when ready (RLS-04)
@@ -230,7 +242,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Context
 
-QGSD v0.13 shipped 2026-02-25. All 8 requirements of Autonomous Milestone Execution satisfied. v0.2.0 npm publish still deferred by user decision.
+QGSD v0.14 milestone started 2026-02-25. v0.13 Autonomous Milestone Execution complete (8/8 requirements). v0.2.0 npm publish still deferred by user decision.
 
 **Codebase:** ~87,000+ lines (JS + MD), 450+ files across the full development cycle.
 **Tech stack:** Node.js, Claude Code hooks (UserPromptSubmit + Stop + PreToolUse), npm package.
@@ -332,4 +344,4 @@ QGSD v0.13 shipped 2026-02-25. All 8 requirements of Autonomous Milestone Execut
 | installer sync (node bin/install.js --claude --global) is canonical mechanism for qgsd-core/ edits | Installed copy ~/.claude/qgsd/ is what Claude reads at runtime; source edits without install sync = silent non-deployment | Phase v0.13-06 — INT-03 |
 
 ---
-*Last updated: 2026-02-25 after v0.13 milestone completion — Autonomous Milestone Execution*
+*Last updated: 2026-02-25 after v0.14 milestone started — FV Pipeline Integration*
