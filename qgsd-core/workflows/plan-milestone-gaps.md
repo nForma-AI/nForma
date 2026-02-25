@@ -94,7 +94,7 @@ Closes:
 - Flow: {flow name}
 Tasks: {count}
 
-{If nice-to-have gaps exist:}
+{If nice-to-have gaps exist AND not running in --auto mode:}
 
 ### Deferred (nice-to-have)
 
@@ -102,9 +102,10 @@ These gaps are optional. Include them?
 - {gap description}
 - {gap description}
 
----
+{If nice-to-have gaps exist AND running in --auto mode:}
+Nice-to-have gaps deferred automatically (auto mode). Include manually if desired.
 
-Create these {X} phases? (yes / adjust / defer all optional)
+---
 ```
 
 **Quorum approval gate (QUORUM-01):**
@@ -315,7 +316,7 @@ becomes:
 - [ ] MILESTONE-AUDIT.md loaded and gaps parsed
 - [ ] Gaps prioritized (must/should/nice)
 - [ ] Gaps grouped into logical phases
-- [ ] User confirmed phase plan
+- [ ] Quorum approved gap closure phases (GSD_DECISION marker present in Step 5 output)
 - [ ] ROADMAP.md updated with new phases
 - [ ] REQUIREMENTS.md traceability table updated with gap closure phase assignments
 - [ ] Unsatisfied requirement checkboxes reset (`[x]` → `[ ]`)
