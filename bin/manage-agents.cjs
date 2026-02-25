@@ -2117,6 +2117,9 @@ async function mainMenu() {
           { name: '14. Tune timeouts', value: 'tune-timeouts' },
           { name: '15. Set update policy', value: 'update-policy' },
           new inquirer.Separator(),
+          { name: '16. Export roster', value: 'export-roster' },
+          { name: '17. Import roster', value: 'import-roster' },
+          new inquirer.Separator(),
           { name: '0. Exit', value: 'exit' },
         ],
       },
@@ -2138,6 +2141,8 @@ async function mainMenu() {
       else if (action === 'update-agents') await updateAgents();
       else if (action === 'tune-timeouts') await tuneTimeouts();
       else if (action === 'update-policy') await setUpdatePolicy();
+      else if (action === 'export-roster') await performExport();
+      else if (action === 'import-roster') await performImport();
       else if (action === 'exit') { running = false; console.log('\n  Goodbye!\n'); }
     } catch (err) {
       console.error(`\n  \x1b[31mError: ${err.message}\x1b[0m\n`);
@@ -2599,6 +2604,131 @@ function validateImportSchema(parsed) {
     }
   }
   return errors;
+}
+
+// ---------------------------------------------------------------------------
+// v0.10-06 integration functions
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a pre-import backup of ~/.claude.json at the path returned by buildBackupPath.
+ * Uses fs.copyFileSync — throws on failure (permission denied, disk full, etc.).
+ * Caller MUST abort import if this throws.
+ * Returns the backup path (for display to user).
+ */
+function backupClaudeJson(claudeJsonPath, ts) {
+  const dest = buildBackupPath(claudeJsonPath, ts);
+  fs.copyFileSync(claudeJsonPath, dest);
+  return dest;
+}
+
+/**
+ * Prompts user for export file path, reads ~/.claude.json directly via readClaudeJson(),
+ * applies buildExportData() redaction, and writes the result.
+ *
+ * SECURITY INVARIANT: This function MUST NOT call syncToClaudeJson() before reading.
+ * syncToClaudeJson() patches keytar values into env — calling it would cause real API
+ * keys to appear in the export file before redaction. Read raw file only.
+ */
+async function performExport() {
+  const { filePath } = await inquirer.prompt([{
+    type: 'input',
+    name: 'filePath',
+    message: 'Export file path (e.g. ~/Desktop/roster-backup.json):',
+    validate: (v) => v.trim().length > 0 ? true : 'Path is required',
+  }]);
+
+  const resolvedPath = filePath.trim().replace(/^~/, os.homedir());
+
+  // Read raw ~/.claude.json — do NOT call syncToClaudeJson
+  const rawData = readClaudeJson();
+  const exportData = buildExportData(rawData);
+
+  fs.writeFileSync(resolvedPath, JSON.stringify(exportData, null, 2), 'utf8');
+  console.log(`\n  Roster exported to: ${resolvedPath}`);
+  console.log('  All API key values have been replaced with __redacted__\n');
+}
+
+/**
+ * Prompts user for import file path, validates schema, creates backup, re-prompts
+ * for any __redacted__ key values, then writes the patched data atomically.
+ *
+ * Safety invariants:
+ *  - Schema validation must complete with 0 errors before any disk write
+ *  - Backup must succeed before any disk write — aborts entirely on backup failure
+ *  - Per-slot key re-prompting uses sequential for...of (not Promise.all)
+ */
+async function performImport() {
+  // Step 1: Get file path
+  const { filePath } = await inquirer.prompt([{
+    type: 'input',
+    name: 'filePath',
+    message: 'Import file path:',
+    validate: (v) => v.trim().length > 0 ? true : 'Path is required',
+  }]);
+
+  const resolvedPath = filePath.trim().replace(/^~/, os.homedir());
+
+  // Step 2: Read and parse
+  let parsed;
+  try {
+    const raw = fs.readFileSync(resolvedPath, 'utf8');
+    parsed = JSON.parse(raw);
+  } catch (err) {
+    console.error(`\n  Error reading file: ${err.message}\n`);
+    return;
+  }
+
+  // Step 3: Validate schema — all errors before any write
+  const errors = validateImportSchema(parsed);
+  if (errors.length > 0) {
+    console.error('\n  Import validation failed:');
+    for (const e of errors) console.error(`    - ${e}`);
+    console.error('');
+    return;
+  }
+
+  // Step 4: Create backup — abort entirely on failure
+  const ts = new Date().toISOString().replace(/:/g, '-');
+  let backupPath;
+  try {
+    backupPath = backupClaudeJson(CLAUDE_JSON_PATH, ts);
+    console.log(`\n  Backup created: ${backupPath}`);
+  } catch (err) {
+    console.error(`\n  Backup failed — import aborted: ${err.message}\n`);
+    return;
+  }
+
+  // Step 5: Re-prompt for __redacted__ key values (sequential for...of)
+  const servers = parsed.mcpServers || {};
+  for (const [slotName, cfg] of Object.entries(servers)) {
+    if (!cfg.env) continue;
+    for (const [envKey, envVal] of Object.entries(cfg.env)) {
+      if (envVal === '__redacted__') {
+        const { newKey } = await inquirer.prompt([{
+          type: 'password',
+          name: 'newKey',
+          message: `Enter API key for ${slotName} / ${envKey} (leave blank to skip):`,
+          mask: '*',
+        }]);
+        if (newKey && newKey.trim().length > 0) {
+          cfg.env[envKey] = newKey.trim();
+        } else {
+          delete cfg.env[envKey];   // slot imported with no key for this env var
+        }
+      }
+    }
+  }
+
+  // Step 6: Write atomically
+  writeClaudeJson(parsed);
+
+  const slotCount = Object.keys(servers).length;
+  if (slotCount === 0) {
+    console.log('\n  No agents found in import file — roster unchanged.\n');
+  } else {
+    console.log(`\n  Import complete: ${slotCount} server(s) applied.\n`);
+  }
 }
 
 module.exports._pure = {
