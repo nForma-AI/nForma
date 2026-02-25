@@ -33,7 +33,7 @@ Group gaps by priority from REQUIREMENTS.md:
 |----------|--------|
 | `must` | Create phase, blocks milestone |
 | `should` | Create phase, recommended |
-| `nice` | Ask user: include or defer? |
+| `nice` | Auto-defer in `--auto` mode; include otherwise |
 
 For integration/flow gaps, infer priority from affected requirements.
 
