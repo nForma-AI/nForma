@@ -3636,8 +3636,12 @@ function cmdValidateConsistency(cwd, raw) {
 
   // Check: phases on disk but not in ROADMAP
   for (const p of diskPhases) {
-    const unpadded = String(parseInt(p, 10));
-    if (!roadmapPhases.has(p) && !roadmapPhases.has(unpadded)) {
+    const normalized = normalizePhaseName(p);
+    const parts = p.split('.');
+    const unpadded = parts.length > 1
+      ? `${parseInt(parts[0], 10)}.${parts[1]}`
+      : String(parseInt(parts[0], 10));
+    if (!roadmapPhases.has(p) && !roadmapPhases.has(normalized) && !roadmapPhases.has(unpadded)) {
       warnings.push(`Phase ${p} exists on disk but not in ROADMAP.md`);
     }
   }
@@ -3788,8 +3792,12 @@ function cmdValidateHealth(cwd, options, raw) {
     } catch {}
     // Check for invalid references
     for (const ref of phaseRefs) {
-      const normalizedRef = String(parseInt(ref, 10)).padStart(2, '0');
-      if (!diskPhases.has(ref) && !diskPhases.has(normalizedRef) && !diskPhases.has(String(parseInt(ref, 10)))) {
+      const normalizedRef = normalizePhaseName(ref);
+      const refParts = ref.split('.');
+      const unpaddedRef = refParts.length > 1
+        ? `${parseInt(refParts[0], 10)}.${refParts[1]}`
+        : String(parseInt(refParts[0], 10));
+      if (!diskPhases.has(ref) && !diskPhases.has(normalizedRef) && !diskPhases.has(unpaddedRef)) {
         // Only warn if phases dir has any content (not just an empty project)
         if (diskPhases.size > 0) {
           addIssue('warning', 'W002', `STATE.md references phase ${ref}, but only phases ${[...diskPhases].sort().join(', ')} exist`, 'Run /gsd:health --repair to regenerate STATE.md', true);
@@ -3871,16 +3879,24 @@ function cmdValidateHealth(cwd, options, raw) {
 
     // Phases in ROADMAP but not on disk
     for (const p of roadmapPhases) {
-      const padded = String(parseInt(p, 10)).padStart(2, '0');
-      if (!diskPhases.has(p) && !diskPhases.has(padded)) {
+      const normalized = normalizePhaseName(p);
+      const pParts = p.split('.');
+      const unpadded = pParts.length > 1
+        ? `${parseInt(pParts[0], 10)}.${pParts[1]}`
+        : String(parseInt(pParts[0], 10));
+      if (!diskPhases.has(p) && !diskPhases.has(normalized) && !diskPhases.has(unpadded)) {
         addIssue('warning', 'W006', `Phase ${p} in ROADMAP.md but no directory on disk`, 'Create phase directory or remove from roadmap');
       }
     }
 
     // Phases on disk but not in ROADMAP
     for (const p of diskPhases) {
-      const unpadded = String(parseInt(p, 10));
-      if (!roadmapPhases.has(p) && !roadmapPhases.has(unpadded)) {
+      const normalized = normalizePhaseName(p);
+      const dParts = p.split('.');
+      const unpadded = dParts.length > 1
+        ? `${parseInt(dParts[0], 10)}.${dParts[1]}`
+        : String(parseInt(dParts[0], 10));
+      if (!roadmapPhases.has(p) && !roadmapPhases.has(normalized) && !roadmapPhases.has(unpadded)) {
         addIssue('warning', 'W007', `Phase ${p} exists on disk but not in ROADMAP.md`, 'Add to roadmap or remove directory');
       }
     }
