@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 Phase: v0.12-01-conformance-event-infrastructure of v0.12 (COMPLETE)
 Plan: 3 of 3 in current phase (ALL COMPLETE)
 Status: v0.12-01 complete — LOG-01/02/03, XST-01/02/03, VAL-01/02/03 all satisfied; hooks emit NDJSON events; XState machine compiled to CJS; validate-traces.cjs ships via install; 268 tests pass
-Last activity: 2026-02-24 — v0.12-01-01, v0.12-01-02, v0.12-01-03 all complete
+Last activity: 2026-02-24 - Completed quick task 101: Unified quorum: new slot-worker agent, orchestrator 10-round parallel loop, inline synthesis, retire old workers
 
 Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 1/3 phases COMPLETE | v0.10: 2/6 phases (v0.10-01 both plans done) | v0.9 parallel: 3/5 phases
 
@@ -98,7 +98,7 @@ Recent decisions affecting current work:
 | 98 | Apply three quorum-identified improvements to qgsd-quorum-orchestrator prompt wording | 2026-02-24 | 58dbb33 | Verified | [98-apply-three-quorum-identified-improvemen](.planning/quick/98-apply-three-quorum-identified-improvemen/) |
 | 99 | in the quorum, we need to make sure that the LLMs understand that the other opinions comes from other LLMs, not from users, lawyers, specialist | 2026-02-24 | 576014a | Verified | [99-in-the-quorum-we-need-to-make-sure-that-](./quick/99-in-the-quorum-we-need-to-make-sure-that-/) |
 | 100 | Add global wall-clock timeout to quorum orchestrator to prevent indefinite hangs when all external models are unavailable | 2026-02-24 | 5483112 | Verified | [100-add-global-wall-clock-timeout-to-quorum-](./quick/100-add-global-wall-clock-timeout-to-quorum-/) |
-| 101 | Unified quorum: new slot-worker agent, orchestrator 10-round parallel loop, inline synthesis, retire old workers | 2026-02-24 | 849ea36 | Pending | [101-unified-quorum-new-slot-worker-agent-orc](./quick/101-unified-quorum-new-slot-worker-agent-orc/) |
+| 101 | Unified quorum: new slot-worker agent, orchestrator 10-round parallel loop, inline synthesis, retire old workers | 2026-02-24 | 849ea36 | Verified | [101-unified-quorum-new-slot-worker-agent-orc](./quick/101-unified-quorum-new-slot-worker-agent-orc/) |
 
 ## Session Continuity
 
