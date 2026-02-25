@@ -1035,3 +1035,31 @@ test('liveDashboard smoke: non-TTY path resolves without throwing', async () => 
   }
   await assert.doesNotReject(liveDashboard());
 });
+
+// ── v0.10-08 Wave 0 stubs: PLCY-03 Map bracket notation regression guard ────
+
+test('REGRESSION PLCY-03: Map bracket notation always returns undefined — proves original bug', () => {
+  // This test PASSES — it documents that statuses[slot] on a Map is always undefined.
+  // The BROKEN code in runAutoUpdateCheck() uses statuses[slot] which hits this path.
+  const fakeStatuses = new Map([['codex', { current: '1.0', latest: '2.0', status: 'update-available' }]]);
+  assert.strictEqual(fakeStatuses['codex-1'], undefined, 'bracket notation on Map with slot name must return undefined');
+  assert.strictEqual(fakeStatuses['codex'], undefined, 'bracket notation on Map with binary name also returns undefined');
+});
+
+test('REGRESSION PLCY-03: Map.get(binName) resolves correctly — proves fix direction', () => {
+  // This test PASSES — it documents that statuses.get('codex') is the correct API.
+  const fakeStatuses = new Map([['codex', { current: '1.0', latest: '2.0', status: 'update-available' }]]);
+  const entry = fakeStatuses.get('codex');
+  assert.ok(entry, 'Map.get(binName) must return the status entry');
+  assert.strictEqual(entry.status, 'update-available');
+  assert.strictEqual(entry.latest, '2.0');
+  assert.strictEqual(entry.current, '1.0');
+});
+
+test('REGRESSION PLCY-03: runAutoUpdateCheck logs UPDATE_AVAILABLE not SKIP for auto-policy slot with injected statuses', async () => {
+  // RED: This test will fail until runAutoUpdateCheck() accepts getStatusesFn injection (Plan 02).
+  // When fixed: slot 'codex-1' with update_policy=auto must log UPDATE_AVAILABLE, not SKIP.
+  const { runAutoUpdateCheck } = require('./manage-agents.cjs')._pure;
+  // runAutoUpdateCheck is not currently in _pure — this line throws, keeping the test RED.
+  assert.ok(typeof runAutoUpdateCheck === 'function', 'runAutoUpdateCheck must be exported via _pure');
+});
