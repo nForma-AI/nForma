@@ -642,7 +642,7 @@ Plans:
 | v0.12-06. Audit Trail Invariants | v0.12 | 3/3 | Complete | 2026-02-25 |
 | v0.12-07. Hook Transcript Verification | v0.12 | 3/3 | Complete | 2026-02-25 |
 | v0.12-08. Installer and Taxonomy Extensions | v0.12 | 3/3 | Complete | 2026-02-25 |
-| v0.12-09. Verification Infrastructure Quick Fixes | 2/5 | In Progress|  | - |
+| v0.12-09. Verification Infrastructure Quick Fixes | 3/5 | In Progress|  | - |
 | v0.12-10. Conformance Score Redesign | v0.12 | 0/3 | Not started | - |
 | v0.13-01. Loop Wiring | v0.13 | Complete    | 2026-02-25 | - |
 | v0.13-02. Quorum Gates | v0.13 | 0/3 | Planned | - |

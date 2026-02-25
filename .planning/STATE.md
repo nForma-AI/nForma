@@ -51,6 +51,7 @@ Progress: [██████████] v0.13: 2/2 phases executed, audit gap
 *Updated after each plan completion*
 | Phase v0.12-09 P02 | 1 | 1 tasks | 1 files |
 | Phase v0.12-09 P01 | 3 | 1 tasks | 2 files |
+| Phase v0.12-09 P05 | 3 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,7 @@ Recent decisions affecting current work:
 - [v0.12-04-03]: MCoscillation uses -workers 1 (liveness PROPERTY — avoids TLC v1.8.0 multi-worker liveness bug); MCconvergence uses -workers auto (safety-only)
 - [Phase v0.12-09]: TLA-04: Used identical conditional-skip guard pattern from run-audit-alloy.test.cjs (phases 06-08) for run-tlc.test.cjs JAR-not-found test
 - [Phase v0.12-09-01]: MCconvergence.cfg declares PROPERTY ConvergenceEventuallyResolves — liveness spec requires -workers 1; unconditional assignment replaces ternary
+- [Phase v0.12-09-05]: effectiveMinQuorum replaces MIN_QUORUM_SIZE in deadlock check — zero regression on default path (3>5=false unchanged)
 
 ### Pending Todos
 
