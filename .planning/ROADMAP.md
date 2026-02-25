@@ -475,7 +475,7 @@ Plans:
 **Depends on**: Phase v0.12-06
 **Requirements**: GAP-4
 **Success Criteria** (what must be TRUE):
-  1. `formal/alloy/transcript-scan.als` exists with sigs `Entry`, `ToolUse extends Entry`, `ToolResult extends Entry`, `HumanMessage extends Entry` modeling JSONL transcript as ordered sequence; predicates `BoundaryCorrect`, `PairingUnique`, `NoDuplicateCounting`, `CeilingEnforced`
+  1. `formal/alloy/transcript-scan.als` exists with sigs `Entry`, `ToolUse extends Entry`, `ToolResult extends Entry`, `HumanMessage extends Entry` modeling JSONL transcript as ordered sequence; predicates `BoundaryCorrect`, `PairingUnique`, `NoDuplicateCounting`, `SuccessCountNeverExceedsMinSize` (renamed from CeilingEnforced per quorum deliberation — clarifies upper-bound semantics)
   2. All 4 predicates are asserted as checks — Alloy Analyzer finds no counterexamples
   3. `bin/run-transcript-alloy.cjs` exists, gated on JAVA_HOME; `npm test` passes without Java; `bin/run-transcript-alloy.test.cjs` has error-path tests GREEN
 **Plans**: 3 plans
