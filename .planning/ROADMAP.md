@@ -10,9 +10,9 @@
 - ✅ **v0.7 — Composition Config & Multi-Slot** — Phases v0.7-01..v0.7-04 (shipped 2026-02-23)
 - ✅ **v0.8 — fix-tests ddmin Pipeline** — Phase v0.8-01 (shipped 2026-02-23)
 - 🚧 **v0.9 — GSD Sync** — Phases v0.9-01..v0.9-05 (in progress)
-- 🚧 **v0.10 — Roster Toolkit** — Phases v0.10-01..v0.10-06 (in progress)
+- ✅ **v0.10 — Roster Toolkit** — Phases v0.10-01..v0.10-08 (shipped 2026-02-25)
 - ✅ **v0.11 — Parallel Quorum** — Phase v0.11-01 (shipped 2026-02-24)
-- 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-03 (in progress)
+- 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-08 (in progress)
 
 ## Phases
 
@@ -128,7 +128,7 @@
 - [ ] **Phase v0.9-04: Tier 3 Fixes** — Skill tool spawn guards, Gemini TOML fix, decimal phase number parsing consistency
 - [ ] **Phase v0.9-05: Rename get-shit-done/ → qgsd-core/** — Rename the source directory to match QGSD identity; update all path references in installer, gsd-tools, and workflows; re-sync installed runtime
 
-### 🚧 v0.10 — Roster Toolkit (In Progress)
+### ✅ v0.10 — Roster Toolkit (SHIPPED 2026-02-25)
 
 **Milestone Goal:** Extend `bin/manage-agents.cjs` into a full-featured agent roster management UI — provider presets, slot cloning, live health dashboard, key lifecycle management, scoreboard visibility, CCR routing, per-agent tuning, import/export, and auto-update policy.
 
@@ -138,7 +138,7 @@
 - [x] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit (completed 2026-02-24)
 - [x] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check (completed 2026-02-24)
 - [x] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup (completed 2026-02-25)
-- [ ] **Phase v0.10-07: Retroactive Verification Closure** — VERIFICATION.md for v0.10-02/03/04 + _pure exports for probeAllSlots/liveDashboard + integration smoke test + menu numbering fix (Gap Closure)
+- [x] **Phase v0.10-07: Retroactive Verification Closure** — VERIFICATION.md for v0.10-02/03/04 + _pure exports for probeAllSlots/liveDashboard + integration smoke test + menu numbering fix (Gap Closure) (completed 2026-02-25)
 - [x] **Phase v0.10-08: PLCY-03 Auto-Update Bug Fix** — Fix Map bracket notation bug in runAutoUpdateCheck() + regression test + clear critical bug flag (Gap Closure) (completed 2026-02-25)
 
 <details>
@@ -153,9 +153,14 @@
 
 **Milestone Goal:** Implement formal verification tooling for QGSD's agent state machine — conformance event logger shipped as a bin/ script, TLA+ specification with TLC model checking, XState executable TypeScript machine, and Alloy/PRISM/Petri models for vote-counting and probabilistic analysis.
 
-- [ ] **Phase v0.12-01: Conformance Event Infrastructure** — Shared schema module, appendConformanceEvent() helper in hooks, hook instrumentation across all three hooks, XState machine compiled to CJS, and validate-traces.cjs user CLI (LOG-01..03, XST-01..03, VAL-01..03)
-- [ ] **Phase v0.12-02: TLA+ Formal Spec** — QGSDQuorum.tla spec with named invariants, safety and liveness TLC configs, and bin/run-tlc.cjs runner (TLA-01..04)
-- [ ] **Phase v0.12-03: Static Analysis Suite** — Alloy vote-counting model + runner, PRISM probabilistic DTMC + scoreboard rate exporter, Petri Net generator with WASM SVG rendering and structural deadlock detection (ALY-01..02, PRM-01..03, PET-01..03)
+- [x] **Phase v0.12-01: Conformance Event Infrastructure** — Shared schema module, appendConformanceEvent() helper in hooks, hook instrumentation across all three hooks, XState machine compiled to CJS, and validate-traces.cjs user CLI (LOG-01..03, XST-01..03, VAL-01..03)
+- [x] **Phase v0.12-02: TLA+ Formal Spec** — QGSDQuorum.tla spec with named invariants, safety and liveness TLC configs, and bin/run-tlc.cjs runner (TLA-01..04)
+- [x] **Phase v0.12-03: Static Analysis Suite** — Alloy vote-counting model + runner, PRISM probabilistic DTMC + scoreboard rate exporter, Petri Net generator with WASM SVG rendering and structural deadlock detection (ALY-01..02, PRM-01..03, PET-01..03)
+- [ ] **Phase v0.12-04: Circuit Breaker Algorithm Verification** — TLA+ models for run-collapse oscillation detection algorithm and circuit breaker state persistence + Haiku convergence (GAP-1, GAP-5)
+- [ ] **Phase v0.12-05: Protocol Termination Proofs** — TLA+ bounded termination specs for R3 deliberation loop (max 10 rounds + 10 improvement iterations) and R4 pre-filter protocol (max 3 rounds) (GAP-2, GAP-6)
+- [ ] **Phase v0.12-06: Audit Trail Invariants** — Alloy models for scoreboard recomputation idempotency/no-vote-loss/no-double-counting and availability hint date arithmetic (GAP-3, GAP-9)
+- [ ] **Phase v0.12-07: Hook Transcript Verification** — Alloy model for qgsd-stop.js transcript scanning: boundary detection, tool_use/tool_result pairing uniqueness, ceiling enforcement (GAP-4)
+- [ ] **Phase v0.12-08: Installer and Taxonomy Extensions** — Alloy extension to install-scope.als (rollback soundness, config sync completeness) and new taxonomy-safety.als (injection prevention, closed/open taxonomy consistency) (GAP-7, GAP-8)
 
 ## Phase Details
 
@@ -339,9 +344,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.10-07-01-PLAN.md — Wave 0: 4 failing test stubs for probeAllSlots (3 unit) + liveDashboard (1 smoke) — documents RED state before _pure export fix (DASH-01, DASH-02, DASH-03)
-- [ ] v0.10-07-02-PLAN.md — Wave 1: add probeAllSlots + liveDashboard to _pure; fix menu numbering 13→12 cascade; confirm 122 tests pass (CRED-01, DASH-01, DASH-02, DASH-03)
-- [ ] v0.10-07-03-PLAN.md — Wave 2: write v0.10-02/03/04-VERIFICATION.md + update v0.10-05-VERIFICATION.md menu numbers (PRST-01, PRST-02, CRED-01, CRED-02, DASH-01, DASH-02, DASH-03)
+- [x] v0.10-07-01-PLAN.md — Wave 0: 4 failing test stubs for probeAllSlots (3 unit) + liveDashboard (1 smoke) — documents RED state before _pure export fix (DASH-01, DASH-02, DASH-03)
+- [x] v0.10-07-02-PLAN.md — Wave 1: add probeAllSlots + liveDashboard to _pure; fix menu numbering 13→12 cascade; confirm 122 tests pass (CRED-01, DASH-01, DASH-02, DASH-03)
+- [x] v0.10-07-03-PLAN.md — Wave 2: write v0.10-02/03/04-VERIFICATION.md + update v0.10-05-VERIFICATION.md menu numbers (PRST-01, PRST-02, CRED-01, CRED-02, DASH-01, DASH-02, DASH-03)
 
 ### Phase v0.10-08: PLCY-03 Auto-Update Bug Fix
 **Goal**: The critical Map bracket notation bug in `runAutoUpdateCheck()` is fixed, covered by a regression test, and the v0.10-05 VERIFICATION.md critical bug flag is cleared
@@ -465,7 +470,7 @@ Plans:
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-05. Policy UIs | 3/3 | Complete    | 2026-02-24 | - |
 | v0.10-06. Import/Export | v0.10 | 3/3 | Complete | 2026-02-25 |
-| v0.10-07. Retroactive Verification Closure | v0.10 | 0/3 | Not started | - |
+| v0.10-07. Retroactive Verification Closure | v0.10 | 3/3 | Complete | 2026-02-25 |
 | v0.10-08. PLCY-03 Auto-Update Bug Fix | 2/2 | Complete    | 2026-02-25 | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
 | v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
