@@ -460,7 +460,7 @@ Plans:
 | v0.10-05. Policy UIs | 3/3 | Complete    | 2026-02-24 | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
 | v0.10-07. Retroactive Verification Closure | v0.10 | 0/3 | Not started | - |
-| v0.10-08. PLCY-03 Auto-Update Bug Fix | v0.10 | 0/2 | Planned 2026-02-25 | - |
+| v0.10-08. PLCY-03 Auto-Update Bug Fix | 1/2 | In Progress|  | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
 | v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
 | v0.12-02. TLA+ Formal Spec | v0.12 | 0/? | Not started | - |

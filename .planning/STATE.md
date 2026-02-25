@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.12 Conformance Event Infrastructure — Phase v0.12-03 COMPLETE (static analysis suite: Alloy 6 quorum-votes.als, bin/run-alloy.cjs, formal/prism/quorum.pm, bin/export-prism-constants.cjs, bin/generate-petri-net.cjs, VERIFICATION_TOOLS.md, 284 tests pass)
+**Current focus:** v0.10-08 PLCY-03 auto-update bug fix — Wave 0 regression stubs complete (Plan 01 done); Plan 02 (implementation + export runAutoUpdateCheck via _pure + GREEN) remaining
 
 ## Current Position
 
-Phase: v0.12-03-static-analysis-suite of v0.12 (COMPLETE)
-Plan: 4 of 4 in current phase (ALL COMPLETE)
-Status: v0.12-03 complete — ALY-01/02, PRM-01/02/03, PET-01/02/03 all satisfied; Alloy 6 spec + CLI wrapper; PRISM DTMC model + scoreboard rate exporter; Petri Net DOT+SVG generator; VERIFICATION_TOOLS.md; 284 tests pass
-Last activity: 2026-02-25 - Completed quick task 103: deprecate qgsd-quorum-orchestrator and update quorum dispatch UX
+Phase: v0.10-08-plcy03-auto-update-bug-fix
+Plan: 1 of 2 complete (Plan 02 remaining)
+Status: v0.10-08 Plan 01 COMPLETE — 3 Wave 0 regression stubs added: stub 1 PASS (bug proof), stub 2 PASS (fix proof), stub 3 FAIL/RED (runAutoUpdateCheck not yet in _pure); 124/125 tests pass; commit 4951f47
+Last activity: 2026-02-25 - Completed v0.10-08-01: PLCY-03 Wave 0 regression test stubs (TDD RED phase)
 
-Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 3/3 phases COMPLETE (v0.12-01 + v0.12-02 + v0.12-03) | v0.10: v0.10-01 + v0.10-07 COMPLETE | v0.9 parallel: 3/5 phases
+Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 3/3 phases COMPLETE (v0.12-01 + v0.12-02 + v0.12-03) | v0.10: v0.10-01 + v0.10-07 COMPLETE + v0.10-08 Plan 01 COMPLETE | v0.9 parallel: 3/5 phases
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Recent decisions affecting current work:
 - [v0.10-05-03]: runAutoUpdateCheck() is fail-open with 20s Promise.race timeout — never throws or blocks mainMenu
 - [v0.10-05-03]: listAgents() reads tail 500 lines of update log — prevents unbounded memory growth on large logs
 - [v0.10-05-03]: writeUpdatePolicy() persists to qgsd.json agent_config[slot].update_policy; tuneTimeouts() writes to providers.json via writeProvidersJson()
+- [v0.10-08-01]: Wave 0 stub 3 uses _pure.runAutoUpdateCheck existence check as RED trigger — simplest assertion that fails before Plan 02 adds the export
 
 ### Pending Todos
 
@@ -105,5 +106,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: 2026-02-25 - Completed quick task 103: deprecate qgsd-quorum-orchestrator and update quorum dispatch UX
+Stopped at: 2026-02-25 - Completed v0.10-08-01: PLCY-03 Wave 0 regression test stubs; Plan 02 (implementation) remaining
 Resume file: None
