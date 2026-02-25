@@ -313,12 +313,18 @@ Plans:
 **Goal**: Users can save the full roster to a portable JSON file and restore it on any machine, with API keys unconditionally stripped on export and a timestamped backup created before any import applies
 **Depends on**: Phase v0.10-05
 **Requirements**: PORT-01, PORT-02, PORT-03
+**Gap Closure:** Closes PORT-01/02/03 unsatisfied gaps from v0.10 audit — phase was never planned or implemented
 **Success Criteria** (what must be TRUE):
   1. An "Export roster" option in the main menu writes a portable JSON file; every env value matching `/_KEY$|_SECRET$|_TOKEN$|_PASSWORD$/i` is replaced with `__redacted__` unconditionally — the export path never calls `syncToClaudeJson()` before reading, so keytar fallback plaintext values cannot leak into the export file
   2. An "Import roster" option reads a JSON file, validates the schema before writing anything (all `command` fields must be `node` or `npx`; no `args` entries may contain absolute user home paths like `/Users/` or `/home/`), and reports all validation errors up front — zero partial applies occur when validation fails
   3. Any `__redacted__` key value in an imported file triggers a per-slot prompt asking the user to enter the real key; the user can skip individual slots, which are then imported with no key configured and shown as `[no key]` in the list view
   4. Before any import changes are written, a timestamped backup of `~/.claude.json` is created at `~/.claude.json.pre-import.<ISO-timestamp>` and the backup path is displayed to the user; if the backup write fails, the import is aborted entirely
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.10-06-01-PLAN.md — Wave 0: failing test stubs for exportRoster, importRoster, backupClaudeJson, validateImportSchema pure logic (PORT-01, PORT-02, PORT-03)
+- [ ] v0.10-06-02-PLAN.md — Wave 1: implement exportRoster() with redaction + importRoster() schema validation + backupClaudeJson() + tests GREEN (PORT-01, PORT-02, PORT-03)
+- [ ] v0.10-06-03-PLAN.md — Wave 2: menu wiring (Export/Import options) + redacted key re-prompting flow + integration checkpoint:human-verify (PORT-01, PORT-02, PORT-03)
 
 ### Phase v0.10-07: Retroactive Verification Closure
 **Goal**: Phases v0.10-02, v0.10-03, and v0.10-04 each have a VERIFICATION.md with explicit requirement traceability and implementing commit references; probeAllSlots and liveDashboard are unit-testable via _pure exports with an integration smoke test; menu numbering is sequential
@@ -458,7 +464,7 @@ Plans:
 | v0.10-03. Credential Management | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-05. Policy UIs | 3/3 | Complete    | 2026-02-24 | - |
-| v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
+| v0.10-06. Import/Export | v0.10 | 0/3 | Not started (gap closure) | - |
 | v0.10-07. Retroactive Verification Closure | v0.10 | 0/3 | Not started | - |
 | v0.10-08. PLCY-03 Auto-Update Bug Fix | 2/2 | Complete    | 2026-02-25 | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
