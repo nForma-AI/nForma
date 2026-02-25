@@ -13,7 +13,7 @@
 - ✅ **v0.10 — Roster Toolkit** — Phases v0.10-01..v0.10-08 (shipped 2026-02-25)
 - ✅ **v0.11 — Parallel Quorum** — Phase v0.11-01 (shipped 2026-02-24)
 - 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-08 (in progress)
-- 🚧 **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-02 (in progress)
+- 🚧 **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-04 (in progress)
 
 ## Phases
 
@@ -170,7 +170,9 @@
 **Milestone Goal:** Remove all human checkpoints from the milestone execution loop and replace every uncertainty point with quorum consensus, enabling fully autonomous end-to-end milestone completion from new-milestone through complete-milestone with zero AskUserQuestion calls.
 
 - [x] **Phase v0.13-01: Loop Wiring** — Wire audit-milestone into the last-phase transition chain; detect gap-closure re-audit vs. primary completion path; audit-milestone auto-spawns plan-milestone-gaps on gaps_found; STATE.md updated with audit result (LOOP-01, LOOP-02, LOOP-03, STATE-01) (completed 2026-02-25)
-- [ ] **Phase v0.13-02: Quorum Gates** — Replace every AskUserQuestion in the autonomous loop with R3 quorum: plan-milestone-gaps confirmation gate, execute-phase gap resolution, discuss-phase gray-area routing in auto mode (QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03)
+- [x] **Phase v0.13-02: Quorum Gates** — Replace every AskUserQuestion in the autonomous loop with R3 quorum: plan-milestone-gaps confirmation gate, execute-phase gap resolution, discuss-phase gray-area routing in auto mode (QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03) (completed 2026-02-25)
+- [ ] **Phase v0.13-03: Write VERIFICATION.md + Bookkeeping** — Write formal VERIFICATION.md artifacts for v0.13-01 and v0.13-02; update REQUIREMENTS.md traceability (all 8 → Complete); add per-requirement checklists; mark v0.13-02 [x] in bookkeeping pass (LOOP-01, LOOP-02, LOOP-03, STATE-01, QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03) (Gap Closure)
+- [ ] **Phase v0.13-04: Fix Integration Issues** — Align update-scoreboard.cjs binary path across plan-milestone-gaps.md, execute-phase.md, discuss-phase.md (INT-01); add --auto bypass guards to plan-milestone-gaps.md Step 5 and nice-to-have row; update stale success_criteria (INT-02) (Gap Closure)
 
 
 ## Phase Details
@@ -570,6 +572,39 @@ Plans:
 - [ ] v0.13-02-01-PLAN.md — Replace plan-milestone-gaps Step 5 confirmation gate with R3 quorum approval; replace Step 10 text suggestion with plan-phase auto-spawn Task (QUORUM-01, LOOP-04)
 - [ ] v0.13-02-02-PLAN.md — Replace execute-phase gaps_found manual suggestion with quorum diagnosis + plan-phase --gaps auto-spawn; update offer_next Exception note (QUORUM-02)
 - [ ] v0.13-02-03-PLAN.md — Add second quorum pass on for_user[] survivors in auto mode at discuss-phase present_gray_areas step (QUORUM-03)
+
+### Phase v0.13-03: Write VERIFICATION.md + Bookkeeping
+**Goal**: Produce formal VERIFICATION.md artifacts for both v0.13-01 and v0.13-02, closing the orphaned-requirement status for all 8 v0.13 requirements and completing the audit trail required by the QGSD trust+audit enforcement model
+**Depends on**: Phase v0.13-02
+**Requirements**: LOOP-01, LOOP-02, LOOP-03, STATE-01, QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03
+**Gap Closure:** Closes gaps from audit — v0.13-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `.planning/phases/v0.13-01-loop-wiring/VERIFICATION.md` exists with a per-requirement checklist covering LOOP-01, LOOP-02, LOOP-03, STATE-01 and evidence citations pointing to the actual workflow files where each requirement is implemented
+  2. `.planning/phases/v0.13-02-quorum-gates/VERIFICATION.md` exists with a per-requirement checklist covering QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03 and evidence citations
+  3. `REQUIREMENTS.md` traceability table updated: all 8 requirements show Status = `Complete` (not `Pending`)
+  4. ROADMAP.md Phase v0.13-02 checkbox is `[x]` (complete) in the Progress table
+**Plans**: 2 plans
+
+Plans:
+- [ ] v0.13-03-01-PLAN.md — Write VERIFICATION.md for v0.13-01 (LOOP-01..03, STATE-01) with per-requirement checklists and evidence citations from transition.md and audit-milestone.md
+- [ ] v0.13-03-02-PLAN.md — Write VERIFICATION.md for v0.13-02 (QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03) with per-requirement checklists; update REQUIREMENTS.md traceability (all 8 → Complete); update ROADMAP.md Progress table
+
+### Phase v0.13-04: Fix Integration Issues
+**Goal**: Eliminate the two integration issues (INT-01 binary path inconsistency, INT-02 residual user-gate text) that the audit identified as portability risks and autonomous-execution blockers in the v0.13 workflow files
+**Depends on**: Phase v0.13-03
+**Requirements**: QUORUM-01, QUORUM-02, QUORUM-03 (integration correctness)
+**Gap Closure:** Closes gaps from audit — v0.13-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. All `update-scoreboard.cjs` calls in `plan-milestone-gaps.md`, `execute-phase.md`, and `discuss-phase.md` use `$HOME/.claude/qgsd-bin/update-scoreboard.cjs` — grep for `qgsd/bin/update-scoreboard` returns zero matches across these three files (INT-01)
+  2. `plan-milestone-gaps.md` Step 5 presentation block contains an `--auto` bypass guard that skips the "Create these {X} phases? (yes / adjust / defer all optional)" user-dialog line when running in autonomous context (INT-02)
+  3. `plan-milestone-gaps.md` priority table nice-to-have row no longer contains the bare "Ask user: include or defer?" text without an `--auto` guard (INT-02)
+  4. `plan-milestone-gaps.md` `<success_criteria>` replaces "User confirmed phase plan" with an automation-compatible criterion (INT-02)
+  5. Validation commands confirm each fix: per-INT grep check returns expected result
+**Plans**: 2 plans
+
+Plans:
+- [ ] v0.13-04-01-PLAN.md — Fix INT-01: audit all three workflow files for qgsd/bin/ scoreboard path; align to qgsd-bin/ with per-file grep validation
+- [ ] v0.13-04-02-PLAN.md — Fix INT-02: add --auto bypass guards to plan-milestone-gaps.md Step 5 user-dialog + nice-to-have row; update stale success_criteria
 
 
 ## Progress
