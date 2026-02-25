@@ -1,3 +1,4 @@
+<!-- DEPRECATED: This agent is superseded by direct inline dispatch in commands/qgsd/quorum.md as of quick-103. The orchestrator Task-spawn indirection is no longer needed — quorum.md now contains the full R3 protocol inline (with qgsd-quorum-slot-worker for per-slot dispatch). Retained for reference only. Do not spawn this agent. -->
 ---
 name: qgsd-quorum-orchestrator
 description: >

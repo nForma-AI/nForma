@@ -19,9 +19,10 @@ Run a question or prompt through the full QGSD quorum (R3 protocol): Claude + na
 - **Mode B — Execution + Trace Review**: Running commands is necessary before a verdict is possible. Claude runs them, preserves full traces, quorum reviews traces and gives verdicts.
 </objective>
 
-<orchestrator_delegation>
-**Preferred execution path:** spawn the `qgsd-quorum-orchestrator` agent, which encapsulates
-the full R3 protocol (provider pre-flight, team identity, Mode A/B, deliberation, scoreboard).
+<dispatch_pattern>
+**Execution path:** Claude runs the full R3 protocol directly in the main conversation thread.
+Dispatch slot-workers via sibling Task calls (one per active slot per round).
+No orchestrator intermediary — the fallback logic, round loop, and scoreboard are all inline.
 
 Resolve the question to pass:
 
@@ -32,26 +33,12 @@ Resolve the question to pass:
    - **Priority 3** — Most recent open concern or blocker ("not sure", "concern", "blocker", "unclear", "wondering").
    - If none found: stop with `"No open question found. Provide one explicitly: /qgsd:quorum <question>"`
 
-When question is inferred, display before spawning:
+When question is inferred, display before dispatching:
 ```
 Using conversation context as question (Priority N - [type]):
 "[inferred question text]"
 ```
-
-Then spawn the orchestrator:
-
-```
-Task(
-  subagent_type="qgsd-quorum-orchestrator",
-  prompt="[resolved question or bundle]"
-)
-```
-
-The orchestrator returns a structured consensus verdict. Relay it to the user.
-
-**Fallback:** If the orchestrator is unavailable, execute the full protocol inline using
-the steps in the `<mode_detection>` and subsequent sections below.
-</orchestrator_delegation>
+</dispatch_pattern>
 
 <mode_detection>
 **Default: Mode A.**
@@ -203,12 +190,15 @@ When a question is inferred via any priority, Claude MUST display before proceed
 
 Display:
 ```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- QGSD ► QUORUM: Mode A — Pure Question
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► QUORUM: Round 1 — N workers dispatched
+ Active: gemini-1, opencode-1, copilot-1, codex-1
+ Fallback pool: claude-1..claude-6 (on UNAVAIL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Question: [question]
 ```
+(The Active line lists the actual active slots resolved at runtime, not hardcoded names. The example above is illustrative — the executor renders it dynamically using the resolved slot list from provider pre-flight.)
 
 ### Claude's position (Round 1)
 
@@ -251,17 +241,21 @@ Handle UNAVAILABLE per R6: note unavailability, continue with remaining models.
 Display all positions as a table with one row per team member (native agents first, then claude-mcp servers in discovery order):
 
 ```
-┌──────────────┬──────────────────────────────────────────────────────────┐
-│ Model        │ Round 1 Position                                         │
-├──────────────┼──────────────────────────────────────────────────────────┤
-│ Claude       │ [summary]                                                │
-│ Codex        │ [summary or UNAVAIL]                                     │
-│ Gemini       │ [summary or UNAVAIL]                                     │
-│ OpenCode     │ [summary or UNAVAIL]                                     │
-│ Copilot      │ [summary or UNAVAIL]                                     │
-│ <display-name for each claude-mcp server, dynamically> │ [summary or UNAVAIL] │
-└──────────────┴──────────────────────────────────────────────────────────┘
+┌────────────────────────────────┬──────────────────────────────────────────────────────────┐
+│ Model                          │ Round N Position                                         │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│ Claude                         │ [summary — $CLAUDE_POSITION]                            │
+│ gemini-1 (primary)             │ [summary or UNAVAIL]                                     │
+│   └─ claude-1 (fallback)       │ [summary or UNAVAIL — only shown if primary UNAVAIL]    │
+│ codex-1 (primary)              │ [summary or UNAVAIL]                                     │
+│   ├─ claude-3 (fallback)       │ [summary or UNAVAIL — only shown if primary UNAVAIL]    │
+│   └─ claude-4 (fallback)       │ [summary or UNAVAIL — only shown if still need quorum]  │
+│ opencode-1 (primary)           │ [summary or UNAVAIL]                                     │
+│ copilot-1 (primary)            │ [summary or UNAVAIL]                                     │
+└────────────────────────────────┴──────────────────────────────────────────────────────────┘
 ```
+
+Fallback rows (├─ / └─) are only rendered when the corresponding primary slot returned UNAVAIL and a claude-N fallback was dispatched in its place. If the primary responded, no fallback row is shown.
 
 If all available models agree → skip to **Consensus output**.
 
@@ -499,18 +493,22 @@ If split: run deliberation (up to 9 deliberation rounds, max 10 total rounds inc
  QGSD ► QUORUM VERDICT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-┌──────────────┬──────────────┬──────────────────────────────────────────┐
-│ Model        │ Verdict      │ Reasoning                                │
-├──────────────┼──────────────┼──────────────────────────────────────────┤
-│ Claude       │ [verdict]    │ [summary]                                │
-│ Gemini       │ [verdict]    │ [summary or UNAVAIL]                     │
-│ OpenCode     │ [verdict]    │ [summary or UNAVAIL]                     │
-│ Copilot      │ [verdict]    │ [summary or UNAVAIL]                     │
-│ Codex        │ [verdict]    │ [summary or UNAVAIL]                     │
-│ <display-name for each claude-mcp server, dynamically> │ [verdict] │ [summary or UNAVAIL] │
-├──────────────┼──────────────┼──────────────────────────────────────────┤
-│ CONSENSUS    │ [verdict]    │ [N APPROVE, N REJECT, N FLAG, N UNAVAIL] │
-└──────────────┴──────────────┴──────────────────────────────────────────┘
+┌────────────────────────────────┬──────────────┬──────────────────────────────────────────┐
+│ Model                          │ Verdict      │ Reasoning                                │
+├────────────────────────────────┼──────────────┼──────────────────────────────────────────┤
+│ Claude                         │ [verdict]    │ [summary]                                │
+│ gemini-1 (primary)             │ [verdict]    │ [summary or UNAVAIL]                     │
+│   └─ claude-1 (fallback)       │ [verdict]    │ [summary or UNAVAIL]                     │
+│ codex-1 (primary)              │ [verdict]    │ [summary or UNAVAIL]                     │
+│   ├─ claude-3 (fallback)       │ [verdict]    │ [summary or UNAVAIL]                     │
+│   └─ claude-4 (fallback)       │ [verdict]    │ [summary or UNAVAIL]                     │
+│ opencode-1 (primary)           │ [verdict]    │ [summary or UNAVAIL]                     │
+│ copilot-1 (primary)            │ [verdict]    │ [summary or UNAVAIL]                     │
+├────────────────────────────────┼──────────────┼──────────────────────────────────────────┤
+│ CONSENSUS                      │ [verdict]    │ [N APPROVE, N REJECT, N FLAG, N UNAVAIL] │
+└────────────────────────────────┴──────────────┴──────────────────────────────────────────┘
+
+Fallback rows (├─ / └─) are only rendered when the corresponding primary slot returned UNAVAIL and a claude-N fallback was dispatched in its place. If the primary responded, no fallback row is shown.
 
 [rationale — what the traces showed]
 ```
