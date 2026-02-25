@@ -17,6 +17,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const { loadConfig } = require('./config-loader');
+const { schema_version } = require('./conformance-schema.cjs');
 
 // Read-only command regex: git log/diff/diff-tree/status/show/blame, grep, cat, ls, head, tail, find
 const READ_ONLY_REGEX = /^\s*(git\s+(log|diff|diff-tree|status|show|blame)|grep|cat\s|ls(\s|$)|head|tail|find)\s*/;
@@ -376,6 +377,20 @@ function makePatternHash(fileSets) {
     .digest('hex').slice(0, 12);
 }
 
+// Appends a structured conformance event to .planning/conformance-events.jsonl.
+// Uses appendFileSync (atomic for writes < POSIX PIPE_BUF = 4096 bytes).
+// Always wrapped in try/catch — hooks are fail-open; never crashes on logging failure.
+// NEVER writes to stdout — stdout is the Claude Code hook decision channel.
+function appendConformanceEvent(event) {
+  try {
+    const logPath = path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.appendFileSync(logPath, JSON.stringify(event) + '\n', 'utf8');
+  } catch (err) {
+    process.stderr.write('[qgsd] conformance log write failed: ' + err.message + '\n');
+  }
+}
+
 // Builds the deny reason block for when the circuit breaker is active.
 // Returns a message explaining the block and how to resolve it.
 function buildBlockReason(state) {
@@ -401,7 +416,7 @@ function buildBlockReason(state) {
     lines.push('');
   }
   lines.push(
-    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see get-shit-done/workflows/oscillation-resolution-mode.md for the full procedure.',
+    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see qgsd-core/workflows/oscillation-resolution-mode.md for the full procedure.',
     '',
     'Read-only operations are still allowed (e.g. git log --oneline to review the commit history).',
     'You must manually commit a root-cause fix before write operations are unblocked.',
@@ -438,7 +453,7 @@ function buildWarningNotice(state) {
   }
 
   lines.push(
-    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see get-shit-done/workflows/oscillation-resolution-mode.md for the full procedure.',
+    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see qgsd-core/workflows/oscillation-resolution-mode.md for the full procedure.',
     '',
     'After committing the fix, run \'npx qgsd --reset-breaker\' to clear the circuit breaker state.',
     'To temporarily disable the circuit breaker for deliberate iterative work, run \'npx qgsd --disable-breaker\'.',
@@ -643,6 +658,16 @@ req.end();
 
       // Write state so qgsd-prompt.js picks it up on next user message
       writeState(statePath, result.fileSet, fileSets);
+
+      appendConformanceEvent({
+        ts:              new Date().toISOString(),
+        phase:           'IDLE',
+        action:          'circuit_break',
+        slots_available: 0,
+        vote_result:     null,
+        outcome:         'BLOCK',
+        schema_version,
+      });
 
       // State written — exit silently on first detection (warning emitted on next call via active state path)
       process.exit(0);
