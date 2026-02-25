@@ -160,8 +160,10 @@
 - [x] **Phase v0.12-04: Circuit Breaker Algorithm Verification** — TLA+ models for run-collapse oscillation detection algorithm and circuit breaker state persistence + Haiku convergence (GAP-1, GAP-5) (completed 2026-02-25)
 - [x] **Phase v0.12-05: Protocol Termination Proofs** — TLA+ bounded termination specs for R3 deliberation loop (max 10 rounds + 10 improvement iterations) and R4 pre-filter protocol (max 3 rounds) (GAP-2, GAP-6) (completed 2026-02-25)
 - [x] **Phase v0.12-06: Audit Trail Invariants** — Alloy models for scoreboard recomputation idempotency/no-vote-loss/no-double-counting and availability hint date arithmetic (GAP-3, GAP-9) (completed 2026-02-25)
-- [ ] **Phase v0.12-07: Hook Transcript Verification** — Alloy model for qgsd-stop.js transcript scanning: boundary detection, tool_use/tool_result pairing uniqueness, ceiling enforcement (GAP-4)
-- [ ] **Phase v0.12-08: Installer and Taxonomy Extensions** — Alloy extension to install-scope.als (rollback soundness, config sync completeness) and new taxonomy-safety.als (injection prevention, closed/open taxonomy consistency) (GAP-7, GAP-8)
+- [x] **Phase v0.12-07: Hook Transcript Verification** — Alloy model for qgsd-stop.js transcript scanning: boundary detection, tool_use/tool_result pairing uniqueness, ceiling enforcement (GAP-4) (completed 2026-02-25)
+- [x] **Phase v0.12-08: Installer and Taxonomy Extensions** — Alloy extension to install-scope.als (rollback soundness, config sync completeness) and new taxonomy-safety.als (injection prevention, closed/open taxonomy consistency) (GAP-7, GAP-8) (completed 2026-02-25)
+- [ ] **Phase v0.12-09: Verification Infrastructure Quick Fixes** — workers bug fix in run-oscillation-tlc.cjs, conditional-skip guards for JAR-not-found tests, stale assertion name in run-alloy.cjs, rates.const/quorum.pm variable alignment, deadlock condition fix (GAP-5, TLA-04, ALY-02, PRM-02, PET-03)
+- [ ] **Phase v0.12-10: Conformance Score Redesign** — Add DECIDING to VALID_PHASES in conformance-schema.cjs, refactor validate-traces.cjs to multi-step session replay so conformance score reflects real violations not structural artifacts (LOG-03, VAL-01, VAL-02)
 
 ### 🚧 v0.13 — Autonomous Milestone Execution (In Progress)
 
@@ -481,9 +483,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.12-07-01-PLAN.md — Wave 0 RED stubs for run-transcript-alloy.test.cjs (GAP-4)
-- [ ] v0.12-07-02-PLAN.md — Author formal/alloy/transcript-scan.als (GAP-4)
-- [ ] v0.12-07-03-PLAN.md — Implement bin/run-transcript-alloy.cjs + GREEN tests (GAP-4)
+- [x] v0.12-07-01-PLAN.md — Wave 0 RED stubs for run-transcript-alloy.test.cjs (GAP-4)
+- [x] v0.12-07-02-PLAN.md — Author formal/alloy/transcript-scan.als (GAP-4)
+- [x] v0.12-07-03-PLAN.md — Implement bin/run-transcript-alloy.cjs + GREEN tests (GAP-4)
 
 ### Phase v0.12-08: Installer and Taxonomy Extensions
 **Goal**: The install.js rollback is formally verified as sound (uninstall restores previous state) and config sync is verified complete (hooks/dist/ and ~/.claude/hooks/ in sync after install); the Haiku classification taxonomy is verified injection-safe and maintains closed/open category consistency
@@ -496,9 +498,46 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.12-08-01-PLAN.md — Wave 0 RED stubs for run-installer-alloy.test.cjs (GAP-7, GAP-8)
-- [ ] v0.12-08-02-PLAN.md — Extend install-scope.als + author taxonomy-safety.als (GAP-7, GAP-8)
-- [ ] v0.12-08-03-PLAN.md — Implement bin/run-installer-alloy.cjs + GREEN tests (GAP-7, GAP-8)
+- [x] v0.12-08-01-PLAN.md — Wave 0 RED stubs for run-installer-alloy.test.cjs (GAP-7, GAP-8)
+- [x] v0.12-08-02-PLAN.md — Extend install-scope.als + author taxonomy-safety.als (GAP-7, GAP-8)
+- [x] v0.12-08-03-PLAN.md — Implement bin/run-installer-alloy.cjs + GREEN tests (GAP-7, GAP-8)
+
+### Phase v0.12-09: Verification Infrastructure Quick Fixes
+**Goal**: All 5 isolated verification infrastructure bugs are fixed: MCconvergence runs with -workers 1 (liveness-safe), JAR-not-found tests in run-tlc.test.cjs and run-alloy.test.cjs have conditional-skip guards, stale "NoSpuriousApproval" error message in run-alloy.cjs is corrected, rates.const variable names align with quorum.pm (or aggregation is documented), and the Petri net deadlock condition uses a runtime-parameterizable threshold
+**Depends on**: Phase v0.12-08
+**Requirements**: GAP-5, TLA-04, ALY-02, PRM-02, PET-03
+**Gap Closure:** Closes gaps from v0.12 audit
+**Success Criteria** (what must be TRUE):
+  1. `bin/run-oscillation-tlc.cjs`: MCconvergence branch uses `-workers 1` (not `'auto'`) — liveness PROPERTY verified safely
+  2. `bin/run-tlc.test.cjs`: JAR-not-found test skips (not fails) when `formal/tla/tla2tools.jar` is present — consistent with pattern in run-audit-alloy.test.cjs
+  3. `bin/run-alloy.test.cjs`: JAR-not-found test skips (not fails) when `formal/alloy/org.alloytools.alloy.dist.jar` is present
+  4. `bin/run-alloy.cjs`: error message uses the actual assertion name from `quorum-votes.als` (not the stale "NoSpuriousApproval")
+  5. Either: `bin/export-prism-constants.cjs` generates aggregate `tp_rate`/`unavail` variables matching `quorum.pm`, OR `VERIFICATION_TOOLS.md` documents the manual aggregation step with a concrete example
+  6. `bin/generate-petri-net.cjs`: deadlock condition uses a runtime-visible threshold (not hardcoded `MIN_QUORUM_SIZE=3` vs `SLOTS=5`); `npm test` 312/312 pass
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.12-09-01-PLAN.md — GAP-5 workers fix + TLA-04 conditional-skip guard + ALY-02 stale name fix (GAP-5, TLA-04, ALY-02)
+- [ ] v0.12-09-02-PLAN.md — PRM-02 rates.const alignment or VERIFICATION_TOOLS.md documentation (PRM-02)
+- [ ] v0.12-09-03-PLAN.md — PET-03 deadlock condition parameterization + GREEN full test suite (PET-03)
+
+### Phase v0.12-10: Conformance Score Redesign
+**Goal**: The conformance score in validate-traces.cjs accurately reflects protocol violations rather than structural replay artifacts; VALID_PHASES includes "DECIDING" so the schema validator catches actual phase violations; the multi-step replay groups events into quorum sessions before evaluating state transitions
+**Depends on**: Phase v0.12-09
+**Requirements**: LOG-03, VAL-01, VAL-02
+**Gap Closure:** Closes gaps from v0.12 audit
+**Success Criteria** (what must be TRUE):
+  1. `formal/shared/conformance-schema.cjs` VALID_PHASES includes "DECIDING" — hooks no longer emit schema-violating phase values
+  2. `bin/validate-traces.cjs` groups conformance events by quorum session (quorum_id field) before replay — each session replayed as a full state sequence (quorum_start → quorum_block* → quorum_complete), not one fresh-IDLE actor per event
+  3. The conformance score reported by validate-traces.cjs reflects only genuine state transition violations (events that do not follow valid sequences), not structural artifacts from single-step replay
+  4. quorum_start events validate to COLLECTING_VOTES, quorum_block to DELIBERATING, quorum_complete to DECIDED — transitions correct in multi-step context
+  5. `npm test` passes; `bin/validate-traces.test.cjs` updated for new multi-step replay behavior
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.12-10-01-PLAN.md — Wave 0 RED stubs for updated validate-traces.test.cjs + LOG-03 schema fix (LOG-03, VAL-01)
+- [ ] v0.12-10-02-PLAN.md — Refactor validate-traces.cjs: session-grouping replay engine replacing per-event IDLE replay (VAL-01, VAL-02)
+- [ ] v0.12-10-03-PLAN.md — GREEN tests + conformance score verification + install sync (VAL-01, VAL-02)
 
 ### Phase v0.13-01: Loop Wiring
 **Goal**: The milestone execution chain runs audit-milestone automatically at the last-phase boundary, detects whether a re-audit or fresh completion is needed, and advances to plan-milestone-gaps without human input when gaps are found; STATE.md always reflects the current audit result
@@ -598,8 +637,10 @@ Plans:
 | v0.12-03. Static Analysis Suite | v0.12 | 4/4 | Complete | 2026-02-25 |
 | v0.12-04. Circuit Breaker Algorithm Verification | 3/3 | Complete   | 2026-02-25 | - |
 | v0.12-05. Protocol Termination Proofs | v0.12 | 3/3 | Complete | 2026-02-25 |
-| v0.12-06. Audit Trail Invariants | v0.12 | 0/3 | Not started | - |
-| v0.12-07. Hook Transcript Verification | v0.12 | 0/3 | Not started | - |
-| v0.12-08. Installer and Taxonomy Extensions | v0.12 | 0/3 | Not started | - |
+| v0.12-06. Audit Trail Invariants | v0.12 | 3/3 | Complete | 2026-02-25 |
+| v0.12-07. Hook Transcript Verification | v0.12 | 3/3 | Complete | 2026-02-25 |
+| v0.12-08. Installer and Taxonomy Extensions | v0.12 | 3/3 | Complete | 2026-02-25 |
+| v0.12-09. Verification Infrastructure Quick Fixes | v0.12 | 0/3 | Not started | - |
+| v0.12-10. Conformance Score Redesign | v0.12 | 0/3 | Not started | - |
 | v0.13-01. Loop Wiring | v0.13 | Complete    | 2026-02-25 | - |
 | v0.13-02. Quorum Gates | v0.13 | 0/3 | Planned | - |

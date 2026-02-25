@@ -170,6 +170,92 @@ test('TC9: circuit breaker active → injects CIRCUIT BREAKER ACTIVE context', (
   }
 });
 
+// TC11: activeSlots path — instructions use Task dispatch syntax, not direct MCP calls
+// When quorum_active is configured, the step list must contain qgsd-quorum-slot-worker Tasks
+// and must NOT contain mcp__*__* tool names (the escape hatch must be absent).
+test('TC11: activeSlots path uses Task dispatch syntax (not direct MCP calls)', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-tc11-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({ quorum_active: ['codex-1', 'gemini-1'] }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    assert.ok(
+      ctx.includes('qgsd-quorum-slot-worker'),
+      'instructions must contain qgsd-quorum-slot-worker Task dispatch syntax'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC12: activeSlots path — no mcp__*__* tool names in injected instructions
+// The escape hatch "fall back to direct MCP calls" must be absent entirely.
+test('TC12: activeSlots path has no mcp__*__* tool names in instructions', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-tc12-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({ quorum_active: ['codex-1', 'gemini-1'] }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    // The escape hatch was "fall back to direct MCP calls" + a step list of "Call mcp__X__Y".
+    // The NEVER directive legitimately contains "mcp__*__*" as a warning, so we test for
+    // the actual escape hatch phrases, not a generic mcp__ regex.
+    assert.ok(
+      !ctx.includes('fall back to direct MCP calls'),
+      'instructions must NOT contain the fallback escape hatch phrase'
+    );
+    assert.ok(
+      !(/\bCall mcp__[a-z]/.test(ctx)),
+      'instructions must NOT contain "Call mcp__<slot>" step lines'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC13: activeSlots path — model_preferences override block is suppressed
+// Even when model_preferences is configured, mcp__*__* names must not appear
+// (the !activeSlots guard must prevent the AGENT_TOOL_MAP block from running).
+test('TC13: activeSlots path suppresses model_preferences override (no mcp__ leak)', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-tc13-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({
+        quorum_active: ['codex-1', 'gemini-1'],
+        model_preferences: { 'codex-1': 'gpt-5-turbo' },
+      }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    // The AGENT_TOOL_MAP block generates "When calling mcp__<slot>__<tool>, include model=..."
+    // This must not appear when activeSlots is configured.
+    assert.ok(
+      !(/When calling mcp__[a-z]/.test(ctx)),
+      'model_preferences override block must not inject "When calling mcp__<slot>" when activeSlots is configured'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
 // TC10: circuit breaker disabled flag → does NOT inject resolution context
 // Same temp dir setup but state = { active: true, disabled: true }
 test('TC10: circuit breaker disabled flag → no injection (silent pass)', () => {
