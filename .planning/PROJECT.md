@@ -8,7 +8,19 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.12 Formal Verification
+## Current Milestone: v0.13 Autonomous Milestone Execution
+
+**Goal:** Remove all human checkpoints from the milestone execution loop and replace every uncertainty point with quorum consensus, enabling fully autonomous end-to-end milestone completion from new-milestone through complete-milestone with zero AskUserQuestion calls.
+
+**Target features:**
+- Loop wiring — transition.md calls audit-milestone before complete-milestone; Gap Closure marker triggers re-audit instead of completion
+- Audit auto-advance — audit-milestone spawns plan-milestone-gaps automatically when gaps_found
+- Quorum-gated gap phases — plan-milestone-gaps replaces AskUserQuestion confirmation with R3 quorum + auto-spawns plan-phase
+- Quorum gap resolution — execute-phase gaps_found routes to quorum diagnosis and auto-resolution instead of halting the chain
+- Quorum discuss-phase — discuss-phase remaining user_questions (after R4 pre-filter) routed to quorum in auto mode
+- Audit state tracking — audit-milestone updates STATE.md with audit result
+
+## Previous Milestone: v0.12 Formal Verification
 
 **Goal:** Implement formal verification tooling for QGSD's agent state machine — conformance event logger shipped as a bin/ script, TLA+ specification with TLC model checking, XState executable TypeScript machine, and Alloy/PRISM/Petri models for vote-counting and probabilistic analysis.
 
@@ -306,4 +318,4 @@ QGSD v0.7 shipped 2026-02-23. v0.2.0 git tag pushed; npm publish deferred by use
 | voteCode mapping: Mode A = '' (no ground truth at vote time); Mode B peer-scored vs consensus | APPROVE∩APPROVE=TP, REJECT∩REJECT=TN, APPROVE∩REJECT=FP, REJECT∩APPROVE=FN, FLAG=TP+, UNAVAIL=UNAVAIL | Phase v0.11-01-03 tech debt fix |
 
 ---
-*Last updated: 2026-02-24 after v0.11 Parallel Quorum milestone complete; v0.10 Roster Toolkit and v0.9 GSD Sync running in parallel*
+*Last updated: 2026-02-25 after v0.13 Autonomous Milestone Execution milestone started*
