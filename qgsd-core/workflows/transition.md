@@ -455,7 +455,7 @@ Step 1: Detect whether the completed phase is a Gap Closure phase.
 
 ```bash
 # Check if the completed phase's ROADMAP.md entry has a Gap Closure marker
-IS_GAP_CLOSURE=$(grep -A 15 "Phase ${COMPLETED_PHASE}" .planning/ROADMAP.md | grep -c '\*\*Gap Closure:\*\*')
+IS_GAP_CLOSURE=$(grep -A 4 "^### Phase ${COMPLETED_PHASE}:" .planning/ROADMAP.md | grep -c '\*\*Gap Closure:\*\*')
 # IS_GAP_CLOSURE=0 → primary path (first audit before completing)
 # IS_GAP_CLOSURE=1+ → re-audit path (gap closure phase just finished)
 ```
