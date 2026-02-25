@@ -138,6 +138,8 @@
 - [x] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit (completed 2026-02-24)
 - [x] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check (completed 2026-02-24)
 - [ ] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup
+- [ ] **Phase v0.10-07: Retroactive Verification Closure** — VERIFICATION.md for v0.10-02/03/04 + _pure exports for probeAllSlots/liveDashboard + integration smoke test + menu numbering fix (Gap Closure)
+- [ ] **Phase v0.10-08: PLCY-03 Auto-Update Bug Fix** — Fix Map bracket notation bug in runAutoUpdateCheck() + regression test + clear critical bug flag (Gap Closure)
 
 <details>
 <summary>✅ v0.11 — Parallel Quorum (Phase v0.11-01) — SHIPPED 2026-02-24</summary>
@@ -318,6 +320,29 @@ Plans:
   4. Before any import changes are written, a timestamped backup of `~/.claude.json` is created at `~/.claude.json.pre-import.<ISO-timestamp>` and the backup path is displayed to the user; if the backup write fails, the import is aborted entirely
 **Plans**: TBD
 
+### Phase v0.10-07: Retroactive Verification Closure
+**Goal**: Phases v0.10-02, v0.10-03, and v0.10-04 each have a VERIFICATION.md with explicit requirement traceability and implementing commit references; probeAllSlots and liveDashboard are unit-testable via _pure exports with an integration smoke test; menu numbering is sequential
+**Depends on**: Phase v0.10-05
+**Requirements**: PRST-01, PRST-02, CRED-01, CRED-02, DASH-01, DASH-02, DASH-03
+**Gap Closure:** Closes orphaned requirements from v0.10 audit — phases completed implementation without producing VERIFICATION.md artifacts
+**Success Criteria** (what must be TRUE):
+  1. `v0.10-02-VERIFICATION.md` exists in `.planning/phases/v0.10-02-presets-and-cloning/` — references PRST-01, PRST-02, the implementing commits, and specifies which checks are auto vs. human_verification
+  2. `v0.10-03-VERIFICATION.md` exists in `.planning/phases/v0.10-03-credential-management/` — references CRED-01, CRED-02, implementing commits, auto/human split; menu numbering corrected (11, 12, 13 sequential — item 12 no longer absent)
+  3. `v0.10-04-VERIFICATION.md` exists in `.planning/phases/v0.10-04-live-health-dashboard/` — references DASH-01, DASH-02, DASH-03, implementing commits, auto/human split; `probeAllSlots` and `liveDashboard` exported via `module.exports._pure`
+  4. Unit tests cover `probeAllSlots` and `liveDashboard` via `_pure` exports; an integration smoke test for `liveDashboard` validates entry, keypress refresh, and exit flow using mock stdin (no interactive TTY required)
+**Plans**: TBD
+
+### Phase v0.10-08: PLCY-03 Auto-Update Bug Fix
+**Goal**: The critical Map bracket notation bug in `runAutoUpdateCheck()` is fixed, covered by a regression test, and the v0.10-05 VERIFICATION.md critical bug flag is cleared
+**Depends on**: Phase v0.10-07
+**Requirements**: PLCY-03
+**Gap Closure:** Closes PLCY-03 critical bug — `statuses[slot]` bracket notation on a Map always returns undefined; all auto-update entries were logged as SKIP
+**Success Criteria** (what must be TRUE):
+  1. `bin/manage-agents.cjs` line 1445 uses `statuses.get(binName)` with correct slot→CLI binary name mapping — not `statuses[slot]` — and the auto-update check logs real status entries instead of SKIP for all slots
+  2. A unit test for `runAutoUpdateCheck()` demonstrates RED behavior with `statuses[slot]` (test fails — always SKIP) and GREEN behavior with `statuses.get(binName)` (test passes — correct status logged); this test is a permanent regression guard
+  3. `v0.10-05-VERIFICATION.md` is updated to clear the `gaps_found` / critical bug flag; PLCY-03 status is updated from `unsatisfied` to `satisfied` or `human_needed` per remaining TTY checks
+**Plans**: TBD
+
 ### Phase v0.12-01: Conformance Event Infrastructure
 **Goal**: Hooks emit structured conformance events to a shared NDJSON log, the XState machine is compiled and available for replay, and developers and users can run validate-traces.cjs to check execution conformance
 **Depends on**: Nothing (first v0.12 phase)
@@ -419,6 +444,8 @@ Plans:
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-05. Policy UIs | 3/3 | Complete    | 2026-02-24 | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
+| v0.10-07. Retroactive Verification Closure | v0.10 | 0/? | Not started | - |
+| v0.10-08. PLCY-03 Auto-Update Bug Fix | v0.10 | 0/? | Not started | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
 | v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
 | v0.12-02. TLA+ Formal Spec | v0.12 | 0/? | Not started | - |
