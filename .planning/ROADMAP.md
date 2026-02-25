@@ -699,4 +699,4 @@ Plans:
 | v0.13-02. Quorum Gates | v0.13 | 3/3 | Complete | 2026-02-25 |
 | v0.13-03. Write Verification Bookkeeping | v0.13 | 2/2 | Complete | 2026-02-25 |
 | v0.13-04. Fix Integration Issues | v0.13 | Complete    | 2026-02-25 | 2026-02-25 |
-| v0.13-05. Fix IS_GAP_CLOSURE Pattern | 1/1 | Complete   | 2026-02-25 | - |
+| v0.13-05. Fix IS_GAP_CLOSURE Pattern | 1/1 | Complete    | 2026-02-25 | - |
