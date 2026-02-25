@@ -2086,6 +2086,65 @@ describe('validate consistency command', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FIX-04: decimal phase number parsing
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('FIX-04: decimal phase number parsing', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('FIX-04-TC-01: validate consistency does not falsely warn about decimal phase dir matching ROADMAP entry', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      '# Roadmap\n\n### Phase 06.1: Decimal Fix\n'
+    );
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06.1-decimal-fix'), { recursive: true });
+
+    const result = runGsdTools('validate consistency', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const data = JSON.parse(result.output);
+    const falseWarning = (data.warnings || []).some(w =>
+      w.includes('06.1') && w.includes('not in ROADMAP')
+    );
+    assert.ok(!falseWarning, `FIX-04 bug: false warning about 06.1: ${JSON.stringify(data.warnings)}`);
+  });
+
+  test('FIX-04-TC-02: validate health does not emit W006 or W007 for decimal phase present in both ROADMAP and disk', () => {
+    // Minimal valid project structure for validate health
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      '# Project State\n\n## Current Position\n\nPhase: 06.1\nPlan: 1\nStatus: in-progress\n'
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'config.json'),
+      JSON.stringify({ model_profile: 'quality' })
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      '# Roadmap\n\n### Phase 06.1: Decimal Fix\n'
+    );
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06.1-decimal-fix'), { recursive: true });
+
+    const result = runGsdTools('validate health', tmpDir);
+    // validate health exits 0 even with warnings
+    const data = JSON.parse(result.output);
+
+    const w006 = (data.issues || []).some(i => i.code === 'W006' && i.message && i.message.includes('06.1'));
+    const w007 = (data.issues || []).some(i => i.code === 'W007' && i.message && i.message.includes('06.1'));
+    assert.ok(!w006, `FIX-04 bug: W006 false positive for 06.1: ${JSON.stringify(data.issues)}`);
+    assert.ok(!w007, `FIX-04 bug: W007 false positive for 06.1: ${JSON.stringify(data.issues)}`);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // progress command
 // ─────────────────────────────────────────────────────────────────────────────
 
