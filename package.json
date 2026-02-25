@@ -59,7 +59,13 @@
     "generate-logo": "node scripts/generate-logo-svg.js",
     "generate-assets": "npm run generate-terminal && npm run generate-logo",
     "prepublishOnly": "npm run build:hooks",
+    "xstate-to-tla": "node bin/xstate-to-tla.cjs",
+    "formal-verify": "node bin/run-formal-verify.cjs",
+    "formal-verify:tla": "node bin/run-formal-verify.cjs --only=tla",
+    "formal-verify:alloy": "node bin/run-formal-verify.cjs --only=alloy",
+    "formal-verify:prism": "node bin/run-formal-verify.cjs --only=prism",
+    "formal-verify:petri": "node bin/run-formal-verify.cjs --only=petri",
     "lint:isolation": "node scripts/lint-isolation.js",
-    "test": "node scripts/lint-isolation.js && node --test hooks/qgsd-stop.test.js hooks/config-loader.test.js qgsd-core/bin/gsd-tools.test.cjs hooks/qgsd-circuit-breaker.test.js hooks/qgsd-prompt.test.js bin/update-scoreboard.test.cjs hooks/qgsd-statusline.test.js bin/review-mcp-logs.test.cjs bin/migrate-to-slots.test.cjs bin/validate-traces.test.cjs bin/run-tlc.test.cjs bin/run-alloy.test.cjs bin/export-prism-constants.test.cjs bin/generate-petri-net.test.cjs bin/run-breaker-tlc.test.cjs bin/run-oscillation-tlc.test.cjs bin/run-protocol-tlc.test.cjs bin/run-audit-alloy.test.cjs bin/run-transcript-alloy.test.cjs bin/run-installer-alloy.test.cjs"
+    "test": "node scripts/lint-isolation.js && node --test hooks/qgsd-stop.test.js hooks/config-loader.test.js qgsd-core/bin/gsd-tools.test.cjs hooks/qgsd-circuit-breaker.test.js hooks/qgsd-prompt.test.js bin/update-scoreboard.test.cjs hooks/qgsd-statusline.test.js bin/review-mcp-logs.test.cjs bin/migrate-to-slots.test.cjs bin/validate-traces.test.cjs bin/run-tlc.test.cjs bin/run-alloy.test.cjs bin/export-prism-constants.test.cjs bin/generate-petri-net.test.cjs bin/run-breaker-tlc.test.cjs bin/run-oscillation-tlc.test.cjs bin/run-protocol-tlc.test.cjs bin/run-audit-alloy.test.cjs bin/run-transcript-alloy.test.cjs bin/run-installer-alloy.test.cjs bin/run-formal-verify.test.cjs bin/xstate-to-tla.test.cjs bin/run-account-manager-tlc.test.cjs bin/run-account-pool-alloy.test.cjs bin/run-oauth-rotation-prism.test.cjs"
   }
 }
