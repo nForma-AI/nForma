@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10-06 Import/Export — COMPLETE. 3/3 plans done: RED stubs (Plan 01) + pure functions GREEN (Plan 02) + integration/mainMenu wiring (Plan 03). 140 pass, 0 fail. PORT-01/02/03 satisfied at code level. checkpoint:human-verify pending for interactive TTY flows.
+**Current focus:** v0.10 Roster Toolkit — MILESTONE COMPLETE (shipped 2026-02-25). All 8 phases done (v0.10-01..v0.10-08). ROADMAP updated. Next: v0.9-04 Tier 3 Fixes or v0.12-01 Conformance Event Infrastructure.
 
 ## Current Position
 
-Phase: v0.10-06-import-export
-Plan: 3 of 3 complete — PHASE COMPLETE
-Status: v0.10-06 COMPLETE — Plan 01: 15 RED stubs (buildBackupPath/buildRedactedEnv/buildExportData/validateImportSchema); Plan 02: 4 pure functions GREEN (140 pass); Plan 03: backupClaudeJson/performExport/performImport integration + mainMenu items 16/17; commits 9ea3c4d + 946e7d3 + 5d3ee91
-Last activity: 2026-02-25 - Completed v0.10-06 Import/Export phase (3 plans)
+Phase: milestone-boundary
+Plan: —
+Status: v0.10 MILESTONE COMPLETE — all 8 phases shipped. v0.9 parallel (3/5 done: v0.9-01/02/03 complete; v0.9-04/05 remain). v0.12 in progress (0/3+ phases started). Quick task 106 has PLAN but no SUMMARY.
+Last activity: 2026-02-25 - Confirmed v0.10-07 complete; updated ROADMAP.md to mark v0.10 milestone shipped
 
-Progress: [████████████████████] 50/50 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 3/3 phases COMPLETE (v0.12-01 + v0.12-02 + v0.12-03) | v0.10: v0.10-01 + v0.10-06 + v0.10-07 + v0.10-08 COMPLETE | v0.9 parallel: 3/5 phases
+Progress: [████████████████████] v0.10: 8/8 COMPLETE (SHIPPED) | v0.11: 3/3 COMPLETE (SHIPPED) | v0.12: 0/3+ in progress | v0.9: 3/5 phases done
 
 ## Performance Metrics
 
@@ -111,5 +111,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: 2026-02-25 - Completed quick task 105: Add formal verification specs for QGSD CLI state machine: circuit breaker FSM (TLA+) and install scope matrix (Alloy)
+Stopped at: 2026-02-25 - Confirmed v0.10-07 complete; marked v0.10 milestone SHIPPED in ROADMAP.md; next: v0.9-04 Tier 3 Fixes or v0.12-01 Conformance Event Infrastructure (or complete quick task 106)
 Resume file: None
