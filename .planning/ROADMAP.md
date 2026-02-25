@@ -183,7 +183,7 @@
   3. When context usage exceeds the warn threshold (default 70%), `additionalContext` in the next hook invocation contains a WARNING message
   4. When context usage exceeds the critical threshold (default 90%), `additionalContext` contains a CRITICAL message
   5. Both thresholds are overridable via `context_monitor.warn_pct` and `context_monitor.critical_pct` in `qgsd.json` with two-layer merge applied
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] v0.9-01-01: Create `hooks/gsd-context-monitor.js`, register in `bin/install.js`, copy to `hooks/dist/`, run install sync
@@ -448,7 +448,7 @@ Plans:
   2. TLC verifies `MCdeliberation.cfg` — no violations
   3. `formal/tla/QGSDPreFilter.tla` exists with invariant `AutoResolutionSound` (auto-resolved iff all models agree + same answer) and liveness `PreFilterTerminates` (≤3 rounds)
   4. `bin/run-protocol-tlc.cjs` exists, gated on JAVA_HOME; `npm test` passes without Java; `bin/run-protocol-tlc.test.cjs` has error-path tests GREEN
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [x] v0.12-05-01-PLAN.md — Wave 0 RED stubs for run-protocol-tlc.test.cjs (GAP-2, GAP-6)
@@ -463,7 +463,7 @@ Plans:
   1. `formal/alloy/scoreboard-recompute.als` exists with assertions `RecomputeIdempotent` (applying recompute twice = once), `NoVoteLoss` (every vote in rounds appears in final score), `NoDoubleCounting` (no vote counted twice); uses Alloy integer arithmetic for delta accumulation
   2. `formal/alloy/availability-parsing.als` exists with assertions `ParseCorrect` (parsed timestamp ≥ now), `YearRolloverHandled` (Dec→Jan crossing), `FallbackIsNull` (unrecognized format → null, not crash)
   3. `bin/run-audit-alloy.cjs` targets both .als files, is gated on JAVA_HOME; `npm test` passes without Java; `bin/run-audit-alloy.test.cjs` has error-path tests GREEN
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] v0.12-06-01-PLAN.md — Wave 0 RED stubs for run-audit-alloy.test.cjs (GAP-3, GAP-9)
@@ -478,7 +478,7 @@ Plans:
   1. `formal/alloy/transcript-scan.als` exists with sigs `Entry`, `ToolUse extends Entry`, `ToolResult extends Entry`, `HumanMessage extends Entry` modeling JSONL transcript as ordered sequence; predicates `BoundaryCorrect`, `PairingUnique`, `NoDuplicateCounting`, `CeilingEnforced`
   2. All 4 predicates are asserted as checks — Alloy Analyzer finds no counterexamples
   3. `bin/run-transcript-alloy.cjs` exists, gated on JAVA_HOME; `npm test` passes without Java; `bin/run-transcript-alloy.test.cjs` has error-path tests GREEN
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] v0.12-07-01-PLAN.md — Wave 0 RED stubs for run-transcript-alloy.test.cjs (GAP-4)
@@ -493,7 +493,7 @@ Plans:
   1. `formal/alloy/install-scope.als` is extended with pred `RollbackSound` (uninstall restores previous state) and pred `ConfigSyncComplete` (after install, hooks/dist/ and ~/.claude/hooks/ are identical)
   2. `formal/alloy/taxonomy-safety.als` exists with sigs `TaskDescription`, `Category`, `Subcategory`; asserts `NoInjection` (taskDescription content cannot alter category structure), `TaxonomyClosed` (is_new=false implies category already in sig), `NewCategoryConsistent` (is_new=true implies category not previously in sig)
   3. `bin/run-installer-alloy.cjs` exists, targets both install-scope.als and taxonomy-safety.als, is gated on JAVA_HOME; `npm test` passes without Java; `bin/run-installer-alloy.test.cjs` has error-path tests GREEN
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] v0.12-08-01-PLAN.md — Wave 0 RED stubs for run-installer-alloy.test.cjs (GAP-7, GAP-8)
@@ -523,7 +523,7 @@ Plans:
   2. After quorum approves the proposed gap phases in plan-milestone-gaps, it auto-spawns a plan-phase Task for the first gap phase — no human prompt required to begin planning the first gap phase
   3. When execute-phase detects a gaps_found condition mid-execution, it routes to quorum diagnosis and auto-resolution instead of halting the chain — quorum proposes the fix; execution resumes after APPROVE
   4. When discuss-phase has remaining user_questions after the R4 pre-filter, it routes them to quorum in auto mode instead of presenting them to the user — quorum answers the gray areas; execution continues without any AskUserQuestion call
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] v0.13-02-01: Add R3 quorum gate to plan-milestone-gaps + auto-spawn plan-phase after APPROVE; update execute-phase gaps_found path; update discuss-phase auto mode (QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03)
