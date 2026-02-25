@@ -14,6 +14,7 @@
 - ✅ **v0.11 — Parallel Quorum** — Phase v0.11-01 (shipped 2026-02-24)
 - 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-08 (in progress)
 - ✅ **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-06 (shipped 2026-02-25)
+- 🚧 **v0.14 — FV Pipeline Integration** — Phases v0.14-01..v0.14-05 (in progress)
 
 ## Phases
 
@@ -176,6 +177,17 @@
 - [x] **Phase v0.13-06: Deploy IS_GAP_CLOSURE Fix to Installed Copy** — Sync corrected transition.md to ~/.claude/qgsd/; LOOP-02 closed at runtime (Gap Closure) (completed 2026-02-25)
 
 **Archive:** `.planning/milestones/v0.13-ROADMAP.md`
+
+</details>
+
+<details>
+<summary>🚧 v0.14 — FV Pipeline Integration (Phases v0.14-01..v0.14-05) — IN PROGRESS</summary>
+
+- [ ] **Phase v0.14-01: FV Tool Integration** — Commit and wire xstate-to-tla.cjs and run-formal-verify.cjs into source tree with test coverage; CI formal-verify.yml committed and end-to-end pipeline wired (INTG-01, INTG-02, INTG-03, INTG-04)
+- [ ] **Phase v0.14-02: Drift Detection** — Wire check-spec-sync.cjs into npm test; upgrade XState parsing from regex to AST; detect orphaned handwritten specs (DRFT-01, DRFT-02, DRFT-03)
+- [ ] **Phase v0.14-03: Parallelization** — Run TLA+, Alloy, and PRISM tool groups concurrently; cut total runtime from ~10 min to ~2 min (PERF-01, PERF-02)
+- [ ] **Phase v0.14-04: PRISM Config Injection** — Scoreboard TP/TN rates auto-fed to PRISM model parameters at runtime; no manual .pm file editing required (PRISM-01, PRISM-02)
+- [ ] **Phase v0.14-05: Watch Mode** — --watch flag re-runs formal verification automatically on XState machine file changes (DX-01)
 
 </details>
 
@@ -641,6 +653,57 @@ Plans:
 Plans:
 - [x] v0.13-06-01-PLAN.md — Sync qgsd-core/workflows/transition.md to ~/.claude/qgsd/workflows/transition.md via node bin/install.js --claude --global; verify installed copy uses anchored -A 4 pattern (LOOP-02)
 
+### Phase v0.14-01: FV Tool Integration
+**Goal**: The formal verification tools that exist on disk but are untracked are committed into source control with test coverage, wired end-to-end so run-formal-verify.cjs calls xstate-to-tla.cjs as its spec generation step, and CI runs the full pipeline on push and PR
+**Depends on**: Nothing (first v0.14 phase)
+**Requirements**: INTG-01, INTG-02, INTG-03, INTG-04
+**Success Criteria** (what must be TRUE):
+  1. User can run `node bin/xstate-to-tla.cjs` from the repo root and it transpiles the XState machine to a TLA+ spec + TLC model config without error
+  2. User can run `node bin/run-formal-verify.cjs` and it executes the full formal verification pipeline end-to-end, including calling xstate-to-tla.cjs as its first step
+  3. `.github/workflows/formal-verify.yml` is committed and a push to the repo triggers the formal verification CI job
+  4. `npm test` includes xstate-to-tla.cjs and run-formal-verify.cjs in its test suite and those tests pass
+**Plans**: TBD
+
+### Phase v0.14-02: Drift Detection
+**Goal**: Any divergence between the XState machine (source of truth) and the formal specs is caught automatically by npm test, using a proper AST walk rather than regex so structural changes like renamed guards and transitions are detected
+**Depends on**: Phase v0.14-01
+**Requirements**: DRFT-01, DRFT-02, DRFT-03
+**Success Criteria** (what must be TRUE):
+  1. `npm test` fails when a state name, transition, or guard in the XState machine does not appear in TLA+/Alloy/PRISM specs
+  2. `npm test` fails when TLA+ or Alloy specs reference a state or guard name that no longer exists in the XState machine
+  3. The drift detector uses the TypeScript compiler API to parse the XState machine — not a regex pattern match against raw source text
+  4. `npm test` passes with no drift when the XState machine and all specs are in sync
+**Plans**: TBD
+
+### Phase v0.14-03: Parallelization
+**Goal**: run-formal-verify.cjs executes the 20-step verification pipeline in parallel tool groups rather than sequentially, cutting wall-clock runtime from ~10 minutes to ~2 minutes
+**Depends on**: Phase v0.14-01
+**Requirements**: PERF-01, PERF-02
+**Success Criteria** (what must be TRUE):
+  1. TLA+ model checking, Alloy analysis, and PRISM verification run concurrently (observable via process timing — they start within seconds of each other, not sequentially)
+  2. Total wall-clock time for `node bin/run-formal-verify.cjs` on a standard machine completes in approximately 2 minutes or less (down from approximately 10 minutes)
+  3. All verification results are still correct after parallelization — no tool group skipped or silently failed
+**Plans**: TBD
+
+### Phase v0.14-04: PRISM Config Injection
+**Goal**: The PRISM probabilistic model receives empirically-grounded TP/TN rates from the quorum scoreboard automatically at run time, eliminating the manual step of editing .pm files between quorum runs
+**Depends on**: Phase v0.14-01
+**Requirements**: PRISM-01, PRISM-02
+**Success Criteria** (what must be TRUE):
+  1. Running `node bin/run-formal-verify.cjs` reads TP/TN rates from the quorum scoreboard and passes them to the PRISM model as parameters — no manual editing of any .pm file is required
+  2. After a quorum round updates the scoreboard, the next run of run-formal-verify.cjs automatically uses the updated rates without any user intervention
+**Plans**: TBD
+
+### Phase v0.14-05: Watch Mode
+**Goal**: Developers iterating on the XState machine get continuous feedback — run-formal-verify.cjs re-runs verification automatically whenever the machine file changes, without manual re-invocation
+**Depends on**: Phase v0.14-01
+**Requirements**: DX-01
+**Success Criteria** (what must be TRUE):
+  1. `node bin/run-formal-verify.cjs --watch` starts and does not exit — it watches the XState machine file for changes
+  2. When the XState machine file is saved, verification re-runs automatically within a few seconds and prints updated results
+  3. Watch mode terminates cleanly on Ctrl+C without hanging processes
+**Plans**: TBD
+
 
 ## Progress
 
@@ -720,3 +783,8 @@ Plans:
 | v0.13-04. Fix Integration Issues | v0.13 | Complete    | 2026-02-25 | 2026-02-25 |
 | v0.13-05. Fix IS_GAP_CLOSURE Pattern | 1/1 | Complete    | 2026-02-25 | - |
 | v0.13-06. Deploy IS_GAP_CLOSURE Fix to Installed Copy | v0.13 | Complete    | 2026-02-25 | - |
+| v0.14-01. FV Tool Integration | v0.14 | 0/TBD | Not started | - |
+| v0.14-02. Drift Detection | v0.14 | 0/TBD | Not started | - |
+| v0.14-03. Parallelization | v0.14 | 0/TBD | Not started | - |
+| v0.14-04. PRISM Config Injection | v0.14 | 0/TBD | Not started | - |
+| v0.14-05. Watch Mode | v0.14 | 0/TBD | Not started | - |

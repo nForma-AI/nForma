@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-25 after v0.14 milestone started)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.14 FV Pipeline Integration — defining requirements and roadmap.
+**Current focus:** v0.14 FV Pipeline Integration — roadmap created, ready to plan v0.14-01.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: v0.14-01 (FV Tool Integration) — Not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-02-25 — Milestone v0.14 FV Pipeline Integration started
+Status: Roadmap created — ready to plan Phase v0.14-01
+Last activity: 2026-02-25 — v0.14 roadmap created (5 phases, 12 requirements mapped)
 
-Progress: [██████████] v0.13: SHIPPED | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
+Progress: [██████████] v0.13: SHIPPED | v0.14: roadmap defined (0/5 phases) | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
 
 ## Performance Metrics
 
@@ -117,5 +117,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Milestone v0.13 audit: tech_debt (8/8 requirements) — all 6 phases complete, all flows wired; ready for complete-milestone
+Stopped at: v0.14 roadmap created — 5 phases (v0.14-01..v0.14-05), 12 requirements mapped; ready to plan Phase v0.14-01
 Resume file: None
