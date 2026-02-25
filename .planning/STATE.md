@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-01 complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.12 Formal Verification — Phase v0.12-07 Hook Transcript Verification COMPLETE (7/8 phases done). Phase v0.12-08 next.
+**Current focus:** v0.12 Formal Verification — Phase v0.12-08 Installer and Taxonomy Extensions COMPLETE (8/8 phases done). v0.12 milestone COMPLETE.
 
 ## Current Position
 
-Phase: v0.12-07 of 8 (Hook Transcript Verification) — COMPLETE
+Phase: v0.12-08 of 8 (Installer and Taxonomy Extensions) — COMPLETE
 Plan: 3/3 plans executed
-Status: v0.12-07 complete — GAP-4 (transcript-scan.als) formally verified. bin/run-transcript-alloy.cjs runner implemented. All 4 invariants (BoundaryCorrect, PairingUnique, NoDuplicateCounting, SuccessCountNeverExceedsMinSize) verified by Alloy 6 bounded model checking.
-Last activity: 2026-02-25 — v0.12-07 executed (transcript scan TDD: RED stubs → Alloy spec → GREEN runner)
+Status: v0.12-08 complete — GAP-7 (install-scope.als extended with RollbackSoundCheck + ConfigSyncCompleteCheck) and GAP-8 (taxonomy-safety.als: NoInjection + TaxonomyClosed + NewCategoryConsistent) formally verified. bin/run-installer-alloy.cjs runner implemented. v0.12 milestone COMPLETE (8/8 phases done).
+Last activity: 2026-02-25 — v0.12-08 executed (installer/taxonomy TDD: RED stubs → Alloy specs → GREEN runner)
 
-Progress: [████████░░] v0.13: 2/2 phases done | v0.12: v0.12-07 COMPLETE (7/8 phases done) | v0.9: COMPLETE (5/5 phases done)
+Progress: [██████████] v0.13: 2/2 phases done | v0.12: COMPLETE (8/8 phases done) | v0.9: COMPLETE (5/5 phases done)
 
 ## Performance Metrics
 
@@ -97,5 +97,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: v0.12-07 complete — Phase v0.12-08 next (final phase of v0.12 milestone)
+Stopped at: v0.12-08 complete — v0.12 milestone COMPLETE (all 8 phases done, GAP-1 through GAP-9 formally verified)
 Resume file: None
