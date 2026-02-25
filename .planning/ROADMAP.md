@@ -174,7 +174,7 @@
 - [x] **Phase v0.13-03: Write VERIFICATION.md + Bookkeeping** — Write formal VERIFICATION.md artifacts for v0.13-01 and v0.13-02; update REQUIREMENTS.md traceability (all 8 → Complete); add per-requirement checklists; mark v0.13-02 [x] in bookkeeping pass (LOOP-01, LOOP-02, LOOP-03, STATE-01, QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03) (Gap Closure) (completed 2026-02-25)
 - [x] **Phase v0.13-04: Fix Integration Issues** — Align update-scoreboard.cjs binary path across plan-milestone-gaps.md, execute-phase.md, discuss-phase.md (INT-01); add --auto bypass guards to plan-milestone-gaps.md Step 5 and nice-to-have row; update stale success_criteria (INT-02) (Gap Closure) (completed 2026-02-25)
 - [x] **Phase v0.13-05: Fix IS_GAP_CLOSURE Pattern** — Anchor IS_GAP_CLOSURE grep in transition.md from `-A 15` to `-A 4` with `^### Phase` heading-block anchor to eliminate false-positive routing on primary phases with downstream gap-closure dependents (TECH-01) (Gap Closure) (completed 2026-02-25)
-- [ ] **Phase v0.13-06: Deploy IS_GAP_CLOSURE Fix to Installed Copy** — Sync corrected transition.md from qgsd-core/ to installed ~/.claude/qgsd/workflows/transition.md; verify -A 4 anchored pattern in installed file (LOOP-02) (Gap Closure)
+- [x] **Phase v0.13-06: Deploy IS_GAP_CLOSURE Fix to Installed Copy** — Sync corrected transition.md from qgsd-core/ to installed ~/.claude/qgsd/workflows/transition.md; verify -A 4 anchored pattern in installed file (LOOP-02) (Gap Closure) (completed 2026-02-25)
 
 
 ## Phase Details
@@ -716,4 +716,4 @@ Plans:
 | v0.13-03. Write Verification Bookkeeping | v0.13 | 2/2 | Complete | 2026-02-25 |
 | v0.13-04. Fix Integration Issues | v0.13 | Complete    | 2026-02-25 | 2026-02-25 |
 | v0.13-05. Fix IS_GAP_CLOSURE Pattern | 1/1 | Complete    | 2026-02-25 | - |
-| v0.13-06. Deploy IS_GAP_CLOSURE Fix to Installed Copy | v0.13 | 0/1 | Pending | - |
+| v0.13-06. Deploy IS_GAP_CLOSURE Fix to Installed Copy | v0.13 | Complete    | 2026-02-25 | - |

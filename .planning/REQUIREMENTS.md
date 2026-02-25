@@ -10,7 +10,7 @@
 Changes to `transition.md` and `audit-milestone.md` to close the audit gap and create the re-audit loop.
 
 - [x] **LOOP-01**: The last-phase transition calls audit-milestone before complete-milestone (primary phase path)
-- [ ] **LOOP-02**: The last-phase transition detects the `**Gap Closure:**` ROADMAP marker on the completed phase and routes to audit-milestone instead of complete-milestone (gap closure re-audit path)
+- [x] **LOOP-02**: The last-phase transition detects the `**Gap Closure:**` ROADMAP marker on the completed phase and routes to audit-milestone instead of complete-milestone (gap closure re-audit path)
 - [x] **LOOP-03**: audit-milestone auto-spawns a plan-milestone-gaps Task when result is gaps_found and at least one phase is classified missing_no_plan
 - [x] **LOOP-04**: plan-milestone-gaps auto-spawns a plan-phase Task for the first gap phase after quorum approves the proposed phases
 
@@ -50,7 +50,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | LOOP-01 | v0.13-01 (verified by v0.13-03) | Complete |
-| LOOP-02 | v0.13-06 (gap closure — installed copy sync) | Pending |
+| LOOP-02 | v0.13-06 (gap closure — installed copy sync) | Complete |
 | LOOP-03 | v0.13-01 (verified by v0.13-03) | Complete |
 | STATE-01 | v0.13-01 (verified by v0.13-03) | Complete |
 | QUORUM-01 | v0.13-02 (verified by v0.13-03) | Complete |
@@ -62,7 +62,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 - v1 requirements: 8 total
 - Mapped to phases: 8 (implemented in v0.13-01/02; formal verification in v0.13-03; LOOP-02 gap closure in v0.13-06)
 - Unmapped: 0 ✓
-- Pending: 1 (LOOP-02 — awaiting v0.13-06 install sync)
+- Pending: 0 ✓ (LOOP-02 closed by v0.13-06)
 
 ---
 *Requirements defined: 2026-02-25*
