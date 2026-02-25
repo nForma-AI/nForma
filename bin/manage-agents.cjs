@@ -2525,6 +2525,82 @@ function parseUpdateLogErrors(logContent, maxAgeMs) {
     .filter((e) => e.status === 'ERROR' && new Date(e.ts).getTime() > cutoff);
 }
 
+// ---------------------------------------------------------------------------
+// v0.10-06 pure functions
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the filesystem path for the pre-import backup file.
+ * Format: <claudeJsonPath>.pre-import.<isoTimestamp>
+ * isoTimestamp should be filesystem-safe (colons replaced with dashes).
+ */
+function buildBackupPath(claudeJsonPath, isoTimestamp) {
+  return claudeJsonPath + '.pre-import.' + isoTimestamp;
+}
+
+/**
+ * Returns a copy of the env object with sensitive key values replaced by '__redacted__'.
+ * Sensitive keys: any key whose name matches /_KEY$|_SECRET$|_TOKEN$|_PASSWORD$/i
+ * Non-sensitive keys are preserved verbatim.
+ * Returns {} for null/undefined/non-object input.
+ */
+function buildRedactedEnv(env) {
+  if (!env || typeof env !== 'object') return {};
+  const SENSITIVE_RE = /(_KEY|_SECRET|_TOKEN|_PASSWORD)$/i;
+  return Object.fromEntries(
+    Object.entries(env).map(([k, v]) => [k, SENSITIVE_RE.test(k) ? '__redacted__' : v])
+  );
+}
+
+/**
+ * Returns a deep-cloned copy of claudeJsonData with all env values redacted.
+ * Applies buildRedactedEnv to every mcpServers[slot].env block.
+ * Does NOT call syncToClaudeJson — reads the raw data object as-is.
+ */
+function buildExportData(claudeJsonData) {
+  const out = JSON.parse(JSON.stringify(claudeJsonData));
+  const servers = out.mcpServers || {};
+  for (const cfg of Object.values(servers)) {
+    if (cfg.env) cfg.env = buildRedactedEnv(cfg.env);
+  }
+  return out;
+}
+
+/**
+ * Validates a parsed import file object. Returns an array of error strings.
+ * Empty array = valid. Caller must check errors.length === 0 before any write.
+ *
+ * Rules:
+ *  1. Root must be a JSON object
+ *  2. Each mcpServers[slot].command must be "node" or "npx"
+ *  3. No mcpServers[slot].args entry may start with /Users/ or /home/
+ *
+ * Note: __redacted__ values in env are NOT validation errors — they are expected.
+ */
+function validateImportSchema(parsed) {
+  const errors = [];
+  const ALLOWED_COMMANDS = ['node', 'npx'];
+  const HOME_PATH_RE = /^\/(Users|home)\//;
+
+  if (!parsed || typeof parsed !== 'object') {
+    errors.push('Root must be a JSON object');
+    return errors;
+  }
+
+  const servers = parsed.mcpServers || {};
+  for (const [name, cfg] of Object.entries(servers)) {
+    if (cfg.command && !ALLOWED_COMMANDS.includes(cfg.command)) {
+      errors.push(`${name}: command must be "node" or "npx", got "${cfg.command}"`);
+    }
+    for (const arg of (cfg.args || [])) {
+      if (typeof arg === 'string' && HOME_PATH_RE.test(arg)) {
+        errors.push(`${name}: args contains absolute home path: ${arg}`);
+      }
+    }
+  }
+  return errors;
+}
+
 module.exports._pure = {
   deriveKeytarAccount,
   maskKey,
@@ -2557,4 +2633,9 @@ module.exports._pure = {
   liveDashboard,
   // v0.10-08 additions
   runAutoUpdateCheck,
+  // v0.10-06 additions
+  buildBackupPath,
+  buildRedactedEnv,
+  buildExportData,
+  validateImportSchema,
 };
