@@ -37,7 +37,7 @@ This ensures project-specific patterns, conventions, and best practices are appl
 Load execution context:
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs init execute-phase "${PHASE}")
+INIT=$(node ~/.claude/qgsd/bin/gsd-tools.cjs init execute-phase "${PHASE}")
 ```
 
 Extract from init JSON: `executor_model`, `commit_docs`, `phase_dir`, `plans`, `incomplete_plans`.
@@ -193,7 +193,7 @@ Track auto-fix attempts per task. After 3 auto-fix attempts on a single task:
 Check if auto mode is active at executor start:
 
 ```bash
-AUTO_CFG=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+AUTO_CFG=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
 ```
 
 Store the result for checkpoint handling below.
@@ -206,7 +206,7 @@ Store the result for checkpoint handling below.
 Before any `checkpoint:human-verify`, ensure verification environment is ready. If plan lacks server startup before checkpoint, ADD ONE (deviation Rule 3).
 
 For full automation-first patterns, server lifecycle, CLI handling:
-**See @~/.claude/get-shit-done/references/checkpoints.md**
+**See @~/.claude/qgsd/references/checkpoints.md**
 
 **Quick reference:** Users NEVER run CLI commands. Users ONLY visit URLs, click UI, evaluate visuals, provide secrets. Claude does all automation.
 
@@ -329,7 +329,7 @@ After all tasks complete, create `{phase}-{plan}-SUMMARY.md` at `.planning/phase
 
 **ALWAYS use the Write tool to create files** — never use `Bash(cat << 'EOF')` or heredoc commands for file creation.
 
-**Use template:** @~/.claude/get-shit-done/templates/summary.md
+**Use template:** @~/.claude/qgsd/templates/summary.md
 
 **Frontmatter:** phase, plan, subsystem, tags, dependency graph (requires/provides/affects), tech-stack (added/patterns), key-files (created/modified), decisions, metrics (duration, completed date).
 
@@ -382,34 +382,34 @@ After SUMMARY.md, update STATE.md using gsd-tools:
 
 ```bash
 # Advance plan counter (handles edge cases automatically)
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs state advance-plan
+node ~/.claude/qgsd/bin/gsd-tools.cjs state advance-plan
 
 # Recalculate progress bar from disk state
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs state update-progress
+node ~/.claude/qgsd/bin/gsd-tools.cjs state update-progress
 
 # Record execution metrics
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs state record-metric \
+node ~/.claude/qgsd/bin/gsd-tools.cjs state record-metric \
   --phase "${PHASE}" --plan "${PLAN}" --duration "${DURATION}" \
   --tasks "${TASK_COUNT}" --files "${FILE_COUNT}"
 
 # Add decisions (extract from SUMMARY.md key-decisions)
 for decision in "${DECISIONS[@]}"; do
-  node ~/.claude/get-shit-done/bin/gsd-tools.cjs state add-decision \
+  node ~/.claude/qgsd/bin/gsd-tools.cjs state add-decision \
     --phase "${PHASE}" --summary "${decision}"
 done
 
 # Update session info
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs state record-session \
+node ~/.claude/qgsd/bin/gsd-tools.cjs state record-session \
   --stopped-at "Completed ${PHASE}-${PLAN}-PLAN.md"
 ```
 
 ```bash
 # Update ROADMAP.md progress for this phase (plan counts, status)
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs roadmap update-plan-progress "${PHASE_NUMBER}"
+node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap update-plan-progress "${PHASE_NUMBER}"
 
 # Mark completed requirements from PLAN.md frontmatter
 # Extract the `requirements` array from the plan's frontmatter, then mark each complete
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs requirements mark-complete ${REQ_IDS}
+node ~/.claude/qgsd/bin/gsd-tools.cjs requirements mark-complete ${REQ_IDS}
 ```
 
 **Requirement IDs:** Extract from the PLAN.md frontmatter `requirements:` field (e.g., `requirements: [AUTH-01, AUTH-02]`). Pass all IDs to `requirements mark-complete`. If the plan has no requirements field, skip this step.
@@ -427,13 +427,13 @@ node ~/.claude/get-shit-done/bin/gsd-tools.cjs requirements mark-complete ${REQ_
 
 **For blockers found during execution:**
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs state add-blocker "Blocker description"
+node ~/.claude/qgsd/bin/gsd-tools.cjs state add-blocker "Blocker description"
 ```
 </state_updates>
 
 <final_commit>
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs commit "docs({phase}-{plan}): complete [plan-name] plan" --files .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md .planning/STATE.md .planning/ROADMAP.md .planning/REQUIREMENTS.md
+node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs({phase}-{plan}): complete [plan-name] plan" --files .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md .planning/STATE.md .planning/ROADMAP.md .planning/REQUIREMENTS.md
 ```
 
 Separate from per-task commits — captures execution results only.
