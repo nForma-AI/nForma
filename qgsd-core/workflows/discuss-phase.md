@@ -234,6 +234,55 @@ Then jump to `write_context`.
 <step name="present_gray_areas">
 Present the domain boundary and gray areas to user.
 
+**Auto mode second quorum pass (QUORUM-03):**
+
+Before presenting to the user, check if auto mode is active:
+
+```bash
+AUTO_CFG=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "true")
+```
+
+**If `--auto` flag present OR `AUTO_CFG` is `"true"` AND `for_user[]` is non-empty:**
+
+Run a second quorum pass on each surviving item in `for_user[]`. This is distinct from the R4 pre-filter (which already ran at analyze_phase) — this is a second attempt on the survivors.
+
+For each question still in `for_user[]` (process sequentially):
+
+1. Form Claude's position: can quorum decide this question, or does it genuinely require the user's vision/preference? State APPROVE (quorum can decide) or BLOCK (needs user) with 1-2 sentence rationale.
+
+2. Run R3 quorum inline (dispatch_pattern from `commands/qgsd/quorum.md`):
+   - Mode A — pure question
+   - Question: "Should '[question text]' be decided by quorum now (removing it from user presentation), or does it genuinely require the user's vision/preference? Phase: {phase_name}. Goal: {phase_goal}. Context: {any relevant patterns from STATE.md}. If quorum can decide: provide the recommended answer biased toward the long-term solution."
+   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+   - Deliberate up to 3 rounds per R4 (secondary pre-filter, not full R3 10 rounds)
+
+3. After quorum vote for this question, update scoreboard BEFORE moving to next question:
+   ```bash
+   node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+     --model <model_name_or_slot> \
+     --result <vote_code> \
+     --task "discuss-phase-{PHASE_NUMBER}" \
+     --round <round_number> \
+     --verdict <APPROVE|BLOCK> \
+     --task-description "Discuss-phase gray area: {question text (first 80 chars)}"
+   ```
+
+4. Route on quorum_result:
+   - **APPROVED**: Record as auto-resolved assumption. Add to `auto_resolved[]` with the consensus answer. Remove from `for_user[]`.
+   - **BLOCKED or ESCALATED**: Keep in `for_user[]`. Mark for user presentation.
+
+**After processing all for_user[] items:**
+
+- If `for_user[]` is now empty: Skip AskUserQuestion presentation. Go directly to `write_context` (same fast-path as R4 pre-filter empty case). Display:
+  ```
+  All gray areas resolved by quorum (including second-pass R4 survivors). Proceeding to context capture.
+
+  [list each auto-resolved assumption from both R4 pre-filter and second pass]
+  ```
+- If `for_user[]` still has items: Continue to the standard AskUserQuestion presentation below.
+
+**If neither `--auto` nor `AUTO_CFG` is true (interactive mode):** Skip this entire sub-section. Go directly to the standard display and AskUserQuestion below (unchanged).
+
 **First, display auto-resolved assumptions (from r4_pre_filter):**
 
 If `auto_resolved[]` is non-empty, display:

@@ -107,7 +107,48 @@ These gaps are optional. Include them?
 Create these {X} phases? (yes / adjust / defer all optional)
 ```
 
-Wait for user confirmation.
+**Quorum approval gate (QUORUM-01):**
+
+Before updating ROADMAP.md, submit the proposed phases to R3 quorum for approval.
+
+Form your own position first: are the proposed phases correctly scoped to close all identified gaps? State your vote as APPROVE or BLOCK with 1-2 sentence rationale.
+
+Run R3 quorum inline (dispatch_pattern from `commands/qgsd/quorum.md`):
+- Mode A — pure question
+- Question: "Are these gap closure phases correctly scoped and complete to close the identified milestone gaps? Proposed phases: {summary — 1 line per proposed phase showing phase name, requirements it closes, and task count}"
+- Include the proposed phases markdown from the presentation block above as context
+- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+- Synthesize results inline, deliberate up to 10 rounds per R3.3
+
+After quorum vote completes, update the scoreboard for each participating model:
+```bash
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+  --model <model_name_or_slot> \
+  --result <vote_code> \
+  --task "plan-milestone-gaps-{version}" \
+  --round <round_number> \
+  --verdict <APPROVE|BLOCK> \
+  --task-description "Gap closure phases for milestone {version}: {proposed phase names}"
+```
+Complete all scoreboard updates BEFORE proceeding to Step 6.
+
+Route on quorum_result:
+- **APPROVED**: Display `<!-- GSD_DECISION --> Quorum approved gap closure phases for milestone {version}.` then proceed to Step 6.
+- **BLOCKED**: Report the block:
+  ```
+  ## ⛔ Gap Closure Phases Blocked by Quorum
+
+  **Milestone:** {version}
+  **Block reason:** {specific model objection(s)}
+
+  ### Resolution
+  {Proposed resolution path from blocking model(s)}
+
+  Resolve the objection and re-run `/qgsd:plan-milestone-gaps` to retry quorum approval.
+  ROADMAP.md has NOT been updated.
+  ```
+  Halt. Do not proceed to Step 6.
+- **ESCALATED**: Escalate to user per R3.4 with the specific blocker details. Halt.
 
 ## 6. Update ROADMAP.md
 
@@ -150,27 +191,39 @@ mkdir -p ".planning/phases/{NN}-{name}"
 node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs(roadmap): add gap closure phases {N}-{M}" --files .planning/ROADMAP.md .planning/REQUIREMENTS.md
 ```
 
-## 10. Offer Next Steps
+## 10. Auto-Spawn Plan-Phase for First Gap Closure Phase (LOOP-04)
 
-```markdown
+After phases are committed (Step 9), determine the first gap closure phase number from the phases created in Step 6:
+
+```bash
+# The first phase number added is the one immediately after the previous highest phase
+FIRST_GAP_PHASE="${phases_created[0]}"  # First element of the phases created list from Step 6
+```
+
+Display:
+```
 ## ✓ Gap Closure Phases Created
 
 **Phases added:** {N} - {M}
 **Gaps addressed:** {count} requirements, {count} integration, {count} flows
 
----
+Auto-spawning plan-phase for Phase {FIRST_GAP_PHASE}...
+```
 
-## ▶ Next Up
+Spawn plan-phase Task for the first gap closure phase:
 
-**Plan first gap closure phase**
+```
+Task(
+  prompt="Run /qgsd:plan-phase {FIRST_GAP_PHASE} --auto
 
-`/qgsd:plan-phase {N}`
+Gap closure phase goal: {goal from ROADMAP.md for FIRST_GAP_PHASE}
+Phase directory: .planning/phases/{phase-dir}/",
+  subagent_type="general-purpose",
+  description="Plan gap phase {FIRST_GAP_PHASE}"
+)
+```
 
-<sub>`/clear` first → fresh context window</sub>
-
----
-
-**Also available:**
+**Also available (if auto-spawn is not desired):**
 - `/qgsd:execute-phase {N}` — if plans already exist
 - `cat .planning/ROADMAP.md` — see updated roadmap
 
@@ -180,7 +233,6 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs(roadmap): add gap closure pha
 
 `/qgsd:audit-milestone` — re-audit to verify gaps closed
 `/qgsd:complete-milestone {version}` — archive when audit passes
-```
 
 </process>
 

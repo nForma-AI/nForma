@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-01 complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.13 Autonomous Milestone Execution — Phase v0.13-01 Loop Wiring COMPLETE. v0.13-02 Quorum Gates is next.
+**Current focus:** v0.13 Autonomous Milestone Execution — Phase v0.13-02 Quorum Gates COMPLETE. v0.13 milestone complete (2/2 phases done).
 
 ## Current Position
 
-Phase: v0.13-02 of 2 (Quorum Gates)
-Plan: —
-Status: v0.13-01 complete — ready to plan Phase v0.13-02
-Last activity: 2026-02-25 — v0.9-05 executed (rename get-shit-done/ → qgsd-core/ — REN-01/02/03/04 closed, all 4 requirements verified)
+Phase: v0.13-02 of 2 (Quorum Gates) — COMPLETE
+Plan: 3/3 plans executed
+Status: v0.13-02 complete — QUORUM-01/02/03 + LOOP-04 wired. v0.13 milestone complete.
+Last activity: 2026-02-25 — v0.13-02 executed (quorum gates in plan-milestone-gaps, execute-phase, discuss-phase — all 4 requirements wired)
 
-Progress: [█████░░░░░] v0.13: 1/2 phases done | v0.12: v0.12-05 COMPLETE (5/8 phases done) | v0.9: COMPLETE (5/5 phases done)
+Progress: [██████████] v0.13: 2/2 phases done | v0.12: v0.12-05 COMPLETE (5/8 phases done) | v0.9: COMPLETE (5/5 phases done)
 
 ## Performance Metrics
 
@@ -57,6 +57,9 @@ Progress: [█████░░░░░] v0.13: 1/2 phases done | v0.12: v0.12
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.13-02]: QUORUM-03 second pass uses 3-round deliberation cap (not 10) — secondary pre-filter pattern matches R4, not full R3
+- [v0.13-02]: QUORUM-02 uses compact prompt (1-sentence-per-gap, max 20 words) — execute-phase orchestrator context ~10-15%, full VERIFICATION.md text would overflow
+- [v0.13-02]: Scoreboard update ordering guarantee: update-scoreboard.cjs BEFORE any downstream Task spawn (all 3 plans)
 - [v0.13-01]: Used subagent_type="general-purpose" for plan-milestone-gaps Task spawn — no dedicated qgsd-plan-milestone-gaps subagent type registered; no model= to avoid resolve-model errors
 - [v0.13-01]: STATE.md update placed at end of Step 6 (before Step 7) — ensures update fires regardless of routing path taken in offer_next
 - [v0.13 roadmap]: Quorum Gates (v0.13-02) covers QUORUM-01/02/03 + LOOP-04 — plan-milestone-gaps, execute-phase, discuss-phase

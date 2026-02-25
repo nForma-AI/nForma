@@ -424,25 +424,63 @@ All automated checks passed. Quorum attempted resolution but could not fully ver
 ```
 
 **If gaps_found:**
+
+Read the gaps section from `${PHASE_DIR}/${PHASE_NUM}-VERIFICATION.md`. Extract each gap as a 1-sentence summary (keep compact — orchestrator context budget is ~10-15%).
+
+Form your own position: are these gaps auto-resolvable via plan-phase --gaps, or do they require human review? State your vote APPROVE (auto-resolvable) or BLOCK (needs human) with 1-2 sentence rationale.
+
+Run R3 quorum inline (dispatch_pattern from `commands/qgsd/quorum.md`):
+- Mode A — compact prompt to preserve context budget
+- Question: "Phase {PHASE_NUMBER} verification found {N} gaps. Are these auto-resolvable via plan-phase --gaps Task spawn, or do they require human review? Gaps: {1-sentence-per-gap — max 20 words each}. Vote APPROVE (auto-resolvable) or BLOCK (needs human)."
+- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+- Synthesize results inline, deliberate up to 10 rounds per R3.3
+
+After quorum vote completes, update the scoreboard BEFORE spawning any Task:
+```bash
+node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
+  --model <model_name_or_slot> \
+  --result <vote_code> \
+  --task "execute-phase-{PHASE_NUMBER}" \
+  --round <round_number> \
+  --verdict <APPROVE|BLOCK> \
+  --task-description "Phase {PHASE_NUMBER} verification gaps: auto-resolvable vs human-needed"
 ```
-## ⚠ Phase {X}: {Name} — Gaps Found
 
-**Score:** {N}/{M} must-haves verified
-**Report:** {phase_dir}/{phase_num}-VERIFICATION.md
+Route on quorum_result:
+- **APPROVED**: Auto-spawn plan-phase --gaps Task:
+  ```
+  Task(
+    prompt="Run /qgsd:plan-phase {PHASE_NUMBER} --gaps --auto",
+    subagent_type="general-purpose",
+    description="Plan gap closure for phase {PHASE_NUMBER}"
+  )
+  ```
+  Log: `⚡ Quorum approved auto-fix — spawning plan-phase {PHASE_NUMBER} --gaps`
 
-### What's Missing
-{Gap summaries from VERIFICATION.md}
+- **BLOCKED**: Escalate to user with gap report AND quorum diagnosis:
+  ```
+  ## ⚠ Phase {X}: {Name} — Gaps Found
 
----
-## ▶ Next Up
+  **Score:** {N}/{M} must-haves verified
+  **Report:** {phase_dir}/{phase_num}-VERIFICATION.md
 
-`/qgsd:plan-phase {X} --gaps`
+  ### What's Missing
+  {Gap summaries from VERIFICATION.md}
 
-<sub>`/clear` first → fresh context window</sub>
+  ### Quorum Diagnosis
+  Quorum could not confirm auto-resolution:
+  {quorum_block_reason — specific model objection(s)}
 
-Also: `cat {phase_dir}/{phase_num}-VERIFICATION.md` — full report
-Also: `/qgsd:verify-work {X}` — manual testing first
-```
+  ---
+  ## ▶ Next Up
+
+  `/qgsd:plan-phase {X} --gaps`
+
+  <sub>`/clear` first → fresh context window</sub>
+
+  Also: `cat {phase_dir}/{phase_num}-VERIFICATION.md` — full report
+  Also: `/qgsd:verify-work {X}` — manual testing first
+  ```
 
 Gap closure cycle: `/qgsd:plan-phase {X} --gaps` reads VERIFICATION.md → creates gap plans with `gap_closure: true` → user runs `/qgsd:execute-phase {X} --gaps-only` → verifier re-runs.
 </step>
@@ -476,7 +514,7 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs(phase-{X}): complete phase ex
 
 <step name="offer_next">
 
-**Exception:** If `gaps_found`, the `verify_phase_goal` step already presents the gap-closure path (`/qgsd:plan-phase {X} --gaps`). No additional routing needed — skip auto-advance.
+**Exception:** If `gaps_found`, the `verify_phase_goal` step handles routing via quorum (QUORUM-02). If quorum approved auto-fix, plan-phase --gaps was already spawned inline. If quorum blocked (escalated to user), the user sees the gap report — no additional routing needed. In both cases, skip auto-advance.
 
 **Auto-advance detection:**
 
