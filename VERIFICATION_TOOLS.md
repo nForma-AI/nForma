@@ -57,7 +57,7 @@ curl -L https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.
 **Run:**
 
 ```bash
-node bin/run-alloy.cjs  # checks NoSpuriousApproval assertion
+node bin/run-alloy.cjs  # checks ThresholdPasses / BelowThresholdFails / ZeroApprovalsFail assertions
 # Expect: "No counterexample found" (correct model) or counterexample (spec bug)
 ```
 

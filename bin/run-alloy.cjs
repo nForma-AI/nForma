@@ -111,7 +111,8 @@ if (stderr) { process.stderr.write(stderr); }
 
 if (/Counterexample/i.test(stdout)) {
   process.stderr.write(
-    '[run-alloy] WARNING: Counterexample found in NoSpuriousApproval assertion.\n' +
+    '[run-alloy] WARNING: Counterexample found in quorum-votes.als assertions\n' +
+    '[run-alloy] (ThresholdPasses / BelowThresholdFails / ZeroApprovalsFail).\n' +
     '[run-alloy] This indicates a spec violation — review quorum-votes.als.\n'
   );
   process.exit(1);
