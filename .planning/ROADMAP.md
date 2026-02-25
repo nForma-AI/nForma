@@ -420,10 +420,10 @@ Plans:
   2. TLC verifies `MCoscillation.cfg` with INVARIANT + PROPERTY — no violations
   3. `formal/tla/QGSDConvergence.tla` exists with `resolvedAt` write-once invariant; log-write-before-state-delete ordering; Haiku unavailability cannot corrupt state
   4. `bin/run-oscillation-tlc.cjs` exists, is gated on JAVA_HOME, and `npm test` passes without Java installed; 4 error-path tests in `bin/run-oscillation-tlc.test.cjs` are GREEN
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] v0.12-04-01-PLAN.md — Wave 0 RED stubs for run-oscillation-tlc.test.cjs (GAP-1, GAP-5)
+- [ ] v0.12-04-01-PLAN.md — Wave 0 RED stubs for run-oscillation-tlc.test.cjs + package.json side-fix (GAP-1, GAP-5)
 - [ ] v0.12-04-02-PLAN.md — Author QGSDOscillation.tla + MCoscillation.cfg + QGSDConvergence.tla + MCconvergence.cfg (GAP-1, GAP-5)
 - [ ] v0.12-04-03-PLAN.md — Implement bin/run-oscillation-tlc.cjs + GREEN tests (GAP-1, GAP-5)
 
