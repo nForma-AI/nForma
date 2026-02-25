@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-01 complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.13 Autonomous Milestone Execution — re-audit complete. Status: tech_debt (8/8 requirements satisfied; 1 latent IS_GAP_CLOSURE false-positive in transition.md; ready for complete-milestone).
+**Current focus:** v0.13 Autonomous Milestone Execution — TECH-01 closed. All 5 phases complete; LOOP-01/LOOP-02 behavioral correctness restored; ready for complete-milestone.
 
 ## Current Position
 
-Phase: v0.13 — Milestone audit complete
-Plan: All 4 phases complete (v0.13-01/02 implementation, v0.13-03 verification bookkeeping, v0.13-04 INT-01/INT-02 fixes)
-Status: audit tech_debt — 8/8 requirements satisfied; TECH-01 latent IS_GAP_CLOSURE false-positive documented
-Last activity: 2026-02-25 — re-audit complete; v0.13-MILESTONE-AUDIT.md updated
+Phase: v0.13 — All phases complete
+Plan: All 5 phases complete (v0.13-01/02 implementation, v0.13-03 verification bookkeeping, v0.13-04 INT-01/INT-02 fixes, v0.13-05 TECH-01 IS_GAP_CLOSURE fix)
+Status: complete — 8/8 requirements satisfied; TECH-01 closed
+Last activity: 2026-02-25 — v0.13-05 TECH-01 fixed; transition.md IS_GAP_CLOSURE grep anchored to ^### Phase with -A 4
 
-Progress: [██████████] v0.13: 4/4 phases complete, audit tech_debt (8/8 req) | v0.12: COMPLETE | v0.9: COMPLETE
+Progress: [██████████] v0.13: 5/5 phases complete, TECH-01 closed | v0.12: COMPLETE | v0.9: COMPLETE
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [██████████] v0.13: 4/4 phases complete, audit tec
 | Phase v0.13-03 P02 | 8 | 3 tasks | 3 files |
 | Phase v0.13-04 P01 | 1min | 1 tasks | 0 files |
 | Phase v0.13-04 P02 | 102s | 2 tasks | 1 files |
+| Phase v0.13-05 P01 | 4min | 4 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,7 @@ Recent decisions affecting current work:
 - [Phase v0.13-03-02]: VERIFICATION.md cites qgsd-core/ paths for all evidence — portable across installs
 - [Phase v0.13-04]: INT-01 confirmed non-issue: canonical path qgsd-bin/update-scoreboard.cjs is already correct and consistent across all three workflow files; qgsd/bin/ path does not exist on disk
 - [Phase v0.13-04]: INT-02: nice-row uses auto-mode guard instead of 'Ask user:' — subagent-safe in --auto mode
+- [Phase v0.13-05]: IS_GAP_CLOSURE uses -A 4 not -A 3: Gap Closure field at offset 4 from ^### Phase X: header (verified across 7 gap-closure phases); ^### Phase anchor prevents cross-phase bleed
 
 ### Pending Todos
 
@@ -114,5 +116,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Milestone v0.13 audit: tech_debt (8/8 requirements) — re-audit after gap closure phases v0.13-03/04; all requirements satisfied; TECH-01 latent IS_GAP_CLOSURE pattern documented
+Stopped at: Completed v0.13-05-01-PLAN.md — TECH-01 closed: IS_GAP_CLOSURE grep in transition.md anchored to ^### Phase with -A 4; ROADMAP.md 4 stale -A 3 references corrected; v0.13 milestone all 5 phases done
 Resume file: None

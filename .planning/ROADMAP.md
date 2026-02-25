@@ -173,7 +173,7 @@
 - [x] **Phase v0.13-02: Quorum Gates** — Replace every AskUserQuestion in the autonomous loop with R3 quorum: plan-milestone-gaps confirmation gate, execute-phase gap resolution, discuss-phase gray-area routing in auto mode (QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03) (completed 2026-02-25)
 - [x] **Phase v0.13-03: Write VERIFICATION.md + Bookkeeping** — Write formal VERIFICATION.md artifacts for v0.13-01 and v0.13-02; update REQUIREMENTS.md traceability (all 8 → Complete); add per-requirement checklists; mark v0.13-02 [x] in bookkeeping pass (LOOP-01, LOOP-02, LOOP-03, STATE-01, QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03) (Gap Closure) (completed 2026-02-25)
 - [x] **Phase v0.13-04: Fix Integration Issues** — Align update-scoreboard.cjs binary path across plan-milestone-gaps.md, execute-phase.md, discuss-phase.md (INT-01); add --auto bypass guards to plan-milestone-gaps.md Step 5 and nice-to-have row; update stale success_criteria (INT-02) (Gap Closure) (completed 2026-02-25)
-- [ ] **Phase v0.13-05: Fix IS_GAP_CLOSURE Pattern** — Anchor IS_GAP_CLOSURE grep in transition.md from `-A 15` to `-A 4` with `^### Phase` heading-block anchor to eliminate false-positive routing on primary phases with downstream gap-closure dependents (TECH-01) (Gap Closure)
+- [x] **Phase v0.13-05: Fix IS_GAP_CLOSURE Pattern** — Anchor IS_GAP_CLOSURE grep in transition.md from `-A 15` to `-A 4` with `^### Phase` heading-block anchor to eliminate false-positive routing on primary phases with downstream gap-closure dependents (TECH-01) (Gap Closure) (completed 2026-02-25)
 
 
 ## Phase Details
@@ -699,4 +699,4 @@ Plans:
 | v0.13-02. Quorum Gates | v0.13 | 3/3 | Complete | 2026-02-25 |
 | v0.13-03. Write Verification Bookkeeping | v0.13 | 2/2 | Complete | 2026-02-25 |
 | v0.13-04. Fix Integration Issues | v0.13 | Complete    | 2026-02-25 | 2026-02-25 |
-| v0.13-05. Fix IS_GAP_CLOSURE Pattern | v0.13 | 0/1 | Not started | - |
+| v0.13-05. Fix IS_GAP_CLOSURE Pattern | 1/1 | Complete   | 2026-02-25 | - |
