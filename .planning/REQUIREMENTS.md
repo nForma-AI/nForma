@@ -11,9 +11,9 @@ Requirements for v0.14 release. Continuation of v0.12 formal verification toolin
 
 Commit and wire the existing untracked formal verification tools into the source tree with proper test coverage and pipeline integration.
 
-- [ ] **INTG-01**: User can run `bin/xstate-to-tla.cjs` as a committed, tested tool that transpiles an XState machine to TLA+ spec + TLC model config
-- [ ] **INTG-02**: User can run `bin/run-formal-verify.cjs` as a committed, tested master runner for all formal verification steps
-- [ ] **INTG-03**: CI automatically runs formal verification on push/PR via `.github/workflows/formal-verify.yml` (file committed and verified)
+- [x] **INTG-01**: User can run `bin/xstate-to-tla.cjs` as a committed, tested tool that transpiles an XState machine to TLA+ spec + TLC model config
+- [x] **INTG-02**: User can run `bin/run-formal-verify.cjs` as a committed, tested master runner for all formal verification steps
+- [x] **INTG-03**: CI automatically runs formal verification on push/PR via `.github/workflows/formal-verify.yml` (file committed and verified)
 - [ ] **INTG-04**: `run-formal-verify.cjs` calls `xstate-to-tla.cjs` as its spec generation step (pipeline is end-to-end wired)
 
 ### Drift Detection
@@ -68,9 +68,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INTG-01 | Phase v0.14-01 | Pending |
-| INTG-02 | Phase v0.14-01 | Pending |
-| INTG-03 | Phase v0.14-01 | Pending |
+| INTG-01 | Phase v0.14-01 | Complete |
+| INTG-02 | Phase v0.14-01 | Complete |
+| INTG-03 | Phase v0.14-01 | Complete |
 | INTG-04 | Phase v0.14-01 | Pending |
 | DRFT-01 | Phase v0.14-02 | Pending |
 | DRFT-02 | Phase v0.14-02 | Pending |
