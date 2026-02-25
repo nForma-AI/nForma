@@ -603,8 +603,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] v0.13-04-01-PLAN.md — Fix INT-01: audit all three workflow files for qgsd/bin/ scoreboard path; align to qgsd-bin/ with per-file grep validation
-- [ ] v0.13-04-02-PLAN.md — Fix INT-02: add --auto bypass guards to plan-milestone-gaps.md Step 5 user-dialog + nice-to-have row; update stale success_criteria
+- [ ] v0.13-04-01-PLAN.md — Verify INT-01: confirm qgsd-bin/update-scoreboard.cjs path is already correct across all three workflow files; document canonical path finding
+- [ ] v0.13-04-02-PLAN.md — Fix INT-02: remove 3 user-gate text fragments from plan-milestone-gaps.md (nice-row, bare user-dialog line, stale success_criteria); add auto-mode guard to nice section
 
 
 ## Progress
