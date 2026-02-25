@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-01 complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.12 Formal Verification — Phase v0.12-06 Audit Trail Invariants COMPLETE (6/8 phases done). Phase v0.12-07 Hook Transcript Verification next.
+**Current focus:** v0.12 Formal Verification — Phase v0.12-07 Hook Transcript Verification COMPLETE (7/8 phases done). Phase v0.12-08 next.
 
 ## Current Position
 
-Phase: v0.12-06 of 8 (Audit Trail Invariants) — COMPLETE
+Phase: v0.12-07 of 8 (Hook Transcript Verification) — COMPLETE
 Plan: 3/3 plans executed
-Status: v0.12-06 complete — GAP-3 (scoreboard-recompute.als) and GAP-9 (availability-parsing.als) formally verified. bin/run-audit-alloy.cjs runner implemented.
-Last activity: 2026-02-25 — v0.12-06 executed (scoreboard recomputation + availability date arithmetic Alloy specs; Alloy runner with --spec dispatch and dynamic CEX warning)
+Status: v0.12-07 complete — GAP-4 (transcript-scan.als) formally verified. bin/run-transcript-alloy.cjs runner implemented. All 4 invariants (BoundaryCorrect, PairingUnique, NoDuplicateCounting, SuccessCountNeverExceedsMinSize) verified by Alloy 6 bounded model checking.
+Last activity: 2026-02-25 — v0.12-07 executed (transcript scan TDD: RED stubs → Alloy spec → GREEN runner)
 
-Progress: [████████░░] v0.13: 2/2 phases done | v0.12: v0.12-06 COMPLETE (6/8 phases done) | v0.9: COMPLETE (5/5 phases done)
+Progress: [████████░░] v0.13: 2/2 phases done | v0.12: v0.12-07 COMPLETE (7/8 phases done) | v0.9: COMPLETE (5/5 phases done)
 
 ## Performance Metrics
 
@@ -97,5 +97,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: v0.13-01 complete — Phase v0.13-02 Quorum Gates ready to plan
+Stopped at: v0.12-07 complete — Phase v0.12-08 next (final phase of v0.12 milestone)
 Resume file: None
