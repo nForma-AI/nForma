@@ -6,7 +6,7 @@
 //
 // Usage:
 //   node bin/run-oscillation-tlc.cjs MCoscillation   # oscillation detection (liveness, -workers 1)
-//   node bin/run-oscillation-tlc.cjs MCconvergence   # state persistence (safety, -workers auto)
+//   node bin/run-oscillation-tlc.cjs MCconvergence   # state persistence (liveness, -workers 1)
 //   node bin/run-oscillation-tlc.cjs --config=MCoscillation
 //
 // Prerequisites:
@@ -96,9 +96,10 @@ const specFileName = configName === 'MCoscillation'
 const specPath = path.join(__dirname, '..', 'formal', 'tla', specFileName);
 const cfgPath  = path.join(__dirname, '..', 'formal', 'tla', configName + '.cfg');
 
-// MCoscillation has a PROPERTY (liveness) — use -workers 1 to avoid TLC multi-worker liveness bug.
-// MCconvergence is safety-only (INVARIANT only) — 'auto' workers is safe.
-const workers = configName === 'MCoscillation' ? '1' : 'auto';
+// Both MCoscillation and MCconvergence declare PROPERTY (liveness) clauses in their .cfg files.
+// TLC has a known multi-worker liveness checking bug (v1.8.0) — always use -workers 1.
+// MCconvergence.cfg declares PROPERTY ConvergenceEventuallyResolves; 'auto' workers is NOT safe.
+const workers = '1';
 
 // ── 5. Invoke TLC ────────────────────────────────────────────────────────────
 process.stdout.write('[run-oscillation-tlc] Config: ' + configName + '  Workers: ' + workers + '\n');
