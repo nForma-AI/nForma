@@ -388,7 +388,13 @@ Plans:
   2. Developer can find `formal/prism/quorum.pm` — a DTMC model of quorum convergence; running `bin/export-prism-constants.cjs` reads scoreboard TP/TN/UNAVAIL data and writes a `.const` file; the script warns and uses conservative priors when any slot has fewer than 30 rounds
   3. Developer can run `bin/generate-petri-net.cjs` to get a DOT-format Petri Net rendered to SVG via `@hpcc-js/wasm-graphviz` with no system Graphviz install; the script prints a structural deadlock warning if `min_quorum_size > available_slots`
   4. `VERIFICATION_TOOLS.md` documents Java 17 as the single installation prerequisite for TLA+, Alloy, and PRISM; all three JVM invocations are gated on `JAVA_HOME`/`PRISM_BIN`; `npm test` passes on a machine without Java
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] v0.12-03-01-PLAN.md — Wave 0: RED test stubs for all 3 scripts + formal/ directory scaffolding + .gitignore entries (ALY-02, PRM-02, PRM-03, PET-01, PET-02, PET-03)
+- [ ] v0.12-03-02-PLAN.md — Wave 1: formal/alloy/quorum-votes.als spec + bin/run-alloy.cjs wrapper + GREEN tests (ALY-01, ALY-02)
+- [ ] v0.12-03-03-PLAN.md — Wave 1 (parallel): formal/prism/quorum.pm DTMC + bin/export-prism-constants.cjs + GREEN tests (PRM-01, PRM-02, PRM-03)
+- [ ] v0.12-03-04-PLAN.md — Wave 2: bin/generate-petri-net.cjs + VERIFICATION_TOOLS.md + npm test update (PET-01, PET-02, PET-03)
 
 ## Progress
 
@@ -454,4 +460,4 @@ Plans:
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
 | v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
 | v0.12-02. TLA+ Formal Spec | v0.12 | 0/? | Not started | - |
-| v0.12-03. Static Analysis Suite | v0.12 | 0/? | Not started | - |
+| v0.12-03. Static Analysis Suite | v0.12 | 0/4 | Not started | - |
