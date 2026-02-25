@@ -11,7 +11,7 @@ on:
       - 'bin/run-tlc.cjs'
       - 'bin/run-alloy.cjs'
       - 'bin/run-prism.cjs'
-      - 'bin/generate-tla-cfg.cjs'
+      - 'bin/generate-formal-specs.cjs'
       - 'bin/check-spec-sync.cjs'
   pull_request:
     paths:
@@ -22,7 +22,7 @@ on:
       - 'bin/run-tlc.cjs'
       - 'bin/run-alloy.cjs'
       - 'bin/run-prism.cjs'
-      - 'bin/generate-tla-cfg.cjs'
+      - 'bin/generate-formal-specs.cjs'
       - 'bin/check-spec-sync.cjs'
   workflow_dispatch:  # manual trigger
 
@@ -77,10 +77,10 @@ jobs:
             https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar \
             -o formal/alloy/org.alloytools.alloy.dist.jar
 
-      - name: Generate TLA+ cfg from XState machine (source of truth)
-        run: node bin/generate-tla-cfg.cjs
+      - name: Generate all formal specs from XState machine (source of truth)
+        run: node bin/generate-formal-specs.cjs
 
-      - name: Verify formal specs are in sync with XState machine
+      - name: Verify generated specs are in sync with XState machine
         run: node bin/check-spec-sync.cjs
 
       - name: TLC — safety check (MCsafety, N=5, symmetry)

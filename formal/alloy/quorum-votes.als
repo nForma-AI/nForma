@@ -1,10 +1,18 @@
 -- formal/alloy/quorum-votes.als
+-- GENERATED — do not edit by hand.
+-- Source of truth: src/machines/qgsd-workflow.machine.ts
+-- Regenerate:      node bin/generate-formal-specs.cjs
+-- Generated:       2026-02-25
+
 -- QGSD Quorum Vote-Counting Model (Alloy 6)
 -- Requirements: ALY-01
 --
--- Models vote aggregation for a quorum round.
--- Uses pred (not fact) for vote-counting so check can find counterexamples.
--- Scope: 5 agents (matches QGSD's 5 quorum slots), 5 vote rounds.
+-- Models the minQuorumMet guard from src/machines/qgsd-workflow.machine.ts:
+--   successCount >= Math.ceil(slotsAvailable / 2)
+--   ≡  mul[#approvals, 2] >= total  (integer arithmetic, no division)
+--
+-- Checks that no round reaches DECIDED without satisfying the majority predicate.
+-- Scope: 5 agents (QGSD quorum slot count), 5 vote rounds.
 
 module quorum_votes
 
@@ -16,13 +24,9 @@ sig VoteRound {
     total     : one Int
 }
 
--- Predicates (not facts) — enable check commands to find counterexamples.
--- If these were "fact", check would trivially pass (no counterexamples possible
--- because non-conforming instances would be filtered out of the model space).
-
+-- MajorityReached: mirrors minQuorumMet guard.
+-- mul avoids integer division: #approvals * 2 >= total  ≡  successCount * 2 >= N
 pred MajorityReached [r : VoteRound] {
-    -- Use mul to avoid integer division: #approvals * 2 >= total
-    -- Same majority predicate as TLA+ spec: successCount * 2 >= N
     mul[#r.approvals, 2] >= r.total
 }
 
@@ -33,23 +37,17 @@ pred ValidRound [r : VoteRound] {
 }
 
 pred MinQuorumMet [r : VoteRound] {
-    -- QGSD minimum: at least ceil(N/2) approvals needed
-    -- With N=5 agents: at least 3 approvals required
+    -- Minimum: ceil(N/2) approvals. With N=5: at least 3 required.
     #r.approvals >= div[r.total, 2].add[1]
 }
 
--- Assertion: no round can be accepted as approved without majority
--- This is the target for check — Alloy will search for a counterexample
--- (a VoteRound where ValidRound holds but NoSpuriousApproval is violated)
+-- Assertion: no valid round can be accepted without satisfying MajorityReached.
 assert NoSpuriousApproval {
     all r : VoteRound |
         (ValidRound[r] and not MajorityReached[r])
             implies (mul[#r.approvals, 2] < r.total)
 }
 
--- Check the assertion within scope: 5 Agents, 5 VoteRounds
--- Alloy will report "No counterexample found" or show a counterexample
 check NoSpuriousApproval for 5 Agent, 5 VoteRound
 
--- Optional: run predicate to find example instances of valid majority rounds
 run MajorityReached for 5 Agent, 1 VoteRound
