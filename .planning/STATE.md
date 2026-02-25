@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 Phase: v0.10-08-plcy03-auto-update-bug-fix
 Plan: 2 of 2 complete — PHASE COMPLETE
 Status: v0.10-08 COMPLETE — Plan 01: Wave 0 regression stubs (3 stubs, stub 3 RED); Plan 02: fix runAutoUpdateCheck() statuses.get(binName) + providerMap + getStatusesFn injection + _pure export + docs update; 125 pass, 0 fail; commits 1f69cec + ee0f70f
-Last activity: 2026-02-25 - Completed v0.10-08-02: PLCY-03 Map bracket notation bug fix + documentation update
+Last activity: 2026-02-25 - Completed quick task 105: Add formal verification specs for QGSD CLI state machine: circuit breaker FSM (TLA+) and install scope matrix (Alloy)
 
 Progress: [████████████████████] 47/47 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 3/3 phases COMPLETE (v0.12-01 + v0.12-02 + v0.12-03) | v0.10: v0.10-01 + v0.10-07 + v0.10-08 COMPLETE | v0.9 parallel: 3/5 phases
 
@@ -106,9 +106,10 @@ Recent decisions affecting current work:
 | 102 | full review of Quick Task 101 | 2026-02-25 | e8cbabe | Verified | [102-full-review-of-quick-task-101](.planning/quick/102-full-review-of-quick-task-101/) |
 | 103 | deprecate qgsd-quorum-orchestrator and update quorum dispatch UX | 2026-02-25 | 7d327fc | Verified | [103-deprecate-qgsd-quorum-orchestrator-and-u](.planning/quick/103-deprecate-qgsd-quorum-orchestrator-and-u/) |
 | 104 | normalize quorum.md dispatch to qgsd-quorum-slot-worker in Mode A and Mode B | 2026-02-25 | fbf52a0 | Verified | [104-normalize-quorum-md-dispatch-to-qgsd-quo](.planning/quick/104-normalize-quorum-md-dispatch-to-qgsd-quo/) |
+| 105 | Add formal verification specs for QGSD CLI state machine: circuit breaker FSM (TLA+) and install scope matrix (Alloy) | 2026-02-25 | f3c3618 | Pending | [105-add-formal-verification-specs-for-qgsd-c](./quick/105-add-formal-verification-specs-for-qgsd-c/) |
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: 2026-02-25 - Completed v0.10-08-02: PLCY-03 bug fix + documentation update; phase v0.10-08 COMPLETE
+Stopped at: 2026-02-25 - Completed quick task 105: Add formal verification specs for QGSD CLI state machine: circuit breaker FSM (TLA+) and install scope matrix (Alloy)
 Resume file: None
