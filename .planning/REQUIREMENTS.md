@@ -1,47 +1,66 @@
-# Requirements: QGSD v0.13 Autonomous Milestone Execution
+# Requirements: QGSD v0.14 FV Pipeline Integration
 
 **Defined:** 2026-02-25
 **Core Value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
 ## v1 Requirements
 
-### Loop Wiring
+Requirements for v0.14 release. Continuation of v0.12 formal verification tooling — integration, hardening, and performance.
 
-Changes to `transition.md` and `audit-milestone.md` to close the audit gap and create the re-audit loop.
+### Integration
 
-- [x] **LOOP-01**: The last-phase transition calls audit-milestone before complete-milestone (primary phase path)
-- [x] **LOOP-02**: The last-phase transition detects the `**Gap Closure:**` ROADMAP marker on the completed phase and routes to audit-milestone instead of complete-milestone (gap closure re-audit path)
-- [x] **LOOP-03**: audit-milestone auto-spawns a plan-milestone-gaps Task when result is gaps_found and at least one phase is classified missing_no_plan
-- [x] **LOOP-04**: plan-milestone-gaps auto-spawns a plan-phase Task for the first gap phase after quorum approves the proposed phases
+Commit and wire the existing untracked formal verification tools into the source tree with proper test coverage and pipeline integration.
 
-### Quorum Gates
+- [ ] **INTG-01**: User can run `bin/xstate-to-tla.cjs` as a committed, tested tool that transpiles an XState machine to TLA+ spec + TLC model config
+- [ ] **INTG-02**: User can run `bin/run-formal-verify.cjs` as a committed, tested master runner for all formal verification steps
+- [ ] **INTG-03**: CI automatically runs formal verification on push/PR via `.github/workflows/formal-verify.yml` (file committed and verified)
+- [ ] **INTG-04**: `run-formal-verify.cjs` calls `xstate-to-tla.cjs` as its spec generation step (pipeline is end-to-end wired)
 
-Every AskUserQuestion in the autonomous loop is replaced by R3 quorum.
+### Drift Detection
 
-- [x] **QUORUM-01**: plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces AskUserQuestion confirmation gate)
-- [x] **QUORUM-02**: execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)
-- [x] **QUORUM-03**: discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for gray areas)
+Drift between the XState machine (source of truth) and formal specs fails visibly in `npm test`.
 
-### State Tracking
+- [ ] **DRFT-01**: `npm test` fails when XState machine and TLA+/Alloy/PRISM specs are out of sync (check-spec-sync.cjs wired into test suite)
+- [ ] **DRFT-02**: Drift detector uses TypeScript compiler/AST walk instead of regex for state extraction — catches transition and guard names, not just state list
+- [ ] **DRFT-03**: Drift detector detects orphaned handwritten specs — TLA+ states or guards with no corresponding XState state
 
-- [x] **STATE-01**: audit-milestone updates STATE.md "Stopped at" and "Current Position" fields with the audit result (passed / gaps_found / tech_debt) after writing the MILESTONE-AUDIT.md artifact
+### Performance
+
+Parallelization cuts total formal verification runtime by 5×.
+
+- [ ] **PERF-01**: `run-formal-verify.cjs` runs TLA+, Alloy, and PRISM tool groups concurrently (parallel execution, not sequential)
+- [ ] **PERF-02**: Total formal verification runtime drops from ~10 min to ~2 min on a standard machine
+
+### PRISM Config Injection
+
+Scoreboard empirical rates flow automatically into PRISM model parameters.
+
+- [ ] **PRISM-01**: PRISM model receives TP/TN rates derived from quorum scoreboard as model parameters at run time
+- [ ] **PRISM-02**: Rate injection is automatic — no manual editing of `.pm` files required between quorum runs
+
+### Developer Experience
+
+Watch mode enables continuous verification during development.
+
+- [ ] **DX-01**: `node bin/run-formal-verify.cjs --watch` re-runs verification automatically when the XState machine file changes
 
 ## v2 Requirements
 
-### Deferred
+Deferred to future release.
 
-- Parallel audit + gap closure (running multiple gap cycles concurrently) — deferred as over-engineering for v1
-- complete-milestone → new-milestone auto-advance — intentionally manual; new milestone goals require human intent
+- **INTG-05**: `xstate-to-tla.cjs` supports XState v5 parallel states (AND-states) in TLA+ output
+- **DRFT-04**: Drift detector produces a human-readable diff report (not just pass/fail)
+- **DX-02**: `--watch` mode shows incremental results per tool group (not full re-run summary)
+- **PRISM-03**: PRISM config injection supports per-milestone scoreboard slices (not just all-time rates)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| gsd-tools.cjs changes | No new tooling needed — infrastructure (Gap Closure marker, is_last_phase, R3 quorum) already exists |
-| gsd: workflow file updates | Downstream sync from qgsd: files; out of scope for this milestone |
-| complete-milestone → new-milestone auto-advance | New milestone goals require human intent; not a valid quorum decision |
-| New quorum models or providers | Infrastructure change, orthogonal to this milestone |
-| Per-phase audit (not just milestone audit) | Over-engineering; phase-level verification via quorum-test is sufficient |
+| New formal models (new `.als`, `.pm`, `.tla` files) | v0.12 shipped the model set; v0.14 hardens the pipeline, not the models |
+| Modifying GSD workflows | QGSD is additive only — out of scope per architecture constraint |
+| TLA+ LSP / IDE integration | High effort, minimal gain; defer indefinitely |
+| PRISM GUI integration | GUI tooling conflicts with CI-first approach |
 
 ## Traceability
 
@@ -49,21 +68,24 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LOOP-01 | v0.13-01 (verified by v0.13-03) | Complete |
-| LOOP-02 | v0.13-06 (gap closure — installed copy sync) | Complete |
-| LOOP-03 | v0.13-01 (verified by v0.13-03) | Complete |
-| STATE-01 | v0.13-01 (verified by v0.13-03) | Complete |
-| QUORUM-01 | v0.13-02 (verified by v0.13-03) | Complete |
-| LOOP-04 | v0.13-02 (verified by v0.13-03) | Complete |
-| QUORUM-02 | v0.13-02 (verified by v0.13-03) | Complete |
-| QUORUM-03 | v0.13-02 (verified by v0.13-03) | Complete |
+| INTG-01 | Phase v0.14-01 | Pending |
+| INTG-02 | Phase v0.14-01 | Pending |
+| INTG-03 | Phase v0.14-01 | Pending |
+| INTG-04 | Phase v0.14-01 | Pending |
+| DRFT-01 | Phase v0.14-02 | Pending |
+| DRFT-02 | Phase v0.14-02 | Pending |
+| DRFT-03 | Phase v0.14-02 | Pending |
+| PERF-01 | Phase v0.14-03 | Pending |
+| PERF-02 | Phase v0.14-03 | Pending |
+| PRISM-01 | Phase v0.14-04 | Pending |
+| PRISM-02 | Phase v0.14-04 | Pending |
+| DX-01 | Phase v0.14-05 | Pending |
 
 **Coverage:**
-- v1 requirements: 8 total
-- Mapped to phases: 8 (implemented in v0.13-01/02; formal verification in v0.13-03; LOOP-02 gap closure in v0.13-06)
+- v1 requirements: 12 total
+- Mapped to phases: 12
 - Unmapped: 0 ✓
-- Pending: 0 ✓ (LOOP-02 closed by v0.13-06)
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 — LOOP-02 reset to Pending (installed copy not synced by v0.13-05); v0.13-06 added as gap closure phase for install sync; traceability updated*
+*Last updated: 2026-02-25 after initial definition*
