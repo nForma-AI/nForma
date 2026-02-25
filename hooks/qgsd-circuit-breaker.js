@@ -416,7 +416,7 @@ function buildBlockReason(state) {
     lines.push('');
   }
   lines.push(
-    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see get-shit-done/workflows/oscillation-resolution-mode.md for the full procedure.',
+    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see qgsd-core/workflows/oscillation-resolution-mode.md for the full procedure.',
     '',
     'Read-only operations are still allowed (e.g. git log --oneline to review the commit history).',
     'You must manually commit a root-cause fix before write operations are unblocked.',
@@ -453,7 +453,7 @@ function buildWarningNotice(state) {
   }
 
   lines.push(
-    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see get-shit-done/workflows/oscillation-resolution-mode.md for the full procedure.',
+    'Invoke Oscillation Resolution Mode per R5 in CLAUDE.md — see qgsd-core/workflows/oscillation-resolution-mode.md for the full procedure.',
     '',
     'After committing the fix, run \'npx qgsd --reset-breaker\' to clear the circuit breaker state.',
     'To temporarily disable the circuit breaker for deliberate iterative work, run \'npx qgsd --disable-breaker\'.',
