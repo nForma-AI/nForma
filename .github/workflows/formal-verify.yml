@@ -8,17 +8,21 @@ on:
       - 'formal/alloy/**'
       - 'bin/run-tlc.cjs'
       - 'bin/run-alloy.cjs'
+      - 'bin/run-prism.cjs'
+      - 'formal/prism/**'
   pull_request:
     paths:
       - 'formal/tla/**'
       - 'formal/alloy/**'
+      - 'formal/prism/**'
       - 'bin/run-tlc.cjs'
       - 'bin/run-alloy.cjs'
+      - 'bin/run-prism.cjs'
   workflow_dispatch:  # manual trigger
 
 jobs:
   verify:
-    name: TLC + Alloy model checks
+    name: TLC + Alloy + PRISM model checks
     runs-on: ubuntu-latest
 
     steps:
@@ -75,3 +79,25 @@ jobs:
 
       - name: Alloy — NoSpuriousApproval check
         run: node bin/run-alloy.cjs formal/alloy/quorum-votes.als
+
+      - name: Cache PRISM binary
+        id: cache-prism
+        uses: actions/cache@v4
+        with:
+          path: /tmp/prism
+          key: prism-v4.10-linux64
+
+      - name: Download and extract PRISM 4.10 (Linux)
+        if: steps.cache-prism.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL \
+            https://github.com/prismmodelchecker/prism/releases/download/v4.10/prism-4.10-linux64.tar.gz \
+            -o /tmp/prism-4.10-linux64.tar.gz
+          mkdir -p /tmp/prism
+          tar -xzf /tmp/prism-4.10-linux64.tar.gz -C /tmp/prism --strip-components=1
+          chmod +x /tmp/prism/bin/prism
+
+      - name: PRISM — quorum convergence P=?[F DECIDED]
+        env:
+          PRISM_BIN: /tmp/prism/bin/prism
+        run: node bin/run-prism.cjs
