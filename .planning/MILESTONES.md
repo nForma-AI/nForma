@@ -138,3 +138,13 @@ Phase 4 scope requirements: SCOPE-01–07 (7/7)
 
 ---
 
+
+## v0.13 Autonomous Milestone Execution (Shipped: 2026-02-25)
+
+**Phases completed:** 53 phases, 113 plans, 44 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+

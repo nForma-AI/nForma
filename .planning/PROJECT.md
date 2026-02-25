@@ -2,23 +2,25 @@
 
 ## What This Is
 
-QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement from CLAUDE.md behavioral policy into structural Claude Code hooks. It installs on top of GSD without modifying it, adding a hook-based quorum layer: a UserPromptSubmit hook injects quorum instructions at the right moment, a Stop hook verifies quorum actually happened by parsing the conversation transcript before allowing Claude to deliver planning output, and a PreToolUse circuit breaker hook detects oscillation in git history and blocks Bash execution when repetitive patterns emerge. When the circuit breaker fires, a structured oscillation resolution mode guides quorum diagnosis and unified solution approval. An activity sidecar tracks every workflow stage transition so `resume-work` can recover to the exact interrupted step.
+QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement from CLAUDE.md behavioral policy into structural Claude Code hooks. It installs on top of GSD without modifying it, adding a hook-based quorum layer: a UserPromptSubmit hook injects quorum instructions at the right moment, a Stop hook verifies quorum actually happened by parsing the conversation transcript before allowing Claude to deliver planning output, and a PreToolUse circuit breaker hook detects oscillation in git history and blocks Bash execution when repetitive patterns emerge. When the circuit breaker fires, a structured oscillation resolution mode guides quorum diagnosis and unified solution approval. An activity sidecar tracks every workflow stage transition so `resume-work` can recover to the exact interrupted step. An autonomous milestone execution loop (v0.13) closes the end-to-end chain: the last-phase transition detects gap-closure phases and routes to re-audit via IS_GAP_CLOSURE detection, audit-milestone auto-spawns plan-milestone-gaps when gaps are found, and all human confirmation gates are replaced with R3 quorum consensus — enabling zero-AskUserQuestion autonomous operation from new-milestone through complete-milestone.
 
 ## Core Value
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.13 Autonomous Milestone Execution
+## Just Shipped: v0.13 Autonomous Milestone Execution (2026-02-25)
 
-**Goal:** Remove all human checkpoints from the milestone execution loop and replace every uncertainty point with quorum consensus, enabling fully autonomous end-to-end milestone completion from new-milestone through complete-milestone with zero AskUserQuestion calls.
+**Delivered:** Removed all human checkpoints from the milestone execution loop — zero AskUserQuestion calls from new-milestone through complete-milestone.
 
-**Target features:**
-- Loop wiring — transition.md calls audit-milestone before complete-milestone; Gap Closure marker triggers re-audit instead of completion
-- Audit auto-advance — audit-milestone spawns plan-milestone-gaps automatically when gaps_found
-- Quorum-gated gap phases — plan-milestone-gaps replaces AskUserQuestion confirmation with R3 quorum + auto-spawns plan-phase
-- Quorum gap resolution — execute-phase gaps_found routes to quorum diagnosis and auto-resolution instead of halting the chain
-- Quorum discuss-phase — discuss-phase remaining user_questions (after R4 pre-filter) routed to quorum in auto mode
-- Audit state tracking — audit-milestone updates STATE.md with audit result
+**Shipped features:**
+- LOOP-01/02/03: `transition.md` calls audit-milestone; IS_GAP_CLOSURE detection routes gap-closure phases to re-audit; audit-milestone auto-spawns plan-milestone-gaps on gaps_found
+- QUORUM-01: plan-milestone-gaps phases submitted to R3 quorum for approval before ROADMAP update
+- QUORUM-02: execute-phase gaps_found triggers quorum diagnosis and auto-resolution
+- QUORUM-03: discuss-phase remaining user_questions routed to quorum in auto mode
+- STATE-01: audit-milestone updates STATE.md with audit result
+- TECH-01 fix: IS_GAP_CLOSURE anchored to `^### Phase ${COMPLETED_PHASE}:` with `-A 4` — eliminates false-positive from cross-phase content
+
+**Phases:** v0.13-01..v0.13-06 (6 phases, 10 plans)
 
 ## Previous Milestone: v0.12 Formal Verification
 
@@ -166,6 +168,10 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Validated
 
+- ✓ Autonomous milestone execution loop wired end-to-end (LOOP-01/02/03): transition.md calls audit-milestone; IS_GAP_CLOSURE routes gap-closure phases to re-audit; audit-milestone auto-spawns plan-milestone-gaps on gaps_found — v0.13 (Phase v0.13-01)
+- ✓ plan-milestone-gaps, execute-phase, and discuss-phase all gated by R3 quorum (QUORUM-01/02/03) — AskUserQuestion replaced in every autonomous loop position — v0.13 (Phase v0.13-02)
+- ✓ audit-milestone updates STATE.md with audit result after writing MILESTONE-AUDIT.md (STATE-01) — v0.13 (Phase v0.13-01)
+- ✓ IS_GAP_CLOSURE grep anchored to `^### Phase` with `-A 4` — eliminates false-positive routing of primary phases with downstream gap-closure dependents (TECH-01) — v0.13 (Phase v0.13-05/06)
 - ✓ Quorum rounds execute as parallel Task fan-outs (wave-barrier): worker per slot → synthesizer barrier → optional Round 2 → final verdict; cuts round-trip from N×timeout to ~1×max(timeout) — v0.11 (Phase v0.11-01 — PAR-01..05)
 - ✓ Scoreboard writes atomic (tmpPath + renameSync at all sites); `merge-wave` subcommand applies N parallel worker votes in one transaction — v0.11 (Phase v0.11-01 — PAR-03/04)
 - ✓ Context window monitor hook injects WARNING/CRITICAL into `additionalContext` at configurable thresholds — v0.9 (Phase v0.9-01 — CTX-01..05)
@@ -224,11 +230,11 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Context
 
-QGSD v0.7 shipped 2026-02-23. v0.2.0 git tag pushed; npm publish deferred by user decision.
+QGSD v0.13 shipped 2026-02-25. All 8 requirements of Autonomous Milestone Execution satisfied. v0.2.0 npm publish still deferred by user decision.
 
 **Codebase:** ~87,000+ lines (JS + MD), 450+ files across the full development cycle.
 **Tech stack:** Node.js, Claude Code hooks (UserPromptSubmit + Stop + PreToolUse), npm package.
-**Known tech debt:** Phase 12 VERIFICATION.md missing; `~/.claude/get-shit-done/` lacks activity tracking (out of scope — upstream GSD package boundary); orchestrator Mode B scoreboard block uses back-reference rather than inline dual-variant bash blocks (low risk — Mode A always read first).
+**Known tech debt:** Phase 12 VERIFICATION.md missing; `~/.claude/get-shit-done/` lacks activity tracking (out of scope — upstream GSD package boundary); orchestrator Mode B scoreboard block uses back-reference rather than inline dual-variant bash blocks (low risk — Mode A always read first); ROADMAP.md plan-level checkboxes for v0.13-01-01-PLAN.md and v0.13-05-01-PLAN.md cosmetically unchecked (milestone and progress table entries correct).
 
 ## Constraints
 
@@ -319,6 +325,11 @@ QGSD v0.7 shipped 2026-02-23. v0.2.0 git tag pushed; npm publish deferred by use
 
 ---
 | IS_GAP_CLOSURE uses -A 4 not -A 3: Gap Closure field at offset 4 from ^### Phase X: | Counting Goal/Depends on/Requirements/Gap Closure = 4 lines after heading; -A 3 would miss it; anchored grep eliminates false-positives from cross-phase Depends-on lines | Phase v0.13-05 — TECH-01 |
+| QUORUM-03 second pass uses 3-round deliberation cap (not 10) | Secondary pre-filter pattern matches R4, not full R3; shorter cap avoids context bloat in discuss-phase auto mode | Phase v0.13-02 |
+| QUORUM-02 uses compact prompt (1-sentence-per-gap, max 20 words) | execute-phase orchestrator context ~10-15%; full VERIFICATION.md text would overflow | Phase v0.13-02 |
+| Scoreboard update ordering: update-scoreboard.cjs BEFORE any downstream Task spawn | All 3 plans; prevents scoreboard writes being lost if downstream Task spawning fails | Phase v0.13-02 |
+| subagent_type="general-purpose" for plan-milestone-gaps Task spawn | No dedicated qgsd-plan-milestone-gaps subagent registered; no model= to avoid resolve-model errors | Phase v0.13-01 |
+| installer sync (node bin/install.js --claude --global) is canonical mechanism for qgsd-core/ edits | Installed copy ~/.claude/qgsd/ is what Claude reads at runtime; source edits without install sync = silent non-deployment | Phase v0.13-06 — INT-03 |
 
 ---
-*Last updated: 2026-02-25 after Phase v0.13-05 — TECH-01 IS_GAP_CLOSURE fix*
+*Last updated: 2026-02-25 after v0.13 milestone completion — Autonomous Milestone Execution*

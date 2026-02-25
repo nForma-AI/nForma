@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-06 — LOOP-02 install sync)
+See: .planning/PROJECT.md (updated 2026-02-25 after v0.13 milestone completion)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.13 Autonomous Milestone Execution — all 6 phases complete; 8/8 requirements satisfied at runtime; re-audit passed (tech_debt); ready for complete-milestone.
+**Current focus:** Planning next milestone. v0.13 Autonomous Milestone Execution SHIPPED (8/8 requirements, all flows wired).
 
 ## Current Position
 
-Phase: v0.13 — All 6 phases complete (gap closure v0.13-06 complete)
-Plan: All 6 phases complete (v0.13-01/02 implementation, v0.13-03 verification bookkeeping, v0.13-04 INT-01/INT-02 fixes, v0.13-05 TECH-01 IS_GAP_CLOSURE source fix, v0.13-06 LOOP-02 install sync)
-Status: complete — 8/8 requirements satisfied; LOOP-02 now runtime-correct
-Last activity: 2026-02-25 — v0.13-06 synced installed transition.md; LOOP-02 IS_GAP_CLOSURE now uses -A 4 anchored at runtime; re-auditing v0.13
+Phase: v0.13 — SHIPPED (milestone archived 2026-02-25)
+Plan: All 6 phases complete and archived to .planning/milestones/v0.13-*
+Status: milestone-complete — ROADMAP.md reorganized, REQUIREMENTS.md archived, PROJECT.md updated, git tag pending
+Last activity: 2026-02-25 — v0.13 milestone archived; ready for /qgsd:new-milestone
 
-Progress: [██████████] v0.13: 6/6 phases complete, 8/8 requirements satisfied | v0.12: COMPLETE | v0.9: COMPLETE
+Progress: [██████████] v0.13: SHIPPED | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
 
 ## Performance Metrics
 
