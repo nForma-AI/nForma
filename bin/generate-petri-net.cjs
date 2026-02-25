@@ -20,13 +20,19 @@ const path = require('path');
 const QUORUM_SLOTS    = ['gemini', 'opencode', 'copilot', 'codex', 'claude'];
 const MIN_QUORUM_SIZE = Math.ceil(QUORUM_SLOTS.length / 2);  // = 3
 
+// Optional --min-quorum=N override (makes PET-03 deadlock check exercisable at runtime)
+const minQuorumArg = process.argv.slice(2).find(a => a.startsWith('--min-quorum='));
+const effectiveMinQuorum = minQuorumArg
+  ? parseInt(minQuorumArg.split('=')[1], 10)
+  : MIN_QUORUM_SIZE;
+
 // PET-03: structural deadlock check (pure logic — before any rendering)
 // A structural deadlock occurs when the quorum transition can NEVER fire because
 // min_quorum_size > available_slots (more approvals needed than slots available)
-if (MIN_QUORUM_SIZE > QUORUM_SLOTS.length) {
+if (effectiveMinQuorum > QUORUM_SLOTS.length) {
   process.stderr.write(
     '[generate-petri-net] WARNING: Structural deadlock detected.\n' +
-    '[generate-petri-net] min_quorum_size (' + MIN_QUORUM_SIZE + ') > ' +
+    '[generate-petri-net] min_quorum_size (' + effectiveMinQuorum + ') > ' +
     'available_slots (' + QUORUM_SLOTS.length + ').\n' +
     '[generate-petri-net] Quorum transition can never fire.\n'
   );
@@ -74,7 +80,7 @@ module.exports._pure = { buildDot };
 
 // Guard against running main logic when required as a module (test imports)
 if (require.main === module) {
-  const dotContent = buildDot(QUORUM_SLOTS, MIN_QUORUM_SIZE);
+  const dotContent = buildDot(QUORUM_SLOTS, effectiveMinQuorum);
   const outDir     = path.join(process.cwd(), 'formal', 'petri');
   const dotPath    = path.join(outDir, 'quorum-petri-net.dot');
   const svgPath    = path.join(outDir, 'quorum-petri-net.svg');
