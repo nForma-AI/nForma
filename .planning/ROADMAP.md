@@ -158,7 +158,7 @@
 - [x] **Phase v0.12-02: TLA+ Formal Spec** — QGSDQuorum.tla spec with named invariants, safety and liveness TLC configs, and bin/run-tlc.cjs runner (TLA-01..04)
 - [x] **Phase v0.12-03: Static Analysis Suite** — Alloy vote-counting model + runner, PRISM probabilistic DTMC + scoreboard rate exporter, Petri Net generator with WASM SVG rendering and structural deadlock detection (ALY-01..02, PRM-01..03, PET-01..03)
 - [x] **Phase v0.12-04: Circuit Breaker Algorithm Verification** — TLA+ models for run-collapse oscillation detection algorithm and circuit breaker state persistence + Haiku convergence (GAP-1, GAP-5) (completed 2026-02-25)
-- [ ] **Phase v0.12-05: Protocol Termination Proofs** — TLA+ bounded termination specs for R3 deliberation loop (max 10 rounds + 10 improvement iterations) and R4 pre-filter protocol (max 3 rounds) (GAP-2, GAP-6)
+- [x] **Phase v0.12-05: Protocol Termination Proofs** — TLA+ bounded termination specs for R3 deliberation loop (max 10 rounds + 10 improvement iterations) and R4 pre-filter protocol (max 3 rounds) (GAP-2, GAP-6) (completed 2026-02-25)
 - [ ] **Phase v0.12-06: Audit Trail Invariants** — Alloy models for scoreboard recomputation idempotency/no-vote-loss/no-double-counting and availability hint date arithmetic (GAP-3, GAP-9)
 - [ ] **Phase v0.12-07: Hook Transcript Verification** — Alloy model for qgsd-stop.js transcript scanning: boundary detection, tool_use/tool_result pairing uniqueness, ceiling enforcement (GAP-4)
 - [ ] **Phase v0.12-08: Installer and Taxonomy Extensions** — Alloy extension to install-scope.als (rollback soundness, config sync completeness) and new taxonomy-safety.als (injection prevention, closed/open taxonomy consistency) (GAP-7, GAP-8)
@@ -451,9 +451,9 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] v0.12-05-01-PLAN.md — Wave 0 RED stubs for run-protocol-tlc.test.cjs (GAP-2, GAP-6)
-- [ ] v0.12-05-02-PLAN.md — Author QGSDDeliberation.tla + MCdeliberation.cfg + QGSDPreFilter.tla + MCprefilter.cfg (GAP-2, GAP-6)
-- [ ] v0.12-05-03-PLAN.md — Implement bin/run-protocol-tlc.cjs + GREEN tests (GAP-2, GAP-6)
+- [x] v0.12-05-01-PLAN.md — Wave 0 RED stubs for run-protocol-tlc.test.cjs (GAP-2, GAP-6)
+- [x] v0.12-05-02-PLAN.md — Author QGSDDeliberation.tla + MCdeliberation.cfg + QGSDPreFilter.tla + MCprefilter.cfg (GAP-2, GAP-6)
+- [x] v0.12-05-03-PLAN.md — Implement bin/run-protocol-tlc.cjs + GREEN tests (GAP-2, GAP-6)
 
 ### Phase v0.12-06: Audit Trail Invariants
 **Goal**: The scoreboard recomputation function is formally verified as idempotent with no vote loss and no double counting; the availability hint date arithmetic handles year rollover and returns null on unrecognized format
@@ -595,7 +595,7 @@ Plans:
 | v0.12-02. TLA+ Formal Spec | v0.12 | 3/3 | Complete | 2026-02-25 |
 | v0.12-03. Static Analysis Suite | v0.12 | 4/4 | Complete | 2026-02-25 |
 | v0.12-04. Circuit Breaker Algorithm Verification | 3/3 | Complete   | 2026-02-25 | - |
-| v0.12-05. Protocol Termination Proofs | v0.12 | 0/3 | Not started | - |
+| v0.12-05. Protocol Termination Proofs | v0.12 | 3/3 | Complete | 2026-02-25 |
 | v0.12-06. Audit Trail Invariants | v0.12 | 0/3 | Not started | - |
 | v0.12-07. Hook Transcript Verification | v0.12 | 0/3 | Not started | - |
 | v0.12-08. Installer and Taxonomy Extensions | v0.12 | 0/3 | Not started | - |
