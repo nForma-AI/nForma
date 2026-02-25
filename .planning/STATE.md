@@ -97,5 +97,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: v0.12-08 complete — v0.12 milestone COMPLETE (all 8 phases done, GAP-1 through GAP-9 formally verified)
+Stopped at: Milestone v0.12 audit: gaps_found (22/30 requirements satisfied, 8/30 partial — GAP-5 workers bug new, 7 inherited partials from phases 01-03)
 Resume file: None

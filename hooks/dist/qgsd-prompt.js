@@ -19,32 +19,38 @@ const path = require('path');
 const os   = require('os');
 const { spawnSync } = require('child_process');
 const { loadConfig, slotToToolCall } = require('./config-loader');
+const { schema_version } = require('./conformance-schema.cjs');
 
 const DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK = `QUORUM REQUIRED (structural enforcement — Stop hook will verify)
 
-**Preferred method — spawn the quorum orchestrator agent:**
+Run the full R3 quorum protocol inline (dispatch_pattern from commands/qgsd/quorum.md):
 
-  Task(subagent_type="qgsd-quorum-orchestrator", prompt="[your plan/question/decision here]")
-
-  The orchestrator handles provider pre-flight, team identity, sequential model calls,
-  deliberation rounds, scoreboard updates, and returns a structured consensus verdict.
-  The Stop hook recognises this Task call as valid quorum evidence — no additional
-  model calls are needed in the main conversation.
-
-**Fallback (if orchestrator unavailable) — call models directly:**
-  1. Call mcp__codex-cli-1__review with the full plan content
-  2. Call mcp__gemini-cli-1__gemini with the full plan content
-  3. Call mcp__opencode-1__opencode with the full plan content
-  4. Call mcp__copilot-1__ask with the full plan content
-
-After quorum (either method):
-  5. Present the consensus result and resolve any concerns
-  6. Include the token <!-- GSD_DECISION --> in your FINAL output (only when delivering
-     the completed plan, research, verification report, or filtered question list)
+1. State Claude's own position (vote) first — APPROVE or BLOCK with 1-2 sentence rationale
+2. Run provider pre-flight: node ~/.claude/qgsd-bin/check-provider-health.cjs --json
+3. Dispatch all active slots as sibling qgsd-quorum-slot-worker Tasks in one message turn:
+   Task(subagent_type="qgsd-quorum-slot-worker", prompt="slot: <slot>\\nround: 1\\n...")
+4. Synthesize results inline. Deliberate up to 10 rounds per R3.3 if no consensus.
+5. Update scoreboard: node ~/.claude/qgsd-bin/update-scoreboard.cjs merge-wave ...
+6. Include the token <!-- GSD_DECISION --> in your FINAL output (only when delivering
+   the completed plan, research, verification report, or filtered question list)
 
 Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.
-Failover rule: if an agent returns an error or quota exceeded, skip it and call the next agent until you have 5 successful (non-error) responses. Errors do not count toward the ceiling.
+Failover rule: if a slot returns an error or quota exceeded, skip it and continue with remaining active slots.
 The Stop hook reads the transcript — skipping quorum will block your response.`;
+
+// Appends a structured conformance event to .planning/conformance-events.jsonl.
+// Uses appendFileSync (atomic for writes < POSIX PIPE_BUF = 4096 bytes).
+// Always wrapped in try/catch — hooks are fail-open; never crashes on logging failure.
+// NEVER writes to stdout — stdout is the Claude Code hook decision channel.
+function appendConformanceEvent(event) {
+  try {
+    const logPath = path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.appendFileSync(logPath, JSON.stringify(event) + '\n', 'utf8');
+  } catch (err) {
+    process.stderr.write('[qgsd] conformance log write failed: ' + err.message + '\n');
+  }
+}
 
 // Locate the oscillation-resolution-mode workflow.
 // Tries global install path first (~/.claude/qgsd/), then local (.claude/qgsd/).
@@ -141,7 +147,7 @@ process.stdin.on('end', () => {
           stepLines.push('  [API agents — overflow if sub count insufficient]');
           inApiSection = true;
         }
-        stepLines.push(`  ${stepNum}. Call ${slotToToolCall(slot)} with the full plan content`);
+        stepLines.push(`  ${stepNum}. Task(subagent_type="qgsd-quorum-slot-worker", prompt="slot: ${slot}\\nround: 1\\ntimeout_ms: 60000\\nrepo_dir: <cwd>\\nmode: A\\nquestion: <question>")`);
         stepNum++;
       }
       const dynamicSteps = stepLines.join('\n');
@@ -151,19 +157,16 @@ process.stdin.on('end', () => {
         : '';
 
       instructions = `QUORUM REQUIRED${minNote} (structural enforcement — Stop hook will verify)\n\n` +
-        `**Preferred method — spawn the quorum orchestrator agent:**\n\n` +
-        `  Task(subagent_type="qgsd-quorum-orchestrator", prompt="[your plan/question/decision here]")\n\n` +
-        `  The orchestrator handles provider pre-flight, team identity, sequential model calls,\n` +
-        `  deliberation rounds, scoreboard updates, and returns a structured consensus verdict.\n` +
-        `  The Stop hook recognises this Task call as valid quorum evidence — no additional\n` +
-        `  model calls are needed in the main conversation.\n\n` +
-        `**Fallback (if orchestrator unavailable) — call models directly:**\n` +
+        `Run the full R3 quorum protocol inline (dispatch_pattern from commands/qgsd/quorum.md):\n` +
+        `Dispatch ALL active slots as parallel sibling qgsd-quorum-slot-worker Tasks in ONE message turn.\n` +
+        `NEVER call mcp__*__* tools directly — use Task(subagent_type="qgsd-quorum-slot-worker") ONLY:\n` +
         (hasMixed ? '  [Subscription agents — preferred, flat-fee]\n' : '') +
         dynamicSteps + '\n\n' +
-        `Failover rule: if an agent returns an error or quota exceeded, skip it immediately and call the next agent in the list (sub agents first, then API agents) until you have ${minSize} successful (non-error) responses. Errors and UNAVAIL do not count toward the ceiling.\n\n` +
-        `After quorum (either method):\n` +
-        `  ${afterSteps}. Present the consensus result and resolve any concerns\n` +
-        `  ${afterSteps + 1}. Include the token <!-- GSD_DECISION --> in your FINAL output\n\n` +
+        `Failover rule: if a slot-worker returns UNAVAIL or error, skip it — errors do not count toward the ${minSize} required.\n\n` +
+        `After quorum:\n` +
+        `  ${afterSteps}. Synthesize results inline. Deliberate up to 10 rounds per R3.3 if no consensus.\n` +
+        `  ${afterSteps + 1}. Update scoreboard: node ~/.claude/qgsd-bin/update-scoreboard.cjs merge-wave ...\n` +
+        `  ${afterSteps + 2}. Include the token <!-- GSD_DECISION --> in your FINAL output\n\n` +
         `Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.\n` +
         `The Stop hook reads the transcript — skipping quorum will block your response.`;
     } else {
@@ -171,10 +174,13 @@ process.stdin.on('end', () => {
       instructions = DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK;
     }
 
-    // Append model override block if any preferences are set
+    // Append model override block if any preferences are set.
+    // Skip when activeSlots is configured: Task-based dispatch uses call-quorum-slot.cjs which
+    // reads the model from providers.json — injecting mcp__*__* tool names here would
+    // re-introduce the direct-MCP escape hatch that the activeSlots branch eliminates.
     const prefs = config.model_preferences || {};
     const overrideEntries = Object.entries(prefs).filter(([, m]) => m && typeof m === 'string');
-    if (overrideEntries.length > 0) {
+    if (overrideEntries.length > 0 && !activeSlots) {
       // Agent key → primary quorum tool call mapping
       const AGENT_TOOL_MAP = {
         'codex-cli-1':  'mcp__codex-cli-1__review',
@@ -202,6 +208,16 @@ process.stdin.on('end', () => {
     if (!cmdPattern.test(prompt)) {
       process.exit(0); // Silent pass — UPS-05
     }
+
+    appendConformanceEvent({
+      ts:              new Date().toISOString(),
+      phase:           'IDLE',
+      action:          'quorum_start',
+      slots_available: 0,
+      vote_result:     null,
+      outcome:         null,
+      schema_version,
+    });
 
     process.stdout.write(JSON.stringify({
       hookSpecificOutput: {
