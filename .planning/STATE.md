@@ -106,7 +106,7 @@ Recent decisions affecting current work:
 | 102 | full review of Quick Task 101 | 2026-02-25 | e8cbabe | Verified | [102-full-review-of-quick-task-101](.planning/quick/102-full-review-of-quick-task-101/) |
 | 103 | deprecate qgsd-quorum-orchestrator and update quorum dispatch UX | 2026-02-25 | 7d327fc | Verified | [103-deprecate-qgsd-quorum-orchestrator-and-u](.planning/quick/103-deprecate-qgsd-quorum-orchestrator-and-u/) |
 | 104 | normalize quorum.md dispatch to qgsd-quorum-slot-worker in Mode A and Mode B | 2026-02-25 | fbf52a0 | Verified | [104-normalize-quorum-md-dispatch-to-qgsd-quo](.planning/quick/104-normalize-quorum-md-dispatch-to-qgsd-quo/) |
-| 105 | Add formal verification specs for QGSD CLI state machine: circuit breaker FSM (TLA+) and install scope matrix (Alloy) | 2026-02-25 | f3c3618 | Pending | [105-add-formal-verification-specs-for-qgsd-c](./quick/105-add-formal-verification-specs-for-qgsd-c/) |
+| 105 | Add formal verification specs for QGSD CLI state machine: circuit breaker FSM (TLA+) and install scope matrix (Alloy) | 2026-02-25 | f3c3618 | Verified | [105-add-formal-verification-specs-for-qgsd-c](./quick/105-add-formal-verification-specs-for-qgsd-c/) |
 
 ## Session Continuity
 
