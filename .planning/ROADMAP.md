@@ -13,7 +13,7 @@
 - ✅ **v0.10 — Roster Toolkit** — Phases v0.10-01..v0.10-08 (shipped 2026-02-25)
 - ✅ **v0.11 — Parallel Quorum** — Phase v0.11-01 (shipped 2026-02-24)
 - 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-08 (in progress)
-- 🚧 **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-04 (in progress)
+- 🚧 **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-05 (in progress)
 
 ## Phases
 
@@ -173,6 +173,7 @@
 - [x] **Phase v0.13-02: Quorum Gates** — Replace every AskUserQuestion in the autonomous loop with R3 quorum: plan-milestone-gaps confirmation gate, execute-phase gap resolution, discuss-phase gray-area routing in auto mode (QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03) (completed 2026-02-25)
 - [x] **Phase v0.13-03: Write VERIFICATION.md + Bookkeeping** — Write formal VERIFICATION.md artifacts for v0.13-01 and v0.13-02; update REQUIREMENTS.md traceability (all 8 → Complete); add per-requirement checklists; mark v0.13-02 [x] in bookkeeping pass (LOOP-01, LOOP-02, LOOP-03, STATE-01, QUORUM-01, LOOP-04, QUORUM-02, QUORUM-03) (Gap Closure) (completed 2026-02-25)
 - [x] **Phase v0.13-04: Fix Integration Issues** — Align update-scoreboard.cjs binary path across plan-milestone-gaps.md, execute-phase.md, discuss-phase.md (INT-01); add --auto bypass guards to plan-milestone-gaps.md Step 5 and nice-to-have row; update stale success_criteria (INT-02) (Gap Closure) (completed 2026-02-25)
+- [ ] **Phase v0.13-05: Fix IS_GAP_CLOSURE Pattern** — Anchor IS_GAP_CLOSURE grep in transition.md from `-A 15` to `-A 3` with `^### Phase` heading-block anchor to eliminate false-positive routing on primary phases with downstream gap-closure dependents (TECH-01) (Gap Closure)
 
 
 ## Phase Details
@@ -606,6 +607,21 @@ Plans:
 - [x] v0.13-04-01-PLAN.md — Verify INT-01: confirm qgsd-bin/update-scoreboard.cjs path is already correct across all three workflow files; document canonical path finding
 - [x] v0.13-04-02-PLAN.md — Fix INT-02: remove 3 user-gate text fragments from plan-milestone-gaps.md (nice-row, bare user-dialog line, stale success_criteria); add auto-mode guard to nice section
 
+### Phase v0.13-05: Fix IS_GAP_CLOSURE Pattern
+**Goal**: Eliminate the false-positive IS_GAP_CLOSURE detection in transition.md by anchoring the grep to the target phase's heading block, preventing wrong-but-recoverable routing when primary phases have downstream gap-closure dependents
+**Depends on**: Phase v0.13-04
+**Requirements**: LOOP-01, LOOP-02 (behavioral correctness)
+**Gap Closure:** Closes gaps from audit — v0.13-MILESTONE-AUDIT.md (TECH-01)
+**Success Criteria** (what must be TRUE):
+  1. `transition.md` IS_GAP_CLOSURE grep uses `-A 3 "^### Phase ${COMPLETED_PHASE}:"` instead of `-A 15 "Phase ${COMPLETED_PHASE}"`
+  2. `grep -c '\-A 15.*Phase.*COMPLETED_PHASE' transition.md` returns 0 (old pattern gone)
+  3. `grep -c 'A 3.*\^###.*Phase.*COMPLETED_PHASE' transition.md` returns 1 (new pattern present)
+  4. SUMMARY.md written with status: complete
+**Plans**: 1 plan
+
+Plans:
+- [ ] v0.13-05-01-PLAN.md — Fix TECH-01: change transition.md IS_GAP_CLOSURE grep from -A 15 to -A 3 anchored to ^### Phase heading block; verify fix with grep checks
+
 
 ## Progress
 
@@ -683,3 +699,4 @@ Plans:
 | v0.13-02. Quorum Gates | v0.13 | 3/3 | Complete | 2026-02-25 |
 | v0.13-03. Write Verification Bookkeeping | v0.13 | 2/2 | Complete | 2026-02-25 |
 | v0.13-04. Fix Integration Issues | v0.13 | Complete    | 2026-02-25 | 2026-02-25 |
+| v0.13-05. Fix IS_GAP_CLOSURE Pattern | v0.13 | 0/1 | Not started | - |

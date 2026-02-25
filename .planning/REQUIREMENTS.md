@@ -65,4 +65,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 — gap closure phases v0.13-03/04 added; traceability updated to reflect verifier phase*
+*Last updated: 2026-02-25 — gap closure phases v0.13-03/04 added; traceability updated to reflect verifier phase; v0.13-05 added for TECH-01 IS_GAP_CLOSURE behavioral correctness fix (LOOP-01/LOOP-02)*
