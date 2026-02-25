@@ -1,3 +1,4 @@
+<!-- DEPRECATED: This agent is superseded by inline synthesis in qgsd-quorum-orchestrator.md as of quick-101. The orchestrator now synthesizes results itself without spawning a separate synthesizer Task. This file is kept for reference only. -->
 ---
 name: qgsd-quorum-synthesizer
 description: Quorum barrier synthesizer — spawned once per round after all worker Tasks complete. Reads all worker result blocks, checks consensus, and either emits a final verdict or builds the cross-pollination context bundle for the next round.
