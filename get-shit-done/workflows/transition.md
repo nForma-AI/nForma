@@ -451,6 +451,55 @@ Exit skill and invoke SlashCommand("/qgsd:plan-phase [X+1] --auto")
 
 **Route B: Milestone complete (all phases done)**
 
+Step 1: Detect whether the completed phase is a Gap Closure phase.
+
+```bash
+# Check if the completed phase's ROADMAP.md entry has a Gap Closure marker
+IS_GAP_CLOSURE=$(grep -A 15 "Phase ${COMPLETED_PHASE}" .planning/ROADMAP.md | grep -c '\*\*Gap Closure:\*\*')
+# IS_GAP_CLOSURE=0 → primary path (first audit before completing)
+# IS_GAP_CLOSURE=1+ → re-audit path (gap closure phase just finished)
+```
+
+Step 2a: Gap Closure re-audit path (IS_GAP_CLOSURE=1+) — LOOP-02
+
+<if mode="yolo">
+
+```
+Phase {X} marked complete.
+
+🎉 Gap closure phase finished — re-auditing milestone {version}
+
+⚡ Auto-continuing: Re-run milestone audit to verify gaps are closed
+```
+
+Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version}")
+
+</if>
+
+<if mode="interactive" OR="custom with gates.confirm_transition true">
+
+```
+## ✓ Phase {X}: {Phase Name} Complete
+
+Gap closure phase finished.
+
+---
+
+## ▶ Next Up
+
+**Re-audit Milestone {version}** — verify gap closure succeeded
+
+`/qgsd:audit-milestone {version}`
+
+<sub>`/clear` first → fresh context window</sub>
+
+---
+```
+
+</if>
+
+Step 2b: Primary completion path (IS_GAP_CLOSURE=0) — LOOP-01
+
 <if mode="yolo">
 
 ```
@@ -458,10 +507,10 @@ Phase {X} marked complete.
 
 🎉 Milestone {version} is 100% complete — all {N} phases finished!
 
-⚡ Auto-continuing: Complete milestone and archive
+⚡ Auto-continuing: Run milestone audit before completing
 ```
 
-Exit skill and invoke SlashCommand("/qgsd:complete-milestone {version}")
+Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version}")
 
 </if>
 
@@ -476,16 +525,11 @@ Exit skill and invoke SlashCommand("/qgsd:complete-milestone {version}")
 
 ## ▶ Next Up
 
-**Complete Milestone {version}** — archive and prepare for next
+**Audit Milestone {version}** — verify requirements before completing
 
-`/qgsd:complete-milestone {version}`
+`/qgsd:audit-milestone {version}`
 
 <sub>`/clear` first → fresh context window</sub>
-
----
-
-**Also available:**
-- Review accomplishments before archiving
 
 ---
 ```

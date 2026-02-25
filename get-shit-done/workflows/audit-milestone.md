@@ -188,6 +188,21 @@ Plus full markdown report with tables for requirements, phases, integration, tec
 - `gaps_found` — critical blockers exist
 - `tech_debt` — no blockers but accumulated deferred items need review
 
+## 6b. Update STATE.md
+
+After writing the MILESTONE-AUDIT.md artifact, update STATE.md with the audit result:
+
+```bash
+node ~/.claude/qgsd/bin/gsd-tools.cjs state record-session \
+  --stopped-at "Milestone ${MILESTONE_VERSION} audit: ${AUDIT_STATUS} (${REQUIREMENTS_SATISFIED}/${REQUIREMENTS_TOTAL} requirements)" \
+  --resume-file "None"
+```
+
+Where:
+- `AUDIT_STATUS` is `passed`, `gaps_found`, or `tech_debt` (from Step 6 status determination)
+- `REQUIREMENTS_SATISFIED` is the count of requirements with status `satisfied`
+- `REQUIREMENTS_TOTAL` is the total requirement count for the milestone
+
 ## 7. Present Results
 
 Route by status (see `<offer_next>`).
@@ -259,11 +274,21 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 
 ## ▶ Next Up
 
-**Plan gap closure** — create phases to complete milestone
+**Planning gap closure phases** — auto-spawning planner
 
-/qgsd:plan-milestone-gaps
+```
+Task(
+  prompt="Run /qgsd:plan-milestone-gaps workflow.
 
-<sub>/clear first → fresh context window</sub>
+Audit file: .planning/v{version}-MILESTONE-AUDIT.md
+Milestone: {version}
+Missing phases (no plan): {list of missing_no_plan phase names and their unsatisfied requirements}
+
+Follow @~/.claude/qgsd/workflows/plan-milestone-gaps.md to create gap closure phases in ROADMAP.md.",
+  subagent_type="general-purpose",
+  description="Plan milestone gaps: {version}"
+)
+```
 
 ───────────────────────────────────────────────────────────────
 
