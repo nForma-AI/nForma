@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10-08 PLCY-03 auto-update bug fix — COMPLETE. Both plans done: stubs RED (Plan 01) + implementation + GREEN (Plan 02). 125 pass, 0 fail. PLCY-03 satisfied at code level.
+**Current focus:** v0.10-06 Import/Export — COMPLETE. 3/3 plans done: RED stubs (Plan 01) + pure functions GREEN (Plan 02) + integration/mainMenu wiring (Plan 03). 140 pass, 0 fail. PORT-01/02/03 satisfied at code level. checkpoint:human-verify pending for interactive TTY flows.
 
 ## Current Position
 
-Phase: v0.10-08-plcy03-auto-update-bug-fix
-Plan: 2 of 2 complete — PHASE COMPLETE
-Status: v0.10-08 COMPLETE — Plan 01: Wave 0 regression stubs (3 stubs, stub 3 RED); Plan 02: fix runAutoUpdateCheck() statuses.get(binName) + providerMap + getStatusesFn injection + _pure export + docs update; 125 pass, 0 fail; commits 1f69cec + ee0f70f
-Last activity: 2026-02-25 - Completed quick task 105: Add formal verification specs for QGSD CLI state machine: circuit breaker FSM (TLA+) and install scope matrix (Alloy)
+Phase: v0.10-06-import-export
+Plan: 3 of 3 complete — PHASE COMPLETE
+Status: v0.10-06 COMPLETE — Plan 01: 15 RED stubs (buildBackupPath/buildRedactedEnv/buildExportData/validateImportSchema); Plan 02: 4 pure functions GREEN (140 pass); Plan 03: backupClaudeJson/performExport/performImport integration + mainMenu items 16/17; commits 9ea3c4d + 946e7d3 + 5d3ee91
+Last activity: 2026-02-25 - Completed v0.10-06 Import/Export phase (3 plans)
 
-Progress: [████████████████████] 47/47 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 3/3 phases COMPLETE (v0.12-01 + v0.12-02 + v0.12-03) | v0.10: v0.10-01 + v0.10-07 + v0.10-08 COMPLETE | v0.9 parallel: 3/5 phases
+Progress: [████████████████████] 50/50 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 3/3 phases COMPLETE (v0.12-01 + v0.12-02 + v0.12-03) | v0.10: v0.10-01 + v0.10-06 + v0.10-07 + v0.10-08 COMPLETE | v0.9 parallel: 3/5 phases
 
 ## Performance Metrics
 

@@ -137,7 +137,7 @@
 - [x] **Phase v0.10-03: Credential Management** — Key expiry detection with classifyProbeResult() + batch key rotation with sequential-only write loop (completed 2026-02-24)
 - [x] **Phase v0.10-04: Live Health Dashboard** — Full-screen auto-refreshing status view with readline mode-switch architecture and keypress exit (completed 2026-02-24)
 - [x] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check (completed 2026-02-24)
-- [ ] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup
+- [x] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup (completed 2026-02-25)
 - [ ] **Phase v0.10-07: Retroactive Verification Closure** — VERIFICATION.md for v0.10-02/03/04 + _pure exports for probeAllSlots/liveDashboard + integration smoke test + menu numbering fix (Gap Closure)
 - [x] **Phase v0.10-08: PLCY-03 Auto-Update Bug Fix** — Fix Map bracket notation bug in runAutoUpdateCheck() + regression test + clear critical bug flag (Gap Closure) (completed 2026-02-25)
 
@@ -322,9 +322,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.10-06-01-PLAN.md — Wave 0: 15 failing test stubs for buildBackupPath, buildRedactedEnv, buildExportData, validateImportSchema (PORT-01, PORT-02, PORT-03)
-- [ ] v0.10-06-02-PLAN.md — Wave 1: implement 4 pure functions + add to _pure export block, ~140 tests GREEN (PORT-01, PORT-02, PORT-03)
-- [ ] v0.10-06-03-PLAN.md — Wave 2: backupClaudeJson + performExport + performImport I/O functions + mainMenu items 16/17 + checkpoint:human-verify (PORT-01, PORT-02, PORT-03)
+- [x] v0.10-06-01-PLAN.md — Wave 0: 15 failing test stubs for buildBackupPath, buildRedactedEnv, buildExportData, validateImportSchema (PORT-01, PORT-02, PORT-03) — commit 9ea3c4d
+- [x] v0.10-06-02-PLAN.md — Wave 1: implement 4 pure functions + add to _pure export block, 140 tests GREEN (PORT-01, PORT-02, PORT-03) — commit 946e7d3
+- [x] v0.10-06-03-PLAN.md — Wave 2: backupClaudeJson + performExport + performImport I/O functions + mainMenu items 16/17 + checkpoint:human-verify (PORT-01, PORT-02, PORT-03) — commit 5d3ee91
 
 ### Phase v0.10-07: Retroactive Verification Closure
 **Goal**: Phases v0.10-02, v0.10-03, and v0.10-04 each have a VERIFICATION.md with explicit requirement traceability and implementing commit references; probeAllSlots and liveDashboard are unit-testable via _pure exports with an integration smoke test; menu numbering is sequential
@@ -464,7 +464,7 @@ Plans:
 | v0.10-03. Credential Management | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-05. Policy UIs | 3/3 | Complete    | 2026-02-24 | - |
-| v0.10-06. Import/Export | v0.10 | 0/3 | Not started (gap closure) | - |
+| v0.10-06. Import/Export | v0.10 | 3/3 | Complete | 2026-02-25 |
 | v0.10-07. Retroactive Verification Closure | v0.10 | 0/3 | Not started | - |
 | v0.10-08. PLCY-03 Auto-Update Bug Fix | 2/2 | Complete    | 2026-02-25 | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
