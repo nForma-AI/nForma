@@ -1,0 +1,77 @@
+name: Formal Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'formal/tla/**'
+      - 'formal/alloy/**'
+      - 'bin/run-tlc.cjs'
+      - 'bin/run-alloy.cjs'
+  pull_request:
+    paths:
+      - 'formal/tla/**'
+      - 'formal/alloy/**'
+      - 'bin/run-tlc.cjs'
+      - 'bin/run-alloy.cjs'
+  workflow_dispatch:  # manual trigger
+
+jobs:
+  verify:
+    name: TLC + Alloy model checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dev dependencies
+        run: npm ci
+
+      - name: Cache TLA+ tools JAR
+        id: cache-tla
+        uses: actions/cache@v4
+        with:
+          path: formal/tla/tla2tools.jar
+          key: tla2tools-v1.8.0
+
+      - name: Download tla2tools.jar
+        if: steps.cache-tla.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL \
+            https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar \
+            -o formal/tla/tla2tools.jar
+
+      - name: Cache Alloy JAR
+        id: cache-alloy
+        uses: actions/cache@v4
+        with:
+          path: formal/alloy/org.alloytools.alloy.dist.jar
+          key: alloy-v6.2.0
+
+      - name: Download Alloy 6.2.0 JAR
+        if: steps.cache-alloy.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL \
+            https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar \
+            -o formal/alloy/org.alloytools.alloy.dist.jar
+
+      - name: TLC — safety check (MCsafety, N=5, symmetry)
+        run: node bin/run-tlc.cjs MCsafety
+
+      - name: TLC — liveness check (MCliveness, N=3)
+        run: node bin/run-tlc.cjs MCliveness
+
+      - name: Alloy — NoSpuriousApproval check
+        run: node bin/run-alloy.cjs formal/alloy/quorum-votes.als
