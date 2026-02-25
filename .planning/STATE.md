@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-05 — TECH-01 fix)
+See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-06 — LOOP-02 install sync)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.13 Autonomous Milestone Execution — TECH-01 closed. All 5 phases complete; LOOP-01/LOOP-02 behavioral correctness restored; ready for complete-milestone.
+**Current focus:** v0.13 Autonomous Milestone Execution — all 6 phases complete; 8/8 requirements satisfied at runtime; gap closure re-audit in progress.
 
 ## Current Position
 
-Phase: v0.13 — All phases complete
-Plan: All 5 phases complete (v0.13-01/02 implementation, v0.13-03 verification bookkeeping, v0.13-04 INT-01/INT-02 fixes, v0.13-05 TECH-01 IS_GAP_CLOSURE fix)
-Status: complete — 8/8 requirements satisfied; TECH-01 closed
-Last activity: 2026-02-25 — v0.13-05 TECH-01 fixed; transition.md IS_GAP_CLOSURE grep anchored to ^### Phase with -A 4
+Phase: v0.13 — All 6 phases complete (gap closure v0.13-06 complete)
+Plan: All 6 phases complete (v0.13-01/02 implementation, v0.13-03 verification bookkeeping, v0.13-04 INT-01/INT-02 fixes, v0.13-05 TECH-01 IS_GAP_CLOSURE source fix, v0.13-06 LOOP-02 install sync)
+Status: complete — 8/8 requirements satisfied; LOOP-02 now runtime-correct
+Last activity: 2026-02-25 — v0.13-06 synced installed transition.md; LOOP-02 IS_GAP_CLOSURE now uses -A 4 anchored at runtime; re-auditing v0.13
 
-Progress: [██████████] v0.13: 5/5 phases complete, TECH-01 closed | v0.12: COMPLETE | v0.9: COMPLETE
+Progress: [██████████] v0.13: 6/6 phases complete, 8/8 requirements satisfied | v0.12: COMPLETE | v0.9: COMPLETE
 
 ## Performance Metrics
 
@@ -84,6 +84,7 @@ Recent decisions affecting current work:
 - [Phase v0.13-04]: INT-01 confirmed non-issue: canonical path qgsd-bin/update-scoreboard.cjs is already correct and consistent across all three workflow files; qgsd/bin/ path does not exist on disk
 - [Phase v0.13-04]: INT-02: nice-row uses auto-mode guard instead of 'Ask user:' — subagent-safe in --auto mode
 - [Phase v0.13-05]: IS_GAP_CLOSURE uses -A 4 not -A 3: Gap Closure field at offset 4 from ^### Phase X: header (verified across 7 gap-closure phases); ^### Phase anchor prevents cross-phase bleed
+- [Phase v0.13-06]: installer sync is the canonical mechanism for deploying qgsd-core/ edits to ~/.claude/qgsd/ — must always include `node bin/install.js --claude --global` as a task when editing workflow files that are installed
 
 ### Pending Todos
 
@@ -116,5 +117,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Milestone v0.13 audit: gaps_found (7/8 requirements) — INT-03: v0.13-05 fix not deployed to installed transition.md; LOOP-02 broken at runtime
+Stopped at: v0.13-06 gap closure complete — LOOP-02 install sync done; re-auditing v0.13 to confirm all 8/8 requirements satisfied at runtime
 Resume file: None
