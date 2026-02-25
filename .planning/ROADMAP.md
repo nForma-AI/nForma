@@ -330,7 +330,12 @@ Plans:
   2. `v0.10-03-VERIFICATION.md` exists in `.planning/phases/v0.10-03-credential-management/` — references CRED-01, CRED-02, implementing commits, auto/human split; menu numbering corrected (11, 12, 13 sequential — item 12 no longer absent)
   3. `v0.10-04-VERIFICATION.md` exists in `.planning/phases/v0.10-04-live-health-dashboard/` — references DASH-01, DASH-02, DASH-03, implementing commits, auto/human split; `probeAllSlots` and `liveDashboard` exported via `module.exports._pure`
   4. Unit tests cover `probeAllSlots` and `liveDashboard` via `_pure` exports; an integration smoke test for `liveDashboard` validates entry, keypress refresh, and exit flow using mock stdin (no interactive TTY required)
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.10-07-01-PLAN.md — Wave 0: 4 failing test stubs for probeAllSlots (3 unit) + liveDashboard (1 smoke) — documents RED state before _pure export fix (DASH-01, DASH-02, DASH-03)
+- [ ] v0.10-07-02-PLAN.md — Wave 1: add probeAllSlots + liveDashboard to _pure; fix menu numbering 13→12 cascade; confirm 122 tests pass (CRED-01, DASH-01, DASH-02, DASH-03)
+- [ ] v0.10-07-03-PLAN.md — Wave 2: write v0.10-02/03/04-VERIFICATION.md + update v0.10-05-VERIFICATION.md menu numbers (PRST-01, PRST-02, CRED-01, CRED-02, DASH-01, DASH-02, DASH-03)
 
 ### Phase v0.10-08: PLCY-03 Auto-Update Bug Fix
 **Goal**: The critical Map bracket notation bug in `runAutoUpdateCheck()` is fixed, covered by a regression test, and the v0.10-05 VERIFICATION.md critical bug flag is cleared
