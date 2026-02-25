@@ -57,7 +57,12 @@ const TP_PRIOR    = 0.85;
 const UNAVAIL_PRIOR = 0.15;
 
 function computeRates(slot) {
-  const relevant = rounds.filter(r => r.votes && r.votes[slot] !== undefined);
+  // Exclude Mode A rounds (empty-string result) and UNAVAILABLE typo variant —
+  // neither carries a valid binary signal for rate calculation.
+  const relevant = rounds.filter(r => {
+    const v = r.votes && r.votes[slot];
+    return v !== undefined && v !== '' && v !== 'UNAVAILABLE';
+  });
   const n = relevant.length;
   if (n < MIN_ROUNDS) {
     return { n, tpRate: TP_PRIOR, unavailRate: UNAVAIL_PRIOR, usedPrior: true };
