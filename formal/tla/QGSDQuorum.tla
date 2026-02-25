@@ -3,7 +3,7 @@
    State names mirror the XState machine in src/machines/qgsd-workflow.machine.ts.
    Authors: QGSD v0.12-02
 *)
-EXTENDS Naturals, FiniteSets
+EXTENDS Naturals, FiniteSets, TLC
 
 CONSTANTS
     Agents,          \* Set of quorum model slots (e.g., {"a1","a2","a3","a4","a5"})
@@ -105,10 +105,23 @@ NoInvalidTransition ==
 \* Checked as PROPERTY in MCliveness.cfg with WF_vars(Decide) in Spec.
 EventualConsensus == <>(phase = "DECIDED")
 
+\* ── Composite actions for fairness ──────────────────────────────────────────
+\* Required for liveness: individual Deliberate(n) and CollectVotes(n) actions are not
+\* directly fairness targets — we quantify over all n to get "any vote collection fires".
+AnyCollectVotes == \E n \in 0..N : CollectVotes(n)
+AnyDeliberate   == \E n \in 0..N : Deliberate(n)
+
 \* ── Full specification with fairness ─────────────────────────────────────────
-\* WF_vars(Decide): if Decide is continuously enabled (deliberationRounds >= MaxDeliberation),
-\* it must eventually fire. WF (not SF) is correct here — Decide stays enabled once conditions hold.
-\* WF_vars(StartQuorum): ensures the workflow always eventually starts from IDLE.
-Spec == Init /\ [][Next]_vars /\ WF_vars(Decide) /\ WF_vars(StartQuorum)
+\* WF_vars(Decide): fires when deliberationRounds >= MaxDeliberation.
+\* WF_vars(StartQuorum): ensures workflow eventually leaves IDLE.
+\* WF_vars(AnyCollectVotes): ensures votes are eventually tallied from COLLECTING_VOTES.
+\* WF_vars(AnyDeliberate): ensures deliberation rounds progress until MaxDeliberation,
+\*   at which point WF_vars(Decide) takes over. Without this, the model stutters at
+\*   deliberationRounds < MaxDeliberation and EventualConsensus cannot be proven.
+Spec == Init /\ [][Next]_vars
+        /\ WF_vars(Decide)
+        /\ WF_vars(StartQuorum)
+        /\ WF_vars(AnyCollectVotes)
+        /\ WF_vars(AnyDeliberate)
 
 ====
