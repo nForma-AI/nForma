@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-25 after v0.13-01 complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.12 Formal Verification — Phase v0.12-08 Installer and Taxonomy Extensions COMPLETE (8/8 phases done). v0.12 milestone COMPLETE.
+**Current focus:** v0.13 Autonomous Milestone Execution — audit complete. Status: gaps_found (0/8 requirements formally satisfied; VERIFICATION.md missing for both phases; implementation confirmed complete).
 
 ## Current Position
 
-Phase: v0.12-08 of 8 (Installer and Taxonomy Extensions) — COMPLETE
-Plan: 3/3 plans executed
-Status: v0.12-08 complete — GAP-7 (install-scope.als extended with RollbackSoundCheck + ConfigSyncCompleteCheck) and GAP-8 (taxonomy-safety.als: NoInjection + TaxonomyClosed + NewCategoryConsistent) formally verified. bin/run-installer-alloy.cjs runner implemented. v0.12 milestone COMPLETE (8/8 phases done).
-Last activity: 2026-02-25 — v0.12-08 executed (installer/taxonomy TDD: RED stubs → Alloy specs → GREEN runner)
+Phase: v0.13 audit — gaps_found
+Plan: N/A (audit step)
+Status: Milestone v0.13 audit: gaps_found (0/8 requirements formally satisfied — VERIFICATION.md missing for both phases; implementation confirmed complete in workflow files; 2 integration issues: binary path consistency + residual user-gate text in plan-milestone-gaps.md)
+Last activity: 2026-02-25 — v0.13 milestone audit run; .planning/v0.13-MILESTONE-AUDIT.md written
 
-Progress: [██████████] v0.13: 2/2 phases done | v0.12: COMPLETE (8/8 phases done) | v0.9: COMPLETE (5/5 phases done)
+Progress: [██████████] v0.13: 2/2 phases executed, audit gaps_found | v0.12: COMPLETE (8/8 phases done) | v0.9: COMPLETE (5/5 phases done)
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [██████████] v0.13: 2/2 phases done | v0.12: COMPL
 - Trend: stable
 
 *Updated after each plan completion*
+| Phase v0.12-09 P02 | 1 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Recent decisions affecting current work:
 - [v0.13 roadmap]: Quorum Gates (v0.13-02) covers QUORUM-01/02/03 + LOOP-04 — plan-milestone-gaps, execute-phase, discuss-phase
 - [v0.13 roadmap]: Two phases total — natural delivery boundary between "wiring the chain" and "replacing AskUserQuestion with quorum"
 - [v0.12-04-03]: MCoscillation uses -workers 1 (liveness PROPERTY — avoids TLC v1.8.0 multi-worker liveness bug); MCconvergence uses -workers auto (safety-only)
+- [Phase v0.12-09]: TLA-04: Used identical conditional-skip guard pattern from run-audit-alloy.test.cjs (phases 06-08) for run-tlc.test.cjs JAR-not-found test
 
 ### Pending Todos
 
