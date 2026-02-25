@@ -91,6 +91,22 @@ $PRISM_BIN formal/prism/quorum.pm -pf "P=? [ F s=1 ]" \
     -const tp_rate=0.9274 -const unavail=0.0215
 ```
 
+**Note on variable names:** `rates.const` contains per-slot variables (`tp_gemini`,
+`tp_opencode`, `tp_copilot`, `tp_codex`, and their `unavail_*` counterparts). `quorum.pm`
+uses aggregate constants (`tp_rate`, `unavail`). A manual aggregation step is required:
+
+```bash
+# Example: compute aggregate tp_rate as mean of per-slot rates
+# (adjust values from rates.const output)
+tp_rate=$(node -e "console.log(((0.9 + 0.85 + 0.88 + 0.92) / 4).toFixed(4))")
+unavail=$(node -e "console.log(((0.05 + 0.10 + 0.08 + 0.20) / 4).toFixed(4))")
+
+$PRISM_BIN formal/prism/quorum.pm -pf "P=? [ F s=1 ]" \
+    -const tp_rate=$tp_rate -const unavail=$unavail
+```
+
+Replace the example values with the actual values from `formal/prism/rates.const`.
+
 **Note:** PRISM has no file-include mechanism. `rates.const` is a snippet, not a PRISM import.
 
 ---
