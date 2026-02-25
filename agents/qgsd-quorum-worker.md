@@ -1,3 +1,4 @@
+<!-- DEPRECATED: This agent is superseded by qgsd-quorum-slot-worker.md as of quick-101. Do not use. The orchestrator now spawns qgsd-quorum-slot-worker for all slot calls. This file is kept for reference only. -->
 ---
 name: qgsd-quorum-worker
 description: Parallel quorum slot worker — spawned as a parallel Task by the orchestrator. Receives $ARGUMENTS with slot/round config, reads the repository, calls one slot via call-quorum-slot.cjs, and returns structured output.
