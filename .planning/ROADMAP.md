@@ -346,7 +346,11 @@ Plans:
   1. `bin/manage-agents.cjs` line 1445 uses `statuses.get(binName)` with correct slot→CLI binary name mapping — not `statuses[slot]` — and the auto-update check logs real status entries instead of SKIP for all slots
   2. A unit test for `runAutoUpdateCheck()` demonstrates RED behavior with `statuses[slot]` (test fails — always SKIP) and GREEN behavior with `statuses.get(binName)` (test passes — correct status logged); this test is a permanent regression guard
   3. `v0.10-05-VERIFICATION.md` is updated to clear the `gaps_found` / critical bug flag; PLCY-03 status is updated from `unsatisfied` to `satisfied` or `human_needed` per remaining TTY checks
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] v0.10-08-01-PLAN.md — Wave 0: 3 RED regression test stubs proving Map bracket notation bug and fix direction (PLCY-03)
+- [ ] v0.10-08-02-PLAN.md — Wave 1: fix statuses.get(binName) + providerMap lookup + getStatusesFn injection + field name fixes + update VERIFICATION.md and MILESTONE-AUDIT.md (PLCY-03)
 
 ### Phase v0.12-01: Conformance Event Infrastructure
 **Goal**: Hooks emit structured conformance events to a shared NDJSON log, the XState machine is compiled and available for replay, and developers and users can run validate-traces.cjs to check execution conformance
@@ -455,8 +459,8 @@ Plans:
 | v0.10-04. Live Health Dashboard | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-05. Policy UIs | 3/3 | Complete    | 2026-02-24 | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
-| v0.10-07. Retroactive Verification Closure | v0.10 | 0/? | Not started | - |
-| v0.10-08. PLCY-03 Auto-Update Bug Fix | v0.10 | 0/? | Not started | - |
+| v0.10-07. Retroactive Verification Closure | v0.10 | 0/3 | Not started | - |
+| v0.10-08. PLCY-03 Auto-Update Bug Fix | v0.10 | 0/2 | Planned 2026-02-25 | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
 | v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
 | v0.12-02. TLA+ Formal Spec | v0.12 | 0/? | Not started | - |
