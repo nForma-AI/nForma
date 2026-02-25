@@ -33,6 +33,7 @@ RAILROAD_ARCHITECTURE.md
 .planning/quorum-scoreboard.json
 .planning/maintain-tests-state.json
 .planning/oscillation-log.json
+.planning/telemetry/
 
 # Alloy 6 JAR (large binary — download separately, see VERIFICATION_TOOLS.md)
 formal/alloy/org.alloytools.alloy.dist.jar
