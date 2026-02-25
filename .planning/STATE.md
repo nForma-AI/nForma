@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.10 milestone gap closure complete — Phase v0.10-07-retroactive-verification-closure COMPLETE (3 VERIFICATION.md documents created for v0.10-02/03/04; _pure export gap closed; menu numbering fixed; 122 tests pass)
+**Current focus:** v0.12 Conformance Event Infrastructure — Phase v0.12-03 COMPLETE (static analysis suite: Alloy 6 quorum-votes.als, bin/run-alloy.cjs, formal/prism/quorum.pm, bin/export-prism-constants.cjs, bin/generate-petri-net.cjs, VERIFICATION_TOOLS.md, 284 tests pass)
 
 ## Current Position
 
-Phase: v0.10-07-retroactive-verification-closure of v0.10 (COMPLETE)
-Plan: 3 of 3 in current phase (ALL COMPLETE)
-Status: v0.10-07 complete — all 3 plans done; PRST-01/02, CRED-01/02, DASH-01/02/03 requirements traced; _pure export gap closed; menu gap fixed; 122 tests pass
-Last activity: 2026-02-25 - Completed quick task 102: full review of Quick Task 101
+Phase: v0.12-03-static-analysis-suite of v0.12 (COMPLETE)
+Plan: 4 of 4 in current phase (ALL COMPLETE)
+Status: v0.12-03 complete — ALY-01/02, PRM-01/02/03, PET-01/02/03 all satisfied; Alloy 6 spec + CLI wrapper; PRISM DTMC model + scoreboard rate exporter; Petri Net DOT+SVG generator; VERIFICATION_TOOLS.md; 284 tests pass
+Last activity: 2026-02-25 - Completed v0.12-03: static analysis suite — Alloy, PRISM, Petri Net
 
-Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 2/3 phases COMPLETE (v0.12-01 + v0.12-02) | v0.10: v0.10-01 + v0.10-07 COMPLETE | v0.9 parallel: 3/5 phases
+Progress: [████████████████████] 46/46 plans (prior milestones 100%) | v0.11-01: 3/3 plans COMPLETE | v0.12: 3/3 phases COMPLETE (v0.12-01 + v0.12-02 + v0.12-03) | v0.10: v0.10-01 + v0.10-07 COMPLETE | v0.9 parallel: 3/5 phases
 
 ## Performance Metrics
 
