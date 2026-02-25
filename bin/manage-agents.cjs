@@ -1413,7 +1413,7 @@ async function setUpdatePolicy() {
  * NEVER throws — all errors are caught and written to log.
  * 20s Promise.race timeout prevents blocking the menu.
  */
-async function runAutoUpdateCheck() {
+async function runAutoUpdateCheck(getStatusesFn = getUpdateStatuses) {
   const check = async () => {
     let qgsd;
     try { qgsd = readQgsdJson(); } catch { return; }
@@ -1431,7 +1431,7 @@ async function runAutoUpdateCheck() {
     // Get update statuses (uses existing getUpdateStatuses from update-agents.cjs)
     let statuses;
     try {
-      statuses = await getUpdateStatuses();
+      statuses = await getStatusesFn();
     } catch (err) {
       // Log a single ERROR entry covering all auto slots and return
       for (const slot of autoSlots) {
@@ -1440,22 +1440,32 @@ async function runAutoUpdateCheck() {
       return;
     }
 
+    // Build slot→provider map for binary name resolution (Map key is binary name, not slot name)
+    let providerMap = {};
+    try {
+      const pdata = readProvidersJson();
+      for (const p of (pdata.providers || [])) providerMap[p.name] = p;
+    } catch (_) {}
+
     // Log one entry per auto slot
     for (const slot of autoSlots) {
-      const statusEntry = statuses && statuses[slot];
+      // Resolve slot → CLI binary name (providers.json is authoritative; Map is keyed by binary name)
+      const p = providerMap[slot];
+      const binName = p && p.cli ? path.basename(p.cli) : null;
+      const statusEntry = binName ? statuses.get(binName) : undefined;
       let status, detail;
       if (!statusEntry) {
         status = 'SKIP';
-        detail = 'no update info available for slot';
+        detail = binName ? 'no update info available for slot' : 'no provider record for slot';
       } else if (statusEntry.error) {
         status = 'ERROR';
         detail = statusEntry.error;
-      } else if (statusEntry.updateAvailable) {
+      } else if (statusEntry.status === 'update-available') {
         status = 'UPDATE_AVAILABLE';
-        detail = statusEntry.latestVersion || null;
+        detail = statusEntry.latest || null;
       } else {
         status = 'OK';
-        detail = statusEntry.currentVersion || null;
+        detail = statusEntry.current || null;
       }
       try {
         fs.appendFileSync(UPDATE_LOG_PATH, buildUpdateLogEntry(slot, status, detail));
@@ -2545,4 +2555,6 @@ module.exports._pure = {
   // v0.10-07 additions
   probeAllSlots,
   liveDashboard,
+  // v0.10-08 additions
+  runAutoUpdateCheck,
 };
