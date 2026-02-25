@@ -1620,7 +1620,7 @@ function install(isGlobal, runtime = 'claude') {
   }
 
   // Copy qgsd skill with path replacement
-  const skillSrc = path.join(src, 'get-shit-done');
+  const skillSrc = path.join(src, 'qgsd-core');
   const skillDest = path.join(targetDir, 'qgsd');
   copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime);
   if (verifyInstalled(skillDest, 'qgsd')) {
