@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-24 after v0.12 roadmap created)
 Phase: milestone-boundary
 Plan: —
 Status: v0.10 MILESTONE COMPLETE — all 8 phases shipped. v0.9 parallel (3/5 done: v0.9-01/02/03 complete; v0.9-04/05 remain). v0.12 in progress (0/3+ phases started). Quick task 106 has PLAN but no SUMMARY.
-Last activity: 2026-02-25 - Confirmed v0.10-07 complete; updated ROADMAP.md to mark v0.10 milestone shipped
+Last activity: 2026-02-25 - Completed quick task 106: Extend v0.12 with phases v0.12-04 through v0.12-08
 
 Progress: [████████████████████] v0.10: 8/8 COMPLETE (SHIPPED) | v0.11: 3/3 COMPLETE (SHIPPED) | v0.12: 0/3+ in progress | v0.9: 3/5 phases done
 
@@ -107,9 +107,10 @@ Recent decisions affecting current work:
 | 103 | deprecate qgsd-quorum-orchestrator and update quorum dispatch UX | 2026-02-25 | 7d327fc | Verified | [103-deprecate-qgsd-quorum-orchestrator-and-u](.planning/quick/103-deprecate-qgsd-quorum-orchestrator-and-u/) |
 | 104 | normalize quorum.md dispatch to qgsd-quorum-slot-worker in Mode A and Mode B | 2026-02-25 | fbf52a0 | Verified | [104-normalize-quorum-md-dispatch-to-qgsd-quo](.planning/quick/104-normalize-quorum-md-dispatch-to-qgsd-quo/) |
 | 105 | Add formal verification specs for QGSD CLI state machine: circuit breaker FSM (TLA+) and install scope matrix (Alloy) | 2026-02-25 | f3c3618 | Verified | [105-add-formal-verification-specs-for-qgsd-c](./quick/105-add-formal-verification-specs-for-qgsd-c/) |
+| 106 | Extend v0.12 Formal Verification milestone with phases v0.12-04 through v0.12-08 covering all 9 formal verification gaps | 2026-02-25 | e9b4ea4 | Pending | [106-extend-v0-12-formal-verification-milesto](./quick/106-extend-v0-12-formal-verification-milesto/) |
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: 2026-02-25 - Confirmed v0.10-07 complete; marked v0.10 milestone SHIPPED in ROADMAP.md; next: v0.9-04 Tier 3 Fixes or v0.12-01 Conformance Event Infrastructure (or complete quick task 106)
+Stopped at: 2026-02-25 - Completed quick task 106: Extend v0.12 with phases v0.12-04 through v0.12-08
 Resume file: None
