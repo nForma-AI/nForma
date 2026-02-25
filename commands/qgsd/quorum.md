@@ -209,30 +209,27 @@ Claude (Round 1): [answer + reasoning — 2–4 sentences]
 
 Store as `$CLAUDE_POSITION`.
 
-### Query models (sequential)
+### Query models (parallel — one Task per slot)
 
-Query each model with identical prompts — each call MUST be a **separate, sequential tool call** (not sibling calls in the same message, per R3.2):
+Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", ...)` per active slot as **parallel sibling calls** in one message turn. Build a YAML prompt block per the slot-worker argument spec:
 
-Prompt template:
 ```
-QGSD Quorum — Round 1
-
-Question: [question]
-
-You are one of the quorum members evaluating this question independently. Give your honest answer with reasoning. Be concise (3–6 sentences). State your position clearly. Do not defer to other models.
+slot: <slotName>
+round: <round_number>
+timeout_ms: <slot_timeout from $SLOT_TIMEOUTS>
+repo_dir: <absolute path to working directory>
+mode: A
+question: <question text>
 ```
 
-Call order (sequential):
+Example dispatch (all Tasks in one message turn):
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="gemini-1 quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="codex-1 quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="opencode-1 quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="copilot-1 quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="claude-1 quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
 
-**Native CLI agents** (hardcoded tool names):
-1. `mcp__codex-cli-1__review`
-2. `mcp__gemini-cli-1__gemini`
-3. `mcp__opencode-1__opencode`
-4. `mcp__copilot-1__ask`
-
-**claude-mcp instances** (dynamic — iterate over available servers in `$CLAUDE_MCP_SERVERS` order):
-For each server with `available: true` and healthy from team capture:
-- Call `mcp__<serverName>__claude` with the query prompt (field name: `prompt`)
+The slot-worker reads repo context, builds its own prompt from the YAML arguments, calls the slot via `call-quorum-slot.cjs`, and returns a structured result block.
 
 Handle UNAVAILABLE per R6: note unavailability, continue with remaining models.
 
@@ -263,26 +260,25 @@ If all available models agree → skip to **Consensus output**.
 
 Run up to 9 deliberation rounds (max 10 total rounds including Round 1).
 
-For each round, share **all prior positions** with every model and ask each to reconsider or defend.
+For each round, dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", ...)` per active slot as **parallel sibling calls**. Append `prior_positions` to the YAML block for Round 2+ dispatch:
 
-Deliberation prompt template:
 ```
-QGSD Quorum — Round [N] Deliberation
-
-Question: [question]
-
-Prior positions:
-• Claude:    [position]
-• Codex:     [position or UNAVAIL]
-• Gemini:    [position or UNAVAIL]
-• OpenCode:  [position or UNAVAIL]
-• Copilot:   [position or UNAVAIL]
-[one line per claude-mcp server: • <display-name>: [position or UNAVAIL]]
-
-Given the above, do you maintain your answer or revise it? State your updated position clearly (2–4 sentences).
+slot: <slotName>
+round: <round_number>
+timeout_ms: <slot_timeout from $SLOT_TIMEOUTS>
+repo_dir: <absolute path to working directory>
+mode: A
+question: <question text>
+prior_positions: |
+  • Claude:    [position]
+  • Codex:     [position or UNAVAIL]
+  • Gemini:    [position or UNAVAIL]
+  • OpenCode:  [position or UNAVAIL]
+  • Copilot:   [position or UNAVAIL]
+  [one line per claude-mcp server: • <display-name>: [position or UNAVAIL]]
 ```
 
-Each model is called **sequentially** (not as sibling calls).
+Workers are dispatched as **parallel sibling Tasks** per round. Between rounds (Bash scoreboard calls, set-availability) remain sequential.
 
 Stop deliberation **immediately** upon CONSENSUS (all available models agree).
 
