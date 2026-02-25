@@ -672,10 +672,29 @@ async function mergeWave(argv) {
     if (!data.models[model]) data.models[model] = emptyModelStats();
   }
 
+  const VALID_RESULTS = new Set(['TP', 'TP+', 'TN', 'FP', 'FN', 'UNAVAIL']);
+
   // Apply all votes to data in memory
   for (const { file, vote } of votes) {
-    const result  = vote.result  || '';
+    // Normalise UNAVAILABLE → UNAVAIL (typo variant from early rounds)
+    let result  = vote.result === 'UNAVAILABLE' ? 'UNAVAIL' : (vote.result || '');
     const verdict = vote.verdict || '';
+
+    // Mode A rounds intentionally have no binary result. Skip writing an empty
+    // string — it would corrupt empirical rate calculations by appearing as an
+    // "available but unclassified" vote. The availability signal for Mode A is
+    // tracked separately via set-availability calls.
+    if (result === '') {
+      process.stderr.write(`[merge-wave] NOTE: ${file} has no result code (Mode A round) — availability recorded via verdict only\n`);
+      // Still record the verdict/round for audit trail, but omit from votes map
+      const taskRound = data.rounds.findIndex(r => r.task === task && r.round === round);
+      if (taskRound === -1) {
+        data.rounds.push({ date: todayMMDD(), task, round, votes: {}, verdict });
+      } else if (!data.rounds[taskRound].verdict) {
+        data.rounds[taskRound].verdict = verdict;
+      }
+      continue;
+    }
 
     if (vote.slot && vote.modelId) {
       // Slot mode
