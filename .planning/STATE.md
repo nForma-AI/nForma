@@ -78,6 +78,8 @@ Recent decisions affecting current work:
 - [v0.10-05-03]: listAgents() reads tail 500 lines of update log — prevents unbounded memory growth on large logs
 - [v0.10-05-03]: writeUpdatePolicy() persists to qgsd.json agent_config[slot].update_policy; tuneTimeouts() writes to providers.json via writeProvidersJson()
 - [v0.10-08-01]: Wave 0 stub 3 uses _pure.runAutoUpdateCheck existence check as RED trigger — simplest assertion that fails before Plan 02 adds the export
+- [v0.10-08-02]: runAutoUpdateCheck() fix uses providerMap[slot]→p.cli→path.basename() for slot→binary resolution — follows listAgents() pattern exactly; getStatusesFn default parameter for backwards-compatible injection
+- [v0.10-08-02]: MILESTONE-AUDIT status changed to gaps_found_plcy03_fixed — 9/16 unsatisfied (down from 10); PLCY-03 moves to satisfied_code_fix_pending_human
 
 ### Pending Todos
 
@@ -108,5 +110,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: 2026-02-25 - Completed v0.10-08-01: PLCY-03 Wave 0 regression test stubs; Plan 02 (implementation) remaining
+Stopped at: 2026-02-25 - Completed v0.10-08-02: PLCY-03 bug fix + documentation update; phase v0.10-08 COMPLETE
 Resume file: None

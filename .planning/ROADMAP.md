@@ -139,7 +139,7 @@
 - [x] **Phase v0.10-05: Policy UIs** — Per-slot quorum timeout tuning + auto-update policy configuration + startup auto-update check (completed 2026-02-24)
 - [ ] **Phase v0.10-06: Import/Export** — Portable roster export with unconditional API key redaction + schema-validated import with pre-import backup
 - [ ] **Phase v0.10-07: Retroactive Verification Closure** — VERIFICATION.md for v0.10-02/03/04 + _pure exports for probeAllSlots/liveDashboard + integration smoke test + menu numbering fix (Gap Closure)
-- [ ] **Phase v0.10-08: PLCY-03 Auto-Update Bug Fix** — Fix Map bracket notation bug in runAutoUpdateCheck() + regression test + clear critical bug flag (Gap Closure)
+- [x] **Phase v0.10-08: PLCY-03 Auto-Update Bug Fix** — Fix Map bracket notation bug in runAutoUpdateCheck() + regression test + clear critical bug flag (Gap Closure) (completed 2026-02-25)
 
 <details>
 <summary>✅ v0.11 — Parallel Quorum (Phase v0.11-01) — SHIPPED 2026-02-24</summary>
@@ -460,7 +460,7 @@ Plans:
 | v0.10-05. Policy UIs | 3/3 | Complete    | 2026-02-24 | - |
 | v0.10-06. Import/Export | v0.10 | 0/? | Not started | - |
 | v0.10-07. Retroactive Verification Closure | v0.10 | 0/3 | Not started | - |
-| v0.10-08. PLCY-03 Auto-Update Bug Fix | 1/2 | In Progress|  | - |
+| v0.10-08. PLCY-03 Auto-Update Bug Fix | 2/2 | Complete   | 2026-02-25 | - |
 | v0.11-01. Parallel Quorum Wave-Barrier | v0.11 | 3/3 | Complete | 2026-02-24 |
 | v0.12-01. Conformance Event Infrastructure | v0.12 | 0/3 | Not started | - |
 | v0.12-02. TLA+ Formal Spec | v0.12 | 0/? | Not started | - |
