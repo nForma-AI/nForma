@@ -52,6 +52,14 @@ module quorum_convergence
 
 endmodule
 
-// Properties (run with -pf flag):
-// P=? [ F s=1 ]   — probability of eventually reaching DECIDED (should be 1.0)
-// R=? [ F s=1 ]   — expected rounds until DECIDED (add reward structure)
+// Reward structure: count deliberation rounds (steps spent outside DECIDED)
+rewards "rounds"
+    s=0 : 1;  // cost of one COLLECTING_VOTES step
+    s=2 : 1;  // cost of one DELIBERATING step
+endrewards
+
+// Properties checked in formal/prism/quorum.props (run with quorum.props file):
+// P1: Eventual convergence — P=? [ F s=1 ]   (should be 1.0)
+// P2: Expected rounds     — R{"rounds"}=? [ F s=1 ]   (should be ~1/p where p=tp_rate*(1-unavail))
+// P3: Decide within 4 rounds — P=? [ F<=4 s=1 ]
+// P4: Decide within 10    — P=? [ F<=10 s=1 ]

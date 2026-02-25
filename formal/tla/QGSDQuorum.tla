@@ -95,8 +95,27 @@ MinQuorumMet ==
         (successCount * 2 >= N \/ deliberationRounds >= MaxDeliberation)
 
 \* NoInvalidTransition: IDLE can only advance to COLLECTING_VOTES.
+\* Kept for backwards compatibility; AllTransitionsValid covers this and all other states.
 NoInvalidTransition ==
     [][phase = "IDLE" => phase' \in {"IDLE", "COLLECTING_VOTES"}]_vars
+
+\* AllTransitionsValid: every state can only reach its defined successors.
+\* Covers all four states — a superset of NoInvalidTransition.
+AllTransitionsValid ==
+    /\ [][phase = "IDLE" => phase' \in {"IDLE", "COLLECTING_VOTES"}]_vars
+    /\ [][phase = "COLLECTING_VOTES" => phase' \in {"COLLECTING_VOTES", "DELIBERATING", "DECIDED"}]_vars
+    /\ [][phase = "DELIBERATING" => phase' \in {"DELIBERATING", "DECIDED"}]_vars
+    /\ [][phase = "DECIDED" => phase' = "DECIDED"]_vars
+
+\* DeliberationBounded: deliberationRounds never exceeds MaxDeliberation.
+\* Follows from the guard noInfiniteDeliberation on the DELIBERATING→DELIBERATING branch.
+DeliberationBounded ==
+    deliberationRounds <= MaxDeliberation
+
+\* DeliberationMonotone: deliberationRounds only ever increases.
+\* Ensures rounds cannot be rolled back — a key soundness property.
+DeliberationMonotone ==
+    [][deliberationRounds' >= deliberationRounds]_vars
 
 \* ── Liveness ─────────────────────────────────────────────────────────────────
 
