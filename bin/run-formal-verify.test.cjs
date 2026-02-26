@@ -93,3 +93,54 @@ test('parallelization smoke (PERF-01): all 8 TLA+ step IDs appear in output with
     );
   }
 });
+
+// ── Watch mode placeholder tests (DX-01) ─────────────────────────────────────
+// These tests FAIL intentionally until --watch is implemented in v0.14-05-02.
+// They define the observable contract for watch mode behavior.
+
+test('watch mode (DX-01): --watch flag is accepted without error', () => {
+  // Placeholder: once --watch is handled, argv parsing must not print
+  // "unknown flag" or crash with a non-zero exit on --help-style invocation.
+  // We use --check (syntax only) to verify the script is parseable, then
+  // assert the RUN_FV path resolves (confirms script exists after --watch added).
+  // This test will be replaced by a full integration test in Plan 02.
+  const result = spawnSync(process.execPath, ['--check', RUN_FV], {
+    encoding: 'utf8',
+    timeout: 5000,
+  });
+  assert.strictEqual(result.status, 0, '--check must pass (syntax valid after --watch added)');
+  assert.doesNotMatch(result.stderr || '', /SyntaxError/);
+  // Placeholder assertion: verify RUN_FV path resolves
+  assert.ok(require('fs').existsSync(RUN_FV), 'run-formal-verify.cjs must exist');
+});
+
+test('watch mode (DX-01): starts and does not exit immediately — placeholder', () => {
+  // Placeholder until --watch is implemented.
+  // Verifies --only=generate is still accepted (existing behavior, non-watch).
+  // Plan 02 replaces this with a spawn + SIGINT integration test.
+  const result = spawnSync(process.execPath, [RUN_FV, '--only=generate'], {
+    encoding: 'utf8',
+    timeout: 30000,
+  });
+  assert.doesNotMatch(result.stderr || '', /Unknown --only value/i);
+  // Placeholder: assert watching message NOT yet present (confirms feature not yet shipped)
+  const output = (result.stdout || '') + (result.stderr || '');
+  // This assertion intentionally FAILS until --watch is implemented in Plan 02
+  assert.match(output, /Watch mode enabled|Watching:/i,
+    'PLACEHOLDER: will fail until --watch is implemented in Plan 02 — expected to be RED');
+});
+
+test('watch mode (DX-01): exits cleanly on SIGINT — placeholder', () => {
+  // Placeholder until --watch is implemented.
+  // Plan 02 replaces this with a spawn() + child.kill('SIGINT') integration test.
+  // For now: assert that the script exits normally with --only=generate
+  // and that 'Exiting watch mode' is NOT in output (confirming feature not yet present).
+  const result = spawnSync(process.execPath, [RUN_FV, '--only=generate'], {
+    encoding: 'utf8',
+    timeout: 30000,
+  });
+  const output = (result.stdout || '') + (result.stderr || '');
+  // This assertion intentionally FAILS until Plan 02 implementation adds SIGINT handling
+  assert.match(output, /Exiting watch mode/i,
+    'PLACEHOLDER: will fail until --watch SIGINT handler is implemented in Plan 02 — expected to be RED');
+});
