@@ -806,7 +806,10 @@ Plans:
   2. W007 ROADMAP extractor matches `### Phase v0.X-YY:` headers — no versioned phase appears as "on disk but not in ROADMAP"
   3. W002 STATE.md extractor correctly parses `Phase v0.X-YY` references — current position reported without "invalid phase" warnings
   4. All three regex fixes are covered by tests or verifiable by a before/after run of `validate health` on the QGSD repo itself
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] v0.15-01-01-PLAN.md — Fix W005/W007/W002 regex in gsd-tools.cjs + test scaffolding + install sync (HLTH-01, HLTH-02, HLTH-03)
 
 ### Phase v0.15-02: Repair Safety Guard
 **Goal**: The `--repair` flag cannot silently overwrite a rich STATE.md — the user sees a content-length warning and must pass `--force` explicitly before regenerateState runs
