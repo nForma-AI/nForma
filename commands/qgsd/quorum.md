@@ -229,7 +229,7 @@ Store as `$CLAUDE_POSITION`.
 
 ### Query models (parallel — one Task per slot)
 
-Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", ...)` per active slot as **parallel sibling calls** in one message turn. Build a YAML prompt block per the slot-worker argument spec:
+Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per active slot as **parallel sibling calls** in one message turn. Build a YAML prompt block per the slot-worker argument spec:
 
 ```
 slot: <slotName>
@@ -250,11 +250,11 @@ Set it to the evaluation criteria appropriate for the artifact type, e.g.:
 - Audit:    "This is a milestone audit. Evaluate whether the work achieves the stated milestone goals."
 
 Example dispatch (all Tasks in one message turn):
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="gemini-1 [gemini-cli · gemini-3-pro-preview] quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="codex-1 [codex-cli · gpt-5.3-codex] quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="opencode-1 [opencode-cli · grok-code-fast-1] quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="copilot-1 [copilot-cli · gpt-4.1] quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="claude-1 [claude-code-router · deepseek-ai/DeepSeek-V3.2] quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="gemini-1 [gemini-cli · gemini-3-pro-preview] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="codex-1 [codex-cli · gpt-5.3-codex] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="opencode-1 [opencode-cli · grok-code-fast-1] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="copilot-1 [copilot-cli · gpt-4.1] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="claude-1 [claude-code-router · deepseek-ai/DeepSeek-V3.2] quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
 (model="haiku" — slot-workers are orchestrators (read files, build prompt, run Bash subprocess), NOT reasoners. The actual reasoning is done by the external CLI. Haiku is faster with zero quality loss.)
 
 The slot-worker reads repo context, builds its own prompt from the YAML arguments, calls the slot via `call-quorum-slot.cjs`, and returns a structured result block.
@@ -288,7 +288,7 @@ If all available models agree → skip to **Consensus output**.
 
 Run up to 9 deliberation rounds (max 10 total rounds including Round 1).
 
-For each round, dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", ...)` per active slot as **parallel sibling calls**. Append `prior_positions` to the YAML block for Round 2+ dispatch:
+For each round, dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per active slot as **parallel sibling calls**. Append `prior_positions` to the YAML block for Round 2+ dispatch:
 
 ```
 # skip_context_reads: true — worker already read CLAUDE.md, STATE.md, artifact in Round 1.
@@ -505,7 +505,7 @@ $TRACES
 
 ### Dispatch quorum workers via Task (parallel per round)
 
-Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", ...)` per active slot as **parallel sibling calls** in one message turn. Build a YAML prompt block per the slot-worker argument spec:
+Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per active slot as **parallel sibling calls** in one message turn. Build a YAML prompt block per the slot-worker argument spec:
 
 ```
 slot: <slotName>
@@ -536,11 +536,11 @@ prior_positions: |
 Populate `citations:` from the `citations:` field in each model's slot-worker result block. If the result block had no `citations:` field or it was empty, write `(none)`. For Claude's own position, include any file paths or line numbers Claude cited in its reasoning.
 
 Example dispatch (all Tasks in one message turn):
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="gemini-1 [gemini-cli · gemini-3-pro-preview] quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="codex-1 [codex-cli · gpt-5.3-codex] quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="opencode-1 [opencode-cli · grok-code-fast-1] quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="copilot-1 [copilot-cli · gpt-4.1] quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", description="claude-1 [claude-code-router · deepseek-ai/DeepSeek-V3.2] quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="gemini-1 [gemini-cli · gemini-3-pro-preview] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="codex-1 [codex-cli · gpt-5.3-codex] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="opencode-1 [opencode-cli · grok-code-fast-1] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="copilot-1 [copilot-cli · gpt-4.1] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, description="claude-1 [claude-code-router · deepseek-ai/DeepSeek-V3.2] quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
 (model="haiku" — slot-workers are orchestrators (read files, build prompt, run Bash subprocess), NOT reasoners. The actual reasoning is done by the external CLI. Haiku is faster with zero quality loss.)
 
 The slot-worker reads repo context, builds the Mode B prompt (with execution traces) from the YAML arguments, calls the slot via `call-quorum-slot.cjs`, and returns a structured result block with a `verdict: APPROVE | REJECT | FLAG` field.
