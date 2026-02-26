@@ -95,6 +95,8 @@ to the disagreement. At minimum re-read CLAUDE.md and .planning/STATE.md if they
 
 Given the above, do you maintain your answer or revise it? State your updated position
 clearly (2–4 sentences).
+If your re-check references specific files, line numbers, or code snippets, record
+them in a citations: field in your response (optional).
 
 [If prior_positions absent (Round 1):]
 IMPORTANT: Before answering, use your available tools to read relevant files from the
@@ -105,6 +107,9 @@ in what you actually find in the repo.
 You are one AI model in a multi-model quorum. Your peer reviewers are other AI language
 models — not human experts. Give your honest answer with reasoning. Be concise (3–6
 sentences). Do not defer to peer models.
+If your answer references specific files, line numbers, or code snippets from the
+repository, record them in a citations: field in your response (optional — only
+include if you actually cite code).
 ```
 
 **Mode B prompt:**
@@ -141,6 +146,9 @@ reasoning: [2–4 sentences grounded in the actual trace output — not assumpti
 APPROVE if output clearly shows the question is satisfied.
 REJECT if output shows it is NOT satisfied.
 FLAG if output is ambiguous or requires human judgment.
+If your verdict references specific lines from the execution traces or files, record
+them in a citations: field (optional — only when you directly cite output lines or
+file content).
 ```
 
 Store the constructed prompt as `$SLOT_PROMPT`.
@@ -188,8 +196,10 @@ slot: <slotName>
 round: <round>
 verdict: <see above>
 reasoning: <2–4 sentence summary of the model's position or verdict reasoning>
+citations: |
+  <optional — file paths, line numbers, or code snippets the model cited; omit if none>
 raw: |
-  <first 2000 characters of $RAW_OUTPUT>
+  <first 5000 characters of $RAW_OUTPUT>
 ```
 
 Return ONLY this structured block. No prose. No markdown headers. No explanation.
