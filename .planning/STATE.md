@@ -136,7 +136,7 @@ Recent decisions affecting current work:
 | 107 | QGSD self-improvement passive telemetry: collector, classifier, cron installer, SessionStart injection | 2026-02-25 | 4ae7244 | Verified | [107-qgsd-self-improvement-passive-telemetry-](./quick/107-qgsd-self-improvement-passive-telemetry-/) |
 | 108 | Richer slot-worker result block: add citations field and increase raw output cap from 2000 to 5000 chars in qgsd-quorum-slot-worker.md | 2026-02-26 | a7d5dde | Verified | [108-richer-slot-worker-result-block-add-cita](./quick/108-richer-slot-worker-result-block-add-cita/) |
 | 109 | Update quorum.md: pass citations in prior_positions cross-poll bundle and write QUORUM_DEBATE.md at consensus/escalation | 2026-02-26 | b7cde74 | Verified | [109-update-quorum-md-pass-citations-in-prior](./quick/109-update-quorum-md-pass-citations-in-prior/) |
-| 110 | implement modernized quorum dispatch pattern: model haiku for slot workers and resume for deliberation rounds | 2026-02-26 | {commit_hash} | Pending | [110-implement-modernized-quorum-dispatch-pat](./../quick/110-implement-modernized-quorum-dispatch-pat/) |
+| 110 | implement modernized quorum dispatch pattern: model haiku for slot workers and resume for deliberation rounds | 2026-02-26 | ef3f493 | Pending | [110-implement-modernized-quorum-dispatch-pat](./../quick/110-implement-modernized-quorum-dispatch-pat/) |
 
 ## Session Continuity
 
