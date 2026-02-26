@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-26 after Phase v0.14-02)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.14 FV Pipeline Integration — Phase v0.14-03 COMPLETE; ready to plan v0.14-04 (PRISM Config Injection)
+**Current focus:** v0.14 FV Pipeline Integration — Phase v0.14-04 COMPLETE; ready to plan v0.14-05
 
 ## Current Position
 
-Phase: v0.14-03 (Parallelization) — COMPLETE (2/2 plans done)
-Plan: v0.14-03-01 DONE (48cb936) | v0.14-03-02 DONE (48cb936)
-Status: All plans complete — PERF-01 (parallel tool groups via Promise.all) + PERF-02 (Wall-clock timing in summary) satisfied; 333 tests passing
-Last activity: 2026-02-26 — v0.14-03: parallelize run-formal-verify.cjs (generate sequential, tla/alloy/prism/petri concurrent), wall-clock timing, 2 new tests
+Phase: v0.14-04 (PRISM Config Injection) — COMPLETE (2/2 plans done)
+Plan: v0.14-04-01 DONE (run-prism.cjs scoreboard injection) | v0.14-04-02 DONE (889b0c1)
+Status: All plans complete — PRISM-01 (scoreboard read) + PRISM-02 (correct -const injection) satisfied; 337 tests passing
+Last activity: 2026-02-26 — v0.14-04: run-prism.cjs scoreboard injection + 4 integration tests (run-prism.test.cjs), 337 tests total
 
-Progress: [██████████] v0.13: SHIPPED | v0.14: 3/5 phases complete (v0.14-01 DONE, v0.14-02 DONE, v0.14-03 DONE) | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
+Progress: [██████████] v0.13: SHIPPED | v0.14: 4/5 phases complete (v0.14-01 DONE, v0.14-02 DONE, v0.14-03 DONE, v0.14-04 DONE) | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [██████████] v0.13: SHIPPED | v0.14: 3/5 phases co
 | Phase v0.14-01 P03 | 174s | 6 tasks | 2 files |
 | Phase v0.14-02 P01 | 178s | 4 tasks | 4 files |
 | Phase v0.14-02 P02 | 147s | 3 tasks | 3 files |
+| Phase v0.14-04 P02 | 2min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,7 @@ Recent decisions affecting current work:
 - [Phase v0.14-02]: Write tool used for formal-verify.yml (security_reminder_hook.py blocks Edit on workflow files — established pattern)
 - [Phase v0.14-02]: esbuild external:['xstate'] removed — bundle xstate inline for tmpdir bundles (matches xstate-to-tla.cjs pattern)
 - [Phase v0.14-02]: TLA+ TypeOK extra phases promoted from warn() to fail() (DRFT-03 hard failure); Alloy orphans remain warn() (may abstract state space)
+- [Phase v0.14-04]: PRISM_BIN=prism sentinel in run-prism.test.cjs skips existence check, enabling Args line capture without PRISM installed
 
 ### Pending Todos
 
