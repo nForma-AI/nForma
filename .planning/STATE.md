@@ -140,7 +140,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last activity: 2026-02-26 - Phase v0.9-04 COMPLETE — all 4 fixes (FIX-01..FIX-04) verified 4/4; v0.9 milestone 5/5 phases complete
+Last activity: 2026-02-26 - Milestone v0.9 audit: gaps_found (16/18 requirements — 3 DSC partial: missing v0.9-03 VERIFICATION.md)
 Last session: 2026-02-26
-Stopped at: Phase v0.9-04 complete, v0.9 milestone complete — auto-advancing to audit-milestone v0.9
+Stopped at: v0.9 audit complete — gaps_found; plan-milestone-gaps spawned for gap closure
 Resume file: None
