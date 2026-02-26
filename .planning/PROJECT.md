@@ -8,15 +8,23 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.15 Health & Tooling Modernization
+## Current Milestone: v0.16 Formal Plan Verification
+
+**Goal:** Transform QGSD's planning workflow into a formally-verified planning loop — plans are auto-synthesized into TLA+/Alloy/PRISM/Petri spec fragments, verified for correctness before quorum sees them, accompanied by Mermaid mind maps for agent visual context, and backed by code-as-source-of-truth hybrid AST+annotation spec extraction.
+
+**Target features:**
+- Plan-to-spec pipeline — PLAN.md → formal spec fragments (TLA+/Alloy/PRISM) representing proposed state machine changes, saved to `.planning/phases/<phase>/formal/`
+- Iterative verification loop — Claude iterates on PLAN.md until formal verification passes (configurable cap), then presents verified plan + proof summary to quorum
+- Mind map generation — PLAN.md → Mermaid mind map saved to `.planning/phases/<phase>/MINDMAP.md`, injected into quorum slot-worker context
+- Quorum formal context injection — slot-worker prompt gains `formal_spec_summary` + `verification_result` fields; agents vote with mathematical evidence attached
+- QGSD self-application (code → all spec types) — hybrid AST extraction + JSDoc annotations (`@invariant`, `@transition`, `@probability`) feed all four spec types from QGSD's own source
+- General-purpose code → spec — expose the code → spec pipeline for any project using QGSD
+
+## Planned Milestone: v0.15 Health & Tooling Modernization (deferred)
 
 **Goal:** Fix the GSD health checker to recognize QGSD's versioned phase naming convention, guard `--repair` against rich STATE.md data loss, archive legacy pre-versioning phase dirs, and surface quorum failure patterns in the health report.
 
-**Target features:**
-- Fix gsd-tools.cjs regex for W005/W007/W002 — add versioned pattern `^v\d+\.\d+-\d{2}` support; eliminate 33 W005 + 22 W007 false positives for QGSD `v0.X-YY-name` phase dirs
-- Guard `--repair` against rich STATE.md — show diff + require `--force` before `regenerateState` overwrites non-minimal content
-- Archive legacy dirs 18-39 to `.planning/archive/legacy/` — remove pre-versioning orphaned dirs from W007 noise
-- Integrate quorum-failures.json into `/qgsd:health` output — surface recurring slot failure patterns detected by quick-112
+**Target features:** 4 quick fixes — gsd-tools.cjs W005/W007/W002 versioned pattern support, `--repair` guard, legacy dir archive, quorum-failures.json surfacing in `/qgsd:health`.
 
 ## Just Shipped: v0.14 FV Pipeline Integration (2026-02-26)
 
@@ -229,17 +237,11 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Active
 
-<!-- v0.15 scope: Health & Tooling Modernization -->
+<!-- v0.16 scope: Formal Plan Verification — requirements TBD after research -->
 
-- [ ] gsd-tools.cjs W005 recognizes QGSD versioned phase naming — no false positives for `v0.X-YY-name` dirs (HLTH-01)
-- [ ] gsd-tools.cjs W007 ROADMAP extractor matches `### Phase v0.X-YY:` headers — no false positives for versioned phases (HLTH-02)
-- [ ] gsd-tools.cjs W002 STATE.md extractor handles versioned phase refs — `Phase v0.14-01` style refs parsed correctly (HLTH-03)
-- [ ] `--repair` guard against rich STATE.md — shows diff + requires `--force` before overwriting non-minimal STATE.md (SAFE-01)
-- [ ] Legacy numeric phase dirs 18-39 archived to `.planning/archive/legacy/` — W007 orphan noise eliminated (SAFE-02)
-- [ ] `/qgsd:health` output surfaces quorum-failures.json warning patterns when file exists and count ≥ 3 (VIS-01)
-
-<!-- Carry-forward: deferred from v0.14 -->
-- [ ] `--watch` mode for `run-formal-verify.cjs` — re-run on XState machine file changes (DX-01)
+<!-- Carry-forward: deferred from v0.15 -->
+- [ ] gsd-tools.cjs W005/W007/W002 versioned phase pattern support (HLTH-01..03) — v0.15 deferred
+- [ ] `--repair` guard + legacy dir archive + health quorum-failures surfacing (SAFE-01/02, VIS-01) — v0.15 deferred
 
 <!-- Carry-forward: deferred from v0.3 -->
 - [ ] npm publish qgsd@0.2.0 deferred — run `npm publish --access public` when ready (RLS-04)
@@ -367,4 +369,4 @@ QGSD v0.14 milestone started 2026-02-25. v0.13 Autonomous Milestone Execution co
 | readScoreboardRates() computes aggregate mean across SLOTS | Per-slot TP and UNAVAIL rates averaged across ['gemini', 'opencode', 'copilot', 'codex']; 4 fallback paths all return conservative priors 0.85/0.15 | Phase v0.14-04 — PRISM-01 |
 
 ---
-*Last updated: 2026-02-26 — started milestone v0.15 Health & Tooling Modernization*
+*Last updated: 2026-02-26 — started milestone v0.16 Formal Plan Verification*
