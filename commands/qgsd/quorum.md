@@ -360,6 +360,34 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 
 Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
 
+**Debate file path:** If `artifact_path` was provided → write to the same directory as the artifact (e.g. `.planning/phases/v0.14-02/QUORUM_DEBATE.md`). Otherwise → `.planning/debates/YYYY-MM-DD-<short-slug>.md` where `<short-slug>` is the first 6 words of the question lowercased, spaces replaced with hyphens, non-alphanumeric chars stripped.
+
+Create `.planning/debates/` if it does not exist.
+
+Write QUORUM_DEBATE.md using the debate file path rule above. Set `Consensus: APPROVE` (Mode A consensus means all models agree on APPROVE). Include one `## Round N` section per round that occurred, populated from the per-round position data collected during this quorum run.
+
+The debate file format:
+```markdown
+# Quorum Debate
+Question: <question text>
+Date: <YYYY-MM-DD>
+Consensus: <APPROVE / REJECT / FLAG / ESCALATED>
+Rounds: <N>
+
+## Round 1
+| Model | Position | Citations |
+|---|---|---|
+| Claude | <position> | <citations or —> |
+| <slotName> | <position or UNAVAIL> | <citations or —> |
+...
+
+## Round N (if deliberation occurred — one section per round)
+[same table format]
+
+## Outcome
+<Full consensus answer (Mode A) or verdict + rationale (Mode B) or escalation summary>
+```
+
 ### Escalate — no consensus after 10 rounds
 
 ```
@@ -412,6 +440,8 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 - `--verdict`: the consensus verdict (APPROVE | BLOCK | DELIBERATE | CONSENSUS | GAPS_FOUND)
 
 Run one command per model per round. Each call is atomic and idempotent.
+
+Write QUORUM_DEBATE.md using the debate file path rule above. Set `Consensus: ESCALATED`. Include one `## Round N` section per round (all 10). Set `## Outcome` to the core disagreement summary and Claude's recommendation from the escalation output above.
 
 ---
 
@@ -545,3 +575,5 @@ Update the scoreboard with the same `update-scoreboard.cjs` pattern as Mode A.
 `--task-description`: a brief description of what was being verified/reviewed (from $ARGUMENTS or a short summary). Used by Haiku to auto-classify. Optional — omit if not meaningful.
 
 Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
+
+Write QUORUM_DEBATE.md using the debate file path rule above. Set `Consensus:` to the final consensus verdict (APPROVE / REJECT / FLAG). Include one `## Round N` section per round that occurred. Set `## Outcome` to the rationale from the verdict output above. If 10 rounds elapsed without full consensus, set `Consensus: ESCALATED`.
