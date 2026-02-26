@@ -76,9 +76,13 @@ function findSecrets() {
   }
 
   // Telemetry surfacing — inject top unsurfaced issue as additionalContext
+  // Guard: only active when running inside the QGSD dev repo itself
   try {
+    const pkgPath = path.join(_hookCwd, 'package.json');
+    const isQgsdRepo = fs.existsSync(pkgPath) &&
+      JSON.parse(fs.readFileSync(pkgPath, 'utf8')).name === 'qgsd';
     const fixesPath = path.join(_hookCwd, '.planning', 'telemetry', 'pending-fixes.json');
-    if (fs.existsSync(fixesPath)) {
+    if (isQgsdRepo && fs.existsSync(fixesPath)) {
       const fixes = JSON.parse(fs.readFileSync(fixesPath, 'utf8'));
       const issue = (fixes.issues || []).find(i => !i.surfaced && i.priority >= 50);
       if (issue) {
