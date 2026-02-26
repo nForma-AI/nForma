@@ -187,7 +187,7 @@
 - [x] **Phase v0.14-02: Drift Detection + TLA+ Canonicalization** — Resolve BROKEN-01 (xstate-to-tla.cjs writes QGSDQuorum_xstate.tla not QGSDQuorum.tla, Option A); wire check-spec-sync.cjs into npm test; upgrade XState parsing from regex to AST; detect orphaned handwritten specs; remove CI continue-on-error masking; add missing CI path triggers (DRFT-01, DRFT-02, DRFT-03 + BROKEN-01 + MISSING-02) (completed 2026-02-26)
 - [x] **Phase v0.14-03: Parallelization** — Replace sequential for..of loop with two-phase parallel execution: generate group sequential first, then tla/alloy/prism/petri groups concurrent via Promise.all; add wall-clock timing in summary; 333 tests passing (PERF-01, PERF-02) (completed 2026-02-26)
 - [x] **Phase v0.14-04: PRISM Config Injection** — Scoreboard TP/TN rates auto-fed to PRISM model parameters at runtime; no manual .pm file editing required (PRISM-01, PRISM-02) (completed 2026-02-26)
-- [ ] **Phase v0.14-05: Watch Mode** — --watch flag re-runs formal verification automatically on XState machine file changes (DX-01)
+- [x] **Phase v0.14-05: Watch Mode** — --watch flag re-runs formal verification automatically on XState machine file changes (DX-01) (completed 2026-02-26)
 
 </details>
 
@@ -809,4 +809,4 @@ Plans:
 | v0.14-02. Drift Detection + TLA+ Canonicalization | 2/2 | Complete    | 2026-02-26 | - |
 | v0.14-03. Parallelization | v0.14 | 0/3 | Not started | - |
 | v0.14-04. PRISM Config Injection | 2/2 | Complete    | 2026-02-26 | - |
-| v0.14-05. Watch Mode | v0.14 | 0/2 | Not started | - |
+| v0.14-05. Watch Mode | v0.14 | Complete    | 2026-02-26 | - |
