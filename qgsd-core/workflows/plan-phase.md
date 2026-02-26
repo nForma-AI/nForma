@@ -280,7 +280,7 @@ Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`):
 - Mode A — pure question (no execution traces; reviewers read the artifact directly)
 - artifact_path: all `${PHASE_DIR}/*-PLAN.md` files (pass paths; workers read them)
 - review_context: "This is a pre-execution implementation plan. The code does not exist yet. Evaluate the plan's approach, task breakdown, and correctness — not whether the implementation already exists in the repository."
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku"` (one per slot)
+- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
 - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
 Fail-open: if a slot errors (UNAVAIL), note it and proceed — same as R6 policy.
