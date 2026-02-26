@@ -129,6 +129,10 @@
 - [x] **Phase v0.9-03: Discuss-Phase UX** — Recommended option highlighting per choice + gray-area loop-back instead of hard stop (completed 2026-02-24)
 - [x] **Phase v0.9-04: Tier 3 Fixes** — Skill tool spawn guards, Gemini TOML fix, decimal phase number parsing consistency (completed 2026-02-26)
 - [x] **Phase v0.9-05: Rename get-shit-done/ → qgsd-core/** — Rename the source directory to match QGSD identity; update all path references in installer, gsd-tools, and workflows; re-sync installed runtime (completed 2026-02-25)
+- [ ] **Phase v0.9-06: v0.9-03 Retroactive Verification** — Create formal VERIFICATION.md for v0.9-03 from SUMMARY.md inline evidence; closes DSC-01, DSC-02, DSC-03 requirement gaps (Gap Closure)
+- [ ] **Phase v0.9-07: Nyquist Parse-List Correction + Path Portability** — Add `nyquist_validation_enabled` to plan-phase.md Step 1 parse list; replace hardcoded absolute paths in step 5.5 with portable `~`-relative reference; closes NYQ-04 integration gap (Gap Closure)
+- [ ] **Phase v0.9-08: Post-v0.9 Install Sync** — Run install sync for model=haiku quorum dispatch flag added in quick-110; verify installed runtime matches source; closes post-v0.9 drift tech debt (Gap Closure)
+- [ ] **Phase v0.9-09: SC-4 End-to-End Nyquist Demo** — Run a live plan-phase session with Nyquist enabled; capture VALIDATION.md output; document in a demo artifact; closes SC-4 undemonstrated tech debt (Gap Closure)
 
 ### ✅ v0.10 — Roster Toolkit (SHIPPED 2026-02-25)
 
@@ -267,6 +271,62 @@ Plans:
 - [ ] v0.9-05-01-PLAN.md — git mv rename + bin/install.js skillSrc + package.json test path + pre-rename runtime baseline
 - [ ] v0.9-05-02-PLAN.md — agents/*.md 43 path refs + templates/phase-prompt.md + hooks/qgsd-circuit-breaker.js message strings
 - [ ] v0.9-05-03-PLAN.md — hooks/dist/ sync + node bin/install.js --claude --global + runtime verification
+
+### Phase v0.9-06: v0.9-03 Retroactive Verification
+**Goal**: v0.9-03 has a formal VERIFICATION.md artifact derived from its SUMMARY.md inline evidence, closing the audit gap for DSC-01, DSC-02, DSC-03
+**Depends on**: Phase v0.9-05
+**Requirements**: DSC-01, DSC-02, DSC-03
+**Gap Closure**: Closes gaps from v0.9-MILESTONE-AUDIT.md (missing VERIFICATION.md tech debt + DSC requirement partial status)
+**Success Criteria** (what must be TRUE):
+  1. `.planning/phases/v0.9-03-discuss-phase-ux/v0.9-03-VERIFICATION.md` exists with DSC-01, DSC-02, DSC-03 success criteria evaluated
+  2. All three DSC requirements show SATISFIED status in the VERIFICATION.md (evidence drawn from SUMMARY.md grep confirmations and npm test 260/260)
+  3. Re-running `/qgsd:audit-milestone v0.9` after this phase shows DSC-01, DSC-02, DSC-03 as satisfied (not partial)
+**Plans**: 1 plan
+
+Plans:
+- [ ] v0.9-06-01-PLAN.md — Write VERIFICATION.md for v0.9-03 from SUMMARY.md inline evidence; confirm DSC-01/02/03 satisfied
+
+### Phase v0.9-07: Nyquist Parse-List Correction + Path Portability
+**Goal**: `plan-phase.md` Step 1 explicitly names `nyquist_validation_enabled` in its parse list, and step 5.5 uses a portable path instead of a hardcoded absolute path
+**Depends on**: Phase v0.9-06
+**Requirements**: NYQ-04
+**Gap Closure**: Closes gaps from v0.9-MILESTONE-AUDIT.md (NYQ-04 integration gap + hardcoded-path tech debt)
+**Success Criteria** (what must be TRUE):
+  1. `qgsd-core/workflows/plan-phase.md` Step 1 "Parse JSON for:" list includes `nyquist_validation_enabled` as an explicit named field
+  2. Step 5.5 in `plan-phase.md` references the VALIDATION.md template via `~/.claude/qgsd/templates/VALIDATION.md` (or equivalent portable expression) — no hardcoded `/Users/jonathanborduas/` prefix
+  3. Changes are synced to `hooks/dist/` and the installed runtime via `node bin/install.js --claude --global`
+**Plans**: 1 plan
+
+Plans:
+- [ ] v0.9-07-01-PLAN.md — Add nyquist_validation_enabled to plan-phase.md Step 1 parse list; replace hardcoded path in step 5.5; install sync
+
+### Phase v0.9-08: Post-v0.9 Install Sync
+**Goal**: The model=haiku quorum dispatch flag added in quick-110 is present in the installed runtime, closing the source/runtime drift introduced post-v0.9
+**Depends on**: Phase v0.9-07
+**Requirements**: (integration — no standalone REQ-ID)
+**Gap Closure**: Closes post-v0.9 drift tech debt from v0.9-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `qgsd-core/workflows/plan-phase.md` and `qgsd-core/workflows/discuss-phase.md` source files contain the `model="haiku"` quorum dispatch flag from quick-110
+  2. `~/.claude/qgsd/workflows/plan-phase.md` and `~/.claude/qgsd/workflows/discuss-phase.md` installed copies match the source (verified by diff)
+  3. `node bin/install.js --claude --global` runs cleanly and reports success
+**Plans**: 1 plan
+
+Plans:
+- [ ] v0.9-08-01-PLAN.md — Verify source has model=haiku flag; run install sync; diff installed vs source to confirm no drift
+
+### Phase v0.9-09: SC-4 End-to-End Nyquist Demo
+**Goal**: A live plan-phase session with Nyquist enabled has been run end-to-end, producing a VALIDATION.md artifact, demonstrating SC-4
+**Depends on**: Phase v0.9-08
+**Requirements**: NYQ-02, NYQ-04, NYQ-05
+**Gap Closure**: Closes SC-4 undemonstrated tech debt from v0.9-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. A plan-phase session is run with `nyquist_validation_enabled=true` in the INIT JSON
+  2. The session produces a `VALIDATION.md` covering all tasks identified in the plan (SC-4 demonstrated)
+  3. A demo artifact (e.g., a brief SUMMARY.md or inline record) documents the session outcome, confirming the end-to-end Nyquist pipeline worked
+**Plans**: 1 plan
+
+Plans:
+- [ ] v0.9-09-01-PLAN.md — Run live plan-phase with Nyquist enabled; capture VALIDATION.md output; write demo artifact
 
 ### Phase v0.10-01: Foundation
 **Goal**: The manage-agents list view shows quorum W/L, CCR routing, and key-invalid status per slot, and the readQgsdJson/writeQgsdJson helper pair is available for all later phases
@@ -780,6 +840,10 @@ Plans:
 | v0.9-03. Discuss-Phase UX | v0.9 | 1/1 | Complete | 2026-02-24 |
 | v0.9-04. Tier 3 Fixes | v0.9 | Complete    | 2026-02-26 | - |
 | v0.9-05. Rename get-shit-done/ → qgsd-core/ | v0.9 | Complete    | 2026-02-25 | - |
+| v0.9-06. v0.9-03 Retroactive Verification | v0.9 | 0/1 | Not started | - |
+| v0.9-07. Nyquist Parse-List Correction + Path Portability | v0.9 | 0/1 | Not started | - |
+| v0.9-08. Post-v0.9 Install Sync | v0.9 | 0/1 | Not started | - |
+| v0.9-09. SC-4 End-to-End Nyquist Demo | v0.9 | 0/1 | Not started | - |
 | v0.10-01. Foundation | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-02. Presets and Cloning | v0.10 | Complete    | 2026-02-24 | - |
 | v0.10-03. Credential Management | v0.10 | Complete    | 2026-02-24 | - |
