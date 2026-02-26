@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 'use strict';
 // bin/run-formal-verify.test.cjs
-// Error-path and integration smoke tests for bin/run-formal-verify.cjs.
-// All tests check error conditions only — no Java/TLC/Alloy/PRISM invocation.
-// Requirements: INTG-01, INTG-02
+// Error-path, integration smoke, and watch-mode tests for bin/run-formal-verify.cjs.
+// Error-path and smoke tests: no Java/TLC/Alloy/PRISM invocation.
+// Watch-mode tests: spawn + SIGINT, --only=generate only (no Java needed).
+// Requirements: INTG-01, INTG-02, DX-01
 
-const { test } = require('node:test');
-const assert   = require('node:assert');
-const { spawnSync } = require('child_process');
+const { test }      = require('node:test');
+const assert        = require('node:assert');
+const { spawnSync, spawn } = require('child_process');
 const path = require('path');
+const fs   = require('node:fs');
+const os   = require('os');
 
 const RUN_FV = path.join(__dirname, 'run-formal-verify.cjs');
 
@@ -94,53 +97,160 @@ test('parallelization smoke (PERF-01): all 8 TLA+ step IDs appear in output with
   }
 });
 
-// ── Watch mode placeholder tests (DX-01) ─────────────────────────────────────
-// These tests FAIL intentionally until --watch is implemented in v0.14-05-02.
-// They define the observable contract for watch mode behavior.
+// ── Watch mode integration tests (DX-01) ─────────────────────────────────────
+// Require --only=generate so no Java/TLC/Alloy/PRISM is needed.
+// All tests spawn with cwd: tmpDir (machine file copied there) so the
+// watcher uses tmpDir/src/machines/ and does not affect the real repo.
 
-test('watch mode (DX-01): --watch flag is accepted without error', () => {
-  // Placeholder: once --watch is handled, argv parsing must not print
-  // "unknown flag" or crash with a non-zero exit on --help-style invocation.
-  // We use --check (syntax only) to verify the script is parseable, then
-  // assert the RUN_FV path resolves (confirms script exists after --watch added).
-  // This test will be replaced by a full integration test in Plan 02.
-  const result = spawnSync(process.execPath, ['--check', RUN_FV], {
-    encoding: 'utf8',
-    timeout: 5000,
-  });
-  assert.strictEqual(result.status, 0, '--check must pass (syntax valid after --watch added)');
-  assert.doesNotMatch(result.stderr || '', /SyntaxError/);
-  // Placeholder assertion: verify RUN_FV path resolves
-  assert.ok(require('fs').existsSync(RUN_FV), 'run-formal-verify.cjs must exist');
+test('watch mode (DX-01): --watch flag starts process and does not exit immediately', { timeout: 30000 }, async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rfv-watch-start-'));
+  try {
+    const machinesDir = path.join(tmpDir, 'src', 'machines');
+    fs.mkdirSync(machinesDir, { recursive: true });
+    fs.copyFileSync(
+      path.resolve(__dirname, '..', 'src', 'machines', 'qgsd-workflow.machine.ts'),
+      path.join(machinesDir, 'qgsd-workflow.machine.ts')
+    );
+
+    const child = spawn(process.execPath, [RUN_FV, '--watch', '--only=generate'], {
+      cwd:   tmpDir,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env:   { ...process.env },
+    });
+
+    let output = '';
+    child.stdout.on('data', d => { output += d.toString(); });
+    child.stderr.on('data', d => { output += d.toString(); });
+
+    // Wait for watch startup message AND first SUMMARY (initial run complete).
+    // Sending SIGINT while spawnSync is blocking inside runOnce() can produce
+    // signal-based termination instead of our process.exit(0) handler.
+    // Waiting for SUMMARY ensures the initial run finished and we are back
+    // in the fs.watch event loop before we send SIGINT.
+    await new Promise((resolve, reject) => {
+      const deadline = setTimeout(
+        () => reject(new Error('timeout waiting for watch startup + initial run: ' + output)), 20000
+      );
+      const check = setInterval(() => {
+        if (output.includes('Watch mode enabled') && output.includes('SUMMARY')) {
+          clearInterval(check); clearTimeout(deadline); resolve();
+        }
+      }, 100);
+    });
+
+    child.kill('SIGINT');
+    const exitCode = await new Promise(resolve => child.on('close', code => resolve(code)));
+
+    assert.ok(
+      output.includes('Watch mode enabled') || output.includes('Watching:'),
+      'must print watch startup message — got: ' + output.slice(0, 200)
+    );
+    assert.strictEqual(exitCode, 0, 'must exit 0 on SIGINT');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
 });
 
-test('watch mode (DX-01): starts and does not exit immediately — placeholder', () => {
-  // Placeholder until --watch is implemented.
-  // Verifies --only=generate is still accepted (existing behavior, non-watch).
-  // Plan 02 replaces this with a spawn + SIGINT integration test.
-  const result = spawnSync(process.execPath, [RUN_FV, '--only=generate'], {
-    encoding: 'utf8',
-    timeout: 30000,
-  });
-  assert.doesNotMatch(result.stderr || '', /Unknown --only value/i);
-  // Placeholder: assert watching message NOT yet present (confirms feature not yet shipped)
-  const output = (result.stdout || '') + (result.stderr || '');
-  // This assertion intentionally FAILS until --watch is implemented in Plan 02
-  assert.match(output, /Watch mode enabled|Watching:/i,
-    'PLACEHOLDER: will fail until --watch is implemented in Plan 02 — expected to be RED');
+test('watch mode (DX-01): re-runs verification when machine file changes', { timeout: 30000 }, async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rfv-watch-change-'));
+  try {
+    const machinesDir = path.join(tmpDir, 'src', 'machines');
+    fs.mkdirSync(machinesDir, { recursive: true });
+    const machinePath = path.join(machinesDir, 'qgsd-workflow.machine.ts');
+    fs.copyFileSync(
+      path.resolve(__dirname, '..', 'src', 'machines', 'qgsd-workflow.machine.ts'),
+      machinePath
+    );
+
+    const child = spawn(process.execPath, [RUN_FV, '--watch', '--only=generate'], {
+      cwd:   tmpDir,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env:   { ...process.env },
+    });
+
+    let output = '';
+    child.stdout.on('data', d => { output += d.toString(); });
+    child.stderr.on('data', d => { output += d.toString(); });
+
+    // Wait for initial run to complete (SUMMARY appears when first run finishes)
+    await new Promise((resolve, reject) => {
+      const deadline = setTimeout(
+        () => reject(new Error('timeout waiting for initial run: ' + output)), 20000
+      );
+      const check = setInterval(() => {
+        if (output.includes('SUMMARY')) { clearInterval(check); clearTimeout(deadline); resolve(); }
+      }, 100);
+    });
+
+    // Touch machine file to trigger change detection
+    const before = output.length;
+    fs.writeFileSync(machinePath, fs.readFileSync(machinePath, 'utf8') + '\n// watch-trigger-test');
+
+    // Wait for 'Change detected' message
+    await new Promise((resolve, reject) => {
+      const deadline = setTimeout(
+        () => reject(new Error('timeout waiting for change detection: ' + output.slice(before))), 10000
+      );
+      const check = setInterval(() => {
+        if (output.length > before && output.includes('Change detected')) {
+          clearInterval(check); clearTimeout(deadline); resolve();
+        }
+      }, 100);
+    });
+
+    child.kill('SIGINT');
+    await new Promise(resolve => child.on('close', resolve));
+
+    assert.match(output, /Change detected/i, 'must print "Change detected" after file write');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
 });
 
-test('watch mode (DX-01): exits cleanly on SIGINT — placeholder', () => {
-  // Placeholder until --watch is implemented.
-  // Plan 02 replaces this with a spawn() + child.kill('SIGINT') integration test.
-  // For now: assert that the script exits normally with --only=generate
-  // and that 'Exiting watch mode' is NOT in output (confirming feature not yet present).
-  const result = spawnSync(process.execPath, [RUN_FV, '--only=generate'], {
-    encoding: 'utf8',
-    timeout: 30000,
-  });
-  const output = (result.stdout || '') + (result.stderr || '');
-  // This assertion intentionally FAILS until Plan 02 implementation adds SIGINT handling
-  assert.match(output, /Exiting watch mode/i,
-    'PLACEHOLDER: will fail until --watch SIGINT handler is implemented in Plan 02 — expected to be RED');
+test('watch mode (DX-01): exits cleanly on SIGINT with exit code 0', { timeout: 30000 }, async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rfv-watch-sigint-'));
+  try {
+    const machinesDir = path.join(tmpDir, 'src', 'machines');
+    fs.mkdirSync(machinesDir, { recursive: true });
+    fs.copyFileSync(
+      path.resolve(__dirname, '..', 'src', 'machines', 'qgsd-workflow.machine.ts'),
+      path.join(machinesDir, 'qgsd-workflow.machine.ts')
+    );
+
+    const child = spawn(process.execPath, [RUN_FV, '--watch', '--only=generate'], {
+      cwd:   tmpDir,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env:   { ...process.env },
+    });
+
+    let output = '';
+    child.stdout.on('data', d => { output += d.toString(); });
+    child.stderr.on('data', d => { output += d.toString(); });
+
+    // Wait for watch startup AND first SUMMARY (initial run complete).
+    // Same timing rationale as the startup test: SIGINT sent after the initial
+    // runOnce() finishes so we are back in the fs.watch event loop.
+    await new Promise((resolve, reject) => {
+      const deadline = setTimeout(
+        () => reject(new Error('timeout waiting for watch startup + initial run: ' + output)), 20000
+      );
+      const check = setInterval(() => {
+        if (output.includes('Watch mode enabled') && output.includes('SUMMARY')) {
+          clearInterval(check); clearTimeout(deadline); resolve();
+        }
+      }, 100);
+    });
+
+    child.kill('SIGINT');
+    const { code, signal } = await new Promise(resolve =>
+      child.on('close', (code, signal) => resolve({ code, signal }))
+    );
+
+    assert.strictEqual(code, 0,
+      'must exit with code 0 on SIGINT (got code: ' + code + ', signal: ' + signal + ')');
+    assert.match(output, /Exiting watch mode/i,
+      'must print "Exiting watch mode" on SIGINT — got: ' + output.slice(-200));
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
 });
