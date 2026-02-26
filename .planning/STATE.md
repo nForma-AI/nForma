@@ -140,7 +140,7 @@ Recent decisions affecting current work:
 | 109 | Update quorum.md: pass citations in prior_positions cross-poll bundle and write QUORUM_DEBATE.md at consensus/escalation | 2026-02-26 | b7cde74 | Verified | [109-update-quorum-md-pass-citations-in-prior](./quick/109-update-quorum-md-pass-citations-in-prior/) |
 | 110 | implement modernized quorum dispatch pattern: model haiku for slot workers and resume for deliberation rounds | 2026-02-26 | ef3f493 | Verified | [110-implement-modernized-quorum-dispatch-pat](./../quick/110-implement-modernized-quorum-dispatch-pat/) |
 | 111 | add max_turns=100 to all qgsd-quorum-slot-worker Task dispatch sites | 2026-02-26 | f9e0a7e | Pending | [111-add-max-turns-100-to-all-qgsd-quorum-slo](./quick/111-add-max-turns-100-to-all-qgsd-quorum-slo/) |
-| 112 | add quorum slot-worker failure log to call-quorum-slot.cjs and surface recurring patterns in health check | 2026-02-26 | {commit_hash} | Pending | [112-add-quorum-slot-worker-failure-log-to-ca](./quick/112-add-quorum-slot-worker-failure-log-to-ca/) |
+| 112 | add quorum slot-worker failure log to call-quorum-slot.cjs and surface recurring patterns in health check | 2026-02-26 | 0ecf2e0 | Pending | [112-add-quorum-slot-worker-failure-log-to-ca](./quick/112-add-quorum-slot-worker-failure-log-to-ca/) |
 
 ## Session Continuity
 
