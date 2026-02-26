@@ -15,6 +15,7 @@
 - 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-08 (in progress)
 - ✅ **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-06 (shipped 2026-02-25)
 - ✅ **v0.14 — FV Pipeline Integration** — Phases v0.14-01..v0.14-05 (shipped 2026-02-26)
+- 🚧 **v0.15 — Health & Tooling Modernization** — Phases v0.15-01..v0.15-04 (in progress)
 
 ## Phases
 
@@ -194,6 +195,15 @@
 - [x] **Phase v0.14-05: Watch Mode** — --watch flag re-runs formal verification automatically on XState machine file changes (DX-01) (completed 2026-02-26)
 
 </details>
+
+### 🚧 v0.15 — Health & Tooling Modernization (In Progress)
+
+**Milestone Goal:** Fix the GSD health checker to recognize QGSD's versioned phase naming convention, guard `--repair` against rich STATE.md data loss, archive legacy pre-versioning phase dirs, and surface quorum failure patterns in the health report.
+
+- [ ] **Phase v0.15-01: Health Checker Regex Fix** — Fix gsd-tools.cjs W005/W007/W002 regex patterns to recognize QGSD versioned phase naming `v0.X-YY-name` — eliminates 33 W005 + 22 W007 false positives (HLTH-01, HLTH-02, HLTH-03)
+- [ ] **Phase v0.15-02: Repair Safety Guard** — Guard `--repair` regenerateState action against overwriting rich STATE.md without explicit --force flag (SAFE-01)
+- [ ] **Phase v0.15-03: Legacy Dir Archive** — Archive pre-versioning legacy phase dirs 18-39 to `.planning/archive/legacy/` — eliminates W007 orphan noise (SAFE-02)
+- [ ] **Phase v0.15-04: Health Quorum Failure Visibility** — Integrate quorum-failures.json data into `/qgsd:health` output as health warnings when recurring patterns detected (VIS-01)
 
 
 ## Phase Details
@@ -787,6 +797,47 @@ Plans:
 - [ ] v0.14-05-02-PLAN.md — Implementation: extract runOnce() from IIFE, add --watch branch with fs.watch(machineDir) + 300ms debounce + SIGINT handler; replace placeholder tests with 3 real spawn+SIGINT integration tests (DX-01)
 
 
+### Phase v0.15-01: Health Checker Regex Fix
+**Goal**: gsd-tools.cjs W005, W007, and W002 checks produce zero false positives for QGSD versioned phase dirs — any `v0.X-YY-name` directory or `### Phase v0.X-YY:` ROADMAP header is recognized as valid
+**Depends on**: Nothing (first v0.15 phase)
+**Requirements**: HLTH-01, HLTH-02, HLTH-03
+**Success Criteria** (what must be TRUE):
+  1. Running `node bin/gsd-tools.cjs validate health` on the QGSD repo produces zero W005 warnings for any `v0.X-YY-name` directory under `.planning/phases/`
+  2. W007 ROADMAP extractor matches `### Phase v0.X-YY:` headers — no versioned phase appears as "on disk but not in ROADMAP"
+  3. W002 STATE.md extractor correctly parses `Phase v0.X-YY` references — current position reported without "invalid phase" warnings
+  4. All three regex fixes are covered by tests or verifiable by a before/after run of `validate health` on the QGSD repo itself
+**Plans**: TBD
+
+### Phase v0.15-02: Repair Safety Guard
+**Goal**: The `--repair` flag cannot silently overwrite a rich STATE.md — the user sees a content-length warning and must pass `--force` explicitly before regenerateState runs
+**Depends on**: Phase v0.15-01
+**Requirements**: SAFE-01
+**Success Criteria** (what must be TRUE):
+  1. Running `node bin/gsd-tools.cjs validate health --repair` on a STATE.md with more than 50 lines prints a warning showing the current line count and exits without overwriting
+  2. Running `node bin/gsd-tools.cjs validate health --repair --force` on the same STATE.md proceeds with regenerateState and overwrites the file
+  3. A STATE.md with 50 lines or fewer is overwritten normally by `--repair` without requiring `--force`
+**Plans**: TBD
+
+### Phase v0.15-03: Legacy Dir Archive
+**Goal**: The pre-versioning legacy numeric phase dirs (18 through 39) are moved to `.planning/archive/legacy/` so W007 stops reporting them as orphaned phases not referenced in the ROADMAP
+**Depends on**: Nothing (independent — can run parallel to v0.15-02)
+**Requirements**: SAFE-02
+**Success Criteria** (what must be TRUE):
+  1. All directories `.planning/phases/18` through `.planning/phases/39` (or their equivalents) are moved to `.planning/archive/legacy/` and no longer appear under `.planning/phases/`
+  2. Running `node bin/gsd-tools.cjs validate health` produces zero W007 warnings for the archived legacy dirs
+  3. The `.planning/archive/legacy/` directory exists and contains the moved dirs
+**Plans**: TBD
+
+### Phase v0.15-04: Health Quorum Failure Visibility
+**Goal**: When `.planning/quorum-failures.json` exists and any slot has 3 or more failures logged, the `/qgsd:health` workflow output surfaces those patterns as named health warnings alongside standard W/E/I items
+**Depends on**: Phase v0.15-01
+**Requirements**: VIS-01
+**Success Criteria** (what must be TRUE):
+  1. Running `/qgsd:health` when `.planning/quorum-failures.json` contains a slot with count >= 3 prints a health warning identifying the slot name and failure count
+  2. Running `/qgsd:health` when `.planning/quorum-failures.json` does not exist or all slot counts are < 3 produces no quorum-failure warning
+  3. The quorum-failure warnings appear in the same output section as other W/E/I health items — not as a separate unrelated block
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -874,3 +925,7 @@ Plans:
 | v0.14-03. Parallelization | v0.14 | 0/3 | Not started | - |
 | v0.14-04. PRISM Config Injection | 2/2 | Complete    | 2026-02-26 | - |
 | v0.14-05. Watch Mode | v0.14 | Complete    | 2026-02-26 | - |
+| v0.15-01. Health Checker Regex Fix | v0.15 | 0/TBD | Not started | - |
+| v0.15-02. Repair Safety Guard | v0.15 | 0/TBD | Not started | - |
+| v0.15-03. Legacy Dir Archive | v0.15 | 0/TBD | Not started | - |
+| v0.15-04. Health Quorum Failure Visibility | v0.15 | 0/TBD | Not started | - |
