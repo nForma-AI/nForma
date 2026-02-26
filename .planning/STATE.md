@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-26 after Phase v0.14-04)
+See: .planning/PROJECT.md (updated 2026-02-26 after Phase v0.14-05)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.14 FV Pipeline Integration — Phase v0.14-05 Watch Mode (ready to plan)
+**Current focus:** v0.14 FV Pipeline Integration — COMPLETE (all 5 phases shipped)
 
 ## Current Position
 
-Phase: v0.14-05 (Watch Mode) — Ready to plan
-Plan: Not started
-Status: Phase v0.14-04 COMPLETE — PRISM-01/PRISM-02 satisfied; 337 tests passing; advancing to v0.14-05
-Last activity: 2026-02-26 — v0.14-04: PRISM scoreboard injection (run-prism.cjs) + 4 integration tests (run-prism.test.cjs)
+Phase: v0.14-05 (Watch Mode) — COMPLETE
+Plan: Complete (2/2 plans executed)
+Status: v0.14 MILESTONE COMPLETE — DX-01 satisfied; 340 tests passing; all 12 requirements met (INTG-01..04, DRFT-01..03, PERF-01..02, PRISM-01..02, DX-01)
+Last activity: 2026-02-26 — v0.14-05: --watch mode in run-formal-verify.cjs (runOnce() + fs.watch + SIGINT) + 3 integration tests
 
-Progress: [██████████] v0.13: SHIPPED | v0.14: 4/5 phases complete (v0.14-01..04 DONE, v0.14-05 pending) | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
+Progress: [██████████] v0.13: SHIPPED | v0.14: 5/5 phases COMPLETE (SHIPPED) | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
 
 ## Performance Metrics
 

@@ -14,7 +14,7 @@
 - ✅ **v0.11 — Parallel Quorum** — Phase v0.11-01 (shipped 2026-02-24)
 - 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-08 (in progress)
 - ✅ **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-06 (shipped 2026-02-25)
-- 🚧 **v0.14 — FV Pipeline Integration** — Phases v0.14-01..v0.14-05 (in progress)
+- ✅ **v0.14 — FV Pipeline Integration** — Phases v0.14-01..v0.14-05 (shipped 2026-02-26)
 
 ## Phases
 
@@ -181,7 +181,7 @@
 </details>
 
 <details>
-<summary>🚧 v0.14 — FV Pipeline Integration (Phases v0.14-01..v0.14-05) — IN PROGRESS (3/5 complete)</summary>
+<summary>✅ v0.14 — FV Pipeline Integration (Phases v0.14-01..v0.14-05) — SHIPPED 2026-02-26 (5/5 complete)</summary>
 
 - [x] **Phase v0.14-01: FV Tool Integration** — Commit and wire xstate-to-tla.cjs and run-formal-verify.cjs into source tree with test coverage; CI formal-verify.yml committed and end-to-end pipeline wired (INTG-01, INTG-02, INTG-03, INTG-04) (completed 2026-02-26)
 - [x] **Phase v0.14-02: Drift Detection + TLA+ Canonicalization** — Resolve BROKEN-01 (xstate-to-tla.cjs writes QGSDQuorum_xstate.tla not QGSDQuorum.tla, Option A); wire check-spec-sync.cjs into npm test; upgrade XState parsing from regex to AST; detect orphaned handwritten specs; remove CI continue-on-error masking; add missing CI path triggers (DRFT-01, DRFT-02, DRFT-03 + BROKEN-01 + MISSING-02) (completed 2026-02-26)
