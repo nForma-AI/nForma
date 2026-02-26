@@ -291,6 +291,8 @@ Run up to 9 deliberation rounds (max 10 total rounds including Round 1).
 For each round, dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", ...)` per active slot as **parallel sibling calls**. Append `prior_positions` to the YAML block for Round 2+ dispatch:
 
 ```
+# skip_context_reads: true — worker already read CLAUDE.md, STATE.md, artifact in Round 1.
+# Skipping re-reads saves ~2 file reads per slot per deliberation round.
 slot: <slotName>
 round: <round_number>
 timeout_ms: <slot_timeout from $SLOT_TIMEOUTS>
@@ -299,6 +301,7 @@ mode: A
 question: <question text>
 [artifact_path: <same artifact_path as Round 1, if present>]
 [review_context: <same review_context as Round 1, if present>]
+skip_context_reads: true
 prior_positions: |
   • Claude:
     position: [position from $CLAUDE_POSITION]
@@ -517,6 +520,9 @@ traces: |
 
 For Round 2+ deliberation, also append:
 ```
+# skip_context_reads: true — worker already read CLAUDE.md, STATE.md, artifact in Round 1.
+# Skipping re-reads saves ~2 file reads per slot per deliberation round.
+skip_context_reads: true
 prior_positions: |
   • Claude:
     position: [Claude's verdict and reasoning]
