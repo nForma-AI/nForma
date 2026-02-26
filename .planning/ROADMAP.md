@@ -783,7 +783,7 @@ Plans:
 | v0.13-04. Fix Integration Issues | v0.13 | Complete    | 2026-02-25 | 2026-02-25 |
 | v0.13-05. Fix IS_GAP_CLOSURE Pattern | 1/1 | Complete    | 2026-02-25 | - |
 | v0.13-06. Deploy IS_GAP_CLOSURE Fix to Installed Copy | v0.13 | Complete    | 2026-02-25 | - |
-| v0.14-01. FV Tool Integration | 3/3 | Complete   | 2026-02-26 | - |
+| v0.14-01. FV Tool Integration | 3/3 | Complete    | 2026-02-26 | - |
 | v0.14-02. Drift Detection | v0.14 | 0/TBD | Not started | - |
 | v0.14-03. Parallelization | v0.14 | 0/TBD | Not started | - |
 | v0.14-04. PRISM Config Injection | v0.14 | 0/TBD | Not started | - |
