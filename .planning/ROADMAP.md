@@ -127,7 +127,7 @@
 - [x] **Phase v0.9-01: Context Window Monitor** — New PostToolUse hook that injects WARNING/CRITICAL into `additionalContext` at configurable thresholds + install sync (completed 2026-02-24)
 - [x] **Phase v0.9-02: Nyquist Validation Layer** — VALIDATION.md template + plan-phase step 5.5 insertion + gsd-tools init field (2 plans) (completed 2026-02-24)
 - [x] **Phase v0.9-03: Discuss-Phase UX** — Recommended option highlighting per choice + gray-area loop-back instead of hard stop (completed 2026-02-24)
-- [ ] **Phase v0.9-04: Tier 3 Fixes** — Skill tool spawn guards, Gemini TOML fix, decimal phase number parsing consistency
+- [x] **Phase v0.9-04: Tier 3 Fixes** — Skill tool spawn guards, Gemini TOML fix, decimal phase number parsing consistency (completed 2026-02-26)
 - [x] **Phase v0.9-05: Rename get-shit-done/ → qgsd-core/** — Rename the source directory to match QGSD identity; update all path references in installer, gsd-tools, and workflows; re-sync installed runtime (completed 2026-02-25)
 
 ### ✅ v0.10 — Roster Toolkit (SHIPPED 2026-02-25)
@@ -778,7 +778,7 @@ Plans:
 | v0.9-01. Context Window Monitor | v0.9 | 1/1 | Complete | 2026-02-24 |
 | v0.9-02. Nyquist Validation Layer | v0.9 | 2/2 | Complete | 2026-02-24 |
 | v0.9-03. Discuss-Phase UX | v0.9 | 1/1 | Complete | 2026-02-24 |
-| v0.9-04. Tier 3 Fixes | v0.9 | 0/2 | Not started | - |
+| v0.9-04. Tier 3 Fixes | v0.9 | Complete    | 2026-02-26 | - |
 | v0.9-05. Rename get-shit-done/ → qgsd-core/ | v0.9 | Complete    | 2026-02-25 | - |
 | v0.10-01. Foundation | v0.10 | Complete    | 2026-02-24 | 2026-02-24 |
 | v0.10-02. Presets and Cloning | v0.10 | Complete    | 2026-02-24 | - |
