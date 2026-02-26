@@ -251,9 +251,10 @@ This step is MANDATORY regardless of `--full` mode. R3.1 requires quorum for any
 Form your own position on the plan first: does it correctly address the task description? Are tasks atomic and safe? State your vote as 1-2 sentences (APPROVE or BLOCK with rationale).
 
 Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`):
-- Mode B — artifact review
+- Mode A — artifact review (plan is pre-execution; no traces to pass)
 - artifact_path: `${QUICK_DIR}/${next_num}-PLAN.md`
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku"` (one per slot)
+- review_context: "This is a pre-execution task plan. The code does not exist yet. Evaluate whether the task breakdown is atomic, safe to execute, and correctly addresses the objective — not whether the implementation already exists."
+- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
 - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
 Fail-open: if a slot errors (UNAVAIL), note it and proceed — same as R6 policy.
@@ -393,7 +394,7 @@ Store as `$VERIFICATION_STATUS`.
    - Mode A — pure question
    - Question: "Can each human_needed item from quick task ${next_num} be resolved using available tools (grep, file inspection, quorum-test)? Vote APPROVE (can resolve programmatically) or BLOCK (genuinely needs human eyes)."
    - Include the full `human_verification` section as context
-   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku"` (one per slot)
+   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
    - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
    Fail-open: if all slots error, treat as BLOCK (escalate to user).
