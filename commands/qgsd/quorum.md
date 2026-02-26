@@ -96,7 +96,7 @@ A server in `$QUORUM_ACTIVE` but absent from `$CLAUDE_MCP_SERVERS` = skip silent
 - Reorder the remaining working list: healthy servers first (preserving discovery order within each group).
 - Log the final working list as: `Active slots: <slot1>, <slot2>, ...`
 
-**min_quorum_size check:** Read `min_quorum_size` from `~/.claude/qgsd.json` (project config takes precedence; default: 3 if absent):
+**max_quorum_size check:** Read `max_quorum_size` from `~/.claude/qgsd.json` (project config takes precedence; default: 3 if absent):
 ```bash
 node -e "
 const fs = require('fs'), os = require('os'), path = require('path');
@@ -106,15 +106,15 @@ let cfg = {};
 for (const f of [globalCfg, projCfg]) {
   try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_){}
 }
-console.log(cfg.min_quorum_size ?? 3);
+console.log(cfg.max_quorum_size ?? 3);
 "
 ```
 Count available slots (those not marked UNAVAIL and passing $QUORUM_ACTIVE filter). Include Claude itself as +1.
-If `availableCount < min_quorum_size`:
-  - If $ARGUMENTS contains `--force-quorum`: log warning `[WARN] Quorum below min_quorum_size (N available, min M) — proceeding due to --force-quorum` and continue.
+If `availableCount < max_quorum_size`:
+  - If $ARGUMENTS contains `--force-quorum`: log warning `[WARN] Quorum below max_quorum_size (N available, min M) — proceeding due to --force-quorum` and continue.
   - Otherwise: stop with:
     ```
-    QUORUM BLOCKED: Only N model(s) available (min_quorum_size = M).
+    QUORUM BLOCKED: Only N model(s) available (max_quorum_size = M).
     Available: [list slots]
     UNAVAIL:   [list skipped slots with reason]
     Re-run with --force-quorum to override, or wait for providers to recover.
@@ -129,32 +129,50 @@ Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
 
 ### Team identity capture (idempotent — run once per session)
 
-Before any quorum round, capture the active team fingerprint. The scoreboard only updates if the composition has changed.
+Before any quorum round, capture the active team fingerprint. Build TEAM_JSON directly from `providers.json` — no MCP calls needed for identity.
 
-**Native CLI agents** — call `identity` sequentially (skip UNAVAIL per R6):
+```bash
+node -e "
+const fs = require('fs'), path = require('path'), os = require('os');
 
-1. `mcp__codex-cli-1__identity` → parse JSON response
-2. `mcp__gemini-cli-1__identity` → parse JSON response
-3. `mcp__opencode-1__identity` → parse JSON response
-4. `mcp__copilot-1__identity` → parse JSON response
+const searchPaths = [
+  path.join(os.homedir(), '.claude', 'qgsd-bin', 'providers.json'),
+];
+try {
+  const cj = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude.json'), 'utf8'));
+  const u1args = cj?.mcpServers?.['unified-1']?.args ?? [];
+  const srv = u1args.find(a => typeof a === 'string' && a.endsWith('unified-mcp-server.mjs'));
+  if (srv) searchPaths.unshift(path.join(path.dirname(srv), 'providers.json'));
+} catch(_) {}
 
-**claude-mcp-server instances** — iterate over `$CLAUDE_MCP_SERVERS` in order:
+let providers = [];
+for (const p of searchPaths) {
+  try { providers = JSON.parse(fs.readFileSync(p, 'utf8')).providers; break; } catch(_) {}
+}
 
-For each server in `$CLAUDE_MCP_SERVERS` (skip if `available: false`):
-- Call `mcp__<serverName>__health_check`
-- If response contains `"healthy": true` → add to TEAM_JSON:
-  `"<serverName>": { "type": "claude-mcp", "model": "<model>" }`
-- Else → mark that server UNAVAIL
+const globalCfg = path.join(os.homedir(), '.claude', 'qgsd.json');
+const projCfg   = path.join(process.cwd(), '.claude', 'qgsd.json');
+let cfg = {};
+for (const f of [globalCfg, projCfg]) {
+  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_) {}
+}
+const active = cfg.quorum_active || [];
 
-**Timeout guard:** Each `mcp__<serverName>__health_check` and inference call must complete within the slot's `quorum_timeout_ms` value from `providers.json` (fallback: 30000ms if field absent). Read the full providers.json once at the start of team capture and build a lookup map `$SLOT_TIMEOUTS: { slotName: quorum_timeout_ms }`. Apply the slot's timeout to every subsequent call to that slot (team capture, Round 1, deliberation).
+const team = {};
+for (const p of providers) {
+  if (active.length > 0 && !active.includes(p.name)) continue;
+  team[p.name] = { model: p.model };
+}
+console.log(JSON.stringify(team));
+"
+```
 
-The display name for a claude-mcp server is the slot name as-is (e.g., `claude-1`, `claude-2`). For native CLI agents: `codex-cli-1`, `gemini-cli-1`, etc. No prefix stripping. For claude-mcp servers, capture the full `model` field from `health_check` (e.g. `deepseek-ai/DeepSeek-V3`) — use it as `--model-id` with `--slot` when updating the scoreboard; do NOT derive a short key.
+Store result as `TEAM_JSON`. Also build three lookup maps from `providers.json` for use during dispatch:
+- `$SLOT_TIMEOUTS: { slotName: quorum_timeout_ms }` (fallback: 30000)
+- `$SLOT_MODELS: { slotName: model }` (fallback: `"unknown"`)
+- `$SLOT_CLI: { slotName: display_type }` (fallback: `"cli"`)
 
-Build `TEAM_JSON` as a JSON object keyed by display name:
-- Native agents use keys: `codex`, `gemini`, `opencode`, `copilot`
-- claude-mcp servers use their stripped display name
-
-Omit UNAVAIL models entirely.
+Use `$SLOT_CLI[slotName]` and `$SLOT_MODELS[slotName]` in Task `description=` fields so the parallel UI shows both the CLI binary and LLM being called (e.g., `"gemini-1 [gemini-cli · gemini-3-pro-preview] quorum R1"`).
 
 Detect Claude's model ID from: `CLAUDE_MODEL` env var → `ANTHROPIC_MODEL` env var → current session model name from system context.
 
@@ -165,7 +183,7 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" init-team \
   --team '<TEAM_JSON>'
 ```
 
-The command prints `[init-team] fingerprint: <fp> | no change` if unchanged, or `[init-team] fingerprint: <fp> (updated from <old>) | N agents, M MCPs, P plugins` if updated. Then proceed to Mode A or Mode B.
+The command prints `[init-team] fingerprint: <fp> | no change` if unchanged, or `[init-team] fingerprint: <fp> (updated from <old>) | N agents` if updated. Then proceed to Mode A or Mode B.
 
 ---
 
@@ -223,11 +241,11 @@ question: <question text>
 ```
 
 Example dispatch (all Tasks in one message turn):
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="gemini-1 quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="codex-1 quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="opencode-1 quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="copilot-1 quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="claude-1 quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="gemini-1 [gemini-cli · gemini-3-pro-preview] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="codex-1 [codex-cli · gpt-5.3-codex] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="opencode-1 [opencode-cli · grok-code-fast-1] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="copilot-1 [copilot-cli · gpt-4.1] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="claude-1 [claude-code-router · deepseek-ai/DeepSeek-V3.2] quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
 
 The slot-worker reads repo context, builds its own prompt from the YAML arguments, calls the slot via `call-quorum-slot.cjs`, and returns a structured result block.
 
@@ -270,13 +288,16 @@ repo_dir: <absolute path to working directory>
 mode: A
 question: <question text>
 prior_positions: |
-  • Claude:    [position]
-  • Codex:     [position or UNAVAIL]
-  • Gemini:    [position or UNAVAIL]
-  • OpenCode:  [position or UNAVAIL]
-  • Copilot:   [position or UNAVAIL]
-  [one line per claude-mcp server: • <display-name>: [position or UNAVAIL]]
+  • Claude:
+    position: [position from $CLAUDE_POSITION]
+    citations: [citations from Claude's analysis, or "(none)"]
+  • <slotName>:
+    position: [position from slot result block, or UNAVAIL]
+    citations: [citations field from slot result block, or "(none)"]
+  [one entry per active slot in the same format]
 ```
+
+Populate `citations:` from the `citations:` field in each model's slot-worker result block. If the result block had no `citations:` field or it was empty, write `(none)`. For Claude's own position, include any file paths or line numbers Claude cited in its reasoning.
 
 Workers are dispatched as **parallel sibling Tasks** per round. Between rounds (Bash scoreboard calls, set-availability) remain sequential.
 
@@ -453,15 +474,23 @@ traces: |
 For Round 2+ deliberation, also append:
 ```
 prior_positions: |
-  <all prior positions verbatim>
+  • Claude:
+    position: [Claude's verdict and reasoning]
+    citations: [citations from Claude's analysis, or "(none)"]
+  • <slotName>:
+    position: [verdict from slot result block, or UNAVAIL]
+    citations: [citations field from slot result block, or "(none)"]
+  [one entry per active slot in the same format]
 ```
 
+Populate `citations:` from the `citations:` field in each model's slot-worker result block. If the result block had no `citations:` field or it was empty, write `(none)`. For Claude's own position, include any file paths or line numbers Claude cited in its reasoning.
+
 Example dispatch (all Tasks in one message turn):
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="gemini-1 quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="codex-1 quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="opencode-1 quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="copilot-1 quorum R1", prompt=<YAML block>)`
-- `Task(subagent_type="qgsd-quorum-slot-worker", description="claude-1 quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="gemini-1 [gemini-cli · gemini-3-pro-preview] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="codex-1 [codex-cli · gpt-5.3-codex] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="opencode-1 [opencode-cli · grok-code-fast-1] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="copilot-1 [copilot-cli · gpt-4.1] quorum R1", prompt=<YAML block>)`
+- `Task(subagent_type="qgsd-quorum-slot-worker", description="claude-1 [claude-code-router · deepseek-ai/DeepSeek-V3.2] quorum R1", prompt=<YAML block>)` ← one per claude-mcp server with `available: true`
 
 The slot-worker reads repo context, builds the Mode B prompt (with execution traces) from the YAML arguments, calls the slot via `call-quorum-slot.cjs`, and returns a structured result block with a `verdict: APPROVE | REJECT | FLAG` field.
 
