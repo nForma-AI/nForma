@@ -14,6 +14,11 @@ on:
       - 'bin/generate-formal-specs.cjs'
       - 'bin/check-spec-sync.cjs'
       - 'bin/verify-quorum-health.cjs'
+      - 'bin/xstate-to-tla.cjs'
+      - 'bin/run-formal-verify.cjs'
+      - 'bin/run-oauth-rotation-prism.cjs'
+      - 'bin/run-account-pool-alloy.cjs'
+      - 'bin/run-account-manager-tlc.cjs'
   pull_request:
     paths:
       - 'src/machines/qgsd-workflow.machine.ts'
@@ -26,6 +31,11 @@ on:
       - 'bin/generate-formal-specs.cjs'
       - 'bin/check-spec-sync.cjs'
       - 'bin/verify-quorum-health.cjs'
+      - 'bin/xstate-to-tla.cjs'
+      - 'bin/run-formal-verify.cjs'
+      - 'bin/run-oauth-rotation-prism.cjs'
+      - 'bin/run-account-pool-alloy.cjs'
+      - 'bin/run-account-manager-tlc.cjs'
   workflow_dispatch:  # manual trigger
 
 jobs:
@@ -124,4 +134,3 @@ jobs:
         env:
           PRISM_BIN: /tmp/prism/bin/prism
         run: node bin/run-formal-verify.cjs
-        continue-on-error: true
