@@ -65,6 +65,7 @@ Progress: [████████████████████] 128/125
 | Phase v0.14-02 P01 | 178s | 4 tasks | 4 files |
 | Phase v0.14-02 P02 | 147s | 3 tasks | 3 files |
 | Phase v0.14-04 P02 | 2min | 1 tasks | 2 files |
+| Phase v0.9-06 P01 | 1min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,7 @@ Recent decisions affecting current work:
 - [Phase v0.14-02]: esbuild external:['xstate'] removed — bundle xstate inline for tmpdir bundles (matches xstate-to-tla.cjs pattern)
 - [Phase v0.14-02]: TLA+ TypeOK extra phases promoted from warn() to fail() (DRFT-03 hard failure); Alloy orphans remain warn() (may abstract state space)
 - [Phase v0.14-04]: PRISM_BIN=prism sentinel in run-prism.test.cjs skips existence check, enabling Args line capture without PRISM installed
+- [Phase v0.9-06]: Retroactive VERIFICATION.md sourced from SUMMARY.md inline grep evidence; verified date set to original execution date (2026-02-24)
 
 ### Pending Todos
 
