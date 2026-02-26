@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-26 — milestone v0.15 started)
+See: .planning/PROJECT.md (updated 2026-02-26 after v0.16 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.15 Health & Tooling Modernization — roadmap created
+**Current focus:** v0.16 Formal Plan Verification — defining requirements
 
 ## Current Position
 
-Phase: v0.15-01 (Health Checker Regex Fix) — not started
+Phase: Not started (defining requirements)
 Plan: —
-Status: Roadmap created — v0.15 Health & Tooling Modernization (4 phases)
-Last activity: 2026-02-26 — ROADMAP.md written for v0.15
+Status: Defining requirements for v0.16 Formal Plan Verification; v0.15 Health & Tooling deferred (phases in ROADMAP, not started)
+Last activity: 2026-02-26 — Milestone v0.16 started
 
-Progress: [████████████████████] 128/125 plans (102%) | v0.13: SHIPPED | v0.14: SHIPPED | v0.15: in-progress | v0.12: in-progress (v0.12-10 pending)
+Progress: [████████████████████] 128/125 plans (102%) | v0.13: SHIPPED | v0.14: SHIPPED | v0.15: DEFERRED | v0.16: defining requirements
 
 ## Performance Metrics
 
