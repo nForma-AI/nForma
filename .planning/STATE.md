@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-26 after Phase v0.14-02)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.14 FV Pipeline Integration — Phase v0.14-02 COMPLETE; ready to plan v0.14-03 (Parallelization)
+**Current focus:** v0.14 FV Pipeline Integration — Phase v0.14-03 COMPLETE; ready to plan v0.14-04 (PRISM Config Injection)
 
 ## Current Position
 
-Phase: v0.14-02 (Drift Detection + TLA+ Canon) — COMPLETE (3/3 plans done, including gap closure)
-Plan: v0.14-02-01 DONE (cc71a2f) | v0.14-02-02 DONE (e023a6c) | v0.14-02-03 DONE (842ad3d)
-Status: All plans complete + gap closure done — BROKEN-01, MISSING-02, DRFT-01/02/03 all resolved; guard drift enforced via Check 5 + guards/qgsd-workflow.json; 331 tests passing
-Last activity: 2026-02-26 — v0.14-02-03 gap closure: Check 5 guard drift, --tla-path/--guards-path fixtures, fixture-based drift injection tests (state + guard)
+Phase: v0.14-03 (Parallelization) — COMPLETE (2/2 plans done)
+Plan: v0.14-03-01 DONE (48cb936) | v0.14-03-02 DONE (48cb936)
+Status: All plans complete — PERF-01 (parallel tool groups via Promise.all) + PERF-02 (Wall-clock timing in summary) satisfied; 333 tests passing
+Last activity: 2026-02-26 — v0.14-03: parallelize run-formal-verify.cjs (generate sequential, tla/alloy/prism/petri concurrent), wall-clock timing, 2 new tests
 
-Progress: [██████████] v0.13: SHIPPED | v0.14: 2/5 phases complete (v0.14-01 DONE, v0.14-02 DONE + gap closure) | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
+Progress: [██████████] v0.13: SHIPPED | v0.14: 3/5 phases complete (v0.14-01 DONE, v0.14-02 DONE, v0.14-03 DONE) | v0.12: in-progress (v0.12-10 pending) | v0.9: in-progress (v0.9-02..05 pending)
 
 ## Performance Metrics
 
@@ -137,7 +137,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last activity: 2026-02-26 - Completed quick task 109: citations in prior_positions + QUORUM_DEBATE.md
+Last activity: 2026-02-26 - Completed Phase v0.14-03 (Parallelization): run-formal-verify.cjs parallelized, wall-clock timing added, 333 tests pass
 Last session: 2026-02-26
-Stopped at: Phase v0.14-02 COMPLETE — BROKEN-01 fixed (_xstate suffix), MISSING-02 fixed (CI paths), DRFT-01/02/03 satisfied (esbuild walk, guard drift Check 5, fixture-based tests), 331 tests pass; ready to plan v0.14-03 (Parallelization)
+Stopped at: Phase v0.14-03 COMPLETE — PERF-01 (Promise.all parallel tool groups) + PERF-02 (Wall-clock timing) satisfied; 333 tests pass; ready to plan v0.14-04 (PRISM Config Injection)
 Resume file: None
