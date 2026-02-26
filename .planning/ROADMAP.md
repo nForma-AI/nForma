@@ -806,5 +806,5 @@ Plans:
 | v0.14-01. FV Tool Integration | 3/3 | Complete    | 2026-02-26 | - |
 | v0.14-02. Drift Detection + TLA+ Canonicalization | 2/2 | Complete    | 2026-02-26 | - |
 | v0.14-03. Parallelization | v0.14 | 0/3 | Not started | - |
-| v0.14-04. PRISM Config Injection | 2/2 | Complete   | 2026-02-26 | - |
+| v0.14-04. PRISM Config Injection | 2/2 | Complete    | 2026-02-26 | - |
 | v0.14-05. Watch Mode | v0.14 | 0/2 | Not started | - |
