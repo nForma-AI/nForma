@@ -720,9 +720,11 @@ Plans:
   1. `node bin/run-formal-verify.cjs --watch` starts and does not exit — it watches the XState machine file for changes
   2. When the XState machine file is saved, verification re-runs automatically within a few seconds and prints updated results
   3. Watch mode terminates cleanly on Ctrl+C without hanging processes
-**Plans**:
-  - TASK-01: Add `--watch` flag to run-formal-verify.cjs CLI argument parser; implement file watcher using `chokidar` (or `fs.watch` as fallback) on the XState machine source file; re-invoke the verification pipeline on each detected change (DX-01)
-  - TASK-02: Test suite for watch mode: start in watch mode, trigger a file save, assert re-run occurs within 5 seconds, send SIGINT, assert process exits cleanly with no hanging child processes
+**Plans**: 2 plans
+
+Plans:
+- [ ] v0.14-05-01-PLAN.md — Wave 0 test scaffolding: add 3 placeholder watch-mode tests to run-formal-verify.test.cjs that fail until --watch is implemented (DX-01)
+- [ ] v0.14-05-02-PLAN.md — Implementation: extract runOnce() from IIFE, add --watch branch with fs.watch(machineDir) + 300ms debounce + SIGINT handler; replace placeholder tests with 3 real spawn+SIGINT integration tests (DX-01)
 
 
 ## Progress
