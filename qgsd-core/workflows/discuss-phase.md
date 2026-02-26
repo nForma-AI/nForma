@@ -205,7 +205,7 @@ Apply the R4 pre-filter (CLAUDE.md §R4) to every gray area candidate before pre
    R3 dispatch_pattern from `commands/qgsd/quorum.md` — Mode A:
    - Question: "Should '[question text]' be decided by quorum now (removing it from the user's question list), or does it genuinely require the user's vision/preference? If quorum can decide: provide the recommended answer biased toward the long-term solution. Vote APPROVE (quorum can decide — CONSENSUS-READY) or BLOCK (user input needed)."
    - Include context: phase name, goal from ROADMAP.md, relevant patterns from STATE.md
-   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku"` (one per slot)
+   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
    - Synthesize results inline, deliberate up to 3 rounds per R4
 
    Fail-open: if all slots error (UNAVAIL), mark the question for user presentation per R6.
@@ -253,7 +253,7 @@ For each question still in `for_user[]` (process sequentially):
 2. Run R3 quorum inline (dispatch_pattern from `commands/qgsd/quorum.md`):
    - Mode A — pure question
    - Question: "Should '[question text]' be decided by quorum now (removing it from user presentation), or does it genuinely require the user's vision/preference? Phase: {phase_name}. Goal: {phase_goal}. Context: {any relevant patterns from STATE.md}. If quorum can decide: provide the recommended answer biased toward the long-term solution."
-   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku"` (one per slot)
+   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
    - Deliberate up to 3 rounds per R4 (secondary pre-filter, not full R3 10 rounds)
 
 3. After quorum vote for this question, update scoreboard BEFORE moving to next question:
