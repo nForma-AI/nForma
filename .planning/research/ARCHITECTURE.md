@@ -1,768 +1,759 @@
-# Architecture Research
+# Architecture Patterns
 
-**Domain:** QGSD v0.12 — Formal Verification: conformance event logger, TLA+, XState, Alloy, PRISM, Petri Net
-**Researched:** 2026-02-24
-**Confidence:** HIGH (all source files read directly; integration points derived from live code; external tool file formats verified via official docs; no novel APIs involved)
-
----
-
-## Context: This Is a Subsequent Milestone
-
-The existing QGSD architecture (v0.1–v0.11) is stable. The hook pipeline (`UserPromptSubmit → PreToolUse → Stop → PostToolUse`) and orchestrator agent (`agents/qgsd-quorum-orchestrator.md`) are the primary runtime components. The scoreboard (`update-scoreboard.cjs` → `.planning/quorum-scoreboard.json`) is the primary data store that formal verification will consume.
-
-This file answers the seven specific integration questions for v0.12:
-
-1. Where in existing hooks does event emission go?
-2. What JSON schema do conformance log events use?
-3. How does `bin/validate-traces.cjs` read log files?
-4. How does the XState machine relate to the orchestrator agent?
-5. Where do TLA+, Alloy, and PRISM spec files live in the repo?
-6. How does PRISM read scoreboard data?
-7. What is the build order across all seven components?
+**Domain:** QGSD v0.16 — Formal Plan Verification integration with the plan-phase/quorum pipeline
+**Researched:** 2026-02-26
+**Confidence:** HIGH (all source files read directly; v0.14 and prior architecture verified from live code; no external APIs involved — pure in-repo integration analysis)
 
 ---
 
-## System Overview — Existing Architecture (v0.11 Stable Baseline)
+## Context: Subsequent Milestone on a Stable v0.14 Baseline
 
-```
-Claude Code host process
-    |
-    ├─ UserPromptSubmit → hooks/qgsd-prompt.js   (quorum injection + breaker recovery)
-    ├─ PreToolUse       → hooks/qgsd-circuit-breaker.js  (oscillation detection)
-    ├─ Stop             → hooks/qgsd-stop.js      (quorum gate — reads JSONL transcript)
-    └─ PostToolUse      → hooks/gsd-context-monitor.js   (context window warnings)
+v0.14 shipped a fully wired formal verification pipeline: `run-formal-verify.cjs` (21-step parallel runner), `xstate-to-tla.cjs` (XState → TLA+ generation), `check-spec-sync.cjs` (AST drift detection in `npm test`), `generate-formal-specs.cjs` (XState → Alloy/PRISM generation), and `run-prism.cjs` with scoreboard rate injection.
 
-hooks/config-loader.js   (shared two-layer config; loaded by all 4 hooks above)
-hooks/dist/              (installed copies — what Claude Code actually runs)
-
-agents/qgsd-quorum-orchestrator.md   (spawned via Task() inside planning commands)
-    |
-    └─ bin/call-quorum-slot.cjs      (dispatches to CLI subprocess or HTTP provider)
-         |
-         ├─ bin/providers.json               (slot → CLI mapping)
-         ├─ bin/check-provider-health.cjs    (HTTP probe, pre-flight)
-         └─ bin/update-scoreboard.cjs        (writes .planning/quorum-scoreboard.json)
-
-~/.claude/qgsd.json              (global config — quorum_active, agent_config, etc.)
-.claude/qgsd.json                (per-project config — shallow-merges over global)
-.planning/quorum-scoreboard.json (per-project; gitignored; TP/TN/UNAVAIL data)
-```
+This file answers the integration question for v0.16: **how do the 6 new features wire into the existing plan-phase → quorum pipeline?**
 
 ---
 
-## System Overview — v0.12 Formal Verification Layer
+## Existing Architecture Baseline (v0.14 Stable)
 
 ```
-Existing hook pipeline (unchanged)
-    |
-    ├─ hooks/qgsd-prompt.js    ─── + emit PHASE_START event ──────────────────┐
-    ├─ hooks/qgsd-stop.js      ─── + emit PHASE_END / QUORUM_VERDICT event ───┤
-    ├─ hooks/qgsd-circuit-breaker.js ─ + emit OSCILLATION_DETECTED event ─────┤
-    └─ hooks/gsd-context-monitor.js  ─ (no new emission — context % not in
-                                        conformance log scope)                 │
-                                                                               ▼
-                                           .planning/conformance-log.ndjson
-                                           (append-only; newline-delimited JSON;
-                                            one event per line; gitignored)
-                                                    |
-                                                    ├── bin/validate-traces.cjs
-                                                    │     reads NDJSON, replays
-                                                    │     against XState machine,
-                                                    │     reports violations
-                                                    │
-                                                    └── PRISM model
-                                                          reads scoreboard JSON
-                                                          for TP/TN/UNAVAIL rates
+plan-phase.md (workflow)
+  │
+  ├─ Step 5:  spawn qgsd-phase-researcher → writes RESEARCH.md
+  ├─ Step 8:  spawn qgsd-planner → writes *-PLAN.md
+  ├─ Step 8.5: run quorum inline (R3 dispatch, quorum.md protocol)
+  │               │
+  │               └─ quorum.md slot-worker YAML prompt:
+  │                    slot, round, timeout_ms, repo_dir, mode, question,
+  │                    artifact_path (PLAN.md path),
+  │                    review_context
+  ├─ Step 9:  handle planner return
+  ├─ Step 10: spawn qgsd-plan-checker → verify
+  ├─ Step 11: handle checker return
+  └─ Step 12: revision loop (max 3 iterations)
 
+quorum.md (inline dispatch protocol)
+  │
+  └─ slot-worker Task (parallel, model="haiku", max_turns=100)
+       │
+       └─ agents/qgsd-quorum-slot-worker.md
+            parses YAML → reads artifact_path → calls call-quorum-slot.cjs
+            returns structured result block with vote
 
-Formal spec layer (static — checked offline by tool invocation, not at runtime)
-    |
-    ├─ formal/tla/qgsd-workflow.tla       (phase progression + quorum invariants)
-    ├─ formal/tla/qgsd-workflow.cfg       (TLC model config — constants, invariants)
-    ├─ formal/alloy/quorum-vote.als       (vote-counting predicates)
-    ├─ formal/prism/quorum-consensus.pm   (DTMC from scoreboard TP/TN/UNAVAIL rates)
-    ├─ formal/prism/quorum-consensus.pctl (PCTL property file — P>=0.95 [F<=3 consensus])
-    └─ formal/petri/quorum-net.pnml       (Petri Net XML — token-passing quorum model)
+bin/run-formal-verify.cjs
+  │
+  ├─ STEP 0:  xstate-to-tla.cjs → formal/tla/QGSDQuorum_xstate.tla
+  ├─ STEP 1:  generate-formal-specs.cjs → Alloy + PRISM specs
+  ├─ STEPS 2-3: petri net generation
+  ├─ STEPS 4-11: TLA+ model checking (8 configs, parallel group)
+  ├─ STEPS 12-18: Alloy structural verification (7 specs, parallel)
+  └─ STEPS 19-20: PRISM probabilistic verification (2 specs, parallel)
 
-
-src/ (TypeScript — compiled separately from hooks/bin CJS)
-    └─ src/machines/
-           └─ qgsd-workflow.machine.ts    (XState v5 createMachine — executable spec)
-              qgsd-workflow.machine.test.ts
+Spec storage:
+  formal/tla/       — TLA+ specs and TLC configs
+  formal/alloy/     — Alloy .als files
+  formal/prism/     — PRISM .pm/.props files
+  formal/petri/     — Petri Net DOT/SVG files
+  .planning/phases/<phase>/  — per-phase planning artifacts (PLAN.md, SUMMARY.md, etc.)
 ```
 
 ---
 
-## Component Responsibilities
+## Feature 1: Plan-to-Spec Pipeline (`bin/plan-to-spec.cjs`)
 
-| Component | Responsibility | New or Modified |
-|-----------|----------------|-----------------|
-| `hooks/qgsd-prompt.js` | Emits `PHASE_START` event after detecting a quorum command | MODIFIED |
-| `hooks/qgsd-stop.js` | Emits `PHASE_END` and `QUORUM_VERDICT` events after gate evaluation | MODIFIED |
-| `hooks/qgsd-circuit-breaker.js` | Emits `OSCILLATION_DETECTED` event when breaker fires | MODIFIED |
-| `.planning/conformance-log.ndjson` | Append-only structured event log; one JSON object per line | NEW FILE |
-| `bin/validate-traces.cjs` | CLI: reads `conformance-log.ndjson`, replays events against XState machine, prints violations | NEW |
-| `src/machines/qgsd-workflow.machine.ts` | XState v5 `createMachine` — canonical executable state machine for QGSD workflow | NEW |
-| `formal/tla/qgsd-workflow.tla` | TLA+ formal spec — phase ordering invariants, quorum invariants | NEW |
-| `formal/tla/qgsd-workflow.cfg` | TLC model checker config (CONSTANTS, INVARIANTS, PROPERTY) | NEW |
-| `formal/alloy/quorum-vote.als` | Alloy predicate for vote counting — counterexample generation | NEW |
-| `formal/prism/quorum-consensus.pm` | PRISM DTMC model — probabilistic quorum convergence | NEW |
-| `formal/prism/quorum-consensus.pctl` | PRISM property file — P>=0.95 [F<=3 consensus] | NEW |
-| `formal/petri/quorum-net.pnml` | PNML (ISO standard XML) Petri Net — token flow, deadlock check | NEW |
+### What It Is
+
+New binary that parses a PLAN.md and generates a formal spec fragment (TLA+ state machine sketch and/or Alloy predicate) representing the proposed state machine changes implied by the plan. Output is saved to `.planning/phases/<phase>/formal/`.
+
+### Integration Seam
+
+The seam is between **Step 8 (planner outputs PLAN.md)** and **Step 8.5 (quorum dispatch)** in `plan-phase.md`. A new **Step 8.3** must be inserted here. This is the only modification to `plan-phase.md` (or equivalently, to `qgsd-core/workflows/plan-phase.md`).
+
+```
+Step 8   → PLAN.md written by qgsd-planner
+Step 8.3 → NEW: run plan-to-spec + run-formal-verify (Feature 2 loop)
+Step 8.5 → quorum dispatch (gains formal_spec_summary + verification_result — Feature 4)
+```
+
+### New Files
+
+| File | Type | Purpose |
+|------|------|---------|
+| `bin/plan-to-spec.cjs` | NEW | Parses PLAN.md → generates TLA+ fragment + Alloy predicates |
+| `.planning/phases/<phase>/formal/` | NEW directory convention | Stores per-phase spec fragments |
+| `.planning/phases/<phase>/formal/<phase>-plan-spec.tla` | NEW artifact | TLA+ sketch of plan's state changes |
+| `.planning/phases/<phase>/formal/<phase>-plan-spec.als` | NEW artifact (optional) | Alloy predicate for structural invariants |
+
+### Modified Files
+
+| File | Change |
+|------|--------|
+| `qgsd-core/workflows/plan-phase.md` | Insert Step 8.3 after planner return, before quorum dispatch |
+
+### Component Boundaries
+
+`plan-to-spec.cjs` is a **stateless transformer**: takes a PLAN.md file path as input, writes spec fragments to the `formal/` subdirectory, exits with 0 on success or 1 on failure. It does not call any external tools — it generates spec text from PLAN.md content using template-based extraction.
+
+The script must be self-contained CJS (no TypeScript, no new npm dependencies) following the zero-external-dep pattern of all other `bin/` scripts.
+
+### What plan-to-spec Extracts
+
+A PLAN.md describes tasks with state-modifying effects. The extractor needs to identify:
+
+1. State variables touched (from `files_modified` frontmatter and task descriptions)
+2. Transition preconditions (guards derived from task `depends_on` and wave ordering)
+3. Invariants asserted in `must_haves` section
+
+Output is a **spec fragment** (not a full verifiable spec). It is consumed by `run-formal-verify.cjs --only=plan-fragments` (Feature 2), which runs TLC/Alloy against it.
 
 ---
 
-## Recommended Project Structure
+## Feature 2: Iterative Verification Loop
+
+### What It Is
+
+After `plan-to-spec` generates a fragment, a verification loop runs `run-formal-verify.cjs` against the fragment. If verification fails, the PLAN.md is sent back to the planner (revision loop). This continues until verification passes or a cap is hit.
+
+### Integration Seam
+
+This is the **iterative revision loop** inside the new Step 8.3. It reuses the existing `qgsd-planner` revision loop pattern from Step 12 but gates on formal verification failure rather than plan-checker issues.
 
 ```
-QGSD/
-├─ hooks/
-│   ├─ qgsd-prompt.js            # MODIFIED: +appendConformanceEvent() call
-│   ├─ qgsd-stop.js              # MODIFIED: +appendConformanceEvent() call
-│   ├─ qgsd-circuit-breaker.js   # MODIFIED: +appendConformanceEvent() call
-│   └─ ... (unchanged)
-├─ bin/
-│   ├─ validate-traces.cjs       # NEW: conformance checker CLI
-│   └─ ... (unchanged)
-├─ src/
-│   └─ machines/
-│       ├─ qgsd-workflow.machine.ts        # NEW: XState v5 machine
-│       └─ qgsd-workflow.machine.test.ts   # NEW: unit tests
-├─ formal/
-│   ├─ tla/
-│   │   ├─ qgsd-workflow.tla     # NEW: TLA+ spec
-│   │   └─ qgsd-workflow.cfg     # NEW: TLC model config
-│   ├─ alloy/
-│   │   └─ quorum-vote.als       # NEW: Alloy model
-│   ├─ prism/
-│   │   ├─ quorum-consensus.pm   # NEW: PRISM DTMC model
-│   │   └─ quorum-consensus.pctl # NEW: PRISM property file
-│   └─ petri/
-│       └─ quorum-net.pnml       # NEW: Petri Net XML (PNML)
-└─ .planning/
-    ├─ conformance-log.ndjson    # NEW: runtime event log (gitignored)
-    └─ quorum-scoreboard.json    # existing; PRISM reads this for rates
+Step 8.3 (new):
+  iteration = 0
+  loop:
+    run plan-to-spec.cjs --plan ${PLAN_PATH} --out ${FORMAL_DIR}
+    run run-formal-verify.cjs --only=plan-fragments --plan-dir ${FORMAL_DIR}
+    if PASS or iteration >= FV_CAP: break
+    spawn qgsd-planner (revision mode, reason=formal-verification-failure)
+    iteration++
+  on loop exit: record verification_result for Step 8.5
 ```
 
-### Structure Rationale
+The cap (`FV_CAP`) is configurable via `workflow.formal_verify_cap` in `qgsd.json`. Default: 3 (same as the existing plan-checker iteration cap).
 
-- **`formal/`**: Convention used by real-world projects with multiple formal verification tools (TLA+, Alloy, PRISM). Tool-specific subdirectories prevent file extension collisions (`.tla` vs `.als` vs `.pm` all look similar) and allow per-tool `.gitattributes` if needed. This follows the pattern of the `tlaplus/Examples` repository where each spec lives in its own named subdirectory.
-- **`src/machines/`**: XState machine is TypeScript, compiled separately. It does NOT go in `hooks/` (which is pure CJS, no build step). Isolating it in `src/` keeps the build boundary clean. The machine is the only TypeScript artifact in the project — keeping it in a minimal `src/` tree avoids polluting the root.
-- **`.planning/conformance-log.ndjson`**: Lives in `.planning/` alongside `quorum-scoreboard.json`. Per-project (not global), gitignored. NDJSON (newline-delimited JSON) is the correct format for append-only event streams — each line is a complete, valid JSON object that can be read and parsed line by line.
-- **`bin/validate-traces.cjs`**: CJS (not ESM), zero new dependencies, consistent with all other `bin/*.cjs` files. Reads NDJSON and drives the XState machine to validate conformance.
+### Modified Files
 
----
+| File | Change |
+|------|--------|
+| `qgsd-core/workflows/plan-phase.md` | New Step 8.3 with FV loop (same file as Feature 1) |
+| `bin/run-formal-verify.cjs` | Add `--plan-dir` flag and `plan-fragments` tool group |
 
-## Integration Point 1: Hook Event Emission
+### New run-formal-verify Step
 
-### Where Emission Goes in Each Hook
-
-Each hook already writes JSON to stdout (decision channel). Event emission is a **side-effect to a file** — it must never touch stdout, which is reserved for hook decisions. The pattern is:
-
-```
-hook decision → process.stdout   (unchanged — hook output channel)
-event log     → fs.appendFileSync(.planning/conformance-log.ndjson)  (side-effect)
-```
-
-The `appendConformanceEvent()` helper is a shared utility — either inline in `config-loader.js` (preferred, because all three hooks already require it) or as a new `hooks/conformance-logger.js` that all three hooks require. The inline-in-config-loader approach avoids adding a new require chain to installed hooks.
-
-**qgsd-prompt.js** — emit after detecting a quorum command (line ~100, after `cmdPattern.test()`):
+A new tool group `plan-fragments` is added to `run-formal-verify.cjs`:
 
 ```javascript
-// Emit PHASE_START when a quorum planning command is detected
-appendConformanceEvent(cwd, {
-  event: 'PHASE_START',
-  command: matchedCommand,   // e.g. "plan-phase", "new-project"
-  slots_available: activeSlots.length,
-  ts: Date.now(),
-});
+{ tool: 'plan', id: 'plan:tla-fragment', label: 'TLA+ plan fragment check',
+  type: 'node', script: 'run-tlc.cjs', args: ['MC<phase>-plan'] }
 ```
 
-**qgsd-stop.js** — emit after the gate decision is made (line ~280, just before `process.exit()`):
+This step runs only when `--only=plan-fragments` is passed and a generated `.cfg` file exists in the `formal/` subdirectory. The step is skipped gracefully if no fragment was generated (plan-to-spec returned failure).
 
-```javascript
-// Emit QUORUM_VERDICT on every gate evaluation
-appendConformanceEvent(gitRoot, {
-  event: 'QUORUM_VERDICT',
-  command: matchedCommand,
-  outcome: decision,          // "block" | "allow"
-  vote_result: quorumResult,  // "passed" | "failed" | "skipped"
-  slots_called: slotsCalledCount,
-  ts: Date.now(),
-});
-```
+### Config Key
 
-**qgsd-circuit-breaker.js** — emit when oscillation is detected (line ~150, inside the oscillation detection branch):
-
-```javascript
-appendConformanceEvent(gitRoot, {
-  event: 'OSCILLATION_DETECTED',
-  file_set_hash: fileSetHash,
-  run_groups: runGroupCount,
-  ts: Date.now(),
-});
-```
-
-### Helper Function — appendConformanceEvent
-
-Placed in `config-loader.js` (already required by all three hooks) to minimize install friction:
-
-```javascript
-// Appends one JSON event line to .planning/conformance-log.ndjson.
-// Fails silently — never throws. Log path is <projectRoot>/.planning/conformance-log.ndjson.
-// projectRoot is derived via git rev-parse inside each hook (same as circuit-breaker pattern).
-function appendConformanceEvent(projectRoot, event) {
-  try {
-    const logPath = path.join(projectRoot, '.planning', 'conformance-log.ndjson');
-    fs.appendFileSync(logPath, JSON.stringify(event) + '\n');
-  } catch (_) { /* fail silently — never block hook pipeline */ }
-}
-```
-
-The function must fail silently (same principle as all hook error handling — fail-open, never block the pipeline).
-
----
-
-## Integration Point 2: Conformance Log JSON Schema
-
-Each log line is a single JSON object. Required fields on all events:
-
-| Field | Type | Required | Values |
-|-------|------|----------|--------|
-| `event` | string | always | `PHASE_START` / `QUORUM_VERDICT` / `OSCILLATION_DETECTED` |
-| `ts` | number | always | `Date.now()` — milliseconds since epoch |
-
-Event-specific fields:
-
-**PHASE_START:**
-
-| Field | Type | Values |
-|-------|------|--------|
-| `command` | string | `plan-phase`, `new-project`, `new-milestone`, `discuss-phase`, `verify-work`, `research-phase`, `quick` |
-| `slots_available` | number | count of active slots at time of injection |
-
-**QUORUM_VERDICT:**
-
-| Field | Type | Values |
-|-------|------|--------|
-| `command` | string | same as PHASE_START |
-| `outcome` | string | `allow` or `block` |
-| `vote_result` | string | `passed`, `failed`, `skipped` (skipped = no quorum command detected, gate was not in scope) |
-| `slots_called` | number | how many slots were counted as successfully called |
-
-**OSCILLATION_DETECTED:**
-
-| Field | Type | Values |
-|-------|------|--------|
-| `file_set_hash` | string | SHA256 of the oscillating file set |
-| `run_groups` | number | number of alternating run groups detected |
-
-Example log line:
 ```json
-{"event":"QUORUM_VERDICT","command":"plan-phase","outcome":"allow","vote_result":"passed","slots_called":4,"ts":1740398400000}
-```
-
-**Do NOT include:** model responses, plan content, user message text. The log is a behavioral trace, not a content log.
-
----
-
-## Integration Point 3: bin/validate-traces.cjs — Reading the Log
-
-`validate-traces.cjs` is a pure Node.js CJS CLI with zero new dependencies. It:
-
-1. Reads `.planning/conformance-log.ndjson` line by line using `fs.readFileSync` + `split('\n')` (file is small — no stream needed)
-2. Parses each line as JSON, skips blank lines and parse errors
-3. Creates an XState actor from the TypeScript machine (compiled to `src/machines/qgsd-workflow.machine.js` via `tsc`)
-4. Replays each event into the actor via `actor.send({ type: event.event, ...event })`
-5. After each send, checks `actor.getSnapshot().status` and the current state against the invariant set
-6. Reports violations to stdout in a human-readable format
-
-```javascript
-// bin/validate-traces.cjs — simplified structure
-'use strict';
-const fs = require('fs');
-const path = require('path');
-const { createActor } = require('xstate');
-const { qgsdWorkflowMachine } = require('../src/machines/qgsd-workflow.machine.js'); // compiled
-
-const logPath = path.join(process.cwd(), '.planning', 'conformance-log.ndjson');
-const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(Boolean);
-const events = lines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
-
-const actor = createActor(qgsdWorkflowMachine);
-actor.start();
-
-let violations = 0;
-for (const ev of events) {
-  actor.send({ type: ev.event, payload: ev });
-  const snap = actor.getSnapshot();
-  if (snap.status === 'error') {
-    console.error(`VIOLATION: machine errored on event ${ev.event} at ts=${ev.ts}`);
-    violations++;
+// .claude/qgsd.json
+{
+  "workflow": {
+    "formal_verify_enabled": true,
+    "formal_verify_cap": 3
   }
 }
-
-console.log(violations === 0 ? 'CONFORMANCE OK' : `CONFORMANCE FAILED: ${violations} violation(s)`);
-process.exit(violations > 0 ? 1 : 0);
 ```
 
-The XState machine must be compiled before `validate-traces.cjs` can be used. A `package.json` `build` script (`"build": "tsc -p tsconfig.formal.json"`) handles this. The compiled output goes to `src/machines/qgsd-workflow.machine.js` (CJS output, because `validate-traces.cjs` is CJS and cannot require ESM).
+The `formal_verify_enabled` flag follows the same pattern as `research_enabled` and `plan_checker_enabled` — read during `gsd-tools.cjs init plan-phase` and returned in the INIT JSON.
+
+### Modified Files (gsd-tools)
+
+| File | Change |
+|------|--------|
+| `bin/gsd-tools.cjs` (or installed equivalent) | Add `formal_verify_enabled` and `formal_verify_cap` to `init plan-phase` INIT JSON output |
 
 ---
 
-## Integration Point 4: XState Machine and the Orchestrator Agent
+## Feature 3: Mind Map Generation (`bin/plan-to-mindmap.cjs`)
 
-The XState machine in `src/machines/qgsd-workflow.machine.ts` is the **executable specification** of the QGSD workflow. It is NOT embedded in or invoked by the orchestrator agent at runtime.
+### What It Is
 
-The relationship is:
+New binary that parses a PLAN.md and generates a Mermaid `mindmap` diagram. Output is saved to `.planning/phases/<phase>/MINDMAP.md`.
+
+### Integration Seam
+
+Mind map generation runs **concurrently with plan-to-spec** inside the new Step 8.3. Both are file transformers with no external tool dependencies — they can run as sequential `spawnSync` calls (fast enough, no parallelism needed given each is <100ms).
 
 ```
-agents/qgsd-quorum-orchestrator.md  ─ (runtime behavior; calls call-quorum-slot.cjs)
-                                      |
-                                      | these two must agree
-                                      ↓
-src/machines/qgsd-workflow.machine.ts ─ (formal model; verified via validate-traces.cjs)
-                                      |
-                                      | trace replay validates runtime behavior
-                                      ↓
-.planning/conformance-log.ndjson     ─ (runtime trace; emitted by hooks)
+Step 8.3:
+  spawnSync plan-to-spec.cjs       → formal/ spec fragment
+  spawnSync plan-to-mindmap.cjs    → MINDMAP.md
+  [run FV loop...]
+  [read verification_result for Step 8.5]
 ```
 
-The machine defines four states matching QGSD's 4-phase planning protocol:
+### New Files
 
-```typescript
-// src/machines/qgsd-workflow.machine.ts (conceptual structure)
-import { createMachine, assign } from 'xstate';
+| File | Type | Purpose |
+|------|------|---------|
+| `bin/plan-to-mindmap.cjs` | NEW | PLAN.md → Mermaid mindmap |
+| `.planning/phases/<phase>/MINDMAP.md` | NEW artifact | Per-phase visual plan summary |
 
-export const qgsdWorkflowMachine = createMachine({
-  id: 'qgsd-workflow',
-  initial: 'idle',
-  context: {
-    command: '',
-    slotsAvailable: 0,
-    slotsCalled: 0,
-    outcome: '',
-  },
-  states: {
-    idle: {
-      on: {
-        PHASE_START: {
-          target: 'awaiting_quorum',
-          actions: assign({ command: ({ event }) => event.command }),
-        },
-      },
-    },
-    awaiting_quorum: {
-      on: {
-        QUORUM_VERDICT: [
-          {
-            guard: ({ event }) => event.outcome === 'allow',
-            target: 'phase_complete',
-            actions: assign({ outcome: 'allow' }),
-          },
-          {
-            guard: ({ event }) => event.outcome === 'block',
-            target: 'quorum_blocked',
-            actions: assign({ outcome: 'block' }),
-          },
-        ],
-        OSCILLATION_DETECTED: {
-          target: 'oscillation',
-        },
-      },
-    },
-    phase_complete: {
-      on: {
-        PHASE_START: { target: 'awaiting_quorum' },  // next phase
-      },
-    },
-    quorum_blocked: {
-      on: {
-        PHASE_START: { target: 'awaiting_quorum' },  // retry
-      },
-    },
-    oscillation: {
-      on: {
-        PHASE_START: { target: 'awaiting_quorum' },  // after breaker reset
-      },
-    },
-  },
-});
+### No workflow.md Modification Required (for generation)
+
+The mind map generation step runs inside Step 8.3, which is already being added for Feature 1. No additional modification to `plan-phase.md` is needed beyond what Feature 1 requires.
+
+### Mermaid mindmap Output Format
+
+```markdown
+# Phase v0.16-01 Plan Mind Map
+
+```mermaid
+mindmap
+  root((Phase v0.16-01))
+    Wave 1
+      plan-to-spec.cjs
+        Parse PLAN.md
+        Generate TLA+ fragment
+      plan-to-mindmap.cjs
+    Wave 2
+      run-formal-verify
+        --only=plan-fragments
+    Invariants
+      formal_verify_enabled
+      FV cap = 3
+```
 ```
 
-Key guards encode QGSD invariants: a `QUORUM_VERDICT` event must always follow `PHASE_START` (no `PHASE_START → PHASE_START` without a verdict in between), and `slots_called` must be >= `quorum.minSize` for an `allow` verdict.
+The MINDMAP.md is also injected into the quorum slot-worker prompt (Feature 4).
 
 ---
 
-## Integration Point 5: TLA+, Alloy, PRISM Spec File Locations
+## Feature 4: Quorum Formal Context Injection
 
-### TLA+ — `formal/tla/`
+### What It Is
 
-Two files per spec: the `.tla` module file and the `.cfg` TLC model configuration.
+The quorum.md slot-worker YAML prompt gains two new optional fields: `formal_spec_summary` and `verification_result`. These give quorum agents mathematical evidence alongside the plan artifact.
 
-```
-formal/tla/qgsd-workflow.tla    # module QGSD_WORKFLOW; VARIABLES phase, quorum_state; INVARIANTS
-formal/tla/qgsd-workflow.cfg    # CONSTANTS, INVARIANT MinQuorumMet, ...; PROPERTY NoInfiniteDeliberation
-```
+### Integration Seam
 
-The `.tla` file encodes:
-- **Phase ordering**: `phase` variable is monotonically non-decreasing (phases cannot go backward)
-- **Quorum invariant**: Before any `phase_complete` transition, `quorum_count >= min_quorum_size` must hold
-- **No infinite deliberation**: The system cannot loop indefinitely in `awaiting_quorum`
+The integration point is in **Step 8.5** of `plan-phase.md`, where the quorum dispatch is constructed. After the FV loop completes, the orchestrator has:
+- `verification_result` (PASS / FAIL / SKIP — from run-formal-verify exit code)
+- `formal_spec_summary` (brief text extracted from the spec fragment, e.g., invariants and transitions named)
+- path to `MINDMAP.md` (generated in Step 8.3)
 
-TLC is invoked via CLI (`java -jar tla2tools.jar`). A `Makefile` in `formal/tla/` provides:
-```makefile
-check:
-	java -jar $(TLA_TOOLS) -config qgsd-workflow.cfg qgsd-workflow.tla
-```
+These are passed into the quorum slot-worker YAML prompt:
 
-### Alloy — `formal/alloy/`
-
-Single `.als` file per model:
-
-```
-formal/alloy/quorum-vote.als    # sig Agent, Vote; pred quorumValid; check quorumValid for 10
-```
-
-The Alloy model encodes:
-- `sig Agent {}` — abstract agent
-- `sig Vote { agent: Agent, result: one Result }` where `Result = TP + TN + UNAVAIL`
-- `pred quorumValid` — given N agents with M UNAVAIL, the remaining available count meets `minSize`
-- `assert noSpuriousBlock` — counterexample generation for impossible quorum combinations
-
-The Alloy Analyzer is invoked as a Java JAR (`org.alloytools.alloy.dist.jar`). No build step — the `.als` file is the source and the artifact.
-
-### PRISM — `formal/prism/`
-
-Two files: the model file (`.pm`) and the property file (`.pctl`):
-
-```
-formal/prism/quorum-consensus.pm    # dtmc; module QuorumRound; rates from scoreboard
-formal/prism/quorum-consensus.pctl  # P>=0.95 [F<=3 consensus=true]
+```yaml
+slot: gemini-1
+round: 1
+timeout_ms: 30000
+repo_dir: /Users/jonathanborduas/code/QGSD
+mode: A
+question: Approve or block this plan?
+artifact_path: .planning/phases/v0.16-01/v0.16-01-01-PLAN.md
+review_context: This is a pre-execution implementation plan. Evaluate approach and completeness.
+mindmap_path: .planning/phases/v0.16-01/MINDMAP.md
+formal_spec_summary: |
+  TLA+ fragment: 3 transitions (GenerateSpec, RunVerify, ReviseOnFail).
+  Invariants: FVCapBounded (iterations ≤ 3), SpecGeneratedBeforeVerify.
+  All invariants passed TLC check.
+verification_result: PASS
 ```
 
-The PRISM model type is `dtmc` (discrete-time Markov chain) — appropriate because quorum rounds are discrete and transition probabilities come from historical TP/TN/UNAVAIL rates in the scoreboard.
+### Modified Files
+
+| File | Change |
+|------|--------|
+| `qgsd-core/workflows/plan-phase.md` | Step 8.5 quorum dispatch includes formal_spec_summary + verification_result + mindmap_path (same file as Features 1-2) |
+| `agents/qgsd-quorum-slot-worker.md` | Add parsing of `formal_spec_summary`, `verification_result`, `mindmap_path` optional fields; inject into model prompt if present |
+
+### Slot-Worker Prompt Addition
+
+In the slot-worker's Mode A prompt template (Step 3 of `agents/qgsd-quorum-slot-worker.md`), after the artifact content:
+
+```
+[If formal_spec_summary present:]
+=== Formal Verification Summary ===
+Verification result: <verification_result>
+<formal_spec_summary verbatim>
+================
+
+[If mindmap_path present:]
+=== Plan Mind Map ===
+<read mindmap_path and embed content>
+=================
+```
+
+The slot-worker reads `mindmap_path` using its Read tool (consistent with how it reads `artifact_path`).
+
+### No Changes to quorum.md
+
+`quorum.md` defines the _protocol_ (provider pre-flight, team capture, Mode A/B dispatch, deliberation). The new fields are in the slot-worker YAML block, which `plan-phase.md` constructs. `quorum.md` already specifies that the slot-worker YAML is extensible — new optional fields pass through transparently. The slot-worker agent definition (`agents/qgsd-quorum-slot-worker.md`) is what needs updating to declare and use the new fields.
 
 ---
 
-## Integration Point 6: How PRISM Reads Scoreboard Data
+## Feature 5: QGSD Self-Application — Code → All Specs via JSDoc
 
-PRISM's `.pm` file uses constants for transition probabilities. The workflow is:
+### What It Is
 
-1. `bin/validate-traces.cjs` (or a separate `bin/export-prism-constants.cjs`) reads `.planning/quorum-scoreboard.json`
-2. Computes per-slot TP rate: `tp_rate = slot.tp / (slot.tp + slot.fp + slot.fn || 1)`
-3. Computes UNAVAIL rate: `unavail_rate = slot.unavail / total_rounds`
-4. Writes a PRISM constants file `formal/prism/rates.const` with lines like `const double p_tp=0.92; const double p_unavail=0.06;`
-5. The main `.pm` model file uses `override` or direct constants: `[] state=0 -> p_tp:(state'=1) + (1-p_tp):(state'=0);`
+Extend `xstate-to-tla.cjs` and `generate-formal-specs.cjs` to also read JSDoc annotations (`@invariant`, `@transition`, `@probability`) from QGSD's own source files (hooks, bin scripts) and fold them into the generated specs.
 
-Alternative: encode constants directly in the `.pm` file and regenerate it from a template. The constant-file approach is simpler and keeps the model readable.
+### Integration Seam
 
+This feature is entirely within the existing `bin/generate-formal-specs.cjs` and `bin/xstate-to-tla.cjs` scripts. It does not touch `plan-phase.md`, `quorum.md`, or any workflow file.
+
+The seam is the **spec generation step** (`STEPS[0]` and `STEPS[1]`) in `run-formal-verify.cjs`. After this feature ships, the generated specs will be richer — more invariants and transitions — but the runner itself does not change.
+
+### Modified Files
+
+| File | Change |
+|------|--------|
+| `bin/xstate-to-tla.cjs` | Add JSDoc annotation extraction pass: read `@invariant`, `@transition` from annotated source files; append to generated TLA+ spec |
+| `bin/generate-formal-specs.cjs` | Add `@probability` extraction for PRISM transition weights; add `@invariant`/`@transition` for Alloy predicates |
+| `bin/check-spec-sync.cjs` | Extend drift detection: Check 6 — annotated `@invariant` names in source files must have corresponding invariant definitions in TLA+ spec |
+
+### JSDoc Annotation Format
+
+```javascript
+// hooks/qgsd-stop.js
+
+/**
+ * Evaluates the quorum gate on a planning turn.
+ *
+ * @invariant NoSkipQuorum — outcome is always 'allow' or 'block', never undefined
+ * @transition QUORUM_VERDICT — fires after gate evaluation with outcome field
+ */
+function evaluateGate(transcript) { ... }
+
+// bin/run-prism.cjs
+
+/**
+ * Computes TP rate for PRISM model.
+ *
+ * @probability consensus_rate — P(consensus within 3 rounds) >= 0.95
+ */
+function readScoreboardRates() { ... }
 ```
-Scoreboard JSON (TP/TN/UNAVAIL per slot)
-    |
-    └── bin/export-prism-constants.cjs  [new utility]
-              |
-              └── formal/prism/rates.const   [generated; gitignored]
-                          |
-                          ├── formal/prism/quorum-consensus.pm  [reads via const file]
-                          └── PRISM CLI: prism quorum-consensus.pm quorum-consensus.pctl -const rates.const
+
+The annotation format uses JSDoc-style `@tag name — description` on a single line. Extraction is regex-based (consistent with `generate-formal-specs.cjs`'s existing approach of regex over the XState machine source).
+
+### New Spec Sections
+
+`xstate-to-tla.cjs` emits a new section in the generated `QGSDQuorum_xstate.tla`:
+
+```tla
+\* ── Annotations from JSDoc (@invariant) ──────────────────
+\* These are extracted from source files at generation time.
+\* Source: hooks/qgsd-stop.js
+NoSkipQuorum == outcome \in {"allow", "block"}
+
+\* Source: hooks/qgsd-prompt.js
+PhaseCommandIsPlanning == matchedCommand \in PLANNING_COMMANDS
 ```
 
-The `rates.const` file is gitignored (it's generated from the per-project scoreboard). The `.pm` and `.pctl` files are committed.
+This maintains the `_xstate.tla` separation from the hand-authored `QGSDQuorum.tla` — generated annotations go into the `_xstate` file, not the canonical spec.
+
+### Test Impact
+
+`bin/xstate-to-tla.test.cjs` and `bin/check-spec-sync.test.cjs` need new test cases covering the annotation extraction path.
 
 ---
 
-## Integration Point 7: Petri Net — `formal/petri/quorum-net.pnml`
+## Feature 6: General-Purpose Code → Spec for User Projects
 
-PNML (Petri Net Markup Language) is an ISO standard XML format. It is not a script language — it is a data file that tools like LoLA, PIPE2, or any PNML-compliant viewer can open.
+### What It Is
 
-The Petri Net models quorum vote token flow:
+Expose the code → spec pipeline for any project using QGSD (not just QGSD itself). A new config key `formal_spec.enabled` + `formal_spec.source_dirs` in `.claude/qgsd.json` enables annotation scanning for user project source files.
 
-- **Places**: `p_idle`, `p_waiting_quorum`, `p_vote_slot_N` (one per active slot), `p_consensus_reached`, `p_quorum_blocked`
-- **Transitions**: `t_phase_start`, `t_slot_responds_TP`, `t_slot_UNAVAIL`, `t_quorum_threshold_met`, `t_quorum_failed`
-- **Invariants**: deadlock detection for `min_quorum_size` — if all available-slot places are empty and `p_consensus_reached` is unreachable, the system is deadlocked
+### Integration Seam
 
-The PNML file is static (not dynamically generated). It uses a fixed `min_quorum_size=4` and `slot_count=10`. The visualization (Petri Net diagram rendering) is done offline by any PNML viewer. No JavaScript library is needed in the QGSD codebase for this — the `.pnml` file is the deliverable.
+This is a **configuration extension** to the existing `bin/run-formal-verify.cjs` and `bin/generate-formal-specs.cjs`. The seam is:
 
-If interactive visualization is needed: the `petri-net` npm package (`npm install petri-net`) supports simulation but NOT PNML import. JointJS provides PNML-compatible Petri Net diagrams but is browser-only. For QGSD (a CLI tool), the PNML file + offline viewer is the correct approach. Generating an SVG representation via a Makefile target with Graphviz (using a DOT conversion script) is an acceptable alternative for CI-friendly output.
+1. `generate-formal-specs.cjs` currently hardcodes `src/machines/qgsd-workflow.machine.ts` as input
+2. With this feature, it reads `formal_spec.source_dirs` from config and scans those directories for JSDoc annotations
+3. Generated specs are written to a project-local `formal/` directory (not QGSD's own `formal/`)
 
----
+### Modified Files
 
-## Data Flow — Full v0.12 Pipeline
+| File | Change |
+|------|--------|
+| `bin/generate-formal-specs.cjs` | Read `formal_spec.source_dirs` from config; scan dirs for `@invariant`/`@transition`/`@probability`; write to project `formal/` dir |
+| `bin/run-formal-verify.cjs` | Add `--project-dir` flag: when set, reads from project's `formal/` instead of QGSD's `formal/` |
+| `bin/gsd-tools.cjs` | Add `formal-spec-init` subcommand: scaffolds `formal/` directory in current project |
 
-```
-1. User runs /qgsd:plan-phase
-       |
-       ├─ qgsd-prompt.js fires
-       │     ├─ Injects quorum instructions → stdout (unchanged)
-       │     └─ appendConformanceEvent(PHASE_START) → .planning/conformance-log.ndjson
-       |
-2. Claude runs orchestrator → models vote → scoreboard updated
-       |
-3. Claude delivers plan output → qgsd-stop.js fires
-       ├─ Evaluates quorum gate → decision: allow/block → stdout (unchanged)
-       └─ appendConformanceEvent(QUORUM_VERDICT) → .planning/conformance-log.ndjson
-       |
-4. Later: user runs bin/validate-traces.cjs
-       ├─ Reads conformance-log.ndjson
-       ├─ Replays events into XState machine (compiled from qgsd-workflow.machine.ts)
-       └─ Reports CONFORMANCE OK or CONFORMANCE FAILED
-       |
-5. PRISM analysis (offline, user-initiated)
-       ├─ bin/export-prism-constants.cjs reads quorum-scoreboard.json
-       ├─ Writes formal/prism/rates.const
-       └─ prism formal/prism/quorum-consensus.pm formal/prism/quorum-consensus.pctl
-              → "Result: 0.97 (property satisfied)"
-       |
-6. TLA+ checking (offline, developer-initiated or CI)
-       └─ java -jar tla2tools.jar -config formal/tla/qgsd-workflow.cfg formal/tla/qgsd-workflow.tla
-              → "Model checking completed. No errors found."
-       |
-7. Alloy (offline, developer-initiated)
-       └─ java -jar alloy.jar formal/alloy/quorum-vote.als
-              → counterexample instances or "No counterexample found"
-```
+### New Config Key
 
----
-
-## Architectural Patterns
-
-### Pattern 1: Fail-Silent Side-Effect Emission
-
-**What:** Hook event emission is a try/catch side-effect with no error propagation. The hook decision and quorum pipeline never depend on whether the event was logged.
-
-**When to use:** All three hook emission points.
-
-**Why:** The existing hook philosophy is fail-open. Adding a logging side-effect that can throw would violate R6. The `appendFileSync` in a try/catch with empty catch body is the correct pattern.
-
-**Trade-off:** If the log file cannot be written (e.g., disk full), events are silently lost. This is acceptable because the conformance log is diagnostic, not load-bearing.
-
-### Pattern 2: Compiled TypeScript in a CJS Project
-
-**What:** `src/machines/qgsd-workflow.machine.ts` is TypeScript, but must be compiled to CJS for `validate-traces.cjs` to require it. Use `"module": "commonjs"` in `tsconfig.formal.json`.
-
-**When to use:** Only for the XState machine. No other file in QGSD is TypeScript.
-
-**Example tsconfig.formal.json:**
 ```json
+// .claude/qgsd.json (project-level)
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "outDir": "src/machines",
-    "rootDir": "src/machines",
-    "strict": true
-  },
-  "include": ["src/machines/**/*.ts"]
+  "formal_spec": {
+    "enabled": true,
+    "source_dirs": ["src", "lib"],
+    "out_dir": "formal"
+  }
 }
 ```
 
-**Trade-off:** The compiled `.js` file must be committed alongside the `.ts` source (or the build step must run before `validate-traces.cjs` is usable). Committing the compiled output is simpler for a CLI tool — no build step required at user install time.
+The `formal_spec.enabled` key follows the existing two-layer config pattern (project config shallow-merges over global config per `config-loader.js`). When `enabled` is false (or absent), the pipeline is a no-op for the user project — QGSD's own pipeline is unaffected.
 
-### Pattern 3: NDJSON for Append-Only Event Log
+### Isolation Invariant
 
-**What:** One JSON object per line; `fs.appendFileSync` adds lines; `readFileSync` + `split('\n')` reads them all.
-
-**When to use:** The conformance log. Not appropriate for the scoreboard (which is a full JSON object, not a stream).
-
-**Why over a full JSON array:** Appending to a JSON array requires reading, parsing, mutating, and rewriting the whole file atomically. With NDJSON, `appendFileSync` is atomic per-line (single syscall on most OSes). The scoreboard uses full JSON + atomic tmp-rename because it needs cumulative computed stats. The conformance log needs neither — it only needs append.
-
-### Pattern 4: Generated Constants Isolate Spec from Data
-
-**What:** PRISM constants that come from runtime data (scoreboard TP rates) are NOT hardcoded into the `.pm` model file. Instead, a generator script produces a `rates.const` file that is passed to PRISM at check time.
-
-**When to use:** The PRISM model. Also applicable to TLA+ if constants need to match real slot counts.
-
-**Why:** It keeps the formal specification stable and version-controlled while allowing the data inputs to vary per project. The `.pm` file becomes a reusable template.
+QGSD's self-verification (`formal/tla/`, `formal/alloy/`, etc.) and a user project's generated specs are **completely separate file trees**. The runner detects which to use via the `--project-dir` flag. There is no shared state.
 
 ---
 
-## Anti-Patterns
+## Complete System Architecture — v0.16
 
-### Anti-Pattern 1: Emitting Events to stdout in Hooks
+```
+plan-phase.md (workflow) — Modified
+  │
+  ├─ Step 5:  qgsd-phase-researcher → RESEARCH.md (unchanged)
+  ├─ Step 8:  qgsd-planner → *-PLAN.md (unchanged)
+  │
+  ├─ Step 8.3: NEW — Plan Formal Verification Loop
+  │     │
+  │     ├─ bin/plan-to-spec.cjs                              [NEW]
+  │     │     input:  .planning/phases/<ph>/*-PLAN.md
+  │     │     output: .planning/phases/<ph>/formal/<ph>-plan-spec.tla
+  │     │             .planning/phases/<ph>/formal/MC<ph>-plan.cfg
+  │     │
+  │     ├─ bin/plan-to-mindmap.cjs                           [NEW]
+  │     │     input:  .planning/phases/<ph>/*-PLAN.md
+  │     │     output: .planning/phases/<ph>/MINDMAP.md
+  │     │
+  │     ├─ bin/run-formal-verify.cjs --only=plan-fragments   [MODIFIED]
+  │     │     reads: .planning/phases/<ph>/formal/
+  │     │     exits 0 (PASS) or 1 (FAIL)
+  │     │
+  │     └─ [on FAIL, iteration < FV_CAP]:
+  │           spawn qgsd-planner (revision, reason=fv-failure)
+  │           loop back to plan-to-spec
+  │
+  ├─ Step 8.5: Quorum dispatch — Modified
+  │     quorum slot-worker YAML gains:                       [MODIFIED]
+  │       formal_spec_summary: "<extracted invariant names>"
+  │       verification_result: PASS | FAIL | SKIP
+  │       mindmap_path: ".planning/phases/<ph>/MINDMAP.md"
+  │     │
+  │     └─ agents/qgsd-quorum-slot-worker.md                 [MODIFIED]
+  │           reads mindmap_path via Read tool
+  │           injects formal_spec_summary + verification_result into model prompt
+  │
+  ├─ Step 9:  handle planner return (unchanged)
+  ├─ Step 10: qgsd-plan-checker (unchanged)
+  ├─ Step 11: handle checker return (unchanged)
+  └─ Step 12: revision loop (unchanged)
 
-**What people do:** `console.log(JSON.stringify(event))` inside a hook, intending to capture it.
-
-**Why it's wrong:** Hook stdout is the decision channel. Claude Code reads `process.stdout` for the hook response JSON. Any extra bytes on stdout will corrupt the hook response and cause parse errors, blocking the hook pipeline entirely.
-
-**Do this instead:** `fs.appendFileSync(logPath, JSON.stringify(event) + '\n')` with an outer try/catch.
-
-### Anti-Pattern 2: Importing XState from Hooks
-
-**What people do:** `const { createActor } = require('xstate')` inside a hook file to validate transitions at hook time.
-
-**Why it's wrong:** Hooks are installed into `hooks/dist/` and run from `~/.claude/hooks/`. They run in the user's global Node environment. If xstate is not globally installed, the require fails and breaks the hook. The existing hooks have zero external npm dependencies for exactly this reason.
-
-**Do this instead:** Keep the XState machine in `src/` and `bin/validate-traces.cjs` only. These are developer tools, not runtime hook dependencies.
-
-### Anti-Pattern 3: Per-Turn PRISM Analysis at Hook Time
-
-**What people do:** Regenerate and run PRISM inside `qgsd-stop.js` to "verify probabilistic properties before allowing the plan."
-
-**Why it's wrong:** PRISM is a Java process with 2–10 second startup time. Running it synchronously in a Stop hook blocks Claude Code's response pipeline and defeats the fail-open principle.
-
-**Do this instead:** PRISM analysis is user-initiated or CI-triggered, not hook-triggered. The hook only emits a log event. `validate-traces.cjs` and PRISM are offline tools.
-
-### Anti-Pattern 4: Using the Conformance Log as a State Store
-
-**What people do:** Read `conformance-log.ndjson` in `qgsd-stop.js` to look up whether a prior PHASE_START was emitted.
-
-**Why it's wrong:** The Stop hook already has all the information it needs from the JSONL transcript. Reading the conformance log inside the hook adds a file dependency that can fail, introduces ordering issues, and creates feedback loops between the log writer and reader.
-
-**Do this instead:** The conformance log is write-only for hooks, read-only for `validate-traces.cjs`. No hook reads the log.
+Code → All Specs (Feature 5 + 6):
+  bin/xstate-to-tla.cjs              [MODIFIED — add @invariant/@transition extraction]
+  bin/generate-formal-specs.cjs      [MODIFIED — add @probability + project mode]
+  bin/check-spec-sync.cjs            [MODIFIED — Check 6: annotation drift]
+  bin/run-formal-verify.cjs          [MODIFIED — --project-dir flag]
+```
 
 ---
 
-## Build Order and Dependencies
+## Component Boundaries
 
-The seven components have hard dependencies. Build this order:
-
-```
-Phase 1 — Conformance Event Logger (foundation for all tracing)
-  1a. Add appendConformanceEvent() to hooks/config-loader.js
-  1b. Add emission call to hooks/qgsd-prompt.js (PHASE_START)
-  1c. Add emission call to hooks/qgsd-stop.js (QUORUM_VERDICT)
-  1d. Add emission call to hooks/qgsd-circuit-breaker.js (OSCILLATION_DETECTED)
-  1e. Sync all three hooks to hooks/dist/ + run install
-  1f. Add conformance-log.ndjson to .gitignore
-
-  Why first: All downstream components consume the log or the schema. Nothing
-  can be tested until events are being emitted.
-
-Phase 2 — XState Machine (executable spec)
-  2a. Create src/machines/qgsd-workflow.machine.ts
-  2b. Create tsconfig.formal.json
-  2c. Create src/machines/qgsd-workflow.machine.test.ts (unit tests for guard logic)
-  2d. Add "build" and "test:formal" npm scripts to package.json
-  2e. Compile: tsc -p tsconfig.formal.json
-
-  Why second: validate-traces.cjs (Phase 3) requires the compiled machine.
-  TLA+ (Phase 4) can be developed in parallel once the machine states are defined.
-
-Phase 3 — bin/validate-traces.cjs (conformance checker CLI)
-  3a. Create bin/validate-traces.cjs
-  3b. Wire to compiled machine from Phase 2
-  3c. Add integration test: emit synthetic NDJSON, run validator, assert exit code
-
-  Why third: Depends on Phase 1 (log schema) and Phase 2 (compiled machine).
-  Validates that the logger + machine agree before writing static specs.
-
-Phase 4 — TLA+ Specification (static invariant model)
-  4a. Create formal/tla/qgsd-workflow.tla
-  4b. Create formal/tla/qgsd-workflow.cfg
-  4c. Verify with: java -jar tla2tools.jar -config ... (local or CI)
-  4d. Add Makefile target in formal/tla/
-
-  Why here: The TLA+ spec is derived from the same state model as the XState
-  machine (Phase 2). Define it after the machine is complete so the state names
-  and invariants are stable. TLA+ does not depend on the runtime log.
-
-Phase 5 — Alloy Model (vote-counting predicates)
-  5a. Create formal/alloy/quorum-vote.als
-  5b. Verify with Alloy Analyzer (GUI or CLI)
-
-  Why here: Alloy only models the vote-counting logic, which is independent of
-  the phase progression model. Can be developed in parallel with Phase 4.
-  Placed here because it is the simplest formal artifact — good to have Phase 2-4
-  done and reviewed before adding another formal layer.
-
-Phase 6 — PRISM Model (probabilistic analysis)
-  6a. Create formal/prism/quorum-consensus.pm
-  6b. Create formal/prism/quorum-consensus.pctl
-  6c. Create bin/export-prism-constants.cjs (reads scoreboard → formal/prism/rates.const)
-  6d. Add rates.const to .gitignore
-  6e. Verify: prism quorum-consensus.pm quorum-consensus.pctl
-
-  Why here: Depends on having real scoreboard data (Phase 1 must have emitted events
-  for at least one quorum round so the scoreboard has real TP/TN/UNAVAIL values).
-  Also depends on stable state definitions from Phase 2-4 (PRISM state names
-  should align with TLA+ and XState state names for consistency).
-
-Phase 7 — Petri Net Visualization
-  7a. Create formal/petri/quorum-net.pnml
-  7b. (Optional) Add Makefile target to convert PNML → DOT → SVG via Graphviz
-
-  Why last: Petri Net is a visualization and deadlock-checking artifact derived
-  from the fully stable Phase 2-6 model. It adds no new runtime capability.
-  It is the capstone documentation artifact.
-```
-
-**Dependency summary:**
-
-```
-Phase 1 (logger) ─→ Phase 3 (validator)
-Phase 2 (XState) ─→ Phase 3 (validator)
-Phase 1 + 2      ─→ Phase 4 (TLA+) [informs invariant naming]
-Phase 2          ─→ Phase 5 (Alloy) [vote-count model same quorum.minSize]
-Phase 1 + 4      ─→ Phase 6 (PRISM) [real scoreboard data needed; state names stable]
-Phase 2–6        ─→ Phase 7 (Petri Net) [capstone; no new dependencies]
-```
-
-Phases 4 and 5 can run in parallel (no dependency between them). Phase 6 requires Phase 1 to have generated real scoreboard data — it cannot be tested purely with synthetic data because the constants file must come from actual quorum rounds.
+| Component | Responsibility | Communicates With |
+|-----------|----------------|-------------------|
+| `bin/plan-to-spec.cjs` | PLAN.md → TLA+/Alloy fragment (text transform only) | `run-formal-verify.cjs` (writes files; runner reads them) |
+| `bin/plan-to-mindmap.cjs` | PLAN.md → Mermaid mindmap (text transform only) | `plan-phase.md` (path passed to quorum dispatch) |
+| `plan-phase.md` Step 8.3 | Orchestrates FV loop: spec generation, verification, revision | `plan-to-spec.cjs`, `plan-to-mindmap.cjs`, `run-formal-verify.cjs`, `qgsd-planner` |
+| `run-formal-verify.cjs` | Runs tool groups; added `plan-fragments` group for per-phase specs | `plan-to-spec.cjs` (reads output), TLC/Alloy/PRISM (invokes) |
+| `agents/qgsd-quorum-slot-worker.md` | Builds per-slot model prompt; now injects formal context | `plan-phase.md` (receives YAML fields), `call-quorum-slot.cjs` |
+| `bin/xstate-to-tla.cjs` | XState machine + JSDoc annotations → TLA+ spec | `run-formal-verify.cjs` (step 0), `check-spec-sync.cjs` |
+| `bin/generate-formal-specs.cjs` | XState + JSDoc @probability → Alloy + PRISM; project mode | `run-formal-verify.cjs` (step 1) |
+| `bin/check-spec-sync.cjs` | Drift detection; extended with annotation Check 6 | `npm test` (called by test suite) |
+| `bin/gsd-tools.cjs` | Returns `formal_verify_enabled` + `formal_verify_cap` in INIT JSON | `plan-phase.md` (reads flags at Step 1) |
 
 ---
 
-## Scaling Considerations
+## Data Flow — v0.16 Plan-Phase Pipeline
 
-Formal verification tooling does not scale with user count — it scales with spec complexity.
+```
+1. User runs /qgsd:plan-phase v0.16-01
+       │
+2. Step 8: qgsd-planner writes
+       .planning/phases/v0.16-01-<slug>/v0.16-01-01-PLAN.md
+       │
+3. Step 8.3 — FV Loop (NEW):
+       │
+       ├─ plan-to-spec.cjs reads PLAN.md
+       │     → writes formal/v0.16-01-plan-spec.tla
+       │     → writes formal/MCv0.16-01-plan.cfg
+       │
+       ├─ plan-to-mindmap.cjs reads PLAN.md
+       │     → writes MINDMAP.md
+       │
+       ├─ run-formal-verify.cjs --only=plan-fragments
+       │     → TLC reads formal/MCv0.16-01-plan.cfg
+       │     → exits 0 (PASS) or 1 (FAIL)
+       │
+       └─ [on FAIL, iteration < 3]:
+             spawn qgsd-planner --revision --reason=fv-failure
+             goto plan-to-spec.cjs
+       │
+4. Step 8.5 — Quorum dispatch:
+       slot-worker YAML includes:
+         artifact_path: ...v0.16-01-01-PLAN.md
+         mindmap_path: ...MINDMAP.md
+         formal_spec_summary: "3 transitions. Invariants: FVCapBounded, SpecFirst. TLC: PASS"
+         verification_result: PASS
+       │
+       └─ slot-worker reads artifact_path + mindmap_path + embeds formal context
+            → model receives: PLAN.md + mind map + verification proof + question
+            → returns APPROVE/BLOCK with mathematical grounding
+       │
+5. Consensus → commit PLAN.md + MINDMAP.md + formal/ fragment together
+```
 
-| Concern | At 10 quorum rounds | At 1000 quorum rounds | At 10000 rounds |
-|---------|--------------------|-----------------------|-----------------|
-| conformance-log.ndjson size | ~5 KB | ~500 KB | ~5 MB |
-| validate-traces.cjs runtime | <100 ms | <1 s | 5–10 s |
-| XState replay memory | negligible | negligible | negligible |
-| TLA+ check time | unchanged (spec size, not log size) | unchanged | unchanged |
-| PRISM model convergence | faster (more stable rates) | most accurate | diminishing returns |
+---
 
-The log file does not need rotation for any realistic QGSD usage (a project doing 1000 quorum rounds would have thousands of planning phases — extreme edge case). If rotation is needed later, rename the file and start fresh; `validate-traces.cjs` can take a `--log-file` flag.
+## New vs. Modified Files — Complete Inventory
+
+### New Files
+
+| File | Purpose |
+|------|---------|
+| `bin/plan-to-spec.cjs` | PLAN.md parser + TLA+/Alloy fragment generator |
+| `bin/plan-to-spec.test.cjs` | Unit tests for spec generation from fixture PLAN.md files |
+| `bin/plan-to-mindmap.cjs` | PLAN.md → Mermaid mindmap generator |
+| `bin/plan-to-mindmap.test.cjs` | Unit tests for mindmap generation |
+| `.planning/phases/<phase>/formal/` | Per-phase directory convention for FV fragments (created at runtime) |
+
+### Modified Files
+
+| File | What Changes |
+|------|-------------|
+| `qgsd-core/workflows/plan-phase.md` | Insert Step 8.3 (FV loop) and update Step 8.5 (add formal context to quorum YAML) |
+| `agents/qgsd-quorum-slot-worker.md` | Add `formal_spec_summary`, `verification_result`, `mindmap_path` optional field parsing; inject into model prompt |
+| `bin/run-formal-verify.cjs` | Add `plan-fragments` tool group; add `--plan-dir` flag (Feature 6) |
+| `bin/xstate-to-tla.cjs` | Add `@invariant` + `@transition` JSDoc extraction pass (Feature 5) |
+| `bin/generate-formal-specs.cjs` | Add `@probability` extraction; add `--project-dir` flag for project mode (Features 5, 6) |
+| `bin/check-spec-sync.cjs` | Add Check 6: `@invariant` annotations in source must have TLA+ counterparts |
+| `bin/gsd-tools.cjs` | Add `formal_verify_enabled`, `formal_verify_cap` to `init plan-phase` INIT JSON |
+| `bin/xstate-to-tla.test.cjs` | New test cases for annotation extraction |
+| `bin/check-spec-sync.test.cjs` | New test cases for Check 6 |
+| `bin/install.js` | Sync `plan-to-spec.cjs` and `plan-to-mindmap.cjs` to `~/.claude/qgsd-bin/` (install distribution) |
+
+### NOT Modified (architectural constraint)
+
+| File | Why Not Modified |
+|------|-----------------|
+| `commands/qgsd/quorum.md` | Protocol definition unchanged; new fields flow via slot-worker YAML which plan-phase.md constructs |
+| `hooks/qgsd-prompt.js` | No new hook-level behavior needed |
+| `hooks/qgsd-stop.js` | No new gate behavior needed |
+| `hooks/qgsd-circuit-breaker.js` | No new breaker logic needed |
+| `agents/qgsd-planner.md` | Planner behavior unchanged; FV-driven revision uses existing revision interface |
+| `agents/qgsd-plan-checker.md` | Plan checker role unchanged |
+| `bin/update-scoreboard.cjs` | Scoreboard schema unchanged |
+
+---
+
+## Build Order (Dependency Graph)
+
+The 6 features have strict dependencies. The correct build order is:
+
+```
+Phase 1 — plan-to-spec.cjs + plan-to-mindmap.cjs (independent transforms)
+  1a. bin/plan-to-spec.cjs (NEW) — PLAN.md → TLA+ fragment
+  1b. bin/plan-to-spec.test.cjs — fixture-based unit tests
+  1c. bin/plan-to-mindmap.cjs (NEW) — PLAN.md → Mermaid mindmap
+  1d. bin/plan-to-mindmap.test.cjs — fixture-based unit tests
+
+  Why first: Features 2, 3, 4 all depend on these two scripts.
+  They have no dependencies themselves — pure text transforms.
+
+Phase 2 — run-formal-verify.cjs plan-fragments extension
+  2a. Add plan-fragments tool group to run-formal-verify.cjs
+  2b. Add --plan-dir flag
+  2c. Extend run-formal-verify.test.cjs with plan-fragments tests
+
+  Why second: Depends on plan-to-spec.cjs output (Phase 1).
+  The --plan-dir extension (Feature 6) is done here too since it touches the same file.
+
+Phase 3 — plan-phase.md integration (Step 8.3 + Step 8.5)
+  3a. Insert Step 8.3 into qgsd-core/workflows/plan-phase.md
+       (calls plan-to-spec, plan-to-mindmap, run-formal-verify FV loop)
+  3b. Update Step 8.5 quorum dispatch to include formal context fields
+  3c. Install sync: node bin/install.js --claude --global (Step 3b modifies installed workflow)
+
+  Why third: Depends on both plan-to-spec (Phase 1) and run-formal-verify extension (Phase 2).
+  This phase wires the new tools into the actual plan-phase workflow.
+
+Phase 4 — Quorum formal context (slot-worker prompt injection)
+  4a. Update agents/qgsd-quorum-slot-worker.md to parse new YAML fields
+  4b. Test by running a plan-phase against a test phase to verify formal context appears in quorum
+
+  Why fourth: Depends on Phase 3 (plan-phase.md must produce the new YAML fields).
+  Slot-worker change is small (optional field parsing) — after Phase 3 is stable.
+
+Phase 5 — JSDoc annotation extraction (xstate-to-tla + generate-formal-specs)
+  5a. Extend xstate-to-tla.cjs with @invariant/@transition pass
+  5b. Extend generate-formal-specs.cjs with @probability pass
+  5c. Extend check-spec-sync.cjs with Check 6
+  5d. Add tests in xstate-to-tla.test.cjs and check-spec-sync.test.cjs
+
+  Why fifth: Entirely independent of Phases 1-4 (different code paths).
+  But placed here because it modifies existing FV scripts that Phase 2 also touches —
+  doing Phase 2 first reduces merge surface.
+
+Phase 6 — General-purpose project mode
+  6a. Add formal_spec.enabled / source_dirs to config-loader validation
+  6b. gsd-tools.cjs formal-spec-init subcommand
+  6c. Integration test: run plan-to-spec + run-formal-verify against a non-QGSD fixture project
+
+  Why last: Depends on all prior phases (Phase 2 for --project-dir, Phase 5 for annotation
+  extraction). Also the most ambiguous feature (project structure varies) — implementing last
+  means the pipeline is proven first against QGSD's own structure.
+```
+
+### Dependency Summary
+
+```
+Phase 1 (plan-to-spec, plan-to-mindmap)
+  ↓
+Phase 2 (run-formal-verify extension)
+  ↓
+Phase 3 (plan-phase.md Step 8.3 + 8.5)
+  ↓
+Phase 4 (slot-worker formal context)
+
+Phase 5 (JSDoc annotations)    ← independent of Phases 3-4, depends on Phase 1 only for
+                                   shared script files (xstate-to-tla, generate-formal-specs)
+
+Phase 6 (project mode)         ← depends on Phases 2 + 5
+```
+
+Phases 3-4 can be split into separate QGSD phases with wave assignment. Phases 5 and 6 are independent tracks and can run in parallel with Phases 3-4.
+
+---
+
+## Architectural Patterns to Follow
+
+### Pattern 1: Step Insertion vs. Workflow Rewrite
+
+**What:** Insert Step 8.3 between Steps 8 and 8.5 in `plan-phase.md`. Do not restructure the surrounding steps.
+
+**Why:** Steps 8.5 (quorum), 9 (planner return), 10 (checker), 11 (checker return), and 12 (revision loop) are all correct and tested. Inserting a single new step is the minimum viable change — it avoids touching the revision loop logic or the offer_next/auto-advance machinery.
+
+**Implementation note:** The FV loop in Step 8.3 should explicitly call `activity-set` with `sub_activity: "formal_verification"` (consistent with the existing pattern of activity tracking for every major sub-step in plan-phase).
+
+### Pattern 2: YAML Field Extension (Additive Only)
+
+**What:** New fields (`formal_spec_summary`, `verification_result`, `mindmap_path`) are added to the quorum YAML block. They are optional — if absent, the slot-worker behaves exactly as before.
+
+**Why:** This is how the existing `artifact_path`, `review_context`, `skip_context_reads`, and `prior_positions` fields work. The slot-worker already has conditional logic for each. Following this pattern means zero regression risk for the existing quorum protocol.
+
+**Implementation note:** In `agents/qgsd-quorum-slot-worker.md`, the new fields go in the "Optional fields" block at Step 1.
+
+### Pattern 3: spec Fragment is a Separate File From Canonical Specs
+
+**What:** Per-phase spec fragments (`formal/<phase>-plan-spec.tla`) are never merged into `formal/tla/QGSDQuorum.tla` or any other canonical spec.
+
+**Why:** The `_xstate.tla` / canonical separation established in v0.14 (BROKEN-01 fix) must be preserved. Generated plan fragments belong to the plan artifact lifecycle, not the verified spec lifecycle. They are ephemeral — valid during the plan-phase workflow and then archived with the phase.
+
+**Implementation note:** The `plan-fragments` tool group in `run-formal-verify.cjs` must never write to `formal/tla/` — only read from `.planning/phases/<phase>/formal/`.
+
+### Pattern 4: Config Gate Before Every New Tool Invocation
+
+**What:** The FV loop in Step 8.3 is gated on `formal_verify_enabled` from the INIT JSON. If false, Step 8.3 is skipped entirely.
+
+**Why:** `research_enabled` and `plan_checker_enabled` both follow this pattern. Users who need faster plan-phase runs (CI environments, gap-closure phases) can disable FV without modifying the workflow.
+
+**Implementation note:** The `--skip-fv` flag should also disable Step 8.3, following the `--skip-research` pattern.
+
+---
+
+## Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Running Full run-formal-verify in the Plan Loop
+
+**What goes wrong:** Running all 21 steps of `run-formal-verify.cjs` for each PLAN.md revision adds 2+ minutes per iteration (TLC model checking is slow even when parallelized).
+
+**Why it's wrong:** The plan-phase loop is synchronous in the orchestrator context. 3 iterations × 2 min = 6+ minutes of blocking verification before quorum even runs. This defeats the fail-fast purpose of the loop.
+
+**Instead:** Use `--only=plan-fragments` which runs only the new plan-specific TLC check against the lightweight fragment. Full pipeline verification remains a CI step.
+
+### Anti-Pattern 2: Writing Fragment to formal/tla/ or formal/alloy/
+
+**What goes wrong:** Fragment gets picked up by full pipeline runs; mismatches against canonical specs trigger false drift alarms.
+
+**Why it's wrong:** Fragments model a single phase's proposed changes — they are underspecified relative to the full system. The full TLC safety/liveness checks would reject them as incomplete.
+
+**Instead:** Fragments go to `.planning/phases/<phase>/formal/` only. The `plan-fragments` tool group in run-formal-verify is scoped to that directory.
+
+### Anti-Pattern 3: Blocking plan-phase on Mindmap or Spec Generation Failure
+
+**What goes wrong:** If `plan-to-spec.cjs` or `plan-to-mindmap.cjs` fails (e.g., malformed PLAN.md frontmatter), Step 8.3 treats it as a hard failure and blocks the workflow.
+
+**Why it's wrong:** These are value-add artifacts. A failed spec generation should not prevent quorum from running on a valid plan. The plan artifact is the authoritative artifact — not the spec fragment.
+
+**Instead:** On `plan-to-spec.cjs` failure, log a warning and set `verification_result: SKIP`. On `plan-to-mindmap.cjs` failure, omit `mindmap_path` from the quorum YAML. Proceed to quorum with degraded (but not blocked) context. This follows the existing fail-open R6 philosophy.
+
+### Anti-Pattern 4: Deep-Merging formal_spec Config
+
+**What goes wrong:** Using deep merge for `formal_spec` config means a project config adding `formal_spec.enabled: true` also inherits any global `formal_spec.source_dirs` the user happened to set, potentially scanning wrong directories.
+
+**Why it's wrong:** `config-loader.js` uses shallow merge (project values replace global values) as an intentional design decision (Key Decision table in PROJECT.md: "shallow merge for config layering").
+
+**Instead:** `formal_spec` is a top-level key subject to shallow merge. If a project config defines `formal_spec: { enabled: true }`, the global `formal_spec` block is completely replaced. Users must provide all keys they want in the project config.
+
+---
+
+## Scalability Considerations
+
+| Concern | Per plan-phase run | At 10 phases | At 100 phases |
+|---------|-------------------|--------------|---------------|
+| plan-to-spec.cjs runtime | <500ms (pure text transform) | negligible | negligible |
+| plan-to-mindmap.cjs runtime | <200ms | negligible | negligible |
+| TLC plan-fragment check | ~5-30s (small fragment model) | 5-30s per phase | 5-30s per phase (independent) |
+| Fragment storage per phase | ~5-20KB | ~200KB total | ~2MB total |
+| MINDMAP.md per phase | ~2-5KB | ~50KB total | ~500KB total |
+| Quorum slot-worker context overhead | +500 bytes (summary text) | unchanged per round | unchanged per round |
+
+The formal spec fragments are per-phase artifacts stored under `.planning/phases/` — they are small and independent. There is no cumulative performance degradation.
 
 ---
 
 ## Integration Points Summary Table
 
-| Existing File | Change Type | What Changes |
-|---------------|-------------|--------------|
-| `hooks/config-loader.js` | Modified | Add `appendConformanceEvent()` helper |
-| `hooks/qgsd-prompt.js` | Modified | Call `appendConformanceEvent(PHASE_START)` after quorum command detection |
-| `hooks/qgsd-stop.js` | Modified | Call `appendConformanceEvent(QUORUM_VERDICT)` after gate decision |
-| `hooks/qgsd-circuit-breaker.js` | Modified | Call `appendConformanceEvent(OSCILLATION_DETECTED)` when breaker fires |
-| `hooks/dist/` | Sync | All 4 modified hooks re-synced after changes |
-| `.gitignore` | Modified | Add `conformance-log.ndjson` and `formal/prism/rates.const` |
-| `package.json` | Modified | Add `build` and `test:formal` scripts; add `xstate` to dependencies |
-| `bin/install.js` | No change | No new hooks; installer does not need changes |
-| `bin/update-scoreboard.cjs` | No change | PRISM reads scoreboard directly; no new writes needed |
+### Existing Files — Change Type
 
-| New File | Purpose |
-|----------|---------|
-| `.planning/conformance-log.ndjson` | Runtime event log (gitignored; per-project) |
-| `bin/validate-traces.cjs` | Conformance checker CLI |
-| `bin/export-prism-constants.cjs` | Scoreboard → PRISM constants generator |
-| `src/machines/qgsd-workflow.machine.ts` | XState v5 machine (TypeScript source) |
-| `src/machines/qgsd-workflow.machine.js` | Compiled CJS output (committed or built) |
-| `src/machines/qgsd-workflow.machine.test.ts` | Machine unit tests |
-| `tsconfig.formal.json` | TypeScript config for machine compilation |
-| `formal/tla/qgsd-workflow.tla` | TLA+ specification |
-| `formal/tla/qgsd-workflow.cfg` | TLC model config |
-| `formal/tla/Makefile` | TLC invocation shortcut |
-| `formal/alloy/quorum-vote.als` | Alloy vote-counting model |
-| `formal/prism/quorum-consensus.pm` | PRISM DTMC model |
-| `formal/prism/quorum-consensus.pctl` | PRISM property file |
-| `formal/prism/rates.const` | Generated constants (gitignored) |
-| `formal/petri/quorum-net.pnml` | Petri Net XML (PNML) |
+| File | Change Type | What Changes |
+|------|-------------|--------------|
+| `qgsd-core/workflows/plan-phase.md` | Modified | Insert Step 8.3 (FV loop); update Step 8.5 (add formal context fields to quorum YAML) |
+| `agents/qgsd-quorum-slot-worker.md` | Modified | Add 3 new optional field parsers; inject into Mode A prompt |
+| `bin/run-formal-verify.cjs` | Modified | Add `plan-fragments` tool group; add `--plan-dir` flag |
+| `bin/xstate-to-tla.cjs` | Modified | Add JSDoc `@invariant`/`@transition` extraction pass |
+| `bin/generate-formal-specs.cjs` | Modified | Add `@probability` extraction; add `--project-dir` project mode |
+| `bin/check-spec-sync.cjs` | Modified | Add Check 6: annotation-to-spec drift |
+| `bin/gsd-tools.cjs` | Modified | Add `formal_verify_enabled` + `formal_verify_cap` to `init plan-phase` INIT JSON |
+| `bin/install.js` | Modified | Add `plan-to-spec.cjs` + `plan-to-mindmap.cjs` to install distribution list |
+| `bin/xstate-to-tla.test.cjs` | Modified | New annotation extraction test cases |
+| `bin/check-spec-sync.test.cjs` | Modified | New Check 6 test cases |
+| `bin/run-formal-verify.test.cjs` | Modified | New `plan-fragments` test cases |
+
+### New Files
+
+| File | Purpose |
+|------|---------|
+| `bin/plan-to-spec.cjs` | PLAN.md → TLA+/Alloy fragment generator |
+| `bin/plan-to-spec.test.cjs` | Unit tests (fixture-based) |
+| `bin/plan-to-mindmap.cjs` | PLAN.md → Mermaid mindmap |
+| `bin/plan-to-mindmap.test.cjs` | Unit tests |
 
 ---
 
 ## Sources
 
-- XState v5 `createMachine`, `createActor`, inspection API — [Stately official docs](https://stately.ai/docs/machines) / [XState v5 release](https://stately.ai/blog/2023-12-01-xstate-v5)
-- TLA+ spec file structure — [tlaplus/Examples repository](https://github.com/tlaplus/Examples)
-- Alloy 6.2.0 release (2025-01-09) — [alloytools.org](https://alloytools.org/)
-- PRISM DTMC model format — [PRISM manual](https://www.prismmodelchecker.org/manual/Appendices/ExplicitModelFiles)
-- PNML ISO standard format — research-standard; PIPE2 and LoLA both accept PNML
-- NDJSON format — [ndjson.org](http://ndjson.org/)
-- Existing QGSD source files read directly: `hooks/qgsd-prompt.js`, `hooks/qgsd-stop.js`, `hooks/qgsd-circuit-breaker.js`, `hooks/config-loader.js`, `bin/update-scoreboard.cjs`, `bin/call-quorum-slot.cjs`, `agents/qgsd-quorum-orchestrator.md`, `.planning/quorum-scoreboard.json`
+- Live source reads: `qgsd-core/workflows/plan-phase.md`, `commands/qgsd/quorum.md`, `agents/qgsd-quorum-slot-worker.md`, `bin/run-formal-verify.cjs`, `bin/xstate-to-tla.cjs`, `bin/generate-formal-specs.cjs`, `bin/check-spec-sync.cjs`, `bin/run-prism.cjs`, `.planning/PROJECT.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`
+- Prior architecture research: `.planning/research/ARCHITECTURE.md` (v0.12 baseline, 2026-02-24)
+- v0.14 architectural decisions: Key Decisions table in `.planning/PROJECT.md` (BROKEN-01 _xstate suffix, esbuild inline bundling, TLA+ orphan phases as fail)
+- Config system: `bin/gsd-tools.cjs` INIT JSON pattern; `config-loader.js` shallow-merge semantics (Key Decisions: "shallow merge for config layering")
+- Activity tracking: `activity-set` sub_activity pattern from `plan-phase.md` Steps 5, 8, 8.5
 
 ---
 
-*Architecture research for: QGSD v0.12 Formal Verification*
-*Researched: 2026-02-24*
+*Architecture research for: QGSD v0.16 Formal Plan Verification*
+*Researched: 2026-02-26*

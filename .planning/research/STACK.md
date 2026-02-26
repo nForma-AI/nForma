@@ -1,513 +1,602 @@
-# Stack Research
+# Technology Stack
 
-**Domain:** Formal verification tooling — TLA+, XState, Alloy, PRISM, Petri Net, conformance log checker
-**Researched:** 2026-02-24
-**Confidence:** HIGH (all tool versions verified against official sources; JVM requirements cross-checked)
-
-## Context: This Is a Subsequent Milestone
-
-The following QGSD capabilities are validated and must NOT be re-researched:
-
-- Stop hook, UserPromptSubmit hook, PreToolUse circuit breaker — verified shipping
-- Two-layer config system (`qgsd.json`) — verified shipping
-- Quorum orchestrator, activity sidecar, scoreboard tracking — verified shipping
-- `bin/gsd-tools.cjs` monolith pattern, `bin/*.cjs` CommonJS scripts — existing pattern
-- `inquirer@8.2.7` CJS constraint — all existing bin/ scripts are `require()`-only; no ESM migration in scope
-
-This research covers ONLY what is needed for v0.12 Formal Verification features.
+**Project:** QGSD v0.16 — Formal Plan Verification (New Capabilities Only)
+**Researched:** 2026-02-26
+**Overall confidence:** HIGH (all critical packages verified via npm registry and official docs)
 
 ---
 
-## Tool 1: TLA+ Specification and TLC Model Checking
+## Context: Subsequent Milestone — Additive Only
 
-### Decision: `tla2tools.jar` v1.8.0 + Java 11+ — external CLI only
+The following capabilities from prior milestones are validated and must NOT be re-researched or
+replaced. All new choices must integrate with this existing stack without breaking it.
 
-**What it is:** TLA+ Tools is the official monolithic JAR distributed by Lamport's TLA+ Foundation.
-It bundles: TLA+ parser, TLC model checker, PlusCal transpiler, REPL, and LaTeX exporter.
-TLC runs breadth-first state-space exploration verifying invariants and liveness properties.
+**Existing constraints that new choices must satisfy:**
 
-**Current stable version:** 1.8.0 "The Clarke release" — released February 24, 2025.
-Previous stable was 1.7.4 ("Xenophanes release", 2024-01-13). 1.8.0 adds multi-module files,
-interactive REPL, improved error messages, and simulation mode enhancements.
+- All `bin/*.cjs` scripts use `'use strict'; require()` — CJS-only. No `import`.
+- No ESM migration in scope. Any library that is ESM-only requires a workaround or must be
+  avoided entirely.
+- Zero new runtimes. JVM is already present (TLA+/Alloy/PRISM). No Python, no Rust, no Go.
+- Existing dependencies: `inquirer@^8.2.7`, `keytar@^7.9.0` (prod); `esbuild@^0.24.0`,
+  `tsup@^8.5.1`, `typescript@^5.9.3`, `xstate@^5.28.0` (dev).
+- Zero-dep policy for bin/ scripts where possible (Mulberry32 inline PRNG precedent).
+  New libraries must justify their weight.
 
-**Java requirement:** Java 11 or later. JRE is sufficient (no JDK needed for running TLC).
-On macOS, `java -version` confirms. The JAR is invoked directly:
+---
 
-```bash
-java -cp tla2tools.jar tlc2.TLC -config spec.cfg spec.tla
+## Capability A: Markdown Task List Parsing (PLAN.md → Structured Plan)
+
+### Decision: `markdown-it@14.1.1` + `markdown-it-task-lists@2.1.1` — CJS-compatible, no new runtime
+
+**What the feature needs:** Read a PLAN.md file containing GFM-style task lists
+(`- [ ] task` / `- [x] task`) and extract a structured representation: task text, checked
+state, nesting level, heading section it belongs to, and order within section.
+
+**Why not a custom regex parser:** Markdown task lists can be nested, preceded by headings,
+and interrupted by paragraphs. A robust parser handles edge cases (blank lines, sub-lists,
+inline code in task text) that a regex approach silently misses. Precedent: QGSD already
+rejected regex in `check-spec-sync.cjs` in favor of AST walking (DRFT-01..03 decision).
+
+**Why `markdown-it`:**
+
+- `markdown-it@14.1.1` (current) ships a CJS build. `exports` map confirms:
+  `"require": "./dist/index.cjs.js"`. No ESM workaround needed. `require('markdown-it')`
+  works directly in CJS bin/ scripts.
+- Actively maintained (14.x released 2024–2025). 15M+ weekly downloads.
+- Plugin ecosystem for extensions. Task list support via `markdown-it-task-lists`.
+- Produces a flat token array — simpler to traverse than a full AST tree. Token `type`,
+  `tag`, `content`, `children`, and `attrGet('class')` provide all needed fields.
+
+**Why NOT `remark`/`unified`:** Both are ESM-only since their 2021 major version upgrades.
+`mdast-util-from-markdown` is explicitly ESM-only. Using them in CJS requires dynamic `import()`
+wrapped in an async function — adding async surface to what should be a synchronous parse step.
+For a pipeline that also calls TLC/Alloy/PRISM (synchronous subprocess calls), mixing async
+module loading adds unnecessary complexity. `markdown-it` with its CJS build is the correct
+choice for this codebase.
+
+**Why NOT `commonmark.js`:** No built-in task list support (task lists are GFM, not
+CommonMark core). Would require a custom plugin anyway, at which point `markdown-it` is
+strictly better (more active, larger plugin ecosystem).
+
+**Task list plugin — `markdown-it-task-lists@2.1.1`:**
+
+- Last published 2022 (unchanged since then — stable, not abandoned).
+- `main: 'index.js'` — plain CJS, no exports map needed.
+- Peer dependency: `markdown-it ^8 || ^9 || ^10 || ^11 || ^12` — verified compatible
+  with v14 in practice (no breaking API changes in the plugin hook surface since v8).
+- Adds `task-list-item-checkbox` class to list item tokens; checked state via `attrGet('checked')`.
+- Alternative `@hedgedoc/markdown-it-task-lists@2.0.1` is marked deprecated on npm — avoid.
+
+**How to extract structured plan from token stream:**
+
+```javascript
+'use strict';
+const MarkdownIt = require('markdown-it');
+const taskLists = require('markdown-it-task-lists');
+
+const md = new MarkdownIt().use(taskLists, { enabled: true });
+const tokens = md.parse(planText, {});
+
+// Walk tokens: track current heading, extract list_item_open + inline children
+// When token.attrGet('class') includes 'task-list-item', it's a task item
+// token.children.find(t => t.type === 'text').content = task text
+// token.attrGet('class').includes('task-list-item--checked') = done state
 ```
 
-**Embeddable?** No. TLA+ Tools is Java-only — there is no Node.js SDK, no npm package,
-no programmatic API accessible from JavaScript. QGSD invokes it as an external CLI via
-`child_process.spawnSync('java', ['-cp', 'tla2tools.jar', 'tlc2.TLC', ...])`.
+**No extraction library needed.** The token walk is 30–50 lines of straightforward code.
+No additional npm package required for plan-spec mapping.
 
-**Why TLC over TLAPS (TLA+ Proof System):** TLAPS is for theorem proving (deductive verification),
-requires more expertise, and depends on Isabelle/HOL. TLC is model checking — finite-state
-exhaustive exploration — which is the right tool for verifying QGSD's bounded protocol
-(N agents, max K rounds). TLAPS is not needed here.
+### Recommended Stack — Capability A
 
-**Spec artifact location:** `formal/qgsd.tla` (source), `formal/qgsd.cfg` (TLC config).
-The bin/ script (`bin/validate-traces.cjs`) does NOT wrap TLC directly — TLC runs on the spec,
-not the event logs. The conformance checker validates logs against the XState machine.
-
-**VS Code integration:** `tlaplus/vscode-tlaplus` extension (active development, recent releases)
-bundles its own copy of `tla2tools.jar`. Users can also point it at a local JAR.
-
-**Version pinning strategy:** Download `tla2tools.jar` to `formal/tools/tla2tools.jar` (gitignored
-due to size — ~20MB JAR). A `formal/tools/download-tools.sh` script pins the version.
-
-### Recommended Stack — Tool 1
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `tla2tools.jar` | 1.8.0 (2025-02-24) | TLA+ parsing + TLC model checking | Official distribution; latest stable; bundles all needed tools |
-| Java Runtime Environment | ≥11 | Execute tla2tools.jar | Minimum requirement per TLA+ docs; JRE-only (no JDK needed) |
-| `child_process.spawnSync` | Node.js stdlib | Invoke TLC from bin/ scripts | Already used in gsd-tools.cjs; spawnSync pattern established |
-
-**NOT embeddable in Node.js — CLI invocation only. Requires JVM on user machine.**
-
----
-
-## Tool 2: XState v5 TypeScript Executable State Machine
-
-### Decision: `xstate@5.28.0` with TypeScript 5.x — CJS-compatible, zero browser dependency
-
-**What it is:** XState v5 is an actor-based state machine library. For QGSD, it provides an
-executable TypeScript specification of the 4-phase quorum workflow with typed guards and actions.
-This is the "code-level" specification that stays synchronized with the hooks — eliminating
-spec-to-code drift.
-
-**Current version:** 5.28.0 (released February 12, 2026). Key v5 changes:
-- `createActor()` replaces `interpret()` from v4
-- `setup({ guards, actions })` pattern for typed machine definitions
-- Zero dependencies, runs anywhere JavaScript runs
-- Ships both ESM and CJS builds (dual package: `xstate.cjs.js` + ESM wrapper)
-
-**TypeScript requirement:** TypeScript ≥5.0. Set `strictNullChecks: true` and
-`skipLibCheck: true` in `tsconfig.json`. Training data shows v5 requires TS5+ for full
-type inference benefits; TS4.x may work but with reduced inference quality.
-
-**CJS compatibility:** XState v5 ships a CJS build (`xstate.cjs.js`) accessible via `require('xstate')`.
-The package.json `exports` field provides conditional exports for both CJS (`require`) and
-ESM (`import`) environments. `require('xstate')` works in Node.js CommonJS scripts.
-
-**Where it lives in QGSD:** A new `formal/` directory contains the TypeScript machine:
-`formal/qgsd-machine.ts`. A separate `tsconfig.formal.json` targets ES2020/CommonJS output
-into `formal/dist/`. The machine is NOT imported by hook code — it is a verification
-artifact and documentation, compiled separately.
-
-**Build tool:** `tsup` (powered by esbuild) — zero-config TypeScript bundler. Compiles
-`formal/qgsd-machine.ts` to CJS for consumption by `bin/validate-traces.cjs`.
-Alternative: direct `tsc` with `tsconfig.formal.json`. Either works; tsup is faster.
-
-**Node.js version:** No explicit minimum documented; XState tests run on current LTS (Node 20+).
-QGSD currently runs on Node v25.6.1 — no compatibility concern.
-
-**Server-side usage:** XState v5 has no browser-specific dependencies. `createActor(machine)`
-and `actor.start()` / `actor.send(event)` work identically in Node.js. The machine can
-replay a sequence of logged events to validate a trace matches the spec.
-
-### Recommended Stack — Tool 2
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `xstate` | 5.28.0 | Executable state machine | TypeScript-native; CJS-compatible; zero deps; actor model matches QGSD's phase transitions |
-| `typescript` | ≥5.0 (use latest 5.x) | Compile formal/qgsd-machine.ts | Required by XState v5 for full type inference; already in devDeps if used elsewhere |
-| `tsup` | latest | Bundle formal/ TypeScript to CJS | Zero-config; esbuild-powered; outputs dist/qgsd-machine.cjs for use by validate-traces.cjs |
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `markdown-it` | 14.1.1 | Parse PLAN.md into token stream | CJS-compatible; `require()` works; actively maintained; 15M weekly downloads |
+| `markdown-it-task-lists` | 2.1.1 | GFM task list checkbox token enrichment | Stable plugin; CJS; no peer dep conflict with v14 in practice |
 
 **Installation:**
+
 ```bash
-npm install xstate
-npm install -D typescript tsup
-```
-
-**CJS import pattern (in bin/validate-traces.cjs):**
-```javascript
-const { createMachine, createActor } = require('../formal/dist/qgsd-machine.cjs');
-```
-
----
-
-## Tool 3: Alloy 6 Model — Vote-Counting Predicate Logic
-
-### Decision: `alloy.jar` 6.2.0 — external CLI only, Java 17 required
-
-**What it is:** Alloy is a relational constraint language and SAT-based analyzer.
-For QGSD, it models vote-counting predicate logic: given N total agents, M UNAVAILABLE,
-is this quorum count sufficient for a transition? The Alloy Analyzer finds counterexamples
-automatically, which is its core strength over TLA+.
-
-**Current stable version:** 6.2.0 (released January 9, 2025). Distributed as a runnable JAR.
-
-**Java requirement:** Java 17 or later. This is STRICTER than TLA+ (which requires Java 11).
-This is the single highest Java version requirement across all formal tools in this milestone.
-On macOS, Homebrew: `brew install openjdk@17`. The JAR bundles SAT solvers (Sat4j, MiniSat,
-Glucose) — no separate SAT solver installation needed.
-
-**CLI headless invocation:** Alloy 6.2.0 includes a CLI with an `exec` command:
-```bash
-java -jar alloy.jar exec -c <command-name> -t json formal/qgsd-votes.als
-```
-The `-t` flag controls output format: `none`, `text`, `table`, `json`, `xml`.
-For counterexample extraction, use `-t json` — this is parseable by Node.js.
-
-**Limitations of CLI mode:** The basic `--quit` flag does NOT perform model checking
-(confirmed via community forum — it exits successfully even on invalid files).
-Use the `exec` subcommand. GUI-mode counterexample visualization is not available headlessly
-— but JSON output of `exec` provides instance data for scripted counterexample reporting.
-
-**Embeddable?** No. Alloy is Java-only. QGSD invokes it as an external CLI via
-`child_process.spawnSync('java', ['-jar', 'alloy.jar', 'exec', ...])`.
-
-**Spec artifact location:** `formal/qgsd-votes.als`. The Alloy spec defines predicates for
-quorum sufficiency, which the bin/ checker can invoke as a property oracle.
-
-### Recommended Stack — Tool 3
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `org.alloytools.alloy.dist.jar` | 6.2.0 (2025-01-09) | Alloy Analyzer + SAT solving | Official distribution; bundles all SAT solvers; CLI exec mode with JSON output |
-| Java Runtime Environment | ≥17 | Execute Alloy JAR | Alloy 6 requires Java 17+; highest JVM requirement in this stack |
-
-**NOT embeddable in Node.js — CLI invocation only. Requires JVM ≥17 on user machine.**
-
-**Java version note:** The JVM requirement for the full stack is Java 17 (set by Alloy 6),
-not Java 11 (set by TLA+). Users need a single Java 17+ JRE to run all three JVM tools.
-
----
-
-## Tool 4: PRISM Probabilistic Model Checker
-
-### Decision: PRISM 4.10 — external CLI only, Java 9+ (uses binary distributions)
-
-**What it is:** PRISM is a probabilistic model checker for Markov chains, MDPs, and probabilistic
-automata. For QGSD, it verifies: "given the empirical TP/TN/UNAVAIL distribution from the
-scoreboard, does consensus occur within 3 rounds with ≥0.95 probability?"
-PRISM's PCTL/CSL property language expresses these probabilistic reachability questions directly.
-
-**Current stable version:** 4.10 (released January 29, 2026 — most recent release).
-Previous was 4.9 (August 2025). 4.10 adds UMB format import/export, POMDP support,
-and full LTL for interval MDPs/DTMCs.
-
-**Java requirement:** Java 9 or later (per official installation docs). Binary distributions
-for macOS (x86 + Arm), Linux (x86 + Arm), and Windows (x86) are available at
-`prismmodelchecker.org/download.php`. The binary includes its own bundled JRE on some platforms
-but generally requires Java 9+ in PATH.
-
-**Headless/CLI invocation:**
-```bash
-prism formal/qgsd-quorum.prism formal/qgsd-quorum.props -exportresults results.csv
-```
-Or using the `-pf` flag for inline properties:
-```bash
-prism formal/qgsd-quorum.prism -pf 'P>=0.95 [ true U<=3 consensus_reached ]'
-```
-PRISM ships both GUI and command-line versions. The CLI mode (`prism` binary, not `xprism`)
-supports `-javamaxmem`, `-cuddmaxmem`, and `-exportresults` for scripted batch use.
-Recommend wrapping via `child_process.spawnSync('prism', [...])`.
-
-**Scoreboard integration:** `bin/generate-prism-model.cjs` reads `.planning/quorum-scoreboard.json`
-to extract slot-level TP/TN/UNAVAIL counts and writes a `.prism` model with parameterized
-transition probabilities. This makes the model data-driven from actual quorum history.
-
-**Embeddable?** No. PRISM is Java + C (native). There is no npm package or Node.js API.
-CLI invocation is the only integration path.
-
-**Spec artifact location:** `formal/qgsd-quorum.prism` (model), `formal/qgsd-quorum.props`
-(properties). Generated `.prism` file is re-generated from scoreboard data before each check run.
-
-### Recommended Stack — Tool 4
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| PRISM model checker | 4.10 (2026-01-29) | Probabilistic Markov chain verification | Official tool for DTMC/MDP; verified `-pf` CLI mode; current release |
-| Java Runtime Environment | ≥9 | Execute PRISM | PRISM's stated minimum; binary distributions often bundle JRE |
-
-**NOT embeddable in Node.js — CLI invocation only. Install from prismmodelchecker.org.**
-
----
-
-## Tool 5: Petri Net Visualization
-
-### Decision: DOT-language generation (hand-written) + `@hpcc-js/wasm-graphviz` for SVG output
-
-**What it is:** A Petri Net for QGSD models token-passing quorum votes through places
-(phases) and transitions (vote outcomes). Visualization serves two purposes:
-1. Human-readable SVG diagram of the quorum state machine
-2. Deadlock detection: structurally, a quorum with insufficient min_quorum_size will have
-   a deadlock-reachable marking — detectable by Graphviz structural analysis or LoLA
-
-**Approach:** Write the Petri Net structure as a DOT-language `.dot` file using standard
-Graphviz bipartite conventions (circles = places, rectangles = transitions, tokens as labels).
-Then render to SVG using `@hpcc-js/wasm-graphviz`.
-
-**Why `@hpcc-js/wasm-graphviz` over native Graphviz CLI:**
-The WASM build requires zero system installation — `npm install @hpcc-js/wasm-graphviz`
-and it works. The native `dot` CLI requires Graphviz installed on the OS (Homebrew, apt, etc.),
-which is an extra installation burden for QGSD users. WASM is self-contained and ships with
-the npm package.
-
-**`@hpcc-js/wasm-graphviz` details:**
-- Latest version: `@hpcc-js/wasm` 2.32.3 (published ~February 2026, actively maintained).
-- The split package `@hpcc-js/wasm-graphviz` is the Graphviz-only subset.
-- Supports Node.js 20, 22, 24 (CI-verified by hpcc-systems).
-- Async API:
-```javascript
-const { Graphviz } = require('@hpcc-js/wasm-graphviz');
-const graphviz = await Graphviz.load();
-const svg = graphviz.dot(dotSource); // returns SVG string
-```
-- Output formats: SVG, PNG, JSON (raw Graphviz IR), plain text.
-
-**Deadlock detection for min_quorum_size:** LoLA (Low Level Petri Net Analyzer) is the
-academic standard for deadlock detection in Petri nets via state-space exploration.
-However, LoLA is a native binary (C++) requiring separate installation, and for QGSD's
-small bounded nets, structural analysis is sufficient. The structural invariant
-"if min_quorum_size > available_agents, no transition from DELIBERATING can fire" can be
-checked as a pure mathematical assertion in the bin/ script — no LoLA needed.
-
-**Visualization-only vs. full analyzer:** LoLA is NOT recommended for this milestone.
-The Petri Net deliverable is primarily a human-readable visualization artifact (SVG diagram)
-that communicates the quorum token model. Deadlock analysis is covered by TLC (for reachability)
-and PRISM (for probabilistic properties). Adding LoLA would add a C++ build dependency
-for marginal formal coverage gain.
-
-**Spec artifact location:** `formal/qgsd-petri.dot` (generated DOT source),
-`formal/qgsd-petri.svg` (rendered output from `bin/generate-petri.cjs`).
-
-### Recommended Stack — Tool 5
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `@hpcc-js/wasm-graphviz` | 2.32.3+ (from `@hpcc-js/wasm`) | DOT-to-SVG rendering | WASM-bundled Graphviz; zero system install; Node.js native; actively maintained |
-| Hand-written DOT generation | — | Petri net structure as DOT source | DOT bipartite conventions sufficient; no specialized Petri net library needed |
-
-**Installation:**
-```bash
-npm install @hpcc-js/wasm-graphviz
+npm install markdown-it markdown-it-task-lists
 ```
 
 **What NOT to use:**
-- `petri-net` npm package — last published 10 years ago; unmaintained
-- `petri-js` — browser-focused, CommonJS incompatible pattern
-- `@pseuco/colored-petri-nets` — colored Petri nets (CPNs) are more complex than needed; standard P/T nets suffice
-- LoLA model checker — native binary; overkill for deadlock analysis when TLC covers reachability already
+
+| Avoid | Why |
+|-------|-----|
+| `remark` + `remark-gfm` | ESM-only; requires async `import()` in CJS context |
+| `mdast-util-from-markdown` | Explicitly ESM-only (per npm registry) |
+| `commonmark` | No task list support; CommonMark spec only |
+| Custom regex parser | Brittle on nested lists, headings, inline code in task text |
 
 ---
 
-## Tool 6: Node.js Conformance Log Checker (`bin/validate-traces.cjs`)
+## Capability B: JSDoc Annotation Extraction (@invariant, @transition, @probability)
 
-### Decision: Ajv + NDJSON line reader + XState machine replay — pure Node.js, CJS
+### Decision: `comment-parser@1.4.5` — CJS-compatible, zero deps, custom tag support
 
-**What it is:** `bin/validate-traces.cjs` reads a conformance event log (NDJSON format —
-one JSON event per line), validates each event against a JSON Schema, and replays the
-event sequence against the XState machine to verify the trace is structurally valid.
-This is the only user-facing artifact from the formal verification work — it ships in `bin/`.
+**What the feature needs:** Scan JavaScript/TypeScript source files for JSDoc block comments
+containing custom tags (`@invariant`, `@transition`, `@probability`) and extract their
+tag name, type (if present), name, and description into structured objects suitable for
+spec generation.
 
-**Three layers of validation:**
+**Why `comment-parser`:**
 
-1. **Schema validation (Ajv):** Each line is parsed as JSON and validated against the
-   event schema (phase, action, slots_available, vote_result, outcome, timestamp fields).
-   Ajv 8.x supports JSON Schema draft-2019-09/2020-12 and is the fastest validator
-   in the Node.js ecosystem (~50% faster than alternatives per 2024 benchmarks).
-   Latest version: 8.18.0 (published ~February 2026, actively maintained with 15,000+ npm dependents).
+- `comment-parser@1.4.5` (current as of 2026-02-06) — actively maintained.
+- Ships dual package: CJS at `lib/index.cjs`, ESM at `es6/index.js`.
+  `exports` map confirms `"require": "./lib/index.cjs"`. `require('comment-parser')` works.
+- Zero dependencies (confirmed on npm registry).
+- Custom tag support is first-class: the parser extracts all `@tag` blocks regardless of
+  whether the tag is a known JSDoc tag. `@invariant`, `@transition`, `@probability` work
+  without any configuration.
+- Returns `{ tags: [{ tag, name, type, description, source }] }` for each block.
+- Lightweight: ~15KB installed.
 
-2. **State machine replay (XState):** After schema validation, events are fed to a
-   `createActor(qgsdMachine)` instance. If the machine rejects an event (guard fails or
-   event not accepted in current state), the trace is invalid. This catches protocol
-   violations that schema validation cannot (e.g., transitioning to COMPLETE from IDLE
-   without going through DELIBERATING).
+**Why NOT the TypeScript Compiler API for this task:**
 
-3. **Invariant assertion:** Post-replay checks: min_quorum_met, phase_monotonically_advances,
-   no_infinite_deliberation. These are computed from the event sequence, not from the machine.
+The TypeScript compiler API can extract JSDoc comments via `ts.getJSDocTags()`, but:
+1. It requires TypeScript compilation, which is expensive for a scan-only pipeline.
+2. It only returns `@param`, `@returns`, and a limited set of "known" tags from the
+   TypeScript perspective; custom tags have limited support.
+3. TypeScript ships `lib/typescript.js` as CJS (main: `'./lib/typescript.js'`) — it is
+   technically CJS-compatible, but the API surface is large, complex, and designed for
+   type-checking, not annotation extraction.
 
-**Why Ajv over Zod:** Zod is TypeScript-first — its schemas are TypeScript objects.
-`bin/validate-traces.cjs` is a CJS script; using Zod would require either a pre-compiled
-Zod schema (adding tsup to the bin/ build chain) or using Zod's runtime API from CJS
-(possible but awkward). Ajv uses plain JSON Schema — a `const schema = { type: 'object', ... }`
-object literal works identically in CJS. For a schema-heavy log validator, Ajv's JSON Schema
-approach is the right tool.
+For pure annotation extraction (no type inference needed), `comment-parser` is the
+correct minimal tool.
 
-**Why Ajv over inline `typeof` checks:** The event schema has 8+ required fields with
-typed constraints (enums for phase/action, integer for slots_available, etc.). Ajv generates
-optimized validation functions — faster, more maintainable, and produces descriptive error
-messages that the user sees when a log line fails validation.
+**Why NOT `jsdoc` CLI:** The `jsdoc` npm package is a full documentation generator. It
+processes files and generates HTML output. For programmatic extraction of tag data into
+spec fragments, it is heavyweight and awkward to use as a library. `comment-parser` is
+what most jsdoc ecosystem tools (including `eslint-plugin-jsdoc`) use internally for tag
+parsing.
 
-**NDJSON reading:** No library needed. `fs.readFileSync(logPath, 'utf8').split('\n')` then
-`JSON.parse(line)` for non-empty lines. Standard Node.js pattern, already used in gsd-tools.
+**Source file scanning:** Use Node.js stdlib `fs.readdirSync` + `readFileSync` for CJS
+source files, or pass file paths via CLI arg. No glob library needed — `fs.readdirSync`
+with a simple `.filter(f => f.endsWith('.cjs') || f.endsWith('.js'))` is sufficient.
+For TypeScript files, same approach (comment-parser handles the comment text regardless
+of surrounding syntax).
 
-**CJS compatibility:** Ajv 8.x ships CJS and ESM builds. `require('ajv')` works in Node.js
-CommonJS scripts. The package uses conditional exports:
+**Extraction pattern:**
+
 ```javascript
-const Ajv = require('ajv');
-const ajv = new Ajv();
+'use strict';
+const { parse } = require('comment-parser');
+
+const source = require('fs').readFileSync(filePath, 'utf8');
+const blocks = parse(source);
+
+for (const block of blocks) {
+  const invariants = block.tags.filter(t => t.tag === 'invariant');
+  const transitions = block.tags.filter(t => t.tag === 'transition');
+  const probabilities = block.tags.filter(t => t.tag === 'probability');
+  // invariants[0].description = "always MinQuorumMet when consensus"
+}
 ```
 
-**XState machine import in CJS:** The compiled machine from `formal/dist/qgsd-machine.cjs`
-(built by tsup from `formal/qgsd-machine.ts`) is a standard CommonJS module:
+**Tag format recommendation for QGSD annotations:**
+
 ```javascript
-const { qgsdMachine } = require('../formal/dist/qgsd-machine.cjs');
-const { createActor } = require('xstate'); // CJS build
+/**
+ * @invariant {always} MinQuorumMet - quorum count never drops below threshold
+ * @transition DELIBERATING -> CONSENSUS [minQuorumMet]
+ * @probability consensus_in_3_rounds >= 0.95
+ */
 ```
 
-### Recommended Stack — Tool 6
+`comment-parser` extracts `type`, `name`, and `description` from each tag in this format.
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `ajv` | 8.18.0 | JSON Schema validation of each log event | Fastest Node.js validator; CJS-compatible; JSON Schema (not TypeScript-first) |
-| `xstate` | 5.28.0 | State machine replay for trace validation | Same dep as Tool 2; `createActor` + `actor.send()` replay events |
-| `node:fs` | stdlib | NDJSON line reading | `readFileSync` + `split('\n')` — no extra library needed |
-| `formal/dist/qgsd-machine.cjs` | — | Compiled XState machine | Built by tsup from formal/qgsd-machine.ts; required by validate-traces.cjs |
+### Recommended Stack — Capability B
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `comment-parser` | 1.4.5 | Extract @invariant/@transition/@probability from JSDoc blocks | CJS-compatible; zero deps; custom tag support; ~15KB; actively maintained |
 
 **Installation:**
+
 ```bash
-npm install ajv
-# xstate already listed above
+npm install comment-parser
 ```
 
----
+**What NOT to use:**
 
-## Summary: Net New npm Dependencies
-
-| Package | Version | Why New | Feature |
-|---------|---------|---------|---------|
-| `xstate` | 5.28.0 | Executable state machine; trace replay | Tool 2 + Tool 6 |
-| `ajv` | 8.18.0 | JSON Schema validation for log events | Tool 6 |
-| `@hpcc-js/wasm-graphviz` | 2.32.3+ | DOT-to-SVG rendering (zero system install) | Tool 5 |
-
-**Dev dependencies:**
-
-| Package | Version | Why New | Feature |
-|---------|---------|---------|---------|
-| `typescript` | 5.x latest | Compile formal/qgsd-machine.ts | Tool 2 |
-| `tsup` | latest | Bundle TypeScript to CJS | Tool 2 |
-
-**External tools (NOT npm packages — require manual installation):**
-
-| Tool | Version | Java Req | Install Method | Feature |
-|------|---------|----------|---------------|---------|
-| `tla2tools.jar` | 1.8.0 | Java ≥11 | Download from GitHub releases | Tool 1 (TLA+) |
-| `org.alloytools.alloy.dist.jar` | 6.2.0 | Java ≥17 | Download from GitHub releases | Tool 3 (Alloy) |
-| PRISM | 4.10 | Java ≥9 | Binary from prismmodelchecker.org | Tool 4 (PRISM) |
-
-**Critical JVM note:** All three JVM tools run on the same JVM. The highest requirement
-is Java 17 (set by Alloy 6). A single `brew install openjdk@17` satisfies all three tools.
-Recommend `formal/tools/README.md` with installation instructions for users.
+| Avoid | Why |
+|-------|-----|
+| TypeScript Compiler API | Expensive compilation step; custom tag support limited; overkill for annotation extraction |
+| `jsdoc` npm package | Full doc generator; designed for HTML output, not programmatic tag extraction |
+| `jsdoc-parse` | Wraps jsdoc CLI; subprocess-based; fragile |
+| `@microsoft/tsdoc` | TSDoc parser for a specific standard; does not support arbitrary custom tags |
+| Regex on comment text | JSDoc comments have multiline edge cases; block detection is error-prone |
 
 ---
 
-## What NOT to Use
+## Capability C: Mermaid Mind Map Generation (PLAN.md → MINDMAP.md)
 
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| `petri-net` npm package | Last published 10 years ago; unmaintained | Hand-written DOT + `@hpcc-js/wasm-graphviz` |
-| `petri-js` | Browser-focused; limited Node.js support | Hand-written DOT generation |
-| `@pseuco/colored-petri-nets` | Colored Petri nets are more complex than needed for QGSD token model | Standard P/T net via DOT notation |
-| LoLA Petri Net Analyzer | Native C++ binary; overkill — TLC already covers reachability | TLC for deadlock/reachability; structural assertion in script |
-| TLA+ Toolbox IDE JAR | GUI-only application; TLC is embedded in tla2tools.jar | `tla2tools.jar` directly |
-| TLAPS (TLA+ Proof System) | Theorem proving; requires Isabelle/HOL expertise; overkill for bounded protocol | TLC model checker |
-| `zod` for log validation | TypeScript-first; awkward in CJS bin/ scripts; requires compilation step | `ajv` with plain JSON Schema |
-| Native `dot` CLI (Graphviz) | Requires OS-level installation (Homebrew, apt) | `@hpcc-js/wasm-graphviz` (self-contained WASM) |
-| `@aduh95/viz.js` | Older WASM Graphviz binding; less actively maintained | `@hpcc-js/wasm-graphviz` (current, CI on Node 20/22/24) |
-| `xstate@4.x` | v4 uses `interpret()` (deprecated); v5 is current with better TypeScript | `xstate@5.28.0` |
+### Decision: String template generation (no npm library) — Mermaid syntax is trivially generatable
+
+**What the feature needs:** Take the structured plan extracted by Capability A and produce
+a `MINDMAP.md` file containing a Mermaid mind map (`mindmap` syntax) that represents the
+plan's phase/task hierarchy for injection into quorum slot-worker context.
+
+**Key insight: mind map output is text, not SVG.** The MINDMAP.md delivered to quorum
+agents is a Markdown code block containing Mermaid syntax. Quorum agents render it
+mentally as a conceptual map, not visually. The output is a `.md` file, not an `.svg` file.
+No rendering library is needed for the core feature.
+
+**Mermaid mindmap syntax is trivially generatable via string template:**
+
+```
+mindmap
+  root((PLAN.md))
+    Phase 1: Setup
+      Task A
+        Sub-task A1
+      Task B
+    Phase 2: Implementation
+      Task C
+```
+
+The entire mindmap is generated by:
+1. Iterating task hierarchy from Capability A output.
+2. Writing `  `.repeat(depth) + nodeText for each item.
+3. Wrapping in a Markdown fenced code block.
+
+This is 20–30 lines of string generation. No library is needed or justified.
+
+**Why NOT `@mermaid-js/mermaid-cli` for text generation:** `@mermaid-js/mermaid-cli@11.12.0`
+is an SVG/PNG renderer that uses Puppeteer (a headless Chromium browser). It requires
+Node.js ≥18.19 and launches a browser process. Using it to generate the text representation
+of a mindmap is like using a PDF printer to write a sentence — completely wrong tool.
+Additionally, its `exports` are ESM (`import { run } from "@mermaid-js/mermaid-cli"`) —
+it would require async dynamic import in a CJS context.
+
+**When SVG rendering IS needed:** If a future phase requires rendering the mind map to SVG
+(e.g., for visual artifact in `phases/<phase>/MINDMAP.svg`), the options are:
+
+- `@mermaid-js/mermaid-cli@11.12.0` via CLI subprocess:
+  `spawnSync('./node_modules/.bin/mmdc', ['-i', 'input.mmd', '-o', 'output.svg'])`
+  This avoids the ESM import issue entirely — call it as a CLI, not as a module.
+  Requires Node.js ≥18.19 (QGSD runs on 25.6.1, so no constraint).
+- Install only as a devDependency to avoid bloating the published package.
+
+**For v0.16 scope (text output only):** No npm library is needed for Capability C.
+Pure string generation from the plan structure.
+
+### Recommended Stack — Capability C
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Node.js stdlib (`fs.writeFileSync`) | stdlib | Write MINDMAP.md | No library needed; trivial string template |
+| String template (inline) | — | Generate Mermaid mindmap syntax | Mindmap syntax is indented text; generatable in ~25 lines |
+
+**If SVG rendering is later required (not in v0.16 scope):**
+
+| Technology | Version | Purpose | Condition |
+|------------|---------|---------|-----------|
+| `@mermaid-js/mermaid-cli` | 11.12.0 | Render .mmd to .svg via CLI | devDep only; invoke via `spawnSync` subprocess, NOT via `require()` |
+
+**What NOT to use:**
+
+| Avoid | Why |
+|-------|-----|
+| `mermaid` npm package | Browser-focused runtime; server-side rendering requires DOM shim; ESM |
+| `@mermaid-js/mermaid-cli` (as imported module) | ESM-only; launches Puppeteer; wrong tool for text output |
+| `@mermaid-js/mermaid-mindmap` plugin | Requires mermaid runtime; browser-focused |
+| Any markdown-to-mindmap converter | Unnecessary abstraction; direct template generation is simpler |
 
 ---
 
-## Alternatives Considered
+## Capability D: Counterexample Parsing (TLC / Alloy / PRISM Output → Structured Feedback)
 
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| `@hpcc-js/wasm-graphviz` (WASM) | Native `dot` CLI (Graphviz binary) | If users are guaranteed to have Graphviz installed (CI environments); native is faster |
-| `ajv` for schema validation | `zod` | If project migrates to full TypeScript with ESM; Zod schemas would be more ergonomic in TS context |
-| TLC (finite-state model checking) | TLAPS (deductive proof) | If QGSD protocol ever becomes unbounded or infinite-state; TLC's finite-state exhaustion doesn't apply |
-| PRISM 4.10 binary | PRISM Storm (newer probabilistic checker) | Storm has more features but is harder to install (C++ from source); PRISM binary is simpler for this use case |
-| tsup | `tsc` directly | If bundle optimization is not needed; `tsc` alone produces valid CJS output with right tsconfig |
+### Decision: Regex-based text parsers (TLC/PRISM) + JSON.parse (TLC JSON trace) + text scan (Alloy) — all zero-library
+
+**What the feature needs:** When TLC, Alloy, or PRISM finds a counterexample during the
+iterative verification loop, parse the tool's output into a structured object that can feed
+back into the plan revision step.
+
+**TLC counterexample parsing:**
+
+TLC supports `-dumpTrace json <filename>` (available since tla2tools.jar v1.8.0). When a
+property violation is found, this flag writes the error trace as a JSON file following the
+ITF (Informal Trace Format) structure:
+
+```json
+{
+  "#meta": { "format": "ITF", "varNames": ["phase", "votes", "round"] },
+  "vars": ["phase", "votes", "round"],
+  "states": [
+    { "phase": "IDLE", "votes": 0, "round": 0 },
+    { "phase": "DELIBERATING", "votes": 2, "round": 1 }
+  ]
+}
+```
+
+**TLC recommendation:** Use `-dumpTrace json counterexample.json` and parse with
+`JSON.parse(fs.readFileSync(...))`. Zero library needed. The existing `run-tlc.cjs` uses
+`stdio: 'inherit'` — for the plan verification use case, switch to `stdio: 'pipe'` and
+add `-dumpTrace json` flag to capture the trace file path. Then read and parse the JSON.
+
+For text-mode TLC output (when `-dumpTrace json` is not used), the error trace appears
+as:
+
+```
+Error: Invariant MinQuorumMet is violated.
+State 1:
+/\ phase = "IDLE"
+/\ votes = 0
+...
+```
+
+A regex `/(State \d+:)([\s\S]*?)(?=State \d+:|$)/g` extracts individual states.
+This is the fallback when the JSON dump is unavailable.
+
+**Alloy counterexample parsing:**
+
+The existing `run-alloy.cjs` already does the right thing: invoke with `--output -` and
+`--type text`, scan stdout for `/Counterexample/i`. For the plan verification pipeline,
+switch `--type` to `text` and parse the text output for the specific counterexample
+section. Alloy's text output for a counterexample looks like:
+
+```
+Counterexample found for assertion ThresholdPasses:
+  this/Agent = {Agent0, Agent1}
+  approve = {Agent0}
+  ...
+```
+
+A simple regex scan for lines after `Counterexample found` extracts the constraint
+violation. No XML library is needed — the `--type text` format is simpler to parse than
+XML and already in use.
+
+If XML output (`--type xml`) is required in a future phase, `fast-xml-parser@5.4.1`
+ships CJS at `lib/fxp.cjs` (`"require": { "default": "./lib/fxp.cjs" }`) and is the
+correct choice — zero native deps, actively maintained (published daily as of 2026-02).
+
+**PRISM counterexample parsing:**
+
+PRISM outputs probability results to stdout as plaintext:
+
+```
+Model constants: tp_rate=0.9274, unavail=0.0215
+Property: P=? [ F consensus_reached ]
+Result: 0.9731 (exact floating point)
+
+Property: P>=0.95 [ F consensus_reached ]
+Result: true
+```
+
+When a property FAILS (result is `false` or a probability below threshold):
+
+```
+Result: false (property is not satisfied)
+```
+
+A regex on the captured stdout: `/(Result:\s*)(false|[\d.]+)/` extracts the result. No
+library is needed. The existing `run-prism.cjs` already captures stdout — for plan
+verification, extend it to parse result lines and emit a structured counterexample object.
+
+PRISM does not produce path counterexamples for probabilistic properties (a known
+limitation — probabilistic counterexamples require infinite sets of paths). The "counterexample"
+for PRISM is the probability value itself: `{ property, result, satisfied, threshold }`.
+
+**Plan-spec mapping counterexample structure (common output format):**
+
+```javascript
+// Unified counterexample object produced by each tool's parser
+{
+  tool: 'tlc' | 'alloy' | 'prism',
+  violated: 'invariant name or property',
+  trace: [...states] | null,   // TLC only
+  witness: string | null,       // Alloy text excerpt
+  probability: number | null,   // PRISM only
+  raw: string                   // full tool output for context
+}
+```
+
+### Recommended Stack — Capability D
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `JSON.parse` (stdlib) | stdlib | Parse TLC `-dumpTrace json` output | TLC natively produces ITF JSON; no library needed |
+| Regex (inline) | — | Parse TLC text trace, PRISM result lines | Simple line-based format; regex sufficient |
+| Text scan (inline) | — | Detect Alloy counterexample section | Already in `run-alloy.cjs`; extend the existing pattern |
+
+**If XML parsing is ever needed (not in v0.16 scope):**
+
+| Technology | Version | Purpose | Condition |
+|------------|---------|---------|-----------|
+| `fast-xml-parser` | 5.4.1 | Parse Alloy `--type xml` output | Only if structured XML parsing becomes necessary; CJS-compatible |
+
+**TLC invocation change for plan verification:**
+
+The existing `run-tlc.cjs` uses `stdio: 'inherit'`. For the plan verification pipeline,
+use `stdio: 'pipe'` and add `-dumpTrace json <outfile>` to the TLC args. Read the JSON
+file after TLC exits. This is additive — existing `run-tlc.cjs` behavior is unchanged
+for the existing formal-verify pipeline.
+
+**What NOT to use:**
+
+| Avoid | Why |
+|-------|-----|
+| `xml2js` | Unnecessary; Alloy text output is simpler to parse than XML |
+| `fast-xml-parser` (for TLC) | TLC produces JSON via -dumpTrace; XML not involved |
+| `@tlaplus/tlaplus-output-parser` | Does not exist on npm; no community Node.js parser library for TLC output |
+| Full TLC output AST library | None exists for Node.js; text/JSON parsing is the only approach |
+
+---
+
+## Capability E: Structured Plan-Spec Mapping
+
+### Decision: Hand-written mapping module — no library needed
+
+**What the feature needs:** Take the structured plan from Capability A (list of tasks with
+section/heading context) and map them to formal spec fragments (TLA+ invariants, Alloy
+predicates, PRISM properties, transition definitions). This is the core algorithmic step
+of v0.16.
+
+**Why no library:** Plan-spec mapping is domain-specific to QGSD's formal models. No
+general-purpose "plan-to-spec" library exists on npm. The mapping logic requires:
+1. Pattern matching on task text (does this task imply a new state? a new guard? an invariant?)
+2. Template expansion (fill TLA+ template with extracted state names and guard conditions)
+3. Validation that generated spec fragments are syntactically correct (checked by TLC/Alloy/PRISM
+   invocation in the iterative loop)
+
+This is custom logic — approximately 200–400 lines in a new `bin/plan-to-spec.cjs` module.
+
+**Existing tools that ARE useful for this capability:**
+
+- `comment-parser` (Capability B) — extracts `@invariant`/`@transition` annotations from
+  source code, which seed the spec fragment templates.
+- `markdown-it` + `markdown-it-task-lists` (Capability A) — provides the structured task
+  list as input to the mapping.
+- Existing `bin/generate-formal-specs.cjs` — the regex-based XState machine parser provides
+  the pattern for extracting state names and guard conditions from structured source. The
+  plan-to-spec mapper follows the same pattern but inputs PLAN.md instead of TypeScript.
+
+**Template approach:** Hard-code TLA+/Alloy/PRISM fragment templates in the mapper module.
+Use JavaScript string interpolation (`${stateName}`, `${guardCondition}`) rather than a
+template engine library. The templates are small (5–20 lines each) and don't need a full
+Handlebars/Mustache setup.
+
+**No AST manipulation library for TLA+/Alloy/PRISM:** These spec languages don't have
+npm-ecosystem AST libraries. The plan-to-spec pipeline generates spec text from templates,
+not by manipulating existing spec ASTs. The spec files are written fresh to
+`.planning/phases/<phase>/formal/` for each verification run.
+
+**Pattern recognition from task text:** Use regex patterns to classify task descriptions:
+
+```javascript
+const TRANSITION_PATTERN = /^\s*([\w_]+)\s*->\s*([\w_]+)/;        // "IDLE -> DELIBERATING"
+const INVARIANT_PATTERN  = /\bAlways\b|\binvariant\b|\bnever\b/i;  // "Always MinQuorumMet"
+const PROBABILITY_PATTERN = /\bP\s*[><=]+\s*[\d.]+/;              // "P>=0.95"
+```
+
+These are inline patterns — no library justifies the dependency cost.
+
+### Recommended Stack — Capability E
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Node.js stdlib | stdlib | File I/O for spec output | `fs.writeFileSync` to `.planning/phases/<phase>/formal/` |
+| Hand-written `bin/plan-to-spec.cjs` | — | Task-to-spec-fragment mapping | Domain-specific; no general library exists; ~300 lines |
+| Template strings (inline) | — | TLA+/Alloy/PRISM fragment templates | No template engine needed; fragments are small |
+
+---
+
+## Summary: Net New npm Dependencies for v0.16
+
+All new additions are production dependencies (used by bin/ scripts shipped with the package)
+unless noted as devDep.
+
+| Package | Version | Capability | Justification |
+|---------|---------|------------|---------------|
+| `markdown-it` | 14.1.1 | A (PLAN.md parsing) | CJS-compatible; actively maintained; necessary for robust task list extraction |
+| `markdown-it-task-lists` | 2.1.1 | A (task list tokens) | Required plugin for GFM task list checkbox support |
+| `comment-parser` | 1.4.5 | B (JSDoc extraction) | CJS-compatible; zero deps; only viable custom-tag parser for CJS |
+
+**Zero new devDependencies required.** All other capabilities (C, D, E) use Node.js stdlib,
+inline patterns, or extend existing bin/ script patterns.
+
+**Installation (all new deps):**
+
+```bash
+npm install markdown-it markdown-it-task-lists comment-parser
+```
+
+**Total new prod dep weight:** ~3 packages, ~150KB installed. Acceptable given the feature scope.
+
+---
+
+## What NOT to Add (Bloat Risks)
+
+| Package | Why Not |
+|---------|---------|
+| `remark` + `remark-gfm` + `remark-parse` | ESM-only ecosystem; forces async dynamic import in CJS context; unified adds 5+ transitive deps |
+| `@mermaid-js/mermaid-cli` | Installs Puppeteer (Chromium, ~300MB); wrong tool for text generation; ESM imports |
+| `mermaid` (runtime) | Browser-focused; server-side requires DOM shim; ESM; ~2MB |
+| TypeScript Compiler API (as a new dep) | TypeScript already in devDeps; but using ts API programmatically adds compilation overhead for what is a simple annotation scan |
+| `@microsoft/tsdoc` | TSDoc standard only; does not support arbitrary custom tags |
+| `handlebars` / `mustache` | Template engine overkill for 5–20 line TLA+/Alloy/PRISM fragments |
+| `fast-xml-parser` | Not needed in v0.16 scope; only justified if Alloy XML mode is required |
+| `xml2js` | Outdated callback API; superseded by `fast-xml-parser` if XML parsing ever needed |
+| `jsdoc` CLI wrapper | Full doc generator; subprocess-based; 20+ transitive deps |
+| Any "plan-to-spec" npm package | No such ecosystem exists; would be custom code regardless |
+| `glob` / `fast-glob` | Node.js 22+ has `fs.glob()` built-in; QGSD runs Node.js 25.6.1 |
+
+---
+
+## Integration with Existing Tools
+
+### How new packages connect to existing pipeline
+
+```
+PLAN.md
+  └─ [markdown-it + markdown-it-task-lists] → structured task list
+       └─ [bin/plan-to-spec.cjs] → spec fragments (TLA+/Alloy/PRISM)
+            └─ [existing run-tlc.cjs / run-alloy.cjs / run-prism.cjs] → verification
+                 └─ [Capability D parsers] → counterexample objects
+                      └─ [iterative loop in plan-phase.md workflow] → plan revision
+
+Source files (JS/TS/CJS)
+  └─ [comment-parser] → @invariant/@transition/@probability tags
+       └─ [bin/plan-to-spec.cjs] → additional spec constraints (hybrid mode)
+
+Spec fragments verified
+  └─ [plan-phase.md iterative loop] → verified PLAN.md
+       └─ [Mermaid template generator] → MINDMAP.md
+            └─ quorum slot-worker prompt injection
+```
+
+### Existing tools that extend naturally to support new capabilities
+
+| Existing Tool | Extension for v0.16 |
+|---------------|---------------------|
+| `run-tlc.cjs` | Add `-dumpTrace json counterexample.json` flag; switch to `stdio: 'pipe'` for plan verification use case |
+| `run-alloy.cjs` | Parse text output beyond `/Counterexample/i` — extract constraint violation text |
+| `run-prism.cjs` | Parse result lines from captured stdout to extract probability value and pass/fail status |
+| `run-formal-verify.cjs` | Add new `generate:plan-spec` step before TLA+/Alloy/PRISM steps in the pipeline |
+| `generate-formal-specs.cjs` | Pattern precedent for template-based spec generation; plan-to-spec.cjs follows same approach |
+| `check-spec-sync.cjs` | AST walk pattern via esbuild inline bundle; plan-to-spec.cjs uses same esbuild-require pattern |
 
 ---
 
 ## Version Compatibility
 
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| `xstate@5.28.0` | Node.js 18+ (practically); TypeScript ≥5.0 | Dual CJS/ESM package; `require('xstate')` works in CJS |
-| `ajv@8.18.0` | Node.js 12+; TypeScript 4.x+ | CJS-compatible; `require('ajv')` works; actively maintained |
-| `@hpcc-js/wasm-graphviz@2.x` | Node.js 20, 22, 24 (CI-verified) | WASM binary bundled; no system Graphviz needed |
-| `tla2tools.jar@1.8.0` | Java ≥11 | Runs on JRE 11, 17, 21; macOS/Linux/Windows |
-| `alloy.jar@6.2.0` | Java ≥17 | Bundles Sat4j, MiniSat, Glucose SAT solvers |
-| PRISM 4.10 | Java ≥9 | Binary distribution available; built-in Java on some platforms |
-| `tsup` latest | Node.js 16+; TypeScript 5.x | esbuild-powered; zero-config CJS output |
+| Package | Node.js Requirement | CJS via `require()` | Notes |
+|---------|--------------------|--------------------|-------|
+| `markdown-it@14.1.1` | ≥12 (in practice) | YES — `dist/index.cjs.js` | Confirmed via npm exports map |
+| `markdown-it-task-lists@2.1.1` | ≥0.10.x | YES — `index.js` (plain CJS) | No exports map; direct CJS |
+| `comment-parser@1.4.5` | ≥12 | YES — `lib/index.cjs` | Confirmed via npm exports map; dual CJS+ESM |
+| `fast-xml-parser@5.4.1` | ≥16 | YES — `lib/fxp.cjs` | If ever needed; confirmed via exports map |
+| `@mermaid-js/mermaid-cli@11.12.0` | ≥18.19 | NO — ESM; use as CLI subprocess only | Not in v0.16 prod deps |
 
 ---
 
-## Stack Patterns by Feature
+## Upgrade Paths
 
-**If writing TLA+ spec (`formal/qgsd.tla`):**
-- Use PlusCal pseudocode first (transpiles to TLA+), then hand-edit generated TLA+ for invariants
-- Run TLC: `java -cp formal/tools/tla2tools.jar tlc2.TLC -config formal/qgsd.cfg formal/qgsd.tla`
-- Invariants to encode: `min_quorum_met`, `phase_monotonically_advances`, `no_infinite_deliberation`
-- TLC config (`qgsd.cfg`) specifies: `INIT Init`, `NEXT Next`, `INVARIANT Inv1 Inv2 Inv3`
-
-**If writing XState machine (`formal/qgsd-machine.ts`):**
-- Use `setup({ guards, actions })` from `xstate` for typed guard definitions
-- Export the machine as named export: `export const qgsdMachine = setup(...).createMachine(...)`
-- Build: `tsup formal/qgsd-machine.ts --format cjs --dts --outDir formal/dist`
-- Import in validate-traces.cjs: `const { qgsdMachine } = require('./formal/dist/qgsd-machine.cjs')`
-
-**If writing Alloy model (`formal/qgsd-votes.als`):**
-- Define `sig Phase`, `sig Agent`, `pred sufficient_quorum[...]` predicates
-- Run: `java -jar formal/tools/alloy.jar exec -c sufficient_quorum -t json formal/qgsd-votes.als`
-- Parse JSON output in Node.js to extract counterexamples
-
-**If writing PRISM model (`formal/qgsd-quorum.prism`):**
-- Generate `.prism` from scoreboard: `bin/generate-prism-model.cjs > formal/qgsd-quorum.prism`
-- Model type: DTMC (Discrete-Time Markov Chain) for round-based convergence
-- Run: `prism formal/qgsd-quorum.prism -pf 'P>=0.95 [ true U<=3 consensus_reached ]'`
-
-**If generating Petri Net SVG (`bin/generate-petri.cjs`):**
-```javascript
-const { Graphviz } = require('@hpcc-js/wasm-graphviz');
-const dot = buildPetriNetDot(agentCount, minQuorum); // hand-written DOT builder
-const graphviz = await Graphviz.load();
-const svg = graphviz.dot(dot);
-require('fs').writeFileSync('formal/qgsd-petri.svg', svg);
-```
-
-**If validating traces (`bin/validate-traces.cjs`):**
-```javascript
-const Ajv = require('ajv');
-const { createActor } = require('xstate');
-const { qgsdMachine } = require('../formal/dist/qgsd-machine.cjs');
-
-const ajv = new Ajv();
-const validate = ajv.compile(eventSchema);
-const actor = createActor(qgsdMachine);
-actor.start();
-
-for (const line of ndjsonLines) {
-  const event = JSON.parse(line);
-  if (!validate(event)) throw new Error(JSON.stringify(validate.errors));
-  actor.send(event);
-}
-// Check final state invariants
-```
+| Package | Upgrade Trigger | Action |
+|---------|----------------|--------|
+| `markdown-it` | Breaking change in plugin hook API | Check `markdown-it-task-lists` peer dep compatibility; plugin hook surface has been stable since v8 |
+| `markdown-it-task-lists` | Plugin stops working with newer markdown-it | Replace with inline token-walking code; the plugin is simple enough to replicate |
+| `comment-parser` | Custom tag API changes | `1.4.x` has been stable since 1.0.0; semver breakage would only come at 2.0.0 |
+| TLC JSON trace format | TLC changes ITF structure | Re-test `-dumpTrace json` output after tla2tools.jar upgrade; structure has been stable since 1.7.x |
 
 ---
 
 ## Sources
 
-- GitHub `tlaplus/tlaplus` releases page — confirmed v1.8.0 "The Clarke release" released 2025-02-24; Java 11 minimum. Confidence: HIGH (official source).
-- GitHub `statelyai/xstate` releases page — confirmed XState 5.28.0 released February 12, 2026. Confidence: HIGH (official source).
-- Stately.ai docs/typescript — confirmed TypeScript ≥5.0 required; `strictNullChecks: true` recommended. Confidence: HIGH (official documentation).
-- XState v5 dual-package research — confirmed `xstate.cjs.js` ships; `require('xstate')` works in Node.js CJS. Confidence: HIGH (multiple corroborating sources).
-- GitHub `AlloyTools/org.alloytools.alloy` releases page — confirmed Alloy 6.2.0 released 2025-01-09; Java 17 minimum verified via Alloy discourse + README. Confidence: HIGH (official source).
-- Alloy discourse `how-do-i-specify-options-to-alloy-6-2-cli-exec-command/538` — confirmed `exec -t json` output format; `-c` flag for command selection. Confidence: HIGH (official community forum).
-- PRISM model checker download page (`prismmodelchecker.org/download.php`) — confirmed PRISM 4.10 released January 29, 2026; Java 9+ minimum; binary distributions for macOS/Linux/Windows. Confidence: HIGH (official source).
-- PRISM manual `RunningPRISM/AllOnOnePage` — confirmed `-pf` CLI flag for inline properties; headless mode available. Confidence: HIGH (official documentation).
-- npm `@hpcc-js/wasm` page — confirmed version 2.32.3 published ~February 2026; CI on Node 20/22/24. Confidence: HIGH (official npm registry).
-- npm `ajv` page — confirmed version 8.18.0, ~15,000 dependents, published February 2026. Confidence: HIGH (official npm registry).
-- WebSearch for petri-net npm libraries — confirmed `petri-net@0.2.1` last published 10 years ago; other options browser-only or unmaintained. Confidence: HIGH (multiple sources corroborate poor npm ecosystem for Petri nets).
-- TLA+ wiki `using:tlc:start` — confirmed CLI invocation pattern `java -cp tla2tools.jar tlc2.TLC`. Confidence: HIGH (official documentation).
+- npm registry `markdown-it` — version 14.1.1, `exports["require"]: "./dist/index.cjs.js"` confirmed. Confidence: HIGH.
+- npm registry `markdown-it-task-lists` — version 2.1.1, `main: "index.js"`, last modified 2022-06-19. Confirmed stable. Confidence: HIGH.
+- npm registry `@hedgedoc/markdown-it-task-lists` — marked deprecated on npm. Confirmed: avoid. Confidence: HIGH.
+- npm registry `comment-parser` — version 1.4.5, `exports["require"]: "./lib/index.cjs"`, published 2026-02-06. Confidence: HIGH.
+- npm registry `fast-xml-parser` — version 5.4.1, `exports["."]["require"]["default"]: "./lib/fxp.cjs"`. Confidence: HIGH.
+- npm registry `@mermaid-js/mermaid-cli` — version 11.12.0, engines `node: "^18.19 || >=20.0"`, ESM exports. Confidence: HIGH.
+- WebSearch for remark/unified ESM-only status — confirmed ESM-only since 2021 major versions; `mdast-util-from-markdown` explicitly ESM-only per npm registry. Confidence: HIGH.
+- TLA+ wiki `using:tlc:start` and Apalache ITF format docs — confirmed `-dumpTrace json` flag and ITF JSON structure. Confidence: MEDIUM (official docs found; specific 2025 schema confirmed from Apalache ADR-015 cross-reference).
+- PRISM manual `RunningPRISM/ModelChecking` — confirmed text output format for property results. Confidence: HIGH (official documentation).
+- Alloy `run-alloy.cjs` source code (existing QGSD) — confirmed text output mode with `/Counterexample/i` scan already in use. Confidence: HIGH (direct code inspection).
+- `node --version` on target machine: v25.6.1 — confirms Node.js 25 is the runtime; all CJS packages satisfy requirements. Confidence: HIGH.
 
 ---
-*Stack research for: QGSD v0.12 Formal Verification — TLA+, XState, Alloy, PRISM, Petri Net, conformance log checker*
-*Researched: 2026-02-24*
+
+*Stack research for: QGSD v0.16 Formal Plan Verification — new capabilities only*
+*Researched: 2026-02-26*

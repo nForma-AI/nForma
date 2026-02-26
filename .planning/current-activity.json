@@ -1,7 +1,6 @@
 {
   "activity": "plan_phase",
-  "sub_activity": "quorum",
-  "phase": "v0.9-07",
-  "quorum_round": 1,
-  "updated": "2026-02-26T19:37:14.214Z"
+  "sub_activity": "planning",
+  "phase": "v0.15-01",
+  "updated": "2026-02-26T20:11:54.182Z"
 }

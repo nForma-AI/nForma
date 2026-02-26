@@ -1,412 +1,458 @@
-# Pitfalls Research
+# Domain Pitfalls: v0.16 Formal Plan Verification
 
-**Domain:** Adding formal verification tooling to an existing Node.js Claude Code plugin (QGSD v0.12)
-**Researched:** 2026-02-24
-**Confidence:** HIGH — based on direct inspection of hooks/qgsd-stop.js, hooks/qgsd-prompt.js, bin/update-scoreboard.cjs, bin/call-quorum-slot.cjs, agents/qgsd-quorum-orchestrator.md; MongoDB conformance-checking post-mortem (HIGH); learntla.com optimization guide (HIGH); Alloy facts pitfall documentation (HIGH); TLC model values/symmetry docs (HIGH); PRISM official docs (MEDIUM for empirical data pitfalls — WebSearch only); XState v5 module format (MEDIUM — docs use ESM syntax exclusively)
+**Domain:** Adding formal plan verification to an existing AI planning workflow (QGSD)
+**Researched:** 2026-02-26
+**Confidence:** HIGH — sources include VeriPlan CHI 2025 paper (arxiv 2502.17898), "Bridging LLM Planning Agents and Formal Methods" (arxiv 2510.03469), Loop Invariant Hybrid Framework (arxiv 2508.00419), MAD conformity research (ACL 2025), direct inspection of QGSD FV pipeline (bin/generate-formal-specs.cjs, bin/run-formal-verify.cjs, formal/tla/, formal/alloy/, formal/prism/), and existing v0.12 PITFALLS.md
+
+> **Scope:** These pitfalls cover v0.16's five new features: (1) plan-to-spec extraction, (2) iterative verification loop, (3) mind map generation, (4) code annotation extraction pipeline, (5) formal evidence injection into multi-model quorum. They complement (not replace) the v0.12 PITFALLS.md, which covers the base FV pipeline. Both files apply to v0.16.
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: TLA+ State Explosion From UNAVAIL Permutations
+### Pitfall 1: False Positive Verification — The Spec Passes But Does Not Capture Plan Intent
 
 **What goes wrong:**
-The QGSD state machine has up to 10 agent slots, each of which can be AVAILABLE, UNAVAIL, or RESPONDED in any given round. Modeling all 10 slots as distinct named values without symmetry sets produces a state space that grows as `3^N × R!` where R is the number of rounds. With 10 slots and 3 possible states each, the reachable states before any round-transition logic are already 3^10 = 59,049 combinations. Add 3 rounds of deliberation, transition actions, and quorum-verdict outcomes (APPROVE/BLOCK/DELIBERATE/CONSENSUS) and TLC will explore tens of millions of states before finding a violation or completing — likely timing out on a developer laptop.
+Claude extracts a TLA+/Alloy/PRISM spec fragment from PLAN.md. TLC runs successfully and reports no violations. The plan proceeds to quorum. But the generated spec was incomplete — it modeled only the easy-to-express parts of the plan (state names, transition counts) and silently omitted the hard semantic constraints (ordering invariants, conditional dependencies, mutual exclusion requirements). Quorum and the user are told "formally verified" when in reality only a partial skeleton was verified.
+
+This is the dominant real-world failure mode in LLM-to-spec translation, documented directly in "Bridging LLM Planning Agents and Formal Methods" (arxiv 2510.03469): "GPT-5 produced models that passed verification but did not fully capture the intent of the original plan." GPT-4o achieved only 52.06% accuracy with a 34.61% unknown rate.
 
 **Why it happens:**
-Spec authors model QGSD slots as concrete named constants (slot1, slot2, … slot10) mirroring the real slot names. Each named slot is a distinct value; TLC explores all permutations. UNAVAIL is modeled as a boolean flag or an enum per slot, multiplying state combinations. The liveness property `no_infinite_deliberation` requires checking all interleavings, making this doubly expensive (liveness slows TLC by an additional factor and prevents symmetry set optimizations).
+LLMs extract the syntactically simple parts of a plan (phases, task names, dependencies that look like DAG edges) and skip the semantically complex parts (conditional execution, resource constraints, timing invariants). The extracted spec is syntactically valid and small — TLC verifies it quickly because there is little to check. Nothing in the pipeline warns that the spec is incomplete relative to the plan.
 
-**How to avoid:**
-Three techniques, all required together:
+**Consequences:**
+Quorum votes with "mathematically verified" confidence attached to an incomplete proof. Real plan defects (ordering violations, missing preconditions) reach execution undetected. The verification adds false confidence without improving actual plan quality.
 
-1. **Symmetry sets**: Replace named slot constants with symmetric model values. A set of N symmetric slot values reduces states by N! (10 slots → up to 3,628,800x reduction). Declare `Slots` as a symmetry set in the `.cfg` file. Warning: liveness properties cannot use symmetry sets — check safety and liveness in separate models.
+**Prevention:**
+Implement a coverage check: after spec extraction, run a prompt asking Claude to list every task dependency, ordering constraint, and conditional branch in PLAN.md, then verify that each appears as an explicit invariant or transition constraint in the extracted spec. Any PLAN.md element with no corresponding spec element must be flagged as `unmodeled_coverage_gap`. The verification summary injected into quorum must include the gap list, not just the pass/fail result.
 
-2. **Separate safety from liveness**: Run two TLC model configurations: `qgsd_safety.cfg` (symmetry enabled, checks invariants `min_quorum_met` and `phase_monotonically_advances`) and `qgsd_liveness.cfg` (no symmetry, checks `no_infinite_deliberation` with small N=3 or N=4 slot count).
+**Detection:**
+- Extracted spec has fewer invariants than the PLAN.md has explicit dependency or ordering statements
+- PLAN.md contains "if X then Y" language but extracted spec has no conditional transition
+- Spec verification runs in under 3 seconds for a plan with 15+ tasks (almost certainly underconstrained)
+- Verification summary says "PASS" with zero invariants listed
 
-3. **Minimize model constants**: Start with N=3 slots (not 10) to validate spec structure before running with production slot count. The TLC profiler can identify which actions generate the most state branching — use `action statistics` to tune before scaling.
-
-**Warning signs:**
-- TLC reports more than 1 million states before completing with N=10 slots
-- Model checking time exceeds 30 minutes on a developer machine with N=5 slots
-- `no_infinite_deliberation` check takes 10x longer than `min_quorum_met` check
-
-**Phase to address:**
-TLA+ spec phase (first formal verification phase). Safety and liveness model configurations should be defined in the same phase as the spec, before any TLC run is attempted.
+**Phase to address:** Plan-to-spec extraction phase (v0.16-01 or whichever phase implements PLAN.md → spec fragment). Coverage check must be a required output of the extraction step, not an afterthought.
 
 ---
 
-### Pitfall 2: Conformance Log Schema Drift Between Hooks and Validator
+### Pitfall 2: Iterative Verification Loop Oscillation — The Loop Never Converges
 
 **What goes wrong:**
-The conformance event logger emits JSON events from within QGSD hooks (Stop hook, UserPromptSubmit hook, potentially PreToolUse). The validator (`bin/validate-traces.cjs`) parses these events and checks them against the TLA+ spec's state transitions. When the hooks evolve (new slot statuses, new quorum verdict types, renamed fields), the validator's parser becomes stale. It either silently skips unrecognized events (false passes) or throws on unexpected fields (false failures). In both cases, the conformance check gives a wrong answer.
+Claude enters the iterative verification loop: extract spec → run TLC/Alloy → get counterexample → ask Claude to fix PLAN.md or the spec → extract again → repeat. The loop hits the configurable cap (say, 5 iterations) without converging. But the cap exhaustion is not meaningfully communicated to quorum — instead the plan is marked "verification inconclusive" and proceeds. Quorum does not understand what the failure means, and approves anyway.
 
-This is the dominant real-world failure mode: MongoDB spent months on conformance instrumentation precisely because "each time a node executes a state transition, it has to snapshot its state variables in order to log them" — state snapshots are fragile and drift constantly.
+A second failure mode: the loop oscillates. Claude fixes one TLC counterexample in iteration 2, but the fix introduces a new violation caught in iteration 3. The fix in iteration 3 re-introduces the violation from iteration 1. The loop alternates between two broken states until the cap is hit. This mirrors the exact oscillation pattern QGSD's circuit breaker was built to detect in git history.
 
 **Why it happens:**
-Hook files and the validator are edited independently. The hook emits `{ phase, action, slots_available, vote_result, outcome }` but there is no shared schema definition. When a new quorum verdict type is added (e.g., `GAPS_FOUND` already exists in `VALID_VERDICTS` of `update-scoreboard.cjs` but the validator may not list it), the conformance check silently ignores events containing it. The scoreboard and validator evolve on different cycles.
+Counterexample-guided refinement with LLMs does not guarantee monotonic progress. Each fix is a local perturbation — it repairs the specific violated path but may break a different path. The "4/δ Bound" research (arxiv 2512.02080) shows that iterative LLM-verifier loops require approximately 4/δ steps where δ is the probability of making a net-forward step. With δ < 0.5 (common for complex specs), the loop exceeds reasonable bounds. VeriPlan found that three iterations was the practical limit before user intervention was required.
 
-**How to avoid:**
-Mandate a single shared schema file consumed by both producers (hooks) and consumers (validator):
+**Consequences:**
+Either the loop wastes context window (every iteration consumes significant token budget) and exits with an unconverged plan, or it silently passes an unverified plan to quorum because the exit condition is not strict enough.
 
-```javascript
-// bin/conformance-schema.cjs — single source of truth
-const CONFORMANCE_SCHEMA_VERSION = '1';
-const VALID_ACTIONS  = ['QUORUM_STARTED', 'SLOT_CALLED', 'SLOT_RESPONDED', 'SLOT_UNAVAIL', 'QUORUM_VERDICT', 'PHASE_ADVANCE'];
-const VALID_PHASES   = ['PROMPT', 'QUORUM', 'DECISION', 'STOP'];
-const VALID_OUTCOMES = ['APPROVE', 'BLOCK', 'DELIBERATE', 'CONSENSUS', 'GAPS_FOUND'];
+**Prevention:**
 
-function validateEvent(event) {
-  if (event.schema_version !== CONFORMANCE_SCHEMA_VERSION) throw new Error('schema_version mismatch');
-  if (!VALID_ACTIONS.includes(event.action))  throw new Error('unknown action: ' + event.action);
-  if (!VALID_PHASES.includes(event.phase))    throw new Error('unknown phase: ' + event.phase);
-  // ...
-}
-module.exports = { CONFORMANCE_SCHEMA_VERSION, validateEvent };
-```
+1. **Strict convergence signal:** The iterative loop must track whether each iteration reduces the number of spec violations. If violations increase or stay equal across two consecutive iterations, declare oscillation — stop the loop immediately. Do not continue to the cap.
 
-Both hooks and the validator `require()` this file. Any new field must be added here first, and the validator throws — rather than silently skips — on unrecognized values.
+2. **Hard cap with clear escalation:** The cap (configurable, default 5) must produce a hard escalation path. If cap is hit: do not proceed to quorum automatically. Present the user with the last-best plan iteration, the remaining counterexample(s), and the specific spec elements that failed. Require explicit user override to proceed.
 
-**Warning signs:**
-- `validate-traces.cjs` reports 0 violations on a trace that should have failed
-- Adding a new verdict type to `VALID_VERDICTS` in `update-scoreboard.cjs` without updating the validator schema
-- Hook emits an event but the validator's trace output shows a gap (missing event)
-- Schema version field absent from emitted events
+3. **Partial progress reporting:** Each iteration's pass/fail rate (number of satisfied invariants vs. total) must be tracked. Even if the loop fails to converge, a plan that satisfies 8/10 invariants after the loop is better characterized than one that satisfies 3/10.
 
-**Phase to address:**
-Conformance event logger phase (Phase 1 of v0.12). Define the schema file before writing any hook instrumentation. The validator and hooks must share the same schema module from the first commit.
+4. **Deduplicate counterexamples:** Before re-running TLC, check whether the current counterexample is identical (same violated trace) to a previous iteration's counterexample. If identical, the fix failed — force a different repair strategy or escalate.
+
+**Detection:**
+- TLC counterexample in iteration N is identical to iteration N-2
+- Iteration N satisfies fewer invariants than iteration N-1
+- Loop exits at cap with no improvement between last two iterations
+- No per-iteration progress metric in verification summary
+
+**Phase to address:** Iterative verification loop phase. The convergence signal and oscillation detection must be defined before the first loop implementation. The cap escalation path must be tested explicitly.
 
 ---
 
-### Pitfall 3: Hook Side-Effect Contamination — Emitting Events From Stop Hook Blocks Sessions
+### Pitfall 3: LLM Counterexample Misinterpretation — Fixes Address Syntax Not Semantics
 
 **What goes wrong:**
-The Stop hook (`hooks/qgsd-stop.js`) reads stdin JSON and writes to stdout to signal `decision: block` or passes via `process.exit(0)`. Adding conformance event emission (file I/O, JSON append) inside the Stop hook creates two risks:
+TLC or Alloy generates a counterexample — a specific violating trace or counterexample instance. Claude receives this as a block of TLA+ state sequences or Alloy instance output. Claude's fix addresses the surface-level error in the spec (changing a variable name, adjusting an invariant's arithmetic expression) rather than identifying the underlying plan defect the counterexample is pointing at. The spec is patched to pass the counterexample check without the actual plan being changed.
 
-1. **Timing**: The Stop hook runs synchronously. Any slow file I/O (writing to a log on a network-mounted drive, file contention with a concurrent validator run) adds latency to every Claude session termination.
-
-2. **stdout pollution**: If conformance logging accidentally writes anything to stdout alongside or instead of the block JSON, Claude Code misinterprets the output. The Stop hook's entire stdout is the decision payload — any extra byte corrupts it. Currently `qgsd-stop.js` uses `process.stdout.write(JSON.stringify({decision:'block',...}))` exactly once; any logging library that uses `console.log` inside the same process will corrupt this.
+This is documented in the Loop Invariant Framework research (arxiv 2508.00419): LLMs "often focus on syntactic fixes and may introduce subtle bugs due to their statistical nature and lack of formal guarantees." The feedback loop architecture assumed LLMs understand counterexample semantics, but they frequently perform pattern matching on the error message format instead.
 
 **Why it happens:**
-Developers add `console.log('event:', JSON.stringify(event))` while debugging the conformance logger inside a hook file, not realizing the Stop hook's stdout is the decision protocol. The hook works in isolation but corrupts Claude Code's session when combined.
+TLC counterexamples are expressed in TLA+ state notation, which is not the same language as PLAN.md. Claude is asked to translate a violation in the spec language back to a defect in the plan language — a bidirectional translation without a formal bridge. The easier move is to locally patch the spec rather than reason about the underlying planning intent.
 
-**How to avoid:**
-Conformance events must be emitted to `stderr` (for debugging) and written to a log file via `fs.appendFileSync` or a separate process. The log file path must be determined before any stdout write. The emission function must use `process.stderr.write()`, never `console.log()` or `process.stdout.write()`, inside any hook file.
+**Consequences:**
+The plan reaches quorum with a verified spec that has been "debugged" rather than a plan that was genuinely corrected. The spec and plan diverge: the spec satisfies TLC, but the plan may still contain the original defect. The code that gets executed will implement the plan, not the spec.
 
-Implement a dedicated `emitConformanceEvent(event)` helper that:
-- Writes to `~/.claude/qgsd-conformance.jsonl` (append)
-- Uses `process.stderr.write()` for any debug output
-- Never touches `process.stdout`
-- Is wrapped in a `try/catch` that silently swallows errors (fail-open matches existing hook philosophy)
+**Prevention:**
 
-**Warning signs:**
-- Claude Code shows garbled decision blocks ("Invalid JSON in hook response") after conformance logging is added
-- `validate-traces.cjs` receives partial JSON in its input because stdout was contaminated
-- Stop hook decision blocks appear with extra bytes before the `{` character
+Separate the counterexample interpretation step from the fix step using a two-pass prompt:
 
-**Phase to address:**
-Conformance event logger phase. Write `emitConformanceEvent()` before adding any hook instrumentation. Run the Stop hook test suite after adding emission to confirm zero stdout contamination.
+- Pass 1 prompt: "Here is the TLC counterexample. Translate it to a natural language description of what plan behavior it shows is problematic. Do not propose a fix yet."
+- Pass 2 prompt: "Here is the plan behavior identified as problematic: [Pass 1 output]. Now propose a specific change to PLAN.md that addresses this behavior. Identify the exact task, dependency, or ordering statement that must change."
+
+Both passes must be in the verification summary injected into quorum. Quorum sees both the machine-readable violation AND the natural language interpretation, enabling slot workers to detect misinterpretations.
+
+**Detection:**
+- Spec changes between iterations with no corresponding change to PLAN.md
+- Iterations only modify TLA+ invariant bounds (e.g., changing `N >= 2` to `N >= 1`) without touching the underlying predicate logic
+- Pass 1 and Pass 2 outputs are inconsistent (proposed fix does not address stated problem)
+
+**Phase to address:** Iterative verification loop phase. Two-pass counterexample interpretation must be the default pattern, not an optimization. Single-pass is prohibited for plan-affecting counterexamples.
 
 ---
 
-### Pitfall 4: XState v5 ESM-Only Format Breaks CJS Hook Files
+### Pitfall 4: Overconstrained Spec Blocks All Valid Plans
 
 **What goes wrong:**
-XState v5 (`xstate@5.x`) uses ESM as its primary module format. All official documentation examples use `import { createMachine }` syntax. If the XState machine is implemented as a `.ts` or `.mts` file and imported into a CJS hook file with `require('xstate')`, it throws `ERR_REQUIRE_ESM` at hook startup — blocking every session.
+Claude extracts a spec from PLAN.md that includes every mentioned constraint — including soft preferences stated as hard invariants. ("Task B should run after task A" becomes `A_COMPLETED \in past_states` as a required invariant rather than a recommended ordering.) TLC finds that no valid execution trace exists — the spec is unsatisfiable. The iterative loop cannot produce a passing plan because the constraints are contradictory, yet the loop runs to cap without detecting unsatisfiability.
 
-QGSD hooks are `.js` files loaded by Claude Code via `require()` (confirmed: `hooks/qgsd-stop.js` starts with `'use strict'; const fs = require('fs');`). The QGSD package itself is CJS (`package.json` uses `"main"` with no `"type": "module"`). Adding XState as a production dependency of hook files requires either transpiling the machine to CJS at build time or keeping the machine in a separate `.mts` file that is never directly `require()`'d from hooks.
+The inverse also occurs: underconstrained specs (Pitfall 1) pass trivially. Overconstrained specs reject everything. Both failures are indistinguishable from each other without explicit diagnostic output.
 
 **Why it happens:**
-Developers add `npm install xstate` and write `const { createMachine } = require('xstate')` in a hook file. The test passes in isolation (Node.js test runner may resolve the ESM export via a conditional), but Claude Code's hook runner uses a different module resolution path and throws.
+PLAN.md uses natural language that expresses both hard requirements and soft preferences with identical syntactic structure ("X must happen before Y" and "ideally X happens before Y" are both natural language ordering statements). The LLM spec extractor does not have a reliable way to distinguish mandatory from advisory constraints from natural language alone, and errs toward inclusion (treating everything as hard constraints) to avoid Pitfall 1.
 
-**How to avoid:**
-Two acceptable patterns:
+**Consequences:**
+Every plan PLAN.md generates will fail TLC. The iterative loop always hits the cap. Quorum never sees a verified plan. The feature appears broken. If the unsatisfiability is not clearly diagnosed, Claude will waste all iterations attempting local repairs that cannot succeed.
 
-Pattern A (recommended — separate machine file, never required from hooks):
-The XState machine lives in `src/qgsd-machine.ts`. It is compiled by `tsc` to `dist/qgsd-machine.cjs` using `"module": "CommonJS"` in tsconfig. The hooks never import it directly — the machine is a standalone executable used for conformance validation, not embedded in hook runtime.
+**Prevention:**
 
-Pattern B (no XState in hooks at all):
-Hooks emit conformance events. The validator (`bin/validate-traces.cjs`) runs the XState machine independently as a post-hoc trace checker. No `require('xstate')` ever appears in any hook file.
+1. **Explicit constraint tier extraction:** The spec extraction prompt must classify each extracted constraint as HARD (invariant — must hold in all traces) or SOFT (preference — verified as liveness, not safety). PLAN.md language triggers:
+   - "must", "required", "shall" → HARD invariant
+   - "should", "ideally", "prefer" → SOFT liveness property
+   - Default (ambiguous language) → SOFT, not HARD
 
-Either way: `xstate` must not appear in the `dependencies` field that hook files consume at runtime, and must be either a `devDependency` or a separately installed package consumed only by `bin/` scripts.
+2. **Satisfiability pre-check:** Before running the full TLC model check, run a brief Alloy `run {}` with no constraints to verify the state space is non-empty. An empty state space with no constraints means the hard invariants are contradictory. Diagnose and report this immediately rather than running TLC iterations.
 
-**Warning signs:**
-- `require('xstate')` in any file under `hooks/`
-- `xstate` listed in `package.json` dependencies consumed by hook CJS runtime
-- `ERR_REQUIRE_ESM` in Claude Code logs after QGSD install
-- `hooks/dist/` rebuild doesn't include XState machine module
+3. **Constraint count ratio check:** If the extracted spec has more hard invariants than tasks in the plan, flag for manual review. A 20-task plan with 25+ hard invariants is almost certainly overconstrained.
 
-**Phase to address:**
-XState machine phase. Decide the architecture (Pattern A or B) before writing any machine code. Verify by running the installed hook file with `node hooks/dist/qgsd-stop.js < /dev/null` — should exit cleanly with no XState import errors.
+**Detection:**
+- TLC reports "No initial states" or "Invariant violated in initial state"
+- Alloy `run {}` with no predicates returns "No instance found"
+- Spec has more `Invariant` declarations than the plan has tasks
+- All loop iterations fail at the same TLC check (same invariant, different trace)
+
+**Phase to address:** Plan-to-spec extraction phase. Constraint tier extraction (HARD vs. SOFT) and satisfiability pre-check must be part of the extraction output before any TLC run.
 
 ---
 
-### Pitfall 5: PRISM Model Built From Insufficient Scoreboard Data
+### Pitfall 5: Mermaid Syntax Failures Silently Corrupt Mind Map Injection
 
 **What goes wrong:**
-The PRISM probabilistic model is intended to use empirical TP/TN/UNAVAIL rates from `.planning/quorum-scoreboard.json` to build transition probability matrices for a DTMC (discrete-time Markov chain). The scoreboard currently has at most a few hundred rounds across all slots (QGSD was at v0.7 as of 2026-02-24). With N=10 slots and sparse per-slot histories, many transition pairs will have 0 or 1 observations.
+Claude generates a Mermaid mind map from PLAN.md. The generated Mermaid has a syntax error — special characters in task names (parentheses, quotes, colons, brackets), node labels exceeding line length limits, or nesting depth violations. The `mindmap` block in MINDMAP.md silently produces no rendered output. When injected into quorum slot-worker prompts, the slot workers receive a broken diagram block rather than a structured visualization. Since no tool validates Mermaid syntax before injection, the workers see garbage — but no error is surfaced.
 
-A PRISM model derived from sparse data produces transition probabilities that are statistically meaningless. Claiming `P≥0.95 [F consensus_reached]` when that probability was estimated from 3 observations of one slot is mathematically invalid — the confidence interval on a 3-sample estimate overlaps 0 and 1. PRISM will verify the property against the hardcoded probability, not against the true distribution, producing a verification result that says nothing useful.
+This is a documented and active problem in the LLM-Mermaid ecosystem: "It's not uncommon for LLMs to generate invalid Mermaid syntax" (GenAIScript documentation, 2025). Roo Code issue tracker and LMStudio both document Mermaid rendering failures from LLM output with no warning.
 
 **Why it happens:**
-Spec authors see scoreboard fields `tp`, `tn`, `fp`, `fn`, `unavail` and compute `p_unavail = unavail / (tp + tn + fp + fn + unavail)`. With `unavail=2, total=8`, this gives 0.25. PRISM accepts this as a valid transition probability. The verification passes. But `n=8` is far too small for any statistical claim about a 0.05 tail probability.
+PLAN.md task names are written by Claude during plan generation and often contain characters that Mermaid requires escaping: colons (`:`) break label parsing, forward slashes interfere with path notation, and parentheses are special in some Mermaid diagram types. The `mindmap` diagram type is particularly restrictive about indentation (spaces, not tabs) and line length. Claude generates valid-looking Mermaid that fails at render time.
 
-**How to avoid:**
-Two mitigations, both required:
+**Consequences:**
+Slot workers receive an injected context block that says `formal_spec_summary: [valid]` but shows a broken diagram under `mindmap`. Workers cannot visually process the plan structure. The mind map feature provides no benefit to quorum while consuming context tokens.
 
-1. **Minimum data threshold gate**: `validate-traces.cjs` (or the PRISM model generator) must check that each slot has at least 30 rounds before including it in the model. Slots with fewer than 30 rounds use a conservative prior (`p_unavail = 0.3`, `p_tp = 0.7`) instead of empirical data. Document this in the model header.
+**Prevention:**
 
-2. **Confidence interval annotation**: The PRISM `.pm` file header must include a comment block showing the sample sizes and 95% Wilson confidence intervals for each transition probability. If any CI width exceeds 0.2, the property is flagged as LOW confidence in the header, not verified.
+1. **Post-generation syntax validation:** After generating the Mermaid block, pass it through `mermaid.parse()` (available via the `mermaid` npm package's parser, or the `@mermaid-js/mermaid-zenuml` parser for CI). Any parse error triggers a repair prompt immediately — not a full regeneration, just the specific broken node.
 
-The PRISM model's value for this project is not statistical proof — it is a demonstration of the modelling approach and a sanity check that the claimed probabilities are at least plausible. Document this scope honestly.
+2. **Character sanitization before generation:** Before generating the mind map prompt, sanitize PLAN.md task names: replace `:` with `-`, strip parentheses, truncate labels to 40 characters. Pass the sanitized task list to the generation prompt, not the raw PLAN.md text.
 
-**Warning signs:**
-- Per-slot round count in scoreboard is below 30
-- PRISM model header shows no sample size annotations
-- Model property claims `P>=0.95` without a confidence interval comment
-- Transition probabilities differ by >0.3 between early and late halves of the scoreboard history (sign of non-stationarity)
+3. **Fallback plain text:** If Mermaid validation fails after one repair attempt, inject a plain-text bullet-point outline instead of a broken Mermaid block. The slot-worker context must indicate which format was used: `mindmap_format: mermaid | plaintext`.
 
-**Phase to address:**
-PRISM model phase. Add the minimum data threshold check before writing any `.pm` file content. If the scoreboard is too sparse at phase execution time, generate the model with conservative priors and document clearly.
+4. **CI validation gate:** Add a CI test that generates the mind map from a sample PLAN.md and passes it through the Mermaid parser. If this fails, the mind map generation step has regressed.
+
+**Detection:**
+- Mermaid block renders as raw text (no diagram) in GitHub or Claude Code markdown preview
+- Slot-worker quorum prompts contain unclosed brackets or mismatched indentation in the mindmap block
+- `mermaid.parse()` throws on the generated output
+- Task names in MINDMAP.md contain colons or parentheses from PLAN.md
+
+**Phase to address:** Mind map generation phase. Validation and character sanitization must be implemented before the first quorum injection integration test.
 
 ---
 
-### Pitfall 6: Spec-to-Implementation Divergence — TLA+ Spec Describes an Idealized System
+### Pitfall 6: Annotation Extraction Brittleness — @invariant Tags Drift From Runtime Behavior
 
 **What goes wrong:**
-The TLA+ spec models the QGSD state machine abstractly: a quorum round is a single atomic action in the spec, but in the actual implementation it involves multiple separate operations (hook fires, `call-quorum-slot.cjs` invocations, `update-scoreboard.cjs` writes, orchestrator synthesizer decisions). The spec's `PhaseAdvance` action assumes all slot results are collected atomically before the verdict is computed. The implementation executes sequentially, with each slot call potentially failing mid-round.
+The code-as-source-of-truth pipeline extracts `@invariant`, `@transition`, and `@probability` JSDoc annotations from QGSD source files. These annotations are written by the developer alongside the code they describe. Over time, the code changes and the annotation becomes stale — but no enforcement mechanism exists to detect the drift. The spec extracted from annotations describes the old behavior. TLC runs against the old spec and passes. The running code violates the invariant.
 
-If the conformance checker compares a spec `PhaseAdvance` event against a real trace where the phase advance happened across 4 separate log entries (one per slot call), the checker will either fail to find a matching spec action (false positive violation) or match the wrong action (silent conformance failure).
+This is the general spec drift problem applied to annotation-based extraction. The Pact community's 2025 update and the Spec-Driven Development ecosystem both document "provider drift" as the primary cause of spec-to-implementation divergence: "specs describing system behavior diverge from actual implementation as systems evolve."
 
-This is exactly the MongoDB problem: "When an old leader votes for a new one, the implementation has the old leader step down and then the new leader step up, but the spec assumed these two actions happened at once — a deliberate simplification in the spec."
+For QGSD specifically: `bin/generate-formal-specs.cjs` already reads the XState machine via regex pattern matching (lines 41-54). Adding another extraction layer (JSDoc annotations) doubles the regex surface area. Each regex pattern is a potential breakage point when the code refactors variable names or restructures function bodies.
 
 **Why it happens:**
-TLA+ specs naturally model distributed systems at a coarser granularity than implementations use. The spec author writes `PhaseAdvance` as one action for clarity; the implementation has 10+ distinct log events for what the spec treats as one transition. The checker tries to map N implementation events to 1 spec action and fails.
 
-**How to avoid:**
-Define action granularity explicitly in a `CONFORMANCE_MAPPING.md` before writing any validator code:
+1. JSDoc `@invariant` is not a standard tag. JSDoc parsers silently drop unknown tags unless configured with custom plugin parsers. If the parser configuration changes or the plugin version updates, extraction silently fails — returning zero annotations without error.
 
-```
-Spec Action       | Implementation Events (sequence)
-------------------|-------------------------------------------
-QuorumRoundStart  | QUORUM_STARTED
-SlotResult        | SLOT_CALLED → SLOT_RESPONDED | SLOT_UNAVAIL
-VerdictComputed   | QUORUM_VERDICT
-PhaseAdvance      | PHASE_ADVANCE
-```
+2. Annotations are written as documentation comments, not enforced contracts. Developers refactor the function body without updating the JSDoc. The annotation describes historical intent.
 
-The validator must collapse implementation event sequences into single spec-action tokens before checking conformance. Never compare implementation events 1:1 against spec actions.
+3. The AST walk used for extraction (QGSD already uses esbuild + `require()` for spec sync drift detection in `check-spec-sync.cjs`) is tied to specific esbuild parse behavior. Breaking changes in esbuild's AST node structure silently corrupt extraction output.
 
-**Warning signs:**
-- Conformance checker reports violations on correct traces
-- `PHASE_ADVANCE` in spec matches 5 different positions in implementation trace depending on parser
-- Adding a new slot call adds a false violation to the conformance output
-- Validator is checking per-event instead of per-action-sequence
+**Consequences:**
+The code annotation pipeline generates specs that describe code that no longer exists. TLC passes against a stale spec. The "code as source of truth" claim becomes false — the annotations are the source of truth, and they have drifted from the code.
 
-**Phase to address:**
-Conformance event logger phase (before any validator code). Write `CONFORMANCE_MAPPING.md` as the first deliverable. All subsequent validator and spec work uses this mapping.
+**Prevention:**
+
+1. **Annotation co-location with enforcement:** Every `@invariant` annotation must reference a specific function or variable by name. The extractor must verify that the named entity exists in the current AST. If it does not, fail loudly: "Annotation references `checkMinQuorum` but no function with that name exists in this file."
+
+2. **Round-trip test:** The annotation extraction pipeline must include a round-trip test: extract annotations from source → generate spec → verify that the spec's invariants are satisfiable given the actual current code path. This is distinct from verifying the spec abstractly.
+
+3. **Annotation staleness heuristic:** If the annotated function's last-modified timestamp in git is newer than the annotation's last-modified timestamp (checked via `git log -n 1 --format=%at -- <file>`), flag the annotation as potentially stale.
+
+4. **Pin parser versions:** The esbuild version and JSDoc parser version used for extraction must be pinned in `package.json` with exact version locks. Do not use `^` ranges for these tools.
+
+**Detection:**
+- `@invariant` annotates a function that has been renamed or moved
+- Extracted invariant count drops between runs without any annotation file being touched
+- Spec generated from annotations differs from spec generated from the XState machine for the same behavior
+- esbuild AST walk returns an empty annotation list after a minor esbuild update
+
+**Phase to address:** Code annotation extraction phase. The entity-name verification and round-trip test must be implemented before any annotations are added to source files.
 
 ---
 
-### Pitfall 7: Alloy Facts Overconstraining the Vote-Counting Predicate
+### Pitfall 7: Formal Evidence Injection Causes Quorum Anchoring and Sycophantic Convergence
 
 **What goes wrong:**
-The Alloy model for vote-counting predicates is designed to answer: "Given N agents, M UNAVAIL, is this quorum count valid for a transition?" If the predicate logic uses Alloy `fact` declarations to constrain the agent population (e.g., `fact { all a: Agent | a.status in (Available + Unavail)}`), the Alloy Analyzer cannot generate counterexamples involving illegal agent configurations — configurations the implementation must handle defensively.
+Quorum slot workers receive `formal_spec_summary: PASS (8/10 invariants satisfied)` and `verification_result: VERIFIED` in their prompt context. The statistical evidence creates an anchoring effect: slot workers that would otherwise BLOCK on a plan weakness instead default to APPROVE because the formal context signals correctness. The multi-model consensus that was supposed to provide independent judgment instead anchors to the verification result.
 
-Specifically: if a `fact` prevents zero-agent configurations, the Alloy model cannot find the counterexample where `slots_available = 0` causes `min_quorum_met = false` — a real edge case the implementation does handle (fail-open logic in `qgsd-stop.js` line 431: `const isAvailable = availablePrefixes === null || availablePrefixes.includes(agent.prefix)`).
+This is documented in 2025 MAD research: "When LLMs provided formal information directly in the chat answer, the anchoring bias was almost completely eliminated [for humans]" — but for LLM agents, the reverse may occur. Research on multi-agent debate (ACL 2025, "Voting or Consensus?") found that "extended deliberation causes confidence to increase while accuracy decreases, with sycophancy through exhaustion causing contrarians to capitulate." Injecting pre-computed evidence that signals correctness accelerates this pattern.
+
+The second failure mode: if the spec verification passes but the spec was incomplete (Pitfall 1), the formal evidence injection launders the false confidence through every slot worker. All workers see "VERIFIED" and none independently detect that the spec was too weak.
 
 **Why it happens:**
-Alloy facts feel like preconditions — "assumptions that are always true." The spec author adds `fact { #Agent >= 1 }` to avoid degenerate zero-agent cases. This makes the model cleaner but silently removes a class of counterexamples that validate the implementation's fail-open behavior.
+Quorum slot workers are LLMs. LLMs are susceptible to the same anchoring biases as humans when presented with authoritative-looking numerical or formal results. A TLC output block with "No violations found" and state count statistics looks authoritative even when the underlying spec is incomplete.
 
-**How to avoid:**
-Use `pred` instead of `fact` for all structural constraints. Facts are only appropriate for Alloy-internal scope restrictions (cardinality limits to keep analysis tractable). Every predicate that constrains agent count or vote count must be an explicit `pred` invoked in `run` and `check` commands, not embedded as a global fact.
+**Consequences:**
+The quorum's value as an independent check on plan quality is degraded. Slot workers vote APPROVE on plans they would have blocked before formal evidence injection. BLOCK rates drop; the scoreboard shows a higher TP rate (slot workers approve and consensus approves) but this is actually a quality regression hidden behind the verification theater.
 
-Specifically: the zero-agent case (`#Agent = 0`), the all-UNAVAIL case, and the minimum-quorum-not-met case must each be explicitly runnable as `run` scenarios to verify the model captures them correctly. If any of these cannot be run, it indicates a fact is overconstriciting the model.
+**Prevention:**
 
-**Warning signs:**
-- `run { some Agent | Agent.status = Available }` finds no instances (overly constrained)
-- Alloy cannot find a counterexample for `not min_quorum_met` even with 10 agents
-- `fact` declarations outnumber `pred` declarations by more than 2:1
-- The zero-agent scenario cannot be instantiated without editing a fact
+1. **Adversarial injection framing:** The formal context injected into slot workers must be framed explicitly as limited evidence, not proof: "Formal verification passed for the extracted spec fragment. Note: the spec covers X of Y plan elements. Elements not covered by the spec: [list]. Evaluate whether these uncovered elements contain risks the spec cannot detect."
 
-**Phase to address:**
-Alloy model phase. Review every `fact` declaration before submitting the model for analysis. Each fact must have an explicit justification comment explaining why it is not a predicate.
+2. **Independent plan review prompt:** Separate the formal evidence from the plan review in the slot-worker prompt. Slot workers must first analyze the PLAN.md directly (without seeing verification results), record their preliminary vote, and only then receive the formal evidence context. This prevents first-impression anchoring.
 
----
+3. **Coverage gap mandatory review:** Any spec with a coverage gap list (Pitfall 1 prevention) must include coverage gaps prominently before the PASS/FAIL verdict in the injected context. Slot workers must be prompted to evaluate the gaps explicitly.
 
-### Pitfall 8: JVM Dependency Management — PRISM and Petri Net Tools Require Specific Java Versions
+4. **Monitor BLOCK rate:** Track BLOCK rates before and after injecting formal evidence. A sustained drop in BLOCK rate after enabling formal injection is a signal of anchoring effect, not genuine quality improvement.
 
-**What goes wrong:**
-PRISM model checker requires JDK (Java Development Kit) and a C/C++ compiler, and must be compiled from source or downloaded as a platform-specific binary. Petri Net analysis tools (PnAT, PNML-based tools) are also JVM-based. On macOS with Apple Silicon:
+**Detection:**
+- BLOCK rate drops by >30% after enabling formal evidence injection, without a corresponding increase in plan quality signals
+- Slot workers cite "VERIFIED" as their primary reason for APPROVE votes rather than substantive plan analysis
+- Workers do not mention coverage gaps in their vote rationale when coverage gaps are present
+- All workers APPROVE a plan with known gaps after seeing VERIFIED status
 
-1. **Architecture mismatch**: PRISM's native library (`libprism.dylib`) is compiled for the build-time JDK architecture. If the user has JDK 21 (ARM64) but PRISM was compiled against JDK 11 (x86_64 via Rosetta), the JNI bridge fails with `java.lang.UnsatisfiedLinkError`.
-
-2. **Java version pinning**: PRISM's JNI bindings are sensitive to JDK API changes. PRISM 4.8.1 (current as of 2026) requires JDK 8+ but has known issues with JDK 21 in some configurations. PRISM manual documents: "If you are compiling on Mac OS X and get libtool errors, upgrade XCode."
-
-3. **PATH pollution**: `bin/validate-traces.cjs` must invoke PRISM via `spawnSync('prism', [...])`. If `prism` is not on PATH (common after manual source build), the spawn silently fails with `ENOENT`. The validator must check for the binary before attempting to call it and emit a clear error.
-
-4. **No JVM for CI**: QGSD's test suite runs in Node.js (confirmed: `package.json` test script). Adding PRISM or Petri Net tool invocations to the test suite requires a JVM in CI. If CI does not have Java installed, these tests will silently skip or fail with `ENOENT`.
-
-**How to avoid:**
-- PRISM and Petri Net tools must be optional external dependencies, not required for the test suite to pass. Tests that exercise PRISM invoke it only when the `PRISM_BIN` or `JAVA_HOME` env var is set; otherwise, they generate the `.pm` file and skip execution.
-- The validator's PRISM invocation is wrapped in a pre-check: `fs.existsSync(prismBin)` before `spawnSync`.
-- Document PRISM installation in a `VERIFICATION_TOOLS.md` with the exact JDK version tested (e.g., "Tested with JDK 21.0.5 ARM64 on macOS 15.3").
-- For Petri Net visualization, consider a pure JavaScript library (`@viz-js/viz` for Graphviz-based DOT rendering, or `petri-net-js` on npm) instead of PNML/JVM-based tools. This eliminates the JVM dependency from the Petri Net phase entirely.
-
-**Warning signs:**
-- `spawnSync('prism', [])` returns `{ error: { code: 'ENOENT' } }` in the validator
-- Node.js test suite has a test that always fails in CI with `PRISM not found`
-- `java -version` shows a different architecture than the PRISM build target
-- `validate-traces.cjs` runs silently and produces no output (PRISM binary missing, no error emitted)
-
-**Phase to address:**
-PRISM phase and Petri Net phase. Establish the optional-invocation pattern at the start of each phase. CI integration tests must work on a machine without Java installed.
+**Phase to address:** Quorum formal context injection phase. Adversarial framing and pre-injection preliminary vote must be designed before the first quorum integration test.
 
 ---
 
-### Pitfall 9: XState Machine Guard Incompleteness — Missing Wildcard Guard
+## Moderate Pitfalls
+
+### Pitfall 8: Plan-Level State Space Explosion from Fine-Grained Task Modeling
 
 **What goes wrong:**
-The XState machine for the QGSD 4-phase workflow models phase transitions with guard conditions. A common incompleteness: when multiple guarded transitions exist for the same event (e.g., `QUORUM_VERDICT` with guards `isConsensus`, `isDeliberate`, `isBlock`), XState evaluates them in order and takes the first matching transition. If none match (e.g., a new verdict type `GAPS_FOUND` is added to the implementation but not to the machine), XState silently drops the event — the machine stays in the current state without error.
-
-Unlike the Stop hook's explicit VALID_VERDICTS list, the XState machine has no schema validation at runtime. A missing guard case produces a machine that appears to work (no exception thrown) but misses state transitions, accumulating event silently.
+The plan-to-spec pipeline models each PLAN.md task as a TLA+ state. A complex phase plan with 15 tasks, 3 parallel branches, and 4 conditional paths produces a TLA+ state space with millions of reachable states. TLC cannot complete the model check within CI timeout bounds. The iterative verification loop stalls at iteration 1 waiting for TLC.
 
 **Why it happens:**
-Developers model the "happy path" guards: APPROVE → advance, BLOCK → blocked state, DELIBERATE → round 2. The `GAPS_FOUND` verdict was added to `VALID_VERDICTS` in `update-scoreboard.cjs` but the spec author didn't add it to the machine's guard list. TypeScript compilation passes because the guard function signature is valid — just never matched.
+Plan-level specs are naturally fine-grained — every task is an action. Unlike QGSD's existing system-level specs (which model abstract quorum rounds, not individual slot calls), plan specs model implementation steps. The state space grows exponentially with task parallelism.
 
-**How to avoid:**
-Every guarded transition list must include an explicit `else` (default) fallback transition that routes to an `UnknownVerdict` error state:
+**Prevention:**
+Apply two constraints at extraction time:
 
-```typescript
-on: {
-  QUORUM_VERDICT: [
-    { guard: 'isApprove',    target: 'approved'    },
-    { guard: 'isBlock',      target: 'blocked'     },
-    { guard: 'isDeliberate', target: 'deliberating'},
-    { guard: 'isConsensus',  target: 'consensus'   },
-    { guard: 'isGapsFound',  target: 'gapsFound'   },
-    // Explicit fallback — catches any new verdict type not yet modelled
-    { target: 'unknownVerdictError' },
-  ],
-},
-```
+1. **Abstraction level:** Plan specs model task categories (sequential group, parallel group, conditional branch, checkpoint) not individual tasks. A group of 5 sequential tasks is one TLA+ state, not 5. This matches TLA+'s intended use for high-level specification.
 
-The `unknownVerdictError` state emits a warning log and transitions back to a safe state. This converts a silent miss into an observable failure.
+2. **Bounded model constants:** The TLC model config generated for plan specs must use tight bounds: max 2 parallel branches checked, max 3 conditional paths. Document these bounds explicitly in the verification summary so quorum knows the scope.
 
-Additionally: the machine's `VALID_VERDICTS` set must be imported from the same `conformance-schema.cjs` module as the hooks. Any new verdict type added to the schema automatically requires a guard update (TypeScript union type exhaustiveness check enforces this if typed correctly).
+**Detection:**
+- TLC does not complete after 5 minutes on a 15-task plan
+- State count in TLC output exceeds 500,000 for a single plan verification
+- Extracted spec has more `Action` definitions than the plan has tasks
 
-**Warning signs:**
-- Machine receives `QUORUM_VERDICT` with `outcome: 'GAPS_FOUND'` and stays in `deliberating` state
-- No `unknownVerdictError` state in the machine definition
-- Adding a new verdict to the implementation does not cause a TypeScript error in the machine
-
-**Phase to address:**
-XState machine phase. The exhaustive-guard pattern must be established in the first state transition modeled. TypeScript exhaustiveness checking for verdict union types must be in place before the machine is tested.
+**Phase to address:** Plan-to-spec extraction phase and iterative verification loop phase.
 
 ---
 
-### Pitfall 10: Conformance Logger Alters Hook Timing and Creates New Failure Modes
+### Pitfall 9: Mind Map Node Explosion Degrades Quorum Context Quality
 
 **What goes wrong:**
-Adding synchronous `fs.appendFileSync()` calls to conformance event emission inside QGSD hooks introduces two new failure modes that did not exist before:
-
-1. **Filesystem errors**: If the `.jsonl` log file's directory does not exist or the disk is full, `appendFileSync` throws. Even with a `try/catch`, the exception handling path introduces a code path that never existed before. A bug in the catch block (re-throwing, calling `process.exit(1)`) can crash the hook.
-
-2. **Performance regression**: QGSD's Stop hook reads the entire transcript JSONL file synchronously. Adding another synchronous file write extends the Stop hook's execution time. On large transcripts (300+ lines) with slow I/O, this can cause Claude Code to time out waiting for the hook to complete.
-
-Both failures manifest only in production (real user sessions) and are invisible in the test suite (which uses small synthetic transcripts and a fast local filesystem).
+A complex PLAN.md with 20 tasks and multiple nested sub-tasks generates a Mermaid mind map with 40+ nodes. When injected into slot-worker prompts, the mind map consumes 600-800 tokens of the context window. Slot workers with smaller effective context windows (or context already consumed by prior conversation) process a truncated mind map — missing the most important structural nodes.
 
 **Why it happens:**
-Conformance logging is added incrementally — "just append to a file, no big deal." The failure mode is only visible under production conditions (large transcript, many conformance events per session, user's disk nearly full).
+Mermaid mind maps have no built-in pagination. The full PLAN.md is mapped 1:1 to nodes. For large plans, the diagram is as long as the original plan but less readable (hierarchical indentation is harder to parse than prose).
 
-**How to avoid:**
-- Emit conformance events asynchronously using a fire-and-forget pattern: `fs.appendFile(..., () => {})` (no-await, callback silently ignores errors). This ensures the hook's synchronous critical path is unaffected.
-- The log file path must be determined once at hook startup (not per-event). Cache it in a module-level variable.
-- The conformance emitter must have a guard: if the log file has not been written to in this session (cold start), ensure the parent directory exists with `fs.mkdirSync(dir, { recursive: true })` before any append.
-- Never add synchronous blocking I/O to the Stop hook's critical path.
+**Prevention:**
 
-**Warning signs:**
-- Stop hook execution time increases by >50ms after adding conformance emission
-- Claude Code logs show "hook timed out" after adding logging
-- Any `fs.appendFileSync` in a hook file's synchronous execution path
+1. **Two-level summary mindmap:** Generate a summary mind map showing only top-level phases and their direct children (max 2 levels deep, max 15 nodes total). Link to a separate detailed MINDMAP.md for full depth. Inject only the summary into slot-worker prompts.
 
-**Phase to address:**
-Conformance event logger phase. The async-append pattern must be established before any event emission is added to hooks. Benchmark Stop hook latency before and after adding emission.
+2. **Token budget guard:** Before injecting, count the approximate token length of the Mermaid block. If it exceeds 500 tokens, use the plaintext fallback (Pitfall 5 prevention). Annotate the quorum prompt: `mindmap: truncated (>500 tokens) — see .planning/phases/<phase>/MINDMAP.md for full diagram`.
+
+**Phase to address:** Mind map generation phase and quorum injection phase.
 
 ---
 
-## Technical Debt Patterns
+### Pitfall 10: @probability Annotations Conflict With PRISM's Scoreboard-Derived Rates
 
-| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|-------------------|----------------|-----------------|
-| TLA+ spec with all 10 named slots (no symmetry) | Easier to read spec (slot names match real names) | State explosion — TLC times out; liveness never completes | Never for model checking; acceptable for documentation-only specs |
-| Single TLC model for safety + liveness | One config file to maintain | Liveness is 10x+ slower and prevents symmetry; safety violations buried in long runs | Never — always separate models |
-| Shared `conformance-schema.cjs` skipped (both sides define own schema) | Faster to implement independently | Schema drift within weeks; silent conformance failures | Never — shared schema is non-negotiable |
-| `require('xstate')` directly in hook files | Simpler dependency graph | `ERR_REQUIRE_ESM` in production; breaks every session | Never — XState must stay out of hook runtime |
-| PRISM model using raw per-slot rates with n<30 | Model exists immediately | Statistically meaningless probabilities; verification result is noise | Acceptable only if documented as illustrative (not verified) |
-| Alloy `fact` instead of `pred` for vote constraints | Simpler model syntax | Cannot find counterexamples for edge cases the implementation handles | Never for vote count constraints — use `pred` |
-| PRISM binary required (not optional) in test suite | Simpler test setup | CI breaks on any machine without Java; test suite non-portable | Never — JVM tools must be optional |
-| `fs.appendFileSync` in Stop hook critical path | Simplest logging pattern | Hook latency increase; potential timeout under slow I/O | Never — use async append |
+**What goes wrong:**
+The code annotation pipeline extracts `@probability` tags and injects them into PRISM `.pm` files. QGSD already derives PRISM transition probabilities from the quorum scoreboard via `readScoreboardRates()` in `run-prism.cjs`. If both sources provide a probability for the same transition, there is no defined precedence rule — one silently overwrites the other depending on execution order.
 
----
+**Why it happens:**
+The scoreboard-derived probability and the annotation-specified probability may have different intended meanings: scoreboard rates reflect historical observed behavior; annotation rates may reflect theoretical design-time expectations. Neither is wrong, but they conflict.
 
-## Integration Gotchas
+**Prevention:**
+Define explicit precedence in the extraction pipeline: annotation-specified `@probability` takes precedence over scoreboard-derived rates for the specific transition it annotates. The PRISM `.pm` file header must document every transition's probability source: `(annotation)` or `(scoreboard: n=42)`. Mismatches between annotation probability and scoreboard-observed rate exceeding 0.15 must generate a warning in the extraction output.
 
-| Integration | Common Mistake | Correct Approach |
-|-------------|----------------|------------------|
-| TLA+ spec + TLC runner | Running TLC once against production slot count (N=10) | Start with N=3, validate spec structure, then scale; use TLC profiler to identify explosion source |
-| XState machine + CJS hooks | `require('xstate')` in hook file | Machine is a standalone `.ts` file compiled to CJS; hooks never import it directly |
-| Conformance logger + Stop hook stdout | `console.log(event)` for debugging inside hook | Only `process.stderr.write()` or file append; never stdout |
-| PRISM tool + Node.js | `spawnSync('prism')` without PATH check | `fs.existsSync(prismBin)` pre-check; fail gracefully with install instructions when not found |
-| Alloy + quorum edge cases | `fact` declarations remove zero-agent and all-UNAVAIL states | Use `pred` for structural constraints; explicitly run zero-agent and all-UNAVAIL scenarios |
-| Conformance schema + scoreboard | VALID_VERDICTS defined independently in validator and scoreboard | Single `conformance-schema.cjs` module; scoreboard and validator both import from it |
-| TLC symmetry + liveness | Declaring symmetry set then checking `no_infinite_deliberation` liveness | Separate `.cfg` files: safety uses symmetry, liveness uses smaller N without symmetry |
-| Petri Net tools + CI | JVM-based PNML tool in CI test suite | Use JS-native DOT/SVG generator or skip PNML; guard JVM invocation with `JAVA_HOME` check |
+**Phase to address:** Code annotation extraction phase.
 
 ---
 
-## Performance Traps
+### Pitfall 11: Spec Fragment File Management — Stale Fragments From Previous Iterations
 
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| TLC with 10 named slots (no symmetry) | Model checking never completes; memory exhaustion after 10M states | Symmetry sets (safety model only); N=3 for initial validation | With N≥6 slots and any deliberation rounds |
-| TLC checking safety + liveness in one model | Verification takes hours; never shows intermediate progress | Separate models: `qgsd_safety.cfg` and `qgsd_liveness.cfg` | As soon as liveness property is added |
-| Synchronous conformance event logging in Stop hook | Hook latency visible to user (>200ms pause before Claude response) | Async append with no-await callback | With large transcript files (300+ lines) or slow disk |
-| XState actor instantiated per-event (not per-session) | Memory leak; state machine history lost between events | Single actor instance per validation run; actor state persists across events | When processing a trace with >100 events |
-| PRISM numeric precision with float probabilities | Verification result changes based on floating-point representation | Round probabilities to 4 decimal places; use PRISM's built-in precision parameter | With computed probabilities from very small sample counts |
+**What goes wrong:**
+The iterative verification loop writes spec fragments to `.planning/phases/<phase>/formal/`. Each iteration may generate a new fragment. If the loop exits early (convergence, cap hit, or error), stale intermediate fragments from failed iterations remain on disk. The next PLAN.md edit triggers a new extraction, but the pipeline reads the stale fragment from the previous run instead of regenerating.
 
----
+**Why it happens:**
+The fragment directory accumulates files across multiple extraction runs without a cleanup protocol. The extraction step checks for existing fragments and skips regeneration if they are present — a performance optimization that becomes a correctness bug.
 
-## Security Mistakes
+**Prevention:**
+The extraction step must always regenerate spec fragments at the start of each verification loop run. Never read cached fragments as input for TLC. The directory `.planning/phases/<phase>/formal/` must be cleared at the start of each loop iteration (not each run — just the start of a new loop triggered by PLAN.md modification). Add a `generated_at` timestamp to every fragment and reject fragments older than the PLAN.md modification time.
 
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| Conformance log at world-readable path | Log contains quorum turn content (planning decisions) visible to other processes | Log to `~/.claude/qgsd-conformance.jsonl` with mode 0600; `fs.appendFile` with `{ mode: 0o600 }` |
-| Alloy model includes real agent names and IP addresses | Spec doc contains sensitive infrastructure details | Alloy model uses abstract names (Slot0..9); no real hostnames or tokens |
-| PRISM `.pm` file embeds raw scoreboard round data | Scoreboard contains task names and planning decision outcomes | PRISM model uses aggregated statistics only; no per-round data in `.pm` file |
+**Phase to address:** Plan-to-spec extraction phase. Cache invalidation must be defined before the fragment generation logic.
 
 ---
 
-## UX Pitfalls
+### Pitfall 12: Context Window Budget Exhaustion From Cumulative Verification Context
 
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| `validate-traces.cjs` emits no output when PRISM not installed | User runs validator, sees nothing, assumes success | Validator prints `[INFO] PRISM not found — skipping probabilistic check. Install via VERIFICATION_TOOLS.md` |
-| TLC model check output is raw Java stdout | Difficult to parse; no actionable summary | Wrap TLC invocation to extract final state count and violation summary; emit structured JSON |
-| XState machine type errors from TypeScript only visible at build time | Hook runtime silently drops unmodelled events | Add a Jest test that runs the machine against a synthetic trace and asserts every expected event is processed |
-| Conformance log grows unbounded across sessions | User's `~/.claude/` fills with trace data | Rotate log: keep only the last 1000 events; truncate older entries on each session start |
+**What goes wrong:**
+Each iteration of the verification loop adds to the conversation context: the original plan, the extracted spec, the TLC output, the counterexample interpretation, the proposed fix, the revised plan. By iteration 3, the cumulative verification context may consume 30-40% of the available context window. This leaves insufficient space for quorum round context, the mind map, and the actual slot-worker reasoning. Slot workers receive truncated prompts and provide lower quality votes.
+
+**Why it happens:**
+The verification loop was designed as a separate pre-quorum step, but its output is injected into the same context window that quorum uses. The QGSD context monitor hook (v0.9-01) tracks total context usage, but does not specifically track the verification context footprint.
+
+**Prevention:**
+Define a verification context budget: the total content injected from the verification loop (spec fragment summary, TLC result, counterexample, coverage gaps) must not exceed 15% of the context window. Enforce this at the injection point. If the verification output exceeds budget, use a summary form: iteration count, final invariant pass rate, top-3 coverage gaps, final verdict — no raw TLC output, no spec text.
+
+**Phase to address:** Quorum formal context injection phase. Budget enforcement must be integrated with the existing context monitor hook.
 
 ---
 
-## "Looks Done But Isn't" Checklist
+## Minor Pitfalls
 
-- [ ] **TLA+ spec:** TLC runs without error on safety model, but liveness model not yet configured — verify `qgsd_liveness.cfg` exists and has checked `no_infinite_deliberation` with N=3.
-- [ ] **Conformance schema:** Both hooks and validator define their own event field lists — verify both import from a single `conformance-schema.cjs` module with no duplicate field definitions.
-- [ ] **XState machine:** Machine compiles cleanly with `tsc` but `GAPS_FOUND` verdict silently drops — verify every guarded transition list has an explicit fallback `{ target: 'unknownVerdictError' }`.
-- [ ] **PRISM model:** `.pm` file exists with plausible-looking probabilities, but no sample size annotations — verify header includes sample sizes and CI widths for every transition probability.
-- [ ] **Petri Net:** Visualization renders in browser, but deadlock analysis was not run — verify reachability analysis output (SMPT or equivalent) is included alongside the SVG.
-- [ ] **Stop hook emission:** Conformance events appear in `gsd-conformance.jsonl` during development (fast local disk), but hook latency is not measured — benchmark Stop hook execution time on a 300-line transcript with logging enabled.
-- [ ] **JVM tool integration:** PRISM test passes on developer machine, but CI build has no Java installed — verify test is gated on `PRISM_BIN` or `JAVA_HOME` env var and skips cleanly when absent.
-- [ ] **Alloy model:** `check` command finds no counterexamples, but all constraints are `fact` declarations — verify zero-agent and all-UNAVAIL `run` scenarios find instances; if not, overly-constrained facts exist.
+### Pitfall 13: Generated Spec File Overwrites Hand-Authored Spec
+
+**What goes wrong:**
+The plan-to-spec pipeline generates a spec fragment and writes it to a path in `formal/tla/` or `formal/alloy/`. If the path naming convention is not carefully scoped to the phase directory, the generated file can overwrite an existing hand-authored system-level spec. QGSD already has this pitfall in its history: "xstate-to-tla.cjs writes to QGSDQuorum_xstate.tla, never clobbering hand-authored canonical spec" was resolved in v0.14 (BROKEN-01).
+
+**Prevention:**
+Plan-level spec fragments must be written exclusively to `.planning/phases/<phase>/formal/` — never to `formal/tla/`, `formal/alloy/`, or `formal/prism/` at the repo root. Those root directories contain hand-authored or machine-generated system-level specs that represent the QGSD state machine, not plan execution logic. Add a guard in the extraction script that explicitly rejects any output path not under `.planning/`.
+
+**Phase to address:** Plan-to-spec extraction phase.
+
+---
+
+### Pitfall 14: Quorum Round Scoreboard Inflation From Verification-Influenced Votes
+
+**What goes wrong:**
+When slot workers see formal verification results (VERIFIED) before voting, their APPROVE votes are counted as TP+ or TP in the scoreboard — correctly per the schema. But the scoreboard's TP rates now reflect verification-anchored votes, not independent evaluation. Future PRISM models derived from the scoreboard (`readScoreboardRates()`) inherit inflated consensus probabilities, producing over-optimistic probabilistic models.
+
+**Prevention:**
+Add a `formal_evidence_present` boolean to the scoreboard round metadata. Track TP rates separately for rounds with and without formal evidence injection. The PRISM model generator must use only rounds where `formal_evidence_present: false` for baseline probability estimation, unless explicitly configured otherwise.
+
+**Phase to address:** Quorum formal context injection phase and scoreboard update protocol.
+
+---
+
+### Pitfall 15: Mind Map Injection Order Affects First-Impression Bias
+
+**What goes wrong:**
+The mind map is injected at the top of the quorum slot-worker prompt (before the plan text). Workers process the visual hierarchy of the mind map before reading the plan prose. If the mind map misrepresents the plan structure (common after sanitization and node collapsing), workers form an incorrect mental model before encountering the actual plan details. This is a presentation-order bias in multi-agent debate, related to anchoring effects (Pitfall 7).
+
+**Prevention:**
+Inject the mind map after the plan text and after the initial analysis request: "Review the plan. [PLAN.md]. Now consider this structural overview: [MINDMAP]. Does the structural overview match your understanding of the plan?" This makes the mind map a check on the worker's prior reading, not a pre-framing of it.
+
+**Phase to address:** Quorum formal context injection phase.
+
+---
+
+## Phase-Specific Warnings
+
+| Phase Topic | Likely Pitfall | Mitigation |
+|-------------|---------------|------------|
+| Plan-to-spec extraction | Pitfall 1 (incomplete spec), Pitfall 4 (overconstrained), Pitfall 11 (stale fragments), Pitfall 13 (path collision) | Coverage check, HARD/SOFT tier extraction, cache invalidation, path guard — all must be in phase 1 |
+| Iterative verification loop | Pitfall 2 (oscillation), Pitfall 3 (counterexample misinterpretation), Pitfall 8 (state space explosion) | Convergence signal, two-pass interpretation, bounded model constants — define before first loop |
+| Mind map generation | Pitfall 5 (Mermaid syntax), Pitfall 9 (node explosion) | Syntax validation, character sanitization, token budget cap, 2-level summary |
+| Code annotation extraction | Pitfall 6 (annotation drift), Pitfall 10 (@probability conflict), Pitfall 14 (scoreboard inflation) | Entity-name verification, round-trip test, explicit precedence rule, separate scoreboard tracking |
+| Quorum formal context injection | Pitfall 7 (anchoring bias), Pitfall 12 (context budget), Pitfall 14 (scoreboard inflation), Pitfall 15 (injection order) | Adversarial framing, preliminary vote before evidence, budget enforcement, post-plan injection order |
+
+---
+
+## Integration-Specific Pitfalls With Existing QGSD Pipeline
+
+These pitfalls arise specifically from v0.16 interacting with existing QGSD infrastructure.
+
+### Integration Pitfall A: Verification Loop Triggers Circuit Breaker False Positive
+
+**What goes wrong:**
+The iterative verification loop may cause Claude to make multiple sequential file modifications to PLAN.md as it revises the plan through iterations. If the same PLAN.md is modified and re-modified across 3+ iterations, the circuit breaker's run-collapse algorithm may detect it as oscillation and fire — halting all Bash execution mid-loop.
+
+**Why it happens:**
+The circuit breaker analyzes git commit history for repeated modifications to the same file set. Plan revision in the verification loop modifies PLAN.md repeatedly in quick succession. The breaker sees alternating commit groups on PLAN.md and fires.
+
+**Prevention:**
+The iterative verification loop must not commit PLAN.md changes to git between iterations — it should work in-memory or in a staging file (e.g., `PLAN.md.next`) and only commit the final converged plan. If the loop needs git checkpointing for resumability, use a dedicated branch or a separate staging directory that the circuit breaker's file-set detection excludes.
+
+**Phase to address:** Iterative verification loop phase.
+
+---
+
+### Integration Pitfall B: TLC Runner Timeout Blocks Quorum Round
+
+**What goes wrong:**
+The plan-to-spec pipeline is designed to run pre-quorum: Claude verifies the plan, then presents the result to quorum. If TLC takes longer than expected (state space explosion, complex plan), the pre-quorum step blocks the entire quorum round. Claude is waiting for TLC while slot workers time out on their end.
+
+**Why it happens:**
+TLC runs as a synchronous subprocess (`spawnSync` in `run-tlc.cjs`). The existing FV pipeline uses `continue-on-error: true` in CI to avoid blocking. But the pre-quorum verification loop does not have an equivalent timeout guard — it is expected to complete before quorum dispatch.
+
+**Prevention:**
+The pre-quorum TLC run must have an explicit timeout (configurable, default 60 seconds). If TLC does not complete within the timeout, the verification result is `INCONCLUSIVE (timeout)` — not FAIL, not PASS. The quorum prompt must include the timeout signal prominently. Quorum can then vote on the plan with the knowledge that verification was inconclusive rather than failing to proceed.
+
+**Phase to address:** Iterative verification loop phase and quorum injection phase.
+
+---
+
+### Integration Pitfall C: Spec Fragment Naming Collision With Existing FV Pipeline
+
+**What goes wrong:**
+The existing `run-formal-verify.cjs` discovers and runs all spec files it knows about. If a plan-generated spec fragment uses a name that matches a pattern the runner recognizes (e.g., `MC*.cfg`, `*.als`), the runner may attempt to include the plan-level spec in the next full FV run — mixing plan-level constraints with system-level specs. This could cause system-level TLC to fail because plan-level invariants do not apply to the system machine.
+
+**Why it happens:**
+The existing pipeline is designed around a fixed set of known spec files. The plan-to-spec pipeline adds dynamic files. No exclusion mechanism exists for plan-generated files in the existing runner.
+
+**Prevention:**
+Plan-level spec fragments must use a clearly distinct naming convention: `PLAN-<phase>-<iteration>.tla` and must live exclusively under `.planning/phases/<phase>/formal/`. The existing `run-formal-verify.cjs` STEPS array is a hardcoded list — plan-generated specs are not in it and will not be accidentally included. But if the runner is ever made dynamic (glob-based discovery), add an explicit exclusion pattern for `.planning/phases/` content.
+
+**Phase to address:** Plan-to-spec extraction phase. Name the fragments with the PLAN- prefix from the start.
+
+---
+
+### Integration Pitfall D: Quorum Scoreboard Update Race With Verification Scoreboard Metadata
+
+**What goes wrong:**
+The quorum scoreboard update protocol (`update-scoreboard.cjs` with atomic tmpPath + renameSync) is designed for parallel wave workers. The formal evidence injection adds new metadata fields to the round record (`formal_evidence_present`, `spec_coverage_rate`). If the scoreboard update and the metadata write are not atomic, a parallel wave worker may write a round record without the formal evidence metadata — producing an incomplete record that the PRISM rate calculator treats as a non-evidence round.
+
+**Prevention:**
+All new scoreboard metadata fields from the verification pipeline must be included in the initial `merge-wave` call payload, not written in a separate post-update step. The round record structure must be extended to include formal evidence fields before the first quorum round runs with formal injection enabled.
+
+**Phase to address:** Quorum formal context injection phase.
+
+---
+
+## "Looks Done But Isn't" Checklist for v0.16
+
+- [ ] **Plan-to-spec extraction:** Spec fragment exists and TLC passes, but coverage check output was not generated — verify that coverage_gaps list appears in the verification summary file alongside the PASS verdict.
+- [ ] **Iterative loop:** Loop runs to cap on a deliberately over-constrained plan without escalating to user — verify that cap exhaustion triggers an explicit escalation prompt, not a silent pass.
+- [ ] **Counterexample interpretation:** Iteration 2 and 3 fix different TLA+ invariant bounds without changing PLAN.md — verify that every iteration with a spec-only change without a plan change triggers a warning flag.
+- [ ] **Mermaid mind map:** MINDMAP.md renders locally in developer's markdown viewer but contains colons in node labels — verify `mermaid.parse()` is called on generated output in the pipeline, not just visual inspection.
+- [ ] **Annotation extraction:** `@invariant` annotations extract successfully on current source, but no round-trip test exists — verify that the generated spec invariant is satisfiable when given the actual current function's code behavior.
+- [ ] **Formal evidence injection:** Slot workers cite "VERIFIED" without mentioning coverage gaps that are present — verify that coverage gaps appear before the PASS verdict in slot-worker prompt context, and monitor for BLOCK rate changes after enabling injection.
+- [ ] **Context budget:** Verification output injected into quorum prompts includes raw TLC output exceeding 500 tokens — verify that budget enforcement truncates to summary form before injection.
+- [ ] **Circuit breaker interaction:** PLAN.md is committed between each verification iteration — verify that the iterative loop uses in-memory or staging-file approach without intermediate git commits.
+- [ ] **TLC timeout:** TLC subprocess has no timeout in pre-quorum verification run — verify that `INCONCLUSIVE (timeout)` result is handled and propagated to quorum prompt.
 
 ---
 
@@ -414,50 +460,38 @@ Conformance event logger phase. The async-append pattern must be established bef
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| TLC state explosion (times out at N=10) | LOW | Reduce to N=3; add symmetry set; separate safety/liveness models; re-run. No spec rewrite required. |
-| Schema drift — validator gives wrong answers | MEDIUM | Audit all event field names in hooks vs validator; create `conformance-schema.cjs`; update both to import from it; re-run validator on existing traces |
-| `ERR_REQUIRE_ESM` from XState in hook | LOW | Move XState import out of hook file; compile machine to CJS via `tsc --module commonjs`; re-install hook |
-| Stop hook stdout corrupted by logging | LOW | Replace all `console.log` with `process.stderr.write`; re-run Stop hook tests to confirm clean stdout |
-| PRISM model with meaningless probabilities | MEDIUM | Add minimum-data threshold check; recompute with conservative priors for sparse slots; re-annotate CI widths |
-| Alloy overconstrained (no counterexamples) | LOW | Identify fact declarations blocking edge cases; convert to `pred`; re-run `check` commands |
-| JVM tools blocking CI | LOW | Gate PRISM/PnAT invocations on env var; mark tests as conditional-skip; CI passes without Java |
-| XState machine drops events silently | LOW | Add fallback `{ target: 'unknownVerdictError' }` to every guarded transition; add test asserting no events are silently dropped |
-
----
-
-## Pitfall-to-Phase Mapping
-
-| Pitfall | Prevention Phase | Verification |
-|---------|------------------|--------------|
-| TLA+ state explosion from UNAVAIL permutations | TLA+ spec phase — define two model configs (safety/liveness) from the start | Verify: TLC completes in <5 minutes with N=5 slots on safety model; N=3 on liveness model |
-| Conformance log schema drift | Conformance event logger phase — write `conformance-schema.cjs` first | Verify: `grep -r 'VALID_ACTIONS\|VALID_PHASES\|VALID_OUTCOMES' hooks/ bin/` returns zero direct definitions (all imported from schema) |
-| Hook stdout contamination from logging | Conformance event logger phase — establish emit helper before any emission | Verify: `node hooks/dist/qgsd-stop.js < test/fixtures/planning-turn.json | jq .` parses cleanly after adding emission |
-| XState ESM in CJS hooks | XState machine phase — Pattern A or B decided before any machine code | Verify: `node -e "require('./hooks/dist/qgsd-stop.js')"` exits 0 with xstate installed |
-| PRISM model with sparse data | PRISM model phase — minimum-data threshold check written first | Verify: generator logs sample sizes; skips slots with <30 rounds; outputs CI annotations |
-| Spec-to-implementation granularity mismatch | Conformance event logger phase — `CONFORMANCE_MAPPING.md` written as first deliverable | Verify: every spec action appears in the mapping document with ≥1 implementation event sequence |
-| Alloy fact overconstrain | Alloy model phase — every `fact` reviewed before analyzer run | Verify: zero-agent `run` scenario finds an instance; all-UNAVAIL `run` scenario finds an instance |
-| JVM dependency in CI | PRISM phase and Petri Net phase — optional invocation gating from the start | Verify: `npm test` passes on a machine with `PRISM_BIN` unset and no `java` on PATH |
-| XState guard incompleteness | XState machine phase — exhaustive guard with fallback established in first transition | Verify: sending `QUORUM_VERDICT` with an unrecognized outcome routes to `unknownVerdictError` state |
-| Hook latency regression from conformance logging | Conformance event logger phase — benchmark before and after adding emission | Verify: Stop hook latency on 300-line transcript is <100ms with logging enabled |
+| False-positive spec (Pitfall 1) | MEDIUM | Rerun extraction with coverage check enabled; add explicit invariant for each uncovered plan element; re-verify |
+| Loop oscillation (Pitfall 2) | LOW | Add convergence tracking before loop restart; configure lower cap (3); enable deduplicate-counterexample check |
+| Counterexample misinterpretation (Pitfall 3) | LOW | Switch to two-pass interpretation prompt; re-run failed iteration(s) with new prompt structure |
+| Overconstrained spec (Pitfall 4) | LOW | Run Alloy `run {}` satisfiability check; identify contradictory invariant pair; reclassify as SOFT |
+| Mermaid syntax failure (Pitfall 5) | LOW | Run sanitization pass on task names; re-generate; if still failing, switch to plaintext fallback |
+| Annotation drift (Pitfall 6) | MEDIUM | Run entity-name verification; identify stale annotations; update or remove them; re-extract |
+| Anchoring bias detected (Pitfall 7) | MEDIUM | Switch to adversarial framing; implement pre-injection preliminary vote; monitor BLOCK rate over next 10 rounds |
+| State space explosion (Pitfall 8) | LOW | Switch to task-category abstraction; reduce model constants to N=3; re-run |
+| Circuit breaker false positive (Integration A) | LOW | Switch verification loop to staging-file approach; reset breaker with `npx qgsd --reset-breaker` |
+| TLC timeout blocks quorum (Integration B) | LOW | Add timeout flag to TLC subprocess; implement INCONCLUSIVE result handling |
 
 ---
 
 ## Sources
 
-- Direct inspection of `hooks/qgsd-stop.js` — confirmed: CJS, synchronous stdin/stdout protocol, `process.stdout.write` for block decision; `wasOrchestratorUsed()` and `wasSlotCalledSuccessfully()` as key transcript-scan functions; fail-open philosophy throughout
-- Direct inspection of `bin/update-scoreboard.cjs` — confirmed: `VALID_VERDICTS` includes APPROVE/BLOCK/DELIBERATE/CONSENSUS/GAPS_FOUND/—; `VALID_MODELS` list; per-slot composite key `<slot>:<model-id>`; scoreboard may have very sparse data (gitignored, rebuilt per project)
-- Direct inspection of `bin/call-quorum-slot.cjs` — confirmed: CJS, `require('child_process')`, CJS module system used throughout QGSD bin scripts
-- Direct inspection of `agents/qgsd-quorum-orchestrator.md` — confirmed: 4-phase workflow (pre-flight, team identity, worker wave, synthesis); Mode A and Mode B; sequential slot calls with one wave of parallel Task spawns per round
-- [Conformance Checking at MongoDB: Testing That Our Code Matches Our TLA+ Specs](https://www.mongodb.com/company/blog/engineering/conformance-checking-at-mongodb-testing-our-code-matches-our-tla-specs) — PRIMARY source; action granularity mismatch, state snapshot complexity, spec-to-implementation divergence; HIGH confidence
-- [Optimizing Model Checking — Learn TLA+](https://learntla.com/topics/optimization.html) — symmetry set reduction (n! factor), separate safety/liveness models, constant minimization; HIGH confidence
-- [Model Values and Symmetry — TLA+ Toolbox Docs](https://tla.msr-inria.inria.fr/tlatoolbox/doc/model-values.html) — liveness incompatibility with symmetry sets explicitly documented; HIGH confidence
-- [Don't let Alloy facts make your specs a fiction — Hillel Wayne](https://www.hillelwayne.com/post/alloy-facts/) — `fact` overconstrain pitfall, use `pred` instead; HIGH confidence
-- [PRISM Manual — Installing PRISM / Common Problems](https://www.prismmodelchecker.org/manual/InstallingPRISM/CommonProblemsAndQuestions) — JDK architecture mismatch, macOS XCode libtool errors; MEDIUM confidence (official source but macOS-version-specific)
-- [XState v5 Installation Docs](https://stately.ai/docs/installation) — all examples use ESM `import` syntax; "zero dependencies and runs anywhere JavaScript runs"; CJS compatibility unconfirmed — treat as ESM-primary; MEDIUM confidence
-- [XState v5 Guards Documentation](https://stately.ai/docs/guards) — multiple guarded transitions evaluated in order; no runtime error on missing match; HIGH confidence
-- [Validating Traces of Distributed Programs Against TLA+ Specifications — Springer 2024](https://link.springer.com/chapter/10.1007/978-3-031-77382-2_8) — partial-log trace checking; conformance completeness limitations; MEDIUM confidence (abstract only)
-- `.planning/PROJECT.md` — QGSD v0.12 target features, existing hook architecture, scoreboard schema, slot naming convention
+- [VeriPlan: Integrating Formal Verification and LLMs into End-User Planning](https://arxiv.org/abs/2502.17898) — CHI 2025. Primary source on spec extraction accuracy failures, iterative loop friction, counterexample feedback gaps, multi-model absence issues. HIGH confidence.
+- [Bridging LLM Planning Agents and Formal Methods: A Case Study in Plan Verification](https://arxiv.org/html/2510.03469v1) — October 2025. GPT-4o 52% accuracy on formal spec generation; false-positive verification (passes but misses intent); taxonomy of error types. HIGH confidence.
+- [Loop Invariant Generation: A Hybrid Framework of Reasoning](https://arxiv.org/html/2508.00419) — August 2025. Counterexample-guided iterative refinement; LLMs focus on syntactic fixes; convergence analysis. HIGH confidence.
+- [The 4/δ Bound: Designing Predictable LLM-Verifier](https://arxiv.org/pdf/2512.02080) — December 2025. Convergence theory for LLM-verifier loops; statistical unpredictability of multi-stage AI-formal verification workflows. MEDIUM confidence.
+- [Voting or Consensus? Decision-Making in Multi-Agent Debate](https://arxiv.org/html/2502.19130v4) — ACL 2025 Findings. Sycophancy in MAD; anchoring; conformity driving contrarians to capitulate. HIGH confidence.
+- [Measuring and Mitigating Identity Bias in Multi-Agent Debate via Anonymization](https://arxiv.org/pdf/2510.07517) — October 2025. Identity-driven sycophancy; conformity vs. obstinacy metrics; anonymization as mitigation. MEDIUM confidence.
+- [Genefication: Generative AI + Formal Verification](https://www.mydistributed.systems/2025/01/genefication.html) — January 2025. False confidence from incomplete spec verification; LLM-FM integration workflow design. MEDIUM confidence.
+- [Mermaids Unbroken — GenAIScript documentation](https://microsoft.github.io/genaiscript/blog/mermaids/) — Repair pattern for LLM-generated Mermaid; syntax failure frequency documentation. MEDIUM confidence.
+- [Roo Code Mermaid chart rendering issues — Issue #4636](https://github.com/RooCodeInc/Roo-Code/issues/4636) — Active 2025 issue documenting LLM Mermaid generation failures in production. MEDIUM confidence.
+- [Pact Open Source Update — May 2025](https://docs.pact.io/blog/2025/05/28/pact-open-source-update-may-2025) — Provider drift as primary spec-to-implementation divergence cause in annotation-based pipelines. MEDIUM confidence.
+- [Limitations on Formal Verification for AI Safety](https://www.alignmentforum.org/posts/B2bg677TaS4cmDPzL/limitations-on-formal-verification-for-ai-safety) — Incomplete coverage; false confidence from partial specs; overconstrained vs. underconstrained failure modes. MEDIUM confidence.
+- Direct inspection of `bin/generate-formal-specs.cjs` — regex-based XState extraction; confirmed pattern matching surface area. HIGH confidence.
+- Direct inspection of `bin/run-formal-verify.cjs` — hardcoded STEPS array; confirmed plan-level specs would not accidentally be included in system-level runner. HIGH confidence.
+- Direct inspection of `bin/run-prism.cjs` — `readScoreboardRates()` scoreboard-derived probability injection; confirmed conflict potential with annotation-specified `@probability`. HIGH confidence.
+- `.planning/PROJECT.md` — v0.16 Formal Plan Verification target features; v0.14 BROKEN-01 xstate-to-tla spec collision resolution; circuit breaker run-collapse algorithm; context monitor hook (v0.9-01). HIGH confidence.
+- Existing `.planning/research/PITFALLS.md` (v0.12) — TLA+ state explosion, conformance schema drift, hook stdout contamination, XState ESM, PRISM sparse data, spec granularity mismatch, Alloy overconstrain, JVM dependency, guard incompleteness, hook latency. All remain valid for v0.16 base infrastructure. HIGH confidence.
 
 ---
-*Pitfalls research for: v0.12 Formal Verification — adding TLA+, XState, Alloy, PRISM, Petri Net, and conformance logging to existing Node.js QGSD plugin*
-*Researched: 2026-02-24*
+*Pitfalls research for: v0.16 Formal Plan Verification — adding plan-to-spec extraction, iterative verification loop, mind map generation, code annotation extraction, and formal evidence quorum injection to existing QGSD v0.14 FV pipeline*
+*Researched: 2026-02-26*
