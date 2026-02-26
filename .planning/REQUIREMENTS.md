@@ -35,8 +35,8 @@ Parallelization cuts total formal verification runtime by 5×.
 
 Scoreboard empirical rates flow automatically into PRISM model parameters.
 
-- [ ] **PRISM-01**: PRISM model receives TP/TN rates derived from quorum scoreboard as model parameters at run time
-- [ ] **PRISM-02**: Rate injection is automatic — no manual editing of `.pm` files required between quorum runs
+- [x] **PRISM-01**: PRISM model receives TP/TN rates derived from quorum scoreboard as model parameters at run time
+- [x] **PRISM-02**: Rate injection is automatic — no manual editing of `.pm` files required between quorum runs
 
 ### Developer Experience
 
@@ -77,8 +77,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DRFT-03 | Phase v0.14-02 (Drift Detection + TLA+ Canonicalization) | Complete |
 | PERF-01 | Phase v0.14-03 | Pending |
 | PERF-02 | Phase v0.14-03 | Pending |
-| PRISM-01 | Phase v0.14-04 | Pending |
-| PRISM-02 | Phase v0.14-04 | Pending |
+| PRISM-01 | Phase v0.14-04 | Complete |
+| PRISM-02 | Phase v0.14-04 | Complete |
 | DX-01 | Phase v0.14-05 | Pending |
 
 **Coverage:**
