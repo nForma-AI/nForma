@@ -72,9 +72,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INTG-02 | Phase v0.14-01 | Complete |
 | INTG-03 | Phase v0.14-01 | Complete |
 | INTG-04 | Phase v0.14-01 | Complete |
-| DRFT-01 | Phase v0.14-02 | Pending |
-| DRFT-02 | Phase v0.14-02 | Pending |
-| DRFT-03 | Phase v0.14-02 | Pending |
+| DRFT-01 | Phase v0.14-02 (Drift Detection + TLA+ Canonicalization) | Pending |
+| DRFT-02 | Phase v0.14-02 (Drift Detection + TLA+ Canonicalization) | Pending |
+| DRFT-03 | Phase v0.14-02 (Drift Detection + TLA+ Canonicalization) | Pending |
 | PERF-01 | Phase v0.14-03 | Pending |
 | PERF-02 | Phase v0.14-03 | Pending |
 | PRISM-01 | Phase v0.14-04 | Pending |
@@ -88,4 +88,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after initial definition*
+*Last updated: 2026-02-26 after plan-milestone-gaps — gap closure phases v0.14-02..05 planned (quorum approved); v0.14-02 expanded to include BROKEN-01 resolution (Option A: QGSDQuorum_xstate.tla) and MISSING-02 CI hardening*

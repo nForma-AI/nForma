@@ -184,7 +184,7 @@
 <summary>🚧 v0.14 — FV Pipeline Integration (Phases v0.14-01..v0.14-05) — IN PROGRESS</summary>
 
 - [x] **Phase v0.14-01: FV Tool Integration** — Commit and wire xstate-to-tla.cjs and run-formal-verify.cjs into source tree with test coverage; CI formal-verify.yml committed and end-to-end pipeline wired (INTG-01, INTG-02, INTG-03, INTG-04) (completed 2026-02-26)
-- [ ] **Phase v0.14-02: Drift Detection** — Wire check-spec-sync.cjs into npm test; upgrade XState parsing from regex to AST; detect orphaned handwritten specs (DRFT-01, DRFT-02, DRFT-03)
+- [ ] **Phase v0.14-02: Drift Detection + TLA+ Canonicalization** — Resolve BROKEN-01 (xstate-to-tla.cjs writes QGSDQuorum_xstate.tla not QGSDQuorum.tla, Option A); wire check-spec-sync.cjs into npm test; upgrade XState parsing from regex to AST; detect orphaned handwritten specs; remove CI continue-on-error masking; add missing CI path triggers (DRFT-01, DRFT-02, DRFT-03 + BROKEN-01 + MISSING-02)
 - [ ] **Phase v0.14-03: Parallelization** — Run TLA+, Alloy, and PRISM tool groups concurrently; cut total runtime from ~10 min to ~2 min (PERF-01, PERF-02)
 - [ ] **Phase v0.14-04: PRISM Config Injection** — Scoreboard TP/TN rates auto-fed to PRISM model parameters at runtime; no manual .pm file editing required (PRISM-01, PRISM-02)
 - [ ] **Phase v0.14-05: Watch Mode** — --watch flag re-runs formal verification automatically on XState machine file changes (DX-01)
@@ -664,45 +664,65 @@ Plans:
   4. `npm test` includes xstate-to-tla.cjs and run-formal-verify.cjs in its test suite and those tests pass
 **Plans**: TBD
 
-### Phase v0.14-02: Drift Detection
-**Goal**: Any divergence between the XState machine (source of truth) and the formal specs is caught automatically by npm test, using a proper AST walk rather than regex so structural changes like renamed guards and transitions are detected
+### Phase v0.14-02: Drift Detection + TLA+ Canonicalization
+**Goal**: Any divergence between the XState machine (source of truth) and the formal specs is caught automatically by npm test, using a proper AST walk rather than regex so structural changes like renamed guards and transitions are detected; critical BROKEN-01 integration gap resolved by adopting Option A (generated model writes QGSDQuorum_xstate.tla, preserving hand-authored QGSDQuorum.tla); CI hardened by removing continue-on-error masking and adding missing path triggers
 **Depends on**: Phase v0.14-01
 **Requirements**: DRFT-01, DRFT-02, DRFT-03
+**Gap Closure**: Closes gaps from v0.14 audit — DRFT-01, DRFT-02, DRFT-03 (requirements), BROKEN-01 (critical integration gap), MISSING-02 (CI path trigger warning)
 **Success Criteria** (what must be TRUE):
   1. `npm test` fails when a state name, transition, or guard in the XState machine does not appear in TLA+/Alloy/PRISM specs
   2. `npm test` fails when TLA+ or Alloy specs reference a state or guard name that no longer exists in the XState machine
   3. The drift detector uses the TypeScript compiler API to parse the XState machine — not a regex pattern match against raw source text
   4. `npm test` passes with no drift when the XState machine and all specs are in sync
-**Plans**: TBD
+  5. `node bin/run-formal-verify.cjs` runs without overwriting `formal/tla/QGSDQuorum.tla` — xstate-to-tla.cjs writes to `formal/tla/QGSDQuorum_xstate.tla`
+  6. `formal-verify.yml` CI job fails (does not silently continue) when any formal verification step fails
+**Plans**:
+  - TASK-00: Implement BROKEN-01 Option A — update xstate-to-tla.cjs `--output` default to `formal/tla/QGSDQuorum_xstate.tla`; update run-formal-verify.cjs STEPS[0] to reference `QGSDQuorum_xstate.tla`; update MCQGSDQuorum.cfg SPECIFICATION reference accordingly. Hand-authored `QGSDQuorum.tla` (with `phase`, CONSTANTS Agents/MaxDeliberation, AgentSymmetry, MinQuorumMet) remains canonical.
+  - TASK-01: Wire `check-spec-sync.cjs` into `npm test` — add as a step in package.json test script or as a test file loaded by the test runner (DRFT-01)
+  - TASK-02: Replace regex-based XState state extraction in check-spec-sync.cjs (lines 39-48) with TypeScript compiler API / AST walk — catches transition and guard names, not just state list (DRFT-02)
+  - TASK-03: Add orphaned spec detection to check-spec-sync.cjs — flag TLA+/Alloy/PRISM states or guards that have no corresponding XState state (DRFT-03)
+  - TASK-04: Add `bin/xstate-to-tla.cjs`, `bin/run-formal-verify.cjs`, `bin/run-oauth-rotation-prism.cjs`, `bin/run-account-pool-alloy.cjs`, `bin/run-account-manager-tlc.cjs` to `paths:` block in `.github/workflows/formal-verify.yml` (MISSING-02)
+  - TASK-05: Remove `continue-on-error: true` from all steps in `.github/workflows/formal-verify.yml` so formal verification failures halt the CI pipeline rather than being silently masked
 
 ### Phase v0.14-03: Parallelization
 **Goal**: run-formal-verify.cjs executes the 20-step verification pipeline in parallel tool groups rather than sequentially, cutting wall-clock runtime from ~10 minutes to ~2 minutes
 **Depends on**: Phase v0.14-01
 **Requirements**: PERF-01, PERF-02
+**Gap Closure**: Closes gaps from v0.14 audit — PERF-01, PERF-02 (requirements)
 **Success Criteria** (what must be TRUE):
   1. TLA+ model checking, Alloy analysis, and PRISM verification run concurrently (observable via process timing — they start within seconds of each other, not sequentially)
   2. Total wall-clock time for `node bin/run-formal-verify.cjs` on a standard machine completes in approximately 2 minutes or less (down from approximately 10 minutes)
   3. All verification results are still correct after parallelization — no tool group skipped or silently failed
-**Plans**: TBD
+**Plans**:
+  - TASK-01: Replace `for..of` sequential step loop in run-formal-verify.cjs with `Promise.all` grouped by tool type (TLA+ group, Alloy group, PRISM group run concurrently; steps within each group run sequentially if order-dependent) (PERF-01)
+  - TASK-02: Add wall-clock timing instrumentation to run-formal-verify.cjs output; add a test assertion that total runtime is below 2 minutes on a standard machine (PERF-02)
+  - TASK-03: Integration smoke test: run all tool groups after parallelization and verify all results are correct — no step silently skipped or producing wrong output due to race condition
 
 ### Phase v0.14-04: PRISM Config Injection
 **Goal**: The PRISM probabilistic model receives empirically-grounded TP/TN rates from the quorum scoreboard automatically at run time, eliminating the manual step of editing .pm files between quorum runs
 **Depends on**: Phase v0.14-01
 **Requirements**: PRISM-01, PRISM-02
+**Gap Closure**: Closes gaps from v0.14 audit — PRISM-01, PRISM-02 (requirements)
 **Success Criteria** (what must be TRUE):
   1. Running `node bin/run-formal-verify.cjs` reads TP/TN rates from the quorum scoreboard and passes them to the PRISM model as parameters — no manual editing of any .pm file is required
   2. After a quorum round updates the scoreboard, the next run of run-formal-verify.cjs automatically uses the updated rates without any user intervention
-**Plans**: TBD
+**Plans**:
+  - TASK-01: Add scoreboard reader to run-prism.cjs — read `.planning/quorum-scoreboard.json`, compute aggregate TP rate and TN rate from `data.agents` entries (PRISM-01)
+  - TASK-02: Pass computed rates as `-const` parameters to PRISM at invocation time (e.g. `-const pTP=0.82 -const pTN=0.91`) — no .pm file editing required (PRISM-02)
+  - TASK-03: Integration test: write a fixture scoreboard with known TP/TN counts, run run-formal-verify.cjs, assert the PRISM invocation includes the correct `-const` params derived from fixture data
 
 ### Phase v0.14-05: Watch Mode
 **Goal**: Developers iterating on the XState machine get continuous feedback — run-formal-verify.cjs re-runs verification automatically whenever the machine file changes, without manual re-invocation
 **Depends on**: Phase v0.14-01
 **Requirements**: DX-01
+**Gap Closure**: Closes gaps from v0.14 audit — DX-01 (requirement)
 **Success Criteria** (what must be TRUE):
   1. `node bin/run-formal-verify.cjs --watch` starts and does not exit — it watches the XState machine file for changes
   2. When the XState machine file is saved, verification re-runs automatically within a few seconds and prints updated results
   3. Watch mode terminates cleanly on Ctrl+C without hanging processes
-**Plans**: TBD
+**Plans**:
+  - TASK-01: Add `--watch` flag to run-formal-verify.cjs CLI argument parser; implement file watcher using `chokidar` (or `fs.watch` as fallback) on the XState machine source file; re-invoke the verification pipeline on each detected change (DX-01)
+  - TASK-02: Test suite for watch mode: start in watch mode, trigger a file save, assert re-run occurs within 5 seconds, send SIGINT, assert process exits cleanly with no hanging child processes
 
 
 ## Progress
@@ -784,7 +804,7 @@ Plans:
 | v0.13-05. Fix IS_GAP_CLOSURE Pattern | 1/1 | Complete    | 2026-02-25 | - |
 | v0.13-06. Deploy IS_GAP_CLOSURE Fix to Installed Copy | v0.13 | Complete    | 2026-02-25 | - |
 | v0.14-01. FV Tool Integration | 3/3 | Complete    | 2026-02-26 | - |
-| v0.14-02. Drift Detection | v0.14 | 0/TBD | Not started | - |
-| v0.14-03. Parallelization | v0.14 | 0/TBD | Not started | - |
-| v0.14-04. PRISM Config Injection | v0.14 | 0/TBD | Not started | - |
-| v0.14-05. Watch Mode | v0.14 | 0/TBD | Not started | - |
+| v0.14-02. Drift Detection + TLA+ Canonicalization | v0.14 | 0/6 | Not started | - |
+| v0.14-03. Parallelization | v0.14 | 0/3 | Not started | - |
+| v0.14-04. PRISM Config Injection | v0.14 | 0/3 | Not started | - |
+| v0.14-05. Watch Mode | v0.14 | 0/2 | Not started | - |
