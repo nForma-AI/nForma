@@ -4,7 +4,8 @@
 // Master runner: executes ALL formal verification tools and generates ALL formal artifacts.
 //
 // Coverage:
-//   Generate   (1)  — generate-formal-specs.cjs (XState → TLA+, cfg, Alloy, PRISM)
+//   Generate   (2)  — xstate-to-tla.cjs (XState → TLA+, cfg)
+//                     generate-formal-specs.cjs (XState → Alloy, PRISM)
 //   Petri net  (2)  — generate-petri-net.cjs  + render account-manager DOT → SVG
 //   TLA+       (8)  — MCsafety, MCliveness, MCoscillation, MCconvergence,
 //                     MCbreaker, MCdeliberation, MCprefilter, MCaccount-manager
@@ -12,11 +13,11 @@
 //                     transcript-scan, install-scope, taxonomy-safety, account-pool-structure
 //   PRISM      (2)  — quorum, oauth-rotation
 //   ─────────────────────────────────────────────────────────────
-//   Total:    20 steps
+//   Total:    21 steps
 //
 // Usage:
-//   node bin/run-formal-verify.cjs                    # all 20 steps
-//   node bin/run-formal-verify.cjs --only=generate    # source extraction only (1 step)
+//   node bin/run-formal-verify.cjs                    # all 21 steps
+//   node bin/run-formal-verify.cjs --only=generate    # source extraction only (2 steps)
 //   node bin/run-formal-verify.cjs --only=tla         # TLA+ only  (8 steps)
 //   node bin/run-formal-verify.cjs --only=alloy       # Alloy only (7 steps)
 //   node bin/run-formal-verify.cjs --only=prism       # PRISM only (2 steps)
@@ -47,8 +48,14 @@ const SEP = '─'.repeat(64);
 const STEPS = [
   // ─ Source extraction — must run first so generated specs are fresh ──────────
   {
-    tool: 'generate', id: 'generate:quorum-specs',
-    label: 'Generate quorum specs from XState machine (TLA+, cfg, Alloy, PRISM)',
+    tool: 'generate', id: 'generate:tla-from-xstate',
+    label: 'Generate TLA+ spec + TLC model config from XState machine (xstate-to-tla)',
+    type: 'node', script: 'xstate-to-tla.cjs',
+    args: ['src/machines/qgsd-workflow.machine.ts', '--module=QGSDQuorum', '--config=formal/tla/guards/qgsd-workflow.json'],
+  },
+  {
+    tool: 'generate', id: 'generate:alloy-prism-specs',
+    label: 'Generate Alloy + PRISM models from XState machine (generate-formal-specs)',
     type: 'node', script: 'generate-formal-specs.cjs', args: [],
   },
 
