@@ -68,11 +68,11 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 **Phases:** v0.11-01 (Parallel Quorum Wave-Barrier)
 
-## Parallel Milestone: v0.9 GSD Sync (in progress — 1/4 phases)
+## Parallel Milestone: v0.9 GSD Sync (COMPLETE 2026-02-26)
 
 **Goal:** Port GSD 1.20.6 improvements into QGSD — context window self-monitoring hook, pre-execution Nyquist test validation, discuss-phase UX refinements, and bundled small fixes.
 
-**Remaining phases:** v0.9-02 (Nyquist), v0.9-03 (discuss-phase UX), v0.9-04 (tier-3 fixes)
+**Shipped:** v0.9-01 (context window monitor hook), v0.9-02 (Nyquist validation layer), v0.9-03 (discuss-phase UX), v0.9-04 (Skill tool spawn guards, Gemini TOML fix, decimal phase parsing — FIX-01..04), v0.9-05 (qgsd-core/ rename)
 
 ## Previous Milestone: v0.8 Fix-Tests ddmin Pipeline
 
