@@ -402,7 +402,7 @@ Before escalating to the user, run a quorum resolution loop to attempt automated
    - Mode A — pure question
    - Question: "Can each human_needed item from phase ${PHASE_NUMBER} be resolved using available tools (grep, file inspection, quorum-test)? Vote APPROVE (can resolve programmatically) or BLOCK (genuinely needs human eyes)."
    - Include the full `human_verification` section as context
-   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku"` (one per slot)
+   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
    - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
    Fail-open: if all slots error, treat as BLOCK (escalate to user).
@@ -432,7 +432,7 @@ Form your own position: are these gaps auto-resolvable via plan-phase --gaps, or
 Run R3 quorum inline (dispatch_pattern from `commands/qgsd/quorum.md`):
 - Mode A — compact prompt to preserve context budget
 - Question: "Phase {PHASE_NUMBER} verification found {N} gaps. Are these auto-resolvable via plan-phase --gaps Task spawn, or do they require human review? Gaps: {1-sentence-per-gap — max 20 words each}. Vote APPROVE (auto-resolvable) or BLOCK (needs human)."
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku"` (one per slot)
+- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
 - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
 After quorum vote completes, update the scoreboard BEFORE spawning any Task:
