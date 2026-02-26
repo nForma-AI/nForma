@@ -133,7 +133,7 @@ Recent decisions affecting current work:
 | 106 | Extend v0.12 Formal Verification milestone with phases v0.12-04 through v0.12-08 covering all 9 formal verification gaps | 2026-02-25 | e9b4ea4 | Verified | [106-extend-v0-12-formal-verification-milesto](./quick/106-extend-v0-12-formal-verification-milesto/) |
 | 107 | QGSD self-improvement passive telemetry: collector, classifier, cron installer, SessionStart injection | 2026-02-25 | 4ae7244 | Verified | [107-qgsd-self-improvement-passive-telemetry-](./quick/107-qgsd-self-improvement-passive-telemetry-/) |
 | 108 | Richer slot-worker result block: add citations field and increase raw output cap from 2000 to 5000 chars in qgsd-quorum-slot-worker.md | 2026-02-26 | a7d5dde | Verified | [108-richer-slot-worker-result-block-add-cita](./quick/108-richer-slot-worker-result-block-add-cita/) |
-| 109 | Update quorum.md: pass citations in prior_positions cross-poll bundle and write QUORUM_DEBATE.md at consensus/escalation | 2026-02-26 | b7cde74 | Pending | [109-update-quorum-md-pass-citations-in-prior](./quick/109-update-quorum-md-pass-citations-in-prior/) |
+| 109 | Update quorum.md: pass citations in prior_positions cross-poll bundle and write QUORUM_DEBATE.md at consensus/escalation | 2026-02-26 | b7cde74 | Verified | [109-update-quorum-md-pass-citations-in-prior](./quick/109-update-quorum-md-pass-citations-in-prior/) |
 
 ## Session Continuity
 
