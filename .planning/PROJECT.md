@@ -180,6 +180,8 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Validated
 
+- ✓ Drift detector wired into `npm test` with esbuild+require() AST walk; TLA+ orphan phases = fail(), bidirectional guard drift enforcement via Check 5 (DRFT-01..03) — v0.14 (Phase v0.14-02)
+- ✓ BROKEN-01 resolved: xstate-to-tla.cjs writes to QGSDQuorum_xstate.tla, never clobbering hand-authored canonical spec; CI hardened (path triggers + continue-on-error removed) — v0.14 (Phase v0.14-02)
 - ✓ Commit and integrate untracked FV tools with test coverage; run-formal-verify.cjs calls xstate-to-tla.cjs as STEPS[0] (INTG-01..04) — v0.14 (Phase v0.14-01)
 - ✓ Autonomous milestone execution loop wired end-to-end (LOOP-01/02/03): transition.md calls audit-milestone; IS_GAP_CLOSURE routes gap-closure phases to re-audit; audit-milestone auto-spawns plan-milestone-gaps on gaps_found — v0.13 (Phase v0.13-01)
 - ✓ plan-milestone-gaps, execute-phase, and discuss-phase all gated by R3 quorum (QUORUM-01/02/03) — AskUserQuestion replaced in every autonomous loop position — v0.13 (Phase v0.13-02)
@@ -223,11 +225,9 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 <!-- v0.14 scope: FV Pipeline Integration -->
 
-- [ ] Drift detector wired into `npm test` — drift in TLA+/Alloy/PRISM vs XState machine fails test suite
-- [ ] Parallelize `run-formal-verify.cjs` — 20 sequential steps → parallel tool groups (~10 min → ~2 min)
-- [ ] AST-based XState parsing in drift detector — replace regex with proper TS compiler/AST walk
-- [ ] Standardize PRISM config injection — scoreboard TP/TN rates auto-fed to PRISM model parameters
-- [ ] `--watch` mode for `run-formal-verify.cjs` — re-run on XState machine file changes
+- [ ] Parallelize `run-formal-verify.cjs` — 20 sequential steps → parallel tool groups (~10 min → ~2 min) (PERF-01, PERF-02)
+- [ ] Standardize PRISM config injection — scoreboard TP/TN rates auto-fed to PRISM model parameters (PRISM-01, PRISM-02)
+- [ ] `--watch` mode for `run-formal-verify.cjs` — re-run on XState machine file changes (DX-01)
 
 <!-- Carry-forward: deferred from v0.3 -->
 - [ ] npm publish qgsd@0.2.0 deferred — run `npm publish --access public` when ready (RLS-04)
@@ -343,9 +343,13 @@ QGSD v0.14 milestone started 2026-02-25. v0.13 Autonomous Milestone Execution co
 | subagent_type="general-purpose" for plan-milestone-gaps Task spawn | No dedicated qgsd-plan-milestone-gaps subagent registered; no model= to avoid resolve-model errors | Phase v0.13-01 |
 | installer sync (node bin/install.js --claude --global) is canonical mechanism for qgsd-core/ edits | Installed copy ~/.claude/qgsd/ is what Claude reads at runtime; source edits without install sync = silent non-deployment | Phase v0.13-06 — INT-03 |
 | continue-on-error: true on formal-verify.yml master runner step | JARs/binaries may be absent in some CI environments; failures visible in logs without blocking; matches verify-quorum-health guard pattern | Phase v0.14-01 — INTG-03 |
+| _xstate suffix (Option A) for BROKEN-01 | Generated spec writes to QGSDQuorum_xstate.tla — hand-authored QGSDQuorum.tla (phase var, AgentSymmetry, MinQuorumMet invariants) remains canonical; quorum-approved in v0.14 gap planning | Phase v0.14-02 — BROKEN-01 |
+| esbuild inline bundling (not external:['xstate']) in check-spec-sync.cjs | external flag causes MODULE_NOT_FOUND in /tmp bundle (no node_modules); same inline bundling pattern as xstate-to-tla.cjs | Phase v0.14-02-02 |
+| TLA+ orphan phases promoted from warn() to fail() | DRFT-03 requirement says "states or guards" must be hard failures for TLA+ (Alloy orphans remain warn — Alloy may legitimately use different state space) | Phase v0.14-02-03 |
+| Guard drift enforcement uses formal/tla/guards/qgsd-workflow.json as cross-reference source | Bidirectional: xstateGuardNames vs JSON keys; JSON keys vs machine; camelCase XState → PascalCase TLA+ mapping documented inline | Phase v0.14-02-03 — Check 5 |
 | STEPS[0] split into generate:tla-from-xstate + generate:alloy-prism-specs (total 20→21) | xstate-to-tla.cjs generates TLA+/cfg only; generate-formal-specs.cjs retained as separate step for Alloy/PRISM — preserves full pipeline coverage | Phase v0.14-01 — INTG-04 |
 | node --check for syntax smoke in run-formal-verify.test.cjs | Script has top-level async IIFE that spawns child processes immediately on require(); node --check validates syntax without triggering execution | Phase v0.14-01-02 — testing pattern |
 | VALID_CONFIGS guard in run-account-manager-tlc.cjs evaluated before Java check | --config=invalid test reliable without Java installed; guard order confirmed by reading source before writing tests | Phase v0.14-01-02 — testing pattern |
 
 ---
-*Last updated: 2026-02-26 after Phase v0.14-01*
+*Last updated: 2026-02-26 after Phase v0.14-02*

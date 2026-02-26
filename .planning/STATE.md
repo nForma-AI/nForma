@@ -2,10 +2,10 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-25 after v0.14 milestone started)
+See: .planning/PROJECT.md (updated 2026-02-26 after Phase v0.14-02)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.14 FV Pipeline Integration — Phase v0.14-02 gap closure complete (3/3 plans done); guard drift enforcement + fixture-based drift tests added; DRFT-02/03 fully closed
+**Current focus:** v0.14 FV Pipeline Integration — Phase v0.14-02 COMPLETE; ready to plan v0.14-03 (Parallelization)
 
 ## Current Position
 
@@ -136,5 +136,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: v0.14-02-02 DONE — DRFT-01/02/03 complete; esbuild+require() machine walk, TLA+ orphan fail(), Alloy orphan scan, npm test wired (330 tests pass); v0.14-02 phase COMPLETE
+Stopped at: Phase v0.14-02 COMPLETE — BROKEN-01 fixed (_xstate suffix), MISSING-02 fixed (CI paths), DRFT-01/02/03 satisfied (esbuild walk, guard drift Check 5, fixture-based tests), 331 tests pass; ready to plan v0.14-03 (Parallelization)
 Resume file: None
