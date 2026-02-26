@@ -706,10 +706,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Running `node bin/run-formal-verify.cjs` reads TP/TN rates from the quorum scoreboard and passes them to the PRISM model as parameters — no manual editing of any .pm file is required
   2. After a quorum round updates the scoreboard, the next run of run-formal-verify.cjs automatically uses the updated rates without any user intervention
-**Plans**:
-  - TASK-01: Add scoreboard reader to run-prism.cjs — read `.planning/quorum-scoreboard.json`, compute aggregate TP rate and TN rate from `data.agents` entries (PRISM-01)
-  - TASK-02: Pass computed rates as `-const` parameters to PRISM at invocation time (e.g. `-const pTP=0.82 -const pTN=0.91`) — no .pm file editing required (PRISM-02)
-  - TASK-03: Integration test: write a fixture scoreboard with known TP/TN counts, run run-formal-verify.cjs, assert the PRISM invocation includes the correct `-const` params derived from fixture data
+**Plans**: 2 plans
+Plans:
+- [ ] v0.14-04-01-PLAN.md — Add readScoreboardRates() to run-prism.cjs and inject -const tp_rate/unavail at invocation time
+- [ ] v0.14-04-02-PLAN.md — Integration tests: fixture scoreboard, assert -const params, caller-override wins
 
 ### Phase v0.14-05: Watch Mode
 **Goal**: Developers iterating on the XState machine get continuous feedback — run-formal-verify.cjs re-runs verification automatically whenever the machine file changes, without manual re-invocation
@@ -806,5 +806,5 @@ Plans:
 | v0.14-01. FV Tool Integration | 3/3 | Complete    | 2026-02-26 | - |
 | v0.14-02. Drift Detection + TLA+ Canonicalization | 2/2 | Complete    | 2026-02-26 | - |
 | v0.14-03. Parallelization | v0.14 | 0/3 | Not started | - |
-| v0.14-04. PRISM Config Injection | v0.14 | 0/3 | Not started | - |
+| v0.14-04. PRISM Config Injection | v0.14 | 0/2 | Not started | - |
 | v0.14-05. Watch Mode | v0.14 | 0/2 | Not started | - |
