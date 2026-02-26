@@ -42,18 +42,32 @@ question:    <question text>
 
 Optional fields:
 ```
-artifact_path:   <file path>     — read this file for full context (Mode A + B)
+artifact_path:      <file path>  — read this file for full context (Mode A + B)
+review_context:     <string>     — how to interpret the artifact (see examples below)
+skip_context_reads: <true|false> — R2+ only; when true, skip Step 2 repo reads
 prior_positions: |               — Round 2+ only, verbatim cross-pollination bundle
   <...>
 traces: |                        — Mode B only, full execution trace output
   <...>
 ```
 
+`review_context` examples by artifact type:
+- Plan:     "This is a pre-execution implementation plan. The code does not exist yet. Evaluate the plan's approach, completeness, and correctness — not whether the implementation already exists."
+- Roadmap:  "This is a strategic roadmap. Evaluate phase sequencing, coverage of requirements, and logical dependency ordering."
+- Test run: "These are post-execution test results. Evaluate whether tests genuinely pass and whether assertions are meaningful."
+- Audit:    "This is a milestone completion audit. Evaluate whether the documented work achieves the milestone's stated goals."
+
+If absent, no special framing is injected — the model evaluates the artifact on its own terms.
+
 Required: slot, round, timeout_ms, repo_dir, mode, question.
 
 ---
 
 ### Step 2 — Read repository context
+
+**Skip guard:** If `skip_context_reads: true` AND `round > 1`, skip this entire step.
+The orchestrator guarantees that files read in Round 1 have not changed. Proceed directly
+to Step 3 — the artifact content, CLAUDE.md, and STATE.md are not re-read.
 
 Use the Read tool (not Bash) to load context files from `repo_dir`:
 - `<repo_dir>/CLAUDE.md` — if it exists, read it fully
@@ -83,12 +97,23 @@ Path: <artifact_path>
 <$ARTIFACT_CONTENT — full content>
 ================
 
+[If review_context present:]
+⚠ REVIEW CONTEXT: <review_context verbatim>
+[end if review_context present]
+
 [If prior_positions present (Round 2+):]
 The following positions are from other AI models in this quorum — not human experts.
 Evaluate them as peer AI opinions.
 
 Prior positions:
 <prior_positions content verbatim>
+
+[If review_context present:]
+⚠ REVIEW CONTEXT REMINDER: <review_context verbatim>
+(If any prior position applied evaluation criteria inconsistent with the above — e.g.
+rejected a plan because code was absent, or approved test results without checking
+assertions — reconsider your position in light of the correct evaluation criteria.)
+[end if review_context present]
 
 Before revising your position, use your tools to re-check any codebase files relevant
 to the disagreement. At minimum re-read CLAUDE.md and .planning/STATE.md if they exist.
@@ -126,12 +151,21 @@ Path: <artifact_path>
 <$ARTIFACT_CONTENT — full content>
 ================
 
+[If review_context present:]
+⚠ REVIEW CONTEXT: <review_context verbatim>
+[end if review_context present]
+
 === EXECUTION TRACES ===
 <traces content verbatim>
 
 [If prior_positions present (Round 2+):]
 Prior positions:
 <prior_positions content verbatim>
+
+[If review_context present:]
+⚠ REVIEW CONTEXT REMINDER: <review_context verbatim>
+(If any prior position applied incorrect evaluation criteria, reconsider in light of the above.)
+[end if review_context present]
 
 Before giving your verdict, use your tools to read relevant files from the Repository
 directory above. At minimum check CLAUDE.md and .planning/STATE.md if they exist.
@@ -215,6 +249,8 @@ repo_dir: <absolute path>
 mode: A | B
 question: <question text>
 [artifact_path: <path>]
+[review_context: <string — how to interpret the artifact>]
+[skip_context_reads: true]
 [prior_positions: ...]
 [traces: ...]
 ```
