@@ -16,11 +16,12 @@ EXTENDS Naturals, FiniteSets, TLC
 CONSTANTS
     Agents,          \* Set of quorum model slots (e.g., {"a1","a2","a3","a4","a5"})
     MaxDeliberation, \* Maximum deliberation rounds before forced DECIDED (default: 7)
-    MaxSize          \* Quorum ceiling: minimum successful responses required (= --n N - 1 or config.maxSize)
+    MaxSize          \* Cap on voters polled per round: recruit up to MaxSize from roster,
+                     \* skipping quota-exhausted agents; accept reduced quorum if roster runs dry
 
 ASSUME MaxDeliberation \in Nat /\ MaxDeliberation > 0
 
-\* N = total number of agents; used for majority calculation
+\* N = total number of agents in roster
 N == Cardinality(Agents)
 
 ASSUME MaxSize \in 1..N
@@ -31,20 +32,23 @@ AgentSymmetry == Permutations(Agents)
 VARIABLES
     phase,              \* One of: "IDLE", "COLLECTING_VOTES", "DELIBERATING", "DECIDED"
     successCount,       \* Number of APPROVE votes collected in current round
+    polledCount,        \* Number of agents actually recruited this round (≤ MaxSize; may be less if roster runs dry)
     deliberationRounds  \* Number of deliberation rounds completed
 
-vars == <<phase, successCount, deliberationRounds>>
+vars == <<phase, successCount, polledCount, deliberationRounds>>
 
 \* ── Type invariant ───────────────────────────────────────────────────────────
 TypeOK ==
     /\ phase \in {"IDLE", "COLLECTING_VOTES", "DELIBERATING", "DECIDED"}
-    /\ successCount \in 0..N
+    /\ successCount \in 0..MaxSize
+    /\ polledCount \in 0..MaxSize
     /\ deliberationRounds \in 0..MaxDeliberation
 
 \* ── Initial state ────────────────────────────────────────────────────────────
 Init ==
     /\ phase              = "IDLE"
     /\ successCount       = 0
+    /\ polledCount        = 0
     /\ deliberationRounds = 0
 
 \* ── Actions ──────────────────────────────────────────────────────────────────
@@ -53,54 +57,62 @@ Init ==
 StartQuorum ==
     /\ phase = "IDLE"
     /\ phase' = "COLLECTING_VOTES"
-    /\ UNCHANGED <<successCount, deliberationRounds>>
+    /\ UNCHANGED <<successCount, polledCount, deliberationRounds>>
 
-\* CollectVotes(n): n APPROVE votes received from available agents.
-\* minQuorumMet (n * 2 >= N) → DECIDED; otherwise → DELIBERATING.
-CollectVotes(n) ==
+\* CollectVotes(n, p): p agents recruited (≤ MaxSize; may be < MaxSize if roster ran dry),
+\* n of them returned APPROVE.  Unanimity (n = p) → DECIDED; otherwise → DELIBERATING.
+CollectVotes(n, p) ==
     /\ phase = "COLLECTING_VOTES"
+    /\ p \in 1..MaxSize
+    /\ n \in 0..p
     /\ successCount' = n
-    /\ IF n * 2 >= N
+    /\ polledCount'  = p
+    /\ IF n = p
        THEN /\ phase' = "DECIDED"
             /\ UNCHANGED deliberationRounds
        ELSE /\ phase' = "DELIBERATING"
             /\ deliberationRounds' = deliberationRounds + 1
 
-\* Deliberate(n): n APPROVE votes after a deliberation round.
-\* Majority or exhaustion (deliberationRounds >= MaxDeliberation) → DECIDED.
+\* Deliberate(n): n APPROVE votes after a deliberation round (polledCount unchanged).
+\* Unanimity or exhaustion (deliberationRounds >= MaxDeliberation) → DECIDED.
 Deliberate(n) ==
     /\ phase = "DELIBERATING"
+    /\ n \in 0..polledCount
     /\ successCount' = n
-    /\ IF n * 2 >= N \/ deliberationRounds >= MaxDeliberation
+    /\ IF n = polledCount \/ deliberationRounds >= MaxDeliberation
        THEN /\ phase' = "DECIDED"
-            /\ UNCHANGED deliberationRounds
+            /\ UNCHANGED <<polledCount, deliberationRounds>>
        ELSE /\ phase' = "DELIBERATING"
             /\ deliberationRounds' = deliberationRounds + 1
+            /\ UNCHANGED polledCount
 
 \* Decide: forced termination when deliberation limit is exhausted.
 Decide ==
     /\ phase = "DELIBERATING"
     /\ deliberationRounds >= MaxDeliberation
     /\ phase' = "DECIDED"
-    /\ UNCHANGED <<successCount, deliberationRounds>>
+    /\ UNCHANGED <<successCount, polledCount, deliberationRounds>>
 
 Next ==
     \/ StartQuorum
-    \/ \E n \in 0..N : CollectVotes(n)
-    \/ \E n \in 0..N : Deliberate(n)
+    \/ \E p \in 1..MaxSize, n \in 0..p : CollectVotes(n, p)
+    \/ \E n \in 0..MaxSize : Deliberate(n)
     \/ Decide
 
 \* ── Safety invariants ────────────────────────────────────────────────────────
 
-\* MinQuorumMet: if DECIDED via approval, a majority of agents approved.
-MinQuorumMet ==
+\* UnanimityMet: if DECIDED via consensus (not forced timeout), all polled agents approved.
+\* Replaces the old majority-based MinQuorumMet — quorum is unanimous within the polled set.
+UnanimityMet ==
     phase = "DECIDED" =>
-        (successCount * 2 >= N \/ deliberationRounds >= MaxDeliberation)
+        (successCount = polledCount \/ deliberationRounds >= MaxDeliberation)
 
-\* QuorumCeilingMet: if DECIDED via approval, at least MaxSize agents approved.
+\* QuorumCeilingMet: the polled set never exceeds MaxSize, and consensus is unanimous within it.
+\* polledCount < MaxSize is allowed when the roster runs dry (reduced quorum, user notified).
 QuorumCeilingMet ==
     phase = "DECIDED" =>
-        (successCount >= MaxSize \/ deliberationRounds >= MaxDeliberation)
+        /\ polledCount <= MaxSize
+        /\ (successCount = polledCount \/ deliberationRounds >= MaxDeliberation)
 
 \* NoInvalidTransition: IDLE can only advance to COLLECTING_VOTES.
 \* Kept for backwards compatibility; AllTransitionsValid covers this and all other states.
@@ -131,8 +143,8 @@ DeliberationMonotone ==
 EventualConsensus == <>(phase = "DECIDED")
 
 \* ── Composite actions for fairness ──────────────────────────────────────────
-AnyCollectVotes == \E n \in 0..N : CollectVotes(n)
-AnyDeliberate   == \E n \in 0..N : Deliberate(n)
+AnyCollectVotes == \E p \in 1..MaxSize, n \in 0..p : CollectVotes(n, p)
+AnyDeliberate   == \E n \in 0..MaxSize : Deliberate(n)
 
 \* ── Full specification with fairness ────────────────────────────────────────
 Spec == Init /\ [][Next]_vars
