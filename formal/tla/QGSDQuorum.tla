@@ -1,27 +1,26 @@
 ---- MODULE QGSDQuorum ----
 (*
  * formal/tla/QGSDQuorum.tla
- * Hand-extended: MaxSize constant added (quick-115). Regenerate with caution.
+ * GENERATED — do not edit by hand.
  * Source of truth: src/machines/qgsd-workflow.machine.ts
  * Regenerate:      node bin/generate-formal-specs.cjs
  * Generated:       2026-02-27
 
  * Models the quorum workflow defined in src/machines/qgsd-workflow.machine.ts.
- * Guard translations:
- *   minQuorumMet (line ~24):           successCount >= Math.ceil(N/2)  →  n * 2 >= N
- *   noInfiniteDeliberation (line ~27):  deliberationRounds < maxDelib  →  deliberationRounds < MaxDeliberation
+ * Guard translations (from GUARD_REGISTRY in bin/generate-formal-specs.cjs):
+ *   unanimityMet (successCount >= polledCount):   n = p
+ *   noInfiniteDeliberation (deliberationRounds < maxDeliberation):  deliberationRounds < MaxDeliberation
 *)
 EXTENDS Naturals, FiniteSets, TLC
 
 CONSTANTS
     Agents,          \* Set of quorum model slots (e.g., {"a1","a2","a3","a4","a5"})
     MaxDeliberation, \* Maximum deliberation rounds before forced DECIDED (default: 7)
-    MaxSize          \* Cap on voters polled per round: recruit up to MaxSize from roster,
-                     \* skipping quota-exhausted agents; accept reduced quorum if roster runs dry
+    MaxSize          \* Cap on voters polled per round (default: 3)
 
 ASSUME MaxDeliberation \in Nat /\ MaxDeliberation > 0
 
-\* N = total number of agents in roster
+\* N = total number of agents; used for cardinality checks
 N == Cardinality(Agents)
 
 ASSUME MaxSize \in 1..N
@@ -59,32 +58,33 @@ StartQuorum ==
     /\ phase' = "COLLECTING_VOTES"
     /\ UNCHANGED <<successCount, polledCount, deliberationRounds>>
 
-\* CollectVotes(n, p): p agents recruited (≤ MaxSize; may be < MaxSize if roster ran dry),
-\* n of them returned APPROVE.  Unanimity (n = p) → DECIDED; otherwise → DELIBERATING.
+\* CollectVotes(n, p): n APPROVE votes from p polled agents (p ≤ MaxSize).
+\* unanimityMet (successCount >= polledCount): All polled agents approved (unanimity within the polled set).
+\* n = p → DECIDED; otherwise → DELIBERATING.
 CollectVotes(n, p) ==
     /\ phase = "COLLECTING_VOTES"
     /\ p \in 1..MaxSize
     /\ n \in 0..p
     /\ successCount' = n
-    /\ polledCount'  = p
+    /\ polledCount' = p
     /\ IF n = p
        THEN /\ phase' = "DECIDED"
             /\ UNCHANGED deliberationRounds
        ELSE /\ phase' = "DELIBERATING"
             /\ deliberationRounds' = deliberationRounds + 1
 
-\* Deliberate(n): n APPROVE votes after a deliberation round (polledCount unchanged).
+\* Deliberate(n): n APPROVE votes after a deliberation round.
 \* Unanimity or exhaustion (deliberationRounds >= MaxDeliberation) → DECIDED.
 Deliberate(n) ==
     /\ phase = "DELIBERATING"
-    /\ n \in 0..polledCount
+    /\ n \in 0..MaxSize
     /\ successCount' = n
     /\ IF n = polledCount \/ deliberationRounds >= MaxDeliberation
        THEN /\ phase' = "DECIDED"
-            /\ UNCHANGED <<polledCount, deliberationRounds>>
+            /\ UNCHANGED deliberationRounds
        ELSE /\ phase' = "DELIBERATING"
             /\ deliberationRounds' = deliberationRounds + 1
-            /\ UNCHANGED polledCount
+    /\ UNCHANGED polledCount
 
 \* Decide: forced termination when deliberation limit is exhausted.
 Decide ==
@@ -101,14 +101,12 @@ Next ==
 
 \* ── Safety invariants ────────────────────────────────────────────────────────
 
-\* UnanimityMet: if DECIDED via consensus (not forced timeout), all polled agents approved.
-\* Replaces the old majority-based MinQuorumMet — quorum is unanimous within the polled set.
+\* UnanimityMet: if DECIDED via approval, unanimity was achieved or deliberation was exhausted.
 UnanimityMet ==
     phase = "DECIDED" =>
         (successCount = polledCount \/ deliberationRounds >= MaxDeliberation)
 
-\* QuorumCeilingMet: the polled set never exceeds MaxSize, and consensus is unanimous within it.
-\* polledCount < MaxSize is allowed when the roster runs dry (reduced quorum, user notified).
+\* QuorumCeilingMet: when DECIDED, polledCount did not exceed MaxSize.
 QuorumCeilingMet ==
     phase = "DECIDED" =>
         /\ polledCount <= MaxSize
