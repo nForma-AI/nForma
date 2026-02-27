@@ -146,7 +146,7 @@ Recent decisions affecting current work:
 | 110 | implement modernized quorum dispatch pattern: model haiku for slot workers and resume for deliberation rounds | 2026-02-26 | ef3f493 | Verified | [110-implement-modernized-quorum-dispatch-pat](./../quick/110-implement-modernized-quorum-dispatch-pat/) |
 | 111 | add max_turns=100 to all qgsd-quorum-slot-worker Task dispatch sites | 2026-02-26 | f9e0a7e | Verified | [111-add-max-turns-100-to-all-qgsd-quorum-slo](./quick/111-add-max-turns-100-to-all-qgsd-quorum-slo/) |
 | 112 | add quorum slot-worker failure log to call-quorum-slot.cjs and surface recurring patterns in health check | 2026-02-26 | 0ecf2e0 | Verified | [112-add-quorum-slot-worker-failure-log-to-ca](./quick/112-add-quorum-slot-worker-failure-log-to-ca/) |
-| 113 | create a flag that allows to control the number of max member in the quorum | 2026-02-27 | ce5afb9 | Pending | [113-create-a-flag-that-allows-to-control-the](./quick/113-create-a-flag-that-allows-to-control-the/) |
+| 113 | create a flag that allows to control the number of max member in the quorum | 2026-02-27 | ce5afb9 | Verified | [113-create-a-flag-that-allows-to-control-the](./quick/113-create-a-flag-that-allows-to-control-the/) |
 | 114 | Fix objective line in v0.15-01-01-PLAN.md to say 6 regex sites not five | 2026-02-27 | b143170 | Verified | [114-fix-objective-line-in-v0-15-01-01-plan-m](./quick/114-fix-objective-line-in-v0-15-01-01-plan-m/) |
 
 ## Session Continuity
