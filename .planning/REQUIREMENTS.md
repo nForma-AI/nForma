@@ -9,10 +9,10 @@ Requirements for the Token Efficiency milestone. Goal: reduce QGSD's per-run tok
 
 ### Token Observability (OBSV)
 
-- [ ] **OBSV-01**: User can see per-slot token consumption ranked by usage in `/qgsd:health` output
-- [ ] **OBSV-02**: System appends a structured record to `.planning/token-usage.jsonl` after each quorum slot-worker completes (via `SubagentStop` hook reading `agent_transcript_path`)
-- [ ] **OBSV-03**: Token records correctly attribute usage to named slot (`claude-1`, `gemini-1`, etc.) via correlation protocol written at dispatch time
-- [ ] **OBSV-04**: CLI-based slots (gemini-1, codex-1) are logged with `tokens: null` — present in log, not omitted
+- [x] **OBSV-01**: User can see per-slot token consumption ranked by usage in `/qgsd:health` output
+- [x] **OBSV-02**: System appends a structured record to `.planning/token-usage.jsonl` after each quorum slot-worker completes (via `SubagentStop` hook reading `agent_transcript_path`)
+- [x] **OBSV-03**: Token records correctly attribute usage to named slot (`claude-1`, `gemini-1`, etc.) via correlation protocol written at dispatch time
+- [x] **OBSV-04**: CLI-based slots (gemini-1, codex-1) are logged with `tokens: null` — present in log, not omitted
 
 ### Tiered Model Sizing (TIER)
 
@@ -65,10 +65,10 @@ Requirements for the Token Efficiency milestone. Goal: reduce QGSD's per-run tok
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| OBSV-01 | Phase v0.18-05 (gap closure) | Pending |
-| OBSV-02 | Phase v0.18-05 (gap closure) | Pending |
-| OBSV-03 | Phase v0.18-05 (gap closure) | Pending |
-| OBSV-04 | Phase v0.18-05 (gap closure) | Pending |
+| OBSV-01 | Phase v0.18-05 (gap closure) | Complete |
+| OBSV-02 | Phase v0.18-05 (gap closure) | Complete |
+| OBSV-03 | Phase v0.18-05 (gap closure) | Complete |
+| OBSV-04 | Phase v0.18-05 (gap closure) | Complete |
 | TIER-01 | Phase v0.18-02 | Complete |
 | TIER-02 | Phase v0.18-02 | Complete |
 | TIER-03 | Phase v0.18-02 | Complete |
