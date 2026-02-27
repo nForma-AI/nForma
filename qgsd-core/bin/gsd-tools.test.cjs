@@ -3828,3 +3828,67 @@ describe('SAFE-01: --repair safety guard for rich STATE.md', () => {
     assert.notStrictEqual(afterContent, shortState, 'STATE.md should have been overwritten for short file');
   });
 });
+
+describe('SAFE-02: legacy numeric phase dirs archived', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+    // Write minimal valid project scaffold
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'config.json'),
+      JSON.stringify({ model_profile: 'quality' })
+    );
+    // ROADMAP with numeric phase entries (simulating pre-archive state)
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      '# Roadmap\n\n- [x] **Phase 18: CLI Foundation** — test (completed 2026-02-22)\n'
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      '# Project State\n\n## Current Position\n\nPhase: v0.15-03\nPlan: 1\nStatus: in-progress\n'
+    );
+    // Create a versioned phase dir so STATE.md ref doesn't trigger W002
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', 'v0.15-03-test'), { recursive: true });
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('SAFE-02-TC-01: W007 not emitted for numeric phases present in both ROADMAP and disk', () => {
+    // Simulate pre-archive state: dir on disk + in ROADMAP
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '18-cli-foundation'), { recursive: true });
+    const result = runGsdTools('validate health', tmpDir);
+    const data = JSON.parse(result.output);
+    const w007 = (data.warnings || []).some(
+      i => i.code === 'W007' && i.message && i.message.includes('18')
+    );
+    assert.ok(!w007, `SAFE-02 pre-condition: W007 false positive for phase 18: ${JSON.stringify(data.warnings)}`);
+  });
+
+  test('SAFE-02-TC-02: W007 not emitted for numeric phases after move to archive/legacy/', () => {
+    // Simulate post-archive state: dir NOT in phases/, in archive/legacy/
+    // Numeric phase 18 is in ROADMAP but NOT on disk under phases/
+    // -> W006 fires (in ROADMAP, not on disk) but W007 must NOT fire
+    const result = runGsdTools('validate health', tmpDir);
+    const data = JSON.parse(result.output);
+    const w007 = (data.warnings || []).some(
+      i => i.code === 'W007' && i.message && i.message.includes('18')
+    );
+    assert.ok(!w007, `SAFE-02-TC-02: W007 must not fire for archived phase 18: ${JSON.stringify(data.warnings)}`);
+  });
+
+  test('SAFE-02-TC-03: archive/legacy/ contains numeric phase dirs after archive', () => {
+    // Simulate the archive dir creation and move
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'archive', 'legacy'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'archive', 'legacy', '18-cli-foundation'), { recursive: true });
+    // Verify archive dir exists and contains the moved dir
+    const archiveExists = fs.existsSync(path.join(tmpDir, '.planning', 'archive', 'legacy'));
+    const dirMoved = fs.existsSync(path.join(tmpDir, '.planning', 'archive', 'legacy', '18-cli-foundation'));
+    const notInPhases = !fs.existsSync(path.join(tmpDir, '.planning', 'phases', '18-cli-foundation'));
+    assert.ok(archiveExists, 'SAFE-02-TC-03: .planning/archive/legacy/ must exist');
+    assert.ok(dirMoved, 'SAFE-02-TC-03: 18-cli-foundation must exist in archive/legacy/');
+    assert.ok(notInPhases, 'SAFE-02-TC-03: 18-cli-foundation must NOT be in phases/ after archive');
+  });
+});
