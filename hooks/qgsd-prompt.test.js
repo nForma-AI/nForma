@@ -284,3 +284,82 @@ test('TC10: circuit breaker disabled flag → no injection (silent pass)', () =>
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+// TC-PROMPT-N-CAP: --n 3 caps injected slot list to N-1=2 external slots
+test('TC-PROMPT-N-CAP: --n 3 caps injected slot list to N-1=2 external slots', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-nc-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({ quorum_active: ['codex-1', 'gemini-1', 'opencode-1', 'copilot-1', 'claude-1'] }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase --n 3', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    // Must announce the override
+    assert.ok(ctx.includes('QUORUM SIZE OVERRIDE (--n 3)'), 'must announce --n 3 override');
+    // Must cap to 2 numbered step Task lines (N-1 = 2). Regex matches numbered steps, not header prose.
+    const taskLineCount = (ctx.match(/\d+\. Task\(subagent_type="qgsd-quorum-slot-worker"/g) || []).length;
+    assert.strictEqual(taskLineCount, 2, '--n 3 must produce exactly 2 slot-worker Task lines (N-1=2)');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC-PROMPT-SOLO: --n 1 injects SOLO MODE ACTIVE, no Task slot lines
+test('TC-PROMPT-SOLO: --n 1 injects SOLO MODE ACTIVE, no Task slot lines', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-solo-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({ quorum_active: ['codex-1', 'gemini-1'] }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase --n 1', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    assert.ok(ctx.includes('SOLO MODE ACTIVE (--n 1)'), 'must inject SOLO MODE ACTIVE marker');
+    assert.ok(ctx.includes('<!-- QGSD_SOLO_MODE -->'), 'must include QGSD_SOLO_MODE XML comment');
+    const taskLineCount = (ctx.match(/\d+\. Task\(subagent_type="qgsd-quorum-slot-worker"/g) || []).length;
+    assert.strictEqual(taskLineCount, 0, '--n 1 solo mode must produce zero slot-worker Task lines');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC-PROMPT-PREFER-SUB-DEFAULT: no preferSub config → defaults true, sub slots appear before api slots
+test('TC-PROMPT-PREFER-SUB-DEFAULT: no preferSub config → defaults true, sub slots appear before api slots', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-psub-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    // sub-1 listed AFTER api-1 in quorum_active — default preferSub must reorder
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({
+        quorum_active: ['api-slot-1', 'sub-slot-1'],
+        agent_config: {
+          'api-slot-1': { auth_type: 'api' },
+          'sub-slot-1': { auth_type: 'sub' },
+        },
+        // No quorum.preferSub key → defaults to true
+      }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    const subPos = ctx.indexOf('sub-slot-1');
+    const apiPos = ctx.indexOf('api-slot-1');
+    assert.ok(subPos !== -1, 'sub-slot-1 must appear in step list');
+    assert.ok(apiPos !== -1, 'api-slot-1 must appear in step list');
+    assert.ok(subPos < apiPos, 'sub slot must appear before api slot (preferSub default=true)');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
