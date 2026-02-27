@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-27 after v0.15 archived + v0.18 activ
 
 ## Current Position
 
-Phase: v0.18-04 of 5 (Adaptive Fan-Out) — IN PROGRESS
-Plan: 02 of 3 (Wave 1 implementation: mapRiskLevelToCount + fan-out wiring + dist sync)
-Status: v0.18-04-02 (Wave 1 implementation) complete; mapRiskLevelToCount exported, adaptive fan-out integrated into activeSlots, all 9 tests passing (5 unit + 4 integration, no regressions)
-Last activity: 2026-02-27 — v0.18-04-02 completed: fan-out implementation in qgsd-prompt.js, installer synced, SUMMARY.md written
+Phase: v0.18-04 of 5 (Adaptive Fan-Out) — COMPLETE
+Plan: 03 of 3 (Wave 2 verification: R6.4 note + qgsd-stop.js ceiling verification)
+Status: v0.18-04 PHASE COMPLETE; all FAN-01 through FAN-06 requirements implemented and verified; 16/16 fan-out tests passing; VALIDATION.md signed off with nyquist_compliant=true
+Last activity: 2026-02-27 — v0.18-04-03 completed: R6.4 note wiring, qgsd-stop ceiling tests, VALIDATION sign-off, SUMMARY.md written
 
 Progress: [████████████████████] prior milestones complete | v0.18: COMPLETE (5 phases × 3 plans = 15 total, all done)
 
@@ -68,7 +68,7 @@ Recent decisions affecting current work:
 
 - [Phase 12 carry-forward]: npm publish qgsd@0.2.0 deferred; run `npm publish --access public` when user decides
 - [v0.18-01 research flag]: Correlation file protocol timing — verify whether agent_id is predictable before Task spawn or only after; fallback is vote-line slot: parsing from output
-- [v0.18-04 research flag]: --n N emission for envelope-driven fan-out must be verified to reach qgsd-stop.js parseQuorumSizeFlag() correctly; test with conformance-events.jsonl
+- [v0.18-04 RESOLVED]: --n N emission for envelope-driven fan-out verified via qgsd-stop-fan-out.test.cjs (FAN-STOP-TC1 through TC4 all passing); ceiling calculation confirmed correct
 
 ## Quick Tasks Completed
 
@@ -80,7 +80,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-27 - Completed v0.18-04-01-PLAN.md Wave 0: test scaffold for adaptive fan-out
+Last activity: 2026-02-27 - Completed v0.18-04-03-PLAN.md Wave 2: R6.4 note + ceiling verification + VALIDATION sign-off
 Last session: 2026-02-27
-Stopped at: Completed v0.18-04-01 (Wave 0 test scaffold) — 16 test stubs created in 4 files (bin/qgsd-fan-out.test.cjs, hooks/qgsd-prompt-fan-out.test.cjs, hooks/qgsd-stop-fan-out.test.cjs, hooks/quorum-fan-out.test.cjs); all tests fail with clear TODO messages
+Stopped at: Completed v0.18-04-03 (Wave 2 verification) — Phase v0.18-04 COMPLETE; all 3 plans executed; all 6 FAN requirements verified with 16/16 tests passing
 Resume file: None
