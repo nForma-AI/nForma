@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-27 after v0.19 FV Pipeline Hardening 
 
 ## Current Position
 
-Phase: v0.19-03 (Liveness Fairness) — COMPLETE (all 2 plans done)
-Plan: v0.19-03-01 — DONE; v0.19-03-02 — DONE
-Status: 8 formal/spec invariants.md files + detectLivenessProperties in run-tlc.cjs; 400/400 npm test suite green
-Last activity: 2026-02-27 — v0.19-03 Plan 01 executed: 8 invariants.md files (LIVE-01); Plan 02: detectLivenessProperties TDD + inconclusive emit (LIVE-02); 400/400 pass
+Phase: v0.19-04 (Enforcement Layer) — COMPLETE (all 3 plans done)
+Plan: v0.19-04-01 — DONE; v0.19-04-02 — DONE; v0.19-04-03 — DONE
+Status: formal/trace/redaction.yaml + check-trace-redaction.cjs + check-trace-schema-drift.cjs + confidence tiers in validate-traces.cjs; 430/430 npm test suite green
+Last activity: 2026-02-27 — v0.19-04 Plan 01: trace redaction enforcement (REDACT-01..03); Plan 02: confidence tier TDD in validate-traces.cjs (EVID-01..02); Plan 03: schema drift guard TDD (DRIFT-01..02); 430/430 pass
 
-Progress: [████████████████████] prior milestones complete | v0.18: AUDIT COMPLETE — gaps_found (2 gap-closure phases needed) | v0.19: v0.19-01 COMPLETE (3/3 plans) | v0.19-02 COMPLETE | v0.19-03 COMPLETE
+Progress: [████████████████████] prior milestones complete | v0.18: AUDIT COMPLETE — gaps_found (2 gap-closure phases needed) | v0.19: v0.19-01 COMPLETE (3/3 plans) | v0.19-02 COMPLETE | v0.19-03 COMPLETE | v0.19-04 COMPLETE
 
 ## Performance Metrics
 
@@ -83,7 +83,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-27 — v0.19-03 complete: 8 formal/spec invariants.md + detectLivenessProperties in run-tlc.cjs; 400/400 npm tests pass; LIVE-01, LIVE-02 satisfied
+Last activity: 2026-02-27 — v0.19-04 complete: redaction.yaml + check-trace-redaction.cjs (REDACT-01..03) + confidence tiers in validate-traces.cjs (EVID-01..02) + check-trace-schema-drift.cjs (DRIFT-01..02); 430/430 npm tests pass
 Last session: 2026-02-27
-Stopped at: Phase v0.19-03 complete, ready to plan Phase v0.19-04
+Stopped at: Phase v0.19-04 complete, ready to plan Phase v0.19-05
 Resume file: None
