@@ -363,3 +363,36 @@ test('TC-PROMPT-PREFER-SUB-DEFAULT: no preferSub config → defaults true, sub s
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+// TC-PROMPT-FAILOVER-RULE: injected context must instruct Claude to skip UNAVAIL slots.
+// This is the runtime bridge that determines polledCount in QGSDQuorum.tla: Claude
+// follows these injected instructions to skip unresponsive slot-workers, reducing
+// polledCount from MaxSize to however many slots actually responded.
+test('TC-PROMPT-FAILOVER-RULE: injected context includes skip-if-UNAVAIL failover rule', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-fr-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({ quorum_active: ['gemini-1', 'opencode-1', 'copilot-1'] }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    // The failover rule is the hook-level guarantee that UNAVAIL slots are skipped.
+    // It appears in the activeSlots branch (line ~240 of qgsd-prompt.js).
+    assert.ok(ctx.includes('Failover rule:'), 'injected context must contain "Failover rule:"');
+    assert.ok(ctx.includes('UNAVAIL'), 'failover rule must reference UNAVAIL state');
+    assert.ok(ctx.includes('skip'), 'failover rule must instruct to skip unresponsive slots');
+    // Verify the rule explicitly says errors do not count toward the required total,
+    // confirming that a failed slot does not reduce the consensus threshold.
+    assert.ok(
+      ctx.includes('do not count toward'),
+      'failover rule must state that errors do not count toward required total'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
