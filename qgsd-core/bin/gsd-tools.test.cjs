@@ -3892,3 +3892,75 @@ describe('SAFE-02: legacy numeric phase dirs archived', () => {
     assert.ok(notInPhases, 'SAFE-02-TC-03: 18-cli-foundation must NOT be in phases/ after archive');
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VIS-01: Quorum failure visibility in health output
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VIS-01: quorum failure health warnings', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'config.json'),
+      JSON.stringify({ model_profile: 'quality' })
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      '# Roadmap\n\n### Phase v0.15-04: Health Fix\n'
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      '# Project State\n\n## Current Position\n\nPhase v0.15-04\nPlan: 1\nStatus: in-progress\n'
+    );
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', 'v0.15-04-health-fix'), { recursive: true });
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('VIS-01-TC-01: W008 emitted for slot with count >= 3', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'quorum-failures.json'),
+      JSON.stringify([
+        { slot: 'codex-1', error_type: 'TIMEOUT', pattern: 'TIMEOUT after 1ms', count: 3, last_seen: '2026-02-27T00:00:00.000Z' }
+      ])
+    );
+
+    const result = runGsdTools('validate health', tmpDir);
+    const data = JSON.parse(result.output);
+
+    const w008 = (data.warnings || []).some(
+      i => i.code === 'W008' && i.message && i.message.includes('codex-1')
+    );
+    assert.ok(w008, `VIS-01-TC-01: W008 not emitted for codex-1 (count=3): ${JSON.stringify(data.warnings)}`);
+  });
+
+  test('VIS-01-TC-02: W008 not emitted when all slot counts are < 3', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'quorum-failures.json'),
+      JSON.stringify([
+        { slot: 'codex-1', error_type: 'TIMEOUT', pattern: 'TIMEOUT after 1ms', count: 2, last_seen: '2026-02-27T00:00:00.000Z' },
+        { slot: 'copilot-1', error_type: 'TIMEOUT', pattern: 'TIMEOUT after 120000ms', count: 1, last_seen: '2026-02-27T00:00:00.000Z' }
+      ])
+    );
+
+    const result = runGsdTools('validate health', tmpDir);
+    const data = JSON.parse(result.output);
+
+    const w008 = (data.warnings || []).some(i => i.code === 'W008');
+    assert.ok(!w008, `VIS-01-TC-02: W008 falsely emitted when counts < 3: ${JSON.stringify(data.warnings)}`);
+  });
+
+  test('VIS-01-TC-03: W008 not emitted when quorum-failures.json does not exist', () => {
+    // File intentionally NOT written in this test
+
+    const result = runGsdTools('validate health', tmpDir);
+    const data = JSON.parse(result.output);
+
+    const w008 = (data.warnings || []).some(i => i.code === 'W008');
+    assert.ok(!w008, `VIS-01-TC-03: W008 falsely emitted when quorum-failures.json absent: ${JSON.stringify(data.warnings)}`);
+  });
+});
