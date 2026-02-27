@@ -16,9 +16,9 @@ Requirements for the Token Efficiency milestone. Goal: reduce QGSD's per-run tok
 
 ### Tiered Model Sizing (TIER)
 
-- [ ] **TIER-01**: Researcher sub-agent in `plan-phase.md` runs on `haiku` model by default
-- [ ] **TIER-02**: Plan-checker sub-agent in `plan-phase.md` runs on `haiku` model by default
-- [ ] **TIER-03**: User can override tier assignments via `model_tier_planner` / `model_tier_worker` flat keys in `qgsd.json`
+- [x] **TIER-01**: Researcher sub-agent in `plan-phase.md` runs on `haiku` model by default
+- [x] **TIER-02**: Plan-checker sub-agent in `plan-phase.md` runs on `haiku` model by default
+- [x] **TIER-03**: User can override tier assignments via `model_tier_planner` / `model_tier_worker` flat keys in `qgsd.json`
 
 ### Task Envelope (ENV)
 
@@ -69,9 +69,9 @@ Requirements for the Token Efficiency milestone. Goal: reduce QGSD's per-run tok
 | OBSV-02 | Phase v0.18-01 | Pending |
 | OBSV-03 | Phase v0.18-01 | Pending |
 | OBSV-04 | Phase v0.18-01 | Pending |
-| TIER-01 | Phase v0.18-02 | Pending |
-| TIER-02 | Phase v0.18-02 | Pending |
-| TIER-03 | Phase v0.18-02 | Pending |
+| TIER-01 | Phase v0.18-02 | Complete |
+| TIER-02 | Phase v0.18-02 | Complete |
+| TIER-03 | Phase v0.18-02 | Complete |
 | ENV-01 | Phase v0.18-03 | Pending |
 | ENV-02 | Phase v0.18-03 | Pending |
 | ENV-03 | Phase v0.18-03 | Pending |
