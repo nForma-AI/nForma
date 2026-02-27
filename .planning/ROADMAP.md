@@ -866,7 +866,11 @@ Plans:
   3. Token records for MCP-based slots (claude-1..claude-6) contain non-null token counts correctly attributed to the slot name that dispatched them
   4. Token records for CLI-based slots (gemini-1, codex-1) are present in the log with tokens: null — the slot is logged, not omitted
   5. The SubagentStop hook is registered in ~/.claude/settings.json after node bin/install.js --claude --global runs
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] v0.18-01-01-PLAN.md — Token collection hooks (SubagentStop + SubagentStart) + test scaffolds + call-quorum-slot.cjs sentinel (OBSV-02, OBSV-03, OBSV-04)
+- [ ] v0.18-01-02-PLAN.md — install.js hook registration + health.md token display + install sync (OBSV-01)
 
 ### Phase v0.18-02: Tiered Model Sizing
 **Goal**: Researcher and plan-checker sub-agents in plan-phase.md run on haiku by default, reducing per-plan-phase cost 15-20x for those two spawn sites, with user override via flat config keys
