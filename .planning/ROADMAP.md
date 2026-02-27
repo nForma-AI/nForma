@@ -205,7 +205,7 @@
 **Milestone Goal:** Fix the GSD health checker to recognize QGSD's versioned phase naming convention, guard `--repair` against rich STATE.md data loss, archive legacy pre-versioning phase dirs, and surface quorum failure patterns in the health report.
 
 - [x] **Phase v0.15-01: Health Checker Regex Fix** — Fix gsd-tools.cjs W005/W007/W002 regex patterns to recognize QGSD versioned phase naming `v0.X-YY-name` — eliminates 33 W005 + 22 W007 false positives (HLTH-01, HLTH-02, HLTH-03) (completed 2026-02-27)
-- [ ] **Phase v0.15-02: Repair Safety Guard** — Guard `--repair` regenerateState action against overwriting rich STATE.md without explicit --force flag (SAFE-01)
+- [x] **Phase v0.15-02: Repair Safety Guard** — Guard `--repair` regenerateState action against overwriting rich STATE.md without explicit --force flag (SAFE-01) (completed 2026-02-27)
 - [ ] **Phase v0.15-03: Legacy Dir Archive** — Archive pre-versioning legacy phase dirs 18-39 to `.planning/archive/legacy/` — eliminates W007 orphan noise (SAFE-02)
 - [ ] **Phase v0.15-04: Health Quorum Failure Visibility** — Integrate quorum-failures.json data into `/qgsd:health` output as health warnings when recurring patterns detected (VIS-01)
 
@@ -997,7 +997,7 @@ Plans:
 | v0.14-04. PRISM Config Injection | 2/2 | Complete    | 2026-02-26 | - |
 | v0.14-05. Watch Mode | v0.14 | Complete    | 2026-02-26 | - |
 | v0.15-01. Health Checker Regex Fix | 1/1 | Complete    | 2026-02-27 | - |
-| v0.15-02. Repair Safety Guard | v0.15 | 0/TBD | Not started | - |
+| v0.15-02. Repair Safety Guard | 1/1 | Complete   | 2026-02-27 | - |
 | v0.15-03. Legacy Dir Archive | v0.15 | 0/TBD | Not started | - |
 | v0.15-04. Health Quorum Failure Visibility | v0.15 | 0/TBD | Not started | - |
 | v0.18-01. Token Observability Foundation | v0.18 | 0/TBD | Not started | - |

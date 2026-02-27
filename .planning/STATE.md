@@ -35,6 +35,7 @@ Progress: [████████████████████] prior m
 - Trend: stable
 
 *Updated after each plan completion*
+| Phase v0.15-02 P01 | 4 | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -49,6 +50,8 @@ Recent decisions affecting current work:
 - [v0.18 research]: --n N injection MUST flow through qgsd-prompt.js for any reduced fan-out — Stop hook reads count from prompt text only
 - [Phase v0.15-01]: Extended phasePattern to match checkbox-format ROADMAP entries in addition to header format
 - [Phase v0.14-04]: PRISM_BIN=prism sentinel in run-prism.test.cjs skips existence check, enabling Args line capture without PRISM installed
+- [Phase v0.15-02]: Content-length guard added to regenerateState: SAFE_LINE_THRESHOLD=50, --force required for overwrite of rich STATE.md
+- [Phase v0.15-02]: W002 phantom-phase trigger (v0.99-99) used in SAFE-01 tests — phase ref must match extractor regex v\d+\.\d+-\d{2}
 
 ### Pending Todos
 
