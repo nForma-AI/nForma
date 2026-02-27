@@ -931,7 +931,7 @@ Plans:
 | v0.14-03. Parallelization | v0.14 | 0/3 | Not started | - |
 | v0.14-04. PRISM Config Injection | 2/2 | Complete    | 2026-02-26 | - |
 | v0.14-05. Watch Mode | v0.14 | Complete    | 2026-02-26 | - |
-| v0.15-01. Health Checker Regex Fix | 1/1 | Complete   | 2026-02-27 | - |
+| v0.15-01. Health Checker Regex Fix | 1/1 | Complete    | 2026-02-27 | - |
 | v0.15-02. Repair Safety Guard | v0.15 | 0/TBD | Not started | - |
 | v0.15-03. Legacy Dir Archive | v0.15 | 0/TBD | Not started | - |
 | v0.15-04. Health Quorum Failure Visibility | v0.15 | 0/TBD | Not started | - |
