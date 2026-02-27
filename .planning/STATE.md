@@ -68,6 +68,7 @@ Progress: [████████████████████] 128/125
 | Phase v0.9-06 P01 | 1min | 1 tasks | 1 files |
 | Phase v0.9-07 P01 | 89s | 2 tasks | 1 files |
 | Phase v0.9-08 P01 | 25s | 2 tasks | 1 files |
+| Phase v0.15-01 P01 | 684s | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,8 @@ Recent decisions affecting current work:
 - [Phase v0.9-07]: nyquist_validation_enabled grouped with feature-flag booleans in Step 1 parse list; portable ~/.claude/ source prefix expanded by installer to absolute paths
 - [Phase v0.9-08]: install sync is idempotent — safe to run as formal closure step even when no drift exists; installer removes dest and copies fresh from source
 - [Phase v0.9-08]: no drift existed pre-sync: installed runtime timestamps postdate quick-110 and quick-111 commits; gap closure is formal record, not bug fix
+- [Phase v0.15-01]: Extended phasePattern to match checkbox-format ROADMAP entries (- [x] **Phase v0.X-YY:) in addition to header format for v0.8-01 and v0.11-01
+- [Phase v0.15-01]: Used [.\w-]+ with dot in W005 versioned branch for dirs with dots in name segment like v0.9-08-post-v0.9-install-sync
 
 ### Pending Todos
 

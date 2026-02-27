@@ -9,7 +9,7 @@
 - ✅ **v0.6 — Agent Slots & Quorum Composition** — Phase 39 (shipped 2026-02-23)
 - ✅ **v0.7 — Composition Config & Multi-Slot** — Phases v0.7-01..v0.7-04 (shipped 2026-02-23)
 - ✅ **v0.8 — fix-tests ddmin Pipeline** — Phase v0.8-01 (shipped 2026-02-23)
-- 🚧 **v0.9 — GSD Sync** — Phases v0.9-01..v0.9-05 (in progress)
+- ✅ **v0.9 — GSD Sync** — Phases v0.9-01..v0.9-09 (shipped 2026-02-27)
 - ✅ **v0.10 — Roster Toolkit** — Phases v0.10-01..v0.10-08 (shipped 2026-02-25)
 - ✅ **v0.11 — Parallel Quorum** — Phase v0.11-01 (shipped 2026-02-24)
 - 🚧 **v0.12 — Formal Verification** — Phases v0.12-01..v0.12-08 (in progress)
@@ -121,9 +121,8 @@
 
 </details>
 
-### 🚧 v0.9 — GSD Sync (In Progress)
-
-**Milestone Goal:** Port GSD 1.20.6 improvements into QGSD — context window self-monitoring hook, Nyquist validation layer, discuss-phase UX refinements, and Tier 3 fixes.
+<details>
+<summary>✅ v0.9 — GSD Sync (Phases v0.9-01..v0.9-09) — SHIPPED 2026-02-27</summary>
 
 - [x] **Phase v0.9-01: Context Window Monitor** — New PostToolUse hook that injects WARNING/CRITICAL into `additionalContext` at configurable thresholds + install sync (completed 2026-02-24)
 - [x] **Phase v0.9-02: Nyquist Validation Layer** — VALIDATION.md template + plan-phase step 5.5 insertion + gsd-tools init field (2 plans) (completed 2026-02-24)
@@ -134,6 +133,10 @@
 - [x] **Phase v0.9-07: Nyquist Parse-List Correction + Path Portability** — Add `nyquist_validation_enabled` to plan-phase.md Step 1 parse list; replace hardcoded absolute paths in step 5.5 with portable `~`-relative reference; closes NYQ-04 integration gap (Gap Closure) (completed 2026-02-26)
 - [x] **Phase v0.9-08: Post-v0.9 Install Sync** — Run install sync for model=haiku quorum dispatch flag added in quick-110; verify installed runtime matches source; closes post-v0.9 drift tech debt (Gap Closure) (completed 2026-02-27)
 - [x] **Phase v0.9-09: SC-4 End-to-End Nyquist Demo** — Run a live plan-phase session with Nyquist enabled; capture VALIDATION.md output; document in a demo artifact; closes SC-4 undemonstrated tech debt (Gap Closure) (completed 2026-02-27)
+
+**Archive:** `.planning/milestones/v0.9-ROADMAP.md`
+
+</details>
 
 ### ✅ v0.10 — Roster Toolkit (SHIPPED 2026-02-25)
 
@@ -200,7 +203,7 @@
 
 **Milestone Goal:** Fix the GSD health checker to recognize QGSD's versioned phase naming convention, guard `--repair` against rich STATE.md data loss, archive legacy pre-versioning phase dirs, and surface quorum failure patterns in the health report.
 
-- [ ] **Phase v0.15-01: Health Checker Regex Fix** — Fix gsd-tools.cjs W005/W007/W002 regex patterns to recognize QGSD versioned phase naming `v0.X-YY-name` — eliminates 33 W005 + 22 W007 false positives (HLTH-01, HLTH-02, HLTH-03)
+- [x] **Phase v0.15-01: Health Checker Regex Fix** — Fix gsd-tools.cjs W005/W007/W002 regex patterns to recognize QGSD versioned phase naming `v0.X-YY-name` — eliminates 33 W005 + 22 W007 false positives (HLTH-01, HLTH-02, HLTH-03) (completed 2026-02-27)
 - [ ] **Phase v0.15-02: Repair Safety Guard** — Guard `--repair` regenerateState action against overwriting rich STATE.md without explicit --force flag (SAFE-01)
 - [ ] **Phase v0.15-03: Legacy Dir Archive** — Archive pre-versioning legacy phase dirs 18-39 to `.planning/archive/legacy/` — eliminates W007 orphan noise (SAFE-02)
 - [ ] **Phase v0.15-04: Health Quorum Failure Visibility** — Integrate quorum-failures.json data into `/qgsd:health` output as health warnings when recurring patterns detected (VIS-01)
@@ -928,7 +931,7 @@ Plans:
 | v0.14-03. Parallelization | v0.14 | 0/3 | Not started | - |
 | v0.14-04. PRISM Config Injection | 2/2 | Complete    | 2026-02-26 | - |
 | v0.14-05. Watch Mode | v0.14 | Complete    | 2026-02-26 | - |
-| v0.15-01. Health Checker Regex Fix | v0.15 | 0/TBD | Not started | - |
+| v0.15-01. Health Checker Regex Fix | 1/1 | Complete   | 2026-02-27 | - |
 | v0.15-02. Repair Safety Guard | v0.15 | 0/TBD | Not started | - |
 | v0.15-03. Legacy Dir Archive | v0.15 | 0/TBD | Not started | - |
 | v0.15-04. Health Quorum Failure Visibility | v0.15 | 0/TBD | Not started | - |

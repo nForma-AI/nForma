@@ -9,9 +9,9 @@
 
 Root cause: `gsd-tools.cjs` validate health uses regex patterns designed for GSD's legacy `NN-name` numeric phase naming. QGSD uses `v0.X-YY-name` versioned naming — causing 33 W005 + 22 W007 false positives that mask real issues.
 
-- [ ] **HLTH-01**: Health checker W005 dir-naming validation recognizes QGSD versioned format `v0.X-YY-name` — zero false positives for all versioned phase dirs
-- [ ] **HLTH-02**: Health checker W007 ROADMAP extractor matches `### Phase v0.X-YY:` versioned headers — no phases appearing as "on disk but not in ROADMAP" when they are in ROADMAP
-- [ ] **HLTH-03**: Health checker W002 STATE.md parser extracts versioned phase references (`Phase v0.14-01`) — position reported correctly without false "invalid phase" warnings
+- [x] **HLTH-01**: Health checker W005 dir-naming validation recognizes QGSD versioned format `v0.X-YY-name` — zero false positives for all versioned phase dirs
+- [x] **HLTH-02**: Health checker W007 ROADMAP extractor matches `### Phase v0.X-YY:` versioned headers — no phases appearing as "on disk but not in ROADMAP" when they are in ROADMAP
+- [x] **HLTH-03**: Health checker W002 STATE.md parser extracts versioned phase references (`Phase v0.14-01`) — position reported correctly without false "invalid phase" warnings
 
 ### SAFE — Safety & Data Integrity
 
@@ -46,9 +46,9 @@ Root cause: quick-112 added `quorum-failures.json` failure logging but the patte
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HLTH-01 | v0.15-01 | Pending |
-| HLTH-02 | v0.15-01 | Pending |
-| HLTH-03 | v0.15-01 | Pending |
+| HLTH-01 | v0.15-01 | Complete |
+| HLTH-02 | v0.15-01 | Complete |
+| HLTH-03 | v0.15-01 | Complete |
 | SAFE-01 | v0.15-02 | Pending |
 | SAFE-02 | v0.15-03 | Pending |
 | VIS-01 | v0.15-04 | Pending |
