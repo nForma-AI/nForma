@@ -146,10 +146,11 @@ Recent decisions affecting current work:
 | 110 | implement modernized quorum dispatch pattern: model haiku for slot workers and resume for deliberation rounds | 2026-02-26 | ef3f493 | Verified | [110-implement-modernized-quorum-dispatch-pat](./../quick/110-implement-modernized-quorum-dispatch-pat/) |
 | 111 | add max_turns=100 to all qgsd-quorum-slot-worker Task dispatch sites | 2026-02-26 | f9e0a7e | Verified | [111-add-max-turns-100-to-all-qgsd-quorum-slo](./quick/111-add-max-turns-100-to-all-qgsd-quorum-slo/) |
 | 112 | add quorum slot-worker failure log to call-quorum-slot.cjs and surface recurring patterns in health check | 2026-02-26 | 0ecf2e0 | Verified | [112-add-quorum-slot-worker-failure-log-to-ca](./quick/112-add-quorum-slot-worker-failure-log-to-ca/) |
+| 114 | Fix objective line in v0.15-01-01-PLAN.md to say 6 regex sites not five | 2026-02-27 | b143170 | Pending | [114-fix-objective-line-in-v0-15-01-01-plan-m](./quick/114-fix-objective-line-in-v0-15-01-01-plan-m/) |
 
 ## Session Continuity
 
-Last activity: 2026-02-26 - Completed quick task 112: add quorum slot-worker failure log to call-quorum-slot.cjs and surface recurring patterns in health check
+Last activity: 2026-02-27 - Completed quick task 114: Fix objective line in v0.15-01-01-PLAN.md to say 6 regex sites not five
 Last session: 2026-02-26
 Stopped at: v0.9 audit complete — gaps_found; plan-milestone-gaps spawned for gap closure
 Resume file: None
