@@ -451,3 +451,43 @@ test('TC-CB8: both circuit_breaker sub-keys invalid → each falls back independ
     fs.rmSync(projectDir, { recursive: true, force: true });
   }
 });
+
+// ENV-TC1: No config → task_envelope_enabled defaults to true
+test('ENV-TC1: no config → task_envelope_enabled defaults to true', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-env-tc1-'));
+  try {
+    const config = loadConfig(projectDir);
+    assert.equal(config.task_envelope_enabled, true, 'task_envelope_enabled should default to true');
+  } finally {
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
+});
+
+// ENV-TC2: task_envelope_enabled: false → preserved
+test('ENV-TC2: task_envelope_enabled: false → preserved in config', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-env-tc2-'));
+  try {
+    writeTempConfig(projectDir, JSON.stringify({ task_envelope_enabled: false }));
+    const config = loadConfig(projectDir);
+    assert.equal(config.task_envelope_enabled, false, 'task_envelope_enabled: false should be preserved');
+  } finally {
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
+});
+
+// ENV-TC3: task_envelope_enabled: 'yes' (non-boolean) → defaults to true + stderr WARNING
+test('ENV-TC3: task_envelope_enabled: yes (non-boolean) → defaults to true + stderr WARNING', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-env-tc3-'));
+  let stderrOutput = '';
+  const origWrite = process.stderr.write.bind(process.stderr);
+  process.stderr.write = (msg) => { stderrOutput += msg; return true; };
+  try {
+    writeTempConfig(projectDir, JSON.stringify({ task_envelope_enabled: 'yes' }));
+    const config = loadConfig(projectDir);
+    assert.equal(config.task_envelope_enabled, true, 'invalid task_envelope_enabled should default to true');
+    assert.ok(stderrOutput.includes('task_envelope_enabled'), 'WARNING should mention task_envelope_enabled');
+  } finally {
+    process.stderr.write = origWrite;
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
+});
