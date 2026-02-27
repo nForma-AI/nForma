@@ -17,6 +17,7 @@ const { spawnSync } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
 const { writeCheckResult } = require('./write-check-result.cjs');
+const { detectLivenessProperties } = require('./run-tlc.cjs');
 
 // ── Parse --config argument ──────────────────────────────────────────────────
 const args       = process.argv.slice(2);
@@ -127,5 +128,29 @@ if (tlcResult.error) {
 }
 
 const passed = (tlcResult.status || 0) === 0;
-try { writeCheckResult({ tool: 'run-oscillation-tlc', formalism: 'tla', result: passed ? 'pass' : 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-oscillation-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
-process.exit(tlcResult.status || 0);
+
+if (passed) {
+  const missingDeclarations = detectLivenessProperties(configName, cfgPath);
+  if (missingDeclarations.length > 0) {
+    try {
+      writeCheckResult({
+        tool: 'run-oscillation-tlc',
+        formalism: 'tla',
+        result: 'inconclusive',
+        metadata: {
+          config: configName,
+          reason: 'Fairness declaration missing for: ' + missingDeclarations.join(', '),
+        }
+      });
+    } catch (e) {
+      process.stderr.write('[run-oscillation-tlc] Warning: failed to write inconclusive result: ' + e.message + '\n');
+    }
+    process.stdout.write('[run-oscillation-tlc] Result: inconclusive — fairness declaration missing for: ' + missingDeclarations.join(', ') + '\n');
+    process.exit(0);
+  }
+  try { writeCheckResult({ tool: 'run-oscillation-tlc', formalism: 'tla', result: 'pass', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-oscillation-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+  process.exit(0);
+} else {
+  try { writeCheckResult({ tool: 'run-oscillation-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-oscillation-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+  process.exit(tlcResult.status || 0);
+}
