@@ -1015,7 +1015,7 @@ test('TC-CEIL-2: ceiling blocks when only 4 of 5 required agents have been calle
     quorum_commands: ['plan-phase'],
     quorum_active: slots,
     agent_config: agentConfig,
-    quorum: { minSize: 5, preferSub: true },
+    quorum: { maxSize: 5, preferSub: true },
   });
   const homeDir = path.join(os.tmpdir(), `qgsd-home-ceil2-${Date.now()}`);
   const claudeDir = path.join(homeDir, '.claude');
@@ -1088,7 +1088,7 @@ test('TC-CEIL-3: error response does not count toward ceiling — still blocks w
     quorum_commands: ['plan-phase'],
     quorum_active: slots,
     agent_config: agentConfig,
-    quorum: { minSize: 5, preferSub: false },
+    quorum: { maxSize: 5, preferSub: false },
   });
   const homeDir = path.join(os.tmpdir(), `qgsd-home-ceil3-${Date.now()}`);
   const claudeDir = path.join(homeDir, '.claude');
@@ -1147,6 +1147,240 @@ test('TC-CEIL-3: error response does not count toward ceiling — still blocks w
     const parsed = JSON.parse(stdout);
     assert.strictEqual(parsed.decision, 'block', 'decision must be block — error response does not count');
     assert.ok(parsed.reason.startsWith('QUORUM REQUIRED:'), 'reason must start with QUORUM REQUIRED:');
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
+// ── TC-DEFAULT-CEIL: Default ceiling = 2 (no quorum.maxSize in config) ────────
+//
+// TC-DEFAULT-CEIL-PASS: 3-slot pool, no maxSize config → default = 2.
+//   First 2 slots (sub-first) called successfully → ceiling satisfied → pass.
+// TC-DEFAULT-CEIL-BLOCK: Same pool, only 1 successful call → block.
+
+test('TC-DEFAULT-CEIL-PASS: default ceiling=2 passes with 2 successful calls', () => {
+  const slots = ['slot-sub-1', 'slot-sub-2', 'slot-api-1'];
+  const agentConfig = {};
+  for (const s of slots) agentConfig[s] = { auth_type: s.startsWith('slot-sub') ? 'sub' : 'api' };
+  const configPayload = JSON.stringify({
+    quorum_commands: ['quick'],
+    quorum_active: slots,
+    agent_config: agentConfig,
+    // No quorum.maxSize — default kicks in (= 2)
+  });
+  const homeDir = path.join(os.tmpdir(), `qgsd-home-dceil-pass-${Date.now()}`);
+  const claudeDir = path.join(homeDir, '.claude');
+  fs.mkdirSync(claudeDir, { recursive: true });
+  fs.writeFileSync(path.join(claudeDir, 'qgsd.json'), configPayload);
+
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-dceil-pass-${Date.now()}.json`);
+  const mcpServers = {};
+  for (const s of slots) mcpServers[s] = {};
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers }));
+
+  // 2 successful calls (sub-1 and sub-2, sorted sub-first by default preferSub=true)
+  const transcriptLines = [
+    userLine('/qgsd:quick add something', 'human-dceil-pass'),
+    assistantLine([bashCommitBlock('node /path/gsd-tools.cjs commit "docs: plan" --files quick-115-PLAN.md')], 'assistant-commit'),
+    assistantLine([toolUseBlock('mcp__slot-sub-1__review')], 'assistant-sub1'),
+    toolResultSuccessLine('toolu_mcp__slot-sub-1__review', 'sub-1 OK'),
+    assistantLine([toolUseBlock('mcp__slot-sub-2__review')], 'assistant-sub2'),
+    toolResultSuccessLine('toolu_mcp__slot-sub-2__review', 'sub-2 OK'),
+    assistantLine([{ type: 'text', text: 'Done.' }], 'assistant-final'),
+  ];
+  const tmpFile = writeTempTranscript(transcriptLines);
+  try {
+    const { stdout, exitCode } = runHookWithEnv(
+      { stop_hook_active: false, hook_event_name: 'Stop', transcript_path: tmpFile, last_assistant_message: 'Done.' },
+      { HOME: homeDir, QGSD_CLAUDE_JSON: claudeJsonTmp }
+    );
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(stdout, '', 'default ceiling=2 satisfied by 2 calls — must not block');
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
+test('TC-DEFAULT-CEIL-BLOCK: default ceiling=2 blocks with only 1 successful call', () => {
+  const slots = ['slot-sub-1', 'slot-sub-2', 'slot-api-1'];
+  const agentConfig = {};
+  for (const s of slots) agentConfig[s] = { auth_type: s.startsWith('slot-sub') ? 'sub' : 'api' };
+  const configPayload = JSON.stringify({
+    quorum_commands: ['quick'],
+    quorum_active: slots,
+    agent_config: agentConfig,
+    // No quorum.maxSize — default = 2
+  });
+  const homeDir = path.join(os.tmpdir(), `qgsd-home-dceil-block-${Date.now()}`);
+  const claudeDir = path.join(homeDir, '.claude');
+  fs.mkdirSync(claudeDir, { recursive: true });
+  fs.writeFileSync(path.join(claudeDir, 'qgsd.json'), configPayload);
+
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-dceil-block-${Date.now()}.json`);
+  const mcpServers = {};
+  for (const s of slots) mcpServers[s] = {};
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers }));
+
+  // Only 1 successful call (sub-1) — needs 2 → block
+  const transcriptLines = [
+    userLine('/qgsd:quick add something', 'human-dceil-block'),
+    assistantLine([bashCommitBlock('node /path/gsd-tools.cjs commit "docs: plan" --files quick-115-PLAN.md')], 'assistant-commit'),
+    assistantLine([toolUseBlock('mcp__slot-sub-1__review')], 'assistant-sub1'),
+    toolResultSuccessLine('toolu_mcp__slot-sub-1__review', 'sub-1 OK'),
+    assistantLine([{ type: 'text', text: 'Done.' }], 'assistant-final'),
+  ];
+  const tmpFile = writeTempTranscript(transcriptLines);
+  try {
+    const { stdout, exitCode } = runHookWithEnv(
+      { stop_hook_active: false, hook_event_name: 'Stop', transcript_path: tmpFile, last_assistant_message: 'Done.' },
+      { HOME: homeDir, QGSD_CLAUDE_JSON: claudeJsonTmp }
+    );
+    assert.strictEqual(exitCode, 0);
+    assert.ok(stdout.length > 0, 'must block — only 1 of 2 required calls made');
+    const parsed = JSON.parse(stdout);
+    assert.strictEqual(parsed.decision, 'block');
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
+// ── TC-SOLO-STOP: --n 1 triggers GUARD 6 solo bypass ─────────────────────────
+//
+// User prompt contains --n 1. Stop hook detects solo mode and exits 0
+// even with zero external slot calls and a decision turn present.
+
+test('TC-SOLO-STOP: --n 1 solo mode bypasses quorum enforcement (GUARD 6)', () => {
+  const slots = ['slot-sub-1', 'slot-sub-2'];
+  const agentConfig = {};
+  for (const s of slots) agentConfig[s] = { auth_type: 'sub' };
+  const configPayload = JSON.stringify({
+    quorum_commands: ['quick'],
+    quorum_active: slots,
+    agent_config: agentConfig,
+    quorum: { maxSize: 2 },
+  });
+  const homeDir = path.join(os.tmpdir(), `qgsd-home-solo-${Date.now()}`);
+  const claudeDir = path.join(homeDir, '.claude');
+  fs.mkdirSync(claudeDir, { recursive: true });
+  fs.writeFileSync(path.join(claudeDir, 'qgsd.json'), configPayload);
+
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-solo-${Date.now()}.json`);
+  const mcpServers = {};
+  for (const s of slots) mcpServers[s] = {};
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers }));
+
+  // No external slot calls — but prompt has --n 1 → solo bypass
+  const transcriptLines = [
+    userLine('/qgsd:quick add something --n 1', 'human-solo'),
+    assistantLine([bashCommitBlock('node /path/gsd-tools.cjs commit "docs: plan" --files quick-115-PLAN.md')], 'assistant-commit'),
+    assistantLine([{ type: 'text', text: 'Done solo.' }], 'assistant-final'),
+  ];
+  const tmpFile = writeTempTranscript(transcriptLines);
+  try {
+    const { stdout, exitCode } = runHookWithEnv(
+      { stop_hook_active: false, hook_event_name: 'Stop', transcript_path: tmpFile, last_assistant_message: 'Done solo.' },
+      { HOME: homeDir, QGSD_CLAUDE_JSON: claudeJsonTmp }
+    );
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(stdout, '', '--n 1 solo mode must not block even with zero external calls');
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
+// ── TC-N-OVERRIDE: --n N overrides config maxSize ────────────────────────────
+//
+// TC-N-OVERRIDE-PASS: config maxSize=5, --n 3 overrides to N-1=2 external required.
+//   2 successful calls → ceiling satisfied at 2 → pass.
+// TC-N-OVERRIDE-BLOCK: config maxSize=5, --n 3 overrides to 2 required.
+//   1 successful call → block (1 < 2).
+
+test('TC-N-OVERRIDE-PASS: --n 3 overrides maxSize=5 config, 2 calls satisfy N-1=2', () => {
+  const slots = ['slot-sub-1', 'slot-sub-2', 'slot-api-1', 'slot-api-2', 'slot-api-3'];
+  const agentConfig = {};
+  for (const s of slots) agentConfig[s] = { auth_type: s.startsWith('slot-sub') ? 'sub' : 'api' };
+  const configPayload = JSON.stringify({
+    quorum_commands: ['quick'],
+    quorum_active: slots,
+    agent_config: agentConfig,
+    quorum: { maxSize: 5 },
+  });
+  const homeDir = path.join(os.tmpdir(), `qgsd-home-nov-pass-${Date.now()}`);
+  const claudeDir = path.join(homeDir, '.claude');
+  fs.mkdirSync(claudeDir, { recursive: true });
+  fs.writeFileSync(path.join(claudeDir, 'qgsd.json'), configPayload);
+
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-nov-pass-${Date.now()}.json`);
+  const mcpServers = {};
+  for (const s of slots) mcpServers[s] = {};
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers }));
+
+  // --n 3 → need N-1=2 external calls. Only 2 sub slots called (satisfies override).
+  const transcriptLines = [
+    userLine('/qgsd:quick add something --n 3', 'human-nov-pass'),
+    assistantLine([bashCommitBlock('node /path/gsd-tools.cjs commit "docs: plan" --files quick-115-PLAN.md')], 'assistant-commit'),
+    assistantLine([toolUseBlock('mcp__slot-sub-1__review')], 'assistant-sub1'),
+    toolResultSuccessLine('toolu_mcp__slot-sub-1__review', 'sub-1 OK'),
+    assistantLine([toolUseBlock('mcp__slot-sub-2__review')], 'assistant-sub2'),
+    toolResultSuccessLine('toolu_mcp__slot-sub-2__review', 'sub-2 OK'),
+    assistantLine([{ type: 'text', text: 'Done n3.' }], 'assistant-final'),
+  ];
+  const tmpFile = writeTempTranscript(transcriptLines);
+  try {
+    const { stdout, exitCode } = runHookWithEnv(
+      { stop_hook_active: false, hook_event_name: 'Stop', transcript_path: tmpFile, last_assistant_message: 'Done n3.' },
+      { HOME: homeDir, QGSD_CLAUDE_JSON: claudeJsonTmp }
+    );
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(stdout, '', '--n 3 override: 2 calls satisfy N-1=2 ceiling — must not block');
+  } finally {
+    fs.unlinkSync(tmpFile);
+    fs.unlinkSync(claudeJsonTmp);
+  }
+});
+
+test('TC-N-OVERRIDE-BLOCK: --n 3 requires 2 calls; 1 call blocks despite config maxSize=5', () => {
+  const slots = ['slot-sub-1', 'slot-sub-2', 'slot-api-1', 'slot-api-2', 'slot-api-3'];
+  const agentConfig = {};
+  for (const s of slots) agentConfig[s] = { auth_type: s.startsWith('slot-sub') ? 'sub' : 'api' };
+  const configPayload = JSON.stringify({
+    quorum_commands: ['quick'],
+    quorum_active: slots,
+    agent_config: agentConfig,
+    quorum: { maxSize: 5 },
+  });
+  const homeDir = path.join(os.tmpdir(), `qgsd-home-nov-block-${Date.now()}`);
+  const claudeDir = path.join(homeDir, '.claude');
+  fs.mkdirSync(claudeDir, { recursive: true });
+  fs.writeFileSync(path.join(claudeDir, 'qgsd.json'), configPayload);
+
+  const claudeJsonTmp = path.join(os.tmpdir(), `qgsd-claude-nov-block-${Date.now()}.json`);
+  const mcpServers = {};
+  for (const s of slots) mcpServers[s] = {};
+  fs.writeFileSync(claudeJsonTmp, JSON.stringify({ mcpServers }));
+
+  // --n 3 → need N-1=2 external calls. Only 1 call made → block.
+  const transcriptLines = [
+    userLine('/qgsd:quick add something --n 3', 'human-nov-block'),
+    assistantLine([bashCommitBlock('node /path/gsd-tools.cjs commit "docs: plan" --files quick-115-PLAN.md')], 'assistant-commit'),
+    assistantLine([toolUseBlock('mcp__slot-sub-1__review')], 'assistant-sub1'),
+    toolResultSuccessLine('toolu_mcp__slot-sub-1__review', 'sub-1 OK'),
+    assistantLine([{ type: 'text', text: 'Done n3 one call.' }], 'assistant-final'),
+  ];
+  const tmpFile = writeTempTranscript(transcriptLines);
+  try {
+    const { stdout, exitCode } = runHookWithEnv(
+      { stop_hook_active: false, hook_event_name: 'Stop', transcript_path: tmpFile, last_assistant_message: 'Done n3 one call.' },
+      { HOME: homeDir, QGSD_CLAUDE_JSON: claudeJsonTmp }
+    );
+    assert.strictEqual(exitCode, 0);
+    assert.ok(stdout.length > 0, 'must block — only 1 of 2 required calls made (--n 3 override)');
+    const parsed = JSON.parse(stdout);
+    assert.strictEqual(parsed.decision, 'block');
   } finally {
     fs.unlinkSync(tmpFile);
     fs.unlinkSync(claudeJsonTmp);
