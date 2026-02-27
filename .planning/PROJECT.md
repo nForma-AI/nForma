@@ -8,7 +8,17 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.16 Formal Plan Verification
+## Current Milestone: v0.18 Token Efficiency
+
+**Goal:** Reduce QGSD's per-run token consumption (currently 380k+ tokens per Nyquist-class run) by establishing per-slot token observability, enforcing tiered model sizing, introducing a structured task envelope context handoff, and making quorum fan-out risk-adaptive.
+
+**Target features:**
+- Token observability — `SubagentStop` hook + `agent_transcript_path` transcript parsing writes per-slot usage to `.planning/token-usage.jsonl`; `/qgsd:health` displays token consumption ranked by slot/stage
+- Tiered model sizing — researcher and plan-checker sub-agents in `plan-phase.md` dispatched with `model="haiku"` (15-20× cost reduction vs sonnet); planner retains sonnet; user-configurable via `model_tier_planner`/`model_tier_worker` flat keys
+- Task envelope — `task-envelope.json` sidecar written by researcher and planner with `objective`, `constraints`, `risk_level`, and `target_files`; passes structured context to quorum; eliminates N × full PLAN.md re-reads per round
+- Adaptive quorum fan-out — `quorum.md` reads `risk_level` from envelope and dispatches 2/3/max workers for routine/medium/high risk; emits `--n N` for Stop hook R3.5 compliance; user `--n N` override preserved
+
+## Planned Milestone: v0.16 Formal Plan Verification (deferred)
 
 **Goal:** Transform QGSD's planning workflow into a formally-verified planning loop — plans are auto-synthesized into TLA+/Alloy/PRISM/Petri spec fragments, verified for correctness before quorum sees them, accompanied by Mermaid mind maps for agent visual context, and backed by code-as-source-of-truth hybrid AST+annotation spec extraction.
 
@@ -255,7 +265,11 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Active
 
-<!-- v0.16 scope: Formal Plan Verification — requirements TBD after research -->
+<!-- v0.18 scope: Token Efficiency -->
+- [ ] Token observability — per-slot token consumption tracked via SubagentStop hook + transcript parsing; surfaced in /qgsd:health (OBSV-01..04) — v0.18
+- [ ] Tiered model sizing — researcher/checker use haiku, planner uses sonnet; user-configurable tier keys (TIER-01..03) — v0.18
+- [ ] Task envelope — task-envelope.json sidecar written by researcher/planner; quorum reads risk_level; fail-open (ENV-01..04) — v0.18
+- [ ] Adaptive quorum fan-out — risk_level → 2/3/max workers; --n N emitted for Stop hook compliance (FAN-01..06) — v0.18
 
 <!-- Carry-forward: deferred from v0.15 -->
 - [ ] gsd-tools.cjs W005/W007/W002 versioned phase pattern support (HLTH-01..03) — v0.15 deferred
@@ -387,4 +401,4 @@ QGSD v0.14 milestone started 2026-02-25. v0.13 Autonomous Milestone Execution co
 | readScoreboardRates() computes aggregate mean across SLOTS | Per-slot TP and UNAVAIL rates averaged across ['gemini', 'opencode', 'copilot', 'codex']; 4 fallback paths all return conservative priors 0.85/0.15 | Phase v0.14-04 — PRISM-01 |
 
 ---
-*Last updated: 2026-02-27 — archived v0.9 GSD Sync milestone; current milestone v0.16 Formal Plan Verification*
+*Last updated: 2026-02-27 — started milestone v0.18 Token Efficiency; v0.16 Formal Plan Verification deferred*

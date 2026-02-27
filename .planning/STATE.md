@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-26 after v0.16 milestone start)
+See: .planning/PROJECT.md (updated 2026-02-27 after v0.18 milestone start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.16 Formal Plan Verification — defining requirements
+**Current focus:** v0.18 Token Efficiency — defining roadmap
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (defining roadmap)
 Plan: —
-Status: Defining requirements for v0.16 Formal Plan Verification; v0.15 Health & Tooling deferred (phases in ROADMAP, not started)
-Last activity: 2026-02-26 — Milestone v0.16 started
+Status: Defining roadmap for v0.18 Token Efficiency; v0.15/v0.16 deferred
+Last activity: 2026-02-27 — Milestone v0.18 Token Efficiency started
 
-Progress: [████████████████████] 128/125 plans (102%) | v0.13: SHIPPED | v0.14: SHIPPED | v0.15: DEFERRED | v0.16: defining requirements
+Progress: [████████████████████] 128/125 plans (102%) | v0.13: SHIPPED | v0.14: SHIPPED | v0.15: DEFERRED | v0.16: DEFERRED | v0.18: defining roadmap
 
 ## Performance Metrics
 

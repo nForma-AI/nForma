@@ -1,63 +1,93 @@
-# Requirements: QGSD v0.15 Health & Tooling Modernization
+# Requirements: QGSD v0.18 Token Efficiency
 
-**Defined:** 2026-02-26
+**Defined:** 2026-02-27
 **Core Value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## v0.15 Requirements
+## v0.18 Requirements
 
-### HLTH — Health Checker Accuracy
+Requirements for the Token Efficiency milestone. Goal: reduce QGSD's per-run token consumption (currently 380k+ tokens for a single Nyquist-class run) by establishing observability, enforcing tiered model sizing, introducing a structured context handoff, and making quorum fan-out risk-adaptive.
 
-Root cause: `gsd-tools.cjs` validate health uses regex patterns designed for GSD's legacy `NN-name` numeric phase naming. QGSD uses `v0.X-YY-name` versioned naming — causing 33 W005 + 22 W007 false positives that mask real issues.
+### Token Observability (OBSV)
 
-- [x] **HLTH-01**: Health checker W005 dir-naming validation recognizes QGSD versioned format `v0.X-YY-name` — zero false positives for all versioned phase dirs
-- [x] **HLTH-02**: Health checker W007 ROADMAP extractor matches `### Phase v0.X-YY:` versioned headers — no phases appearing as "on disk but not in ROADMAP" when they are in ROADMAP
-- [x] **HLTH-03**: Health checker W002 STATE.md parser extracts versioned phase references (`Phase v0.14-01`) — position reported correctly without false "invalid phase" warnings
+- [ ] **OBSV-01**: User can see per-slot token consumption ranked by usage in `/qgsd:health` output
+- [ ] **OBSV-02**: System appends a structured record to `.planning/token-usage.jsonl` after each quorum slot-worker completes (via `SubagentStop` hook reading `agent_transcript_path`)
+- [ ] **OBSV-03**: Token records correctly attribute usage to named slot (`claude-1`, `gemini-1`, etc.) via correlation protocol written at dispatch time
+- [ ] **OBSV-04**: CLI-based slots (gemini-1, codex-1) are logged with `tokens: null` — present in log, not omitted
 
-### SAFE — Safety & Data Integrity
+### Tiered Model Sizing (TIER)
 
-Root cause: `--repair`'s `regenerateState` action replaces STATE.md with a 15-line blank template without checking current content; tested this session when it wiped the full QGSD state file.
+- [ ] **TIER-01**: Researcher sub-agent in `plan-phase.md` runs on `haiku` model by default
+- [ ] **TIER-02**: Plan-checker sub-agent in `plan-phase.md` runs on `haiku` model by default
+- [ ] **TIER-03**: User can override tier assignments via `model_tier_planner` / `model_tier_worker` flat keys in `qgsd.json`
 
-- [ ] **SAFE-01**: `--repair` action shows a content-length warning and requires explicit `--force` flag before overwriting a STATE.md with more than 50 lines — prevents silent data loss
-- [ ] **SAFE-02**: Legacy numeric phase dirs 18–39 archived to `.planning/archive/legacy/` — W007 orphan noise for pre-versioning era dirs eliminated
+### Task Envelope (ENV)
 
-### VIS — Visibility
+- [ ] **ENV-01**: After research completes, a `task-envelope.json` sidecar is written to `.planning/phases/<phase>/` with `objective`, `constraints`, `risk_level`, and `target_files`
+- [ ] **ENV-02**: After planning completes, envelope is updated with `plan_path` and `key_decisions`
+- [ ] **ENV-03**: `quorum.md` reads `risk_level` from envelope when available; fails open when envelope is absent
+- [ ] **ENV-04**: Feature is gated by `task_envelope.enabled` in `qgsd.json` (default: `true` when v0.18-03 ships)
 
-Root cause: quick-112 added `quorum-failures.json` failure logging but the patterns are only surfaced by `check-provider-health.cjs`. The primary `/qgsd:health` workflow has no visibility into recurring slot failures.
+### Adaptive Fan-Out (FAN)
 
-- [ ] **VIS-01**: `/qgsd:health` output includes quorum slot failure warnings from `.planning/quorum-failures.json` when recurring patterns detected (slot count ≥ 3) — surfaced as health warnings alongside standard W/E/I items
+- [ ] **FAN-01**: Quorum dispatches 2 workers for `routine` risk_level tasks (vs current 8)
+- [ ] **FAN-02**: Quorum dispatches 3 workers for `medium` risk_level tasks
+- [ ] **FAN-03**: Quorum dispatches `max_quorum_size` workers for `high` risk_level tasks (unchanged behavior)
+- [ ] **FAN-04**: Adaptive fan-out emits `--n N` so `qgsd-stop.js` verifies correct reduced count (R3.5 compliance)
+- [ ] **FAN-05**: R6.4 reduced-quorum note emitted in output when fan-out is below `max_quorum_size`
+- [ ] **FAN-06**: `--n N` user override takes highest precedence over all adaptive logic
 
-## Future Requirements
+## Future Requirements (v0.19+)
 
-### Deeper health checks (defer to v0.16+)
+### Token Budget Alerts
 
-- **HLTH-04**: Health checker validates ROADMAP.md phase goal and success criteria fields are populated
-- **HLTH-05**: Health checker detects PLAN.md files without matching SUMMARY.md (beyond current I001)
-- **SAFE-03**: `--repair` dry-run mode shows all changes without applying
+- **BDGT-01**: System warns when a quorum round exceeds configurable token threshold (default 50k tokens)
+- **BDGT-02**: Cross-session token trend analysis aggregates `token-usage.jsonl` over multiple sessions
+
+### Envelope Enhancements
+
+- **ENV-05**: Envelope diff mode — skip full PLAN.md re-read in deliberation rounds when envelope checksum matches prior round
+- **ENV-06**: Benched slot warm-up suppression — skip `health_check` for slots not selected for this round
+
+### Provider Cost Mapping
+
+- **COST-01**: USD cost estimation per provider (Together.xyz / Fireworks / AkashML pricing table)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| GSD upstream patch | QGSD is additive only — no GSD source modifications; regex fix stays in QGSD wrapper |
-| Per-project health config | Global install pattern; single config sufficient for v0.15 |
-| Interactive repair wizard | `--force` flag is sufficient safety gate for v0.15 |
+| Token quota hard blocks | Violates R6 fail-open; could deadlock critical phases mid-execution; warn-only is the correct policy |
+| Per-slot model override for CLI slots (gemini-cli, codex-cli) | These use provider-configured models; QGSD does not control their model from within the pipeline |
+| Lossy context compression (auto-summarization) | Structured extraction (task envelope) is correct; automatic summarization removes details the planner needs, causing failed quorums that cost more tokens than the savings |
+| Bypassing quorum for low-risk tasks | Stop hook enforces quorum; bypassing would require modifying core enforcement guarantee; `routine` fan-out satisfies R3.5 minimum (Claude + 1 external) at lowest cost |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HLTH-01 | v0.15-01 | Complete |
-| HLTH-02 | v0.15-01 | Complete |
-| HLTH-03 | v0.15-01 | Complete |
-| SAFE-01 | v0.15-02 | Pending |
-| SAFE-02 | v0.15-03 | Pending |
-| VIS-01 | v0.15-04 | Pending |
+| OBSV-01 | Phase v0.18-01 | Pending |
+| OBSV-02 | Phase v0.18-01 | Pending |
+| OBSV-03 | Phase v0.18-01 | Pending |
+| OBSV-04 | Phase v0.18-01 | Pending |
+| TIER-01 | Phase v0.18-02 | Pending |
+| TIER-02 | Phase v0.18-02 | Pending |
+| TIER-03 | Phase v0.18-02 | Pending |
+| ENV-01 | Phase v0.18-03 | Pending |
+| ENV-02 | Phase v0.18-03 | Pending |
+| ENV-03 | Phase v0.18-03 | Pending |
+| ENV-04 | Phase v0.18-03 | Pending |
+| FAN-01 | Phase v0.18-04 | Pending |
+| FAN-02 | Phase v0.18-04 | Pending |
+| FAN-03 | Phase v0.18-04 | Pending |
+| FAN-04 | Phase v0.18-04 | Pending |
+| FAN-05 | Phase v0.18-04 | Pending |
+| FAN-06 | Phase v0.18-04 | Pending |
 
 **Coverage:**
-- v0.15 requirements: 6 total
-- Mapped to phases: 6
+- v0.18 requirements: 17 total
+- Mapped to phases: 17
 - Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-02-26*
-*Last updated: 2026-02-26 after initial definition*
+*Requirements defined: 2026-02-27*
+*Last updated: 2026-02-27 after initial definition*
