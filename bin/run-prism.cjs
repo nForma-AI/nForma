@@ -21,6 +21,7 @@ const { spawnSync } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
 const { writeCheckResult } = require('./write-check-result.cjs');
+const { readPolicy } = require('./read-policy.cjs');
 
 // ── Locate PRISM binary ──────────────────────────────────────────────────────
 const prismBin = process.env.PRISM_BIN || 'prism';
@@ -33,7 +34,12 @@ if (prismBin !== 'prism' && !fs.existsSync(prismBin)) {
     '[run-prism]   export PRISM_BIN="$HOME/prism/bin/prism"\n' +
     '[run-prism] Download: https://www.prismmodelchecker.org/download.php\n'
   );
-  try { writeCheckResult({ tool: 'run-prism', formalism: 'prism', result: 'fail', metadata: {} }); } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
+  try {
+    writeCheckResult({
+      tool: 'run-prism', formalism: 'prism', result: 'fail',
+      metadata: { observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_rounds: 0, n_events: 0 } }
+    });
+  } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
 }
 
@@ -43,7 +49,12 @@ if (!fs.existsSync(modelPath)) {
   process.stderr.write(
     '[run-prism] Model file not found: ' + modelPath + '\n'
   );
-  try { writeCheckResult({ tool: 'run-prism', formalism: 'prism', result: 'fail', metadata: {} }); } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
+  try {
+    writeCheckResult({
+      tool: 'run-prism', formalism: 'prism', result: 'fail',
+      metadata: { observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_rounds: 0, n_events: 0 } }
+    });
+  } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
 }
 
@@ -55,6 +66,23 @@ const PRISM_PRIOR_UNAVAIL = 0.15;
 let liveTPRate    = null;
 let liveUnavail   = null;
 const scoreboardPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+
+// ── Load calibration policy ───────────────────────────────────────────────
+const policyPath = path.join(__dirname, '..', 'formal', 'policy.yaml');
+let policy;
+try {
+  policy = readPolicy(policyPath);
+} catch (e) {
+  process.stderr.write('[run-prism] Failed to load policy.yaml: ' + e.message + '\n');
+  try {
+    writeCheckResult({
+      tool: 'run-prism', formalism: 'prism', result: 'fail',
+      metadata: { observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_rounds: 0, n_events: 0 } }
+    });
+  } catch (_) {}
+  process.exit(1);
+}
+
 if (fs.existsSync(scoreboardPath)) {
   try {
     const sb = JSON.parse(fs.readFileSync(scoreboardPath, 'utf8'));
@@ -88,6 +116,65 @@ if (liveTPRate === null) {
   process.stderr.write(
     '[run-prism] No scoreboard found — using conservative priors: ' +
     'tp_rate=' + PRISM_PRIOR_TP + ' unavail=' + PRISM_PRIOR_UNAVAIL + '\n'
+  );
+}
+
+// ── Cold-start state detection (CALIB-02, CALIB-03) ─────────────────────
+function computeColdStartState(pol, sbPath, crPath) {
+  let ciRunCount = 0;
+  let quorumRoundCount = 0;
+  let firstRunTimestamp = null;
+
+  // Count CI runs: number of lines in check-results.ndjson
+  if (fs.existsSync(crPath)) {
+    const lines = fs.readFileSync(crPath, 'utf8')
+      .trim().split('\n').filter(l => l.length > 0);
+    ciRunCount = lines.length;
+  }
+
+  // Read quorum rounds from scoreboard
+  if (fs.existsSync(sbPath)) {
+    try {
+      const sb = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
+      const rounds = Array.isArray(sb.rounds) ? sb.rounds : [];
+      quorumRoundCount = rounds.length;
+      if (rounds.length > 0) {
+        const firstRound = rounds[0];
+        // Support timestamp (ISO) or date (MM-DD) field
+        const raw = firstRound.timestamp || firstRound.date;
+        if (raw) {
+          const parsed = Date.parse(raw);
+          if (!isNaN(parsed)) firstRunTimestamp = parsed;
+        }
+      }
+    } catch (e) {
+      process.stderr.write('[run-prism] Warning: failed to parse scoreboard for cold-start: ' + e.message + '\n');
+    }
+  }
+
+  // Compute days since first run (0 if no history)
+  const daysSinceFirst = firstRunTimestamp
+    ? (Date.now() - firstRunTimestamp) / (1000 * 60 * 60 * 24)
+    : 0;
+
+  // Cold-start is true if ANY threshold is unmet
+  const allThresholdsMet =
+    ciRunCount       >= pol.cold_start.min_ci_runs &&
+    quorumRoundCount >= pol.cold_start.min_quorum_rounds &&
+    daysSinceFirst   >= pol.cold_start.min_days;
+  const inColdStart = !allThresholdsMet;
+
+  return { inColdStart, ciRunCount, quorumRoundCount, daysSinceFirst, firstRunTimestamp };
+}
+
+const checkResultsPath = path.join(process.cwd(), 'formal', 'check-results.ndjson');
+const coldStartState = computeColdStartState(policy, scoreboardPath, checkResultsPath);
+if (coldStartState.inColdStart) {
+  process.stderr.write(
+    '[run-prism] Cold-start mode active (thresholds not yet met):\n' +
+    '[run-prism]   CI runs: '        + coldStartState.ciRunCount       + ' / ' + policy.cold_start.min_ci_runs       + '\n' +
+    '[run-prism]   Quorum rounds: '  + coldStartState.quorumRoundCount + ' / ' + policy.cold_start.min_quorum_rounds + '\n' +
+    '[run-prism]   Days: '           + coldStartState.daysSinceFirst.toFixed(2) + ' / ' + policy.cold_start.min_days       + '\n'
   );
 }
 
@@ -131,10 +218,45 @@ const result = spawnSync(prismBin, prismArgs, {
 
 if (result.error) {
   process.stderr.write('[run-prism] Failed to launch PRISM: ' + result.error.message + '\n');
-  try { writeCheckResult({ tool: 'run-prism', formalism: 'prism', result: 'fail', metadata: {} }); } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
+  try {
+    writeCheckResult({
+      tool: 'run-prism', formalism: 'prism', result: 'fail',
+      metadata: { observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_rounds: 0, n_events: 0 } }
+    });
+  } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
 }
 
 const passed = (result.status || 0) === 0;
-try { writeCheckResult({ tool: 'run-prism', formalism: 'prism', result: passed ? 'pass' : 'fail', metadata: {} }); } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
-process.exit(result.status || 0);
+
+// Apply cold-start override: never emit result=fail during cold-start (CALIB-02)
+let finalResult = passed ? 'pass' : 'fail';
+if (!passed && coldStartState.inColdStart) {
+  finalResult = 'warn';
+  process.stderr.write('[run-prism] Cold-start mode: suppressing fail → emitting warn\n');
+}
+
+// Build observation_window metadata for ALL check results (CALIB-03)
+const observationMetadata = {
+  observation_window: {
+    window_start: coldStartState.firstRunTimestamp
+      ? new Date(coldStartState.firstRunTimestamp).toISOString()
+      : new Date().toISOString(),
+    window_end:  new Date().toISOString(),
+    n_rounds:    coldStartState.quorumRoundCount,
+    n_events:    coldStartState.ciRunCount,
+  },
+};
+
+try {
+  writeCheckResult({
+    tool:      'run-prism',
+    formalism: 'prism',
+    result:    finalResult,
+    metadata:  observationMetadata,
+  });
+} catch (e) {
+  process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n');
+}
+
+process.exit(passed ? 0 : (finalResult === 'warn' ? 0 : 1));
