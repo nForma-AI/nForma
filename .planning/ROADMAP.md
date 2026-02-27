@@ -16,6 +16,7 @@
 - ✅ **v0.13 — Autonomous Milestone Execution** — Phases v0.13-01..v0.13-06 (shipped 2026-02-25)
 - ✅ **v0.14 — FV Pipeline Integration** — Phases v0.14-01..v0.14-05 (shipped 2026-02-26)
 - 🚧 **v0.15 — Health & Tooling Modernization** — Phases v0.15-01..v0.15-04 (in progress)
+- 🚧 **v0.18 — Token Efficiency** — Phases v0.18-01..v0.18-04 (in progress)
 
 ## Phases
 
@@ -207,6 +208,15 @@
 - [ ] **Phase v0.15-02: Repair Safety Guard** — Guard `--repair` regenerateState action against overwriting rich STATE.md without explicit --force flag (SAFE-01)
 - [ ] **Phase v0.15-03: Legacy Dir Archive** — Archive pre-versioning legacy phase dirs 18-39 to `.planning/archive/legacy/` — eliminates W007 orphan noise (SAFE-02)
 - [ ] **Phase v0.15-04: Health Quorum Failure Visibility** — Integrate quorum-failures.json data into `/qgsd:health` output as health warnings when recurring patterns detected (VIS-01)
+
+### 🚧 v0.18 — Token Efficiency (In Progress)
+
+**Milestone Goal:** Reduce QGSD's per-run token consumption (currently 380k+ tokens per Nyquist-class run) by establishing per-slot token observability, enforcing tiered model sizing, introducing a structured task envelope context handoff, and making quorum fan-out risk-adaptive.
+
+- [ ] **Phase v0.18-01: Token Observability Foundation** — New SubagentStop hook reads agent_transcript_path to sum token usage per slot; appends structured records to .planning/token-usage.jsonl; /qgsd:health displays ranked token consumption (OBSV-01, OBSV-02, OBSV-03, OBSV-04)
+- [ ] **Phase v0.18-02: Tiered Model Sizing** — Researcher and plan-checker sub-agents in plan-phase.md use model=haiku; user-configurable tier keys model_tier_planner/model_tier_worker in qgsd.json; config-loader.js updated with flat keys (TIER-01, TIER-02, TIER-03)
+- [ ] **Phase v0.18-03: Task Envelope** — bin/task-envelope.cjs writes task-envelope.json sidecar after research and planning with objective/constraints/risk_level/target_files/plan_path/key_decisions; quorum.md reads risk_level with fail-open (ENV-01, ENV-02, ENV-03, ENV-04)
+- [ ] **Phase v0.18-04: Adaptive Fan-Out** — qgsd-prompt.js readEnvelopeWorkerCount() helper; priority chain --n N > envelope > maxSize > pool; 2/3/max workers for routine/medium/high risk; --n N emitted for Stop hook R3.5 compliance; R6.4 reduced-quorum note (FAN-01, FAN-02, FAN-03, FAN-04, FAN-05, FAN-06)
 
 
 ## Phase Details
@@ -822,7 +832,9 @@ Plans:
   1. Running `node bin/gsd-tools.cjs validate health --repair` on a STATE.md with more than 50 lines prints a warning showing the current line count and exits without overwriting
   2. Running `node bin/gsd-tools.cjs validate health --repair --force` on the same STATE.md proceeds with regenerateState and overwrites the file
   3. A STATE.md with 50 lines or fewer is overwritten normally by `--repair` without requiring `--force`
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] v0.15-02-01-PLAN.md — Content-length safety gate for --repair regenerateState + --force flag + install sync (SAFE-01)
 
 ### Phase v0.15-03: Legacy Dir Archive
 **Goal**: The pre-versioning legacy numeric phase dirs (18 through 39) are moved to `.planning/archive/legacy/` so W007 stops reporting them as orphaned phases not referenced in the ROADMAP
@@ -842,6 +854,141 @@ Plans:
   1. Running `/qgsd:health` when `.planning/quorum-failures.json` contains a slot with count >= 3 prints a health warning identifying the slot name and failure count
   2. Running `/qgsd:health` when `.planning/quorum-failures.json` does not exist or all slot counts are < 3 produces no quorum-failure warning
   3. The quorum-failure warnings appear in the same output section as other W/E/I health items — not as a separate unrelated block
+**Plans**: TBD
+
+### Phase v0.18-01: Token Observability Foundation
+**Goal**: Users can see per-slot token consumption ranked by usage in /qgsd:health, and every quorum slot-worker run appends a structured token record to .planning/token-usage.jsonl
+**Depends on**: Nothing (first v0.18 phase; architecturally independent)
+**Requirements**: OBSV-01, OBSV-02, OBSV-03, OBSV-04
+**Success Criteria** (what must be TRUE):
+  1. Running  after any quorum round shows a token consumption section listing each active slot with input/output token counts ranked by total usage
+  2. After a quorum round completes,  contains a new line with , , , , and  fields
+  3. Token records for MCP-based slots (claude-1..claude-6) contain non-null token counts correctly attributed to the slot name that dispatched them
+  4. Token records for CLI-based slots (gemini-1, codex-1) are present in the log with  — the slot is logged, not omitted
+  5. The SubagentStop hook is registered in  after 
+[38;5;209m  ██████╗ [36m ██████╗ ███████╗██████╗
+[38;5;209m ██╔═══██╗[36m██╔════╝ ██╔════╝██╔══██╗
+[38;5;209m ██║   ██║[36m██║  ███╗███████╗██║  ██║
+[38;5;209m ██║▄▄ ██║[36m██║   ██║╚════██║██║  ██║
+[38;5;209m ╚██████╔╝[36m╚██████╔╝███████║██████╔╝
+[38;5;209m  ╚══▀▀═╝ [36m ╚═════╝ ╚══════╝╚═════╝[0m
+
+  Quorum Gets Shit Done [2mv0.2.0[0m
+  Built on get-shit-done-cc by TÂCHES.
+  Full automation through quorum of coding agents. By Jonathan Borduas.
+
+[36m  The task of leadership is to create an alignment of strengths
+   so strong that it makes the system’s weaknesses irrelevant.
+[2m  — Peter Drucker[0m
+
+  Installing for [36mClaude Code[0m to [36m~/.claude[0m
+
+  [32m✓[0m Installed commands/qgsd
+  [32m✓[0m Installed qgsd
+  [32m✓[0m Installed agents
+  [32m✓[0m Installed CHANGELOG.md
+  [32m✓[0m Wrote VERSION (0.2.0)
+  [32m✓[0m Wrote package.json (CommonJS mode)
+  [32m✓[0m Installed hooks (bundled)
+  [32m✓[0m Installed qgsd-bin scripts
+  [2m↳ ~/.claude/qgsd.json exists — active config: codex → mcp__codex-1__, gemini → mcp__gemini-1__, opencode → mcp__opencode-1__, copilot → mcp__copilot-1__[0m
+  [2m  (run with --redetect-mcps to refresh MCP prefix detection)[0m
+  [32m✓[0m Wrote file manifest (qgsd-file-manifest.json)
+
+  [33mLocal patches detected[0m (from v0.2.0):
+     [36mcommands/qgsd/quorum.md[0m
+
+  Your modifications are saved in [36mqgsd-local-patches/[0m
+  Run [36m/qgsd:reapply-patches[0m to merge them into the new version.
+  Or manually compare and merge the files.
+
+  [33m⚠[0m Skipping statusline (already configured)
+    Use [36m--force-statusline[0m to replace
+
+
+  [32mDone![0m Launch Claude Code and run [36m/qgsd:help[0m.
+
+  [36mJoin the community:[0m https://discord.gg/5JJgD5svVS runs
+**Plans**: TBD
+
+### Phase v0.18-02: Tiered Model Sizing
+**Goal**: Researcher and plan-checker sub-agents in plan-phase.md run on haiku by default, reducing per-plan-phase cost 15-20x for those two spawn sites, with user override via flat config keys
+**Depends on**: Phase v0.18-01
+**Requirements**: TIER-01, TIER-02, TIER-03
+**Success Criteria** (what must be TRUE):
+  1. A plan-phase session with default config dispatches the researcher Task with  visible in the Task call
+  2. A plan-phase session with default config dispatches the plan-checker Task with  visible in the Task call
+  3. Setting  in  causes the planner (not researcher/checker) to use sonnet — no regression on planner model selection
+  4. Setting  in  causes researcher and checker Tasks to use sonnet instead of haiku
+  5. Running 
+[38;5;209m  ██████╗ [36m ██████╗ ███████╗██████╗
+[38;5;209m ██╔═══██╗[36m██╔════╝ ██╔════╝██╔══██╗
+[38;5;209m ██║   ██║[36m██║  ███╗███████╗██║  ██║
+[38;5;209m ██║▄▄ ██║[36m██║   ██║╚════██║██║  ██║
+[38;5;209m ╚██████╔╝[36m╚██████╔╝███████║██████╔╝
+[38;5;209m  ╚══▀▀═╝ [36m ╚═════╝ ╚══════╝╚═════╝[0m
+
+  Quorum Gets Shit Done [2mv0.2.0[0m
+  Built on get-shit-done-cc by TÂCHES.
+  Full automation through quorum of coding agents. By Jonathan Borduas.
+
+[36m  The task of leadership is to create an alignment of strengths
+   so strong that it makes the system’s weaknesses irrelevant.
+[2m  — Peter Drucker[0m
+
+  Installing for [36mClaude Code[0m to [36m~/.claude[0m
+
+  [32m✓[0m Installed commands/qgsd
+  [32m✓[0m Installed qgsd
+  [32m✓[0m Installed agents
+  [32m✓[0m Installed CHANGELOG.md
+  [32m✓[0m Wrote VERSION (0.2.0)
+  [32m✓[0m Wrote package.json (CommonJS mode)
+  [32m✓[0m Installed hooks (bundled)
+  [32m✓[0m Installed qgsd-bin scripts
+  [2m↳ ~/.claude/qgsd.json exists — active config: codex → mcp__codex-1__, gemini → mcp__gemini-1__, opencode → mcp__opencode-1__, copilot → mcp__copilot-1__[0m
+  [2m  (run with --redetect-mcps to refresh MCP prefix detection)[0m
+  [32m✓[0m Wrote file manifest (qgsd-file-manifest.json)
+
+  [33mLocal patches detected[0m (from v0.2.0):
+     [36mcommands/qgsd/quorum.md[0m
+
+  Your modifications are saved in [36mqgsd-local-patches/[0m
+  Run [36m/qgsd:reapply-patches[0m to merge them into the new version.
+  Or manually compare and merge the files.
+
+  [33m⚠[0m Skipping statusline (already configured)
+    Use [36m--force-statusline[0m to replace
+
+
+  [32mDone![0m Launch Claude Code and run [36m/qgsd:help[0m.
+
+  [36mJoin the community:[0m https://discord.gg/5JJgD5svVS after the config-loader.js change installs the updated config-loader to 
+**Plans**: TBD
+
+### Phase v0.18-03: Task Envelope
+**Goal**: After research completes and after planning completes, a task-envelope.json sidecar is written to .planning/phases/<phase>/ containing structured context; quorum.md reads risk_level from it with fail-open behavior; feature is config-gated
+**Depends on**: Phase v0.18-02
+**Requirements**: ENV-01, ENV-02, ENV-03, ENV-04
+**Success Criteria** (what must be TRUE):
+  1. After plan-phase research step completes,  exists with , , , and  fields populated
+  2. After plan-phase planning step completes, the same envelope file contains  and  fields (updated, not replaced)
+  3. When  exists and contains a valid ,  pre-flight log shows the envelope-derived risk level
+  4. When  is absent or malformed, quorum proceeds without error using static  — fail-open behavior verified
+  5. Setting  in  disables envelope writes; quorum proceeds without envelope as if it were absent
+**Plans**: TBD
+
+### Phase v0.18-04: Adaptive Fan-Out
+**Goal**: Quorum dispatches 2/3/max workers for routine/medium/high risk_level tasks, emits --n N for Stop hook R3.5 compliance, logs a reduced-quorum note when below maxSize, and respects --n N user override as highest priority
+**Depends on**: Phase v0.18-03
+**Requirements**: FAN-01, FAN-02, FAN-03, FAN-04, FAN-05, FAN-06
+**Success Criteria** (what must be TRUE):
+  1. A quorum round with  from the envelope dispatches exactly 2 slot-worker Tasks (not max_quorum_size)
+  2. A quorum round with  from the envelope dispatches exactly 3 slot-worker Tasks
+  3. A quorum round with  (or no envelope) dispatches  workers — unchanged baseline behavior
+  4. The quorum prompt text injected by  contains  matching the actual worker count dispatched, so  passes the ceiling check correctly
+  5. When fan-out is below , the quorum output contains an R6.4 reduced-quorum note identifying how many workers were used vs. max
+  6. Passing  explicitly overrides envelope-driven fan-out — 5 workers are dispatched regardless of 
 **Plans**: TBD
 
 ## Progress
@@ -935,3 +1082,7 @@ Plans:
 | v0.15-02. Repair Safety Guard | v0.15 | 0/TBD | Not started | - |
 | v0.15-03. Legacy Dir Archive | v0.15 | 0/TBD | Not started | - |
 | v0.15-04. Health Quorum Failure Visibility | v0.15 | 0/TBD | Not started | - |
+| v0.18-01. Token Observability Foundation | v0.18 | 0/TBD | Not started | - |
+| v0.18-02. Tiered Model Sizing | v0.18 | 0/TBD | Not started | - |
+| v0.18-03. Task Envelope | v0.18 | 0/TBD | Not started | - |
+| v0.18-04. Adaptive Fan-Out | v0.18 | 0/TBD | Not started | - |
