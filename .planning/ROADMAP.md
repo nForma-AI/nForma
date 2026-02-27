@@ -1082,7 +1082,11 @@ Plans:
   4. `MCMCPEnv.cfg` is added to `run-tlc.cjs` SURFACE_MAP so it can be invoked by the TLC runner
   5. Both `QGSDMCPEnv.tla` (TLC) and `mcp-availability.pm` (PRISM) are listed in `run-formal-verify.cjs` STEPS
   6. CI workflow includes steps for both MCP formal verification models
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] v0.19-08-01-PLAN.md — TLA+ QGSDMCPEnv pipeline integration (invariants.md, SURFACE_MAP, CI step)
+- [ ] v0.19-08-02-PLAN.md — PRISM mcp-availability pipeline integration (module.exports fix, composite-key filter, CI step)
 
 ### Phase v0.19-09: Requirements Traceability Cleanup
 **Goal**: Complete the REQUIREMENTS.md traceability table by adding 9 missing rows (DRIFT-02, MCPENV-01, MCPENV-02, MCPENV-03, MCPENV-04, IMPR-01, IMPR-02, IMPR-03, IMPR-04) and correcting 13 stale checkboxes for requirements that are complete but still show `[ ]`, ensuring accurate milestone state for archival.
