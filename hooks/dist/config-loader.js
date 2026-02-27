@@ -78,6 +78,11 @@ const DEFAULT_CONFIG = {
   // NOTE: loadConfig() uses shallow spread { ...DEFAULT_CONFIG, ...global, ...project } —
   // if project config sets quorum_active, it entirely replaces the global value.
   quorum_active: [],
+  // model_tier_planner: model tier for planner agents (gsd-planner, gsd-roadmapper).
+  // model_tier_worker: model tier for worker agents (researcher, checker, executor, etc.).
+  // Valid values: 'haiku' | 'sonnet' | 'opus'. Flat keys required — nested objects lost in shallow merge.
+  model_tier_planner: 'opus',
+  model_tier_worker: 'haiku',
 };
 
 // Reads and parses a JSON config file.
@@ -230,6 +235,21 @@ function validateConfig(config) {
     }
     if (config.context_monitor.critical_pct === undefined) {
       config.context_monitor.critical_pct = DEFAULT_CONFIG.context_monitor.critical_pct;
+    }
+  }
+
+  // Validate model_tier_planner and model_tier_worker
+  const VALID_TIERS = ['haiku', 'sonnet', 'opus'];
+  if (config.model_tier_planner !== undefined) {
+    if (typeof config.model_tier_planner !== 'string' || !VALID_TIERS.includes(config.model_tier_planner)) {
+      process.stderr.write('[qgsd] WARNING: qgsd.json: model_tier_planner must be "haiku", "sonnet", or "opus"; removing\n');
+      delete config.model_tier_planner;
+    }
+  }
+  if (config.model_tier_worker !== undefined) {
+    if (typeof config.model_tier_worker !== 'string' || !VALID_TIERS.includes(config.model_tier_worker)) {
+      process.stderr.write('[qgsd] WARNING: qgsd.json: model_tier_worker must be "haiku", "sonnet", or "opus"; removing\n');
+      delete config.model_tier_worker;
     }
   }
 
