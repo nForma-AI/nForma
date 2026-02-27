@@ -1,602 +1,658 @@
-# Technology Stack
+# Stack Research
 
-**Project:** QGSD v0.16 — Formal Plan Verification (New Capabilities Only)
-**Researched:** 2026-02-26
-**Overall confidence:** HIGH (all critical packages verified via npm registry and official docs)
+**Domain:** QGSD v0.18 — Token Efficiency (New Capabilities Only)
+**Researched:** 2026-02-27
+**Confidence:** HIGH
 
 ---
 
 ## Context: Subsequent Milestone — Additive Only
 
-The following capabilities from prior milestones are validated and must NOT be re-researched or
-replaced. All new choices must integrate with this existing stack without breaking it.
+The following capabilities from prior milestones are validated. They must NOT be re-researched or
+replaced. All new choices must integrate without breaking them.
 
 **Existing constraints that new choices must satisfy:**
 
 - All `bin/*.cjs` scripts use `'use strict'; require()` — CJS-only. No `import`.
-- No ESM migration in scope. Any library that is ESM-only requires a workaround or must be
-  avoided entirely.
-- Zero new runtimes. JVM is already present (TLA+/Alloy/PRISM). No Python, no Rust, no Go.
-- Existing dependencies: `inquirer@^8.2.7`, `keytar@^7.9.0` (prod); `esbuild@^0.24.0`,
-  `tsup@^8.5.1`, `typescript@^5.9.3`, `xstate@^5.28.0` (dev).
-- Zero-dep policy for bin/ scripts where possible (Mulberry32 inline PRNG precedent).
-  New libraries must justify their weight.
+- No ESM migration in scope. ESM-only libraries require a workaround or must be avoided.
+- Zero new runtimes. Node.js only. No Python, no Go.
+- Existing prod dependencies: `inquirer@^8.2.7`, `keytar@^7.9.0`, `markdown-it@14.1.1`,
+  `markdown-it-task-lists@2.1.1`, `comment-parser@1.4.5`.
+- Existing dev dependencies: `esbuild@^0.24.0`, `tsup@^8.5.1`, `typescript@^5.9.3`,
+  `xstate@^5.28.0`.
+- Zero-dep policy for `bin/` scripts where possible. New libraries must justify their weight.
+- Hook source files live in `hooks/`, synced to `hooks/dist/`, installed via
+  `node bin/install.js --claude --global` to `~/.claude/hooks/`.
+- Quorum dispatches via `call-quorum-slot.cjs` subprocess reading `providers.json`.
+  Health checks via `check-provider-health.cjs`. Scoreboard writes via
+  `update-scoreboard.cjs merge-wave`.
+- Node.js runtime: v25.6.1 (confirmed on target machine).
 
 ---
 
-## Capability A: Markdown Task List Parsing (PLAN.md → Structured Plan)
+## Capability A: Token Observability Layer
 
-### Decision: `markdown-it@14.1.1` + `markdown-it-task-lists@2.1.1` — CJS-compatible, no new runtime
+### What the feature needs
 
-**What the feature needs:** Read a PLAN.md file containing GFM-style task lists
-(`- [ ] task` / `- [x] task`) and extract a structured representation: task text, checked
-state, nesting level, heading section it belongs to, and order within section.
+Track per-sub-agent (qgsd-quorum-slot-worker Task) token consumption across a quorum
+round, accumulate the totals, and surface them in `/qgsd:health`. Specifically:
 
-**Why not a custom regex parser:** Markdown task lists can be nested, preceded by headings,
-and interrupted by paragraphs. A robust parser handles edge cases (blank lines, sub-lists,
-inline code in task text) that a regex approach silently misses. Precedent: QGSD already
-rejected regex in `check-spec-sync.cjs` in favor of AST walking (DRFT-01..03 decision).
+1. After each quorum wave, collect `input_tokens + output_tokens` consumed by each
+   slot-worker Task.
+2. Write the per-round token summary to a persistent file (`.planning/token-usage.jsonl`
+   or appended to an existing observability file).
+3. `/qgsd:health` reads the file and displays per-slot totals.
 
-**Why `markdown-it`:**
+### Decision: SubagentStop hook + JSONL transcript parsing — zero new libraries
 
-- `markdown-it@14.1.1` (current) ships a CJS build. `exports` map confirms:
-  `"require": "./dist/index.cjs.js"`. No ESM workaround needed. `require('markdown-it')`
-  works directly in CJS bin/ scripts.
-- Actively maintained (14.x released 2024–2025). 15M+ weekly downloads.
-- Plugin ecosystem for extensions. Task list support via `markdown-it-task-lists`.
-- Produces a flat token array — simpler to traverse than a full AST tree. Token `type`,
-  `tag`, `content`, `children`, and `attrGet('class')` provide all needed fields.
+**How Claude Code exposes sub-agent token data:**
 
-**Why NOT `remark`/`unified`:** Both are ESM-only since their 2021 major version upgrades.
-`mdast-util-from-markdown` is explicitly ESM-only. Using them in CJS requires dynamic `import()`
-wrapped in an async function — adding async surface to what should be a synchronous parse step.
-For a pipeline that also calls TLC/Alloy/PRISM (synchronous subprocess calls), mixing async
-module loading adds unnecessary complexity. `markdown-it` with its CJS build is the correct
-choice for this codebase.
+Claude Code does NOT expose per-sub-agent token metrics directly in the `SubagentStop`
+hook payload. The `SubagentStop` event payload (confirmed against official docs, 2026-02)
+contains:
 
-**Why NOT `commonmark.js`:** No built-in task list support (task lists are GFM, not
-CommonMark core). Would require a custom plugin anyway, at which point `markdown-it` is
-strictly better (more active, larger plugin ecosystem).
-
-**Task list plugin — `markdown-it-task-lists@2.1.1`:**
-
-- Last published 2022 (unchanged since then — stable, not abandoned).
-- `main: 'index.js'` — plain CJS, no exports map needed.
-- Peer dependency: `markdown-it ^8 || ^9 || ^10 || ^11 || ^12` — verified compatible
-  with v14 in practice (no breaking API changes in the plugin hook surface since v8).
-- Adds `task-list-item-checkbox` class to list item tokens; checked state via `attrGet('checked')`.
-- Alternative `@hedgedoc/markdown-it-task-lists@2.0.1` is marked deprecated on npm — avoid.
-
-**How to extract structured plan from token stream:**
-
-```javascript
-'use strict';
-const MarkdownIt = require('markdown-it');
-const taskLists = require('markdown-it-task-lists');
-
-const md = new MarkdownIt().use(taskLists, { enabled: true });
-const tokens = md.parse(planText, {});
-
-// Walk tokens: track current heading, extract list_item_open + inline children
-// When token.attrGet('class') includes 'task-list-item', it's a task item
-// token.children.find(t => t.type === 'text').content = task text
-// token.attrGet('class').includes('task-list-item--checked') = done state
+```json
+{
+  "session_id": "...",
+  "transcript_path": "~/.claude/projects/.../abc123.jsonl",
+  "agent_id": "def456",
+  "agent_type": "qgsd-quorum-slot-worker",
+  "agent_transcript_path": "~/.claude/projects/.../abc123/subagents/agent-def456.jsonl",
+  "last_assistant_message": "...",
+  "stop_hook_active": false
+}
 ```
 
-**No extraction library needed.** The token walk is 30–50 lines of straightforward code.
-No additional npm package required for plan-spec mapping.
+The `agent_transcript_path` field points to the sub-agent's own JSONL file. The JSONL
+file has `message.usage` fields on `type: "assistant"` entries, confirmed by direct
+inspection of actual subagent transcript files on this machine:
+
+```json
+{
+  "type": "assistant",
+  "message": {
+    "model": "claude-sonnet-4-6",
+    "usage": {
+      "input_tokens": 3,
+      "cache_creation_input_tokens": 11033,
+      "cache_read_input_tokens": 5232,
+      "output_tokens": 1,
+      "service_tier": "standard"
+    }
+  }
+}
+```
+
+**Approach: SubagentStop hook that reads `agent_transcript_path`**
+
+Register a `SubagentStop` command hook with matcher `qgsd-quorum-slot-worker`. When a
+slot-worker finishes, the hook:
+
+1. Receives `agent_transcript_path` in the JSON payload (stdin).
+2. Reads the JSONL file and sums all `message.usage` fields across entries where
+   `isSidechain !== true` and `isApiErrorMessage !== true`.
+3. Extracts `agent_type`, `agent_id`, and the `last_assistant_message` vote line.
+4. Appends a structured record to `.planning/token-usage.jsonl`:
+
+```json
+{"ts":"2026-02-27T...","agent_id":"def456","agent_type":"qgsd-quorum-slot-worker","slot":"claude-1","input_tokens":14268,"output_tokens":312,"cache_creation_input_tokens":11033,"cache_read_input_tokens":5232}
+```
+
+The slot name must be derived from `last_assistant_message` (the vote output already
+contains `slot: <name>` in the YAML block) or from a correlation file written by
+call-quorum-slot.cjs at dispatch time (preferred — more reliable than parsing output).
+
+**Important limitation:** The `SubagentStop` hook fires for ALL sub-agent spawns, not
+just quorum slot-workers. The matcher `qgsd-quorum-slot-worker` filters to only the
+relevant sub-agents. This is confirmed in official docs: SubagentStop matches on
+`agent_type`, which equals the `subagent_type` passed to `Task()`.
+
+**Hook implementation pattern:**
+
+```javascript
+// hooks/qgsd-token-collector.js — SubagentStop hook
+'use strict';
+const fs = require('fs');
+const path = require('path');
+
+let raw = '';
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', c => raw += c);
+process.stdin.on('end', () => {
+  try {
+    const input = JSON.parse(raw);
+    if (input.agent_type !== 'qgsd-quorum-slot-worker') { process.exit(0); return; }
+
+    const transcriptPath = input.agent_transcript_path;
+    if (!transcriptPath || !fs.existsSync(transcriptPath)) { process.exit(0); return; }
+
+    // Sum usage across all non-sidechain assistant entries
+    const lines = fs.readFileSync(transcriptPath, 'utf8').split('\n').filter(l => l.trim());
+    let inputTokens = 0, outputTokens = 0, cacheCreate = 0, cacheRead = 0;
+    for (const line of lines) {
+      try {
+        const entry = JSON.parse(line);
+        if (entry.type !== 'assistant') continue;
+        if (entry.isSidechain === true) continue;
+        if (entry.isApiErrorMessage === true) continue;
+        const u = entry.message?.usage;
+        if (!u) continue;
+        inputTokens  += (u.input_tokens ?? 0);
+        outputTokens += (u.output_tokens ?? 0);
+        cacheCreate  += (u.cache_creation_input_tokens ?? 0);
+        cacheRead    += (u.cache_read_input_tokens ?? 0);
+      } catch {}
+    }
+
+    // Derive slot name from correlation file (preferred) or agent_id
+    const corrPath = path.join(process.cwd(), '.planning', `quorum-slot-corr-${input.agent_id}.json`);
+    let slot = input.agent_id;
+    if (fs.existsSync(corrPath)) {
+      try { slot = JSON.parse(fs.readFileSync(corrPath, 'utf8')).slot || slot; } catch {}
+      try { fs.unlinkSync(corrPath); } catch {}
+    }
+
+    const record = JSON.stringify({
+      ts: new Date().toISOString(),
+      agent_id: input.agent_id,
+      slot,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      cache_creation_input_tokens: cacheCreate,
+      cache_read_input_tokens: cacheRead,
+    });
+
+    const logPath = path.join(process.cwd(), '.planning', 'token-usage.jsonl');
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.appendFileSync(logPath, record + '\n', 'utf8');
+    process.exit(0);
+  } catch { process.exit(0); } // fail-open
+});
+```
+
+**Why NOT a polling approach:** No polling mechanism can get per-sub-agent data in
+real-time. The SubagentStop hook is the only in-process trigger that fires with the
+`agent_transcript_path` field. Polling the transcript directory would be racy.
+
+**Why NOT rely on the main transcript:** The main transcript (`transcript_path`) contains
+all turns from all agents interleaved, making it hard to attribute usage to specific
+slot-workers without tracking `parentUuid` chains. The `agent_transcript_path` gives a
+clean per-agent view with zero attribution ambiguity.
+
+**What is NOT available:** Claude Code does NOT currently expose per-sub-agent token
+metrics in a hook payload directly (confirmed: feature request github.com/anthropics/
+claude-code/issues/13994, closed as duplicate, still unimplemented as of 2026-02).
+Transcript parsing is the only available method.
 
 ### Recommended Stack — Capability A
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `markdown-it` | 14.1.1 | Parse PLAN.md into token stream | CJS-compatible; `require()` works; actively maintained; 15M weekly downloads |
-| `markdown-it-task-lists` | 2.1.1 | GFM task list checkbox token enrichment | Stable plugin; CJS; no peer dep conflict with v14 in practice |
+| `SubagentStop` hook (Claude Code) | current | Trigger on slot-worker completion | Only hook that fires with `agent_transcript_path`; matcher filters to `qgsd-quorum-slot-worker` only |
+| JSONL transcript parsing (stdlib) | stdlib | Sum `message.usage` fields from `agent_transcript_path` | Confirmed structure on machine; `input_tokens`/`output_tokens` in every assistant entry |
+| `fs.appendFileSync` (stdlib) | stdlib | Write token records to `.planning/token-usage.jsonl` | Append is atomic for records < POSIX PIPE_BUF (4096 bytes); matches conformance-events pattern |
+| Correlation file pattern | — | Map `agent_id` → `slot` name | Written by quorum dispatch before Task spawn; cleaned up by hook after read |
 
-**Installation:**
+**Hook registration (settings.json addition):**
 
-```bash
-npm install markdown-it markdown-it-task-lists
-```
-
-**What NOT to use:**
-
-| Avoid | Why |
-|-------|-----|
-| `remark` + `remark-gfm` | ESM-only; requires async `import()` in CJS context |
-| `mdast-util-from-markdown` | Explicitly ESM-only (per npm registry) |
-| `commonmark` | No task list support; CommonMark spec only |
-| Custom regex parser | Brittle on nested lists, headings, inline code in task text |
-
----
-
-## Capability B: JSDoc Annotation Extraction (@invariant, @transition, @probability)
-
-### Decision: `comment-parser@1.4.5` — CJS-compatible, zero deps, custom tag support
-
-**What the feature needs:** Scan JavaScript/TypeScript source files for JSDoc block comments
-containing custom tags (`@invariant`, `@transition`, `@probability`) and extract their
-tag name, type (if present), name, and description into structured objects suitable for
-spec generation.
-
-**Why `comment-parser`:**
-
-- `comment-parser@1.4.5` (current as of 2026-02-06) — actively maintained.
-- Ships dual package: CJS at `lib/index.cjs`, ESM at `es6/index.js`.
-  `exports` map confirms `"require": "./lib/index.cjs"`. `require('comment-parser')` works.
-- Zero dependencies (confirmed on npm registry).
-- Custom tag support is first-class: the parser extracts all `@tag` blocks regardless of
-  whether the tag is a known JSDoc tag. `@invariant`, `@transition`, `@probability` work
-  without any configuration.
-- Returns `{ tags: [{ tag, name, type, description, source }] }` for each block.
-- Lightweight: ~15KB installed.
-
-**Why NOT the TypeScript Compiler API for this task:**
-
-The TypeScript compiler API can extract JSDoc comments via `ts.getJSDocTags()`, but:
-1. It requires TypeScript compilation, which is expensive for a scan-only pipeline.
-2. It only returns `@param`, `@returns`, and a limited set of "known" tags from the
-   TypeScript perspective; custom tags have limited support.
-3. TypeScript ships `lib/typescript.js` as CJS (main: `'./lib/typescript.js'`) — it is
-   technically CJS-compatible, but the API surface is large, complex, and designed for
-   type-checking, not annotation extraction.
-
-For pure annotation extraction (no type inference needed), `comment-parser` is the
-correct minimal tool.
-
-**Why NOT `jsdoc` CLI:** The `jsdoc` npm package is a full documentation generator. It
-processes files and generates HTML output. For programmatic extraction of tag data into
-spec fragments, it is heavyweight and awkward to use as a library. `comment-parser` is
-what most jsdoc ecosystem tools (including `eslint-plugin-jsdoc`) use internally for tag
-parsing.
-
-**Source file scanning:** Use Node.js stdlib `fs.readdirSync` + `readFileSync` for CJS
-source files, or pass file paths via CLI arg. No glob library needed — `fs.readdirSync`
-with a simple `.filter(f => f.endsWith('.cjs') || f.endsWith('.js'))` is sufficient.
-For TypeScript files, same approach (comment-parser handles the comment text regardless
-of surrounding syntax).
-
-**Extraction pattern:**
-
-```javascript
-'use strict';
-const { parse } = require('comment-parser');
-
-const source = require('fs').readFileSync(filePath, 'utf8');
-const blocks = parse(source);
-
-for (const block of blocks) {
-  const invariants = block.tags.filter(t => t.tag === 'invariant');
-  const transitions = block.tags.filter(t => t.tag === 'transition');
-  const probabilities = block.tags.filter(t => t.tag === 'probability');
-  // invariants[0].description = "always MinQuorumMet when consensus"
+```json
+{
+  "hooks": {
+    "SubagentStop": [
+      {
+        "matcher": "qgsd-quorum-slot-worker",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/qgsd-token-collector.js",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
-**Tag format recommendation for QGSD annotations:**
+Using `async: true` is correct here — token collection is observational and should not
+block the sub-agent stop event. This matches the non-blocking pattern used for the
+conformance event logger.
 
-```javascript
-/**
- * @invariant {always} MinQuorumMet - quorum count never drops below threshold
- * @transition DELIBERATING -> CONSENSUS [minQuorumMet]
- * @probability consensus_in_3_rounds >= 0.95
- */
+**`/qgsd:health` display:** A new `--tokens` flag (or augmentation of the existing health
+output) reads `.planning/token-usage.jsonl`, aggregates by slot, and prints a table:
+
+```
+  TOKEN USAGE (last 10 quorum rounds)
+  slot         input_tokens   output_tokens   cache_read
+  claude-1     142,680        3,120           52,320
+  claude-2     89,400         2,890           41,200
+  ...
 ```
 
-`comment-parser` extracts `type`, `name`, and `description` from each tag in this format.
+No new library needed — `JSON.parse` per line, reduce into slot map, print with
+`console.log`.
+
+---
+
+## Capability B: Task Envelope Abstraction
+
+### What the feature needs
+
+Replace free-form prompt text handoffs between research/plan/quorum stages with a compact,
+structured JSON object (the "task envelope") that captures what needs to be decided, what
+context is available, the risk tier, and which models should be consulted. The envelope is
+written to a file (e.g., `.planning/phases/<phase>/TASK_ENVELOPE.json`) before each stage
+and read by the downstream stage.
+
+### Decision: Plain JSON schema (hand-written) + `JSON.parse`/`JSON.stringify` — zero new libraries
+
+**Why no schema validation library:**
+
+The task envelope is a small, internal structure used within QGSD's own workflow. It is
+not a public API. The schema is stable and fully under QGSD's control. Introducing `zod`
+or `ajv` would:
+
+1. Add a prod dependency (zod is ~55KB; ajv is ~120KB with transitive deps).
+2. Force ESM handling: zod ships both CJS and ESM, but zod v4 (2025) is pure ESM.
+   zod v3 is the CJS-compatible version. This creates a version freeze obligation.
+3. Add no real value for a 5-field internal schema: a manual check
+   `if (!envelope.version || !envelope.risk_tier)` is clearer and has zero dep cost.
+
+**Recommended envelope schema:**
+
+```json
+{
+  "schema_version": 1,
+  "envelope_id": "<uuid-v4-or-timestamp-hex>",
+  "ts": "2026-02-27T14:23:00.000Z",
+  "phase": "v0.18-01",
+  "stage": "research | plan | quorum | verify",
+  "question": "Should the token observability hook use SubagentStop or PostToolUse?",
+  "context_digest": {
+    "plan_path": ".planning/phases/v0.18-01/PLAN.md",
+    "plan_line_count": 142,
+    "artifact_paths": [".planning/research/STACK.md"]
+  },
+  "risk_tier": "routine | elevated | critical",
+  "quorum_config": {
+    "worker_count": 3,
+    "model_tier": "standard | strong",
+    "timeout_ms": 30000
+  },
+  "prior_decisions": []
+}
+```
+
+**risk_tier drives adaptive fan-out (Capability C):**
+
+| tier | worker_count | rationale |
+|------|--------------|-----------|
+| `routine` | 1 | Low-stakes tasks: quick implementation step, single-file change |
+| `elevated` | 3 | Medium-stakes: multi-file change, architectural decision |
+| `critical` | 5 | High-stakes: ROADMAP update, new milestone, security-affecting change |
+
+**envelope_id:** Use `Date.now().toString(16)` (8-char hex) — no uuid library needed.
+This matches the PRNG inline precedent (Mulberry32 in gsd-tools.cjs) and produces
+unique-enough IDs for file names within a session.
+
+**How the envelope flows:**
+
+```
+plan-phase.md  → writes TASK_ENVELOPE.json (stage: "plan", risk_tier computed from plan content)
+  └─ quorum dispatch reads TASK_ENVELOPE.json
+       └─ worker_count from quorum_config.worker_count
+       └─ writes TASK_ENVELOPE.json back with stage: "quorum", prior_decisions appended
+  └─ verify-work reads TASK_ENVELOPE.json for audit context
+```
+
+**Risk tier classification:** Inline logic in a helper function `classifyRiskTier(planPath)`:
+
+```javascript
+function classifyRiskTier(planPath) {
+  const text = fs.readFileSync(planPath, 'utf8');
+  if (/ROADMAP\.md|new-milestone|milestone\s+complete/i.test(text)) return 'critical';
+  if (/architecture|security|breaking change|schema change/i.test(text)) return 'elevated';
+  return 'routine';
+}
+```
+
+This is 10 lines of inline code — no routing library needed.
+
+**File write pattern (atomic):**
+
+```javascript
+// Same atomic write pattern as scoreboard and conformance events
+const tmpPath = envelopePath + '.tmp';
+fs.writeFileSync(tmpPath, JSON.stringify(envelope, null, 2), 'utf8');
+fs.renameSync(tmpPath, envelopePath); // POSIX atomic
+```
 
 ### Recommended Stack — Capability B
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `comment-parser` | 1.4.5 | Extract @invariant/@transition/@probability from JSDoc blocks | CJS-compatible; zero deps; custom tag support; ~15KB; actively maintained |
-
-**Installation:**
-
-```bash
-npm install comment-parser
-```
+| Plain JSON (stdlib) | stdlib | Task envelope serialization | 5-field schema; `JSON.parse`/`JSON.stringify`; atomic write via `renameSync` matches existing scoreboard pattern |
+| `fs.renameSync` (stdlib) | stdlib | Atomic envelope file write | POSIX atomic on same volume; precedent in `update-scoreboard.cjs` |
+| Inline `classifyRiskTier()` | — | Determine risk_tier from plan text | Regex scan on plan content; 10 lines; no routing library needed |
 
 **What NOT to use:**
 
 | Avoid | Why |
 |-------|-----|
-| TypeScript Compiler API | Expensive compilation step; custom tag support limited; overkill for annotation extraction |
-| `jsdoc` npm package | Full doc generator; designed for HTML output, not programmatic tag extraction |
-| `jsdoc-parse` | Wraps jsdoc CLI; subprocess-based; fragile |
-| `@microsoft/tsdoc` | TSDoc parser for a specific standard; does not support arbitrary custom tags |
-| Regex on comment text | JSDoc comments have multiline edge cases; block detection is error-prone |
+| `zod` | v4 is ESM-only; v3 is CJS but creates a version freeze; overkill for a 5-field internal schema |
+| `ajv` | 120KB with transitive deps; JSON Schema validator overkill for internal use |
+| `joi` | Large bundle; designed for user input validation, not small internal structs |
+| Any UUID library | `Date.now().toString(16)` sufficient for session-scoped file naming |
 
 ---
 
-## Capability C: Mermaid Mind Map Generation (PLAN.md → MINDMAP.md)
+## Capability C: Adaptive Quorum Fan-Out
 
-### Decision: String template generation (no npm library) — Mermaid syntax is trivially generatable
+### What the feature needs
 
-**What the feature needs:** Take the structured plan extracted by Capability A and produce
-a `MINDMAP.md` file containing a Mermaid mind map (`mindmap` syntax) that represents the
-plan's phase/task hierarchy for injection into quorum slot-worker context.
+Instead of always dispatching all 8+ active slots, use the `risk_tier` from the task
+envelope to determine how many workers to spawn. The injection logic in `qgsd-prompt.js`
+(UserPromptSubmit hook) and the quorum protocol in `quorum.md` must read `worker_count`
+from the envelope and cap the fan-out accordingly.
 
-**Key insight: mind map output is text, not SVG.** The MINDMAP.md delivered to quorum
-agents is a Markdown code block containing Mermaid syntax. Quorum agents render it
-mentally as a conceptual map, not visually. The output is a `.md` file, not an `.svg` file.
-No rendering library is needed for the core feature.
+### Decision: Config extension + envelope-driven cap — zero new libraries
 
-**Mermaid mindmap syntax is trivially generatable via string template:**
+**Current mechanism:** `qgsd-prompt.js` builds the slot list from `config.quorum_active`
+and applies `config.quorum.maxSize` as a cap. The `--n N` flag allows a per-command
+override.
+
+**New mechanism:** Before dispatching, check whether a TASK_ENVELOPE.json exists for the
+current phase. If it does, use `quorum_config.worker_count` as the fan-out count. If not,
+fall back to the existing `maxSize` config.
+
+**Envelope lookup logic in `qgsd-prompt.js`:**
+
+```javascript
+function readEnvelopeWorkerCount(cwd) {
+  // Find the current phase from STATE.md or .planning/current-activity.json
+  // Then read .planning/phases/<phase>/TASK_ENVELOPE.json
+  // Return quorum_config.worker_count or null
+  try {
+    const actPath = path.join(cwd, '.planning', 'current-activity.json');
+    if (!fs.existsSync(actPath)) return null;
+    const act = JSON.parse(fs.readFileSync(actPath, 'utf8'));
+    const phase = act.phase;
+    if (!phase) return null;
+    const envPath = path.join(cwd, '.planning', 'phases', phase, 'TASK_ENVELOPE.json');
+    if (!fs.existsSync(envPath)) return null;
+    const env = JSON.parse(fs.readFileSync(envPath, 'utf8'));
+    const count = env?.quorum_config?.worker_count;
+    return (Number.isInteger(count) && count >= 1) ? count : null;
+  } catch { return null; }
+}
+```
+
+This is additive to `qgsd-prompt.js` — the existing `--n N` override takes precedence
+over the envelope, which takes precedence over `maxSize` config. Priority order:
 
 ```
-mindmap
-  root((PLAN.md))
-    Phase 1: Setup
-      Task A
-        Sub-task A1
-      Task B
-    Phase 2: Implementation
-      Task C
+--n N flag (CLI) > TASK_ENVELOPE.json worker_count > config.quorum.maxSize > activeSlots.length
 ```
 
-The entire mindmap is generated by:
-1. Iterating task hierarchy from Capability A output.
-2. Writing `  `.repeat(depth) + nodeText for each item.
-3. Wrapping in a Markdown fenced code block.
+**Worker tiers:**
 
-This is 20–30 lines of string generation. No library is needed or justified.
+| risk_tier | worker_count | Slots used (from quorum_active, ordered) |
+|-----------|--------------|------------------------------------------|
+| `routine` | 1 | Fastest available slot (sub-first if preferSub) |
+| `elevated` | 3 | Top 3 from ordered pool |
+| `critical` | 5 | Top 5 from ordered pool |
 
-**Why NOT `@mermaid-js/mermaid-cli` for text generation:** `@mermaid-js/mermaid-cli@11.12.0`
-is an SVG/PNG renderer that uses Puppeteer (a headless Chromium browser). It requires
-Node.js ≥18.19 and launches a browser process. Using it to generate the text representation
-of a mindmap is like using a PDF printer to write a sentence — completely wrong tool.
-Additionally, its `exports` are ESM (`import { run } from "@mermaid-js/mermaid-cli"`) —
-it would require async dynamic import in a CJS context.
+The existing `orderedSlots.slice(0, externalSlotCap)` in `qgsd-prompt.js` already
+implements this cap. The only change is the source of `externalSlotCap`.
 
-**When SVG rendering IS needed:** If a future phase requires rendering the mind map to SVG
-(e.g., for visual artifact in `phases/<phase>/MINDMAP.svg`), the options are:
+**`qgsd-stop.js` enforcement:** The Stop hook already enforces `maxSize` as a ceiling on
+successful responses. The same `quorumSizeOverride` logic that handles `--n N` must also
+handle envelope-based caps. The Stop hook needs the same `readEnvelopeWorkerCount()`
+function (or a simplified version reading only the worker_count from the envelope).
 
-- `@mermaid-js/mermaid-cli@11.12.0` via CLI subprocess:
-  `spawnSync('./node_modules/.bin/mmdc', ['-i', 'input.mmd', '-o', 'output.svg'])`
-  This avoids the ESM import issue entirely — call it as a CLI, not as a module.
-  Requires Node.js ≥18.19 (QGSD runs on 25.6.1, so no constraint).
-- Install only as a devDependency to avoid bloating the published package.
-
-**For v0.16 scope (text output only):** No npm library is needed for Capability C.
-Pure string generation from the plan structure.
+**Why NOT a config key for risk classification:** Risk tier is plan-specific, not
+project-specific. A per-project config key like `quorum.riskTier: "elevated"` would be
+wrong — the tier must come from the current plan content, not a static config. The
+envelope is the right place.
 
 ### Recommended Stack — Capability C
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Node.js stdlib (`fs.writeFileSync`) | stdlib | Write MINDMAP.md | No library needed; trivial string template |
-| String template (inline) | — | Generate Mermaid mindmap syntax | Mindmap syntax is indented text; generatable in ~25 lines |
+| `readEnvelopeWorkerCount()` helper | — | Read worker_count from TASK_ENVELOPE.json | Additive to existing hook logic; 15 lines; reads `current-activity.json` for phase context |
+| `qgsd-prompt.js` extension | existing | Apply envelope cap to fan-out | Priority chain: `--n N` > envelope > maxSize > pool length |
+| `qgsd-stop.js` extension | existing | Enforce envelope-based ceiling in Stop hook | Same `maxSize` path; add envelope fallback before config.quorum.maxSize |
 
-**If SVG rendering is later required (not in v0.16 scope):**
-
-| Technology | Version | Purpose | Condition |
-|------------|---------|---------|-----------|
-| `@mermaid-js/mermaid-cli` | 11.12.0 | Render .mmd to .svg via CLI | devDep only; invoke via `spawnSync` subprocess, NOT via `require()` |
-
-**What NOT to use:**
+**What NOT to add:**
 
 | Avoid | Why |
 |-------|-----|
-| `mermaid` npm package | Browser-focused runtime; server-side rendering requires DOM shim; ESM |
-| `@mermaid-js/mermaid-cli` (as imported module) | ESM-only; launches Puppeteer; wrong tool for text output |
-| `@mermaid-js/mermaid-mindmap` plugin | Requires mermaid runtime; browser-focused |
-| Any markdown-to-mindmap converter | Unnecessary abstraction; direct template generation is simpler |
+| Dedicated risk-router bin/ script | Overkill; inline `classifyRiskTier()` + envelope write is sufficient |
+| Per-project qgsd.json `riskTier` key | Static config cannot reflect per-plan risk; envelope is plan-scoped |
+| ML-based complexity classifier | No training data; heuristic regex achieves the 1/3/5 split well enough |
 
 ---
 
-## Capability D: Counterexample Parsing (TLC / Alloy / PRISM Output → Structured Feedback)
+## Capability D: Tiered Model Sizing
 
-### Decision: Regex-based text parsers (TLC/PRISM) + JSON.parse (TLC JSON trace) + text scan (Alloy) — all zero-library
+### What the feature needs
 
-**What the feature needs:** When TLC, Alloy, or PRISM finds a counterexample during the
-iterative verification loop, parse the tool's output into a structured object that can feed
-back into the plan revision step.
+Route quorum workers to cheaper/faster models for `routine` tasks and reserve
+stronger models for `critical` decisions. The existing `model_preferences` config in
+`qgsd.json` allows per-slot model overrides. The new feature adds an envelope-driven
+tier that automatically switches slot model assignments based on `risk_tier`.
 
-**TLC counterexample parsing:**
+### Decision: Envelope-driven model tier map in qgsd.json — zero new libraries
 
-TLC supports `-dumpTrace json <filename>` (available since tla2tools.jar v1.8.0). When a
-property violation is found, this flag writes the error trace as a JSON file following the
-ITF (Informal Trace Format) structure:
+**Current model assignment:** `qgsd.json` has `model_preferences: { "claude-1": "deepseek-ai/DeepSeek-V3.2" }`.
+These are static overrides injected into the quorum prompt by `qgsd-prompt.js`.
+
+**New mechanism:** Add a `model_tiers` config block to `qgsd.json`:
 
 ```json
 {
-  "#meta": { "format": "ITF", "varNames": ["phase", "votes", "round"] },
-  "vars": ["phase", "votes", "round"],
-  "states": [
-    { "phase": "IDLE", "votes": 0, "round": 0 },
-    { "phase": "DELIBERATING", "votes": 2, "round": 1 }
-  ]
+  "model_tiers": {
+    "standard": {
+      "claude-1": "deepseek-ai/DeepSeek-V3.2",
+      "claude-2": "MiniMaxAI/MiniMax-M2.5",
+      "claude-3": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
+    },
+    "strong": {
+      "claude-1": "deepseek-ai/DeepSeek-R1",
+      "claude-2": "MiniMaxAI/MiniMax-M1-5B",
+      "claude-3": "Qwen/QwQ-72B-Preview"
+    }
+  }
 }
 ```
 
-**TLC recommendation:** Use `-dumpTrace json counterexample.json` and parse with
-`JSON.parse(fs.readFileSync(...))`. Zero library needed. The existing `run-tlc.cjs` uses
-`stdio: 'inherit'` — for the plan verification use case, switch to `stdio: 'pipe'` and
-add `-dumpTrace json` flag to capture the trace file path. Then read and parse the JSON.
+The `quorum_config.model_tier` field in the task envelope (`"standard"` or `"strong"`)
+selects which map to use. `qgsd-prompt.js` applies the selected tier's model assignments
+instead of the static `model_preferences`.
 
-For text-mode TLC output (when `-dumpTrace json` is not used), the error trace appears
-as:
+**Tier assignment in `classifyRiskTier()`:**
 
-```
-Error: Invariant MinQuorumMet is violated.
-State 1:
-/\ phase = "IDLE"
-/\ votes = 0
-...
-```
+| risk_tier | model_tier | rationale |
+|-----------|------------|-----------|
+| `routine` | `standard` | Cheap/fast models sufficient for low-stakes review |
+| `elevated` | `standard` | Standard models; 3 workers provide diversity |
+| `critical` | `strong` | Best available models; 5 workers; stakes justify cost |
 
-A regex `/(State \d+:)([\s\S]*?)(?=State \d+:|$)/g` extracts individual states.
-This is the fallback when the JSON dump is unavailable.
-
-**Alloy counterexample parsing:**
-
-The existing `run-alloy.cjs` already does the right thing: invoke with `--output -` and
-`--type text`, scan stdout for `/Counterexample/i`. For the plan verification pipeline,
-switch `--type` to `text` and parse the text output for the specific counterexample
-section. Alloy's text output for a counterexample looks like:
-
-```
-Counterexample found for assertion ThresholdPasses:
-  this/Agent = {Agent0, Agent1}
-  approve = {Agent0}
-  ...
-```
-
-A simple regex scan for lines after `Counterexample found` extracts the constraint
-violation. No XML library is needed — the `--type text` format is simpler to parse than
-XML and already in use.
-
-If XML output (`--type xml`) is required in a future phase, `fast-xml-parser@5.4.1`
-ships CJS at `lib/fxp.cjs` (`"require": { "default": "./lib/fxp.cjs" }`) and is the
-correct choice — zero native deps, actively maintained (published daily as of 2026-02).
-
-**PRISM counterexample parsing:**
-
-PRISM outputs probability results to stdout as plaintext:
-
-```
-Model constants: tp_rate=0.9274, unavail=0.0215
-Property: P=? [ F consensus_reached ]
-Result: 0.9731 (exact floating point)
-
-Property: P>=0.95 [ F consensus_reached ]
-Result: true
-```
-
-When a property FAILS (result is `false` or a probability below threshold):
-
-```
-Result: false (property is not satisfied)
-```
-
-A regex on the captured stdout: `/(Result:\s*)(false|[\d.]+)/` extracts the result. No
-library is needed. The existing `run-prism.cjs` already captures stdout — for plan
-verification, extend it to parse result lines and emit a structured counterexample object.
-
-PRISM does not produce path counterexamples for probabilistic properties (a known
-limitation — probabilistic counterexamples require infinite sets of paths). The "counterexample"
-for PRISM is the probability value itself: `{ property, result, satisfied, threshold }`.
-
-**Plan-spec mapping counterexample structure (common output format):**
+**Model tier injection in `qgsd-prompt.js`:**
 
 ```javascript
-// Unified counterexample object produced by each tool's parser
-{
-  tool: 'tlc' | 'alloy' | 'prism',
-  violated: 'invariant name or property',
-  trace: [...states] | null,   // TLC only
-  witness: string | null,       // Alloy text excerpt
-  probability: number | null,   // PRISM only
-  raw: string                   // full tool output for context
-}
+// After envelope read: determine effective model preferences
+const modelTier = envelope?.quorum_config?.model_tier ?? 'standard';
+const tierPrefs = (config.model_tiers ?? {})[modelTier] ?? {};
+const effectivePrefs = { ...(config.model_preferences ?? {}), ...tierPrefs };
+// tierPrefs overrides static model_preferences for this quorum round
 ```
+
+The injection block (the "Model overrides" section appended to instructions) uses
+`effectivePrefs` instead of `config.model_preferences` directly.
+
+**Why this beats static `model_preferences`:**
+
+Static preferences are set once globally. For a routine phase (single-file fix),
+dispatching 5 workers with expensive models wastes quota. With tiered sizing, the same
+`quorum_active` pool is used but with cheaper models and fewer workers for routine tasks.
+
+**Config backward compatibility:** `model_preferences` continues to work as the
+fallback when no `model_tiers` is configured. The feature is additive.
+
+**Providers.json `quorum_timeout_ms`:** The `providers.json` already has per-slot
+`quorum_timeout_ms` values (claude-5: 10000ms, claude-6: 8000ms). For `standard` tier
+workers, shorter timeouts are appropriate. The envelope can carry
+`quorum_config.timeout_ms` to override per-round. This is a one-line change in
+`call-quorum-slot.cjs` (already reads `--timeout` flag).
 
 ### Recommended Stack — Capability D
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `JSON.parse` (stdlib) | stdlib | Parse TLC `-dumpTrace json` output | TLC natively produces ITF JSON; no library needed |
-| Regex (inline) | — | Parse TLC text trace, PRISM result lines | Simple line-based format; regex sufficient |
-| Text scan (inline) | — | Detect Alloy counterexample section | Already in `run-alloy.cjs`; extend the existing pattern |
+| `model_tiers` config key in `qgsd.json` | — | Per-tier model assignment map | Extends existing `model_preferences` pattern; no new data structure needed |
+| `qgsd-prompt.js` extension | existing | Read envelope tier, apply tier model map | 10-line addition; `effectivePrefs = { ...model_preferences, ...tierPrefs }` |
+| `providers.json` `quorum_timeout_ms` | existing | Per-slot timeout already present | Envelope carries `timeout_ms` override; `call-quorum-slot.cjs` already reads `--timeout` |
 
-**If XML parsing is ever needed (not in v0.16 scope):**
-
-| Technology | Version | Purpose | Condition |
-|------------|---------|---------|-----------|
-| `fast-xml-parser` | 5.4.1 | Parse Alloy `--type xml` output | Only if structured XML parsing becomes necessary; CJS-compatible |
-
-**TLC invocation change for plan verification:**
-
-The existing `run-tlc.cjs` uses `stdio: 'inherit'`. For the plan verification pipeline,
-use `stdio: 'pipe'` and add `-dumpTrace json <outfile>` to the TLC args. Read the JSON
-file after TLC exits. This is additive — existing `run-tlc.cjs` behavior is unchanged
-for the existing formal-verify pipeline.
-
-**What NOT to use:**
+**What NOT to add:**
 
 | Avoid | Why |
 |-------|-----|
-| `xml2js` | Unnecessary; Alloy text output is simpler to parse than XML |
-| `fast-xml-parser` (for TLC) | TLC produces JSON via -dumpTrace; XML not involved |
-| `@tlaplus/tlaplus-output-parser` | Does not exist on npm; no community Node.js parser library for TLC output |
-| Full TLC output AST library | None exists for Node.js; text/JSON parsing is the only approach |
+| Per-slot ML routing (RouteLLM pattern) | No training data; static tier map achieves the goal without an inference step |
+| Separate `model-router.cjs` script | Overkill; 10-line inline merge in qgsd-prompt.js is sufficient |
+| `model_tiers` as a YAML file | All QGSD config is JSON; no reason to introduce YAML for one config block |
+| Separate `providers-strong.json` | One providers.json with model names driven by qgsd.json tier config is simpler |
 
 ---
 
-## Capability E: Structured Plan-Spec Mapping
+## Summary: Net New npm Dependencies for v0.18
 
-### Decision: Hand-written mapping module — no library needed
+All four capabilities are implemented with Node.js stdlib and extensions to existing files.
+**Zero new npm dependencies required.**
 
-**What the feature needs:** Take the structured plan from Capability A (list of tasks with
-section/heading context) and map them to formal spec fragments (TLA+ invariants, Alloy
-predicates, PRISM properties, transition definitions). This is the core algorithmic step
-of v0.16.
-
-**Why no library:** Plan-spec mapping is domain-specific to QGSD's formal models. No
-general-purpose "plan-to-spec" library exists on npm. The mapping logic requires:
-1. Pattern matching on task text (does this task imply a new state? a new guard? an invariant?)
-2. Template expansion (fill TLA+ template with extracted state names and guard conditions)
-3. Validation that generated spec fragments are syntactically correct (checked by TLC/Alloy/PRISM
-   invocation in the iterative loop)
-
-This is custom logic — approximately 200–400 lines in a new `bin/plan-to-spec.cjs` module.
-
-**Existing tools that ARE useful for this capability:**
-
-- `comment-parser` (Capability B) — extracts `@invariant`/`@transition` annotations from
-  source code, which seed the spec fragment templates.
-- `markdown-it` + `markdown-it-task-lists` (Capability A) — provides the structured task
-  list as input to the mapping.
-- Existing `bin/generate-formal-specs.cjs` — the regex-based XState machine parser provides
-  the pattern for extracting state names and guard conditions from structured source. The
-  plan-to-spec mapper follows the same pattern but inputs PLAN.md instead of TypeScript.
-
-**Template approach:** Hard-code TLA+/Alloy/PRISM fragment templates in the mapper module.
-Use JavaScript string interpolation (`${stateName}`, `${guardCondition}`) rather than a
-template engine library. The templates are small (5–20 lines each) and don't need a full
-Handlebars/Mustache setup.
-
-**No AST manipulation library for TLA+/Alloy/PRISM:** These spec languages don't have
-npm-ecosystem AST libraries. The plan-to-spec pipeline generates spec text from templates,
-not by manipulating existing spec ASTs. The spec files are written fresh to
-`.planning/phases/<phase>/formal/` for each verification run.
-
-**Pattern recognition from task text:** Use regex patterns to classify task descriptions:
-
-```javascript
-const TRANSITION_PATTERN = /^\s*([\w_]+)\s*->\s*([\w_]+)/;        // "IDLE -> DELIBERATING"
-const INVARIANT_PATTERN  = /\bAlways\b|\binvariant\b|\bnever\b/i;  // "Always MinQuorumMet"
-const PROBABILITY_PATTERN = /\bP\s*[><=]+\s*[\d.]+/;              // "P>=0.95"
-```
-
-These are inline patterns — no library justifies the dependency cost.
-
-### Recommended Stack — Capability E
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Node.js stdlib | stdlib | File I/O for spec output | `fs.writeFileSync` to `.planning/phases/<phase>/formal/` |
-| Hand-written `bin/plan-to-spec.cjs` | — | Task-to-spec-fragment mapping | Domain-specific; no general library exists; ~300 lines |
-| Template strings (inline) | — | TLA+/Alloy/PRISM fragment templates | No template engine needed; fragments are small |
+| Package | Decision | Rationale |
+|---------|----------|-----------|
+| `zod` / `ajv` | SKIP | 5-field internal schema; inline validation is clearer and smaller |
+| Any UUID library | SKIP | `Date.now().toString(16)` sufficient for session-scoped IDs |
+| Any schema validation library | SKIP | Internal structs only; manual null-checks sufficient |
 
 ---
 
-## Summary: Net New npm Dependencies for v0.16
+## Implementation Touch Points (Existing Files)
 
-All new additions are production dependencies (used by bin/ scripts shipped with the package)
-unless noted as devDep.
+| File | Change Type | What Changes |
+|------|-------------|-------------|
+| `hooks/qgsd-token-collector.js` | NEW | SubagentStop hook; reads `agent_transcript_path`, sums usage, appends to `token-usage.jsonl` |
+| `hooks/qgsd-prompt.js` | EXTEND | Add `readEnvelopeWorkerCount()` and envelope-driven model tier selection |
+| `hooks/qgsd-stop.js` | EXTEND | Add envelope-based worker count cap to `maxSize` resolution |
+| `bin/check-provider-health.cjs` | EXTEND | Add `--tokens` display section reading `.planning/token-usage.jsonl` |
+| `hooks/config-loader.js` | EXTEND | Add `model_tiers` to config schema and merge logic |
+| `bin/qgsd.cjs` health subcommand | EXTEND | Surface token-usage.jsonl in `qgsd health` output |
+| `bin/providers.json` | EXTEND (optional) | Add per-tier model entries if strong-tier models differ from standard |
+| `~/.claude/settings.json` | EXTEND (install) | Register new `SubagentStop` hook for `qgsd-token-collector.js` |
 
-| Package | Version | Capability | Justification |
-|---------|---------|------------|---------------|
-| `markdown-it` | 14.1.1 | A (PLAN.md parsing) | CJS-compatible; actively maintained; necessary for robust task list extraction |
-| `markdown-it-task-lists` | 2.1.1 | A (task list tokens) | Required plugin for GFM task list checkbox support |
-| `comment-parser` | 1.4.5 | B (JSDoc extraction) | CJS-compatible; zero deps; only viable custom-tag parser for CJS |
+**Files that do NOT change:**
 
-**Zero new devDependencies required.** All other capabilities (C, D, E) use Node.js stdlib,
-inline patterns, or extend existing bin/ script patterns.
-
-**Installation (all new deps):**
-
-```bash
-npm install markdown-it markdown-it-task-lists comment-parser
-```
-
-**Total new prod dep weight:** ~3 packages, ~150KB installed. Acceptable given the feature scope.
+- `bin/call-quorum-slot.cjs` — already accepts `--timeout` flag; no change needed
+- `bin/update-scoreboard.cjs` — token data is separate from scoreboard; no cross-contamination
+- `agents/qgsd-quorum-orchestrator.md` — deprecated; not touched
+- `commands/qgsd/quorum.md` — inline quorum protocol; envelope is read by hook before dispatch
 
 ---
 
-## What NOT to Add (Bloat Risks)
-
-| Package | Why Not |
-|---------|---------|
-| `remark` + `remark-gfm` + `remark-parse` | ESM-only ecosystem; forces async dynamic import in CJS context; unified adds 5+ transitive deps |
-| `@mermaid-js/mermaid-cli` | Installs Puppeteer (Chromium, ~300MB); wrong tool for text generation; ESM imports |
-| `mermaid` (runtime) | Browser-focused; server-side requires DOM shim; ESM; ~2MB |
-| TypeScript Compiler API (as a new dep) | TypeScript already in devDeps; but using ts API programmatically adds compilation overhead for what is a simple annotation scan |
-| `@microsoft/tsdoc` | TSDoc standard only; does not support arbitrary custom tags |
-| `handlebars` / `mustache` | Template engine overkill for 5–20 line TLA+/Alloy/PRISM fragments |
-| `fast-xml-parser` | Not needed in v0.16 scope; only justified if Alloy XML mode is required |
-| `xml2js` | Outdated callback API; superseded by `fast-xml-parser` if XML parsing ever needed |
-| `jsdoc` CLI wrapper | Full doc generator; subprocess-based; 20+ transitive deps |
-| Any "plan-to-spec" npm package | No such ecosystem exists; would be custom code regardless |
-| `glob` / `fast-glob` | Node.js 22+ has `fs.glob()` built-in; QGSD runs Node.js 25.6.1 |
-
----
-
-## Integration with Existing Tools
-
-### How new packages connect to existing pipeline
+## Integration Architecture
 
 ```
-PLAN.md
-  └─ [markdown-it + markdown-it-task-lists] → structured task list
-       └─ [bin/plan-to-spec.cjs] → spec fragments (TLA+/Alloy/PRISM)
-            └─ [existing run-tlc.cjs / run-alloy.cjs / run-prism.cjs] → verification
-                 └─ [Capability D parsers] → counterexample objects
-                      └─ [iterative loop in plan-phase.md workflow] → plan revision
+UserPromptSubmit (qgsd-prompt.js)
+  └─ readEnvelopeWorkerCount(cwd)
+       └─ reads .planning/current-activity.json → phase name
+       └─ reads .planning/phases/<phase>/TASK_ENVELOPE.json
+            └─ worker_count → fan-out cap
+            └─ model_tier → select from config.model_tiers
+  └─ builds instructions with capped slot list + effective model prefs
+  └─ writes quorum-slot-corr-<uuid>.json per slot (agent_id correlation)
 
-Source files (JS/TS/CJS)
-  └─ [comment-parser] → @invariant/@transition/@probability tags
-       └─ [bin/plan-to-spec.cjs] → additional spec constraints (hybrid mode)
+[Quorum slot-worker Tasks execute in parallel]
 
-Spec fragments verified
-  └─ [plan-phase.md iterative loop] → verified PLAN.md
-       └─ [Mermaid template generator] → MINDMAP.md
-            └─ quorum slot-worker prompt injection
+SubagentStop (qgsd-token-collector.js)  [fires async per slot]
+  └─ reads agent_transcript_path JSONL
+  └─ sums message.usage.{input_tokens, output_tokens}
+  └─ reads quorum-slot-corr-<agent_id>.json → slot name
+  └─ appends to .planning/token-usage.jsonl
+
+Stop (qgsd-stop.js)
+  └─ readEnvelopeWorkerCount(cwd) → maxSize
+  └─ enforces ceiling on successful slot responses
+
+qgsd health --tokens
+  └─ reads .planning/token-usage.jsonl
+  └─ aggregates by slot, prints table
 ```
-
-### Existing tools that extend naturally to support new capabilities
-
-| Existing Tool | Extension for v0.16 |
-|---------------|---------------------|
-| `run-tlc.cjs` | Add `-dumpTrace json counterexample.json` flag; switch to `stdio: 'pipe'` for plan verification use case |
-| `run-alloy.cjs` | Parse text output beyond `/Counterexample/i` — extract constraint violation text |
-| `run-prism.cjs` | Parse result lines from captured stdout to extract probability value and pass/fail status |
-| `run-formal-verify.cjs` | Add new `generate:plan-spec` step before TLA+/Alloy/PRISM steps in the pipeline |
-| `generate-formal-specs.cjs` | Pattern precedent for template-based spec generation; plan-to-spec.cjs follows same approach |
-| `check-spec-sync.cjs` | AST walk pattern via esbuild inline bundle; plan-to-spec.cjs uses same esbuild-require pattern |
 
 ---
 
 ## Version Compatibility
 
-| Package | Node.js Requirement | CJS via `require()` | Notes |
-|---------|--------------------|--------------------|-------|
-| `markdown-it@14.1.1` | ≥12 (in practice) | YES — `dist/index.cjs.js` | Confirmed via npm exports map |
-| `markdown-it-task-lists@2.1.1` | ≥0.10.x | YES — `index.js` (plain CJS) | No exports map; direct CJS |
-| `comment-parser@1.4.5` | ≥12 | YES — `lib/index.cjs` | Confirmed via npm exports map; dual CJS+ESM |
-| `fast-xml-parser@5.4.1` | ≥16 | YES — `lib/fxp.cjs` | If ever needed; confirmed via exports map |
-| `@mermaid-js/mermaid-cli@11.12.0` | ≥18.19 | NO — ESM; use as CLI subprocess only | Not in v0.16 prod deps |
+| Component | Node.js Requirement | CJS via `require()` | Notes |
+|-----------|--------------------|--------------------|-------|
+| `SubagentStop` hook | Claude Code current | N/A (hook event) | `agent_transcript_path` field confirmed in official docs |
+| JSONL parsing (stdlib) | stdlib | YES | `fs.readFileSync` + JSON.parse; confirmed structure in real transcript files |
+| Envelope JSON (stdlib) | stdlib | YES | `JSON.parse`/`JSON.stringify` + `fs.renameSync`; zero deps |
+| `model_tiers` config | stdlib | YES | Additive to existing config-loader.js; no new schema dep |
 
 ---
 
-## Upgrade Paths
+## What NOT to Add (Anti-patterns for v0.18)
 
-| Package | Upgrade Trigger | Action |
-|---------|----------------|--------|
-| `markdown-it` | Breaking change in plugin hook API | Check `markdown-it-task-lists` peer dep compatibility; plugin hook surface has been stable since v8 |
-| `markdown-it-task-lists` | Plugin stops working with newer markdown-it | Replace with inline token-walking code; the plugin is simple enough to replicate |
-| `comment-parser` | Custom tag API changes | `1.4.x` has been stable since 1.0.0; semver breakage would only come at 2.0.0 |
-| TLC JSON trace format | TLC changes ITF structure | Re-test `-dumpTrace json` output after tla2tools.jar upgrade; structure has been stable since 1.7.x |
+| Avoid | Why |
+|-------|-----|
+| OpenTelemetry / metrics SDK | 20+ transitive deps; designed for microservices; QGSD is a CLI plugin |
+| Prometheus client library | Same concern; server-push metrics architecture wrong for a CLI hook |
+| `pino` / `winston` logging | `.planning/token-usage.jsonl` with `appendFileSync` is the right pattern (matches conformance-events.jsonl) |
+| PostToolUse hook for token tracking | PostToolUse fires for all tool calls (Bash, Read, etc.); matcher cannot filter to only Task calls for slot-workers specifically by agent_type |
+| SQLite for token storage | Overkill; JSONL append is the correct pattern at QGSD's scale (100s of rounds/session) |
+| `zod` for envelope validation | ESM footprint; 5-field schema does not justify the dep |
+| Real-time WebSocket dashboard | Out of scope; `/qgsd:health` CLI output is sufficient |
+| Per-command token budget enforcement | Phase 1: observability only; budget enforcement is a future v0.19+ feature |
+
+---
+
+## Key Architectural Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| SubagentStop hook for token collection | Only hook that provides `agent_transcript_path`; correct scoping with matcher `qgsd-quorum-slot-worker` |
+| `agent_transcript_path` transcript parsing | Direct per-agent JSONL contains unambiguous per-agent token data; main transcript requires `parentUuid` chain traversal |
+| Correlation file for agent_id → slot mapping | `agent_id` (e.g. `def456`) is assigned by Claude Code at Task spawn time; cannot be predicted; correlation file written before spawn by qgsd-prompt.js, read by hook after SubagentStop |
+| Async hook for token collection | Token collection is observational; should not block agent stop event; `async: true` in hook config |
+| Envelope-first, config fallback | Envelope provides plan-specific fan-out and model tier; static config provides project-wide defaults; neither breaks the other |
+| risk_tier → worker_count: 1/3/5 | Odd numbers for potential majority-vote computation; 1 for rubber-stamp tasks, 3 for standard multi-perspective review, 5 for high-stakes decisions |
+| `model_tiers` in qgsd.json (not providers.json) | providers.json describes available CLI tools; model assignment is a user preference — belongs in user config |
 
 ---
 
 ## Sources
 
-- npm registry `markdown-it` — version 14.1.1, `exports["require"]: "./dist/index.cjs.js"` confirmed. Confidence: HIGH.
-- npm registry `markdown-it-task-lists` — version 2.1.1, `main: "index.js"`, last modified 2022-06-19. Confirmed stable. Confidence: HIGH.
-- npm registry `@hedgedoc/markdown-it-task-lists` — marked deprecated on npm. Confirmed: avoid. Confidence: HIGH.
-- npm registry `comment-parser` — version 1.4.5, `exports["require"]: "./lib/index.cjs"`, published 2026-02-06. Confidence: HIGH.
-- npm registry `fast-xml-parser` — version 5.4.1, `exports["."]["require"]["default"]: "./lib/fxp.cjs"`. Confidence: HIGH.
-- npm registry `@mermaid-js/mermaid-cli` — version 11.12.0, engines `node: "^18.19 || >=20.0"`, ESM exports. Confidence: HIGH.
-- WebSearch for remark/unified ESM-only status — confirmed ESM-only since 2021 major versions; `mdast-util-from-markdown` explicitly ESM-only per npm registry. Confidence: HIGH.
-- TLA+ wiki `using:tlc:start` and Apalache ITF format docs — confirmed `-dumpTrace json` flag and ITF JSON structure. Confidence: MEDIUM (official docs found; specific 2025 schema confirmed from Apalache ADR-015 cross-reference).
-- PRISM manual `RunningPRISM/ModelChecking` — confirmed text output format for property results. Confidence: HIGH (official documentation).
-- Alloy `run-alloy.cjs` source code (existing QGSD) — confirmed text output mode with `/Counterexample/i` scan already in use. Confidence: HIGH (direct code inspection).
-- `node --version` on target machine: v25.6.1 — confirms Node.js 25 is the runtime; all CJS packages satisfy requirements. Confidence: HIGH.
+- Claude Code Hooks reference (code.claude.com/docs/en/hooks) — SubagentStop payload schema,
+  `agent_transcript_path` field, SubagentStop matcher values, `async` hook option. Confidence: HIGH.
+- Feature request github.com/anthropics/claude-code/issues/13994 — confirms per-sub-agent
+  metrics NOT in hook payload; closed as duplicate; transcript parsing is the only method.
+  Confidence: HIGH.
+- Direct transcript inspection on target machine:
+  `~/.claude/projects/-Users-jonathanborduas-code-QGSD/0120a8af.../subagents/agent-ae63d1e.jsonl`
+  — confirmed `message.usage.{input_tokens, output_tokens, cache_creation_input_tokens,
+  cache_read_input_tokens}` structure. Confidence: HIGH.
+- Main transcript inspection:
+  `~/.claude/projects/-Users-jonathanborduas-code-QGSD/0120a8af.../0120a8af....jsonl`
+  — confirmed same usage structure in main session entries. Confidence: HIGH.
+- liambx.com/blog/claude-code-log-analysis-with-duckdb — confirmed JSONL structure,
+  `isSidechain`/`isApiErrorMessage` filter fields, `message.usage` path. Confidence: MEDIUM.
+- QGSD source inspection: `hooks/qgsd-prompt.js`, `hooks/qgsd-stop.js`, `bin/call-quorum-slot.cjs`,
+  `bin/providers.json`, `bin/check-provider-health.cjs` — existing patterns confirmed. Confidence: HIGH.
+- WebSearch "tiered LLM model routing cost optimization 2025" — confirmed industry pattern for
+  cheap/fast vs strong models by task complexity. Confidence: MEDIUM.
 
 ---
 
-*Stack research for: QGSD v0.16 Formal Plan Verification — new capabilities only*
-*Researched: 2026-02-26*
+*Stack research for: QGSD v0.18 Token Efficiency — new capabilities only*
+*Researched: 2026-02-27*

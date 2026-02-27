@@ -1,223 +1,194 @@
 # Project Research Summary
 
-**Project:** QGSD v0.12 — Formal Verification
-**Domain:** Formal verification tooling (TLA+, XState, Alloy, PRISM, Petri Net, conformance log checking) integrated into an existing Node.js Claude Code plugin
-**Researched:** 2026-02-24
-**Confidence:** HIGH (stack and architecture verified against official sources; pitfalls grounded in direct source code inspection and post-mortem literature)
+**Project:** QGSD v0.18 — Token Efficiency
+**Domain:** Retrofitting token observability, risk-adaptive routing, and structured context handoffs into an existing multi-agent quorum orchestration pipeline (Node.js, Claude Code hooks)
+**Researched:** 2026-02-27
+**Confidence:** HIGH
 
 ## Executive Summary
 
-QGSD v0.12 adds a formal verification layer to a mature, stable plugin codebase. The core challenge is not building something novel — each tool (TLA+, XState, Alloy, PRISM) is well-understood in isolation — but integrating them as a cohesive layer that preserves the existing hook pipeline's fail-open, zero-dependency philosophy. The existing architecture (CJS hooks, no ESM, no build step, fail-silent I/O) imposes hard constraints on how and where each formal tool can be wired in. Violating these constraints (e.g., importing XState directly into hooks, running PRISM synchronously inside the Stop hook) will silently break production sessions.
+QGSD v0.18 introduces four token-efficiency features into a mature pipeline that already handles multi-model quorum consensus, iterative plan verification, and structured agent handoffs. The research establishes a clear, validated approach grounded entirely in the existing codebase: zero new npm dependencies are required for any of the four features. Token observability reads per-agent usage data from the `agent_transcript_path` field exposed by Claude Code's `SubagentStop` hook; adaptive fan-out extends the existing `--n N` override mechanism already understood by both `qgsd-prompt.js` and `qgsd-stop.js`; tiered model sizing enforces a pattern that is already partially correct in `quorum.md` (slot-workers already use `model="haiku"`); and the task envelope is a plain JSON sidecar file that follows the same atomic-write and config-gate patterns used by the scoreboard, conformance event log, and circuit breaker state files.
 
-The recommended approach is a strict separation of concerns: hooks emit lightweight append-only conformance events as a fire-and-forget side effect, and all formal analysis — XState replay, TLA+ model checking, Alloy counterexample search, PRISM probabilistic verification — runs offline as developer-initiated CLI commands. The only user-facing deliverable is `bin/validate-traces.cjs`, which reads the conformance log and replays it against the compiled XState machine. All JVM-based tools (TLA+, Alloy, PRISM) are optional external dependencies gated by environment variable checks; they must never be required for `npm test` to pass.
+The recommended phase ordering is determined by strict dependency chains and by the constraint that the Stop hook's quorum evidence detection must never be broken. Features 3 (adaptive fan-out) and 4 (tiered models) both read from the task envelope, so the envelope (Feature 2) must ship before them. Feature 1 (token observability) is architecturally independent but should ship first to establish a measurement baseline against which the impact of the other three features can be verified. This ordering also isolates the highest-risk integration work (the task envelope's multi-agent protocol change) to a later phase where the observability infrastructure can confirm it is working. The four features deliver a coherent risk-responsive quorum stack: the envelope captures plan risk level, adaptive fan-out converts risk level to worker count, and tiered models convert risk level to model quality — all observable through the token log.
 
-The dominant risks are: (1) TLA+ state explosion if all 10 slots are modeled as named constants without symmetry sets, (2) conformance log schema drift if hooks and the validator each define their own event field lists independently, and (3) hook stdout contamination if conformance logging accidentally touches `process.stdout` inside the Stop hook. All three risks are preventable at the start of Phase 1 through a shared schema module, a documented emit helper, and a pre-commitment benchmark of Stop hook latency.
-
----
+The dominant risk is protocol contract breakage between the dispatch layer and the Stop hook's quorum verification logic. `qgsd-stop.js` makes binary decisions (`quorum_complete` vs `quorum_block`) based on the `subagent_type="qgsd-quorum-slot-worker"` string and the worker count implied by the `--n N` token in the injected prompt. Any change that dispatches fewer workers without emitting `--n N`, or that uses a different `subagent_type`, silently blocks every plan delivery even after valid quorum completes. The second major risk is the shallow-merge trap in `config-loader.js`: any nested config object introduced for tiered models will be silently replaced by a partial project override, reverting unspecified tier sub-keys to `undefined`. Both risks are avoidable through design choices made at the schema and dispatch level before implementation begins.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Three npm packages are added (`xstate@5.28.0`, `ajv@8.18.0`, `@hpcc-js/wasm-graphviz@2.32.3+`) plus two dev dependencies (`typescript@5.x`, `tsup` latest). All are CJS-compatible via conditional exports — `require('xstate')` and `require('ajv')` work in Node.js CommonJS scripts. Three external JVM tools require manual installation: `tla2tools.jar` v1.8.0 (Java 11+), `alloy.jar` v6.2.0 (Java 17+), and PRISM v4.10 (Java 9+). A single `brew install openjdk@17` satisfies all three because Alloy sets the highest JVM floor. No native Graphviz installation is needed — `@hpcc-js/wasm-graphviz` bundles Graphviz as WASM.
+All four v0.18 capabilities are implemented using Node.js stdlib and extensions to existing files. The zero-new-dependency constraint is not a compromise — it is the correct decision for each feature. Token observability uses `SubagentStop` hook + JSONL transcript parsing (`fs.readFileSync` + `JSON.parse`): this is the only in-process trigger that receives `agent_transcript_path`, which contains per-agent usage data confirmed via direct inspection of actual subagent transcript files on this machine. The task envelope uses `JSON.parse`/`JSON.stringify` + `fs.renameSync` atomic writes, following the exact pattern used by the scoreboard. Adaptive fan-out is a 15-line extension to `qgsd-prompt.js` that reads `worker_count` from the envelope file. Tiered model sizing is a 10-line extension that merges `model_tiers` config into the existing `model_preferences` injection path.
 
 **Core technologies:**
+- `SubagentStop` hook (Claude Code, current): trigger for token collection — only hook that fires with `agent_transcript_path`; matcher `qgsd-quorum-slot-worker` scopes it to quorum workers only
+- JSONL transcript parsing (Node.js stdlib): sum `message.usage` fields from `agent_transcript_path`; structure confirmed via direct transcript inspection (`input_tokens`, `output_tokens`, `cache_creation_input_tokens`, `cache_read_input_tokens`)
+- `fs.appendFileSync` (stdlib): append token records to `.planning/token-usage.jsonl`; atomic for records under 4KB (POSIX PIPE_BUF); matches conformance-events pattern
+- `fs.renameSync` atomic write (stdlib): task envelope writes; same pattern as `update-scoreboard.cjs`
+- `readEnvelopeWorkerCount()` helper (inline, 15 lines): reads `worker_count` from `TASK_ENVELOPE.json` via `current-activity.json` phase lookup; additive to existing hook logic
+- `model_tiers` config key in `qgsd.json`: per-tier model assignment map; extends existing `model_preferences` pattern; no new data structure
 
-- `xstate@5.28.0`: Executable state machine + trace replay — CJS-compatible via dual package; TypeScript 5.x required for full type inference; `createActor` + `actor.send()` is the replay API
-- `ajv@8.18.0`: JSON Schema validation of conformance log events — fastest Node.js validator; plain JSON Schema avoids TypeScript-compilation dependency for CJS bin/ scripts
-- `@hpcc-js/wasm-graphviz@2.32.3+`: DOT-to-SVG rendering for Petri Net — zero OS-level Graphviz install; WASM bundled; CI-verified on Node 20/22/24
-- `tla2tools.jar@1.8.0`: TLA+ parsing + TLC model checking — official monolith JAR; CLI invocation only via `child_process.spawnSync('java', ['-cp', ...])`
-- `alloy.jar@6.2.0`: Alloy Analyzer + SAT solving — `exec -t json` CLI mode for counterexample output; bundles Sat4j/MiniSat/Glucose; Java 17 required
-- PRISM 4.10: Probabilistic DTMC verification — `-pf` flag for inline property; binary distribution; Java 9+
-- `typescript@5.x` + `tsup`: Compile `formal/qgsd-machine.ts` to CJS via `tsconfig.formal.json` with `"module": "commonjs"`
-
-**What NOT to use:** `xstate@4.x` (deprecated API), `zod` for log validation (TypeScript-first, awkward in CJS), native `dot` CLI (requires OS install), any npm Petri Net library (`petri-net` last published 10 years ago), TLAPS proof system (requires Isabelle/HOL, overkill for bounded model), LoLA analyzer (C++ native binary, overkill when TLC covers reachability).
+**What NOT to add:**
+- `zod` / `ajv`: ESM footprint (zod v4 is pure ESM); 5-field internal schema does not justify the dep
+- Any UUID library: `Date.now().toString(16)` is sufficient for session-scoped file naming
+- OpenTelemetry / Prometheus / `pino` / `winston`: designed for microservices; `.planning/token-usage.jsonl` with `appendFileSync` is the correct QGSD pattern
+- SQLite: overkill; JSONL append is correct at QGSD's scale (hundreds of rounds per session)
 
 ### Expected Features
 
-All 6 features are in scope for v0.12. The dependency chain determines delivery order.
+**Must have (table stakes — v0.18 milestone is not credible without all four):**
+- Tiered model sizing: enforce `model="haiku"` for researcher/checker sub-agents; only planner uses sonnet; policy already correct in `quorum.md` for slot-workers, needs extending to two additional spawn sites in `plan-phase.md` — P1 because it has zero new infrastructure and delivers the highest cost reduction (15-20x per researcher/checker invocation)
+- Adaptive quorum fan-out: `risk_level` → worker count via envelope; extends existing `max_quorum_size` mechanism; reduces token cost 3-8x on low/medium-risk quorums without weakening the consensus guarantee — P1 because it targets the dominant token waste (dispatching 8 workers for a simple quick-task)
+- Token observability: per-slot token tracking via `SubagentStop` hook; `.planning/token-usage.jsonl` writes; `/qgsd:health` token section — P1 because measurement must precede verification of the other features' impact
+- Compact context handoffs (task envelope): JSON schema passed research → plan → quorum; eliminates N full PLAN.md re-reads per quorum round (N=5 workers × 500-line PLAN.md is the single largest token expenditure per round) — P2 due to highest integration surface (4 integration points: researcher, planner, quorum.md, plan-phase.md)
 
-**Must have (table stakes — without these the milestone is not "formal verification"):**
+**Should have (differentiators — add in v0.18.x post-validation):**
+- Token budget alerts: warn when a quorum round exceeds configurable threshold (default 50K tokens); depends on observability data being established first; warn-only, consistent with R6 fail-open
+- Benched slot warm-up suppression: skip `health_check` for benched slots (over-cap slots that will not be dispatched this round); low effort, follows from confirmed benching behavior
+- Envelope diff mode: skip full PLAN.md re-read in deliberation rounds when envelope checksum matches prior round; medium effort, requires envelope to have been in use for 1-2 milestones first
 
-- Conformance event logger — JSONL append-only event emission from hooks; data source for everything else; must be the first deliverable built
-- XState TypeScript machine (`formal/qgsd-machine.ts`) — 4 states (`IDLE`, `COLLECTING_VOTES`, `DELIBERATING`, `DECIDED`), 4 typed guards; compiled to CJS; the executable spec
-- `bin/validate-traces.cjs` — the only user-facing CLI artifact; reads conformance log, replays against XState machine, reports violations with exit code 0/1/2
-- TLA+ spec with named invariants (`formal/tla/qgsd-workflow.tla`) — `TypeInvariant`, `MinQuorumMet`, `PhaseMonotonicallyAdvances` (safety), `EventualConsensus` (liveness); TLC-verified at N=3 slots
+**Defer to v0.19+:**
+- Cross-session token trend analysis: aggregate `token-usage.jsonl` over multiple sessions; requires persistence strategy beyond current disk-only pattern
+- Provider-level token cost mapping: USD cost per provider (Together/Fireworks/AkashML pricing differs); requires price table maintenance; out of scope for v0.18
 
-**Should have (differentiators — without these the milestone is incomplete but functional):**
-
-- Alloy vote-counting model (`formal/alloy/quorum-vote.als`) — structural counterexample generation; catches off-by-one errors in vote counting; independent of trace data
-- PRISM probabilistic model + generator (`bin/export-prism-constants.cjs` + `formal/prism/`) — scoreboard-derived DTMC; `P>=0.95 [F<=3 consensus]` property
-- Petri Net generator (`bin/generate-petri-net.cjs`) — DOT-format output rendered to SVG; analytical deadlock check for min_quorum_size; lowest complexity deliverable
-
-**Defer to v0.12.x / v0.13+:**
-
-- Continuous conformance CI (run `validate-traces.cjs` in CI on every push)
-- XState Stately visualizer JSON export
-- Circuit breaker TLA+ spec (requires modeling git history state — high complexity)
-- PRISM per-round degradation model (quota saturation over time)
+**Anti-features (explicitly excluded):**
+- Token quota hard blocks: violates R6 fail-open; could deadlock critical phases mid-execution; warn-only is the correct policy
+- Per-slot model override for external CLI slots (gemini-cli, codex-cli): these use provider-configured models; QGSD does not override them from within the pipeline
+- Lossy context compression: structured extraction (task envelope) is correct; automatic summarization removes details the planner needs, causing failed quorums that cost more tokens than the savings
 
 ### Architecture Approach
 
-The v0.12 architecture adds a passive event emission layer to the existing hook pipeline without altering the hooks' decision logic. Three hooks (`qgsd-prompt.js`, `qgsd-stop.js`, `qgsd-circuit-breaker.js`) gain a single fire-and-forget `appendConformanceEvent()` call each, placed after their existing decision logic. The function lives in `hooks/config-loader.js` (already required by all three hooks) and uses async `fs.appendFile` with a no-op callback. All formal verification artifacts live under a new `formal/` directory with tool-specific subdirectories (`tla/`, `alloy/`, `prism/`, `petri/`). The XState machine is the sole TypeScript file in the project, compiled separately via `tsconfig.formal.json` to CJS for consumption by `validate-traces.cjs`.
+The v0.18 architecture is purely additive to the stable v0.16/v0.17 baseline. No existing workflow steps are restructured. The four features insert at well-defined seams: the `SubagentStop` hook slot (new hook registration), the `qgsd-prompt.js` worker count resolution path (additive helper), the `quorum.md` slot selection step (pre-cap adjustment), and the `plan-phase.md` stage transition boundaries (envelope init/update calls). The task envelope follows the same sidecar artifact pattern as `current-activity.json` (v0.4) and `conformance-events.jsonl` — a per-context file that accumulates data without polluting STATE.md. Two new bin/ scripts are required (`task-envelope.cjs`, `task-envelope.test.cjs`) and one new hook file (`qgsd-token-collector.js`). All other changes are extensions to existing files.
 
 **Major components:**
+1. `hooks/qgsd-token-collector.js` (NEW) — SubagentStop hook; reads `agent_transcript_path` JSONL, sums `message.usage` fields across non-sidechain assistant entries, correlates `agent_id` to slot name via correlation file written by dispatch before spawn, appends structured record to `.planning/token-usage.jsonl`; `async: true` (non-blocking, observational)
+2. `bin/task-envelope.cjs` (NEW) — init, update, and read operations on `task-envelope.json` per phase; atomic writes via `tmpPath + renameSync`; schema validation with fail-open on missing file; `task_envelope.enabled` config gate
+3. `hooks/qgsd-prompt.js` (EXTENDED) — `readEnvelopeWorkerCount()` helper reads `worker_count` from task envelope via `current-activity.json` phase lookup; priority chain: `--n N flag > envelope worker_count > config.quorum.maxSize > pool length`; envelope-driven model tier selection (`effectivePrefs = { ...model_preferences, ...tierPrefs }`)
+4. `hooks/qgsd-stop.js` (EXTENDED) — add envelope-based worker count cap to `maxSize` resolution; same `quorumSizeOverride` path that handles `--n N`; no change to `wasSlotWorkerUsed()` contract (subagent_type string unchanged)
+5. `commands/qgsd/quorum.md` (MODIFIED) — read `envelope_path` → parse `risk_level` → compute `effective_size` (adaptive fan-out) and `effective_tier` (tiered models); log decisions in pre-flight; update envelope with quorum section after consensus
+6. `qgsd-core/workflows/plan-phase.md` (MODIFIED) — insert `task-envelope.cjs init` after researcher step; `task-envelope.cjs update --section plan` after planner step; pass `envelope_path` to quorum dispatch; enforce `model="haiku"` at researcher and checker Task spawn sites
+7. `hooks/config-loader.js` (EXTENDED) — add `model_tiers`, `task_envelope.enabled`, `quorum.minSize`, `quorum.highRiskBonus`, `quorum.adaptiveFanOut`, `quorum.tierMap`, `quorum.defaultTier` to DEFAULT_CONFIG and `validateConfig()`
 
-1. `hooks/config-loader.js` (modified) — adds `appendConformanceEvent()` helper; async, fail-silent, never touches stdout
-2. `.planning/conformance-log.ndjson` (new, gitignored) — append-only NDJSON event stream; one JSON object per line
-3. `bin/conformance-schema.cjs` (new) — single shared source of truth for `VALID_ACTIONS`, `VALID_PHASES`, `VALID_OUTCOMES`; imported by both hooks (emitters) and `validate-traces.cjs` (consumer)
-4. `formal/qgsd-machine.ts` compiled to `formal/dist/qgsd-machine.cjs` (new) — XState v5 machine with `setup()` guards; never imported by any hook file
-5. `bin/validate-traces.cjs` (new) — user-facing CLI; reads log, schema-validates with Ajv, replays via XState actor, reports violations
-6. `formal/tla/` (new) — TLA+ spec + two TLC configs (safety with symmetry, liveness without); checked offline
-7. `formal/alloy/` (new) — Alloy `.als` model; `pred`-only constraints; checked via Alloy Analyzer JAR
-8. `formal/prism/` (new) — PRISM `.pm` + `.pctl`; `bin/export-prism-constants.cjs` generates `rates.const` from scoreboard; `rates.const` gitignored
-9. `formal/petri/` (new) — DOT-format Petri Net; `bin/generate-petri-net.cjs`; SVG rendered via `@hpcc-js/wasm-graphviz`
-
-**Key patterns to follow:**
-
-- Fail-silent side-effect emission: `appendConformanceEvent` uses async `fs.appendFile` with empty callback; never throws, never blocks hook critical path
-- Compiled TypeScript in CJS project: `tsconfig.formal.json` with `"module": "commonjs"`; compiled `.cjs` output committed alongside `.ts` source
-- NDJSON for append-only log: `fs.appendFile` writes; `readFileSync + split('\n')` reads; no JSON array rewrite needed
-- Generated constants isolate spec from data: PRISM `rates.const` generated per-project from scoreboard; committed `.pm` model is data-independent template
+**Key architectural patterns:**
+- Additive optional fields in YAML blocks: `envelope_path` is optional in quorum.md slot-worker YAML; absent = fall back to static `maxSize` and default tier; zero regression risk
+- Config gate for every new feature: `task_envelope.enabled`, `quorum.adaptiveFanOut`, `quorum.tierMap` absence = disabled; consistent with `research_enabled`, `formal_verify_enabled` pattern
+- Fail-open on envelope absence: missing/malformed `task-envelope.json` causes all envelope-dependent features to fall back to static config; R6 compliance; envelope is optimization not hard requirement
+- Hook edit requires dist/ sync + install: `hooks/qgsd-token-collector.js`, `hooks/qgsd-stop.js`, `hooks/config-loader.js` edits ALL require `cp hooks/<file>.js hooks/dist/<file>.js && node bin/install.js --claude --global`
+- Flat config keys for tier config: avoid nested objects that would be silently lost on partial project override via shallow merge; `model_tier_cheap` not `model_tiers: { cheap: ... }`
 
 ### Critical Pitfalls
 
-1. **TLA+ state explosion from UNAVAIL permutations** — Modeling all 10 slots as named constants without symmetry produces 3^10 state combinations; TLC times out. Prevention: define two separate TLC model configs from the start — `qgsd_safety.cfg` (symmetry sets enabled, N=5) and `qgsd_liveness.cfg` (no symmetry, N=3). Liveness properties cannot use symmetry sets.
+1. **Token count assumed available in hook payloads — it is not** — `SubagentStop` payload contains `agent_transcript_path`, not `token_usage`. Read the transcript file to sum usage. Verify exact payload shape via `node bin/review-mcp-logs.cjs` before writing any observability code. Designing around an assumed field that returns `undefined` will silently emit no logs with no error (fail-open hooks).
 
-2. **Conformance log schema drift** — Hooks and validator independently defining event field lists leads to silent false passes when new verdict types (e.g., `GAPS_FOUND`) are added. Prevention: write `bin/conformance-schema.cjs` as the very first deliverable of Phase 1; both hooks and validator import from it; TypeScript union types enforce guard completeness at compile time.
+2. **Task envelope or new subagent_type breaks Stop hook quorum evidence detection** — `qgsd-stop.js` `wasSlotWorkerUsed()` (line 157) matches exactly `"qgsd-quorum-slot-worker"`. Any new dispatch variant using a different subagent_type silently blocks every plan delivery. The envelope MUST be delivered as fields in the YAML prompt body, never as a change to `subagent_type`. If `wasSlotWorkerUsed()` must change, it MUST be updated in the same plan phase as the dispatch change, with hook sync and install run in the same plan.
 
-3. **Hook stdout contamination** — Any `console.log()` inside a hook file while debugging conformance logging corrupts the hook decision channel (stdout is the decision protocol). Prevention: `appendConformanceEvent()` helper uses only `fs.appendFile` + `process.stderr.write()`; Stop hook tests confirm clean stdout after adding emission.
+3. **Adaptive fan-out that does not emit `--n N` blocks every reduced-fan-out turn** — The Stop hook ceiling check reads worker count from `parseQuorumSizeFlag()` which scans for the `--n N` token in prompt text. Adaptive logic that silently slices `cappedSlots` to fewer workers without emitting `--n N` causes Stop to block every reduced-fan-out turn. All fan-out sizing MUST flow through the `--n N` injection path. This also constitutes an R3.5 violation if available models are silently excluded.
 
-4. **XState ESM in CJS hooks** — `require('xstate')` in a hook file throws `ERR_REQUIRE_ESM` in production because XState v5 is ESM-primary. Prevention: XState machine lives in `formal/` and is compiled to CJS by tsup; no hook file ever imports it; hooks maintain zero npm runtime dependencies.
+4. **Tiered model config as nested object causes silent data loss via shallow merge** — `config-loader.js` uses strict shallow spread (`{ ...DEFAULT_CONFIG, ...global, ...project }`). A project `.claude/qgsd.json` that sets `quorum: { tierMap: { fast: {...} } }` (without specifying all tiers) silently replaces the entire `quorum` block, reverting unspecified tiers to `undefined`. Use flat config keys or require full block replacement with a `validateConfig()` warning that backfills missing sub-keys from defaults.
 
-5. **PRISM model with sparse scoreboard data** — Computing transition probabilities from fewer than 30 rounds per slot produces statistically meaningless verification results. Prevention: generator enforces a 30-round minimum threshold; sparse slots use conservative priors (UNAVAIL=0.3, TP=0.7); `.pm` file header annotates sample sizes and 95% Wilson confidence intervals for every transition probability.
-
----
+5. **Hook install sync omitted after hook edits — silent non-deployment** — source edits to `hooks/` are ignored at runtime; `~/.claude/hooks/` is what Claude Code loads. Every plan modifying any hook file MUST include: `cp hooks/<name>.js hooks/dist/<name>.js && node bin/install.js --claude --global`. Verify with `diff hooks/dist/<name>.js ~/.claude/hooks/<name>.js` — diff must be empty. This has burned QGSD before (Phase v0.13-06 INT-03).
 
 ## Implications for Roadmap
 
-Research identifies three phases driven by a clear dependency chain. Event emission infrastructure must precede the XState replay checker. Both must precede the static formal specs. The three JVM-based tools (TLA+, Alloy, PRISM) can be developed in parallel within Phase 3. The Petri Net is the capstone visualization artifact with no new code dependencies.
+Based on combined research, 4 table-stakes features decompose into 4 implementation phases in strict dependency order. Features 3 (adaptive fan-out) and 4 (tiered models) both require the task envelope (Feature 2) for their runtime inputs. Token observability (Feature 1) is independent but ships first to establish baseline measurement.
 
-### Phase v0.12-01: Conformance Event Infrastructure
+### Phase v0.18-01: Token Observability Foundation
 
-**Rationale:** Every downstream component depends on having a stable event schema and a working log emitter. The shared schema module (`conformance-schema.cjs`) is the foundation that prevents schema drift permanently — it must exist before any hook instrumentation is written. `CONFORMANCE_MAPPING.md` (spec action to implementation event sequence mapping) must also be the first deliverable because validator logic depends on this granularity decision. This phase has zero external tool dependencies.
+**Rationale:** Independent of all other features; establishes the measurement baseline that validates the impact of Phases 2-4. Ships first because: (a) it proves the `SubagentStop` hook + `agent_transcript_path` transcript parsing approach works before that infrastructure is relied on by health display; (b) the token log data makes the improvements from later phases visible and verifiable; (c) this phase has the lowest integration surface (new hook + extension to two existing scripts).
+**Delivers:** `hooks/qgsd-token-collector.js` (SubagentStop hook); `.planning/token-usage.jsonl` append-only log; `/qgsd:health` token usage section (reads log, aggregates by slot); correlation file protocol (`quorum-slot-corr-<agent_id>.json`) written by `qgsd-prompt.js` at dispatch, read and cleaned up by hook; `~/.claude/settings.json` SubagentStop hook registration.
+**Addresses:** Token observability table-stakes feature from FEATURES.md.
+**Stack used:** `SubagentStop` hook (Claude Code); `fs.readFileSync` + `JSON.parse` (transcript parsing); `fs.appendFileSync` (JSONL log); Node.js stdlib throughout.
+**Avoids:** Pitfall 1 (verify payload shape via `review-mcp-logs.cjs` before coding; design around `agent_transcript_path` not assumed `token_usage` field); Pitfall 5 (hook sync + install required for new hook registration).
 
-**Delivers:** `bin/conformance-schema.cjs` (shared schema with `VALID_ACTIONS`, `VALID_PHASES`, `VALID_OUTCOMES`, `schema_version`), `CONFORMANCE_MAPPING.md` (action granularity document), `appendConformanceEvent()` helper in `hooks/config-loader.js` (async, fail-silent), PHASE_START emission in `qgsd-prompt.js`, QUORUM_VERDICT emission in `qgsd-stop.js`, OSCILLATION_DETECTED emission in `qgsd-circuit-breaker.js`, `.planning/conformance-log.ndjson` gitignored, hooks synced to `hooks/dist/` + installed
+### Phase v0.18-02: Tiered Model Sizing
 
-**Addresses:** Table-stakes feature: Conformance event logger
+**Rationale:** Lowest integration surface of the remaining three features. Enforces a pattern that is already partially correct (quorum.md already uses `model="haiku"` for slot-workers); extends it to the researcher and checker spawn sites in `plan-phase.md`. No new protocols, no new files beyond config schema additions. Ships second because its changes to `plan-phase.md` and `config-loader.js` establish clean baseline state before Phase 3 modifies the same config-loader and Phase 4 modifies the same plan-phase.md.
+**Delivers:** `model="haiku"` enforced at researcher Task spawn (plan-phase.md Step 5) and checker Task spawn (plan-phase.md Step 10); `model_tiers` config key in `qgsd.json` schema; `quorum.tierMap`, `quorum.defaultTier` in `config-loader.js` DEFAULT_CONFIG and `validateConfig()`; `model_tier` field in `gsd-tools.cjs` INIT JSON output; explicit documentation of tier policy in `quorum.md` and `plan-phase.md`.
+**Addresses:** Tiered model sizing table-stakes feature from FEATURES.md.
+**Stack used:** Config extension only; no new npm packages.
+**Avoids:** Pitfall 4 (flat config keys or full-block replacement semantics with `validateConfig()` backfill warning); Pitfall 5 (config-loader.js edit requires dist/ sync + install).
 
-**Avoids:** Pitfalls 2 (schema drift — shared schema module from day one), 3 (stdout contamination — emit helper established before hook instrumentation), 6 (spec-to-implementation granularity mismatch — CONFORMANCE_MAPPING.md as first deliverable)
+### Phase v0.18-03: Task Envelope
 
-**Install sync required:** All three modified hooks must be synced to `hooks/dist/` and installed via `node bin/install.js --claude --global` after changes. Benchmark Stop hook latency on a 300-line transcript before and after adding emission to verify no timing regression.
+**Rationale:** Foundation for Phase 4 (adaptive fan-out reads `risk_level` from envelope) and Phase 4's tiered model extension (reads `model_tier` from envelope). Ships third because: (a) Phases 3 and 4 are blocked on the envelope existing; (b) this phase has the most integration surface (researcher agent, planner agent, quorum.md, plan-phase.md) and deserves its own phase for careful end-to-end testing; (c) token observability from Phase 1 can measure envelope read overhead and confirm the context reduction claim.
+**Delivers:** `bin/task-envelope.cjs` (init/update/read with atomic writes and schema validation); `bin/task-envelope.test.cjs` (unit tests: schema, idempotency, fail-open on missing file); `task_envelope.enabled` config gate in `config-loader.js`; `plan-phase.md` Step 5 and Step 8 envelope init/update calls; `quorum.md` optional `envelope_path` field reading with fail-open fallback; `qgsd-planner` and `qgsd-phase-researcher` agent instructions updated to write envelope at completion.
+**Addresses:** Compact context handoffs table-stakes feature from FEATURES.md.
+**Stack used:** `JSON.parse`/`JSON.stringify` + `fs.renameSync` (atomic writes); Node.js stdlib.
+**Avoids:** Pitfall 2 (envelope delivered as YAML body fields, never as subagent_type change; `wasSlotWorkerUsed()` unchanged); Pitfall 5 (config-loader.js + plan-phase.md edits require dist/ sync + install); anti-pattern 3 (shallow merge: project config must provide full tierMap or use validateConfig() backfill).
 
-### Phase v0.12-02: XState Machine and Trace Validator
+### Phase v0.18-04: Adaptive Fan-Out and Coupled Tier Dispatch
 
-**Rationale:** `bin/validate-traces.cjs` is the only user-facing CLI artifact of the entire milestone. It requires both the compiled XState machine and a working event log from Phase 1. This phase delivers the core user value: a runnable conformance checker. Critically, writing the XState machine here finalizes the canonical state names (`IDLE`, `COLLECTING_VOTES`, `DELIBERATING`, `DECIDED`) that TLA+ and Alloy in Phase 3 must mirror. Finalizing state names before writing specs prevents naming divergence.
-
-**Delivers:** `formal/qgsd-machine.ts` (XState v5 with `setup()` guards, 4 states, 4 typed guards including fallback `unknownVerdictError` target), `tsconfig.formal.json` (`"module": "commonjs"`), `formal/dist/qgsd-machine.cjs` (compiled output, committed), `bin/validate-traces.cjs` (Ajv 8.x schema validation + XState actor replay + human-readable output + `--json` flag + exit codes 0/1/2), updated `package.json` (`xstate`, `ajv`, `typescript`, `tsup` dependencies, `build` and `test:formal` scripts), unit tests for machine guards including `GAPS_FOUND` unrecognized verdict routing to `unknownVerdictError`
-
-**Addresses:** Table-stakes features: XState executable machine, `validate-traces.cjs` CLI
-
-**Uses stack:** `xstate@5.28.0`, `ajv@8.18.0`, `typescript@5.x`, `tsup`
-
-**Avoids:** Pitfall 4 (XState ESM in CJS hooks — machine compiled separately, never in hook runtime), Pitfall 9 (guard incompleteness — explicit `unknownVerdictError` fallback from the first state transition modeled)
-
-### Phase v0.12-03: Static Formal Specifications
-
-**Rationale:** All four static and probabilistic tools are independent of each other and of the runtime conformance log (PRISM reads only the scoreboard JSON). They can be developed in parallel within this phase. TLA+ should be written first because it is the formal ground truth and its invariant names inform the Alloy predicate and PRISM state naming. Alloy and PRISM can proceed in parallel after TLA+ state names are established. Petri Net is purely a visualization artifact and should be done last.
-
-**Delivers:**
-
-- `formal/tla/qgsd-workflow.tla` + `qgsd-workflow.cfg` (two TLC configs: `qgsd_safety.cfg` with symmetry sets N=5, `qgsd_liveness.cfg` without symmetry N=3); TLC-verified with no violations on both configs; `formal/tla/Makefile` for TLC invocation
-- `formal/alloy/quorum-vote.als` with `pred`-based vote-counting predicate and `NoSpuriousApproval` `check` assertion; explicit `run` scenarios for zero-agent and all-UNAVAIL edge cases; Alloy Analyzer confirms no counterexamples for N≤5 slots
-- `formal/prism/quorum-consensus.pm` + `quorum-consensus.pctl`; `bin/export-prism-constants.cjs` (scoreboard → `rates.const` with 30-round minimum threshold, conservative priors for sparse slots, sample size and CI width annotations in `.pm` header); `rates.const` gitignored
-- `bin/generate-petri-net.cjs` (reads `qgsd.json`, writes DOT-format Petri Net to `formal/petri/quorum-net.dot`, renders SVG via `@hpcc-js/wasm-graphviz`, analytical deadlock check for min_quorum_size)
-- `VERIFICATION_TOOLS.md` with JDK installation instructions (Java 17 satisfies all three JVM tools); all JVM invocations gated on `PRISM_BIN`/`JAVA_HOME` env var; `npm test` passes without Java installed
-
-**Addresses:** Differentiator features: Alloy vote-counting model, PRISM probabilistic model, Petri Net generator; Table-stakes feature: TLA+ specification with named invariants
-
-**Uses stack:** `tla2tools.jar@1.8.0`, `alloy.jar@6.2.0`, PRISM 4.10 (all external JVM tools), `@hpcc-js/wasm-graphviz@2.32.3+`
-
-**Avoids:** Pitfall 1 (TLA+ state explosion — two model configs with symmetry sets from the start), Pitfall 5 (PRISM sparse data — 30-round minimum threshold enforced), Pitfall 7 (Alloy fact overconstrain — `pred`-only, explicit edge case `run` scenarios), Pitfall 8 (JVM in CI — all JVM invocations are optional, gated on env var)
+**Rationale:** Depends on Phase 3 envelope (reads `risk_level`) and Phase 2 tiered model config (reads `effective_tier`). The two features are designed as a coupled pair — adaptive fan-out determines effective worker count from risk_level, tiered models determine effective slot-worker model from risk_level — and share the same quorum.md insertion point. Shipping together avoids two separate modifications to the same slot-selection code block.
+**Delivers:** `readEnvelopeWorkerCount()` helper in `qgsd-prompt.js` (reads envelope via `current-activity.json` phase lookup); priority chain `--n N > envelope worker_count > config.quorum.maxSize > pool length` implemented in both `qgsd-prompt.js` and `qgsd-stop.js`; `quorum.md` adaptive fan-out logic (risk_level → effective_size, logged in pre-flight); `quorum.md` tier dispatch logic (effective_tier → slotWorkerModel in Task dispatch); `quorum.minSize`, `quorum.highRiskBonus`, `quorum.adaptiveFanOut` config keys; R6.4 reduced-quorum log when fan-out is below maxSize.
+**Addresses:** Adaptive quorum fan-out table-stakes feature from FEATURES.md; completes tiered model sizing (now envelope-driven).
+**Stack used:** Config extension; no new npm packages.
+**Avoids:** Pitfall 3 (`--n N` injection MUST be emitted for any reduced fan-out; Stop hook reads count from prompt text only); Pitfall 5 (qgsd-prompt.js + qgsd-stop.js edits require dist/ sync + install); anti-pattern 4 (`--n N` user override takes highest precedence over adaptive logic).
 
 ### Phase Ordering Rationale
 
-- Phase 1 must come first because all downstream components consume the schema module or the event log. Writing `conformance-schema.cjs` before any hook code is the single highest-leverage decision in the milestone — it permanently prevents the most common real-world failure mode (schema drift leading to silent false passes).
-- Phase 2 comes before Phase 3 because the XState machine finalizes the canonical state names that TLA+ and Alloy must mirror. Writing specs before the machine risks naming divergence between the executable model and the formal specifications.
-- Phase 3 bundles all JVM-based tools together because they share the Java 17 installation prerequisite, are all independent of the Phase 1/2 runtime log, and can be developed in parallel within the phase.
-- The Petri Net is last within Phase 3 because it is purely a visualization artifact derived from the fully stable Phase 2-3 model — it adds no new runtime capability and requires no new code dependencies beyond `@hpcc-js/wasm-graphviz`.
+- **Phase 1 → Phases 2-4 (measurement first):** Token observability ships first so the health output can quantify the impact of each subsequent phase. Without the log baseline, improvement claims are unverified.
+- **Phase 2 before Phase 3 (config schema stability):** Tiered model sizing introduces `config-loader.js` additions (`model_tiers`, `quorum.tierMap`). Phase 3 also modifies `config-loader.js` (adds `task_envelope.enabled`). Completing Phase 2 first establishes a stable config schema before Phase 3's additions. Reduces merge surface.
+- **Phase 3 before Phase 4 (hard data dependency):** Adaptive fan-out reads `risk_level` from `task-envelope.json`. Tiered model dispatch reads `model_tier` from `task-envelope.json`. Both features are inoperable (fall back to static defaults) without the envelope being written by the researcher and planner. Phase 4 can technically be partially functional without the envelope (static defaults), but the adaptive behavior only activates with Phase 3 in place.
+- **Phases 2 and 3 are independently sequenced (no coupling between them):** They touch non-overlapping protocol surfaces. If timeline requires it, Phase 3 could swap with Phase 2 — but Phase 2 first is preferable for config schema stability.
+- **Phase 4 last (depends on both Phase 2 and Phase 3):** Cannot fully test adaptive fan-out without an envelope providing `risk_level`. Cannot fully test tier dispatch without `model_tiers` config from Phase 2.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-
-- **Phase v0.12-03 (TLA+ spec):** TLA+ is a new language for this project. The liveness property `EventualConsensus` requires a `WF_vars(Next)` fairness assumption in the `.cfg` file — whether standard weak fairness is sufficient or stronger `SF_vars` is needed for the deliberation loop has not been determined. TLC profiler output for N=5 with symmetry sets on the QGSD model is not yet benchmarked. Recommend `/qgsd:research-phase` before writing the TLA+ spec.
-- **Phase v0.12-03 (PRISM model):** The mapping from scoreboard `tp`/`tn`/`unavail` categories to DTMC transition probability parameters is designed from first principles — no direct prior art was found for this specific application. The exact syntax for PRISM 4.10's `-const` flag for injecting a constants file (vs inline `-const key=val`) should be verified. Recommend `/qgsd:research-phase` before writing the PRISM model.
+- **Phase v0.18-01 (Token Observability):** MEDIUM research need. The correlation file protocol (mapping `agent_id` assigned at Task spawn time to the slot name known before spawn) is new infrastructure. The timing of `agent_id` assignment by Claude Code is not documented — verify via MCP logs whether `agent_id` is predictable before spawn or only assignable after. If not predictable pre-spawn, the correlation file must be written after spawn using a different keying strategy. Address during Phase v0.18-01 planning before implementing the hook.
+- **Phase v0.18-04 (Adaptive Fan-Out):** MEDIUM research need. The `--n N` injection mechanism must be verified to reach `qgsd-stop.js`'s `parseQuorumSizeFlag()` correctly when the number comes from the envelope (not user input). Verify via a test quorum turn with an envelope-driven reduced fan-out that `conformance-events.jsonl` shows `quorum_complete` not `quorum_block`. The R3.5 compliance notification format (R6.4 reduced-quorum log) must be explicitly designed and tested.
 
 Phases with standard patterns (skip research-phase):
-
-- **Phase v0.12-01 (Conformance event logger):** Established pattern. `fs.appendFile` in a try/catch, NDJSON line format, shared constants module — all standard Node.js. No new API surface. Architecture.md provides exact insertion points in each hook file.
-- **Phase v0.12-02 (XState + validate-traces):** XState v5 `createActor` + `actor.send()` replay is well-documented with official examples. Ajv 8.x JSON Schema validation is standard. tsup CJS compilation is zero-config. No research needed.
-- **Phase v0.12-03 (Alloy model):** Alloy predicate and assertion syntax is confirmed HIGH confidence via haslab formal-software-design docs. The `run` vs `check` command semantics, `pred`-vs-`fact` distinction, and bounded model checking are all well-documented.
-- **Phase v0.12-03 (Petri Net):** DOT format generation is trivial. `@hpcc-js/wasm-graphviz` async API is confirmed and CI-verified. No research needed.
-
----
+- **Phase v0.18-02 (Tiered Model Sizing):** LOW research need. Extends existing `model="haiku"` pattern already in `quorum.md`. Config key additions follow the exact same schema as `research_enabled`/`formal_verify_enabled`. The only decision is flat vs nested config structure — research has already resolved this (flat keys required given shallow merge semantics). No new API surface.
+- **Phase v0.18-03 (Task Envelope):** LOW-MEDIUM research need. The envelope schema is first-principles design, but the integration points are fully mapped (4 points with exact file/line context from architecture research). The `bin/task-envelope.cjs` init/update/read pattern follows the scoreboard pattern precisely. The main uncertainty is the exact YAML block syntax for the optional `envelope_path` field — verify against the existing `artifact_path` optional field pattern in `qgsd-quorum-slot-worker.md` during planning.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All tool versions verified against official sources (GitHub releases, npm registry, official download pages); JVM requirements cross-checked; XState and Ajv CJS compatibility confirmed via multiple sources; WASM Graphviz CI matrix confirmed |
-| Features | HIGH (P1) / MEDIUM (P2) | XState v5 guard patterns HIGH confidence (official docs); TLA+ invariant categories HIGH confidence (academic consensus); PRISM DTMC syntax MEDIUM (official docs verified, no direct QGSD analog); Alloy predicate patterns MEDIUM (vote-counting logic designed from first principles, no direct prior art found) |
-| Architecture | HIGH | All 7 integration points derived from direct inspection of live source files; anti-patterns grounded in confirmed hook pipeline behavior; data flow diagram validated against actual hook execution sequence |
-| Pitfalls | HIGH | 7 of 10 pitfalls grounded in official documentation or direct source inspection at specific line numbers; MongoDB conformance checking post-mortem is primary source for spec-to-implementation granularity pitfall; XState silent guard drop confirmed via official docs behavior description |
+| Stack | HIGH | Zero new npm deps confirmed with rationale for each rejected library; `SubagentStop` `agent_transcript_path` field confirmed via official docs AND direct transcript inspection on this machine; all implementation patterns trace to existing working code in the codebase |
+| Features | HIGH for table stakes; MEDIUM for differentiators | Table stakes confirmed via PRIMARY SOURCE reads of `quorum.md`, `plan-phase.md`, `qgsd-prompt.js`, `qgsd-stop.js`; differentiators (budget alerts, envelope diff mode) are additive and well-bounded; feature dependencies fully mapped |
+| Architecture | HIGH | All integration seams identified via live source inspection; build order dependency graph derived from actual file dependencies; component boundary table covers all 7 modified/new files with change type and sync requirements; UNCHANGED files documented with rationale |
+| Pitfalls | HIGH | All 5 critical pitfalls grounded in live source inspection of the exact code paths at risk (`wasSlotWorkerUsed()` line 157, `parseQuorumSizeFlag()` line 364 in `qgsd-stop.js`; shallow merge line 259 in `config-loader.js`; `merge-wave` subcommand in `update-scoreboard.cjs`; CLAUDE.md R3.5/R6.4 requirements); recovery strategies provided for each |
 
-**Overall confidence:** HIGH for Phases 1-2; MEDIUM for Phase 3 TLA+ and PRISM sub-phases.
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **TLA+ fairness assumption:** The liveness property `EventualConsensus` requires a fairness assumption. Whether `WF_vars(Next)` (weak fairness) is sufficient for the deliberation loop depends on whether the `DELIBERATING → COLLECTING_VOTES` transition can be infinitely deferred. This needs validation during TLA+ spec authoring — address in `/qgsd:research-phase` for the TLA+ sub-phase.
+- **`agent_id` assignment timing:** The correlation file protocol assumes that `agent_id` is assigned after Task spawn and that `qgsd-prompt.js` writes the correlation file before the SubagentStop event fires for that agent. This timing assumption needs verification in Phase v0.18-01 planning. Fallback: use `last_assistant_message` vote line parsing (the vote output already contains `slot:` in the YAML block) as a secondary slot-name derivation method.
 
-- **PRISM `-const` flag syntax:** PRISM 4.10 supports a `-const` flag for constant override. The exact syntax for injecting a separate `rates.const` file (vs encoding constants inline in the `.pm` file) should be verified against PRISM 4.10 release notes before the Phase 3 PRISM plan is written.
+- **`--n N` emission verification for envelope-driven fan-out:** Phase v0.18-04 requires that the adaptive fan-out logic emits `--n N` into the prompt text so `qgsd-stop.js` reads it correctly. The exact injection point in `qgsd-prompt.js` where `--n N` is synthesized needs to be verified during Phase v0.18-04 planning — confirm it is the same code path that the Stop hook scans, not a different injection location.
 
-- **Scoreboard data sparsity at execution time:** If the scoreboard has fewer than 30 rounds per slot when Phase 3 executes, the PRISM model must use conservative priors throughout. The Phase 3 PRISM plan should document this as a conditional: proceed with `illustrative` status (not `verified`) and a prominent header comment if scoreboard is sparse.
+- **Envelope `risk_level` classification accuracy:** The `classifyRiskTier()` heuristic (regex scan for ROADMAP, architecture, security, breaking change keywords) may misclassify phases. Post-Phase 3, monitor token logs to confirm low-risk phases are actually receiving `routine` classification and the fan-out reduction is occurring. If misclassification is common, the regex keyword list needs tuning.
 
-- **Petri Net format choice (PNML vs DOT):** ARCHITECTURE.md recommends PNML (ISO standard XML) as the primary format, while STACK.md recommends hand-written DOT with `@hpcc-js/wasm-graphviz` as the primary format. These are compatible (DOT is the rendering format; PNML is a data interchange format) but the implementation plan must pick one as primary and document the other as optional. Recommend DOT as primary (simpler, no additional library, directly renderable by `@hpcc-js/wasm-graphviz`).
-
----
+- **`VALID_MODELS` guard in `update-scoreboard.cjs`:** If Phase v0.18-04 introduces new slot family names for tiered model groups, those names must be added to the `VALID_MODELS` array at line 44 of `update-scoreboard.cjs`. Omitting this causes silent UNAVAIL counting errors. Verify during Phase v0.18-04 planning.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-
-- `hooks/qgsd-stop.js`, `hooks/qgsd-prompt.js`, `hooks/qgsd-circuit-breaker.js`, `hooks/config-loader.js` — direct source inspection; hook pipeline mechanics, CJS constraint, fail-open philosophy, stdout decision channel confirmed
-- `bin/update-scoreboard.cjs` — `VALID_VERDICTS` (includes `GAPS_FOUND`), scoreboard schema, per-slot composite key format confirmed
-- `agents/qgsd-quorum-orchestrator.md` — 4-phase quorum workflow, verdict types (APPROVE/BLOCK/CONSENSUS/ESCALATE), Mode A/B, sequential slot calls confirmed
-- GitHub `tlaplus/tlaplus` releases — `tla2tools.jar` v1.8.0 "The Clarke release" (2025-02-24); Java 11 minimum
-- GitHub `statelyai/xstate` releases — XState 5.28.0 (2026-02-12); TypeScript 5.0+ required; dual CJS/ESM package
-- npm registry `ajv` — v8.18.0 confirmed; ~15,000 dependents; CJS-compatible
-- npm registry `@hpcc-js/wasm` — v2.32.3 (February 2026); CI-verified on Node 20/22/24
-- GitHub `AlloyTools/org.alloytools.alloy` releases — Alloy 6.2.0 (2025-01-09); Java 17 minimum; `exec -t json` CLI confirmed via Alloy discourse
-- `prismmodelchecker.org/download.php` — PRISM 4.10 (2026-01-29); Java 9+; binary for macOS ARM64/x86
-- [MongoDB Conformance Checking Post-mortem](https://www.mongodb.com/blog/post/engineering/conformance-checking-at-mongodb-testing-our-code-matches-our-tla-specs) — spec-to-implementation granularity mismatch; state snapshot fragility; multiple focused specs recommendation
-- [learntla.com optimization guide](https://learntla.com/topics/optimization.html) — symmetry set reduction (N! factor); separate safety/liveness models; constant minimization
-- [TLA+ model values and symmetry docs](https://tla.msr-inria.inria.fr/tlatoolbox/doc/model-values.html) — liveness incompatibility with symmetry sets explicitly documented
+- `/Users/jonathanborduas/code/QGSD/hooks/qgsd-stop.js` — `wasSlotWorkerUsed()` line 157; ceiling check line 486; `parseQuorumSizeFlag()` line 364; confirms exact subagent_type contract and `--n N` override path
+- `/Users/jonathanborduas/code/QGSD/hooks/qgsd-prompt.js` — `parseQuorumSizeFlag()` line 109; `cappedSlots` line 211; `externalSlotCap` logic; confirms `--n N` is the authoritative fan-out control channel
+- `/Users/jonathanborduas/code/QGSD/hooks/config-loader.js` — shallow merge line 259: `{ ...DEFAULT_CONFIG, ...(globalObj || {}), ...(projectObj || {}) }`; confirms partial override pitfall for nested config objects
+- `/Users/jonathanborduas/code/QGSD/bin/update-scoreboard.cjs` — `VALID_MODELS` line 44; `merge-wave` subcommand structure; confirms token field handling must go through merge-wave
+- `/Users/jonathanborduas/code/QGSD/commands/qgsd/quorum.md` — full inline R3 protocol; `max_quorum_size` mechanism; `preferSub` sorting; slot-worker YAML block format; benched pool pattern
+- `/Users/jonathanborduas/code/QGSD/qgsd-core/workflows/plan-phase.md` — Steps 5/8/8.5/10 researcher/planner/checker spawn points; model= field; files_to_read blocks that envelope will optimize
+- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — v0.18 target features; existing feature list; constraints (no GSD source modification, global install pattern)
+- `/Users/jonathanborduas/code/QGSD/CLAUDE.md` — R3.5 minimum quorum; R6.2-R6.4 fail-open and reduced-quorum documentation requirements
+- Claude Code Hooks reference (code.claude.com/docs/en/hooks) — SubagentStop payload schema; `agent_transcript_path` field; SubagentStop matcher values; `async` hook option
+- Direct transcript inspection on target machine: `~/.claude/projects/.../subagents/agent-ae63d1e.jsonl` — confirmed `message.usage.{input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens}` structure
+- Feature request github.com/anthropics/claude-code/issues/13994 — confirms per-sub-agent metrics NOT in hook payload; transcript parsing is the only available method
 
 ### Secondary (MEDIUM confidence)
-
-- [Stately.ai XState v5 docs — Guards](https://stately.ai/docs/guards) — `setup()` API, parameterized guards, multiple guarded transitions evaluated in order, silent drop on no-match behavior confirmed
-- [PRISM manual — Property Specification](https://www.prismmodelchecker.org/manual/PropertySpecification/SyntaxAndSemantics) — `P>=0.95 [F<=3 "consensus"]` syntax confirmed; `-pf` inline property flag confirmed
-- [haslab formal-software-design overview](https://haslab.github.io/formal-software-design/overview/index.html) — `run` vs `check` command semantics; predicate definitions; bounded model checking scope
-- [Hillel Wayne — Don't let Alloy facts make your specs a fiction](https://www.hillelwayne.com/post/alloy-facts/) — `fact` overconstrain pitfall; use `pred` for structural constraints
-- [Jack Vanlightly — TLA+ Primer](https://jack-vanlightly.com/blog/2023/10/10/a-primer-on-formal-verification-and-tla) — safety vs liveness property distinction; state space explosion mechanics
-- [PRISM manual — Installing PRISM / Common Problems](https://www.prismmodelchecker.org/manual/InstallingPRISM/CommonProblemsAndQuestions) — JDK architecture mismatch on macOS; `UnsatisfiedLinkError` from ARM64/x86 mismatch
+- Claude Code Manage Costs Documentation (code.claude.com/docs/en/costs) — `model="haiku"` for subagents is the endorsed pattern; agent teams ~7x more tokens than standard sessions
+- ACON: Optimizing Context Compression for Long-horizon LLM Agents (arXiv 2510.00615) — structured extraction over lossy summarization; confirms task envelope direction
+- IETF draft-chang-agent-token-efficient-01 — schema deduplication via JSON $ref; adaptive field inclusion; confirms structured envelope approach
+- Context Engineering for Reliable AI Agents (Azure SRE Agent, Microsoft) — context as first-class engineering concern; structured state handoff between agent stages
+- LLM Cost Optimization Guide 2025 (futureagi.com) — 30-70% cost reduction via routing; tiered model usage confirmed as primary strategy
+- Langfuse Token and Cost Tracking — per-call token attribution as table-stakes for production observability
+- liambx.com/blog/claude-code-log-analysis-with-duckdb — confirmed JSONL structure; `isSidechain`/`isApiErrorMessage` filter fields; `message.usage` path
 
 ### Tertiary (LOW confidence)
-
-- WebSearch: Petri net quorum deadlock patterns, PRISM consensus property examples, XState backend workflow examples — supporting directional evidence only; no specific implementation validated
-- [Validating Traces Against TLA+ (arXiv 2024)](https://arxiv.org/pdf/2404.16075v2) — confirms active 2024 research area; abstract-only access; confirms trace validation from distributed logs to TLA+ specs is feasible
-- [Validating Traces of Distributed Programs Against TLA+ (Springer 2024)](https://link.springer.com/chapter/10.1007/978-3-031-77382-2_8) — partial-log trace checking; conformance completeness limitations; MEDIUM for abstract-derived findings
+- requesty.ai/mindstudio.ai LLM routing guides — risk-based routing for cost efficiency; confirms quorum fan-out as a routing problem; WebSearch summaries only
 
 ---
-*Research completed: 2026-02-24*
+*Research completed: 2026-02-27*
 *Ready for roadmap: yes*

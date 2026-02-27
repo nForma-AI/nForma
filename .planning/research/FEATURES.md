@@ -1,26 +1,28 @@
-# Feature Landscape
+# Feature Research
 
-**Domain:** Formal plan verification integrated into AI multi-model quorum planning workflows (QGSD v0.16)
-**Researched:** 2026-02-26
-**Confidence:** HIGH for Mermaid mindmap syntax (official docs); HIGH for plan-to-TLA+ fragment patterns (arxiv research + existing xstate-to-tla.cjs precedent); MEDIUM for JSON intermediate representation design (academic pattern + first-principles); MEDIUM for JSDoc annotation extraction (ts-morph/TypeScript AST confirmed; custom tags are convention, not standard); LOW for ideal iteration cap (4/delta bound gives math, not a fixed number)
+**Domain:** Token efficiency features for QGSD v0.18 — multi-agent quorum orchestration system (Node.js, Claude Code hooks)
+**Researched:** 2026-02-27
+**Confidence:** HIGH for token observability patterns (Claude Code /cost documentation confirmed); HIGH for tiered model sizing (existing quorum.md already uses model="haiku" for workers); MEDIUM for adaptive fan-out behavior design (first-principles from QGSD quorum.md existing max_quorum_size mechanism); MEDIUM for task envelope schema (IETF draft confirmed direction, schema is QGSD-specific design)
 
 ---
 
 ## Context: What Is Already Built
 
-This is a SUBSEQUENT MILESTONE. QGSD v0.14 has a fully operational formal verification pipeline:
+This is a SUBSEQUENT MILESTONE. QGSD already has the following relevant infrastructure:
 
-- `bin/xstate-to-tla.cjs` — XState TypeScript machine → TLA+ spec + TLC config (esbuild + require() extraction)
-- `bin/generate-formal-specs.cjs` — XState machine → TLA+, Alloy, PRISM (regex-based extraction, regex fallback)
-- `bin/check-spec-sync.cjs` — drift detector: XState machine vs TLA+/Alloy/guards JSON (esbuild AST + regex)
-- `bin/run-formal-verify.cjs` — parallel verification runner: generate (sequential) then tla/alloy/prism/petri (concurrent via Promise.all), --watch mode
-- `bin/run-prism.cjs` — PRISM runner with `readScoreboardRates()` injecting empirical TP/unavail rates as -const flags
-- `formal/tla/QGSDQuorum.tla` — hand-authored canonical TLA+ spec (states, invariants, safety, liveness)
-- `formal/tla/guards/qgsd-workflow.json` — guard name → TLA+ expression mapping
-- `formal/alloy/*.als` (7 files), `formal/prism/*.pm` (2 files), `formal/petri/*.dot` (2 files)
-- `plan-phase.md` — orchestrates researcher → planner → plan-checker → quorum → execute
+- `commands/qgsd/quorum.md` — full inline R3 protocol with wave-barrier parallel dispatch; `max_quorum_size` config (default 3) already caps workers; `preferSub` sorting (sub-auth slots first); pre-flight provider health check
+- `bin/update-scoreboard.cjs` — atomic scoreboard writes per round; `--model`/`--slot`/`--model-id` flags; TP/TN/FP/FN result classification
+- `bin/call-quorum-slot.cjs` — bash-callable CLI dispatcher; reads `providers.json` for slot routing
+- `bin/check-provider-health.cjs` — provider-level HTTP health probe used at quorum pre-flight
+- `commands/qgsd/health.md` + `qgsd-core/workflows/health.md` — validates `.planning/` directory; surfaces `quorum-failures.json` (v0.15 deferred); gsd-tools.cjs validate health; status/errors/warnings/info output format
+- `qgsd-core/workflows/plan-phase.md` — researcher → planner → plan-checker → quorum chain; `INIT` JSON from gsd-tools with model resolution; Task spawn pattern with `model=` field
+- `hooks/qgsd-stop.js` — quorum verification gate; reads JSONL transcript; conformance event logger
+- `hooks/qgsd-prompt.js` — quorum injection hook; dynamic slot list from quorum_active
+- `qgsd.json` two-layer config (global `~/.claude/qgsd.json` + per-project `.claude/qgsd.json`; project overwrites global); `quorum.maxSize`/`max_quorum_size` already present
+- `agents/qgsd-quorum-slot-worker.md` — haiku-model sub-agent that orchestrates CLI subprocess; reads YAML block; writes vote file
+- Activity sidecar `.planning/current-activity.json` — phase/sub_activity/quorum_round tracking
 
-The 6 features below are NEW for v0.16.
+The 4 features below are NEW for v0.18.
 
 ---
 
@@ -28,387 +30,336 @@ The 6 features below are NEW for v0.16.
 
 ### Table Stakes (Users Expect These)
 
-Features that the v0.16 milestone cannot ship without. These are the minimum for the milestone title "Formal Plan Verification" to be credible.
+Features the v0.18 milestone cannot ship without. These are the minimum for "Token Efficiency" to be a credible milestone claim.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Plan-to-spec pipeline (PLAN.md → formal spec fragments) | Any workflow claiming "plan verification" must produce machine-checkable artifacts from the plan. Without spec generation, the verification loop has nothing to check — it is just a linting step. Research (arxiv 2510.03469, Self-Spec 2024) confirms the pattern: NL plan → structured IR → formal spec fragment → model check. | HIGH | PLAN.md contains tasks, preconditions, goals in markdown. The pipeline extracts state-relevant facts (new states introduced, guards modified, variables changed) and emits TLA+ action fragments and/or Alloy predicate stubs to `.planning/phases/<phase>/formal/`. Output format: a partial TLA+ module extending `QGSDQuorum` with proposed new actions. The verifier checks these fragments against the existing spec for type safety and invariant preservation. |
-| Iterative verification loop (revise until verification passes or cap reached) | An AI that generates a spec fragment and immediately presents it to quorum without checking it first defeats the purpose of formal verification. The loop is the core innovation — it turns formal verification from an audit into a correctness gate. VeriPlan (CHI 2025) and the 4/delta bound paper (arXiv 2512.02080) both validate this pattern. | HIGH | Claude generates PLAN.md, generates spec fragments, runs `run-formal-verify.cjs --only=generate && run-tlc.cjs`, reads result. If TLC fails: revise PLAN.md or spec fragment, re-run. Cap at 5 iterations (see Anti-Features for rationale). On verification pass: present plan + proof summary to quorum. The loop runs inside plan-phase.md, between planner return and quorum dispatch. |
-| Quorum formal context injection (slot-workers receive spec summary + verification result) | Quorum slot-workers currently vote on plan text alone. Formal verification results are evidence — without injecting them into the slot-worker prompt, the quorum cannot weigh mathematical proof against subjective review. This is the bridge between the verification loop and the quorum system. | MEDIUM | Two new fields in the quorum slot-worker YAML prompt block: `formal_spec_summary: |` (human-readable summary of what the spec fragment proves/disproves, max 300 tokens) and `verification_result: PASS | FAIL | TIMEOUT`. Workers receive the proof summary as part of their review context. No spec file injection — summaries only, to keep token cost bounded. |
-| Mind map generation (PLAN.md → Mermaid mindmap → MINDMAP.md) | AI agents reviewing plans benefit from hierarchical visual structure. Mermaid mindmaps give slot-workers a cognitive scaffolding that lets them identify structural gaps faster than reading flat markdown. ChatPRD workflow research confirms injecting Mermaid diagrams into agent context reduces missed dependencies. | MEDIUM | `PLAN.md` → parse tasks, dependencies, waves → emit `mindmap` Mermaid block. Output written to `.planning/phases/<phase>/MINDMAP.md`. Injected into quorum slot-worker context as a fenced code block (not rendered, but LLMs can parse Mermaid syntax accurately). Structure: root = phase name; L1 = waves; L2 = plans per wave; L3 = tasks per plan; leaf annotations for dependencies. |
+| Token observability: per-sub-agent token consumption tracking surfaced in /qgsd:health | Any system claiming "token efficiency" must be able to tell users where tokens are going. Without measurement, there is no efficiency. Claude Code's official /cost command shows session-level totals; /qgsd:health is the QGSD-specific diagnostic surface where per-agent breakdown belongs. Production observability platforms (Langfuse, Datadog LLM, Braintrust) all treat per-call/per-agent token attribution as table-stakes for 2025. | MEDIUM | Track tokens_in (input tokens), tokens_out (output tokens), and latency_ms per quorum round, per slot call. Source: Claude Code Task() return value includes usage metadata; call-quorum-slot.cjs subprocess output can include token counts from provider responses. Storage: append to `.planning/quorum-token-log.jsonl` (gitignored, one line per slot call). Health output: new "Token Usage" section in /qgsd:health showing top consumers, round totals, and session totals. Read-only — no repair actions needed. |
+| Adaptive quorum fan-out: risk-aware worker count based on task risk_level | QGSD currently dispatches max_quorum_size workers for every quorum round regardless of task complexity. Routing low-risk informational questions through 8 workers is 8x the token cost of routing through 1. Risk-based scaling is a documented production pattern: LLM routing research (requesty.ai, futureagi.com) confirms 30-70% cost reduction by matching model/worker count to task complexity. | MEDIUM | risk_level field on plan-phase quorum calls: low=1 external worker, medium=3 external workers, high=5 external workers (not 8 — cap stays for maximum protection). QGSD-specific: risk_level is derived from the planning command context (quick=low, plan-phase for simple feature=medium, plan-phase for complex architectural change=high). Override via `--risk-level <low|medium|high>` flag. Config key: `quorum.riskFanOut: { low: 1, medium: 3, high: 5 }` in qgsd.json. Existing max_quorum_size becomes the absolute ceiling; riskFanOut values are the contextual defaults. |
+| Tiered model sizing: cheap models (haiku) for quorum workers, strong model for planner only | quorum.md already dispatches slot-workers with model="haiku" — this is the correct pattern. v0.18 makes it explicit policy and extends it to the researcher and plan-checker sub-agents, which currently use the model resolved from INIT JSON (which may resolve to Sonnet). The cost differential is ~15-20x between haiku and sonnet for the same token count. Claude Code docs confirm: "For simple subagent tasks, specify model: haiku in your subagent configuration." This is table stakes because it directly addresses the cost-per-quorum-round metric without changing quorum quality. | LOW | Verify and enforce: quorum slot-workers always model="haiku" (already correct in quorum.md). Plan-checker sub-agent: model="haiku" unless checker_model config overrides. Researcher sub-agent: model="haiku" for standard phase research (no deep reasoning required — researcher reads files and summarizes). Planner sub-agent: model="sonnet" (or user-configured planner_model from INIT) — this is the only stage requiring frontier model reasoning. Document the policy explicitly in quorum.md and plan-phase.md. Add `model_tier` field to INIT JSON output from gsd-tools.cjs. |
+| Compact context handoffs (task envelope): structured JSON schema replacing full-text duplication between research→plan→quorum stages | Each stage in plan-phase currently passes context as full markdown file paths that sub-agents re-read independently, creating repeated token consumption at each stage boundary. The industry pattern (ACON arxiv 2510.00615; Azure SRE agent context engineering; IETF ADOL draft) is to replace verbose re-reads with a compact structured summary — a "task envelope" — that carries only the fields the next stage needs. In QGSD's case: researcher output → planner needs only structured research_summary (not full RESEARCH.md re-read); planner output → quorum needs only formal_plan_digest (not full PLAN.md re-read by each of N workers). | HIGH | JSON task envelope schema: `{ phase, plan_name, summary, key_decisions[], constraints[], open_questions[], risk_level, wave_count, req_ids[] }`. Generated by researcher at end of research step; consumed by planner without re-reading full RESEARCH.md. Generated by planner at end of planning step; consumed by quorum slot-workers without re-reading full PLAN.md. Storage: `.planning/phases/<phase>/<phase>-ENVELOPE.json`. Envelope is the handoff artifact; full files still exist for human reference and detailed review. Workers read envelope for context; optionally read full PLAN.md if they need detail (explicit read, not default). Reduces repeated context from ~5K tokens/stage to ~300 tokens/stage. |
 
 ---
 
-### Differentiators (What Sets v0.16 Apart)
+### Differentiators (Competitive Advantage)
 
-Features that no existing AI planning tool combines in one pipeline.
+Features that set v0.18 apart. Not required for the milestone to be credible, but add measurable value.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| QGSD self-application: code → all spec types via hybrid AST + JSDoc annotations | Existing `generate-formal-specs.cjs` uses regex extraction from a single XState machine file. V0.16 upgrades to AST-based extraction that also reads `@invariant`, `@transition`, and `@probability` JSDoc annotations embedded in QGSD's source code. This means any QGSD developer can declare a new invariant or transition in code and have it automatically appear in TLA+, Alloy, and PRISM specs without manually editing spec files. Kleppmann (2025) identifies this "spec-from-code" pattern as the key to making formal verification sustainable. | HIGH | New annotation schema: `/** @invariant TypeOK -- phase must be in {"IDLE", "COLLECTING_VOTES", ...} */`, `/** @transition StartQuorum -- precondition: phase="IDLE", effect: phase="COLLECTING_VOTES" */`, `/** @probability unavailRate -- conservative prior 0.15 */`. Extracted via esbuild + ts-morph JSDoc node visitor. Each annotation type feeds its target spec: `@invariant` → TLA+ `INVARIANT` + Alloy `assert`; `@transition` → TLA+ `Action`; `@probability` → PRISM `const`. QGSD's own source becomes the single canonical source for all four spec types. |
-| General-purpose code → spec pipeline (expose for user projects) | QGSD users who adopt the annotation scheme in their own projects get the same four-spec pipeline for free. This is the outward-facing version of the QGSD self-application feature — turns QGSD from a planning tool into a formal verification framework that other projects can adopt. | MEDIUM | `bin/extract-annotations.cjs <input-file.ts> [--spec=tla|alloy|prism|all] [--out-dir=formal/]`. Accepts any TypeScript or JavaScript file with `@invariant`/`@transition`/`@probability` annotations. Emits spec fragments to `--out-dir`. No knowledge of QGSD-specific state machine required — uses annotation content directly. Integrates with `run-formal-verify.cjs` via a new `generate:annotations` step added to STEPS[]. |
+| Token budget alerts: warn when a quorum round exceeds configurable token threshold | Once token observability is in place (table stakes), budget alerts close the loop: users learn when something is unexpectedly expensive. LLM cost monitoring platforms (Datadog, Maxim, Braintrust) all surface per-call thresholds as a standard feature. QGSD already surfaces warnings in /qgsd:health — token budget warnings fit the existing warning pattern. | LOW | Config key: `quorum.tokenBudget.warnPerRound: 50000` (tokens, default 50K). If any quorum round total exceeds threshold, append a W-class warning to the next /qgsd:health run. Warning format: "W-TOKEN-01: Round N consumed X tokens (budget Y). Slots: slot1=A, slot2=B". No blocking — warn only, consistent with fail-open R6 policy. Depends on token observability (table stakes) being in place first. |
+| Benched slot warm-up suppression: skip health_check for benched slots, reducing pre-quorum latency | quorum.md pre-flight currently probes all providers then benches overflow slots. The health_check calls for benched slots consume tokens and add latency for slots that will never be called this round. With token observability surfacing this overhead, suppressing warm-up for benched slots is a natural optimization. | LOW | After `preferSub` sort and cap to active slots, skip provider health_check for benched slots entirely. Benched slots are recorded in the "Benched (backup pool)" log line but not probed. Only dispatch health_check to active slots. Fallback: if an active slot goes UNAVAIL mid-round, pick from benched pool without pre-flight (fail-open). This requires no config change — benching decision already happens before health_check in current quorum.md flow. |
+| Envelope diff mode: only re-read full PLAN.md if envelope indicates structural changes since last quorum round | In multi-round deliberation, slot-workers already use `skip_context_reads: true` for Round 2+. The task envelope extends this to Round 1 re-reads: if the envelope `checksum` field matches the previous round's envelope checksum, workers can skip the full PLAN.md read and rely on envelope alone. Reduces per-round overhead for stable plans in deliberation. | MEDIUM | Add `checksum` field to task envelope (SHA-256 of PLAN.md content, hex). Slot-workers compare incoming envelope checksum against their locally cached checksum from Round 1. Match = skip PLAN.md re-read. Mismatch = full re-read. This requires the slot-worker agent to cache the checksum in its local state across rounds — implementable via the YAML block `prior_positions` mechanism already used for deliberation. |
 
 ---
 
-### Anti-Features (Explicitly Out of Scope for v0.16)
+### Anti-Features (Commonly Requested, Often Problematic)
 
-| Anti-Feature | Why Requested | Why Avoid | What to Do Instead |
-|--------------|---------------|-----------|-------------------|
-| Full proof generation (not just TLC model checking) | "Prove correctness, not just model-check" | TLC model checking over bounded state spaces (N=5 agents, MaxDelib=7) is complete for finite-state safety properties. Full Lean/Isabelle proofs require PhD-level expertise per spec and are 10-100x the implementation cost. The "vericoding" wave (Kleppmann 2025) hasn't produced usable tooling for this yet. | TLC with concrete small-N instantiation. Document that bounded checking covers the intended operating range (N ≤ 11 agents per providers.json). |
-| Natural language → complete TLA+ spec (one shot) | "Just have Claude write the whole spec" | LLM-generated TLA+ has high hallucination rate for temporal operators and invariant expressions. arXiv 2510.03469 uses a constrained translation with only 4 transformation rules because unconstrained generation fails. | Structured fragment generation: extract a specific, bounded subset of spec changes (new actions + their guards) from a structured PLAN.md intermediate representation, not free-form generation. The existing hand-authored `QGSDQuorum.tla` stays canonical; fragments extend it. |
-| Iteration cap above 5 | "More iterations = more likely to converge" | The 4/delta bound paper (arXiv 2512.02080) shows E[iterations] = 4/delta where delta is per-stage success probability. At delta=0.5 (generous), expected iterations = 8. Beyond 5 iterations, if verification still fails, the spec fragment is likely wrong — not the PLAN.md. The right action is to flag for human review, not continue iterating. Context cost grows linearly with each iteration. | Cap at 5. On exhaustion: surface the TLC error log + spec fragment to quorum as evidence of complexity; let quorum decide whether to approve with known limitations or block. |
-| Spec fragments injected verbatim into slot-worker prompts | "Workers should read the actual TLA+ spec" | A full TLA+ module is 80-200 lines. Injecting this into every slot-worker context window inflates token cost by ~600 tokens per worker per round. With 11 workers × 2 rounds, that's ~13,000 extra tokens per quorum cycle at current QGSD scale. | `formal_spec_summary` field: a 3-5 sentence human-readable summary of what the fragment proves, what invariants it checks, and whether TLC found violations. Workers vote on this summary. Full spec available on disk at a known path they can read if they want (inject path, not content). |
-| Per-commit verification CI | "Run formal verification on every git push" | TLC for the full 21-step pipeline takes ~2 minutes (v0.14 parallelized). Running this on every commit to a busy QGSD repo would block PR pipelines. TLC state space grows with each new spec fragment added per phase. | On-demand: `run-formal-verify.cjs` remains manually invoked. The verification loop runs inside `plan-phase.md` (before quorum) — that is the right gate, not CI. CI can run `check-spec-sync.cjs` (fast drift check, <5s) on every push. |
-| Mermaid mindmap rendered to image | "Inject PNG into quorum context" | LLMs do not benefit from PNG mindmap images — they cannot render Mermaid to image inline, and injecting a base64 PNG wastes tokens. Claude Code can parse Mermaid syntax as text. | Inject the Mermaid code block as text. All current LLMs in QGSD's quorum (Claude, DeepSeek, Qwen, Kimi, Llama) can parse Mermaid mindmap syntax and reason about hierarchical structure from the text. |
-| Icon and CSS class annotations in Mermaid mindmaps | "Add icons for visual clarity" | Mermaid mindmap icons require Font Awesome or Material Design CSS loaded by the host. GitHub markdown renders mindmaps but does not load icon fonts — icons silently disappear. Alloy/PRISM/Claude Code rendered contexts also don't have icon fonts. | Plain indentation-based Mermaid mindmaps with clear text labels. Use `(round node)` for intermediate nodes and `[square node]` for leaf tasks. No `::icon()` syntax. This matches the GitHub mindmap rendering constraint confirmed in Mermaid docs. |
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| Token quota hard blocks (stop quorum if budget exceeded) | "Prevent runaway costs" | Hard blocking on token budget creates deadlocks in the autonomous milestone loop — a critical phase could be blocked mid-execution because it hit the token threshold. This violates R6 fail-open policy. Quorum is enforcement infrastructure; blocking it defeats its purpose. | Warn-only token budget alerts (differentiator above). Log to /qgsd:health. Let the user decide to cancel, not the system. |
+| Per-slot model override for cost (e.g., use claude-haiku for claude-1 instead of claude-mcp-server's configured model) | "Force cheap models on all workers" | claude-mcp-server instances are pre-configured with specific models (DeepSeek-V3.2, MiniMax-M2.5, etc.) through providers.json and AkashML/Together/Fireworks routing. Overriding their model from within QGSD would require adding a model-swap call before each slot invocation, adding latency and coupling QGSD to provider-specific model APIs. | tiered model sizing policy applies only to the Claude-orchestrated sub-agents (researcher, checker, slot-workers). External CLI slots use whatever model their provider is configured for. |
+| Context compression/summarization between stages (lossy) | "Compress RESEARCH.md down to 500 tokens automatically" | Lossy summarization of research removes details the planner may need. Underspecified plans cause failed quorums and re-planning cycles that cost more tokens than the initial savings. The correct answer is a structured extract (task envelope), not lossy compression. | Compact task envelope (table stakes) — structured JSON with explicit fields, lossless for the key decision data (decisions, constraints, req_ids), omitting only narrative prose that sub-agents do not need to act on. |
+| Streaming token accounting (real-time counter in quorum output) | "Show me tokens consumed as each slot responds" | Claude Code Task() calls are non-streaming from the orchestrator's perspective — they return after completion. There is no hook point to display incremental token counts during a worker wave. Implementing a polling mechanism would require background Bash processes and custom IPC. | End-of-round token summary appended to the consensus output: "Round N: X total tokens (slot1=A, slot2=B, ...)" — already surfaceable from quorum-token-log.jsonl after the round barrier closes. |
+| Replacing quorum with a single high-quality model for low-risk tasks | "Skip quorum entirely on low-risk — just use one model" | Quorum is enforced by the Stop hook (qgsd-stop.js) which reads the JSONL transcript. Bypassing quorum is architecturally impossible without modifying the stop hook — which is the security guarantee QGSD provides. Adaptive fan-out (1 external worker for low-risk) already addresses the cost concern without removing the consensus gate. | Adaptive fan-out with risk_level=low dispatches 1 external worker + Claude. Consensus of 2 models still satisfies R3.5 minimum quorum. Same enforcement guarantee; lower token cost. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-PLAN.md (existing planner output)
-    └──input to──> plan-to-spec pipeline (NEW: bin/plan-to-spec.cjs)
-                        └──writes──> .planning/phases/<phase>/formal/<phase>-spec-fragment.tla
-                        └──writes──> .planning/phases/<phase>/formal/<phase>-spec-fragment.als (optional)
-                        └──input to──> iterative verification loop (NEW: inside plan-phase.md step)
-                                            └──calls──> run-formal-verify.cjs --only=generate,tla (EXISTING)
-                                            └──reads──> TLC exit code + error summary
-                                            └──revises PLAN.md or spec fragment (up to 5 iterations)
-                                            └──on PASS──> generates formal_spec_summary (short text)
-                                            └──on CAP EXHAUSTED──> surfaces TLC errors to quorum
+[Token observability: quorum-token-log.jsonl writes per slot call]
+    └──required by──> [Token budget alerts in /qgsd:health]
+    └──required by──> [/qgsd:health token usage section]
+    └──provides data for──> [Benched slot warm-up suppression metrics]
 
-PLAN.md (verified or verification-exhausted)
-    └──input to──> mind map generator (NEW: bin/plan-to-mindmap.cjs)
-                        └──writes──> .planning/phases/<phase>/MINDMAP.md
+[Adaptive quorum fan-out: risk_level → worker count]
+    └──reads from──> [quorum.riskFanOut config in qgsd.json]
+    └──modifies──> [quorum.md pre-flight slot selection: sort → cap → bench]
+    └──requires no change to──> [slot-worker dispatch protocol (YAML block unchanged)]
+    └──orthogonal to──> [Task envelope: different optimization dimension]
 
-quorum dispatch (EXISTING: plan-phase.md step 8.5)
-    └──now receives──> formal_spec_summary (NEW: verification result text)
-    └──now receives──> verification_result: PASS | FAIL | TIMEOUT (NEW: field)
-    └──now receives──> MINDMAP.md content as fenced code block (NEW: injection)
-    └──slot-worker YAML prompt gains two new fields (NEW)
+[Tiered model sizing: haiku for workers, sonnet for planner]
+    └──enforces in──> [quorum.md Task dispatch: model="haiku" (already correct)]
+    └──enforces in──> [plan-phase.md researcher Task spawn: model="haiku"]
+    └──enforces in──> [plan-phase.md checker Task spawn: model="haiku"]
+    └──adds to──> [gsd-tools.cjs INIT JSON: model_tier field]
+    └──independent of──> [Token observability, adaptive fan-out, task envelope]
 
-QGSD source code (*.ts, *.cjs in src/, hooks/, bin/)
-    └──annotated with──> @invariant / @transition / @probability JSDoc (NEW: convention)
-    └──extracted by──> bin/extract-annotations.cjs (NEW: AST + JSDoc node visitor)
-                        └──feeds──> TLA+ actions/invariants (existing formal/tla/*.tla)
-                        └──feeds──> Alloy assertions (existing formal/alloy/*.als)
-                        └──feeds──> PRISM const declarations (existing formal/prism/*.pm)
-                        └──replaces partial reliance on generate-formal-specs.cjs regex extraction
-                        └──added as STEPS[0b] in run-formal-verify.cjs (before tla/alloy/prism groups)
-
-User project source (any *.ts / *.js with annotations)
-    └──extracted by──> bin/extract-annotations.cjs --spec=all --out-dir=formal/ (general-purpose mode)
-    └──same bin/ script as QGSD self-application; project-agnostic
+[Compact context handoffs: task envelope JSON schema]
+    └──generated by──> [qgsd-phase-researcher sub-agent at step end]
+    └──consumed by──> [qgsd-planner sub-agent: reads envelope instead of full RESEARCH.md]
+    └──generated by──> [qgsd-planner sub-agent at step end]
+    └──consumed by──> [quorum slot-workers: reads envelope instead of full PLAN.md by default]
+    └──enables──> [Envelope diff mode differentiator (checksum comparison)]
+    └──requires changes to──> [plan-phase.md Steps 5/8/8.5: envelope write/read instructions]
+    └──requires changes to──> [qgsd-phase-researcher agent: envelope write at completion]
+    └──requires changes to──> [qgsd-planner agent: envelope write at completion]
+    └──requires changes to──> [quorum slot-worker YAML block: new optional envelope field]
 ```
 
 ### Dependency Notes
 
-- **plan-to-spec pipeline is the critical path.** Verification loop, formal_spec_summary, and quorum context injection all depend on it. If plan-to-spec generates no usable fragment, verification loop must handle gracefully (TIMEOUT verdict, no spec generated — proceed to quorum without formal evidence).
-- **MINDMAP.md is independent of the verification result.** It can be generated from PLAN.md before verification starts. No coupling to TLC outcome.
-- **Quorum formal context injection is additive.** The two new fields (`formal_spec_summary`, `verification_result`) are optional additions to the existing YAML block format. Existing slot-workers that don't parse them are unaffected (fail-open — R6 principle applies to new fields too).
-- **extract-annotations.cjs requires esbuild (already a devDependency) and ts-morph.** ts-morph is not currently in package.json. If ts-morph adds too much weight, use TypeScript compiler API directly (`ts.createSourceFile` + JSDoc node walker) — no external package, same result.
-- **Hand-authored TLA+ specs stay canonical.** `formal/tla/QGSDQuorum.tla` is NOT overwritten by spec fragments. Fragments are additive modules in `.planning/phases/<phase>/formal/` that the verifier checks for compatibility with the canonical spec. The `_xstate.tla` suffix convention (from v0.14 BROKEN-01 decision) applies here too.
-
----
-
-## Expected Outputs Per Feature
-
-### 1. Plan-to-Spec Pipeline
-
-**Input:** `.planning/phases/<phase>/<plan>-PLAN.md`
-
-**Extraction step:** Parse PLAN.md for:
-- "New states introduced" (e.g., `VERIFYING_PLAN`) → TLA+ `TypeOK` additions
-- "Guards modified" (e.g., `planVerified`) → TLA+ guard expressions
-- "Variables changed" (e.g., `verificationResult`) → TLA+ variable declarations
-
-**Intermediate representation format (JSON):**
-```json
-{
-  "phase": "v0.16-01",
-  "plan": "v0.16-01-01-PLAN",
-  "new_states": ["VERIFYING_PLAN"],
-  "new_guards": [
-    { "name": "planVerified", "tla_expr": "verificationResult = \"PASS\"" }
-  ],
-  "new_variables": [
-    { "name": "verificationResult", "type": "string", "initial": "\"NONE\"" }
-  ],
-  "new_actions": [
-    {
-      "name": "StartPlanVerification",
-      "precondition": "phase = \"PLANNING\"",
-      "effect": "phase' = \"VERIFYING_PLAN\" /\\ UNCHANGED verificationResult"
-    }
-  ],
-  "invariants_to_check": ["TypeOK", "PlanVerificationBounded"]
-}
-```
-
-**Output:** `.planning/phases/<phase>/formal/<phase>-spec-fragment.tla`
-
-A partial TLA+ module that adds only the new states/actions to the existing `QGSDQuorum` spec. The TLC run checks this fragment against the existing invariants.
-
-**Confidence:** MEDIUM. The JSON IR format is designed from the OnionL/REQ2LTL pattern (arxiv 2512.17334) and the existing xstate-to-tla.cjs extraction model. No direct prior art for PLAN.md-specific extraction. The specific fields are first-principles.
-
----
-
-### 2. Iterative Verification Loop
-
-**Where it runs:** Inside `plan-phase.md`, between planner return (step 8) and quorum dispatch (step 8.5). New step 8.3: "Formal Verification Loop".
-
-**Algorithm:**
-```
-iteration = 0
-max_iterations = 5
-while iteration < max_iterations:
-    1. Run plan-to-spec pipeline → spec fragment
-    2. Run: node bin/run-formal-verify.cjs --only=generate,tla (focused: no alloy/prism)
-    3. If exit 0 (PASS):
-         - Generate formal_spec_summary from TLC output
-         - verification_result = "PASS"
-         - Break
-    4. If exit 1 (FAIL):
-         - Parse TLC error: which invariant violated, which action caused it
-         - Revise PLAN.md (remove/modify the offending action) OR
-           revise spec fragment guard expression
-         - iteration++
-5. If iteration == max_iterations:
-     - verification_result = "FAIL"
-     - formal_spec_summary = "Verification exhausted after 5 iterations: [TLC error summary]"
-```
-
-**Cap rationale:** The 4/delta bound paper (arXiv 2512.02080) derives E[iterations] = 4/delta. For a plan-to-spec pipeline where the generation step succeeds ~50% of the time (conservative for structured extraction), expected iterations = 8. A cap of 5 covers the practical zone and aligns with the existing plan-checker revision loop (also capped at 3). Beyond 5 iterations, the TLC error is likely a genuine semantic incompatibility (not a syntax fix), warranting human review via quorum.
-
-**Confidence:** MEDIUM. The 5-iteration cap is derived from the 4/delta bound (academic, verified) combined with context-budget considerations and analogy to the existing 3-iteration plan-checker loop. No direct prior art for this specific plan verification loop cap.
-
----
-
-### 3. Mind Map Generation
-
-**Input:** All `*-PLAN.md` files in the phase directory.
-
-**Output:** `.planning/phases/<phase>/MINDMAP.md`
-
-**Mermaid mindmap structure:**
-```
-mindmap
-  root((Phase v0.16-01))
-    Wave 1
-      Plan 01: plan-to-spec pipeline
-        Extract states from PLAN.md
-        Generate spec fragment TLA+
-        Write to formal/ dir
-      Plan 02: verification loop
-        Run TLC on fragment
-        Revise on failure
-    Wave 2
-      Plan 03: quorum context injection
-        formal_spec_summary field
-        verification_result field
-```
-
-**Node shape choices:**
-- Root: `((double circle))` — phase identifier
-- Wave groups: plain text (default shape) — grouping label
-- Plans: `[square bracket]` — plan unit
-- Tasks: plain text — leaf items
-- Dependencies: annotated with `depends: Plan XX` text on leaf node
-
-**GitHub rendering constraint:** Use only plain indentation + brackets/parens/double-parens. No `::icon()` syntax (requires icon fonts not available on GitHub). No CSS class annotations. This constraint is confirmed in Mermaid docs and community reports.
-
-**Injection into quorum:** Quorum slot-worker YAML prompt gains:
-```yaml
-mindmap: |
-  ```mermaid
-  mindmap
-    ...
-  ```
-```
-
-Token budget estimate: 50-150 tokens per mindmap (10-30 nodes × 5 tokens/node average). Well within slot-worker context limits.
-
-**Confidence:** HIGH for syntax constraints (Mermaid official docs confirmed). MEDIUM for usefulness as quorum context (no direct benchmark; ChatPRD workflow research supports the pattern; LLMs confirmed to parse Mermaid text accurately).
-
----
-
-### 4. Quorum Formal Context Injection
-
-**What changes:** Two new fields added to the quorum slot-worker YAML prompt block in `plan-phase.md` step 8.5.
-
-**Before (existing format):**
-```yaml
-slot: <slotName>
-round: 1
-timeout_ms: 30000
-repo_dir: <path>
-mode: A
-question: "Do these plans correctly address the phase goal?"
-artifact_path: .planning/phases/<phase>/<plan>-PLAN.md
-```
-
-**After (v0.16 addition):**
-```yaml
-slot: <slotName>
-round: 1
-timeout_ms: 30000
-repo_dir: <path>
-mode: A
-question: "Do these plans correctly address the phase goal?"
-artifact_path: .planning/phases/<phase>/<plan>-PLAN.md
-formal_spec_summary: |
-  TLC verified: StartPlanVerification action preserves TypeOK and PlanVerificationBounded invariants.
-  New state VERIFYING_PLAN is reachable from PLANNING and transitions only to PLANNING_COMPLETE.
-  No deadlock states found. Safety: verificationResult stays in {"NONE","PASS","FAIL"}.
-  Verification result: PASS (2 TLC iterations, 847 states explored).
-verification_result: PASS
-mindmap: |
-  ```mermaid
-  mindmap
-    root((Phase v0.16-01))
-      ...
-  ```
-```
-
-**Slot-worker behavior:** Workers that parse these fields include the proof summary in their reasoning. Workers that don't parse them (UNAVAIL, legacy) are unaffected — fields are advisory context, not required input. This is consistent with R6 fail-open policy.
-
-**Confidence:** HIGH. The pattern is additive to existing YAML format. YAML injection is already used for `artifact_path`. Token cost analysis above confirms budget fit.
-
----
-
-### 5. QGSD Self-Application: Code → All Spec Types
-
-**Annotation scheme:**
-
-Three new JSDoc annotation types, read by `bin/extract-annotations.cjs`:
-
-```javascript
-/**
- * @invariant TypeOK
- * phase \in {"IDLE", "COLLECTING_VOTES", "DELIBERATING", "DECIDED"}
- */
-const VALID_PHASES = ['IDLE', 'COLLECTING_VOTES', 'DELIBERATING', 'DECIDED'];
-
-/**
- * @transition StartQuorum
- * precondition: phase = "IDLE"
- * effect: phase' = "COLLECTING_VOTES", UNCHANGED <<successCount, deliberationRounds>>
- */
-function startQuorum(state) { ... }
-
-/**
- * @probability unavailRate
- * description: P(slot is UNAVAILABLE in a given round)
- * conservative_prior: 0.15
- * empirical_source: quorum-scoreboard.json aggregated mean
- */
-const DEFAULT_UNAVAIL_RATE = 0.15;
-```
-
-**Extraction algorithm:**
-1. Parse file with esbuild → temp CJS bundle (existing pattern from xstate-to-tla.cjs)
-2. Walk AST via TypeScript compiler API JSDoc node visitor (no external dep) OR ts-morph `JSDocTag` API
-3. For each `@invariant` tag: extract tag name + multi-line body → emit TLA+ INVARIANT block + Alloy assert block
-4. For each `@transition` tag: extract name + precondition/effect lines → emit TLA+ action block
-5. For each `@probability` tag: extract name + conservative_prior value → emit PRISM const declaration
-6. Write fragments to output directory (defaults to `formal/`)
-
-**Spec output mapping:**
-| Annotation | TLA+ output | Alloy output | PRISM output |
-|---|---|---|---|
-| `@invariant` | `INVARIANT <name>` + predicate body | `assert <name> {}` with equivalent predicate | N/A |
-| `@transition` | `<name> ==` action block | N/A (transitions are TLA+ concept) | N/A |
-| `@probability` | N/A | N/A | `const double <name> = <prior>` |
-
-**Dependency on existing infrastructure:** Plugs into `run-formal-verify.cjs` as a new `generate:annotations` step added between `generate:tla-from-xstate` and `generate:alloy-prism-specs` in STEPS[]. This makes annotation extraction part of the existing parallel pipeline.
-
-**Confidence:** MEDIUM. esbuild extraction pattern is proven (xstate-to-tla.cjs). TypeScript JSDoc AST walking is standard (ts.getJSDocTags, ts.getAllJSDocTags). Custom annotation names (`@invariant`, `@transition`, `@probability`) are conventions, not TypeScript compiler directives — the extraction relies on tag name matching, which is straightforward. Risk: if a codebase uses `@invariant` for a different purpose (UI animation libraries, test frameworks), false positives are possible. Mitigation: scope extraction to files with `@qgsd-spec` marker annotation.
-
----
-
-### 6. General-Purpose Code → Spec
-
-**What it is:** The same `bin/extract-annotations.cjs` script with a project-agnostic CLI interface.
-
-**CLI:**
-```bash
-node bin/extract-annotations.cjs <input-file.ts> [--spec=tla|alloy|prism|all] [--out-dir=formal/]
-node bin/extract-annotations.cjs src/**/*.ts --spec=all --out-dir=formal/
-```
-
-**What makes it general-purpose vs QGSD-specific:**
-- No hardcoded QGSD state names, no XState dependency
-- Reads annotation content verbatim into spec fragments (annotation body IS the spec content)
-- `--spec=tla` emits a `.tla` file with annotated invariants/actions extracted from the target files
-- Works on any TypeScript or JavaScript project that adopts the annotation convention
-
-**Integration with QGSD user workflow:** Documented as an optional `plan-phase` flag: `--extract-annotations <glob>`. When provided, `plan-phase.md` runs `extract-annotations.cjs` before the plan-to-spec pipeline, seeding the formal context with project-specific invariants already declared in code.
-
-**Confidence:** MEDIUM. The CLI generalization is straightforward given the QGSD self-application implementation exists. Risk: annotation format is bespoke — competing annotation approaches (Dafny contracts, Hoare annotations) are more established but require different toolchains. The QGSD annotation convention is pragmatic and zero-dependency.
+- **Token observability is the foundation for budget alerts.** Budget alerts cannot fire without token data being logged. Ship observability before alerts — they are in separate phases.
+- **Adaptive fan-out is independent of the envelope.** Fan-out changes the worker count selection step (pre-flight); the envelope changes what context workers receive. No coupling. Can be implemented in parallel phases if desired.
+- **Tiered model sizing has zero new dependencies.** It enforces an existing pattern (quorum.md already uses model="haiku") across additional spawn sites. It is the lowest-risk feature to ship first.
+- **Task envelope has the most integration surface.** It touches researcher agent, planner agent, slot-worker YAML protocol, and plan-phase.md orchestration. Ship last among table stakes, or in a phase where only one boundary (research→plan OR plan→quorum) is addressed at a time.
+- **Envelope diff mode (differentiator) requires the envelope (table stakes) to exist first.** No checksum to compare without the envelope being written in a prior step.
 
 ---
 
 ## MVP Definition
 
-### Must Ship (v0.16)
+### Launch With (v0.18 table stakes — minimum for milestone credibility)
 
-All 4 table-stakes features are required for the milestone to be credible. Differentiators are high-value but can slip to v0.16.x if time-constrained.
+The milestone title "Token Efficiency" requires at minimum: measurement (observability), worker scaling (adaptive fan-out), and cost-per-stage reduction (tiered sizing). The task envelope is the largest effort but also the highest token reduction potential.
 
-Priority order reflects dependency chain:
+- [x] **Tiered model sizing** — enforce haiku for researcher/checker, sonnet for planner only; ship first because it has zero new infrastructure
+- [x] **Adaptive quorum fan-out** — risk_level → worker count config; extends existing max_quorum_size mechanism
+- [x] **Token observability** — quorum-token-log.jsonl writes, /qgsd:health token section; necessary for measuring the other features' impact
+- [x] **Compact context handoffs (task envelope)** — JSON schema, researcher/planner write, slot-workers read; highest token savings, most integration work
 
-1. **Plan-to-spec pipeline** — critical path; everything else reads its output
-2. **Iterative verification loop** — gates PLAN.md before quorum; highest correctness value
-3. **Quorum formal context injection** — the quorum-side integration; delivers the proof to voters
-4. **Mind map generation** — independent of verification result; high DX value, low risk
-5. **QGSD self-application** — differentiator; replaces partial regex extraction with annotation-based approach
-6. **General-purpose code → spec** — differentiator; extends QGSD self-application outward
+### Add After Validation (v0.18.x differentiators)
 
-### Suggested Phase Split
+- [ ] **Token budget alerts** — depends on observability; add once baseline token data is established and the typical round cost is known
+- [ ] **Benched slot warm-up suppression** — low effort, low risk; add when adaptive fan-out confirms benching behavior is reliable
+- [ ] **Envelope diff mode** — add after envelope has been in use for 1-2 milestones and skip_context_reads pattern is proven
 
-**Phase v0.16-01 (plan-to-spec pipeline + verification loop):** `bin/plan-to-spec.cjs` (JSON IR + TLA+ fragment emitter), integration of verification loop into `plan-phase.md` step 8.3, `formal_spec_summary` generation. These three are tightly coupled — they must ship together for the loop to be testable end-to-end.
+### Future Consideration (v0.19+)
 
-**Phase v0.16-02 (quorum context injection + mind map):** New YAML fields in quorum slot-worker prompts, `bin/plan-to-mindmap.cjs`, mindmap injection into quorum context. These two are independent of verification (mindmap reads PLAN.md, not TLC output) but belong in the same phase as context-enhancement.
-
-**Phase v0.16-03 (QGSD self-application: extract-annotations.cjs):** JSDoc annotation extraction, `@invariant`/`@transition`/`@probability` schema, integration into `run-formal-verify.cjs` STEPS[]. QGSD source files annotated as a self-application demonstration.
-
-**Phase v0.16-04 (general-purpose CLI + documentation):** Project-agnostic CLI interface for `extract-annotations.cjs`, `--extract-annotations` flag in `plan-phase.md`, user-facing documentation.
+- [ ] **Cross-session token trend analysis** — aggregate quorum-token-log.jsonl over multiple sessions; requires persistence strategy; deferred to v0.19 tooling milestone
+- [ ] **Provider-level token cost mapping** — map tokens to USD cost per provider (Together/Fireworks/AkashML pricing differs); requires price table maintenance; deferred
 
 ---
 
-## Feature Complexity Summary
+## Feature Prioritization Matrix
 
-| Feature | Phase | Complexity | Primary Risk |
-|---------|-------|------------|--------------|
-| Plan-to-spec pipeline | v0.16-01 | HIGH | PLAN.md parsing is unstructured markdown — extraction rules must be robust to planner formatting variance |
-| Iterative verification loop | v0.16-01 | HIGH | TLC error output parsing is fragile; error → plan revision requires Claude to understand TLA+ error messages |
-| Quorum formal context injection | v0.16-02 | LOW | Additive YAML fields; no breaking changes to existing slot-worker protocol |
-| Mind map generation | v0.16-02 | LOW | Mermaid mindmap syntax is simple; PLAN.md structure is well-defined with wave/plan/task hierarchy |
-| QGSD self-application | v0.16-03 | MEDIUM | JSDoc extraction is straightforward; annotation schema design requires careful spec coverage |
-| General-purpose code → spec | v0.16-04 | LOW | Thin wrapper over self-application; CLI generalization adds no new algorithms |
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| Tiered model sizing | HIGH (15-20x cost reduction on researcher/checker) | LOW (enforce existing pattern at 2 spawn sites) | P1 |
+| Adaptive quorum fan-out | HIGH (3-8x reduction on low/medium-risk quorums) | MEDIUM (risk_level derivation + config schema) | P1 |
+| Token observability | HIGH (prerequisite for measuring all other features) | MEDIUM (log writes in call-quorum-slot.cjs + health display) | P1 |
+| Compact context handoffs | HIGH (5-15x reduction on per-worker context per round) | HIGH (multi-agent protocol change; 4 integration points) | P2 |
+| Token budget alerts | MEDIUM (visible warning; no cost reduction) | LOW (append warning to health output using log data) | P2 |
+| Benched slot warm-up suppression | LOW (saves 1-4 health_check calls per quorum round) | LOW (filter benched slots before health_check loop) | P3 |
+| Envelope diff mode | MEDIUM (skip full file re-read in deliberation rounds) | MEDIUM (checksum in envelope + slot-worker cache) | P3 |
+
+**Priority key:**
+- P1: Must have for launch (v0.18 table stakes)
+- P2: Should have, add in v0.18.x
+- P3: Nice to have, future consideration
+
+---
+
+## Detailed Feature Behavior
+
+### Feature 1: Token Observability
+
+**What production systems do:** Per-call token attribution is standard (Langfuse, Datadog LLM, Braintrust all track `tokens_in`, `tokens_out`, `latency_ms`, `model`, `agent_id` per call). The QGSD-specific version needs to fit the existing quorum architecture: each slot call goes through `call-quorum-slot.cjs` → CLI subprocess → response text. Token count is available in the provider's API response but is not currently extracted or logged.
+
+**Expected behavior in QGSD:**
+- After each slot call completes, `call-quorum-slot.cjs` extracts token usage from the response (if the provider returns it in a parseable format — provider-specific: Together/Fireworks return usage in JSON response body; CLI-based slots like gemini-cli/codex-cli return output text only, no token metadata — mark as "unknown" in log)
+- Append one JSON line to `.planning/quorum-token-log.jsonl`:
+  ```json
+  {"ts":"2026-02-27T10:00:00Z","round":1,"slot":"claude-1","model":"deepseek-ai/DeepSeek-V3.2","tokens_in":2847,"tokens_out":312,"latency_ms":4200,"task":"plan-ph18"}
+  ```
+- `/qgsd:health` reads the last N entries (default: last 10 quorum rounds) and appends a "Token Usage" section:
+  ```
+  ## Token Usage (last 10 rounds)
+  Total: 42,103 tokens in / 3,847 tokens out
+  Highest consumer: claude-3 (qwen-coder) — 8,201 tokens in (avg per round)
+  Last quorum: plan-ph18-01 — 14,203 tokens in / 1,842 tokens out
+  ```
+- Log file is gitignored (disk-only, same pattern as quorum-scoreboard.json)
+- No token data available for CLI-based slots (gemini-cli, codex-cli, opencode-cli, copilot-cli) — these go through subprocess text capture only; log `tokens_in: null, tokens_out: null` for these
+
+**Table stakes because:** Without measurement, "token efficiency" is an unverified claim. The log must exist before budget alerts can fire. The health display closes the feedback loop for users.
+
+**QGSD-specific complexity note:** HTTP providers (claude-mcp-server instances: claude-1..6) expose token counts in their response bodies via the Anthropic API `usage` field. CLI providers (gemini-1, codex-1, opencode-1, copilot-1) do not — their output is plain text. The implementation must handle the asymmetry: log `null` for CLI providers rather than failing or skipping the log entry.
+
+---
+
+### Feature 2: Adaptive Quorum Fan-Out
+
+**What production systems do:** Risk-based routing is the dominant cost optimization strategy (requesty.ai, futureagi.com, mindstudio.ai). Low-stakes queries → cheap/fast path; high-stakes queries → expensive/thorough path. The router uses task metadata to classify risk level before dispatching.
+
+**Expected behavior in QGSD:**
+
+The quorum.md `max_quorum_size` mechanism already caps workers. Adaptive fan-out extends this with a contextual default that varies by `risk_level`:
+
+```
+risk_level=low    → max_quorum_size override = 2  (Claude + 1 external worker)
+risk_level=medium → max_quorum_size override = 4  (Claude + 3 external workers)
+risk_level=high   → max_quorum_size override = 6  (Claude + 5 external workers)
+```
+(One extra than the riskFanOut values because Claude counts as +1 per existing convention.)
+
+`risk_level` is determined by the calling context:
+- `/qgsd:quick` tasks: `low` by default (quick decisions, exploratory questions)
+- `/qgsd:plan-phase` for a phase tagged `type: minor` in ROADMAP.md: `medium`
+- `/qgsd:plan-phase` for a phase tagged `type: major` or with >3 requirements: `high`
+- `/qgsd:new-milestone` and `/qgsd:new-project`: `high` (roadmap-level decisions)
+- `--risk-level <low|medium|high>` override flag on any quorum-triggering command
+- Config default `quorum.defaultRiskLevel: "high"` (conservative fallback if unclassified)
+
+**What changes in quorum.md:**
+1. After reading `$QUORUM_ACTIVE` and building `$CLAUDE_MCP_SERVERS`, read `risk_level` from the calling context (passed as a field in the quorum dispatch YAML block or as a command flag)
+2. Look up `riskFanOut[risk_level]` from qgsd.json (or use hardcoded defaults above if config absent)
+3. Use `riskFanOut[risk_level]` as the effective `max_quorum_size` for this round, unless the global `max_quorum_size` is lower (global cap always wins — never exceed the global ceiling)
+4. Continue with existing preferSub sort → cap → bench logic
+
+**What does NOT change:**
+- The YAML slot-worker prompt block format is unchanged
+- Deliberation rounds always use the same worker count as Round 1 (no dynamic re-sizing mid-quorum)
+- `max_quorum_size` in qgsd.json remains the absolute ceiling; riskFanOut is a contextual default below that ceiling
+- R3.5 minimum quorum (Claude + 1 external) always applies regardless of risk_level
+
+**Table stakes because:** Dispatching 5-8 workers for a simple quick-task question is the dominant token waste in QGSD. This directly addresses the cost per quorum round without changing the consensus guarantee.
+
+---
+
+### Feature 3: Tiered Model Sizing
+
+**What production systems do:** Tiered model usage is the most documented LLM cost strategy (30-70% cost reduction confirmed by LLM routing platforms). Use the cheapest model that delivers acceptable quality for each stage. Claude Code official docs explicitly endorse: "For simple subagent tasks, specify model: haiku in your subagent configuration."
+
+**Expected behavior in QGSD:**
+
+Current state (partially correct):
+- quorum slot-workers: model="haiku" — already correct in quorum.md
+- qgsd-phase-researcher: model resolved from INIT JSON (`researcher_model` key) — may be sonnet
+- qgsd-planner: model resolved from INIT JSON (`planner_model` key) — correctly sonnet
+- qgsd-plan-checker: model resolved from INIT JSON (`checker_model` key) — may be sonnet
+
+Target state after v0.18:
+- quorum slot-workers: model="haiku" — no change (already correct)
+- qgsd-phase-researcher: model="haiku" — researcher reads files and extracts facts; no frontier reasoning required
+- qgsd-planner: model="sonnet" (or user-configured planner_model) — only stage requiring frontier reasoning; no change
+- qgsd-plan-checker: model="haiku" — checker applies checklist criteria against plan text; no frontier reasoning required
+
+**What changes:**
+1. `gsd-tools.cjs init plan-phase` INIT JSON: add explicit `model_tier` field (`{ researcher: "haiku", planner: "sonnet", checker: "haiku", slot_worker: "haiku" }`) — default values, overridable by user config
+2. `plan-phase.md` Step 5 researcher spawn: change from `model="{researcher_model}"` to `model="{model_tier.researcher}"` (defaults to haiku)
+3. `plan-phase.md` Step 10 checker spawn: change from `model="{checker_model}"` to `model="{model_tier.checker}"` (defaults to haiku)
+4. Add config keys `quorum.modelTiers.researcher`, `quorum.modelTiers.checker` to qgsd.json schema for override capability
+5. Document the tier policy explicitly in quorum.md and plan-phase.md
+
+**What does NOT change:**
+- Planner model stays sonnet — this is the only stage where frontier reasoning quality directly determines plan correctness
+- External CLI slots (claude-mcp-server instances) use their own configured models; QGSD does not override them
+- The `model="haiku"` in quorum.md Task dispatch is unchanged (already correct)
+
+**Table stakes because:** Researcher and plan-checker together run on every `plan-phase` invocation before quorum even starts. If either is using sonnet unnecessarily, the cost doubles before the quorum fan-out even matters. This is the most direct token reduction with the lowest implementation risk.
+
+**Complexity note:** LOW. The only change is substituting the model= value at two Task spawn sites in plan-phase.md and updating the INIT JSON schema. No new protocols. No new files. The existing `researcher_model`/`checker_model` config keys become legacy aliases that the new `model_tier` config overrides.
+
+---
+
+### Feature 4: Compact Context Handoffs (Task Envelope)
+
+**What production systems do:** Context compression between agent stages is a recognized production challenge. The 2025 research direction (ACON arxiv 2510.00615; Azure SRE agent context engineering; IETF ADOL draft) is structured extraction rather than lossy summarization. The key insight: downstream agents don't need the narrative prose in a RESEARCH.md — they need the decisions, constraints, and requirement IDs. Replacing a full markdown file re-read with a compact structured JSON handoff reduces context from ~5K tokens to ~300 tokens per boundary crossing.
+
+**Expected behavior in QGSD:**
+
+**Task envelope schema:**
+```json
+{
+  "schema_version": 1,
+  "generated_by": "qgsd-phase-researcher | qgsd-planner",
+  "phase": "v0.18-01",
+  "timestamp": "2026-02-27T10:00:00Z",
+  "checksum": "sha256-of-source-file-hex",
+  "risk_level": "medium",
+  "summary": "Two-sentence summary of what was decided.",
+  "key_decisions": [
+    "Use quorum-token-log.jsonl for token storage (disk-only, gitignored)",
+    "Log null for CLI slots lacking token metadata"
+  ],
+  "constraints": [
+    "No changes to quorum YAML block format (additive only)",
+    "Gitignore token log — same pattern as quorum-scoreboard.json"
+  ],
+  "open_questions": [],
+  "req_ids": ["TOK-01", "TOK-02", "FAN-01"],
+  "wave_count": 3,
+  "plan_count": 4,
+  "source_path": ".planning/phases/v0.18-01/v0.18-01-RESEARCH.md"
+}
+```
+
+Two envelope variants:
+1. **Research envelope** — written by qgsd-phase-researcher at end of research step; consumed by qgsd-planner
+2. **Plan envelope** — written by qgsd-planner at end of planning step; consumed by quorum slot-workers
+
+**Integration points (all must change together for the feature to work):**
+
+1. `qgsd-phase-researcher` agent — append envelope write instructions at completion: extract key_decisions and constraints from RESEARCH.md, write `<phase>-RESEARCH-ENVELOPE.json` to phase dir
+2. `plan-phase.md` Step 8 (planner spawn) — pass `research_envelope_path` instead of `research_path` as primary context; keep `research_path` as fallback if envelope absent
+3. `qgsd-planner` agent — read envelope at start (fast, small context); read full RESEARCH.md only if `--detail` mode requested or envelope is absent; write `<phase>-PLAN-ENVELOPE.json` at completion
+4. `quorum.md` slot-worker YAML block — add optional `envelope_path` field; if present, workers read envelope before (or instead of) full PLAN.md
+5. `qgsd-quorum-slot-worker` agent — if `envelope_path` is present in YAML: read envelope, skip PLAN.md read unless worker explicitly decides it needs detail; if absent, current behavior unchanged
+
+**What does NOT change:**
+- Full RESEARCH.md and PLAN.md files still exist on disk — envelope is supplemental, not replacement
+- Quorum can still read full PLAN.md by explicit choice; envelope just removes the default "read everything" behavior
+- Existing quorum YAML block fields (artifact_path, review_context, etc.) are preserved; envelope_path is additive
+
+**Fail-open:** If envelope file is absent or malformed (JSON parse error), agents fall back to reading the full markdown file. Envelope is an optimization, not a hard requirement. This is consistent with R6 fail-open policy.
+
+**Table stakes because:** Each quorum round with N workers re-reads the same PLAN.md N times. At N=5 workers, a 500-line PLAN.md consumed 5 times per round is the single largest token expenditure in a typical quorum cycle. The envelope replaces N full re-reads with N envelope reads + at most 1-2 selective full reads by workers who need detail.
+
+**HIGH complexity note:** This feature modifies the contract between researcher, planner, and quorum slot-workers. All three agents must be updated in a coordinated way — an incomplete rollout (envelope written but not read, or read but not written) creates a silent degradation. Recommend shipping as a single coordinated phase with end-to-end testing: researcher writes envelope → planner reads envelope → quorum slot-workers read envelope → verify token count reduction via quorum-token-log.jsonl.
+
+---
+
+## Phase Split Recommendation
+
+**Phase v0.18-01: Tiered model sizing + adaptive fan-out config schema**
+Rationale: Both are configuration-level changes with low integration surface. Tiered sizing modifies 2 spawn sites; adaptive fan-out adds a config key and modifies the slot selection logic in quorum.md. No new files, no new protocols. Ship these together as the fast wins — they deliver measurable token reduction with low regression risk.
+Complexity: LOW-MEDIUM total. Estimated 2-3 plans.
+
+**Phase v0.18-02: Token observability (quorum-token-log.jsonl + /qgsd:health display)**
+Rationale: Depends on nothing from Phase 1. Requires changes to call-quorum-slot.cjs (token extraction from provider responses), quorum-token-log.jsonl write logic, and health.md display. Ship after Phase 1 so the health output can show the impact of Phase 1's changes.
+Complexity: MEDIUM. Estimated 2-3 plans.
+
+**Phase v0.18-03: Compact context handoffs (task envelope)**
+Rationale: Highest integration surface, depends on Phases 1-2 for measurement of impact. Ship last so the full token reduction can be verified end-to-end using the observability from Phase 2.
+Complexity: HIGH. Estimated 4-5 plans.
+
+**Differentiators (v0.18.x post-validation):**
+- Token budget alerts (LOW effort — depends on Phase 2 data)
+- Benched slot warm-up suppression (LOW effort — modifies quorum.md pre-flight)
+- Envelope diff mode (MEDIUM effort — depends on Phase 3 envelope being in place)
+
+---
+
+## Competitor Feature Analysis
+
+| Feature | LangChain/LangSmith | LiteLLM | QGSD v0.18 Approach |
+|---------|---------------------|---------|---------------------|
+| Per-agent token tracking | Full trace-level breakdown with cost attribution | Per-key and per-user tracking with daily breakdowns | quorum-token-log.jsonl: slot-level attribution, surfaced in /qgsd:health; CLI slots log null (no token metadata from subprocess) |
+| Risk-based routing | Query complexity classifier → model router | Confidence threshold escalation | risk_level field derived from command context (quick vs plan-phase vs new-milestone); config-driven fan-out table |
+| Tiered model sizing | Explicit "use gpt-4o-mini for classification, gpt-4o for generation" | Model routing with complexity thresholds | haiku for researcher/checker/slot-workers; sonnet for planner only; existing quorum.md already correct |
+| Context compression | ACON gradient-free compression; session summarization | Prompt caching, semantic caching | Structured task envelope JSON (lossless for decisions/constraints, drops narrative prose) |
 
 ---
 
 ## Sources
 
-- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — PRIMARY SOURCE. v0.16 milestone goals, 6 target features confirmed.
-- `/Users/jonathanborduas/code/QGSD/bin/xstate-to-tla.cjs` — PRIMARY SOURCE. esbuild+require() extraction pattern for TLA+ generation; JSDoc config annotation schema; action name derivation algorithm.
-- `/Users/jonathanborduas/code/QGSD/bin/generate-formal-specs.cjs` — PRIMARY SOURCE. Existing regex-based spec generation for TLA+/Alloy/PRISM; shows what annotation extraction must replace.
-- `/Users/jonathanborduas/code/QGSD/bin/check-spec-sync.cjs` — PRIMARY SOURCE. AST-based drift detection pattern; esbuild + TypeScript require() for machine extraction.
-- `/Users/jonathanborduas/code/QGSD/bin/run-formal-verify.cjs` — PRIMARY SOURCE. STEPS[] structure, parallel group runner, --only= filter; verification loop must integrate here.
-- `/Users/jonathanborduas/code/QGSD/qgsd-core/workflows/plan-phase.md` — PRIMARY SOURCE. Step 8.5 quorum dispatch YAML format; step structure that verification loop must fit into.
-- [arXiv 2510.03469 — Bridging LLM Planning Agents and Formal Methods](https://arxiv.org/html/2510.03469v1) — MEDIUM confidence. Kripke structure + LTL intermediate representation approach for LLM-generated plans. Four-step translation (variables, initial conditions, actions as transitions, sequencing) informs JSON IR design. One-shot approach confirmed inadequate for complex plans.
-- [arXiv 2512.02080 — The 4/delta Bound: Designing Predictable LLM-Verifier Systems](https://arxiv.org/abs/2512.02080) — MEDIUM confidence. Mathematical framework for iteration convergence in LLM-verifier loops. E[n] = 4/delta bound informs 5-iteration cap choice. Three operating zones (marginal/practical/high-performance) map to low/medium/high plan complexity.
-- [VeriPlan: Integrating Formal Verification and LLMs into End-User Planning (CHI 2025)](https://dl.acm.org/doi/10.1145/3706598.3714113) — MEDIUM confidence (abstract only, no full text access). Confirms iterative plan verification loop is a recognized CHI 2025 pattern. LLM + formal verification loop for end-user planning validated as usable paradigm.
-- [Kleppmann blog — AI will make formal verification go mainstream (2025-12-08)](https://martin.kleppmann.com/2025/12/08/ai-formal-verification.html) — MEDIUM confidence. Core argument: AI + proof checker is the right pattern (hallucinated proofs are rejected by checker, so hallucination risk is contained). Spec-from-code pattern identified as key to sustainable formal verification.
-- [Self-Spec: Model-Authored Specifications (OpenReview 2024)](https://openreview.net/pdf?id=6pr7BUGkLp) — LOW confidence (WebSearch only). Supports model-invented IRs for specification; confirms JSON as valid intermediate representation format.
-- [arXiv 2512.17334 — Bridging Natural Language and Formal Specification](https://arxiv.org/pdf/2512.17334) — LOW confidence (WebSearch only, not fetched). OnionL/REQ2LTL JSON-based intermediate representation for NL → LTL formulas. JSON IR design pattern confirmed.
-- [Mermaid mindmap official docs](https://mermaid.ai/open-source/syntax/mindmap.html) — HIGH confidence. Node shape syntax, icon constraint (requires site admin CSS), class annotation syntax confirmed. No explicit node count limit documented.
-- [ChatPRD workflow: Mermaid diagram context for AI code awareness](https://www.chatprd.ai/how-i-ai/workflows/improve-ai-code-awareness-with-mermaid-diagram-context) — LOW confidence (WebSearch summary only). Injecting Mermaid diagrams into AI agent context improves structural reasoning confirmed.
-- [TypeScript JSDoc docs](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) — HIGH confidence. JSDoc tags are part of TypeScript AST. Custom tag names are supported via `ts.getAllJSDocTags()`. No TypeScript version restriction on custom tag names.
-- [On the Effectiveness of LLMs in Writing Alloy Formulas (arXiv 2502.15441)](https://arxiv.org/pdf/2502.15441) — MEDIUM confidence. LLMs can write Alloy from NL but require constrained output format. Annotation-based extraction sidesteps LLM generation entirely — deterministic extraction from code.
+- `/Users/jonathanborduas/code/QGSD/commands/qgsd/quorum.md` — PRIMARY SOURCE. Full inline quorum protocol; `max_quorum_size` mechanism; `preferSub` sorting; slot-worker YAML block format; pre-flight logic; benched pool pattern. Adaptive fan-out extends these.
+- `/Users/jonathanborduas/code/QGSD/qgsd-core/workflows/plan-phase.md` — PRIMARY SOURCE. Steps 5/8/8.5/10 researcher/planner/checker spawn points; model= field; files_to_read blocks that envelope will optimize.
+- `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — PRIMARY SOURCE. v0.18 target features; existing feature list; constraints (no GSD source modification, global install pattern).
+- `/Users/jonathanborduas/code/QGSD/bin/call-quorum-slot.cjs` — PRIMARY SOURCE. HTTP provider dispatch path; token extraction will go here; failure log pattern.
+- `/Users/jonathanborduas/code/QGSD/qgsd-core/workflows/health.md` — PRIMARY SOURCE. Warning/error/info code format (W-xxx, E-xxx, I-xxx); token usage section must follow existing output format.
+- [Claude Code Manage Costs Documentation](https://code.claude.com/docs/en/costs) — HIGH confidence. Official docs confirm: model="haiku" for subagents is the endorsed pattern; Task() spawns have per-model token cost; /cost shows session totals; agent teams ~7x more tokens than standard sessions.
+- [Langfuse Token and Cost Tracking](https://langfuse.com/docs/observability/features/token-and-cost-tracking) — MEDIUM confidence. Per-call token attribution in production observability; trace-level cost breakdown. Confirms table-stakes status of per-agent token tracking.
+- [LLM Cost Optimization Guide 2025 — futureagi.com](https://futureagi.com/blogs/llm-cost-optimization-2025) — MEDIUM confidence. 30-70% cost reduction via routing; tiered model usage confirmed as primary strategy.
+- [ACON: Optimizing Context Compression for Long-horizon LLM Agents — arXiv 2510.00615](https://arxiv.org/abs/2510.00615) — MEDIUM confidence. Gradient-free context compression framework; confirms structured extraction over lossy summarization as the correct direction.
+- [A Token-efficient Data Layer for Agentic Communication — IETF draft-chang-agent-token-efficient-01](https://datatracker.ietf.org/doc/html/draft-chang-agent-token-efficient-01) — MEDIUM confidence. Schema deduplication via JSON $ref; adaptive field inclusion; confirms structured envelope approach.
+- [Context Engineering for Reliable AI Agents — Azure SRE Agent blog, Microsoft](https://techcommunity.microsoft.com/blog/appsonazureblog/context-engineering-lessons-from-building-azure-sre-agent/4481200/) — MEDIUM confidence. Context as first-class engineering concern; structured state handoff between agent stages.
+- [Intelligent LLM Routing in Enterprise AI — requesty.ai](https://www.requesty.ai/blog/intelligent-llm-routing-in-enterprise-ai-uptime-cost-efficiency-and-model) — LOW confidence (WebSearch summary only). Risk-based routing for uptime + cost efficiency; confirms quorum fan-out as a routing problem.
+- [Best AI Model Routers for Multi-Provider LLM Cost Optimization — mindstudio.ai](https://www.mindstudio.ai/blog/best-ai-model-routers-multi-provider-llm-cost-011e6) — LOW confidence (WebSearch summary only). Router pattern: cheap model for classification, expensive model for generation. Directly maps to QGSD's adaptive fan-out design.
 
 ---
 
-*Feature research for: QGSD v0.16 — Formal Plan Verification (6 new features)*
-*Researched: 2026-02-26*
+*Feature research for: QGSD v0.18 — Token Efficiency (4 table-stakes features + 3 differentiators)*
+*Researched: 2026-02-27*
