@@ -3610,7 +3610,7 @@ function cmdValidateConsistency(cwd, raw) {
 
   // Extract phases from ROADMAP
   const roadmapPhases = new Set();
-  const phasePattern = /#{2,4}\s*Phase\s+(\d+(?:\.\d+)?)\s*:/gi;
+  const phasePattern = /#{2,4}\s*Phase\s+(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)\s*:/gi;
   let m;
   while ((m = phasePattern.exec(roadmapContent)) !== null) {
     roadmapPhases.add(m[1]);
@@ -3622,7 +3622,7 @@ function cmdValidateConsistency(cwd, raw) {
     const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
     const dirs = entries.filter(e => e.isDirectory()).map(e => e.name);
     for (const dir of dirs) {
-      const dm = dir.match(/^(\d+(?:\.\d+)?)/);
+      const dm = dir.match(/^(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)/);
       if (dm) diskPhases.add(dm[1]);
     }
   } catch {}
@@ -3778,14 +3778,14 @@ function cmdValidateHealth(cwd, options, raw) {
   } else {
     const stateContent = fs.readFileSync(statePath, 'utf-8');
     // Extract phase references from STATE.md
-    const phaseRefs = [...stateContent.matchAll(/[Pp]hase\s+(\d+(?:\.\d+)?)/g)].map(m => m[1]);
+    const phaseRefs = [...stateContent.matchAll(/[Pp]hase\s+(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)/g)].map(m => m[1]);
     // Get disk phases
     const diskPhases = new Set();
     try {
       const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
       for (const e of entries) {
         if (e.isDirectory()) {
-          const m = e.name.match(/^(\d+(?:\.\d+)?)/);
+          const m = e.name.match(/^(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)/);
           if (m) diskPhases.add(m[1]);
         }
       }
@@ -3830,7 +3830,7 @@ function cmdValidateHealth(cwd, options, raw) {
   try {
     const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
     for (const e of entries) {
-      if (e.isDirectory() && !e.name.match(/^\d{2}(?:\.\d+)?-[\w-]+$/)) {
+      if (e.isDirectory() && !e.name.match(/^(v\d+\.\d+-\d{2}(?:\.\d+)?-[.\w-]+|\d{2}(?:\.\d+)?-[\w-]+)$/)) {
         addIssue('warning', 'W005', `Phase directory "${e.name}" doesn't follow NN-name format`, 'Rename to match pattern (e.g., 01-setup)');
       }
     }
@@ -3860,7 +3860,7 @@ function cmdValidateHealth(cwd, options, raw) {
   if (fs.existsSync(roadmapPath)) {
     const roadmapContent = fs.readFileSync(roadmapPath, 'utf-8');
     const roadmapPhases = new Set();
-    const phasePattern = /#{2,4}\s*Phase\s+(\d+(?:\.\d+)?)\s*:/gi;
+    const phasePattern = /#{2,4}\s*Phase\s+(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)\s*:/gi;
     let m;
     while ((m = phasePattern.exec(roadmapContent)) !== null) {
       roadmapPhases.add(m[1]);
@@ -3871,7 +3871,7 @@ function cmdValidateHealth(cwd, options, raw) {
       const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
       for (const e of entries) {
         if (e.isDirectory()) {
-          const dm = e.name.match(/^(\d+(?:\.\d+)?)/);
+          const dm = e.name.match(/^(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)/);
           if (dm) diskPhases.add(dm[1]);
         }
       }
