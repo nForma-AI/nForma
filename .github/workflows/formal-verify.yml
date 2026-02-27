@@ -21,6 +21,8 @@ on:
       - 'bin/run-account-manager-tlc.cjs'
       - 'bin/write-check-result.cjs'
       - 'bin/check-results-exit.cjs'
+      - 'bin/check-trace-redaction.cjs'
+      - 'formal/trace/**'
   pull_request:
     paths:
       - 'src/machines/qgsd-workflow.machine.ts'
@@ -40,6 +42,8 @@ on:
       - 'bin/run-account-manager-tlc.cjs'
       - 'bin/write-check-result.cjs'
       - 'bin/check-results-exit.cjs'
+      - 'bin/check-trace-redaction.cjs'
+      - 'formal/trace/**'
   workflow_dispatch:  # manual trigger
 
 jobs:
@@ -138,6 +142,9 @@ jobs:
         env:
           PRISM_BIN: /tmp/prism/bin/prism
         run: node bin/run-formal-verify.cjs
+
+      - name: Trace redaction enforcement (check-trace-redaction.cjs)
+        run: node bin/check-trace-redaction.cjs
 
       - name: Check NDJSON exit code (fail if any result=fail in check-results.ndjson)
         env:

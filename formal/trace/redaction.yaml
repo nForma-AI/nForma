@@ -1,0 +1,24 @@
+# formal/trace/redaction.yaml
+# Redaction policy for QGSD trace event payloads.
+# Forbidden keys: any trace event containing these field names is a violation.
+# Forbidden patterns: any trace event field VALUE matching these regex is a violation.
+
+forbidden_keys:
+  - "api_key"
+  - "secret"
+  - "password"
+  - "token"
+  - "authorization"
+  - "bearer"
+  - "private_key"
+  - "access_key"
+
+forbidden_patterns:
+  - name: "aws_access_key_id"
+    regex: "^AKIA[0-9A-Z]{16}$"
+  - name: "github_pat"
+    regex: "^ghp_[A-Za-z0-9_]{36}$"
+  - name: "email"
+    regex: "^[\\w\\.+-]+@[\\w\\.-]+\\.\\w+$"
+  - name: "bearer_token"
+    regex: "^Bearer\\s+[A-Za-z0-9._~+/-]+=*$"
