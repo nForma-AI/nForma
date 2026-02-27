@@ -3925,6 +3925,21 @@ function cmdValidateHealth(cwd, options, raw) {
             break;
           }
           case 'regenerateState': {
+            // Content-length safety gate — prevent silent overwrite of rich STATE.md
+            if (fs.existsSync(statePath)) {
+              const existingContent = fs.readFileSync(statePath, 'utf-8');
+              const lineCount = existingContent.split('\n').length;
+              const SAFE_LINE_THRESHOLD = 50;
+              if (lineCount > SAFE_LINE_THRESHOLD && !options.force) {
+                repairActions.push({
+                  action: 'regenerateState',
+                  success: false,
+                  skipped: true,
+                  reason: `STATE.md has ${lineCount} lines (threshold: ${SAFE_LINE_THRESHOLD}). Re-run with --force to overwrite.`,
+                });
+                break;
+              }
+            }
             // Create timestamped backup before overwriting
             if (fs.existsSync(statePath)) {
               const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
@@ -5311,7 +5326,8 @@ async function main() {
         cmdValidateConsistency(cwd, raw);
       } else if (subcommand === 'health') {
         const repairFlag = args.includes('--repair');
-        cmdValidateHealth(cwd, { repair: repairFlag }, raw);
+        const forceFlag = args.includes('--force');
+        cmdValidateHealth(cwd, { repair: repairFlag, force: forceFlag }, raw);
       } else {
         error('Unknown validate subcommand. Available: consistency, health');
       }
