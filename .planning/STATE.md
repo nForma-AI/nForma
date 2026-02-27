@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-27 after v0.18 milestone start)
 
 ## Current Position
 
-Phase: v0.18-01 of 4 (Token Observability Foundation)
-Plan: — (not yet planned)
-Status: Ready to plan Phase v0.18-01
-Last activity: 2026-02-27 — Roadmap defined for v0.18 Token Efficiency (4 phases, 17 requirements mapped)
+Phase: v0.18-02 of 4 (Tiered Model Sizing)
+Plan: 01 (completed)
+Status: Plan 02 ready to execute
+Last activity: 2026-02-27 — Executed v0.18-02-01: model tier key validation (TIER-03 requirement met)
 
-Progress: [████████████████████] prior milestones complete | v0.18: 0/4 phases started
+Progress: [████████████████████] prior milestones complete | v0.18: 1/4 phases in progress (v0.18-02-01 complete)
 
 ## Performance Metrics
 
@@ -44,6 +44,7 @@ Progress: [████████████████████] prior m
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.18-02-01 execution]: TIER-03 implemented: flat keys model_tier_planner='opus', model_tier_worker='haiku' in DEFAULT_CONFIG with validation (whitelist: 'haiku'|'sonnet'|'opus')
 - [v0.18 roadmap]: Phase order fixed by dependency chain: OBSV (independent) → TIER (config schema first) → ENV (foundation for fan-out) → FAN (depends on both TIER config and ENV envelope)
 - [v0.18 research]: Flat config keys required for tier config — nested objects silently lost via shallow merge in config-loader.js
 - [v0.18 research]: SubagentStop hook + agent_transcript_path transcript parsing is the only method to get per-slot token counts (not in hook payload directly)

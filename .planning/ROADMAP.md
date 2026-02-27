@@ -889,7 +889,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.18-02-01-PLAN.md — Tier key defaults and validation in config-loader.js (TDD: TIER-03)
+- [x] v0.18-02-01-PLAN.md — Tier key defaults and validation in config-loader.js (TDD: TIER-03)
 - [ ] v0.18-02-02-PLAN.md — resolveModelInternal tier lookup in gsd-tools.cjs + unit tests (TIER-01, TIER-02)
 - [ ] v0.18-02-03-PLAN.md — dist sync, install deploy, full npm test suite (TIER-01, TIER-02, TIER-03)
 
@@ -1010,6 +1010,6 @@ Plans:
 | v0.15-03. Legacy Dir Archive | v0.15 | 0/TBD | Not started | - |
 | v0.15-04. Health Quorum Failure Visibility | v0.15 | 0/TBD | Not started | - |
 | v0.18-01. Token Observability Foundation | v0.18 | 0/TBD | Not started | - |
-| v0.18-02. Tiered Model Sizing | v0.18 | 0/TBD | Not started | - |
+| v0.18-02. Tiered Model Sizing | v0.18 | 1/3 | In progress | 2026-02-27 |
 | v0.18-03. Task Envelope | v0.18 | 0/TBD | Not started | - |
 | v0.18-04. Adaptive Fan-Out | v0.18 | 0/TBD | Not started | - |
