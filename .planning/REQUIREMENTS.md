@@ -30,7 +30,7 @@ Prevent day-one calibration thrash: PRISM checks must warn (not fail) until suff
 Make liveness properties operationally meaningful by requiring explicit fairness assumptions.
 
 - [ ] **LIVE-01**: Each liveness property in TLA+ specs has a companion entry in `formal/spec/<surface>/invariants.md` declaring the fairness assumption (`WF_vars`/`SF_vars`/`SF_actions`) and realism rationale
-- [ ] **LIVE-02**: TLA+ checker emits `result=inconclusive` (not `result=pass`) when a liveness `.cfg` is present but the corresponding `invariants.md` has no fairness declaration
+- [x] **LIVE-02**: TLA+ checker emits `result=inconclusive` (not `result=pass`) when a liveness `.cfg` is present but the corresponding `invariants.md` has no fairness declaration
 
 ### REDACT — Redaction Enforcement
 
@@ -111,7 +111,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CALIB-03 | Phase v0.19-02 | Complete |
 | CALIB-04 | Phase v0.19-02 | Complete |
 | LIVE-01 | Phase v0.19-03 | Pending |
-| LIVE-02 | Phase v0.19-07 | Pending |
+| LIVE-02 | Phase v0.19-07 | Complete |
 | REDACT-01 | Phase v0.19-04 | Pending |
 | REDACT-02 | Phase v0.19-04 | Pending |
 | REDACT-03 | Phase v0.19-04 | Pending |
@@ -136,4 +136,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-02-27 after gap closure phases added — gap requirements (LIVE-02, MCPENV-02, MCPENV-04) reassigned to closure phases v0.19-07 and v0.19-08; coverage count corrected to 25 total*
+*Last updated: 2026-02-27 after Phase v0.19-07 complete — LIVE-02 marked Complete (all 4 TLC runners now call detectLivenessProperties; 28/28 tests pass)*

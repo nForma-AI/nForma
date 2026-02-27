@@ -228,6 +228,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Validated
 
+- ✓ Liveness fairness wiring: all 4 remaining TLC runners (run-oscillation-tlc.cjs, run-breaker-tlc.cjs, run-protocol-tlc.cjs, run-account-manager-tlc.cjs) now call `detectLivenessProperties(configName, cfgPath)` on the success path, emitting `result=inconclusive` when the companion `invariants.md` has no fairness declaration — closes LIVE-02, 12 new tests GREEN — v0.19 (Phase v0.19-07)
 - ✓ R3.6 iterative improvement protocol: slot-worker parses `Improvements:` field (IMPR-01), quorum emits `QUORUM_IMPROVEMENTS` HTML signal with de-duplication (IMPR-02), plan-phase and quick both implement R3.6 outer loop (IMPR-03/04); CLAUDE.md file-read instructions removed from 7 agent/workflow files and replaced with self-contained inline guidance; 27 new tests — v0.19 (Phase v0.19-06)
 - ✓ PRISM mcp-availability.pm model calibrated from scoreboard UNAVAIL rates; readMCPAvailabilityRates() helper + 4 integration tests (MCPENV-04) — v0.19 (Phase v0.19-05)
 - ✓ PRISM config injection — `readScoreboardRates()` in run-prism.cjs reads quorum-scoreboard.json, injects empirical TP/unavail rates as `-const` flags; caller override wins; conservative priors (0.85/0.15) when no scoreboard; 4 integration tests in run-prism.test.cjs (PRISM-01, PRISM-02) — v0.14 (Phase v0.14-04)
@@ -282,7 +283,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 <!-- v0.19 scope: FV Pipeline Hardening -->
 - [ ] Unified verdict format — all FV checkers emit to check-results.ndjson; triage bundle reads from canonical stream (UNIF-01..04) — v0.19
 - [ ] Calibration governance — policy.yaml cold-start thresholds; PRISM warns during cold start; observation window metadata (CALIB-01..04) — v0.19
-- [ ] Liveness fairness — WF_vars/SF_vars declared in invariants.md; inconclusive when absent (LIVE-01..02) — v0.19
+- [ ] Liveness fairness — WF_vars/SF_vars declared in invariants.md; LIVE-01 (wiring in run-tlc.cjs) complete; LIVE-02 complete (all 4 runners) — v0.19
 - [ ] Redaction enforcement — redaction.yaml + check-trace-redaction.cjs; CI fails on forbidden keys (REDACT-01..03) — v0.19
 - [ ] Evidence confidence — never_observed entries include support metadata and confidence tier (EVID-01..02) — v0.19
 - [ ] Schema drift guard — check-trace-schema-drift.cjs blocks non-atomic schema changes (DRIFT-01..02) — v0.19

@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-27 after Phase v0.19-06)
+See: .planning/PROJECT.md (updated 2026-02-27 after Phase v0.19-07)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.19 FV Pipeline Hardening — all 6 phases complete, milestone ready for audit
+**Current focus:** v0.19 FV Pipeline Hardening — gap closure phases v0.19-07 done; v0.19-08 (MCPENV) and v0.19-09 (traceability) remain
 
 ## Current Position
 
-Phase: v0.19-06 (R3.6 Improvement Iteration) — COMPLETE (all 3 plans done)
-Plan: v0.19-06-01 — DONE; v0.19-06-02 — DONE; v0.19-06-03 — DONE
-Status: 27 new tests (improvements parsing + signal emission + CLAUDE.md audit); CLAUDE.md file-read refs removed from 7 files; plan-phase + quick R3.6 loops installed; all 4 IMPR requirements closed
-Last activity: 2026-02-27 — v0.19-06 complete: TDD tests for improvements parsing (IMPR-01, 13 tests), signal emission (IMPR-02, 13 tests), CLAUDE.md audit (IMPR-04, 1 test); install synced plan-phase + quick R3.6 loops (IMPR-03); v0.19 milestone 100% complete
+Phase: v0.19-07 (Wire Liveness Check to All TLC Runners) — COMPLETE (all 2 plans done)
+Plan: v0.19-07-01 — DONE; v0.19-07-02 — DONE
+Status: LIVE-02 closed — all 4 TLC runners call detectLivenessProperties; result=inconclusive emitted when invariants.md lacks fairness declaration; 12 new tests GREEN, 28/28 total pass
+Last activity: 2026-02-27 — v0.19-07 complete: RED test stubs (12 tests across 4 runners), implementation wiring detectLivenessProperties into run-oscillation-tlc, run-breaker-tlc, run-protocol-tlc, run-account-manager-tlc; LIVE-02 fully closed
 
-Progress: [████████████████████] prior milestones complete | v0.19: v0.19-01 COMPLETE | v0.19-02 COMPLETE | v0.19-03 COMPLETE | v0.19-04 COMPLETE | v0.19-05 COMPLETE | v0.19-06 COMPLETE — ALL PHASES DONE
+Progress: [████████████████████] prior milestones complete | v0.19: v0.19-01 COMPLETE | v0.19-02 COMPLETE | v0.19-03 COMPLETE | v0.19-04 COMPLETE | v0.19-05 COMPLETE | v0.19-06 COMPLETE | v0.19-07 COMPLETE — next: v0.19-08 (MCPENV gap closure)
 
 ## Performance Metrics
 
@@ -44,6 +44,7 @@ Progress: [████████████████████] prior m
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.19-07 execution]: LIVE-02 gap closure: detectLivenessProperties was already implemented in run-tlc.cjs — the wiring to the 4 runners (oscillation, breaker, protocol, account-manager) was all that was needed. TDD RED→GREEN approach: 12 stub tests written first, then 4 commits wiring each runner.
 - [v0.19 roadmap]: UNIF-01 is the foundation phase — all other phases depend on check-results.ndjson schema existing; v0.19-01 has no upstream dependency. Dependency chain: UNIF (foundation) → CALIB (extends run-prism.cjs) → LIVE (extends run-tlc.cjs, parallel) → ENFORCE (adds redaction/evidence/drift, parallel) → MCPENV (depends on CALIB cold-start policy + UNIF output stream).
 - [v0.19 roadmap]: LIVE-01..02 and REDACT-01..03/EVID-01..02/DRIFT-01..02 are parallel to CALIB — both depend only on UNIF-01 being done. Grouped into separate phases (v0.19-03 and v0.19-04) to keep each phase coherent.
 - [v0.19 roadmap]: MCPENV-04 (mcp-availability.pm) depends on CALIB policy infrastructure (run-prism.cjs reads policy.yaml) — so v0.19-05 depends on v0.19-02.
@@ -84,7 +85,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-27 — Milestone v0.19 audit: gaps_found (21/25 requirements) — 3 VERIFICATION.md files written during audit (v0.19-01, v0.19-03, v0.19-04 all PASSED); 3 blocker gaps: LIVE-02 (4 TLC runners not wired to detectLivenessProperties), MCPENV-02 (TLA+ spec not in pipeline + invariants.md absent), MCPENV-04 (dead module.exports + composite-key PRISM bug + not in pipeline)
+Last activity: 2026-02-27 — v0.19-07 complete: LIVE-02 closed — all 4 TLC runners wired with detectLivenessProperties, 12 RED stubs turned GREEN, 28/28 tests pass. Gap closure phase v0.19-08 (MCPENV) is next.
 Last session: 2026-02-27
-Stopped at: Milestone v0.19 audit complete — gaps_found (21/25 requirements). See .planning/v0.19-MILESTONE-AUDIT.md
+Stopped at: Phase v0.19-07 complete, ready to plan Phase v0.19-08 (MCP Formal Verification Pipeline Integration)
 Resume file: None
