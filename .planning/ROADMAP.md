@@ -926,7 +926,12 @@ Plans:
   4. The quorum prompt text injected by qgsd-prompt.js contains --n N matching the actual worker count dispatched, so qgsd-stop.js passes the ceiling check correctly
   5. When fan-out is below max_quorum_size, the quorum output contains an R6.4 reduced-quorum note identifying how many workers were used vs. max
   6. Passing --n 5 explicitly overrides envelope-driven fan-out — 5 workers are dispatched regardless of risk_level
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.18-04-01-PLAN.md — Wave 0 test scaffold: 4 stub test files for FAN-01..FAN-06 (TDD, all stubs fail until implementation) (FAN-01, FAN-02, FAN-03, FAN-04, FAN-05, FAN-06)
+- [ ] v0.18-04-02-PLAN.md — mapRiskLevelToCount helper + qgsd-prompt.js adaptive fan-out + --n N emission + dist sync (FAN-01, FAN-02, FAN-03, FAN-04, FAN-06)
+- [ ] v0.18-04-03-PLAN.md — quorum.md R6.4 reduced-quorum note + qgsd-stop.js ceiling verification + full regression (FAN-05, FAN-04)
 
 ### Phase v0.18-05: Verify Token Observability Foundation
 **Goal**: Formally close v0.18-01 by writing a VERIFICATION.md from existing SUMMARY evidence; update ROADMAP.md v0.18-01 to complete; close OBSV-01..04 gap from audit
