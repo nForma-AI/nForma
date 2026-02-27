@@ -20,6 +20,16 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - QGSD self-application (code → all spec types) — hybrid AST extraction + JSDoc annotations (`@invariant`, `@transition`, `@probability`) feed all four spec types from QGSD's own source
 - General-purpose code → spec — expose the code → spec pipeline for any project using QGSD
 
+## Planned Milestone: v0.17 Auto-Chain Context Resilience
+
+**Goal:** Make the execute-phase auto-advance chain resilient to Claude Code auto-compaction events by converting `transition.md` from inline execution to a spawnable `Task()` sub-agent, making the orchestrator re-entrant via STATE.md position writes, and ensuring each plan+execute cycle starts with fresh context.
+
+**Target features:**
+- Execute-phase re-entrancy — writes current position (phase, plan index, status) to STATE.md before each major sub-agent spawn; reads STATE.md at startup to resume interrupted chains
+- Transition HANDOFF protocol — before spawning transition, execute-phase writes `TRANSITION-HANDOFF.md` with all context the transition workflow needs (completed phase, plan count, summaries digest, next phase); transition reads it; file cleaned up after
+- Transition as spawnable Task — execute-phase spawns `transition.md` as `Task(subagent_type="qgsd-executor")` instead of calling inline; orchestrator context stays flat across all phase cycles
+- Chain validation — end-to-end test: auto-advance chain survives simulated compaction; resume-work routing updated for new chain state patterns
+
 ## Planned Milestone: v0.15 Health & Tooling Modernization (deferred)
 
 **Goal:** Fix the GSD health checker to recognize QGSD's versioned phase naming convention, guard `--repair` against rich STATE.md data loss, archive legacy pre-versioning phase dirs, and surface quorum failure patterns in the health report.
@@ -80,11 +90,15 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 **Phases:** v0.11-01 (Parallel Quorum Wave-Barrier)
 
-## Parallel Milestone: v0.9 GSD Sync (COMPLETE 2026-02-26)
+## Previous Milestone: v0.9 GSD Sync (COMPLETE 2026-02-27)
 
 **Goal:** Port GSD 1.20.6 improvements into QGSD — context window self-monitoring hook, pre-execution Nyquist test validation, discuss-phase UX refinements, and bundled small fixes.
 
-**Shipped:** v0.9-01 (context window monitor hook), v0.9-02 (Nyquist validation layer), v0.9-03 (discuss-phase UX), v0.9-04 (Skill tool spawn guards, Gemini TOML fix, decimal phase parsing — FIX-01..04), v0.9-05 (qgsd-core/ rename)
+**Phases:** v0.9-01..v0.9-09 (9 phases, 13 plans)
+
+**Shipped:** v0.9-01 (context window monitor hook), v0.9-02 (Nyquist validation layer), v0.9-03 (discuss-phase UX), v0.9-04 (Skill tool spawn guards, Gemini TOML fix, decimal phase parsing — FIX-01..04), v0.9-05 (qgsd-core/ rename), v0.9-06 (v0.9-03 VERIFICATION.md gap closure), v0.9-07 (NYQ-04 parse list gap closure), v0.9-08 (v0.9-05 re-verify), v0.9-09 (SC-4 end-to-end Nyquist demo)
+
+**Requirements:** 13/13 (NYQ-01..05, DSC-01..03, CTX-01..02, FIX-01, REN-01..02)
 
 ## Previous Milestone: v0.8 Fix-Tests ddmin Pipeline
 
@@ -203,7 +217,11 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ IS_GAP_CLOSURE grep anchored to `^### Phase` with `-A 4` — eliminates false-positive routing of primary phases with downstream gap-closure dependents (TECH-01) — v0.13 (Phase v0.13-05/06)
 - ✓ Quorum rounds execute as parallel Task fan-outs (wave-barrier): worker per slot → synthesizer barrier → optional Round 2 → final verdict; cuts round-trip from N×timeout to ~1×max(timeout) — v0.11 (Phase v0.11-01 — PAR-01..05)
 - ✓ Scoreboard writes atomic (tmpPath + renameSync at all sites); `merge-wave` subcommand applies N parallel worker votes in one transaction — v0.11 (Phase v0.11-01 — PAR-03/04)
-- ✓ Context window monitor hook injects WARNING/CRITICAL into `additionalContext` at configurable thresholds — v0.9 (Phase v0.9-01 — CTX-01..05)
+- ✓ Nyquist validation layer — `VALIDATION.md` template + `plan-phase.md` Step 5.5 (generates per-phase test-map at plan time); halt guard blocks plan creation when absent (NYQ-01..05) — v0.9 (Phases v0.9-02, v0.9-07)
+- ✓ Discuss-phase UX — recommended-choice highlighting in gray-area prompts + loop-back option instead of hard stop (DSC-01..03) — v0.9 (Phase v0.9-03)
+- ✓ Context window monitor hook injects WARNING/CRITICAL into `additionalContext` at configurable thresholds (CTX-01..05) — v0.9 (Phase v0.9-01)
+- ✓ Skill tool spawn guards in plan-phase.md (5×) and discuss-phase.md (1×); Gemini TOML files; decimal phase parsing via normalizePhaseName (FIX-01..04) — v0.9 (Phase v0.9-04)
+- ✓ Renamed `get-shit-done/` → `qgsd-core/`; bin/install.js reads from qgsd-core/; all 9 agent files updated (REN-01..04) — v0.9 (Phase v0.9-05)
 - ✓ Stop hook reads transcript JSONL and hard-gates all GSD planning commands — quorum cannot be skipped regardless of instructions — v0.1
 - ✓ UserPromptSubmit hook injects quorum instructions into Claude's context window when a planning command is detected — v0.1
 - ✓ Two-layer config system: global `~/.claude/qgsd.json` + per-project `.claude/qgsd.json` with project values taking precedence — v0.1
@@ -369,4 +387,4 @@ QGSD v0.14 milestone started 2026-02-25. v0.13 Autonomous Milestone Execution co
 | readScoreboardRates() computes aggregate mean across SLOTS | Per-slot TP and UNAVAIL rates averaged across ['gemini', 'opencode', 'copilot', 'codex']; 4 fallback paths all return conservative priors 0.85/0.15 | Phase v0.14-04 — PRISM-01 |
 
 ---
-*Last updated: 2026-02-26 — started milestone v0.16 Formal Plan Verification*
+*Last updated: 2026-02-27 — archived v0.9 GSD Sync milestone; current milestone v0.16 Formal Plan Verification*

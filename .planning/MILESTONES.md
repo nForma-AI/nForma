@@ -148,3 +148,30 @@ Phase 4 scope requirements: SCOPE-01–07 (7/7)
 
 ---
 
+
+## v0.9 — GSD Sync (Shipped: 2026-02-27)
+
+**Phases:** v0.9-01..v0.9-09 (9 phases, 13 plans)
+**Timeline:** 2026-02-24 → 2026-02-27
+
+### What Shipped
+
+- PostToolUse context-window monitor hook — injects WARNING/CRITICAL into `additionalContext` at configurable thresholds (v0.9-01)
+- Nyquist validation layer — `VALIDATION.md` template + `plan-phase.md` Step 5.5 generates per-phase test-map at plan time; halt guard (NYQ-05) blocks plan creation when absent (v0.9-02)
+- Discuss-phase UX — recommended-choice highlighting in gray-area prompts + loop-back option instead of hard stop (v0.9-03)
+- Tier 3 fixes — 5× Skill tool guards in plan-phase, Gemini TOML files installed, decimal phase parsing normalized (v0.9-04)
+- Renamed `get-shit-done/` → `qgsd-core/` — all 9 agents, installer (line 1623), and runtime updated; zero stale refs remaining (v0.9-05)
+- Nyquist pipeline completed — `nyquist_validation_enabled` added to Step 1 parse list + portable `~/.claude/` paths in Step 5.5 (v0.9-07)
+- SC-4 demonstrated — plan-phase v0.9-09 produced `v0.9-09-VALIDATION.md` end-to-end, closing the last v0.9 audit gap (v0.9-09)
+
+### Requirements Satisfied
+
+13/13 v0.9 requirements (NYQ-01–05, DSC-01–03, CTX-01–02, FIX-01, REN-01–02)
+
+### Audit
+
+Milestone audit: PASSED — 9/9 phases verified, 13/13 requirements wired, 4/4 E2E flows complete
+Archive: `.planning/milestones/v0.9-MILESTONE-AUDIT.md`
+
+---
+
