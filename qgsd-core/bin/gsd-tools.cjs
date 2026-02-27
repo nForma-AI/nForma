@@ -3873,6 +3873,26 @@ function cmdValidateHealth(cwd, options, raw) {
       }
     } catch {}
 
+    // Also count archived phases (milestones/v*-phases/ and archive/legacy/) so W006
+    // doesn't fire for phases that were legitimately archived rather than deleted
+    const archivedPhaseDirs = getArchivedPhaseDirs(cwd);
+    for (const a of archivedPhaseDirs) {
+      const dm = a.name.match(/^(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)/);
+      if (dm) diskPhases.add(dm[1]);
+    }
+    const legacyArchiveDir = path.join(planningDir, 'archive', 'legacy');
+    if (fs.existsSync(legacyArchiveDir)) {
+      try {
+        const legacyEntries = fs.readdirSync(legacyArchiveDir, { withFileTypes: true });
+        for (const e of legacyEntries) {
+          if (e.isDirectory()) {
+            const dm = e.name.match(/^(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)/);
+            if (dm) diskPhases.add(dm[1]);
+          }
+        }
+      } catch {}
+    }
+
     // Phases in ROADMAP but not on disk
     for (const p of roadmapPhases) {
       const normalized = normalizePhaseName(p);

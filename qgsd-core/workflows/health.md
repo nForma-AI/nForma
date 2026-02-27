@@ -11,12 +11,17 @@ Read all files referenced by the invoking prompt's execution_context before star
 <step name="parse_args">
 **Parse arguments:**
 
-Check if `--repair` flag is present in the command arguments.
+Check if `--repair` and `--force` flags are present in the command arguments.
 
 ```
 REPAIR_FLAG=""
 if arguments contain "--repair"; then
   REPAIR_FLAG="--repair"
+fi
+
+FORCE_FLAG=""
+if arguments contain "--force"; then
+  FORCE_FLAG="--force"
 fi
 ```
 </step>
@@ -25,7 +30,7 @@ fi
 **Run health validation:**
 
 ```bash
-node ~/.claude/qgsd/bin/gsd-tools.cjs validate health $REPAIR_FLAG
+node ~/.claude/qgsd/bin/gsd-tools.cjs validate health $REPAIR_FLAG $FORCE_FLAG
 ```
 
 Parse JSON output:

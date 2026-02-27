@@ -1,7 +1,7 @@
 ---
 name: qgsd:health
 description: Diagnose planning directory health and optionally repair issues
-argument-hint: [--repair]
+argument-hint: [--repair] [--force]
 allowed-tools:
   - Read
   - Bash
