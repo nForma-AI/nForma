@@ -1,0 +1,30 @@
+# formal/policy.yaml
+# Calibration governance policy for PRISM evidence-driven checks.
+# Controls cold-start behavior and steady-state calibration enforcement.
+
+cold_start:
+  # All three thresholds must be met to leave cold-start mode.
+  # While ANY threshold is unmet, PRISM calibration checks emit result=warn instead of result=fail.
+  min_ci_runs: 5           # Minimum check-results.ndjson entries (proxy for CI runs)
+  min_quorum_rounds: 10    # Minimum rounds in .planning/quorum-scoreboard.json
+  min_days: 1              # Minimum calendar days since first recorded quorum round
+
+steady_state:
+  # Calibration mode after all cold_start thresholds are met.
+  # "warn"  — calibration checks always warn, never fail (recommended for new installs)
+  # "fail"  — calibration checks fail when empirical rates deviate from model
+  mode: "warn"
+
+conservative_priors:
+  # Used when scoreboard is absent or below cold-start thresholds.
+  # Intentionally pessimistic: assumes external models are less reliable than steady-state.
+  tp_rate: 0.85    # 85% of external model votes classified TP/TN (true signal)
+  unavail: 0.15    # 15% of votes are UNAVAIL (model not reachable)
+  #
+  # Fallthrough to empirical rates occurs when ALL cold_start thresholds are met:
+  #   cold_start.min_ci_runs        <= count of lines in formal/check-results.ndjson
+  #   cold_start.min_quorum_rounds  <= count of rounds[] in quorum-scoreboard.json
+  #   cold_start.min_days           <= calendar days since rounds[0].date
+  #
+  # Once all three conditions are true, run-prism.cjs reads live tp_rate and unavail
+  # from quorum-scoreboard.json instead of using the values above.

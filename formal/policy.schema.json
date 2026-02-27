@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["cold_start", "steady_state", "conservative_priors"],
+  "additionalProperties": false,
+  "properties": {
+    "cold_start": {
+      "type": "object",
+      "required": ["min_ci_runs", "min_quorum_rounds", "min_days"],
+      "additionalProperties": false,
+      "properties": {
+        "min_ci_runs":       { "type": "integer", "minimum": 1 },
+        "min_quorum_rounds": { "type": "integer", "minimum": 1 },
+        "min_days":          { "type": "number",  "minimum": 0 }
+      }
+    },
+    "steady_state": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "type": "string", "enum": ["warn", "fail"] }
+      }
+    },
+    "conservative_priors": {
+      "type": "object",
+      "required": ["tp_rate", "unavail"],
+      "additionalProperties": true,
+      "properties": {
+        "tp_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "unavail":  { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}
