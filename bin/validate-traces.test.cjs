@@ -107,3 +107,99 @@ test('exit code 1 on unmappable action in trace', () => {
   assert.strictEqual(result.status, 1);
   assert.match(result.stdout, /divergence/i);
 });
+
+// ── Confidence Tier Tests (v0.19-04-02 RED phase) ────────────────────────────
+
+test('validate-traces exports computeConfidenceTier and CONFIDENCE_THRESHOLDS', () => {
+  const m = require('../bin/validate-traces.cjs');
+  assert.strictEqual(typeof m.computeConfidenceTier, 'function', 'computeConfidenceTier should be a function');
+  assert.ok(m.CONFIDENCE_THRESHOLDS, 'CONFIDENCE_THRESHOLDS should be exported');
+});
+
+test('computeConfidenceTier boundary: (0, 0) => low', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(0, 0), 'low');
+});
+
+test('computeConfidenceTier boundary: (49, 2) => low', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(49, 2), 'low');
+});
+
+test('computeConfidenceTier boundary: (50, 3) => low (below medium threshold)', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(50, 3), 'low');
+});
+
+test('computeConfidenceTier boundary: (499, 13) => low (just below medium)', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(499, 13), 'low');
+});
+
+test('computeConfidenceTier boundary: (500, 14) => medium (exact medium boundary)', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(500, 14), 'medium');
+});
+
+test('computeConfidenceTier boundary: (501, 15) => medium', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(501, 15), 'medium');
+});
+
+test('computeConfidenceTier boundary: (5000, 30) => medium (rounds OK but days < 90)', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(5000, 30), 'medium');
+});
+
+test('computeConfidenceTier boundary: (9999, 89) => medium (just below high)', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(9999, 89), 'medium');
+});
+
+test('computeConfidenceTier boundary: (10000, 90) => high (exact high boundary)', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(10000, 90), 'high');
+});
+
+test('computeConfidenceTier boundary: (50000, 365) => high', () => {
+  const { computeConfidenceTier } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(computeConfidenceTier(50000, 365), 'high');
+});
+
+test('CONFIDENCE_THRESHOLDS.medium.min_rounds === 500 and high.min_rounds === 10000', () => {
+  const { CONFIDENCE_THRESHOLDS } = require('../bin/validate-traces.cjs');
+  assert.strictEqual(CONFIDENCE_THRESHOLDS.medium.min_rounds, 500);
+  assert.strictEqual(CONFIDENCE_THRESHOLDS.medium.min_days, 14);
+  assert.strictEqual(CONFIDENCE_THRESHOLDS.high.min_rounds, 10000);
+  assert.strictEqual(CONFIDENCE_THRESHOLDS.high.min_days, 90);
+});
+
+test('integration: divergence object contains confidence field for unmappable_action', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-vtrace-conf-test-'));
+  const ndjsonPath = path.join(tmpDir, 'check-results.ndjson');
+  const planningDir = path.join(tmpDir, '.planning');
+  fs.mkdirSync(planningDir, { recursive: true });
+
+  const badEvent = JSON.stringify({
+    ts: new Date().toISOString(),
+    phase: 'IDLE',
+    action: 'unknown_action_xyz',
+    slots_available: 4,
+    vote_result: null,
+    outcome: null,
+    schema_version: '1',
+  });
+  fs.writeFileSync(path.join(planningDir, 'conformance-events.jsonl'), badEvent + '\n', 'utf8');
+
+  const result = spawnSync(
+    process.execPath,
+    [path.join(__dirname, 'validate-traces.cjs')],
+    { cwd: tmpDir, encoding: 'utf8', env: { ...process.env, CHECK_RESULTS_PATH: ndjsonPath } }
+  );
+
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+
+  assert.strictEqual(result.status, 1);
+  // The stdout should include the divergence with a confidence field
+  assert.match(result.stdout, /confidence/i, 'divergence output should include confidence field');
+});
