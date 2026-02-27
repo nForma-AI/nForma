@@ -95,7 +95,7 @@ Decide ==
 
 Next ==
     \/ StartQuorum
-    \/ \E p \in 1..MaxSize, n \in 0..p : CollectVotes(n, p)
+    \/ \E p \in 1..MaxSize : \E n \in 0..p : CollectVotes(n, p)
     \/ \E n \in 0..MaxSize : Deliberate(n)
     \/ Decide
 
@@ -143,7 +143,7 @@ DeliberationMonotone ==
 EventualConsensus == <>(phase = "DECIDED")
 
 \* ── Composite actions for fairness ──────────────────────────────────────────
-AnyCollectVotes == \E p \in 1..MaxSize, n \in 0..p : CollectVotes(n, p)
+AnyCollectVotes == \E p \in 1..MaxSize : \E n \in 0..p : CollectVotes(n, p)
 AnyDeliberate   == \E n \in 0..MaxSize : Deliberate(n)
 
 \* ── Full specification with fairness ────────────────────────────────────────
