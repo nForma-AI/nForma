@@ -219,7 +219,7 @@
 - [x] **Phase v0.18-01: Token Observability Foundation** — New SubagentStop hook reads agent_transcript_path to sum token usage per slot; appends structured records to .planning/token-usage.jsonl; /qgsd:health displays ranked token consumption (OBSV-01, OBSV-02, OBSV-03, OBSV-04) (completed 2026-02-27)
 - [x] **Phase v0.18-02: Tiered Model Sizing** — Researcher and plan-checker sub-agents in plan-phase.md use model=haiku; user-configurable tier keys model_tier_planner/model_tier_worker in qgsd.json; config-loader.js updated with flat keys (TIER-01, TIER-02, TIER-03) (completed 2026-02-27)
 - [x] **Phase v0.18-03: Task Envelope** — bin/task-envelope.cjs writes task-envelope.json sidecar after research and planning with objective/constraints/risk_level/target_files/plan_path/key_decisions; quorum.md reads risk_level with fail-open (ENV-01, ENV-02, ENV-03, ENV-04) (completed 2026-02-27)
-- 🚧 **Phase v0.18-04: Adaptive Fan-Out** — Wave 0 test scaffold (v0.18-04-01 completed 2026-02-27 with 16 tests); Wave 1-2 implementation of mapRiskLevelToCount(), --n N emission, ceiling checks, R6.4 reduced-quorum note (FAN-01, FAN-02, FAN-03, FAN-04, FAN-05, FAN-06)
+- [x] **Phase v0.18-04: Adaptive Fan-Out** — Wave 0 test scaffold (v0.18-04-01 completed 2026-02-27 with 16 tests); Wave 1-2 implementation of mapRiskLevelToCount(), --n N emission, ceiling checks, R6.4 reduced-quorum note (FAN-01, FAN-02, FAN-03, FAN-04, FAN-05, FAN-06) (completed 2026-02-27)
 - [x] **Phase v0.18-05: Verify Token Observability Foundation** — Write formal VERIFICATION.md for v0.18-01 from SUMMARY evidence; update ROADMAP.md v0.18-01 status to complete; close OBSV-01, OBSV-02, OBSV-03, OBSV-04 (Gap Closure) (completed 2026-02-27)
 
 
@@ -929,9 +929,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.18-04-01-PLAN.md — Wave 0 test scaffold: 4 stub test files for FAN-01..FAN-06 (TDD, all stubs fail until implementation) (FAN-01, FAN-02, FAN-03, FAN-04, FAN-05, FAN-06)
-- [ ] v0.18-04-02-PLAN.md — mapRiskLevelToCount helper + qgsd-prompt.js adaptive fan-out + --n N emission + dist sync (FAN-01, FAN-02, FAN-03, FAN-04, FAN-06)
-- [ ] v0.18-04-03-PLAN.md — quorum.md R6.4 reduced-quorum note + qgsd-stop.js ceiling verification + full regression (FAN-05, FAN-04)
+- [x] v0.18-04-01-PLAN.md — Wave 0 test scaffold: 4 stub test files for FAN-01..FAN-06 (TDD, all stubs fail until implementation) (FAN-01, FAN-02, FAN-03, FAN-04, FAN-05, FAN-06) (completed 2026-02-27)
+- [x] v0.18-04-02-PLAN.md — mapRiskLevelToCount helper + qgsd-prompt.js adaptive fan-out + --n N emission + dist sync (FAN-01, FAN-02, FAN-03, FAN-04, FAN-06) (completed 2026-02-27)
+- [x] v0.18-04-03-PLAN.md — quorum.md R6.4 reduced-quorum note + qgsd-stop.js ceiling verification + full regression (FAN-05, FAN-04) (completed 2026-02-27)
 
 ### Phase v0.18-05: Verify Token Observability Foundation
 **Goal**: Formally close v0.18-01 by writing a VERIFICATION.md from existing SUMMARY evidence; update ROADMAP.md v0.18-01 to complete; close OBSV-01..04 gap from audit
@@ -1041,5 +1041,5 @@ Plans:
 | v0.18-01. Token Observability Foundation | v0.18 | 2/2 | Complete | 2026-02-27 |
 | v0.18-02. Tiered Model Sizing | 4/4 | Complete    | 2026-02-27 | 2026-02-27 |
 | v0.18-03. Task Envelope | v0.18 | Complete    | 2026-02-27 | 2026-02-27 |
-| v0.18-04. Adaptive Fan-Out | v0.18 | 0/TBD | Not started | - |
+| v0.18-04. Adaptive Fan-Out | v0.18 | 3/3 | Complete | 2026-02-27 |
 | v0.18-05. Verify Token Observability Foundation | v0.18 | Complete    | 2026-02-27 | 2026-02-27 |
