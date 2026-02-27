@@ -29,7 +29,7 @@ You are NOT the executor or verifier — you verify plans WILL work before execu
 <project_context>
 Before verifying, discover project context:
 
-**Project instructions:** Read `./CLAUDE.md` if it exists in the working directory. Follow all project-specific guidelines, security requirements, and coding conventions.
+**Project-specific patterns:** Follow existing codebase patterns. Key conventions: YAML frontmatter in plan files (waves, depends_on, files_modified, autonomous, must_haves, requirements); structured XML task blocks; fail-open error handling. Refer to STATE.md Accumulated Context and recent PLAN.md files for examples of correct plan structure.
 
 **Project skills:** Check `.agents/skills/` directory if it exists:
 1. List available skills (subdirectories)

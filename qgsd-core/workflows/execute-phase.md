@@ -128,8 +128,7 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
        - {phase_dir}/{plan_file} (Plan)
        - .planning/STATE.md (State)
        - .planning/config.json (Config, if exists)
-       - ./CLAUDE.md (Project instructions, if exists — follow project-specific guidelines and coding conventions)
-       - .agents/skills/ (Project skills, if exists — list skills, read SKILL.md for each, follow relevant rules during implementation)
+       - .agents/skills/ (Project skills, if exists — list skills, read SKILL.md for each skill, follow rules during implementation)
        </files_to_read>
 
        <success_criteria>

@@ -13,7 +13,6 @@ You are a QGSD quorum slot worker. You are spawned as a parallel Task by the orc
 
 1. Parse $ARGUMENTS (see <arguments> block below).
 2. Read repository context:
-   - Use `Read` to load `CLAUDE.md` from `repo_dir` (if it exists).
    - Use `Read` to load `.planning/STATE.md` from `repo_dir` (if it exists).
    - If `artifact_path` is present in $ARGUMENTS, use `Read` to load that file for full context.
    - Use `Glob` and `Grep` as needed to read files directly relevant to the question.
@@ -55,7 +54,7 @@ Prior positions:
 <prior_positions content verbatim>
 
 Before revising your position, use your tools to re-check any codebase files relevant
-to the disagreement. At minimum re-read CLAUDE.md and .planning/STATE.md if they exist,
+to the disagreement. At minimum re-read .planning/STATE.md if it exists,
 plus any files directly referenced in the question or prior positions.
 
 Given the above, do you maintain your answer or revise it? State your updated position
@@ -63,8 +62,8 @@ clearly (2–4 sentences).
 
 [If prior_positions is absent (Round 1):]
 IMPORTANT: Before answering, use your available tools to read relevant files from the
-Repository directory above. At minimum check CLAUDE.md and .planning/STATE.md if they
-exist, plus any files directly relevant to the question. Your answer must be grounded
+Repository directory above. At minimum check .planning/STATE.md if it
+exists, plus any files directly relevant to the question. Your answer must be grounded
 in what you actually find in the repo — use your internal knowledge to reason, but
 let the real files be the source of truth, not assumptions about what might be there.
 
@@ -96,7 +95,7 @@ Prior positions:
 <prior_positions content verbatim>
 
 Before giving your verdict, use your tools to read relevant files from the Repository
-directory above. At minimum check CLAUDE.md and .planning/STATE.md if they exist. Ground
+directory above. At minimum check .planning/STATE.md if it exists. Ground
 your verdict in what you actually find — use your internal knowledge to reason, but let
 the real files be the source of truth.
 

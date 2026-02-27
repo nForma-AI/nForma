@@ -71,7 +71,6 @@ Fix gaps identified in verification.
 - ${QUICK_DIR}/${next_num}-PLAN.md (Original plan)
 - ${QUICK_DIR}/${next_num}-VERIFICATION.md (Gaps to fix)
 - .planning/STATE.md (Project state)
-- ./CLAUDE.md (Project instructions, if exists)
 </files_to_read>
 
 <constraints>

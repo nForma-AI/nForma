@@ -24,7 +24,7 @@ If the prompt contains a `<files_to_read>` block, you MUST use the `Read` tool t
 <project_context>
 Before researching, discover project context:
 
-**Project instructions:** Read `./CLAUDE.md` if it exists in the working directory. Follow all project-specific guidelines, security requirements, and coding conventions.
+**Project-specific patterns:** Follow existing codebase patterns visible in the files you read. Key conventions: YAML frontmatter in plan files; structured result blocks; fail-open error handling; atomic git commits. Refer to STATE.md Accumulated Context section for prior decisions and constraints affecting research direction.
 
 **Project skills:** Check `.agents/skills/` directory if it exists:
 1. List available skills (subdirectories)
