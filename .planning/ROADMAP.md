@@ -1032,12 +1032,13 @@ Plans:
   2. `formal/tla/QGSDMCPEnv.tla` models MCP call behavior with nondeterministic response choices within declared bounds; TLC model-checks QGSD's fault-tolerance properties (quorum still reaches consensus or escalates correctly) under arbitrary MCP failures
   3. `formal/trace/trace.schema.json` is extended with `request_id`, `peer` (MCP slot name), `outcome` (success/fail/timeout), and `attempt` (retry count) fields for MCP-interaction events; `validate-traces.cjs` validates these fields when present
   4. `formal/prism/mcp-availability.pm` is calibrated from scoreboard UNAVAIL rates using the existing `readScoreboardRates()` pattern; running `node bin/run-prism.cjs` emits an availability property check entry to `check-results.ndjson`
-**Plans**: 2 plans
+**Plans**: 4 plans
 
 Plans:
-- [ ] v0.19-05-01: Author formal/spec/mcp-calls/environment.md + formal/tla/QGSDMCPEnv.tla (MCPENV-01, MCPENV-02)
-- [ ] v0.19-05-02: Extend trace.schema.json with MCP-interaction fields + validate-traces.cjs field validation (MCPENV-03)
-- [ ] v0.19-05-03: Author formal/prism/mcp-availability.pm with readScoreboardRates() calibration + run-prism.cjs integration (MCPENV-04)
+- [ ] v0.19-05-01-PLAN.md — Wave 0 Nyquist test scaffolding: failing tests + TLA+ module stub (MCPENV-02, MCPENV-03, MCPENV-04)
+- [ ] v0.19-05-02-PLAN.md — MCPENV-01 + MCPENV-02: environment.md spec + QGSDMCPEnv.tla formal spec
+- [ ] v0.19-05-03-PLAN.md — MCPENV-03: trace.schema.json extension + validate-traces.cjs MCP field validation
+- [ ] v0.19-05-04-PLAN.md — MCPENV-04: mcp-availability.pm PRISM model + readMCPAvailabilityRates calibration
 
 
 ## Progress
@@ -1140,4 +1141,4 @@ Plans:
 | v0.19-02. Calibration Governance | 1/2 | Complete    | 2026-02-27 | - |
 | v0.19-03. Liveness Fairness | v0.19 | 2/2 | Complete | 2026-02-27 |
 | v0.19-04. Enforcement Layer | v0.19 | 0/3 | Not started | - |
-| v0.19-05. MCP Environment Model | v0.19 | 0/3 | Not started | - |
+| v0.19-05. MCP Environment Model | v0.19 | 0/4 | Not started | - |
