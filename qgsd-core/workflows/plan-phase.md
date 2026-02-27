@@ -173,6 +173,24 @@ To fix: Either
 Do NOT proceed to plan creation without VALIDATION.md when nyquist_validation_enabled is true.
 ```
 
+## 5.6. Envelope Init (ENV-01)
+
+After researcher completes and VALIDATION.md is written:
+
+```bash
+# Initialize task envelope with research context
+TASK_ENVELOPE_ENABLED=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get task_envelope_enabled 2>/dev/null || echo "true")
+if [ "$TASK_ENVELOPE_ENABLED" = "true" ]; then
+  PHASE_NUM="${PADDED_PHASE}"
+  RISK_LEVEL=$(grep -oE '"risk_level"\s*:\s*"(low|medium|high)"' "${PHASE_DIR}/${PADDED_PHASE}-RESEARCH.md" 2>/dev/null | grep -oE '(low|medium|high)' | head -1 || echo "medium")
+  OBJECTIVE=$(node -e "const fs=require('fs'); const r=fs.readFileSync('${PHASE_DIR}/${PADDED_PHASE}-RESEARCH.md','utf8'); const m=r.match(/^## Summary\n\n([^\n]+)/m); console.log(m ? m[1].substring(0,200) : 'phase objective')" 2>/dev/null || echo "phase objective")
+  node bin/task-envelope.cjs init \
+    --phase "${PHASE_NUM}" \
+    --objective "${OBJECTIVE}" \
+    --risk-level "${RISK_LEVEL:-medium}"
+fi
+```
+
 ## 6. Check Existing Plans
 
 ```bash
@@ -263,6 +281,25 @@ Task(
 )
 ```
 
+## 8.4. Envelope Update — Plan Section (ENV-02)
+
+After planner completes and PLAN.md files are committed:
+
+```bash
+# Update envelope with plan metadata
+TASK_ENVELOPE_ENABLED=$(node ~/.claude/qgsd/bin/gsd-tools.cjs config-get task_envelope_enabled 2>/dev/null || echo "true")
+if [ "$TASK_ENVELOPE_ENABLED" = "true" ]; then
+  # Find first PLAN.md path for this phase
+  PLAN_PATH=$(ls "${PHASE_DIR}/${PADDED_PHASE}-"*"-PLAN.md" 2>/dev/null | head -1 || echo "")
+  if [ -n "$PLAN_PATH" ]; then
+    node bin/task-envelope.cjs update \
+      --section plan \
+      --phase "${PADDED_PHASE}" \
+      --plan-path "${PLAN_PATH}"
+  fi
+fi
+```
+
 ## 8.5 Run QUORUM (per CLAUDE.md R3)
 
 Before presenting planner output to the user, run QUORUM as required by R3.1.
@@ -270,6 +307,17 @@ Before presenting planner output to the user, run QUORUM as required by R3.1.
 Form your own position on the plans first: do they correctly address the phase goal, requirement IDs, and user decisions from CONTEXT.md? State your vote as APPROVE or BLOCK with 1-2 sentence rationale.
 
 Read the plan files from `${PHASE_DIR}/*-PLAN.md` to prepare the artifact for the sub-agent.
+
+Set envelope_path for quorum context (ENV-02 context injection):
+
+```bash
+ENVELOPE_FILE="${PHASE_DIR}/task-envelope.json"
+if [ -f "$ENVELOPE_FILE" ]; then
+  ENVELOPE_PATH="$PWD/$ENVELOPE_FILE"
+else
+  ENVELOPE_PATH=""
+fi
+```
 
 ```bash
 node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
@@ -279,6 +327,7 @@ node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
 Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`):
 - Mode A — pure question (no execution traces; reviewers read the artifact directly)
 - artifact_path: all `${PHASE_DIR}/*-PLAN.md` files (pass paths; workers read them)
+- envelope_path: task envelope JSON path (if file exists) for risk_level context
 - review_context: "This is a pre-execution implementation plan. The code does not exist yet. Evaluate the plan's approach, task breakdown, and correctness — not whether the implementation already exists in the repository."
 - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
 - Synthesize results inline, deliberate up to 10 rounds per R3.3
