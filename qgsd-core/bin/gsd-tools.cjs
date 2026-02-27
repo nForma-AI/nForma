@@ -224,6 +224,7 @@ function loadConfig(cwd) {
       nyquist_validation: get('nyquist_validation', { section: 'workflow', field: 'nyquist_validation' }) ?? defaults.nyquist_validation,
       model_tier_planner: get('model_tier_planner') ?? defaults.model_tier_planner,
       model_tier_worker: get('model_tier_worker') ?? defaults.model_tier_worker,
+      model_overrides: get('model_overrides') || {},
     };
   } catch {
     return defaults;
