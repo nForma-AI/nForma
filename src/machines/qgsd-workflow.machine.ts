@@ -12,7 +12,7 @@ export interface QGSDContext {
 }
 
 export type QGSDEvent =
-  | { type: 'QUORUM_START';    slotsAvailable: number }
+  | { type: 'QUORUM_START';    slotsAvailable: number; polledCount: number }
   | { type: 'VOTES_COLLECTED'; successCount: number }
   | { type: 'DELIBERATE' }
   | { type: 'DECIDE';          outcome: 'APPROVE' | 'BLOCK' };
@@ -27,7 +27,7 @@ export const qgsdWorkflowMachine = setup({
       context.successCount >= Math.ceil(context.slotsAvailable / 2),
 
     unanimityMet: ({ context }) =>
-      context.successCount >= context.polledCount,
+      context.successCount === context.polledCount,
 
     noInfiniteDeliberation: ({ context }) =>
       context.deliberationRounds < context.maxDeliberation,
@@ -53,6 +53,7 @@ export const qgsdWorkflowMachine = setup({
           target: 'COLLECTING_VOTES',
           actions: assign({
             slotsAvailable: ({ event }) => event.slotsAvailable,
+            polledCount:    ({ event }) => event.polledCount,
             currentPhase:   () => 'COLLECTING_VOTES',
           }),
         },
@@ -62,7 +63,7 @@ export const qgsdWorkflowMachine = setup({
       on: {
         VOTES_COLLECTED: [
           {
-            guard:   'minQuorumMet',
+            guard:   'unanimityMet',
             target:  'DECIDED',
             actions: assign({
               successCount:  ({ event }) => event.successCount,
@@ -84,7 +85,7 @@ export const qgsdWorkflowMachine = setup({
       on: {
         VOTES_COLLECTED: [
           {
-            guard:   'minQuorumMet',
+            guard:   'unanimityMet',
             target:  'DECIDED',
             actions: assign({
               successCount:  ({ event }) => event.successCount,
