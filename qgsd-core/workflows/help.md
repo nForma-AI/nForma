@@ -230,6 +230,25 @@ Systematic debugging with persistent state across context resets.
 Usage: `/qgsd:debug "login button doesn't work"`
 Usage: `/qgsd:debug` (resume active session)
 
+### Issue Triage
+
+**`/qgsd:triage [--source github|sentry|bash] [--since 24h|7d] [--limit N]`**
+Fetch issues and errors from configured sources and triage them.
+
+- Reads `.planning/triage-sources.md` for source configuration
+- Fetches in parallel from all configured sources (GitHub, Sentry, custom bash)
+- Deduplicates cross-source issues, sorts by severity then recency
+- Routes selected issue to `/qgsd:debug` (errors/bugs) or `/qgsd:quick` (tasks)
+
+Supported source types:
+- `github` — issues or PRs via `gh` CLI
+- `sentry` — unresolved errors via `sentry-cli`
+- `bash` — any shell command (Linear, Jira, Datadog, custom scripts)
+
+Usage: `/qgsd:triage`
+Usage: `/qgsd:triage --source github --since 24h`
+Setup: copy `docs/triage-sources.example.md` to `.planning/triage-sources.md`
+
 ### Todo Management
 
 **`/qgsd:add-todo [description]`**
@@ -363,6 +382,7 @@ Usage: `/qgsd:join-discord`
 │   └── v1.0-phases/          # Archived phase dirs (via /qgsd:cleanup or --archive-phases)
 │       ├── 01-foundation/
 │       └── 02-core-features/
+├── triage-sources.md     # Issue source config for /qgsd:triage (committed)
 ├── codebase/             # Codebase map (brownfield projects)
 │   ├── STACK.md          # Languages, frameworks, dependencies
 │   ├── ARCHITECTURE.md   # Patterns, layers, data flow
@@ -466,6 +486,13 @@ Example config:
 /qgsd:add-todo Fix modal z-index  # Capture with explicit description
 /qgsd:check-todos                 # Review and work on todos
 /qgsd:check-todos api             # Filter by area
+```
+
+**Checking for new issues across all sources:**
+
+```
+/qgsd:triage               # See everything new — GitHub + Sentry + custom sources
+/qgsd:triage --since 24h   # Only issues from the last 24 hours
 ```
 
 **Debugging an issue:**

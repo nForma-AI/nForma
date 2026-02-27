@@ -226,7 +226,7 @@ Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`):
 - Mode B — artifact review
 - artifact_path: `.planning/codebase/STACK.md`, `ARCHITECTURE.md`, `CONVENTIONS.md`, `CONCERNS.md`
 - Question: "Review these 4 codebase analysis documents. Check: (1) CONSISTENCY — do docs contradict each other? (2) COMPLETENESS — obvious areas absent from all docs? (3) BLIND SPOTS — what did parallel agents miss? (4) CONCERN TRIAGE — which CONCERNS.md items should block new work vs be deferred? Vote APPROVE (no significant issues) or BLOCK (issues found with structured list)."
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+- Build `$DISPATCH_LIST` first (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list). Then dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks — do NOT dispatch slots outside `$DISPATCH_LIST`
 - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
 Fail-open: if the Task itself errors (all models unavailable per R6.6), note reduced quorum, continue to scan_for_secrets — documents are still better than nothing.

@@ -31,7 +31,7 @@ Run the full R3 quorum protocol inline (dispatch_pattern from commands/qgsd/quor
 
 1. State Claude's own position (vote) first — APPROVE or BLOCK with 1-2 sentence rationale
 2. Run provider pre-flight: node ~/.claude/qgsd-bin/check-provider-health.cjs --json
-3. Dispatch all active slots as sibling qgsd-quorum-slot-worker Tasks in one message turn:
+3. Build $DISPATCH_LIST first (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → first FAN_OUT_COUNT-1 slots). Then dispatch $DISPATCH_LIST as sibling qgsd-quorum-slot-worker Tasks in one message turn — do NOT dispatch slots outside $DISPATCH_LIST:
    Task(subagent_type="qgsd-quorum-slot-worker", prompt="slot: <slot>\\nround: 1\\n...")
 4. Synthesize results inline. Deliberate up to 10 rounds per R3.3 if no consensus.
 5. Update scoreboard: node ~/.claude/qgsd-bin/update-scoreboard.cjs merge-wave ...

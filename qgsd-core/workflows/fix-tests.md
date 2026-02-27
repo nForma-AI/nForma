@@ -332,7 +332,7 @@ Print: `QGSD fix-tests: Triage report generated → .planning/ddmin-triage-repor
 Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`) to review the triage report. Mode B — artifact review:
 - artifact_path: `.planning/ddmin-triage-report.md`
 - Question: "Does the triage report correctly categorize test failures and is the fix ordering sound? Evaluate: (1) independent failures look like genuine standalone bugs, (2) pollution chains ordered correctly, (3) cycle groups properly identified, (4) fix order safe to execute. Vote APPROVE to begin fixing, or BLOCK with specific concerns."
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+- Build `$DISPATCH_LIST` first (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list). Then dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks — do NOT dispatch slots outside `$DISPATCH_LIST`
 - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
 Parse the quorum verdict from inline synthesis.
@@ -544,7 +544,7 @@ Wait for the Task to return. Extract `fix_description`, `files_to_modify`, `root
 Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`). Mode B — artifact review:
 - artifact_path: `.planning/fix-evidence-{hash}.md`
 - Question: "Does this fix correctly address the root cause without introducing regressions? Evaluate: (1) root cause explanation matches failure output, (2) fix is minimal and correct, (3) fix prevents the pollution chain. Vote APPROVE to proceed, or BLOCK with specific concerns."
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+- Build `$DISPATCH_LIST` first (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list). Then dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks — do NOT dispatch slots outside `$DISPATCH_LIST`
 - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
 - If `APPROVED`: proceed to Step 3.4.
@@ -817,7 +817,7 @@ Print: `QGSD fix-tests: Final report generated → .planning/ddmin-final-report.
 Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`). Mode B — artifact review:
 - artifact_path: `.planning/ddmin-final-report.md`
 - Question: "Is the fix pipeline complete and the final report accurate? Evaluate: (1) applied fixes were sound, (2) remaining failures documented with sufficient diagnosis, (3) quarantined cycle groups explained, (4) state trustworthy. Vote APPROVE if pipeline completed correctly, NOTE (non-blocking) if observations only, BLOCK only for critical errors or unexplained regressions."
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+- Build `$DISPATCH_LIST` first (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list). Then dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks — do NOT dispatch slots outside `$DISPATCH_LIST`
 - Synthesize results inline
 
 This quorum call is advisory — a NOTE does not halt the workflow. Only BLOCK halts.

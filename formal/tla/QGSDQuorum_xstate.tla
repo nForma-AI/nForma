@@ -52,12 +52,13 @@ QuorumStart(slotsAvailable) ==
     /\ state = "IDLE"
     /\ state' = "COLLECTING_VOTES"
     /\ slotsAvailable' = slotsAvailable  \* param from event
-    /\ UNCHANGED <<successCount, deliberationRounds, maxDeliberation, maxSize, polledCount>>
+    /\ polledCount' = polledCount  \* FIXME: XState assign for polledCount
+    /\ UNCHANGED <<successCount, deliberationRounds, maxDeliberation, maxSize>>
 
-\* COLLECTING_VOTES -[VOTES_COLLECTED / minQuorumMet]-> DECIDED
+\* COLLECTING_VOTES -[VOTES_COLLECTED / unanimityMet]-> DECIDED
 CollectingVotesVotesCollectedToDECIDED(successCount) ==
     /\ state = "COLLECTING_VOTES"
-    /\ successCount * 2 >= N
+    /\ successCount = polledCount
     /\ state' = "DECIDED"
     /\ successCount' = successCount  \* param from event
     /\ UNCHANGED <<slotsAvailable, deliberationRounds, maxDeliberation, maxSize, polledCount>>
@@ -70,10 +71,10 @@ CollectingVotesVotesCollectedToDELIBERATING(successCount) ==
     /\ deliberationRounds' = deliberationRounds + 1
     /\ UNCHANGED <<slotsAvailable, maxDeliberation, maxSize, polledCount>>
 
-\* DELIBERATING -[VOTES_COLLECTED / minQuorumMet]-> DECIDED
+\* DELIBERATING -[VOTES_COLLECTED / unanimityMet]-> DECIDED
 DeliberatingVotesCollectedToDECIDED(successCount) ==
     /\ state = "DELIBERATING"
-    /\ successCount * 2 >= N
+    /\ successCount = polledCount
     /\ state' = "DECIDED"
     /\ successCount' = successCount  \* param from event
     /\ UNCHANGED <<slotsAvailable, deliberationRounds, maxDeliberation, maxSize, polledCount>>

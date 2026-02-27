@@ -260,7 +260,7 @@ Display before dispatching each round:
 ─────────────────────────────────────────────
 ```
 
-#### Dispatch all active slots as SIBLING Task calls (one message turn)
+#### Build `$DISPATCH_LIST` (quorum.md Adaptive Fan-Out: FAN_OUT_COUNT-1 external slots), then dispatch as SIBLING Task calls (one message turn)
 
 All workers for this round are dispatched as parallel sibling Task calls in one message turn:
 
@@ -471,7 +471,7 @@ $ALL_ROUND_RESULTS = []
 ─────────────────────────────────────────────
 ```
 
-#### Dispatch all active slots as SIBLING Task calls (one message turn)
+#### Build `$DISPATCH_LIST` (quorum.md Adaptive Fan-Out: FAN_OUT_COUNT-1 external slots), then dispatch as SIBLING Task calls (one message turn)
 
 ```
 Task(

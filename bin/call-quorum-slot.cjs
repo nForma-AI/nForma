@@ -106,7 +106,8 @@ const argv = process.argv.slice(2);
 const getArg = (f) => { const i = argv.indexOf(f); return i !== -1 && argv[i + 1] ? argv[i + 1] : null; };
 
 const slot      = getArg('--slot');
-const timeoutMs = parseInt(getArg('--timeout') ?? '30000', 10);
+const _timeoutArg = getArg('--timeout');
+const timeoutMs   = _timeoutArg !== null ? parseInt(_timeoutArg, 10) : null; // null = use provider.quorum_timeout_ms
 const spawnCwd  = getArg('--cwd') ?? process.cwd();
 
 if (!slot) {
@@ -161,7 +162,9 @@ function runSubprocess(provider, prompt, timeoutMs) {
   return new Promise((resolve, reject) => {
     let child;
     try {
-      child = spawn(provider.cli, args, { env, cwd: spawnCwd, stdio: ['pipe', 'pipe', 'pipe'] });
+      // detached: true creates a new process group — required to kill all descendants
+      // (ccr → Claude Code → node, opencode → LLM subprocess, etc.)
+      child = spawn(provider.cli, args, { env, cwd: spawnCwd, stdio: ['pipe', 'pipe', 'pipe'], detached: true });
     } catch (err) {
       reject(new Error(`[spawn error: ${err.message}]`));
       return;
@@ -174,10 +177,20 @@ function runSubprocess(provider, prompt, timeoutMs) {
     let timedOut  = false;
     const MAX_BUF = 10 * 1024 * 1024;
 
+    // Kill entire process group, then destroy streams to force 'close' even if
+    // grandchildren keep the pipes open (the common case with ccr/opencode).
+    const killGroup = () => {
+      try { process.kill(-child.pid, 'SIGTERM'); } catch (_) { try { child.kill('SIGTERM'); } catch (_) {} }
+      setTimeout(() => {
+        try { process.kill(-child.pid, 'SIGKILL'); } catch (_) { try { child.kill('SIGKILL'); } catch (_) {} }
+        try { child.stdout.destroy(); } catch (_) {}
+        try { child.stderr.destroy(); } catch (_) {}
+      }, 2000);
+    };
+
     const timer = setTimeout(() => {
       timedOut = true;
-      child.kill('SIGTERM');
-      setTimeout(() => { try { if (!child.killed) child.kill('SIGKILL'); } catch (_) {} }, 5000);
+      killGroup();
     }, timeoutMs);
 
     child.stdout.on('data', d => {
@@ -353,7 +366,9 @@ async function main() {
     process.exit(1);
   }
 
-  const effectiveTimeout = timeoutMs || provider.quorum_timeout_ms || provider.timeout_ms || 30000;
+  // timeoutMs is null when --timeout not passed → fall through to provider.quorum_timeout_ms.
+  // provider.timeout_ms (300s) is intentionally last — it's the full session timeout, not quorum.
+  const effectiveTimeout = timeoutMs ?? provider.quorum_timeout_ms ?? provider.timeout_ms ?? 30000;
 
   try {
     let result;

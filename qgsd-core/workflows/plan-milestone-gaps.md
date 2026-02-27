@@ -118,7 +118,7 @@ Run R3 quorum inline (dispatch_pattern from `commands/qgsd/quorum.md`):
 - Mode A — pure question
 - Question: "Are these gap closure phases correctly scoped and complete to close the identified milestone gaps? Proposed phases: {summary — 1 line per proposed phase showing phase name, requirements it closes, and task count}"
 - Include the proposed phases markdown from the presentation block above as context
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks (one per slot)
+- Build `$DISPATCH_LIST` first (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list). Then dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks — do NOT dispatch slots outside `$DISPATCH_LIST`
 - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
 After quorum vote completes, update the scoreboard for each participating model:

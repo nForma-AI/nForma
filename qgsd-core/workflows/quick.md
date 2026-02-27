@@ -244,25 +244,96 @@ Offer: 1) Force proceed, 2) Abort
 
 ---
 
-**Step 5.7: Quorum review of plan (required by R3.1)**
+**Step 5.7: Quorum review of plan with R3.6 (required by R3.1 + R3.6)**
 
-This step is MANDATORY regardless of `--full` mode. R3.1 requires quorum for any planning output from `/qgsd:quick`.
+This step is MANDATORY regardless of `--full` mode. R3.1 requires quorum for any planning output from `/qgsd:quick`. R3.6 wraps this in an improvement-iteration loop (up to 10 iterations).
 
-Form your own position on the plan first: does it correctly address the task description? Are tasks atomic and safe? State your vote as 1-2 sentences (APPROVE or BLOCK with rationale).
+Initialize: `improvement_iteration = 0`
+
+**LOOP** (while `improvement_iteration <= 10`):
+
+Form your own position on the current plan: does it correctly address the task description? Are tasks atomic and safe? State your vote as 1-2 sentences (APPROVE or BLOCK with rationale).
 
 Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`):
 - Mode A — artifact review (plan is pre-execution; no traces to pass)
 - artifact_path: `${QUICK_DIR}/${next_num}-PLAN.md`
 - review_context: "This is a pre-execution task plan. The code does not exist yet. Evaluate whether the task breakdown is atomic, safe to execute, and correctly addresses the objective — not whether the implementation already exists."
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
-- Synthesize results inline, deliberate up to 10 rounds per R3.3
+- request_improvements: true          ← R3.6 signal infrastructure
+- Build `$DISPATCH_LIST` first (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list)
+- Dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100`
+- Deliberate up to 10 rounds per R3.3
 
 Fail-open: if a slot errors (UNAVAIL), note it and proceed — same as R6 policy.
 
-**Route on quorum_result:**
-- **APPROVED:** Include `<!-- GSD_DECISION -->` in your response summarizing quorum results, then proceed to Step 6.
-- **BLOCKED:** Report the blocker to the user. Do not execute.
-- **ESCALATED:** Present the escalation to the user. Do not execute until resolved.
+After quorum returns, parse the improvements signal:
+
+```
+$QUORUM_IMPROVEMENTS = JSON array from <!-- QUORUM_IMPROVEMENTS_START [...] QUORUM_IMPROVEMENTS_END -->
+```
+
+If the signal is absent or malformed: treat as empty array (fail-open — R3.6 does not fire).
+
+**Route:**
+
+- **BLOCKED** → Report the blocker to the user. Do not execute. **Break loop.**
+- **ESCALATED** → Present the escalation to the user. Do not execute until resolved. **Break loop.**
+
+- **APPROVED AND ($QUORUM_IMPROVEMENTS is empty OR improvement_iteration >= 10)**:
+    Include `<!-- GSD_DECISION -->` in your response summarizing quorum results.
+    If `improvement_iteration > 0`: note "R3.6: ${improvement_iteration} iteration(s) ran."
+    If `improvement_iteration >= 10` AND improvements remained: note
+      "R3.6 cap reached — improvements not incorporated."
+    Proceed to Step 6. **Break loop.**
+
+- **APPROVED AND $QUORUM_IMPROVEMENTS non-empty AND improvement_iteration < 10**:
+    `improvement_iteration += 1`
+
+    Display:
+    ```
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     QGSD ► QUICK TASK — R3.6 improvements (${improvement_iteration}/10)
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ```
+
+    List each improvement: `• <model>: <suggestion> — <rationale>`
+
+    Display: `Sending improvements to planner...`
+
+    Conflict check: if two improvements are mutually incompatible, escalate to user before
+    spawning planner. Await user resolution, then filter improvements to the chosen set.
+
+    Spawn planner in improvement-revision mode:
+
+    ```
+    Task(
+      prompt="First, read ~/.claude/agents/qgsd-planner.md for your role and instructions.\n\n
+      <revision_context>
+      Mode: improvement-revision (R3.6 iteration ${improvement_iteration}/10)
+
+      <files_to_read>
+      - ${QUICK_DIR}/${next_num}-PLAN.md (current plan to revise)
+      </files_to_read>
+
+      <quorum_improvements>
+      ${QUORUM_IMPROVEMENTS formatted as readable bullet list}
+      </quorum_improvements>
+
+      <instructions>
+      Incorporate the quorum improvements above into the plan.
+      Make targeted updates only. Do NOT replan from scratch.
+      Return a summary of what changed.
+      </instructions>
+      </revision_context>",
+      subagent_type="general-purpose",
+      model="{planner_model}",
+      description="R3.6 improvements (iteration ${improvement_iteration})"
+    )
+    ```
+
+    After planner returns: plan at `${QUICK_DIR}/${next_num}-PLAN.md` is updated.
+    Continue loop.
+
+**END LOOP**
 
 ---
 
@@ -394,7 +465,7 @@ Store as `$VERIFICATION_STATUS`.
    - Mode A — pure question
    - Question: "Can each human_needed item from quick task ${next_num} be resolved using available tools (grep, file inspection, quorum-test)? Vote APPROVE (can resolve programmatically) or BLOCK (genuinely needs human eyes)."
    - Include the full `human_verification` section as context
-   - Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
+   - Build `$DISPATCH_LIST` first (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list). Then dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` — do NOT dispatch slots outside `$DISPATCH_LIST`
    - Synthesize results inline, deliberate up to 10 rounds per R3.3
 
    Fail-open: if all slots error, treat as BLOCK (escalate to user).

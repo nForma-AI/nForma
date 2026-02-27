@@ -203,3 +203,44 @@ test('integration: divergence object contains confidence field for unmappable_ac
   // The stdout should include the divergence with a confidence field
   assert.match(result.stdout, /confidence/i, 'divergence output should include confidence field');
 });
+
+// -- MCP field validation (MCPENV-03) ----------------------------------------
+// Wave 0 failing tests. These MUST be in RED state before Plan 03 implements
+// validateMCPMetadata in validate-traces.cjs.
+// Ref: .planning/phases/v0.19-05-mcp-environment-model/v0.19-05-01-PLAN.md
+
+test("validate-traces emits error for mcp_call missing request_id", { todo: "not yet implemented - RED state, turns GREEN in Plan 03" }, () => {
+  const tmpDir = fs.mkdtempSync(require("os").tmpdir() + "/qgsd-mcp-");
+  const planningDir = require("path").join(tmpDir, ".planning");
+  fs.mkdirSync(planningDir, { recursive: true });
+  const event = JSON.stringify({ action: "mcp_call", peer: "codex-1", mcp_outcome: "success", attempt: 1 });
+  fs.writeFileSync(require("path").join(planningDir, "conformance-events.jsonl"), event + "
+", "utf8");
+  const result = require("child_process").spawnSync(process.execPath, [require("path").join(__dirname, "validate-traces.cjs")], { cwd: tmpDir, encoding: "utf8" });
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+  assert.fail("not yet implemented - validateMCPMetadata does not exist in validate-traces.cjs");
+});
+
+test("validate-traces accepts mcp_call with all required fields", { todo: "not yet implemented - RED state, turns GREEN in Plan 03" }, () => {
+  const tmpDir = fs.mkdtempSync(require("os").tmpdir() + "/qgsd-mcp-");
+  const planningDir = require("path").join(tmpDir, ".planning");
+  fs.mkdirSync(planningDir, { recursive: true });
+  const event = JSON.stringify({ action: "mcp_call", request_id: "round1:codex-1:1", peer: "codex-1", mcp_outcome: "success", attempt: 1 });
+  fs.writeFileSync(require("path").join(planningDir, "conformance-events.jsonl"), event + "
+", "utf8");
+  const result = require("child_process").spawnSync(process.execPath, [require("path").join(__dirname, "validate-traces.cjs")], { cwd: tmpDir, encoding: "utf8" });
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+  assert.fail("not yet implemented - validateMCPMetadata does not exist in validate-traces.cjs");
+});
+
+test("validate-traces ignores MCP metadata fields for non-mcp_call actions", { todo: "not yet implemented - RED state, turns GREEN in Plan 03" }, () => {
+  const tmpDir = fs.mkdtempSync(require("os").tmpdir() + "/qgsd-mcp-");
+  const planningDir = require("path").join(tmpDir, ".planning");
+  fs.mkdirSync(planningDir, { recursive: true });
+  const event = JSON.stringify({ action: "quorum_start", slots_available: 4 });
+  fs.writeFileSync(require("path").join(planningDir, "conformance-events.jsonl"), event + "
+", "utf8");
+  const result = require("child_process").spawnSync(process.execPath, [require("path").join(__dirname, "validate-traces.cjs")], { cwd: tmpDir, encoding: "utf8" });
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+  assert.fail("not yet implemented - validateMCPMetadata does not exist in validate-traces.cjs");
+});

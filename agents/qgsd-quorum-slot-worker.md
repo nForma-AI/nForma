@@ -49,6 +49,9 @@ prior_positions: |               — Round 2+ only, verbatim cross-pollination b
   <...>
 traces: |                        — Mode B only, full execution trace output
   <...>
+request_improvements: <true|false>  — Mode A only; when true and you APPROVE, list
+                                       actionable improvements in structured format.
+                                       Default: false (omit to skip improvements logic).
 ```
 
 `review_context` examples by artifact type:
@@ -120,6 +123,16 @@ to the disagreement. At minimum re-read CLAUDE.md and .planning/STATE.md if they
 
 Given the above, do you maintain your answer or revise it? State your updated position
 clearly (2–4 sentences).
+[If request_improvements: true:]
+If you APPROVE and have specific, actionable improvements, append:
+
+Improvements:
+- suggestion: [concise change — one sentence]
+  rationale: [why this strengthens the plan]
+
+Omit this section entirely if you have no improvements, or if you BLOCK.
+[end if request_improvements: true]
+
 If your re-check references specific files, line numbers, or code snippets, record
 them in a citations: field in your response (optional).
 
@@ -132,6 +145,16 @@ in what you actually find in the repo.
 You are one AI model in a multi-model quorum. Your peer reviewers are other AI language
 models — not human experts. Give your honest answer with reasoning. Be concise (3–6
 sentences). Do not defer to peer models.
+[If request_improvements: true:]
+If you APPROVE and have specific, actionable improvements, append:
+
+Improvements:
+- suggestion: [concise change — one sentence]
+  rationale: [why this strengthens the plan]
+
+Omit this section entirely if you have no improvements, or if you BLOCK.
+[end if request_improvements: true]
+
 If your answer references specific files, line numbers, or code snippets from the
 repository, record them in a citations: field in your response (optional — only
 include if you actually cite code).
@@ -200,6 +223,8 @@ node "$HOME/.claude/qgsd-bin/call-quorum-slot.cjs" \
 WORKER_PROMPT
 ```
 
+**Bash tool timeout:** Set the Bash tool's `timeout` parameter to `timeout_ms + 30000` ms (e.g., `timeout_ms=30000` → Bash timeout `60000`). Cap at `120000` ms. This is a hard ceiling in case `call-quorum-slot.cjs` itself hangs despite the internal process-group kill.
+
 If this exits non-zero OR output contains `TIMEOUT`: verdict = UNAVAIL.
 
 Store the full output as `$RAW_OUTPUT`.
@@ -225,6 +250,16 @@ unavail_message: <first 500 characters of $RAW_OUTPUT>
 - **Mode A:** `verdict` = free-form position summary (not APPROVE/REJECT/FLAG). Extract 2–4 sentence summary of the model's position from `$RAW_OUTPUT`.
 - **Mode B:** Parse `$RAW_OUTPUT` for a `verdict:` line — extract `APPROVE`, `REJECT`, or `FLAG`. If none found: `verdict = FLAG` with reasoning "Could not parse verdict from output."
 
+**Mode A, when `request_improvements: true`:** After extracting verdict/reasoning, also scan `$RAW_OUTPUT` for an `Improvements:` section. Parse each `- suggestion: ... rationale: ...` entry. Add to result block only when entries found; omit field entirely otherwise:
+
+```yaml
+improvements:
+  - suggestion: "..."
+    rationale: "..."
+```
+
+If `Improvements:` section is absent, empty, or malformed: omit `improvements:` field entirely. Never fail the result on parse errors — improvements are additive, not required.
+
 ```
 slot: <slotName>
 round: <round>
@@ -232,6 +267,10 @@ verdict: <see above>
 reasoning: <2–4 sentence summary of the model's position or verdict reasoning>
 citations: |
   <optional — file paths, line numbers, or code snippets the model cited; omit if none>
+improvements:
+  - suggestion: "..."
+    rationale: "..."
+  <optional — Mode A + request_improvements:true only; omit field entirely if no improvements>
 raw: |
   <first 5000 characters of $RAW_OUTPUT>
 ```
@@ -253,5 +292,6 @@ question: <question text>
 [skip_context_reads: true]
 [prior_positions: ...]
 [traces: ...]
+[request_improvements: true]
 ```
 </arguments>

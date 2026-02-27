@@ -235,6 +235,7 @@
 - [x] **Phase v0.19-03: Liveness Fairness** — invariants.md companion entries for all liveness properties declare fairness assumptions and realism rationale; TLA+ checker emits result=inconclusive when liveness cfg exists but invariants.md has no fairness declaration (LIVE-01..02) (completed 2026-02-27)
 - [ ] **Phase v0.19-04: Enforcement Layer** — redaction.yaml defines forbidden keys/patterns; check-trace-redaction.cjs validates trace files and appends to check-results.ndjson; validate-traces.cjs never_observed output includes evidence confidence metadata; check-trace-schema-drift.cjs detects non-atomic schema changes; all three CI gates wired (REDACT-01..03, EVID-01..02, DRIFT-01..02)
 - [ ] **Phase v0.19-05: MCP Environment Model** — environment.md models MCP servers as nondeterministic environment processes; QGSDMCPEnv.tla formally verifies quorum fault-tolerance under arbitrary MCP failures; trace schema extended with MCP-interaction fields; mcp-availability.pm PRISM model calibrated from scoreboard rates (MCPENV-01..04)
+- [ ] **Phase v0.19-06: R3.6 Improvement Iteration** — Implement the Iterative Improvement Protocol: slot-worker structured `improvements:` field, quorum improvement signal emission, and R3.6 outer loop in plan-phase + quick. Closes the gap between CLAUDE.md R3.6 specification and actual behavior.
 
 
 ## Phase Details

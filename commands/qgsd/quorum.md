@@ -21,7 +21,7 @@ Run a question or prompt through the full QGSD quorum (R3 protocol): Claude + na
 
 <dispatch_pattern>
 **Execution path:** Claude runs the full R3 protocol directly in the main conversation thread.
-Dispatch slot-workers via sibling Task calls (one per active slot per round).
+Dispatch slot-workers via sibling Task calls (one per slot in `$DISPATCH_LIST` per round — capped by `FAN_OUT_COUNT`).
 No orchestrator intermediary — the fallback logic, round loop, and scoreboard are all inline.
 
 Resolve the question to pass:
@@ -231,10 +231,12 @@ else
   FAN_OUT_COUNT="$MAX_QUORUM_SIZE"
 fi
 
-# The qgsd-prompt.js hook already emits --n $FAN_OUT_COUNT in the injected instructions.
-# This block documents the mapping for transparency and audit purposes.
 echo "Adaptive fan-out: risk_level=${RISK_LEVEL} → fan_out_count=${FAN_OUT_COUNT} (of max ${MAX_QUORUM_SIZE})"
 ```
+
+**Apply cap — build DISPATCH_LIST:** Take the first `FAN_OUT_COUNT - 1` slots from the active working list (healthy-first order from pre-flight). This is the definitive slot cap. Call this `$DISPATCH_LIST`. All subsequent round dispatches (Round 1 and deliberation) use `$DISPATCH_LIST` — never the full working list.
+
+> **Why here and not only in the hook:** `qgsd-prompt.js` enforces this cap via `--n` for main-session prompts. But quorum is also dispatched inline from subagents (e.g., `qgsd-planner` in step 8.5 of `plan-phase.md`) where no UserPromptSubmit hook fires. `quorum.md` must self-enforce the cap for all dispatch contexts.
 
 ### R6.4 Reduced-Quorum Note (FAN-05)
 
@@ -294,7 +296,7 @@ Store as `$CLAUDE_POSITION`.
 
 ### Query models (parallel — one Task per slot)
 
-Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per active slot as **parallel sibling calls** in one message turn. Build a YAML prompt block per the slot-worker argument spec:
+Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per slot in **`$DISPATCH_LIST`** (capped to `FAN_OUT_COUNT - 1` external slots) as **parallel sibling calls** in one message turn. Do NOT dispatch slots outside `$DISPATCH_LIST`. Build a YAML prompt block per the slot-worker argument spec:
 
 ```
 slot: <slotName>
@@ -305,6 +307,7 @@ mode: A
 question: <question text>
 [artifact_path: <path to artifact file>]
 [review_context: <one-sentence framing for how to evaluate the artifact>]
+[request_improvements: true]    — when set by calling context (plan-phase, quick)
 ```
 
 `review_context` is optional but strongly recommended when `artifact_path` is present.
@@ -353,7 +356,7 @@ If all available models agree → skip to **Consensus output**.
 
 Run up to 9 deliberation rounds (max 10 total rounds including Round 1).
 
-For each round, dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per active slot as **parallel sibling calls**. Append `prior_positions` to the YAML block for Round 2+ dispatch:
+For each round, dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per slot in **`$DISPATCH_LIST`** as **parallel sibling calls**. Append `prior_positions` to the YAML block for Round 2+ dispatch:
 
 ```
 # skip_context_reads: true — worker already read CLAUDE.md, STATE.md, artifact in Round 1.
@@ -366,6 +369,7 @@ mode: A
 question: <question text>
 [artifact_path: <same artifact_path as Round 1, if present>]
 [review_context: <same review_context as Round 1, if present>]
+[request_improvements: true]    — carry through from Round 1 if set
 skip_context_reads: true
 prior_positions: |
   • Claude:
@@ -442,6 +446,30 @@ node "$HOME/.claude/qgsd-bin/update-scoreboard.cjs" \
 
 Run one command per model per round. Each call is atomic and idempotent — if re-run for the same task+round+model it overwrites that model's vote and recalculates from scratch.
 
+**Post-consensus improvements extraction (Mode A, when `request_improvements: true`):**
+
+1. Collect `improvements:` fields from all worker result blocks where `verdict` is not UNAVAIL and `improvements:` is present and non-empty.
+
+2. De-duplicate: if multiple models propose the same improvement (same suggestion text or semantically equivalent), keep only the first occurrence.
+
+3. If any improvements collected, display:
+   ```
+   Improvements proposed:
+   • <slotName>: [suggestion]  —  [rationale]
+   • <slotName>: [suggestion]  —  [rationale]
+   ```
+
+4. Emit structured signal (parseable by calling workflow):
+   ```
+   <!-- QUORUM_IMPROVEMENTS_START
+   [{"model":"<slotName>","suggestion":"...","rationale":"..."},...]
+   QUORUM_IMPROVEMENTS_END -->
+   ```
+
+5. If no improvements collected: emit `<!-- QUORUM_IMPROVEMENTS_START [] QUORUM_IMPROVEMENTS_END -->`
+
+6. If `request_improvements` was not set (false or absent): do NOT emit the signal block.
+
 **Debate file path:** If `artifact_path` was provided → write to the same directory as the artifact (e.g. `.planning/phases/v0.14-02/QUORUM_DEBATE.md`). Otherwise → `.planning/debates/YYYY-MM-DD-<short-slug>.md` where `<short-slug>` is the first 6 words of the question lowercased, spaces replaced with hyphens, non-alphanumeric chars stripped.
 
 Create `.planning/debates/` if it does not exist.
@@ -468,7 +496,14 @@ Rounds: <N>
 
 ## Outcome
 <Full consensus answer (Mode A) or verdict + rationale (Mode B) or escalation summary>
+
+## Improvements
+| Model | Suggestion | Rationale |
+|---|---|---|
+| <slotName> | ... | ... |
 ```
+
+Only write the `## Improvements` section when `request_improvements: true` AND improvements were proposed. Omit entirely when no improvements or when `request_improvements` is not set.
 
 ### Escalate — no consensus after 10 rounds
 
@@ -570,7 +605,7 @@ $TRACES
 
 ### Dispatch quorum workers via Task (parallel per round)
 
-Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per active slot as **parallel sibling calls** in one message turn. Build a YAML prompt block per the slot-worker argument spec:
+Dispatch one `Task(subagent_type="qgsd-quorum-slot-worker", model="haiku", max_turns=100, ...)` per slot in **`$DISPATCH_LIST`** (capped to `FAN_OUT_COUNT - 1` external slots) as **parallel sibling calls** in one message turn. Do NOT dispatch slots outside `$DISPATCH_LIST`. Build a YAML prompt block per the slot-worker argument spec:
 
 ```
 slot: <slotName>

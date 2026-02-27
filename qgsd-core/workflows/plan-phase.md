@@ -300,13 +300,10 @@ if [ "$TASK_ENVELOPE_ENABLED" = "true" ]; then
 fi
 ```
 
-## 8.5 Run QUORUM (per CLAUDE.md R3)
+## 8.5 Run QUORUM with R3.6 (per CLAUDE.md R3 + R3.6)
 
 Before presenting planner output to the user, run QUORUM as required by R3.1.
-
-Form your own position on the plans first: do they correctly address the phase goal, requirement IDs, and user decisions from CONTEXT.md? State your vote as APPROVE or BLOCK with 1-2 sentence rationale.
-
-Read the plan files from `${PHASE_DIR}/*-PLAN.md` to prepare the artifact for the sub-agent.
+R3.6 wraps this in an improvement-iteration loop (up to 10 iterations).
 
 Set envelope_path for quorum context (ENV-02 context injection):
 
@@ -319,25 +316,104 @@ else
 fi
 ```
 
+Initialize: `improvement_iteration = 0`
+
+**LOOP** (while `improvement_iteration <= 10`):
+
 ```bash
 node ~/.claude/qgsd/bin/gsd-tools.cjs activity-set \
-  "{\"activity\":\"plan_phase\",\"sub_activity\":\"quorum\",\"phase\":${PHASE_NUMBER},\"quorum_round\":1}"
+  "{\"activity\":\"plan_phase\",\"sub_activity\":\"quorum\",\"phase\":${PHASE_NUMBER},\"quorum_round\":${improvement_iteration + 1}}"
 ```
 
+Form your own position on the current plan files first (CLAUDE.md R3.2): do they correctly address the phase goal, requirement IDs, and user decisions from CONTEXT.md? State your vote as APPROVE or BLOCK with 1-2 sentence rationale.
+
 Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`):
-- Mode A — pure question (no execution traces; reviewers read the artifact directly)
-- artifact_path: all `${PHASE_DIR}/*-PLAN.md` files (pass paths; workers read them)
-- envelope_path: task envelope JSON path (if file exists) for risk_level context
+- Mode A — pure question (reviewers read artifact directly)
+- artifact_path: all current `${PHASE_DIR}/*-PLAN.md` files
+- envelope_path: `${ENVELOPE_PATH}` (if file exists) for risk_level context
 - review_context: "This is a pre-execution implementation plan. The code does not exist yet. Evaluate the plan's approach, task breakdown, and correctness — not whether the implementation already exists in the repository."
-- Dispatch all active slots as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100` (one per slot)
-- Synthesize results inline, deliberate up to 10 rounds per R3.3
+- request_improvements: true          ← R3.6 signal infrastructure
+- Build `$DISPATCH_LIST` first (Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list)
+- Dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100`
+- Deliberate up to 10 rounds per R3.3
 
 Fail-open: if a slot errors (UNAVAIL), note it and proceed — same as R6 policy.
 
-Route on quorum_result:
-- **APPROVED:** Include `<!-- GSD_DECISION -->` in your response summarizing quorum results. Proceed to step 9.
-- **BLOCKED:** Report blocker to user. Do not proceed.
-- **ESCALATED:** Present escalation to user. Do not proceed until resolved.
+After quorum returns, parse the improvements signal:
+
+```
+$QUORUM_IMPROVEMENTS = JSON array from <!-- QUORUM_IMPROVEMENTS_START [...] QUORUM_IMPROVEMENTS_END -->
+```
+
+If the signal is absent or malformed: treat as empty array (fail-open — R3.6 does not fire).
+
+**Route:**
+
+- **BLOCKED** → Report blocker to user. Do not proceed. **Break loop.**
+- **ESCALATED** → Present escalation to user. Do not proceed until resolved. **Break loop.**
+
+- **APPROVED AND ($QUORUM_IMPROVEMENTS is empty OR improvement_iteration >= 10)**:
+    Include `<!-- GSD_DECISION -->` in your response summarizing quorum results.
+    If `improvement_iteration > 0`: note "R3.6: ${improvement_iteration} iteration(s) ran."
+    If `improvement_iteration >= 10` AND improvements remained: note
+      "R3.6 cap reached — improvements not incorporated."
+    Proceed to step 9. **Break loop.**
+
+- **APPROVED AND $QUORUM_IMPROVEMENTS non-empty AND improvement_iteration < 10**:
+    `improvement_iteration += 1`
+
+    Display:
+    ```
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     QGSD ► QUORUM APPROVED — R3.6 improvements (${improvement_iteration}/10)
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ```
+
+    List each improvement: `• <model>: <suggestion> — <rationale>`
+
+    Display: `Sending improvements to planner...`
+
+    Conflict check: if two improvements are mutually incompatible (one undoes the other),
+    escalate to user BEFORE spawning planner:
+    > "R3.6 conflict: improvements from [model A] and [model B] are incompatible. [describe
+    > conflict]. Which should take precedence?"
+    Await user resolution, then filter improvements to the chosen set.
+
+    Spawn planner in improvement-revision mode:
+
+    ```
+    Task(
+      prompt="First, read ~/.claude/agents/qgsd-planner.md for your role and instructions.\n\n
+      <revision_context>
+      Phase: ${PHASE_NUMBER}
+      Mode: improvement-revision (R3.6 iteration ${improvement_iteration}/10)
+
+      <files_to_read>
+      - ${PHASE_DIR}/*-PLAN.md (current plans to revise)
+      - ${CONTEXT_PATH} (USER DECISIONS — must not contradict)
+      </files_to_read>
+
+      <quorum_improvements>
+      ${QUORUM_IMPROVEMENTS formatted as readable bullet list}
+      </quorum_improvements>
+
+      <instructions>
+      Incorporate the quorum improvements above into the plans.
+      Make targeted updates only. Do NOT replan from scratch.
+      If an improvement conflicts with user decisions in CONTEXT.md, skip it and note why.
+      Return a summary of what changed.
+      </instructions>
+      </revision_context>",
+      subagent_type="general-purpose",
+      model="{planner_model}",
+      description="R3.6 improvements (iteration ${improvement_iteration})"
+    )
+    ```
+
+    After planner returns: re-read `${PHASE_DIR}/*-PLAN.md` (artifact_path updated).
+    Continue loop.
+
+**END LOOP**
 
 ## 9. Handle Planner Return
 
