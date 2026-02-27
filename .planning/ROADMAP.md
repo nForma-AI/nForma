@@ -886,7 +886,12 @@ Plans:
   3. Setting model_tier_planner: "sonnet" in qgsd.json causes the planner (not researcher/checker) to use sonnet — no regression on planner model selection
   4. Setting model_tier_worker: "sonnet" in qgsd.json causes researcher and checker Tasks to use sonnet instead of haiku
   5. Running node bin/install.js --claude --global after the config-loader.js change deploys the updated config-loader to ~/.claude/hooks/config-loader.js
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.18-02-01-PLAN.md — Tier key defaults and validation in config-loader.js (TDD: TIER-03)
+- [ ] v0.18-02-02-PLAN.md — resolveModelInternal tier lookup in gsd-tools.cjs + unit tests (TIER-01, TIER-02)
+- [ ] v0.18-02-03-PLAN.md — dist sync, install deploy, full npm test suite (TIER-01, TIER-02, TIER-03)
 
 ### Phase v0.18-03: Task Envelope
 **Goal**: After research completes and after planning completes, a task-envelope.json sidecar is written to .planning/phases/<phase>/ containing structured context; quorum.md reads risk_level from it with fail-open behavior; feature is config-gated
