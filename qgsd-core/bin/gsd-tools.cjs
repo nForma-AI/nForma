@@ -3610,7 +3610,7 @@ function cmdValidateConsistency(cwd, raw) {
 
   // Extract phases from ROADMAP
   const roadmapPhases = new Set();
-  const phasePattern = /#{2,4}\s*Phase\s+(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)\s*:/gi;
+  const phasePattern = /(?:#{2,4}|[-*]\s+\[[^\]]\]\s+\*{1,2})\s*Phase\s+(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)\s*:/gi;
   let m;
   while ((m = phasePattern.exec(roadmapContent)) !== null) {
     roadmapPhases.add(m[1]);
@@ -3860,7 +3860,7 @@ function cmdValidateHealth(cwd, options, raw) {
   if (fs.existsSync(roadmapPath)) {
     const roadmapContent = fs.readFileSync(roadmapPath, 'utf-8');
     const roadmapPhases = new Set();
-    const phasePattern = /#{2,4}\s*Phase\s+(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)\s*:/gi;
+    const phasePattern = /(?:#{2,4}|[-*]\s+\[[^\]]\]\s+\*{1,2})\s*Phase\s+(v\d+\.\d+-\d{2}(?:\.\d+)?|\d+(?:\.\d+)?)\s*:/gi;
     let m;
     while ((m = phasePattern.exec(roadmapContent)) !== null) {
       roadmapPhases.add(m[1]);
