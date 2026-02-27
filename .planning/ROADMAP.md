@@ -1041,6 +1041,21 @@ Plans:
 - [ ] v0.19-05-03-PLAN.md — MCPENV-03: trace.schema.json extension + validate-traces.cjs MCP field validation
 - [ ] v0.19-05-04-PLAN.md — MCPENV-04: mcp-availability.pm PRISM model + readMCPAvailabilityRates calibration
 
+### Phase v0.19-06: R3.6 Improvement Iteration
+**Goal**: The R3.6 iterative improvement protocol is fully implemented end-to-end and tested — slot-workers emit structured `improvements:` fields, the quorum orchestrator extracts and emits the QUORUM_IMPROVEMENTS signal, and both plan-phase and quick execute the R3.6 outer loop; CLAUDE.md file-read instructions removed from all workflow/agent files
+**Depends on**: Phase v0.19-05
+**Requirements**: IMPR-01, IMPR-02, IMPR-03, IMPR-04
+**Success Criteria** (what must be TRUE):
+  1. `agents/qgsd-quorum-slot-worker.md` parses `Improvements:` section from slot output when `request_improvements: true` and includes structured `improvements:` field in result block; test coverage via unit tests (IMPR-01)
+  2. `commands/qgsd/quorum.md` collects `improvements:` fields from final consensus round workers and emits `<!-- QUORUM_IMPROVEMENTS_START [...] QUORUM_IMPROVEMENTS_END -->` HTML comment signal; de-duplicates identical improvements (IMPR-02)
+  3. `qgsd-core/workflows/plan-phase.md` contains R3.6 outer loop: parses QUORUM_IMPROVEMENTS signal, spawns improvement-revision planner, loops up to 10 iterations with conflict detection; installed to `~/.claude/qgsd/workflows/plan-phase.md` (IMPR-03)
+  4. `qgsd-core/workflows/quick.md` contains matching R3.6 outer loop; all direct `CLAUDE.md` file-read instructions removed from workflow and agent files (installed), replaced with self-contained workflow references (IMPR-04)
+**Plans**: 3 plans
+Plans:
+- [ ] v0.19-06-01-PLAN.md — IMPR-01 + IMPR-02: TDD unit tests for improvements parsing (slot-worker) and signal emission (quorum)
+- [ ] v0.19-06-02-PLAN.md — IMPR-04 (cleanup): remove CLAUDE.md file-read instructions from 7 agent/workflow files + audit test
+- [ ] v0.19-06-03-PLAN.md — IMPR-03 + IMPR-04 (install): sync updated plan-phase + quick to ~/.claude/qgsd/workflows/
+
 
 ## Progress
 
