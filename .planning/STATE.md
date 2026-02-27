@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-27 after v0.15 archived + v0.18 activ
 ## Current Position
 
 Phase: v0.18-03 of 5 (Task Envelope Config Foundation) — COMPLETE
-Plan: 02 of 2 (both plans complete: v0.18-03-01 task-envelope CLI + v0.18-03-02 config feature gate)
-Status: v0.18-03 fully complete; task-envelope.cjs with 11 tests + feature gate in config-loader.js
-Last activity: 2026-02-27 — v0.18-03-01 completed: task-envelope.cjs with init/update/read/validate CLI + 11 unit tests (ENB-TC1..11, all pass); SUMMARY.md written
+Plan: 03 of 3 (all plans complete: v0.18-03-01 task-envelope CLI + v0.18-03-02 config feature gate + v0.18-03-03 workflow integration)
+Status: v0.18-03 fully complete; task envelope lifecycle now fully wired into plan-phase.md (init/update) and quorum.md (risk_level read)
+Last activity: 2026-02-27 — v0.18-03-03 completed: envelope init/update calls wired into plan-phase.md, envelope risk_level read (fail-open) added to quorum.md; all tests passing (11 envelope + 25 config)
 
-Progress: [████████████████████] prior milestones complete | v0.18: COMPLETE (5 phases, all plans done)
+Progress: [████████████████████] prior milestones complete | v0.18: COMPLETE (5 phases × 3 plans = 15 total, all done)
 
 ## Performance Metrics
 
@@ -78,7 +78,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-27 - Completed v0.18-03-01-PLAN.md: task-envelope CLI tool implementation
+Last activity: 2026-02-27 - Completed v0.18-03-03-PLAN.md: task envelope workflow integration
 Last session: 2026-02-27
-Stopped at: Completed v0.18-03-01 — SUMMARY.md created with 11 unit test results (all pass), both ENV-01/02 requirements implemented
+Stopped at: Completed v0.18-03 (all 3 plans done) — envelope lifecycle fully wired: init in plan-phase.md §5.6, update in §8.4, risk_level read in quorum.md; all tests pass
 Resume file: None
