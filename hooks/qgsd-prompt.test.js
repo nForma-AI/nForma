@@ -381,16 +381,15 @@ test('TC-PROMPT-FAILOVER-RULE: injected context includes skip-if-UNAVAIL failove
     );
     const { stdout } = runHook({ prompt: '/qgsd:plan-phase', cwd: tempDir });
     const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
-    // The failover rule is the hook-level guarantee that UNAVAIL slots are handled.
-    // Two variants exist: simple ("Failover rule: ...skip...") and tiered ("Failover rule (FALLBACK-01)...").
-    // Both start with "Failover rule" — test the shared prefix to support both variants.
-    assert.ok(ctx.includes('Failover rule'), 'injected context must contain "Failover rule"');
-    assert.ok(ctx.includes('UNAVAIL'), 'failover rule must reference UNAVAIL state');
-    // Both variants either skip or dispatch — the contract is: UNAVAIL slots don't block quorum.
+    // Two variants: simple "Failover rule: ...skip..." or structured "SLOT DISPATCH SEQUENCE (FALLBACK-01)..."
+    // Both must reference UNAVAIL and contain "skip" (skip individual unavail slots or skip to next step).
     assert.ok(
-      ctx.includes('skip') || ctx.includes('dispatch unused') || ctx.includes('tiered replacement'),
-      'failover rule must describe how to handle UNAVAIL (skip or tiered dispatch)'
+      ctx.includes('Failover rule') || ctx.includes('SLOT DISPATCH SEQUENCE'),
+      'injected context must contain a failover rule (simple or FALLBACK-01 structured)'
     );
+    assert.ok(ctx.includes('UNAVAIL'), 'failover rule must reference UNAVAIL state');
+    // Both variants instruct to "skip" unavail slots (simple: "skip it"; structured: "skip UNAVAIL").
+    assert.ok(ctx.includes('skip'), 'failover rule must instruct to skip unresponsive slots');
     // Verify the rule explicitly says errors do not count toward the required total,
     // confirming that a failed slot does not reduce the consensus threshold.
     assert.ok(
@@ -445,12 +444,141 @@ test('TC-PROMPT-FALLBACK-T1-PRIORITY: unused sub-CLI slots listed as T1 before c
     assert.ok(!dispatchedSlots.includes('opencode-1'), 'opencode-1 should NOT be in initial dispatch (it is T1 unused)');
     assert.ok(!dispatchedSlots.includes('copilot-1'), 'copilot-1 should NOT be in initial dispatch (it is T1 unused)');
 
-    // The T1 section must appear BEFORE any mention of ccr/claude-N slots
-    const t1Pos = ctx.indexOf('(T1)');
-    const t2Pos = ctx.indexOf('(T2)');
-    assert.ok(t1Pos !== -1, '(T1) label must appear in the failover rule');
-    assert.ok(t2Pos !== -1, '(T2) label must appear in the failover rule');
-    assert.ok(t1Pos < t2Pos, 'T1 tier must appear before T2 tier in the failover rule');
+    // T1 step must appear BEFORE T2 step in the structured dispatch sequence
+    const t1Pos = ctx.indexOf('Step 2 T1');
+    const t2Pos = ctx.indexOf('Step 3 T2');
+    assert.ok(t1Pos !== -1, 'Step 2 T1 label must appear in the structured sequence');
+    assert.ok(t2Pos !== -1, 'Step 3 T2 label must appear in the structured sequence');
+    assert.ok(t1Pos < t2Pos, 'T1 tier (Step 2) must appear before T2 tier (Step 3)');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC-PROMPT-FALLBACK-ROUTINE: FAN_OUT_COUNT=2 (routine risk, 1 external slot) leaves 3 sub
+// slots unused as T1. The structured sequence must name all 3 in Step 2.
+test('TC-PROMPT-FALLBACK-ROUTINE: routine risk_level → FAN_OUT_COUNT=2, 3 T1 slots in sequence', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-routine-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({
+        quorum_active: ['codex-1', 'gemini-1', 'opencode-1', 'copilot-1'],
+        quorum: { maxSize: 5 },
+        agent_config: {
+          'codex-1':    { auth_type: 'sub' },
+          'gemini-1':   { auth_type: 'sub' },
+          'opencode-1': { auth_type: 'sub' },
+          'copilot-1':  { auth_type: 'sub' },
+        },
+      }),
+      'utf8'
+    );
+    // Simulate routine risk_level via context_yaml in the hook payload
+    const payload = {
+      prompt: '/qgsd:plan-phase',
+      cwd: tempDir,
+      context_yaml: 'risk_level: routine\n',
+    };
+    const { stdout } = runHook(payload);
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+
+    // FAN_OUT_COUNT=2 → externalSlotCap=1 → 1 primary, 3 T1 unused
+    assert.ok(ctx.includes('FALLBACK-01'), 'Must use FALLBACK-01 when T1 slots exist');
+    const dispatchedSlots = [...ctx.matchAll(/\d+\. Task\(subagent_type="qgsd-quorum-slot-worker", prompt="slot: (\S+)\\n/g)]
+      .map(m => m[1]);
+    assert.equal(dispatchedSlots.length, 1, 'Only 1 external slot dispatched for routine risk');
+
+    // The 3 unused sub slots must appear in Step 2 T1 line
+    assert.ok(ctx.includes('Step 2 T1 sub-CLI'), 'Step 2 T1 label must appear in sequence');
+    const t1LineMatch = ctx.match(/Step 2 T1 sub-CLI:\s+\[([^\]]+)\]/);
+    assert.ok(t1LineMatch, 'Step 2 T1 must list slots in brackets');
+    const t1Slots = t1LineMatch[1].split(',').map(s => s.trim());
+    assert.equal(t1Slots.length, 3, 'Step 2 T1 must have 3 unused slots');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC-PROMPT-FALLBACK-NO-T1: all sub slots fit within the cap → no T1 unused → simple rule.
+test('TC-PROMPT-FALLBACK-NO-T1: all sub slots dispatched → no FALLBACK-01, simple rule', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-not1-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    // 2 sub slots, maxSize=5 → externalSlotCap=4 → both sub slots fit, no T1 unused
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({
+        quorum_active: ['gemini-1', 'opencode-1'],
+        quorum: { maxSize: 5 },
+        agent_config: {
+          'gemini-1':   { auth_type: 'sub' },
+          'opencode-1': { auth_type: 'sub' },
+        },
+      }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+
+    // No T1 unused → should NOT emit FALLBACK-01 or Step 2 T1
+    assert.ok(!ctx.includes('FALLBACK-01'), 'Must NOT use FALLBACK-01 when all sub slots are dispatched');
+    assert.ok(!ctx.includes('Step 2 T1'), 'Must NOT emit Step 2 T1 when no T1 slots exist');
+    // Should use the simple failover rule
+    assert.ok(ctx.includes('Failover rule'), 'Simple Failover rule must appear');
+    assert.ok(ctx.includes('do not count toward'), 'Must still state errors don\'t count');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC-PROMPT-FALLBACK-T1-EXCLUDES-PRIMARIES: T1 list must not include slots already dispatched.
+// Regression: if opencode-1 is in the primary dispatch, it must not also appear in Step 2 T1.
+test('TC-PROMPT-FALLBACK-T1-EXCLUDES-PRIMARIES: T1 list excludes slots already in primary dispatch', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-prompt-excl-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    // 4 sub slots, maxSize=4 → externalSlotCap=3 → 3 dispatched, 1 T1 unused (copilot-1)
+    fs.writeFileSync(
+      path.join(claudeDir, 'qgsd.json'),
+      JSON.stringify({
+        quorum_active: ['codex-1', 'gemini-1', 'opencode-1', 'copilot-1'],
+        quorum: { maxSize: 4 },
+        agent_config: {
+          'codex-1':    { auth_type: 'sub' },
+          'gemini-1':   { auth_type: 'sub' },
+          'opencode-1': { auth_type: 'sub' },
+          'copilot-1':  { auth_type: 'sub' },
+        },
+      }),
+      'utf8'
+    );
+    const { stdout } = runHook({ prompt: '/qgsd:plan-phase', cwd: tempDir });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+
+    assert.ok(ctx.includes('FALLBACK-01'), 'FALLBACK-01 must fire (1 T1 unused)');
+
+    // The dispatched primary slots (Step 1) must NOT appear in the T1 line (Step 2)
+    const t1LineMatch = ctx.match(/Step 2 T1 sub-CLI:\s+\[([^\]]+)\]/);
+    assert.ok(t1LineMatch, 'Step 2 T1 must list slots');
+    const t1Slots = new Set(t1LineMatch[1].split(',').map(s => s.trim()));
+
+    const primaryLineMatch = ctx.match(/Step 1 PRIMARY:\s+\[([^\]]+)\]/);
+    assert.ok(primaryLineMatch, 'Step 1 PRIMARY must list slots');
+    const primarySlots = primaryLineMatch[1].split(',').map(s => s.trim());
+
+    for (const primary of primarySlots) {
+      assert.ok(!t1Slots.has(primary), `Primary slot "${primary}" must NOT appear in T1 list`);
+    }
+    // Only copilot-1 should be in T1
+    assert.deepEqual([...t1Slots], ['copilot-1']);
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }

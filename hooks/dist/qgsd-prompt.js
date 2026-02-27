@@ -256,19 +256,49 @@ process.stdin.on('end', () => {
       const dynamicSteps = stepLines.join('\n');
       const afterSteps = cappedSlots.length + 1;
 
-      // Compute T1 unused sub-CLI slots: sub agents that exist in the pool but were cut by the
-      // fan-out cap (i.e., not included in cappedSlots). These are the preferred fallback tier
-      // when a dispatched slot returns UNAVAIL — they must be tried before ccr (T2) agents.
+      // Compute T1 unused sub-CLI slots: sub agents cut by the fan-out cap.
+      // These are the preferred replacement tier when a dispatched slot returns UNAVAIL.
+      // They must be tried before any T2 ccr/api slots (claude-1..6).
       const cappedSlotNames = new Set(cappedSlots.map(s => s.slot));
       const t1Unused = orderedSlots
         .filter(s => s.authType === 'sub' && !cappedSlotNames.has(s.slot))
         .map(s => s.slot);
-      const failoverRule = t1Unused.length > 0
-        ? `Failover rule (FALLBACK-01): if a slot-worker returns UNAVAIL, apply tiered replacement — ` +
-          `(T1) dispatch unused sub-CLI slots first: [${t1Unused.join(', ')}]; ` +
-          `(T2) only if T1 exhausted, dispatch ccr slots (claude-1..6). ` +
-          `Errors do not count toward the ${maxSize} required.`
-        : `Failover rule: if a slot-worker returns UNAVAIL or error, skip it — errors do not count toward the ${maxSize} required.`;
+      const t2Slots = orderedSlots
+        .filter(s => s.authType !== 'sub')
+        .map(s => s.slot);
+
+      // Build a structured dispatch sequence (enumerated steps, not prose rules).
+      // Structured sequences are less ambiguous than conditional prose for LLM execution.
+      let failoverRule;
+      if (t1Unused.length > 0) {
+        failoverRule =
+          `SLOT DISPATCH SEQUENCE (FALLBACK-01) — execute in order, skip UNAVAIL:\n` +
+          `  Step 1 PRIMARY:        [${cappedSlots.map(s => s.slot).join(', ')}]\n` +
+          `  Step 2 T1 sub-CLI:     [${t1Unused.join(', ')}]  ← try these BEFORE any T2 slot\n` +
+          `  Step 3 T2 ccr:         [${t2Slots.length > 0 ? t2Slots.join(', ') : 'none'}]\n` +
+          `UNAVAIL slots do not count toward the ${maxSize} required quorum votes.`;
+      } else {
+        failoverRule =
+          `Failover rule: if a slot-worker returns UNAVAIL or error, skip it — ` +
+          `errors do not count toward the ${maxSize} required.`;
+      }
+
+      // Emit a conformance event when FALLBACK-01 is active so audit tooling can detect
+      // cases where T2 was used without T1 being exhausted first.
+      if (t1Unused.length > 0) {
+        try {
+          const logPath = require('path').join(cwd, '.planning', 'conformance-events.jsonl');
+          require('fs').mkdirSync(require('path').dirname(logPath), { recursive: true });
+          require('fs').appendFileSync(logPath, JSON.stringify({
+            type: 'quorum_fallback_t1_required',
+            t1Slots: t1Unused,
+            t2Slots,
+            primarySlots: cappedSlots.map(s => s.slot),
+            fanOutCount,
+            ts: new Date().toISOString(),
+          }) + '\n', 'utf8');
+        } catch (_) { /* non-fatal — conformance logging must not block quorum */ }
+      }
 
       // Always emit --n N so Stop hook's parseQuorumSizeFlag reads the correct ceiling.
       // When user passed --n N explicitly: show OVERRIDE note.
