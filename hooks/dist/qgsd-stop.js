@@ -487,7 +487,7 @@ function main() {
         ? quorumSizeOverride - 1  // --n N means N-1 external models required
         : (config.quorum && Number.isInteger(config.quorum.maxSize) && config.quorum.maxSize >= 1)
           ? config.quorum.maxSize
-          : 5;
+          : 2;
 
       // Iterate the full agentPool (already sorted sub-first when preferSub is set).
       // Count successful (non-error) responses. Stop once ceiling is satisfied.

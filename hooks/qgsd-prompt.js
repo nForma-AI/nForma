@@ -187,12 +187,12 @@ process.stdin.on('end', () => {
     } else if (activeSlots) {
       // Build ordered slot list, sub agents first when preferSub is set
       const agentCfg = config.agent_config || {};
-      const preferSub = config.quorum && config.quorum.preferSub === true;
+      const preferSub = !(config.quorum && config.quorum.preferSub === false);
       const maxSize = quorumSizeOverride !== null
         ? quorumSizeOverride
         : (config.quorum && Number.isInteger(config.quorum.maxSize) && config.quorum.maxSize >= 1)
           ? config.quorum.maxSize
-          : activeSlots.length;
+          : 3;
 
       let orderedSlots = activeSlots.map(slot => ({
         slot,
