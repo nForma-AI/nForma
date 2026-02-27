@@ -3739,3 +3739,92 @@ describe('HLTH: versioned phase dir health check fixes', () => {
     assert.ok(!w002, `HLTH-03-TC-01: W002 false positive for v0.15-01: ${JSON.stringify(data.warnings)}`);
   });
 });
+
+describe('SAFE-01: --repair safety guard for rich STATE.md', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+    // Write minimal valid project scaffold used by all SAFE-01 tests
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'config.json'),
+      JSON.stringify({ model_profile: 'quality' })
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      '# Roadmap\n\n### Phase v0.15-01: Test\n'
+    );
+    // Create a phase dir that does NOT match the phantom phase referenced in STATE.md
+    // This triggers W002 → regenerateState is queued when --repair is passed
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', 'v0.99-01-test'), { recursive: true });
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('SAFE-01-TC-01: --repair without --force does not overwrite STATE.md with more than 50 lines', () => {
+    // 55-line STATE.md referencing phantom phase v0.99-99 (triggers W002 → regenerateState)
+    // Only v0.99-01-test exists on disk — so v0.99-99 has no matching dir
+    const richState = [
+      '# Project State',
+      '',
+      'Phase v0.99-99: referenced but no dir',
+      ...Array.from({ length: 52 }, (_, i) => `Line ${i + 4}: padding content`),
+    ].join('\n');
+    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), richState);
+
+    const result = runGsdTools('validate health --repair', tmpDir);
+    const data = JSON.parse(result.output);
+
+    // STATE.md must be unchanged
+    const afterContent = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    assert.strictEqual(afterContent, richState, 'STATE.md was overwritten despite no --force');
+
+    // repairs_performed must contain a skipped entry for regenerateState
+    const skippedEntry = (data.repairs_performed || []).find(
+      r => r.action === 'regenerateState' && r.skipped === true
+    );
+    assert.ok(skippedEntry, `Expected skipped regenerateState entry, got: ${JSON.stringify(data.repairs_performed)}`);
+    assert.ok(skippedEntry.reason.includes('50'), `Expected line count threshold in reason, got: ${skippedEntry.reason}`);
+  });
+
+  test('SAFE-01-TC-02: --repair --force overwrites STATE.md with more than 50 lines', () => {
+    const richState = [
+      '# Project State',
+      '',
+      'Phase v0.99-99: referenced but no dir',
+      ...Array.from({ length: 52 }, (_, i) => `Line ${i + 4}: padding content`),
+    ].join('\n');
+    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), richState);
+
+    const result = runGsdTools('validate health --repair --force', tmpDir);
+    const data = JSON.parse(result.output);
+
+    const afterContent = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    assert.notStrictEqual(afterContent, richState, 'STATE.md should have been overwritten with --force');
+
+    const successEntry = (data.repairs_performed || []).find(
+      r => r.action === 'regenerateState' && r.success === true
+    );
+    assert.ok(successEntry, `Expected successful regenerateState entry, got: ${JSON.stringify(data.repairs_performed)}`);
+  });
+
+  test('SAFE-01-TC-03: --repair without --force overwrites STATE.md with 50 lines or fewer', () => {
+    // Exactly 50 lines (at/below threshold — guard must not block)
+    // v0.99-99 referenced but not on disk → W002 → regenerateState queued
+    const shortState = [
+      '# Project State',
+      '',
+      'Phase v0.99-99: referenced but no dir',
+      ...Array.from({ length: 47 }, (_, i) => `Line ${i + 4}: content`),
+    ].join('\n');
+    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), shortState);
+
+    const result = runGsdTools('validate health --repair', tmpDir);
+    const data = JSON.parse(result.output);
+
+    const afterContent = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    assert.notStrictEqual(afterContent, shortState, 'STATE.md should have been overwritten for short file');
+  });
+});
