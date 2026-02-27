@@ -16,6 +16,7 @@
 const { spawnSync } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
+const { writeCheckResult } = require('./write-check-result.cjs');
 
 // ── Parse --config argument ──────────────────────────────────────────────────
 const args       = process.argv.slice(2);
@@ -30,6 +31,7 @@ if (!VALID_CONFIGS.includes(configName)) {
     '[run-tlc] Unknown config: ' + configName +
     '. Valid: ' + VALID_CONFIGS.join(', ') + '\n'
   );
+  try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
 }
 
@@ -44,6 +46,7 @@ if (JAVA_HOME) {
       '[run-tlc] JAVA_HOME is set but java binary not found at: ' + javaExe + '\n' +
       '[run-tlc] Unset JAVA_HOME or fix the path.\n'
     );
+    try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
     process.exit(1);
   }
 } else {
@@ -54,6 +57,7 @@ if (JAVA_HOME) {
       '[run-tlc] Java not found. Install Java >=17 and set JAVA_HOME.\n' +
       '[run-tlc] Download: https://adoptium.net/\n'
     );
+    try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
     process.exit(1);
   }
   javaExe = 'java';
@@ -63,6 +67,7 @@ if (JAVA_HOME) {
 const versionResult = spawnSync(javaExe, ['--version'], { encoding: 'utf8' });
 if (versionResult.error || versionResult.status !== 0) {
   process.stderr.write('[run-tlc] Failed to run: ' + javaExe + ' --version\n');
+  try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
 }
 const versionOutput = versionResult.stdout + versionResult.stderr;
@@ -74,6 +79,7 @@ if (javaMajor < 17) {
     '[run-tlc] Java >=17 required. Found: ' + versionOutput.split('\n')[0] + '\n' +
     '[run-tlc] Download Java 17+: https://adoptium.net/\n'
   );
+  try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
 }
 
@@ -86,6 +92,7 @@ if (!fs.existsSync(jarPath)) {
     '  curl -L https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar \\\n' +
     '       -o formal/tla/tla2tools.jar\n'
   );
+  try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
 }
 
@@ -108,7 +115,10 @@ const tlcResult = spawnSync(javaExe, [
 
 if (tlcResult.error) {
   process.stderr.write('[run-tlc] TLC invocation failed: ' + tlcResult.error.message + '\n');
+  try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
 }
 
+const passed = (tlcResult.status || 0) === 0;
+try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: passed ? 'pass' : 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
 process.exit(tlcResult.status || 0);
