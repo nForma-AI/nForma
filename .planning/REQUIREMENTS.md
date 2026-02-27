@@ -25,7 +25,7 @@ Requirements for the Token Efficiency milestone. Goal: reduce QGSD's per-run tok
 - [ ] **ENV-01**: After research completes, a `task-envelope.json` sidecar is written to `.planning/phases/<phase>/` with `objective`, `constraints`, `risk_level`, and `target_files`
 - [ ] **ENV-02**: After planning completes, envelope is updated with `plan_path` and `key_decisions`
 - [ ] **ENV-03**: `quorum.md` reads `risk_level` from envelope when available; fails open when envelope is absent
-- [ ] **ENV-04**: Feature is gated by `task_envelope.enabled` in `qgsd.json` (default: `true` when v0.18-03 ships)
+- [x] **ENV-04**: Feature is gated by `task_envelope_enabled` in `qgsd.json` (default: `true` when v0.18-03 ships)
 
 ### Adaptive Fan-Out (FAN)
 
@@ -75,7 +75,7 @@ Requirements for the Token Efficiency milestone. Goal: reduce QGSD's per-run tok
 | ENV-01 | Phase v0.18-03 | Pending |
 | ENV-02 | Phase v0.18-03 | Pending |
 | ENV-03 | Phase v0.18-03 | Pending |
-| ENV-04 | Phase v0.18-03 | Pending |
+| ENV-04 | Phase v0.18-03-02 | Complete |
 | FAN-01 | Phase v0.18-04 | Pending |
 | FAN-02 | Phase v0.18-04 | Pending |
 | FAN-03 | Phase v0.18-04 | Pending |
