@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "formal/trace/trace.schema.json",
+  "title": "QGSD Conformance Event",
+  "description": "Schema for events in .planning/conformance-events.jsonl. MCPENV-03: extended with MCP interaction metadata fields.",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "description": "Event action type (quorum_start, quorum_complete, quorum_block, deliberation_round, mcp_call, ...)"
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the event"
+    },
+    "phase": {
+      "type": "string",
+      "description": "XState machine phase (IDLE, COLLECTING_VOTES, DELIBERATING, DECIDED)"
+    },
+    "slots_available": {
+      "type": "integer",
+      "description": "Number of quorum slots available in this round"
+    },
+    "vote_result": {
+      "description": "Vote result count (integer) or null"
+    },
+    "outcome": {
+      "type": "string",
+      "description": "Quorum outcome (APPROVE, BLOCK) — not to be confused with mcp_outcome"
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Version of the conformance event schema"
+    },
+    "request_id": {
+      "type": "string",
+      "description": "Unique identifier for this MCP call (format: round:slot:attempt, e.g. round1:codex-1:1). Required for mcp_call events."
+    },
+    "peer": {
+      "type": "string",
+      "description": "MCP slot name (e.g. codex-1, gemini-1, opencode-1). Required for mcp_call events."
+    },
+    "mcp_outcome": {
+      "type": "string",
+      "enum": ["success", "fail", "timeout", "reorder"],
+      "description": "Result of MCP call attempt. Required for mcp_call events. Not to be confused with quorum outcome field."
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Retry attempt number (1 = first attempt, 2 = first retry, ...). Required for mcp_call events."
+    }
+  },
+  "additionalProperties": true
+}

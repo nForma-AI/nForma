@@ -210,19 +210,27 @@ test('integration: divergence object contains confidence field for unmappable_ac
 // Ref: .planning/phases/v0.19-05-mcp-environment-model/v0.19-05-01-PLAN.md
 
 test('validate-traces emits error for mcp_call missing request_id', () => {
-  // mcp_call event without request_id — validator must reject it
-  // RED: validateMCPMetadata does not exist in validate-traces.cjs yet
-  assert.fail('not yet implemented — validateMCPMetadata does not exist in validate-traces.cjs (turns GREEN in Plan 03)');
+  // mcp_call event without request_id — validator must reject it (MCPENV-03)
+  const { validateMCPMetadata } = require('../bin/validate-traces.cjs');
+  const event = { action: 'mcp_call', peer: 'codex-1', mcp_outcome: 'success', attempt: 1 }; // no request_id
+  const result = validateMCPMetadata(event);
+  assert.notStrictEqual(result, true, 'should return error array for mcp_call missing request_id');
+  assert.ok(Array.isArray(result), 'result should be an array of errors');
+  assert.ok(result.some(e => e.includes('request_id')), 'error should mention request_id');
 });
 
 test('validate-traces accepts mcp_call with all required fields', () => {
-  // mcp_call event with all fields present — validator must accept it
-  // RED: validateMCPMetadata does not exist in validate-traces.cjs yet
-  assert.fail('not yet implemented — validateMCPMetadata does not exist in validate-traces.cjs (turns GREEN in Plan 03)');
+  // mcp_call event with all fields present — validator must accept it (MCPENV-03)
+  const { validateMCPMetadata } = require('../bin/validate-traces.cjs');
+  const event = { action: 'mcp_call', request_id: 'round1:codex-1:1', peer: 'codex-1', mcp_outcome: 'success', attempt: 1 };
+  const result = validateMCPMetadata(event);
+  assert.strictEqual(result, true, 'should return true for valid mcp_call event');
 });
 
 test('validate-traces ignores MCP metadata fields for non-mcp_call actions', () => {
-  // quorum_start event without MCP fields — validator must not error
-  // RED: validateMCPMetadata does not exist in validate-traces.cjs yet
-  assert.fail('not yet implemented — validateMCPMetadata does not exist in validate-traces.cjs (turns GREEN in Plan 03)');
+  // quorum_start event without MCP fields — validator must not error (MCPENV-03)
+  const { validateMCPMetadata } = require('../bin/validate-traces.cjs');
+  const event = { action: 'quorum_start', slots_available: 4 }; // no MCP fields
+  const result = validateMCPMetadata(event);
+  assert.strictEqual(result, true, 'should return true for non-mcp_call events regardless of missing MCP fields');
 });

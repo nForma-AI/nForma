@@ -4,6 +4,9 @@
 // Replays .planning/conformance-events.jsonl through the XState machine
 // and reports a deviation score (% of traces that are valid XState executions).
 //
+// MCPENV-03: also validates MCP interaction metadata for mcp_call events.
+// Schema: formal/trace/trace.schema.json
+//
 // Exit code 0: no divergences found (or log file missing)
 // Exit code 1: one or more divergences found
 
@@ -38,6 +41,30 @@ function readScoreboardMeta() {
   } catch (_) {
     return { n_rounds: 0, window_days: 0 };
   }
+}
+
+// Validates MCP-specific metadata fields for mcp_call events (MCPENV-03).
+// Schema: formal/trace/trace.schema.json
+// Returns true if valid, or an array of error strings if invalid.
+// Non-mcp_call events are always valid (returns true immediately).
+function validateMCPMetadata(event) {
+  if (!event || event.action !== 'mcp_call') return true; // not an MCP event — skip
+
+  const errors = [];
+  if (!event.request_id || typeof event.request_id !== 'string') {
+    errors.push('mcp_call missing or invalid request_id (expected string, e.g. round1:codex-1:1, got: ' + JSON.stringify(event.request_id) + ')');
+  }
+  if (!event.peer || typeof event.peer !== 'string') {
+    errors.push('mcp_call missing or invalid peer (expected slot name string, e.g. codex-1, got: ' + JSON.stringify(event.peer) + ')');
+  }
+  const validMCPOutcomes = ['success', 'fail', 'timeout', 'reorder'];
+  if (!validMCPOutcomes.includes(event.mcp_outcome)) {
+    errors.push('mcp_call missing or invalid mcp_outcome (expected: success|fail|timeout|reorder, got: ' + JSON.stringify(event.mcp_outcome) + ')');
+  }
+  if (typeof event.attempt !== 'number' || !Number.isInteger(event.attempt) || event.attempt < 1) {
+    errors.push('mcp_call missing or invalid attempt (expected integer >= 1, got: ' + JSON.stringify(event.attempt) + ')');
+  }
+  return errors.length === 0 ? true : errors;
 }
 
 // Maps a conformance event action to the XState event type and payload.
@@ -118,6 +145,19 @@ if (require.main === module) {
       continue;
     }
 
+    // MCPENV-03: validate MCP interaction metadata for mcp_call events
+    const mcpErrors = validateMCPMetadata(event);
+    if (mcpErrors !== true) {
+      divergences.push({
+        event,
+        reason: 'mcp_field_validation',
+        errors: mcpErrors,
+        ...scoreboardMeta,
+        confidence,
+      });
+      continue;
+    }
+
     const xstateEvent = mapToXStateEvent(event);
     if (!xstateEvent) {
       divergences.push({
@@ -170,5 +210,5 @@ if (require.main === module) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { computeConfidenceTier, CONFIDENCE_THRESHOLDS };
+  module.exports = { computeConfidenceTier, CONFIDENCE_THRESHOLDS, validateMCPMetadata };
 }
