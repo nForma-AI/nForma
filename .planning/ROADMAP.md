@@ -1032,4 +1032,4 @@ Plans:
 | v0.18-02. Tiered Model Sizing | 4/4 | Complete    | 2026-02-27 | 2026-02-27 |
 | v0.18-03. Task Envelope | v0.18 | 0/TBD | Not started | - |
 | v0.18-04. Adaptive Fan-Out | v0.18 | 0/TBD | Not started | - |
-| v0.18-05. Verify Token Observability Foundation | v0.18 | 1/1 | Complete | 2026-02-27 |
+| v0.18-05. Verify Token Observability Foundation | v0.18 | Complete    | 2026-02-27 | 2026-02-27 |
