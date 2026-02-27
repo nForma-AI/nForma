@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-27 after v0.15 archived + v0.18 activ
 
 ## Current Position
 
-Phase: v0.18-02 of 4 (Tiered Model Sizing) — COMPLETE
-Plan: 04 (gap closure: executed and complete)
-Status: 4/4 plans complete (3 core + 1 gap-closure); all gaps closed
-Last activity: 2026-02-27 — v0.18-02-04 gap closure executed; 6 TIER unit tests added to gsd-tools.test.cjs; all tests pass; VERIFICATION.md marked complete
+Phase: v0.18-05 of 5 (Verify Token Observability Foundation) — COMPLETE
+Plan: 01 (formal verification closure: executed and complete)
+Status: 5/5 phases complete; v0.18-05 gaps now closed
+Last activity: 2026-02-27 — v0.18-05-01 formal verification closure executed; VERIFICATION.md written for v0.18-01; ROADMAP.md and REQUIREMENTS.md updated; all OBSV-01..04 requirements marked complete
 
-Progress: [████████████████████] prior milestones complete | v0.18: Phase v0.18-02 COMPLETE (4/4 plans done)
+Progress: [████████████████████] prior milestones complete | v0.18: COMPLETE (5 phases, all plans done)
 
 ## Performance Metrics
 
@@ -78,7 +78,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-27 - Completed quick task 116: make formal spec generator fully automatic
+Last activity: 2026-02-27 - Completed v0.18-05-01-PLAN.md: formal verification closure for v0.18-01
 Last session: 2026-02-27
-Stopped at: Completed v0.15-04-01-PLAN.md — W008 health warning for quorum failures live
+Stopped at: Completed v0.18-05-01 — VERIFICATION.md written, ROADMAP.md and REQUIREMENTS.md updated, all OBSV requirements closed
 Resume file: None
