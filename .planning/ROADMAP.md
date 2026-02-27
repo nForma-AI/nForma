@@ -844,7 +844,9 @@ Plans:
   1. All directories `.planning/phases/18` through `.planning/phases/39` (or their equivalents) are moved to `.planning/archive/legacy/` and no longer appear under `.planning/phases/`
   2. Running `node bin/gsd-tools.cjs validate health` produces zero W007 warnings for the archived legacy dirs
   3. The `.planning/archive/legacy/` directory exists and contains the moved dirs
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] v0.15-03-01-PLAN.md — SAFE-02 test scaffold + archive 22 legacy dirs to .planning/archive/legacy/ + full suite green
 
 ### Phase v0.15-04: Health Quorum Failure Visibility
 **Goal**: When `.planning/quorum-failures.json` exists and any slot has 3 or more failures logged, the `/qgsd:health` workflow output surfaces those patterns as named health warnings alongside standard W/E/I items
