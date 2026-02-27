@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-27 after v0.19 FV Pipeline Hardening 
 
 ## Current Position
 
-Phase: v0.19-01 (Unified Verdict Format) — In progress (Plans 01+02 complete)
-Plan: v0.19-01-01 — DONE; v0.19-01-02 — DONE; v0.19-01-03 pending
-Status: NDJSON infrastructure created; 13 runners wired; orchestrator integration next (Plan 03)
-Last activity: 2026-02-27 — v0.19-01 Plan 02 executed: writeCheckResult wired into all 13 runners (5 TLC, 5 Alloy, 2 PRISM, 1 trace)
+Phase: v0.19-01 (Unified Verdict Format) — COMPLETE (all 3 plans done)
+Plan: v0.19-01-01 — DONE; v0.19-01-02 — DONE; v0.19-01-03 — DONE
+Status: NDJSON infrastructure, 13 runners wired, orchestrator integration + CI gate all complete
+Last activity: 2026-02-27 — v0.19-01 Plan 03 executed: run-formal-verify.cjs NDJSON init/summary, CI gate step, .gitignore entry, npm test 389/389 pass
 
-Progress: [████████████████████] prior milestones complete | v0.18: AUDIT COMPLETE — gaps_found (2 gap-closure phases needed) | v0.19: v0.19-01 Plan 01/3 complete
+Progress: [████████████████████] prior milestones complete | v0.18: AUDIT COMPLETE — gaps_found (2 gap-closure phases needed) | v0.19: v0.19-01 COMPLETE (3/3 plans)
 
 ## Performance Metrics
 
