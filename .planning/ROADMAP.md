@@ -232,7 +232,7 @@
 
 - [ ] **Phase v0.19-01: Unified Verdict Format** — check-result.schema.json defines one canonical output format; all FV checkers emit normalized NDJSON; run-formal-verify.cjs uses check-results.ndjson as canonical output; CI gate fails on any result=fail entry (UNIF-01..04)
 - [x] **Phase v0.19-02: Calibration Governance** — formal/policy.yaml defines cold-start thresholds and steady-state mode; run-prism.cjs reads policy and emits result=warn during cold-start; evidence entries include observation_window metadata; conservative-priors fallthrough documented (CALIB-01..04) (completed 2026-02-27)
-- [ ] **Phase v0.19-03: Liveness Fairness** — invariants.md companion entries for all liveness properties declare fairness assumptions and realism rationale; TLA+ checker emits result=inconclusive when liveness cfg exists but invariants.md has no fairness declaration (LIVE-01..02)
+- [x] **Phase v0.19-03: Liveness Fairness** — invariants.md companion entries for all liveness properties declare fairness assumptions and realism rationale; TLA+ checker emits result=inconclusive when liveness cfg exists but invariants.md has no fairness declaration (LIVE-01..02) (completed 2026-02-27)
 - [ ] **Phase v0.19-04: Enforcement Layer** — redaction.yaml defines forbidden keys/patterns; check-trace-redaction.cjs validates trace files and appends to check-results.ndjson; validate-traces.cjs never_observed output includes evidence confidence metadata; check-trace-schema-drift.cjs detects non-atomic schema changes; all three CI gates wired (REDACT-01..03, EVID-01..02, DRIFT-01..02)
 - [ ] **Phase v0.19-05: MCP Environment Model** — environment.md models MCP servers as nondeterministic environment processes; QGSDMCPEnv.tla formally verifies quorum fault-tolerance under arbitrary MCP failures; trace schema extended with MCP-interaction fields; mcp-availability.pm PRISM model calibrated from scoreboard rates (MCPENV-01..04)
 
@@ -1003,8 +1003,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] v0.19-03-01-PLAN.md — Author formal/spec/<surface>/invariants.md for all 8 liveness surfaces (LIVE-01)
-- [ ] v0.19-03-02-PLAN.md — Add detectLivenessProperties to run-tlc.cjs; emit result=inconclusive for missing declarations (LIVE-02)
+- [x] v0.19-03-01-PLAN.md — Author formal/spec/<surface>/invariants.md for all 8 liveness surfaces (LIVE-01)
+- [x] v0.19-03-02-PLAN.md — Add detectLivenessProperties to run-tlc.cjs; emit result=inconclusive for missing declarations (LIVE-02)
 
 ### Phase v0.19-04: Enforcement Layer
 **Goal**: PII/secret redaction is structurally enforced in CI, never_observed evidence includes time-qualified confidence, and trace schema changes are blocked unless validator and emitter are updated in the same commit
@@ -1138,6 +1138,6 @@ Plans:
 | v0.18-05. Verify Token Observability Foundation | v0.18 | Complete    | 2026-02-27 | 2026-02-27 |
 | v0.19-01. Unified Verdict Format | 0/3 | Planned    |  | - |
 | v0.19-02. Calibration Governance | 1/2 | Complete    | 2026-02-27 | - |
-| v0.19-03. Liveness Fairness | v0.19 | 0/2 | Not started | - |
+| v0.19-03. Liveness Fairness | v0.19 | 2/2 | Complete | 2026-02-27 |
 | v0.19-04. Enforcement Layer | v0.19 | 0/3 | Not started | - |
 | v0.19-05. MCP Environment Model | v0.19 | 0/3 | Not started | - |

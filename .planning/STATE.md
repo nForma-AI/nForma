@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-27 after v0.19 FV Pipeline Hardening 
 
 ## Current Position
 
-Phase: v0.19-02 (Calibration Governance) — COMPLETE (all 2 plans done)
-Plan: v0.19-02-01 — DONE; v0.19-02-02 — DONE
-Status: Policy data layer + cold-start governance complete; 396/396 npm test suite green
-Last activity: 2026-02-27 — v0.19-02 Plan 02 executed: cold-start governance + observation_window in run-prism.cjs; 7 new tests; 396/396 pass
+Phase: v0.19-03 (Liveness Fairness) — COMPLETE (all 2 plans done)
+Plan: v0.19-03-01 — DONE; v0.19-03-02 — DONE
+Status: 8 formal/spec invariants.md files + detectLivenessProperties in run-tlc.cjs; 400/400 npm test suite green
+Last activity: 2026-02-27 — v0.19-03 Plan 01 executed: 8 invariants.md files (LIVE-01); Plan 02: detectLivenessProperties TDD + inconclusive emit (LIVE-02); 400/400 pass
 
-Progress: [████████████████████] prior milestones complete | v0.18: AUDIT COMPLETE — gaps_found (2 gap-closure phases needed) | v0.19: v0.19-01 COMPLETE (3/3 plans)
+Progress: [████████████████████] prior milestones complete | v0.18: AUDIT COMPLETE — gaps_found (2 gap-closure phases needed) | v0.19: v0.19-01 COMPLETE (3/3 plans) | v0.19-02 COMPLETE | v0.19-03 COMPLETE
 
 ## Performance Metrics
 
@@ -83,7 +83,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-27 — v0.19-02 complete: policy data layer + cold-start governance; 396/396 npm tests pass; CALIB-01..04 satisfied
+Last activity: 2026-02-27 — v0.19-03 complete: 8 formal/spec invariants.md + detectLivenessProperties in run-tlc.cjs; 400/400 npm tests pass; LIVE-01, LIVE-02 satisfied
 Last session: 2026-02-27
-Stopped at: Phase v0.19-02 complete, ready to plan Phase v0.19-03
+Stopped at: Phase v0.19-03 complete, ready to plan Phase v0.19-04
 Resume file: None
