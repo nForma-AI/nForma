@@ -1179,6 +1179,17 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
       if (settings.hooks.PostToolUse.length === 0) delete settings.hooks.PostToolUse;
     }
+    if (settings.hooks && settings.hooks.PreCompact) {
+      const before = settings.hooks.PreCompact.length;
+      settings.hooks.PreCompact = settings.hooks.PreCompact.filter(entry =>
+        !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-precompact')))
+      );
+      if (settings.hooks.PreCompact.length < before) {
+        settingsModified = true;
+        console.log(`  ${green}✓${reset} Removed QGSD PreCompact hook`);
+      }
+      if (settings.hooks.PreCompact.length === 0) delete settings.hooks.PreCompact;
+    }
 
     // Clean up empty hooks object
     if (settings.hooks && Object.keys(settings.hooks).length === 0) {
@@ -1858,6 +1869,18 @@ function install(isGlobal, runtime = 'claude') {
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'gsd-context-monitor.js') }]
       });
       console.log(`  ${green}✓${reset} Configured QGSD context monitor hook (PostToolUse)`);
+    }
+
+    // Register QGSD PreCompact hook (phase state injection at compaction time)
+    if (!settings.hooks.PreCompact) settings.hooks.PreCompact = [];
+    const hasPreCompactHook = settings.hooks.PreCompact.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-precompact'))
+    );
+    if (!hasPreCompactHook) {
+      settings.hooks.PreCompact.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-precompact.js') }]
+      });
+      console.log(`  ${green}✓${reset} Configured QGSD PreCompact hook (phase state injection)`);
     }
 
     // Register QGSD token collector hook (SubagentStop — logs per-slot token usage)
