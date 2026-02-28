@@ -1121,7 +1121,12 @@ Plans:
   1. Running `run-formal-verify.cjs` on a TLA+ spec that has a liveness `.cfg` but no fairness declaration in `invariants.md` produces a `check-results.ndjson` entry with `result=inconclusive` (not `pass` or `fail`)
   2. A spec with a liveness `.cfg` and a matching fairness declaration in `invariants.md` produces `result=pass` as before — no regression
   3. `run-formal-verify.cjs` STEPS list includes a `ci:liveness-fairness-lint` entry visible in the run summary
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] v0.20-02-01-PLAN.md — Wave 0 RED test scaffold (LIVE-01, LIVE-02)
+- [ ] v0.20-02-02-PLAN.md — Implement check-liveness-fairness.cjs (LIVE-01)
+- [ ] v0.20-02-03-PLAN.md — Wire ci:liveness-fairness-lint to STEPS in run-formal-verify.cjs (LIVE-02)
 
 ### Phase v0.20-03: Planning Gate
 **Goal**: `plan-phase.md` runs a TLA+ formal verification step before quorum, surfacing any `fail` results as hypotheses the planner should address, without blocking plan creation when FV is flaky or unavailable.
