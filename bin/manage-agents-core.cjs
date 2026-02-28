@@ -8,7 +8,7 @@
  * - Provider management: fetchProviderModels, probeProviderUrl, probeAllSlots, liveDashboard
  * - Pure transformation functions exported in _pure namespace
  *
- * Consumers: bin/manage-agents.cjs (interactive layer), bin/manage-agents-blessed.cjs (blessed TUI)
+ * Consumers: bin/agents.cjs (blessed TUI)
  */
 
 const fs = require('fs');

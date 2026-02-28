@@ -166,7 +166,7 @@ This re-reads `~/.claude.json`, re-derives tool prefixes from your registered se
 ### Agent Manager TUI
 
 ```bash
-node bin/manage-agents-blessed.cjs
+node bin/agents.cjs
 ```
 
 A full-featured keyboard-navigable terminal interface for managing your quorum agents. Requires a local clone (`git clone https://github.com/LangBlaze-AI/QGSD.git`).

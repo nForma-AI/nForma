@@ -1,8 +1,8 @@
 'use strict';
-// Test suite for bin/manage-agents-blessed.cjs
+// Test suite for bin/agents.cjs
 // Strategy: inject mock modules into require.cache before requiring the source,
 // so blessed never creates a real terminal. Pure functions are tested directly.
-// node --test bin/manage-agents-blessed.test.cjs
+// node --test bin/agents.test.cjs
 
 const { test, before, after } = require('node:test');
 const assert  = require('node:assert/strict');
@@ -63,7 +63,7 @@ const MOCK_UPDATE_AGENTS = {
 const BLESSED_PATH       = require.resolve('blessed');
 const CORE_PATH          = require.resolve('./manage-agents-core.cjs');
 const UPDATE_AGENTS_PATH = require.resolve('./update-agents.cjs');
-const SUBJECT_PATH       = require.resolve('./manage-agents-blessed.cjs');
+const SUBJECT_PATH       = require.resolve('./agents.cjs');
 
 let _pure;
 
@@ -84,7 +84,7 @@ before(() => {
     exports: MOCK_UPDATE_AGENTS,
   };
   // Now require the subject — require.main !== module, so startup code is skipped
-  _pure = require('./manage-agents-blessed.cjs')._pure;
+  _pure = require('./agents.cjs')._pure;
 });
 
 after(() => {
