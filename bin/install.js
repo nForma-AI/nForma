@@ -2054,6 +2054,17 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
 ${nudge}
   ${cyan}Join the community:${reset} https://discord.gg/5JJgD5svVS
 `);
+
+  // Best-effort formal tools — always runs after success banner, never blocks main install
+  if (!hasUninstall && !hasFormal) {
+    const { spawnSync: _formalSpawn } = require('child_process');
+    const formalScript = path.join(__dirname, 'install-formal-tools.cjs');
+    if (fs.existsSync(formalScript)) {
+      console.log('  Formal verification tools:');
+      _formalSpawn(process.execPath, [formalScript], { stdio: 'inherit' });
+      // exit code ignored — best-effort
+    }
+  }
 }
 
 /**
