@@ -239,7 +239,7 @@
 - [x] **Phase v0.19-07: Wire Liveness Check to All TLC Runners** — Add `detectLivenessProperties()` call to the 4 remaining TLC runners (run-oscillation-tlc.cjs, run-breaker-tlc.cjs, run-protocol-tlc.cjs, run-account-manager-tlc.cjs) that execute liveness .cfg files but currently bypass the fairness check. Closes 6 unchecked liveness properties across oscillation, breaker, protocol, and account-manager surfaces. (LIVE-02) (Gap Closure) (completed 2026-02-27)
 - [x] **Phase v0.19-08: MCP Formal Verification Pipeline Integration** — Fix 3 bugs in mcp-availability.pm (dead module.exports after process.exit, composite-key PRISM constant corruption, absent from pipeline); create formal/spec/mcp-calls/invariants.md with EventualDecision fairness declaration; add MCMCPEnv.cfg to run-tlc.cjs SURFACE_MAP; wire both QGSDMCPEnv.tla and mcp-availability.pm into run-formal-verify.cjs STEPS and CI workflow. (MCPENV-02, MCPENV-04) (Gap Closure) (completed 2026-02-28)
 - [x] **Phase v0.19-09: Requirements Traceability Cleanup** — Add 9 missing rows (DRIFT-02, MCPENV-01..04, IMPR-01..04) to REQUIREMENTS.md traceability table; update 13 stale checkboxes from [ ] to [x] for all completed requirements; update coverage count. Ensures accurate milestone state for archival. (Tech Debt) (Gap Closure) (completed 2026-02-28)
-- [ ] **Phase v0.19-10: CALIB-04 Policy Wire-Up** — Wire `read-policy.cjs` `conservative_priors` fields to `run-prism.cjs` PRISM_PRIOR_TP/UNAVAIL constants; currently `policy.yaml` values are parsed but hardcoded constants override them at runtime — policy changes have no runtime effect. (CALIB-04) (Tech Debt)
+- [x] **Phase v0.19-10: CALIB-04 Policy Wire-Up** — Wire `read-policy.cjs` `conservative_priors` fields to `run-prism.cjs` PRISM_PRIOR_TP/UNAVAIL constants; currently `policy.yaml` values are parsed but hardcoded constants override them at runtime — policy changes have no runtime effect. (CALIB-04) (Tech Debt) (completed 2026-02-28)
 - [ ] **Phase v0.19-11: UNIF-03 Summary Fix + Checkbox Cleanup** — Fix `run-formal-verify.cjs` triage summary ordering so all CI step results (including redaction and drift) are included in the count; update UNIF-01..04 checkboxes from `[ ]` to `[x]` in REQUIREMENTS.md to resolve doc mismatch. (UNIF-03) (Tech Debt)
 
 
@@ -1235,5 +1235,5 @@ Plans:
 | v0.19-03. Liveness Fairness | v0.19 | 2/2 | Complete | 2026-02-27 |
 | v0.19-04. Enforcement Layer | v0.19 | 0/3 | Not started | - |
 | v0.19-05. MCP Environment Model | v0.19 | Complete    | 2026-02-27 | - |
-| v0.19-10. CALIB-04 Policy Wire-Up | v0.19 | 0/2 | Planned | - |
+| v0.19-10. CALIB-04 Policy Wire-Up | v0.19 | Complete    | 2026-02-28 | - |
 | v0.19-11. UNIF-03 Summary Fix + Checkbox Cleanup | v0.19 | 0/2 | Planned | - |
