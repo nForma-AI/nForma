@@ -16,7 +16,7 @@
  *
  * Idempotent — safe to run multiple times.
  * PRISM install is non-blocking (failure = warning, not exit 1).
- * Exits 0 if TLA+ and Alloy succeed; exits 1 if either fails.
+ * Always exits 0 — failures are non-blocking warnings.
  */
 
 const https = require('https');
@@ -260,17 +260,9 @@ function checkJava() {
 
   // ── Exit code ─────────────────────────────────────────────────────────
 
-  const tlaResult = results.find(r => r.name === 'TLA+');
-  const alloyResult = results.find(r => r.name === 'Alloy');
-  const tlaFailed = tlaResult && tlaResult.status === 'fail';
-  const alloyFailed = alloyResult && alloyResult.status === 'fail';
-
-  if (tlaFailed || alloyFailed) {
-    process.exit(1);
-  } else {
-    process.exit(0);
-  }
+  // Best-effort — all failures are non-blocking warnings
+  process.exit(0);
 })().catch(err => {
   fail(err.message);
-  process.exit(1);
+  process.exit(0);
 });
