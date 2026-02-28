@@ -1176,7 +1176,10 @@ Plans:
   1. `bin/generate-triage-bundle.cjs` exists and reads `check-results.ndjson`; running it produces `formal/diff-report.md` (per-check delta from previous run) and `formal/suspects.md` (checks with `result=fail` or `triage_tags` set)
   2. `run-formal-verify.cjs` calls `generate-triage-bundle.cjs` as its final step — after all checks complete — and this call is visible in the run summary
   3. When no previous run exists, `diff-report.md` notes "first run" rather than failing or producing empty output
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] v0.20-06-01-PLAN.md — Wave 0 RED test scaffold for generate-triage-bundle.cjs (7 tests)
+- [ ] v0.20-06-02-PLAN.md — Implement generate-triage-bundle.cjs core logic
+- [ ] v0.20-06-03-PLAN.md — Wire ci:triage-bundle into run-formal-verify.cjs STEPS
 
 ### Phase v0.20-07: UPPAAL Timed Race Modeling
 **Goal**: A UPPAAL timed automaton model answers the question "when do quorum races fire relative to each other?" — using empirical `runtime_ms` bounds from `check-results.ndjson` as clock guards (not hardcoded constants), surfacing the minimum inter-slot response gap that prevents race conditions and the maximum timeout value for which the quorum can still reach consensus before the planning gate deadline.
@@ -1192,5 +1195,15 @@ Plans:
 | v0.20-03. Planning Gate | v0.20 | Complete    | 2026-02-28 | - |
 | v0.20-04. Verification Gate | v0.20 | Complete    | 2026-02-28 | - |
 | v0.20-05. Evidence Confidence | v0.20 | Complete    | 2026-02-28 | - |
-| v0.20-06. Triage Bundle | v0.20 | 0/TBD | Not started | - |
+| v0.20-06. Triage Bundle | v0.20 | 0/3 | Planned 2026-02-28 | - |
 | v0.20-07. UPPAAL Timed Race Modeling | v0.20 | 0/TBD | Not started | - |
+
+### Phase v0.20-08: Sensitivity Analysis
+**Goal**: During the planning process, a formal verification sensitivity sweep varies key model parameters (quorum size, timeout thresholds, slot failure rates) across defined ranges and identifies which parameters cause the most drastic changes in verification outcomes. These "high-sensitivity" parameters are surfaced to the planner as concrete recommendations: variables that flip outcomes should be better instrumented in code, tested at boundary values, and monitored in production — turning formal model behavior into actionable engineering guidance.
+**Depends on**: Phase v0.20-01 (v2.1 NDJSON schema), Phase v0.20-07 (UPPAAL empirical timing bounds for sweep ranges)
+**Requirements**: SENS-01, SENS-02, SENS-03
+**Success Criteria** (what must be TRUE):
+  1. `bin/run-sensitivity-sweep.cjs` exists, sweeps ≥2 key parameters (quorum size N, timeout threshold T) across ≥3 values each, and records outcome deltas (pass→fail, pass→inconclusive transitions) in `formal/sensitivity-report.ndjson` using the v2.1 schema
+  2. `plan-phase.md` step 8.3 (FV gate) is extended to run `run-sensitivity-sweep.cjs` and inject `SENSITIVITY_CONTEXT` into the quorum `review_context`, surfacing the top-3 high-sensitivity parameters as planning recommendations before quorum sees the plan
+  3. `bin/sensitivity-report.cjs` generates `formal/sensitivity-report.md` — a human-readable ranked list of sensitive parameters annotated with (a) which code paths control them, (b) recommended test boundary cases, (c) recommended monitoring metrics
+**Plans**: TBD
