@@ -13,17 +13,18 @@
 //                     transcript-scan, install-scope, taxonomy-safety, account-pool-structure
 //   PRISM      (3)  — quorum, oauth-rotation, mcp-availability
 //   CI enforce (3)  — check-trace-redaction.cjs, check-trace-schema-drift.cjs, check-liveness-fairness.cjs
+//   Triage     (1)  — generate-triage-bundle.cjs (diff-report.md + suspects.md)
 //   ─────────────────────────────────────────────────────────────
-//   Total:    26 steps
+//   Total:    27 steps
 //
 // Usage:
-//   node bin/run-formal-verify.cjs                    # all 26 steps
+//   node bin/run-formal-verify.cjs                    # all 27 steps
 //   node bin/run-formal-verify.cjs --only=generate    # source extraction only (2 steps)
 //   node bin/run-formal-verify.cjs --only=tla         # TLA+ only  (9 steps)
 //   node bin/run-formal-verify.cjs --only=alloy       # Alloy only (7 steps)
 //   node bin/run-formal-verify.cjs --only=prism       # PRISM only (3 steps)
 //   node bin/run-formal-verify.cjs --only=petri       # Petri only (2 steps)
-//   node bin/run-formal-verify.cjs --only=ci          # CI enforcement only (3 steps)
+//   node bin/run-formal-verify.cjs --only=ci          # CI enforcement only (4 steps)
 //
 // Behaviour:
 //   - Runs steps sequentially; streams child output to stdout/stderr.
@@ -197,6 +198,15 @@ const STEPS = [
     label: 'Conformance trace validation — XState machine replay with evidence confidence (EVID-01, EVID-02)',
     type: 'node', script: 'validate-traces.cjs', args: [],
   },
+
+  // ─ Triage bundle ─────────────────────────────────────────────────────────
+  {
+    tool: 'ci', id: 'ci:triage-bundle',
+    label: 'Generate triage bundle — diff-report.md + suspects.md (generate-triage-bundle)',
+    type: 'node', script: 'generate-triage-bundle.cjs', args: [],
+    // Non-critical: failure does not block exit code; triage is informational
+    nonCritical: true,
+  },
 ];
 
 // ── CLI filter ────────────────────────────────────────────────────────────────
@@ -219,8 +229,8 @@ if (only && steps.length === 0) {
 // ── Result tracker ────────────────────────────────────────────────────────────
 const results = [];  // { id, label, passed, note }
 
-function record(id, label, passed, note) {
-  results.push({ id, label, passed, note: note || '' });
+function record(id, label, passed, note, nonCritical) {
+  results.push({ id, label, passed, note: note || '', nonCritical: !!nonCritical });
 }
 
 // ── Step execution ────────────────────────────────────────────────────────────
@@ -292,7 +302,7 @@ async function runGroup(groupSteps) {
 
     const mark = passed ? '✓' : '✗';
     process.stdout.write('\n' + TAG + ' ' + mark + ' ' + step.id + '\n\n');
-    record(step.id, step.label, passed);
+    record(step.id, step.label, passed, undefined, step.nonCritical);
   }
 }
 
@@ -337,7 +347,7 @@ async function runOnce() {
 
   // ── Summary ─────────────────────────────────────────────────────────────────
   const passed = results.filter(r => r.passed).length;
-  const failed = results.filter(r => !r.passed).length;
+  const failed = results.filter(r => !r.passed && !r.nonCritical).length;
 
   process.stdout.write(TAG + ' ' + HR + '\n');
   process.stdout.write(TAG + ' SUMMARY — ' + passed + '/' + results.length + ' passed\n');

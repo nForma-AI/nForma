@@ -287,3 +287,22 @@ test('STEPS contains ci:conformance-traces entry', () => {
   assert.ok(src.includes("id: 'ci:conformance-traces'"), "STEPS must include ci:conformance-traces");
   assert.ok(src.includes("validate-traces.cjs"), "STEPS ci:conformance-traces must reference validate-traces.cjs");
 });
+
+test('TRIAGE-02: STEPS includes ci:triage-bundle entry as final step', () => {
+  // Guard: ensures the ci:triage-bundle STEPS entry is not accidentally removed (TRIAGE-02)
+  // STEPS total is now 27 (was 26 before this step was added).
+  const src = fs.readFileSync(path.join(__dirname, 'run-formal-verify.cjs'), 'utf8');
+  assert.ok(
+    src.includes('ci:triage-bundle'),
+    'Expected ci:triage-bundle STEPS entry in run-formal-verify.cjs (TRIAGE-02)'
+  );
+  assert.ok(
+    src.includes('generate-triage-bundle.cjs'),
+    'ci:triage-bundle STEPS entry must reference generate-triage-bundle.cjs'
+  );
+  // Verify total STEPS count is now 27
+  assert.ok(
+    src.includes('Total:    27 steps'),
+    'Comment block must reflect updated total of 27 steps'
+  );
+});
