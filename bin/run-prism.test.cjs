@@ -525,3 +525,42 @@ test('run-prism --model mcp-availability: composite-key filter runs before const
   }
   fs.rmSync(tmpDir, { recursive: true });
 });
+
+test('policy.yaml conservative_priors values are used as PRISM constants when no scoreboard', () => {
+  // RED phase: this test verifies that run-prism.cjs reads conservative_priors from
+  // policy.yaml rather than using hardcoded PRISM_PRIOR_TP / PRISM_PRIOR_UNAVAIL constants.
+  // Wiring assertion (a): source must NOT contain 'const PRISM_PRIOR_TP' after wire-up
+  const runPrismSrc = fs.readFileSync(RUN_PRISM, 'utf8');
+  assert.doesNotMatch(
+    runPrismSrc,
+    /const PRISM_PRIOR_TP\s*=/,
+    'run-prism.cjs must not define hardcoded const PRISM_PRIOR_TP — use policy.conservative_priors.tp_rate instead'
+  );
+
+  // Value assertion (b): Args line must contain values that match policy.yaml at test time
+  const { readPolicy } = require('./read-policy.cjs');
+  const policy = readPolicy(path.join(__dirname, '..', 'formal', 'policy.yaml'));
+  const expectedTP      = String(policy.conservative_priors.tp_rate);
+  const expectedUnavail = String(policy.conservative_priors.unavail);
+
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'run-prism-calib04-'));
+  try {
+    const result = spawnSync(process.execPath, [RUN_PRISM], {
+      encoding: 'utf8',
+      cwd:      tmpDir,
+      env:      { ...process.env, PRISM_BIN: 'prism' },
+    });
+    assert.match(
+      result.stdout,
+      new RegExp('-const tp_rate=' + expectedTP.replace('.', '\\.')),
+      'Args line must contain -const tp_rate=' + expectedTP + ' (from policy.yaml)'
+    );
+    assert.match(
+      result.stdout,
+      new RegExp('-const unavail=' + expectedUnavail.replace('.', '\\.')),
+      'Args line must contain -const unavail=' + expectedUnavail + ' (from policy.yaml)'
+    );
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
