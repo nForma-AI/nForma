@@ -85,7 +85,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 | 116 | make formal spec generator fully automatic — GUARD_REGISTRY, maxSize/polledCount extraction, regenerate all specs with unanimity semantics | 2026-02-27 | 4618236 | Completed | [116-make-formal-spec-generator-fully-automat](./quick/116-make-formal-spec-generator-fully-automat/) |
 | 117 | Add PreCompact hook for seamless context continuation | 2026-02-27 | ccefbfa | Verified | [117-add-a-precompact-hook-to-qgsd-that-auto-](./quick/117-add-a-precompact-hook-to-qgsd-that-auto-/) |
 | 118 | Update all user-facing documentation: README with blessed TUI capabilities and formal analysis tools (PRISM, Alloy, TLA+, Petri nets) with installation instructions | 2026-02-28 | 01a4e608 | Verified | [118-update-all-user-facing-documentation-rea](./quick/118-update-all-user-facing-documentation-rea/) |
-| 119 | major documentation refresh — update all documentation | 2026-02-28 | 225369a9 | Pending | [119-major-documentation-refresh-update-all-d](./quick/119-major-documentation-refresh-update-all-d/) |
+| 119 | major documentation refresh — update all documentation | 2026-02-28 | 225369a9 | Verified | [119-major-documentation-refresh-update-all-d](./quick/119-major-documentation-refresh-update-all-d/) |
 
 ## Session Continuity
 
