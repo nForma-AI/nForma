@@ -23,6 +23,16 @@ const path = require('path');
 const { writeCheckResult } = require('./write-check-result.cjs');
 const { readPolicy } = require('./read-policy.cjs');
 
+// ── Check ID mapping for multi-model support ─────────────────────────────────
+const CHECK_ID_MAP = {
+  'quorum':           'prism:quorum',
+  'mcp-availability': 'prism:mcp-availability',
+};
+const PROPERTY_MAP = {
+  'quorum':           'Quorum consensus probability under agent availability rates',
+  'mcp-availability': 'MCP server availability under nondeterministic failure modes',
+};
+
 // ── Locate PRISM binary ──────────────────────────────────────────────────────
 const prismBin = process.env.PRISM_BIN || 'prism';
 
@@ -37,7 +47,10 @@ if (prismBin !== 'prism' && !fs.existsSync(prismBin)) {
   try {
     writeCheckResult({
       tool: 'run-prism', formalism: 'prism', result: 'fail',
-      metadata: { observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_rounds: 0, n_events: 0 } }
+      check_id: 'prism:quorum', surface: 'prism', property: 'Quorum consensus probability under agent availability rates',
+      runtime_ms: 0, summary: 'fail: prism:quorum (binary not found)', triage_tags: [],
+      observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_traces: 0, n_events: 0, window_days: 0 },
+      metadata: {}
     });
   } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
@@ -52,7 +65,10 @@ if (!fs.existsSync(modelPath)) {
   try {
     writeCheckResult({
       tool: 'run-prism', formalism: 'prism', result: 'fail',
-      metadata: { observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_rounds: 0, n_events: 0 } }
+      check_id: 'prism:quorum', surface: 'prism', property: 'Quorum consensus probability under agent availability rates',
+      runtime_ms: 0, summary: 'fail: prism:quorum (model not found)', triage_tags: [],
+      observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_traces: 0, n_events: 0, window_days: 0 },
+      metadata: {}
     });
   } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
@@ -119,7 +135,10 @@ try {
   try {
     writeCheckResult({
       tool: 'run-prism', formalism: 'prism', result: 'fail',
-      metadata: { observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_rounds: 0, n_events: 0 } }
+      check_id: 'prism:quorum', surface: 'prism', property: 'Quorum consensus probability under agent availability rates',
+      runtime_ms: 0, summary: 'fail: prism:quorum (policy load failed)', triage_tags: [],
+      observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_traces: 0, n_events: 0, window_days: 0 },
+      metadata: {}
     });
   } catch (_) {}
   process.exit(1);
@@ -297,6 +316,8 @@ process.stdout.write('[run-prism] Model:  ' + activeModelPath + '\n');
 process.stdout.write('[run-prism] Args:   ' + prismArgs.slice(1).join(' ') + '\n');
 
 // ── Invoke PRISM ─────────────────────────────────────────────────────────────
+const _startMs = Date.now();
+
 const result = spawnSync(prismBin, prismArgs, {
   encoding: 'utf8',
   stdio: 'inherit',
@@ -304,10 +325,16 @@ const result = spawnSync(prismBin, prismArgs, {
 
 if (result.error) {
   process.stderr.write('[run-prism] Failed to launch PRISM: ' + result.error.message + '\n');
+  const _runtimeMs = Date.now() - _startMs;
+  const modelName = useMCPAvailabilityModel ? 'mcp-availability' : 'quorum';
+  const check_id = CHECK_ID_MAP[modelName];
   try {
     writeCheckResult({
       tool: 'run-prism', formalism: 'prism', result: 'fail',
-      metadata: { observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_rounds: 0, n_events: 0 } }
+      check_id: check_id, surface: 'prism', property: PROPERTY_MAP[modelName],
+      runtime_ms: _runtimeMs, summary: 'fail: ' + check_id + ' in ' + _runtimeMs + 'ms', triage_tags: [],
+      observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_traces: 0, n_events: 0, window_days: 0 },
+      metadata: {}
     });
   } catch (e) { process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(1);
@@ -322,30 +349,50 @@ if (!passed && coldStartState.inColdStart) {
   process.stderr.write('[run-prism] Cold-start mode: suppressing fail → emitting warn\n');
 }
 
-// Build observation_window metadata for ALL check results (CALIB-03)
-const observationMetadata = {
-  observation_window: {
-    window_start: coldStartState.firstRunTimestamp
-      ? new Date(coldStartState.firstRunTimestamp).toISOString()
-      : new Date().toISOString(),
-    window_end:  new Date().toISOString(),
-    n_rounds:    coldStartState.quorumRoundCount,
-    n_events:    coldStartState.ciRunCount,
-  },
+// Build observation_window as top-level field for v2.1 (CALIB-03)
+const _runtimeMs = Date.now() - _startMs;
+const modelName = useMCPAvailabilityModel ? 'mcp-availability' : 'quorum';
+const check_id = CHECK_ID_MAP[modelName];
+const property = PROPERTY_MAP[modelName];
+
+const observationWindow = {
+  window_start: coldStartState.firstRunTimestamp
+    ? new Date(coldStartState.firstRunTimestamp).toISOString()
+    : new Date().toISOString(),
+  window_end:  new Date().toISOString(),
+  n_traces:    coldStartState.quorumRoundCount,
+  n_events:    coldStartState.ciRunCount,
+  window_days: coldStartState.firstRunTimestamp ? (Date.now() - coldStartState.firstRunTimestamp) / (1000 * 60 * 60 * 24) : 0,
 };
 
-// Add mcp_availability metadata when running mcp-availability model (MCPENV-04)
+// Build triage_tags based on PRISM thresholds
+const tags = [];
+if (_runtimeMs > 300000) tags.push('timeout-risk');
+else if (_runtimeMs > 120000) tags.push('slow-verify');
+if (observationWindow.window_days < 7 || observationWindow.n_traces < 30) tags.push('low-confidence');
+
+// Prepare metadata for non-observation_window fields
+const metadata = {};
 if (useMCPAvailabilityModel) {
-  observationMetadata.model = 'mcp-availability';
-  observationMetadata.per_slot_rates = activeMcpRates || 'priors';
+  metadata.model = 'mcp-availability';
+  metadata.per_slot_rates = activeMcpRates || 'priors';
 }
+metadata.tp_rate = liveTPRate;
+metadata.unavail = liveUnavail;
 
 try {
   writeCheckResult({
-    tool:      'run-prism',
-    formalism: 'prism',
-    result:    finalResult,
-    metadata:  observationMetadata,
+    tool:               'run-prism',
+    formalism:          'prism',
+    result:             finalResult,
+    check_id:           check_id,
+    surface:            'prism',
+    property:           property,
+    runtime_ms:         _runtimeMs,
+    summary:            finalResult + ': ' + modelName + ' in ' + _runtimeMs + 'ms',
+    triage_tags:        tags,
+    observation_window: observationWindow,
+    metadata:           metadata,
   });
 } catch (e) {
   process.stderr.write('[run-prism] Warning: failed to write check result: ' + e.message + '\n');

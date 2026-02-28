@@ -161,12 +161,15 @@ if (require.main === module) {
   const policy = parseRedactionPolicy(DEFAULT_POLICY_PATH);
 
   // Graceful: no trace directory
+  const _startMs = Date.now();
   if (!fs.existsSync(traceDir)) {
     try {
       writeCheckResult({
         tool: 'check-trace-redaction',
         formalism: 'redaction',
         result: 'pass',
+        check_id: 'ci:trace-redaction', surface: 'ci', property: 'Trace redaction — no forbidden keys or patterns in conformance event logs',
+        runtime_ms: Date.now() - _startMs, summary: 'pass: ci:trace-redaction in ' + (Date.now() - _startMs) + 'ms', triage_tags: [],
         metadata: { reason: 'no-trace-directory', directory: traceDir },
       });
     } catch (e) {
@@ -185,6 +188,8 @@ if (require.main === module) {
         tool: 'check-trace-redaction',
         formalism: 'redaction',
         result: 'pass',
+        check_id: 'ci:trace-redaction', surface: 'ci', property: 'Trace redaction — no forbidden keys or patterns in conformance event logs',
+        runtime_ms: Date.now() - _startMs, summary: 'pass: ci:trace-redaction in ' + (Date.now() - _startMs) + 'ms', triage_tags: [],
         metadata: { reason: 'no-trace-events', directory: traceDir },
       });
     } catch (e) {
@@ -219,6 +224,7 @@ if (require.main === module) {
     }
   }
 
+  const _runtimeMs = Date.now() - _startMs;
   if (allViolations.length > 0) {
     process.stdout.write('[check-trace-redaction] ' + allViolations.length + ' violation(s) found:\n');
     for (const v of allViolations.slice(0, 10)) {
@@ -229,6 +235,8 @@ if (require.main === module) {
         tool: 'check-trace-redaction',
         formalism: 'redaction',
         result: 'fail',
+        check_id: 'ci:trace-redaction', surface: 'ci', property: 'Trace redaction — no forbidden keys or patterns in conformance event logs',
+        runtime_ms: _runtimeMs, summary: 'fail: ci:trace-redaction in ' + _runtimeMs + 'ms', triage_tags: [],
         metadata: {
           violations: allViolations.slice(0, 10),
           total_violations: allViolations.length,
@@ -245,6 +253,8 @@ if (require.main === module) {
       tool: 'check-trace-redaction',
       formalism: 'redaction',
       result: 'pass',
+      check_id: 'ci:trace-redaction', surface: 'ci', property: 'Trace redaction — no forbidden keys or patterns in conformance event logs',
+      runtime_ms: _runtimeMs, summary: 'pass: ci:trace-redaction in ' + _runtimeMs + 'ms', triage_tags: [],
       metadata: { files_checked: fileCount, events_checked: eventCount },
     });
   } catch (e) {

@@ -64,15 +64,19 @@ function checkSchemaDrift(changedFiles) {
 }
 
 if (require.main === module) {
+  const _startMs = Date.now();
   try {
     const raw = execFileSync('git', ['diff', '--name-only', 'HEAD~1'], { encoding: 'utf8' });
     const changedFiles = raw.split('\n').filter(f => f.trim().length > 0);
     const result = checkSchemaDrift(changedFiles);
+    const _runtimeMs = Date.now() - _startMs;
     try {
       writeCheckResult({
         tool: 'check-trace-schema-drift',
         formalism: 'trace',
         result: result.status,
+        check_id: 'ci:trace-schema-drift', surface: 'ci', property: 'Trace schema drift — no non-atomic conformance schema changes between commits',
+        runtime_ms: _runtimeMs, summary: (result.status === 'pass' ? 'pass' : 'fail') + ': ci:trace-schema-drift in ' + _runtimeMs + 'ms', triage_tags: [],
         metadata: result,
       });
     } catch (e) {
@@ -80,9 +84,10 @@ if (require.main === module) {
     }
     process.exit(result.status === 'pass' ? 0 : 1);
   } catch (err) {
+    const _runtimeMs = Date.now() - _startMs;
     const meta = { reason: 'git-error', error: err.message };
     try {
-      writeCheckResult({ tool: 'check-trace-schema-drift', formalism: 'trace', result: 'fail', metadata: meta });
+      writeCheckResult({ tool: 'check-trace-schema-drift', formalism: 'trace', result: 'fail', check_id: 'ci:trace-schema-drift', surface: 'ci', property: 'Trace schema drift — no non-atomic conformance schema changes between commits', runtime_ms: _runtimeMs, summary: 'fail: ci:trace-schema-drift in ' + _runtimeMs + 'ms', triage_tags: [], metadata: meta });
     } catch (_) { /* swallow */ }
     process.stderr.write('[check-trace-schema-drift] git error: ' + err.message + '\n');
     process.exit(1);
