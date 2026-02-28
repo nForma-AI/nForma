@@ -256,6 +256,8 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 | `/qgsd:map-codebase` | Analyze existing codebase | Before `/qgsd:new-project` on existing code |
 | `/qgsd:quick` | Ad-hoc task with QGSD guarantees | Bug fixes, small features, config changes |
 | `/qgsd:debug [desc]` | Systematic debugging with persistent state | When something breaks |
+| `/qgsd:triage [--source github\|sentry\|bash] [--since 24h\|7d] [--limit N]` | Fetch and prioritize issues from GitHub, Sentry, or custom sources | Route issues to QGSD workflows |
+| `/qgsd:queue <command>` | Queue a command to auto-invoke after the next /clear | Maintain task continuity across context compaction |
 | `/qgsd:quorum-test` | Run multi-model quorum on a plan or verification artifact | During checkpoint:verify or manual plan review |
 | `/qgsd:quorum [question]` | Ask a question and get full five-model consensus answer | Architectural decisions, design tradeoffs |
 | `/qgsd:add-todo [desc]` | Capture an idea for later | Think of something during a session |

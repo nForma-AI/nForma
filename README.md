@@ -563,6 +563,26 @@ The orchestrator never does heavy lifting. It spawns agents, waits, integrates r
 
 **The result:** You can run an entire phase — deep research, multiple plans created and verified, thousands of lines of code written across parallel executors, automated verification against goals — and your main context window stays at 30-40%. The work happens in fresh subagent contexts. Your session stays fast and responsive.
 
+### Token Efficiency
+
+QGSD manages token consumption automatically across three mechanisms:
+
+**Tiered model sizing** — Researcher and plan-checker sub-agents use a smaller model (haiku by default) for a 15–20x cost reduction vs. using sonnet everywhere. The primary planner and executor retain sonnet. Configure via `model_tier_planner` and `model_tier_worker` keys in qgsd.json, or switch via `/qgsd:set-profile`.
+
+**Adaptive quorum fan-out** — Quorum dispatches fewer workers for routine tasks (2 workers) than for high-risk ones (max). The task envelope's `risk_level` field drives this automatically. Override with `--n N` in any quorum call.
+
+**Token observability** — The SubagentStop hook collects per-slot token usage and writes to `.planning/token-usage.jsonl`. Run `/qgsd:health` to see a ranked breakdown of token consumption by slot and stage — spot which agents are spending the most before it becomes a problem.
+
+### Autonomous Milestone Loop
+
+From `/qgsd:new-milestone` through `/qgsd:complete-milestone`, the execution chain runs without AskUserQuestion interruptions. When audit-milestone detects gaps, plan-milestone-gaps is spawned automatically. All confirmation gates (plan approval, gap resolution, gray-area discussion) route to quorum consensus instead of pausing for a human. The loop only escalates when the quorum cannot reach consensus — which is the signal that a human judgment call is actually needed.
+
+Enable auto-chaining via the `workflow.auto_advance` setting.
+
+### Pre-Execution Test Mapping (Nyquist)
+
+Before producing plans, plan-phase generates a `VALIDATION.md` test map for the phase — listing which tests must pass before execution starts (Wave 0) and what to verify after each task. This surfaces test-to-task traceability early and catches missing test coverage before a single line of code runs. Controlled by `nyquist_validation_enabled` in qgsd.json (default: true). The generation logic lives in `commands/qgsd/plan-phase.md` (search for `nyquist` or `VALIDATION.md` in that file to trace from this description to the implementation).
+
 ### Ping-Pong Commit Loop Breaker
 
 **The problem no one talks about:** AI agents get stuck in ping-pong commit loops.
@@ -614,6 +634,24 @@ npx qgsd --reset-breaker
 npx qgsd --disable-breaker
 npx qgsd --enable-breaker
 ```
+
+---
+
+### Hooks Ecosystem
+
+QGSD installs seven Claude Code hooks that fire at different lifecycle points:
+
+| Hook Type | File | When it fires | What it does |
+|-----------|------|---------------|--------------|
+| UserPromptSubmit | qgsd-prompt.js | Every user message | Injects quorum instructions at planning turns |
+| Stop | qgsd-stop.js | Before Claude delivers output | Verifies quorum actually happened by parsing the transcript; blocks non-compliant responses |
+| PreToolUse | qgsd-circuit-breaker.js | Before every tool execution | Detects ping-pong oscillation in git history; blocks Bash when breaker is active |
+| PostToolUse | gsd-context-monitor.js | After every tool execution | Monitors context usage; injects WARNING at 70%, CRITICAL at 90% |
+| SubagentStop | qgsd-token-collector.js | When a quorum slot finishes | Reads token usage from transcript and appends to token-usage.jsonl |
+| PreCompact | qgsd-precompact.js | Before context compaction | Injects current STATE.md position so context survives compaction without losing progress |
+| SessionStart | qgsd-session-start.js | Once per Claude Code session | Syncs keychain secrets into ~/.claude.json (zero prompts after bootstrap) |
+
+All hooks fail open — any hook error exits 0 and never blocks Claude.
 
 ---
 
@@ -777,6 +815,8 @@ You're never locked in. The system adapts.
 | `/qgsd:quorum-test` | Run multi-model quorum on a plan or verification artifact |
 | `/qgsd:quorum [question]` | Ask a question and get full five-model consensus answer |
 | `/qgsd:quick [--full]` | Execute ad-hoc task with QGSD guarantees (`--full` adds plan-checking and verification) |
+| `/qgsd:triage [--source github\|sentry\|bash] [--since 24h\|7d] [--limit N]` | Fetch and prioritize issues from GitHub, Sentry, or custom sources; route selected issue to QGSD workflow |
+| `/qgsd:queue <command>` | Queue a command to auto-invoke after the next /clear — survives context compaction |
 | `/qgsd:reapply-patches` | Restore local modifications after an update |
 | `/qgsd:health [--repair]` | Validate `.planning/` directory integrity, auto-repair with `--repair` |
 
