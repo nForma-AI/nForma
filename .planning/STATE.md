@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-28 after Milestone v0.20 start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.20 FV as Active Planning Gate — roadmap created, ready to plan v0.20-01
+**Current focus:** v0.20 Phase v0.20-02 — Liveness Fairness Lint
 
 ## Current Position
 
@@ -79,7 +79,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-28 — v0.20 roadmap created (6 phases, 14 requirements, ROADMAP.md + STATE.md updated)
+Last activity: 2026-02-28 — Phase v0.20-01 Schema Enrichment complete (5 plans, SCHEMA-01..03 satisfied, integration smoke passed)
 Last session: 2026-02-28
-Stopped at: v0.20 roadmap created — ready to run /qgsd:plan-phase v0.20-01
+Stopped at: Phase v0.20-01 complete, ready to plan Phase v0.20-02 (Liveness Fairness Lint)
 Resume file: None
