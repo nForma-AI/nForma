@@ -244,14 +244,21 @@ test('validate-traces ignores MCP metadata fields for non-mcp_call actions', () 
 function runValidatorKeepTmp(ndjsonLines) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-evid-test-'));
   const planningDir = path.join(tmpDir, '.planning');
+  const formalDir   = path.join(tmpDir, 'formal');
   fs.mkdirSync(planningDir, { recursive: true });
+  fs.mkdirSync(formalDir,   { recursive: true });
   if (ndjsonLines !== null) {
     const logFile = path.join(planningDir, 'conformance-events.jsonl');
     fs.writeFileSync(logFile, ndjsonLines.join('\n') + '\n', 'utf8');
   }
+  const ndjsonPath = path.join(formalDir, 'check-results.ndjson');
   const result = spawnSync(process.execPath, [
     path.join(__dirname, 'validate-traces.cjs')
-  ], { cwd: tmpDir, encoding: 'utf8' });
+  ], {
+    cwd: tmpDir,
+    encoding: 'utf8',
+    env: { ...process.env, CHECK_RESULTS_PATH: ndjsonPath },
+  });
   // NOTE: tmpDir is NOT cleaned up — caller must do so after reading NDJSON
   result.tmpDir = tmpDir;
   return result;
@@ -324,18 +331,29 @@ test('observation_window.window_days is 0 without scoreboard', () => {
 });
 
 test('observation_window.window_days matches multi-day scoreboard span', () => {
-  const result = runValidatorKeepTmp([VALID_EVENT]);
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-evid-sb-test-'));
+  const planningDir = path.join(tmpDir, '.planning');
+  const formalDir   = path.join(tmpDir, 'formal');
+  fs.mkdirSync(planningDir, { recursive: true });
+  fs.mkdirSync(formalDir,   { recursive: true });
+  // Write conformance event log
+  fs.writeFileSync(path.join(planningDir, 'conformance-events.jsonl'), VALID_EVENT + '\n', 'utf8');
   // Write scoreboard with rounds 10 days apart
-  writeScoreboard(result.tmpDir, [
+  writeScoreboard(tmpDir, [
     { date: '2026-01-01T00:00:00.000Z' },
     { date: '2026-01-11T00:00:00.000Z' },
   ]);
-  // Re-run with scoreboard present
-  const result2 = spawnSync(process.execPath, [
+  const ndjsonPath = path.join(formalDir, 'check-results.ndjson');
+  // Run with scoreboard present
+  spawnSync(process.execPath, [
     path.join(__dirname, 'validate-traces.cjs')
-  ], { cwd: result.tmpDir, encoding: 'utf8' });
-  const record = getLastNDJSON(result.tmpDir);
-  fs.rmSync(result.tmpDir, { recursive: true, force: true });
+  ], {
+    cwd: tmpDir,
+    encoding: 'utf8',
+    env: { ...process.env, CHECK_RESULTS_PATH: ndjsonPath },
+  });
+  const record = getLastNDJSON(tmpDir);
+  fs.rmSync(tmpDir, { recursive: true, force: true });
   assert.ok(record, 'NDJSON record must be written');
   assert.ok(record.observation_window, 'observation_window must be present');
   assert.strictEqual(record.observation_window.window_days, 10, 'window_days must equal 10 for a 10-day scoreboard span');

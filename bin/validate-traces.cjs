@@ -94,7 +94,36 @@ function expectedState(event) {
   return null; // cannot determine — will count as divergence
 }
 
+// Builds the observation_window object for a check-result NDJSON record (EVID-02).
+// Reads scoreboard to derive window_start (earliest round date), window_end (now),
+// n_traces (round count), n_events (conformance event count), window_days (span).
+// Fail-open: if scoreboard is missing or malformed, returns sensible zero defaults.
+function buildObservationWindow(scoreboardMeta, n_events) {
+  let window_start = new Date().toISOString();
+  try {
+    const sbPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+    if (fs.existsSync(sbPath)) {
+      const sb = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
+      const rounds = Array.isArray(sb.rounds) ? sb.rounds : [];
+      if (rounds.length > 0) {
+        const dates = rounds.map(r => new Date(r.date).getTime()).filter(t => !isNaN(t));
+        if (dates.length > 0) {
+          window_start = new Date(Math.min(...dates)).toISOString();
+        }
+      }
+    }
+  } catch (_) { /* fail-open */ }
+  return {
+    window_start,
+    window_end:   new Date().toISOString(),
+    n_traces:     scoreboardMeta.n_rounds,
+    n_events,
+    window_days:  scoreboardMeta.window_days,
+  };
+}
+
 if (require.main === module) {
+  const _startMs = Date.now();
   const { writeCheckResult } = require('./write-check-result.cjs');
   // Machine CJS path: in the repo, ../dist/machines/ (bin/ → dist/machines/)
   // When installed at ~/.claude/qgsd-bin/, ./dist/machines/ (qgsd-bin/ → qgsd-bin/dist/machines/)
@@ -111,7 +140,18 @@ if (require.main === module) {
 
   if (!fs.existsSync(logPath)) {
     process.stdout.write('[validate-traces] No conformance log at: ' + logPath + ' — nothing to validate\n');
-    try { writeCheckResult({ tool: 'validate-traces', formalism: 'trace', result: 'pass', metadata: { reason: 'no-log' } }); } catch (e) { process.stderr.write('[validate-traces] Warning: failed to write check result: ' + e.message + '\n'); }
+    const _obs0 = buildObservationWindow({ n_rounds: 0, window_days: 0 }, 0);
+    try {
+      writeCheckResult({
+        tool: 'validate-traces', formalism: 'trace', result: 'pass',
+        check_id: 'ci:conformance-traces', surface: 'ci',
+        property: 'Conformance event replay through XState machine',
+        runtime_ms: Date.now() - _startMs,
+        summary: 'pass: no conformance log found — nothing to validate',
+        observation_window: _obs0,
+        metadata: { reason: 'no-log' },
+      });
+    } catch (e) { process.stderr.write('[validate-traces] Warning: failed to write check result: ' + e.message + '\n'); }
     process.exit(0);
   }
 
@@ -120,7 +160,18 @@ if (require.main === module) {
 
   if (lines.length === 0) {
     process.stdout.write('[validate-traces] Conformance log is empty — deviation score: 100.0% (0/0)\n');
-    try { writeCheckResult({ tool: 'validate-traces', formalism: 'trace', result: 'pass', metadata: { reason: 'empty-log' } }); } catch (e) { process.stderr.write('[validate-traces] Warning: failed to write check result: ' + e.message + '\n'); }
+    const _obs1 = buildObservationWindow({ n_rounds: 0, window_days: 0 }, 0);
+    try {
+      writeCheckResult({
+        tool: 'validate-traces', formalism: 'trace', result: 'pass',
+        check_id: 'ci:conformance-traces', surface: 'ci',
+        property: 'Conformance event replay through XState machine',
+        runtime_ms: Date.now() - _startMs,
+        summary: 'pass: conformance log is empty — nothing to validate',
+        observation_window: _obs1,
+        metadata: { reason: 'empty-log' },
+      });
+    } catch (e) { process.stderr.write('[validate-traces] Warning: failed to write check result: ' + e.message + '\n'); }
     process.exit(0);
   }
 
@@ -193,6 +244,7 @@ if (require.main === module) {
 
   const total = lines.length;
   const score = ((valid / total) * 100).toFixed(1);
+  const observationWindow = buildObservationWindow(scoreboardMeta, total);
 
   process.stdout.write('[validate-traces] Deviation score: ' + score + '% valid (' + valid + '/' + total + ' traces)\n');
 
@@ -201,11 +253,32 @@ if (require.main === module) {
     for (const d of divergences) {
       process.stdout.write('  ' + JSON.stringify(d) + '\n');
     }
-    try { writeCheckResult({ tool: 'validate-traces', formalism: 'trace', result: 'fail', metadata: { divergences: divergences.length, total } }); } catch (e) { process.stderr.write('[validate-traces] Warning: failed to write check result: ' + e.message + '\n'); }
+    try {
+      writeCheckResult({
+        tool: 'validate-traces', formalism: 'trace', result: 'fail',
+        check_id: 'ci:conformance-traces', surface: 'ci',
+        property: 'Conformance event replay through XState machine',
+        runtime_ms: Date.now() - _startMs,
+        summary: 'fail: ' + divergences.length + ' divergence(s) in ' + total + ' traces (' + (Date.now() - _startMs) + 'ms)',
+        observation_window: observationWindow,
+        metadata: { divergences: divergences.length, total },
+        triage_tags: ['trace-divergence'],
+      });
+    } catch (e) { process.stderr.write('[validate-traces] Warning: failed to write check result: ' + e.message + '\n'); }
     process.exit(1);
   }
 
-  try { writeCheckResult({ tool: 'validate-traces', formalism: 'trace', result: 'pass', metadata: { valid, total } }); } catch (e) { process.stderr.write('[validate-traces] Warning: failed to write check result: ' + e.message + '\n'); }
+  try {
+    writeCheckResult({
+      tool: 'validate-traces', formalism: 'trace', result: 'pass',
+      check_id: 'ci:conformance-traces', surface: 'ci',
+      property: 'Conformance event replay through XState machine',
+      runtime_ms: Date.now() - _startMs,
+      summary: 'pass: ' + valid + '/' + total + ' traces valid (' + (Date.now() - _startMs) + 'ms)',
+      observation_window: observationWindow,
+      metadata: { valid, total },
+    });
+  } catch (e) { process.stderr.write('[validate-traces] Warning: failed to write check result: ' + e.message + '\n'); }
   process.exit(0);
 }
 
