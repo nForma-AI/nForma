@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-28 after Milestone v0.20 start)
 ## Current Position
 
 Phase: v0.20-02 of 6 (Liveness Fairness Lint)
-Plan: 01 of 03 (Completed)
-Status: Wave 0 Scaffold Complete
-Last activity: 2026-02-28 — v0.20-02-01 executed (RED test scaffold for liveness fairness lint contract)
+Plan: 02 of 03 (Completed)
+Status: Implementation Complete
+Last activity: 2026-02-28 — v0.20-02-02 executed (check-liveness-fairness.cjs implementation)
 
-Progress: [▓▓▓░░░░░░░░░░░░░░░░░░░░] v0.20: 2/6 phases (Plan 01/03 complete, Wave 0 scaffold done)
+Progress: [▓▓▓░░░░░░░░░░░░░░░░░░░░] v0.20: 2/6 phases (Plan 02/03 complete, Wave 1 implementation done)
 
 ## Performance Metrics
 
@@ -27,11 +27,11 @@ Progress: [▓▓▓░░░░░░░░░░░░░░░░░░░░
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
+| v0.20-02 P02 | 1 | 300s | 300s |
 | v0.20-02 P01 | 1 | 120s | 120s |
 | v0.20-01 P03 | 1 | 641s | 641s |
 | v0.20-01 P02 | 1 | 358s | 358s |
 | v0.20-01 P04 | 1 | 600s | 600s |
-| v0.9-08 P01 | 1 | 25s | 25s |
 
 **Recent Trend:**
 - Last 5 plans: stable
@@ -47,6 +47,7 @@ Progress: [▓▓▓░░░░░░░░░░░░░░░░░░░░
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.20-02-02 Implementation]: Liveness fairness lint check-liveness-fairness.cjs complete. Implemented as centralized CI step with dynamic MC*.cfg discovery (no hardcoded config list). Detects liveness properties lacking fairness declarations and emits v2.1 NDJSON result='pass'|'inconclusive'. Always exits 0 (inconclusive not a failure). Enhanced detectLivenessProperties with fallback surface mapping (strip 'MC' prefix if config unknown) to support test isolation. All 6 Wave 0 RED tests now GREEN. LIVE-01 and LIVE-02 requirements satisfied.
 - [v0.20-02-01 Wave 0 Scaffold]: Liveness fairness lint RED test scaffold complete. 6 tests in check-liveness-fairness.test.cjs specify the contract (exit 0 always, pass/inconclusive results, dynamic config discovery). 1 test in run-formal-verify.test.cjs asserts ci:liveness-fairness-lint entry in STEPS. All 7 tests fail in RED state — implementation tasks must satisfy them. LIVE-01 and LIVE-02 requirements scoped by Wave 0 tests.
 - [v0.20-01-05 completion]: Phase v0.20-01 Schema Enrichment COMPLETE. All 3 requirements satisfied: SCHEMA-01 (schema updated with v2.1 fields), SCHEMA-02 (writeCheckResult enforces validation), SCHEMA-03 (all 21 active callers updated). Integration smoke test confirms end-to-end pipeline: TLA+ runners call writeCheckResult with v2.1 fields, records appear in check-results.ndjson with correct structure. 9 fresh v2.1 records generated with runtime_ms > 0. Backwards compatibility verified (0 parse errors). Phase ready for downstream v0.20-02 through v0.20-06 which all depend on this enriched NDJSON.
 - [v0.20-01-03 execution]: All 5 TLA+ runners (run-tlc.cjs, run-oscillation-tlc.cjs, run-protocol-tlc.cjs, run-breaker-tlc.cjs, run-account-manager-tlc.cjs) updated to v2.1 spec. Timer placement (immediately before spawnSync) ensures runtime_ms measures actual TLC execution, not module load time. Timeout-risk annotation at 120s threshold enables CI timeout-adequacy decisions. Plan 03 covers 9 of 21 STEPS entries; Plan 04 covered remaining 12 (Alloy, PRISM, formal-verify CI tool calls).
@@ -81,7 +82,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-28 — Phase v0.20-02 Plan 01 Wave 0 Scaffold complete (RED tests for liveness fairness lint contract)
+Last activity: 2026-02-28 — Phase v0.20-02 Plan 02 Implementation complete (check-liveness-fairness.cjs)
 Last session: 2026-02-28
-Stopped at: v0.20-02-01 complete, ready for v0.20-02-02 (implementation)
+Stopped at: v0.20-02-02 complete, ready for v0.20-02-03 (ci:liveness-fairness-lint STEPS registration)
 Resume file: None

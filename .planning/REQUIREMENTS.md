@@ -13,7 +13,7 @@
 
 ### Liveness Lint (LIVE)
 
-- [ ] **LIVE-01**: CI step detects liveness properties lacking a fairness declaration in `invariants.md` and emits `result=inconclusive` instead of `pass`
+- [x] **LIVE-01**: CI step detects liveness properties lacking a fairness declaration in `invariants.md` and emits `result=inconclusive` instead of `pass`
 - [ ] **LIVE-02**: `run-formal-verify.cjs` STEPS includes a `ci:liveness-fairness-lint` step that enforces LIVE-01
 
 ### Planning Gate (PLAN)
@@ -59,7 +59,7 @@
 | SCHEMA-01 | v0.20-01 | Complete |
 | SCHEMA-02 | v0.20-01 | Complete |
 | SCHEMA-03 | v0.20-01 | Complete |
-| LIVE-01 | v0.20-02 | Pending |
+| LIVE-01 | v0.20-02 | Complete |
 | LIVE-02 | v0.20-02 | Pending |
 | PLAN-01 | v0.20-03 | Pending |
 | PLAN-02 | v0.20-03 | Pending |

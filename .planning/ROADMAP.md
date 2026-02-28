@@ -255,7 +255,7 @@ Archive: `.planning/milestones/v0.19-ROADMAP.md`
 **Milestone Goal:** Wire QGSD's formal verification pipeline into its planning and verification workflows — TLC/Alloy/PRISM findings surface as hypotheses during `plan-phase`, formal check results appear in `VERIFICATION.md` during `execute-phase`, and the check-result schema is enriched to v2.1 spec to enable triage bundles and evidence dashboards.
 
 - ✅ **Phase v0.20-01: Schema Enrichment** — Extend `check-result.schema.json` and `write-check-result.cjs` to v2.1 spec; update all 21 active callers in `run-formal-verify.cjs` to pass the new required fields (SCHEMA-01, SCHEMA-02, SCHEMA-03) [All 5 plans done 2026-02-28]
-- [ ] **Phase v0.20-02: Liveness Fairness Lint** — CI step detects liveness properties lacking a fairness declaration and emits `result=inconclusive`; wired as `ci:liveness-fairness-lint` in the STEPS pipeline (LIVE-01, LIVE-02)
+- [ ] **Phase v0.20-02: Liveness Fairness Lint** — CI step detects liveness properties lacking a fairness declaration and emits `result=inconclusive`; wired as `ci:liveness-fairness-lint` in the STEPS pipeline (LIVE-01, LIVE-02) [2/3 plans: P01 Wave 0 scaffold + P02 implementation complete]
 - [ ] **Phase v0.20-03: Planning Gate** — `plan-phase.md` runs `run-formal-verify --only=tla` pre-quorum; TLC `fail` results surfaced as hypotheses to the planner; gate is fail-open (PLAN-01, PLAN-02, PLAN-03)
 - [ ] **Phase v0.20-04: Verification Gate** — `qgsd-verifier` agent runs `run-formal-verify` post-implementation; `VERIFICATION.md` gains a `## Formal Verification` section with pass/fail/warn counts (VERIFY-01, VERIFY-02)
 - [ ] **Phase v0.20-05: Evidence Confidence** — `never_observed` trace entries carry `confidence: low|medium|high`; `observation_window` metadata written to `check-results.ndjson` (EVID-01, EVID-02)
@@ -1124,8 +1124,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] v0.20-02-01-PLAN.md — Wave 0 RED test scaffold (LIVE-01, LIVE-02)
-- [ ] v0.20-02-02-PLAN.md — Implement check-liveness-fairness.cjs (LIVE-01)
+- [x] v0.20-02-01-PLAN.md — Wave 0 RED test scaffold (LIVE-01, LIVE-02)
+- [x] v0.20-02-02-PLAN.md — Implement check-liveness-fairness.cjs (LIVE-01)
 - [ ] v0.20-02-03-PLAN.md — Wire ci:liveness-fairness-lint to STEPS in run-formal-verify.cjs (LIVE-02)
 
 ### Phase v0.20-03: Planning Gate
@@ -1179,7 +1179,7 @@ Plans:
   3. The model's output explicitly annotates two critical measurement points: (a) minimum inter-slot gap below which a race fires, (b) maximum timeout threshold above which consensus fails before the planning gate deadline
 **Plans**: TBD
 | v0.20-01. Schema Enrichment | 5/5 | Complete    | 2026-02-28 | - |
-| v0.20-02. Liveness Fairness Lint | v0.20 | 0/TBD | Not started | - |
+| v0.20-02. Liveness Fairness Lint | 2/3 | In progress | 2026-02-28 | check-liveness-fairness.cjs complete |
 | v0.20-03. Planning Gate | v0.20 | 0/TBD | Not started | - |
 | v0.20-04. Verification Gate | v0.20 | 0/TBD | Not started | - |
 | v0.20-05. Evidence Confidence | v0.20 | 0/TBD | Not started | - |
