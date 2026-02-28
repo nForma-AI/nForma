@@ -104,7 +104,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | UNIF-01 | Phase v0.19-01 | Complete |
 | UNIF-02 | Phase v0.19-01 | Complete |
-| UNIF-03 | Phase v0.19-01 | Complete |
+| UNIF-03 | Phase v0.19-11 | Complete |
 | UNIF-04 | Phase v0.19-01 | Complete |
 | CALIB-01 | Phase v0.19-02 | Complete |
 | CALIB-02 | Phase v0.19-02 | Complete |
@@ -136,4 +136,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-02-28 after Phase v0.19-09 complete — LIVE-01, REDACT-01..03, EVID-01..02, DRIFT-01..02, MCPENV-01..04 checkboxes and traceability table updated from Pending to Complete*
+*Last updated: 2026-02-28 after Phase v0.19-09 complete — LIVE-01, REDACT-01..03, EVID-01..02, DRIFT-01..02, MCPENV-01..04 checkboxes and traceability table updated from Pending to Complete; v0.19-11 complete — UNIF-03 traceability updated to Phase v0.19-11*
