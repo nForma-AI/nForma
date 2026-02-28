@@ -58,7 +58,12 @@ test('writeCheckResult appends one line to NDJSON file', () => {
       return mod;
     })();
 
-    writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'pass' });
+    writeCheckResult({
+      tool: 'run-tlc', formalism: 'tla', result: 'pass',
+      check_id: 'tla:quorum-safety', surface: 'tla',
+      property: 'Safety invariants', runtime_ms: 1234,
+      summary: 'pass: MCsafety in 1234ms'
+    });
 
     const content = fs.readFileSync(tmpFile, 'utf8');
     const lines = content.split('\n').filter(l => l.trim().length > 0);
@@ -79,7 +84,12 @@ test('writeCheckResult record has all required fields', () => {
     delete require.cache[require.resolve(MODULE_PATH)];
     const { writeCheckResult } = require(MODULE_PATH);
 
-    writeCheckResult({ tool: 'run-alloy', formalism: 'alloy', result: 'fail', metadata: { spec: 'test' } });
+    writeCheckResult({
+      tool: 'run-alloy', formalism: 'alloy', result: 'fail',
+      check_id: 'alloy:quorum-consistency', surface: 'alloy',
+      property: 'Consistency invariants', runtime_ms: 5000,
+      summary: 'fail: consistency check failed', metadata: { spec: 'test' }
+    });
 
     const line    = fs.readFileSync(tmpFile, 'utf8').trim();
     const record  = JSON.parse(line);
