@@ -18,7 +18,7 @@ const fs   = require('fs');
 const path = require('path');
 const { writeCheckResult } = require('./write-check-result.cjs');
 
-const VALID_CONFIGS = ['MCsafety', 'MCliveness'];
+const VALID_CONFIGS = ['MCsafety', 'MCliveness', 'MCMCPEnv'];
 
 // ── Surface map for liveness detection ──────────────────────────────────────
 const SURFACE_MAP = {
@@ -30,6 +30,7 @@ const SURFACE_MAP = {
   'MCconvergence':         'convergence',
   'MCoscillation':         'oscillation',
   'MCaccount-manager':     'account-manager',
+  'MCMCPEnv':              'mcp-calls',  // MCPENV-02
 };
 
 /**

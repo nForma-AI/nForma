@@ -111,6 +111,9 @@ jobs:
       - name: TLC — liveness check (MCliveness, N=3)
         run: node bin/run-tlc.cjs MCliveness
 
+      - name: TLA+ QGSDMCPEnv — MCMCPEnv (MCPENV-02)
+        run: node bin/run-tlc.cjs MCMCPEnv
+
       - name: Alloy — majority threshold assertions (ThresholdPasses, BelowThresholdFails, ZeroApprovalsFail)
         run: node bin/run-alloy.cjs formal/alloy/quorum-votes.als
 

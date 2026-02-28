@@ -97,3 +97,30 @@ test('detectLivenessProperties returns property name when invariants.md exists b
   // Cleanup
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
+
+test('detectLivenessProperties returns [] for MCMCPEnv when invariants.md has ## EventualDecision header', () => {
+  const { detectLivenessProperties } = require('./run-tlc.cjs');
+  const cfgPath = path.join(__dirname, '..', 'formal', 'tla', 'MCMCPEnv.cfg');
+  const specDir = path.join(__dirname, '..', 'formal', 'spec');
+  // MCMCPEnv.cfg should exist (created in v0.19-05); invariants.md with EventualDecision created in this plan
+  if (!fs.existsSync(cfgPath)) { return; } // skip if .cfg not present
+  // Three-part assertion: SURFACE_MAP resolves the path, the file exists with the section,
+  // and detectLivenessProperties returns [] — distinguishes path-miss from declared property.
+  const src = fs.readFileSync(path.join(__dirname, 'run-tlc.cjs'), 'utf8');
+  assert.match(src, /'MCMCPEnv'.*'mcp-calls'/, 'SURFACE_MAP must have MCMCPEnv -> mcp-calls before testing return value');
+  const invPath = path.join(specDir, 'mcp-calls', 'invariants.md');
+  assert.ok(fs.existsSync(invPath), 'formal/spec/mcp-calls/invariants.md must exist at the SURFACE_MAP-resolved path');
+  const content = fs.readFileSync(invPath, 'utf8');
+  assert.ok(content.includes('## EventualDecision'), 'invariants.md must contain ## EventualDecision — absence causes false [] return');
+  const result = detectLivenessProperties('MCMCPEnv', cfgPath, specDir);
+  assert.deepStrictEqual(result, [], 'MCMCPEnv should have 0 missing fairness declarations');
+});
+
+test('SURFACE_MAP in run-tlc.cjs contains MCMCPEnv -> mcp-calls entry', () => {
+  // Verify SURFACE_MAP has the mcp-calls mapping by checking module source.
+  // NOTE: 'MCMCPEnv' in VALID_CONFIGS MUST exactly match this SURFACE_MAP key —
+  // any case difference or typo (e.g. 'MCMcpEnv') causes detectLivenessProperties()
+  // to silently return [] without ever reaching invariants.md, producing a false negative.
+  const src = fs.readFileSync(path.join(__dirname, 'run-tlc.cjs'), 'utf8');
+  assert.match(src, /'MCMCPEnv'.*'mcp-calls'/, 'SURFACE_MAP must contain MCMCPEnv entry');
+});

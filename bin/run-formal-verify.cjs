@@ -114,6 +114,11 @@ const STEPS = [
     label: 'TLA+ QGSDAccountManager — MCaccount-manager',
     type: 'node', script: 'run-account-manager-tlc.cjs', args: [],
   },
+  {
+    tool: 'tla', id: 'tla:mcp-environment',
+    label: 'TLA+ QGSDMCPEnv — MCMCPEnv (MCPENV-02)',
+    type: 'node', script: 'run-tlc.cjs', args: ['MCMCPEnv'],
+  },
 
   // ─ Alloy structural verification ───────────────────────────────────────────
   {
