@@ -20,6 +20,18 @@ const { writeCheckResult } = require('./write-check-result.cjs');
 
 const VALID_CONFIGS = ['MCsafety', 'MCliveness', 'MCMCPEnv'];
 
+const CHECK_ID_MAP = {
+  'MCsafety':   'tla:quorum-safety',
+  'MCliveness': 'tla:quorum-liveness',
+  'MCMCPEnv':   'tla:mcp-environment',
+};
+
+const PROPERTY_MAP = {
+  'MCsafety':   'Safety invariants — TypeInvariant, SafetyInvariant, no deadlock',
+  'MCliveness': 'Liveness — EventuallyDecided, EventuallyTerminates',
+  'MCMCPEnv':   'MCP environment — MCPEnvSafety, MCPEnvLiveness',
+};
+
 // ── Surface map for liveness detection ──────────────────────────────────────
 const SURFACE_MAP = {
   'MCliveness':            'quorum',
@@ -96,7 +108,23 @@ if (require.main === module) {
       '[run-tlc] Unknown config: ' + configName +
       '. Valid: ' + VALID_CONFIGS.join(', ') + '\n'
     );
-    try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+    const _startMs = Date.now();
+    const _runtimeMs = 0;
+    try {
+      writeCheckResult({
+        tool: 'run-tlc',
+        formalism: 'tla',
+        result: 'fail',
+        check_id: 'tla:unknown',
+        surface: 'tla',
+        property: 'Unknown config: ' + configName,
+        runtime_ms: _runtimeMs,
+        summary: 'fail: unknown config in ' + _runtimeMs + 'ms',
+        metadata: { config: configName }
+      });
+    } catch (e) {
+      process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
+    }
     process.exit(1);
   }
 
@@ -111,7 +139,23 @@ if (require.main === module) {
         '[run-tlc] JAVA_HOME is set but java binary not found at: ' + javaExe + '\n' +
         '[run-tlc] Unset JAVA_HOME or fix the path.\n'
       );
-      try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+      const _startMs = Date.now();
+      const _runtimeMs = 0;
+      try {
+        writeCheckResult({
+          tool: 'run-tlc',
+          formalism: 'tla',
+          result: 'fail',
+          check_id: CHECK_ID_MAP[configName] || ('tla:' + configName.toLowerCase()),
+          surface: 'tla',
+          property: PROPERTY_MAP[configName] || configName,
+          runtime_ms: _runtimeMs,
+          summary: 'fail: Java not found in ' + _runtimeMs + 'ms',
+          metadata: { config: configName }
+        });
+      } catch (e) {
+        process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
+      }
       process.exit(1);
     }
   } else {
@@ -122,7 +166,23 @@ if (require.main === module) {
         '[run-tlc] Java not found. Install Java >=17 and set JAVA_HOME.\n' +
         '[run-tlc] Download: https://adoptium.net/\n'
       );
-      try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+      const _startMs = Date.now();
+      const _runtimeMs = 0;
+      try {
+        writeCheckResult({
+          tool: 'run-tlc',
+          formalism: 'tla',
+          result: 'fail',
+          check_id: CHECK_ID_MAP[configName] || ('tla:' + configName.toLowerCase()),
+          surface: 'tla',
+          property: PROPERTY_MAP[configName] || configName,
+          runtime_ms: _runtimeMs,
+          summary: 'fail: Java not found in ' + _runtimeMs + 'ms',
+          metadata: { config: configName }
+        });
+      } catch (e) {
+        process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
+      }
       process.exit(1);
     }
     javaExe = 'java';
@@ -132,7 +192,23 @@ if (require.main === module) {
   const versionResult = spawnSync(javaExe, ['--version'], { encoding: 'utf8' });
   if (versionResult.error || versionResult.status !== 0) {
     process.stderr.write('[run-tlc] Failed to run: ' + javaExe + ' --version\n');
-    try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+    const _startMs = Date.now();
+    const _runtimeMs = 0;
+    try {
+      writeCheckResult({
+        tool: 'run-tlc',
+        formalism: 'tla',
+        result: 'fail',
+        check_id: CHECK_ID_MAP[configName] || ('tla:' + configName.toLowerCase()),
+        surface: 'tla',
+        property: PROPERTY_MAP[configName] || configName,
+        runtime_ms: _runtimeMs,
+        summary: 'fail: Java version check failed in ' + _runtimeMs + 'ms',
+        metadata: { config: configName }
+      });
+    } catch (e) {
+      process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
+    }
     process.exit(1);
   }
   const versionOutput = versionResult.stdout + versionResult.stderr;
@@ -144,7 +220,23 @@ if (require.main === module) {
       '[run-tlc] Java >=17 required. Found: ' + versionOutput.split('\n')[0] + '\n' +
       '[run-tlc] Download Java 17+: https://adoptium.net/\n'
     );
-    try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+    const _startMs = Date.now();
+    const _runtimeMs = 0;
+    try {
+      writeCheckResult({
+        tool: 'run-tlc',
+        formalism: 'tla',
+        result: 'fail',
+        check_id: CHECK_ID_MAP[configName] || ('tla:' + configName.toLowerCase()),
+        surface: 'tla',
+        property: PROPERTY_MAP[configName] || configName,
+        runtime_ms: _runtimeMs,
+        summary: 'fail: Java ' + javaMajor + ' < 17 in ' + _runtimeMs + 'ms',
+        metadata: { config: configName }
+      });
+    } catch (e) {
+      process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
+    }
     process.exit(1);
   }
 
@@ -157,7 +249,23 @@ if (require.main === module) {
       '  curl -L https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar \\\n' +
       '       -o formal/tla/tla2tools.jar\n'
     );
-    try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+    const _startMs = Date.now();
+    const _runtimeMs = 0;
+    try {
+      writeCheckResult({
+        tool: 'run-tlc',
+        formalism: 'tla',
+        result: 'fail',
+        check_id: CHECK_ID_MAP[configName] || ('tla:' + configName.toLowerCase()),
+        surface: 'tla',
+        property: PROPERTY_MAP[configName] || configName,
+        runtime_ms: _runtimeMs,
+        summary: 'fail: tla2tools.jar not found in ' + _runtimeMs + 'ms',
+        metadata: { config: configName }
+      });
+    } catch (e) {
+      process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
+    }
     process.exit(1);
   }
 
@@ -171,20 +279,42 @@ if (require.main === module) {
   process.stdout.write('[run-tlc] Spec:   ' + specPath + '\n');
   process.stdout.write('[run-tlc] Cfg:    ' + cfgPath + '\n');
 
+  const _startMs = Date.now();
   const tlcResult = spawnSync(javaExe, [
     '-jar', jarPath,
     '-config', cfgPath,
     '-workers', workers,
     specPath,
   ], { encoding: 'utf8', stdio: 'inherit' });
+  const _runtimeMs = Date.now() - _startMs;
 
   if (tlcResult.error) {
     process.stderr.write('[run-tlc] TLC invocation failed: ' + tlcResult.error.message + '\n');
-    try { writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } }); } catch (e) { process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n'); }
+    const check_id = CHECK_ID_MAP[configName] || ('tla:' + configName.toLowerCase());
+    const property = PROPERTY_MAP[configName] || configName;
+    try {
+      writeCheckResult({
+        tool: 'run-tlc',
+        formalism: 'tla',
+        result: 'fail',
+        check_id: check_id,
+        surface: 'tla',
+        property: property,
+        runtime_ms: _runtimeMs,
+        summary: 'fail: TLC invocation failed in ' + _runtimeMs + 'ms',
+        metadata: { config: configName }
+      });
+    } catch (e) {
+      process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
+    }
     process.exit(1);
   }
 
   const passed = (tlcResult.status || 0) === 0;
+
+  const check_id = CHECK_ID_MAP[configName] || ('tla:' + configName.toLowerCase());
+  const property = PROPERTY_MAP[configName] || configName;
+  const triage_tags = _runtimeMs > 120000 ? ['timeout-risk'] : [];
 
   if (passed) {
     const missingDeclarations = detectLivenessProperties(configName, cfgPath);
@@ -194,6 +324,12 @@ if (require.main === module) {
           tool: 'run-tlc',
           formalism: 'tla',
           result: 'inconclusive',
+          check_id: check_id,
+          surface: 'tla',
+          property: property,
+          runtime_ms: _runtimeMs,
+          summary: 'inconclusive: fairness missing in ' + _runtimeMs + 'ms',
+          triage_tags: ['needs-fairness'],
           metadata: {
             config: configName,
             reason: 'Fairness declaration missing for: ' + missingDeclarations.join(', '),
@@ -206,7 +342,18 @@ if (require.main === module) {
       process.exit(0); // inconclusive is not a failure
     } else {
       try {
-        writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'pass', metadata: { config: configName } });
+        writeCheckResult({
+          tool: 'run-tlc',
+          formalism: 'tla',
+          result: 'pass',
+          check_id: check_id,
+          surface: 'tla',
+          property: property,
+          runtime_ms: _runtimeMs,
+          summary: 'pass: ' + configName + ' in ' + _runtimeMs + 'ms',
+          triage_tags: triage_tags,
+          metadata: { config: configName }
+        });
       } catch (e) {
         process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
       }
@@ -214,7 +361,18 @@ if (require.main === module) {
     }
   } else {
     try {
-      writeCheckResult({ tool: 'run-tlc', formalism: 'tla', result: 'fail', metadata: { config: configName } });
+      writeCheckResult({
+        tool: 'run-tlc',
+        formalism: 'tla',
+        result: 'fail',
+        check_id: check_id,
+        surface: 'tla',
+        property: property,
+        runtime_ms: _runtimeMs,
+        summary: 'fail: ' + configName + ' in ' + _runtimeMs + 'ms',
+        triage_tags: triage_tags,
+        metadata: { config: configName }
+      });
     } catch (e) {
       process.stderr.write('[run-tlc] Warning: failed to write check result: ' + e.message + '\n');
     }
