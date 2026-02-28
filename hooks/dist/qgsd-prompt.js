@@ -113,18 +113,33 @@ function parseQuorumSizeFlag(prompt) {
 }
 
 // Maps task envelope risk_level to a fan-out count (total participants including Claude).
-// routine → 2 (Claude + 1 external: minimum R3.5 valid quorum)
-// medium  → 3 (Claude + 2 external: balanced quorum)
-// high    → maxSize (Claude + maxSize-1 external: full pool, unchanged behavior)
-// absent/invalid → maxSize (fail-open: conservative)
-//
-// Note: 'low' is mapped like 'routine' (2 workers).
-// maxSize from config.quorum.maxSize is the ceiling — never exceed it.
+// Proportional to maxSize (n) using ceil(tier/3 * n):
+//   low/routine (tier 1) → ceil(n/3)   — e.g. n=3→1, n=6→2
+//   medium      (tier 2) → ceil(2n/3)  — e.g. n=3→2, n=6→4
+//   high        (tier 3) → n           — full pool
+//   absent/invalid       → n           — fail-open: conservative
+// Result is always in [1..maxSize].
 function mapRiskLevelToCount(riskLevel, maxSize) {
-  if (riskLevel === 'routine' || riskLevel === 'low') return Math.min(2, maxSize);
-  if (riskLevel === 'medium') return Math.min(3, maxSize);
+  const n = maxSize;
+  if (riskLevel === 'low' || riskLevel === 'routine') return Math.max(1, Math.ceil(n / 3));
+  if (riskLevel === 'medium') return Math.max(1, Math.ceil(2 * n / 3));
   // 'high', undefined, null, invalid string → fail-open to maxSize
-  return maxSize;
+  return n;
+}
+
+// Returns slot names that have timed out within the last ttlMinutes.
+// Reads quorum-failures.json written by call-quorum-slot.cjs on every failure.
+function getRecentlyTimedOutSlots(cwd, ttlMinutes = 30) {
+  try {
+    const logPath = path.join(cwd, '.planning', 'quorum-failures.json');
+    if (!fs.existsSync(logPath)) return [];
+    const records = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+    if (!Array.isArray(records)) return [];
+    const cutoff = Date.now() - ttlMinutes * 60 * 1000;
+    return records
+      .filter(r => r.error_type === 'TIMEOUT' && new Date(r.last_seen).getTime() > cutoff)
+      .map(r => r.slot);
+  } catch (_) { return []; }
 }
 
 // Check if the circuit breaker is active (and not disabled) for a given git root.
@@ -203,11 +218,19 @@ process.stdin.on('end', () => {
       // Build ordered slot list, sub agents first when preferSub is set
       const agentCfg = config.agent_config || {};
       const preferSub = !(config.quorum && config.quorum.preferSub === false);
-      const maxSize = quorumSizeOverride !== null
-        ? quorumSizeOverride
-        : (config.quorum && Number.isInteger(config.quorum.maxSize) && config.quorum.maxSize >= 1)
-          ? config.quorum.maxSize
-          : 3;
+      // Resolve maxSize ceiling: per-profile override > global default > hardcoded 3
+      // --n N is a separate cap applied on top (see below).
+      const profileKey = (() => {
+        try {
+          const cfgPath = path.join(process.cwd(), '.planning', 'config.json');
+          const pcfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+          return pcfg.model_profile || null;
+        } catch (_) { return null; }
+      })();
+      const perProfileN = profileKey && config.quorum?.maxSizeByProfile?.[profileKey];
+      const globalN = (config.quorum && Number.isInteger(config.quorum.maxSize) && config.quorum.maxSize >= 1)
+        ? config.quorum.maxSize : 3;
+      const maxSize = Number.isInteger(perProfileN) && perProfileN >= 1 ? perProfileN : globalN;
 
       // Read risk_level from hook input context (passed by orchestrator via additionalContext or context_yaml)
       // Context YAML format: "risk_level: routine\n..." in input.context or input.context_yaml
@@ -216,13 +239,15 @@ process.stdin.on('end', () => {
       const riskLevelFromContext = riskLevelMatch ? riskLevelMatch[1].trim() : null;
 
       // Compute fan-out count. Priority chain:
-      // 1. --n N user flag (quorumSizeOverride !== null) — already handled via maxSize override above
-      // 2. risk_level from context YAML (envelope-driven)
-      // 3. config.quorum.maxSize (default)
+      // 1. risk_level from context YAML → adaptive fan-out count
+      // 2. config.quorum.maxSize (default ceiling)
+      // 3. --n N user flag: treated as a MAXIMUM cap, not a mandatory value.
+      //    min(risk-driven count, N) — so --n 3 with risk_level=low (→2) uses 2, not 3.
       // 4. available pool size (hard cap, applied via slice)
-      const fanOutCount = (quorumSizeOverride !== null)
-        ? quorumSizeOverride  // user --n N wins: already set as maxSize above
-        : mapRiskLevelToCount(riskLevelFromContext, maxSize);
+      const riskDrivenCount = mapRiskLevelToCount(riskLevelFromContext, maxSize);
+      const fanOutCount = quorumSizeOverride !== null
+        ? Math.min(riskDrivenCount, quorumSizeOverride)
+        : riskDrivenCount;
 
       let orderedSlots = activeSlots.map(slot => ({
         slot,
@@ -264,7 +289,7 @@ process.stdin.on('end', () => {
         .filter(s => s.authType === 'sub' && !cappedSlotNames.has(s.slot))
         .map(s => s.slot);
       const t2Slots = orderedSlots
-        .filter(s => s.authType !== 'sub')
+        .filter(s => s.authType !== 'sub' && !cappedSlotNames.has(s.slot))
         .map(s => s.slot);
 
       // Build a structured dispatch sequence (enumerated steps, not prose rules).
@@ -302,16 +327,24 @@ process.stdin.on('end', () => {
 
       // Always emit --n N so Stop hook's parseQuorumSizeFlag reads the correct ceiling.
       // When user passed --n N explicitly: show OVERRIDE note.
-      // When envelope-driven (routine/medium): show fan-out note with R6.4 context.
-      // When at max (high/absent): no special note needed but still emit --n for consistency.
+      // Build the quorum size note emitted into Claude's context.
+      // --n N is a maximum cap; the actual fanOutCount may be lower due to risk_level.
       let minNote;
       if (quorumSizeOverride !== null) {
-        minNote = ` (QUORUM SIZE OVERRIDE (--n ${quorumSizeOverride}): Cap at ${quorumSizeOverride} total participants — Claude + ${externalSlotCap} external slot${externalSlotCap !== 1 ? 's' : ''})`;
+        const capNote = fanOutCount < quorumSizeOverride
+          ? `--n ${quorumSizeOverride} (max) → ${fanOutCount} via risk_level=${riskLevelFromContext}`
+          : `--n ${quorumSizeOverride}`;
+        minNote = ` (${capNote}: Claude + ${externalSlotCap} external slot${externalSlotCap !== 1 ? 's' : ''})`;
       } else if (riskLevelFromContext && fanOutCount < maxSize) {
         minNote = ` (--n ${fanOutCount} — envelope risk_level: ${riskLevelFromContext} → ${externalSlotCap} external slot${externalSlotCap !== 1 ? 's' : ''})`;
       } else {
         minNote = ` (--n ${fanOutCount})`;
       }
+
+      const recentTimeouts = getRecentlyTimedOutSlots(cwd);
+      const skipNote = recentTimeouts.length > 0
+        ? `SKIP (TIMEOUT < 30min ago): [${recentTimeouts.join(', ')}] — do NOT dispatch these slots.\n`
+        : '';
 
       instructions = `QUORUM REQUIRED${minNote} (structural enforcement — Stop hook will verify)\n\n` +
         `Run the full R3 quorum protocol inline (dispatch_pattern from commands/qgsd/quorum.md):\n` +
@@ -319,6 +352,7 @@ process.stdin.on('end', () => {
         `NEVER call mcp__*__* tools directly — use Task(subagent_type="qgsd-quorum-slot-worker") ONLY:\n` +
         (hasMixed ? '  [Subscription agents — preferred, flat-fee]\n' : '') +
         dynamicSteps + '\n\n' +
+        skipNote +
         failoverRule + '\n\n' +
         `After quorum:\n` +
         `  ${afterSteps}. Synthesize results inline. Deliberate up to 10 rounds per R3.3 if no consensus.\n` +

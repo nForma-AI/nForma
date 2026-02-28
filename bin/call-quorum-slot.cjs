@@ -107,7 +107,11 @@ const getArg = (f) => { const i = argv.indexOf(f); return i !== -1 && argv[i + 1
 
 const slot      = getArg('--slot');
 const _timeoutArg = getArg('--timeout');
-const timeoutMs   = _timeoutArg !== null ? parseInt(_timeoutArg, 10) : null; // null = use provider.quorum_timeout_ms
+// Treat 0 / negative / NaN as "not set" — fall through to provider.quorum_timeout_ms.
+// Zero can be passed when the quorum orchestrator LLM fails to compute SLOT_TIMEOUTS,
+// causing the process to be killed in ~1 ms and logged as "TIMEOUT after 0ms".
+let timeoutMs = _timeoutArg !== null ? parseInt(_timeoutArg, 10) : null;
+if (timeoutMs !== null && (isNaN(timeoutMs) || timeoutMs <= 0)) timeoutMs = null;
 const spawnCwd  = getArg('--cwd') ?? process.cwd();
 
 if (!slot) {
@@ -368,7 +372,11 @@ async function main() {
 
   // timeoutMs is null when --timeout not passed → fall through to provider.quorum_timeout_ms.
   // provider.timeout_ms (300s) is intentionally last — it's the full session timeout, not quorum.
-  const effectiveTimeout = timeoutMs ?? provider.quorum_timeout_ms ?? provider.timeout_ms ?? 30000;
+  // When both are set, take the minimum so provider.quorum_timeout_ms always acts as a hard cap.
+  const providerCap = provider.quorum_timeout_ms ?? null;
+  const effectiveTimeout = (timeoutMs !== null && providerCap !== null)
+    ? Math.min(timeoutMs, providerCap)
+    : (timeoutMs ?? providerCap ?? provider.timeout_ms ?? 30000);
 
   try {
     let result;
