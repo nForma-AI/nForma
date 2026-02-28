@@ -18,6 +18,7 @@
 - ✅ **v0.15 — Health & Tooling Modernization** — Phases v0.15-01..v0.15-04 (shipped 2026-02-27)
 - 🔍 **v0.18 — Token Efficiency** — Phases v0.18-01..v0.18-07 (audit: gaps_found — gap closure in progress)
 - ✅ **v0.19 — FV Pipeline Hardening** — Phases v0.19-01..v0.19-11 (completed 2026-02-28)
+- 🚧 **v0.20 — FV as Active Planning Gate** — Phases v0.20-01..v0.20-06 (in progress)
 
 ## Phases
 
@@ -241,6 +242,19 @@
 - [x] **Phase v0.19-09: Requirements Traceability Cleanup** — Add 9 missing rows (DRIFT-02, MCPENV-01..04, IMPR-01..04) to REQUIREMENTS.md traceability table; update 13 stale checkboxes from [ ] to [x] for all completed requirements; update coverage count. Ensures accurate milestone state for archival. (Tech Debt) (Gap Closure) (completed 2026-02-28)
 - [x] **Phase v0.19-10: CALIB-04 Policy Wire-Up** — Wire `read-policy.cjs` `conservative_priors` fields to `run-prism.cjs` PRISM_PRIOR_TP/UNAVAIL constants; currently `policy.yaml` values are parsed but hardcoded constants override them at runtime — policy changes have no runtime effect. (CALIB-04) (Tech Debt) (completed 2026-02-28)
 - [x] **Phase v0.19-11: UNIF-03 Summary Fix + Checkbox Cleanup** — Fix `run-formal-verify.cjs` triage summary ordering so all CI step results (including redaction and drift) are included in the count; update UNIF-01..04 checkboxes from `[ ]` to `[x]` in REQUIREMENTS.md to resolve doc mismatch. (UNIF-03) (Tech Debt) (completed 2026-02-28)
+
+
+
+### 📋 v0.20 — FV as Active Planning Gate (In Progress)
+
+**Milestone Goal:** Wire QGSD's formal verification pipeline into its planning and verification workflows — TLC/Alloy/PRISM findings surface as hypotheses during `plan-phase`, formal check results appear in `VERIFICATION.md` during `execute-phase`, and the check-result schema is enriched to v2.1 spec to enable triage bundles and evidence dashboards.
+
+- [ ] **Phase v0.20-01: Schema Enrichment** — Extend `check-result.schema.json` and `write-check-result.cjs` to v2.1 spec; update all 23 callers in `run-formal-verify.cjs` to pass the new required fields (SCHEMA-01, SCHEMA-02, SCHEMA-03)
+- [ ] **Phase v0.20-02: Liveness Fairness Lint** — CI step detects liveness properties lacking a fairness declaration and emits `result=inconclusive`; wired as `ci:liveness-fairness-lint` in the STEPS pipeline (LIVE-01, LIVE-02)
+- [ ] **Phase v0.20-03: Planning Gate** — `plan-phase.md` runs `run-formal-verify --only=tla` pre-quorum; TLC `fail` results surfaced as hypotheses to the planner; gate is fail-open (PLAN-01, PLAN-02, PLAN-03)
+- [ ] **Phase v0.20-04: Verification Gate** — `qgsd-verifier` agent runs `run-formal-verify` post-implementation; `VERIFICATION.md` gains a `## Formal Verification` section with pass/fail/warn counts (VERIFY-01, VERIFY-02)
+- [ ] **Phase v0.20-05: Evidence Confidence** — `never_observed` trace entries carry `confidence: low|medium|high`; `observation_window` metadata written to `check-results.ndjson` (EVID-01, EVID-02)
+- [ ] **Phase v0.20-06: Triage Bundle** — `bin/generate-triage-bundle.cjs` reads `check-results.ndjson` and writes `formal/diff-report.md` and `formal/suspects.md`; called as final step in `run-formal-verify.cjs` (TRIAGE-01, TRIAGE-02)
 
 
 ## Phase Details
@@ -1237,3 +1251,71 @@ Plans:
 | v0.19-05. MCP Environment Model | v0.19 | Complete    | 2026-02-27 | - |
 | v0.19-10. CALIB-04 Policy Wire-Up | v0.19 | Complete    | 2026-02-28 | - |
 | v0.19-11. UNIF-03 Summary Fix + Checkbox Cleanup | v0.19 | Complete    | 2026-02-28 | 2026-02-28 |
+
+### Phase v0.20-01: Schema Enrichment
+**Goal**: The check-result schema is upgraded to v2.1 spec and all 23 formal verification callers emit the new required fields, giving every downstream consumer — triage bundles, dashboards, planning gate — a consistent, typed record.
+**Depends on**: Nothing (first v0.20 phase)
+**Requirements**: SCHEMA-01, SCHEMA-02, SCHEMA-03
+**Success Criteria** (what must be TRUE):
+  1. `formal/check-result.schema.json` includes `check_id`, `surface`, `property`, `runtime_ms`, `summary`, `triage_tags`, and `observation_window` fields with correct types and required constraints
+  2. `write-check-result.cjs` emits all v2.1 fields on every write; running the validator against a newly written record passes schema validation
+  3. All 23 `run-formal-verify.cjs` STEPS entries pass `check_id`, `surface`, `property`, `runtime_ms`, and `summary` — no caller omits a required v2.1 field
+  4. Existing 5-field NDJSON lines from prior runs remain valid (additive-only schema change, no backward incompatibility)
+**Plans**: TBD
+
+### Phase v0.20-02: Liveness Fairness Lint
+**Goal**: The CI pipeline automatically detects liveness properties that lack a fairness declaration and marks them `inconclusive` instead of `pass`, preventing false-positive proofs.
+**Depends on**: Phase v0.20-01
+**Requirements**: LIVE-01, LIVE-02
+**Success Criteria** (what must be TRUE):
+  1. Running `run-formal-verify.cjs` on a TLA+ spec that has a liveness `.cfg` but no fairness declaration in `invariants.md` produces a `check-results.ndjson` entry with `result=inconclusive` (not `pass` or `fail`)
+  2. A spec with a liveness `.cfg` and a matching fairness declaration in `invariants.md` produces `result=pass` as before — no regression
+  3. `run-formal-verify.cjs` STEPS list includes a `ci:liveness-fairness-lint` entry visible in the run summary
+**Plans**: TBD
+
+### Phase v0.20-03: Planning Gate
+**Goal**: `plan-phase.md` runs a TLA+ formal verification step before quorum, surfacing any `fail` results as hypotheses the planner should address, without blocking plan creation when FV is flaky or unavailable.
+**Depends on**: Phase v0.20-01
+**Requirements**: PLAN-01, PLAN-02, PLAN-03
+**Success Criteria** (what must be TRUE):
+  1. `plan-phase.md` workflow contains a formal verification step (pre-quorum) that invokes `run-formal-verify --only=tla`
+  2. When `check-results.ndjson` contains any `result=fail` entries, the planner sees those results formatted as hypotheses before the quorum step — not silently discarded
+  3. When TLC produces no failures (all pass or inconclusive), the planning workflow proceeds normally with no FV-related output
+  4. A simulated TLC unavailability (non-zero exit code, no NDJSON output) does not prevent plan creation — the gate is fail-open
+**Plans**: TBD
+
+### Phase v0.20-04: Verification Gate
+**Goal**: The `qgsd-verifier` agent runs formal verification after implementation and records a structured summary of pass/fail/warn counts in `VERIFICATION.md`, making FV results a first-class part of the verification artifact.
+**Depends on**: Phase v0.20-01
+**Requirements**: VERIFY-01, VERIFY-02
+**Success Criteria** (what must be TRUE):
+  1. `agents/qgsd-verifier.md` workflow includes a step that runs `run-formal-verify` after the implementation is complete
+  2. `VERIFICATION.md` for any phase verified after this change contains a `## Formal Verification` section with at minimum a count of pass/fail/warn results per formalism (tla, alloy, prism, ci)
+  3. The `VERIFICATION.md` template in `qgsd-core/templates/` is updated with the `## Formal Verification` section so all future verifications include it by default
+**Plans**: TBD
+
+### Phase v0.20-05: Evidence Confidence
+**Goal**: Evidence-driven checks in `validate-traces.cjs` annotate `never_observed` paths with a confidence level and write `observation_window` metadata to `check-results.ndjson`, making it clear whether "never seen" means "truly safe" or "insufficient data".
+**Depends on**: Phase v0.20-01
+**Requirements**: EVID-01, EVID-02
+**Success Criteria** (what must be TRUE):
+  1. Every `never_observed` entry in `validate-traces.cjs` output includes a `confidence` field with value `low`, `medium`, or `high` derived from trace volume and window duration
+  2. `check-results.ndjson` entries for evidence-driven checks include an `observation_window` object with `window_start`, `window_end`, `n_traces`, `n_events`, and `window_days` fields
+  3. A run with fewer than the low-confidence threshold traces produces `confidence: low`; a run above the high-confidence threshold produces `confidence: high`
+**Plans**: TBD
+
+### Phase v0.20-06: Triage Bundle
+**Goal**: After every formal verification run, `generate-triage-bundle.cjs` produces two human-readable files — a per-check delta report and a suspects list — giving the developer an immediate view of what changed and what needs attention.
+**Depends on**: Phase v0.20-01
+**Requirements**: TRIAGE-01, TRIAGE-02
+**Success Criteria** (what must be TRUE):
+  1. `bin/generate-triage-bundle.cjs` exists and reads `check-results.ndjson`; running it produces `formal/diff-report.md` (per-check delta from previous run) and `formal/suspects.md` (checks with `result=fail` or `triage_tags` set)
+  2. `run-formal-verify.cjs` calls `generate-triage-bundle.cjs` as its final step — after all checks complete — and this call is visible in the run summary
+  3. When no previous run exists, `diff-report.md` notes "first run" rather than failing or producing empty output
+**Plans**: TBD
+| v0.20-01. Schema Enrichment | v0.20 | 0/TBD | Not started | - |
+| v0.20-02. Liveness Fairness Lint | v0.20 | 0/TBD | Not started | - |
+| v0.20-03. Planning Gate | v0.20 | 0/TBD | Not started | - |
+| v0.20-04. Verification Gate | v0.20 | 0/TBD | Not started | - |
+| v0.20-05. Evidence Confidence | v0.20 | 0/TBD | Not started | - |
+| v0.20-06. Triage Bundle | v0.20 | 0/TBD | Not started | - |

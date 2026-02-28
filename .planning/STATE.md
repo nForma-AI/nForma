@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-28 after Milestone v0.20 start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.20 FV as Active Planning Gate — defining requirements
+**Current focus:** v0.20 FV as Active Planning Gate — roadmap created, ready to plan v0.20-01
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements for v0.20
-Last activity: 2026-02-28 — Milestone v0.20 started
+Phase: v0.20-01 of 6 (Schema Enrichment)
+Plan: — (not yet planned)
+Status: Ready to plan
+Last activity: 2026-02-28 — v0.20 roadmap created (6 phases, 14 requirements mapped)
 
-Progress: [░░░░░░░░░░░░░░░░░░░░] v0.20: defining requirements
+Progress: [░░░░░░░░░░░░░░░░░░░░] v0.20: 0/6 phases complete
 
 ## Performance Metrics
 
@@ -35,7 +35,6 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] v0.20: 
 - Trend: stable
 
 *Updated after each plan completion*
-| Phase v0.15-02 P01 | 4 | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -44,27 +43,14 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] v0.20: 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.20 roadmap]: v0.20-01 Schema Enrichment is the sole foundation phase — all other phases read check-results.ndjson with enriched v2.1 fields; no other phase can run until SCHEMA-01/02/03 are complete.
+- [v0.20 roadmap]: v0.20-02 through v0.20-06 depend only on v0.20-01 and are parallelizable in execution: v0.20-02 (LIVE), v0.20-03 (PLAN), v0.20-04 (VERIFY), v0.20-05 (EVID), v0.20-06 (TRIAGE) can run in any order after v0.20-01.
+- [v0.20 roadmap]: Planning gate is fail-open (PLAN-03) — TLC failures surface as warnings to the planner, never hard blockers. FV flakiness cannot break the planning workflow.
 - [v0.19-11-01 execution]: UNIF-03 timing bug fixed — added ci:trace-redaction and ci:trace-schema-drift as STEPS entries in orchestrator (tool: 'ci') so their NDJSON writes happen before summary read at end of runOnce(). STEPS now 23 (was 21). Both CI scripts are idempotent; double execution (inside orchestrator + standalone workflow steps) is safe. Kept standalone CI steps in formal-verify.yml for explicit step reporting.
 - [v0.19 milestone re-audit]: Final status tech_debt — all 25/25 requirements satisfied, 0 implementation gaps. Four tech-debt items: UNIF-03 (triage summary early read, RESOLVED by v0.19-11-01), CALIB-04 (conservative_priors parsed but not consumed by run-prism.cjs, medium), REQUIREMENTS.md stale checkboxes (resolved — all [x]), REQUIREMENTS.md missing traceability rows (resolved by v0.19-09). Audit artifact: .planning/v0.19-MILESTONE-AUDIT.md.
-- [v0.19-08 execution]: MCPENV gap closure — Plan 01: MCMCPEnv added to SURFACE_MAP ('MCMCPEnv':'mcp-calls') + VALID_CONFIGS, invariants.md created with EventualDecision fairness declaration (3 WF_vars operators), tla:mcp-environment STEPS entry, CI step. Plan 02: run-prism.cjs module.exports moved behind require.main===module guard; composite-key filter added INSIDE readMCPAvailabilityRates (not just at call site) so exported function returns clean data testable with realistic scoreboards; prism:mcp-availability STEPS entry + CI step. 5 new tests, 648 suite GREEN.
-- [v0.19-07 execution]: LIVE-02 gap closure: detectLivenessProperties was already implemented in run-tlc.cjs — the wiring to the 4 runners (oscillation, breaker, protocol, account-manager) was all that was needed. TDD RED→GREEN approach: 12 stub tests written first, then 4 commits wiring each runner.
-- [v0.19 roadmap]: UNIF-01 is the foundation phase — all other phases depend on check-results.ndjson schema existing; v0.19-01 has no upstream dependency. Dependency chain: UNIF (foundation) → CALIB (extends run-prism.cjs) → LIVE (extends run-tlc.cjs, parallel) → ENFORCE (adds redaction/evidence/drift, parallel) → MCPENV (depends on CALIB cold-start policy + UNIF output stream).
-- [v0.19 roadmap]: LIVE-01..02 and REDACT-01..03/EVID-01..02/DRIFT-01..02 are parallel to CALIB — both depend only on UNIF-01 being done. Grouped into separate phases (v0.19-03 and v0.19-04) to keep each phase coherent.
-- [v0.19 roadmap]: MCPENV-04 (mcp-availability.pm) depends on CALIB policy infrastructure (run-prism.cjs reads policy.yaml) — so v0.19-05 depends on v0.19-02.
 - [v0.18-04-02 execution]: mapRiskLevelToCount helper maps risk_level to fan-out counts: routine→2, medium→3, high→maxSize (fail-open). Export block uses `typeof module !== 'undefined'` guard to allow require() in tests while script exits via process.exit() before reaching export line at runtime.
-- [v0.18-04-02 execution]: Risk level extraction uses regex `/^risk_level:\s*(\S+)/m` on input.context_yaml YAML string. Priority chain: user --n N > envelope risk_level > config.maxSize > available slots. minNote always emits --n N for Stop hook parseQuorumSizeFlag consistency.
 - [Phase v0.15-04]: Check 9 added to cmdValidateHealth: W008 emitted for quorum slots with count >= 3 in .planning/quorum-failures.json. Threshold >= 3, try/catch swallows errors, Array.isArray + typeof count === 'number' guards applied.
-- [v0.18-02-04 execution]: 6 TIER unit tests added to gsd-tools.test.cjs (TIER-01 through TIER-03d); includes unknown agent fallback test per copilot-1 improvement suggestion; all 160 tests pass, zero regressions. Closed PLAN 02 gap of missing unit test coverage.
-- [v0.18-02-02 execution]: model_overrides field added to loadConfig return object — was missing but accessed in resolveModelInternal, causing Rule 1 auto-fix. Tier lookup order: per-agent override → tier key → profile → default.
-- [v0.18-02-01 execution]: TIER-03 implemented: flat keys model_tier_planner='opus', model_tier_worker='haiku' in DEFAULT_CONFIG with validation (whitelist: 'haiku'|'sonnet'|'opus')
-- [v0.18 roadmap]: Phase order fixed by dependency chain: OBSV (independent) → TIER (config schema first) → ENV (foundation for fan-out) → FAN (depends on both TIER config and ENV envelope)
-- [v0.18 research]: Flat config keys required for tier config — nested objects silently lost via shallow merge in config-loader.js
-- [v0.18 research]: SubagentStop hook + agent_transcript_path transcript parsing is the only method to get per-slot token counts (not in hook payload directly)
-- [v0.18 research]: --n N injection MUST flow through qgsd-prompt.js for any reduced fan-out — Stop hook reads count from prompt text only
-- [Phase v0.15-01]: Extended phasePattern to match checkbox-format ROADMAP entries in addition to header format
-- [Phase v0.14-04]: PRISM_BIN=prism sentinel in run-prism.test.cjs skips existence check, enabling Args line capture without PRISM installed
 - [Phase v0.15-02]: Content-length guard added to regenerateState: SAFE_LINE_THRESHOLD=50, --force required for overwrite of rich STATE.md
-- [Phase v0.15-02]: W002 phantom-phase trigger (v0.99-99) used in SAFE-01 tests — phase ref must match extractor regex v\d+\.\d+-\d{2}
 
 ### Pending Todos
 
@@ -75,13 +61,11 @@ Recent decisions affecting current work:
 
 - [Phase 12 carry-forward]: npm publish qgsd@0.2.0 deferred; run `npm publish --access public` when user decides
 - [v0.18-01 research flag]: Correlation file protocol timing — verify whether agent_id is predictable before Task spawn or only after; fallback is vote-line slot: parsing from output
-- [v0.18-04 RESOLVED]: --n N emission for envelope-driven fan-out verified via qgsd-stop-fan-out.test.cjs (FAN-STOP-TC1 through TC4 all passing); ceiling calculation confirmed correct
+- [v0.18-06/07 open]: v0.18-06 (FAN-04 Stop hook ceiling fix) and v0.18-07 (ENV-03 envelope path wiring) are not yet started — gap closure phases for v0.18
 
 ## Quick Tasks Completed
 
 See previous STATE.md entries for quick tasks 95-114. Most recent:
-| 113 | create a flag that allows to control the number of max member in the quorum | 2026-02-27 | ce5afb9 | Verified |
-| 114 | Fix objective line in v0.15-01-01-PLAN.md | 2026-02-27 | b143170 | Verified |
 | 115 | add missing unit tests for default ceiling, --n 1 solo mode, --n N ceiling override in stop/prompt hooks, and extend TLA+ model with MaxSize constant | 2026-02-27 | ab5a80c | Verified | [115-add-missing-unit-tests-for-default-ceili](./quick/115-add-missing-unit-tests-for-default-ceili/) |
 | 116 | make formal spec generator fully automatic — GUARD_REGISTRY, maxSize/polledCount extraction, regenerate all specs with unanimity semantics | 2026-02-27 | 4618236 | Completed | [116-make-formal-spec-generator-fully-automat](./quick/116-make-formal-spec-generator-fully-automat/) |
 | 117 | Add PreCompact hook for seamless context continuation | 2026-02-27 | ccefbfa | Verified | [117-add-a-precompact-hook-to-qgsd-that-auto-](./quick/117-add-a-precompact-hook-to-qgsd-that-auto-/) |
@@ -90,7 +74,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-28 - Completed quick task 119: major documentation refresh — update all documentation
+Last activity: 2026-02-28 — v0.20 roadmap created (6 phases, 14 requirements, ROADMAP.md + STATE.md updated)
 Last session: 2026-02-28
-Stopped at: v0.19-11 Plan 02 complete — UNIF-03 traceability updated, UNIF-01..04 checkboxes verified
+Stopped at: v0.20 roadmap created — ready to run /qgsd:plan-phase v0.20-01
 Resume file: None
