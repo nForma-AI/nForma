@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.19-02",
+  "created_at": "2026-02-27T14:52:24.666Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Phase v0.19-02 prevents day-one calibration thrash by implementing a cold-start mode in PRISM. The problem: on a fresh installation (with zero quorum history), PRISM has no empirical evidence of check",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.19-02-calibration-governance/v0.19-02-01-PLAN.md",
+    "key_decisions": []
+  }
+}

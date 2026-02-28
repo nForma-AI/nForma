@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.19-01",
+  "created_at": "2026-02-27T14:04:20.399Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Phase v0.19-01 replaces the current ad-hoc per-tool stdout-only reporting in `run-formal-verify.cjs` with a canonical, machine-readable output stream. Each FV tool (TLC via multiple runner scripts, Al",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.19-01-unified-verdict-format/v0.19-01-01-PLAN.md",
+    "key_decisions": []
+  }
+}
