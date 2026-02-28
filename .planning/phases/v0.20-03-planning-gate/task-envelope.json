@@ -8,5 +8,9 @@
     "constraints": "",
     "target_files": [],
     "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.20-03-planning-gate/v0.20-03-01-PLAN.md",
+    "key_decisions": []
   }
 }
