@@ -105,8 +105,6 @@ function readMCPAvailabilityRates(sbPath) {
 // ── Read scoreboard for empirical tp_rate / unavail injection (PRISM-02) ────
 // Uses process.cwd()/.planning/quorum-scoreboard.json so tests can point to
 // a fixture by spawning with a custom cwd (same pattern as run-formal-verify).
-const PRISM_PRIOR_TP     = 0.85;
-const PRISM_PRIOR_UNAVAIL = 0.15;
 let liveTPRate    = null;
 let liveUnavail   = null;
 const scoreboardPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
@@ -155,11 +153,11 @@ if (fs.existsSync(scoreboardPath)) {
   } catch (_) { /* malformed scoreboard — fall through to priors */ }
 }
 if (liveTPRate === null) {
-  liveTPRate    = PRISM_PRIOR_TP;
-  liveUnavail   = PRISM_PRIOR_UNAVAIL;
+  liveTPRate    = policy.conservative_priors.tp_rate;
+  liveUnavail   = policy.conservative_priors.unavail;
   process.stderr.write(
     '[run-prism] No scoreboard found — using conservative priors: ' +
-    'tp_rate=' + PRISM_PRIOR_TP + ' unavail=' + PRISM_PRIOR_UNAVAIL + '\n'
+    'tp_rate=' + policy.conservative_priors.tp_rate + ' unavail=' + policy.conservative_priors.unavail + '\n'
   );
 }
 
