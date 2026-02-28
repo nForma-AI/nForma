@@ -46,6 +46,7 @@ Progress: [▓▓░░░░░░░░░░░░░░░░░░░░] v
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.20-01-03 execution]: All 5 TLA+ runners (run-tlc.cjs, run-oscillation-tlc.cjs, run-protocol-tlc.cjs, run-breaker-tlc.cjs, run-account-manager-tlc.cjs) updated to v2.1 spec. Timer placement (immediately before spawnSync) ensures runtime_ms measures actual TLC execution, not module load time. Timeout-risk annotation at 120s threshold enables CI timeout-adequacy decisions. Plan 03 covers 9 of 21 STEPS entries; Plan 04 will cover remaining 12 (Alloy, PRISM, formal-verify CI tool calls).
 - [v0.20 roadmap]: v0.20-01 Schema Enrichment is the sole foundation phase — all other phases read check-results.ndjson with enriched v2.1 fields; no other phase can run until SCHEMA-01/02/03 are complete.
 - [v0.20 roadmap]: v0.20-02 through v0.20-06 depend only on v0.20-01 and are parallelizable in execution: v0.20-02 (LIVE), v0.20-03 (PLAN), v0.20-04 (VERIFY), v0.20-05 (EVID), v0.20-06 (TRIAGE) can run in any order after v0.20-01.
 - [v0.20 roadmap]: Planning gate is fail-open (PLAN-03) — TLC failures surface as warnings to the planner, never hard blockers. FV flakiness cannot break the planning workflow.
