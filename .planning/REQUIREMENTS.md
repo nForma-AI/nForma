@@ -29,39 +29,39 @@ Prevent day-one calibration thrash: PRISM checks must warn (not fail) until suff
 
 Make liveness properties operationally meaningful by requiring explicit fairness assumptions.
 
-- [ ] **LIVE-01**: Each liveness property in TLA+ specs has a companion entry in `formal/spec/<surface>/invariants.md` declaring the fairness assumption (`WF_vars`/`SF_vars`/`SF_actions`) and realism rationale
+- [x] **LIVE-01**: Each liveness property in TLA+ specs has a companion entry in `formal/spec/<surface>/invariants.md` declaring the fairness assumption (`WF_vars`/`SF_vars`/`SF_actions`) and realism rationale
 - [x] **LIVE-02**: TLA+ checker emits `result=inconclusive` (not `result=pass`) when a liveness `.cfg` is present but the corresponding `invariants.md` has no fairness declaration
 
 ### REDACT — Redaction Enforcement
 
 Make PII/secret redaction structurally enforced, not just documented.
 
-- [ ] **REDACT-01**: `formal/trace/redaction.yaml` defines forbidden keys (field names) and forbidden value patterns (regex) for trace event payloads
-- [ ] **REDACT-02**: `bin/check-trace-redaction.cjs` validates all trace event files against `redaction.yaml` and appends a `formalism=redaction` entry to `check-results.ndjson`
-- [ ] **REDACT-03**: CI step runs `check-trace-redaction.cjs` and fails when any forbidden key or pattern is found in trace artifacts
+- [x] **REDACT-01**: `formal/trace/redaction.yaml` defines forbidden keys (field names) and forbidden value patterns (regex) for trace event payloads
+- [x] **REDACT-02**: `bin/check-trace-redaction.cjs` validates all trace event files against `redaction.yaml` and appends a `formalism=redaction` entry to `check-results.ndjson`
+- [x] **REDACT-03**: CI step runs `check-trace-redaction.cjs` and fails when any forbidden key or pattern is found in trace artifacts
 
 ### EVID — Evidence Confidence
 
 "Never observed" paths require time qualifiers before they can be trusted as absence evidence.
 
-- [ ] **EVID-01**: `validate-traces.cjs` `never_observed` output includes support metadata: `n_rounds`, `window_days`, `confidence` tier
-- [ ] **EVID-02**: Confidence thresholds defined: low = <50 rounds or <3 days; medium = ≥500 rounds and ≥14 days; high = ≥10k rounds and ≥90 days (quorum rounds as event volume analogue)
+- [x] **EVID-01**: `validate-traces.cjs` `never_observed` output includes support metadata: `n_rounds`, `window_days`, `confidence` tier
+- [x] **EVID-02**: Confidence thresholds defined: low = <50 rounds or <3 days; medium = ≥500 rounds and ≥14 days; high = ≥10k rounds and ≥90 days (quorum rounds as event volume analogue)
 
 ### DRIFT — Trace Schema Drift Guard
 
 Schema changes to `trace.schema.json` must atomically co-update validator and emitter.
 
-- [ ] **DRIFT-01**: `bin/check-trace-schema-drift.cjs` detects when `formal/trace/trace.schema.json` is modified without co-modifying `validate-traces.cjs` or trace emitter files in the same commit
-- [ ] **DRIFT-02**: CI step runs `check-trace-schema-drift.cjs` and fails on non-atomic schema changes
+- [x] **DRIFT-01**: `bin/check-trace-schema-drift.cjs` detects when `formal/trace/trace.schema.json` is modified without co-modifying `validate-traces.cjs` or trace emitter files in the same commit
+- [x] **DRIFT-02**: CI step runs `check-trace-schema-drift.cjs` and fails on non-atomic schema changes
 
 ### MCPENV — MCP Environment Modeling
 
 Model MCP servers as nondeterministic environment processes to verify QGSD's retry/fallback behavior formally.
 
-- [ ] **MCPENV-01**: `formal/spec/mcp-calls/environment.md` defines MCP servers as nondeterministic environment processes with allowed response set (success/failure/timeout/reorder) and timing model (retry limits, backoff assumptions)
-- [ ] **MCPENV-02**: TLA+ spec `formal/tla/QGSDMCPEnv.tla` models MCP call behavior — nondeterministic response choices within declared bounds; checks quorum's fault-tolerance properties under arbitrary MCP failures
-- [ ] **MCPENV-03**: Trace schema extended to include `request_id`, `peer` (MCP slot name), `outcome` (success/fail/timeout), `attempt` (retry count) for MCP-interaction events; `validate-traces.cjs` validates these fields
-- [ ] **MCPENV-04**: PRISM model `formal/prism/mcp-availability.pm` calibrated from scoreboard UNAVAIL rates using existing `readScoreboardRates()` pattern; emits availability property check to `check-results.ndjson`
+- [x] **MCPENV-01**: `formal/spec/mcp-calls/environment.md` defines MCP servers as nondeterministic environment processes with allowed response set (success/failure/timeout/reorder) and timing model (retry limits, backoff assumptions)
+- [x] **MCPENV-02**: TLA+ spec `formal/tla/QGSDMCPEnv.tla` models MCP call behavior — nondeterministic response choices within declared bounds; checks quorum's fault-tolerance properties under arbitrary MCP failures
+- [x] **MCPENV-03**: Trace schema extended to include `request_id`, `peer` (MCP slot name), `outcome` (success/fail/timeout), `attempt` (retry count) for MCP-interaction events; `validate-traces.cjs` validates these fields
+- [x] **MCPENV-04**: PRISM model `formal/prism/mcp-availability.pm` calibrated from scoreboard UNAVAIL rates using existing `readScoreboardRates()` pattern; emits availability property check to `check-results.ndjson`
 
 ### IMPR — R3.6 Iterative Improvement Protocol
 
@@ -110,19 +110,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CALIB-02 | Phase v0.19-02 | Complete |
 | CALIB-03 | Phase v0.19-02 | Complete |
 | CALIB-04 | Phase v0.19-02 | Complete |
-| LIVE-01 | Phase v0.19-03 | Pending |
+| LIVE-01 | Phase v0.19-03 | Complete |
 | LIVE-02 | Phase v0.19-07 | Complete |
-| REDACT-01 | Phase v0.19-04 | Pending |
-| REDACT-02 | Phase v0.19-04 | Pending |
-| REDACT-03 | Phase v0.19-04 | Pending |
-| EVID-01 | Phase v0.19-04 | Pending |
-| EVID-02 | Phase v0.19-04 | Pending |
-| DRIFT-01 | Phase v0.19-04 | Pending |
-| DRIFT-02 | Phase v0.19-04 | Pending |
-| MCPENV-01 | Phase v0.19-05 | Pending |
-| MCPENV-02 | Phase v0.19-08 | Pending |
-| MCPENV-03 | Phase v0.19-05 | Pending |
-| MCPENV-04 | Phase v0.19-08 | Pending |
+| REDACT-01 | Phase v0.19-04 | Complete |
+| REDACT-02 | Phase v0.19-04 | Complete |
+| REDACT-03 | Phase v0.19-04 | Complete |
+| EVID-01 | Phase v0.19-04 | Complete |
+| EVID-02 | Phase v0.19-04 | Complete |
+| DRIFT-01 | Phase v0.19-04 | Complete |
+| DRIFT-02 | Phase v0.19-04 | Complete |
+| MCPENV-01 | Phase v0.19-05 | Complete |
+| MCPENV-02 | Phase v0.19-08 | Complete |
+| MCPENV-03 | Phase v0.19-05 | Complete |
+| MCPENV-04 | Phase v0.19-08 | Complete |
 | IMPR-01 | Phase v0.19-06 | Complete |
 | IMPR-02 | Phase v0.19-06 | Complete |
 | IMPR-03 | Phase v0.19-06 | Complete |
@@ -136,4 +136,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-02-27 after Phase v0.19-07 complete — LIVE-02 marked Complete (all 4 TLC runners now call detectLivenessProperties; 28/28 tests pass)*
+*Last updated: 2026-02-28 after Phase v0.19-09 complete — LIVE-01, REDACT-01..03, EVID-01..02, DRIFT-01..02, MCPENV-01..04 checkboxes and traceability table updated from Pending to Complete*
