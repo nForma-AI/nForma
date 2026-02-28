@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-28 after Milestone v0.20 start)
 ## Current Position
 
 Phase: v0.20-01 of 6 (Schema Enrichment)
-Plan: 02 of 05 (Completed)
+Plan: 04 of 05 (Completed)
 Status: Executing Phase
-Last activity: 2026-02-28 — v0.20-01-02 executed (upgrade writer to v2.1)
+Last activity: 2026-02-28 — v0.20-01-04 executed (update 9 remaining callers with v2.1 fields)
 
-Progress: [▓░░░░░░░░░░░░░░░░░░░░] v0.20: 1/6 phases (Plan 02/05 complete)
+Progress: [▓▓░░░░░░░░░░░░░░░░░░░░] v0.20: 1/6 phases (Plan 04/05 complete)
 
 ## Performance Metrics
 
@@ -27,14 +27,16 @@ Progress: [▓░░░░░░░░░░░░░░░░░░░░] v0.2
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
+| v0.20-01 P02 | 1 | 358s | 358s |
+| v0.20-01 P04 | 1 | 600s | 600s |
 | v0.9-08 P01 | 1 | 25s | 25s |
-| v0.15-01 P01 | 1 | 684s | 684s |
 
 **Recent Trend:**
 - Last 5 plans: stable
 - Trend: stable
 
 *Updated after each plan completion*
+| Phase v0.20-01 P04 | 10m | 2 tasks | 9 files |
 
 ## Accumulated Context
 

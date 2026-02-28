@@ -1173,7 +1173,7 @@ Plans:
   2. `bin/run-uppaal.cjs` executes `verifyta` against `quorum-races.xml` and writes a v2.1 check result to `check-results.ndjson`; STEPS entry `uppaal:quorum-races` is present in `run-formal-verify.cjs`
   3. The model's output explicitly annotates two critical measurement points: (a) minimum inter-slot gap below which a race fires, (b) maximum timeout threshold above which consensus fails before the planning gate deadline
 **Plans**: TBD
-| v0.20-01. Schema Enrichment | v0.20 | 0/5 | Planned | - |
+| v0.20-01. Schema Enrichment | 3/5 | In Progress|  | - |
 | v0.20-02. Liveness Fairness Lint | v0.20 | 0/TBD | Not started | - |
 | v0.20-03. Planning Gate | v0.20 | 0/TBD | Not started | - |
 | v0.20-04. Verification Gate | v0.20 | 0/TBD | Not started | - |

@@ -9,7 +9,7 @@
 
 - [ ] **SCHEMA-01**: `formal/check-result.schema.json` extended with `check_id`, `surface`, `property`, `runtime_ms`, `summary`, `triage_tags`, `observation_window` fields per v2.1 spec
 - [ ] **SCHEMA-02**: `write-check-result.cjs` emits all v2.1 fields; validation enforces required fields; callers receive typed interface
-- [ ] **SCHEMA-03**: All 23 callers in `run-formal-verify.cjs` STEPS updated to pass `check_id`, `surface`, `property`, `runtime_ms`, `summary` to `write-check-result.cjs`
+- [x] **SCHEMA-03**: All 23 callers in `run-formal-verify.cjs` STEPS updated to pass `check_id`, `surface`, `property`, `runtime_ms`, `summary` to `write-check-result.cjs`
 
 ### Liveness Lint (LIVE)
 
@@ -58,7 +58,7 @@
 |-------------|-------|--------|
 | SCHEMA-01 | v0.20-01 | Pending |
 | SCHEMA-02 | v0.20-01 | Pending |
-| SCHEMA-03 | v0.20-01 | Pending |
+| SCHEMA-03 | v0.20-01 | Complete |
 | LIVE-01 | v0.20-02 | Pending |
 | LIVE-02 | v0.20-02 | Pending |
 | PLAN-01 | v0.20-03 | Pending |
