@@ -2,15 +2,28 @@
 
 ## What This Is
 
-QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement from CLAUDE.md behavioral policy into structural Claude Code hooks. It installs on top of GSD without modifying it, adding a hook-based quorum layer: a UserPromptSubmit hook injects quorum instructions at the right moment, a Stop hook verifies quorum actually happened by parsing the conversation transcript before allowing Claude to deliver planning output, and a PreToolUse circuit breaker hook detects oscillation in git history and blocks Bash execution when repetitive patterns emerge. When the circuit breaker fires, a structured oscillation resolution mode guides quorum diagnosis and unified solution approval. An activity sidecar tracks every workflow stage transition so `resume-work` can recover to the exact interrupted step. An autonomous milestone execution loop (v0.13) closes the end-to-end chain: the last-phase transition detects gap-closure phases and routes to re-audit via IS_GAP_CLOSURE detection, audit-milestone auto-spawns plan-milestone-gaps when gaps are found, and all human confirmation gates are replaced with R3 quorum consensus — enabling zero-AskUserQuestion autonomous operation from new-milestone through complete-milestone.
+QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement from CLAUDE.md behavioral policy into structural Claude Code hooks. It installs on top of GSD without modifying it, adding a hook-based quorum layer: a UserPromptSubmit hook injects quorum instructions at the right moment, a Stop hook verifies quorum actually happened by parsing the conversation transcript before allowing Claude to deliver planning output, and a PreToolUse circuit breaker hook detects oscillation in git history and blocks Bash execution when repetitive patterns emerge. When the circuit breaker fires, a structured oscillation resolution mode guides quorum diagnosis and unified solution approval. An activity sidecar tracks every workflow stage transition so `resume-work` can recover to the exact interrupted step. An autonomous milestone execution loop (v0.13) closes the end-to-end chain: the last-phase transition detects gap-closure phases and routes to re-audit via IS_GAP_CLOSURE detection, audit-milestone auto-spawns plan-milestone-gaps when gaps are found, and all human confirmation gates are replaced with R3 quorum consensus — enabling zero-AskUserQuestion autonomous operation from new-milestone through complete-milestone. Formal verification (v0.20) is now an active planning gate: TLA+ runs at plan-phase step 8.2 surfacing failures as hypotheses, sensitivity sweeps inject top-3 high-impact parameters into quorum `review_context`, FV results appear in every VERIFICATION.md, and a UPPAAL timed automaton model captures quorum race timing.
 
 ## Core Value
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.20 FV as Active Planning Gate
+## Current Milestone: v0.21 FV Closed Loop
+
+**Goal:** Transform QGSD's formal verification from a static pipeline into a living, self-updating system — feedback loops that update PRISM priors from empirical observations, structural models that track XState changes automatically, debugging tools that bridge spec↔impl divergence, a plan-to-spec pipeline that formally verifies planning decisions before quorum sees them, and operational signals that use FV results to drive roadmap prioritization and runtime decisions.
+
+**Target features:**
+- Feedback loops — PRISM auto-calibration (export-prism-constants as pre-step in run-prism), XState auto-regeneration hook (PostToolUse → auto-regen all TLA+/Alloy specs), sensitivity sweep → PRISM recalibration, post-debug spec synthesis (capture new invariants from debug sessions → TLA+ property candidates)
+- Spec completeness — Stop hook TLA+ spec (HasPlanningCommand ∧ ¬HasQuorumEvidence ⟹ BLOCK), run-collapse spec-to-code drift audit + fix, quorum composition Alloy model (composition selection rules beyond vote counting), requirements as LTL formulas (truths: blocks → TLA+ PROPERTY checks)
+- Diagnostic infrastructure — conformance trace divergence fix (diagnose and fix the 69% failure rate), counterexample-to-root-cause tool (attribute-trace-divergence.cjs), post-debug pivot decision support
+- Planning integration (closes v0.16 deferral) — PLAN.md → TLA+ delta auto-synthesis pre-quorum, iterative verification loop (iterate plan until TLC passes), quorum slots vote with formal evidence attached
+- Operational signals — TLC state-space coverage gap detector, phase dependency Petri net, PRISM failure probability → roadmap priority ranking, runtime probabilistic quorum gate (pre-quorum PRISM check)
+
+## Just Shipped: v0.20 FV as Active Planning Gate (2026-03-01)
 
 **Goal:** Wire QGSD's formal verification pipeline into its planning and verification workflows — TLC/Alloy/PRISM findings surface as hypotheses during `plan-phase`, formal check results appear in `VERIFICATION.md` during `execute-phase`, and the check-result schema is enriched to v2.1 spec to enable triage bundles and evidence dashboards.
+
+**Shipped:** 20/20 requirements satisfied (SCHEMA-01–03, LIVE-01/02, PLAN-01–03, VERIFY-01/02, EVID-01/02, TRIAGE-01/02, UPPAAL-01–03, SENS-01–03). 9 phases, 28 plans.
 
 **Target features:**
 - Enriched check-result schema — `formal/check-result.schema.json` extended to v2.1 (adds `check_id`, `surface`, `property`, `runtime_ms`, `summary`, `triage_tags`, `observation_window`); `write-check-result.cjs` and all 23 callers updated
@@ -19,6 +32,10 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - Verification gate — `run-formal-verify` wired into `qgsd-verifier`; `check-results.ndjson` digest included in `VERIFICATION.md`
 - Evidence confidence — `never_observed` path entries in evidence summaries carry `confidence: low/medium/high` + `observation_window` metadata
 - Triage bundle — `diff-report.md` and `suspects.md` generated from `check-results.ndjson` (replaces ad-hoc stdout parsing)
+- UPPAAL timed race modeling — `quorum-races.xml` timed automaton uses empirical `runtime_ms` bounds as clock guards; TCTL queries surface minimum inter-slot gap and maximum timeout for consensus
+- Sensitivity sweep — `run-sensitivity-sweep.cjs` sweeps MaxSize/tp_rate; top-3 high-impact parameters injected into planning quorum as `SENSITIVITY_CONTEXT`; `sensitivity-report.cjs` produces ranked human-readable report
+
+**Phases:** v0.20-01..v0.20-09 (9 phases, 28 plans, 83 commits, 250 files, +39k/−3k lines)
 
 ## Just Shipped: v0.19 FV Pipeline Hardening (2026-02-28)
 
@@ -38,17 +55,9 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - Task envelope — `task-envelope.json` sidecar written by researcher and planner with `objective`, `constraints`, `risk_level`, and `target_files`; passes structured context to quorum; eliminates N × full PLAN.md re-reads per round
 - Adaptive quorum fan-out — `quorum.md` reads `risk_level` from envelope and dispatches 2/3/max workers for routine/medium/high risk; emits `--n N` for Stop hook R3.5 compliance; user `--n N` override preserved
 
-## Planned Milestone: v0.16 Formal Plan Verification (deferred)
+## Incorporated into v0.21: v0.16 Formal Plan Verification (formerly deferred)
 
-**Goal:** Transform QGSD's planning workflow into a formally-verified planning loop — plans are auto-synthesized into TLA+/Alloy/PRISM/Petri spec fragments, verified for correctness before quorum sees them, accompanied by Mermaid mind maps for agent visual context, and backed by code-as-source-of-truth hybrid AST+annotation spec extraction.
-
-**Target features:**
-- Plan-to-spec pipeline — PLAN.md → formal spec fragments (TLA+/Alloy/PRISM) representing proposed state machine changes, saved to `.planning/phases/<phase>/formal/`
-- Iterative verification loop — Claude iterates on PLAN.md until formal verification passes (configurable cap), then presents verified plan + proof summary to quorum
-- Mind map generation — PLAN.md → Mermaid mind map saved to `.planning/phases/<phase>/MINDMAP.md`, injected into quorum slot-worker context
-- Quorum formal context injection — slot-worker prompt gains `formal_spec_summary` + `verification_result` fields; agents vote with mathematical evidence attached
-- QGSD self-application (code → all spec types) — hybrid AST extraction + JSDoc annotations (`@invariant`, `@transition`, `@probability`) feed all four spec types from QGSD's own source
-- General-purpose code → spec — expose the code → spec pipeline for any project using QGSD
+**Goal:** Core v0.16 features (plan-to-spec pipeline, iterative verification loop, quorum with formal evidence) are now closing as PLAN-01/02/03 requirements in v0.21 FV Closed Loop. Mind map generation and general-purpose code→spec pipeline deferred to a future milestone.
 
 ## Planned Milestone: v0.17 Auto-Chain Context Resilience
 
@@ -239,6 +248,10 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ Liveness fairness lint — centralized check-liveness-fairness.cjs CI step with dynamic MC*.cfg discovery; emits result=inconclusive for liveness configs lacking fairness declarations; ci:liveness-fairness-lint as 26th STEPS entry in run-formal-verify.cjs (LIVE-01..02) — v0.20 (Phase v0.20-02)
 - ✓ Planning gate — plan-phase.md step 8.3 runs `run-formal-verify.cjs --only=tla` pre-quorum; result=fail NDJSON entries surfaced as FV_HYPOTHESES in quorum review_context; fail-open (|| FV_EXIT=$?) so TLC failures never block plan creation (PLAN-01..03) — v0.20 (Phase v0.20-03)
 - ✓ Schema enrichment — check-result.schema.json v2.1 (check_id, surface, property, runtime_ms, summary, triage_tags, observation_window); write-check-result.cjs + all 21 active callers updated (SCHEMA-01..03) — v0.20 (Phase v0.20-01)
+- ✓ Verification gate — qgsd-verifier runs run-formal-verify post-implementation; VERIFICATION.md gains ## Formal Verification section with pass/fail/warn counts per formalism (VERIFY-01..02) — v0.20 (Phase v0.20-04)
+- ✓ Triage bundle — generate-triage-bundle.cjs produces diff-report.md (per-check delta) + suspects.md (fail/triage_tags checks); called as final STEPS entry in run-formal-verify.cjs (TRIAGE-01..02) — v0.20 (Phase v0.20-06)
+- ✓ UPPAAL timed race modeling — quorum-races.xml timed automaton with empirical runtime_ms clock guards; run-uppaal.cjs + uppaal:quorum-races STEPS entry; TCTL queries annotate minimum inter-slot gap + maximum consensus timeout (UPPAAL-01..03) — v0.20 (Phase v0.20-07)
+- ✓ Sensitivity sweep — run-sensitivity-sweep.cjs sweeps MaxSize [1,2,3] and tp_rate [0.5,0.75,0.95]; sensitivity-report.ndjson + human-readable sensitivity-report.md; SENSITIVITY_CONTEXT injected into plan-phase quorum review_context (SENS-01..03) — v0.20 (Phase v0.20-08)
 - ✓ Unified verdict format: all 13 FV checkers emit normalized NDJSON to check-results.ndjson; check-results-exit.cjs CI gate exits non-zero on any result=fail (UNIF-01..04) — v0.19 (Phases v0.19-01, v0.19-11)
 - ✓ Calibration governance: formal/policy.yaml cold-start thresholds + read-policy.cjs; conservative_priors.tp_rate/unavail wired directly to run-prism.cjs fallback constants; 18/18 tests (CALIB-01..04) — v0.19 (Phases v0.19-02, v0.19-10)
 - ✓ Liveness fairness: invariants.md fairness declarations for all 8 surfaces; detectLivenessProperties() wired to all 5 TLC runners — emits result=inconclusive on missing declaration (LIVE-01..02) — v0.19 (Phases v0.19-03, v0.19-07)
@@ -296,13 +309,6 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Active
 
-<!-- v0.20 scope: FV as Active Planning Gate -->
-- [x] Planning gate — run-formal-verify --only=tla wired into plan-phase.md pre-quorum; TLC violations as hypotheses to planner; fail-open (PLAN-01..03) — v0.20
-- [ ] Verification gate — run-formal-verify wired into qgsd-verifier; check-results.ndjson digest in VERIFICATION.md (VERIFY-01..02) — v0.20
-- [ ] Evidence confidence — never_observed entries carry confidence: low/medium/high + observation_window metadata (EVID-01..02) — v0.20
-- [ ] Triage bundle — generate-triage-bundle.cjs writes diff-report.md and suspects.md from check-results.ndjson (TRIAGE-01..02) — v0.20
-- [ ] UPPAAL timed race modeling — quorum-races.xml + run-uppaal.cjs + uppaal:quorum-races STEPS entry (UPPAAL-01..03) — v0.20
-
 <!-- Carry-forward: deferred from v0.3 -->
 - [ ] npm publish qgsd@0.2.0 deferred — run `npm publish --access public` when ready (RLS-04)
 
@@ -316,7 +322,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Context
 
-QGSD v0.19 FV Pipeline Hardening shipped 2026-02-28 (11 phases, 26 plans, 25/25 requirements, zero tech debt). v0.20 FV as Active Planning Gate in progress (6 phases, roadmap created 2026-02-28). v0.2.0 npm publish still deferred by user decision.
+QGSD v0.20 FV as Active Planning Gate shipped 2026-03-01 (9 phases, 28 plans, 20/20 requirements, 83 commits, 250 files, +39k lines). FV pipeline is now an active planning gate. v0.21 FV Closed Loop planned next. v0.2.0 npm publish still deferred by user decision.
 
 **Codebase:** ~87,000+ lines (JS + MD), 450+ files across the full development cycle.
 **Tech stack:** Node.js, Claude Code hooks (UserPromptSubmit + Stop + PreToolUse), npm package.
@@ -433,5 +439,11 @@ QGSD v0.19 FV Pipeline Hardening shipped 2026-02-28 (11 phases, 26 plans, 25/25 
 | MCMCPEnv in SURFACE_MAP + separate invariants.md with EventualDecision fairness | TLC verifies quorum fault-tolerance under arbitrary MCP failures; WF_vars triple for slots × rounds × votes declares weak fairness explicitly; CI step added to formal-verify.yml | Phase v0.19-08 — MCPENV-02 |
 | readMCPAvailabilityRates composite-key filter (contains ':' or '/') | Scoreboard keys like `claude-1:model-id` and `/path/to/file` are not PRISM model IDs; composite-key filter before rates object construction prevents PRISM constant corruption | Phase v0.19-08 — MCPENV-04 |
 
+| check-result.schema.json v2.1 additive-only | New fields added alongside existing 5-field format; old NDJSON lines remain valid — zero backward incompatibility; all 21 callers updated rather than wrapper approach | Phase v0.20-01 — SCHEMA-01..03 |
+| Sensitivity sweep uses separate sensitivity-report.ndjson (not check-results.ndjson) | No VALID_FORMALISMS coupling; sweep records are per-parameter-value not per-check; avoids polluting the main check results used by triage bundle and verification gate | Phase v0.20-08 — SENS-01 |
+| TLA+ gate at step 8.2 (not 8.3) to avoid sensitivity sweep collision | v0.20-08 inserted sensitivity at 8.3; v0.20-09 moved TLA+ gate to 8.2 — ordered as: 8.2 (TLA+) → 8.3 (sensitivity) → 8.4 (envelope) → 8.5 (quorum); step renumbering closes regression | Phase v0.20-09 — PLAN-01/02 |
+| UPPAAL runtime_ms bounds from empirical check-results.ndjson (not hardcoded) | Clock guards derived from real TLA+/Alloy timing data; bounds auto-update as models evolve; hardcoded constants would require manual maintenance | Phase v0.20-07 — UPPAAL-01 |
+| Planning gate is fail-open (|| FV_EXIT=$?) | TLC failures are surfaced as warnings (FV_HYPOTHESES) to the planner but never block plan creation; FV flakiness cannot break the planning workflow | Phase v0.20-03 — PLAN-03 |
+
 ---
-*Last updated: 2026-02-28 after Phase v0.20-03 — Planning Gate complete. PLAN-01..03 satisfied: plan-phase.md step 8.3 runs run-formal-verify.cjs --only=tla, extracts result=fail entries as FV_HYPOTHESES, injects into quorum review_context, fail-open via || FV_EXIT=$?. v0.20-04 (Verification Gate) next.*
+*Last updated: 2026-03-01 after v0.20 milestone — FV as Active Planning Gate complete. 20/20 requirements satisfied (SCHEMA-01–03, LIVE-01/02, PLAN-01–03, VERIFY-01/02, EVID-01/02, TRIAGE-01/02, UPPAAL-01–03, SENS-01–03). v0.21 FV Closed Loop next.*

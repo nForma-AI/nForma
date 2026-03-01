@@ -207,3 +207,28 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.20 — FV as Active Planning Gate (Shipped: 2026-03-01)
+
+**Phases:** v0.20-01..v0.20-09 (9 phases, 28 plans)
+**Requirements:** 20/20 (SCHEMA-01–03, LIVE-01/02, PLAN-01–03, VERIFY-01/02, EVID-01/02, TRIAGE-01/02, UPPAAL-01–03, SENS-01–03)
+**Git range:** 5b45fd69..696d4b89 (83 commits, 250 files, +39,008/−3,343 lines)
+**Timeline:** 2026-02-28 → 2026-03-01 (2 days)
+
+**Delivered:** Wired QGSD's formal verification pipeline into planning and verification workflows — TLC/Alloy/PRISM findings surface as hypotheses during `plan-phase`, formal check results appear in `VERIFICATION.md` during `execute-phase`, and the check-result schema was enriched to v2.1 spec with triage bundles and evidence dashboards.
+
+**Key accomplishments:**
+- Extended `check-result.schema.json` to v2.1 spec with 7 new fields (`check_id`, `surface`, `property`, `runtime_ms`, `summary`, `triage_tags`, `observation_window`); updated all 21 callers in `run-formal-verify.cjs` (SCHEMA-01–03)
+- CI step detects liveness properties lacking fairness declarations and emits `result=inconclusive`; wired as `ci:liveness-fairness-lint` in STEPS pipeline (LIVE-01/02)
+- `plan-phase.md` step 8.2 runs `run-formal-verify --only=tla` pre-quorum; TLC `fail` results extracted into `FV_HYPOTHESES` and injected into quorum `review_context` as planning hypotheses; fail-open (PLAN-01–03)
+- `qgsd-verifier` agent runs formal verification post-implementation; `VERIFICATION.md` gains `## Formal Verification` section with pass/fail/warn counts per formalism (VERIFY-01/02)
+- `never_observed` trace entries annotated with `confidence: low|medium|high`; `observation_window` metadata written to NDJSON; `generate-triage-bundle.cjs` produces `diff-report.md` + `suspects.md` after every FV run (EVID-01/02, TRIAGE-01/02)
+- UPPAAL timed automaton model (`quorum-races.xml`) captures quorum race conditions using empirical `runtime_ms` bounds as clock guards; TCTL queries surface minimum inter-slot gap and maximum timeout for consensus (UPPAAL-01–03)
+- `run-sensitivity-sweep.cjs` sweeps FV parameters (MaxSize [1,2,3], tp_rate [0.5,0.75,0.95]); top-3 high-impact parameters injected into planning quorum as `SENSITIVITY_CONTEXT`; `sensitivity-report.cjs` produces ranked human-readable report (SENS-01–03)
+
+**Tech debt incurred:**
+- SUMMARY.md files lack `requirements_completed` frontmatter — limits automated 3-source cross-reference
+- v0.20-08-01 (RED test scaffold) has no SUMMARY.md (accepted by audit)
+
+---
+

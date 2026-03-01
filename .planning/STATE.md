@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-28 after Phase v0.20-06)
+See: .planning/PROJECT.md (updated 2026-03-01 after Milestone v0.21 start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.20 — COMPLETE (8/8 phases done); milestone ready for audit and archival
+**Current focus:** v0.21 — FV Closed Loop (defining requirements)
 
 ## Current Position
 
-Phase: v0.20-08 (Sensitivity Analysis — FV Parameter Sweep) — COMPLETE
-Plan: All 4 plans complete
-Status: v0.20 milestone complete — all 20 requirements satisfied
-Last activity: 2026-02-28 — v0.20-08 complete (SENS-01, SENS-02, SENS-03 satisfied); sensitivity sweep runner + report generator implemented; plan-phase.md step 8.3 FV gate inserted; quorum unanimously approved plans (3/3 APPROVE)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-01 — Milestone v0.21 FV Closed Loop started; 18 requirements across 5 categories defined
 
-Progress: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] v0.20: 8/8 phases complete (MILESTONE DONE)
+Progress: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] v0.20: 9/9 phases complete (MILESTONE ARCHIVED) | v0.21: 0/? phases (defining requirements)
 
 ## Performance Metrics
 
@@ -88,7 +88,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-28 — Phase v0.20-08 complete (Sensitivity Analysis: SENS-01, SENS-02, SENS-03 satisfied)
-Last session: 2026-02-28
-Stopped at: v0.20 milestone COMPLETE — all 8 phases done, all 20 requirements satisfied; ready for /qgsd:audit-milestone v0.20
+Last activity: 2026-03-01 — v0.20 milestone archived (9 phases, 20/20 requirements, git tag v0.20 created)
+Last session: 2026-03-01
+Stopped at: v0.20 complete — milestone archived to milestones/; PROJECT.md evolved; ROADMAP.md reorganized; REQUIREMENTS.md deleted; ready for /qgsd:new-milestone
 Resume file: None
