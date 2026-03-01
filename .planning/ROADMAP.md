@@ -1192,7 +1192,7 @@ Plans:
   3. The drift warning directs the user to the amendment workflow (ENV-04) for legitimate changes -- there is no path to silently accept drift
 **Plans**: TBD
 
-| v0.22-01. Requirements Envelope Foundation | v0.22 | 0/TBD | Not started | - |
+| v0.22-01. Requirements Envelope Foundation | v0.22 | 0/3 | Not started | - |
 | v0.22-02. Formal Spec Integration | v0.22 | 0/TBD | Not started | - |
 | v0.22-03. Immutability and Amendment Workflow | v0.22 | 0/TBD | Not started | - |
 | v0.22-04. Drift Detection | v0.22 | 0/TBD | Not started | - |
