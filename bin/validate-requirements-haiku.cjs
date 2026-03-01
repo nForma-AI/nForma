@@ -185,17 +185,7 @@ async function validateRequirements(options = {}) {
     mockCall = null, // For testing: mock Haiku response
   } = options;
 
-  // Check if SDK is available
-  if (!Anthropic) {
-    return { status: 'skipped', reason: 'SDK unavailable' };
-  }
-
-  // Check if API key is available
-  if (!apiKey) {
-    return { status: 'skipped', reason: 'ANTHROPIC_API_KEY not set' };
-  }
-
-  // Read envelope
+  // Read envelope first (needed to check frozen_at before SDK availability)
   if (!fs.existsSync(envelopePath)) {
     return { status: 'error', reason: `Envelope file not found: ${envelopePath}` };
   }
@@ -208,9 +198,19 @@ async function validateRequirements(options = {}) {
     return { status: 'error', reason: `Failed to read envelope: ${e.message}` };
   }
 
-  // Check if already frozen
+  // Check if already frozen (before SDK check)
   if (envelope.frozen_at) {
     return { status: 'already-frozen', frozen_at: envelope.frozen_at };
+  }
+
+  // Check if SDK is available
+  if (!Anthropic && !mockCall) {
+    return { status: 'skipped', reason: 'SDK unavailable' };
+  }
+
+  // Check if API key is available (skip check if using mockCall)
+  if (!apiKey && !mockCall) {
+    return { status: 'skipped', reason: 'ANTHROPIC_API_KEY not set' };
   }
 
   // Extract requirements array
