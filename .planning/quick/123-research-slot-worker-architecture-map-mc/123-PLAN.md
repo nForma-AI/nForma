@@ -13,11 +13,13 @@ must_haves:
   truths:
     - "Each MCP slot is classified as coding-agent (file system access) or text-only API"
     - "The slot worker's redundant Haiku file exploration is quantified per-round"
+    - "Token cost breakdown exists showing per-slot file-read token spend across typical quorum rounds"
+    - "Per-slot timeout comparison table maps quorum_timeout_ms vs timeout_ms to identify fast-path candidates"
     - "An architecture recommendation exists for thin vs thick worker per slot type"
   artifacts:
     - path: ".planning/quick/123-research-slot-worker-architecture-map-mc/123-RESEARCH.md"
       provides: "Complete capability map and architecture recommendation"
-      min_lines: 80
+      min_lines: 120
   key_links: []
 ---
 
@@ -113,6 +115,32 @@ For N parallel workers in a quorum round:
 - Note that each round-trip carries the full accumulated context (growing with each read)
 - Compare: coding-agent slots will re-read the same files themselves
 
+**D2. Token cost breakdown per round:**
+
+Produce a table breaking down estimated token cost of file reads per slot per round:
+- For each file the slot worker reads (CLAUDE.md, STATE.md, ROADMAP.md, artifact_path),
+  estimate the typical token count (use `wc -c` on current files, divide by ~4 for tokens).
+- Calculate: tokens_per_read × cumulative_context_growth across the ~5-7 round-trips
+  (each Haiku call sends all prior context + new tool result).
+- Multiply by N workers (3-6 active slots) to get total tokens per quorum round.
+- Multiply by typical rounds per phase execution (usually 1-3 quorum invocations).
+- Present as a table: `| File | ~Tokens | Reads/Worker | Workers | Rounds | Total |`
+- This enables cost-benefit analysis: which slots to optimize first and whether
+  implementation effort justifies the savings at current pricing.
+
+**D3. Per-slot timeout comparison table:**
+
+Build a comparison table of timeout configuration per slot:
+- Read `quorum_timeout_ms` and `timeout_ms` from each slot's entry in providers.json.
+- For each slot, note: configured quorum_timeout_ms, configured timeout_ms (CLI execution),
+  and the observed typical response latency (from health_check or MCP debug logs if available).
+- Identify slots where file I/O removal could tighten timeout values (if Step 2 adds 10-20s
+  of Haiku round-trips, removing it enables lowering quorum_timeout_ms by that amount).
+- Flag slots where current timeout_ms >> typical latency as fast-path optimization candidates.
+- Present as: `| Slot | quorum_timeout_ms | timeout_ms | ~Latency | Headroom | Fast-path? |`
+- Rationale: Reducing file system I/O may enable tighter timeouts, which improves quorum
+  consensus wall-clock time without changing voting logic.
+
 **E. Architecture recommendation:**
 
 Based on the capability map, produce a concrete recommendation:
@@ -135,13 +163,17 @@ Write all findings to 123-RESEARCH.md with clear tables and the per-slot capabil
     - A table mapping every slot from providers.json to its file system capability
     - Classification of each slot as "coding-agent" or "text-only"
     - Quantification of current Haiku round-trips per quorum round
+    - Token cost breakdown table (tokens per file × workers × rounds)
+    - Per-slot timeout comparison table (quorum_timeout_ms vs timeout_ms vs latency)
     - Architecture recommendation with specific changes to slot-worker and providers.json
-    - At least 80 lines of substantive content
+    - At least 100 lines of substantive content
   </verify>
   <done>
     Complete capability map exists for all 12 slots in providers.json. Each slot is classified.
     Architecture recommendation identifies which slots can skip Step 2 file reads (coding agents)
     and which need them (text-only APIs). Quantification shows the Haiku token savings.
+    Token cost breakdown enables prioritization of which slots to optimize first.
+    Timeout comparison table identifies fast-path candidates where tighter timeouts are viable.
   </done>
 </task>
 
@@ -152,6 +184,8 @@ Write all findings to 123-RESEARCH.md with clear tables and the per-slot capabil
 - Each slot has a clear "has file access: yes/no" determination with evidence
 - The document includes a concrete architecture recommendation (not just observations)
 - Token waste is quantified with specific numbers (round-trips x workers x rounds)
+- Token cost breakdown table shows per-file token counts scaled across workers and rounds
+- Per-slot timeout comparison table maps configured vs observed latency with fast-path flags
 </verification>
 
 <success_criteria>

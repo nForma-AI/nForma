@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-05 Planning Integratio
 Phase: v0.21-06 of 6 (Operational Signals) -- COMPLETE
 Plan: All 4/4 plans executed
 Status: Milestone v0.21 complete -- all 6 phases shipped
-Last activity: 2026-03-01 — v0.21-06 Operational Signals complete: 4 plans, 39/39 tests GREEN, SIG-01/02/03/04 satisfied
+Last activity: 2026-03-01 - Completed quick task 123: Research slot worker architecture
 
 Progress: [████████████████████████] v0.21: 6/6 phases (100%)
 
@@ -73,6 +73,12 @@ Recent decisions affecting current work:
 - [Phase 12 carry-forward]: npm publish qgsd@0.2.0 deferred; run `npm publish --access public` when user decides
 - [v0.18-06/07 open]: v0.18-06 (FAN-04 Stop hook ceiling fix) and v0.18-07 (ENV-03 envelope path wiring) are not yet started — gap closure phases for v0.18
 - [v0.21-02 carry-forward]: 3983 unmappable_action divergences remain (circuit_break: 2988, no-action events: 995) — these are correctly excluded from the state_mismatch rate but may need a separate tracking mechanism
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 123 | Research slot worker architecture — map MCP slot capabilities and eliminate redundant Haiku file exploration | 2026-03-01 | c97102b4 | Pending | [123-research-slot-worker-architecture-map-mc](./quick/123-research-slot-worker-architecture-map-mc/) |
 
 ## Session Continuity
 
