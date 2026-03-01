@@ -1,93 +1,109 @@
-# Requirements: QGSD v0.20 FV as Active Planning Gate
+# Requirements: QGSD v0.21 FV Closed Loop
 
-**Defined:** 2026-02-28
+**Defined:** 2026-03-01
 **Core Value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## v0.20 Requirements
+## v0.21 Requirements
 
-### Schema (SCHEMA)
+### Model Architecture — ARCH
 
-- [x] **SCHEMA-01**: `formal/check-result.schema.json` extended with `check_id`, `surface`, `property`, `runtime_ms`, `summary`, `triage_tags`, `observation_window` fields per v2.1 spec
-- [x] **SCHEMA-02**: `write-check-result.cjs` emits all v2.1 fields; validation enforces required fields; callers receive typed interface
-- [x] **SCHEMA-03**: All 23 callers in `run-formal-verify.cjs` STEPS updated to pass `check_id`, `surface`, `property`, `runtime_ms`, `summary` to `write-check-result.cjs`
+All formal models must live in a single central directory that every part of QGSD writes to directly. Currently updates happen through three disconnected flows (manual edits, XState generation, per-phase scratch files) with no promotion path — insights from debug sessions, planning, and verification get siloed and lost.
 
-### Liveness Lint (LIVE)
+- [ ] **ARCH-01**: Formal models have a single canonical home — `formal/` is declared the single source of truth for all living models; a `formal/model-registry.json` tracks each model's last-updated timestamp, update source (`generate`, `debug`, `plan-promote`, `manual`), and version; all update flows write to `formal/` directly, never to per-phase scratch only
+- [ ] **ARCH-02**: Per-phase proposed specs have a promotion path to central — when a plan's `proposed-changes.tla` (PLAN-01) is accepted post-verification, a `promote-model.cjs` script merges the accepted invariants into the canonical `formal/tla/` spec and updates `model-registry.json`; promotes are atomic (tmp file + rename)
+- [ ] **ARCH-03**: Debug-discovered invariants write to the central registry — when LOOP-04 accepts a new invariant candidate, it is written directly to the appropriate `formal/tla/<surface>.tla` spec (not a sidecar file); `model-registry.json` records `update_source: "debug"` and the session ID that produced it
 
-- [x] **LIVE-01**: CI step detects liveness properties lacking a fairness declaration in `invariants.md` and emits `result=inconclusive` instead of `pass`
-- [x] **LIVE-02**: `run-formal-verify.cjs` STEPS includes a `ci:liveness-fairness-lint` step that enforces LIVE-01
+### Feedback Loops — LOOP
 
-### Planning Gate (PLAN)
+The formal verification pipeline currently runs but does not update itself from what it observes. These requirements close the gap between empirical data and model inputs, making FV self-calibrating.
 
-- [ ] **PLAN-01**: `plan-phase.md` workflow includes a formal verification step (pre-quorum) that runs `run-formal-verify --only=tla`
-- [ ] **PLAN-02**: TLC `fail` results from `check-results.ndjson` are surfaced to the planner as hypotheses to address before quorum sees the plan
-- [x] **PLAN-03**: Planning gate is fail-open — TLC failures are surfaced as warnings to the planner, not hard blockers that prevent plan creation
+- [ ] **LOOP-01**: PRISM calibration is automatically current — `export-prism-constants.cjs` runs as a pre-step inside `run-prism.cjs` so PRISM always uses the latest scoreboard rates, not stale `rates.const`
+- [ ] **LOOP-02**: TLA+/Alloy specs auto-regenerate when the XState machine changes — a PostToolUse hook on writes to `src/machines/qgsd-workflow.machine.ts` triggers `generate-formal-specs.cjs` automatically
+- [ ] **LOOP-03**: Sensitivity sweep results feed back into PRISM calibration — after `run-sensitivity-sweep.cjs`, if empirical rates deviate from tested ranges, `rates.const` is updated and PRISM re-runs; CI fails if threshold is newly violated
+- [ ] **LOOP-04**: Debug sessions capture new invariant candidates — `/qgsd:debug` gains a post-session step that asks "did this session reveal new state transitions or invariants?" and proposes them as TLA+ `PROPERTY` candidates for acceptance/rejection
 
-### Verification Gate (VERIFY)
+### Spec Completeness — SPEC
 
-- [x] **VERIFY-01**: `qgsd-verifier` agent runs `run-formal-verify` after implementation and includes `check-results.ndjson` digest in `VERIFICATION.md`
-- [x] **VERIFY-02**: `VERIFICATION.md` template gains a `## Formal Verification` section summarizing pass/fail/warn counts per formalism (tla, alloy, prism, ci)
+The most critical parts of QGSD have no formal model. These requirements close the most important spec gaps.
 
-### Evidence Confidence (EVID)
+- [ ] **SPEC-01**: Stop hook logic has a TLA+ specification — `QGSDStopHook.tla` formalizes `HasPlanningCommand ∧ ¬HasQuorumEvidence ⟹ decision = BLOCK`; TLC verifies safety (BLOCK ⟹ HasPlanningCommand) and liveness (HasQuorumEvidence ⟹ <>PASS); wired into `run-formal-verify.cjs`
+- [ ] **SPEC-02**: Run-collapse algorithm is verified against its implementation — `QGSDOscillation.tla` is audited against `qgsd-circuit-breaker.js`; any drift (esp. the second-pass net-diff check) is identified and the spec updated to match the implementation's correct behavior; TLC re-verified
+- [ ] **SPEC-03**: Quorum composition selection has an Alloy model — `quorum-composition.als` verifies composition selection rules: `∀ config: no config selects 0 slots when ≥1 available`, `risk_level=high ⟹ fan-out = maxSize`, `solo mode ⟹ exactly 1 slot polled`; wired into `run-alloy.cjs`
+- [ ] **SPEC-04**: Requirements are verifiable as LTL formulas — `must_haves: truths:` blocks in `task-envelope.json` are translated to TLA+ `PROPERTY` checks in a per-phase scratch spec; `qgsd-verifier` runs TLC against them and reports "proved" vs "satisfied" in `VERIFICATION.md`
 
-- [x] **EVID-01**: `never_observed` path entries in `validate-traces.cjs` evidence output carry `confidence: low|medium|high` based on trace volume and window duration
-- [x] **EVID-02**: `observation_window` metadata (window_start, window_end, n_traces, n_events, window_days) written to `check-results.ndjson` for evidence-driven checks
+### Diagnostic Infrastructure — DIAG
 
-### Triage Bundle (TRIAGE)
+69% of conformance traces currently diverge from the XState machine with no tooling to investigate why. These requirements build the missing debugging bridge between specs and implementations.
 
-- [x] **TRIAGE-01**: `bin/generate-triage-bundle.cjs` reads `check-results.ndjson` and writes `formal/diff-report.md` (per-check delta from last run) and `formal/suspects.md` (checks with `result=fail` or `triage_tags` set)
-- [x] **TRIAGE-02**: `run-formal-verify.cjs` calls `generate-triage-bundle.cjs` as the final step after all checks complete
+- [ ] **DIAG-01**: Conformance trace divergence is diagnosed and fixed — `validate-traces.cjs` is updated to export the first 10 divergent traces as structured objects (TTrace format); root cause attributed to specific XState guards or hook implementations; divergence rate reduced to <5%
+- [ ] **DIAG-02**: A counterexample-to-root-cause tool exists — `bin/attribute-trace-divergence.cjs` takes a divergent trace, walks the XState machine guards, identifies which transition fails, and outputs a structured report: "fix XState guard X" or "fix hook implementation Y at line Z"
+- [ ] **DIAG-03**: Divergence attribution surfaces the pivot decision — when `attribute-trace-divergence.cjs` finds a violation, it presents both fix directions with evidence: spec-bug path (update XState + regenerate) vs impl-bug path (fix hook + re-run traces); outputs written to `formal/diff-report.md`
 
-### UPPAAL Timed Race Modeling (UPPAAL)
+### Planning Integration — PLAN
 
-- [x] **UPPAAL-01**: A UPPAAL timed automaton model (`formal/uppaal/quorum-races.xml`) captures the concurrency structure of the quorum protocol — specifically when concurrent slot responses and timeout expirations fire relative to each other. The model uses `runtime_ms` bounds from `check-results.ndjson` as empirical timing constraints (clock guards and invariants), not hardcoded constants.
-- [x] **UPPAAL-02**: `bin/run-uppaal.cjs` executes the UPPAAL model checker (verifyta CLI) against `quorum-races.xml` and writes a check result to `check-results.ndjson` using the v2.1 schema (SCHEMA-01 prerequisite). The STEPS entry `uppaal:quorum-races` is added to `run-formal-verify.cjs`.
-- [x] **UPPAAL-03**: The model surfaces at least two critical measurement points as annotated properties: (a) the minimum inter-slot response gap that prevents a race condition, (b) the maximum timeout value for which the quorum can still reach consensus before the planning gate deadline.
+Closes the v0.16 deferral. Formal verification currently runs against the existing system; it does not verify proposed changes before they are built.
 
-### Sensitivity Analysis (SENS)
+- [ ] **PLAN-01**: Plans auto-synthesize TLA+ deltas — `plan-phase.md` gains a step that generates a scratch TLA+ spec fragment from the plan's `must_haves: truths:` block, representing proposed state machine changes; saved to `.planning/phases/<phase>/formal/proposed-changes.tla`
+- [ ] **PLAN-02**: An iterative verification loop gates planning — TLC runs against the proposed-changes spec; if it fails, Claude iterates on PLAN.md (capped at 3 attempts); quorum only sees a plan that either passes TLC or has reached the iteration cap with documented failures
+- [ ] **PLAN-03**: Quorum slots receive formal evidence — the quorum slot-worker prompt gains a `formal_spec_summary` field (proposed TLA+ properties) and `verification_result` field (TLC pass/fail/inconclusive); agents vote with this mathematical context attached
 
-- [x] **SENS-01**: `bin/run-sensitivity-sweep.cjs` varies key model parameters (at minimum: quorum size N across its full range, timeout threshold T across low/medium/high values) across ≥3 values each, running TLA+/PRISM checks for each configuration, and records outcome deltas (pass→fail, pass→inconclusive transitions) in `formal/sensitivity-report.ndjson` using v2.1 schema — each record annotated with which parameter value caused the transition.
-- [x] **SENS-02**: `plan-phase.md` step 8.3 (FV gate) is extended to also run `run-sensitivity-sweep.cjs` (fail-open) and inject `SENSITIVITY_CONTEXT` into the quorum `review_context`, surfacing the top-3 highest-impact parameters as planning recommendations: which code paths control them, which boundary values to test, and which metrics to monitor.
-- [x] **SENS-03**: `bin/sensitivity-report.cjs` generates `formal/sensitivity-report.md` — a human-readable ranked list of sensitive parameters by outcome-flip count, each annotated with (a) the code path or configuration variable that controls it, (b) recommended unit/integration test cases for boundary values, (c) recommended monitoring metrics to track in production.
+### Operational Signals — SIG
+
+Formal verification produces results that currently go unused for operational decisions. These requirements turn FV output into actionable signals.
+
+- [ ] **SIG-01**: TLC state-space coverage gaps are visible — a new `bin/detect-coverage-gaps.cjs` diffs `{states TLC reaches}` vs `{states observed in conformance traces}`; unreached states are written to `formal/coverage-gaps.md` as a test/coverage backlog
+- [ ] **SIG-02**: Phase dependency graph is a Petri net — `generate-petri-net.cjs` is extended to generate a Petri net from the roadmap's phase dependency structure (phases as transitions, completion tokens enable downstream phases); critical path is computed and shown via `--roadmap` flag
+- [ ] **SIG-03**: PRISM failure probabilities rank roadmap items — a new `bin/prism-priority.cjs` reads PRISM model results and outputs a ranked list of failure modes by `P(failure) × impact`; output is injected into `plan-phase.md` quorum context as a roadmap prioritization signal
+- [ ] **SIG-04**: Quorum rounds are gated by PRISM consensus probability — before each quorum round, current scoreboard availability rates are plugged into `formal/prism/mcp-availability.pm`; if `P(consensus_reached) < threshold` (default 0.70), the round is deferred with a structured warning rather than proceeding with a weak quorum
+
+## v0.22 Requirements (deferred)
+
+### Future Planning Integration
+
+- **PLAN-FUTURE-01**: Mind map generation — PLAN.md → Mermaid mind map saved to `.planning/phases/<phase>/MINDMAP.md`, injected into quorum slot-worker context
+- **PLAN-FUTURE-02**: General-purpose code → spec — expose the QGSD code-to-spec pipeline as a reusable tool for any project using QGSD (hybrid AST + JSDoc annotations)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Blocking plan creation on TLC failures | PLAN-03 fail-open rule — FV informs planners, does not gate them; prevents FV flakiness from breaking the workflow |
-| Running full 23-step formal verify during plan-phase | Too slow for interactive planning; TLA+ subset only keeps it under 60s |
-| Backwards-incompatible schema change | Existing NDJSON lines with 5-field format remain valid; new fields are additive |
-| v0.16 plan-to-spec pipeline | Deferred — synthesizing PLAN.md into TLA+ spec fragments is a separate milestone |
+| Continuous Bayesian prior update | Cold-start → steady-state threshold (policy.yaml) is the right model; continuous Bayes adds complexity without proportional benefit |
+| UPPAAL expansion beyond quorum races | Timed automata modelling is covered; additional UPPAAL models require tool expertise investment disproportionate to value |
+| General-purpose JSDoc annotation spec extraction | Deferred to v0.22 |
 
 ## Traceability
 
+*Populated during roadmap creation.*
+
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCHEMA-01 | v0.20-01 | Complete |
-| SCHEMA-02 | v0.20-01 | Complete |
-| SCHEMA-03 | v0.20-01 | Complete |
-| LIVE-01 | v0.20-02 | Complete |
-| LIVE-02 | v0.20-02 | Complete |
-| PLAN-01 | v0.20-09 | Pending |
-| PLAN-02 | v0.20-09 | Pending |
-| PLAN-03 | v0.20-03 | Complete |
-| VERIFY-01 | v0.20-04 | Complete |
-| VERIFY-02 | v0.20-04 | Complete |
-| EVID-01 | v0.20-05 | Complete |
-| EVID-02 | v0.20-05 | Complete |
-| TRIAGE-01 | v0.20-06 | Complete |
-| TRIAGE-02 | v0.20-06 | Complete |
-| UPPAAL-01 | v0.20-07 | Complete |
-| UPPAAL-02 | v0.20-07 | Complete |
-| UPPAAL-03 | v0.20-07 | Complete |
-| SENS-01 | v0.20-08 | Complete |
-| SENS-02 | v0.20-08 | Complete |
-| SENS-03 | v0.20-08 | Complete |
+| ARCH-01 | — | Pending |
+| ARCH-02 | — | Pending |
+| ARCH-03 | — | Pending |
+| LOOP-01 | — | Pending |
+| LOOP-02 | — | Pending |
+| LOOP-03 | — | Pending |
+| LOOP-04 | — | Pending |
+| SPEC-01 | — | Pending |
+| SPEC-02 | — | Pending |
+| SPEC-03 | — | Pending |
+| SPEC-04 | — | Pending |
+| DIAG-01 | — | Pending |
+| DIAG-02 | — | Pending |
+| DIAG-03 | — | Pending |
+| PLAN-01 | — | Pending |
+| PLAN-02 | — | Pending |
+| PLAN-03 | — | Pending |
+| SIG-01 | — | Pending |
+| SIG-02 | — | Pending |
+| SIG-03 | — | Pending |
+| SIG-04 | — | Pending |
 
 **Coverage:**
-- v0.20 requirements: 20 total
-- Mapped to phases: 20
-- Unmapped: 0 ✓
+- v0.21 requirements: 21 total
+- Mapped to phases: 0
+- Unmapped: 21 ⚠️
 
 ---
-*Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after initial definition*
+*Requirements defined: 2026-03-01*
+*Last updated: 2026-03-01 after initial definition*
