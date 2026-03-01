@@ -4,6 +4,12 @@
  * Handwritten — not generated from XState.
  * Source: hooks/qgsd-circuit-breaker.js (detectOscillation + hasReversionInHashes)
  *
+ * SPEC-02 audit 2026-03-01: Confirmed correct — no drift from qgsd-circuit-breaker.js.
+ * Audit covered: (1) run-collapse algorithm, (2) depth threshold (Depth=3 matches JS default),
+ * (3) net-diff second-pass (nondeterministic netChange correctly over-approximates hasReversionInHashes),
+ * (4) flag condition (OscillationFlaggedCorrectly conjunction matches JS && logic).
+ * See formal/suspects.md §SPEC-02 for full audit findings.
+ *
  * Models the run-collapse oscillation detection algorithm.
  *
  * Key abstraction: file sets are represented as abstract labels from a finite
