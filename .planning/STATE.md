@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-02 Conformance Crisis Fix complete)
+See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-03 Self-Calibrating Feedback Loops complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.21 — FV Closed Loop (Phase v0.21-03: Self-Calibrating Feedback Loops)
+**Current focus:** v0.21 — FV Closed Loop (Phase v0.21-04: Spec Completeness)
 
 ## Current Position
 
-Phase: v0.21-03 of 6 (Self-Calibrating Feedback Loops)
+Phase: v0.21-04 of 6 (Spec Completeness)
 Plan: — (not yet planned)
 Status: Ready to plan
-Last activity: 2026-03-01 — v0.21-02 Conformance Crisis Fix complete: 4 plans, 49/49 tests GREEN, DIAG-01/02/03 satisfied
+Last activity: 2026-03-01 — v0.21-03 Self-Calibrating Feedback Loops complete: 5 plans, 32/32 tests GREEN, LOOP-01/02/03/04 satisfied
 
-Progress: [████████░░░░░░░░░░░░░░░] v0.21: 2/6 phases (33%)
+Progress: [████████████░░░░░░░░░░░] v0.21: 3/6 phases (50%)
 
 ## Performance Metrics
 
@@ -44,6 +44,8 @@ Progress: [████████░░░░░░░░░░░░░░░
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.21-03 shipped]: LOOP-01/02/03/04 complete — `bin/run-prism.cjs` pre-step calibration, `hooks/qgsd-spec-regen.js` PostToolUse hook, `bin/sensitivity-sweep-feedback.cjs` (DEVIATION_THRESHOLD=0.05), `bin/propose-debug-invariants.cjs` + debug.md Step H. 32/32 tests GREEN.
+- [v0.21-03 finding]: PRISM is installed on dev machine (`~/prism/bin/prism`), so LOOP-03 exit-1 logic cannot rely on PRISM exit code for flip-to-fail detection. Fixed: conservative exit-1 when flip-to-fail record within 2×threshold of empirical rate, before PRISM runs.
 - [v0.21-02 shipped]: DIAG-01/02/03 complete — `bin/xstate-trace-walker.cjs` (single-actor replay), `bin/attribute-trace-divergence.cjs` (root-cause attribution), `bin/validate-traces.cjs` H1 fix (expectedState phase check). 49/49 tests GREEN. `formal/.divergences.json` TTrace export. `formal/diff-report.md` populated. State_mismatch rate: 0/8966 mapped events (0%).
 - [v0.21-02 finding]: The 69% divergence rate was a methodology artifact (H1), not a code bug (H2). Fresh-actor validator started in IDLE for quorum_block/quorum_complete events that happened mid-session (phase=DECIDING). Fix: return null from expectedState() for phase!=IDLE events.
 - [v0.21-01 shipped]: ARCH-01/02/03 complete — `formal/model-registry.json` (22 entries), `initialize-model-registry.cjs`, `promote-model.cjs`, `accept-debug-invariant.cjs`. 18/18 tests GREEN.
@@ -65,5 +67,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase v0.21-02 complete — 4 plans, 49/49 tests GREEN, DIAG-01/02/03 satisfied. Conformance crisis fixed (0% state_mismatch of mapped events). Ready to plan Phase v0.21-03 (Self-Calibrating Feedback Loops).
+Stopped at: Phase v0.21-03 complete — 5 plans, 32/32 tests GREEN, LOOP-01/02/03/04 satisfied. Self-calibrating feedback loops live: PRISM pre-step calibration, PostToolUse spec-regen hook, sensitivity sweep feedback, debug invariant mining. Ready to plan Phase v0.21-04 (Spec Completeness).
 Resume file: None
