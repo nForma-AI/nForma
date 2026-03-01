@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["schema_version", "source", "aggregated_at", "content_hash", "requirements"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1"
+    },
+    "source": {
+      "type": "string"
+    },
+    "aggregated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "frozen_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "category", "phase", "status", "provenance"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z]+-\\d+$"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "phase": {
+            "type": "string",
+            "pattern": "^v[\\d.]+-\\d+$"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Pending", "Complete"]
+          },
+          "provenance": {
+            "type": "object",
+            "required": ["source_file", "milestone"],
+            "properties": {
+              "source_file": {
+                "type": "string"
+              },
+              "milestone": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
