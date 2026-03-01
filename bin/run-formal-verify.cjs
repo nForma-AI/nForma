@@ -10,20 +10,21 @@
 //   TLA+       (10) — MCsafety, MCliveness, MCoscillation, MCconvergence,
 //                     MCbreaker, MCdeliberation, MCprefilter, MCaccount-manager, MCMCPEnv,
 //                     MCStopHook
-//   Alloy      (7)  — quorum-votes, scoreboard-recompute, availability-parsing,
-//                     transcript-scan, install-scope, taxonomy-safety, account-pool-structure
+//   Alloy      (8)  — quorum-votes, scoreboard-recompute, availability-parsing,
+//                     transcript-scan, install-scope, taxonomy-safety, account-pool-structure,
+//                     quorum-composition
 //   PRISM      (3)  — quorum, oauth-rotation, mcp-availability
 //   CI enforce (3)  — check-trace-redaction.cjs, check-trace-schema-drift.cjs, check-liveness-fairness.cjs
 //   UPPAAL     (1)  — run-uppaal.cjs (quorum-races.xml, empirical timing bounds)
 //   Triage     (1)  — generate-triage-bundle.cjs (diff-report.md + suspects.md)
 //   ─────────────────────────────────────────────────────────────
-//   Total:    29 steps
+//   Total:    30 steps
 //
 // Usage:
 //   node bin/run-formal-verify.cjs                    # all 28 steps
 //   node bin/run-formal-verify.cjs --only=generate    # source extraction only (2 steps)
 //   node bin/run-formal-verify.cjs --only=tla         # TLA+ only  (10 steps)
-//   node bin/run-formal-verify.cjs --only=alloy       # Alloy only (7 steps)
+//   node bin/run-formal-verify.cjs --only=alloy       # Alloy only (8 steps)
 //   node bin/run-formal-verify.cjs --only=prism       # PRISM only (3 steps)
 //   node bin/run-formal-verify.cjs --only=petri       # Petri only (2 steps)
 //   node bin/run-formal-verify.cjs --only=ci          # CI enforcement only (4 steps)
@@ -166,6 +167,11 @@ const STEPS = [
     tool: 'alloy', id: 'alloy:account-pool',
     label: 'Alloy account-pool-structure',
     type: 'node', script: 'run-account-pool-alloy.cjs', args: [],
+  },
+  {
+    tool: 'alloy', id: 'alloy:quorum-composition',
+    label: 'Alloy quorum-composition — 3 composition rules (SPEC-03)',
+    type: 'node', script: 'run-quorum-composition-alloy.cjs', args: [],
   },
 
   // ─ PRISM probabilistic verification ────────────────────────────────────────

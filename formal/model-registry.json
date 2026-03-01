@@ -26,6 +26,14 @@
       "session_id": null,
       "description": ""
     },
+    "formal/alloy/quorum-composition.als": {
+      "version": 1,
+      "last_updated": "2026-03-01T18:10:00.000Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": "SPEC-03: Quorum composition selection rules — no empty selection, high-risk full fan-out, solo mode single slot"
+    },
     "formal/alloy/quorum-votes.als": {
       "version": 4,
       "last_updated": "2026-03-01T16:23:42.708Z",
