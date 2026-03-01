@@ -351,6 +351,32 @@ QGSD v0.20 FV as Active Planning Gate shipped 2026-03-01 (9 phases, 28 plans, 20
 - **Install**: Global (~/.claude/) following GSD's install pattern
 - **Scope**: v1 covers quorum enforcement + circuit breaker + activity tracking
 
+## Binding Rules
+
+### R9 — Spec Objectives Are Immutable During Verification
+
+**Principle:** Spec structure must track reality, but spec objectives must never be weakened to match reality's shortcomings.
+
+**Two distinct concerns:**
+1. **Spec models MUST accurately reflect the real system** — if the code has 5 states, the spec should model 5 states. An inaccurate model produces meaningless verification results.
+2. **Target objectives/pass criteria MUST NOT be lowered** — if the spec says 100% stability is required and code achieves 80%, the fix is in the code, not in relaxing the spec.
+
+**"Weakening" is explicitly defined as any of:**
+- Relaxing numeric thresholds (e.g., 100% -> 80%, 3-round cap -> 5-round cap)
+- Removing invariants or liveness properties from a spec
+- Softening "must" to "should" or "shall" to "may" in success criteria
+- Reducing the count of success criteria for a phase
+- Changing FAIL verdicts to PASS without code changes
+- Narrowing the scope of what a truth or property covers
+
+**Enforcement points (R9):**
+- **Planner (R9):** PLAN must_haves truths must be derived from ROADMAP success_criteria, not invented independently. Must not reduce scope.
+- **Plan checker (R9):** Checker must verify PLAN truths cover all ROADMAP success_criteria for the phase. Missing criteria = blocker.
+- **Verifier (R9):** Pre-verification baseline captures ROADMAP success_criteria as immutable reference. Deviations between PLAN must_haves and ROADMAP criteria are flagged before verification begins.
+- **Spec generation (R9):** `generate-phase-spec.cjs` reads truths from PLAN frontmatter. If truths are weakened relative to ROADMAP criteria, TLA+ PROPERTY stubs inherit the weakness. R9 requires truths to match ROADMAP criteria.
+
+**Any proposed objective relaxation requires explicit user approval** with justification documented in the Key Decisions table.
+
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
