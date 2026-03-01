@@ -534,38 +534,47 @@ test('run-prism --model mcp-availability: composite-key filter runs before const
 test('LOOP-01: run-prism pre-step writes rates.const before PRISM is invoked', async (t) => {
   // This test verifies that running run-prism.cjs causes export-prism-constants.cjs
   // to execute as a pre-step, writing rates.const to the formal/prism/ directory.
-  // RED: Will fail until LOOP-01 is implemented in plan 02.
-  const { spawnSync } = require('child_process');
-  const path = require('path');
-  const fs = require('fs');
-  const os = require('os');
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'run-prism-loop01-'));
   try {
-    // Create minimal scoreboard file that export-prism-constants.cjs expects
-    const scoreboardPath = path.join(tmpDir, 'quorum-scoreboard.md');
-    fs.writeFileSync(scoreboardPath, '## Scoreboard\n\n| Slot | Wins | Losses |\n|------|------|--------|\n| claude-1 | 5 | 1 |\n', 'utf8');
+    // Create .planning/quorum-scoreboard.json that export-prism-constants.cjs reads
+    const planningDir = path.join(tmpDir, '.planning');
+    fs.mkdirSync(planningDir, { recursive: true });
+    // Need 30+ rounds to pass MIN_ROUNDS threshold in export-prism-constants.cjs
+    const rounds = [];
+    const slots = ['gemini', 'opencode', 'copilot', 'codex'];
+    for (let i = 0; i < 30; i++) {
+      const votes = { claude: 'TP' };
+      for (const slot of slots) votes[slot] = 'TP';
+      rounds.push({ date: '03-01', task: 'r' + i, round: 1, votes });
+    }
+    fs.writeFileSync(
+      path.join(planningDir, 'quorum-scoreboard.json'),
+      JSON.stringify({ models: {}, rounds }),
+      'utf8'
+    );
 
     // Create formal/prism/ directory structure for rates.const
     const prismDir = path.join(tmpDir, 'formal', 'prism');
     fs.mkdirSync(prismDir, { recursive: true });
 
-    // Run run-prism.cjs with tmpDir as cwd — PRISM binary absent is expected (inconclusive result)
+    // Run run-prism.cjs with tmpDir as cwd.
+    // Use PRISM_BIN=prism (PATH sentinel) so the binary existence check is skipped,
+    // allowing the LOOP-01 pre-step to execute before PRISM is invoked.
     const result = spawnSync(process.execPath, [
       path.join(__dirname, 'run-prism.cjs')
     ], {
       encoding: 'utf8',
       cwd: tmpDir,
-      env: { ...process.env, PRISM_BIN: '/nonexistent/prism' },
+      env: { ...process.env, PRISM_BIN: 'prism' },
       timeout: 15000,
     });
 
-    // RED assertion: rates.const must be written by the pre-step
-    // This will fail until LOOP-01 wires export-prism-constants as a pre-step
+    // LOOP-01 assertion: rates.const must be written by the pre-step
     const ratesConstPath = path.join(prismDir, 'rates.const');
     assert.ok(
       fs.existsSync(ratesConstPath),
-      'LOOP-01: rates.const was not written — export-prism-constants pre-step not yet implemented'
+      'LOOP-01: rates.const was not written — export-prism-constants pre-step not wired in run-prism.cjs'
     );
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });

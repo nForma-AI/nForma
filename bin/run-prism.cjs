@@ -144,6 +144,27 @@ try {
   process.exit(1);
 }
 
+// ── LOOP-01: export-prism-constants pre-step ─────────────────────────────────
+// Ensures rates.const is always current from the scoreboard before PRISM runs.
+// Fail-open: if export fails, run-prism continues with whatever rates.const exists.
+{
+  const exportConstantsPath = path.join(__dirname, 'export-prism-constants.cjs');
+  const exportResult = spawnSync(process.execPath, [exportConstantsPath], {
+    encoding: 'utf8',
+    cwd: process.cwd(),
+    timeout: 10000,
+  });
+  if (exportResult.status !== 0 || exportResult.error) {
+    process.stderr.write(
+      '[run-prism] Warning: export-prism-constants pre-step failed — rates.const may be stale.\n' +
+      (exportResult.stderr || '') + '\n'
+    );
+  } else {
+    process.stdout.write('[run-prism] Pre-step: rates.const updated from scoreboard.\n');
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 if (fs.existsSync(scoreboardPath)) {
   try {
     const sb = JSON.parse(fs.readFileSync(scoreboardPath, 'utf8'));
