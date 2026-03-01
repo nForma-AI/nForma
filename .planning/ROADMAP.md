@@ -260,7 +260,9 @@ Archive: `.planning/milestones/v0.19-ROADMAP.md`
 - [x] **Phase v0.20-04: Verification Gate** — `qgsd-verifier` agent runs `run-formal-verify` post-implementation; `VERIFICATION.md` gains a `## Formal Verification` section with pass/fail/warn counts (VERIFY-01, VERIFY-02) (completed 2026-02-28)
 - [x] **Phase v0.20-05: Evidence Confidence** — `never_observed` trace entries carry `confidence: low|medium|high`; `observation_window` metadata written to `check-results.ndjson` (EVID-01, EVID-02) (completed 2026-02-28)
 - [x] **Phase v0.20-06: Triage Bundle** — `bin/generate-triage-bundle.cjs` reads `check-results.ndjson` and writes `formal/diff-report.md` and `formal/suspects.md`; called as final step in `run-formal-verify.cjs` (TRIAGE-01, TRIAGE-02) (completed 2026-02-28)
-- [ ] **Phase v0.20-07: UPPAAL Timed Race Modeling** — UPPAAL timed automaton model answers "when do races fire relative to each other?"; uses empirical `runtime_ms` bounds from `check-results.ndjson` as clock guards; surfaces minimum inter-slot gap and maximum timeout for consensus before deadline (UPPAAL-01, UPPAAL-02, UPPAAL-03)
+- [x] **Phase v0.20-07: UPPAAL Timed Race Modeling** — UPPAAL timed automaton model answers "when do races fire relative to each other?"; uses empirical `runtime_ms` bounds from `check-results.ndjson` as clock guards; surfaces minimum inter-slot gap and maximum timeout for consensus before deadline (UPPAAL-01, UPPAAL-02, UPPAAL-03) (completed 2026-02-28)
+- [x] **Phase v0.20-08: Sensitivity Analysis** — `bin/run-sensitivity-sweep.cjs` sweeps key FV parameters; `plan-phase.md` step 8.3 extended with sensitivity context injection; `bin/sensitivity-report.cjs` generates human-readable ranked report (SENS-01, SENS-02, SENS-03) (completed 2026-02-28)
+- [ ] **Phase v0.20-09: Restore TLA+ Planning Gate** — Re-insert `run-formal-verify --only=tla` gate and `FV_HYPOTHESES` extraction that was overwritten by v0.20-08; all 6 `plan-phase-fv-gate.test.cjs` tests pass GREEN (PLAN-01, PLAN-02) [gap closure]
 
 
 ## Phase Details
@@ -1139,6 +1141,17 @@ Plans:
   4. A simulated TLC unavailability (non-zero exit code, no NDJSON output) does not prevent plan creation — the gate is fail-open
 **Plans**: TBD
 
+### Phase v0.20-09: Restore TLA+ Planning Gate
+**Goal**: Re-insert the TLA+ planning gate into `plan-phase.md` that was inadvertently overwritten by v0.20-08. The gate runs `run-formal-verify --only=tla` before quorum, extracts `result=fail` entries into `FV_HYPOTHESES`, and injects them into quorum `review_context` via `FV_GATE_CONTEXT`. Renumber the step to avoid future collision with the sensitivity sweep (step 8.3).
+**Depends on**: Phase v0.20-08 (sensitivity sweep occupies step 8.3; gate goes to step 8.2 or step 8.3a)
+**Requirements**: PLAN-01, PLAN-02
+**Gap Closure**: Closes PLAN-01 and PLAN-02 regression gaps identified by v0.20 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. `plan-phase.md` contains a step that invokes `run-formal-verify.cjs --only=tla` (PLAN-01) — `node --test bin/plan-phase-fv-gate.test.cjs` test 1 passes GREEN
+  2. `plan-phase.md` surfaces TLC `fail` results as `FV_HYPOTHESES` injected into quorum `review_context` (PLAN-02) — `node --test bin/plan-phase-fv-gate.test.cjs` test 2 passes GREEN
+  3. All 6 `plan-phase-fv-gate.test.cjs` tests pass (6/6 GREEN), with the gate step numbered to coexist with the existing 8.3 sensitivity sweep step
+**Plans**: TBD
+
 ### Phase v0.20-04: Verification Gate
 **Goal**: The `qgsd-verifier` agent runs formal verification after implementation and records a structured summary of pass/fail/warn counts in `VERIFICATION.md`, making FV results a first-class part of the verification artifact.
 **Depends on**: Phase v0.20-01
@@ -1196,7 +1209,9 @@ Plans:
 | v0.20-04. Verification Gate | v0.20 | Complete    | 2026-02-28 | - |
 | v0.20-05. Evidence Confidence | v0.20 | Complete    | 2026-02-28 | - |
 | v0.20-06. Triage Bundle | v0.20 | Complete    | 2026-02-28 | - |
-| v0.20-07. UPPAAL Timed Race Modeling | v0.20 | 0/TBD | Not started | - |
+| v0.20-07. UPPAAL Timed Race Modeling | v0.20 | 3/3 | Complete    | 2026-02-28 |
+| v0.20-08. Sensitivity Analysis | v0.20 | 3/3 | Complete    | 2026-02-28 |
+| v0.20-09. Restore TLA+ Planning Gate | v0.20 | 0/TBD | Not started | - |
 
 ### Phase v0.20-08: Sensitivity Analysis
 **Goal**: During the planning process, a formal verification sensitivity sweep varies key model parameters (quorum size, timeout thresholds, slot failure rates) across defined ranges and identifies which parameters cause the most drastic changes in verification outcomes. These "high-sensitivity" parameters are surfaced to the planner as concrete recommendations: variables that flip outcomes should be better instrumented in code, tested at boundary values, and monitored in production — turning formal model behavior into actionable engineering guidance.

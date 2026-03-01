@@ -18,8 +18,8 @@
 
 ### Planning Gate (PLAN)
 
-- [x] **PLAN-01**: `plan-phase.md` workflow includes a formal verification step (pre-quorum) that runs `run-formal-verify --only=tla`
-- [x] **PLAN-02**: TLC `fail` results from `check-results.ndjson` are surfaced to the planner as hypotheses to address before quorum sees the plan
+- [ ] **PLAN-01**: `plan-phase.md` workflow includes a formal verification step (pre-quorum) that runs `run-formal-verify --only=tla`
+- [ ] **PLAN-02**: TLC `fail` results from `check-results.ndjson` are surfaced to the planner as hypotheses to address before quorum sees the plan
 - [x] **PLAN-03**: Planning gate is fail-open — TLC failures are surfaced as warnings to the planner, not hard blockers that prevent plan creation
 
 ### Verification Gate (VERIFY)
@@ -67,8 +67,8 @@
 | SCHEMA-03 | v0.20-01 | Complete |
 | LIVE-01 | v0.20-02 | Complete |
 | LIVE-02 | v0.20-02 | Complete |
-| PLAN-01 | v0.20-03 | Complete |
-| PLAN-02 | v0.20-03 | Complete |
+| PLAN-01 | v0.20-09 | Pending |
+| PLAN-02 | v0.20-09 | Pending |
 | PLAN-03 | v0.20-03 | Complete |
 | VERIFY-01 | v0.20-04 | Complete |
 | VERIFY-02 | v0.20-04 | Complete |
