@@ -323,7 +323,9 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Context
 
-QGSD v0.20 FV as Active Planning Gate shipped 2026-03-01 (9 phases, 28 plans, 20/20 requirements, 83 commits, 250 files, +39k lines). FV pipeline is now an active planning gate. v0.21 FV Closed Loop planned next. v0.2.0 npm publish still deferred by user decision.
+QGSD v0.21-04 Spec Completeness complete 2026-03-01 (4 plans, 21/21 tests GREEN, 4/4 specs verified). Stop hook TLA+ spec (QGSDStopHook.tla) verified by TLC in 523ms. Oscillation spec audited against circuit-breaker.js — no drift. Alloy quorum composition model (3 facts, no counterexample in 810ms). generate-phase-spec.cjs reads truths from *-PLAN.md frontmatter (not task-envelope.json). v0.21 FV Closed Loop at 4/6 phases; v0.21-05 (Planning Integration) and v0.21-06 (Operational Signals) remain. v0.2.0 npm publish still deferred by user decision.
+
+QGSD v0.20 FV as Active Planning Gate shipped 2026-03-01 (9 phases, 28 plans, 20/20 requirements, 83 commits, 250 files, +39k lines). FV pipeline is now an active planning gate. v0.21 FV Closed Loop in progress. v0.2.0 npm publish still deferred by user decision.
 
 **Codebase:** ~87,000+ lines (JS + MD), 450+ files across the full development cycle.
 **Tech stack:** Node.js, Claude Code hooks (UserPromptSubmit + Stop + PreToolUse), npm package.
@@ -347,6 +349,10 @@ QGSD v0.20 FV as Active Planning Gate shipped 2026-03-01 (9 phases, 28 plans, 20
 | Global install | Matches GSD's default behavior; quorum applies everywhere without per-project opt-in | Implemented — Phase 1 |
 | Hook installation via settings.json directly | Claude Code bug #10225: plugin hooks.json silently discards UserPromptSubmit output | Implemented — Phase 1 |
 | STOP-05 fast-path omitted by design | last_assistant_message substring matching unreliable; JSONL parse synchronous and correct | Design decision — Phase 1 gap closure |
+| QGSDStopHook.tla uses WF_vars() in Spec formula (not FAIRNESS in .cfg) | Mixing FAIRNESS line in .cfg with fairness in Spec formula causes TLC conflict; single-place fairness in .tla is canonical | Design decision — v0.21-04 SPEC-01 |
+| HighRiskFullFanOut uses `>= #c.availableSlots` not `min[a,b]` | Alloy 6.2.0 CLI exec mode does not support `min[]` integer function; over-approximation is sound because `selectedSlots in availableSlots` bounds selection | Deviation documented — v0.21-04 SPEC-03 |
+| generate-phase-spec.cjs reads truths from *-PLAN.md frontmatter, not task-envelope.json | task-envelope.json has empty truths at planning time; PLAN.md frontmatter has 26 truths after plan creation | Design decision — v0.21-04 SPEC-04 |
+| QGSDOscillation.tla net-diff modeled nondeterministically (SetNetChange) | hasReversionInHashes is not exported; nondeterministic over-approximation is sound and preserves TLC correctness | Confirmed correct — v0.21-04 SPEC-02 audit |
 | Shallow merge for config layering | Project required_models should fully replace global (not deep-merge) | Phase 2 — CONF-02 |
 | QGSD_CLAUDE_JSON env var for testing | Avoids mutating real ~/.claude.json in tests; production always reads real file | Phase 2 |
 | required_models field name | Richer than quorum_models (dict with tool_prefix + required flag) | Phase 2 — CONF-03 |

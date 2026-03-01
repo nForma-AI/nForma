@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-03 Self-Calibrating Feedback Loops complete)
+See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-04 Spec Completeness complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.21 — FV Closed Loop (Phase v0.21-04: Spec Completeness)
+**Current focus:** v0.21 — FV Closed Loop (Phase v0.21-05: Planning Integration)
 
 ## Current Position
 
-Phase: v0.21-04 of 6 (Spec Completeness)
+Phase: v0.21-05 of 6 (Planning Integration)
 Plan: — (not yet planned)
 Status: Ready to plan
-Last activity: 2026-03-01 — v0.21-03 Self-Calibrating Feedback Loops complete: 5 plans, 32/32 tests GREEN, LOOP-01/02/03/04 satisfied
+Last activity: 2026-03-01 — v0.21-04 Spec Completeness complete: 4 plans, 21/21 tests GREEN, SPEC-01/02/03/04 satisfied
 
-Progress: [████████████░░░░░░░░░░░] v0.21: 3/6 phases (50%)
+Progress: [████████████████░░░░░░░] v0.21: 4/6 phases (67%)
 
 ## Performance Metrics
 
@@ -44,6 +44,10 @@ Progress: [████████████░░░░░░░░░░░
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.21-04 shipped]: SPEC-01/02/03/04 complete — `formal/tla/QGSDStopHook.tla` (TLC 523ms, 5/5 tests), oscillation spec audit (no drift, 4 comparison points confirmed), `formal/alloy/quorum-composition.als` (Alloy 810ms, 3 facts, 4/4 tests), `bin/generate-phase-spec.cjs` (reads *-PLAN.md frontmatter, 26 truths, 8/8 tests). Total: 21/21 tests GREEN. run-formal-verify.cjs now at 30 STEPS (10 TLA+, 8 Alloy).
+- [v0.21-04 finding]: WF_vars() fairness must be declared inside the Spec formula in the .tla file — never as a separate FAIRNESS line in .cfg. Mixing causes TLC conflict.
+- [v0.21-04 finding]: Alloy 6.2.0 CLI exec mode does not support `min[a, b]` in integer expressions. Over-approximation (`>= #c.availableSlots`) is sound when `selectedSlots in availableSlots` constraint bounds selection.
+- [v0.21-04 finding]: generate-phase-spec.cjs must read truths from *-PLAN.md YAML frontmatter, not task-envelope.json (which has empty truths at planning time). 26 truths extracted from 4 v0.21-04 plan files.
 - [v0.21-03 shipped]: LOOP-01/02/03/04 complete — `bin/run-prism.cjs` pre-step calibration, `hooks/qgsd-spec-regen.js` PostToolUse hook, `bin/sensitivity-sweep-feedback.cjs` (DEVIATION_THRESHOLD=0.05), `bin/propose-debug-invariants.cjs` + debug.md Step H. 32/32 tests GREEN.
 - [v0.21-03 finding]: PRISM is installed on dev machine (`~/prism/bin/prism`), so LOOP-03 exit-1 logic cannot rely on PRISM exit code for flip-to-fail detection. Fixed: conservative exit-1 when flip-to-fail record within 2×threshold of empirical rate, before PRISM runs.
 - [v0.21-02 shipped]: DIAG-01/02/03 complete — `bin/xstate-trace-walker.cjs` (single-actor replay), `bin/attribute-trace-divergence.cjs` (root-cause attribution), `bin/validate-traces.cjs` H1 fix (expectedState phase check). 49/49 tests GREEN. `formal/.divergences.json` TTrace export. `formal/diff-report.md` populated. State_mismatch rate: 0/8966 mapped events (0%).
@@ -67,5 +71,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase v0.21-03 complete — 5 plans, 32/32 tests GREEN, LOOP-01/02/03/04 satisfied. Self-calibrating feedback loops live: PRISM pre-step calibration, PostToolUse spec-regen hook, sensitivity sweep feedback, debug invariant mining. Ready to plan Phase v0.21-04 (Spec Completeness).
+Stopped at: Phase v0.21-04 complete — 4 plans, 21/21 tests GREEN, SPEC-01/02/03/04 satisfied. Stop hook TLA+ spec verified, oscillation spec audited (no drift), Alloy quorum composition rules verified, generate-phase-spec.cjs reads from PLAN.md frontmatter. v0.21 at 4/6 phases. Ready to plan Phase v0.21-05 (Planning Integration).
 Resume file: None
