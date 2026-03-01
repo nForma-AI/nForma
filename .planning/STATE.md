@@ -79,7 +79,7 @@ Recent decisions affecting current work:
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 123 | Research slot worker architecture — map MCP slot capabilities and eliminate redundant Haiku file exploration | 2026-03-01 | c97102b4 | Pending | [123-research-slot-worker-architecture-map-mc](./quick/123-research-slot-worker-architecture-map-mc/) |
-| 125 | Implement thin passthrough slot worker | 2026-03-01 | fdfbf40a | Pending | [125-implement-thin-passthrough-slot-worker](./quick/125-implement-thin-passthrough-slot-worker/) |
+| 125 | Implement thin passthrough slot worker | 2026-03-01 | fdfbf40a | Verified | [125-implement-thin-passthrough-slot-worker](./quick/125-implement-thin-passthrough-slot-worker/) |
 
 ## Session Continuity
 
