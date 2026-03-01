@@ -28,6 +28,42 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const DRY  = process.argv.includes('--dry');
 
+// ── Model registry update helper ──────────────────────────────────────────────
+// Updates formal/model-registry.json after each spec write (ARCH-01 wiring).
+// Fail-open: if registry does not exist (not yet initialized), warns and skips.
+function updateModelRegistry(absPath) {
+  if (DRY) return; // dry-run: skip registry update
+  const registryPath = path.join(ROOT, 'formal', 'model-registry.json');
+  if (!fs.existsSync(registryPath)) {
+    process.stderr.write('[update-model-registry] Skipping registry update: formal/model-registry.json not yet initialized\n');
+    return;
+  }
+  let registry;
+  try {
+    registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  } catch (err) {
+    process.stderr.write('[update-model-registry] Cannot parse registry: ' + err.message + '\n');
+    return;
+  }
+  if (!registry.models) registry.models = {}; // guard: handles corrupted registry
+  const key = path.relative(ROOT, absPath).replace(/\\/g, '/');
+  const now = new Date().toISOString();
+  const existing = registry.models[key] || {};
+  registry.models[key] = {
+    version: (existing.version || 0) + 1,
+    last_updated: now,
+    update_source: 'generate',
+    source_id: 'generate:formal-specs',
+    session_id: null,
+    description: existing.description || ''
+  };
+  registry.last_sync = now;
+  // Atomic write: tmp file + rename
+  const tmpPath = registryPath + '.tmp.' + Date.now() + '.' + Math.random().toString(36).slice(2);
+  fs.writeFileSync(tmpPath, JSON.stringify(registry, null, 2), 'utf8');
+  fs.renameSync(tmpPath, registryPath);
+}
+
 // ── Parse XState machine ──────────────────────────────────────────────────────
 const machineFile = path.join(ROOT, 'src', 'machines', 'qgsd-workflow.machine.ts');
 if (!fs.existsSync(machineFile)) {
@@ -506,13 +542,20 @@ const outputs = [
   { rel: 'formal/prism/quorum.props',               content: prismProps   },
 ];
 
+const REGISTRY_EXTS = new Set(['.tla', '.als', '.pm']);
+
 for (const { rel, content } of outputs) {
   if (DRY) {
     process.stdout.write('\n--- ' + rel + ' ---\n' + content + '\n');
   } else {
-    fs.mkdirSync(path.dirname(path.join(ROOT, rel)), { recursive: true });
-    fs.writeFileSync(path.join(ROOT, rel), content, 'utf8');
+    const absOut = path.join(ROOT, rel);
+    fs.mkdirSync(path.dirname(absOut), { recursive: true });
+    fs.writeFileSync(absOut, content, 'utf8');
     process.stdout.write('[generate-formal-specs] Written: ' + rel + '\n');
+    // Update model registry for canonical spec files only (not .cfg or .props)
+    if (REGISTRY_EXTS.has(path.extname(rel))) {
+      updateModelRegistry(absOut);
+    }
   }
 }
 

@@ -1,0 +1,174 @@
+{
+  "version": "1.0",
+  "last_sync": "2026-03-01T10:53:15.810Z",
+  "models": {
+    "formal/alloy/account-pool-structure.als": {
+      "version": 1,
+      "last_updated": "2026-02-25T19:08:10.839Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/alloy/availability-parsing.als": {
+      "version": 1,
+      "last_updated": "2026-02-25T13:49:28.571Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/alloy/install-scope.als": {
+      "version": 1,
+      "last_updated": "2026-02-25T17:28:46.994Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/alloy/quorum-votes.als": {
+      "version": 1,
+      "last_updated": "2026-03-01T10:53:06.235Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/alloy/scoreboard-recompute.als": {
+      "version": 1,
+      "last_updated": "2026-02-25T13:48:48.722Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/alloy/taxonomy-safety.als": {
+      "version": 1,
+      "last_updated": "2026-02-25T17:29:10.918Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/alloy/transcript-scan.als": {
+      "version": 1,
+      "last_updated": "2026-02-25T16:42:09.508Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/prism/mcp-availability.pm": {
+      "version": 1,
+      "last_updated": "2026-02-27T18:59:44.707Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/prism/oauth-rotation.pm": {
+      "version": 1,
+      "last_updated": "2026-02-25T19:08:26.903Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/prism/quorum.pm": {
+      "version": 1,
+      "last_updated": "2026-03-01T10:53:06.235Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDAccountManager.tla": {
+      "version": 1,
+      "last_updated": "2026-02-25T18:34:04.349Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDCircuitBreaker.tla": {
+      "version": 1,
+      "last_updated": "2026-02-25T09:43:12.088Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDConvergence.tla": {
+      "version": 1,
+      "last_updated": "2026-02-25T11:17:02.645Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDDeliberation.tla": {
+      "version": 1,
+      "last_updated": "2026-02-25T13:15:55.708Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDMCPEnv.tla": {
+      "version": 1,
+      "last_updated": "2026-02-27T18:56:34.006Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDOscillation.tla": {
+      "version": 1,
+      "last_updated": "2026-02-25T11:16:21.725Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDPreFilter.tla": {
+      "version": 1,
+      "last_updated": "2026-02-25T13:16:37.722Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDQuorum.tla": {
+      "version": 1,
+      "last_updated": "2026-03-01T10:53:06.234Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDQuorum_xstate.tla": {
+      "version": 1,
+      "last_updated": "2026-03-01T09:11:22.592Z",
+      "update_source": "generate",
+      "source_id": "generate:tla-from-xstate",
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/QGSDRecruiting.tla": {
+      "version": 1,
+      "last_updated": "2026-02-27T09:33:27.083Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    },
+    "formal/tla/TUINavigation.tla": {
+      "version": 1,
+      "last_updated": "2026-02-28T21:21:26.037Z",
+      "update_source": "manual",
+      "source_id": null,
+      "session_id": null,
+      "description": ""
+    }
+  }
+}
