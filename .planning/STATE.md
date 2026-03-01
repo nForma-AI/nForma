@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-05 Planning Integratio
 Phase: v0.21-06 of 6 (Operational Signals) -- COMPLETE
 Plan: All 4/4 plans executed
 Status: Milestone v0.21 complete -- all 6 phases shipped
-Last activity: 2026-03-01 - Completed quick task 123: Research slot worker architecture
+Last activity: 2026-03-01 - Completed quick task 125: Implement thin passthrough slot worker
 
 Progress: [████████████████████████] v0.21: 6/6 phases (100%)
 
@@ -79,6 +79,7 @@ Recent decisions affecting current work:
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 123 | Research slot worker architecture — map MCP slot capabilities and eliminate redundant Haiku file exploration | 2026-03-01 | c97102b4 | Pending | [123-research-slot-worker-architecture-map-mc](./quick/123-research-slot-worker-architecture-map-mc/) |
+| 125 | Implement thin passthrough slot worker | 2026-03-01 | TBD | Pending | [125-implement-thin-passthrough-slot-worker](./quick/125-implement-thin-passthrough-slot-worker/) |
 
 ## Session Continuity
 
