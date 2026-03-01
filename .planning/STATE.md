@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-28 after Phase v0.20-06)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.20 — 6 of 8 phases complete; v0.20-07 (UPPAAL Timed Race Modeling) is next
+**Current focus:** v0.20 — 7 of 8 phases complete; v0.20-08 (MCP Formal Verification Pipeline Integration) is next
 
 ## Current Position
 
-Phase: v0.20-06 (Triage Bundle) — COMPLETE
-Plan: All 3 plans complete
-Status: Ready to plan v0.20-07
-Last activity: 2026-02-28 — v0.20-06 complete (TRIAGE-01 + TRIAGE-02 satisfied); triage bundle generator wired into run-formal-verify.cjs
+Phase: v0.20-07 (UPPAAL Timed Race Modeling) — COMPLETE
+Plan: All 4 plans complete
+Status: Ready to plan v0.20-08
+Last activity: 2026-02-28 — v0.20-07 complete (UPPAAL-01, UPPAAL-02, UPPAAL-03 satisfied); UPPAAL timed automaton model + runner wired into run-formal-verify.cjs; quorum unanimously approved plans (3/3 APPROVE)
 
-Progress: [▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░] v0.20: 6/8 phases complete (v0.20-06 done, v0.20-07..08 pending)
+Progress: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░] v0.20: 7/8 phases complete (v0.20-07 done, v0.20-08 pending)
 
 ## Performance Metrics
 

@@ -8,5 +8,9 @@
     "constraints": "",
     "target_files": [],
     "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.20-07-uppaal-timed-race-modeling/v0.20-07-01-PLAN.md",
+    "key_decisions": []
   }
 }

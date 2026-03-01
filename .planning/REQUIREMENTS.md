@@ -39,9 +39,9 @@
 
 ### UPPAAL Timed Race Modeling (UPPAAL)
 
-- [ ] **UPPAAL-01**: A UPPAAL timed automaton model (`formal/uppaal/quorum-races.xml`) captures the concurrency structure of the quorum protocol — specifically when concurrent slot responses and timeout expirations fire relative to each other. The model uses `runtime_ms` bounds from `check-results.ndjson` as empirical timing constraints (clock guards and invariants), not hardcoded constants.
-- [ ] **UPPAAL-02**: `bin/run-uppaal.cjs` executes the UPPAAL model checker (verifyta CLI) against `quorum-races.xml` and writes a check result to `check-results.ndjson` using the v2.1 schema (SCHEMA-01 prerequisite). The STEPS entry `uppaal:quorum-races` is added to `run-formal-verify.cjs`.
-- [ ] **UPPAAL-03**: The model surfaces at least two critical measurement points as annotated properties: (a) the minimum inter-slot response gap that prevents a race condition, (b) the maximum timeout value for which the quorum can still reach consensus before the planning gate deadline.
+- [x] **UPPAAL-01**: A UPPAAL timed automaton model (`formal/uppaal/quorum-races.xml`) captures the concurrency structure of the quorum protocol — specifically when concurrent slot responses and timeout expirations fire relative to each other. The model uses `runtime_ms` bounds from `check-results.ndjson` as empirical timing constraints (clock guards and invariants), not hardcoded constants.
+- [x] **UPPAAL-02**: `bin/run-uppaal.cjs` executes the UPPAAL model checker (verifyta CLI) against `quorum-races.xml` and writes a check result to `check-results.ndjson` using the v2.1 schema (SCHEMA-01 prerequisite). The STEPS entry `uppaal:quorum-races` is added to `run-formal-verify.cjs`.
+- [x] **UPPAAL-03**: The model surfaces at least two critical measurement points as annotated properties: (a) the minimum inter-slot response gap that prevents a race condition, (b) the maximum timeout value for which the quorum can still reach consensus before the planning gate deadline.
 
 ### Sensitivity Analysis (SENS)
 
@@ -76,9 +76,9 @@
 | EVID-02 | v0.20-05 | Complete |
 | TRIAGE-01 | v0.20-06 | Complete |
 | TRIAGE-02 | v0.20-06 | Complete |
-| UPPAAL-01 | v0.20-07 | Pending |
-| UPPAAL-02 | v0.20-07 | Pending |
-| UPPAAL-03 | v0.20-07 | Pending |
+| UPPAAL-01 | v0.20-07 | Complete |
+| UPPAAL-02 | v0.20-07 | Complete |
+| UPPAAL-03 | v0.20-07 | Complete |
 | SENS-01 | v0.20-08 | Pending |
 | SENS-02 | v0.20-08 | Pending |
 | SENS-03 | v0.20-08 | Pending |
