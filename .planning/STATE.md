@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-01 after v0.21 milestone completion)
 ## Current Position
 
 Phase: v0.22-01 of 4 (Requirements Envelope Foundation)
-Plan: —
-Status: Ready to plan
-Last activity: 2026-03-01 — Roadmap created for v0.22 (4 phases, 5 requirements)
+Plan: 02 (COMPLETE)
+Status: In progress — 2/3 plans complete
+Last activity: 2026-03-01T20:36:15Z — Executed v0.22-01-02 (Haiku semantic validator)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [████░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -37,6 +37,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: stable
 
 *Updated after each plan completion*
+| Phase v0.22-01 P02 | 4 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -49,6 +50,7 @@ Recent decisions affecting current work:
 - [v0.22 roadmap]: Phase ordering: Foundation -> Spec Integration -> Immutability -> Drift. Immutability before drift (can't detect drift without a frozen baseline). Spec integration before immutability (specs must work with envelope before locking it).
 - [v0.22 research]: Primary risk is Haiku validation non-determinism -- mitigated by explicit rubrics, aggregation of 3+ passes, determinism testing. Secondary risk is drift detection false positives -- mitigated by semantic fingerprinting, not naive diffs.
 - [v0.22 research]: Recommended stack: ajv (schema validation), @anthropic-ai/sdk (Haiku calls), husky (git hooks), diff/jsdiff (drift detection), yaml (parsing).
+- [Phase v0.22-01]: Multi-pass Haiku validation with 2+ agreement threshold for ENV-02 semantic analysis
 
 ### Pending Todos
 
@@ -72,6 +74,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: v0.22 roadmap created — 4 phases, 5 requirements, 100% coverage. Ready to plan Phase v0.22-01.
+Last session: 2026-03-01T20:36:15Z
+Stopped at: Executed v0.22-01-02 (Haiku semantic validator) — 2 tasks complete, 17/17 tests passing
 Resume file: None
+
+**v0.22-01 Phase Progress:**
+- Plan 01: Pending (ENV-01 aggregation)
+- Plan 02: COMPLETE (ENV-02 semantic validation) — 05f72ebd, a71abe40
+- Plan 03: Pending (ENV-03 spec binding)
