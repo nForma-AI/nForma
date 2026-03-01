@@ -18,7 +18,9 @@ must_haves:
     - "plan-phase.md planner prompt contains a binding_rule block enforcing R9 for plan creation"
     - "plan-phase.md checker prompt contains a binding_rule block enforcing R9 for plan verification"
     - "verify-phase.md contains a Step 0 baseline capture that reads ROADMAP success_criteria before loading PLAN must_haves"
+    - "verify-phase.md Step 0 baseline capture includes a schema validation guard that halts on malformed success_criteria (parse error, non-array, empty strings)"
     - "verify-phase.md verifier has a binding_rule block enforcing R9 during goal-backward verification"
+    - "verify-phase.md determine_status defines r9_deviation as WARNING-level with explicit downstream action (does not block, surfaces for human review)"
     - "R9 notes that generate-phase-spec.cjs truths must match ROADMAP criteria to prevent TLA+ PROPERTY weakness inheritance"
   artifacts:
     - path: ".planning/PROJECT.md"
@@ -233,9 +235,23 @@ echo "$ROADMAP_CRITERIA"
 
 Store `$ROADMAP_CRITERIA` as the baseline. This is the contract — it cannot be weakened.
 
+**Schema validation guard (R9 robustness):**
+
+If the ROADMAP phase entry exists but `success_criteria` is present and malformed (parse
+error, non-array type, or array with empty/whitespace-only strings), flag immediately:
+`ERROR (R9): ROADMAP success_criteria for phase "${PHASE_ARG}" exists but is malformed. Cannot establish baseline. Halting verification — fix ROADMAP before retrying.`
+Exit the verification workflow at this point (do NOT fall through to "no criteria" path).
+This prevents silent failures where corrupted ROADMAP data causes the baseline capture to
+silently skip comparison, defeating the purpose of R9.
+
+Only three states are valid:
+1. `success_criteria` key absent or explicitly empty `[]` → no baseline, use PLAN must_haves
+2. `success_criteria` is a well-formed non-empty array of strings → use as immutable baseline
+3. Anything else (parse error, non-array, empty strings in array) → ERROR, halt
+
 **After loading PLAN must_haves (in the establish_must_haves step), compare:**
 
-If ROADMAP success_criteria exist (non-empty):
+If ROADMAP success_criteria exist (non-empty, validated):
 1. Count ROADMAP criteria vs PLAN truths. If PLAN truths < ROADMAP criteria count, flag:
    `WARNING (R9): PLAN has fewer truths ({N}) than ROADMAP success_criteria ({M}). Possible objective reduction.`
 2. For each ROADMAP criterion, check if a corresponding PLAN truth exists. If missing, flag:
@@ -275,7 +291,14 @@ additive — it provides policy context to the verifier agent, not new logic ste
 In the determine_status step, after the existing `**gaps_found:**` line, add a new bullet:
 
 ```markdown
-**r9_deviation:** ROADMAP success_criteria exist AND (PLAN truths count < ROADMAP criteria count OR any ROADMAP criterion has no matching PLAN truth). Report in VERIFICATION.md but do not change overall status — R9 deviations are informational warnings that surface the drift for human review.
+**r9_deviation:** ROADMAP success_criteria exist AND (PLAN truths count < ROADMAP criteria count OR any ROADMAP criterion has no matching PLAN truth).
+
+R9 deviation severity and downstream action:
+- **Does NOT change the overall PASS/FAIL status** of the verification — the phase verdict is determined solely by gap analysis against must_haves truths.
+- **DOES produce a dedicated `## R9 Baseline Comparison` section** in VERIFICATION.md with each deviation listed and its specific drift description.
+- **DOES emit a WARNING-level notice** in the verification summary block (not a blocker, not silent).
+- **Downstream effect:** The R9 deviation section is designed for human review at the end of verification. It does not block execution of subsequent phases, but it signals that the PLAN's scope may have drifted from the ROADMAP contract. The user can then choose to: (a) update the PLAN truths to re-align with ROADMAP, (b) update ROADMAP criteria with explicit justification in Key Decisions, or (c) acknowledge and proceed.
+- **Rationale for WARNING (not blocker):** R9 deviations may be legitimate (e.g., ROADMAP criteria were split across multiple phases). Blocking execution would create false-positive halts. The WARNING ensures visibility without halting the workflow.
 ```
   </action>
   <verify>
@@ -287,13 +310,17 @@ In the determine_status step, after the existing `**gaps_found:**` line, add a n
 6. `grep -c "generate-phase-spec" qgsd-core/workflows/verify-phase.md` -- should be >= 1 (in binding_rule)
 7. `grep -n "baseline_capture" qgsd-core/workflows/verify-phase.md` -- should appear BEFORE `load_context`
 8. `grep -c "r9_deviation" qgsd-core/workflows/verify-phase.md` -- should be >= 1
+9. `grep -c "malformed" qgsd-core/workflows/verify-phase.md` -- should be >= 1 (schema validation guard)
+10. `grep -c "Halting verification" qgsd-core/workflows/verify-phase.md` -- should be >= 1 (halt on malformed criteria)
+11. `grep -c "WARNING-level" qgsd-core/workflows/verify-phase.md` -- should be >= 1 (r9_deviation severity)
   </verify>
   <done>
 verify-phase.md contains:
 - Step 0 baseline_capture that reads ROADMAP success_criteria BEFORE loading PLAN must_haves
+- Schema validation guard in Step 0 that halts on malformed success_criteria (parse error, non-array, empty strings)
 - Comparison logic that flags when PLAN truths are fewer or weaker than ROADMAP criteria
 - binding_rule block in establish_must_haves enforcing R9 policy
-- R9 deviation status in determine_status for informational reporting
+- R9 deviation status in determine_status as WARNING-level with explicit downstream action (does not block execution, surfaces for human review with three resolution options)
 - Note about generate-phase-spec.cjs truth-to-ROADMAP alignment
   </done>
 </task>
@@ -312,6 +339,8 @@ verify-phase.md contains:
    - Explicit "weakening" definition (opencode-1) -> R9 in PROJECT.md
    - Pre-verification baseline capture (claude-4) -> Step 0 in verify-phase.md
    - generate-phase-spec.cjs coverage (Claude) -> R9 enforcement points + verify-phase.md note
+9. Step 0 schema validation guard halts on malformed ROADMAP success_criteria (R3.6 improvement: claude-4)
+10. determine_status r9_deviation has explicit WARNING-level severity with documented downstream action (R3.6 improvement: claude-4)
 </verification>
 
 <success_criteria>
@@ -320,6 +349,8 @@ verify-phase.md contains:
 - Verifier in verify-phase.md reads ROADMAP success_criteria BEFORE PLAN must_haves
 - Deviations between ROADMAP criteria and PLAN truths are flagged in VERIFICATION.md
 - generate-phase-spec.cjs truth alignment is documented in R9 enforcement points
+- Step 0 halts with ERROR on malformed ROADMAP success_criteria (prevents silent baseline skip)
+- r9_deviation in determine_status is WARNING-level with explicit downstream action and rationale
 - No existing workflow logic is broken — all changes are additive insertions
 </success_criteria>
 
