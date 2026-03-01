@@ -1,0 +1,12 @@
+{
+  "schema_version": "1",
+  "phase": "v0.20-08",
+  "created_at": "2026-03-01T00:32:08.117Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Sensitivity sweep tool that varies TLA+/PRISM parameters to surface high-impact variables as planning recommendations",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  }
+}
