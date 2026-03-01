@@ -1,0 +1,64 @@
+{
+  "aggregated_at": "2026-03-01T20:36:14.784Z",
+  "content_hash": "sha256:79462d6c160e4359a6fe0a2addf733d52b7f94291ea7b459c1ed39658a28ac33",
+  "frozen_at": "2026-03-01T20:42:26.037Z",
+  "requirements": [
+    {
+      "id": "ENV-01",
+      "text": "Requirements are aggregated into `formal/requirements.json` — during `new-milestone`, after roadmap creation, all phase requirements are compiled into a single structured JSON document in `formal/` with REQ-ID, text, category, phase assignment, and provenance; this is the canonical requirements envelope",
+      "category": "Requirements Envelope",
+      "phase": "v0.22-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/REQUIREMENTS.md",
+        "milestone": "v0.22"
+      }
+    },
+    {
+      "id": "ENV-02",
+      "text": "A Haiku validation pass detects duplicates and conflicts — before the envelope is frozen, a lightweight model (claude-haiku-4-5) reviews the full requirement set for semantic duplicates (different IDs, same intent), contradictions (requirements that cannot both be satisfied), and ambiguity (requirements that admit multiple incompatible interpretations); results are presented to the user for resolution",
+      "category": "Requirements Envelope",
+      "phase": "v0.22-01",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/REQUIREMENTS.md",
+        "milestone": "v0.22"
+      }
+    },
+    {
+      "id": "ENV-03",
+      "text": "The validated envelope constrains formal specs — formal methods (TLA+, Alloy, PRISM) must prove they respect the envelope; `generate-phase-spec.cjs` reads `formal/requirements.json` as its source of truth for PROPERTY generation; any formal spec that contradicts a frozen requirement is flagged as a violation",
+      "category": "Requirements Envelope",
+      "phase": "v0.22-02",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/REQUIREMENTS.md",
+        "milestone": "v0.22"
+      }
+    },
+    {
+      "id": "ENV-04",
+      "text": "The envelope is immutable without user consent — `formal/requirements.json` cannot be modified by any automated workflow; modifications require explicit user approval through an amendment workflow that re-runs ENV-02 validation on the updated set; a hook or pre-commit guard enforces this",
+      "category": "Requirements Envelope",
+      "phase": "v0.22-03",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/REQUIREMENTS.md",
+        "milestone": "v0.22"
+      }
+    },
+    {
+      "id": "ENV-05",
+      "text": "Drift detection flags divergence — when `.planning/REQUIREMENTS.md` is modified after the envelope is frozen, a checker compares the working copy against `formal/requirements.json` and warns if they diverge; legitimate changes must go through the amendment workflow (ENV-04)",
+      "category": "Requirements Envelope",
+      "phase": "v0.22-04",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/REQUIREMENTS.md",
+        "milestone": "v0.22"
+      }
+    }
+  ],
+  "schema_version": "1",
+  "source": ".planning/REQUIREMENTS.md"
+}
