@@ -85,7 +85,7 @@ Spec == Init /\\ [][Next]_<<state>>
   const formalDir = path.join(phaseDir, 'formal');
   fs.mkdirSync(formalDir, { recursive: true });
 
-  const specPath = path.join(formalDir, 'proposed-changes.tla');
+  const specPath = path.join(formalDir, 'ProposedChanges.tla');
   fs.writeFileSync(specPath, spec, 'utf8');
 
   return {

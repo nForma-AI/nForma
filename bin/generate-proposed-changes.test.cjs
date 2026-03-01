@@ -43,9 +43,9 @@ must_haves:
   assert.strictEqual(result.reason, 'no truths');
 });
 
-// ── Test 2: generateProposedChanges produces proposed-changes.tla with correct INVARIANT/PROPERTY stubs
+// ── Test 2: generateProposedChanges produces ProposedChanges.tla with correct INVARIANT/PROPERTY stubs
 
-test('generateProposedChanges produces proposed-changes.tla with correct INVARIANT/PROPERTY stubs', () => {
+test('generateProposedChanges produces ProposedChanges.tla with correct INVARIANT/PROPERTY stubs', () => {
   const planPath = path.join(tmpDir, 'v0.21-05-01-PLAN.md');
   fs.writeFileSync(planPath, `---
 phase: v0.21-05
@@ -91,8 +91,8 @@ must_haves:
   const result = generateProposedChanges(planPath);
   assert.strictEqual(result.generated, true);
 
-  const expectedPath = path.join(phaseDir, 'formal', 'proposed-changes.tla');
-  assert.ok(fs.existsSync(expectedPath), 'proposed-changes.tla should exist in phaseDir/formal/');
+  const expectedPath = path.join(phaseDir, 'formal', 'ProposedChanges.tla');
+  assert.ok(fs.existsSync(expectedPath), 'ProposedChanges.tla should exist in phaseDir/formal/');
   assert.strictEqual(result.specPath, expectedPath);
 });
 
@@ -221,6 +221,6 @@ must_haves:
   const result = generateProposedChanges(planPath);
   assert.strictEqual(result.generated, true);
 
-  const expectedPath = path.join(deepDir, 'formal', 'proposed-changes.tla');
-  assert.ok(fs.existsSync(expectedPath), 'proposed-changes.tla should exist in deeply nested formal/ dir');
+  const expectedPath = path.join(deepDir, 'formal', 'ProposedChanges.tla');
+  assert.ok(fs.existsSync(expectedPath), 'ProposedChanges.tla should exist in deeply nested formal/ dir');
 });
