@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-04 Spec Completeness complete)
+See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-05 Planning Integration complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.21 — FV Closed Loop (Phase v0.21-05: Planning Integration)
+**Current focus:** v0.21 — FV Closed Loop (Phase v0.21-06: Operational Signals)
 
 ## Current Position
 
-Phase: v0.21-05 of 6 (Planning Integration)
+Phase: v0.21-06 of 6 (Operational Signals)
 Plan: — (not yet planned)
 Status: Ready to plan
-Last activity: 2026-03-01 — v0.21-04 Spec Completeness complete: 4 plans, 21/21 tests GREEN, SPEC-01/02/03/04 satisfied
+Last activity: 2026-03-01 — v0.21-05 Planning Integration complete: 3 plans, 28/28 tests GREEN, PLAN-01/02/03 satisfied
 
-Progress: [████████████████░░░░░░░] v0.21: 4/6 phases (67%)
+Progress: [████████████████████░░░] v0.21: 5/6 phases (83%)
 
 ## Performance Metrics
 
@@ -44,6 +44,8 @@ Progress: [████████████████░░░░░░░
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.21-05 shipped]: PLAN-01/02/03 complete — `bin/generate-proposed-changes.cjs` (TLA+ delta synthesis from PLAN.md truths, 8/8 tests), `bin/run-phase-tlc.cjs` (TLC verification runner with iterative feedback, 9/9 tests), `bin/quorum-formal-context.cjs` (formal evidence block generator for quorum prompts, 11/11 tests). Total: 28/28 tests GREEN. ProposedChanges.tla filename must match MODULE name for TLC parsing.
+- [v0.21-05 finding]: TLA+ MODULE name must match the .tla filename exactly (TLC parsing requirement). Changed from `proposed-changes.tla` to `ProposedChanges.tla` to match `MODULE ProposedChanges`.
 - [v0.21-04 shipped]: SPEC-01/02/03/04 complete — `formal/tla/QGSDStopHook.tla` (TLC 523ms, 5/5 tests), oscillation spec audit (no drift, 4 comparison points confirmed), `formal/alloy/quorum-composition.als` (Alloy 810ms, 3 facts, 4/4 tests), `bin/generate-phase-spec.cjs` (reads *-PLAN.md frontmatter, 26 truths, 8/8 tests). Total: 21/21 tests GREEN. run-formal-verify.cjs now at 30 STEPS (10 TLA+, 8 Alloy).
 - [v0.21-04 finding]: WF_vars() fairness must be declared inside the Spec formula in the .tla file — never as a separate FAIRNESS line in .cfg. Mixing causes TLC conflict.
 - [v0.21-04 finding]: Alloy 6.2.0 CLI exec mode does not support `min[a, b]` in integer expressions. Over-approximation (`>= #c.availableSlots`) is sound when `selectedSlots in availableSlots` constraint bounds selection.
@@ -72,5 +74,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase v0.21-04 complete — 4 plans, 21/21 tests GREEN, SPEC-01/02/03/04 satisfied. Stop hook TLA+ spec verified, oscillation spec audited (no drift), Alloy quorum composition rules verified, generate-phase-spec.cjs reads from PLAN.md frontmatter. v0.21 at 4/6 phases. Ready to plan Phase v0.21-05 (Planning Integration).
+Stopped at: Phase v0.21-05 complete — 3 plans, 28/28 tests GREEN, PLAN-01/02/03 satisfied. TLA+ delta synthesizer (generate-proposed-changes.cjs), TLC verification runner (run-phase-tlc.cjs), quorum formal context (quorum-formal-context.cjs). v0.21 at 5/6 phases. Ready to plan Phase v0.21-06 (Operational Signals).
 Resume file: None
