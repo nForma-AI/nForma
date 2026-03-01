@@ -1201,12 +1201,12 @@ Plans:
   1. After `plan-phase.md` produces a plan, a scratch TLA+ spec fragment is automatically generated from the plan's `must_haves: truths:` block and saved to `.planning/phases/<phase>/formal/proposed-changes.tla`
   2. TLC runs against `proposed-changes.tla`; if it fails, `plan-phase.md` iterates on the plan (capped at 3 attempts); a plan that reaches quorum either passes TLC or has documented TLC failures from all 3 attempts
   3. Each quorum slot-worker prompt includes a `formal_spec_summary` field (proposed TLA+ properties in plain language) and a `verification_result` field (TLC pass/fail/inconclusive) — agents vote with formal evidence attached
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] v0.21-05-01: Add TLA+ delta synthesis step to `plan-phase.md` — generates `proposed-changes.tla` from `must_haves: truths:` block (PLAN-01)
-- [ ] v0.21-05-02: Implement iterative TLC verification loop in `plan-phase.md` (3-attempt cap, document failures) (PLAN-02)
-- [ ] v0.21-05-03: Add `formal_spec_summary` + `verification_result` fields to quorum slot-worker prompt (PLAN-03)
+- [ ] v0.21-05-01-PLAN.md — TLA+ delta synthesis from PLAN.md truths (PLAN-01)
+- [ ] v0.21-05-02-PLAN.md — TLC verification runner with iterative feedback (PLAN-02)
+- [ ] v0.21-05-03-PLAN.md — Quorum formal evidence block generator (PLAN-03)
 
 ### Phase v0.21-06: Operational Signals
 **Goal**: Formal verification output drives operational decisions — coverage gaps are visible as a test backlog, phase dependencies are modeled as a Petri net, PRISM failures rank roadmap items, and weak quorum rounds are deferred
