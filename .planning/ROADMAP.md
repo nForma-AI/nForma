@@ -276,7 +276,7 @@ Archive: `.planning/milestones/v0.19-ROADMAP.md`
 - [x] **Phase v0.21-01: Central Model Registry** — Declare  as single source of truth;  tracks provenance;  atomic promotion; debug invariants write directly to canonical specs (ARCH-01, ARCH-02, ARCH-03) (completed 2026-03-01)
 - [x] **Phase v0.21-02: Conformance Crisis Fix** — Reduce 69% divergence to <5%; export divergent traces as TTrace objects;  walks XState guards to root cause; pivot decision surfaced in  (DIAG-01, DIAG-02, DIAG-03) (completed 2026-03-01)
 - [x] **Phase v0.21-03: Self-Calibrating Feedback Loops** — PRISM always uses current scoreboard rates (pre-step calibration); PostToolUse hook auto-regenerates TLA+/Alloy specs on XState machine changes; sensitivity deviations trigger PRISM re-run;  proposes new invariant candidates post-session (LOOP-01, LOOP-02, LOOP-03, LOOP-04) (completed 2026-03-01)
-- [ ] **Phase v0.21-04: Spec Completeness** — Stop hook formalized in ; oscillation spec audited against ; quorum composition verified in ;  blocks translated to TLA+ PROPERTY checks (SPEC-01, SPEC-02, SPEC-03, SPEC-04)
+- [x] **Phase v0.21-04: Spec Completeness** — Stop hook formalized in ; oscillation spec audited against ; quorum composition verified in ;  blocks translated to TLA+ PROPERTY checks (SPEC-01, SPEC-02, SPEC-03, SPEC-04) (completed 2026-03-01)
 - [ ] **Phase v0.21-05: Planning Integration** — Plans auto-synthesize TLA+ deltas from ; iterative TLC verification loop gates planning (3-attempt cap); quorum slots receive  +  fields (PLAN-01, PLAN-02, PLAN-03)
 - [ ] **Phase v0.21-06: Operational Signals** — TLC coverage gaps visible in ; Petri net from roadmap phase dependencies; PRISM failure probabilities rank roadmap items; quorum rounds gated by PRISM consensus probability threshold (SIG-01, SIG-02, SIG-03, SIG-04)
 
@@ -1228,6 +1228,6 @@ Plans:
 | v0.21-01. Central Model Registry | v0.21 | Complete    | 2026-03-01 | - |
 | v0.21-02. Conformance Crisis Fix | v0.21 | Complete    | 2026-03-01 | - |
 | v0.21-03. Self-Calibrating Feedback Loops | v0.21 | Complete    | 2026-03-01 | - |
-| v0.21-04. Spec Completeness | v0.21 | 0/4 | Not started | - |
+| v0.21-04. Spec Completeness | v0.21 | Complete    | 2026-03-01 | - |
 | v0.21-05. Planning Integration | v0.21 | 0/3 | Not started | - |
 | v0.21-06. Operational Signals | v0.21 | 0/4 | Not started | - |
