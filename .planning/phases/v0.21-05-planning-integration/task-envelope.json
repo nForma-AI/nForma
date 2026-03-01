@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.21-05",
+  "created_at": "2026-03-01T17:47:44.288Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Phase v0.21-05 closes the v0.16 deferral by making planning decisions formally verifiable before quorum sees them",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.21-05-planning-integration/v0.21-05-01-PLAN.md",
+    "key_decisions": []
+  }
+}
