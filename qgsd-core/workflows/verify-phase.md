@@ -24,6 +24,53 @@ Then verify each level against the actual codebase.
 
 <process>
 
+<step name="baseline_capture" priority="first">
+**Step 0 — Capture ROADMAP Success Criteria as Immutable Baseline (R9)**
+
+Before loading any PLAN must_haves, capture the ROADMAP success_criteria as the
+immutable verification baseline. This prevents objective drift where PLAN truths
+silently weaken ROADMAP criteria.
+
+```bash
+# Read ROADMAP success criteria for this phase
+PHASE_DATA=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE_ARG}" --raw 2>/dev/null)
+ROADMAP_CRITERIA=$(echo "$PHASE_DATA" | node -e "
+  const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+  const sc = d.success_criteria || [];
+  sc.forEach((c,i) => console.log('SC-' + (i+1) + ': ' + c));
+  if (sc.length === 0) console.log('(no success_criteria in ROADMAP — will use PLAN must_haves as primary source)');
+")
+echo "$ROADMAP_CRITERIA"
+```
+
+Store `$ROADMAP_CRITERIA` as the baseline. This is the contract — it cannot be weakened.
+
+**Schema validation guard (R9 robustness):**
+
+If the ROADMAP phase entry exists but `success_criteria` is present and malformed (parse
+error, non-array type, or array with empty/whitespace-only strings), flag immediately:
+`ERROR (R9): ROADMAP success_criteria for phase "${PHASE_ARG}" exists but is malformed. Cannot establish baseline. Halting verification — fix ROADMAP before retrying.`
+Exit the verification workflow at this point (do NOT fall through to "no criteria" path).
+This prevents silent failures where corrupted ROADMAP data causes the baseline capture to
+silently skip comparison, defeating the purpose of R9.
+
+Only three states are valid:
+1. `success_criteria` key absent or explicitly empty `[]` → no baseline, use PLAN must_haves
+2. `success_criteria` is a well-formed non-empty array of strings → use as immutable baseline
+3. Anything else (parse error, non-array, empty strings in array) → ERROR, halt
+
+**After loading PLAN must_haves (in the establish_must_haves step), compare:**
+
+If ROADMAP success_criteria exist (non-empty, validated):
+1. Count ROADMAP criteria vs PLAN truths. If PLAN truths < ROADMAP criteria count, flag:
+   `WARNING (R9): PLAN has fewer truths ({N}) than ROADMAP success_criteria ({M}). Possible objective reduction.`
+2. For each ROADMAP criterion, check if a corresponding PLAN truth exists. If missing, flag:
+   `WARNING (R9): ROADMAP criterion "{criterion}" has no matching PLAN truth. Verification may miss this objective.`
+3. Include all R9 warnings in the VERIFICATION.md report under a dedicated `## R9 Baseline Comparison` section.
+
+If ROADMAP success_criteria are empty, skip comparison — PLAN must_haves are the primary source (no baseline to compare against).
+</step>
+
 <step name="load_context" priority="first">
 Load phase operation context:
 
@@ -44,6 +91,20 @@ Extract **phase goal** from ROADMAP.md (the outcome to verify, not tasks) and **
 </step>
 
 <step name="establish_must_haves">
+<binding_rule id="R9">
+ROADMAP success_criteria are the immutable contract. When both ROADMAP success_criteria
+and PLAN must_haves exist:
+- Success Criteria from ROADMAP override PLAN-level must_haves (this is already stated
+  in Option B — R9 makes it explicit and mandatory)
+- If PLAN truths are fewer or weaker than ROADMAP criteria, report as R9 deviation
+- NEVER reduce verification scope to match what the code actually does
+- If code fails a ROADMAP criterion, the verdict is FAILED — not "criterion was too strict"
+
+Spec generation note: generate-phase-spec.cjs reads truths from PLAN frontmatter.
+If PLAN truths have drifted from ROADMAP criteria, the generated TLA+ PROPERTY stubs
+will inherit the weakness. Flag this in the R9 Baseline Comparison section.
+</binding_rule>
+
 **Option A: Must-haves in PLAN frontmatter**
 
 Use gsd-tools to extract must_haves from each PLAN:
@@ -194,6 +255,15 @@ Format each as: Test Name → What to do → Expected result → Why can't verif
 **human_needed:** All automated checks pass but human verification items remain.
 
 **Score:** `verified_truths / total_truths`
+
+**r9_deviation:** ROADMAP success_criteria exist AND (PLAN truths count < ROADMAP criteria count OR any ROADMAP criterion has no matching PLAN truth).
+
+R9 deviation severity and downstream action:
+- **Does NOT change the overall PASS/FAIL status** of the verification — the phase verdict is determined solely by gap analysis against must_haves truths.
+- **DOES produce a dedicated `## R9 Baseline Comparison` section** in VERIFICATION.md with each deviation listed and its specific drift description.
+- **DOES emit a WARNING-level notice** in the verification summary block (not a blocker, not silent).
+- **Downstream effect:** The R9 deviation section is designed for human review at the end of verification. It does not block execution of subsequent phases, but it signals that the PLAN's scope may have drifted from the ROADMAP contract. The user can then choose to: (a) update the PLAN truths to re-align with ROADMAP, (b) update ROADMAP criteria with explicit justification in Key Decisions, or (c) acknowledge and proceed.
+- **Rationale for WARNING (not blocker):** R9 deviations may be legitimate (e.g., ROADMAP criteria were split across multiple phases). Blocking execution would create false-positive halts. The WARNING ensures visibility without halting the workflow.
 </step>
 
 <step name="generate_fix_plans">
