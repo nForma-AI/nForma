@@ -252,6 +252,20 @@ Planner prompt:
 **Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, plans should account for project skill rules
 </planning_context>
 
+<binding_rule id="R9">
+PLAN must_haves truths MUST be derived from ROADMAP success_criteria for this phase.
+You MUST NOT:
+- Invent truths that are weaker than ROADMAP success_criteria
+- Reduce the count of truths below the count of success_criteria
+- Soften language ("must" -> "should", "all" -> "some")
+- Narrow the scope of what a truth covers compared to its source criterion
+
+If ROADMAP has no success_criteria for this phase, derive truths from the phase goal
+using goal-backward methodology. The truths must be AT LEAST as strong as the goal implies.
+
+Any truth that relaxes a ROADMAP success criterion is a plan defect, not an optimization.
+</binding_rule>
+
 <downstream_consumer>
 Output consumed by /qgsd:execute-phase. Plans need:
 - Frontmatter (wave, depends_on, files_modified, autonomous)
@@ -466,6 +480,18 @@ Checker prompt:
 
 **Project instructions:** Read ./CLAUDE.md if exists — verify plans honor project guidelines
 **Project skills:** Check .agents/skills/ directory (if exists) — verify plans account for project skill rules
+
+<binding_rule id="R9">
+Verify that PLAN must_haves truths cover ALL ROADMAP success_criteria for this phase.
+Flag as BLOCKER if:
+- Any ROADMAP success criterion has no corresponding PLAN truth
+- Any PLAN truth is weaker than its source ROADMAP criterion (relaxed threshold, narrowed scope, softened language)
+- The count of PLAN truths is less than the count of ROADMAP success_criteria
+- Any truth uses "should" where ROADMAP uses "must", or "some" where ROADMAP uses "all"
+
+Objective relaxation is NEVER acceptable as a plan optimization. Missing or weakened
+criteria = blocker, not warning.
+</binding_rule>
 </verification_context>
 
 <expected_output>
@@ -487,8 +513,68 @@ Task(
 
 ## 11. Handle Checker Return
 
-- **`## VERIFICATION PASSED`:** Display confirmation, proceed to step 13.
+- **`## VERIFICATION PASSED`:** Display confirmation, proceed to step 11.5.
 - **`## ISSUES FOUND`:** Display issues, check iteration count, proceed to step 12.
+
+## 11.5. Populate VALIDATION.md (if Nyquist enabled)
+
+**Skip if:** `nyquist_validation_enabled` is false from INIT JSON, or `${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md` does not exist.
+
+After plan-checker passes, the orchestrator populates VALIDATION.md with real data extracted from the approved plans. Step 5.5 created the template with placeholder values — this step fills them in.
+
+**Process:**
+
+1. **Detect test framework** from project root:
+   ```bash
+   # Check for common test config files
+   ls jest.config.* vitest.config.* pytest.ini setup.cfg pyproject.toml Cargo.toml go.mod 2>/dev/null
+   ```
+   Map to framework name and commands:
+   | Config found | Framework | Quick run | Full suite |
+   |---|---|---|---|
+   | `jest.config.*` | Jest | `npx jest --bail` | `npx jest` |
+   | `vitest.config.*` | Vitest | `npx vitest run --bail 1` | `npx vitest run` |
+   | `pytest.ini` / `pyproject.toml [tool.pytest]` | Pytest | `pytest -x --tb=short` | `pytest --tb=short` |
+   | None found | (use project's existing test pattern from RESEARCH.md or STATE.md) | | |
+
+2. **Extract task data from all approved PLAN.md files.** For each `${PHASE_DIR}/${PADDED_PHASE}-*-PLAN.md`:
+   - Parse YAML frontmatter: `wave`, `requirements` (array of IDs)
+   - Parse `<task>` XML blocks: extract task number and `<verify>` content
+   - Build task ID: `${PADDED_PHASE}-{plan_number}-{task_number}` (e.g., `v0.22-01-01-01`)
+   - Classify test type from verify content: `unit` (single test file), `integration` (multi-file or endpoint test), `smoke` (curl/HTTP check), `manual` (no automated command)
+
+3. **Fill VALIDATION.md sections** by editing the file in-place:
+
+   **Test Infrastructure table:** Replace placeholder values with detected framework, config path, quick/full commands, estimated runtime.
+
+   **Nyquist Sampling Rate:** Replace `{quick run command}` and `{full suite command}` with actual detected commands. Set feedback latency to a reasonable default (30s for unit-heavy, 120s for integration-heavy).
+
+   **Per-Task Verification Map:** Replace the 3 placeholder rows with one row per actual task:
+   ```
+   | {task_id} | {plan_num} | {wave} | {requirement_id} | {test_type} | `{verify_command}` | TBD | ⬜ pending |
+   ```
+   If a plan covers multiple requirements, create one row per task (the requirement is from the plan's `requirements` frontmatter, distributed across tasks).
+
+   **Wave 0 Requirements:** If any plan has `wave: 0`, list its test scaffolding files. Otherwise write: "Existing infrastructure covers all phase requirements — no Wave 0 test tasks needed."
+
+   **Manual-Only Verifications:** If any task has no `<verify>` block or verify says "manual", list it here. Otherwise write: "All phase behaviors have automated verification coverage."
+
+   **Validation Sign-Off:** Check each box that is satisfied by the plan data. Set `nyquist_compliant: true` in frontmatter if all boxes pass.
+
+   **Execution Tracking:** Leave as template — this is filled during `/qgsd:execute-phase`.
+
+4. **Update frontmatter:**
+   ```yaml
+   status: approved
+   nyquist_compliant: true  # or false if sign-off checks failed
+   ```
+
+5. **Commit if `commit_docs` is true:**
+   ```bash
+   node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs(phase-${PHASE}): populate validation strategy from approved plans" --files "${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md"
+   ```
+
+Proceed to step 13.
 
 ## 12. Revision Loop (Max 3 Iterations)
 
