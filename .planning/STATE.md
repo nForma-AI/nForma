@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-01 after v0.21-05 Planning Integration complete)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.21 — FV Closed Loop (Phase v0.21-06: Operational Signals)
+**Current focus:** v0.21 — FV Closed Loop (COMPLETE -- all 6 phases shipped)
 
 ## Current Position
 
-Phase: v0.21-06 of 6 (Operational Signals)
-Plan: — (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-01 — v0.21-05 Planning Integration complete: 3 plans, 28/28 tests GREEN, PLAN-01/02/03 satisfied
+Phase: v0.21-06 of 6 (Operational Signals) -- COMPLETE
+Plan: All 4/4 plans executed
+Status: Milestone v0.21 complete -- all 6 phases shipped
+Last activity: 2026-03-01 — v0.21-06 Operational Signals complete: 4 plans, 39/39 tests GREEN, SIG-01/02/03/04 satisfied
 
-Progress: [████████████████████░░░] v0.21: 5/6 phases (83%)
+Progress: [████████████████████████] v0.21: 6/6 phases (100%)
 
 ## Performance Metrics
 
@@ -58,6 +58,8 @@ Recent decisions affecting current work:
 - [v0.21 roadmap]: LOOP and SPEC phases (v0.21-03, v0.21-04) are parallelizable — both depend only on v0.21-01; LOOP-04 debug invariants require ARCH-03 write path.
 - [v0.21 roadmap]: PLAN-01/02/03 (v0.21-05) depends on ARCH + DIAG being stable before trusting FV results as planning gates.
 - [v0.21 roadmap]: SIG-01/02/03/04 (v0.21-06) are last — consumes FV output from LOOP and SPEC phases; SIG-04 PRISM gate depends on calibrated rates from v0.21-03.
+- [v0.21-06 shipped]: SIG-01/02/03/04 complete — `bin/detect-coverage-gaps.cjs` (TLC state coverage gap detector, 8/8 tests), `bin/generate-petri-net.cjs --roadmap` (roadmap Petri net + critical path, 12/12 tests), `bin/prism-priority.cjs` (PRISM failure priority ranker, 9/9 tests), `bin/quorum-consensus-gate.cjs` (Poisson binomial consensus probability gate, 10/10 tests). Total: 39/39 tests GREEN.
+- [v0.21-06 finding]: Poisson binomial DP (closed-form) is mathematically equivalent to PRISM mcp-availability.pm but runs in <1ms (vs PRISM requiring Java + model checking). Used for pre-quorum gating where latency matters.
 
 ### Pending Todos
 
@@ -75,5 +77,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase v0.21-05 complete — 3 plans, 28/28 tests GREEN, PLAN-01/02/03 satisfied. TLA+ delta synthesizer (generate-proposed-changes.cjs), TLC verification runner (run-phase-tlc.cjs), quorum formal context (quorum-formal-context.cjs). v0.21 at 5/6 phases. Ready to plan Phase v0.21-06 (Operational Signals).
+Stopped at: Milestone v0.21 complete — all 6 phases shipped (v0.21-01 through v0.21-06). Last phase: v0.21-06 Operational Signals — 4 plans, 39/39 tests GREEN. detect-coverage-gaps.cjs, generate-petri-net.cjs --roadmap, prism-priority.cjs, quorum-consensus-gate.cjs. Ready for milestone audit or next milestone.
 Resume file: None
