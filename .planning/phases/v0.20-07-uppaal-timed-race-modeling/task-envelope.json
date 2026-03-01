@@ -1,0 +1,12 @@
+{
+  "schema_version": "1",
+  "phase": "v0.20-07",
+  "created_at": "2026-03-01T00:02:21.777Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "UPPAAL timed automaton model for quorum race detection using empirical runtime_ms bounds",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  }
+}
