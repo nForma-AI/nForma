@@ -45,9 +45,9 @@
 
 ### Sensitivity Analysis (SENS)
 
-- [ ] **SENS-01**: `bin/run-sensitivity-sweep.cjs` varies key model parameters (at minimum: quorum size N across its full range, timeout threshold T across low/medium/high values) across ≥3 values each, running TLA+/PRISM checks for each configuration, and records outcome deltas (pass→fail, pass→inconclusive transitions) in `formal/sensitivity-report.ndjson` using v2.1 schema — each record annotated with which parameter value caused the transition.
-- [ ] **SENS-02**: `plan-phase.md` step 8.3 (FV gate) is extended to also run `run-sensitivity-sweep.cjs` (fail-open) and inject `SENSITIVITY_CONTEXT` into the quorum `review_context`, surfacing the top-3 highest-impact parameters as planning recommendations: which code paths control them, which boundary values to test, and which metrics to monitor.
-- [ ] **SENS-03**: `bin/sensitivity-report.cjs` generates `formal/sensitivity-report.md` — a human-readable ranked list of sensitive parameters by outcome-flip count, each annotated with (a) the code path or configuration variable that controls it, (b) recommended unit/integration test cases for boundary values, (c) recommended monitoring metrics to track in production.
+- [x] **SENS-01**: `bin/run-sensitivity-sweep.cjs` varies key model parameters (at minimum: quorum size N across its full range, timeout threshold T across low/medium/high values) across ≥3 values each, running TLA+/PRISM checks for each configuration, and records outcome deltas (pass→fail, pass→inconclusive transitions) in `formal/sensitivity-report.ndjson` using v2.1 schema — each record annotated with which parameter value caused the transition.
+- [x] **SENS-02**: `plan-phase.md` step 8.3 (FV gate) is extended to also run `run-sensitivity-sweep.cjs` (fail-open) and inject `SENSITIVITY_CONTEXT` into the quorum `review_context`, surfacing the top-3 highest-impact parameters as planning recommendations: which code paths control them, which boundary values to test, and which metrics to monitor.
+- [x] **SENS-03**: `bin/sensitivity-report.cjs` generates `formal/sensitivity-report.md` — a human-readable ranked list of sensitive parameters by outcome-flip count, each annotated with (a) the code path or configuration variable that controls it, (b) recommended unit/integration test cases for boundary values, (c) recommended monitoring metrics to track in production.
 
 ## Out of Scope
 
@@ -79,9 +79,9 @@
 | UPPAAL-01 | v0.20-07 | Complete |
 | UPPAAL-02 | v0.20-07 | Complete |
 | UPPAAL-03 | v0.20-07 | Complete |
-| SENS-01 | v0.20-08 | Pending |
-| SENS-02 | v0.20-08 | Pending |
-| SENS-03 | v0.20-08 | Pending |
+| SENS-01 | v0.20-08 | Complete |
+| SENS-02 | v0.20-08 | Complete |
+| SENS-03 | v0.20-08 | Complete |
 
 **Coverage:**
 - v0.20 requirements: 20 total

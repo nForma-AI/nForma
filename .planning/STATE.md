@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-28 after Phase v0.20-06)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.20 — 7 of 8 phases complete; v0.20-08 (MCP Formal Verification Pipeline Integration) is next
+**Current focus:** v0.20 — COMPLETE (8/8 phases done); milestone ready for audit and archival
 
 ## Current Position
 
-Phase: v0.20-07 (UPPAAL Timed Race Modeling) — COMPLETE
+Phase: v0.20-08 (Sensitivity Analysis — FV Parameter Sweep) — COMPLETE
 Plan: All 4 plans complete
-Status: Ready to plan v0.20-08
-Last activity: 2026-02-28 — v0.20-07 complete (UPPAAL-01, UPPAAL-02, UPPAAL-03 satisfied); UPPAAL timed automaton model + runner wired into run-formal-verify.cjs; quorum unanimously approved plans (3/3 APPROVE)
+Status: v0.20 milestone complete — all 20 requirements satisfied
+Last activity: 2026-02-28 — v0.20-08 complete (SENS-01, SENS-02, SENS-03 satisfied); sensitivity sweep runner + report generator implemented; plan-phase.md step 8.3 FV gate inserted; quorum unanimously approved plans (3/3 APPROVE)
 
-Progress: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░] v0.20: 7/8 phases complete (v0.20-07 done, v0.20-08 pending)
+Progress: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] v0.20: 8/8 phases complete (MILESTONE DONE)
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Progress: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.20-08 completion]: Sensitivity sweep tool (run-sensitivity-sweep.cjs) sweeps MaxSize [1,2,3] via TLA+ and tp_rate [0.5,0.75,0.95] via PRISM; records written to sensitivity-report.ndjson (separate from check-results.ndjson, no VALID_FORMALISMS coupling). sensitivity-report.cjs generates ranked MD report. plan-phase.md step 8.3 inserts fail-open SENSITIVITY_CONTEXT into quorum review_context before step 8.5. All 7 Wave 0 tests GREEN (7 pass, 0 fail). v0.20 milestone COMPLETE — 8/8 phases, 20/20 requirements satisfied.
 - [v0.20-06-03 Implementation]: ci:triage-bundle STEPS entry added to run-formal-verify.cjs (27th entry, final position). Marked nonCritical: true — triage failure is visible in summary table but does not block exit code. record() and runGroup() updated to propagate nonCritical flag. Header updated: Triage (1), Total: 27 steps, --only=ci now 4 steps. TRIAGE-02 RED test (Wave 0 test 7) now GREEN. All 7 RED→GREEN cycle complete.
 - [v0.20-06-02 Implementation]: generate-triage-bundle.cjs implements parseCurrentNDJSON (delegates to verify-formal-results.cjs), generateSuspects (fail + triage_tags filter), computeDeltas (transitioned/new/removed checks), loadPreviousSnapshot (extracts embedded JSON block from diff-report.md), formatDiffReport (first-run/delta modes), formatSuspectsReport (grouped by priority). Snapshot embedded in diff-report.md JSON block for next-run delta computation. TRIAGE-01 satisfied.
 - [v0.20-02-03 Implementation]: ci:liveness-fairness-lint STEPS entry added to run-formal-verify.cjs (26th entry). Header updated: CI enforce (3), Total: 26 steps. LIVE-02 RED test from Plan 01 now GREEN. --only=ci runs all 3 CI steps including check-liveness-fairness.cjs. All verification criteria met.
@@ -87,7 +88,7 @@ See previous STATE.md entries for quick tasks 95-114. Most recent:
 
 ## Session Continuity
 
-Last activity: 2026-02-28 — Phase v0.20-06 complete (Triage Bundle: TRIAGE-01 + TRIAGE-02 satisfied)
+Last activity: 2026-02-28 — Phase v0.20-08 complete (Sensitivity Analysis: SENS-01, SENS-02, SENS-03 satisfied)
 Last session: 2026-02-28
-Stopped at: Phase v0.20-06 complete; all 7 Wave 0 tests GREEN; ready to plan Phase v0.20-07 (UPPAAL Timed Race Modeling)
+Stopped at: v0.20 milestone COMPLETE — all 8 phases done, all 20 requirements satisfied; ready for /qgsd:audit-milestone v0.20
 Resume file: None

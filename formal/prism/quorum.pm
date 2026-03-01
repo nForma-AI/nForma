@@ -2,7 +2,7 @@
 // GENERATED — do not edit by hand.
 // Source of truth: src/machines/qgsd-workflow.machine.ts
 // Regenerate:      node bin/generate-formal-specs.cjs
-// Generated:       2026-02-27
+// Generated:       2026-03-01
 
 // QGSD Quorum Convergence — DTMC Model
 // Requirements: PRM-01

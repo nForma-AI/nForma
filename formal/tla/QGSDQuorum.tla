@@ -4,7 +4,7 @@
  * GENERATED — do not edit by hand.
  * Source of truth: src/machines/qgsd-workflow.machine.ts
  * Regenerate:      node bin/generate-formal-specs.cjs
- * Generated:       2026-02-27
+ * Generated:       2026-03-01
 
  * Models the quorum workflow defined in src/machines/qgsd-workflow.machine.ts.
  * Guard translations (from GUARD_REGISTRY in bin/generate-formal-specs.cjs):
