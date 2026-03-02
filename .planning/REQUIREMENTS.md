@@ -1,69 +1,64 @@
-# Requirements: QGSD v0.23 Formal Gates
+# Requirements: QGSD v0.24 Quorum Reliability Hardening
 
 **Defined:** 2026-03-02
 **Core Value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## v0.23 Requirements — Formal Gates
+## v0.24 Requirements — Quorum Reliability Hardening
 
-TLC/Alloy/PRISM become actual enforcing gates in every major QGSD workflow step. Not specs that Claude reads — tools that run, produce output, and hard-block on violations. An integration test suite proves the chain is live.
+Make quorum dispatch reliable end-to-end — every quorum call reliably delivers 3 votes by detecting dead slots pre-dispatch, self-healing around mid-session failures without user action, and providing observability into slot health, success rates, and flakiness.
 
-### Workflow Integration
+### Dispatch Reliability
 
-- [ ] **WFI-01**: `plan-phase` workflow performs formal scope scan before planner spawns — discovers `formal/spec/*/invariants.md` for keyword-matched modules and populates `$FORMAL_SPEC_CONTEXT`
-- [ ] **WFI-02**: `plan-phase` requires `formal_artifacts:` declaration in PLAN.md frontmatter when `$FORMAL_SPEC_CONTEXT` is non-empty; planner receives invariants in `<files_to_read>`
-- [ ] **WFI-03**: `execute-phase` runs `bin/run-formal-check.cjs` after executor wave completes and before verifier fires; `FORMAL_CHECK_RESULT` passed to verifier
-- [ ] **WFI-04**: `qgsd-verifier` agent invokes `run-formal-check.cjs` and incorporates actual TLC/Alloy/PRISM output as ground truth in verification pass — not LLM eyeballing
-- [x] **WFI-05**: `qgsd-roadmapper` reads `formal/spec/*/invariants.md` for keyword-matched modules when designing phases; invariant constraints visible in phase planning context
+- [ ] **DISP-01**: qgsd-prompt.js runs a fast health probe (<3s) per provider before building the dispatch list — dead providers' slots excluded from DISPATCH_LIST
+- [ ] **DISP-02**: qgsd-prompt.js reads scoreboard `availability` windows and excludes slots whose `available_at` is in the future from dispatch
+- [ ] **DISP-03**: Dispatch list ordered by recent success rate (from scoreboard slot stats) rather than static FALLBACK-01 tier sequence — most reliable slots dispatched first
 
-### Enforcement
+### Failover & Recovery
 
-- [ ] **ENF-01**: TLC/Alloy/PRISM counterexample (`run-formal-check.cjs` exit 1) causes hard verification failure — workflow blocked, not warned; verifier status set to `counterexample_found`
-- [ ] **ENF-02**: User can explicitly override a counterexample block with acknowledgment logged to VERIFICATION.md (audit trail preserved)
-- [x] **ENF-03**: Fail-open preserved across all wired workflows — missing java, missing jars, missing PRISM binary → skip with warning, never block
+- [ ] **FAIL-01**: call-quorum-slot.cjs retries a failed slot call up to 2 times with exponential backoff (1s, 3s) before recording UNAVAIL in quorum-failures.json
+- [ ] **FAIL-02**: providers.json contains explicit slot-to-provider mapping; when a provider probe returns DOWN, all slots on that provider skipped in a single dispatch decision
 
-### Integration Validation
+### Observability
 
-- [ ] **IVL-01**: Integration test script (`bin/test-formal-integration.cjs` or equivalent) proves formal tools actually ran by checking stdout/exit codes — not just that workflow text says they should
-- [ ] **IVL-02**: Test covers the full chain: plan-phase scan → `FORMAL_SPEC_CONTEXT` populated → executor → `run-formal-check` fires → verifier receives `FORMAL_CHECK_RESULT` with real TLC output
-- [ ] **IVL-03**: All existing TLA+ specs (`QGSDDeliberation.tla`, `MCbreaker.cfg`, `MCliveness.cfg`, etc.) pass TLC clean after integration — no regressions introduced
+- [ ] **OBS-01**: Each quorum round emits structured telemetry (slot, round, verdict, latency_ms, provider status) to a per-session log file
+- [ ] **OBS-02**: Scoreboard tracks quorum delivery rate — percentage of calls that achieved target vote count (3/3 vs degraded 2/3)
+- [ ] **OBS-03**: Each slot gets a flakiness score from recent UNAVAIL/timeout frequency; high-flakiness slots deprioritized in dispatch ordering
 
-## Already Delivered (quick-130, 2026-03-02)
+### Self-Healing
 
-- `bin/run-formal-check.cjs` — lightweight per-module runner, fail-open, emits `FORMAL_CHECK_RESULT` JSON
-- Step 6.3 in `quick --full` — post-execution formal check, guard on `$FORMAL_SPEC_CONTEXT`, hard-fail on counterexample
-- Installed copy synced to `~/.claude/qgsd/workflows/quick.md`
+- [ ] **HEAL-01**: After each deliberation round, system computes P(consensus | remaining rounds); if P < threshold (default 10%), escalation fires early instead of exhausting maxDeliberation
+- [ ] **HEAL-02**: When verify-quorum-health detects P(consensus) < 95%, it recommends and auto-adjusts maxDeliberation in qgsd.json (with user approval)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| New TLA+/Alloy/PRISM spec authoring | v0.22+ covers spec generation; v0.23 is about running existing specs |
-| GUI/dashboard for FV results | Out of scope for CLI-first tool |
-| Parallel TLC workers | Single-threaded TLC sufficient; parallelism is a future perf optimization |
-| Automatic counterexample repair | Counterexample should surface to human/quorum for diagnosis, not auto-fixed |
+| Mid-run provider re-probe during deliberation | Complex MCP interception; defer to v0.25 |
+| Request rate limiting per provider | Not a current pain point; defer to v0.25+ |
+| Direct MCP health_check without CLI intermediary | Requires MCP stdio protocol; defer |
+| Comprehensive fallback integration tests | Important but orthogonal to reliability features; separate quick task |
+| Dynamic fan-out size adjustment | Existing adaptive fan-out (risk_level mapping) is sufficient for now |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WFI-01 | v0.23-01 | Pending |
-| WFI-02 | v0.23-01 | Pending |
-| WFI-03 | v0.23-02 | Pending |
-| WFI-04 | v0.23-02 | Pending |
-| WFI-05 | v0.23-03 | Pending (gap closure) |
-| ENF-01 | v0.23-02 | Pending |
-| ENF-02 | v0.23-02 | Pending |
-| ENF-03 | v0.23-01 | Complete |
-| IVL-01 | v0.23-04 | Pending (gap closure) |
-| IVL-02 | v0.23-04 | Pending (gap closure) |
-| IVL-03 | v0.23-04 | Pending (gap closure) |
+| DISP-01 | — | Pending |
+| DISP-02 | — | Pending |
+| DISP-03 | — | Pending |
+| FAIL-01 | — | Pending |
+| FAIL-02 | — | Pending |
+| OBS-01 | — | Pending |
+| OBS-02 | — | Pending |
+| OBS-03 | — | Pending |
+| HEAL-01 | — | Pending |
+| HEAL-02 | — | Pending |
 
 **Coverage:**
-- v0.23 requirements: 11 total
-- Mapped to phases: 11
-- Unmapped: 0 ✓
-- Gap closure phases: v0.23-03 (WFI-05 + ISSUE-1/2), v0.23-04 (IVL-01 + IVL-02 + IVL-03)
+- v0.24 requirements: 10 total
+- Mapped to phases: 0
+- Unmapped: 10
 
 ---
 *Requirements defined: 2026-03-02*
-*Last updated: 2026-03-02 — gap closure phases assigned (plan-milestone-gaps v0.23)*
+*Last updated: 2026-03-02 after initial definition*
