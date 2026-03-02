@@ -81,6 +81,45 @@ Store `$QUICK_DIR` for use in orchestration.
 
 ---
 
+**Step 4.5: Formal scope scan (only when `$FULL_MODE`)**
+
+Skip this step entirely if NOT `$FULL_MODE`.
+
+```bash
+FORMAL_SPEC_CONTEXT=[]
+```
+
+List subdirectories under `formal/spec/` (if the directory exists):
+```bash
+ls formal/spec/ 2>/dev/null
+```
+
+For each subdirectory found, check if `formal/spec/{module}/invariants.md` exists:
+```bash
+ls formal/spec/{module}/invariants.md 2>/dev/null
+```
+
+If it exists, record the module name and path: `formal/spec/{module}/invariants.md`.
+
+**Relevance heuristic:** Match `$DESCRIPTION` keywords (lowercased, split on spaces/hyphens) against module names. A module is relevant if any keyword appears as a substring of the module name, or the module name appears as a substring of any keyword.
+
+Examples:
+- Description "fix quorum deliberation bug" → modules matching: `quorum`, `deliberation`
+- Description "update TUI navigation flow" → modules matching: `tui-nav`
+- Description "refactor breaker circuit logic" → modules matching: `breaker`
+
+If no modules match: `$FORMAL_SPEC_CONTEXT = []`
+If modules match: `$FORMAL_SPEC_CONTEXT` = array of `{ module, path }` objects for each matching module.
+
+Display:
+```
+◆ Formal scope scan: found {N} relevant module(s): {module names or "none"}
+```
+
+Store `$FORMAL_SPEC_CONTEXT` for use in steps 5, 5.5, 6.5.
+
+---
+
 **Step 5: Spawn planner (quick mode)**
 
 **If `$FULL_MODE`:** Use `quick-full` mode with stricter constraints.
@@ -104,9 +143,24 @@ Task(
 <files_to_read>
 - .planning/STATE.md (Project State)
 - ./CLAUDE.md (if exists — follow project-specific guidelines)
+${FORMAL_SPEC_CONTEXT.length > 0 ? FORMAL_SPEC_CONTEXT.map(f => `- ${f.path} (Formal invariants for module: ${f.module})`).join('\n') : ''}
 </files_to_read>
 
 **Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, plans should account for project skill rules
+
+<formal_context>
+${FORMAL_SPEC_CONTEXT.length > 0 ?
+`Relevant formal modules identified: ${FORMAL_SPEC_CONTEXT.map(f => f.module).join(', ')}
+
+Constraints:
+- Read the injected invariants.md files and identify which invariants apply to this task
+- Declare \`formal_artifacts:\` in plan frontmatter (required field when FORMAL_SPEC_CONTEXT is non-empty):
+  - \`none\` — task does not create or modify formal/ files
+  - \`update: [list of formal/ file paths]\` — task modifies existing formal/ files
+  - \`create: [list of {path, type (tla|alloy|prism), description}]\` — task creates new formal/ files
+- Plan tasks MUST NOT violate the identified invariants` :
+`No formal modules matched this task. Declare \`formal_artifacts: none\` in plan frontmatter.`}
+</formal_context>
 
 </planning_context>
 
@@ -161,6 +215,7 @@ Checker prompt:
 
 <files_to_read>
 - ${QUICK_DIR}/${next_num}-PLAN.md (Plan to verify)
+${FORMAL_SPEC_CONTEXT.map(f => `- ${f.path} (Formal invariants for module: ${f.module})`).join('\n')}
 </files_to_read>
 
 **Scope:** This is a quick task, not a full phase. Skip checks that require a ROADMAP phase goal.
@@ -172,9 +227,15 @@ Checker prompt:
 - Key links: Are referenced files real?
 - Scope sanity: Is this appropriately sized for a quick task (1-3 tasks)?
 - must_haves derivation: Are must_haves traceable to the task description?
+- Formal artifacts (--full only): If `formal_artifacts` is `update` or `create`, are the target file paths well-specified (not vague)?
+- Invariant compliance (--full only): Do plan tasks avoid operations that would violate the invariants identified in the formal context? (If `$FORMAL_SPEC_CONTEXT` is empty, skip this check.)
 
 Skip: context compliance (no CONTEXT.md), cross-plan deps (single plan), ROADMAP alignment
 </check_dimensions>
+
+<formal_context>
+${FORMAL_SPEC_CONTEXT.length > 0 ? `Relevant formal modules: ${FORMAL_SPEC_CONTEXT.map(f => f.module).join(', ')}. Check plan formal_artifacts declaration and invariant compliance.` : 'No formal modules matched. Verify plan declares formal_artifacts: none.'}
+</formal_context>
 
 <expected_output>
 - ## VERIFICATION PASSED — all checks pass
@@ -372,6 +433,8 @@ Execute quick task ${next_num}.
 <constraints>
 - Execute all tasks in the plan
 - Commit each task atomically (use the gsd-tools.cjs commit command per the execute-plan workflow)
+- If the plan declares `formal_artifacts: update` or `formal_artifacts: create`, execute those formal file changes and include the formal/ files in the atomic commit for that task (alongside the implementation files)
+- Formal/ files must never be committed separately — always include in the task's atomic commit
 - Create summary at: ${QUICK_DIR}/${next_num}-SUMMARY.md
 - Do NOT update ROADMAP.md (quick tasks are separate from planned phases)
 - After creating the SUMMARY.md, update STATE.md "Quick Tasks Completed" table:
@@ -444,7 +507,18 @@ Task goal: ${DESCRIPTION}
 
 <files_to_read>
 - ${QUICK_DIR}/${next_num}-PLAN.md (Plan)
+${FORMAL_SPEC_CONTEXT.map(f => `- ${f.path} (Formal invariants for module: ${f.module})`).join('\n')}
 </files_to_read>
+
+<formal_context>
+${FORMAL_SPEC_CONTEXT.length > 0 ?
+`Relevant formal modules: ${FORMAL_SPEC_CONTEXT.map(f => f.module).join(', ')}
+
+Additional verification checks:
+- Did executor respect the identified invariants? Check implementation files against invariant conditions.
+- If plan declared formal_artifacts update or create: are the modified/created formal/ files syntactically reasonable for their type (TLA+/Alloy/PRISM)? (Basic structure check, not model checking.)` :
+'No formal modules matched. Skip formal invariant checks.'}
+</formal_context>
 
 Check must_haves against actual codebase. Create VERIFICATION.md at ${QUICK_DIR}/${next_num}-VERIFICATION.md.",
   subagent_type="qgsd-verifier",
@@ -465,6 +539,38 @@ Store as `$VERIFICATION_STATUS`.
 | `passed` | Store `$VERIFICATION_STATUS = "Verified"`, continue to status update |
 | `human_needed` | Run quorum resolution loop (see below). If quorum resolves → store `$VERIFICATION_STATUS = "Verified"`, continue. If quorum cannot resolve → display items, store `$VERIFICATION_STATUS = "Needs Review"`, continue |
 | `gaps_found` | Display gap summary, offer: 1) Re-run executor to fix gaps, 2) Accept as-is. Store `$VERIFICATION_STATUS = "Gaps"` |
+
+**Step 6.5.1: Quorum review of VERIFICATION.md (only when `$FULL_MODE` and `$VERIFICATION_STATUS = "Verified"`)**
+
+Display:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► QUORUM REVIEW OF VERIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+◆ Running quorum review of VERIFICATION.md...
+```
+
+Form your own position: does VERIFICATION.md confirm all must_haves are met and no invariants violated? State your vote as APPROVE or BLOCK with 1-2 sentences.
+
+Run quorum inline (R3 dispatch_pattern from `commands/qgsd/quorum.md`):
+- Mode A — artifact review
+- artifact_path: `${QUICK_DIR}/${next_num}-VERIFICATION.md`
+- review_context: "Review this VERIFICATION.md and answer: (1) Are all must_haves confirmed met? (2) Are any invariants from the formal context violated? Vote APPROVE if verification is sound and complete. Vote BLOCK if must_haves are not confirmed or invariants are violated."
+- request_improvements: false
+- Build `$DISPATCH_LIST` (quorum.md Adaptive Fan-Out: read risk_level → compute FAN_OUT_COUNT → take first FAN_OUT_COUNT-1 slots from active working list)
+- Dispatch `$DISPATCH_LIST` as sibling `qgsd-quorum-slot-worker` Tasks with `model="haiku", max_turns=100`
+
+Fail-open: if all slots are UNAVAIL, keep `$VERIFICATION_STATUS = "Verified"` and note: "Quorum unavailable — verification result uncontested."
+
+Route on quorum result:
+| Verdict | Action |
+|---------|--------|
+| **APPROVED** | Keep `$VERIFICATION_STATUS = "Verified"`. Proceed to status update. |
+| **BLOCKED** | Set `$VERIFICATION_STATUS = "Needs Review"`. Display block reason. Proceed to status update. |
+| **ESCALATED** | Present escalation to user. Set `$VERIFICATION_STATUS = "Needs Review"`. Proceed to status update. |
+
+---
 
 **Quorum resolution loop for human_needed:**
 
@@ -523,11 +629,17 @@ Ready for next task: /qgsd:quick
 - [ ] Next number calculated (001, 002, 003...)
 - [ ] Directory created at `.planning/quick/NNN-slug/`
 - [ ] `${next_num}-PLAN.md` created by planner
+- [ ] (--full) Formal scope scan runs before planner (step 4.5), $FORMAL_SPEC_CONTEXT populated
+- [ ] (--full) Planner receives relevant invariants.md in files_to_read
+- [ ] (--full) Plan declares formal_artifacts field in frontmatter
 - [ ] (--full) Plan checker validates plan, revision loop capped at 2
 - [ ] Quorum ran (step 5.7) with `request_improvements: true`
 - [ ] R3.6 loop ran: if improvements proposed, planner revision spawned; if none or planner failed, loop exited; `<!-- GSD_DECISION -->` present in response
 - [ ] `${next_num}-SUMMARY.md` created by executor
+- [ ] (--full) Executor includes formal/ files in atomic commits when formal_artifacts non-empty
 - [ ] (--full) `${next_num}-VERIFICATION.md` created by verifier
+- [ ] (--full) Verifier checks invariant compliance and formal artifact syntax
+- [ ] (--full) Quorum reviews VERIFICATION.md after passed status (step 6.5.1)
 - [ ] Executor commits PLAN.md + SUMMARY.md + STATE.md atomically
 - [ ] (--full) Orchestrator updates STATE.md Status cell after verification
 </success_criteria>
