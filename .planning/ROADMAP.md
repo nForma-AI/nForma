@@ -1249,7 +1249,10 @@ Plans:
   2. Slots whose `available_at` timestamp in the scoreboard is in the future are excluded from the dispatch list -- a slot marked unavailable until 14:30 is not dispatched at 14:25
   3. The dispatch list is ordered by descending recent success rate from scoreboard slot stats -- the slot with the highest success rate appears first in DISPATCH_LIST
   4. When all preferred slots are excluded (all providers down or cooling), dispatch falls back gracefully to any remaining slot rather than failing with zero candidates
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] v0.24-02-01-PLAN.md -- TDD test scaffolding for availability window filtering and success rate ordering
+- [ ] v0.24-02-02-PLAN.md -- Implement getAvailableSlots + sortBySuccessRate + health probe trigger + graceful fallback in qgsd-prompt.js
+- [ ] v0.24-02-03-PLAN.md -- Acceptance tests and human verification of dispatch reliability
 
 ### Phase v0.24-03: Quorum Observability
 **Goal**: Every quorum round produces structured telemetry that enables diagnosis of reliability problems -- per-slot latency, per-round delivery rates, and flakiness scores are all captured and surfaced
@@ -1273,7 +1276,7 @@ Plans:
 **Plans**: TBD
 
 | v0.24-01. Provider Infrastructure and Failover | v0.24 | 4/4 | Complete   | 2026-03-02 |
-| v0.24-02. Dispatch Reliability | v0.24 | 0/TBD | Not started | - |
+| v0.24-02. Dispatch Reliability | v0.24 | 0/3 | Planned | - |
 | v0.24-03. Quorum Observability | v0.24 | 0/TBD | Not started | - |
 | v0.24-04. Self-Healing Consensus | v0.24 | 0/TBD | Not started | - |
 
