@@ -486,6 +486,54 @@ Ready for next task: /qgsd:quick
 
 ---
 
+**Step 6.3: Post-execution formal check (only when `$FULL_MODE` AND `$FORMAL_SPEC_CONTEXT` non-empty)**
+
+Skip this step entirely if NOT `$FULL_MODE` or `$FORMAL_SPEC_CONTEXT` is empty.
+
+Display banner:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► FORMAL CHECK (post-execution)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+◆ Running TLC/Alloy/PRISM for modules: ${FORMAL_SPEC_CONTEXT.map(f => f.module).join(', ')}
+```
+
+Build the module list:
+```bash
+MODULES=$(FORMAL_SPEC_CONTEXT.map(f => f.module).join(','))
+```
+
+Run the formal check script:
+```bash
+FORMAL_CHECK_OUTPUT=$(node bin/run-formal-check.cjs --modules=${MODULES} 2>&1)
+FORMAL_CHECK_EXIT=$?
+```
+
+Parse the result line from output:
+```bash
+FORMAL_CHECK_RESULT=$(echo "$FORMAL_CHECK_OUTPUT" | grep '^FORMAL_CHECK_RESULT=' | cut -d= -f2-)
+```
+
+Display the output to the user (stream FORMAL_CHECK_OUTPUT to console).
+
+Store `$FORMAL_CHECK_RESULT` and `$FORMAL_CHECK_EXIT` for use in Step 6.5.
+
+**Route on exit code:**
+
+| Exit code | Meaning | Action |
+|-----------|---------|--------|
+| 0 | All checks passed or skipped (no counterexample) | Display: `◆ Formal check: PASSED`. Continue to Step 6.5. |
+| 1 | Counterexample found | Display: `◆ Formal check: COUNTEREXAMPLE FOUND — see output above`. Store result. Continue to Step 6.5 (do NOT abort — verifier receives this as hard failure signal). |
+
+**Fail-open clause:** If `node bin/run-formal-check.cjs` itself fails to launch (e.g., Node.js error, script not found), log:
+```
+◆ Formal check: WARNING — run-formal-check.cjs not found or errored. Skipping.
+```
+Set `$FORMAL_CHECK_RESULT = null`. Continue to Step 6.5 without blocking.
+
+---
+
 **Step 6.5: Verification (only when `$FULL_MODE`)**
 
 Skip this step entirely if NOT `$FULL_MODE`.
@@ -516,7 +564,10 @@ ${FORMAL_SPEC_CONTEXT.length > 0 ?
 
 Additional verification checks:
 - Did executor respect the identified invariants? Check implementation files against invariant conditions.
-- If plan declared formal_artifacts update or create: are the modified/created formal/ files syntactically reasonable for their type (TLA+/Alloy/PRISM)? (Basic structure check, not model checking.)` :
+- If plan declared formal_artifacts update or create: are the modified/created formal/ files syntactically reasonable for their type (TLA+/Alloy/PRISM)? (Basic structure check, not model checking.)
+
+Formal check result from Step 6.3: ${FORMAL_CHECK_RESULT !== null ? JSON.stringify(FORMAL_CHECK_RESULT) : 'skipped (tool unavailable)'}
+If failed > 0 in formal check result: treat as a HARD FAILURE in your verification — must_haves cannot pass if a counterexample was found.` :
 'No formal modules matched. Skip formal invariant checks.'}
 </formal_context>
 
@@ -639,6 +690,7 @@ Ready for next task: /qgsd:quick
 - [ ] (--full) Executor includes formal/ files in atomic commits when formal_artifacts non-empty
 - [ ] (--full) `${next_num}-VERIFICATION.md` created by verifier
 - [ ] (--full) Verifier checks invariant compliance and formal artifact syntax
+- [ ] (--full) Step 6.3 formal check ran when FORMAL_SPEC_CONTEXT non-empty; FORMAL_CHECK_RESULT passed to verifier
 - [ ] (--full) Quorum reviews VERIFICATION.md after passed status (step 6.5.1)
 - [ ] Executor commits PLAN.md + SUMMARY.md + STATE.md atomically
 - [ ] (--full) Orchestrator updates STATE.md Status cell after verification
