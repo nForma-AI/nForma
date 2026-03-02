@@ -13,7 +13,7 @@ See: .planning/PROJECT.md (updated 2026-03-01 after v0.21 milestone completion)
 Phase: v0.22-01 of 4 (Requirements Envelope Foundation)
 Plan: 03 of 3
 Status: Complete — 3/3 plans complete
-Last activity: 2026-03-02 — Completed quick task 127: Fix auto-advance chain
+Last activity: 2026-03-02 — Completed quick task 128: Upgrade quick --full mode: formal/ integration
 
 Progress: [██████████] 100%
 
@@ -73,6 +73,7 @@ Recent decisions affecting current work:
 | 125 | Implement thin passthrough slot worker | 2026-03-01 | fdfbf40a | Verified | [125-implement-thin-passthrough-slot-worker](./quick/125-implement-thin-passthrough-slot-worker/) |
 | 126 | Enforce spec requirements — never reduce objectives to match reality (R9 rule + binding prompts + baseline capture) | 2026-03-01 | 51c8c08f | Verified | [126-enforce-spec-requirements-never-reduce-o](./quick/126-enforce-spec-requirements-never-reduce-o/) |
 | 127 | Fix auto-advance chain: execute-phase returns structured result, plan-phase invokes next phase | 2026-03-02 | c218070d | Verified | [127-fix-auto-advance-chain-execute-phase-ret](./quick/127-fix-auto-advance-chain-execute-phase-ret/) |
+| 128 | Upgrade quick --full mode: formal/ integration | 2026-03-02 | a267b8fe | Pending | [128-upgrade-quick-full-mode-formal-integrati](./quick/128-upgrade-quick-full-mode-formal-integrati/) |
 
 ## Session Continuity
 
