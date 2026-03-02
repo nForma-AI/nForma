@@ -2,20 +2,18 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-02 after Phase v0.23-01)
+See: .planning/PROJECT.md (updated 2026-03-02 after milestone v0.24 started)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.23-04 — Integration Validation (IVL-01..03)
+**Current focus:** v0.24 — Quorum Reliability Hardening
 **Last shipped:** v0.23-03 — Roadmapper Formal Integration (2026-03-02, 4 plans)
 
 ## Current Position
 
-Phase: v0.23-03 complete (Roadmapper Formal Gates)
-Plan: 4/4 complete
-Status: Phase complete — ready to plan v0.23-04
-Last activity: 2026-03-02 — Completed v0.23-03-04: install gate, 19/19 tests GREEN, ENF-03 confirmed, e2e integration test passing
-
-Progress: [████████████████████] 135/132 plans (102%)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-02 — Milestone v0.24 started
 
 ## Performance Metrics
 

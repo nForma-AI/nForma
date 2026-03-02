@@ -8,15 +8,20 @@ QGSD is a Claude Code plugin extension that moves multi-model quorum enforcement
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.23 Formal Gates
+## Current Milestone: v0.24 Quorum Reliability Hardening
+
+**Goal:** Make quorum dispatch reliable end-to-end — every quorum call reliably delivers 3 votes by detecting dead slots pre-dispatch, self-healing around mid-session failures without user action, and providing observability into slot health, success rates, and flakiness.
+
+**Target features:**
+- Dispatch reliability — pre-dispatch health probes skip dead slots; hang detection with configurable timeouts; slot ordering based on recent health rather than static fallback sequence
+- Self-healing — mid-session slot failure detection and automatic rerouting to next available slot; no user intervention required
+- Observability — slot health metrics (success rate, latency, flakiness score), per-session quorum delivery rate, degraded-quorum warnings
+
+## Previous Milestone: v0.23 Formal Gates (3/4 phases complete, v0.23-04 deferred)
 
 **Goal:** Make TLC/Alloy/PRISM actual enforcing gates in every major QGSD workflow step — plan-phase, execute-phase, qgsd-verifier, and qgsd-roadmapper all run the model checkers and hard-block on counterexamples, with an integration test suite that proves the entire chain fires end-to-end.
 
-**Target features:**
-- Workflow integration — `plan-phase` performs formal scope scan + injects invariants before planner spawns; `execute-phase` runs `bin/run-formal-check.cjs` after executor wave; `qgsd-verifier` invokes `run-formal-check.cjs` as ground truth; `qgsd-roadmapper` reads invariants when designing phases
-- Hard enforcement — TLC/Alloy/PRISM counterexample causes hard verification failure (workflow blocked, not warned); user can explicitly override with audit trail
-- Fail-open preserved — missing java/jars/PRISM binary never blocks; tool absence = skip with warning
-- Integration validation — test script proves formal tools actually ran (checks stdout/exit codes); test covers full chain from plan-phase scan through verifier receiving real TLC output; existing specs pass TLC clean after integration
+**Shipped:** WFI-01, WFI-02, WFI-05, ENF-03 complete (Phases v0.23-01..03). IVL-01..03 (v0.23-04) deferred.
 
 ## Previous Milestone: v0.22 Requirements Envelope (in progress)
 
@@ -504,4 +509,4 @@ QGSD v0.20 FV as Active Planning Gate shipped 2026-03-01 (9 phases, 28 plans, 20
 | Planning gate is fail-open (|| FV_EXIT=$?) | TLC failures are surfaced as warnings (FV_HYPOTHESES) to the planner but never block plan creation; FV flakiness cannot break the planning workflow | Phase v0.20-03 — PLAN-03 |
 
 ---
-*Last updated: 2026-03-02 after Phase v0.23-01 — plan-phase Formal Integration complete. WFI-01, WFI-02, ENF-03 validated: formal scope scan (Step 4.5) + planner injection (Step 8) + checker enforcement (Step 10) + install sync live.*
+*Last updated: 2026-03-02 after milestone v0.24 Quorum Reliability Hardening started*
