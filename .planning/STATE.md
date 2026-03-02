@@ -75,7 +75,7 @@ Recent decisions affecting current work:
 | 127 | Fix auto-advance chain: execute-phase returns structured result, plan-phase invokes next phase | 2026-03-02 | c218070d | Verified | [127-fix-auto-advance-chain-execute-phase-ret](./quick/127-fix-auto-advance-chain-execute-phase-ret/) |
 | 128 | Upgrade quick --full mode: formal/ integration | 2026-03-02 | a267b8fe | Pending | [128-upgrade-quick-full-mode-formal-integrati](./quick/128-upgrade-quick-full-mode-formal-integrati/) |
 | 129 | Review --full mode workflow claims: scan formal spec, inject invariants, require formal_artifacts declaration, atomic formal commits, quorum on verification | 2026-03-02 | 2ead1785 | Verified | [129-review-full-mode-workflow-claims-scan-fo](.planning/quick/129-review-full-mode-workflow-claims-scan-fo/) |
-| 130 | wire actual TLC/Alloy/PRISM execution into --full mode: create bin/run-formal-check.cjs, add Step 6.3 post-execution formal check to quick.md, sync to installed copy | 2026-03-02 | c6324688 | Complete | [130-wire-actual-tlc-alloy-prism-execution-in](.planning/quick/130-wire-actual-tlc-alloy-prism-execution-in/) |
+| 130 | wire actual TLC/Alloy/PRISM execution into --full mode: create bin/run-formal-check.cjs, add Step 6.3 post-execution formal check to quick.md, sync to installed copy | 2026-03-02 | c6324688 | Verified | [130-wire-actual-tlc-alloy-prism-execution-in](.planning/quick/130-wire-actual-tlc-alloy-prism-execution-in/) |
 
 ## Session Continuity
 
