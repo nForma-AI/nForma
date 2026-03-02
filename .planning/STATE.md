@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 after v0.23 milestone completion)
 
 ## Current Position
 
-Phase: v0.24-05 of 5 (Slot Worker Thin Passthrough) — COMPLETE
-Plan: 03/03 complete (Slot Worker Thin Passthrough — Agent Rewrite)
+Phase: v0.24-05 of 5 (Slot Worker Thin Passthrough) — COMPLETE (all 4 plans)
+Plan: 04/04 complete (Human Verification — approved with revised token target)
 Status: v0.24 milestone COMPLETE — all 5 phases done, all 7 requirements (FAIL-01, FAIL-02, DISP-01–DISP-05) implemented
-Last activity: 2026-03-02 - Completed v0.24-05-03: qgsd-quorum-slot-worker.md rewritten to 29-line thin passthrough shim, quorum-slot-dispatch.cjs installed
+Last activity: 2026-03-02 - Completed v0.24-05-04: Human verification approved. Real quorum dispatch shows 11-12k tokens/worker (revised SC4 from 5k to 12k — ~10k fixed Task platform overhead)
 
-Progress: [############.] 100% v0.24 (7 of 7 plans complete: 4/4 in v0.24-01, 3/3 in v0.24-05)
+Progress: [##############] 100% v0.24 (8 of 8 plans complete: 4/4 in v0.24-01, 4/4 in v0.24-05)
 
 ## Performance Metrics
 
@@ -72,6 +72,7 @@ Recent decisions affecting current work:
 - [Phase v0.24-05-02]: parseImprovements migrated to quorum-slot-dispatch.cjs as single canonical source; test file now imports from dispatch module
 - [v0.24-05-03]: Agent uses awk (not sed) for multi-line field extraction — cross-platform portability; FLAGS variable and BASH_TIMEOUT computed inline to stay under 30 content-line limit
 - [v0.24-05-03]: Thin passthrough pattern: agent spec is pure orchestration (extract args, call script, emit output); all prompt construction and output parsing in quorum-slot-dispatch.cjs; token cost: ~2500 → ~300 tokens per slot worker invocation
+- [v0.24-05-04]: SC4 revised from "below 5k" to "below 12k" per-worker — Claude Code Task infrastructure contributes ~10k fixed overhead (system prompt, tool definitions, agent lifecycle). Agent-controllable cost reduced by ~80% (2500→600 tokens), but platform floor dominates total
 
 ### Pending Todos
 
@@ -94,9 +95,9 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed v0.24-05-03 slot worker thin passthrough rewrite (~23 minutes)
+Stopped at: Completed v0.24-05-04 human verification — phase fully closed
 Resume file: None
 
 **v0.24-01 Phase Complete:** All 4 plans finished (TDD scaffolding, retry backoff, provider infrastructure, acceptance tests). Total: 2 requirements (FAIL-01, FAIL-02) fully implemented and verified.
 
-**v0.24-05 Phase Complete:** All 3 plans finished (TDD scaffolding, dispatch GREEN implementation, agent thin-passthrough rewrite). Requirements DISP-04, DISP-05 complete. Agent token cost: ~2500 → ~300 tokens. All quorum flows route through quorum-slot-dispatch.cjs.
+**v0.24-05 Phase Complete:** All 4 plans finished (TDD scaffolding, dispatch GREEN implementation, agent thin-passthrough rewrite, human verification). Requirements DISP-04, DISP-05 complete. Agent spec: 2500→600 tokens. Total per-worker: 22-25k→11-12k (SC4 revised from 5k to 12k due to ~10k fixed Task platform overhead). All quorum flows route through quorum-slot-dispatch.cjs.
