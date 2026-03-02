@@ -1273,7 +1273,7 @@ Plans:
 
 | v0.23-01. plan-phase Formal Integration | v0.23 | Complete    | 2026-03-02 | - |
 | v0.23-02. execute-phase + Verifier Formal Integration | v0.23 | Complete    | 2026-03-02 | - |
-| v0.23-03. Roadmapper Formal Integration | 4/4 | Complete   | 2026-03-02 | - |
+| v0.23-03. Roadmapper Formal Integration | 4/4 | Complete    | 2026-03-02 | - |
 | v0.23-04. Integration Validation Suite | v0.23 | 0/TBD | Not started | - |
 
 ### 📋 v0.24 — Quorum Reliability Hardening
