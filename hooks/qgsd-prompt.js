@@ -142,6 +142,74 @@ function getRecentlyTimedOutSlots(cwd, ttlMinutes = 30) {
   } catch (_) { return []; }
 }
 
+// Locate providers.json from multiple search paths (borrowed from call-quorum-slot.cjs).
+function findProviders() {
+  const searchPaths = [
+    path.join(__dirname, '..', 'bin', 'providers.json'),
+    path.join(os.homedir(), '.claude', 'qgsd-bin', 'providers.json'),
+  ];
+  for (const p of searchPaths) {
+    try {
+      if (fs.existsSync(p)) {
+        return JSON.parse(fs.readFileSync(p, 'utf8')).providers;
+      }
+    } catch (_) { /* try next */ }
+  }
+  return null;
+}
+
+// Returns slot names whose backing provider is DOWN (probed unhealthy).
+// Reads ~/.claude/qgsd-provider-cache.json and matches providers from providers.json.
+// When a provider's endpoint is DOWN, ALL slots backed by that provider are skipped.
+function getDownProviderSlots() {
+  try {
+    const cachePath = path.join(os.homedir(), '.claude', 'qgsd-provider-cache.json');
+    if (!fs.existsSync(cachePath)) return [];
+    const cache = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+    if (!cache || !cache.entries) return [];
+
+    const providers = findProviders();
+    if (!providers) return [];
+
+    // Extract hostnames from DOWN cache entries.
+    // Cache keys are baseUrls like "https://api.akashml.com/v1".
+    // Extract hostname and strip common domain suffixes to get a match key (e.g., "akashml").
+    const downHostnames = [];
+    const now = Date.now();
+    for (const [baseUrl, entry] of Object.entries(cache.entries)) {
+      // Match TTL used by check-provider-health.cjs: 180s healthy, 300s unhealthy
+      const ttl = entry.healthy ? 180000 : 300000;
+      if (now - entry.cachedAt >= ttl) continue; // expired cache entry — ignore
+      if (entry.healthy) continue; // provider is UP — not skipping
+
+      try {
+        // Extract hostname and normalize to match provider field values in providers.json
+        const hostname = new URL(baseUrl).hostname; // e.g., "api.akashml.com"
+        let normalized = hostname.replace(/^api\./, ''); // remove "api." prefix
+        normalized = normalized.replace(/\.(com|ai|xyz|io)$/, ''); // remove TLD
+        downHostnames.push(normalized);
+      } catch (_) { /* malformed URL — skip this entry */ }
+    }
+
+    if (downHostnames.length === 0) return [];
+
+    // Find all slots backed by DOWN providers.
+    // Match provider field against each down hostname.
+    const skipSlots = [];
+    for (const provider of providers) {
+      if (!provider.provider) continue;
+      for (const downHostname of downHostnames) {
+        // Match: provider field contains or is contained by downHostname (e.g., "akashml" == "akashml")
+        if (provider.provider.includes(downHostname) || downHostname.includes(provider.provider)) {
+          skipSlots.push(provider.name);
+          break;
+        }
+      }
+    }
+    return skipSlots;
+  } catch (_) { return []; } // fail-open: any error → proceed with no provider skips
+}
+
 // Check if the circuit breaker is active (and not disabled) for a given git root.
 function isBreakerActive(cwd) {
   const gitResult = spawnSync('git', ['rev-parse', '--show-toplevel'], {
@@ -263,7 +331,14 @@ process.stdin.on('end', () => {
 
       // externalSlotCap = fanOutCount - 1 (Claude accounts for the +1 in total participants)
       const externalSlotCap = fanOutCount - 1;
-      const cappedSlots = orderedSlots.slice(0, externalSlotCap);
+      let cappedSlots = orderedSlots.slice(0, externalSlotCap);
+
+      // Filter out slots backed by DOWN providers before building dynamic steps.
+      const recentTimeouts = getRecentlyTimedOutSlots(cwd);
+      const providerSkips = getDownProviderSlots();
+      const allSkipSlots = [...new Set([...recentTimeouts, ...providerSkips])];
+      const skipSet = new Set(allSkipSlots);
+      cappedSlots = cappedSlots.filter(s => !skipSet.has(s.slot));
 
       // Generate step list, with optional section headers when preferSub is on
       let stepLines = [];
@@ -341,10 +416,13 @@ process.stdin.on('end', () => {
         minNote = ` (--n ${fanOutCount})`;
       }
 
-      const recentTimeouts = getRecentlyTimedOutSlots(cwd);
-      const skipNote = recentTimeouts.length > 0
-        ? `SKIP (TIMEOUT < 30min ago): [${recentTimeouts.join(', ')}] — do NOT dispatch these slots.\n`
-        : '';
+      let skipNote = '';
+      if (recentTimeouts.length > 0) {
+        skipNote += `SKIP (TIMEOUT < 30min ago): [${recentTimeouts.join(', ')}] — do NOT dispatch these slots.\n`;
+      }
+      if (providerSkips.length > 0) {
+        skipNote += `SKIP (PROVIDER DOWN): [${providerSkips.join(', ')}] — entire provider unreachable, skip all backed slots.\n`;
+      }
 
       instructions = `QUORUM REQUIRED${minNote} (structural enforcement — Stop hook will verify)\n\n` +
         `Run the full R3 quorum protocol inline (dispatch_pattern from commands/qgsd/quorum.md):\n` +
