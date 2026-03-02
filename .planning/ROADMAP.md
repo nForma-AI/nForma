@@ -1216,7 +1216,10 @@ Plans:
   2. A PLAN.md produced by plan-phase when $FORMAL_SPEC_CONTEXT is non-empty contains a formal_artifacts: declaration in its frontmatter -- plan-phase refuses to complete without it
   3. Running plan-phase on a project where Java is not installed (or TLAToolbox.jar is absent) completes normally with a skip warning -- formal gate never blocks planning due to missing tooling
   4. Running plan-phase on a module with no keyword-matched specs completes without any formal scope scan overhead or formal_artifacts requirement
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] v0.23-01-01-PLAN.md — Formal scope scan (Step 4.5) and planner formal_context injection (Step 8)
+- [ ] v0.23-01-02-PLAN.md — Checker formal_artifacts validation (Step 10) and install sync
 
 ### Phase v0.23-02: execute-phase + Verifier Formal Integration
 **Goal**: The full execution cycle runs formal verification as a structural gate -- executor fires it, verifier receives real tool output, and counterexamples block the workflow with a traceable override path
@@ -1250,7 +1253,7 @@ Plans:
   3. All existing TLA+ specs (QGSDDeliberation.tla, MCbreaker.cfg, MCliveness.cfg, and any others in formal/tla/) pass TLC clean -- no regressions introduced by the integration wiring
 **Plans**: TBD
 
-| v0.23-01. plan-phase Formal Integration | v0.23 | 0/TBD | Not started | - |
+| v0.23-01. plan-phase Formal Integration | v0.23 | 0/2 | Not started | - |
 | v0.23-02. execute-phase + Verifier Formal Integration | v0.23 | 0/TBD | Not started | - |
 | v0.23-03. Roadmapper Formal Integration | v0.23 | 0/TBD | Not started | - |
 | v0.23-04. Integration Validation Suite | v0.23 | 0/TBD | Not started | - |
