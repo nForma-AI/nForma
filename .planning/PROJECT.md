@@ -269,6 +269,8 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ### Validated
 
+- ✓ plan-phase formal scope scan — Step 4.5 keyword-matches `formal/spec/` modules against phase description; populates `$FORMAL_SPEC_CONTEXT`; injects matching `invariants.md` files into planner `<files_to_read>` and `<formal_context>` block; fail-open (missing `formal/spec/` = zero overhead) (WFI-01, ENF-03) — v0.23 (Phase v0.23-01)
+- ✓ plan-phase checker formal_artifacts enforcement — Step 10 `<check_dimensions>` block flags missing `formal_artifacts:` frontmatter field as BLOCKER; validates path specificity; `<formal_context>` block conditionally verifies declaration or requires `formal_artifacts: none`; installed to `~/.claude` (WFI-02, ENF-03) — v0.23 (Phase v0.23-01)
 - ✓ Liveness fairness lint — centralized check-liveness-fairness.cjs CI step with dynamic MC*.cfg discovery; emits result=inconclusive for liveness configs lacking fairness declarations; ci:liveness-fairness-lint as 26th STEPS entry in run-formal-verify.cjs (LIVE-01..02) — v0.20 (Phase v0.20-02)
 - ✓ Planning gate — plan-phase.md step 8.3 runs `run-formal-verify.cjs --only=tla` pre-quorum; result=fail NDJSON entries surfaced as FV_HYPOTHESES in quorum review_context; fail-open (|| FV_EXIT=$?) so TLC failures never block plan creation (PLAN-01..03) — v0.20 (Phase v0.20-03)
 - ✓ Schema enrichment — check-result.schema.json v2.1 (check_id, surface, property, runtime_ms, summary, triage_tags, observation_window); write-check-result.cjs + all 21 active callers updated (SCHEMA-01..03) — v0.20 (Phase v0.20-01)
@@ -502,4 +504,4 @@ QGSD v0.20 FV as Active Planning Gate shipped 2026-03-01 (9 phases, 28 plans, 20
 | Planning gate is fail-open (|| FV_EXIT=$?) | TLC failures are surfaced as warnings (FV_HYPOTHESES) to the planner but never block plan creation; FV flakiness cannot break the planning workflow | Phase v0.20-03 — PLAN-03 |
 
 ---
-*Last updated: 2026-03-01 after v0.21 milestone — FV Closed Loop complete. 18/21 requirements satisfied (ARCH-01–03, LOOP-01–04, SPEC-01–04, PLAN-01–03, SIG-01–04). 3 procedural gaps (DIAG-01–03: VERIFICATION.md missing). v0.22 Requirements Envelope next.*
+*Last updated: 2026-03-02 after Phase v0.23-01 — plan-phase Formal Integration complete. WFI-01, WFI-02, ENF-03 validated: formal scope scan (Step 4.5) + planner injection (Step 8) + checker enforcement (Step 10) + install sync live.*

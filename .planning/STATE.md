@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-02 after v0.23 milestone start)
+See: .planning/PROJECT.md (updated 2026-03-02 after Phase v0.23-01)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.23 — Formal Gates
+**Current focus:** v0.23-02 — execute-phase + verifier Formal Gates
 **Last shipped:** v0.21 — FV Closed Loop (2026-03-01, 6 phases, 24 plans, 18/21 requirements)
 
 ## Current Position
 
-Phase: v0.23-01 of 4 (plan-phase Formal Integration)
-Plan: — (roadmap defined, ready to plan)
+Phase: v0.23-02 of 4 (execute-phase + verifier Formal Gates)
+Plan: Not started
 Status: Ready to plan
-Last activity: 2026-03-02 — v0.23 Formal Gates roadmap created (4 phases, 11 requirements mapped)
+Last activity: 2026-03-02 — v0.23-01 complete — plan-phase formal gate chain live (WFI-01, WFI-02, ENF-03)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [████████████████████] 135/132 plans (102%)
 
 ## Performance Metrics
 
@@ -45,8 +45,8 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.23-01 complete]: Step 4.5 formal scope scan + Step 8 planner injection + Step 10 checker BLOCKER enforcement all installed to ~/.claude. WFI-01, WFI-02, ENF-03 validated.
 - [v0.23 roadmap]: 4 phases derived from 11 requirements. WFI-01+WFI-02+ENF-03 in v0.23-01 (planning gate is one capability). WFI-03+WFI-04+ENF-01+ENF-02+ENF-03 in v0.23-02 (execution+verification gate). WFI-05+ENF-03 in v0.23-03 (roadmapper gate). IVL-01..03 in v0.23-04 (integration validation requires all prior wiring).
-- [v0.23 roadmap]: ENF-03 (fail-open) is cross-cutting — appears in phases 01, 02, and 03 as each wires a new workflow. Assigned exactly once to the phase where it applies most directly (01 and 02 and 03 each carry their own fail-open contract).
 - [v0.23 roadmap]: bin/run-formal-check.cjs exists (quick-130) — phases build on it, do not recreate it. quick --full already has Step 6.3 — phases extend the same pattern to plan-phase + execute-phase + qgsd-verifier + roadmapper.
 
 ### Pending Todos
@@ -71,6 +71,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-02 (continuing)
-Stopped at: v0.23 roadmap created — 4 phases, 11/11 requirements mapped
+Last session: 2026-03-02
+Stopped at: Phase v0.23-01 complete — formal gate chain live; ready to plan Phase v0.23-02
 Resume file: None
