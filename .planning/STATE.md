@@ -13,7 +13,7 @@ See: .planning/PROJECT.md (updated 2026-03-01 after v0.21 milestone completion)
 Phase: v0.22-01 of 4 (Requirements Envelope Foundation)
 Plan: 03 of 3
 Status: Complete — 3/3 plans complete
-Last activity: 2026-03-02 — Completed quick task 129: Review --full mode workflow claims: scan formal spec, inject invariants, require formal_artifacts declaration, atomic formal commits, quorum on verification
+Last activity: 2026-03-02 — Completed quick task 130: Wire actual TLC/Alloy/PRISM execution into --full mode
 
 Progress: [██████████] 100%
 
@@ -46,7 +46,7 @@ Progress: [██████████] 100%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [v0.22 roadmap]: 4 phases derived from 5 requirements. ENV-01+ENV-02 combined into Phase 1 (aggregation+validation are one coherent capability). ENV-03 separate (spec integration). ENV-04 separate (immutability+amendment). ENV-05 separate (drift detection).
+- [v0.22 roadmap]: 4 phases derived from 5 requirements. ENV-01+ENV-02 combined into v0.22-01 (aggregation+validation are one coherent capability). ENV-03 separate (spec integration). ENV-04 separate (immutability+amendment). ENV-05 separate (drift detection).
 - [v0.22 roadmap]: Phase ordering: Foundation -> Spec Integration -> Immutability -> Drift. Immutability before drift (can't detect drift without a frozen baseline). Spec integration before immutability (specs must work with envelope before locking it).
 - [v0.22 research]: Primary risk is Haiku validation non-determinism -- mitigated by explicit rubrics, aggregation of 3+ passes, determinism testing. Secondary risk is drift detection false positives -- mitigated by semantic fingerprinting, not naive diffs.
 - [v0.22 research]: Recommended stack: ajv (schema validation), @anthropic-ai/sdk (Haiku calls), husky (git hooks), diff/jsdiff (drift detection), yaml (parsing).
@@ -57,11 +57,11 @@ Recent decisions affecting current work:
 - `2026-02-20-add-gsd-quorum-command-for-consensus-answers.md` — Add qgsd:quorum command for consensus answers (area: planning)
 - `2026-03-01-enforce-spec-requirements-never-reduce-objectives-to-match-reality.md` — Enforce spec requirements — never reduce objectives to match reality (area: planning)
 - `2026-03-01-slim-down-quorum-slot-worker-remove-redundant-haiku-file-exploration.md` — Slim down quorum slot worker — remove redundant Haiku file exploration (area: tooling)
-- Phase 22 post-validation: 5-category taxonomy may need refinement based on empirical categorization results
+- v0.22 post-validation: 5-category taxonomy may need refinement based on empirical categorization results
 
 ### Blockers/Concerns
 
-- [Phase 12 carry-forward]: npm publish qgsd@0.2.0 deferred; run `npm publish --access public` when user decides
+- [v0.12 carry-forward]: npm publish qgsd@0.2.0 deferred; run `npm publish --access public` when user decides
 - [v0.18-06/07 open]: v0.18-06 (FAN-04 Stop hook ceiling fix) and v0.18-07 (ENV-03 envelope path wiring) are not yet started — gap closure phases for v0.18
 - [v0.21-02 carry-forward]: 3983 unmappable_action divergences remain (circuit_break: 2988, no-action events: 995) — these are correctly excluded from the state_mismatch rate but may need a separate tracking mechanism
 
@@ -75,11 +75,12 @@ Recent decisions affecting current work:
 | 127 | Fix auto-advance chain: execute-phase returns structured result, plan-phase invokes next phase | 2026-03-02 | c218070d | Verified | [127-fix-auto-advance-chain-execute-phase-ret](./quick/127-fix-auto-advance-chain-execute-phase-ret/) |
 | 128 | Upgrade quick --full mode: formal/ integration | 2026-03-02 | a267b8fe | Pending | [128-upgrade-quick-full-mode-formal-integrati](./quick/128-upgrade-quick-full-mode-formal-integrati/) |
 | 129 | Review --full mode workflow claims: scan formal spec, inject invariants, require formal_artifacts declaration, atomic formal commits, quorum on verification | 2026-03-02 | 2ead1785 | Verified | [129-review-full-mode-workflow-claims-scan-fo](.planning/quick/129-review-full-mode-workflow-claims-scan-fo/) |
+| 130 | wire actual TLC/Alloy/PRISM execution into --full mode: create bin/run-formal-check.cjs, add Step 6.3 post-execution formal check to quick.md, sync to installed copy | 2026-03-02 | c6324688 | Complete | [130-wire-actual-tlc-alloy-prism-execution-in](.planning/quick/130-wire-actual-tlc-alloy-prism-execution-in/) |
 
 ## Session Continuity
 
-Last session: 2026-03-02T06:20:44Z (continuing)
-Stopped at: Executing quick task 129: Review --full mode workflow claims
+Last session: 2026-03-02T09:54:59Z (continuing)
+Stopped at: Completed quick task 130: Wire actual TLC/Alloy/PRISM execution into --full mode
 Resume file: None
 
 **v0.22-01 Phase Progress:**
