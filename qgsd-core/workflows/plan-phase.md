@@ -65,6 +65,47 @@ If `context_path` is not null, display: `Using phase context from: ${context_pat
 If "Continue without context": Proceed to step 5.
 If "Run discuss-phase first": Display `/qgsd:discuss-phase {X}` and exit workflow.
 
+## 4.5. Formal Scope Scan
+
+Before spawning the researcher, scan `formal/spec/` for modules whose names keyword-match the phase description. This populates `$FORMAL_SPEC_CONTEXT` for use in Step 8 (planner) and Step 10 (checker).
+
+```bash
+FORMAL_SPEC_CONTEXT=[]
+```
+
+**Fail-open:** If `formal/spec/` does not exist, skip entirely (set FORMAL_SPEC_CONTEXT=[] and proceed).
+
+```bash
+if [ -d "formal/spec" ]; then
+  PHASE_DESC_LOWER=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE}" | jq -r '.phase_name' | tr '[:upper:]' '[:lower:]')
+  for MODULE_DIR in formal/spec/*/; do
+    MODULE=$(basename "$MODULE_DIR")
+    INVARIANTS_FILE="formal/spec/${MODULE}/invariants.md"
+    if [ -f "$INVARIANTS_FILE" ]; then
+      MODULE_LOWER=$(echo "$MODULE" | tr '[:upper:]' '[:lower:]')
+      # Keyword-match: any word in phase description is substring of module name, or module name is substring of any word
+      MATCHED=0
+      for KEYWORD in $(echo "$PHASE_DESC_LOWER" | tr ' -/' '\n' | grep -v '^$'); do
+        if echo "$MODULE_LOWER" | grep -qF "$KEYWORD" || echo "$KEYWORD" | grep -qF "$MODULE_LOWER"; then
+          MATCHED=1
+          break
+        fi
+      done
+      if [ "$MATCHED" -eq 1 ]; then
+        FORMAL_SPEC_CONTEXT+=("{\"module\":\"${MODULE}\",\"path\":\"${INVARIANTS_FILE}\"}")
+      fi
+    fi
+  done
+fi
+```
+
+Display:
+```
+◆ Formal scope scan: found ${#FORMAL_SPEC_CONTEXT[@]} relevant module(s)${#FORMAL_SPEC_CONTEXT[@] > 0 ? ': ' + FORMAL_SPEC_CONTEXT.map(f => f.module).join(', ') : ''}
+```
+
+Store `$FORMAL_SPEC_CONTEXT` for use in steps 7, 8, 10.
+
 ## 5. Handle Research
 
 **Skip if:** `--gaps` flag, `--skip-research` flag, or `research_enabled` is false (from init) without `--research` override.
@@ -244,12 +285,27 @@ Planner prompt:
 - {research_path} (Technical Research)
 - {verification_path} (Verification Gaps - if --gaps)
 - {uat_path} (UAT Gaps - if --gaps)
+${FORMAL_SPEC_CONTEXT.length > 0 ? FORMAL_SPEC_CONTEXT.map(f => `- ${f.path} (Formal invariants for module: ${f.module})`).join('\n') : ''}
 </files_to_read>
 
 **Phase requirement IDs (every ID MUST appear in a plan's `requirements` field):** {phase_req_ids}
 
 **Project instructions:** Read ./CLAUDE.md if exists — follow project-specific guidelines
 **Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, plans should account for project skill rules
+
+<formal_context>
+${FORMAL_SPEC_CONTEXT.length > 0 ?
+`Relevant formal modules identified: ${FORMAL_SPEC_CONTEXT.map(f => f.module).join(', ')}
+
+Constraints:
+- Read the injected invariants.md files and identify which invariants apply to this task
+- MUST declare \`formal_artifacts:\` in EVERY plan frontmatter (required field when FORMAL_SPEC_CONTEXT is non-empty):
+  - \`none\` — task does not create or modify formal/ files
+  - \`update: [list of formal/ file paths]\` — task modifies existing formal/ files
+  - \`create: [list of {path, type (tla|alloy|prism), description}]\` — task creates new formal/ files
+- Plan tasks MUST NOT violate the identified invariants` :
+`No formal modules matched this task. Declare \`formal_artifacts: none\` in plan frontmatter.`}
+</formal_context>
 </planning_context>
 
 <binding_rule id="R9">
