@@ -21,7 +21,7 @@
 - ✅ **v0.20 — FV as Active Planning Gate** — Phases v0.20-01..v0.20-09 (shipped 2026-03-01)
 - ✅ **v0.21 — FV Closed Loop** — Phases v0.21-01..v0.21-06 (shipped 2026-03-01)
 - 🚧 **v0.22 — Requirements Envelope** — Phases v0.22-01..v0.22-04 (in progress)
-- 📋 **v0.23 — Formal Gates** — Phases v0.23-01..v0.23-04 (planned)
+- 🔧 **v0.23 — Formal Gates** — Phases v0.23-01..v0.23-04 (gap closure in progress — v0.23-03..04 need plans)
 
 ## Phases
 
@@ -1239,19 +1239,26 @@ Plans:
 - [ ] v0.23-02-04-PLAN.md — Install sync + all structural tests GREEN
 
 ### Phase v0.23-03: Roadmapper Formal Integration
-**Goal**: qgsd-roadmapper reads formal invariants for keyword-matched modules when designing phases, making invariant constraints visible in the phase planning context
+**Goal**: qgsd-roadmapper reads formal invariants for keyword-matched modules when designing phases, making invariant constraints visible in the phase planning context; pre-conditions include fixing keyword-match algorithm consistency between plan-phase.md and execute-phase.md
 **Depends on**: Phase v0.23-01
 **Requirements**: WFI-05, ENF-03
+**Gap Closure**: Closes gaps from audit (ISSUE-1, ISSUE-2, WFI-05)
+**Pre-condition tasks** (ISSUE-1 + ISSUE-2 — must complete before roadmapper wiring):
+  - Standardize keyword-match to use `.goal // .phase_name` + `' -/'` separator + bidirectional match in both plan-phase.md (Step 4.5) and execute-phase.md (verify_phase_goal)
+  - Standardize `.goal // .phase_name` fallback in both workflows; audit ROADMAP.md phases for missing .goal fields
 **Success Criteria** (what must be TRUE):
   1. When qgsd-roadmapper is given a project with formal/spec/*/invariants.md files whose keywords match the milestone scope, those invariant files appear in the roadmapper's files_to_read context
   2. Phase success criteria and goals produced by the roadmapper when invariants are present reflect the constraints stated in those invariants -- not generic templates
   3. When no keyword-matched invariants exist, or when formal/spec/ is absent entirely, the roadmapper completes without error and without injecting any formal context
+  4. plan-phase.md and execute-phase.md use the same keyword-match field (`.goal // .phase_name`), separator (`' -/'`), and bidirectional match direction -- ISSUE-1 closed
+  5. Phases without a `.goal` field receive `.phase_name` as fallback in both workflows -- ISSUE-2 closed
 **Plans**: TBD
 
 ### Phase v0.23-04: Integration Validation Suite
 **Goal**: An integration test script proves the full formal gates chain actually executed -- not that the workflow text says it should, but that tools ran and produced verifiable output
 **Depends on**: Phase v0.23-02, Phase v0.23-03
 **Requirements**: IVL-01, IVL-02, IVL-03
+**Gap Closure**: Closes gaps from audit (IVL-01, IVL-02, IVL-03)
 **Success Criteria** (what must be TRUE):
   1. Running bin/test-formal-integration.cjs (or equivalent) completes without error and reports that run-formal-check.cjs actually executed with real stdout/exit codes captured -- not mocked
   2. The test covers the full chain: plan-phase keyword scan populates FORMAL_SPEC_CONTEXT, executor fires run-formal-check.cjs, verifier receives FORMAL_CHECK_RESULT containing actual TLC output with at least one checked property

@@ -50,19 +50,20 @@ TLC/Alloy/PRISM become actual enforcing gates in every major QGSD workflow step.
 | WFI-02 | v0.23-01 | Pending |
 | WFI-03 | v0.23-02 | Pending |
 | WFI-04 | v0.23-02 | Pending |
-| WFI-05 | v0.23-03 | Pending |
+| WFI-05 | v0.23-03 | Pending (gap closure) |
 | ENF-01 | v0.23-02 | Pending |
 | ENF-02 | v0.23-02 | Pending |
 | ENF-03 | v0.23-01 | Pending |
-| IVL-01 | v0.23-04 | Pending |
-| IVL-02 | v0.23-04 | Pending |
-| IVL-03 | v0.23-04 | Pending |
+| IVL-01 | v0.23-04 | Pending (gap closure) |
+| IVL-02 | v0.23-04 | Pending (gap closure) |
+| IVL-03 | v0.23-04 | Pending (gap closure) |
 
 **Coverage:**
 - v0.23 requirements: 11 total
 - Mapped to phases: 11
 - Unmapped: 0 ✓
+- Gap closure phases: v0.23-03 (WFI-05 + ISSUE-1/2), v0.23-04 (IVL-01 + IVL-02 + IVL-03)
 
 ---
 *Requirements defined: 2026-03-02*
-*Last updated: 2026-03-02 after v0.23 milestone initialization*
+*Last updated: 2026-03-02 — gap closure phases assigned (plan-milestone-gaps v0.23)*
