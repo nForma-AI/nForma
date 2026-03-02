@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-02 after milestone v0.24 roadmap crea
 ## Current Position
 
 Phase: v0.24-01 of 4 (Provider Infrastructure and Failover)
-Plan: 01/03 complete (TDD scaffolding)
-Status: Ready for Plan 02 (Retry Backoff Implementation)
-Last activity: 2026-03-02 -- Completed v0.24-01-01 TDD test scaffolding (FAIL-01, FAIL-02)
+Plan: 02/03 complete (Retry Backoff Implementation)
+Status: Ready for Plan 03 (Provider Field and Provider-Aware Dispatch)
+Last activity: 2026-03-02 -- Completed v0.24-01-02 Retry implementation (FAIL-01)
 
-Progress: [#.........] 8% (1 of 12 plans complete: 1/3 in v0.24-01)
+Progress: [##.........] 17% (2 of 12 plans complete: 2/3 in v0.24-01)
 
 ## Performance Metrics
 
@@ -45,6 +45,10 @@ Progress: [#.........] 8% (1 of 12 plans complete: 1/3 in v0.24-01)
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.24-01-02]: Retry wrapping strategy: Non-OAuth slots wrapped at main() dispatch; OAuth slots wrapped inside rotation loop (per-attempt protection). This ensures retry logic does not interfere with the existing OAuth rotation mechanism.
+- [v0.24-01-02]: Error classification: Fail-open for unknown errors (retryable by default); explicitly non-retryable: CLI_SYNTAX (usage/unknown flag patterns) and spawn errors. Rationale: unknown errors during service degradation should retry, not immediately fail.
+- [v0.24-01-02]: Max retries: 2 (3 total attempts), delays [1000ms, 3000ms] (exponential). Rationale: balances retry overhead against recovery time; matches existing timeout patterns.
+- [v0.24-01-02]: Failure recording (writeFailureLog) only after all retries exhausted. Existing failure logging path unchanged — retry is transparent to observers.
 - [v0.24-01-01]: TDD test scaffolding created with 22 GREEN unit tests (backoff, provider grouping) and 5 RED structural tests (retry function, provider field, provider-skip logic) — Plans 02 and 03 cannot be complete until tests turn GREEN per TDD discipline
 - [v0.24-01-01]: Pure function unit tests in test files (delay calculation, grouping) are GREEN immediately; source-file structural checks (retryWithBackoff, provider field) are intentionally RED until implementation
 - [v0.24-01-01]: Fail-open guards in tests allow graceful degradation if source files temporarily missing — test runner continues with no crashes
@@ -67,5 +71,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed v0.24-01-01 TDD test scaffolding (57 seconds)
+Stopped at: Completed v0.24-01-02 Retry backoff implementation (62 seconds)
 Resume file: None
