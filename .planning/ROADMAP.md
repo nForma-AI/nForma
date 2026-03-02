@@ -22,7 +22,7 @@
 - ✅ **v0.21 — FV Closed Loop** — Phases v0.21-01..v0.21-06 (shipped 2026-03-01)
 - 🚧 **v0.22 — Requirements Envelope** — Phases v0.22-01..v0.22-04 (in progress)
 - 🔧 **v0.23 — Formal Gates** — Phases v0.23-01..v0.23-04 (gap closure in progress — v0.23-03..04 need plans)
-- 🚧 **v0.24 — Quorum Reliability Hardening** — Phases v0.24-01..v0.24-05 (in progress: v0.24-01 complete 3/3 ✓)
+- 🚧 **v0.24 — Quorum Reliability Hardening** — Phases v0.24-01..v0.24-05 (in progress: v0.24-01 complete 4/4 ✓)
 
 ## Phases
 
@@ -1284,7 +1284,7 @@ Plans:
 
 **Milestone Goal:** Make quorum dispatch reliable end-to-end — every quorum call reliably delivers 3 votes by detecting dead slots pre-dispatch, self-healing around mid-session failures without user action, and providing observability into slot health, success rates, and flakiness.
 
-- [ ] **Phase v0.24-01: Provider Infrastructure and Failover** - Explicit provider-to-slot mapping in providers.json and retry-with-backoff in call-quorum-slot.cjs
+- [x] **Phase v0.24-01: Provider Infrastructure and Failover** - Explicit provider-to-slot mapping in providers.json and retry-with-backoff in call-quorum-slot.cjs (4/4 plans complete, FAIL-01+FAIL-02 verified)
 - [ ] **Phase v0.24-02: Dispatch Reliability** - Pre-dispatch health probes, scoreboard availability windows, and success-rate-ordered dispatch list
 - [ ] **Phase v0.24-03: Quorum Observability** - Structured per-round telemetry, delivery rate tracking in scoreboard, and per-slot flakiness scoring
 - [ ] **Phase v0.24-04: Self-Healing Consensus** - Early escalation when P(consensus) drops below threshold and auto-adjustment of maxDeliberation
@@ -1301,7 +1301,8 @@ Plans:
 **Plans**:
 - [x] **Plan 01: TDD Test Scaffolding** — Create 22 GREEN unit tests (backoff, provider grouping) and 5 RED structural tests for Plans 02-03
 - [x] **Plan 02: Retry Backoff Implementation** — Implement retry-with-exponential-backoff (1s, 3s, max 2 retries) in call-quorum-slot.cjs (FAIL-01 complete)
-- [ ] **Plan 03: Provider Field and Dispatch** — Add provider field to providers.json and provider-aware dispatch skip logic in qgsd-prompt.js (FAIL-02)
+- [x] **Plan 03: Provider Field and Dispatch** — Add provider field to providers.json and provider-aware dispatch skip logic in qgsd-prompt.js (FAIL-02 complete)
+- [x] **Plan 04: Acceptance Tests** — Verify all tests pass GREEN, add to npm test suite, confirm EventualConsensus preservation (all 28 tests passing, FAIL-01/FAIL-02 verified)
 
 ### Phase v0.24-02: Dispatch Reliability
 **Goal**: The dispatch list is built from live health data rather than static configuration -- dead providers are excluded, cooling-down slots are skipped, and the most reliable slots are tried first

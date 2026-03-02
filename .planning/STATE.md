@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-02 after milestone v0.24 roadmap crea
 ## Current Position
 
 Phase: v0.24-01 of 4 (Provider Infrastructure and Failover)
-Plan: 03/03 complete (Provider Field and Provider-Aware Dispatch Skip)
+Plan: 04/04 complete (Acceptance Tests and npm test Integration)
 Status: v0.24-01 phase complete — Ready for Phase v0.24-02 (Dispatch Reliability)
-Last activity: 2026-03-02 - Completed quick task 133: Build a phase-index routing table for retroactive requirement extraction
+Last activity: 2026-03-02 - Completed v0.24-01-04: Acceptance tests pass + add to npm test suite (FAIL-01, FAIL-02)
 
-Progress: [###.........] 25% (3 of 12 plans complete: 3/3 in v0.24-01)
+Progress: [###.........] 25% (4 of 12 plans complete: 4/4 in v0.24-01)
 
 ## Performance Metrics
 
@@ -83,7 +83,7 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed v0.24-01-03 Provider field + dispatch skip (299 seconds)
+Stopped at: Completed v0.24-01-04 Acceptance tests and npm test integration (478 seconds)
 Resume file: None
 
-**v0.24-01 Phase Complete:** All 3 plans finished (TDD scaffolding, retry backoff, provider infrastructure). Total: 2 requirements (FAIL-01, FAIL-02) implemented. Foundation ready for v0.24-02 (dispatch reliability) and v0.24-03 (observability).
+**v0.24-01 Phase Complete:** All 4 plans finished (TDD scaffolding, retry backoff, provider infrastructure, acceptance tests). Total: 2 requirements (FAIL-01, FAIL-02) fully implemented and verified. Foundation ready for v0.24-02 (dispatch reliability) and v0.24-03 (observability).
