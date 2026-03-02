@@ -77,7 +77,7 @@ Recent decisions affecting current work:
 
 | # | Description | Date | Commit | Status | Directory |
 |---|---|---|---|---|---|
-| 133 | Build a phase-index routing table for retroactive requirement extraction | 2026-03-02 | pending | Pending | [133-build-a-phase-index-routing-table-for-re](./quick/133-build-a-phase-index-routing-table-for-re/) |
+| 133 | Build a phase-index routing table for retroactive requirement extraction | 2026-03-02 | 581de5a7 | Verified | [133-build-a-phase-index-routing-table-for-re](./quick/133-build-a-phase-index-routing-table-for-re/) |
 
 ## Session Continuity
 
