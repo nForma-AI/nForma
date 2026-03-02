@@ -22,7 +22,15 @@ Quick mode is the same system with a shorter path:
 
 **Default:** Skips research, plan-checker, verifier. Use when you know exactly what to do.
 
-**`--full` flag:** Enables plan-checking (max 2 iterations) and post-execution verification. Use when you want quality guarantees without full milestone ceremony.
+**`--full` flag:** Single-phase rigor tier. Enables:
+- Plan-checking (max 2 iterations) and post-execution verification
+- Formal scope scan: discovers relevant `formal/spec/*/invariants.md` and injects invariant context into the planner
+- Plan frontmatter must declare `formal_artifacts:` (none | update | create) with formal/ file targets
+- Executor commits formal/ files atomically when `formal_artifacts` is non-empty
+- Verifier checks invariant compliance and formal artifact syntax
+- Quorum reviews VERIFICATION.md after passing (can downgrade to "Needs Review")
+
+Use when you want quality guarantees with formal correctness properties, without full milestone ceremony.
 </objective>
 
 <execution_context>
