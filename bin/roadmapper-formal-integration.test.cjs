@@ -94,10 +94,14 @@ test('gsd-tools.cjs: old broken regex **Goal:** is NOT present', () => {
 });
 
 test('gsd-tools.cjs: fixed regex **Goal**: appears at least 3 times (all 3 parser locations)', () => {
-  const count = (gsdToolsContent.match(/\*\*Goal\*\*:/g) || []).length;
+  // JS regex literals store escaped asterisks as \*\*Goal\*\*: in source files;
+  // template strings use literal **Goal**: — count both forms
+  const literalCount = (gsdToolsContent.match(/\*\*Goal\*\*:/g) || []).length;
+  const escapedCount = (gsdToolsContent.match(/\\\*\\\*Goal\\\*\\\*:/g) || []).length;
+  const count = literalCount + escapedCount;
   assert.ok(
     count >= 3,
-    `Expected >=3 occurrences of **Goal**: (fixed regex) in gsd-tools.cjs, got ${count}`
+    `Expected >=3 occurrences of **Goal**: (fixed regex, both literal and JS-escaped forms) in gsd-tools.cjs, got ${count} (literal=${literalCount}, escaped=${escapedCount})`
   );
 });
 

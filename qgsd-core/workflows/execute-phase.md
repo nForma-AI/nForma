@@ -371,7 +371,7 @@ Run the keyword-match scan and formal check before spawning the verifier. The sc
 # Formal scope scan — identical algorithm to plan-phase Step 4.5
 FORMAL_SPEC_CONTEXT=()
 if [ -d "formal/spec" ]; then
-  PHASE_DESC=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE_NUMBER}" | jq -r '.goal // empty')
+  PHASE_DESC=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE_NUMBER}" | jq -r '.goal // .phase_name')
   for MODULE_DIR in formal/spec/*/; do
     MODULE=$(basename "$MODULE_DIR")
     INVARIANTS_FILE="formal/spec/${MODULE}/invariants.md"
@@ -379,8 +379,8 @@ if [ -d "formal/spec" ]; then
       DESC_LOWER=$(echo "$PHASE_DESC" | tr '[:upper:]' '[:lower:]')
       MODULE_LOWER=$(echo "$MODULE" | tr '[:upper:]' '[:lower:]')
       MATCHED=0
-      for KEYWORD in $(echo "$DESC_LOWER" | tr ' -' '\n' | grep -v '^$'); do
-        if echo "$MODULE_LOWER" | grep -qF "$KEYWORD"; then
+      for KEYWORD in $(echo "$DESC_LOWER" | tr ' -/' '\n' | grep -v '^$'); do
+        if echo "$MODULE_LOWER" | grep -qF "$KEYWORD" || echo "$KEYWORD" | grep -qF "$MODULE_LOWER"; then
           MATCHED=1
           break
         fi

@@ -77,7 +77,7 @@ FORMAL_SPEC_CONTEXT=[]
 
 ```bash
 if [ -d "formal/spec" ]; then
-  PHASE_DESC_LOWER=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE}" | jq -r '.phase_name' | tr '[:upper:]' '[:lower:]')
+  PHASE_DESC_LOWER=$(node ~/.claude/qgsd/bin/gsd-tools.cjs roadmap get-phase "${PHASE}" | jq -r '.goal // .phase_name' | tr '[:upper:]' '[:lower:]')
   for MODULE_DIR in formal/spec/*/; do
     MODULE=$(basename "$MODULE_DIR")
     INVARIANTS_FILE="formal/spec/${MODULE}/invariants.md"
