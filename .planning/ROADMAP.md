@@ -1231,7 +1231,12 @@ Plans:
   3. When run-formal-check.cjs exits 1 (counterexample found), the workflow is hard-blocked -- verifier sets status to counterexample_found and execute-phase does not advance
   4. The user can explicitly override a counterexample block by providing an acknowledgment; the acknowledgment is written to VERIFICATION.md with timestamp and reason -- no silent bypass path exists
   5. When Java or PRISM binaries are absent, execute-phase completes with a skip warning in VERIFICATION.md -- the counterexample gate never fires on tooling absence
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] v0.23-02-01-PLAN.md — TDD scaffolding: structural tests for formal gate (RED until plans 02-03)
+- [ ] v0.23-02-02-PLAN.md — execute-phase formal scope scan + run-formal-check.cjs invocation + counterexample_found routing
+- [ ] v0.23-02-03-PLAN.md — qgsd-verifier formal_context parsing + counterexample_found status + template/patterns update
+- [ ] v0.23-02-04-PLAN.md — Install sync + all structural tests GREEN
 
 ### Phase v0.23-03: Roadmapper Formal Integration
 **Goal**: qgsd-roadmapper reads formal invariants for keyword-matched modules when designing phases, making invariant constraints visible in the phase planning context
@@ -1254,6 +1259,6 @@ Plans:
 **Plans**: TBD
 
 | v0.23-01. plan-phase Formal Integration | v0.23 | Complete    | 2026-03-02 | - |
-| v0.23-02. execute-phase + Verifier Formal Integration | v0.23 | 0/TBD | Not started | - |
+| v0.23-02. execute-phase + Verifier Formal Integration | v0.23 | 0/4 | Not started | - |
 | v0.23-03. Roadmapper Formal Integration | v0.23 | 0/TBD | Not started | - |
 | v0.23-04. Integration Validation Suite | v0.23 | 0/TBD | Not started | - |
