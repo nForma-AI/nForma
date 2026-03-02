@@ -1252,7 +1252,12 @@ Plans:
   3. When no keyword-matched invariants exist, or when formal/spec/ is absent entirely, the roadmapper completes without error and without injecting any formal context
   4. plan-phase.md and execute-phase.md use the same keyword-match field (`.goal // .phase_name`), separator (`' -/'`), and bidirectional match direction -- ISSUE-1 closed
   5. Phases without a `.goal` field receive `.phase_name` as fallback in both workflows -- ISSUE-2 closed
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] v0.23-03-01-PLAN.md — TDD scaffolding: structural tests for gsd-tools regex, plan-phase field, execute-phase standardization, new-milestone scan, roadmapper agent (RED until Plans 02-03)
+- [ ] v0.23-03-02-PLAN.md — Fix gsd-tools goal regex (ISSUE-2) + standardize keyword-match in plan-phase and execute-phase (ISSUE-1)
+- [ ] v0.23-03-03-PLAN.md — new-milestone.md formal scope scan + roadmapper Task prompt injection; qgsd-roadmapper.md formal_context handling
+- [ ] v0.23-03-04-PLAN.md — Install all changed files + all structural tests GREEN + ENF-03 fail-open validated
 
 ### Phase v0.23-04: Integration Validation Suite
 **Goal**: An integration test script proves the full formal gates chain actually executed -- not that the workflow text says it should, but that tools ran and produced verifiable output
