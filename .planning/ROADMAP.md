@@ -1202,7 +1202,7 @@ Plans:
 
 **Milestone Goal:** TLC/Alloy/PRISM become actual enforcing gates in every major QGSD workflow step — tools that run, produce output, and hard-block on violations. An integration test suite proves the chain is live end-to-end.
 
-- [ ] **Phase v0.23-01: plan-phase Formal Integration** - plan-phase performs formal scope scan, populates $FORMAL_SPEC_CONTEXT, requires formal_artifacts declaration in PLAN.md frontmatter, with fail-open preservation
+- [x] **Phase v0.23-01: plan-phase Formal Integration** - plan-phase performs formal scope scan, populates $FORMAL_SPEC_CONTEXT, requires formal_artifacts declaration in PLAN.md frontmatter, with fail-open preservation (completed 2026-03-02)
 - [ ] **Phase v0.23-02: execute-phase + Verifier Formal Integration** - execute-phase runs run-formal-check.cjs after executor wave; verifier incorporates TLC/Alloy/PRISM output as ground truth; counterexample causes hard block with user-override audit trail
 - [ ] **Phase v0.23-03: Roadmapper Formal Integration** - qgsd-roadmapper reads invariants for keyword-matched modules when designing phases; fail-open preserved
 - [ ] **Phase v0.23-04: Integration Validation Suite** - Integration test script proves formal tools actually ran; covers full chain from plan-phase scan through verifier; all existing TLA+ specs pass TLC clean
@@ -1253,7 +1253,7 @@ Plans:
   3. All existing TLA+ specs (QGSDDeliberation.tla, MCbreaker.cfg, MCliveness.cfg, and any others in formal/tla/) pass TLC clean -- no regressions introduced by the integration wiring
 **Plans**: TBD
 
-| v0.23-01. plan-phase Formal Integration | v0.23 | 0/2 | Not started | - |
+| v0.23-01. plan-phase Formal Integration | v0.23 | Complete    | 2026-03-02 | - |
 | v0.23-02. execute-phase + Verifier Formal Integration | v0.23 | 0/TBD | Not started | - |
 | v0.23-03. Roadmapper Formal Integration | v0.23 | 0/TBD | Not started | - |
 | v0.23-04. Integration Validation Suite | v0.23 | 0/TBD | Not started | - |
