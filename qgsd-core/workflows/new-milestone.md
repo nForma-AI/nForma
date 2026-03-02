@@ -261,6 +261,76 @@ If "adjust": Return to scoping.
 node ~/.claude/qgsd/bin/gsd-tools.cjs commit "docs: define milestone v[X.Y] requirements" --files .planning/REQUIREMENTS.md
 ```
 
+## 9.5. Formal Scope Scan (Pre-Roadmapper)
+
+```bash
+## Step 9.5: Formal scope scan (pre-roadmapper)
+
+FORMAL_SPEC_CONTEXT=()
+
+if [ -d "formal/spec" ]; then
+  echo "◆ Formal scope scan (pre-roadmapper)..."
+  # Use milestone goal description as keyword source.
+  # Extract from PROJECT.md ## Current Milestone section (written by Step 4).
+  MILESTONE_GOAL=$(grep -A3 "## Current Milestone" .planning/PROJECT.md 2>/dev/null | grep -v "## Current Milestone" | head -1 | sed 's/^[[:space:]]*//')
+  if [ -z "$MILESTONE_GOAL" ]; then
+    # Fallback: use milestone name variable if goal not found in PROJECT.md
+    MILESTONE_GOAL="${MILESTONE_NAME:-}"
+  fi
+  MILESTONE_DESC_LOWER=$(echo "${MILESTONE_GOAL}" | tr '[:upper:]' '[:lower:]')
+
+  for MODULE_DIR in formal/spec/*/; do
+    MODULE=$(basename "$MODULE_DIR")
+    INVARIANTS_FILE="formal/spec/${MODULE}/invariants.md"
+    if [ -f "$INVARIANTS_FILE" ]; then
+      MODULE_LOWER=$(echo "$MODULE" | tr '[:upper:]' '[:lower:]')
+      MATCHED=0
+      for KEYWORD in $(echo "$MILESTONE_DESC_LOWER" | tr ' -/' '\n' | grep -v '^$'); do
+        if echo "$MODULE_LOWER" | grep -qF "$KEYWORD" || echo "$KEYWORD" | grep -qF "$MODULE_LOWER"; then
+          MATCHED=1
+          break
+        fi
+      done
+      if [ "$MATCHED" -eq 1 ]; then
+        FORMAL_SPEC_CONTEXT+=("{\"module\":\"${MODULE}\",\"path\":\"${INVARIANTS_FILE}\"}")
+      fi
+    fi
+  done
+
+  MATCH_COUNT=${#FORMAL_SPEC_CONTEXT[@]}
+  if [ "$MATCH_COUNT" -gt 0 ]; then
+    MATCHED_MODULES=$(for e in "${FORMAL_SPEC_CONTEXT[@]}"; do echo "$e" | sed 's/.*"module":"\([^"]*\)".*/\1/'; done | tr '\n' ',' | sed 's/,$//')
+    echo "◆ Formal scope scan: found ${MATCH_COUNT} module(s): ${MATCHED_MODULES}"
+  else
+    echo "◆ Formal scope scan: no keyword-matched modules (fail-open)"
+  fi
+fi
+
+# Build formal files list for injection
+FORMAL_FILES_BLOCK=""
+if [ ${#FORMAL_SPEC_CONTEXT[@]} -gt 0 ]; then
+  for ENTRY in "${FORMAL_SPEC_CONTEXT[@]}"; do
+    MODULE=$(echo "$ENTRY" | sed 's/.*"module":"\([^"]*\)".*/\1/')
+    FPATH=$(echo "$ENTRY" | sed 's/.*"path":"\([^"]*\)".*/\1/')
+    FORMAL_FILES_BLOCK+="- ${FPATH} (Formal invariants for module: ${MODULE})"$'\n'
+  done
+fi
+
+# Build formal_context block for injection
+if [ ${#FORMAL_SPEC_CONTEXT[@]} -gt 0 ]; then
+  MATCHED_MODULES_LIST=$(for e in "${FORMAL_SPEC_CONTEXT[@]}"; do echo "$e" | sed 's/.*"module":"\([^"]*\)".*/\1/'; done | tr '\n' ',' | sed 's/,$//')
+  FORMAL_CONTEXT_BLOCK="Relevant formal modules identified: ${MATCHED_MODULES_LIST}
+
+When deriving success criteria for phases that cover these modules:
+- Read the injected invariants.md files
+- Include at least one success criterion per matched-module phase that reflects the formal invariant's observable behavior
+- Success criteria must be observable behaviors, not formal notation (translate invariants to user-visible outcomes)
+- Example: EventualConsensus invariant -> \"Quorum reaches a DECIDED state on every run with at least one responding slot\""
+else
+  FORMAL_CONTEXT_BLOCK="No formal modules matched this milestone scope. Proceed with standard roadmap creation."
+fi
+```
+
 ## 10. Create Roadmap
 
 ```
@@ -287,8 +357,13 @@ Task(prompt="
 - .planning/research/SUMMARY.md (if exists)
 - .planning/config.json
 - .planning/MILESTONES.md
+${FORMAL_FILES_BLOCK}
 </files_to_read>
 </planning_context>
+
+<formal_context>
+${FORMAL_CONTEXT_BLOCK}
+</formal_context>
 
 <instructions>
 Create roadmap for milestone v[X.Y]:
@@ -296,9 +371,10 @@ Create roadmap for milestone v[X.Y]:
 2. Derive phases from THIS MILESTONE's requirements only
 3. Map every requirement to exactly one phase
 4. Derive 2-5 success criteria per phase (observable user behaviors)
-5. Validate 100% coverage
-6. Write files immediately (ROADMAP.md, STATE.md, update REQUIREMENTS.md traceability)
-7. Return ROADMAP CREATED with summary
+5. When formal context is non-empty, use invariants to sharpen criteria for matched phases
+6. Validate 100% coverage
+7. Write files immediately (ROADMAP.md, STATE.md, update REQUIREMENTS.md traceability)
+8. Return ROADMAP CREATED with summary
 
 Write files first, then return.
 </instructions>
