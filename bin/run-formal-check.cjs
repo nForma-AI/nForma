@@ -29,7 +29,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCliveness.cfg',
         'formal/tla/QGSDQuorum.tla',
         '-workers', '1'
@@ -54,7 +54,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCTUINavigation.cfg',
         'formal/tla/TUINavigation.tla',
         '-workers', '1'
@@ -65,7 +65,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCbreaker.cfg',
         'formal/tla/QGSDCircuitBreaker.tla',
         '-workers', '1'
@@ -76,7 +76,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCdeliberation.cfg',
         'formal/tla/QGSDDeliberation.tla',
         '-workers', '1'
@@ -87,7 +87,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCoscillation.cfg',
         'formal/tla/QGSDOscillation.tla',
         '-workers', '1'
@@ -98,7 +98,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCconvergence.cfg',
         'formal/tla/QGSDConvergence.tla',
         '-workers', '1'
@@ -109,7 +109,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCprefilter.cfg',
         'formal/tla/QGSDPreFilter.tla',
         '-workers', '1'
@@ -120,7 +120,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCrecruiting-safety.cfg',
         'formal/tla/QGSDRecruiting.tla',
         '-workers', '1'
@@ -131,7 +131,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCaccount-manager.cfg',
         'formal/tla/QGSDAccountManager.tla',
         '-workers', '1'
@@ -142,7 +142,7 @@ const MODULE_CHECKS = {
     {
       tool: 'tlc',
       cmd: [
-        'java', '-jar', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
+        'java', '-cp', 'formal/tla/tla2tools.jar', 'tlc2.TLC',
         '-config', 'formal/tla/MCMCPEnv.cfg',
         'formal/tla/QGSDMCPEnv.tla',
         '-workers', '1'
