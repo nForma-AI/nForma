@@ -310,7 +310,45 @@ Categorize: 🛑 Blocker (prevents goal) | ⚠️ Warning (incomplete) | ℹ️ 
 **Why human:** {Why can't verify programmatically}
 ```
 
+## Step 8.5: Parse Formal Check Result
+
+If a `<formal_context>` block was provided in the prompt, parse `FORMAL_CHECK_RESULT`:
+
+- If `FORMAL_CHECK_RESULT` is absent or the formal_context says "No formal scope matched" or
+  "tooling unavailable": set `FORMAL_RESULT = null`. Skip formal section in VERIFICATION.md.
+
+- If `FORMAL_CHECK_RESULT` is present JSON: parse `passed`, `failed`, `skipped`, `counterexamples`.
+
+Route:
+- `failed > 0`: **HARD FAILURE** — set `FORMAL_STATUS = counterexample_found`. Record the
+  `counterexamples` array. No must_haves can pass under this condition.
+- `failed == 0` AND `passed == 0` AND `skipped > 0`: set `FORMAL_STATUS = tooling_absent`.
+  Include skip warning in VERIFICATION.md. Continue normal must_haves verification.
+- `passed > 0` AND `failed == 0`: set `FORMAL_STATUS = passed`. Include pass counts as evidence.
+
+**The verifier does NOT re-run bin/run-formal-check.cjs.** The result was pre-computed by
+execute-phase and passed in the prompt. Use the passed JSON as ground truth.
+
 ## Step 9: Determine Overall Status
+
+**Status: counterexample_found** — FORMAL_CHECK_RESULT.failed > 0 (from Step 8.5). Formal model
+checker found a counterexample. Set status: counterexample_found. Include formal_check: section
+in VERIFICATION.md frontmatter with passed/failed/skipped counts and counterexamples array.
+This status prevents workflow advancement unless user provides explicit override.
+
+**Override re-verification:** If the prompt contains "User acknowledged counterexample block with
+reason: '...'" (this is the continuation prompt from execute-phase's override path):
+- Do NOT set counterexample_found.
+- Write counterexample_override: to VERIFICATION.md frontmatter:
+  ```yaml
+  counterexample_override:
+    acknowledged_at: {ISO timestamp — use current time}
+    reason: {reason string from prompt}
+    override_by: user
+  ```
+- Set status: passed (if all other must_haves checks pass) or gaps_found (if other checks fail).
+- Preserve ALL existing VERIFICATION.md content. Only add the counterexample_override: field and
+  update the status: field.
 
 **Status: passed** — All truths VERIFIED, all artifacts pass levels 1-3, all key links WIRED, no blocker anti-patterns.
 
@@ -380,6 +418,15 @@ human_verification: # Only if status: human_needed
   - test: "What to do"
     expected: "What should happen"
     why_human: "Why can't verify programmatically"
+formal_check:  # Only when FORMAL_STATUS is not null
+  passed: N
+  failed: N
+  skipped: N
+  counterexamples: []  # Only when failed > 0
+counterexample_override:  # Only when user provided override acknowledgment
+  acknowledged_at: YYYY-MM-DDTHH:MM:SSZ
+  reason: "user reason string"
+  override_by: user
 ---
 
 # Phase {X}: {Name} Verification Report
@@ -424,6 +471,29 @@ human_verification: # Only if status: human_needed
 ### Human Verification Required
 
 {Items needing human testing — detailed format for user}
+
+### Formal Verification
+
+{If FORMAL_STATUS == counterexample_found:}
+**Status: COUNTEREXAMPLE FOUND**
+Formal model checker reported failures. Workflow blocked pending user override.
+| Module:Tool | Result |
+|-------------|--------|
+| {module}:{tool} | COUNTEREXAMPLE |
+
+{If FORMAL_STATUS == tooling_absent:}
+**Status: TOOLING ABSENT (SKIP)**
+Java or model checker binaries not available. Formal check skipped.
+No formal properties verified — this is not a failure, it is a tooling gap.
+
+{If FORMAL_STATUS == passed:}
+**Status: PASSED**
+| Checks | Passed | Skipped | Failed |
+|--------|--------|---------|--------|
+| Total  | {N} | {N} | 0 |
+
+{If FORMAL_STATUS == null (no formal scope):}
+Omit this section entirely.
 
 ### Gaps Summary
 

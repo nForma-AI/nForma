@@ -10,8 +10,18 @@ Template for `.planning/phases/XX-name/{phase_num}-VERIFICATION.md` — phase go
 ---
 phase: XX-name
 verified: YYYY-MM-DDTHH:MM:SSZ
-status: passed | gaps_found | human_needed
+status: passed | gaps_found | human_needed | counterexample_found
 score: N/M must-haves verified
+formal_check:  # Only if formal check ran
+  passed: N
+  failed: N
+  skipped: N
+  counterexamples:  # Only if failed > 0
+    - "module:tool"
+counterexample_override:  # Only if user provided override
+  acknowledged_at: YYYY-MM-DDTHH:MM:SSZ
+  reason: "Reason user provided"
+  override_by: user
 ---
 
 # Phase {X}: {Name} Verification Report
@@ -165,6 +175,7 @@ None — all verifiable items checked programmatically.
 - `passed` — All must-haves verified, no blockers
 - `gaps_found` — One or more critical gaps found
 - `human_needed` — Automated checks pass but human verification required
+- `counterexample_found` — Formal model checker found a counterexample; workflow blocked pending user override acknowledgment
 
 **Evidence types:**
 - For EXISTS: "File at path, exports X"
@@ -325,33 +336,21 @@ None needed until automated gaps are fixed.
 
 ## Formal Verification
 
-> This section is generated automatically by `qgsd-verifier` after running `run-formal-verify --only=tla`.
-> Phase post-verification uses TLA+ only for consistency with the planning gate (PLAN-01).
-> For comprehensive analysis across all formalisms, run `node bin/run-formal-verify.cjs` separately.
+> This section is generated automatically by `qgsd-verifier` using `FORMAL_CHECK_RESULT` passed
+> from `execute-phase` after running `node bin/run-formal-check.cjs --modules={module_list}`.
+> The verifier does NOT re-run the formal check — it uses the pre-computed result as ground truth.
 
-**Command:** `run-formal-verify --only=tla`
-**Completed:** {ISO_TIMESTAMP}
-**Overall Status:** {pass | inconclusive | fail}
+**Command:** `node bin/run-formal-check.cjs --modules={module_list}`
+**Completed:** {ISO_TIMESTAMP or "skipped — tooling absent"}
+**Overall Status:** {passed | counterexample_found | tooling_absent}
 
-### TLA+ Results
+### Results
 
-| Result | Count | Notes |
-|--------|-------|-------|
-| pass | {N} | Checks verified |
-| fail | {N} | Critical: investigation needed |
-| warn | {N} | Advisory: review recommended |
-| inconclusive | {N} | Requires fairness assumptions or additional data |
+| Passed | Failed | Skipped | Counterexamples |
+|--------|--------|---------|-----------------|
+| {N} | {N} | {N} | {list or none} |
 
-### Summary by Result Type
-
-| Result | Count | Notes |
-|--------|-------|-------|
-| pass | {TOTAL_PASS} | All formal properties verified |
-| fail | {TOTAL_FAIL} | Critical: formal properties violated |
-| warn | {TOTAL_WARN} | Advisory items |
-| inconclusive | {TOTAL_INCONCLUSIVE} | Requires additional verification |
-
-**Conclusion:** {Generated from result counts — see bin/verify-formal-results.cjs generateFVSection}
+**Conclusion:** {passed → "All formal properties verified" | counterexample_found → "Formal violation found — override required" | tooling_absent → "Tooling unavailable — not a failure"}
 
 > Replace all `{PLACEHOLDER}` values above with actual results when using this template.
-> For phases with no formal verification run, omit this section or note "FV not run for this phase."
+> For phases with no formal verification run, omit this section or note "Formal check skipped — no keyword-matched modules."

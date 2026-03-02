@@ -2,6 +2,28 @@
 
 How to verify different types of artifacts are real implementations, not stubs or placeholders.
 
+## Status Values
+
+### counterexample_found
+
+Set when `FORMAL_CHECK_RESULT.failed > 0` from `bin/run-formal-check.cjs`.
+
+**Meaning:** Formal model checker (TLC/Alloy/PRISM) found a counterexample — the formal model's
+invariants were violated. This is a hard block on workflow advancement.
+
+**Fields added to VERIFICATION.md:**
+- `formal_check:` — pass/fail/skip counts and counterexamples array
+- `counterexample_override:` — present only when user has acknowledged and overridden
+
+**Override path:** execute-phase prompts user for acknowledgment reason → continuation verifier
+writes `counterexample_override: { acknowledged_at, reason, override_by: user }` → status
+changes to `passed`. No silent bypass path.
+
+**Fail-open distinction:** All-skipped results (tooling absent) do NOT produce counterexample_found.
+Only `failed > 0` triggers this status.
+
+---
+
 <core_principle>
 **Existence ≠ Implementation**
 
