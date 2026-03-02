@@ -13,7 +13,7 @@ See: .planning/PROJECT.md (updated 2026-03-01 after v0.21 milestone completion)
 Phase: v0.22-01 of 4 (Requirements Envelope Foundation)
 Plan: 03 of 3
 Status: Complete — 3/3 plans complete
-Last activity: 2026-03-01 — Completed quick task 126: Enforce spec requirements — never reduce objectives to match reality
+Last activity: 2026-03-02 — Completed quick task 127: Fix auto-advance chain
 
 Progress: [██████████] 100%
 
@@ -72,6 +72,7 @@ Recent decisions affecting current work:
 | 123 | Research slot worker architecture — map MCP slot capabilities and eliminate redundant Haiku file exploration | 2026-03-01 | c97102b4 | Pending | [123-research-slot-worker-architecture-map-mc](./quick/123-research-slot-worker-architecture-map-mc/) |
 | 125 | Implement thin passthrough slot worker | 2026-03-01 | fdfbf40a | Verified | [125-implement-thin-passthrough-slot-worker](./quick/125-implement-thin-passthrough-slot-worker/) |
 | 126 | Enforce spec requirements — never reduce objectives to match reality (R9 rule + binding prompts + baseline capture) | 2026-03-01 | 51c8c08f | Verified | [126-enforce-spec-requirements-never-reduce-o](./quick/126-enforce-spec-requirements-never-reduce-o/) |
+| 127 | Fix auto-advance chain: execute-phase returns structured result, plan-phase invokes next phase | 2026-03-02 | pending | Pending | [127-fix-auto-advance-chain-execute-phase-ret](./quick/127-fix-auto-advance-chain-execute-phase-ret/) |
 
 ## Session Continuity
 

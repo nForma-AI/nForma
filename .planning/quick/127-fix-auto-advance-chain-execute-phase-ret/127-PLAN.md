@@ -87,6 +87,8 @@ Edit the `<step name="offer_next">` section (lines 514-542) in execute-phase.md.
 
 3. Do NOT read or follow transition.md. Do NOT use Task or Skill to invoke anything. The workflow ends here -- the caller (plan-phase) handles the chain continuation.
 
+**Variable sourcing (CRITICAL):** Before constructing the PHASE_COMPLETE markdown block, verify that the variables `next_phase`, `next_phase_name`, and `is_last_phase` are available from the `update_roadmap` step output. These come from the JSON result of `gsd-tools phase complete "${PHASE_NUMBER}"` (line 491 of execute-phase.md). The step already says "Extract from result: `next_phase`, `next_phase_name`, `is_last_phase`" (line 501). The PHASE_COMPLETE block MUST use these extracted values -- not hardcoded placeholders. If the `phase complete` call fails or returns malformed JSON, the offer_next step should fall through to the non-auto fallback (display manual transition suggestion) rather than emitting a PHASE_COMPLETE block with empty/undefined values.
+
 **Key detail:** The `update_roadmap` step (lines 487-512) already calls `gsd-tools phase complete` which handles all critical state updates (ROADMAP checkbox, STATE.md advancement, REQUIREMENTS.md). The transition.md bookkeeping (PROJECT.md evolution, session continuity, etc.) is non-critical for auto-advance and can be done later via manual `/qgsd:transition`.
 
 **Also update the comment on line 535 ("do NOT use Task" rationale) to explain the new design:** execute-phase returns a structured signal; the orchestrator (plan-phase) handles chain continuation. This keeps context flat and avoids nested workflow reads.
@@ -139,23 +141,36 @@ Skill("/qgsd:plan-phase ${NEXT_PHASE} --auto")
 
 Add a note explaining: "Use Skill (not Task) to keep the chain flat at the orchestrator level. Each Skill invocation gets its own context window. This is the core of Option C from the quorum consensus."
 
-4. **Keep the GAPS FOUND / VERIFICATION FAILED handler (lines 682-688) exactly the same.** This already correctly stops the chain.
+4. **Fallback if PHASE_COMPLETE parsing fails:** If the `## PHASE_COMPLETE` marker is missing from execute-phase's return, or if `next_phase`/`next_phase_name`/`is_last_phase` cannot be extracted (empty, undefined, or malformed), do NOT crash or silently swallow the error. Instead, fall back to a user-facing manual transition prompt:
+```
+=============================================
+ QGSD -- AUTO-ADVANCE PARSE FAILURE
+ Could not extract next phase from execute-phase return.
+ Manual transition required.
+=============================================
 
-5. **Keep the non-auto fallback (lines 690-691) exactly the same.**
+Next: /qgsd:transition   (to advance manually)
+```
+This ensures the chain degrades gracefully rather than hanging or producing undefined behavior.
+
+5. **Keep the GAPS FOUND / VERIFICATION FAILED handler (lines 682-688) exactly the same.** This already correctly stops the chain.
+
+6. **Keep the non-auto fallback (lines 690-691) exactly the same.**
 
 **Important:** The Skill invocation should use the slash command format: `Skill("/qgsd:plan-phase ${NEXT_PHASE} --auto")`. This ensures plan-phase is invoked fresh at the top level, not nested inside the current plan-phase's Task tree.
   </action>
   <verify>
-Read the modified plan-phase.md lines 671-695. Confirm:
+Read the modified plan-phase.md lines 671-700. Confirm:
 1. The PHASE_COMPLETE handler parses next_phase, next_phase_name, is_last_phase from the structured return
 2. is_last_phase=true case displays milestone completion and stops
 3. is_last_phase=false case invokes Skill("/qgsd:plan-phase ${NEXT_PHASE} --auto")
-4. GAPS FOUND handler is preserved unchanged
-5. Non-auto fallback is preserved unchanged
-6. No "Next: /qgsd:discuss-phase" dead-end text remains
+4. Fallback clause exists: if PHASE_COMPLETE marker is missing or fields cannot be extracted, displays manual transition prompt instead of crashing
+5. GAPS FOUND handler is preserved unchanged
+6. Non-auto fallback is preserved unchanged
+7. No "Next: /qgsd:discuss-phase" dead-end text remains
   </verify>
   <done>
-plan-phase return handler parses execute-phase structured result and invokes Skill(plan-phase NEXT --auto) for chain continuation. Milestone-complete case stops the chain. Gaps/failure case stops the chain. The "Next: ..." dead-end text is gone.
+plan-phase return handler parses execute-phase structured result and invokes Skill(plan-phase NEXT --auto) for chain continuation. Milestone-complete case stops the chain. Gaps/failure case stops the chain. Parse-failure case falls back to manual transition prompt (graceful degradation). The "Next: ..." dead-end text is gone.
   </done>
 </task>
 
@@ -164,9 +179,11 @@ plan-phase return handler parses execute-phase structured result and invokes Ski
 <verification>
 After both tasks complete:
 1. Read execute-phase.md offer_next step -- confirm structured PHASE_COMPLETE return, no transition.md reference in auto path
-2. Read plan-phase.md auto-advance section -- confirm Skill invocation, no dead-end "Next:" text
-3. Verify the contract: execute-phase outputs `## PHASE_COMPLETE` with fields, plan-phase parses `## PHASE_COMPLETE` and extracts fields -- the format must match exactly
-4. Verify non-auto paths in both files are untouched
+2. Confirm execute-phase only emits PHASE_COMPLETE when next_phase/next_phase_name/is_last_phase are valid (sourced from gsd-tools phase complete JSON output); falls through to non-auto behavior if variables are missing
+3. Read plan-phase.md auto-advance section -- confirm Skill invocation, no dead-end "Next:" text
+4. Verify the contract: execute-phase outputs `## PHASE_COMPLETE` with fields, plan-phase parses `## PHASE_COMPLETE` and extracts fields -- the format must match exactly
+5. Verify plan-phase has graceful fallback: if PHASE_COMPLETE parsing fails, displays manual transition prompt instead of crashing
+6. Verify non-auto paths in both files are untouched
 </verification>
 
 <success_criteria>
