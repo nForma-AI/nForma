@@ -22,7 +22,7 @@
 - ✅ **v0.21 — FV Closed Loop** — Phases v0.21-01..v0.21-06 (shipped 2026-03-01)
 - 🚧 **v0.22 — Requirements Envelope** — Phases v0.22-01..v0.22-04 (in progress)
 - 🔧 **v0.23 — Formal Gates** — Phases v0.23-01..v0.23-04 (gap closure in progress — v0.23-03..04 need plans)
-- 📋 **v0.24 — Quorum Reliability Hardening** — Phases v0.24-01..v0.24-04 (planned)
+- 🚧 **v0.24 — Quorum Reliability Hardening** — Phases v0.24-01..v0.24-04 (in progress: v0.24-01 2/3 plans complete)
 
 ## Phases
 
@@ -1298,7 +1298,10 @@ Plans:
   2. When a slot call fails (timeout or error), `call-quorum-slot.cjs` retries up to 2 times with exponential backoff (1s then 3s delays observable in logs) before recording UNAVAIL in `quorum-failures.json`
   3. When a provider health probe returns DOWN, all slots backed by that provider are skipped in a single dispatch decision -- no per-slot probing of a known-dead provider
   4. Quorum still reaches a DECIDED state on every run where at least one provider with responsive slots remains available (EventualConsensus preserved under partial provider failure)
-**Plans**: TBD
+**Plans**:
+- [x] **Plan 01: TDD Test Scaffolding** — Create 22 GREEN unit tests (backoff, provider grouping) and 5 RED structural tests for Plans 02-03
+- [x] **Plan 02: Retry Backoff Implementation** — Implement retry-with-exponential-backoff (1s, 3s, max 2 retries) in call-quorum-slot.cjs (FAIL-01 complete)
+- [ ] **Plan 03: Provider Field and Dispatch** — Add provider field to providers.json and provider-aware dispatch skip logic in qgsd-prompt.js (FAIL-02)
 
 ### Phase v0.24-02: Dispatch Reliability
 **Goal**: The dispatch list is built from live health data rather than static configuration -- dead providers are excluded, cooling-down slots are skipped, and the most reliable slots are tried first
@@ -1332,7 +1335,7 @@ Plans:
   3. Quorum reaches a DECIDED state on every run where at least one slot responds with a valid vote -- the EventualConsensus property holds even when early escalation fires (escalation produces a decision, not a hang)
 **Plans**: TBD
 
-| v0.24-01. Provider Infrastructure and Failover | v0.24 | 1/3 | In progress | 2026-03-02 |
+| v0.24-01. Provider Infrastructure and Failover | v0.24 | 2/3 | In progress | 2026-03-02 |
 | v0.24-02. Dispatch Reliability | v0.24 | 0/TBD | Not started | - |
 | v0.24-03. Quorum Observability | v0.24 | 0/TBD | Not started | - |
 | v0.24-04. Self-Healing Consensus | v0.24 | 0/TBD | Not started | - |
