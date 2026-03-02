@@ -39,6 +39,7 @@ Progress: [████████████████████] 135/132
 *Updated after each plan completion*
 | Phase v0.23-03 P01 | 2 | 1 tasks | 1 files |
 | Phase v0.23-03 P02 | 8 | 2 tasks | 4 files |
+| Phase v0.23-03 P03 | 100s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -54,6 +55,8 @@ Recent decisions affecting current work:
 - [Phase v0.23-03]: Test reads qgsd-core/ source files (not installed ~/.claude/ copies); roadmapper agent at top-level agents/qgsd-roadmapper.md not qgsd-core/agents/
 - [Phase v0.23-03]: Template strings in gsd-tools.cjs creating new ROADMAP entries fixed to **Goal**: format (colon outside) for parser consistency
 - [Phase v0.23-03]: Keyword-match algorithm canonical: .goal // .phase_name source, tr ' -/' separator, bidirectional grep-qF — standardized across plan-phase and execute-phase
+- [Phase v0.23-03]: Step 9.5 formal scope scan wired into new-milestone.md before roadmapper Task spawn; MILESTONE_GOAL from PROJECT.md ## Current Milestone with MILESTONE_NAME fallback; FORMAL_FILES_BLOCK and FORMAL_CONTEXT_BLOCK injected into roadmapper prompt
+- [Phase v0.23-03]: qgsd-roadmapper.md Step 5.1 added to execution_flow: reads injected invariants.md files, derives formal-invariant-based success criteria for matched-module phases, fail-open when formal_context is empty
 
 ### Pending Todos
 
@@ -80,5 +83,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed v0.23-03-01-PLAN.md — TDD test scaffold with 7 RED structural guards and 12 GREEN unit tests
+Stopped at: Completed v0.23-03-03-PLAN.md — roadmapper source wiring: Step 9.5 in new-milestone.md + Step 5.1 in qgsd-roadmapper.md, all 19 tests GREEN
 Resume file: None
