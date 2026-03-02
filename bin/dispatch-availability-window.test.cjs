@@ -30,24 +30,25 @@ test('STRUCTURAL: getAvailableSlots function exists in qgsd-prompt.js', () => {
 });
 
 test('STRUCTURAL: getAvailableSlots is exported for testing', () => {
-  // Check that getAvailableSlots appears in a module.exports block
-  const exportsMatch = qgsdPromptContent.match(/module\.exports\s*=\s*\{[^}]*getAvailableSlots[^}]*\}/s);
+  // Check that getAvailableSlots appears in module.exports (either object literal or property assignment)
+  const hasExport =
+    qgsdPromptContent.includes('module.exports.getAvailableSlots') ||
+    (qgsdPromptContent.match(/module\.exports\s*=\s*\{[^}]*getAvailableSlots[^}]*\}/s) !== null);
   assert.ok(
-    exportsMatch,
-    'getAvailableSlots not found in module.exports block -- Plan 02 must export it'
+    hasExport,
+    'getAvailableSlots not found in module.exports -- Plan 02 must export it'
   );
 });
 
 test('STRUCTURAL: availability filtering integrated into dispatch flow', () => {
-  // Check that getAvailableSlots is called (not just defined) in the dispatch flow
-  // Look for a call pattern: getAvailableSlots(
-  const callPattern = /getAvailableSlots\s*\(/;
-  const defPattern = /function\s+getAvailableSlots|const\s+getAvailableSlots|getAvailableSlots\s*=/;
-  const calls = qgsdPromptContent.match(new RegExp(callPattern, 'g')) || [];
-  const defs = qgsdPromptContent.match(new RegExp(defPattern, 'g')) || [];
-  // Must have at least one call beyond the definition
+  // Check that getAvailableSlots is called in the dispatch flow.
+  // Look for assignment pattern: cappedSlots = getAvailableSlots( or similar call site
+  // that is distinct from the function definition line.
+  const hasCallSite =
+    qgsdPromptContent.includes('= getAvailableSlots(') ||
+    qgsdPromptContent.includes('getAvailableSlots(cappedSlots');
   assert.ok(
-    calls.length > defs.length,
+    hasCallSite,
     'getAvailableSlots is defined but never called in dispatch flow -- Plan 02 must integrate it'
   );
 });

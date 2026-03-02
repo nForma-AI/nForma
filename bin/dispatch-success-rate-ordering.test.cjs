@@ -30,22 +30,24 @@ test('STRUCTURAL: sortBySuccessRate function exists in qgsd-prompt.js', () => {
 });
 
 test('STRUCTURAL: sortBySuccessRate is exported for testing', () => {
-  // Check that sortBySuccessRate appears in a module.exports block
-  const exportsMatch = qgsdPromptContent.match(/module\.exports\s*=\s*\{[^}]*sortBySuccessRate[^}]*\}/s);
+  // Check that sortBySuccessRate appears in module.exports (either object literal or property assignment)
+  const hasExport =
+    qgsdPromptContent.includes('module.exports.sortBySuccessRate') ||
+    (qgsdPromptContent.match(/module\.exports\s*=\s*\{[^}]*sortBySuccessRate[^}]*\}/s) !== null);
   assert.ok(
-    exportsMatch,
-    'sortBySuccessRate not found in module.exports block -- Plan 02 must export it'
+    hasExport,
+    'sortBySuccessRate not found in module.exports -- Plan 02 must export it'
   );
 });
 
 test('STRUCTURAL: success rate sorting integrated into dispatch flow', () => {
-  // Check that sortBySuccessRate is called (not just defined) in the dispatch flow
-  const callPattern = /sortBySuccessRate\s*\(/;
-  const defPattern = /function\s+sortBySuccessRate|const\s+sortBySuccessRate|sortBySuccessRate\s*=/;
-  const calls = qgsdPromptContent.match(new RegExp(callPattern, 'g')) || [];
-  const defs = qgsdPromptContent.match(new RegExp(defPattern, 'g')) || [];
+  // Check that sortBySuccessRate is called in the dispatch flow.
+  // Look for assignment pattern: cappedSlots = sortBySuccessRate( or similar call site.
+  const hasCallSite =
+    qgsdPromptContent.includes('= sortBySuccessRate(') ||
+    qgsdPromptContent.includes('sortBySuccessRate(cappedSlots');
   assert.ok(
-    calls.length > defs.length,
+    hasCallSite,
     'sortBySuccessRate is defined but never called in dispatch flow -- Plan 02 must integrate it'
   );
 });

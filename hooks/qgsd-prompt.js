@@ -158,6 +158,86 @@ function findProviders() {
   return null;
 }
 
+// Triggers a fresh health probe before reading the cache.
+// Runs check-provider-health.cjs with a 3s timeout via spawnSync.
+// Fail-open: if spawn fails or times out, dispatch continues with stale/missing cache.
+function triggerHealthProbe() {
+  try {
+    const searchPaths = [
+      path.join(__dirname, '..', 'bin', 'check-provider-health.cjs'),
+      path.join(os.homedir(), '.claude', 'qgsd-bin', 'check-provider-health.cjs'),
+    ];
+    let checkPath = null;
+    for (const p of searchPaths) {
+      if (fs.existsSync(p)) { checkPath = p; break; }
+    }
+    if (!checkPath) return; // no probe script found — fail-open
+    spawnSync('node', [checkPath, '--json'], { timeout: 3000, stdio: 'ignore' });
+  } catch (_) { /* fail-open: probe failure does not block dispatch */ }
+}
+
+// Filters slots by availability window from scoreboard.
+// Reads .planning/quorum-scoreboard.json availability section.
+// Slots whose available_at_iso is in the future are excluded (cooling down).
+// Fail-open: if scoreboard missing, malformed, or any error, returns all slots unchanged.
+function getAvailableSlots(slots, cwd) {
+  try {
+    const sbPath = path.join(cwd, '.planning', 'quorum-scoreboard.json');
+    if (!fs.existsSync(sbPath)) return slots;
+    const scoreboard = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
+    if (!scoreboard || !scoreboard.availability) return slots;
+    const now = Date.now();
+    return slots.filter(s => {
+      const avail = scoreboard.availability[s.slot];
+      if (!avail || !avail.available_at_iso) return true;
+      try {
+        const ts = new Date(avail.available_at_iso).getTime();
+        if (isNaN(ts)) return true; // malformed date: fail-open
+        if (ts > now) {
+          console.error(`[qgsd-dispatch] AVAILABILITY EXCLUDE: ${s.slot} -- available_at_iso=${avail.available_at_iso} is in the future (now=${new Date().toISOString()})`);
+          return false;
+        }
+        return true;
+      } catch (_) { return true; }
+    });
+  } catch (_) { return slots; } // fail-open: any error → return all slots
+}
+
+// Sorts slots by descending success rate from scoreboard slot stats.
+// Reads .planning/quorum-scoreboard.json slots section.
+// Scoreboard keys are composite: "slotName:modelId" (e.g., "claude-1:deepseek-ai/DeepSeek-V3.2").
+// Extract slot name: const slotName = key.split(':')[0];
+// Example: const allModelsForSlot = Object.entries(scoreboard.slots)
+//   .filter(([k]) => k.startsWith(slotName + ':'))
+//   .map(([_, v]) => v);
+// Then sum their tp/fn values.
+// Fail-open: if scoreboard missing or any error, returns slots in original order.
+function sortBySuccessRate(slots, cwd) {
+  try {
+    const sbPath = path.join(cwd, '.planning', 'quorum-scoreboard.json');
+    if (!fs.existsSync(sbPath)) return [...slots];
+    const scoreboard = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
+    if (!scoreboard || !scoreboard.slots) return [...slots];
+
+    // Aggregate tp/fn across all model entries for a given slot name.
+    const getRate = (slotName) => {
+      const entries = Object.entries(scoreboard.slots)
+        .filter(([k]) => k.split(':')[0] === slotName)
+        .map(([_, v]) => v);
+      if (entries.length === 0) return 0.5; // default for unknown
+      const totalTp = entries.reduce((sum, e) => sum + (e.tp || 0), 0);
+      const totalFn = entries.reduce((sum, e) => sum + (e.fn || 0), 0);
+      const rate = (totalTp + totalFn) === 0 ? 0.5 : totalTp / (totalTp + totalFn);
+      console.error(`[qgsd-dispatch] SUCCESS RATE: ${slotName} = ${rate.toFixed(3)} (tp=${totalTp}, fn=${totalFn}, models=${entries.length})`);
+      return rate;
+    };
+
+    const sorted = [...slots].sort((a, b) => getRate(b.slot) - getRate(a.slot));
+    console.error(`[qgsd-dispatch] DISPATCH ORDER: [${sorted.map(s => s.slot).join(', ')}]`);
+    return sorted;
+  } catch (_) { return [...slots]; } // fail-open: any error → return original order
+}
+
 // Returns slot names whose backing provider is DOWN (probed unhealthy).
 // Reads ~/.claude/qgsd-provider-cache.json and matches providers from providers.json.
 // When a provider's endpoint is DOWN, ALL slots backed by that provider are skipped.
@@ -333,12 +413,34 @@ process.stdin.on('end', () => {
       const externalSlotCap = fanOutCount - 1;
       let cappedSlots = orderedSlots.slice(0, externalSlotCap);
 
+      // DISP-01: Trigger fresh health probe before reading cache
+      triggerHealthProbe();
+
       // Filter out slots backed by DOWN providers before building dynamic steps.
       const recentTimeouts = getRecentlyTimedOutSlots(cwd);
       const providerSkips = getDownProviderSlots();
       const allSkipSlots = [...new Set([...recentTimeouts, ...providerSkips])];
       const skipSet = new Set(allSkipSlots);
       cappedSlots = cappedSlots.filter(s => !skipSet.has(s.slot));
+
+      // DISP-02: Filter by availability window (exclude cooling-down slots)
+      const beforeAvail = cappedSlots.map(s => s.slot);
+      cappedSlots = getAvailableSlots(cappedSlots, cwd);
+      const availabilitySkips = beforeAvail.filter(s => !cappedSlots.some(c => c.slot === s));
+
+      // DISP-03: Sort by descending success rate
+      cappedSlots = sortBySuccessRate(cappedSlots, cwd);
+
+      // SC-4: Graceful fallback — ensure at least one slot in dispatch list
+      if (cappedSlots.length === 0 && orderedSlots.length > 0) {
+        const relaxedSlots = orderedSlots.filter(s => !skipSet.has(s.slot));
+        if (relaxedSlots.length > 0) {
+          cappedSlots = [relaxedSlots[0]];
+        } else {
+          cappedSlots = [orderedSlots[0]]; // last resort: any slot at all
+        }
+        console.error(`[qgsd-dispatch] FALLBACK: all slots filtered, restored ${cappedSlots[0].slot}`);
+      }
 
       // Generate step list, with optional section headers when preferSub is on
       let stepLines = [];
@@ -422,6 +524,9 @@ process.stdin.on('end', () => {
       }
       if (providerSkips.length > 0) {
         skipNote += `SKIP (PROVIDER DOWN): [${providerSkips.join(', ')}] — entire provider unreachable, skip all backed slots.\n`;
+      }
+      if (availabilitySkips.length > 0) {
+        skipNote += `SKIP (COOLING DOWN): [${availabilitySkips.join(', ')}] — available_at in future, skipping.\n`;
       }
 
       instructions = `QUORUM REQUIRED${minNote} (structural enforcement — Stop hook will verify)\n\n` +
@@ -508,4 +613,6 @@ if (typeof module !== 'undefined') {
   module.exports = module.exports || {};
   module.exports.mapRiskLevelToCount = mapRiskLevelToCount;
   module.exports.parseQuorumSizeFlag = parseQuorumSizeFlag;
+  module.exports.getAvailableSlots = getAvailableSlots;
+  module.exports.sortBySuccessRate = sortBySuccessRate;
 }
