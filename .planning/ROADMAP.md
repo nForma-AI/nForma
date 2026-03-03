@@ -1221,7 +1221,7 @@ Plans:
 **Milestone Goal:** Make quorum dispatch reliable end-to-end — every quorum call reliably delivers 3 votes by detecting dead slots pre-dispatch, self-healing around mid-session failures without user action, and providing observability into slot health, success rates, and flakiness.
 
 - [x] **Phase v0.24-01: Provider Infrastructure and Failover** - Explicit provider-to-slot mapping in providers.json and retry-with-backoff in call-quorum-slot.cjs (4/4 plans complete, FAIL-01+FAIL-02 verified)
-- [ ] **Phase v0.24-02: Dispatch Reliability** - Pre-dispatch health probes, scoreboard availability windows, and success-rate-ordered dispatch list
+- [x] **Phase v0.24-02: Dispatch Reliability** - Pre-dispatch health probes, scoreboard availability windows, and success-rate-ordered dispatch list (completed 2026-03-03)
 - [ ] **Phase v0.24-03: Quorum Observability** - Structured per-round telemetry, delivery rate tracking in scoreboard, and per-slot flakiness scoring
 - [ ] **Phase v0.24-04: Self-Healing Consensus** - Early escalation when P(consensus) drops below threshold and auto-adjustment of maxDeliberation
 
@@ -1276,7 +1276,7 @@ Plans:
 **Plans**: TBD
 
 | v0.24-01. Provider Infrastructure and Failover | v0.24 | 4/4 | Complete   | 2026-03-02 |
-| v0.24-02. Dispatch Reliability | v0.24 | 0/3 | Planned | - |
+| v0.24-02. Dispatch Reliability | v0.24 | Complete    | 2026-03-03 | - |
 | v0.24-03. Quorum Observability | v0.24 | 0/TBD | Not started | - |
 | v0.24-04. Self-Healing Consensus | v0.24 | 0/TBD | Not started | - |
 
