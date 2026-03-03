@@ -10,7 +10,8 @@ const { deriveKeytarAccount, maskKey, buildKeyStatus, buildAgentChoiceLabel, app
         buildTimeoutChoices, applyTimeoutUpdate,
         buildPolicyChoices, validateTimeout, validateUpdatePolicy,
         buildUpdateLogEntry, parseUpdateLogErrors,
-        buildBackupPath, buildRedactedEnv, buildExportData, validateImportSchema } = _pure;
+        buildBackupPath, buildRedactedEnv, buildExportData, validateImportSchema,
+        liveDashboard } = _pure;
 
 // ---------------------------------------------------------------------------
 // deriveKeytarAccount
@@ -1736,4 +1737,104 @@ test('REN-03: zero get-shit-done/ directory paths in template files', () => {
     if (matches) violations.push({ file: f, count: matches.length });
   }
   assert.deepStrictEqual(violations, [], 'No template file should contain /get-shit-done/ path segments');
+});
+
+// ---------------------------------------------------------------------------
+// DASH-01 / DASH-02 / DASH-03 — Health Dashboard requirement coverage
+// ---------------------------------------------------------------------------
+
+// ── DASH-01: Dashboard display ──────────────────────────────────────────────
+
+test('DASH-01: buildDashboardLines renders header with "QGSD Live Health Dashboard" title', () => {
+  const lines = buildDashboardLines([], {}, {}, null);
+  const joined = lines.join('\n');
+  assert.ok(joined.includes('QGSD Live Health Dashboard'), 'must contain header title');
+});
+
+test('DASH-01: buildDashboardLines shows slot name, provider hostname, model name, and health status for each slot', () => {
+  const slots = ['claude-1', 'gemini-1'];
+  const mcpServers = {
+    'claude-1': { env: { ANTHROPIC_BASE_URL: 'https://api.akashml.com/v1', CLAUDE_DEFAULT_MODEL: 'deepseek-v3' } },
+    'gemini-1': { env: { ANTHROPIC_BASE_URL: 'https://api.together.xyz/v1' } },
+  };
+  const healthMap = {
+    'claude-1': { healthy: true, latencyMs: 42, statusCode: 200 },
+    'gemini-1': { healthy: false, latencyMs: 0, statusCode: 500 },
+  };
+  const lines = buildDashboardLines(slots, mcpServers, healthMap, Date.now());
+  const joined = lines.join('\n');
+  // DASH-01: verify all four columns for each slot
+  assert.ok(joined.includes('claude-1'), 'must show first slot name');
+  assert.ok(joined.includes('akashml'), 'must show first slot provider');
+  assert.ok(joined.includes('deepseek'), 'must show first slot model');
+  assert.ok(joined.includes('UP'), 'must show UP status for healthy slot');
+  assert.ok(joined.includes('gemini-1'), 'must show second slot name');
+  assert.ok(joined.includes('together'), 'must show second slot provider');
+  assert.ok(joined.includes('DOWN'), 'must show DOWN status for unhealthy slot');
+});
+
+test('DASH-01: buildDashboardLines shows subprocess label for non-HTTP slots', () => {
+  const slots = ['copilot-1'];
+  const mcpServers = { 'copilot-1': { command: 'node', args: ['server.js'], env: {} } };
+  const healthMap = { 'copilot-1': { healthy: null, error: 'subprocess' } };
+  const lines = buildDashboardLines(slots, mcpServers, healthMap, Date.now());
+  const joined = lines.join('\n');
+  assert.ok(joined.includes('subprocess'), 'must show subprocess label for non-HTTP slot');
+});
+
+// ── DASH-02: Refresh and timestamp ──────────────────────────────────────────
+
+test('DASH-02: formatTimestamp renders HH:MM:SS format for valid timestamp', () => {
+  const result = formatTimestamp(Date.now());
+  assert.match(result, /^\d{2}:\d{2}:\d{2}$/, 'must be HH:MM:SS format');
+});
+
+test('DASH-02: formatTimestamp renders em-dash for null (never refreshed state)', () => {
+  assert.strictEqual(formatTimestamp(null), '\u2014', 'null must render as em-dash');
+});
+
+test('DASH-02: buildDashboardLines shows footer with [space/r] refresh and [q/Esc] exit keybinding hints', () => {
+  const lines = buildDashboardLines([], {}, {}, Date.now());
+  const joined = lines.join('\n');
+  assert.ok(joined.includes('[space/r] refresh'), 'must show refresh keybinding hint');
+  assert.ok(joined.includes('[q/Esc] exit'), 'must show exit keybinding hint');
+});
+
+test('DASH-02: buildDashboardLines shows yellow [stale] warning when lastUpdated exceeds 60-second threshold', () => {
+  const staleTs = Date.now() - 70_000;
+  const lines = buildDashboardLines([], {}, {}, staleTs);
+  const joined = lines.join('\n');
+  assert.ok(joined.includes('stale'), 'must show stale warning text');
+  assert.ok(joined.includes('\x1b[33m'), 'must contain yellow ANSI escape code for stale indicator');
+});
+
+test('DASH-02: buildDashboardLines does NOT show [stale] warning when lastUpdated is within 60 seconds', () => {
+  const freshTs = Date.now() - 10_000;
+  const lines = buildDashboardLines([], {}, {}, freshTs);
+  const joined = lines.join('\n');
+  assert.ok(!joined.includes('stale'), 'must NOT show stale warning when timestamp is fresh');
+});
+
+// ── DASH-03: Clean exit ─────────────────────────────────────────────────────
+
+test('DASH-03: liveDashboard non-TTY fallback resolves without throwing (clean exit path)', async () => {
+  // In node:test context process.stdout.isTTY is falsy — non-TTY branch fires.
+  // Guard: if somehow running in a real TTY, skip to avoid raw-mode hang.
+  if (process.stdout.isTTY) {
+    return;
+  }
+  await assert.doesNotReject(liveDashboard());
+});
+
+test('DASH-03: liveDashboard is an async function returning a Promise (exit contract)', () => {
+  // Verify liveDashboard is callable and returns a thenable (Promise),
+  // confirming the async exit contract for clean stdin restoration.
+  assert.ok(typeof liveDashboard === 'function', 'liveDashboard must be a function');
+  if (process.stdout.isTTY) {
+    return; // Cannot safely call in TTY — just verify it is a function
+  }
+  const result = liveDashboard();
+  assert.ok(result instanceof Promise, 'liveDashboard() must return a Promise');
+  // Clean up: await the promise so it does not leak
+  return result;
 });
