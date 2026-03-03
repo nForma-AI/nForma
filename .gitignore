@@ -1,5 +1,8 @@
 node_modules/
 .DS_Store
+.env
+.env.*
+.npmrc
 .vscode/
 TO-DOS.md
 CLAUDE.md
