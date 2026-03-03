@@ -57,7 +57,7 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- [v0.12 carry-forward]: npm publish qgsd@0.2.0 deferred; run `npm publish --access public` when user decides
+- [v0.12 resolved]: @nforma.ai/qgsd@0.2.0 published to npm (2026-03-03); QUICK-136 hardened package quality
 - [v0.18-06/07 open]: v0.18-06 (FAN-04 Stop hook ceiling fix) and v0.18-07 (ENV-03 envelope path wiring) not yet started
 - [v0.21-02 carry-forward]: 3983 unmappable_action divergences remain (correctly excluded from state_mismatch rate)
 
@@ -67,6 +67,7 @@ Recent decisions affecting current work:
 |---|---|---|---|---|---|
 | 134 | Integrate formal_models field and detect-coverage-gaps into requirements TUI | 2026-03-03 | c1d5bf18 | Verified | [134-integrate-formal-models-field-and-detect](./quick/134-integrate-formal-models-field-and-detect/) |
 | 135 | Rename formal/ to .formal/ and update all references | 2026-03-03 | 5fe49c8c | Complete | [135-rename-formal-to-formal-and-update-all-r](./quick/135-rename-formal-to-formal-and-update-all-r/) |
+| 136 | Harden npm package for release quality — exclude test files, fix badges/author/peerDeps, update package-lock | 2026-03-03 | aabcab2a | Verified | [136-npm-release-quality-exclude-test-files-f](./quick/136-npm-release-quality-exclude-test-files-f/) |
 | 137 | Fix empty roster handling — add validation and graceful degradation when no agents are configured in providers.json | 2026-03-03 | 2f9058c5 | Pending | [137-fix-empty-roster-handling-add-validation](./quick/137-fix-empty-roster-handling-add-validation/) |
 
 ## Session Continuity
