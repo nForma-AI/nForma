@@ -1,0 +1,612 @@
+{
+  "metadata": {
+    "generated_at": "2026-03-03T12:37:54.382Z",
+    "generator": "analyze-state-space",
+    "version": "1.0",
+    "thresholds": {
+      "MINIMAL": 1000,
+      "LOW": 100000,
+      "MODERATE": 10000000
+    }
+  },
+  "models": {
+    ".formal/tla/QGSDAccountManager.tla": {
+      "module_name": "QGSDAccountManager",
+      "cfg_file": ".formal/tla/MCaccount-manager.cfg",
+      "variables": [
+        {
+          "name": "state",
+          "domain": "FsmStates",
+          "cardinality": null,
+          "bounded": true
+        },
+        {
+          "name": "active",
+          "domain": "AccountIds \\union {NoAccount}",
+          "cardinality": null,
+          "bounded": false
+        }
+      ],
+      "constants": [
+        {
+          "name": "MaxPool",
+          "value": 4,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "active: AccountIds \\union {NoAccount}"
+      ],
+      "risk_level": "HIGH",
+      "risk_reason": "Unbounded domains: active: AccountIds \\union {NoAccount}",
+      "invariant_count": 6,
+      "property_count": 1
+    },
+    ".formal/tla/QGSDCircuitBreaker.tla": {
+      "module_name": "QGSDCircuitBreaker",
+      "cfg_file": ".formal/tla/MCbreaker.cfg",
+      "variables": [
+        {
+          "name": "active",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        },
+        {
+          "name": "disabled",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        }
+      ],
+      "constants": [],
+      "estimated_states": 4,
+      "has_unbounded": false,
+      "unbounded_domains": [],
+      "risk_level": "MINIMAL",
+      "risk_reason": "Estimated 4 states (<= 1000)",
+      "invariant_count": 2,
+      "property_count": 1
+    },
+    ".formal/tla/QGSDConvergence.tla": {
+      "module_name": "QGSDConvergence",
+      "cfg_file": ".formal/tla/MCconvergence.cfg",
+      "variables": [
+        {
+          "name": "logWritten",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        },
+        {
+          "name": "stateDeleted",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        },
+        {
+          "name": "haikuVerdict",
+          "domain": "HaikuVerdicts",
+          "cardinality": null,
+          "bounded": true
+        }
+      ],
+      "constants": [],
+      "estimated_states": null,
+      "has_unbounded": false,
+      "unbounded_domains": [],
+      "risk_level": "MODERATE",
+      "risk_reason": "State-space could not be fully estimated (some domains unresolvable)",
+      "invariant_count": 2,
+      "property_count": 3
+    },
+    ".formal/tla/QGSDDeliberation.tla": {
+      "module_name": "QGSDDeliberation",
+      "cfg_file": ".formal/tla/MCdeliberation.cfg",
+      "variables": [
+        {
+          "name": "deliberationRound",
+          "domain": "0..MaxDeliberationRounds",
+          "cardinality": 11,
+          "bounded": true
+        },
+        {
+          "name": "improvementIteration",
+          "domain": "0..MaxImprovementIterations",
+          "cardinality": 11,
+          "bounded": true
+        },
+        {
+          "name": "voteState",
+          "domain": "VoteStates",
+          "cardinality": null,
+          "bounded": true
+        }
+      ],
+      "constants": [
+        {
+          "name": "MaxDeliberationRounds",
+          "value": 10,
+          "type": "integer"
+        },
+        {
+          "name": "MaxImprovementIterations",
+          "value": 10,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": null,
+      "has_unbounded": false,
+      "unbounded_domains": [],
+      "risk_level": "MODERATE",
+      "risk_reason": "State-space could not be fully estimated (some domains unresolvable)",
+      "invariant_count": 2,
+      "property_count": 3
+    },
+    ".formal/tla/QGSDMCPEnv.tla": {
+      "module_name": "QGSDMCPEnv",
+      "cfg_file": ".formal/tla/MCMCPEnv.cfg",
+      "variables": [
+        {
+          "name": "slotStatus",
+          "domain": "unknown",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "callState",
+          "domain": "unknown",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "quorumPhase",
+          "domain": "unknown",
+          "cardinality": null,
+          "bounded": false
+        }
+      ],
+      "constants": [
+        {
+          "name": "NumSlots",
+          "value": 2,
+          "type": "integer"
+        },
+        {
+          "name": "MaxRetries",
+          "value": 2,
+          "type": "integer"
+        },
+        {
+          "name": "QuorumThreshold",
+          "value": 1,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "slotStatus: unknown",
+        "callState: unknown",
+        "quorumPhase: unknown"
+      ],
+      "risk_level": "HIGH",
+      "risk_reason": "Unbounded domains: slotStatus: unknown, callState: unknown, quorumPhase: unknown",
+      "invariant_count": 2,
+      "property_count": 1
+    },
+    ".formal/tla/QGSDOscillation.tla": {
+      "module_name": "QGSDOscillation",
+      "cfg_file": ".formal/tla/MCoscillation.cfg",
+      "variables": [
+        {
+          "name": "commits",
+          "domain": "Seq(Labels)",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "runs",
+          "domain": "Seq(Labels)",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "flagCount",
+          "domain": "[Labels -> Nat]",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "netChange",
+          "domain": "-(CommitWindow)..(CommitWindow)",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "flagged",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        },
+        {
+          "name": "algorithmDone",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        }
+      ],
+      "constants": [
+        {
+          "name": "Labels",
+          "value": [
+            "A",
+            "B",
+            "C"
+          ],
+          "type": "set",
+          "cardinality": 3
+        },
+        {
+          "name": "Depth",
+          "value": 3,
+          "type": "integer"
+        },
+        {
+          "name": "CommitWindow",
+          "value": 5,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "commits: Seq(Labels)",
+        "runs: Seq(Labels)",
+        "flagCount: [Labels -> Nat]",
+        "netChange: -(CommitWindow)..(CommitWindow)"
+      ],
+      "risk_level": "HIGH",
+      "risk_reason": "Unbounded domains: commits: Seq(Labels), runs: Seq(Labels), flagCount: [Labels -> Nat], netChange: -(CommitWindow)..(CommitWindow)",
+      "invariant_count": 2,
+      "property_count": 1
+    },
+    ".formal/tla/QGSDPreFilter.tla": {
+      "module_name": "QGSDPreFilter",
+      "cfg_file": ".formal/tla/MCprefilter.cfg",
+      "variables": [
+        {
+          "name": "filterRound",
+          "domain": "0..MaxFilterRounds",
+          "cardinality": 4,
+          "bounded": true
+        },
+        {
+          "name": "modelAgreement",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        },
+        {
+          "name": "autoResolved",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        },
+        {
+          "name": "filterPhase",
+          "domain": "FilterPhases",
+          "cardinality": null,
+          "bounded": true
+        }
+      ],
+      "constants": [
+        {
+          "name": "MaxFilterRounds",
+          "value": 3,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": null,
+      "has_unbounded": false,
+      "unbounded_domains": [],
+      "risk_level": "MODERATE",
+      "risk_reason": "State-space could not be fully estimated (some domains unresolvable)",
+      "invariant_count": 4,
+      "property_count": 1
+    },
+    ".formal/tla/QGSDQuorum.tla": {
+      "module_name": "QGSDQuorum",
+      "cfg_file": ".formal/tla/MCliveness.cfg",
+      "variables": [
+        {
+          "name": "phase",
+          "domain": "{\"IDLE\", \"COLLECTING_VOTES\", \"DELIBERATING\", \"DECIDED\"}",
+          "cardinality": 4,
+          "bounded": true
+        },
+        {
+          "name": "polledCount",
+          "domain": "0..MaxSize",
+          "cardinality": 4,
+          "bounded": true
+        },
+        {
+          "name": "deliberationRounds",
+          "domain": "0..MaxDeliberation",
+          "cardinality": 10,
+          "bounded": true
+        }
+      ],
+      "constants": [
+        {
+          "name": "Agents",
+          "value": [
+            "a1",
+            "a2",
+            "a3"
+          ],
+          "type": "set",
+          "cardinality": 3
+        },
+        {
+          "name": "MaxDeliberation",
+          "value": 9,
+          "type": "integer"
+        },
+        {
+          "name": "MaxSize",
+          "value": 3,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": 160,
+      "has_unbounded": false,
+      "unbounded_domains": [],
+      "risk_level": "MINIMAL",
+      "risk_reason": "Estimated 160 states (<= 1000)",
+      "invariant_count": 0,
+      "property_count": 1
+    },
+    ".formal/tla/QGSDQuorum_xstate.tla": {
+      "module_name": "QGSDQuorum",
+      "cfg_file": ".formal/tla/MCliveness.cfg",
+      "variables": [
+        {
+          "name": "state",
+          "domain": "{\"IDLE\", \"COLLECTING_VOTES\", \"DELIBERATING\", \"DECIDED\"}",
+          "cardinality": 4,
+          "bounded": true
+        },
+        {
+          "name": "slotsAvailable",
+          "domain": "Nat",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "successCount",
+          "domain": "Nat",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "deliberationRounds",
+          "domain": "Nat",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "maxDeliberation",
+          "domain": "Nat",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "maxSize",
+          "domain": "Nat",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "polledCount",
+          "domain": "Nat",
+          "cardinality": null,
+          "bounded": false
+        }
+      ],
+      "constants": [
+        {
+          "name": "Agents",
+          "value": [
+            "a1",
+            "a2",
+            "a3"
+          ],
+          "type": "set",
+          "cardinality": 3
+        },
+        {
+          "name": "MaxDeliberation",
+          "value": 9,
+          "type": "integer"
+        },
+        {
+          "name": "MaxSize",
+          "value": 3,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "slotsAvailable: Nat",
+        "successCount: Nat",
+        "deliberationRounds: Nat",
+        "maxDeliberation: Nat",
+        "maxSize: Nat",
+        "polledCount: Nat"
+      ],
+      "risk_level": "HIGH",
+      "risk_reason": "Unbounded domains: slotsAvailable: Nat, successCount: Nat, deliberationRounds: Nat, maxDeliberation: Nat, maxSize: Nat, polledCount: Nat",
+      "invariant_count": 0,
+      "property_count": 1
+    },
+    ".formal/tla/QGSDRecruiting.tla": {
+      "module_name": "QGSDRecruiting",
+      "cfg_file": ".formal/tla/MCrecruiting-liveness.cfg",
+      "variables": [
+        {
+          "name": "recruited",
+          "domain": "SUBSET AllSlots",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "tried",
+          "domain": "SUBSET AllSlots",
+          "cardinality": null,
+          "bounded": false
+        },
+        {
+          "name": "phase",
+          "domain": "{\"RECRUITING\", \"DONE\"}",
+          "cardinality": 2,
+          "bounded": true
+        }
+      ],
+      "constants": [
+        {
+          "name": "SubSlots",
+          "value": [
+            "\"sub1\""
+          ],
+          "type": "set",
+          "cardinality": 1
+        },
+        {
+          "name": "ApiSlots",
+          "value": [
+            "\"api1\"",
+            "\"api2\""
+          ],
+          "type": "set",
+          "cardinality": 2
+        },
+        {
+          "name": "MaxSize",
+          "value": 2,
+          "type": "integer"
+        },
+        {
+          "name": "Responsive",
+          "value": [
+            "\"sub1\"",
+            "\"api1\""
+          ],
+          "type": "set",
+          "cardinality": 2
+        }
+      ],
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "recruited: SUBSET AllSlots",
+        "tried: SUBSET AllSlots"
+      ],
+      "risk_level": "HIGH",
+      "risk_reason": "Unbounded domains: recruited: SUBSET AllSlots, tried: SUBSET AllSlots",
+      "invariant_count": 4,
+      "property_count": 1
+    },
+    ".formal/tla/QGSDStopHook.tla": {
+      "module_name": "QGSDStopHook",
+      "cfg_file": ".formal/tla/MCStopHook.cfg",
+      "variables": [
+        {
+          "name": "hasCommand",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        },
+        {
+          "name": "hasQuorumEvidence",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        },
+        {
+          "name": "decision",
+          "domain": "{\"UNDECIDED\", \"BLOCK\", \"PASS\"}",
+          "cardinality": 3,
+          "bounded": true
+        },
+        {
+          "name": "algorithmDone",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        }
+      ],
+      "constants": [
+        {
+          "name": "MaxTurnLines",
+          "value": 500,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": 24,
+      "has_unbounded": false,
+      "unbounded_domains": [],
+      "risk_level": "MINIMAL",
+      "risk_reason": "Estimated 24 states (<= 1000)",
+      "invariant_count": 4,
+      "property_count": 3
+    },
+    ".formal/tla/TUINavigation.tla": {
+      "module_name": "TUINavigation",
+      "cfg_file": ".formal/tla/MCTUINavigation.cfg",
+      "variables": [
+        {
+          "name": "depth",
+          "domain": "0..MaxDepth",
+          "cardinality": 4,
+          "bounded": true
+        },
+        {
+          "name": "exited",
+          "domain": "BOOLEAN",
+          "cardinality": 2,
+          "bounded": true
+        }
+      ],
+      "constants": [
+        {
+          "name": "MaxDepth",
+          "value": 3,
+          "type": "integer"
+        }
+      ],
+      "estimated_states": 8,
+      "has_unbounded": false,
+      "unbounded_domains": [],
+      "risk_level": "MINIMAL",
+      "risk_reason": "Estimated 8 states (<= 1000)",
+      "invariant_count": 3,
+      "property_count": 1
+    }
+  },
+  "summary": {
+    "total_models": 12,
+    "by_risk": {
+      "MINIMAL": 4,
+      "LOW": 0,
+      "MODERATE": 3,
+      "HIGH": 5
+    },
+    "unbounded_count": 5,
+    "models_without_cfg": 0
+  }
+}
