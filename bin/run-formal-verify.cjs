@@ -14,12 +14,14 @@
 //                     transcript-scan, install-scope, taxonomy-safety, account-pool-structure,
 //                     quorum-composition
 //   PRISM      (3)  — quorum, oauth-rotation, mcp-availability
-//   CI enforce (3)  — check-trace-redaction.cjs, check-trace-schema-drift.cjs, check-liveness-fairness.cjs
+//   CI enforce (4)  — check-trace-redaction.cjs, check-trace-schema-drift.cjs, check-liveness-fairness.cjs,
+//                     validate-traces.cjs
 //   UPPAAL     (1)  — run-uppaal.cjs (quorum-races.xml, empirical timing bounds)
 //   Triage     (1)  — generate-triage-bundle.cjs (diff-report.md + suspects.md)
-//   Traceability (1) — generate-traceability-matrix.cjs (requirements <-> properties matrix)
+//   Traceability (2) — generate-traceability-matrix.cjs (requirements <-> properties matrix)
+//                      check-coverage-guard.cjs (coverage regression guard vs baseline)
 //   ─────────────────────────────────────────────────────────────
-//   Total:    31 steps
+//   Total:    33 steps
 //
 // Usage:
 //   node bin/run-formal-verify.cjs                    # all 28 steps
@@ -238,6 +240,13 @@ const STEPS = [
     label: 'Generate traceability matrix (requirements <-> formal properties)',
     type: 'node', script: 'generate-traceability-matrix.cjs', args: ['--quiet'],
     // Non-critical: matrix generation is informational, does not block exit code
+    nonCritical: true,
+  },
+  {
+    tool: 'traceability', id: 'traceability:coverage-guard',
+    label: 'Check formal coverage regression against baseline',
+    type: 'node', script: 'check-coverage-guard.cjs', args: ['--quiet'],
+    // Non-critical: coverage guard is informational, does not block exit code
     nonCritical: true,
   },
 ];
