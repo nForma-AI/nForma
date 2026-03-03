@@ -395,6 +395,39 @@ test('MENU_ITEMS: exit is the last non-sep item', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 6.1. PLCY-01: Tune Timeouts menu action
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('PLCY-01: MENU_ITEMS contains tune-timeouts action', () => {
+  const found = _pure.MENU_ITEMS.some(item => item.action === 'tune-timeouts');
+  assert.ok(found, 'tune-timeouts must be a main menu action (not buried in editAgent)');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6.2. PLCY-02: Set Update Policy menu action
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('PLCY-02: MENU_ITEMS contains update-policy action', () => {
+  const found = _pure.MENU_ITEMS.some(item => item.action === 'update-policy');
+  assert.ok(found, 'update-policy must be a main menu action');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6.3. PLCY-01/02: Policy actions are top-level shortcuts
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('PLCY-01/02: policy actions are top-level, not nested under edit', () => {
+  const timeoutIdx = _pure.MENU_ITEMS.findIndex(item => item.action === 'tune-timeouts');
+  const policyIdx = _pure.MENU_ITEMS.findIndex(item => item.action === 'update-policy');
+  const editIdx = _pure.MENU_ITEMS.findIndex(item => item.action === 'edit');
+  // Both must be separate top-level menu items, not sub-items of edit
+  assert.ok(timeoutIdx > -1, 'tune-timeouts must exist as top-level menu item');
+  assert.ok(policyIdx > -1, 'update-policy must exist as top-level menu item');
+  assert.notStrictEqual(timeoutIdx, editIdx, 'tune-timeouts must be separate from edit');
+  assert.notStrictEqual(policyIdx, editIdx, 'update-policy must be separate from edit');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 7. PROVIDER_KEY_NAMES — structural contract
 // ─────────────────────────────────────────────────────────────────────────────
 
