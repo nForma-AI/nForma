@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "description": "Maps formal model constants to runtime config paths in hooks/config-loader.js DEFAULT_CONFIG",
+  "mappings": [
+    {
+      "constant": "Depth",
+      "source": ".formal/tla/MCoscillation.cfg",
+      "config_path": "circuit_breaker.oscillation_depth",
+      "formal_value": 3,
+      "notes": "Must match"
+    },
+    {
+      "constant": "CommitWindow",
+      "source": ".formal/tla/MCoscillation.cfg",
+      "config_path": "circuit_breaker.commit_window",
+      "formal_value": 5,
+      "intentional_divergence": true,
+      "notes": "Formal model uses 5 for state-space reduction; runtime default is 6"
+    },
+    {
+      "constant": "MaxDeliberation",
+      "source": ".formal/tla/MCsafety.cfg",
+      "config_path": null,
+      "formal_value": 9,
+      "notes": "Model-only constant, no runtime config equivalent"
+    },
+    {
+      "constant": "MaxSize",
+      "source": ".formal/tla/MCsafety.cfg",
+      "config_path": "quorum.minSize",
+      "formal_value": 3,
+      "notes": "Maps to quorum.minSize — MCsafety uses MaxSize=3 while default minSize=4",
+      "intentional_divergence": true
+    },
+    {
+      "constant": "defaultOscDepth",
+      "source": ".formal/alloy/config-two-layer.als",
+      "config_path": "circuit_breaker.oscillation_depth",
+      "formal_value": 3,
+      "notes": "Alloy Defaults sig"
+    },
+    {
+      "constant": "defaultCommitWindow",
+      "source": ".formal/alloy/config-two-layer.als",
+      "config_path": "circuit_breaker.commit_window",
+      "formal_value": 6,
+      "notes": "Alloy Defaults sig"
+    },
+    {
+      "constant": "defaultFailMode",
+      "source": ".formal/alloy/config-two-layer.als",
+      "config_path": "fail_mode",
+      "formal_value": "FailOpen",
+      "transform": "FailOpen -> \"open\"",
+      "notes": "Alloy uses sig name; config uses string"
+    }
+  ]
+}

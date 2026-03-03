@@ -27,6 +27,7 @@ function writeTempConfig(dir, content) {
 // This test verifies: (a) loadConfig() returns a valid config object, (b) no stdout written,
 // (c) if global is absent too, a WARNING is emitted.
 // We use a fresh temp dir with no .claude/ subdirectory as the project dir.
+// @requirement CONF-01
 test('TC1: no project config → returns valid config (from global or DEFAULT_CONFIG)', async (t) => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-tc1-'));
   const stdoutChunks = [];

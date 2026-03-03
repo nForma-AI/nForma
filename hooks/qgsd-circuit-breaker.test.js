@@ -103,6 +103,7 @@ function createNonOscillationCommits(repoDir, commitCount) {
 // --- Test Cases ---
 
 // Test CB-TC1: No git repo in cwd → exit 0, stdout empty (DETECT-05)
+// @requirement DETECT-05
 test('CB-TC1: No git repo in cwd exits 0 with no output', () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-no-git-'));
   try {

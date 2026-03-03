@@ -12,6 +12,7 @@ const path = require('path');
 
 const RUN_OSCILLATION_TLC = path.join(__dirname, 'run-oscillation-tlc.cjs');
 
+// @requirement DETECT-05
 test('exits non-zero and prints clear error when JAVA_HOME points to nonexistent path', () => {
   const result = spawnSync(process.execPath, [RUN_OSCILLATION_TLC], {
     encoding: 'utf8',

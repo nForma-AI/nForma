@@ -342,6 +342,120 @@ function getAllPRISMProperties(content) {
   return properties;
 }
 
+// ── Test File Parsing ───────────────────────────────────────────────────────
+
+/**
+ * Parse @requirement annotations from a JS test file.
+ * Pattern: // @requirement REQ-ID
+ * Associates with: test('...', ...) or describe('...', ...) when it appears on the next non-blank line after @requirement
+ * Intervening comments or non-blank-non-test lines break the association.
+ */
+function parseTestFile(content) {
+  const lines = content.split('\n');
+  const results = [];
+  let pendingReqs = [];
+  let lastNonBlankWasAnnotation = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Match annotation: // @requirement REQ-ID
+    const annMatch = trimmed.match(/^\/\/\s*@requirement\s+([\w-]+)/);
+    if (annMatch) {
+      pendingReqs.push(annMatch[1]);
+      lastNonBlankWasAnnotation = true;
+      continue;
+    }
+
+    const isBlank = /^\s*$/.test(trimmed);
+    if (isBlank) {
+      // Blank lines preserve the pending state
+      continue;
+    }
+
+    // Non-blank line — check if it's test/describe or something else
+    const testMatch = trimmed.match(/^(?:test|describe)\s*\(\s*['"]([^'"]+)['"]/);
+    if (testMatch && pendingReqs.length > 0 && lastNonBlankWasAnnotation) {
+      // Test immediately after annotation (with only blanks between)
+      results.push({
+        test_name: testMatch[1],
+        requirement_ids: [...pendingReqs]
+      });
+      pendingReqs = [];
+      lastNonBlankWasAnnotation = false;
+      continue;
+    }
+
+    // Any other non-blank line breaks the pending annotations
+    pendingReqs = [];
+    lastNonBlankWasAnnotation = false;
+  }
+
+  return results;
+}
+
+/**
+ * Get all test files to scan.
+ * Scans hooks/*.test.js and bin/*.test.cjs
+ */
+function getTestFiles() {
+  const testFiles = [];
+  const hooksPath = path.resolve(__dirname, '..', 'hooks');
+  const binPath = path.resolve(__dirname, '..', 'bin');
+
+  if (fs.existsSync(hooksPath)) {
+    try {
+      const hooksFiles = fs.readdirSync(hooksPath);
+      for (const file of hooksFiles) {
+        if (file.endsWith('.test.js')) {
+          testFiles.push('hooks/' + file);
+        }
+      }
+    } catch (e) {
+      // Ignore read errors
+    }
+  }
+
+  if (fs.existsSync(binPath)) {
+    try {
+      const binFiles = fs.readdirSync(binPath);
+      for (const file of binFiles) {
+        if (file.endsWith('.test.cjs')) {
+          testFiles.push('bin/' + file);
+        }
+      }
+    } catch (e) {
+      // Ignore read errors
+    }
+  }
+
+  return testFiles;
+}
+
+/**
+ * Extract test annotations from all test files.
+ * Returns { "test:hooks/config-loader.test.js": [{ test_name, requirement_ids }], ... }
+ */
+function extractTestAnnotations() {
+  const testFiles = getTestFiles();
+  const result = {};
+
+  for (const filePath of testFiles) {
+    const absPath = path.resolve(__dirname, '..', filePath);
+    if (!fs.existsSync(absPath)) continue;
+
+    const content = fs.readFileSync(absPath, 'utf8');
+    const annotations = parseTestFile(content);
+
+    if (annotations.length > 0) {
+      result['test:' + filePath] = annotations;
+    }
+  }
+
+  return result;
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 function getModelFiles() {
@@ -487,17 +601,34 @@ function summary() {
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
 
-const args = process.argv.slice(2);
+if (require.main === module) {
+  const args = process.argv.slice(2);
 
-if (args.includes('--validate')) {
-  validate();
-} else if (args.includes('--summary')) {
-  summary();
-} else {
-  const result = extractAnnotations();
-  if (args.includes('--pretty')) {
-    console.log(JSON.stringify(result, null, 2));
+  if (args.includes('--validate')) {
+    validate();
+  } else if (args.includes('--summary')) {
+    summary();
   } else {
-    console.log(JSON.stringify(result));
+    const result = extractAnnotations();
+    if (args.includes('--include-tests')) {
+      const testAnnotations = extractTestAnnotations();
+      Object.assign(result, testAnnotations);
+    }
+    if (args.includes('--pretty')) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.log(JSON.stringify(result));
+    }
   }
 }
+
+// ── Exports ──────────────────────────────────────────────────────────────────
+
+module.exports = {
+  parseTLA,
+  parseAlloy,
+  parsePRISM,
+  parseTestFile,
+  extractAnnotations,
+  extractTestAnnotations,
+};
