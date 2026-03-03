@@ -201,11 +201,15 @@ function parseAlloyDefaults(content) {
   if (!match) return result;
 
   const constraintBlock = match[1];
-  // Parse field = value pairs
-  const pairs = constraintBlock.split(',');
+  // Parse field = value pairs (split on newlines, not commas)
+  const pairs = constraintBlock.split('\n')
+    .filter(line => {
+      const t = line.trim();
+      return t.length > 0 && !t.startsWith('--') && !t.startsWith('//');
+    });
   for (const pair of pairs) {
     const trimmed = pair.trim();
-    const kv = trimmed.match(/(\w+)\s*=\s*(.+)/);
+    const kv = trimmed.match(/^\s*(\w+)\s*=\s*(\S+)\s*$/);
     if (kv) {
       const key = kv[1];
       const val = kv[2].trim();
@@ -584,4 +588,12 @@ function main() {
   }
 }
 
-main();
+// ── Exports (for testing) ────────────────────────────────────────────────────
+
+module.exports = { parseAlloyDefaults };
+
+// ── Entry point ──────────────────────────────────────────────────────────────
+
+if (require.main === module) {
+  main();
+}

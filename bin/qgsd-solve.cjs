@@ -690,6 +690,9 @@ function main() {
   for (let i = 1; i <= maxIterations; i++) {
     process.stderr.write(TAG + ' Iteration ' + i + '/' + maxIterations + '\n');
 
+    // Clear formal-test-sync cache so computeResidual() sees fresh data after autoClose() mutations
+    formalTestSyncCache = null;
+
     const residual = computeResidual();
     const actions = [];
     iterations.push({ iteration: i, residual: residual, actions: actions });

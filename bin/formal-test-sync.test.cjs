@@ -331,6 +331,75 @@ test('TC-STUB-4: --dry-run mode does not create files', () => {
   }
 });
 
+// ── TC-ALLOY: Alloy Defaults Parsing Tests ──────────────────────────────────
+
+test('TC-ALLOY-PARSE-1: parseAlloyDefaults parses all 3 constants from newline-separated block', () => {
+  const { parseAlloyDefaults } = require('./formal-test-sync.cjs');
+
+  const alloyContent = `-- Hardcoded defaults for fallback
+one sig Defaults {
+  defaultOscDepth: one Int,
+  defaultCommitWindow: one Int,
+  defaultFailMode: one FailMode
+} {
+  defaultOscDepth = 3
+  defaultCommitWindow = 6
+  defaultFailMode = FailOpen
+}`;
+
+  const result = parseAlloyDefaults(alloyContent);
+  assert.equal(result.defaultOscDepth, 3, 'defaultOscDepth should be 3');
+  assert.equal(result.defaultCommitWindow, 6, 'defaultCommitWindow should be 6');
+  assert.equal(result.defaultFailMode, 'FailOpen', 'defaultFailMode should be FailOpen');
+  assert.equal(Object.keys(result).length, 3, 'should have exactly 3 constants');
+});
+
+test('TC-ALLOY-PARSE-2: parseAlloyDefaults returns empty object when no Defaults sig found', () => {
+  const { parseAlloyDefaults } = require('./formal-test-sync.cjs');
+
+  const alloyContent = `sig Foo { bar: one Int }`;
+  const result = parseAlloyDefaults(alloyContent);
+  assert.deepEqual(result, {}, 'should return empty object when no Defaults sig');
+});
+
+test('TC-ALLOY-PARSE-3: parseAlloyDefaults handles single constant', () => {
+  const { parseAlloyDefaults } = require('./formal-test-sync.cjs');
+
+  const alloyContent = `one sig Defaults {
+  depth: one Int
+} {
+  depth = 5
+}`;
+
+  const result = parseAlloyDefaults(alloyContent);
+  assert.equal(result.depth, 5, 'depth should be 5');
+  assert.equal(Object.keys(result).length, 1, 'should have exactly 1 constant');
+});
+
+test('TC-ALLOY-PARSE-4: parseAlloyDefaults handles blank lines and comments in constraint block', () => {
+  const { parseAlloyDefaults } = require('./formal-test-sync.cjs');
+
+  const alloyContent = `one sig Defaults {
+  defaultOscDepth: one Int,
+  defaultCommitWindow: one Int,
+  defaultFailMode: one FailMode
+} {
+  -- oscillation depth
+  defaultOscDepth = 3
+
+  // commit window size
+  defaultCommitWindow = 6
+
+  defaultFailMode = FailOpen
+}`;
+
+  const result = parseAlloyDefaults(alloyContent);
+  assert.equal(result.defaultOscDepth, 3, 'defaultOscDepth should be 3');
+  assert.equal(result.defaultCommitWindow, 6, 'defaultCommitWindow should be 6');
+  assert.equal(result.defaultFailMode, 'FailOpen', 'defaultFailMode should be FailOpen');
+  assert.equal(Object.keys(result).length, 3, 'should have exactly 3 constants despite blank lines and comments');
+});
+
 // ── TC-INT: Integration Tests ───────────────────────────────────────────────
 
 test('TC-INT-1: Full script with --json --report-only exits 0 with valid JSON', () => {
