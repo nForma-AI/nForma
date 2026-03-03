@@ -52,6 +52,32 @@ function appendTokenSentinel(slotName) {
   } catch (_) {} // observational — never fails
 }
 
+// ─── Telemetry logging for quorum slot dispatch (OBS-01) ─────────────────────
+function recordTelemetry(slotName, round, verdict, latencyMs, provider, providerStatus, retryCount, errorType) {
+  try {
+    const sessionId = process.env.CLAUDE_SESSION_ID || 'session-' + Date.now();
+    const record = JSON.stringify({
+      ts: new Date().toISOString(),
+      session_id: sessionId,
+      round: parseInt(round, 10) || 0,
+      slot: slotName,
+      verdict: verdict,
+      latency_ms: latencyMs,
+      provider: provider,
+      provider_status: providerStatus,
+      retry_count: retryCount,
+      error_type: errorType,
+    });
+    const logPath = path.join(findProjectRoot(), '.planning', 'quorum-rounds-' + sessionId + '.jsonl');
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.appendFileSync(logPath, record + '\n', 'utf8');
+  } catch (_) {
+    // Fail-open: telemetry errors never block or crash the dispatch
+    // Log to stderr for observability, but do not rethrow
+    process.stderr.write('[call-quorum-slot] telemetry error (non-fatal): recordTelemetry failed\n');
+  }
+}
+
 // ─── Failure log ───────────────────────────────────────────────────────────────
 function findProjectRoot() {
   let dir = __dirname;
@@ -132,11 +158,12 @@ function isRetryable(error) {
 
 async function retryWithBackoff(fn, slotName, maxRetries = 2, delays = [1000, 3000]) {
   const MAX_RETRIES = maxRetries;
+  let retryAttempts = 0;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const result = await fn();
-      return result;
+      return { result, retryCount: retryAttempts };
     } catch (err) {
       const isLastAttempt = attempt >= MAX_RETRIES;
       const isNonRetryable = !isRetryable(err);
@@ -148,6 +175,7 @@ async function retryWithBackoff(fn, slotName, maxRetries = 2, delays = [1000, 30
 
       // Log retry attempt and sleep before next attempt
       const delayMs = delays[attempt] ?? 3000; // default to 3s if delay not specified
+      retryAttempts++;
       process.stderr.write(`[call-quorum-slot] retry ${attempt + 1}/${MAX_RETRIES} for slot ${slotName} after ${delayMs}ms\n`);
       await sleep(delayMs);
     }
@@ -165,6 +193,7 @@ const _timeoutArg = getArg('--timeout');
 // causing the process to be killed in ~1 ms and logged as "TIMEOUT after 0ms".
 let timeoutMs = _timeoutArg !== null ? parseInt(_timeoutArg, 10) : null;
 if (timeoutMs !== null && (isNaN(timeoutMs) || timeoutMs <= 0)) timeoutMs = null;
+const roundNum  = getArg('--round');
 const spawnCwd  = getArg('--cwd') ?? process.cwd();
 
 if (!slot) {
@@ -298,6 +327,7 @@ async function runSubprocessWithRotation(provider, prompt, timeoutMs) {
   const max      = rot.max_retries ?? 3;
   const patterns = rot.retry_on_patterns ?? ['quota', 'resource_exhausted', 'unauthorized', '401', '403'];
   let lastErr    = null;
+  let totalRetryCount = 0;
 
   for (let attempt = 0; attempt <= max; attempt++) {
     if (attempt > 0) {
@@ -306,12 +336,14 @@ async function runSubprocessWithRotation(provider, prompt, timeoutMs) {
     }
     try {
       // Wrap inner call with retry-with-backoff (each oauth attempt gets retry protection)
-      const out = await retryWithBackoff(() => runSubprocess(provider, prompt, timeoutMs), provider.name);
+      const retryResult = await retryWithBackoff(() => runSubprocess(provider, prompt, timeoutMs), provider.name);
+      const out = retryResult.result;
+      totalRetryCount = attempt + retryResult.retryCount;
       if (matchesRotationPattern(out, patterns) && attempt < max) {
         lastErr = new Error('quota/auth pattern in output');
         continue;
       }
-      return out;
+      return { result: out, retryCount: totalRetryCount };
     } catch (err) {
       if (matchesRotationPattern(err.message, patterns) && attempt < max) {
         lastErr = err;
@@ -432,26 +464,64 @@ async function main() {
     ? Math.min(timeoutMs, providerCap)
     : (timeoutMs ?? providerCap ?? provider.timeout_ms ?? 30000);
 
+  const startMs = Date.now();
+
   try {
     let result;
+    let retryCount = 0;
+
     if (provider.type === 'subprocess') {
-      result = provider.oauth_rotation?.enabled
-        ? await runSubprocessWithRotation(provider, prompt, effectiveTimeout)
-        : await retryWithBackoff(() => runSubprocess(provider, prompt, effectiveTimeout), slot);
+      if (provider.oauth_rotation?.enabled) {
+        const retryResult = await runSubprocessWithRotation(provider, prompt, effectiveTimeout);
+        result = retryResult.result;
+        retryCount = retryResult.retryCount;
+      } else {
+        const retryResult = await retryWithBackoff(() => runSubprocess(provider, prompt, effectiveTimeout), slot);
+        result = retryResult.result;
+        retryCount = retryResult.retryCount;
+      }
     } else if (provider.type === 'http') {
-      result = await retryWithBackoff(() => runHttp(provider, prompt, effectiveTimeout), slot);
+      const retryResult = await retryWithBackoff(() => runHttp(provider, prompt, effectiveTimeout), slot);
+      result = retryResult.result;
+      retryCount = retryResult.retryCount;
     } else {
       process.stderr.write(`[call-quorum-slot] Unknown provider type: ${provider.type}\n`);
       writeFailureLog(slot, `Unknown provider type: ${provider.type}`, '');
       appendTokenSentinel(slot);
+      const latencyMs = Date.now() - startMs;
+      recordTelemetry(slot, roundNum, 'FLAG', latencyMs, provider.provider || provider.name, 'unavailable', 0, 'UNKNOWN_TYPE');
       process.exit(1);
     }
+
+    // Extract verdict from result using regex
+    const verdict = (/APPROVE|BLOCK|FLAG/.exec(result) || [])[0] || 'UNKNOWN';
+    const latencyMs = Date.now() - startMs;
+    const providerName = provider.provider || provider.name;
+
+    recordTelemetry(slot, roundNum, verdict, latencyMs, providerName, 'available', retryCount, null);
 
     process.stdout.write(result);
     if (!result.endsWith('\n')) process.stdout.write('\n');
     appendTokenSentinel(slot);
     process.exit(0);
   } catch (err) {
+    const latencyMs = Date.now() - startMs;
+    const providerName = provider.provider || provider.name;
+
+    // Classify error type
+    let errorType = 'UNKNOWN';
+    if (/TIMEOUT/i.test(err.message)) {
+      errorType = 'TIMEOUT';
+    } else if (/401|403|unauthorized|forbidden/i.test(err.message)) {
+      errorType = 'AUTH';
+    } else if (/spawn error/i.test(err.message)) {
+      errorType = 'SPAWN_ERROR';
+    } else if (/usage:|unknown flag/i.test(err.message)) {
+      errorType = 'CLI_SYNTAX';
+    }
+
+    recordTelemetry(slot, roundNum, 'FLAG', latencyMs, providerName, 'unavailable', 0, errorType);
+
     process.stderr.write(`[call-quorum-slot] ${err.message}\n`);
     writeFailureLog(slot, err.message, '');
     appendTokenSentinel(slot);
