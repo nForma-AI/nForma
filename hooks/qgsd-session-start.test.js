@@ -1,0 +1,354 @@
+#!/usr/bin/env node
+// Test suite for hooks/qgsd-session-start.js
+// Uses Node.js built-in test runner: node --test hooks/qgsd-session-start.test.js
+//
+// All tests spawn the hook as a child process with a mock stdin JSON payload.
+// The hook has no exports — only subprocess integration tests are possible.
+// Timeout is 8000ms to account for async operations (bootstrap secrets sync).
+
+'use strict';
+
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { spawnSync } = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
+const HOOK_PATH = path.join(__dirname, 'qgsd-session-start.js');
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function makeTmpDir() {
+  const dir = path.join(
+    os.tmpdir(),
+    'qgsd-ss-' + Date.now() + '-' + Math.random().toString(36).slice(2)
+  );
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+function runHook(stdinPayload, opts = {}) {
+  const input = stdinPayload === null ? '' : JSON.stringify(stdinPayload);
+  const result = spawnSync('node', [HOOK_PATH], {
+    input,
+    encoding: 'utf8',
+    timeout: 8000,
+    ...opts,
+  });
+  return {
+    stdout: result.stdout || '',
+    stderr: result.stderr || '',
+    exitCode: result.status,
+    parsed: (() => { try { return JSON.parse(result.stdout); } catch { return null; } })(),
+  };
+}
+
+// Write a minimal package.json to the given dir.
+function writePackageJson(dir, name) {
+  fs.writeFileSync(
+    path.join(dir, 'package.json'),
+    JSON.stringify({ name }, null, 2),
+    'utf8'
+  );
+}
+
+// Write pending-fixes.json under .planning/telemetry/ in the given dir.
+function writePendingFixes(dir, issues) {
+  const telemetryDir = path.join(dir, '.planning', 'telemetry');
+  fs.mkdirSync(telemetryDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(telemetryDir, 'pending-fixes.json'),
+    JSON.stringify({ issues }, null, 2),
+    'utf8'
+  );
+}
+
+// Read pending-fixes.json back from disk.
+function readPendingFixes(dir) {
+  const fixesPath = path.join(dir, '.planning', 'telemetry', 'pending-fixes.json');
+  return JSON.parse(fs.readFileSync(fixesPath, 'utf8'));
+}
+
+// ─── Subprocess integration tests ───────────────────────────────────────────
+
+test('valid empty JSON stdin → exits 0 (secrets not found, silently skips)', () => {
+  // Pass a cwd that is not a QGSD repo so telemetry branch also skips.
+  const tmpDir = makeTmpDir();
+  const { exitCode, stderr } = runHook({ cwd: tmpDir });
+  assert.equal(exitCode, 0, 'hook must exit 0 even when secrets module is absent');
+  // There should be no hard error in stderr (sync errors are expected-silent here)
+  // We allow stderr to contain debug notes but must not crash.
+  assert.ok(
+    !stderr.includes('TypeError') && !stderr.includes('ReferenceError'),
+    'should not throw a JS error on stderr: ' + stderr
+  );
+});
+
+test('invalid JSON stdin → exits 0 (fail-open)', () => {
+  const result = spawnSync('node', [HOOK_PATH], {
+    input: 'not valid json {{{',
+    encoding: 'utf8',
+    timeout: 8000,
+  });
+  assert.equal(result.status, 0, 'hook must exit 0 on JSON parse failure');
+});
+
+test('empty stdin → exits 0 (fail-open)', () => {
+  const result = spawnSync('node', [HOOK_PATH], {
+    input: '',
+    encoding: 'utf8',
+    timeout: 8000,
+  });
+  assert.equal(result.status, 0, 'hook must exit 0 when stdin is empty');
+});
+
+test('telemetry: unsurfaced issue with priority >= 50 → outputs additionalContext and marks issue surfaced', () => {
+  const tmpDir = makeTmpDir();
+  writePackageJson(tmpDir, 'qgsd');
+  writePendingFixes(tmpDir, [
+    {
+      id: 'fix-001',
+      description: 'Quorum scoreboard drift detected in last 3 sessions',
+      action: 'Run node bin/update-scoreboard.cjs --repair',
+      priority: 80,
+      surfaced: false,
+    },
+  ]);
+
+  const { exitCode, parsed } = runHook({ cwd: tmpDir });
+
+  assert.equal(exitCode, 0, 'hook must exit 0');
+  assert.ok(parsed !== null, 'stdout should be valid JSON');
+  assert.ok(parsed.hookSpecificOutput, 'output must have hookSpecificOutput');
+  assert.equal(
+    parsed.hookSpecificOutput.hookEventName,
+    'SessionStart',
+    'hookEventName must be SessionStart'
+  );
+
+  const ctx = parsed.hookSpecificOutput.additionalContext;
+  assert.ok(typeof ctx === 'string' && ctx.length > 0, 'additionalContext must be a non-empty string');
+  assert.ok(
+    ctx.includes('Quorum scoreboard drift detected'),
+    'additionalContext must include the issue description'
+  );
+  assert.ok(
+    ctx.includes('priority=80'),
+    'additionalContext must include the priority'
+  );
+  assert.ok(
+    ctx.includes('node bin/update-scoreboard.cjs --repair'),
+    'additionalContext must include the suggested action'
+  );
+
+  // Verify the file was updated on disk to mark the issue surfaced.
+  const updated = readPendingFixes(tmpDir);
+  const issue = updated.issues[0];
+  assert.equal(issue.surfaced, true, 'issue.surfaced must be set to true after surfacing');
+  assert.ok(
+    typeof issue.surfacedAt === 'string' && issue.surfacedAt.length > 0,
+    'issue.surfacedAt must be an ISO timestamp string'
+  );
+});
+
+test('telemetry: issue already surfaced (surfaced=true) → no additionalContext output', () => {
+  const tmpDir = makeTmpDir();
+  writePackageJson(tmpDir, 'qgsd');
+  writePendingFixes(tmpDir, [
+    {
+      id: 'fix-002',
+      description: 'Old issue already surfaced',
+      action: 'Nothing to do',
+      priority: 90,
+      surfaced: true,
+      surfacedAt: '2026-02-01T00:00:00.000Z',
+    },
+  ]);
+
+  const { exitCode, stdout } = runHook({ cwd: tmpDir });
+
+  assert.equal(exitCode, 0, 'hook must exit 0');
+  // When no telemetry issue is surfaced the hook writes nothing to stdout.
+  assert.equal(stdout.trim(), '', 'stdout must be empty when issue is already surfaced');
+});
+
+test('telemetry: priority below 50 → no additionalContext output', () => {
+  const tmpDir = makeTmpDir();
+  writePackageJson(tmpDir, 'qgsd');
+  writePendingFixes(tmpDir, [
+    {
+      id: 'fix-003',
+      description: 'Low priority noise item',
+      action: 'Ignore for now',
+      priority: 30,
+      surfaced: false,
+    },
+  ]);
+
+  const { exitCode, stdout } = runHook({ cwd: tmpDir });
+
+  assert.equal(exitCode, 0, 'hook must exit 0');
+  assert.equal(stdout.trim(), '', 'stdout must be empty when issue priority is below 50');
+});
+
+test('telemetry: priority exactly 50 → outputs additionalContext (boundary value)', () => {
+  const tmpDir = makeTmpDir();
+  writePackageJson(tmpDir, 'qgsd');
+  writePendingFixes(tmpDir, [
+    {
+      id: 'fix-004',
+      description: 'Boundary priority issue at exactly 50',
+      action: 'Check threshold logic',
+      priority: 50,
+      surfaced: false,
+    },
+  ]);
+
+  const { exitCode, parsed } = runHook({ cwd: tmpDir });
+
+  assert.equal(exitCode, 0, 'hook must exit 0');
+  assert.ok(parsed !== null, 'stdout should be valid JSON at boundary priority=50');
+  const ctx = parsed.hookSpecificOutput.additionalContext;
+  assert.ok(
+    ctx.includes('Boundary priority issue at exactly 50'),
+    'additionalContext must include the boundary issue description'
+  );
+});
+
+test('non-QGSD repo (package.json name != "qgsd") → no telemetry output', () => {
+  const tmpDir = makeTmpDir();
+  writePackageJson(tmpDir, 'some-other-project');
+  writePendingFixes(tmpDir, [
+    {
+      id: 'fix-005',
+      description: 'Should never be surfaced in non-QGSD repo',
+      action: 'N/A',
+      priority: 99,
+      surfaced: false,
+    },
+  ]);
+
+  const { exitCode, stdout } = runHook({ cwd: tmpDir });
+
+  assert.equal(exitCode, 0, 'hook must exit 0');
+  assert.equal(stdout.trim(), '', 'stdout must be empty for non-QGSD repo');
+
+  // Verify the file was NOT modified (issue.surfaced remains false).
+  const unchanged = readPendingFixes(tmpDir);
+  assert.equal(
+    unchanged.issues[0].surfaced,
+    false,
+    'issue.surfaced must remain false when repo is not QGSD'
+  );
+});
+
+test('missing .planning/telemetry/pending-fixes.json → exits 0 silently', () => {
+  const tmpDir = makeTmpDir();
+  writePackageJson(tmpDir, 'qgsd');
+  // Do NOT write pending-fixes.json — directory does not even exist.
+
+  const { exitCode, stdout, stderr } = runHook({ cwd: tmpDir });
+
+  assert.equal(exitCode, 0, 'hook must exit 0 when pending-fixes.json is absent');
+  assert.equal(stdout.trim(), '', 'stdout must be empty when pending-fixes.json is absent');
+  assert.ok(
+    !stderr.includes('TypeError') && !stderr.includes('ReferenceError'),
+    'no JS error on stderr when telemetry file is absent: ' + stderr
+  );
+});
+
+test('telemetry: multiple issues, only first unsurfaced high-priority one is surfaced', () => {
+  const tmpDir = makeTmpDir();
+  writePackageJson(tmpDir, 'qgsd');
+  writePendingFixes(tmpDir, [
+    {
+      id: 'fix-low',
+      description: 'Low priority skipped item',
+      action: 'Skip me',
+      priority: 20,
+      surfaced: false,
+    },
+    {
+      id: 'fix-surfaced',
+      description: 'Already surfaced item',
+      action: 'Already done',
+      priority: 95,
+      surfaced: true,
+      surfacedAt: '2026-02-01T00:00:00.000Z',
+    },
+    {
+      id: 'fix-high',
+      description: 'High priority unsurfaced item that should be picked',
+      action: 'Fix the high priority thing',
+      priority: 75,
+      surfaced: false,
+    },
+    {
+      id: 'fix-second-high',
+      description: 'Second high priority item that should NOT be picked this session',
+      action: 'Fix the second thing',
+      priority: 70,
+      surfaced: false,
+    },
+  ]);
+
+  const { exitCode, parsed } = runHook({ cwd: tmpDir });
+
+  assert.equal(exitCode, 0, 'hook must exit 0');
+  assert.ok(parsed !== null, 'stdout should be valid JSON');
+  const ctx = parsed.hookSpecificOutput.additionalContext;
+  assert.ok(
+    ctx.includes('High priority unsurfaced item that should be picked'),
+    'additionalContext must include the first eligible unsurfaced issue'
+  );
+  assert.ok(
+    !ctx.includes('Second high priority item that should NOT be picked'),
+    'additionalContext must NOT include the second unsurfaced issue'
+  );
+
+  // Verify only fix-high was marked surfaced on disk.
+  const updated = readPendingFixes(tmpDir);
+  const fixHigh = updated.issues.find(i => i.id === 'fix-high');
+  const fixSecond = updated.issues.find(i => i.id === 'fix-second-high');
+  assert.equal(fixHigh.surfaced, true, 'fix-high must be marked surfaced');
+  assert.equal(fixSecond.surfaced, false, 'fix-second-high must remain unsurfaced');
+});
+
+test('cwd field absent in stdin JSON → exits 0 (defaults to process.cwd, no crash)', () => {
+  // Pass an object with no cwd field. The hook should default to process.cwd()
+  // and not crash regardless of whether that directory has a QGSD package.json.
+  const { exitCode } = runHook({});
+  assert.equal(exitCode, 0, 'hook must exit 0 when cwd is absent from stdin');
+});
+
+test('stdout is either empty or valid JSON (never partial/corrupt output)', () => {
+  const tmpDir = makeTmpDir();
+  // Repo with a surfaceable issue to exercise the stdout write path.
+  writePackageJson(tmpDir, 'qgsd');
+  writePendingFixes(tmpDir, [
+    {
+      id: 'fix-json-integrity',
+      description: 'Test JSON output integrity',
+      action: 'Verify output is parseable',
+      priority: 60,
+      surfaced: false,
+    },
+  ]);
+
+  const { stdout, exitCode } = runHook({ cwd: tmpDir });
+
+  assert.equal(exitCode, 0);
+  if (stdout.trim().length > 0) {
+    let parsed;
+    try {
+      parsed = JSON.parse(stdout);
+    } catch (e) {
+      assert.fail('stdout is non-empty but not valid JSON: ' + stdout);
+    }
+    assert.ok(
+      parsed && typeof parsed === 'object',
+      'parsed stdout must be an object'
+    );
+  }
+});

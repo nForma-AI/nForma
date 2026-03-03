@@ -1,0 +1,148 @@
+v0.20 MILESTONE INTEGRATION CHECK
+==================================
+
+Date: 2026-03-01
+Status: INTEGRATION GAPS FOUND
+Phases: 8/8 complete
+Requirements: 16/20 WIRED, 1/20 PARTIAL, 3/20 UNWIRED
+
+CRITICAL FINDINGS
+================
+
+WIRING STATUS:
+- SCHEMA → NDJSON (v0.20-01): CONNECTED ✓
+  * 21 callers use writeCheckResult with v2.1 fields
+  * 4 NDJSON records contain check_id, surface, runtime_ms, observation_window, triage_tags
+
+- STEPS PIPELINE (run-formal-verify): COHERENT ✓
+  * 28 steps total, correct ordering
+  * Generators first, checks sequential, triage last
+  * All step IDs (LIVE-02, EVID-01, TRIAGE-02, UPPAAL-02) in place
+
+- SENSITIVITY SWEEP (v0.20-08): FULLY CONNECTED ✓
+  * plan-phase.md step 8.3 calls run-sensitivity-sweep.cjs
+  * SENSITIVITY_CONTEXT extracted and injected (line 332)
+  * sensitivity-report.cjs generates ranked report
+
+- TRIAGE BUNDLE (v0.20-06): FULLY CONNECTED ✓
+  * generate-triage-bundle.cjs in run-formal-verify STEPS (entry 27)
+  * Imports verify-formal-results parseNDJSON function
+  * diff-report.md and suspects.md produced
+
+BROKEN FLOWS
+===========
+
+CRITICAL GAP 1: PLANNING GATE (PLAN-01, PLAN-02)
+Location: plan-phase.md
+Expected: step 8.2 with "run-formal-verify --only=tla"
+Found: MISSING (step 8.3 exists but not 8.2)
+Impact: Planner has NO visibility into formal verification failures
+        before generating plans
+Tests: PLAN-01 FAIL, PLAN-02 FAIL, PLAN-03 PASS
+
+CRITICAL GAP 2: VERIFICATION GATE (VERIFY-01 partial)
+Location: qgsd-verifier.md, verify-phase.md
+Expected: Call verify-formal-results.cjs after implementation
+Found: MISSING (tools created but never called)
+Impact: Post-implementation FV section never generated
+        VERIFICATION.md template has placeholder but unfilled
+Tests: verify-formal-results 7/7 GREEN (tool works, integration untested)
+
+REQUIREMENTS STATUS
+===================
+
+SATISFIED (16/20):
+✓ SCHEMA-01, SCHEMA-02, SCHEMA-03 (v0.20-01) — v2.1 schema + validation
+✓ LIVE-01, LIVE-02 (v0.20-02) — liveness-fairness CI step wired
+✓ PLAN-03 (v0.20-03) — fail-open documented in step 8.3
+✓ VERIFY-02 (v0.20-04) — template has FV section
+✓ EVID-01, EVID-02 (v0.20-05) — observation_window in NDJSON
+✓ TRIAGE-01, TRIAGE-02 (v0.20-06) — bundle outputs generated
+✓ UPPAAL-01, UPPAAL-02, UPPAAL-03 (v0.20-07) — model + runner wired
+✓ SENS-01, SENS-02, SENS-03 (v0.20-08) — sweep + report implemented
+
+PARTIAL (1/20):
+◐ VERIFY-01 (v0.20-04) — Tool exists, workflow integration missing
+
+UNSATISFIED (3/20):
+✗ PLAN-01 (v0.20-03) — step 8.2 --only=tla missing
+✗ PLAN-02 (v0.20-03) — FV_HYPOTHESES extraction missing
+
+TEST RESULTS
+============
+
+Overall: 65/72 tests PASS (90%)
+Failing: 2 tests (PLAN-01, PLAN-02) — both planning gate integration
+
+By Suite:
+- plan-phase-fv-gate.test.cjs: 4 PASS, 2 FAIL (8.2 missing)
+- run-formal-verify.test.cjs: 13 PASS (all STEPS verified)
+- verify-formal-results.test.cjs: 7 PASS (tool ready, integration not tested)
+- Other tests: 41 PASS (liveness, triage, uppaal, traces)
+
+KEY INTEGRATION POINTS
+======================
+
+1. Schema Chain: v0.20-01 writes v2.1 fields → 21 consumers read them
+   Status: VERIFIED (4 NDJSON records with all fields)
+
+2. STEPS Pipeline: Generators run first → checks sequential → triage last
+   Status: VERIFIED (28 entries, correct ordering)
+
+3. Planning Gate: Pre-planner FV run → hypothesis extraction → planner context
+   Status: BROKEN (step 8.2 missing)
+
+4. Verification Gate: Post-implementation FV run → parseNDJSON → generateFVSection → VERIFICATION.md
+   Status: PARTIAL (tools ready, workflow missing)
+
+5. Sensitivity Sweep: Parameter sweep → context extraction → quorum injection
+   Status: VERIFIED (full flow implemented in step 8.3)
+
+6. Triage Bundle: NDJSON read → suspect filtering → diff/suspects output
+   Status: VERIFIED (parseNDJSON wired, outputs generated)
+
+FILES
+=====
+
+Report: /Users/jonathanborduas/code/QGSD/.planning/v0.20-INTEGRATION-CHECK.md (21KB)
+Key paths referenced:
+- /Users/jonathanborduas/code/QGSD/qgsd-core/workflows/plan-phase.md (missing step 8.2)
+- /Users/jonathanborduas/code/QGSD/bin/run-formal-verify.cjs (28 STEPS, coherent)
+- /Users/jonathanborduas/code/QGSD/bin/verify-formal-results.cjs (ready, unused)
+- /Users/jonathanborduas/code/QGSD/formal/check-results.ndjson (4 v2.1 records)
+
+RECOMMENDATIONS
+===============
+
+IMMEDIATE (blocking PLAN-01, PLAN-02):
+1. Add step 8.2 to plan-phase.md before planner spawn (step 8)
+2. Implement FV_HYPOTHESES extraction from check-results.ndjson result=fail entries
+3. Inject FV_HYPOTHESES into planner prompt context
+
+HIGH PRIORITY (for VERIFY-01):
+1. Wire verify-formal-results into qgsd-verifier.md workflow
+2. Add FV check step to verify-phase.md post-implementation
+3. Ensure generateFVSection is called before VERIFICATION.md finalization
+
+VERDICT
+=======
+
+MILESTONE STATUS: INCOMPLETE
+
+The v0.20 milestone has implemented all code artifacts and passes 65/72 tests, but
+2 critical integration points are broken:
+
+1. Planning gate (PLAN-01, PLAN-02) — step 8.2 not implemented
+2. Verification gate (VERIFY-01) — tools ready but workflow integration missing
+
+These gaps prevent the formal verification system from providing early planning
+signal (step 8.2) and post-implementation validation (VERIFY-01).
+
+The milestone is technically ready for structured fix-phase work, with clear scope:
+- 1 missing step (8.2) in plan-phase.md with known implementation pattern
+- 1 missing workflow integration in qgsd-verifier.md with ready tools
+
+Fix scope: ~50-100 lines of code across 2 files.
+
+---
+Integration check by Claude Code (Integration Verifier)

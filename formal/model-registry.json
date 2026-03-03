@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-01T18:00:00.000Z",
+  "last_sync": "2026-03-03T06:50:58.363Z",
   "models": {
     "formal/alloy/account-pool-structure.als": {
       "version": 1,
@@ -35,8 +35,8 @@
       "description": "SPEC-03: Quorum composition selection rules — no empty selection, high-risk full fan-out, solo mode single slot"
     },
     "formal/alloy/quorum-votes.als": {
-      "version": 4,
-      "last_updated": "2026-03-01T16:23:42.708Z",
+      "version": 343,
+      "last_updated": "2026-03-03T06:50:58.362Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -83,8 +83,8 @@
       "description": ""
     },
     "formal/prism/quorum.pm": {
-      "version": 4,
-      "last_updated": "2026-03-01T16:23:42.709Z",
+      "version": 343,
+      "last_updated": "2026-03-03T06:50:58.363Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -147,8 +147,8 @@
       "description": ""
     },
     "formal/tla/QGSDQuorum.tla": {
-      "version": 4,
-      "last_updated": "2026-03-01T16:23:42.708Z",
+      "version": 343,
+      "last_updated": "2026-03-03T06:50:58.362Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,

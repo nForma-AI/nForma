@@ -2,7 +2,7 @@
 // GENERATED — do not edit by hand.
 // Source of truth: src/machines/qgsd-workflow.machine.ts
 // Regenerate:      node bin/generate-formal-specs.cjs
-// Generated:       2026-03-01
+// Generated:       2026-03-03
 
 // QGSD Quorum Convergence — DTMC Model
 // Requirements: PRM-01
@@ -46,7 +46,7 @@ module quorum_convergence
             + (1 - tp_rate * (1 - unavail)) : (s'=2);
 
     // From DELIBERATING: same transition probabilities (memoryless DTMC)
-    // Note: MaxDeliberation (7) is enforced by XState guard, not modeled here.
+    // Note: MaxDeliberation (9) is enforced by XState guard, not modeled here.
     // The DTMC captures convergence probability per round, not the capped count.
     [] s=2 -> (tp_rate * (1 - unavail)) : (s'=1)
             + (1 - tp_rate * (1 - unavail)) : (s'=2);
@@ -65,5 +65,5 @@ endrewards
 // Properties checked in formal/prism/quorum.props (run with quorum.props file):
 // P1: Eventual convergence — P=? [ F s=1 ]   (should be 1.0)
 // P2: Expected rounds     — R{"rounds"}=? [ F s=1 ]   (should be ~1/p where p=tp_rate*(1-unavail))
-// P3: Decide within 7 rounds — P=? [ F<=7 s=1 ]
+// P3: Decide within 9 rounds — P=? [ F<=9 s=1 ]
 // P4: Decide within 10    — P=? [ F<=10 s=1 ]

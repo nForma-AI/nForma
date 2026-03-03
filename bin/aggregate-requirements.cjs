@@ -71,6 +71,31 @@ function extractMilestone(content) {
   return match ? match[1] : 'unknown';
 }
 
+// Discover archived milestone REQUIREMENTS.md files
+// Returns paths sorted by milestone version (oldest first)
+function discoverArchiveFiles(archiveDir) {
+  if (!fs.existsSync(archiveDir)) return [];
+
+  const entries = fs.readdirSync(archiveDir)
+    .filter(function(f) { return /^v[\d.]+-REQUIREMENTS\.md$/.test(f); });
+
+  // Sort by version: extract numeric parts and compare
+  entries.sort(function(a, b) {
+    const va = a.match(/^v([\d.]+)-/);
+    const vb = b.match(/^v([\d.]+)-/);
+    if (!va || !vb) return a.localeCompare(b);
+    const partsA = va[1].split('.').map(Number);
+    const partsB = vb[1].split('.').map(Number);
+    for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+      const diff = (partsA[i] || 0) - (partsB[i] || 0);
+      if (diff !== 0) return diff;
+    }
+    return 0;
+  });
+
+  return entries.map(function(f) { return path.join(archiveDir, f); });
+}
+
 // Inline schema validation: check all required fields and types
 function validateEnvelope(obj) {
   const errors = [];
@@ -135,12 +160,16 @@ function validateEnvelope(obj) {
 
     if (!req.phase || typeof req.phase !== 'string') {
       errors.push('requirements[' + idx + '].phase must be a string');
-    } else if (!/^v[\d.]+-\d+$/.test(req.phase)) {
+    } else if (req.phase !== 'unknown' && !/^v[\d.]+-\d+$/.test(req.phase)) {
       errors.push('requirements[' + idx + '].phase does not match pattern');
     }
 
     if (!['Pending', 'Complete'].includes(req.status)) {
       errors.push('requirements[' + idx + '].status must be Pending or Complete');
+    }
+
+    if (req.background !== undefined && typeof req.background !== 'string') {
+      errors.push('requirements[' + idx + '].background must be a string if present');
     }
 
     if (!req.provenance || typeof req.provenance !== 'object') {
@@ -176,12 +205,37 @@ function computeContentHash(obj) {
   return 'sha256:' + crypto.createHash('sha256').update(jsonStr).digest('hex');
 }
 
+// Process a single requirements file into a Map (mutates reqMap in place)
+function mergeFileIntoMap(reqMap, filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const requirements = parseRequirements(content);
+  const traceability = parseTraceability(content);
+  const milestone = extractMilestone(content);
+
+  requirements.forEach(function(req) {
+    const trace = traceability[req.id] || { phase: 'unknown', status: 'Pending' };
+    reqMap.set(req.id, {
+      id: req.id,
+      text: req.text,
+      category: req.category,
+      phase: trace.phase,
+      status: trace.status,
+      provenance: {
+        source_file: filePath,
+        milestone: milestone
+      }
+    });
+  });
+}
+
 // Main aggregation pipeline
 function aggregateRequirements(options) {
   options = options || {};
   const requirementsPath = options.requirementsPath || '.planning/REQUIREMENTS.md';
   const outputPath = options.outputPath || 'formal/requirements.json';
   const deterministic = options.deterministic || false;
+  const skipArchive = options.skipArchive || false;
+  const archiveDir = options.archiveDir || '.planning/milestones';
 
   // Check if output path exists and is frozen
   if (fs.existsSync(outputPath)) {
@@ -191,35 +245,25 @@ function aggregateRequirements(options) {
     }
   }
 
-  // Read REQUIREMENTS.md
-  if (!fs.existsSync(requirementsPath)) {
-    throw new Error('REQUIREMENTS.md not found at ' + requirementsPath);
+  // Build merged requirement map: archive oldest→newest, then current (last write wins)
+  const reqMap = new Map();
+
+  if (!skipArchive) {
+    var archiveFiles = discoverArchiveFiles(archiveDir);
+    archiveFiles.forEach(function(archivePath) {
+      mergeFileIntoMap(reqMap, archivePath);
+    });
   }
 
-  const content = fs.readFileSync(requirementsPath, 'utf8');
+  // Current REQUIREMENTS.md is optional when archives provide requirements
+  if (fs.existsSync(requirementsPath)) {
+    mergeFileIntoMap(reqMap, requirementsPath);
+  } else if (reqMap.size === 0) {
+    throw new Error('REQUIREMENTS.md not found at ' + requirementsPath + ' and no archive files found');
+  }
 
-  // Parse requirements and traceability
-  const requirements = parseRequirements(content);
-  const traceability = parseTraceability(content);
-  const milestone = extractMilestone(content);
-
-  // Merge: add phase and status from traceability
-  const merged = requirements.map(function(req) {
-    const trace = traceability[req.id] || { phase: 'unknown', status: 'Pending' };
-    return {
-      id: req.id,
-      text: req.text,
-      category: req.category,
-      phase: trace.phase,
-      status: trace.status,
-      provenance: {
-        source_file: requirementsPath,
-        milestone: milestone
-      }
-    };
-  });
-
-  // Sort by id for determinism
+  // Convert Map to sorted array
+  const merged = Array.from(reqMap.values());
   merged.sort(function(a, b) { return a.id.localeCompare(b.id); });
 
   // Compute content hash from the requirements array (before envelope wrapping)
@@ -277,6 +321,7 @@ if (require.main === module) {
     const opts = {};
     let dryRun = false;
     let deterministic = false;
+    let skipArchive = false;
 
     // Parse arguments
     for (let i = 0; i < args.length; i++) {
@@ -284,6 +329,8 @@ if (require.main === module) {
         dryRun = true;
       } else if (args[i] === '--deterministic') {
         deterministic = true;
+      } else if (args[i] === '--skip-archive') {
+        skipArchive = true;
       } else if (args[i].indexOf('--requirements=') === 0) {
         opts.requirementsPath = args[i].split('=')[1];
       } else if (args[i].indexOf('--output=') === 0) {
@@ -292,30 +339,29 @@ if (require.main === module) {
     }
 
     opts.deterministic = deterministic;
+    opts.skipArchive = skipArchive;
 
     if (dryRun) {
       // Dry run: output to stdout without writing file
       const requirementsPath = opts.requirementsPath || '.planning/REQUIREMENTS.md';
-      const content = fs.readFileSync(requirementsPath, 'utf8');
-      const requirements = parseRequirements(content);
-      const traceability = parseTraceability(content);
-      const milestone = extractMilestone(content);
+      const archiveDir = opts.archiveDir || '.planning/milestones';
 
-      const merged = requirements.map(function(req) {
-        const trace = traceability[req.id] || { phase: 'unknown', status: 'Pending' };
-        return {
-          id: req.id,
-          text: req.text,
-          category: req.category,
-          phase: trace.phase,
-          status: trace.status,
-          provenance: {
-            source_file: requirementsPath,
-            milestone: milestone
-          }
-        };
-      });
+      const reqMap = new Map();
 
+      if (!skipArchive) {
+        var archiveFiles = discoverArchiveFiles(archiveDir);
+        archiveFiles.forEach(function(archivePath) {
+          mergeFileIntoMap(reqMap, archivePath);
+        });
+      }
+
+      if (fs.existsSync(requirementsPath)) {
+        mergeFileIntoMap(reqMap, requirementsPath);
+      } else if (reqMap.size === 0) {
+        throw new Error('REQUIREMENTS.md not found at ' + requirementsPath + ' and no archive files found');
+      }
+
+      const merged = Array.from(reqMap.values());
       merged.sort(function(a, b) { return a.id.localeCompare(b.id); });
       const contentHash = computeContentHash(merged);
       const now = deterministic
@@ -347,5 +393,6 @@ module.exports = {
   parseRequirements: parseRequirements,
   parseTraceability: parseTraceability,
   validateEnvelope: validateEnvelope,
-  aggregateRequirements: aggregateRequirements
+  aggregateRequirements: aggregateRequirements,
+  discoverArchiveFiles: discoverArchiveFiles
 };

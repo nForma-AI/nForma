@@ -1,62 +1,2527 @@
 {
-  "aggregated_at": "2026-03-01T20:36:14.784Z",
-  "content_hash": "sha256:79462d6c160e4359a6fe0a2addf733d52b7f94291ea7b459c1ed39658a28ac33",
-  "frozen_at": "2026-03-01T20:42:26.037Z",
+  "aggregated_at": "2026-03-03T07:56:45.450Z",
+  "content_hash": "sha256:5398eea7f700b42f343123cffb01c4a09712dd70979b052de2ee91e60c675454",
+  "frozen_at": "2026-03-03T07:56:45.450Z",
   "requirements": [
     {
-      "id": "ENV-01",
-      "text": "Requirements are aggregated into `formal/requirements.json` — during `new-milestone`, after roadmap creation, all phase requirements are compiled into a single structured JSON document in `formal/` with REQ-ID, text, category, phase assignment, and provenance; this is the canonical requirements envelope",
-      "category": "Requirements Envelope",
-      "phase": "v0.22-01",
+      "id": "ACT-01",
+      "text": "`.planning/current-activity.json` is written atomically at every major workflow state transition (execute-phase, plan-phase, debug, quorum, circuit-breaker, new-milestone stages)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": ".planning/current-activity.json is written atomically at every major workflow state transition: execute-phase, plan-phase, debug, quorum, circuit-breaker, new-milestone. This continuous activity tracking enables resume-work to recover to the exact sub-step that was interrupted."
+    },
+    {
+      "id": "ACT-02",
+      "text": "Activity schema: `{ activity, sub_activity, phase?, plan?, wave?, debug_round?, checkpoint?, quorum_round?, updated }` — all fields except `activity` and `updated` are optional; unknown fields are preserved",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Activity schema { activity, sub_activity, phase?, plan?, wave?, debug_round?, checkpoint?, quorum_round?, updated } with only activity and updated required. Optional fields allow flexible tracking of context (which phase, plan, debug round), and unknown fields are preserved for forward compatibility."
+    },
+    {
+      "id": "ACT-03",
+      "text": "`gsd-tools.cjs activity-set <json>` CLI command writes the current-activity.json file with atomic replace; `activity-clear` removes it",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "CLI command gsd-tools.cjs activity-set <json> writes current-activity.json atomically; activity-clear removes it. This command interface allows external tools (hooks, scripts) to update activity state."
+    },
+    {
+      "id": "ACT-04",
+      "text": "`resume-work` reads current-activity.json and routes to the exact recovery point — displaying the interrupted state before resuming execution",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "resume-work reads current-activity.json and routes to the exact recovery point, displaying the interrupted state before resuming. This restores context so the user understands where they left off and what will execute next."
+    },
+    {
+      "id": "ACT-05",
+      "text": "`execute-phase` writes activity at every stage boundary: entering/exiting plan execution, checkpoint:verify, debug loop rounds, awaiting_human_verify, and verifying_phase",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "execute-phase writes activity at every stage: entering/exiting plan execution, checkpoint:verify, debug loop rounds, awaiting_human_verify, verifying_phase. This granular tracking allows recovery mid-debug loop or during human approval gates."
+    },
+    {
+      "id": "ACT-06",
+      "text": "`plan-phase`, `new-milestone`, `debug`, `quorum`, and `circuit-breaker` resolution workflows write activity at every stage boundary",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "plan-phase, new-milestone, debug, quorum, and circuit-breaker resolution workflows write activity at every stage boundary. All major workflows must track activity to enable consistent, reliable recovery across the entire QGSD tool."
+    },
+    {
+      "id": "ACT-07",
+      "text": "Activity file is cleared on successful completion of any top-level workflow; it persists across context resets when mid-workflow",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Activity file is cleared on successful completion of any top-level workflow, but persists across context resets when mid-workflow. This prevents stale activity files from confusing resume-work after workflows complete, while allowing recovery across context boundaries."
+    },
+    {
+      "id": "AGENT-01",
+      "text": "User can add a new claude-mcp-server instance (name, provider, model, key)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Enables expansion of the quorum beyond default agents. Users can provision new claude-mcp-server instances with custom models (deepseek, minimax, qwen-coder, etc.) and providers. Works with WIZ-02 to guide first-time configuration and with AGENT-03 to verify new agents work."
+    },
+    {
+      "id": "AGENT-02",
+      "text": "User can remove an existing agent from the roster",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Allows users to remove agents that are no longer needed (cost reduction, outdated models, or testing cleanup). Maintains a clean roster and prevents accidental quorum calls to disabled agents. Complements AGENT-01 to give full lifecycle management."
+    },
+    {
+      "id": "AGENT-03",
+      "text": "Wizard runs identity ping to verify connectivity after provisioning new agent",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Validates that newly added agents are actually reachable before confirming provisioning. Uses identity ping to test connectivity, catching misconfigured providers, incorrect API keys, or network issues early. Critical for confidence in AGENT-01."
+    },
+    {
+      "id": "ARCH-01",
+      "text": "All formal models declared in `formal/model-registry.json` as single source of truth with provenance tracking",
+      "category": "Architecture",
+      "phase": "v0.21-01",
       "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
-        "milestone": "v0.22"
-      }
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "v0.21 needed to establish a unified formal spec ecosystem, so the first architectural requirement creates a single source of truth for all formal models (TLA+, Alloy, PRISM) with provenance tracking. This underpins all downstream requirements by ensuring no divergence between phase-specific specs and canonical specs. The model registry becomes the foundation for atomic promotion and debug-invariant acceptance in ARCH-02 and ARCH-03."
     },
     {
-      "id": "ENV-02",
-      "text": "A Haiku validation pass detects duplicates and conflicts — before the envelope is frozen, a lightweight model (claude-haiku-4-5) reviews the full requirement set for semantic duplicates (different IDs, same intent), contradictions (requirements that cannot both be satisfied), and ambiguity (requirements that admit multiple incompatible interpretations); results are presented to the user for resolution",
-      "category": "Requirements Envelope",
-      "phase": "v0.22-01",
-      "status": "Pending",
+      "id": "ARCH-02",
+      "text": "`promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection",
+      "category": "Architecture",
+      "phase": "v0.21-01",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
-        "milestone": "v0.22"
-      }
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Building on ARCH-01's registry, atomic promotion prevents the accumulation of duplicate or conflicting specs from multiple phases. This requirement ensures that when per-phase models are promoted to canonical status, duplicates are detected and resolved. It directly supports LOOP-02 and LOOP-04, which regenerate and mine specs, by guaranteeing a clean canonical baseline."
     },
     {
-      "id": "ENV-03",
-      "text": "The validated envelope constrains formal specs — formal methods (TLA+, Alloy, PRISM) must prove they respect the envelope; `generate-phase-spec.cjs` reads `formal/requirements.json` as its source of truth for PROPERTY generation; any formal spec that contradicts a frozen requirement is flagged as a violation",
-      "category": "Requirements Envelope",
-      "phase": "v0.22-02",
-      "status": "Pending",
+      "id": "ARCH-03",
+      "text": "`accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance",
+      "category": "Architecture",
+      "phase": "v0.21-01",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
-        "milestone": "v0.22"
-      }
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Complements ARCH-02 by providing the inverse path: debug-discovered invariants found during formal verification must flow back into canonical specs with session provenance recorded. This creates a closed-loop feedback mechanism where testing discoveries enrich the formal model without breaking traceability. Essential for DIAG requirements and LOOP-04's invariant mining."
     },
     {
-      "id": "ENV-04",
-      "text": "The envelope is immutable without user consent — `formal/requirements.json` cannot be modified by any automated workflow; modifications require explicit user approval through an amendment workflow that re-runs ENV-02 validation on the updated set; a hook or pre-commit guard enforces this",
-      "category": "Requirements Envelope",
-      "phase": "v0.22-03",
+      "id": "BLD-01",
+      "text": "`hooks/dist/` rebuilt from current source — includes all circuit breaker hook code from Phases 6–8 and GUARD 5 code from Phase 5",
+      "category": "Uncategorized",
+      "phase": "unknown",
       "status": "Pending",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
-        "milestone": "v0.22"
-      }
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "hooks/dist/ is rebuilt from current source, containing all circuit breaker hook code from Phases 6–8 and GUARD 5 code from Phase 5. The dist/ folder is what the installer reads from, so it must be up-to-date before publishing."
     },
     {
-      "id": "ENV-05",
-      "text": "Drift detection flags divergence — when `.planning/REQUIREMENTS.md` is modified after the envelope is frozen, a checker compares the working copy against `formal/requirements.json` and warns if they diverge; legitimate changes must go through the amendment workflow (ENV-04)",
-      "category": "Requirements Envelope",
-      "phase": "v0.22-04",
+      "id": "BLD-02",
+      "text": "`npm test` passes with 0 failures across all test suites (config-loader, stop hook, circuit breaker)",
+      "category": "Uncategorized",
+      "phase": "unknown",
       "status": "Pending",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
-        "milestone": "v0.22"
-      }
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "npm test passes with zero failures across config-loader, stop hook, and circuit breaker test suites. This gates release — no shipping if tests fail. All major hook features must have passing tests before v0.2.0."
+    },
+    {
+      "id": "CALIB-01",
+      "text": "`formal/policy.yaml` is the single authoritative source for PRISM calibration parameters",
+      "category": "Uncategorized",
+      "phase": "v0.19-02",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "Hardcoding PRISM parameters across run-prism.cjs, test files, and configurations made updates error-prone and created inconsistent model behavior. Moving all calibration (tp_rate, unavail, observation_window) to formal/policy.yaml creates a single source of truth, enabling policy reviews and parameter audits without code searches."
+    },
+    {
+      "id": "CALIB-02",
+      "text": "`run-prism.cjs` reads `policy.yaml` and writes `writeCheckResult` with `observation_window` metadata",
+      "category": "Uncategorized",
+      "phase": "v0.19-02",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "run-prism.cjs must read policy.yaml on startup and pass observation_window metadata in writeCheckResult calls. This wires the policy layer into PRISM output, enabling the MCP environment model and other downstream consumers to understand the observation conditions under which availability rates were measured."
+    },
+    {
+      "id": "CALIB-03",
+      "text": "`read-policy.cjs` exposes all policy fields with typed interface",
+      "category": "Uncategorized",
+      "phase": "v0.19-02",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "A typed read-policy.cjs module exports all policy fields with schema validation, preventing silent defaults or schema drift. Callers can safely access policy.conservative_priors.tp_rate knowing the type is correct, enabling other tools (trace validation, quorum tests) to reference policy without replicating YAML parsing."
+    },
+    {
+      "id": "CALIB-04",
+      "text": "`policy.conservative_priors.tp_rate` and `policy.conservative_priors.unavail` from `formal/policy.yaml` wire directly to `run-prism.cjs` fallback constants (v0.19-10 fix)",
+      "category": "Uncategorized",
+      "phase": "v0.19-10",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "v0.19-10 discovered that run-prism.cjs fallback constants (when policy.yaml is missing) were hardcoded differently from the source. This fix wired policy.conservative_priors directly to fallback values, eliminating a silent divergence where emergency runs used stale assumptions. Related to calibration governance but specific to resilience."
+    },
+    {
+      "id": "CL-01",
+      "text": "CHANGELOG.md has a `[0.2.0]` entry covering all v0.2 changes: circuit breaker (Phases 6–8), GUARD 5 gap closure (Phase 5), QGSD rebranding, quorum scoring, quorum commands, debug flow, checkpoint:verify (quick tasks 1–12)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "CHANGELOG.md [0.2.0] entry documents all v0.2 changes: circuit breaker (Phases 6–8), GUARD 5 gap closure (Phase 5), quorum scoring, quorum commands, debug flow, checkpoint:verify. This comprehensive changelog helps users understand what shipped in this release."
+    },
+    {
+      "id": "CL-02",
+      "text": "CHANGELOG.md `[Unreleased]` section is cleared after the `[0.2.0]` entry is finalized — clean slate for v0.3+",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "CHANGELOG.md [Unreleased] section is cleared after [0.2.0] is finalized. This clean slate signals v0.2 is complete and ready for v0.3+ development, preventing confusion about which features are released vs. pending."
+    },
+    {
+      "id": "COMP-01",
+      "text": "User can define a `quorum.active` array in `qgsd.json` listing which slots participate in quorum",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Enables users to choose which available slots participate in planning verification by configuration rather than hardcoding. Solves the problem of forcing unwanted agents into quorum when a user has limited credentials or wants to test with a subset. Introduces the core configuration point (`quorum.active`) that drives all v0.7 behavior downstream."
+    },
+    {
+      "id": "COMP-02",
+      "text": "Quorum orchestrator reads `quorum.active` from config instead of a hardcoded agent list; only active slots are called",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Implements the quorum dispatch logic to read from the new `quorum.active` array instead of compiled agent lists. This is the enforcement mechanism that translates COMP-01's user configuration into actual orchestrator behavior. COMP-02 must pair with COMP-01 to avoid configs being defined but ignored."
+    },
+    {
+      "id": "COMP-03",
+      "text": "`check-provider-health.chs` and scoreboard tooling derive agent list from `quorum.active` rather than hardcoded arrays",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Extends composition awareness to health-checking and scoreboard tooling so all parts of QGSD respect the same `quorum.active` list. Without this, tooling might probe unavailable slots or display scoreboard entries for agents not in the active quorum, creating inconsistency. Ensures COMP-01's user configuration flows through the entire system."
+    },
+    {
+      "id": "COMP-04",
+      "text": "Default `quorum.active` is auto-populated at install/migration time based on discovered slots in `~/.claude.json`",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Initializes the new `quorum.active` array intelligently at install/migration time by discovering which slots actually exist in `~/.claude.json`. Prevents configuration state from diverging from reality (e.g., listing non-existent slots). Creates sensible defaults so users don't see empty quorum after upgrade."
+    },
+    {
+      "id": "CONF-01",
+      "text": "Global config at `~/.claude/qgsd.json` — installed once, applies to all projects",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Establishes global config at ~/.claude/qgsd.json that applies to all projects. This allows one-time installation of quorum configuration at the user level, avoiding per-project setup for users who want quorum everywhere."
+    },
+    {
+      "id": "CONF-02",
+      "text": "Per-project override at `.claude/qgsd.json` — merged with global, project values take precedence",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Per-project overrides at .claude/qgsd.json allow specific projects to customize their quorum requirements differently from global config. Project values take precedence, enabling projects with special quorum rules (e.g., stricter requirements for critical systems)."
+    },
+    {
+      "id": "CONF-03",
+      "text": "Config contains: `quorum_commands` (array of command names), `required_models` (dict of MCP tool entries: { tool_prefix, required }), `fail_mode` (open|closed, default: open)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Defines the core config schema: quorum_commands (list of commands requiring quorum), required_models (MCP tool entries with prefix and required flag), fail_mode (open|closed). This schema is simple and explicit, enabling easy editing and understanding."
+    },
+    {
+      "id": "CONF-04",
+      "text": "Fail-open behavior: when a quorum model is unavailable, Stop hook passes and logs reduced quorum notification",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Fail-open behavior allows workflows to continue at reduced quorum when a model is unavailable. This matches CLAUDE.md R6 behavior — quorum is best-effort, not hard requirement. When Codex quota is exhausted, reduced quorum (e.g., 2/3 models) is acceptable."
+    },
+    {
+      "id": "CONF-05",
+      "text": "Config validates on read — malformed config falls back to hardcoded defaults with warning",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Config validation on read ensures malformed files fall back to hardcoded defaults with a warning. This prevents silent failures where typos in qgsd.json would cause unexpected behavior."
+    },
+    {
+      "id": "CONF-06",
+      "text": "qgsd.json schema extended with `circuit_breaker.oscillation_depth` (integer, default: 3) — minimum commits touching same file set to trigger breaker",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Config parameter oscillation_depth (default: 3) sets the minimum number of commits with identical file sets to trigger the breaker. This tuning parameter allows users to adjust sensitivity — lower values trigger faster, higher values allow more tolerance for legitimate repeated changes."
+    },
+    {
+      "id": "CONF-07",
+      "text": "qgsd.json schema extended with `circuit_breaker.commit_window` (integer, default: 6) — number of recent commits to analyze",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Config parameter commit_window (default: 6) sets the number of recent commits to analyze. This window size balances detection latency (shorter window = faster detection) with false positive avoidance (longer window = captures genuine oscillation patterns)."
+    },
+    {
+      "id": "CONF-08",
+      "text": "Circuit breaker config values validated on load; invalid values fall back to defaults with stderr warning",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Circuit breaker config values are validated on load — invalid values fall back to defaults with stderr warning. This prevents configuration typos from silently breaking oscillation detection."
+    },
+    {
+      "id": "CONF-09",
+      "text": "Two-layer config merge (global + project) applies to `circuit_breaker` settings identically to existing merge behavior",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Two-layer config merge (global ~/.claude/qgsd.json + project .claude/qgsd.json) applies to circuit_breaker settings identically to existing behavior. Circuit breaker config can be customized per-project, allowing strict projects to use aggressive settings (oscillation_depth: 2) and lenient projects to use relaxed settings (oscillation_depth: 5)."
+    },
+    {
+      "id": "CRED-01",
+      "text": "User can rotate API keys across multiple slots in a single batch flow from the main menu",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Batch key rotation solves the operational pain of having to rotate keys one slot at a time through the edit flow. In multi-slot deployments (when the quorum spans 4-6 providers), manual per-slot rotation is tedious and error-prone. This requirement groups all key rotation into a single workflow from the main menu, reducing repetitive interaction and ensuring consistency. It pairs with CRED-02 (persistent validation status) so users can rotate keys only when validation actually fails, not speculatively."
+    },
+    {
+      "id": "CRED-02",
+      "text": "Key validity status persists to `qgsd.json` after each health probe (enables DISP-03 badge to survive across sessions without re-probing)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Persistent key validity status persists validation probe results to qgsd.json, enabling the DISP-03 display badge to survive session restarts without re-probing every slot. Probing can be slow (multi-provider round-trip), so caching the 401 status is essential for responsive interactive sessions. This is the enabling infrastructure for DISP-03, which depends on availability of cached validation data."
+    },
+    {
+      "id": "DASH-01",
+      "text": "User can open a live health dashboard from main menu showing all slots' provider, model, and health status",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "The live health dashboard provides a unified view of all slots' provider, model, and health status — essential for diagnosing quorum readiness before running a /qgsd:quick task. Rather than opening manage-agents and tediously navigating through editAgent for each slot, users can see the full roster state at a glance. This addresses the user workflow need to verify infrastructure before trusting the quorum."
+    },
+    {
+      "id": "DASH-02",
+      "text": "Dashboard refreshes on keypress (space / r) with a visible \"last updated\" timestamp shown at bottom",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Manual refresh on keypress (space/r) with visible 'last updated' timestamp allows users to monitor probe timing without adding infrastructure complexity (auto-refresh would require TTY-safe background threads). The timestamp is critical so users know whether the health data is stale or fresh. This design respects the existing CJS inquirer constraints while still providing interactive monitoring."
+    },
+    {
+      "id": "DASH-03",
+      "text": "Dashboard exits cleanly on Q or Escape, returning to main menu with stdin fully restored (no character-swallowing)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Clean exit (Q or Escape) with full stdin restoration prevents character-swallowing and terminal corruption when leaving the dashboard. This is a hard TTY requirement — inquirer can leave stdin in an unusual state on abrupt exit. Explicit state cleanup is mandatory to avoid corrupting the terminal session. This is a blocking UX requirement for a production dashboard."
+    },
+    {
+      "id": "DETECT-01",
+      "text": "PreToolUse hook intercepts Bash tool calls and checks whether the current context has an active circuit breaker before running detection",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "PreToolUse hook intercepts Bash tool calls before execution, checking if circuit breaker is already active. If active, skip detection and go straight to enforcement. If inactive, run oscillation detection on the Bash call."
+    },
+    {
+      "id": "DETECT-02",
+      "text": "Hook retrieves last N commits' changed files via `git log --name-only` (N = commit_window config) when detection is needed",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Hook fetches last N commits via git log --name-only, where N is the configured commit_window. This efficient git query provides the recent commit history needed for oscillation pattern matching."
+    },
+    {
+      "id": "DETECT-03",
+      "text": "Hook identifies oscillation when the exact same file set (strict set equality, not intersection) appears in ≥ oscillation_depth of the last commit_window commits — strict equality prevents false positives during TDD cycles where different files are touched per commit",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Oscillation is identified by strict file set equality — the exact same file set appears ≥ oscillation_depth times in the commit_window. Strict equality avoids false positives during TDD cycles where each commit touches different files. The requirement explicitly rejects intersection-based matching because it would trigger during legitimate refactoring."
+    },
+    {
+      "id": "DETECT-04",
+      "text": "Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) pass through without detection or blocking",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) always pass through without detection. These commands cannot create oscillation (they don't modify files), so blocking them would only slow debugging work."
+    },
+    {
+      "id": "DETECT-05",
+      "text": "Detection is skipped (returns pass) when no git repository exists in the current working directory",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Detection is skipped when the current working directory has no git repository. QGSD should not crash on non-git projects; it gracefully degrades to allow all Bash execution."
+    },
+    {
+      "id": "DIAG-01",
+      "text": "Conformance trace divergence rate reduced to <5% (ACHIEVED: 0% on mapped events; VERIFICATION.md missing)",
+      "category": "Diagnostics",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Measures conformance between XState runtime behavior and formal TLA+ specs; a <5% divergence rate signals that the implementation faithfully matches the formal model. This is the primary diagnostic for v0.21's FV closed-loop claim. Achieved 0% on mapped events but VERIFICATION.md documentation gap remains. Directly informs DIAG-02 and DIAG-03 about which traces diverge."
+    },
+    {
+      "id": "DIAG-02",
+      "text": "`attribute-trace-divergence.cjs` walks XState guards to root-cause divergences (IMPLEMENTED; VERIFICATION.md missing)",
+      "category": "Diagnostics",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Operationalizes root-cause analysis by walking XState guards to explain why a trace diverges from formal expectations. This tool bridges the gap between observing divergence (DIAG-01) and understanding it (DIAG-03). IMPLEMENTED but VERIFICATION.md missing; enables SIG-01 to correlate coverage gaps with divergence attribution."
+    },
+    {
+      "id": "DIAG-03",
+      "text": "Pivot decision surfaced in `formal/diff-report.md` with complete attribution (DELIVERED; VERIFICATION.md missing)",
+      "category": "Diagnostics",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Surfaces the pivot decision — the critical control flow point where formal behavior and runtime behavior fork — with complete attribution in formal/diff-report.md. This transforms DIAG-02's root-cause investigation into actionable intelligence for refining specs or implementation. DELIVERED but artifact documentation gap remains."
+    },
+    {
+      "id": "DISP-01",
+      "text": "qgsd-prompt.js runs a fast health probe (<3s) per provider before building the dispatch list -- dead providers' slots excluded from DISPATCH_LIST",
+      "category": "Uncategorized",
+      "phase": "v0.24-02",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Quorum W/L (wins/losses) column in the agent list shows at a glance how reliable each slot is in actual quorum operations. This metrics visibility helps users identify chronically failing slots that need replacement or configuration change. The graceful empty state handles the initial setup case when scoreboard doesn't exist yet. This is the first visibility into quorum health data in the roster UI."
+    },
+    {
+      "id": "DISP-02",
+      "text": "qgsd-prompt.js reads scoreboard `availability` windows and excludes slots whose `available_at` is in the future from dispatch",
+      "category": "Uncategorized",
+      "phase": "v0.24-02",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "CCR (provider-specific routing) provider name display indicates when a specific slot is routed through a special provider. Some slots may be configured to use a different base URL (e.g., Akash proxy) than the default. Displaying the provider name in the roster makes this routing explicit and prevents confusion about which API endpoint each slot targets. This is metadata transparency for configuration debugging."
+    },
+    {
+      "id": "DISP-03",
+      "text": "Dispatch list ordered by recent success rate (from scoreboard slot stats) rather than static FALLBACK-01 tier sequence -- most reliable slots dispatched first",
+      "category": "Uncategorized",
+      "phase": "v0.24-02",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "[key invalid] badge alerts users when a slot's last health probe returned 401 (auth failure) while a key is configured. This requires CRED-02 (persistent status) to survive across sessions. The badge drives the user toward CRED-01 (batch rotation) to fix the problem. This is the integration point connecting health validation, persistent state, and user action."
+    },
+    {
+      "id": "DISP-04",
+      "text": "Prompt construction (Mode A/B, Round 1/2+, artifact injection, prior_positions, review_context, improvements request) happens deterministically in JavaScript (call-quorum-slot.cjs or wrapper), not via LLM string manipulation in the slot worker agent",
+      "category": "Uncategorized",
+      "phase": "v0.24-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Solves a critical control-flow problem where prompt construction (mode selection, round markers, artifact injection, context assembly) was delegated to the slot worker agent, causing non-deterministic prompt generation and inconsistent verdict parsing. By moving prompt construction into deterministic JavaScript (call-quorum-slot.cjs), the system ensures every slot receives the exact same prompt format regardless of agent interpretation, enabling reliable structured output parsing in DISP-05."
+    },
+    {
+      "id": "DISP-05",
+      "text": "Output parsing (verdict, reasoning, citations, improvements extraction from raw CLI output) happens in JavaScript with structured YAML output -- the slot worker agent returns script output verbatim without LLM post-processing",
+      "category": "Uncategorized",
+      "phase": "v0.24-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Completes the dispatch reliability chain by removing LLM post-processing from output parsing. The slot worker agent now returns raw CLI output verbatim, and JavaScript parses the structured YAML (verdict, reasoning, citations, improvements) without interpretation. This prevents agent hallucination or reformatting that could corrupt quorum voting data and ensures bit-for-bit reproducible verdicts across runs."
+    },
+    {
+      "id": "DRIFT-01",
+      "text": "`check-trace-schema-drift.cjs` detects schema drift and emits `check-results.ndjson`",
+      "category": "Uncategorized",
+      "phase": "v0.19-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "Trace schema (event fields, action types, structure) can drift when TLA+ models are updated but trace deserializers lag. check-trace-schema-drift.cjs validates that observed trace events match expected schema and emits check-results.ndjson results, catching deserialization bugs before they corrupt evidence."
+    },
+    {
+      "id": "DRIFT-02",
+      "text": "Schema drift check runs as CI step in `run-formal-verify.cjs`",
+      "category": "Uncategorized",
+      "phase": "v0.19-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "Schema drift checking runs as a CI step in run-formal-verify.cjs alongside redaction and other trace validation, ensuring schema consistency is verified atomically with other trace properties and preventing stale deserialization code from silently corrupting analysis downstream."
+    },
+    {
+      "id": "ENFC-02",
+      "text": "Block reason names the oscillating file set, confirms circuit breaker is active, and lists allowed operations (read-only Bash)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Block reason names the oscillating file set, confirms the circuit breaker is active, and lists allowed read-only operations. This transparency helps the user understand what files are stuck and what they can still do (inspect code, analyze dependencies)."
+    },
+    {
+      "id": "ENFC-03",
+      "text": "Block reason instructs Claude to perform root cause analysis and map dependencies before resuming; explicitly instructs the user to manually commit the fix (since Claude cannot run git commit while blocked)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Block reason instructs Claude to perform root cause analysis and map dependencies before resuming. It explicitly tells the user they must manually commit the fix. This acknowledges that the structural coupling requires human judgment to untangle."
+    },
+    {
+      "id": "EVID-01",
+      "text": "`never_observed` path entries in `validate-traces.cjs` evidence output carry `confidence: low|medium|high` based on trace volume and window duration",
+      "category": "Uncategorized",
+      "phase": "v0.20-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement adds confidence scoring to the evidence output from validate-traces.cjs for never-observed paths in the protocol. It solves the epistemic problem where a code path not being seen in traces could mean either 'it's truly unreachable' or 'we just haven't generated enough traces'. By annotating each never_observed entry with confidence (low/medium/high) based on trace volume and observation window duration, it enables readers to distinguish high-confidence gaps (millions of events, weeks of data) from speculative ones (thousands of events, minutes of data). This supports risk-aware interpretation of coverage gaps."
+    },
+    {
+      "id": "EVID-02",
+      "text": "`observation_window` metadata (window_start, window_end, n_traces, n_events, window_days) written to `check-results.ndjson` for evidence-driven checks",
+      "category": "Uncategorized",
+      "phase": "v0.20-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement adds observation_window metadata (start/end timestamps, trace count, event count, window duration in days) to check-results.ndjson for all evidence-driven checks. It solves the metadata sparsity problem where formal verification results lack context about how much evidence supports them. By recording the empirical basis (how many traces, over what time period), downstream tools (sensitivity analysis, triage) can make informed decisions about whether a check result is based on sufficient evidence. This enables evidence-driven risk assessment in the quorum review process."
+    },
+    {
+      "id": "FAIL-01",
+      "text": "call-quorum-slot.cjs retries a failed slot call up to 2 times with exponential backoff (1s, 3s) before recording UNAVAIL in quorum-failures.json",
+      "category": "Uncategorized",
+      "phase": "v0.24-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Handles transient failures (network blips, rate limits) by implementing retry logic with exponential backoff (1s, 3s) in call-quorum-slot.cjs. Before marking a slot UNAVAIL in quorum-failures.json, the system gives each slot 2 additional chances with increasing delay. This dramatically reduces false failures from temporary glitches while preserving the ability to detect genuinely dead endpoints after exhausting retries."
+    },
+    {
+      "id": "FAIL-02",
+      "text": "providers.json contains explicit slot-to-provider mapping; when a provider probe returns DOWN, all slots on that provider skipped in a single dispatch decision",
+      "category": "Uncategorized",
+      "phase": "v0.24-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Provides bulk protection for provider-level outages by maintaining an explicit slot-to-provider mapping in providers.json. When the health probe (DISP-01) detects a provider DOWN, all slots on that provider are atomically excluded from the dispatch decision in a single operation. This prevents the system from wasting time retrying multiple slots on the same dead provider and ensures decisions scale well even if a large provider (e.g., AkashML, Together.xyz) becomes unavailable."
+    },
+    {
+      "id": "HEAL-01",
+      "text": "After each deliberation round, system computes P(consensus | remaining rounds); if P < threshold (default 10%), escalation fires early instead of exhausting maxDeliberation",
+      "category": "Uncategorized",
+      "phase": "v0.24-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Addresses the problem of the system exhausting the full maxDeliberation budget on quorum attempts that have become mathematically unwinnable. By computing P(consensus | remaining rounds) after each deliberation round, the system can escalate early when the probability drops below 10%, rather than continuing to burn rounds. This saves time and provides signal for escalation monitoring while preserving the full maxDeliberation budget for cases where consensus is still achievable."
+    },
+    {
+      "id": "HEAL-02",
+      "text": "When verify-quorum-health detects P(consensus) < 95%, it recommends and auto-adjusts maxDeliberation in qgsd.json (with user approval)",
+      "category": "Uncategorized",
+      "phase": "v0.24-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Complements HEAL-01 with adaptive configuration: when verify-quorum-health detects that P(consensus) drops below 95% across recent sessions, the system recommends adjusting maxDeliberation upward in qgsd.json. With user approval, this auto-healing mechanism allows the system to tune itself based on observed provider reliability patterns, preventing repeated cascading escalations and improving long-term success rates without manual intervention."
+    },
+    {
+      "id": "HLTH-01",
+      "text": "`validate health` produces zero W005 false positives for versioned phase directories (`v0.X-YY-name` format)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
+        "milestone": "v0.15"
+      },
+      "background": "This requirement fixes a critical health-check false positive that emerged when QGSD adopted versioned phase naming (`v0.X-YY-name`) while the underlying gsd-tools.cjs still validated against GSD's legacy numeric format (`NN-name`). The W005 check uses regex `/^\\d{2}(?:\\.\\d+)?-[\\w-]+$/` which rejects any directory starting with letters, causing all 41 versioned phase directories to fail validation. This requirement is foundational to the milestone because the subsequent health checks (HLTH-02, HLTH-03) depend on correct directory recognition, and preventing false positives is critical for the health checker to be a reliable operational tool that the team can trust."
+    },
+    {
+      "id": "HLTH-02",
+      "text": "`validate health` produces zero W007 false positives for versioned phase directories",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
+        "milestone": "v0.15"
+      },
+      "background": "This requirement addresses W007 false positives where the health checker fails to recognize versioned phases as existing in both ROADMAP and disk. The bug occurs in two places: the ROADMAP extractor regex cannot capture `Phase v0.X-YY:` headers, and the disk directory extractor cannot extract IDs from `v0.X-YY-name` directories, causing phases present in both locations to be incorrectly flagged as orphaned. This is critical because it breaks the consistency check between planned phases (ROADMAP) and executed phases (on disk), which is a core health-checker function. The fix complements HLTH-01 by enabling proper phase ID extraction across the health validation pipeline."
+    },
+    {
+      "id": "HLTH-03",
+      "text": "`validate health` produces zero W002 false positives for versioned phase references in STATE.md",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
+        "milestone": "v0.15"
+      },
+      "background": "This requirement fixes W002 false positives in STATE.md validation where phase references like `Phase v0.15-01` are not extracted by the STATE.md parser regex, causing the checker to report invalid phase references even when the phases exist on disk. The bug mirrors HLTH-02's two-site problem: the STATE extractor regex cannot capture versioned phase IDs, and the disk extractor cannot extract IDs from versioned directories. This is essential because STATE.md is the system-of-record for current project position, and false warnings erode operator confidence in the health checker's ability to validate the critical state file."
+    },
+    {
+      "id": "IMPR-01",
+      "text": "R3.6 quorum enforcement reviewed and improvement areas identified",
+      "category": "Uncategorized",
+      "phase": "v0.19-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "v0.19-06 reviewed R3.6 (quorum enforcement) against the delivered slot worker implementation and identified that dispatch was still using sequential direct MCP tool calls rather than Task-based parallelism, reducing liveness and causing provider rotations to serialize."
+    },
+    {
+      "id": "IMPR-02",
+      "text": "Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)",
+      "category": "Uncategorized",
+      "phase": "v0.19-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "Quorum slot dispatch was refactored to spawn parallel sibling Task(subagent_type='qgsd-quorum-slot-worker') calls instead of sequential MCP tool invocations, enabling the slot orchestrator to request all providers in parallel and recover faster when one unavailable. This is the R3.2 architectural requirement made concrete."
+    },
+    {
+      "id": "IMPR-03",
+      "text": "Slot worker protocol hardened against missing/malformed responses",
+      "category": "Uncategorized",
+      "phase": "v0.19-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "The slot worker protocol was hardened to detect and handle missing responses, timeout, and malformed JSON gracefully, rather than failing the entire quorum if one slot's response is corrupted. This improves protocol liveness by allowing quorum to continue even when a minority of slots misbehave."
+    },
+    {
+      "id": "IMPR-04",
+      "text": "Improvement validated with quorum test runs",
+      "category": "Uncategorized",
+      "phase": "v0.19-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "v0.19-06 validated the dispatch refactoring (IMPR-01 through IMPR-03) by running quorum test rounds against live providers, confirming that parallel Task-based slot dispatch achieved the target 3/3 delivery rate and that slot worker hardening handled malformed responses without crashing the quorum. This requirement closes the feedback loop: improvements are not considered shipped until empirically verified under real conditions."
+    },
+    {
+      "id": "INST-01",
+      "text": "Installer detects no configured quorum agents and prompts user to run `/qgsd:mcp-setup`",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Detects when QGSD is installed but no quorum agents are configured, and directs users to the wizard (WIZ-01). This prevents silent quorum failures and ensures users understand that /qgsd:quick and plan-phase require functional MCP agents."
+    },
+    {
+      "id": "INST-02",
+      "text": "QGSD's package.json pins GSD version — version lockstep ensures hook compatibility",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "QGSD's package.json pins the GSD version number. This ensures hook compatibility — if GSD changes planning command behavior, QGSD must be updated to match, preventing silent compatibility breaks."
+    },
+    {
+      "id": "INST-03",
+      "text": "Installer writes hooks to `~/.claude/settings.json` directly (not plugin.json hooks — stdout is silently discarded per GitHub #10225)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Installer writes hooks directly to ~/.claude/settings.json rather than using plugin.json hooks (which are silently discarded per GitHub #10225). Direct settings.json write is the reliable method to register hooks in Claude Code."
+    },
+    {
+      "id": "INST-04",
+      "text": "Installer adds UserPromptSubmit and Stop hook entries to `~/.claude/settings.json` hooks section",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Installer registers both UserPromptSubmit and Stop hook entries in ~/.claude/settings.json hooks array. Both hooks must be registered for full enforcement — UserPromptSubmit injects quorum instructions, Stop verifies them."
+    },
+    {
+      "id": "INST-05",
+      "text": "Installer performs validation before registering hooks: checks MCPs are configured in Claude Code settings, warns if Codex/Gemini/OpenCode not found",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Installer validates before registering — checks that configured MCPs exist in Claude Code settings and warns if Codex/Gemini/OpenCode are missing. This early validation prevents silent failures where hooks would block forever because required models are unavailable."
+    },
+    {
+      "id": "INST-06",
+      "text": "Installer is idempotent — running `npx qgsd@latest` again updates hooks and config without duplicating entries",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Installer is idempotent — running npx qgsd@latest multiple times updates hooks without duplicating entries. This is essential for users who reinstall to get new features without corrupting their settings."
+    },
+    {
+      "id": "INST-07",
+      "text": "Installer respects existing per-project `.claude/qgsd.json` overrides during updates",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Installer respects existing per-project .claude/qgsd.json overrides during updates. When updating QGSD, per-project customizations are preserved, preventing loss of configuration on reinstall."
+    },
+    {
+      "id": "INST-08",
+      "text": "Installer registers PreToolUse circuit breaker hook in `~/.claude/settings.json` alongside existing hooks",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Installer registers PreToolUse circuit breaker hook alongside existing Stop/UserPromptSubmit hooks. All three hooks must be registered for full QGSD functionality — quorum enforcement plus oscillation detection."
+    },
+    {
+      "id": "INST-09",
+      "text": "Installer writes default `circuit_breaker` config block to qgsd.json on first install",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Installer writes default circuit_breaker config block (oscillation_depth: 3, commit_window: 6) to qgsd.json on first install. This provides sensible defaults that work for typical development patterns without requiring manual config."
+    },
+    {
+      "id": "INST-10",
+      "text": "Reinstall (idempotent) adds missing `circuit_breaker` config block without overwriting user-modified values",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Reinstall adds missing circuit_breaker config without overwriting user-modified values. If a user later edits their oscillation_depth, a reinstall should not reset it back to defaults."
+    },
+    {
+      "id": "KEY-01",
+      "text": "User can set or update the API key for any agent through the wizard",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Allows users to rotate or set API keys for quorum agents through the wizard interface. This is essential for handling API credential expiration, migration between accounts, or initial setup. Part of a three-step process (KEY-01, KEY-02, KEY-03) that moves keys from user input to secure storage to runtime config."
+    },
+    {
+      "id": "KEY-02",
+      "text": "Key is stored securely via keytar (bin/secrets.cjs)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Provides secure, non-plaintext storage of API keys using OS keyring facilities (macOS Keychain, Linux secret-tool, Windows Credential Manager). This prevents keys from being stored in plaintext in Git-tracked config files, protecting user credentials from accidental exposure."
+    },
+    {
+      "id": "KEY-03",
+      "text": "Wizard writes key from keytar to `~/.claude.json` mcpServers env block during apply",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Bridges secure storage (keytar) and runtime configuration by writing keys to the mcpServers environment block in ~/.claude.json only at apply time. This ensures keys are available to the MCP server process while keeping them out of Git history, completing the three-layer key management flow."
+    },
+    {
+      "id": "KEY-04",
+      "text": "Wizard automatically restarts the agent after key changes take effect",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Ensures key changes take effect immediately by restarting the affected MCP server instance. Without this restart, agents would continue using stale credentials, causing authentication failures or quota issues. Completes the user workflow for credential management."
+    },
+    {
+      "id": "LIVE-01",
+      "text": "CI step detects liveness properties lacking a fairness declaration in `invariants.md` and emits `result=inconclusive` instead of `pass`",
+      "category": "Uncategorized",
+      "phase": "v0.20-02",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement detects and flags incomplete formal specifications where liveness properties (e.g., 'the planner eventually gets a response') exist in the TLA+ model but lack corresponding fairness declarations in invariants.md. It solves the correctness problem where liveness properties without explicit fairness assumptions are unsoundly verified by TLC (which ignores fairness by default). By emitting result=inconclusive for such properties, it prevents false positives in formal verification that could lead to incorrect confidence in the protocol's liveness. This is enforced by LIVE-02's CI step."
+    },
+    {
+      "id": "LIVE-02",
+      "text": "`run-formal-verify.cjs` STEPS includes a `ci:liveness-fairness-lint` step that enforces LIVE-01",
+      "category": "Uncategorized",
+      "phase": "v0.20-02",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement operationalizes LIVE-01 by adding a dedicated ci:liveness-fairness-lint step in run-formal-verify.cjs's STEPS. It solves the governance problem of ensuring liveness checks are never skipped or forgotten during CI runs. The step reads the TLA+ spec and invariants.md, cross-checks each liveness property has a fairness declaration, and fails the overall formal verification if gaps are found. This pairs with LIVE-01 to make liveness correctness a hard requirement in the formal verification gate."
+    },
+    {
+      "id": "LOOP-01",
+      "text": "PRISM always uses current scoreboard rates via `export-prism-constants` pre-step calibration",
+      "category": "Feedback Loops",
+      "phase": "v0.21-03",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Closes the audit gap by integrating audit-milestone into the final phase transition workflow. The last phase must call audit-milestone before complete-milestone to verify that all planned work has been completed and to detect whether gap closure is needed. This is the primary path in the autonomous execution loop and ensures no phase exits without verification. Relates to LOOP-03 (which auto-spawns gap closure) and STATE-01 (which tracks audit outcome)."
+    },
+    {
+      "id": "LOOP-02",
+      "text": "PostToolUse hook `qgsd-spec-regen.js` auto-regenerates TLA+/Alloy specs on XState machine changes",
+      "category": "Feedback Loops",
+      "phase": "v0.21-03",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Implements the re-audit loop for gap closure by detecting the **Gap Closure:** ROADMAP marker in a completed phase and routing to audit-milestone instead of complete-milestone. This allows the system to continuously verify and close gaps without manual intervention. Critical to the autonomous loop and requires installed copy sync to runtime. Directly enables repeat verification cycles without returning to new-milestone."
+    },
+    {
+      "id": "LOOP-03",
+      "text": "`sensitivity-sweep-feedback.cjs` detects threshold violations and triggers PRISM re-run",
+      "category": "Feedback Loops",
+      "phase": "v0.21-03",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Adds automatic gap closure planning by having audit-milestone spawn plan-milestone-gaps Task when gaps_found is detected and at least one phase is missing_no_plan. Bridges the gap discovery (from LOOP-02) to planning (LOOP-04). Works with STATE-01 to ensure audit results drive next actions. Prevents gap discovery from becoming a dead-end."
+    },
+    {
+      "id": "LOOP-04",
+      "text": "`propose-debug-invariants.cjs` mines TLA+ invariant candidates from debug sessions",
+      "category": "Feedback Loops",
+      "phase": "v0.21-03",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Completes the autonomous gap closure loop by having plan-milestone-gaps auto-spawn a plan-phase Task for the first identified gap phase after quorum approves the proposed phases. Connects QUORUM-01 approval to execution without waiting for user intervention. Works with QUORUM-01 to ensure multi-model verification gates the auto-spawning decision."
+    },
+    {
+      "id": "MCP-01",
+      "text": "Installer reads `~/.claude.json` to auto-detect MCP server names for Codex, Gemini, OpenCode",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Installer auto-detects MCP servers from ~/.claude.json to find the actual tool prefixes (e.g., mcp__codex-1__, mcp__gemini-1__). This automation eliminates manual configuration by reading the runtime settings the user already has."
+    },
+    {
+      "id": "MCP-02",
+      "text": "Detection matches server names containing \"codex\", \"gemini\", \"opencode\" (case-insensitive keyword match)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Detection uses case-insensitive keyword matching for 'codex', 'gemini', 'opencode' to be flexible about exact server names. Users might configure servers as 'Codex-CLI', 'my-codex', etc., so keyword matching is more robust than exact matching."
+    },
+    {
+      "id": "MCP-03",
+      "text": "Detected names written to `~/.claude/qgsd.json` as `required_models` on install",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Detected names are written to qgsd.json as required_models on first install. This captures the user's actual MCP setup and makes it available for Stop hook prefix matching."
+    },
+    {
+      "id": "MCP-04",
+      "text": "If detection finds no matching servers, installer falls back to hardcoded defaults: `mcp__codex-cli__`, `mcp__gemini-cli__`, `mcp__opencode__`",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Fallback hardcoded defaults (mcp__codex-cli__, mcp__gemini-cli__, mcp__opencode__) ensure quorum works even if MCP auto-detection fails. These defaults match GitHub's standard naming convention."
+    },
+    {
+      "id": "MCP-05",
+      "text": "User can manually edit `qgsd.json` to override detected names",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Users can manually edit qgsd.json to override detected names. This escape hatch allows custom configurations when auto-detection guesses wrong or the user has non-standard server names."
+    },
+    {
+      "id": "MCP-06",
+      "text": "Stop hook matches tool_use names by prefix (e.g. `mcp__codex-cli__` matches both `mcp__codex-cli__codex` and `mcp__codex-cli__review`)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Stop hook matches tool_use names by prefix (e.g., mcp__codex-cli__ matches both mcp__codex-cli__codex and mcp__codex-cli__review). Prefix matching allows the same MCP server to have multiple tool methods without duplicating required_models entries."
+    },
+    {
+      "id": "MCPENV-01",
+      "text": "`formal/spec/mcp-calls/` contains TLA+ model of MCP environment behavior",
+      "category": "Uncategorized",
+      "phase": "v0.19-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "The MCP environment model (TLA+ specs in formal/spec/mcp-calls/) captures how external MCP calls succeed/fail/timeout and how providers rotate on unavailability. This enables the core QGSD protocol model to be analyzed under realistic MCP conditions rather than idealized synchronous calls."
+    },
+    {
+      "id": "MCPENV-02",
+      "text": "`MCMCPEnv` added to `SURFACE_MAP` and `VALID_CONFIGS`; `invariants.md` created with EventualDecision fairness declarations; CI step added to `formal-verify.yml`",
+      "category": "Uncategorized",
+      "phase": "v0.19-08",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "MCMCPEnv is added as a SURFACE_MAP entry and VALID_CONFIGS option in the TLC runner, allowing users to run formal verification with the MCP environment model. invariants.md documents EventualDecision fairness (ensuring slots eventually choose), and a CI step validates the model."
+    },
+    {
+      "id": "MCPENV-03",
+      "text": "MCP availability rates from `run-prism.cjs` feed into the MCP environment model",
+      "category": "Uncategorized",
+      "phase": "v0.19-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "MCP availability rates measured by run-prism.cjs (from provider endpoint health checks) are fed into the MCP environment model as parameters, making the formal model's assumptions empirically grounded rather than speculative. This bridges the gap between offline formal verification and runtime provider reliability."
+    },
+    {
+      "id": "MCPENV-04",
+      "text": "`readMCPAvailabilityRates` exported with composite-key filter; `module.exports` always reachable via require.main guard; prism:mcp-availability STEPS entry and CI step added",
+      "category": "Uncategorized",
+      "phase": "v0.19-08",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "readMCPAvailabilityRates exports a module function with composite-key filtering (provider + model combination) so other tools can query rates without re-running PRISM. The require.main guard ensures the function is reachable in both require() and require('./bin/...') contexts. A CI step validates the availability feed."
+    },
+    {
+      "id": "META-01",
+      "text": "GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "QGSD itself uses quorum during development — when the tool runs /qgsd planning commands within the repo, questions are auto-resolved via quorum before escalating to the user. This enforces the quorum discipline on QGSD's own workflows."
+    },
+    {
+      "id": "META-02",
+      "text": "Only questions where quorum fails to reach consensus are presented to the user",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Only escalate questions to the user where quorum genuinely fails to reach consensus. Questions with clear quorum agreement are auto-approved, reducing user friction while maintaining oversight on ambiguous decisions."
+    },
+    {
+      "id": "META-03",
+      "text": "Auto-resolved questions are presented as a list of assumptions before escalated questions",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Present auto-resolved assumptions as a list before escalated questions. This gives the user visibility into what the quorum decided automatically and what still needs input, maintaining transparency."
+    },
+    {
+      "id": "MULTI-01",
+      "text": "User can have multiple `claude-*` slots (`claude-1` through `claude-N`) each running a different model or provider",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Enables users to maintain multiple claude-mcp-server instances running different models (e.g., claude-1 runs GPT-4, claude-2 runs a different provider). Solves the problem of being locked to a single model choice once chosen at install. Allows comparative testing of multiple models in the same session without reinstalling."
+    },
+    {
+      "id": "MULTI-02",
+      "text": "User can have multiple `copilot-N`, `opencode-N`, `codex-cli-N`, and `gemini-cli-N` slots as separate `~/.claude.json` entries",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Extends multi-slot support beyond claude to cover all agent families (copilot, opencode, codex, gemini). Acknowledges that not all providers are interchangeable, so users may want multiple instances of the same family. Maintains consistency with MULTI-01's slot-per-instance pattern across the entire agent ecosystem."
+    },
+    {
+      "id": "MULTI-03",
+      "text": "Adding a new slot of any family is supported by both direct config edit and via the mcp-setup wizard",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Establishes that multi-slot management must be supported via both low-level config editing and high-level wizard interaction. Prevents users from being forced into command-line config hacking if they prefer guided setup. Ensures MULTI-01/MULTI-02 functionality is accessible to all user skill levels."
+    },
+    {
+      "id": "OBS-01",
+      "text": "Each quorum round emits structured telemetry (slot, round, verdict, latency_ms, provider status) to a per-session log file",
+      "category": "Uncategorized",
+      "phase": "v0.24-03",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Establishes foundational observability by emitting structured telemetry (slot name, round number, verdict, latency_ms, provider status) to a per-session log file for each quorum round. This creates an auditable record of what happened, when, and why — essential for debugging failures, analyzing performance patterns, and validating the self-healing logic in HEAL-01/02."
+    },
+    {
+      "id": "OBS-02",
+      "text": "Scoreboard tracks quorum delivery rate -- percentage of calls that achieved target vote count (3/3 vs degraded 2/3)",
+      "category": "Uncategorized",
+      "phase": "v0.24-03",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Provides a summary metric that captures quorum delivery quality: the percentage of calls achieving full 3/3 votes vs degraded 2/3 votes. This high-level metric answers the business question 'How often do we get full quorum?' and trends over time show whether the system is stabilizing or degrading. It directly informs the P(consensus) calculations used in HEAL-01."
+    },
+    {
+      "id": "OBS-03",
+      "text": "Each slot gets a flakiness score from recent UNAVAIL/timeout frequency; high-flakiness slots deprioritized in dispatch ordering",
+      "category": "Uncategorized",
+      "phase": "v0.24-03",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
+        "milestone": "v0.24"
+      },
+      "background": "Computes a per-slot flakiness score from recent UNAVAIL/timeout frequency, enabling DISP-03 to deprioritize unreliable slots. Slots with high flakiness move later in the dispatch queue, increasing the chance that reliable slots are exhausted first. This creates a self-reinforcing stability mechanism: bad slots fail early (short latency cost), good slots succeed, and the ordering naturally adapts to provider health trends."
+    },
+    {
+      "id": "OBS-04",
+      "text": "Status shows recent UNAVAIL count per agent from quorum scoreboard",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Provides visibility into which agents are frequently unavailable due to quota exhaustion or downtime. The UNAVAIL count helps users identify reliability issues and make informed decisions about provider swaps (PROV) or adding more agents (AGENT-01). Complements OBS-01/02/03 which show overall agent health."
+    },
+    {
+      "id": "ORES-01",
+      "text": "When oscillation is detected and the oscillating file set contains only internal code files, Claude MUST enter oscillation resolution mode instead of hard-stopping",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "When oscillation is detected and the oscillating files are only internal code (not config/data files), enter oscillation resolution mode instead of hard-stopping. This allows structural problems to be investigated and fixed through quorum deliberation rather than immediate failure."
+    },
+    {
+      "id": "ORES-02",
+      "text": "Oscillation resolution mode presents oscillation evidence (file set, commit graph) to all available quorum models with structural-coupling framing",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Resolution mode presents oscillation evidence (file set and commit graph) to all available quorum models with structural-coupling framing. This primes the quorum to diagnose why the files keep changing together and propose a unified fix."
+    },
+    {
+      "id": "ORES-03",
+      "text": "Quorum deliberates (R3.3, up to 4 rounds) and may only approve unified solutions — partial/incremental fixes are rejected",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Quorum deliberates (up to 4 rounds per R3.3) and may only approve unified solutions. Partial fixes are rejected because addressing only part of a structural coupling would perpetuate the oscillation. All quorum models must agree the proposed solution is complete."
+    },
+    {
+      "id": "ORES-04",
+      "text": "On consensus, Claude presents the unified solution plan to the user for approval before any execution",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "On consensus, Claude presents the unified solution plan to the user for approval before execution. The user sees the complete fix proposal and approves it explicitly before any code changes are made, maintaining human oversight."
+    },
+    {
+      "id": "ORES-05",
+      "text": "If no consensus after 4 rounds, Claude hard-stops and escalates to the human with all model positions",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "If no consensus after 4 rounds, Claude hard-stops and escalates to the human with all model positions. Unresolvable quorum disagreement indicates the problem is complex enough to require human judgment and architectural discussion."
+    },
+    {
+      "id": "PLAN-01",
+      "text": "`generate-proposed-changes.cjs` auto-synthesizes TLA+ deltas from PLAN.md truths",
+      "category": "Planning Integration",
+      "phase": "v0.21-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Auto-synthesizes TLA+ spec deltas from PLAN.md truths declared in planning. This bridges planning intent and formal verification: when a planner writes 'must_haves: [some truth]', PLAN-01 generates the corresponding PROPERTY statement. Essential for PLAN-02 to verify plans before implementation."
+    },
+    {
+      "id": "PLAN-02",
+      "text": "`run-phase-tlc.cjs` provides iterative TLC verification loop gating planning (3-attempt cap)",
+      "category": "Planning Integration",
+      "phase": "v0.21-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Provides the iterative TLC verification loop that gates planning: once PLAN-01 synthesizes spec deltas, this tool runs TLC up to 3 times with incrementally relaxed properties to find a satisfying configuration. Prevents plans from advancing if they violate formal safety or liveness invariants. Central gating point for v0.21's closed-loop assurance."
+    },
+    {
+      "id": "PLAN-03",
+      "text": "`quorum-formal-context.cjs` generates formal evidence blocks for quorum slots",
+      "category": "Planning Integration",
+      "phase": "v0.21-05",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Generates formal evidence blocks for quorum slots by extracting PRISM probabilities, TLC coverage metrics, and conformance rates. These blocks inform quorum consensus gates (SIG-04) and provide formal justification for quorum decisions. Supplies the data that makes SIG-01 and SIG-02 output actionable for slot workers."
+    },
+    {
+      "id": "PLCY-01",
+      "text": "User can set quorum timeout (ms) per slot from a dedicated menu shortcut — not buried inside editAgent",
+      "category": "Uncategorized",
+      "phase": "v0.10-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Per-slot quorum timeout configuration needs its own menu shortcut (not buried in editAgent) because timeouts are operational policy that users adjust without changing slot configuration. Separating timeout config from agent editing makes it discoverable and doesn't require editing a full slot record just to tweak timing. This supports iterative tuning of quorum behavior without configuration churn."
+    },
+    {
+      "id": "PLCY-02",
+      "text": "User can configure update policy per slot: auto / prompt / skip",
+      "category": "Uncategorized",
+      "phase": "v0.10-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Update policy (auto/prompt/skip) controls whether a slot auto-updates its model or requires user confirmation. Some slots may run production-critical models (no auto-update), while others can safely update on startup (auto). This per-slot granularity avoids forcing a global policy that doesn't fit mixed environments. It complements PLCY-03 which implements the auto-update check itself."
+    },
+    {
+      "id": "PLCY-03",
+      "text": "Auto-update policy check runs on manage-agents startup for slots configured as `auto`",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Auto-update policy check runs on manage-agents startup for slots configured as 'auto', ensuring slot configuration stays current. This deferred execution avoids slowing down the main menu and groups update checking into a single point. It depends on PLCY-02 (update policy config) to know which slots should auto-update. This is the enforcement mechanism for the auto-update policy."
+    },
+    {
+      "id": "PORT-01",
+      "text": "User can export full roster config to a portable JSON file — all API key values replaced with `__redacted__` placeholders",
+      "category": "Uncategorized",
+      "phase": "v0.10-06",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Exporting roster config with redacted API keys creates a portable snapshot for sharing configuration across machines (without exposing secrets). The __redacted__ placeholder is mandatory security design — exported files may be committed to git or shared, so plaintext keys must never appear. This is the foundation for PORT-02 (import workflow) and supports multi-machine setup."
+    },
+    {
+      "id": "PORT-02",
+      "text": "User can import roster config from JSON file — validates schema, prompts to re-enter any redacted key, confirms before applying",
+      "category": "Uncategorized",
+      "phase": "v0.10-06",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Importing roster config validates schema and prompts users to re-enter redacted keys, ensuring security and schema integrity. Without re-entry prompts, users might skip keys entirely. Schema validation prevents corrupted imports. The confirmation step protects against accidental overwrites. This is the counterpart to PORT-01, completing the portability workflow."
+    },
+    {
+      "id": "PORT-03",
+      "text": "Import creates a timestamped backup of `~/.claude.json` before applying any changes",
+      "category": "Uncategorized",
+      "phase": "v0.10-06",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Timestamped backup before import ensures users can recover from a bad import without losing their previous roster configuration. This is a safety invariant — destructive file operations in production tooling require recovery mechanism. The timestamp makes it easy to identify the pre-import version if needed. This is defensive design for a critical configuration file."
+    },
+    {
+      "id": "PROV-01",
+      "text": "User can change the base URL (provider) for an existing agent",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Allows users to migrate agents between API providers (AkashML → Together.xyz, for example) without deleting and recreating the agent. This is critical for handling provider outages, quota limits, or cost optimization without losing agent slot identity."
+    },
+    {
+      "id": "PROV-02",
+      "text": "Wizard offers curated provider list (AkashML, Together.xyz, Fireworks) + custom entry",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Reduces friction by providing a curated list of well-tested providers (AkashML, Together.xyz, Fireworks) alongside a custom entry option. This balances ease of use with flexibility, allowing advanced users to point to self-hosted or alternative providers."
+    },
+    {
+      "id": "PROV-03",
+      "text": "Wizard updates `~/.claude.json` ANTHROPIC_BASE_URL and restarts agent on apply",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Completes the provider swap workflow by updating the ANTHROPIC_BASE_URL env var in ~/.claude.json and restarting the agent. Without restart, agents would continue making requests to the old provider, causing connection failures."
+    },
+    {
+      "id": "PRST-01",
+      "text": "User can select a named provider preset (AkashML / Together.xyz / Fireworks.ai) in addAgent/editAgent flow instead of manually typing a URL",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Named provider presets (AkashML, Together.xyz, Fireworks.ai) eliminate manual URL entry for standard providers, reducing setup friction. Users can select 'AkashML' instead of typing 'api.akashml.com/v1', making onboarding faster and more reliable. This supports the common case without forcing power users to type URLs every time. It integrates with both addAgent and editAgent flows."
+    },
+    {
+      "id": "PRST-02",
+      "text": "User can clone an existing slot — copies provider URL and model config, prompts for new slot name",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Cloning existing slots copies provider URL and model config, letting users duplicate a working slot as a template for a new one. This is faster than configuring from scratch and ensures consistency — if a slot is working well, its clone inherits that working state. Cloning supports the user workflow of 'add another AkashML slot with same model as slot-1'. This pairs with PRST-01 (presets) for slot creation."
+    },
+    {
+      "id": "QUORUM-01",
+      "text": "plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces AskUserQuestion confirmation gate)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.13-REQUIREMENTS.md",
+        "milestone": "v0.13"
+      },
+      "background": "Replaces the manual AskUserQuestion confirmation gate in plan-milestone-gaps with R3 multi-model quorum approval before ROADMAP.md is updated. Ensures gap closure phases are structurally verified by independent models before being committed to the plan. Part of the broader shift from instruction-following to structural enforcement via quorum. Works with LOOP-04 to gate the auto-spawn Task."
+    },
+    {
+      "id": "QUORUM-02",
+      "text": "execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.13-REQUIREMENTS.md",
+        "milestone": "v0.13"
+      },
+      "background": "Replaces the chain halt + manual suggestion pattern with automated quorum diagnosis and resolution when execute-phase hits gaps_found. Allows the system to propose diagnostic insights and recovery strategies via multi-model consensus without human intervention. Demonstrates quorum as a decision gate rather than just a verification check."
+    },
+    {
+      "id": "QUORUM-03",
+      "text": "discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for gray areas)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.13-REQUIREMENTS.md",
+        "milestone": "v0.13"
+      },
+      "background": "Routes user_questions that survive R4 pre-filtering to quorum in auto mode instead of halting with AskUserQuestion. Handles ambiguous or gray-area discoveries by invoking collective intelligence, enabling discuss-phase to resolve uncertainties without blocking. Extends quorum's role beyond binary decisions to nuanced interpretation."
+    },
+    {
+      "id": "RECV-01",
+      "text": "`npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation — enables manual recovery when circuit breaker deadlocks due to blocked git commit",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "CLI flag npx qgsd --reset-breaker clears the circuit-breaker-state.json file. This manual recovery enables users to escape deadlocks when the breaker blocks indefinitely (e.g., if the user cannot commit the fix and the root cause is genuinely unsolvable without external changes)."
+    },
+    {
+      "id": "REDACT-01",
+      "text": "`check-trace-redaction.cjs` checks traces for PII/secret patterns and emits `check-results.ndjson`",
+      "category": "Uncategorized",
+      "phase": "v0.19-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "Formal verification traces may contain MCP call arguments, environment variables, or timestamps that leak PII or secrets. check-trace-redaction.cjs applies pattern matching (email regexes, token formats) and emits result=fail to check-results.ndjson when violations are found, enforcing data sensitivity at the CI gate before traces reach artifact storage."
+    },
+    {
+      "id": "REDACT-02",
+      "text": "Redaction check runs as CI step in `run-formal-verify.cjs`",
+      "category": "Uncategorized",
+      "phase": "v0.19-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "Redaction must run as a CI step inside run-formal-verify.cjs (not as a separate post-hoc tool), ensuring traces are scrubbed before any artifact is exposed. This prevents the window where unredacted traces exist on disk or in CI logs."
+    },
+    {
+      "id": "REDACT-03",
+      "text": "Redaction violations emit `result=fail` (not warn)",
+      "category": "Uncategorized",
+      "phase": "v0.19-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "Redaction violations emit result=fail (not warn), making them a build blocker. This prevents traces with PII from being uploaded or logged, treating data sensitivity as a verification requirement on the same level as correctness properties."
+    },
+    {
+      "id": "REN-01",
+      "text": "`git mv get-shit-done/ qgsd-core/` — directory renamed, git history preserved",
+      "category": "Uncategorized",
+      "phase": "v0.9-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Git move of get-shit-done/ to qgsd-core/ aligns the source directory name with QGSD's identity and matches the installed runtime directory (~/.claude/qgsd/). Preserving git history is critical so the project's prior development lineage is not lost. This is a one-time structural change supporting the v0.9 rebranding."
+    },
+    {
+      "id": "REN-02",
+      "text": "`bin/install.js` updated to read from `qgsd-core/` instead of `get-shit-done/` — `node bin/install.js --claude --global` succeeds",
+      "category": "Uncategorized",
+      "phase": "v0.9-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Updating bin/install.js to read from qgsd-core/ instead of get-shit-done/ ensures the installer works correctly after the directory rename. Without this update, installations would fail looking for the old path. The requirement verifies that 'node bin/install.js --claude --global' succeeds post-rename, confirming the entire installer pipeline is functional. This is the integration point validating REN-01."
+    },
+    {
+      "id": "REN-03",
+      "text": "All hardcoded `get-shit-done/` path strings removed from `bin/gsd-tools.cjs`, workflow files, agent files, and template files",
+      "category": "Uncategorized",
+      "phase": "v0.9-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Removing all hardcoded get-shit-done/ path strings from bin/gsd-tools.cjs, workflow files, agent files, and templates ensures no stray references to the old directory name remain. Hardcoded paths could break runtime behavior if the code references the old directory. Comprehensive search-and-replace across all files prevents subtle failures downstream. This completes the REN-01 rename at the source level."
+    },
+    {
+      "id": "REN-04",
+      "text": "`~/.claude/qgsd/` installed runtime is functionally identical before and after rename (verified by spot-check)",
+      "category": "Uncategorized",
+      "phase": "v0.9-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "background": "Verifying ~/.claude/qgsd/ installed runtime is functionally identical before and after rename (spot-check) is the acceptance criterion that the rename didn't break installed behavior. A spot-check (not exhaustive) of installed files ensures the critical paths work: hooks load, quorum injection happens, main menu renders. This confirms the rename is complete and safe in practice."
+    },
+    {
+      "id": "RLS-01",
+      "text": "`package.json` version field bumped from `0.1.0` to `0.2.0`",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "package.json version is bumped from 0.1.0 to 0.2.0. This version change signals a new release with significant new features (circuit breaker, oscillation resolution mode)."
+    },
+    {
+      "id": "RLS-02",
+      "text": "v0.2 milestone archived in `MILESTONES.md` — includes What Shipped, Phases (6–10), Requirements Satisfied (all 20 v0.2 requirements), Key Decisions Carried Forward",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "v0.2 milestone is archived in MILESTONES.md with: What Shipped, Phases (6–10), Requirements Satisfied (all 20 v0.2 requirements), Key Decisions Carried Forward. This archive documents exactly what v0.2 accomplished and decisions made."
+    },
+    {
+      "id": "RLS-03",
+      "text": "Git tag `v0.2.0` created at release commit and pushed to remote",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Git tag v0.2.0 is created at release commit and pushed to remote. This tags the exact commit that v0.2 was released from, enabling pinning and history archaeology."
+    },
+    {
+      "id": "RLS-04",
+      "text": "`qgsd@0.2.0` published to npm registry — `npx qgsd@0.2.0` installs successfully",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "qgsd@0.2.0 is published to npm registry so npx qgsd@0.2.0 installs successfully. This makes v0.2 available to users. Marked deferred — explicit user decision to publish later."
+    },
+    {
+      "id": "SAFE-01",
+      "text": "`--repair` cannot silently overwrite a rich STATE.md (>50 lines) without explicit `--force` flag; guard fires and repair is skipped with a message",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
+        "milestone": "v0.15"
+      },
+      "background": "This requirement prevents catastrophic silent data loss when the `--repair` flag is used on a rich STATE.md file (>50 lines), which happened in practice when the full 160-line QGSD STATE.md was replaced with a 15-line template without user confirmation. The fix implements a content-length safety gate that blocks the overwrite unless an explicit `--force` flag is provided. This is critical for operator safety because STATE.md contains the complete project history and status; silent overwrites destroy irreplaceable planning metadata. The requirement also establishes a new CLI pattern (`--force`) that mirrors existing precedents in the codebase, improving consistency."
+    },
+    {
+      "id": "SAFE-02",
+      "text": "Legacy pre-versioning numeric phase dirs 18-39 are archived to `.planning/archive/legacy/`",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
+        "milestone": "v0.15"
+      },
+      "background": "This requirement archives 22 legacy numeric phase directories (18-39) that predate QGSD's adoption of versioned naming, moving them from `.planning/phases/` to `.planning/archive/legacy/` to eliminate orphaned-phase noise from health reports. Although the W007 false positives for these dirs were already resolved by the v0.15-01 regex fix, the physical archive is still valuable housekeeping: it keeps the active phases directory clean (containing only versioned `v0.X-YY-name` dirs), prevents confusion about which phases are current, and establishes a clear archive boundary. This requirement completes the versioning migration by removing the last vestige of pre-versioning era phase organization."
+    },
+    {
+      "id": "SCBD-01",
+      "text": "Scoreboard tracks performance by slot name (`claude-1`, `copilot-1`) — slot is the stable key",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Establishes slot as the stable primary key for scoreboard performance tracking, decoupling slot identity from the model running inside. Without this, changing a slot's model would orphan its historical performance data. Solves the problem of tracking \"how well does claude-1 perform\" rather than \"how well does DeepSeek perform.\""
+    },
+    {
+      "id": "SCBD-02",
+      "text": "Each scoreboard entry displays the current model loaded in that slot as context",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Enriches scoreboard entries with the current model name for context, acknowledging that users need to know which model is in which slot. Pairs with SCBD-01 by showing both the stable slot key and the current model running in it. Enables users to correlate performance with model versions across time."
+    },
+    {
+      "id": "SCBD-03",
+      "text": "When a slot's model changes, a new scoreboard row is created for that slot",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Specifies that when a slot's model changes (e.g., claude-1 switches from DeepSeek to MiniMax), a new scoreboard row is created rather than overwriting the old one. Preserves historical performance baselines for each model separately. Enables comparative analysis: \"how much did performance change when I switched models in this slot.\""
+    },
+    {
+      "id": "SCHEMA-01",
+      "text": "`formal/check-result.schema.json` extended with `check_id`, `surface`, `property`, `runtime_ms`, `summary`, `triage_tags`, `observation_window` fields per v2.1 spec",
+      "category": "Uncategorized",
+      "phase": "v0.20-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement extends the formal verification check result schema to v2.1 to support richer metadata for downstream analysis. It solves the problem of check results lacking structured context about what was checked (surface, property), how long it took (runtime_ms), and what groups of checks they belong to (check_id). This is foundational for all downstream requirements (EVID-01/02, TRIAGE-01/02, SENS-01/02/03) that depend on mining check result metadata. The new fields enable better categorization and trending of formal verification outcomes without modifying the core NDJSON append-only semantics."
+    },
+    {
+      "id": "SCHEMA-02",
+      "text": "`write-check-result.cjs` emits all v2.1 fields; validation enforces required fields; callers receive typed interface",
+      "category": "Uncategorized",
+      "phase": "v0.20-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement operationalizes the SCHEMA-01 extension by ensuring the write-check-result.cjs tool actually emits all v2.1 fields with proper validation. It solves the gap between schema definition and runtime implementation. By enforcing required fields and providing a typed interface to callers, it prevents partial/malformed check results from entering check-results.ndjson, which would corrupt downstream triage and sensitivity analyses. This works in concert with SCHEMA-03 to guarantee all 23 formal verification steps produce consistent, well-formed output."
+    },
+    {
+      "id": "SCHEMA-03",
+      "text": "All 23 callers in `run-formal-verify.cjs` STEPS updated to pass `check_id`, `surface`, `property`, `runtime_ms`, `summary` to `write-check-result.cjs`",
+      "category": "Uncategorized",
+      "phase": "v0.20-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement ensures all 23 callers throughout run-formal-verify.cjs's STEPS (TLA+, Alloy, PRISM, CI checks) are updated to pass the new v2.1 fields when writing results. It solves the systematic adoption problem: without this, some checks would use old 5-field format while others use v2.1, creating inconsistent artifacts. By systematically updating all call sites, it guarantees the entire check-results.ndjson pipeline is v2.1-compliant and ready for evidence-based analysis. This is a prerequisite for EVID-01/02, TRIAGE-01/02, and SENS-01/02/03."
+    },
+    {
+      "id": "SENS-01",
+      "text": "`bin/run-sensitivity-sweep.cjs` varies key model parameters (at minimum: quorum size N across its full range, timeout threshold T across low/medium/high values) across ≥3 values each, running TLA+/PRISM checks for each configuration, and records outcome deltas (pass→fail, pass→inconclusive transitions) in `formal/sensitivity-report.ndjson` using v2.1 schema — each record annotated with which parameter value caused the transition.",
+      "category": "Uncategorized",
+      "phase": "v0.20-08",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement creates bin/run-sensitivity-sweep.cjs to vary key model parameters (quorum size N across its full range, timeout T across low/medium/high) across >=3 values each, running TLA+/PRISM for each configuration and recording outcome deltas (pass->fail, pass->inconclusive transitions) in formal/sensitivity-report.ndjson. It solves the parameter risk problem where the protocol might be sensitive to boundary values that formal verification doesn't probe. By systematically sweeping parameters and recording outcome transitions, it identifies which parameters are high-impact and which are stable. This is a prerequisite for SENS-02/03."
+    },
+    {
+      "id": "SENS-02",
+      "text": "`plan-phase.md` step 8.3 (FV gate) is extended to also run `run-sensitivity-sweep.cjs` (fail-open) and inject `SENSITIVITY_CONTEXT` into the quorum `review_context`, surfacing the top-3 highest-impact parameters as planning recommendations: which code paths control them, which boundary values to test, and which metrics to monitor.",
+      "category": "Uncategorized",
+      "phase": "v0.20-08",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement extends plan-phase.md's FV gate (step 8.3) to run run-sensitivity-sweep.cjs (fail-open) and inject sensitivity context into the quorum review_context, surfacing the top-3 highest-impact parameters with recommendations for code paths, boundary test cases, and production monitoring metrics. It solves the planning integration problem where sensitivity analysis results must inform quorum deliberation. By making sensitivity insights part of the quorum context, the model agents can incorporate parameter risk awareness into their planning recommendations, leading to more robust plans. This pairs with SENS-01/03."
+    },
+    {
+      "id": "SENS-03",
+      "text": "`bin/sensitivity-report.cjs` generates `formal/sensitivity-report.md` — a human-readable ranked list of sensitive parameters by outcome-flip count, each annotated with (a) the code path or configuration variable that controls it, (b) recommended unit/integration test cases for boundary values, (c) recommended monitoring metrics to track in production.",
+      "category": "Uncategorized",
+      "phase": "v0.20-08",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement creates bin/sensitivity-report.cjs to generate formal/sensitivity-report.md, a human-readable ranked list of sensitive parameters by outcome-flip count, each annotated with (a) the code path controlling it, (b) recommended unit/integration test cases for boundary values, and (c) recommended production monitoring metrics. It solves the actionability problem where sensitivity analysis results are data (parameter -> outcome transitions) but need transformation into engineering guidance. By providing recommended tests and metrics, it bridges from formal analysis to engineering practice, enabling teams to hardening the protocol against parameter sensitivity risks. This pairs with SENS-01/02."
+    },
+    {
+      "id": "SIG-01",
+      "text": "`detect-coverage-gaps.cjs` diffs TLC states vs conformance traces to produce `formal/coverage-gaps.md`",
+      "category": "Operational Signals",
+      "phase": "v0.21-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Diffs TLC-reachable states against real conformance traces to identify coverage gaps. When TLC can reach a state that the system never exercises, or vice versa, that reveals misalignment between formal model and reality. Output (coverage-gaps.md) feeds into PLAN-02 relaxation and DIAG-02 root-cause analysis."
+    },
+    {
+      "id": "SIG-02",
+      "text": "`generate-petri-net.cjs --roadmap` models phase dependencies as Petri net with critical path analysis",
+      "category": "Operational Signals",
+      "phase": "v0.21-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Models v0.21 roadmap as a Petri net with arc weights from phase dependencies. Critical path analysis identifies which phase completions are bottlenecks. Works with SIG-03 to prioritize roadmap items: critical-path phases get analyzed by PRISM first (SIG-03) because their success is highest-impact."
+    },
+    {
+      "id": "SIG-03",
+      "text": "`prism-priority.cjs` ranks roadmap items by PRISM failure probability",
+      "category": "Operational Signals",
+      "phase": "v0.21-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Ranks roadmap phases by PRISM failure probability. Combined with SIG-02's critical-path output, this directs verification effort to high-risk, high-impact phases first. Informs quorum slot dispatch priority: phases with higher failure probability receive more quorum scrutiny via SIG-04's consensus gating."
+    },
+    {
+      "id": "SIG-04",
+      "text": "`quorum-consensus-gate.cjs` gates quorum rounds by Poisson binomial consensus probability threshold",
+      "category": "Operational Signals",
+      "phase": "v0.21-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Gates each quorum round by computing Poisson binomial consensus probability (product of individual slot success rates from PLAN-03). If consensus probability falls below a threshold, quorum round is blocked until LOOP-03 re-runs PRISM or conditions improve. The ultimate operational gate ensuring formal assurance before state advances."
+    },
+    {
+      "id": "SLOT-01",
+      "text": "User sees all quorum agents referred to by slot name (`claude-1`, `copilot-1`, `gemini-cli-1`, etc.) in all QGSD output and commands",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Establishes consistent user-facing terminology by replacing internal model names with stable slot identifiers (claude-1, copilot-1, etc.). This foundation is essential for v0.7 because users cannot understand quorum composition or scoreboard entries without knowing which named slot each agent occupies. Creates the mental model that slots are persistent containers independent of the model running inside them."
+    },
+    {
+      "id": "SLOT-02",
+      "text": "Migration script renames existing `~/.claude.json` mcpServers entries from model-based names to slot names automatically (non-destructive, invertible)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Provides non-destructive migration from the legacy model-based naming scheme to slot-based names, preserving user data and enabling rollback if needed. Critical infrastructure that protects existing installations when adopting the new naming convention. Invertibility ensures that if slot-based naming causes unexpected issues, users can safely revert to the original names without data loss."
+    },
+    {
+      "id": "SLOT-03",
+      "text": "All QGSD source files (hooks, orchestrator, commands, scoreboard tooling) updated to use new slot names — no old names remain",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Ensures consistency across the entire QGSD codebase by purging all legacy model-based references and replacing them with slot names. Without this, mixed terminology in different tools (some showing slot names, others showing old names) would confuse users about whether they are the same entity. Completes the naming migration and prevents gradual regression back to old names."
+    },
+    {
+      "id": "SLOT-04",
+      "text": "`mcp-status`, `mcp-set-model`, `mcp-update`, `mcp-restart` accept and display slot names correctly",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Establishes slot-aware UX in the main operational commands that users interact with daily. These commands must accept and display slot names consistently so users can manage their quorum using the unified naming convention established in SLOT-01. Closes the gap between conceptual (slot names) and operational (user commands)."
+    },
+    {
+      "id": "SPEC-01",
+      "text": "Stop hook formalized in `QGSDStopHook.tla` + `MCStopHook.cfg`, TLC verifies safety + liveness",
+      "category": "Spec Completeness",
+      "phase": "v0.21-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Formalizes the stop hook (which blocks planning responses without quorum consent) in TLA+ with its own model checker config (MCStopHook.cfg). TLC verifies that the stop hook satisfies safety (never allows unvetted responses) and liveness (quorum consent eventually arrives). Foundation for SPEC-02 and SPEC-03 which extend this spec composition."
+    },
+    {
+      "id": "SPEC-02",
+      "text": "`QGSDOscillation.tla` audited against `qgsd-circuit-breaker.js` — no drift detected",
+      "category": "Spec Completeness",
+      "phase": "v0.21-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Audits the oscillation circuit breaker (run-collapse algorithm in qgsd-circuit-breaker.js) against its TLA+ formalization (QGSDOscillation.tla). No drift detected means the implementation faithfully executes the formal model. Provides confidence that LOOP-02's spec regeneration won't create oscillation edge cases."
+    },
+    {
+      "id": "SPEC-03",
+      "text": "Quorum composition verified in `quorum-composition.als` — 3 composition rules hold",
+      "category": "Spec Completeness",
+      "phase": "v0.21-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Verifies in Alloy that quorum composition rules hold: (1) at least 2 of 5 slots must agree, (2) no single slot dominates consensus, (3) slot selection is deterministic. These three rules are verified through formal constraint satisfaction. Supports LOOP-01 and SIG-04 by proving quorum semantics are sound."
+    },
+    {
+      "id": "SPEC-04",
+      "text": "`generate-phase-spec.cjs` translates PLAN.md `must_haves: truths:` to TLA+ PROPERTY stubs",
+      "category": "Spec Completeness",
+      "phase": "v0.21-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Auto-generates TLA+ PROPERTY stubs from PLAN.md truth declarations. Bridges planning language (must_haves/truths) and formal verification language (TLA+ PROPERTY). Enables PLAN-02 to verify plans by providing the formal assertion that planning intends. Output feeds directly into PLAN-02's iterative TLC loop."
+    },
+    {
+      "id": "STATE-01",
+      "text": "audit-milestone updates STATE.md \"Stopped at\" and \"Current Position\" fields with the audit result (passed / gaps_found / tech_debt) after writing the MILESTONE-AUDIT.md artifact",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.13-REQUIREMENTS.md",
+        "milestone": "v0.13"
+      },
+      "background": "Tracks milestone audit outcomes by updating STATE.md \"Stopped at\" and \"Current Position\" fields with results (passed / gaps_found / tech_debt). Provides persistent state across context resets and enables resume-work to recover at the exact point where audit stopped. Works with LOOP-03 to ensure audit results drive visibility and recovery logic."
+    },
+    {
+      "id": "STATE-02",
+      "text": "State schema: `{ active, file_set[], activated_at, commit_window_snapshot[] }` — captures what triggered the breaker",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "State schema captures what triggered the breaker: { active, file_set[], activated_at, commit_window_snapshot[] }. This complete snapshot allows recovery tools and the user to understand exactly which files are oscillating and when the breaker activated."
+    },
+    {
+      "id": "STATE-03",
+      "text": "Hook reads existing state first — if active, applies enforcement immediately without re-running git log detection",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Hook reads existing state first — if active, apply enforcement immediately without re-running git log. This optimization avoids redundant git queries when the breaker is already active, improving performance and reducing system load."
+    },
+    {
+      "id": "STATE-04",
+      "text": "State file created silently if absent; failure to write logs to stderr but never blocks execution",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "State file is created silently if absent, and write failures log to stderr but never block execution. This defensive design prevents the circuit breaker from stopping all work due to file system issues — it degrades gracefully."
+    },
+    {
+      "id": "STD-02",
+      "text": "All 4 Gen1 MCP server repos (claude, codex, copilot, openhands) ported to Gen2 per-tool architecture (`*.tool.ts` + `registry.ts`) with Gen1 files (`definitions.ts`, `handlers.ts`) removed — all repos on main branch",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Standardizes MCP server implementation across four Gen1 repos (claude, codex, copilot, openhands) by adopting the Gen2 per-tool architecture. This modernization ensures all quorum agents use consistent tool registration and reduces maintenance burden. Necessary foundation before quorum composition (COMP) and slot management (SLOT) can work reliably."
+    },
+    {
+      "id": "STD-10",
+      "text": "gemini-mcp-server npm package name is unscoped (`gemini-mcp-server`, not `@tuannvm/gemini-mcp-server`) — `~/.claude.json` mcpServers[\"gemini-cli\"].args reflects the unscoped name",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Ensures the gemini-mcp-server npm package uses an unscoped name, consistent with npm registry best practices. The ~/.claude.json entry must reference the correct package name; mismatched names cause installation and startup failures. Related to standardization of all provider packages."
+    },
+    {
+      "id": "STOP-01",
+      "text": "Stop hook reads transcript JSONL for tool_use entries matching configured quorum model names",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "STOP hook is the foundational enforcement gate that prevents planning responses without quorum. This requirement establishes that the hook must inspect the actual transcript JSONL for evidence of quorum tool invocations — reading tool_use entries is the authoritative, reliable method to verify that multi-model deliberation actually occurred. This is foundational to the entire quorum enforcement architecture."
+    },
+    {
+      "id": "STOP-02",
+      "text": "Stop hook checks `stop_hook_active` flag first — if true, exits 0 immediately (infinite loop prevention)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Prevents infinite loops where the Stop hook itself might trigger on subsequent Claude responses. The stop_hook_active flag is a simple state guard that allows the hook to exit early if already executing, ensuring it cannot recurse and block itself indefinitely. This is a safety mechanism essential to hook stability."
+    },
+    {
+      "id": "STOP-03",
+      "text": "Stop hook checks `hook_event_name` — if `SubagentStop`, exits 0 immediately (subagent exclusion)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Excludes subagent invocations from quorum verification. Subagents operate in constrained contexts where they cannot invoke quorum tools themselves, so requiring full quorum at the subagent boundary would deadlock. This requirement ensures hooks only apply to top-level Claude responses."
+    },
+    {
+      "id": "STOP-04",
+      "text": "Stop hook scopes transcript search to current turn only (lines since last user message boundary) — survives context compaction",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Scopes quorum verification to the current turn only, meaning only the user message and its corresponding Claude response are checked for quorum evidence. This survives context compaction because the scope is defined by message boundaries, not absolute line numbers. Ensures quorum checks remain valid even after context is summarized."
+    },
+    {
+      "id": "STOP-05",
+      "text": "Stop hook reads transcript JSONL as the authoritative source of quorum evidence — no fast-path pre-check (design decision: last_assistant_message substring matching is not a reliable signal; JSONL parse is synchronous and correct for all transcript sizes)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Establishes JSONL parsing as the authoritative source rather than heuristics like substring matching in last_assistant_message. This design decision prioritizes correctness over speed — parsing is synchronous and accurate regardless of transcript size, preventing false negatives where quorum evidence exists but heuristics miss it."
+    },
+    {
+      "id": "STOP-06",
+      "text": "Stop hook verifies quorum only when a configured planning command was issued in the current turn (scope filtering)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Quorum is only required when a planning command was actually issued in the current turn. This scope filtering prevents false blocks on non-planning responses (e.g., answering casual questions). The hook checks if the user message matches the configured quorum_commands list before enforcing verification."
+    },
+    {
+      "id": "STOP-07",
+      "text": "Stop hook blocks with `{\"decision\": \"block\", \"reason\": \"...\"}` when quorum is missing — reason includes exact tool names and instructions",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Defines the block response format for blocking responses. Using a structured decision field with reason text allows Claude Code to display clear, actionable feedback to the user. The reason must include tool names so Claude knows exactly what to invoke."
+    },
+    {
+      "id": "STOP-08",
+      "text": "Block reason message format: \"QUORUM REQUIRED: Before completing this /qgsd:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output.\"",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Specifies the exact message format for blocks, ensuring consistent UX and clear instructions. The message pattern 'QUORUM REQUIRED: ... call [tool1], [tool2], [tool3] ... Present their responses, then deliver your final output' is explicit enough that Claude can understand what to do without additional context."
+    },
+    {
+      "id": "STOP-09",
+      "text": "Stop hook passes (exits 0, no decision field) when quorum evidence found or no planning command in scope",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Defines the success case — the hook passes (exits cleanly with no decision field) when quorum evidence is found in transcript or when no planning command triggered in the current turn. This allows planning responses with full quorum to complete without further blocking."
+    },
+    {
+      "id": "SYNC-01",
+      "text": "QGSD ships as separate npm package (`qgsd` or `get-shit-done-quorum`) that wraps GSD",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "QGSD is a separate npm package that wraps GSD. This separation allows independent versioning and prevents QGSD changes from affecting GSD installations. QGSD can be installed anywhere GSD is installed without modifying GSD's code."
+    },
+    {
+      "id": "SYNC-02",
+      "text": "When GSD releases a new planning command, QGSD releases a patch update adding the command to the default `quorum_commands` list",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "When GSD releases new planning commands, QGSD patches its quorum_commands list. This keeps quorum requirements synchronized with GSD's evolving feature set, preventing new commands from bypassing quorum enforcement."
+    },
+    {
+      "id": "SYNC-03",
+      "text": "QGSD changelog explicitly tracks which GSD version it is compatible with",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "QGSD changelog tracks compatible GSD versions. Users can see which GSD version their QGSD works with, aiding troubleshooting when versions drift."
+    },
+    {
+      "id": "SYNC-04",
+      "text": "No QGSD code modifies any GSD source files — all additions are in separate files (`hooks/qgsd-stop.js`, `hooks/qgsd-prompt.js`, `bin/qgsd-install.js`)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "QGSD never modifies GSD source files — all additions are in separate files (hooks/qgsd-stop.js, hooks/qgsd-prompt.js, bin/qgsd-install.js). Zero-coupling is a hard constraint that allows QGSD to be uninstalled cleanly without contaminating GSD."
+    },
+    {
+      "id": "TRIAGE-01",
+      "text": "`bin/generate-triage-bundle.cjs` reads `check-results.ndjson` and writes `formal/diff-report.md` (per-check delta from last run) and `formal/suspects.md` (checks with `result=fail` or `triage_tags` set)",
+      "category": "Uncategorized",
+      "phase": "v0.20-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement creates a triage bundle tool that generates two artifacts from check-results.ndjson: formal/diff-report.md (per-check deltas from the last run) and formal/suspects.md (checks with result=fail or triage_tags set). It solves the analysis problem where hundreds of check results are hard to navigate without a summary. By generating a diff report, it shows what changed between runs (helping identify flaky checks or regressions). By flagging suspects, it highlights priority areas for human investigation. This pairs with TRIAGE-02 to make formal verification results actionable."
+    },
+    {
+      "id": "TRIAGE-02",
+      "text": "`run-formal-verify.cjs` calls `generate-triage-bundle.cjs` as the final step after all checks complete",
+      "category": "Uncategorized",
+      "phase": "v0.20-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement integrates triage bundle generation as the final step in run-formal-verify.cjs, ensuring diff-report.md and suspects.md are always generated alongside check-results.ndjson. It solves the workflow integration problem where triage artifacts might be forgotten or generated out-of-sync. By making triage generation automatic and mandatory, it ensures every formal verification run produces actionable summaries. This pairs with TRIAGE-01 to embed triage analysis into the core verification pipeline."
+    },
+    {
+      "id": "UNIF-01",
+      "text": "All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`",
+      "category": "Uncategorized",
+      "phase": "v0.19-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "v0.19 established a unified output format (check-results.ndjson) to eliminate tool stdout parsing fragility. Each formal verification checker writes structured JSON entries ({tool, check_id, result, detail, ts}) to a single canonical file, enabling deterministic CI result detection and preventing race conditions where stdout was lost or interleaved. This is the foundation for all downstream verification enforcement."
+    },
+    {
+      "id": "UNIF-02",
+      "text": "`run-formal-verify.cjs` generates `check-results.ndjson` as canonical output artifact",
+      "category": "Uncategorized",
+      "phase": "v0.19-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "The orchestrator run-formal-verify.cjs needed to generate the check-results.ndjson artifact itself, not just collect it from tools. This ensures artifact location is always predictable and enables CI enforcement to locate and parse results reliably without tool-specific path conventions, solving the problem where verification results were previously scattered across stderr/stdout."
+    },
+    {
+      "id": "UNIF-03",
+      "text": "Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read (v0.19-11 timing fix)",
+      "category": "Uncategorized",
+      "phase": "v0.19-11",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "The triage bundle was reading tool stdout directly, missing failures and creating a race between parallel CI enforcement steps and summary report generation. v0.19-11 fixed timing by requiring CI enforcement steps to run inside the orchestrator BEFORE the summary reads the artifact, guaranteeing results are finalized before triage interpretation."
+    },
+    {
+      "id": "UNIF-04",
+      "text": "CI step exits non-zero when any `result=fail` entry exists in `check-results.ndjson`",
+      "category": "Uncategorized",
+      "phase": "v0.19-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "background": "CI pipelines must fail fast when any formal verification check fails. This requirement ensures check-results.ndjson is the authoritative decision point—the orchestrator exits non-zero if any entry has result=fail, eliminating the possibility of failed checks being overlooked due to tool-specific error propagation logic."
+    },
+    {
+      "id": "UPPAAL-01",
+      "text": "A UPPAAL timed automaton model (`formal/uppaal/quorum-races.xml`) captures the concurrency structure of the quorum protocol — specifically when concurrent slot responses and timeout expirations fire relative to each other. The model uses `runtime_ms` bounds from `check-results.ndjson` as empirical timing constraints (clock guards and invariants), not hardcoded constants.",
+      "category": "Uncategorized",
+      "phase": "v0.20-07",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement creates a UPPAAL timed automaton model (formal/uppaal/quorum-races.xml) that formalizes the concurrency structure of the quorum protocol, specifically timing interactions between concurrent slot responses and timeout expirations. It solves the timing analysis problem where TLA+ safety/liveness properties don't quantify over real-time constraints. By capturing clock guards and invariant timing bounds derived from empirical runtime_ms data in check-results.ndjson, the model enables detection of race conditions that would manifest only under specific timing scenarios. This is a new formalism complementing TLA+."
+    },
+    {
+      "id": "UPPAAL-02",
+      "text": "`bin/run-uppaal.cjs` executes the UPPAAL model checker (verifyta CLI) against `quorum-races.xml` and writes a check result to `check-results.ndjson` using the v2.1 schema (SCHEMA-01 prerequisite). The STEPS entry `uppaal:quorum-races` is added to `run-formal-verify.cjs`.",
+      "category": "Uncategorized",
+      "phase": "v0.20-07",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement operationalizes the UPPAAL model by creating bin/run-uppaal.cjs that executes the verifyta model checker against quorum-races.xml and writes results to check-results.ndjson using v2.1 schema. It solves the integration problem where a new formalism must produce outputs compatible with the existing verification pipeline. By adding the uppaal:quorum-races STEPS entry in run-formal-verify.cjs, UPPAAL checking becomes part of the standard formal verification flow. This depends on SCHEMA-01 for output compatibility."
+    },
+    {
+      "id": "UPPAAL-03",
+      "text": "The model surfaces at least two critical measurement points as annotated properties: (a) the minimum inter-slot response gap that prevents a race condition, (b) the maximum timeout value for which the quorum can still reach consensus before the planning gate deadline.",
+      "category": "Uncategorized",
+      "phase": "v0.20-07",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement ensures the UPPAAL model surfaces at least two critical measurement points: (a) the minimum inter-slot response gap that prevents race conditions, and (b) the maximum timeout value for consensus before the planning deadline. It solves the parameter sensitivity problem where the model must identify which timing parameters are critical for correctness. By annotating these as properties in the UPPAAL model, it enables the sensitivity analysis (SENS-01/02/03) to understand which timing parameters to sweep and what boundary values are safe. This connects timing analysis to parameter sensitivity."
+    },
+    {
+      "id": "UPS-01",
+      "text": "UserPromptSubmit hook detects GSD planning commands via explicit allowlist regex match against prompt field",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "UserPromptSubmit hook proactively injects quorum instructions before Claude starts generating a response. This requirement establishes detection via allowlist regex — explicit matching of command patterns avoids false positives from casual mentions of 'plan-phase' in prose."
+    },
+    {
+      "id": "UPS-02",
+      "text": "Allowlist contains exactly 6 commands: new-project, plan-phase, new-milestone, discuss-phase, verify-work, research-phase",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Defines the exact 6 commands that require quorum: new-project, plan-phase, new-milestone, discuss-phase, verify-work, research-phase. This hardcoded list is the single source of truth for which planning workflows trigger quorum enforcement, enabling predictable behavior."
+    },
+    {
+      "id": "UPS-03",
+      "text": "UserPromptSubmit hook injects quorum instructions via `hookSpecificOutput.additionalContext` (not systemMessage — goes into Claude's context window)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Injects quorum instructions via additionalContext rather than systemMessage because additionalContext goes into Claude's regular context window where it can be quoted and reasoned about. This approach is more transparent and allows the user to see what instructions were injected."
+    },
+    {
+      "id": "UPS-04",
+      "text": "Injected context names the exact MCP tools to call and instructs Claude to present model responses before delivering final output",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "The injected context must explicitly name the MCP tools to call (e.g., 'mcp__codex-1__codex') and instruct Claude to 'present their responses, then deliver your final output'. This ensures Claude knows which tools are required and in what order to present results."
+    },
+    {
+      "id": "UPS-05",
+      "text": "UserPromptSubmit hook never fires on execute-phase or other non-planning commands",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Ensures UserPromptSubmit only fires on planning commands, not on non-planning commands like execute-phase or casual interactions. This prevents unnecessary quorum injection on all responses and keeps the overhead low for non-planning work."
+    },
+    {
+      "id": "VERIFY-01",
+      "text": "`qgsd-verifier` agent runs `run-formal-verify` after implementation and includes `check-results.ndjson` digest in `VERIFICATION.md`",
+      "category": "Uncategorized",
+      "phase": "v0.20-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement adds a qgsd-verifier agent that runs the full formal verification suite (all 23 checks) after implementation phases complete. It solves the post-hoc validation problem where implementations might diverge from their intended specifications without anyone noticing. By running run-formal-verify and including the check-results.ndjson digest in VERIFICATION.md, it provides evidence that the implemented code matches the formal model. This pairs with VERIFY-02 to make formal verification results part of the phase delivery artifact."
+    },
+    {
+      "id": "VERIFY-02",
+      "text": "`VERIFICATION.md` template gains a `## Formal Verification` section summarizing pass/fail/warn counts per formalism (tla, alloy, prism, ci)",
+      "category": "Uncategorized",
+      "phase": "v0.20-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.20-REQUIREMENTS.md",
+        "milestone": "v0.20"
+      },
+      "background": "This requirement extends the VERIFICATION.md template with a structured Formal Verification section that summarizes pass/fail/warn counts per formalism (TLA+, Alloy, PRISM, CI). It solves the reporting problem where formal verification results exist but aren't summarized for human review. By providing per-formalism breakdowns, it enables readers to quickly assess which formalisms passed, which had warnings, and which failed, supporting decision-making about whether to ship the phase. This pairs with VERIFY-01 to embed formal evidence into the delivery process."
+    },
+    {
+      "id": "VIS-01",
+      "text": "`/qgsd:health` surfaces W008 warning when a quorum slot has ≥3 failures recorded in `quorum-failures.json`",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
+        "milestone": "v0.15"
+      },
+      "background": "This requirement surfaces recurring quorum slot failures in the health output by adding a Check 9 that reads `.planning/quorum-failures.json` and emits W008 warnings for any slot with 3+ failures. This is critical for operator visibility because quorum failures indicate that one or more AI providers is experiencing systematic issues (timeouts, authentication failures, etc.), which impacts the reliability of multi-model consensus operations. Without surfacing these failures in routine health checks, operators would have to manually inspect the quorum-failures.json file; integrating the check into `/qgsd:health` makes failure detection automatic and actionable alongside other health indicators."
+    },
+    {
+      "id": "WIZ-01",
+      "text": "User can run `/qgsd:mcp-setup` to start the MCP configuration wizard",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Foundation for the entire MCP configuration system. This slash command entry point must exist before any configuration can happen. It serves as the single interface for users to set up, modify, or inspect their quorum agent roster, avoiding the need for manual JSON editing. Related to WIZ-02 through WIZ-05 which define the UX flow and interactions within the wizard."
+    },
+    {
+      "id": "WIZ-02",
+      "text": "First run (no configured agents) presents a guided linear onboarding flow step by step",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Enables first-time users to configure quorum agents without prior knowledge of QGSD architecture. The guided linear flow reduces friction and ensures all required fields (name, provider, model, key) are collected before creating agents. Works with AGENT-01 and INST-01 to ensure new installations are not left unconfigured."
+    },
+    {
+      "id": "WIZ-03",
+      "text": "Re-run shows the current agent roster as a navigable menu",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Allows experienced users to re-run the wizard and see their existing agent configuration rather than starting from scratch. This menu-based approach provides quick access to modify or add agents. Pairs with WIZ-04 to give users visibility into agent status before making changes."
+    },
+    {
+      "id": "WIZ-04",
+      "text": "Each agent in the menu shows current model, provider, and key status (present/missing)",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Critical for user awareness when managing agents. By displaying the model, provider, and key status inline, users can quickly identify which agents are ready vs. incomplete. This information guides decisions about which agents to modify or delete, connecting provider swap (PROV) and key management (KEY) features."
+    },
+    {
+      "id": "WIZ-05",
+      "text": "User confirms before changes are applied; wizard restarts affected agents after apply",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Safety guardrail that prevents accidental agent configuration changes. The confirmation step before apply, combined with automatic restart of affected agents, ensures changes take effect reliably. Required for trustworthy key rotation (KEY) and provider swap (PROV) operations."
+    },
+    {
+      "id": "WIZ-08",
+      "text": "`/qgsd:mcp-setup` re-run menu includes an \"Edit Quorum Composition\" option",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Adds an \"Edit Quorum Composition\" menu option to the mcp-setup wizard so users can modify `quorum.active` without leaving the wizard. Solves the discovery problem — users may not know that composition editing exists if it's only documented. Integrates composition management into the primary wizard flow."
+    },
+    {
+      "id": "WIZ-09",
+      "text": "Composition screen shows all discovered slots with on/off toggle for `quorum.active` inclusion",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Provides visual representation of all discovered slots with on/off toggles for `quorum.active` inclusion. This UI directly manipulates COMP-01's configuration. Prevents users from having to edit JSON manually or remember slot names, reducing configuration errors and friction."
+    },
+    {
+      "id": "WIZ-10",
+      "text": "User can add a new slot for any family (claude, copilot, opencode, codex-cli, gemini-cli) from within the wizard, which writes the new entry to `~/.claude.json` and triggers restart",
+      "category": "Uncategorized",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "background": "Enables adding a new slot for any family directly from within the wizard, writing to `~/.claude.json` and triggering restart. This is the user-facing entry point for MULTI-01/MULTI-02 functionality. Allows users to expand their quorum without leaving the guided setup flow or restarting Claude Code externally."
     }
   ],
   "schema_version": "1",

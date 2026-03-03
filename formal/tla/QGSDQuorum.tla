@@ -4,7 +4,7 @@
  * GENERATED — do not edit by hand.
  * Source of truth: src/machines/qgsd-workflow.machine.ts
  * Regenerate:      node bin/generate-formal-specs.cjs
- * Generated:       2026-03-01
+ * Generated:       2026-03-03
 
  * Models the quorum workflow defined in src/machines/qgsd-workflow.machine.ts.
  * Guard translations (from GUARD_REGISTRY in bin/generate-formal-specs.cjs):
@@ -15,7 +15,7 @@ EXTENDS Naturals, FiniteSets, TLC
 
 CONSTANTS
     Agents,          \* Set of quorum model slots (e.g., {"a1","a2","a3","a4","a5"})
-    MaxDeliberation, \* Maximum deliberation rounds before forced DECIDED (default: 7)
+    MaxDeliberation, \* Maximum deliberation rounds before forced DECIDED (default: 9)
     MaxSize          \* Cap on voters polled per round (default: 3)
 
 ASSUME MaxDeliberation \in Nat /\ MaxDeliberation > 0

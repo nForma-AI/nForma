@@ -10,6 +10,7 @@
     "verifier": true,
     "auto_advance": true,
     "nyquist_validation": true,
-    "early_escalation_threshold": 0.10
+    "early_escalation_threshold": 0.1,
+    "maxDeliberation": 9
   }
 }

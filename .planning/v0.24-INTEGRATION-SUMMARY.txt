@@ -1,0 +1,186 @@
+================================================================================
+  v0.24 QUORUM PHASES — INTEGRATION CHECK SUMMARY
+================================================================================
+
+AUDIT RESULT: COMPLETE ✓
+
+Date:        2026-03-03
+Phases:      v0.24-01 through v0.24-05 (5 phases, 12 requirements)
+Tests:       178 (all PASS)
+Status:      Production Ready
+
+================================================================================
+REQUIREMENTS WIRING STATUS
+================================================================================
+
+FAIL-01 (Retry Backoff):              WIRED ✓
+  - retryWithBackoff() called 4 times in call-quorum-slot.cjs
+  - Delays: 1000ms, 3000ms, max 2 retries
+  - isRetryable() gates error classification
+
+FAIL-02 (Provider Failover):          WIRED ✓
+  - provider field in providers.json (kebab-case)
+  - getDownProviderSlots() filters dispatch
+  - EventualConsensus preserved (≥1 slot survives)
+
+DISP-01 (Health Probe):               WIRED ✓
+  - triggerHealthProbe() called before slot filtering
+  - 3s timeout, caches in ~/.claude/qgsd-provider-cache.json
+
+DISP-02 (Availability Filtering):     WIRED ✓
+  - getAvailableSlots() excludes future-timestamp slots
+  - Fail-open on missing scoreboard
+
+DISP-03 (Success Rate Ordering):      WIRED ✓
+  - sortBySuccessRate() reorders by flakiness (primary), success_rate (secondary)
+  - Flakiness from OBS-03 computeFlakiness()
+
+OBS-01 (Telemetry Logging):           WIRED ✓
+  - recordTelemetry() logs all verdicts to JSONL
+  - Fields: ts, session_id, round, slot, verdict, latency_ms, provider, retry_count
+
+OBS-02 (Delivery Rate Tracking):      WIRED ✓
+  - computeDeliveryStats() computes percentages per round
+  - Called in merge-wave (line 921 update-scoreboard.cjs)
+
+OBS-03 (Flakiness Scoring):           WIRED ✓
+  - computeFlakiness() scores per-slot reliability (0.0-1.0)
+  - Trailing 10-round window
+  - Feeds into DISP-03 dispatch ordering
+
+HEAL-01 (Early Escalation):           WIRED ✓
+  - computeEarlyEscalation() gates deliberation rounds
+  - If P(consensus) < threshold: exit 1
+
+HEAL-02 (Config Auto-Adjust):         WIRED ✓
+  - suggestMaxDeliberation() computes k via geometric distribution
+  - applyMaxDeliberationUpdate() atomically updates machine.ts + config.json
+  - --auto-apply flag for CI automation
+
+DISP-04 (Prompt Construction):        WIRED ✓
+  - buildModeAPrompt(), buildModeBPrompt() exported, used in dispatcher
+  - Deterministic, testable functions
+
+DISP-05 (Output Parsing):             WIRED ✓
+  - parseVerdict(), parseReasoning(), parseCitations(), parseImprovements()
+  - emitResultBlock() formats YAML result
+
+================================================================================
+TEST COVERAGE
+================================================================================
+
+v0.24-01: Provider Infrastructure & Failover
+  call-quorum-slot-retry.test.cjs       10/10 PASS
+  provider-mapping.test.cjs              18/18 PASS
+  Subtotal:                              28/28 PASS (100%)
+
+v0.24-02: Dispatch Reliability
+  dispatch-availability-window.test.cjs  9/9 PASS
+  dispatch-success-rate-ordering.test.cjs 10/10 PASS
+  Subtotal:                              19/19 PASS (100%)
+
+v0.24-03: Quorum Observability
+  quorum-telemetry.test.cjs              17/17 PASS
+  scoreboard-observability.test.cjs      23/23 PASS
+  Subtotal:                              40/40 PASS (100%)
+
+v0.24-04: Self-Healing Consensus
+  health-auto-adjust.test.cjs            13/13 PASS
+  verify-quorum-health.test.cjs          51/51 PASS
+  Subtotal:                              64/64 PASS (100%)
+
+v0.24-05: Slot Worker Thin Passthrough
+  quorum-slot-dispatch.test.cjs          27/27 PASS
+  Subtotal:                              27/27 PASS (100%)
+
+TOTAL:                                   178/178 PASS (100%)
+
+================================================================================
+KEY INTEGRATION POINTS VERIFIED
+================================================================================
+
+1. Retry → Telemetry
+   call-quorum-slot.cjs retries, then calls recordTelemetry()
+   
+2. Telemetry → Flakiness
+   recordTelemetry logs verdicts → computeFlakiness() counts failures
+   
+3. Flakiness → Dispatch
+   computeFlakiness() → sortBySuccessRate() reorders slots
+   
+4. Dispatch → Worker
+   qgsd-prompt.js emits Task(subagent_type="qgsd-quorum-slot-worker")
+   
+5. Worker → Dispatch Script
+   qgsd-quorum-slot-worker.md calls quorum-slot-dispatch.cjs
+   
+6. Dispatch → Parsing
+   quorum-slot-dispatch.cjs parses output (verdict, reasoning, citations, improvements)
+   
+7. Consensus → Health Gate
+   quorum-consensus-gate.cjs checks P(consensus), early escalation
+   
+8. Health → Config Update
+   verify-quorum-health.cjs suggests & applies maxDeliberation
+
+================================================================================
+DATA FLOWS VALIDATED
+================================================================================
+
+Quorum Command Input
+  ↓
+Slot Selection (provider health, availability, flakiness)
+  ↓
+Worker Dispatch (Mode A/B prompt construction)
+  ↓
+Retry & Execution (call-quorum-slot.cjs)
+  ↓
+Telemetry Logging (JSONL output)
+  ↓
+Result Parsing (YAML structure)
+  ↓
+Agent Synthesis
+  ↓
+Scoreboard Update (delivery_stats, flakiness_score)
+  ↓
+Consensus Monitoring (early escalation gate)
+  ↓
+Config Health Check (suggested maxDeliberation)
+  ↓
+Atomic Config Update (src/machines, config.json)
+
+Status: Unbroken end-to-end ✓
+
+================================================================================
+ISSUES FOUND
+================================================================================
+
+CRITICAL ISSUES: 0
+BLOCKERS: 0
+WARNINGS: 0
+
+ORPHANED EXPORTS: 3 (intentional — for testability)
+  - computeRates() — extracted for modular testing
+  - pMajorityExternal() — extracted for modular testing
+  - stripQuotes() — utility function
+
+MISSING CONNECTIONS: 0
+BROKEN FLOWS: 0
+
+================================================================================
+CONCLUSION
+================================================================================
+
+All 12 requirements properly wired. Cross-phase integration complete.
+178 tests validate all connection points.
+
+System is ready for production deployment.
+
+No rework required.
+
+================================================================================
+Report Details:   /Users/jonathanborduas/code/QGSD/.planning/v0.24-INTEGRATION-REPORT.md
+Generated:        2026-03-03
+Auditor:          Integration Checker (Milestone Verification System)
+Confidence Level: High (all tests PASS, all flows traced)
+================================================================================

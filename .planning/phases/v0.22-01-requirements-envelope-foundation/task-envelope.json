@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.22-01",
+  "created_at": "2026-03-01T20:21:00.764Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Phase v0.22-01 builds two CLI tools: `bin/aggregate-requirements.cjs` (parses `.planning/REQUIREMENTS.md` into `formal/requirements.json`) and `bin/validate-requirements-haiku.cjs` (runs claude-haiku-",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.22-01-requirements-envelope-foundation/v0.22-01-01-PLAN.md",
+    "key_decisions": []
+  }
+}

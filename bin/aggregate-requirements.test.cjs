@@ -14,7 +14,8 @@ const {
   parseRequirements,
   parseTraceability,
   validateEnvelope,
-  aggregateRequirements
+  aggregateRequirements,
+  discoverArchiveFiles
 } = require('./aggregate-requirements.cjs');
 
 // Helper: create temp directory for test files
@@ -214,7 +215,8 @@ test('aggregateRequirements produces valid JSON from temp REQUIREMENTS.md', func
     const result = aggregateRequirements({
       requirementsPath: tempReqPath,
       outputPath: tempOutputPath,
-      deterministic: true
+      deterministic: true,
+      skipArchive: true
     });
 
     assert.strictEqual(result.requirementCount, 3, 'Should have 3 requirements');
@@ -258,13 +260,15 @@ test('aggregateRequirements is deterministic -- same input produces identical ou
     aggregateRequirements({
       requirementsPath: tempReqPath,
       outputPath: tempOutputPath1,
-      deterministic: true
+      deterministic: true,
+      skipArchive: true
     });
 
     aggregateRequirements({
       requirementsPath: tempReqPath,
       outputPath: tempOutputPath2,
-      deterministic: true
+      deterministic: true,
+      skipArchive: true
     });
 
     const file1 = fs.readFileSync(tempOutputPath1, 'utf8');
@@ -357,13 +361,15 @@ test('content_hash is consistent across runs', function() {
     aggregateRequirements({
       requirementsPath: tempReqPath,
       outputPath: tempOutputPath1,
-      deterministic: true
+      deterministic: true,
+      skipArchive: true
     });
 
     aggregateRequirements({
       requirementsPath: tempReqPath,
       outputPath: tempOutputPath2,
-      deterministic: true
+      deterministic: true,
+      skipArchive: true
     });
 
     const envelope1 = JSON.parse(fs.readFileSync(tempOutputPath1, 'utf8'));
@@ -374,6 +380,258 @@ test('content_hash is consistent across runs', function() {
       envelope2.content_hash,
       'Content hash should be identical across runs'
     );
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+});
+
+// --- Archive merge tests ---
+
+// Test 13: archive requirements are included in envelope
+test('archive requirements are included in envelope', function() {
+  const tempDir = createTempDir();
+
+  try {
+    // Create milestones archive dir with one archive file
+    const milestonesDir = path.join(tempDir, 'milestones');
+    fs.mkdirSync(milestonesDir, { recursive: true });
+
+    fs.writeFileSync(path.join(milestonesDir, 'v0.20-REQUIREMENTS.md'), `# Requirements: QGSD v0.20
+
+### Schema — SCHEMA
+
+- [x] **SCHEMA-01**: Schema extended with enrichment fields
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| SCHEMA-01 | v0.20-01 | Complete |
+`, 'utf8');
+
+    // Create current REQUIREMENTS.md
+    const currentPath = path.join(tempDir, 'REQUIREMENTS.md');
+    fs.writeFileSync(currentPath, `# Requirements: QGSD v0.24
+
+### Requirements Envelope — ENV
+
+- [ ] **ENV-01**: First current requirement
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| ENV-01 | v0.24-01 | Pending |
+`, 'utf8');
+
+    const outputPath = path.join(tempDir, 'requirements.json');
+    aggregateRequirements({
+      requirementsPath: currentPath,
+      outputPath: outputPath,
+      archiveDir: milestonesDir,
+      deterministic: true
+    });
+
+    const envelope = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+    const ids = envelope.requirements.map(function(r) { return r.id; });
+
+    assert.ok(ids.includes('SCHEMA-01'), 'Should include archived SCHEMA-01');
+    assert.ok(ids.includes('ENV-01'), 'Should include current ENV-01');
+    assert.strictEqual(envelope.requirements.length, 2, 'Should have 2 total requirements');
+
+    // Verify provenance tracks correct source files
+    var schema01 = envelope.requirements.find(function(r) { return r.id === 'SCHEMA-01'; });
+    assert.ok(schema01.provenance.source_file.includes('v0.20-REQUIREMENTS.md'),
+      'SCHEMA-01 provenance should point to archive file');
+
+    var env01 = envelope.requirements.find(function(r) { return r.id === 'ENV-01'; });
+    assert.ok(env01.provenance.source_file.includes('REQUIREMENTS.md'),
+      'ENV-01 provenance should point to current file');
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+});
+
+// Test 14: current requirement wins on ID conflict
+test('current requirement wins on ID conflict', function() {
+  const tempDir = createTempDir();
+
+  try {
+    const milestonesDir = path.join(tempDir, 'milestones');
+    fs.mkdirSync(milestonesDir, { recursive: true });
+
+    fs.writeFileSync(path.join(milestonesDir, 'v0.20-REQUIREMENTS.md'), `# Requirements: QGSD v0.20
+
+### Test — SAME
+
+- [x] **SAME-01**: Archive version of this requirement
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| SAME-01 | v0.20-01 | Complete |
+`, 'utf8');
+
+    const currentPath = path.join(tempDir, 'REQUIREMENTS.md');
+    fs.writeFileSync(currentPath, `# Requirements: QGSD v0.24
+
+### Test — SAME
+
+- [ ] **SAME-01**: Current version of this requirement
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| SAME-01 | v0.24-01 | Pending |
+`, 'utf8');
+
+    const outputPath = path.join(tempDir, 'requirements.json');
+    aggregateRequirements({
+      requirementsPath: currentPath,
+      outputPath: outputPath,
+      archiveDir: milestonesDir,
+      deterministic: true
+    });
+
+    const envelope = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+    assert.strictEqual(envelope.requirements.length, 1, 'Should have 1 requirement (deduped)');
+
+    var same01 = envelope.requirements[0];
+    assert.strictEqual(same01.text, 'Current version of this requirement',
+      'Current version text should win');
+    assert.ok(same01.provenance.source_file.includes('REQUIREMENTS.md'),
+      'Provenance should point to current file');
+    assert.ok(!same01.provenance.source_file.includes('v0.20'),
+      'Provenance should NOT point to archive file');
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+});
+
+// Test 15: --skip-archive excludes archive requirements
+test('skipArchive excludes archive requirements', function() {
+  const tempDir = createTempDir();
+
+  try {
+    const milestonesDir = path.join(tempDir, 'milestones');
+    fs.mkdirSync(milestonesDir, { recursive: true });
+
+    fs.writeFileSync(path.join(milestonesDir, 'v0.20-REQUIREMENTS.md'), `# Requirements: QGSD v0.20
+
+### Schema — SCHEMA
+
+- [x] **SCHEMA-01**: Archived requirement
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| SCHEMA-01 | v0.20-01 | Complete |
+`, 'utf8');
+
+    const currentPath = path.join(tempDir, 'REQUIREMENTS.md');
+    fs.writeFileSync(currentPath, `# Requirements: QGSD v0.24
+
+### Requirements Envelope — ENV
+
+- [ ] **ENV-01**: Current requirement
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| ENV-01 | v0.24-01 | Pending |
+`, 'utf8');
+
+    const outputPath = path.join(tempDir, 'requirements.json');
+    aggregateRequirements({
+      requirementsPath: currentPath,
+      outputPath: outputPath,
+      archiveDir: milestonesDir,
+      skipArchive: true,
+      deterministic: true
+    });
+
+    const envelope = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+    const ids = envelope.requirements.map(function(r) { return r.id; });
+
+    assert.ok(!ids.includes('SCHEMA-01'), 'Should NOT include archived SCHEMA-01');
+    assert.ok(ids.includes('ENV-01'), 'Should include current ENV-01');
+    assert.strictEqual(envelope.requirements.length, 1, 'Should have only 1 requirement');
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+});
+
+// Test 16: multiple archive milestones merge in version order (newer wins)
+test('multiple archive milestones merge in version order', function() {
+  const tempDir = createTempDir();
+
+  try {
+    const milestonesDir = path.join(tempDir, 'milestones');
+    fs.mkdirSync(milestonesDir, { recursive: true });
+
+    fs.writeFileSync(path.join(milestonesDir, 'v0.20-REQUIREMENTS.md'), `# Requirements: QGSD v0.20
+
+### Test — FOO
+
+- [x] **FOO-01**: v0.20 version of FOO
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| FOO-01 | v0.20-01 | Complete |
+`, 'utf8');
+
+    fs.writeFileSync(path.join(milestonesDir, 'v0.21-REQUIREMENTS.md'), `# Requirements: QGSD v0.21
+
+### Test — FOO
+
+- [x] **FOO-01**: v0.21 version of FOO
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| FOO-01 | v0.21-01 | Complete |
+`, 'utf8');
+
+    // Current file does NOT define FOO-01
+    const currentPath = path.join(tempDir, 'REQUIREMENTS.md');
+    fs.writeFileSync(currentPath, `# Requirements: QGSD v0.24
+
+### Requirements Envelope — ENV
+
+- [ ] **ENV-01**: Current only requirement
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| ENV-01 | v0.24-01 | Pending |
+`, 'utf8');
+
+    const outputPath = path.join(tempDir, 'requirements.json');
+    aggregateRequirements({
+      requirementsPath: currentPath,
+      outputPath: outputPath,
+      archiveDir: milestonesDir,
+      deterministic: true
+    });
+
+    const envelope = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+    var foo01 = envelope.requirements.find(function(r) { return r.id === 'FOO-01'; });
+
+    assert.ok(foo01, 'FOO-01 should be present from archives');
+    assert.strictEqual(foo01.text, 'v0.21 version of FOO',
+      'v0.21 (newer archive) should win over v0.20');
+    assert.ok(foo01.provenance.source_file.includes('v0.21'),
+      'Provenance should point to v0.21 archive');
+    assert.strictEqual(foo01.provenance.milestone, 'v0.21',
+      'Milestone should be v0.21');
   } finally {
     cleanupTempDir(tempDir);
   }
