@@ -58,6 +58,7 @@ const MENU_ITEMS = [
   { label: '  Batch Rotate Keys',       action: 'batch-rotate'  },
   { label: ' ─────────────────',        action: 'sep'           },
   { label: '  Live Health',             action: 'health'        },
+  { label: '  Scoreboard',              action: 'scoreboard'    },
   { label: ' ─────────────────',        action: 'sep'           },
   { label: '  Update Agents',           action: 'update-agents' },
   { label: ' ─────────────────',        action: 'sep'           },
@@ -1235,6 +1236,212 @@ async function renderHealth() {
   }
 }
 
+// ─── Scoreboard ──────────────────────────────────────────────────────────────
+
+/**
+ * Build formatted scoreboard lines from parsed quorum-scoreboard.json data.
+ * Pure function — returns blessed-tagged string[].
+ * @param {object} data   Parsed quorum-scoreboard.json
+ * @param {object} [opts]
+ * @param {string} [opts.orchestrator='claude']  Model key of the orchestrator (excluded from voter ranking)
+ */
+function buildScoreboardLines(data, opts) {
+  if (!data || !data.models) return ['{gray-fg}No scoreboard data found.{/}'];
+
+  const orchestrator = (opts && opts.orchestrator) || 'claude';
+  const roster = (opts && opts.roster) || null;   // Set<string> of current slot names, or null = show all
+
+  // Build provider info lookup: slot name → { cli, model }
+  const providerMap = new Map();
+  if (opts && opts.providers) {
+    for (const p of opts.providers) {
+      const cli   = (p.cli || '').split('/').pop() || '\u2014';
+      const model = (p.model || '').split('/').pop() || '\u2014';
+      providerMap.set(p.name, { cli, model });
+    }
+  }
+
+  const W = { slot: 10, cli: 8, model: 16, score: 5, inv: 4, norm: 6, tp: 3, tn: 3, fp: 3, fn: 3, impr: 4 };
+  const SEP_W = 85;
+  const lines = [];
+
+  lines.push('{bold}  Quorum Scoreboard{/bold}');
+  lines.push('  ' + '\u2500'.repeat(SEP_W));
+  lines.push('');
+
+  // Header
+  const hdr =
+    '  ' +
+    pad('Slot', W.slot) + '  ' +
+    pad('CLI', W.cli) + '  ' +
+    pad('Model', W.model) + '  ' +
+    'Score'.padStart(W.score) + '  ' +
+    'Inv'.padStart(W.inv) + '  ' +
+    'Norm'.padStart(W.norm) + '  ' +
+    'TP'.padStart(W.tp) + '  ' +
+    'TN'.padStart(W.tn) + '  ' +
+    'FP'.padStart(W.fp) + '  ' +
+    'FN'.padStart(W.fn) + '  ' +
+    'Impr'.padStart(W.impr);
+  lines.push('{bold}' + hdr + '{/bold}');
+  lines.push('  ' + '\u2500'.repeat(SEP_W));
+
+  // Format a single row
+  function fmtRow(e) {
+    const normStr = e.norm.toFixed(2);
+    const normColor = e.norm >= 1.2 ? 'green' : e.norm >= 1.0 ? '#4a9090' : e.norm >= 0 ? 'yellow' : 'red';
+    return (
+      '  ' +
+      pad(e.name, W.slot) + '  ' +
+      pad(e.cli, W.cli) + '  ' +
+      pad(e.model, W.model) + '  ' +
+      String(e.score).padStart(W.score) + '  ' +
+      String(e.inv).padStart(W.inv) + '  ' +
+      `{${normColor}-fg}${normStr.padStart(W.norm)}{/}` + '  ' +
+      String(e.tp).padStart(W.tp) + '  ' +
+      String(e.tn).padStart(W.tn) + '  ' +
+      (e.fp > 0 ? `{red-fg}${String(e.fp).padStart(W.fp)}{/}` : String(e.fp).padStart(W.fp)) + '  ' +
+      (e.fn > 0 ? `{yellow-fg}${String(e.fn).padStart(W.fn)}{/}` : String(e.fn).padStart(W.fn)) + '  ' +
+      (e.impr > 0 ? `{green-fg}${String(e.impr).padStart(W.impr)}{/}` : String(e.impr).padStart(W.impr))
+    );
+  }
+
+  function toEntry(name, cli, model, m) {
+    const s = m || {};
+    const inv = s.invocations || 0;
+    return {
+      name, cli, model,
+      score: s.score || 0, inv,
+      norm: inv > 0 ? (s.score || 0) / inv : 0,
+      tp: s.tp || 0, tn: s.tn || 0, fp: s.fp || 0, fn: s.fn || 0,
+      impr: s.impr || 0,
+    };
+  }
+
+  // When providers are available, do exact composite-key lookups so scores
+  // match the specific slot+model combination currently configured.
+  // Without providers, fall back to slot-name aggregation (legacy mode).
+  const entries = [];
+  const dormant = [];
+
+  if (opts && opts.providers) {
+    const slots = data.slots || {};
+    const ZERO = { score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0 };
+
+    for (const p of opts.providers) {
+      if (p.name === orchestrator) continue;
+      const cli      = (p.cli || '').split('/').pop() || '\u2014';
+      const modelKey = p.model || '';
+      const shortMdl = modelKey.split('/').pop() || '\u2014';
+
+      // Exact slot match for the current model
+      const compositeKey = p.name + ':' + modelKey;
+      const slotStats = slots[compositeKey] || ZERO;
+
+      // For primary (-1) slots, add legacy model-family data.
+      // Rounds used model-family keys (e.g. "copilot") before switching to
+      // composite keys (e.g. "copilot-1:gpt-4.1"), so the two are non-overlapping.
+      const familyName = p.name.replace(/-\d+$/, '');
+      const modelStats = (p.name.endsWith('-1') && familyName !== orchestrator)
+        ? (data.models[familyName] || ZERO)
+        : ZERO;
+
+      const merged = {
+        score:       (slotStats.score || 0) + (modelStats.score || 0),
+        invocations: (slotStats.invocations || 0) + (modelStats.invocations || 0),
+        tp:   (slotStats.tp || 0)   + (modelStats.tp || 0),
+        tn:   (slotStats.tn || 0)   + (modelStats.tn || 0),
+        fp:   (slotStats.fp || 0)   + (modelStats.fp || 0),
+        fn:   (slotStats.fn || 0)   + (modelStats.fn || 0),
+        impr: (slotStats.impr || 0) + (modelStats.impr || 0),
+      };
+
+      const e = toEntry(p.name, cli, shortMdl, merged);
+      if (e.inv > 0) { entries.push(e); } else { dormant.push(p.name); }
+    }
+  } else {
+    // Legacy fallback: aggregate by slot name (no exact model matching)
+    const agentMap = new Map();
+    function mergeInto(name, stats) {
+      const prev = agentMap.get(name) || { score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0 };
+      prev.score       += stats.score       || 0;
+      prev.invocations += stats.invocations || 0;
+      prev.tp   += stats.tp   || 0;
+      prev.tn   += stats.tn   || 0;
+      prev.fp   += stats.fp   || 0;
+      prev.fn   += stats.fn   || 0;
+      prev.impr += stats.impr || 0;
+      agentMap.set(name, prev);
+    }
+    for (const [name, m] of Object.entries(data.models)) {
+      if (name === orchestrator) continue;
+      if (roster && !roster.has(name)) continue;
+      mergeInto(name, m);
+    }
+    if (data.slots) {
+      for (const s of Object.values(data.slots)) {
+        const slotName = s.slot || '?';
+        if (roster && !roster.has(slotName)) continue;
+        mergeInto(slotName, s);
+      }
+    }
+    for (const [name, m] of agentMap) {
+      const e = toEntry(name, '\u2014', '\u2014', m);
+      if (e.inv > 0) { entries.push(e); } else { dormant.push(name); }
+    }
+  }
+
+  entries.sort((a, b) => b.norm - a.norm || b.score - a.score);
+
+  for (const e of entries) {
+    lines.push(fmtRow(e));
+  }
+
+  if (dormant.length > 0) {
+    lines.push('');
+    lines.push(`  {gray-fg}Dormant: ${dormant.join(', ')}{/}`);
+  }
+
+  // Delivery stats
+  if (data.delivery_stats && data.delivery_stats.total_rounds > 0) {
+    const ds = data.delivery_stats;
+    lines.push('');
+    lines.push('  ' + '\u2500'.repeat(SEP_W));
+    lines.push(`  Total rounds: {bold}${ds.total_rounds}{/bold}   Target votes: ${ds.target_vote_count || 3}`);
+
+    const outcomes = Object.entries(ds.achieved_by_outcome || {})
+      .sort(([a], [b]) => b.localeCompare(a)); // descending vote count
+    for (const [key, val] of outcomes) {
+      const label = key.replace('_', ' ');
+      lines.push(`    ${label}: ${val.count} (${val.pct}%)`);
+    }
+  }
+
+  lines.push('');
+  lines.push('  {gray-fg}Norm = score \u00F7 invocations   |   [q/Esc] back{/}');
+
+  return lines;
+}
+
+const SCOREBOARD_REL = path.join('.planning', 'quorum-scoreboard.json');
+
+function renderScoreboard() {
+  try {
+    const sbPath = path.resolve(process.cwd(), SCOREBOARD_REL);
+    if (!fs.existsSync(sbPath)) {
+      setContent('Scoreboard', '{gray-fg}No scoreboard found at ' + SCOREBOARD_REL + '{/}');
+      return;
+    }
+    const data  = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
+    const pdata = readProvidersJson();
+    const roster = new Set(pdata.providers.map(p => p.name));
+    const lines = buildScoreboardLines(data, { roster, providers: pdata.providers });
+    setContent('Scoreboard', lines.join('\n'));
+  } catch (err) {
+    setContent('Scoreboard', `{red-fg}Error: ${err.message}{/}`);
+  }
+}
+
 // ─── Update Agents ────────────────────────────────────────────────────────────
 async function updateAgentsFlow() {
   setContent('Update Agents', '{gray-fg}Checking update status…{/}');
@@ -1678,6 +1885,7 @@ async function dispatch(action) {
       await renderHealth();
       healthInterval = setInterval(renderHealth, 10_000);
     }
+    else if (action === 'scoreboard')     renderScoreboard();
     else if (action === 'update-agents') await updateAgentsFlow();
     else if (action === 'settings')      await settingsFlow();
     else if (action === 'tune-timeouts') await tuneTimeoutsFlow();
@@ -1753,6 +1961,7 @@ module.exports._pure = {
   writeProvidersJson,
   writeUpdatePolicy,
   agentRows,
+  buildScoreboardLines,
   PROVIDER_KEY_NAMES,
   PROVIDER_PRESETS,
   MENU_ITEMS,

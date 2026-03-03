@@ -192,6 +192,7 @@ The TUI opens as a split-pane screen: left panel is the menu, right panel shows 
 | Provider Keys | View and update global API keys (AkashML, Together.xyz, Fireworks.ai) |
 | Batch Rotate Keys | Rotate API keys across multiple slots in one operation |
 | Live Health | Poll all configured slots simultaneously and display health table |
+| Scoreboard | Quorum performance dashboard — normalized scores, TP/TN/FP/FN breakdown per slot |
 | Update Agents | Pull the latest version of all MCP server packages |
 | Settings | View current quorum composition and configuration |
 | Tune Timeouts | Adjust per-slot timeout values |

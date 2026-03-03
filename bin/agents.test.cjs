@@ -358,7 +358,7 @@ test('MENU_ITEMS: contains all expected actions', () => {
   for (const expected of [
     'list', 'add', 'clone', 'edit', 'remove', 'reorder',
     'health-single', 'login', 'provider-keys',
-    'batch-rotate', 'health', 'update-agents', 'tune-timeouts',
+    'batch-rotate', 'health', 'scoreboard', 'update-agents', 'tune-timeouts',
     'update-policy', 'export', 'import', 'exit',
   ]) {
     assert.ok(actions.has(expected), `action "${expected}" missing from MENU_ITEMS`);
@@ -518,4 +518,482 @@ test('pad: produces correct table alignment for models', () => {
   const short = 'claude-sonnet-4-6';
   assert.strictEqual(_pure.pad(long, 34).length,  34);
   assert.strictEqual(_pure.pad(short, 34).length, 34);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. buildScoreboardLines() — pure formatter
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('buildScoreboardLines: returns fallback when data is null', () => {
+  const lines = _pure.buildScoreboardLines(null);
+  assert.ok(lines.length > 0);
+  assert.ok(lines[0].includes('No scoreboard data'));
+});
+
+test('buildScoreboardLines: returns fallback when models missing', () => {
+  const lines = _pure.buildScoreboardLines({ rounds: [] });
+  assert.ok(lines[0].includes('No scoreboard data'));
+});
+
+test('buildScoreboardLines: renders model rows sorted by normalized score descending', () => {
+  const data = {
+    models: {
+      claude: { score: 50, invocations: 50, tp: 50, tn: 0, fp: 0, fn: 0, impr: 0 }, // orchestrator
+      alice:  { score: 10, invocations: 10, tp: 10, tn: 0, fp: 0, fn: 0, impr: 0 },  // norm=1.00
+      bob:    { score: 15, invocations: 10, tp: 8, tn: 1, fp: 0, fn: 1, impr: 0 },   // norm=1.50
+      carol:  { score: 5,  invocations: 10, tp: 6, tn: 0, fp: 1, fn: 3, impr: 0 },   // norm=0.50
+    },
+  };
+  const lines = _pure.buildScoreboardLines(data);
+  const text = lines.join('\n');
+
+  // Bob (1.50) should appear before Alice (1.00) before Carol (0.50)
+  const bobIdx   = text.indexOf('bob');
+  const aliceIdx = text.indexOf('alice');
+  const carolIdx = text.indexOf('carol');
+  assert.ok(bobIdx < aliceIdx, 'bob (1.50) should appear before alice (1.00)');
+  assert.ok(aliceIdx < carolIdx, 'alice (1.00) should appear before carol (0.50)');
+});
+
+test('buildScoreboardLines: orchestrator completely excluded from display', () => {
+  const data = {
+    models: {
+      claude:  { score: 100, invocations: 100, tp: 100, tn: 0, fp: 0, fn: 0, impr: 0 },
+      gemini:  { score: 10,  invocations: 5,   tp: 5,   tn: 1, fp: 0, fn: 0, impr: 0 },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+
+  // Claude (orchestrator) should not appear anywhere
+  assert.ok(!text.includes('Orchestrator'), 'no Orchestrator section');
+  // 'claude' appears in header context ("Quorum") but not as a data row
+  // Check that gemini IS present as a voter
+  assert.ok(text.includes('gemini'), 'voter gemini should appear');
+});
+
+test('buildScoreboardLines: custom orchestrator key via opts', () => {
+  const data = {
+    models: {
+      claude: { score: 10, invocations: 5, tp: 5, tn: 0, fp: 0, fn: 0, impr: 0 },
+      mybot:  { score: 20, invocations: 10, tp: 10, tn: 0, fp: 0, fn: 0, impr: 0 },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data, { orchestrator: 'mybot' }).join('\n');
+
+  // With mybot as orchestrator, claude should be in voter ranking, mybot should not
+  assert.ok(text.includes('claude'), 'claude should be ranked as voter when mybot is orchestrator');
+  // mybot should not appear in voter rows
+  const lines = text.split('\n').filter(l => l.includes('mybot'));
+  assert.strictEqual(lines.length, 0, 'mybot (orchestrator) should not appear');
+});
+
+test('buildScoreboardLines: dormant models (0 invocations) shown in separate section', () => {
+  const data = {
+    models: {
+      active:  { score: 5, invocations: 5, tp: 5, tn: 0, fp: 0, fn: 0, impr: 0 },
+      dormant: { score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0 },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+  assert.ok(text.includes('Dormant'), 'should show Dormant section');
+  assert.ok(text.includes('dormant'), 'dormant model name should appear');
+});
+
+test('buildScoreboardLines: dormant section excludes orchestrator', () => {
+  const data = {
+    models: {
+      claude:  { score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0 },
+      dormant: { score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0 },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+  // Dormant list should show 'dormant' but not 'claude'
+  if (text.includes('Dormant')) {
+    const dormantSection = text.split('Dormant')[1].split('\n')[0];
+    assert.ok(dormantSection.includes('dormant'), 'dormant model should appear');
+    assert.ok(!dormantSection.includes('claude'), 'orchestrator should not appear in dormant list');
+  }
+});
+
+test('buildScoreboardLines: slot voters rendered alongside model voters', () => {
+  const data = {
+    models: {
+      claude:   { score: 100, invocations: 100, tp: 100, tn: 0, fp: 0, fn: 0, impr: 0 },
+      gemini:   { score: 10,  invocations: 10,  tp: 10,  tn: 0, fp: 0, fn: 0, impr: 0 }, // norm=1.00
+    },
+    slots: {
+      'claude-1:deepseek-ai/DeepSeek-V3.2': {
+        slot: 'claude-1', model: 'deepseek-ai/DeepSeek-V3.2',
+        score: 14, invocations: 24, tp: 21, tn: 0, fp: 2, fn: 1, impr: 0,  // norm=0.58
+      },
+      'claude-2:MiniMaxAI/MiniMax-M2.5': {
+        slot: 'claude-2', model: 'MiniMaxAI/MiniMax-M2.5',
+        score: 19, invocations: 23, tp: 22, tn: 0, fp: 1, fn: 0, impr: 0,  // norm=0.83
+      },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+
+  // All three voters should appear (gemini + 2 slots), but not claude (orchestrator)
+  assert.ok(text.includes('gemini'), 'native CLI voter gemini should appear');
+  assert.ok(text.includes('claude-1'), 'slot voter claude-1 should appear');
+  assert.ok(text.includes('claude-2'), 'slot voter claude-2 should appear');
+
+  // gemini (1.00) should appear before claude-2 (0.83) before claude-1 (0.58) — sorted by norm
+  const geminiIdx = text.indexOf('gemini');
+  const c2Idx     = text.indexOf('claude-2');
+  const c1Idx     = text.indexOf('claude-1');
+  assert.ok(geminiIdx < c2Idx, 'gemini (1.00) before claude-2 (0.83)');
+  assert.ok(c2Idx < c1Idx, 'claude-2 (0.83) before claude-1 (0.58)');
+});
+
+test('buildScoreboardLines: same slot with multiple model IDs aggregated into one row', () => {
+  const data = {
+    models: {},
+    slots: {
+      'claude-1:deepseek-ai/DeepSeek-V3': {
+        slot: 'claude-1', model: 'deepseek-ai/DeepSeek-V3',
+        score: 5, invocations: 5, tp: 5, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+      'claude-1:deepseek-ai/DeepSeek-V3.2': {
+        slot: 'claude-1', model: 'deepseek-ai/DeepSeek-V3.2',
+        score: 10, invocations: 10, tp: 10, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+    },
+  };
+  const lines = _pure.buildScoreboardLines(data);
+  // claude-1 should appear exactly once as a data row (not header/footer)
+  const dataRows = lines.filter(l => l.includes('claude-1') && !l.includes('Dormant'));
+  assert.strictEqual(dataRows.length, 1, 'claude-1 should appear as one aggregated row');
+  // Aggregated: score=15, inv=15, norm=1.00
+  assert.ok(dataRows[0].includes('15'), 'aggregated score should be 15');
+});
+
+test('buildScoreboardLines: dormant slots shown in dormant section', () => {
+  const data = {
+    models: {
+      gemini: { score: 5, invocations: 5, tp: 5, tn: 0, fp: 0, fn: 0, impr: 0 },
+    },
+    slots: {
+      'claude-1:model-x': {
+        slot: 'claude-1', model: 'model-x',
+        score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+  assert.ok(text.includes('Dormant'), 'should show Dormant section');
+  assert.ok(text.includes('claude-1'), 'dormant slot should appear in Dormant list');
+});
+
+test('buildScoreboardLines: delivery stats rendered when present', () => {
+  const data = {
+    models: { x: { score: 1, invocations: 1, tp: 1, tn: 0, fp: 0, fn: 0, impr: 0 } },
+    delivery_stats: {
+      total_rounds: 42,
+      target_vote_count: 3,
+      achieved_by_outcome: { '3_votes': { count: 30, pct: 71.4 } },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+  assert.ok(text.includes('42'), 'should show total rounds');
+  assert.ok(text.includes('71.4%'), 'should show vote count percentage');
+});
+
+test('buildScoreboardLines: FP and FN highlighted with color tags', () => {
+  const data = {
+    models: {
+      test: { score: -2, invocations: 4, tp: 1, tn: 0, fp: 2, fn: 1, impr: 0 },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+  assert.ok(text.includes('{red-fg}'), 'FP > 0 should have red tag');
+  assert.ok(text.includes('{yellow-fg}'), 'FN > 0 should have yellow tag');
+});
+
+test('buildScoreboardLines: header shows Slot, CLI, Model columns', () => {
+  const data = { models: { x: { score: 1, invocations: 1, tp: 1, tn: 0, fp: 0, fn: 0, impr: 0 } } };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+  assert.ok(text.includes('Slot'), 'header should contain Slot column');
+  assert.ok(text.includes('CLI'), 'header should contain CLI column');
+  assert.ok(text.includes('Model'), 'header should contain Model column');
+});
+
+test('buildScoreboardLines: CLI and Model populated from providers array', () => {
+  const data = {
+    models: {},
+    slots: {
+      'claude-1:deepseek-ai/DeepSeek-V3.2': {
+        slot: 'claude-1', model: 'deepseek-ai/DeepSeek-V3.2',
+        score: 14, invocations: 24, tp: 21, tn: 0, fp: 2, fn: 1, impr: 0,
+      },
+      'gemini-1:gemini-3-pro-preview': {
+        slot: 'gemini-1', model: 'gemini-3-pro-preview',
+        score: 10, invocations: 10, tp: 10, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+      'copilot-1:gpt-4.1': {
+        slot: 'copilot-1', model: 'gpt-4.1',
+        score: 8, invocations: 5, tp: 5, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+    },
+  };
+  const providers = [
+    { name: 'claude-1',  cli: '/opt/homebrew/bin/ccr',      model: 'deepseek-ai/DeepSeek-V3.2' },
+    { name: 'gemini-1',  cli: '/opt/homebrew/bin/gemini',   model: 'gemini-3-pro-preview' },
+    { name: 'copilot-1', cli: '/opt/homebrew/bin/copilot',  model: 'gpt-4.1' },
+  ];
+  const roster = new Set(providers.map(p => p.name));
+  const text = _pure.buildScoreboardLines(data, { roster, providers }).join('\n');
+  // CLI column should show binary basename
+  assert.ok(text.includes('ccr'), 'claude-1 should show ccr as CLI');
+  assert.ok(text.includes('gemini'), 'gemini-1 should show gemini as CLI');
+  assert.ok(text.includes('copilot'), 'copilot-1 should show copilot as CLI');
+  // Model column should show short model name (after last /)
+  assert.ok(text.includes('DeepSeek-V3.2'), 'claude-1 should show DeepSeek-V3.2 as model');
+  assert.ok(text.includes('gpt-4.1'), 'copilot-1 should show gpt-4.1 as model');
+});
+
+test('buildScoreboardLines: long model names truncated in Model column', () => {
+  const data = {
+    models: {},
+    slots: {
+      'claude-3:Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8': {
+        slot: 'claude-3', model: 'Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8',
+        score: 18, invocations: 16, tp: 14, tn: 1, fp: 0, fn: 1, impr: 0,
+      },
+    },
+  };
+  const providers = [
+    { name: 'claude-3', cli: '/opt/homebrew/bin/ccr', model: 'Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8' },
+  ];
+  const roster = new Set(['claude-3']);
+  const lines = _pure.buildScoreboardLines(data, { roster, providers });
+  const row = lines.find(l => l.includes('claude-3') && !l.includes('Dormant'));
+  // Model column is 16 chars wide — "Qwen3-Coder-480B-A35B-Instruct-FP8" (35 chars) gets truncated
+  assert.ok(row, 'claude-3 row should exist');
+  assert.ok(!row.includes('Instruct-FP8'), 'long model name should be truncated');
+  assert.ok(row.includes('Qwen3-Coder-480B'), 'truncated model should show first 16 chars');
+});
+
+test('buildScoreboardLines: providers mode uses exact composite key, not aggregation', () => {
+  // claude-1 has scores from multiple models; only the current one should count
+  const data = {
+    models: {},
+    slots: {
+      'claude-1:deepseek-ai/DeepSeek-V3.2': {
+        slot: 'claude-1', model: 'deepseek-ai/DeepSeek-V3.2',
+        score: 14, invocations: 24, tp: 21, tn: 0, fp: 2, fn: 1, impr: 0,
+      },
+      'claude-1:deepseek-ai/DeepSeek-V3': {
+        slot: 'claude-1', model: 'deepseek-ai/DeepSeek-V3',
+        score: 7, invocations: 3, tp: 2, tn: 1, fp: 0, fn: 0, impr: 0,
+      },
+      'claude-1:claude-mcp': {
+        slot: 'claude-1', model: 'claude-mcp',
+        score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+      'claude-1:claude-sonnet-4-6': {
+        slot: 'claude-1', model: 'claude-sonnet-4-6',
+        score: 1, invocations: 1, tp: 1, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+    },
+  };
+  // providers.json says claude-1 currently runs deepseek-ai/DeepSeek-V3.2
+  const providers = [
+    { name: 'claude-1', cli: '/opt/homebrew/bin/ccr', model: 'deepseek-ai/DeepSeek-V3.2' },
+  ];
+  const lines = _pure.buildScoreboardLines(data, { providers });
+  const row = lines.find(l => l.includes('claude-1') && !l.includes('Dormant'));
+  assert.ok(row, 'claude-1 should appear');
+  // Score should be 14 (only DeepSeek-V3.2), NOT 22 (aggregated across all models)
+  assert.ok(row.includes('  14'), 'score should be 14 from exact composite key, not aggregated 22');
+  assert.ok(row.includes('  24'), 'invocations should be 24 from exact composite key');
+});
+
+test('buildScoreboardLines: primary (-1) slots merge legacy model-family data', () => {
+  // copilot has 120 invocations from model-era rounds, 7 from slot-era
+  const data = {
+    models: {
+      claude:  { score: 172, invocations: 189, tp: 182, tn: 1, fp: 5, fn: 0, impr: 0 },
+      copilot: { score: 146, invocations: 120, tp: 112, tn: 4, fp: 0, fn: 4, impr: 9 },
+    },
+    slots: {
+      'copilot-1:gpt-4.1': {
+        slot: 'copilot-1', model: 'gpt-4.1',
+        score: 9, invocations: 7, tp: 7, tn: 0, fp: 0, fn: 0, impr: 1,
+      },
+    },
+  };
+  const providers = [
+    { name: 'copilot-1', cli: '/opt/homebrew/bin/copilot', model: 'gpt-4.1' },
+  ];
+  const lines = _pure.buildScoreboardLines(data, { providers });
+  const row = lines.find(l => l.includes('copilot-1') && !l.includes('Dormant'));
+  assert.ok(row, 'copilot-1 should appear');
+  // Merged: 146+9=155 score, 120+7=127 inv
+  assert.ok(row.includes('155'), 'score should be 155 (models 146 + slots 9)');
+  assert.ok(row.includes('127'), 'invocations should be 127 (models 120 + slots 7)');
+});
+
+test('buildScoreboardLines: secondary (-2) slots only get slot data, no model-family', () => {
+  const data = {
+    models: {
+      codex: { score: 20, invocations: 17, tp: 15, tn: 1, fp: 0, fn: 2, impr: 1 },
+    },
+    slots: {
+      'codex-1:gpt-5.3-codex': {
+        slot: 'codex-1', model: 'gpt-5.3-codex',
+        score: 2, invocations: 2, tp: 2, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+      'codex-2:gpt-5.3-codex': {
+        slot: 'codex-2', model: 'gpt-5.3-codex',
+        score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+    },
+  };
+  const providers = [
+    { name: 'codex-1', cli: '/opt/homebrew/bin/codex', model: 'gpt-5.3-codex' },
+    { name: 'codex-2', cli: '/opt/homebrew/bin/codex', model: 'gpt-5.3-codex' },
+  ];
+  const lines = _pure.buildScoreboardLines(data, { providers });
+  const text = lines.join('\n');
+  // codex-1 gets model-family (20) + slot (2) = 22 score, 19 inv
+  const row1 = lines.find(l => l.includes('codex-1') && !l.includes('Dormant'));
+  assert.ok(row1, 'codex-1 should appear');
+  assert.ok(row1.includes('22'), 'codex-1 score should be 22 (models 20 + slots 2)');
+  // codex-2 gets only slot data (0) — should be dormant
+  assert.ok(text.includes('Dormant'), 'dormant section should exist');
+  assert.ok(text.includes('codex-2'), 'codex-2 should be dormant (no model-family bonus)');
+});
+
+test('buildScoreboardLines: claude slots do not get orchestrator model-family data', () => {
+  // claude-1 family name is "claude" = orchestrator, so no merge
+  const data = {
+    models: {
+      claude: { score: 172, invocations: 189, tp: 182, tn: 1, fp: 5, fn: 0, impr: 0 },
+    },
+    slots: {
+      'claude-1:deepseek-ai/DeepSeek-V3.2': {
+        slot: 'claude-1', model: 'deepseek-ai/DeepSeek-V3.2',
+        score: 14, invocations: 24, tp: 21, tn: 0, fp: 2, fn: 1, impr: 0,
+      },
+    },
+  };
+  const providers = [
+    { name: 'claude-1', cli: '/opt/homebrew/bin/ccr', model: 'deepseek-ai/DeepSeek-V3.2' },
+  ];
+  const lines = _pure.buildScoreboardLines(data, { providers });
+  const row = lines.find(l => l.includes('claude-1') && !l.includes('Dormant'));
+  assert.ok(row, 'claude-1 should appear');
+  // Should NOT add orchestrator models.claude data
+  assert.ok(row.includes('  14'), 'score should be 14 (slot only, not merged with orchestrator)');
+});
+
+test('buildScoreboardLines: without providers, CLI and Model show em-dash', () => {
+  const data = {
+    models: {
+      alice: { score: 10, invocations: 10, tp: 10, tn: 0, fp: 0, fn: 0, impr: 0 },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+  // Without providers option, should show — (em-dash) for CLI and Model
+  assert.ok(text.includes('\u2014'), 'should show em-dash when no provider info available');
+});
+
+test('buildScoreboardLines: roster filter excludes legacy model-family entries', () => {
+  // Real scoreboard has legacy model-family keys from before slot-based tracking
+  const data = {
+    models: {
+      claude:       { score: 172, invocations: 189, tp: 182, tn: 1, fp: 5, fn: 0, impr: 0 },
+      gemini:       { score: 108, invocations: 80,  tp: 74,  tn: 4, fp: 0, fn: 2, impr: 8 },
+      opencode:     { score: 190, invocations: 170, tp: 163, tn: 4, fp: 0, fn: 3, impr: 5 },
+      copilot:      { score: 146, invocations: 120, tp: 112, tn: 4, fp: 0, fn: 4, impr: 9 },
+      codex:        { score: 20,  invocations: 17,  tp: 15,  tn: 1, fp: 0, fn: 2, impr: 1 },
+      deepseek:     { score: 1,   invocations: 1,   tp: 1,   tn: 0, fp: 0, fn: 0, impr: 0 },
+      minimax:      { score: 1,   invocations: 1,   tp: 1,   tn: 0, fp: 0, fn: 0, impr: 0 },
+      'qwen-coder': { score: 1,   invocations: 1,   tp: 1,   tn: 0, fp: 0, fn: 0, impr: 0 },
+      kimi:         { score: 1,   invocations: 1,   tp: 1,   tn: 0, fp: 0, fn: 0, impr: 0 },
+      llama4:       { score: 1,   invocations: 1,   tp: 1,   tn: 0, fp: 0, fn: 0, impr: 0 },
+    },
+  };
+  // Current providers.json roster uses slot names, not model-family names
+  const roster = new Set([
+    'codex-1', 'codex-2', 'gemini-1', 'gemini-2', 'opencode-1', 'copilot-1',
+    'claude-1', 'claude-2', 'claude-3', 'claude-4', 'claude-5', 'claude-6',
+  ]);
+  const text = _pure.buildScoreboardLines(data, { roster }).join('\n');
+  // All legacy model-family names should be filtered out (none match slot names)
+  assert.ok(!text.includes('deepseek'), 'legacy deepseek should be filtered out');
+  assert.ok(!text.includes('minimax'), 'legacy minimax should be filtered out');
+  assert.ok(!text.includes('qwen-coder'), 'legacy qwen-coder should be filtered out');
+  assert.ok(!text.includes('kimi'), 'legacy kimi should be filtered out');
+  assert.ok(!text.includes('llama4'), 'legacy llama4 should be filtered out');
+  // "gemini" != "gemini-1", "codex" != "codex-1", etc.
+  assert.ok(!text.includes(' gemini '), 'model-family "gemini" != slot "gemini-1"');
+  assert.ok(!text.includes(' codex '), 'model-family "codex" != slot "codex-1"');
+});
+
+test('buildScoreboardLines: roster filter keeps current slots, drops old naming scheme', () => {
+  // Real data: old slots used claude-deepseek/claude-minimax, new ones use claude-1..6
+  const data = {
+    models: {},
+    slots: {
+      'claude-deepseek:deepseek-ai/DeepSeek-V3.2': {
+        slot: 'claude-deepseek', model: 'deepseek-ai/DeepSeek-V3.2',
+        score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+      'claude-minimax:MiniMaxAI/MiniMax-M2.5': {
+        slot: 'claude-minimax', model: 'MiniMaxAI/MiniMax-M2.5',
+        score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+      'claude-1:deepseek-ai/DeepSeek-V3.2': {
+        slot: 'claude-1', model: 'deepseek-ai/DeepSeek-V3.2',
+        score: 14, invocations: 24, tp: 21, tn: 0, fp: 2, fn: 1, impr: 0,
+      },
+      'claude-2:MiniMaxAI/MiniMax-M2.5': {
+        slot: 'claude-2', model: 'MiniMaxAI/MiniMax-M2.5',
+        score: 19, invocations: 23, tp: 22, tn: 0, fp: 1, fn: 0, impr: 0,
+      },
+    },
+  };
+  const roster = new Set(['claude-1', 'claude-2', 'gemini-1']);
+  const text = _pure.buildScoreboardLines(data, { roster }).join('\n');
+  assert.ok(text.includes('claude-1'), 'current slot claude-1 should appear');
+  assert.ok(text.includes('claude-2'), 'current slot claude-2 should appear');
+  assert.ok(!text.includes('claude-deepseek'), 'old naming claude-deepseek should be filtered');
+  assert.ok(!text.includes('claude-minimax'), 'old naming claude-minimax should be filtered');
+});
+
+test('buildScoreboardLines: no roster (null) shows all entries for backward compat', () => {
+  const data = {
+    models: {
+      deepseek: { score: 1, invocations: 1, tp: 1, tn: 0, fp: 0, fn: 0, impr: 0 },
+      minimax:  { score: 1, invocations: 1, tp: 1, tn: 0, fp: 0, fn: 0, impr: 0 },
+    },
+  };
+  const text = _pure.buildScoreboardLines(data).join('\n');
+  assert.ok(text.includes('deepseek'), 'without roster, all entries should appear');
+  assert.ok(text.includes('minimax'), 'without roster, all entries should appear');
+});
+
+test('buildScoreboardLines: roster filter applies to dormant section too', () => {
+  const data = {
+    models: {},
+    slots: {
+      'codex-1:gpt-5.3-codex': {
+        slot: 'codex-1', model: 'gpt-5.3-codex',
+        score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+      'claude-kimi:accounts/fireworks/models/kimi-k2p5': {
+        slot: 'claude-kimi', model: 'accounts/fireworks/models/kimi-k2p5',
+        score: 0, invocations: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0,
+      },
+    },
+  };
+  const roster = new Set(['codex-1', 'gemini-1']);
+  const text = _pure.buildScoreboardLines(data, { roster }).join('\n');
+  if (text.includes('Dormant')) {
+    assert.ok(text.includes('codex-1'), 'roster dormant member codex-1 should appear');
+    assert.ok(!text.includes('claude-kimi'), 'non-roster dormant claude-kimi should be filtered');
+  }
 });

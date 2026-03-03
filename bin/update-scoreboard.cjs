@@ -138,7 +138,7 @@ function validate(args) {
 // ---------------------------------------------------------------------------
 
 function emptyModelStats() {
-  return { score: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0 };
+  return { score: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0, invocations: 0 };
 }
 
 function emptyData() {
@@ -209,15 +209,18 @@ function recomputeStats(data) {
     m.fp    = 0;
     m.fn    = 0;
     m.impr  = 0;
+    m.invocations = 0;
   }
 
   for (const round of data.rounds) {
     const votes = round.votes || {};
     for (const model of VALID_MODELS) {
       const vote = votes[model];
-      if (!vote || vote === '') continue;
+      if (!vote || vote === '' || vote === 'UNAVAIL') continue;
 
       const m = data.models[model];
+      m.invocations += 1;
+
       const delta = SCORE_DELTAS[vote];
       if (delta === undefined) continue; // unknown vote code — skip
 
@@ -237,23 +240,24 @@ function recomputeStats(data) {
 // ---------------------------------------------------------------------------
 
 function emptySlotStats(slot, modelId) {
-  return { slot, model: modelId, score: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0 };
+  return { slot, model: modelId, score: 0, tp: 0, tn: 0, fp: 0, fn: 0, impr: 0, invocations: 0 };
 }
 
 function recomputeSlots(data) {
   // Reset all slot stats in data.slots
   for (const key of Object.keys(data.slots)) {
     const s = data.slots[key];
-    s.score = 0; s.tp = 0; s.tn = 0; s.fp = 0; s.fn = 0; s.impr = 0;
+    s.score = 0; s.tp = 0; s.tn = 0; s.fp = 0; s.fn = 0; s.impr = 0; s.invocations = 0;
   }
   // Replay all rounds — look for votes keyed by composite slot:model-id keys
   for (const round of data.rounds) {
     const votes = round.votes || {};
     for (const [key, vote] of Object.entries(votes)) {
       if (!key.includes(':')) continue;  // slot keys contain ':'
-      if (!vote || vote === '') continue;
+      if (!vote || vote === '' || vote === 'UNAVAIL') continue;
       if (!data.slots[key]) continue;  // key not in slots map — skip
       const s = data.slots[key];
+      s.invocations += 1;
       const delta = SCORE_DELTAS[vote];
       if (delta === undefined) continue;
       s.score += delta;

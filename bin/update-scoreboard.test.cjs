@@ -463,6 +463,72 @@ test('SC-TC-MERGE-1: merge-wave with empty dir is a graceful no-op', () => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// Invocations tracking (SC-TC-INV-*)
+// ---------------------------------------------------------------------------
+
+// SC-TC-INV-1: single TP vote → invocations = 1
+test('SC-TC-INV-1: single TP vote sets invocations to 1', () => {
+  const sb = tmpScoreboard();
+  try {
+    runCLI(['--model', 'claude', '--result', 'TP', '--task', 'inv-1', '--round', '1', '--verdict', 'APPROVE', '--scoreboard', sb]);
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    assert.strictEqual(data.models.claude.invocations, 1, 'invocations must be 1 after one TP vote');
+  } finally { cleanup(sb); }
+});
+
+// SC-TC-INV-2: UNAVAIL vote → invocations stays 0
+test('SC-TC-INV-2: UNAVAIL vote does not increment invocations', () => {
+  const sb = tmpScoreboard();
+  try {
+    runCLI(['--model', 'codex', '--result', 'UNAVAIL', '--task', 'inv-2', '--round', '1', '--verdict', 'APPROVE', '--scoreboard', sb]);
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    assert.strictEqual(data.models.codex.invocations, 0, 'invocations must be 0 after UNAVAIL vote');
+  } finally { cleanup(sb); }
+});
+
+// SC-TC-INV-3: two TP votes across rounds → invocations = 2
+test('SC-TC-INV-3: invocations accumulates across rounds', () => {
+  const sb = tmpScoreboard();
+  try {
+    runCLI(['--model', 'gemini', '--result', 'TP', '--task', 'inv-3', '--round', '1', '--verdict', 'APPROVE', '--scoreboard', sb]);
+    runCLI(['--model', 'gemini', '--result', 'FP', '--task', 'inv-3', '--round', '2', '--verdict', 'BLOCK', '--scoreboard', sb]);
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    assert.strictEqual(data.models.gemini.invocations, 2, 'invocations must be 2 after two scored votes');
+  } finally { cleanup(sb); }
+});
+
+// SC-TC-INV-4: slot mode TP vote → slot invocations = 1
+test('SC-TC-INV-4: slot mode TP vote sets slot invocations to 1', () => {
+  const sb = tmpScoreboard();
+  try {
+    runCLI(['--slot', 'claude-1', '--model-id', 'deepseek-ai/DeepSeek-V3', '--result', 'TP', '--task', 'inv-4', '--round', '1', '--verdict', 'APPROVE', '--scoreboard', sb]);
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    const key = 'claude-1:deepseek-ai/DeepSeek-V3';
+    assert.strictEqual(data.slots[key].invocations, 1, 'slot invocations must be 1 after one TP vote');
+  } finally { cleanup(sb); }
+});
+
+// SC-TC-INV-5: merge-wave computes invocations for merged votes
+test('SC-TC-INV-5: merge-wave sets invocations on merged slot votes', () => {
+  const sb = tmpScoreboard();
+  const tmpDir = path.join(os.tmpdir(), 'qgsd-inv5-' + Date.now());
+  fs.mkdirSync(tmpDir, { recursive: true });
+  try {
+    const vote1 = { slot: 'claude-1', modelId: 'deepseek-ai/DeepSeek-V3', result: 'TP', verdict: 'APPROVE' };
+    const vote2 = { slot: 'claude-2', modelId: 'qwen/Qwen2.5-72B', result: 'TN', verdict: 'APPROVE' };
+    fs.writeFileSync(path.join(tmpDir, 'vote-claude-1-inv5-1-a.json'), JSON.stringify(vote1));
+    fs.writeFileSync(path.join(tmpDir, 'vote-claude-2-inv5-1-b.json'), JSON.stringify(vote2));
+    runCLI(['merge-wave', '--dir', tmpDir, '--task', 'inv5', '--round', '1', '--scoreboard', sb]);
+    const data = JSON.parse(fs.readFileSync(sb, 'utf8'));
+    assert.strictEqual(data.slots['claude-1:deepseek-ai/DeepSeek-V3'].invocations, 1, 'slot 1 invocations must be 1');
+    assert.strictEqual(data.slots['claude-2:qwen/Qwen2.5-72B'].invocations, 1, 'slot 2 invocations must be 1');
+  } finally {
+    cleanup(sb);
+    try { fs.readdirSync(tmpDir).forEach(f => fs.unlinkSync(path.join(tmpDir, f))); fs.rmdirSync(tmpDir); } catch (_) {}
+  }
+});
+
 // SC-TC-MERGE-2: merge-wave applies N vote files in one transaction
 test('SC-TC-MERGE-2: merge-wave applies multiple slot vote files in one transaction', () => {
   const sb = tmpScoreboard();
