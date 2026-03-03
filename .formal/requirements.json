@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-03T11:55:35.407Z",
-  "content_hash": "sha256:3cb1ce703d2a0f43450cfe572c2bc47065f7e9b85dc4bfdc1931f83b14c7ac85",
-  "frozen_at": "2026-03-03T11:55:35.453Z",
+  "aggregated_at": "2026-03-03T17:47:07.388Z",
+  "content_hash": "ead9ae06c41c6511143862793040947ecf6255eaac4ae61b4cf437e761ca4f21",
+  "frozen_at": "2026-03-03T17:50:27.071Z",
   "requirements": [
     {
       "id": "ACT-01",
@@ -128,9 +128,9 @@
       "text": "All 11 TLA+ model files contain `@requirement` structured comments on each property/invariant, mapping it to specific requirement IDs",
       "category": "Formal Verification",
       "phase": "v0.25-02",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Property Annotations"
@@ -140,9 +140,9 @@
       "text": "All 8 Alloy model files contain `@requirement` structured comments on each assertion/check, mapping it to specific requirement IDs",
       "category": "Formal Verification",
       "phase": "v0.25-02",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Property Annotations"
@@ -152,9 +152,9 @@
       "text": "All 3 PRISM .props files contain `@requirement` structured comments on each property, mapping it to specific requirement IDs",
       "category": "Formal Verification",
       "phase": "v0.25-02",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Property Annotations"
@@ -164,9 +164,9 @@
       "text": "`bin/extract-annotations.cjs` parses `@requirement` comments from TLA+, Alloy, and PRISM files and returns a structured JSON map of `{ model_file: [{ property, requirement_ids }] }`",
       "category": "Formal Verification",
       "phase": "v0.25-02",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Property Annotations"
@@ -176,9 +176,9 @@
       "text": "The traceability matrix generator reads extracted annotations as a primary data source, with model-registry `requirements` arrays as fallback",
       "category": "Formal Verification",
       "phase": "v0.25-03",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Property Annotations"
@@ -220,28 +220,15 @@
       "category_raw": "Architecture"
     },
     {
-      "id": "BLD-01",
-      "text": "`hooks/dist/` rebuilt from current source — includes all circuit breaker hook code from Phases 6–8 and GUARD 5 code from Phase 5",
-      "category": "Testing & Quality",
-      "phase": "unknown",
-      "status": "Complete",
+      "id": "ARCH-10",
+      "text": "QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter",
+      "category": "Architecture",
+      "phase": "v0.26-01",
+      "status": "Pending",
       "provenance": {
-        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Build & Test"
-    },
-    {
-      "id": "BLD-02",
-      "text": "`npm test` passes with 0 failures across all test suites (config-loader, stop hook, circuit breaker)",
-      "category": "Testing & Quality",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Build & Test"
+        "source_file": "manual",
+        "milestone": "v0.26"
+      }
     },
     {
       "id": "CALIB-01",
@@ -299,30 +286,6 @@
         "milestone": "v0.19"
       },
       "category_raw": "Calibration Governance"
-    },
-    {
-      "id": "CL-01",
-      "text": "CHANGELOG.md has a `[0.2.0]` entry covering all v0.2 changes: circuit breaker (Phases 6–8), GUARD 5 gap closure (Phase 5), QGSD rebranding, quorum scoring, quorum commands, debug flow, checkpoint:verify (quick tasks 1–12)",
-      "category": "Installer & CLI",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Changelog"
-    },
-    {
-      "id": "CL-02",
-      "text": "CHANGELOG.md `[Unreleased]` section is cleared after the `[0.2.0]` entry is finalized — clean slate for v0.3+",
-      "category": "Installer & CLI",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Changelog"
     },
     {
       "id": "COMP-01",
@@ -554,9 +517,9 @@
       "text": "`bin/analyze-state-space.cjs` reads TLA+ .cfg files and model variables to estimate state-space size per model and classifies risk as MINIMAL/LOW/MODERATE/HIGH based on configurable thresholds",
       "category": "Planning & Tracking",
       "phase": "v0.25-05",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Decomposition Awareness"
@@ -566,9 +529,9 @@
       "text": "The state-space analyzer flags models using unbounded domains (Nat, Int without constraints) as HIGH risk",
       "category": "Planning & Tracking",
       "phase": "v0.25-05",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Decomposition Awareness"
@@ -578,9 +541,9 @@
       "text": "When a model is split into sub-models, the traceability matrix validates that no requirement loses coverage (pre-split coverage >= post-split coverage for every affected requirement)",
       "category": "Planning & Tracking",
       "phase": "v0.25-05",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Decomposition Awareness"
@@ -590,9 +553,9 @@
       "text": "The state-space analysis report is included in the traceability matrix output as a `state_space` section per model",
       "category": "Planning & Tracking",
       "phase": "v0.25-05",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Decomposition Awareness"
@@ -671,42 +634,6 @@
         ".formal/tla/QGSDOscillation.tla"
       ],
       "category_raw": "Detection"
-    },
-    {
-      "id": "DIAG-01",
-      "text": "Conformance trace divergence rate reduced to <5% (ACHIEVED: 0% on mapped events; VERIFICATION.md missing)",
-      "category": "Observability & Diagnostics",
-      "phase": "unknown",
-      "status": "Pending",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Diagnostics"
-    },
-    {
-      "id": "DIAG-02",
-      "text": "`attribute-trace-divergence.cjs` walks XState guards to root-cause divergences (IMPLEMENTED; VERIFICATION.md missing)",
-      "category": "Observability & Diagnostics",
-      "phase": "unknown",
-      "status": "Pending",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Diagnostics"
-    },
-    {
-      "id": "DIAG-03",
-      "text": "Pivot decision surfaced in `.formal/diff-report.md` with complete attribution (DELIVERED; VERIFICATION.md missing)",
-      "category": "Observability & Diagnostics",
-      "phase": "unknown",
-      "status": "Pending",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Diagnostics"
     },
     {
       "id": "DISP-01",
@@ -938,57 +865,6 @@
         "milestone": "v0.15"
       },
       "category_raw": "Health Checker"
-    },
-    {
-      "id": "IMPR-01",
-      "text": "R3.6 quorum enforcement reviewed and improvement areas identified",
-      "category": "Quorum & Dispatch",
-      "phase": "v0.19-06",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
-        "milestone": "v0.19"
-      },
-      "formal_models": [
-        ".formal/tla/QGSDDeliberation.tla"
-      ],
-      "category_raw": "R3.6 Improvement Iteration"
-    },
-    {
-      "id": "IMPR-02",
-      "text": "Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)",
-      "category": "Quorum & Dispatch",
-      "phase": "v0.19-06",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
-        "milestone": "v0.19"
-      },
-      "category_raw": "R3.6 Improvement Iteration"
-    },
-    {
-      "id": "IMPR-03",
-      "text": "Slot worker protocol hardened against missing/malformed responses",
-      "category": "Quorum & Dispatch",
-      "phase": "v0.19-06",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
-        "milestone": "v0.19"
-      },
-      "category_raw": "R3.6 Improvement Iteration"
-    },
-    {
-      "id": "IMPR-04",
-      "text": "Improvement validated with quorum test runs",
-      "category": "Quorum & Dispatch",
-      "phase": "v0.19-06",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
-        "milestone": "v0.19"
-      },
-      "category_raw": "R3.6 Improvement Iteration"
     },
     {
       "id": "INST-01",
@@ -1332,21 +1208,6 @@
       "text": "`.formal/spec/mcp-calls/` contains TLA+ model of MCP environment behavior",
       "category": "MCP & Agents",
       "phase": "v0.19-05",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
-        "milestone": "v0.19"
-      },
-      "formal_models": [
-        ".formal/tla/QGSDMCPEnv.tla"
-      ],
-      "category_raw": "MCP Environment Model"
-    },
-    {
-      "id": "MCPENV-02",
-      "text": "`MCMCPEnv` added to `SURFACE_MAP` and `VALID_CONFIGS`; `invariants.md` created with EventualDecision fairness declarations; CI step added to `formal-verify.yml`",
-      "category": "MCP & Agents",
-      "phase": "v0.19-08",
       "status": "Complete",
       "provenance": {
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
@@ -1857,30 +1718,6 @@
       "category_raw": "Enforcement Layer"
     },
     {
-      "id": "REN-01",
-      "text": "`git mv get-shit-done/ qgsd-core/` — directory renamed, git history preserved",
-      "category": "Installer & CLI",
-      "phase": "v0.9-05",
-      "status": "Pending",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
-        "milestone": "v0.10"
-      },
-      "category_raw": "Portability"
-    },
-    {
-      "id": "REN-02",
-      "text": "`bin/install.js` updated to read from `qgsd-core/` instead of `get-shit-done/` — `node bin/install.js --claude --global` succeeds",
-      "category": "Installer & CLI",
-      "phase": "v0.9-05",
-      "status": "Pending",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
-        "milestone": "v0.10"
-      },
-      "category_raw": "Portability"
-    },
-    {
       "id": "REN-03",
       "text": "All hardcoded `get-shit-done/` path strings removed from `bin/gsd-tools.cjs`, workflow files, agent files, and template files",
       "category": "Installer & CLI",
@@ -1891,66 +1728,6 @@
         "milestone": "v0.10"
       },
       "category_raw": "Portability"
-    },
-    {
-      "id": "REN-04",
-      "text": "`~/.claude/qgsd/` installed runtime is functionally identical before and after rename (verified by spot-check)",
-      "category": "Installer & CLI",
-      "phase": "v0.9-05",
-      "status": "Pending",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
-        "milestone": "v0.10"
-      },
-      "category_raw": "Portability"
-    },
-    {
-      "id": "RLS-01",
-      "text": "`package.json` version field bumped from `0.1.0` to `0.2.0`",
-      "category": "Installer & CLI",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Release"
-    },
-    {
-      "id": "RLS-02",
-      "text": "v0.2 milestone archived in `MILESTONES.md` — includes What Shipped, Phases (6–10), Requirements Satisfied (all 20 v0.2 requirements), Key Decisions Carried Forward",
-      "category": "Installer & CLI",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Release"
-    },
-    {
-      "id": "RLS-03",
-      "text": "Git tag `v0.2.0` created at release commit and pushed to remote",
-      "category": "Installer & CLI",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Release"
-    },
-    {
-      "id": "RLS-04",
-      "text": "`qgsd@0.2.0` published to npm registry — `npx qgsd@0.2.0` installs successfully",
-      "category": "Installer & CLI",
-      "phase": "unknown",
-      "status": "Pending",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Release"
     },
     {
       "id": "SAFE-01",
@@ -1965,21 +1742,6 @@
       "formal_models": [
         ".formal/tla/QGSDQuorum.tla",
         ".formal/alloy/quorum-votes.als"
-      ],
-      "category_raw": "Repair Safety"
-    },
-    {
-      "id": "SAFE-02",
-      "text": "Legacy pre-versioning numeric phase dirs 18-39 are archived to `.planning/archive/legacy/`",
-      "category": "Testing & Quality",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
-        "milestone": "v0.15"
-      },
-      "formal_models": [
-        ".formal/tla/QGSDQuorum.tla"
       ],
       "category_raw": "Repair Safety"
     },
@@ -2035,19 +1797,7 @@
       "phase": "v0.25-01",
       "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
-        "milestone": "v0.25"
-      },
-      "category_raw": "Schema Foundation"
-    },
-    {
-      "id": "SCHEMA-02",
-      "text": "`check-result.schema.json` gains a `requirement_ids` array (string[]) field; validation updated to accept the new field",
-      "category": "Formal Verification",
-      "phase": "v0.25-01",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Schema Foundation"
@@ -2059,7 +1809,7 @@
       "phase": "v0.25-01",
       "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Schema Foundation"
@@ -2071,7 +1821,7 @@
       "phase": "v0.25-01",
       "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Schema Foundation"
@@ -2188,21 +1938,6 @@
       "category_raw": "Slot-based Naming"
     },
     {
-      "id": "SLOT-03",
-      "text": "All QGSD source files (hooks, orchestrator, commands, scoreboard tooling) updated to use new slot names — no old names remain",
-      "category": "MCP & Agents",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "formal_models": [
-        ".formal/tla/QGSDRecruiting.tla"
-      ],
-      "category_raw": "Slot-based Naming"
-    },
-    {
       "id": "SLOT-04",
       "text": "`mcp-status`, `mcp-set-model`, `mcp-update`, `mcp-restart` accept and display slot names correctly",
       "category": "MCP & Agents",
@@ -2230,18 +1965,6 @@
       "formal_models": [
         ".formal/tla/QGSDStopHook.tla"
       ],
-      "category_raw": "Spec Completeness"
-    },
-    {
-      "id": "SPEC-02",
-      "text": "`QGSDOscillation.tla` audited against `qgsd-circuit-breaker.js` — no drift detected",
-      "category": "Formal Verification",
-      "phase": "v0.21-04",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
       "category_raw": "Spec Completeness"
     },
     {
@@ -2318,18 +2041,6 @@
         "milestone": "unknown"
       },
       "category_raw": "State Management"
-    },
-    {
-      "id": "STD-02",
-      "text": "All 4 Gen1 MCP server repos (claude, codex, copilot, openhands) ported to Gen2 per-tool architecture (`*.tool.ts` + `registry.ts`) with Gen1 files (`definitions.ts`, `handlers.ts`) removed — all repos on main branch",
-      "category": "Testing & Quality",
-      "phase": "unknown",
-      "status": "Complete",
-      "provenance": {
-        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
-        "milestone": "unknown"
-      },
-      "category_raw": "Standardization"
     },
     {
       "id": "STD-10",
@@ -2531,9 +2242,9 @@
       "text": "`bin/generate-traceability-matrix.cjs` reads model-registry, requirements.json, and check-results.ndjson to produce `.formal/traceability-matrix.json` with property-level links between requirements and formal properties",
       "category": "Formal Verification",
       "phase": "v0.25-03",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Traceability Matrix"
@@ -2543,9 +2254,9 @@
       "text": "The traceability matrix includes a `coverage_summary` section: total requirements, covered count, coverage percentage, list of uncovered requirements, list of orphan properties (properties with no requirement mapping)",
       "category": "Formal Verification",
       "phase": "v0.25-03",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Traceability Matrix"
@@ -2555,9 +2266,9 @@
       "text": "The traceability matrix is generated as a step in `run-formal-verify.cjs` after all checks complete",
       "category": "Formal Verification",
       "phase": "v0.25-03",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Traceability Matrix"
@@ -2567,9 +2278,9 @@
       "text": "Bidirectional validation detects asymmetric links (model claims requirement X but requirement X does not claim that model) and emits warnings",
       "category": "Formal Verification",
       "phase": "v0.25-04",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Traceability Matrix"
@@ -2579,9 +2290,9 @@
       "text": "CI guard warns when formal coverage percentage drops below a configurable threshold (default 15%) compared to the previous traceability matrix",
       "category": "Formal Verification",
       "phase": "v0.25-04",
-      "status": "Pending",
+      "status": "Complete",
       "provenance": {
-        "source_file": ".planning/REQUIREMENTS.md",
+        "source_file": ".planning/milestones/v0.25-REQUIREMENTS.md",
         "milestone": "v0.25"
       },
       "category_raw": "Traceability Matrix"

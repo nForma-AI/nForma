@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-03T12:45:54.021Z",
+  "last_sync": "2026-03-03T17:49:59.158Z",
   "models": {
     ".formal/alloy/account-pool-structure.als": {
       "version": 1,
@@ -58,8 +58,8 @@
       ]
     },
     ".formal/alloy/quorum-votes.als": {
-      "version": 377,
-      "last_updated": "2026-03-03T12:45:54.020Z",
+      "version": 499,
+      "last_updated": "2026-03-03T17:49:59.158Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -131,8 +131,8 @@
       ]
     },
     ".formal/prism/quorum.pm": {
-      "version": 377,
-      "last_updated": "2026-03-03T12:45:54.021Z",
+      "version": 499,
+      "last_updated": "2026-03-03T17:49:59.158Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -239,8 +239,8 @@
       ]
     },
     ".formal/tla/QGSDQuorum.tla": {
-      "version": 377,
-      "last_updated": "2026-03-03T12:45:54.019Z",
+      "version": 499,
+      "last_updated": "2026-03-03T17:49:59.157Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -304,6 +304,313 @@
       "session_id": null,
       "description": "",
       "requirements": []
+    },
+    ".formal/tla/QGSDActivityTracking.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Activity tracking lifecycle — current-activity.json state machine",
+      "requirements": [
+        "ACT-01",
+        "ACT-02",
+        "ACT-03",
+        "ACT-04",
+        "ACT-05",
+        "ACT-06",
+        "ACT-07"
+      ]
+    },
+    ".formal/tla/QGSDSetupWizard.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Setup wizard screen flow — start through confirm to done",
+      "requirements": [
+        "WIZ-01",
+        "WIZ-02",
+        "WIZ-03",
+        "WIZ-04",
+        "WIZ-05",
+        "WIZ-08",
+        "WIZ-09",
+        "WIZ-10"
+      ]
+    },
+    ".formal/tla/QGSDPromptHook.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "UserPromptSubmit hook — quorum injection for planning commands",
+      "requirements": [
+        "UPS-01",
+        "UPS-02",
+        "UPS-03",
+        "UPS-04",
+        "UPS-05"
+      ]
+    },
+    ".formal/tla/QGSDDispatchPipeline.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Quorum dispatch pipeline — probe/filter/sort/build/parse narrowing",
+      "requirements": [
+        "DISP-01",
+        "DISP-02",
+        "DISP-03",
+        "DISP-04",
+        "DISP-05"
+      ]
+    },
+    ".formal/tla/QGSDEnforcement.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "PreToolUse enforcement — block/allow decision logic",
+      "requirements": [
+        "ENFC-01",
+        "ENFC-02",
+        "ENFC-03"
+      ]
+    },
+    ".formal/tla/QGSDInstallerIdempotency.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Installer idempotency — hooks, breaker, config preservation",
+      "requirements": [
+        "INST-06",
+        "INST-07",
+        "INST-08",
+        "INST-09",
+        "INST-10"
+      ]
+    },
+    ".formal/tla/QGSDBreakerState.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Circuit breaker state file lifecycle",
+      "requirements": [
+        "STATE-01",
+        "STATE-02",
+        "STATE-03",
+        "STATE-04"
+      ]
+    },
+    ".formal/tla/QGSDKeyManagement.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "API key management lifecycle — keytar storage, env block write, restart",
+      "requirements": [
+        "KEY-01",
+        "KEY-02",
+        "KEY-03",
+        "KEY-04"
+      ]
+    },
+    ".formal/tla/QGSDAgentProvisioning.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Agent provisioning — add/remove/clone/change provider with verification",
+      "requirements": [
+        "AGENT-01",
+        "AGENT-02",
+        "AGENT-03",
+        "PROV-01",
+        "PROV-02",
+        "PROV-03",
+        "PRST-01",
+        "PRST-02"
+      ]
+    },
+    ".formal/tla/QGSDConfigPortability.tla": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Config export/import with backup and key redaction",
+      "requirements": [
+        "PORT-01",
+        "PORT-02",
+        "PORT-03"
+      ]
+    },
+    ".formal/alloy/config-two-layer.als": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Two-layer config merge — global + project override with fallback",
+      "requirements": [
+        "CONF-01",
+        "CONF-02",
+        "CONF-03",
+        "CONF-04",
+        "CONF-05",
+        "CONF-06",
+        "CONF-07",
+        "CONF-08",
+        "CONF-09"
+      ]
+    },
+    ".formal/alloy/mcp-detection.als": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "MCP server auto-detection and prefix matching",
+      "requirements": [
+        "MCP-01",
+        "MCP-02",
+        "MCP-03",
+        "MCP-04",
+        "MCP-05",
+        "MCP-06"
+      ]
+    },
+    ".formal/alloy/schema-extensions.als": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Schema extensions — registry requirements, check-result IDs, bidirectional links",
+      "requirements": [
+        "SCHEMA-01",
+        "SCHEMA-02",
+        "SCHEMA-03",
+        "SCHEMA-04"
+      ]
+    },
+    ".formal/alloy/unified-check-results.als": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Unified check results — NDJSON pipeline, triage, CI enforcement",
+      "requirements": [
+        "UNIF-01",
+        "UNIF-02",
+        "UNIF-03",
+        "UNIF-04"
+      ]
+    },
+    ".formal/alloy/multi-slot-structure.als": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Multi-slot agent structure — families, naming, wizard support",
+      "requirements": [
+        "MULTI-01",
+        "MULTI-02",
+        "MULTI-03",
+        "SLOT-01"
+      ]
+    },
+    ".formal/alloy/quorum-policy.als": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Quorum policy — timeout, update policy, active composition from config",
+      "requirements": [
+        "PLCY-01",
+        "PLCY-02",
+        "PLCY-03",
+        "COMP-02",
+        "COMP-03",
+        "COMP-04"
+      ]
+    },
+    ".formal/alloy/architecture-registry.als": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Architecture registry — promotion, debug acceptance, meta-decisioning",
+      "requirements": [
+        "ARCH-01",
+        "ARCH-02",
+        "ARCH-03",
+        "META-01",
+        "META-02",
+        "META-03"
+      ]
+    },
+    ".formal/alloy/traceability-annotations.als": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Traceability matrix and @requirement annotation system",
+      "requirements": [
+        "TRACE-01",
+        "TRACE-02",
+        "TRACE-03",
+        "TRACE-04",
+        "TRACE-05",
+        "ANNOT-01",
+        "ANNOT-02",
+        "ANNOT-03",
+        "ANNOT-04",
+        "ANNOT-05"
+      ]
+    },
+    ".formal/prism/observability-delivery.pm": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Observability — delivery rate, flakiness scoring, per-slot unavailability",
+      "requirements": [
+        "OBS-01",
+        "OBS-02",
+        "OBS-03",
+        "OBS-04"
+      ]
+    },
+    ".formal/prism/deliberation-healing.pm": {
+      "version": 1,
+      "last_updated": "2026-03-03T14:02:44.841Z",
+      "update_source": "close-formal-gaps",
+      "source_id": null,
+      "session_id": null,
+      "description": "Deliberation healing — convergence probability, early escalation",
+      "requirements": [
+        "HEAL-01",
+        "HEAL-02"
+      ]
     }
   }
 }

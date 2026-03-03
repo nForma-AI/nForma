@@ -1,0 +1,342 @@
+{
+  "archived_at": "2026-03-03T16:00:39.480658+00:00",
+  "reason": "Non-invariant entries: tasks, migrations, past achievements, audit findings, and process steps that do not define system boundaries",
+  "entries": [
+    {
+      "id": "BLD-01",
+      "text": "`hooks/dist/` rebuilt from current source \u2014 includes all circuit breaker hook code from Phases 6\u20138 and GUARD 5 code from Phase 5",
+      "category": "Testing & Quality",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Build & Test"
+    },
+    {
+      "id": "BLD-02",
+      "text": "`npm test` passes with 0 failures across all test suites (config-loader, stop hook, circuit breaker)",
+      "category": "Testing & Quality",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Build & Test"
+    },
+    {
+      "id": "CL-01",
+      "text": "CHANGELOG.md has a `[0.2.0]` entry covering all v0.2 changes: circuit breaker (Phases 6\u20138), GUARD 5 gap closure (Phase 5), QGSD rebranding, quorum scoring, quorum commands, debug flow, checkpoint:verify (quick tasks 1\u201312)",
+      "category": "Installer & CLI",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Changelog"
+    },
+    {
+      "id": "CL-02",
+      "text": "CHANGELOG.md `[Unreleased]` section is cleared after the `[0.2.0]` entry is finalized \u2014 clean slate for v0.3+",
+      "category": "Installer & CLI",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Changelog"
+    },
+    {
+      "id": "DIAG-01",
+      "text": "Conformance trace divergence rate reduced to <5% (ACHIEVED: 0% on mapped events; VERIFICATION.md missing)",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Diagnostics"
+    },
+    {
+      "id": "DIAG-02",
+      "text": "`attribute-trace-divergence.cjs` walks XState guards to root-cause divergences (IMPLEMENTED; VERIFICATION.md missing)",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Diagnostics"
+    },
+    {
+      "id": "DIAG-03",
+      "text": "Pivot decision surfaced in `.formal/diff-report.md` with complete attribution (DELIVERED; VERIFICATION.md missing)",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Diagnostics"
+    },
+    {
+      "id": "IMPR-01",
+      "text": "R3.6 quorum enforcement reviewed and improvement areas identified",
+      "category": "Quorum & Dispatch",
+      "phase": "v0.19-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "formal_models": [
+        ".formal/tla/QGSDDeliberation.tla"
+      ],
+      "category_raw": "R3.6 Improvement Iteration"
+    },
+    {
+      "id": "IMPR-02",
+      "text": "Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)",
+      "category": "Quorum & Dispatch",
+      "phase": "v0.19-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "category_raw": "R3.6 Improvement Iteration"
+    },
+    {
+      "id": "IMPR-03",
+      "text": "Slot worker protocol hardened against missing/malformed responses",
+      "category": "Quorum & Dispatch",
+      "phase": "v0.19-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "category_raw": "R3.6 Improvement Iteration"
+    },
+    {
+      "id": "IMPR-04",
+      "text": "Improvement validated with quorum test runs",
+      "category": "Quorum & Dispatch",
+      "phase": "v0.19-06",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "category_raw": "R3.6 Improvement Iteration"
+    },
+    {
+      "id": "MCPENV-02",
+      "text": "`MCMCPEnv` added to `SURFACE_MAP` and `VALID_CONFIGS`; `invariants.md` created with EventualDecision fairness declarations; CI step added to `formal-verify.yml`",
+      "category": "MCP & Agents",
+      "phase": "v0.19-08",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
+        "milestone": "v0.19"
+      },
+      "formal_models": [
+        ".formal/tla/QGSDMCPEnv.tla"
+      ],
+      "category_raw": "MCP Environment Model"
+    },
+    {
+      "id": "REN-01",
+      "text": "`git mv get-shit-done/ qgsd-core/` \u2014 directory renamed, git history preserved",
+      "category": "Installer & CLI",
+      "phase": "v0.9-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "category_raw": "Portability"
+    },
+    {
+      "id": "REN-02",
+      "text": "`bin/install.js` updated to read from `qgsd-core/` instead of `get-shit-done/` \u2014 `node bin/install.js --claude --global` succeeds",
+      "category": "Installer & CLI",
+      "phase": "v0.9-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "category_raw": "Portability"
+    },
+    {
+      "id": "REN-03",
+      "text": "All hardcoded `get-shit-done/` path strings removed from `bin/gsd-tools.cjs`, workflow files, agent files, and template files",
+      "category": "Installer & CLI",
+      "phase": "v0.9-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "category_raw": "Portability"
+    },
+    {
+      "id": "REN-04",
+      "text": "`~/.claude/qgsd/` installed runtime is functionally identical before and after rename (verified by spot-check)",
+      "category": "Installer & CLI",
+      "phase": "v0.9-05",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
+        "milestone": "v0.10"
+      },
+      "category_raw": "Portability"
+    },
+    {
+      "id": "RLS-01",
+      "text": "`package.json` version field bumped from `0.1.0` to `0.2.0`",
+      "category": "Installer & CLI",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Release"
+    },
+    {
+      "id": "RLS-02",
+      "text": "v0.2 milestone archived in `MILESTONES.md` \u2014 includes What Shipped, Phases (6\u201310), Requirements Satisfied (all 20 v0.2 requirements), Key Decisions Carried Forward",
+      "category": "Installer & CLI",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Release"
+    },
+    {
+      "id": "RLS-03",
+      "text": "Git tag `v0.2.0` created at release commit and pushed to remote",
+      "category": "Installer & CLI",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Release"
+    },
+    {
+      "id": "RLS-04",
+      "text": "`qgsd@0.2.0` published to npm registry \u2014 `npx qgsd@0.2.0` installs successfully",
+      "category": "Installer & CLI",
+      "phase": "unknown",
+      "status": "Pending",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Release"
+    },
+    {
+      "id": "SAFE-02",
+      "text": "Legacy pre-versioning numeric phase dirs 18-39 are archived to `.planning/archive/legacy/`",
+      "category": "Testing & Quality",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
+        "milestone": "v0.15"
+      },
+      "formal_models": [
+        ".formal/tla/QGSDQuorum.tla"
+      ],
+      "category_raw": "Repair Safety"
+    },
+    {
+      "id": "SCHEMA-02",
+      "text": "`check-result.schema.json` gains a `requirement_ids` array (string[]) field; validation updated to accept the new field",
+      "category": "Formal Verification",
+      "phase": "v0.25-01",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/REQUIREMENTS.md",
+        "milestone": "v0.25"
+      },
+      "category_raw": "Schema Foundation"
+    },
+    {
+      "id": "SLOT-03",
+      "text": "All QGSD source files (hooks, orchestrator, commands, scoreboard tooling) updated to use new slot names \u2014 no old names remain",
+      "category": "MCP & Agents",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "formal_models": [
+        ".formal/tla/QGSDRecruiting.tla"
+      ],
+      "category_raw": "Slot-based Naming"
+    },
+    {
+      "id": "SPEC-02",
+      "text": "`QGSDOscillation.tla` audited against `qgsd-circuit-breaker.js` \u2014 no drift detected",
+      "category": "Formal Verification",
+      "phase": "v0.21-04",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Spec Completeness"
+    },
+    {
+      "id": "STD-02",
+      "text": "All 4 Gen1 MCP server repos (claude, codex, copilot, openhands) ported to Gen2 per-tool architecture (`*.tool.ts` + `registry.ts`) with Gen1 files (`definitions.ts`, `handlers.ts`) removed \u2014 all repos on main branch",
+      "category": "Testing & Quality",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Standardization"
+    },
+    {
+      "id": "STD-10",
+      "text": "gemini-mcp-server npm package name is unscoped (`gemini-mcp-server`, not `@tuannvm/gemini-mcp-server`) \u2014 `~/.claude.json` mcpServers[\"gemini-cli\"].args reflects the unscoped name",
+      "category": "Testing & Quality",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "Standardization"
+    },
+    {
+      "id": "SYNC-03",
+      "text": "QGSD changelog explicitly tracks which GSD version it is compatible with",
+      "category": "Planning & Tracking",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
+        "milestone": "unknown"
+      },
+      "category_raw": "GSD Sync Strategy"
+    }
+  ]
+}
