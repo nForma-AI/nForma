@@ -1020,7 +1020,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Hook Enforcement | v0.2 | 6/6 | Complete | 2026-02-20 |
+| 1. Hook Enforcement | 6/6 | Complete   | 2026-03-03 | 2026-02-20 |
 | 2. Config & MCP Detection | v0.2 | 4/4 | Complete | 2026-02-20 |
 | 3. Installer & Distribution | v0.2 | 3/3 | Complete | 2026-02-20 |
 | 4. Narrow Quorum Scope | v0.2 | 2/2 | Complete | 2026-02-21 |

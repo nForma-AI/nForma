@@ -10,7 +10,7 @@ Connect human requirements to formal models with bidirectional, queryable tracea
 ### Schema Foundation -- SCHEMA
 
 - [ ] **SCHEMA-01**: `model-registry.json` entries gain a `requirements` array (string[]) listing the requirement IDs each model covers; existing entries seeded from the property-to-requirement map in TRACEABILITY_RESEARCH.md
-- [ ] **SCHEMA-02**: `check-result.schema.json` gains a `requirement_ids` array (string[]) field; validation updated to accept the new field
+- [x] **SCHEMA-02**: `check-result.schema.json` gains a `requirement_ids` array (string[]) field; validation updated to accept the new field
 - [ ] **SCHEMA-03**: Each verification runner (run-tlc.cjs, run-alloy.cjs, run-prism.cjs, CI lint steps) emits `requirement_ids` in its NDJSON output, extracted from model-registry or inline annotations
 - [ ] **SCHEMA-04**: `requirements.json` envelope gains an optional `formal_models` array (string[]) per requirement, listing model file paths that verify it
 
@@ -52,7 +52,7 @@ Connect human requirements to formal models with bidirectional, queryable tracea
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SCHEMA-01 | v0.25-01 | Pending |
-| SCHEMA-02 | v0.25-01 | Pending |
+| SCHEMA-02 | v0.25-01 | Complete |
 | SCHEMA-03 | v0.25-01 | Pending |
 | SCHEMA-04 | v0.25-01 | Pending |
 | TRACE-01 | v0.25-03 | Pending |
