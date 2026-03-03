@@ -84,6 +84,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-03
-Last activity: 2026-03-03 -- Quick-135: renamed formal/ to .formal/ across 509 files
-Stopped at: None
+Last activity: 2026-03-03 -- Milestone v0.25 audit: gaps_found (8/18 requirements satisfied, 3 unsatisfied ANNOT-01..03 from spec-regen regression)
+Stopped at: Milestone v0.25 audit: gaps_found (8/18 requirements)
 Resume file: None

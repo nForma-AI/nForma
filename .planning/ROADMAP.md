@@ -23,7 +23,7 @@
 - 🚧 **v0.22 — Requirements Envelope** — Phases v0.22-01..v0.22-04 (in progress)
 - ✅ **v0.23 — Formal Gates** — Phases v0.23-01..v0.23-04 (shipped 2026-03-02)
 - ✅ **v0.24 — Quorum Reliability Hardening** — Phases v0.24-01..v0.24-05 (shipped 2026-03-03)
-- 🚧 **v0.25 — Formal Traceability & Coverage** — Phases v0.25-01..v0.25-05 (in progress)
+- 🔍 **v0.25 — Formal Traceability & Coverage** — Phases v0.25-01..v0.25-07 (audit: gaps_found — gap closure in progress)
 
 ## Phases
 
@@ -1245,6 +1245,8 @@ Plans:
 - [x] **Phase v0.25-03: Traceability Matrix** - Generate a property-level traceability matrix with coverage statistics from registry, annotations, and check results (completed 2026-03-03)
 - [x] **Phase v0.25-04: Bidirectional Validation** - Detect asymmetric links between models and requirements; CI guard on coverage regression (completed 2026-03-03)
 - [x] **Phase v0.25-05: Decomposition Awareness** - Analyze model state-space size, flag unbounded domains, and validate coverage preservation during model splits
+- [ ] **Phase v0.25-06: Annotation Regression Fix** - Re-add @requirement annotations to generated model files stripped by spec-regen hook; make spec-regen annotation-aware to prevent recurrence (ANNOT-01, ANNOT-02, ANNOT-03) (Gap Closure)
+- [ ] **Phase v0.25-07: Retroactive Verification & Bookkeeping** - Create VERIFICATION.md for v0.25-02/04/05; update REQUIREMENTS.md checkboxes and SUMMARY frontmatter (ANNOT-04, TRACE-04, TRACE-05, DECOMP-01..04) (Gap Closure)
 
 ## Phase Details
 
@@ -1312,8 +1314,34 @@ Plans:
   - [x] v0.25-05-02-PLAN.md -- Add coverage preservation validation on model splits (DECOMP-03)
   - [x] v0.25-05-03-PLAN.md -- Integrate state-space data into traceability matrix (DECOMP-04)
 
+### Phase v0.25-06: Annotation Regression Fix
+**Goal**: All generated formal model files have @requirement annotations that survive spec-regen hook regeneration cycles
+**Depends on**: Phase v0.25-02
+**Requirements**: ANNOT-01, ANNOT-02, ANNOT-03
+**Gap Closure**: Closes gaps from v0.25 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. Running `node bin/extract-annotations.cjs --validate` exits 0 with 0 unannotated properties across all 23 files
+  2. All 23 tests in test/extract-annotations.test.cjs pass
+  3. The spec-regen hook (qgsd-spec-regen.js) preserves @requirement annotations when regenerating model files
+  4. Re-running spec-regen followed by `--validate` still exits 0
+**Plans**: TBD
+
+### Phase v0.25-07: Retroactive Verification & Bookkeeping
+**Goal**: All v0.25 phases have formal VERIFICATION.md artifacts and all REQUIREMENTS.md checkboxes reflect actual completion status
+**Depends on**: Phase v0.25-06
+**Requirements**: ANNOT-04, TRACE-04, TRACE-05, DECOMP-01, DECOMP-02, DECOMP-03, DECOMP-04
+**Gap Closure**: Closes verification and bookkeeping gaps from v0.25 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. VERIFICATION.md exists for v0.25-02, v0.25-04, and v0.25-05 with status: passed
+  2. All 18 v0.25 requirements in REQUIREMENTS.md have status Complete with [x] checkboxes
+  3. SUMMARY frontmatter for v0.25-02-01 and v0.25-02-02 includes requirements-completed field
+  4. Coverage baseline updated to reflect restored annotation coverage
+**Plans**: TBD
+
 | v0.25-01. Schema Foundation | 3/3 | Complete    | 2026-03-03 |  |
 | v0.25-02. Property Annotations | 3/3 | Complete | 2026-03-03 |  |
 | v0.25-03. Traceability Matrix | 1/2 | Complete    | 2026-03-03 | - |
 | v0.25-04. Bidirectional Validation | 2/2 | Complete    | 2026-03-03 | - |
 | v0.25-05. Decomposition Awareness | 3/3 | Complete | 2026-03-03 | - |
+| v0.25-06. Annotation Regression Fix | 0/0 | Pending | - | Gap Closure |
+| v0.25-07. Retroactive Verification & Bookkeeping | 0/0 | Pending | - | Gap Closure |
