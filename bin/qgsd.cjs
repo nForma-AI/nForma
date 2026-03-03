@@ -67,6 +67,7 @@ const {
   buildExportData, validateImportSchema, buildBackupPath,
   buildTimeoutChoices, applyTimeoutUpdate,
   buildPolicyChoices,
+  runAutoUpdateCheck,
 } = pure;
 
 const { updateAgents, getUpdateStatuses } = require('./update-agents.cjs');
@@ -2315,6 +2316,8 @@ function applyUpdateBadge(outdatedCount) {
     const outdated = [...statuses.values()].filter(s => s.status === 'update-available').length;
     applyUpdateBadge(outdated);
   } catch (_) {}
+  // PLCY-03: auto-update policy check for slots configured as 'auto'
+  runAutoUpdateCheck().catch(() => {});
 })();
 
 // ─── Start ────────────────────────────────────────────────────────────────────
