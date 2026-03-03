@@ -135,21 +135,25 @@ pred SuccessCountNeverExceedsMinSize {
 -- ── Assertions (assert + check) ──────────────────────────────────────────────
 
 -- BoundaryCorrect: if at least one HumanMessage exists, boundary is the last one
+-- @requirement STOP-08
 assert BoundaryCorrectCheck {
   some HumanMessage => BoundaryCorrect
 }
 
 -- PairingUnique: the ID matching relation is functional in both directions
+-- @requirement STOP-09
 assert PairingUniqueCheck {
   PairingUnique
 }
 
 -- NoDuplicateCounting: set cardinality = no duplicate counting (tautological but explicit)
+-- @requirement STOP-10
 assert NoDuplicateCountingCheck {
   NoDuplicateCounting
 }
 
 -- SuccessCountNeverExceedsMinSize: ceiling enforcement holds universally
+-- @requirement STOP-11
 assert SuccessCountNeverExceedsMinSizeCheck {
   SuccessCountNeverExceedsMinSize
 }

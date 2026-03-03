@@ -16,6 +16,7 @@ VARIABLES active, disabled
 vars == <<active, disabled>>
 
 \* ── Type invariant ───────────────────────────────────────────────────────────
+\* @requirement DETECT-01
 TypeOK ==
     /\ active   \in BOOLEAN
     /\ disabled \in BOOLEAN
@@ -64,6 +65,7 @@ Next ==
 
 \* DisabledExcludesActive: disabled=TRUE => active=FALSE
 \* Encodes the invariant that the DISABLED state cannot coexist with TRIGGERED.
+\* @requirement DETECT-02
 DisabledExcludesActive ==
     disabled = TRUE => active = FALSE
 
@@ -74,6 +76,7 @@ DisabledExcludesActive ==
 
 \* MonitoringReachable: from any state, MONITORING is eventually reachable
 \* (active=FALSE /\ disabled=FALSE is the MONITORING encoding)
+\* @requirement DETECT-03
 MonitoringReachable == <>(active = FALSE /\ disabled = FALSE)
 
 \* ── Full specification with weak fairness ────────────────────────────────────

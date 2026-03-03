@@ -42,6 +42,7 @@ FsmStates  == {"IDLE", "ADDING", "SAVING", "SWITCHING", "REMOVING", "ERROR"}
 
 vars == <<state, pool, active, pending_op>>
 
+\* @requirement CRED-01
 TypeOK ==
     /\ state      \in FsmStates
     /\ pool       \in SUBSET AccountIds
@@ -169,18 +170,22 @@ Next ==
 \* ── Safety invariants ────────────────────────────────────────────────────────
 
 \* ActiveIsPoolMember: active account (when set) must be in the pool
+\* @requirement CRED-02
 ActiveIsPoolMember ==
     active /= NoAccount => active \in pool
 
 \* NoActiveWhenEmpty: empty pool implies no active account
+\* @requirement CRED-03
 NoActiveWhenEmpty ==
     pool = {} => active = NoAccount
 
 \* IdleNoPending: in IDLE state there is no pending operation
+\* @requirement CRED-04
 IdleNoPending ==
     state = "IDLE" => pending_op = NoPending
 
 \* OpMatchesState: pending_op.type is consistent with the FSM state
+\* @requirement CRED-05
 OpMatchesState ==
     \/ state = "IDLE"      /\ pending_op.type = "none"
     \/ state = "ADDING"    /\ pending_op.type = "ADD"
@@ -192,6 +197,7 @@ OpMatchesState ==
 \* ── Liveness ─────────────────────────────────────────────────────────────────
 
 \* IdleReachable: from any state, IDLE is eventually reachable (no deadlocks)
+\* @requirement CRED-06
 IdleReachable == <>(state = "IDLE")
 
 \* ── Full specification ────────────────────────────────────────────────────────

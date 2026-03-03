@@ -50,6 +50,7 @@ pred SameState [s1, s2: InstallState] {
 
 -- AllEquivalence: --all flag produces same state as specifying all runtimes individually.
 -- Both paths lead to all runtimes mapped to the same non-Uninstalled scope.
+-- @requirement INST-02
 assert AllEquivalence {
     all s1, s2: InstallState |
         (AllSelected[s1] and AllSelected[s2]) => SameState[s1, s2]
@@ -57,12 +58,14 @@ assert AllEquivalence {
 
 -- InstallIdempotent: applying the same install operation twice yields same result as once.
 -- Modeled as: if s1 and s2 both satisfy the same selection predicate, they are identical.
+-- @requirement INST-03
 assert InstallIdempotent {
     all s1, s2: InstallState |
         SameState[s1, s2] => SameState[s1, s2]
 }
 
 -- NoConflict check: confirm no valid state has a runtime with conflicting scope
+-- @requirement INST-01
 assert NoConflict {
     all s: InstallState | NoConflictingScope[s]
 }
@@ -108,11 +111,13 @@ pred ConfigSyncComplete [distSnapshot, claudeSnapshot: InstallSnapshot] {
 }
 
 -- Assert RollbackSound holds for all InstallSnapshot pairs
+-- @requirement INST-04
 assert RollbackSoundCheck {
     all pre, post: InstallSnapshot | RollbackSound[pre, post]
 }
 
 -- Assert ConfigSyncComplete holds for all dist/claude snapshot pairs
+-- @requirement INST-05
 assert ConfigSyncCompleteCheck {
     all dist, claude: InstallSnapshot | ConfigSyncComplete[dist, claude]
 }

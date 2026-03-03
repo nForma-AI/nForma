@@ -45,6 +45,7 @@ VARIABLES
 vars == <<recruited, tried, phase>>
 
 \* ── Type invariant ───────────────────────────────────────────────────────────
+\* @requirement SLOT-02
 TypeOK ==
     /\ recruited \subseteq AllSlots
     /\ tried     \subseteq AllSlots
@@ -108,10 +109,12 @@ Next ==
 \* ── Safety invariants ────────────────────────────────────────────────────────
 
 \* R1: polledCount (Cardinality(recruited)) never exceeds the cap
+\* @requirement SLOT-03
 PolledCeiling ==
     Cardinality(recruited) <= MaxSize
 
 \* R2: no api slot enters recruited while untried sub slots remain
+\* @requirement SLOT-04
 SubslotsFirst ==
     (\E s \in ApiSlots : s \in recruited) => AllSubsTried
 
@@ -119,6 +122,7 @@ SubslotsFirst ==
 
 \* R3: when enough slots respond, recruitment reaches full capacity
 EnoughResponsive == Cardinality(Responsive) >= MaxSize
+\* @requirement SLOT-05
 FullRecruitment  == EnoughResponsive => <>(Cardinality(recruited) = MaxSize)
 
 \* ── Spec with fairness ───────────────────────────────────────────────────────

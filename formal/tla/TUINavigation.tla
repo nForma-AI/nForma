@@ -48,6 +48,7 @@ VARIABLES
 vars == <<depth, exited>>
 
 \* ─── Type invariant ────────────────────────────────────────────────────────────
+\* @requirement TUI-01
 TypeOK ==
     /\ depth  \in 0..MaxDepth
     /\ exited \in BOOLEAN
@@ -100,16 +101,19 @@ Spec ==
 \* ─── Safety invariants ─────────────────────────────────────────────────────────
 
 \* No dead end: from any non-exited state, at least one ESC action is enabled.
-\* EscapeUp ∨ EscapeExit covers all depth values when ~exited.
+\* EscapeUp v EscapeExit covers all depth values when ~exited.
+\* @requirement TUI-02
 NoDeadlock ==
     ~exited => (ENABLED EscapeUp \/ ENABLED EscapeExit)
 
 \* Navigation depth is always within the declared bounds.
+\* @requirement TUI-03
 DepthBounded == depth \in 0..MaxDepth
 
 \* ─── Temporal safety properties ────────────────────────────────────────────────
 
 \* ESC at a non-root screen strictly decreases depth.
+\* @requirement TUI-04
 EscapeProgress == [][EscapeUp => depth' < depth]_vars
 
 \* ─── Liveness properties ───────────────────────────────────────────────────────

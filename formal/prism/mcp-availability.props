@@ -6,14 +6,18 @@
 //     -const codex_1_avail=0.95 -const gemini_1_avail=0.92
 //   OR via: node bin/run-prism.cjs --model mcp-availability
 
+// @requirement MCPENV-04
 // P1: Steady-state probability that at least one slot is available (minimum quorum)
 // Expected value with all priors = 0.85: 1 - (0.15)^4 ≈ 0.9995
 S=? [ "min_quorum_available" ]
 
+// @requirement MCPENV-04
+// @requirement FAIL-01
 // P2: Steady-state probability of total outage (all 4 slots unavailable simultaneously)
 // Expected value with all priors = 0.15: (0.15)^4 ≈ 0.0005
 S=? [ "total_outage" ]
 
+// @requirement MCPENV-04
 // P3: Steady-state probability that majority (2+ of 4) slots are available
 // Expected value with priors: rough lower bound ≈ 0.97
 S=? [ "majority_available" ]

@@ -32,6 +32,7 @@ VARIABLES filterRound, modelAgreement, autoResolved, filterPhase
 
 vars == <<filterRound, modelAgreement, autoResolved, filterPhase>>
 
+\* @requirement PLAN-03
 TypeOK ==
     /\ filterRound    \in 0..MaxFilterRounds
     /\ modelAgreement \in BOOLEAN
@@ -84,20 +85,24 @@ Next ==
 (* ── Invariants (GAP-6) ──────────────────────────────────────────────────────── *)
 
 (* Auto-resolution soundness: auto-resolved IFF all models agree + same answer *)
+\* @requirement PLAN-04
 AutoResolutionSound ==
     autoResolved <=> modelAgreement
 
 (* Pre-filter never runs more than MaxFilterRounds deliberation rounds *)
+\* @requirement LOOP-03
 FilterRoundsBounded ==
     filterRound <= MaxFilterRounds
 
 (* AUTO_RESOLVED implies autoResolved=TRUE and modelAgreement=TRUE *)
+\* @requirement PLAN-05
 AutoResolvedPhaseConsistent ==
     filterPhase = "AUTO_RESOLVED" => (autoResolved = TRUE /\ modelAgreement = TRUE)
 
 (* ── Liveness (GAP-6) ────────────────────────────────────────────────────────── *)
 
 (* Every behavior eventually exits EVALUATING phase *)
+\* @requirement PLAN-06
 PreFilterTerminates ==
     <>(filterPhase = "AUTO_RESOLVED" \/ filterPhase = "USER_NEEDED")
 

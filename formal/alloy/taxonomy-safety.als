@@ -59,23 +59,26 @@ sig ClassifyFn {
 -- Classification output (deterministic classification; no non-determinism).
 -- The injection-safety claim (task description content cannot alter category structure)
 -- is structurally guaranteed by Alloy's atom model (TaskDescription atoms carry no string
--- content). NoInjection captures the meaningful functional constraint: same input → same output.
+-- content). NoInjection captures the meaningful functional constraint: same input -> same output.
+-- @requirement SCBD-05
 assert NoInjection {
     all f: ClassifyFn, t: TaskDescription |
         one f.maps[t]
 }
 
 -- TaxonomyClosed: when is_new=False, the returned category was already known before classification.
--- Models: update-scoreboard.cjs behavior when classifyWithHaiku returns is_new=false —
+-- Models: update-scoreboard.cjs behavior when classifyWithHaiku returns is_new=false --
 -- the category must already exist in Object.keys(data.categories).
+-- @requirement SCBD-06
 assert TaxonomyClosed {
     all k: KnownCategories, c: Classification |
         c.is_new = False => c.category in k.cats
 }
 
 -- NewCategoryConsistent: when is_new=True, the returned category was NOT previously known.
--- Models: update-scoreboard.cjs behavior when classifyWithHaiku returns is_new=true —
+-- Models: update-scoreboard.cjs behavior when classifyWithHaiku returns is_new=true --
 -- the category is genuinely new and absent from Object.keys(data.categories).
+-- @requirement SCBD-07
 assert NewCategoryConsistent {
     all k: KnownCategories, c: Classification |
         c.is_new = True => c.category not in k.cats

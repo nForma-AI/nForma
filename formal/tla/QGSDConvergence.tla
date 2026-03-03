@@ -23,6 +23,7 @@ vars == <<logWritten, stateDeleted, haikuVerdict>>
 HaikuVerdicts == {"YES", "NO", "UNAVAILABLE"}
 
 \* ── Type invariant ───────────────────────────────────────────────────────────
+\* @requirement ORES-01
 TypeOK ==
     /\ logWritten   \in BOOLEAN
     /\ stateDeleted \in BOOLEAN
@@ -68,16 +69,19 @@ Next ==
 
 \* ResolvedAtWriteOnce: once logWritten is TRUE it stays TRUE forever.
 \* This is a temporal (action) property — expressed as [][...]_vars.
+\* @requirement ORES-03
 ResolvedAtWriteOnce ==
     [][logWritten = TRUE => logWritten' = TRUE]_vars
 
 \* LogBeforeDelete: the state file is never deleted before the log entry is written.
+\* @requirement ORES-02
 LogBeforeDelete ==
     stateDeleted => logWritten
 
 \* HaikuUnavailableNoCorruption: when the system transitions TO unavailable,
 \* logWritten and stateDeleted are preserved. Checks the action (next-state),
 \* not the current state — so recovery from UNAVAILABLE is not blocked.
+\* @requirement ORES-04
 HaikuUnavailableNoCorruption ==
     [][haikuVerdict' = "UNAVAILABLE" =>
         (logWritten' = logWritten /\ stateDeleted' = stateDeleted)]_vars
@@ -86,6 +90,7 @@ HaikuUnavailableNoCorruption ==
 
 \* ConvergenceEventuallyResolves: every behavior eventually reaches logWritten=TRUE.
 \* WF_vars(HaikuReturnsYES) ensures the YES action fires if continuously enabled.
+\* @requirement ORES-05
 ConvergenceEventuallyResolves == <>(logWritten = TRUE)
 
 \* ── Full specification ────────────────────────────────────────────────────────

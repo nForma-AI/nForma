@@ -58,6 +58,7 @@ one sig Now {
 }
 
 -- ParseCorrect: if parsing succeeds, the result timestamp >= now (= 0 in our model)
+-- @requirement CALIB-01
 assert ParseCorrect {
   all input: DateInput, result: ParseResult |
     ParsedCorrectly[input, result] =>
@@ -66,6 +67,7 @@ assert ParseCorrect {
 
 -- YearRolloverHandled: a month earlier in the year than now must produce next-year date
 -- In our relative model: the result is STILL positive (in the future), not negative (past)
+-- @requirement CALIB-02
 assert YearRolloverHandled {
   all input: DateInput, result: ParseResult |
     (monthIndex[input.month] < monthIndex[Now.currentMonth]) =>
@@ -74,6 +76,7 @@ assert YearRolloverHandled {
 
 -- FallbackIsNull: a null result (no ts) is always safe — no crash invariant
 -- Models the parseAvailabilityHint null-return contract: no crash on unrecognized format
+-- @requirement CALIB-03
 assert FallbackIsNull {
   all result: ParseResult |
     (no result.ts) => FallbackReasonValid[result]

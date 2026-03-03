@@ -48,6 +48,7 @@ VARIABLES
 vars == <<commits, runs, flagCount, netChange, flagged, algorithmDone>>
 
 \* ── Type invariant ───────────────────────────────────────────────────────────
+\* @requirement DETECT-04
 TypeOK ==
     /\ commits \in Seq(Labels)
     /\ Len(commits) <= CommitWindow
@@ -132,6 +133,7 @@ Next ==
 \* OscillationFlaggedCorrectly: the flagged boolean is TRUE iff there exists
 \* a label whose run-group count meets the Depth threshold AND the net diff
 \* is non-positive (genuine reversion, not TDD progression).
+\* @requirement DETECT-05
 OscillationFlaggedCorrectly ==
     flagged <=>
         (\E l \in Labels : flagCount[l] >= Depth /\ netChange <= 0)
@@ -140,6 +142,7 @@ OscillationFlaggedCorrectly ==
 
 \* AlgorithmTerminates: every behavior eventually sets algorithmDone to TRUE.
 \* WF_vars(EvaluateFlag) ensures EvaluateFlag fires once continuously enabled.
+\* @requirement DETECT-06
 AlgorithmTerminates == <>(algorithmDone = TRUE)
 
 \* ── Full specification ────────────────────────────────────────────────────────

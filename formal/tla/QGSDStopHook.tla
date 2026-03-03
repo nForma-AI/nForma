@@ -40,6 +40,7 @@ vars == <<hasCommand, hasQuorumEvidence, decision, algorithmDone>>
 (*
  * TypeOK — type invariant for all variables.
  *)
+\* @requirement STOP-01
 TypeOK ==
   /\ hasCommand        \in BOOLEAN
   /\ hasQuorumEvidence \in BOOLEAN
@@ -133,6 +134,8 @@ Spec ==
  * SafetyInvariant1: BLOCK can only be decided if a planning command was detected.
  * Prevents false blocks on non-planning turns.
  *)
+\* @requirement STOP-02
+\* @requirement SPEC-01
 SafetyInvariant1 ==
   decision = "BLOCK" => hasCommand
 
@@ -140,6 +143,7 @@ SafetyInvariant1 ==
  * SafetyInvariant2: BLOCK can only be decided if quorum evidence is absent.
  * Prevents blocking a turn that already satisfied the quorum requirement.
  *)
+\* @requirement STOP-03
 SafetyInvariant2 ==
   decision = "BLOCK" => ~hasQuorumEvidence
 
@@ -147,6 +151,7 @@ SafetyInvariant2 ==
  * SafetyInvariant3: PASS can only be decided on a planning turn if quorum evidence is present.
  * (When hasCommand=FALSE, PASS is trivially correct — not a planning turn.)
  *)
+\* @requirement STOP-04
 SafetyInvariant3 ==
   (decision = "PASS" /\ hasCommand) => hasQuorumEvidence
 
@@ -156,18 +161,21 @@ SafetyInvariant3 ==
  * LivenessProperty1: The algorithm always eventually completes.
  * Guarantees the hook never hangs indefinitely.
  *)
+\* @requirement STOP-05
 LivenessProperty1 == <>algorithmDone
 
 (*
  * LivenessProperty2: If quorum evidence is present, the decision eventually reaches PASS.
  * Ensures the hook doesn't block when quorum is satisfied.
  *)
+\* @requirement STOP-06
 LivenessProperty2 == hasQuorumEvidence => <>(decision = "PASS")
 
 (*
  * LivenessProperty3: If a command is detected with no quorum evidence, the decision
  * eventually reaches BLOCK. Ensures the hook always enforces quorum.
  *)
+\* @requirement STOP-07
 LivenessProperty3 == (hasCommand /\ ~hasQuorumEvidence) => <>(decision = "BLOCK")
 
 ====

@@ -4,6 +4,7 @@
 -- Regenerate:      node bin/generate-formal-specs.cjs
 -- Generated:       2026-03-03
 
+-- NOTE: @requirement annotations added by v0.25-02 (not generated). Preserve when regenerating.
 -- QGSD Quorum Vote-Counting Model (Alloy 6)
 -- Requirements: ALY-01
 --
@@ -47,6 +48,8 @@ pred ValidRound [r : VoteRound] {
 
 -- ASSERTION 1: Full unanimity — all polled agents approve.
 -- Non-trivial: Alloy must verify #approvals = polled for unanimity.
+-- @requirement QUORUM-02
+-- @requirement SAFE-01
 assert ThresholdPasses {
     all r : VoteRound |
         (ValidRound[r] and #r.approvals = r.polled) implies UnanimityReached[r]
@@ -54,12 +57,15 @@ assert ThresholdPasses {
 
 -- ASSERTION 2: One missing approval fails unanimity.
 -- Non-trivial: any polled agent not approving must block consensus.
+-- @requirement QUORUM-02
+-- @requirement SAFE-01
 assert BelowThresholdFails {
     all r : VoteRound |
         (ValidRound[r] and r.polled > 1 and #r.approvals = minus[r.polled, 1]) implies not UnanimityReached[r]
 }
 
 -- ASSERTION 3: Zero approvals always fails — safety baseline regardless of N.
+-- @requirement SAFE-04
 assert ZeroApprovalsFail {
     all r : VoteRound | ValidRound[r] implies (not (#r.approvals = 0 and UnanimityReached[r]))
 }

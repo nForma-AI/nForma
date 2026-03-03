@@ -5,6 +5,9 @@
  * Source of truth: src/machines/qgsd-workflow.machine.ts
  * Regenerate:      node bin/generate-formal-specs.cjs
  * Generated:       2026-03-03
+ *
+ * NOTE: @requirement annotations added by v0.25-02 (not generated).
+ * Preserve annotations when regenerating.
 
  * Models the quorum workflow defined in src/machines/qgsd-workflow.machine.ts.
  * Guard translations (from GUARD_REGISTRY in bin/generate-formal-specs.cjs):
@@ -37,6 +40,7 @@ VARIABLES
 vars == <<phase, successCount, polledCount, deliberationRounds>>
 
 \* ── Type invariant ───────────────────────────────────────────────────────────
+\* @requirement QUORUM-01
 TypeOK ==
     /\ phase \in {"IDLE", "COLLECTING_VOTES", "DELIBERATING", "DECIDED"}
     /\ successCount \in 0..MaxSize
@@ -102,11 +106,15 @@ Next ==
 \* ── Safety invariants ────────────────────────────────────────────────────────
 
 \* UnanimityMet: if DECIDED via approval, unanimity was achieved or deliberation was exhausted.
+\* @requirement QUORUM-02
+\* @requirement SAFE-01
 UnanimityMet ==
     phase = "DECIDED" =>
         (successCount = polledCount \/ deliberationRounds >= MaxDeliberation)
 
 \* QuorumCeilingMet: when DECIDED, polledCount did not exceed MaxSize.
+\* @requirement QUORUM-03
+\* @requirement SLOT-01
 QuorumCeilingMet ==
     phase = "DECIDED" =>
         /\ polledCount <= MaxSize
@@ -119,6 +127,7 @@ NoInvalidTransition ==
 
 \* AllTransitionsValid: every state can only reach its defined successors.
 \* Covers all four states — a superset of NoInvalidTransition.
+\* @requirement SAFE-02
 AllTransitionsValid ==
     /\ [][phase = "IDLE" => phase' \in {"IDLE", "COLLECTING_VOTES"}]_vars
     /\ [][phase = "COLLECTING_VOTES" => phase' \in {"COLLECTING_VOTES", "DELIBERATING", "DECIDED"}]_vars
@@ -126,18 +135,22 @@ AllTransitionsValid ==
     /\ [][phase = "DECIDED" => phase' = "DECIDED"]_vars
 
 \* DeliberationBounded: deliberationRounds never exceeds MaxDeliberation.
-\* Follows from the guard noInfiniteDeliberation on the DELIBERATING→DELIBERATING branch.
+\* Follows from the guard noInfiniteDeliberation on the DELIBERATING->DELIBERATING branch.
+\* @requirement LOOP-01
 DeliberationBounded ==
     deliberationRounds <= MaxDeliberation
 
 \* DeliberationMonotone: deliberationRounds only ever increases.
 \* Ensures rounds cannot be rolled back — a key soundness property.
+\* @requirement SAFE-03
 DeliberationMonotone ==
     [][deliberationRounds' >= deliberationRounds]_vars
 
 \* ── Liveness ─────────────────────────────────────────────────────────────────
 
 \* EventualConsensus: every behavior eventually reaches DECIDED.
+\* @requirement QUORUM-04
+\* @requirement RECV-01
 EventualConsensus == <>(phase = "DECIDED")
 
 \* ── Composite actions for fairness ──────────────────────────────────────────

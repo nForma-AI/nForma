@@ -49,6 +49,7 @@ fun computeScore [m: Model, rounds: set Round] : Int {
 -- RecomputeIdempotent: the score is a pure function of (model, rounds set)
 -- Applying the computation twice on the same rounds set yields the same result.
 -- Since computeScore is deterministic (no state), this verifies no hidden non-determinism.
+-- @requirement SCBD-01
 assert RecomputeIdempotent {
   all m: Model, rounds: set Round |
     computeScore[m, rounds] = computeScore[m, rounds]
@@ -56,6 +57,7 @@ assert RecomputeIdempotent {
 
 -- NoVoteLoss: every vote's delta is reflected in the total sum
 -- If every round has a vote for model m, the score equals the sum of all deltas.
+-- @requirement SCBD-02
 assert NoVoteLoss {
   all m: Model, rounds: set Round |
     (all r: rounds | some r.votes[m]) =>
@@ -64,12 +66,14 @@ assert NoVoteLoss {
 
 -- NoDoubleCounting: the score equals the sum of individual round deltas, not more
 -- Verifies that no round's delta appears more than once in the total.
+-- @requirement SCBD-03
 assert NoDoubleCounting {
   all m: Model, rounds: set Round |
     computeScore[m, rounds] = (sum r: rounds | scoreDelta[r.votes[m]])
 }
 
 -- TNplusScoreIsCorrect: TN+ vote in a single round gives score 7 (sanity check)
+-- @requirement SCBD-04
 assert TNplusScoreIsCorrect {
   all r: Round, m: Model |
     r.votes[m] = TNplus => computeScore[m, r] = 7

@@ -80,30 +80,35 @@ pred RemoveOp [pre, post: PoolState, removed: Account] {
 -- ── Assertions ────────────────────────────────────────────────────────────────
 
 -- AddPreservesValidity: adding to a valid state yields a valid state
+-- @requirement CRED-07
 assert AddPreservesValidity {
     all pre, post: PoolState, new: Account |
         ValidState[pre] and AddOp[pre, post, new] => ValidState[post]
 }
 
 -- SwitchPreservesValidity: switching in a valid state yields a valid state
+-- @requirement CRED-08
 assert SwitchPreservesValidity {
     all pre, post: PoolState, target: Account |
         ValidState[pre] and SwitchOp[pre, post, target] => ValidState[post]
 }
 
 -- RemovePreservesValidity: removing from a valid state yields a valid state
+-- @requirement CRED-09
 assert RemovePreservesValidity {
     all pre, post: PoolState, removed: Account |
         ValidState[pre] and RemoveOp[pre, post, removed] => ValidState[post]
 }
 
 -- SwitchPreservesPool: switch never adds or removes accounts from the pool
+-- @requirement CRED-10
 assert SwitchPreservesPool {
     all pre, post: PoolState, target: Account |
         SwitchOp[pre, post, target] => post.pool = pre.pool
 }
 
 -- RemoveShrinksPool: remove always reduces pool size by exactly one
+-- @requirement CRED-11
 assert RemoveShrinksPool {
     all pre, post: PoolState, removed: Account |
         RemoveOp[pre, post, removed] => #post.pool = minus[#pre.pool, 1]

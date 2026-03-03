@@ -10,6 +10,9 @@
  * Initial state:     IDLE
  * States (4):          IDLE, COLLECTING_VOTES, DELIBERATING, DECIDED
  * Final states:      DECIDED
+ *
+ * NOTE: @requirement annotations added by v0.25-02 (not generated).
+ * Preserve annotations when regenerating.
 *)
 EXTENDS Naturals, FiniteSets, TLC
 
@@ -26,6 +29,7 @@ VARIABLES
 vars == <<state, slotsAvailable, successCount, deliberationRounds, maxDeliberation, maxSize, polledCount>>
 
 \* ── Type invariant ────────────────────────────────────────────────────────────
+\* @requirement QUORUM-01
 TypeOK ==
     /\ state \in {"IDLE", "COLLECTING_VOTES", "DELIBERATING", "DECIDED"}
     /\ slotsAvailable \in Nat  \* FIXME: tighten bound if needed

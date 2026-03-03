@@ -135,6 +135,7 @@ Spec == Init /\ [][Next]_vars
 \* A quorum decision must be either a legitimate consensus (>= threshold successes)
 \* or a legitimate escalation (not enough successes available).
 \* This invariant fires if DECIDED is reached without going through DECIDING.
+\* @requirement MCPENV-02
 NoSpuriousConsensus ==
   quorumPhase = "DECIDED" =>
     \/ Cardinality({ s \in Slots : callState[s] = "SUCCESS" }) >= QuorumThreshold
@@ -142,6 +143,7 @@ NoSpuriousConsensus ==
     \/ Cardinality({ s \in Slots : callState[s] = "SUCCESS" }) < QuorumThreshold
 
 \* TypeInvariantHolds: State variables always have valid types.
+\* @requirement MCPENV-01
 TypeInvariantHolds == TypeInvariant
 
 \* ── Liveness property ────────────────────────────────────────────────────────
@@ -149,6 +151,7 @@ TypeInvariantHolds == TypeInvariant
 \* EventualDecision: Quorum always eventually reaches a decision.
 \* Justified by: (a) finite timeout bound in call-quorum-slot.cjs,
 \* (b) weak fairness on TimeoutAction ensures all PENDING calls eventually resolve.
+\* @requirement MCPENV-03
 EventualDecision == <>(quorumPhase = "DECIDED")
 
 ====

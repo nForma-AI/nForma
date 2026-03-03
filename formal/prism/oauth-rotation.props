@@ -2,15 +2,19 @@
 // Properties for formal/prism/oauth-rotation.pm
 // Requirements: PRM-AM-01
 
+// @requirement PRM-AM-01
+// @requirement CRED-12
 // P_succeed: probability of eventually succeeding within max_retries attempts.
 // For p_fail=0.30, max_retries=3: expected ≈ 1 - 0.3^3 = 0.973
 // For p_fail=0.10, max_retries=3: expected ≈ 1 - 0.1^3 = 0.999
 P=? [ F s=1 ]
 
+// @requirement PRM-AM-01
 // P_exhausted: probability all attempts fail (complement of P_succeed).
 // For p_fail=0.30, max_retries=3: expected ≈ 0.3^3 = 0.027
 P=? [ F s=0 ]
 
+// @requirement PRM-AM-01
 // R_rotations: expected number of rotation attempts before outcome.
 // For p_fail=0.30, max_retries=3: expected ≈ 1/(1-p_fail) capped at max_retries ≈ 1.43
 R{"rotations"}=? [ F s<=1 ]

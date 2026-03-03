@@ -57,6 +57,8 @@ fact SoloModeSingleSlot {
 run {} for 5 Config, 5 Slot, 4 int
 
 -- Assert: all rules must hold (Alloy checks this is unsatisfiable to find violations)
+-- @requirement SPEC-03
+-- @requirement COMP-01
 assert AllRulesHold {
   all c : Config | {
     (#c.availableSlots > 0) implies (#c.selectedSlots > 0)
