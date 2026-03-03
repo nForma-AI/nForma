@@ -1265,7 +1265,7 @@ Archive: .planning/milestones/v0.25-ROADMAP.md
 **Milestone Goal:** Transform QGSD from a formal verification research tool into a production-ready plugin with portable installation, secure credential management, policy configuration, and operational observability.
 
 - [x] **Phase v0.26-01: Policy Configuration** - Users can configure quorum timeout and update policy per slot from dedicated menus (completed 2026-03-03)
-- [ ] **Phase v0.26-02: Credential Management** - Users can rotate API keys in batch and key health persists across sessions
+- [x] **Phase v0.26-02: Credential Management** - Users can rotate API keys in batch and key health persists across sessions (completed 2026-03-03)
 - [ ] **Phase v0.26-03: Portable Installer & Presets** - Users can export/import roster configs portably, use provider presets, clone slots, and all hardcoded GSD paths are removed
 - [ ] **Phase v0.26-04: Health Dashboard** - Users can view live slot health from a terminal dashboard with refresh and clean exit
 - [ ] **Phase v0.26-05: Architecture Enforcement** - QGSD never bundles LLM SDKs; all Haiku/Sonnet/Opus calls use the Agent tool
@@ -1351,7 +1351,7 @@ Phases execute in order: v0.26-01 -> v0.26-02 -> v0.26-03 -> v0.26-04 (parallel)
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | v0.26-01. Policy Configuration | v0.26 | Complete    | 2026-03-03 | 2026-03-03 |
-| v0.26-02. Credential Management | v0.26 | 0/TBD | Not started | - |
+| v0.26-02. Credential Management | v0.26 | Complete    | 2026-03-03 | - |
 | v0.26-03. Portable Installer & Presets | v0.26 | 0/TBD | Not started | - |
 | v0.26-04. Health Dashboard | v0.26 | 0/TBD | Not started | - |
 | v0.26-05. Architecture Enforcement | v0.26 | 0/TBD | Not started | - |
