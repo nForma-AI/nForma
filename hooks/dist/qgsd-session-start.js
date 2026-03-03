@@ -97,5 +97,26 @@ function findSecrets() {
     }
   } catch (_) {}
 
+  // Memory staleness check — warn about outdated MEMORY.md entries
+  try {
+    const validateMemoryCandidates = [
+      path.join(os.homedir(), '.claude', 'qgsd-bin', 'validate-memory.cjs'),
+      path.join(__dirname, '..', 'bin', 'validate-memory.cjs'),
+    ];
+    let validateMemoryMod = null;
+    for (const p of validateMemoryCandidates) {
+      try { validateMemoryMod = require(p); break; } catch (_) {}
+    }
+    if (validateMemoryMod) {
+      const { findings } = validateMemoryMod.validateMemory({ cwd: _hookCwd, quiet: true });
+      if (findings.length > 0) {
+        const summary = findings
+          .map(f => '[memory-check] ' + f.message)
+          .join('\n');
+        process.stderr.write(summary + '\n');
+      }
+    }
+  } catch (_) {}
+
   process.exit(0);
 })();
