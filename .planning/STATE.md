@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 Phase: v0.26-02 of 6 (Credential Management)
 Plan: 2 of 2 in current phase (01-Probe-Persist-Key, 02-Post-Rotation-Validation)
 Status: Complete — 2 of 2 plans complete
-Last activity: 2026-03-03 — Completed v0.26-02 (Credential Management)
+Last activity: 2026-03-03 — Completed quick task 141: Fix solver loop bugs: parseAlloyDefaults parsing, stale cache invalidation
 
 Progress: [████████████] 100%
 
@@ -68,6 +68,7 @@ None yet.
 | 138 | Add formal coverage section to progress and resume-work workflows | 2026-03-03 | pending | Pending | [138-add-formal-coverage-section-to-progress-](./quick/138-add-formal-coverage-section-to-progress-/) |
 | 139 | Implement /qgsd:formal-test-sync command | 2026-03-03 | 753e0870 | Verified | [139-implement-qgsd-formal-test-sync-command-](./quick/139-implement-qgsd-formal-test-sync-command-/) |
 | 140 | Implement /qgsd:solve consistency solver command | 2026-03-03 | fa9debb2 | Verified | [140-implement-qgsd-solve-consistency-solver-](./quick/140-implement-qgsd-solve-consistency-solver-/) |
+| 141 | Fix solver loop bugs: parseAlloyDefaults parsing, stale cache invalidation | 2026-03-03 | ed8df4cf | Complete | [141-fix-solver-loop-bugs-parsealloydefaults-](./quick/141-fix-solver-loop-bugs-parsealloydefaults-/) |
 
 ## Session Continuity
 
