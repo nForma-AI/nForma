@@ -360,6 +360,7 @@ const lines = [
   'vars == ' + varsTuple,
   '',
   '\\* ── Type invariant ────────────────────────────────────────────────────────────',
+  '\\* @requirement QUORUM-01',
   'TypeOK ==',
   '    /\\ state \\in {' + stateNames.map(s => '"' + s + '"').join(', ') + '}',
   ...ctxVars.map(v => {

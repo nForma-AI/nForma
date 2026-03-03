@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-03 after v0.25 roadmap creation)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following -- a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.25 Formal Traceability & Coverage -- Phase v0.25-04 complete (both plans done), ready for v0.25-05
+**Current focus:** v0.25 Formal Traceability & Coverage -- Phase v0.25-06 complete (gap closure: annotation regression fix), ready for v0.25-07
 **Last shipped:** v0.24 -- Quorum Reliability Hardening (2026-03-03, 5 phases, 17 plans, 12/12 requirements)
 
 ## Current Position
 
-Phase: v0.25-04 of 5 (Bidirectional Validation) -- COMPLETE
-Plan: 2 of 2 in current phase (2 plans in 2 waves) -- COMPLETE
-Status: Phase v0.25-04 done -- both plans complete, ready for v0.25-05 (Decomposition Awareness)
-Last activity: 2026-03-03 -- v0.25-04-02 complete: CI coverage guard + wired into run-formal-verify.cjs (TRACE-05)
+Phase: v0.25-06 of 7 (Annotation Regression Fix) -- COMPLETE
+Plan: 2 of 2 in current phase (2 plans) -- COMPLETE
+Status: Phase v0.25-06 done -- annotation-aware generators, all 23 tests pass, 0 unannotated properties, spec-regen hook updated
+Last activity: 2026-03-03 -- v0.25-06-02 complete: regenerated files, validated pipeline, updated spec-regen hook (ANNOT-01, ANNOT-02, ANNOT-03)
 
-Progress: [################    ] 80% v0.25 (4/5 phases done)
+Progress: [#################   ] 86% v0.25 (6/7 phases done)
 
 ## Performance Metrics
 
@@ -84,6 +84,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-03
-Last activity: 2026-03-03 -- Milestone v0.25 audit: gaps_found (8/18 requirements satisfied, 3 unsatisfied ANNOT-01..03 from spec-regen regression)
-Stopped at: Milestone v0.25 audit: gaps_found (8/18 requirements)
+Last activity: 2026-03-03 -- Phase v0.25-06 complete: annotation regression fix (ANNOT-01, ANNOT-02, ANNOT-03 closed)
+Stopped at: Phase v0.25-06 complete, ready for v0.25-07 (Retroactive Verification & Bookkeeping)
 Resume file: None

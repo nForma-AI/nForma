@@ -8,14 +8,20 @@
 //   $PRISM_BIN .formal/prism/quorum.pm .formal/prism/quorum.props
 
 // P1: Eventual convergence — must be exactly 1.0 (certain termination)
+// @requirement PRM-01
+// @requirement QUORUM-04
 P=? [ F s=1 ]
 
 // P2: Expected deliberation rounds until DECIDED
 // Conservative priors (tp_rate=0.85, unavail=0.15) give p=0.7225, E=~1.38 rounds.
+// @requirement PRM-01
 R{"rounds"}=? [ F s=1 ]
 
 // P3: Probability of deciding within MaxDeliberation=9 rounds
+// @requirement PRM-01
+// @requirement LOOP-01
 P=? [ F<=9 s=1 ]
 
 // P4: Probability of deciding within 10 rounds (high-confidence bound)
+// @requirement PRM-01
 P=? [ F<=10 s=1 ]

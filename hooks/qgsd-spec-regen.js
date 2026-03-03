@@ -14,6 +14,7 @@
 // Fail-open: exits 0 in ALL cases — never blocks the Write tool.
 
 const { spawnSync } = require('child_process');
+const fs = require('fs');
 const path = require('path');
 
 let raw = '';
@@ -42,11 +43,33 @@ process.stdin.on('end', () => {
 
     let msg;
     if (result.status === 0 && !result.error) {
-      msg = '[spec-regen] Formal specs regenerated from XState machine (qgsd-workflow.machine.ts was updated).';
+      msg = '[spec-regen] Formal specs regenerated (generate-formal-specs.cjs + xstate-to-tla.cjs) from XState machine.';
     } else {
       msg = '[spec-regen] WARNING: generate-formal-specs.cjs failed after machine file write. Run manually to regenerate specs.\n' +
             (result.stderr ? result.stderr.slice(0, 500) : '') +
             (result.error ? String(result.error) : '');
+    }
+
+    // Also regenerate QGSDQuorum_xstate.tla (xstate-to-tla.cjs)
+    const xstateScript = path.join(cwd, 'bin', 'xstate-to-tla.cjs');
+    const machineFile = path.join(cwd, 'src', 'machines', 'qgsd-workflow.machine.ts');
+    const guardsConfig = path.join(cwd, '.formal', 'tla', 'guards', 'qgsd-workflow.json');
+
+    if (fs.existsSync(xstateScript) && fs.existsSync(guardsConfig)) {
+      const xstateResult = spawnSync(process.execPath, [
+        xstateScript, machineFile,
+        '--config=' + guardsConfig,
+        '--module=QGSDQuorum'
+      ], {
+        encoding: 'utf8',
+        cwd: cwd,
+        timeout: 60000,
+      });
+
+      if (xstateResult.status !== 0 || xstateResult.error) {
+        msg += '\n[spec-regen] WARNING: xstate-to-tla.cjs failed. Run manually.';
+        if (xstateResult.stderr) msg += '\n' + xstateResult.stderr.slice(0, 300);
+      }
     }
 
     process.stdout.write(JSON.stringify({

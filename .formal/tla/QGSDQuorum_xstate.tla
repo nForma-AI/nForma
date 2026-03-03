@@ -26,6 +26,7 @@ VARIABLES
 vars == <<state, slotsAvailable, successCount, deliberationRounds, maxDeliberation, maxSize, polledCount>>
 
 \* ── Type invariant ────────────────────────────────────────────────────────────
+\* @requirement QUORUM-01
 TypeOK ==
     /\ state \in {"IDLE", "COLLECTING_VOTES", "DELIBERATING", "DECIDED"}
     /\ slotsAvailable \in Nat  \* FIXME: tighten bound if needed
