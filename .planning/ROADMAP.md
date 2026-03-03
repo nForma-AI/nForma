@@ -1324,7 +1324,9 @@ Plans:
   2. All 23 tests in test/extract-annotations.test.cjs pass
   3. The spec-regen hook (qgsd-spec-regen.js) preserves @requirement annotations when regenerating model files
   4. Re-running spec-regen followed by `--validate` still exits 0
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] v0.25-06-01-PLAN.md — Add @requirement annotations to generator templates (generate-formal-specs.cjs + xstate-to-tla.cjs)
+- [ ] v0.25-06-02-PLAN.md — Regenerate files, validate full pipeline, update spec-regen hook
 
 ### Phase v0.25-07: Retroactive Verification & Bookkeeping
 **Goal**: All v0.25 phases have formal VERIFICATION.md artifacts and all REQUIREMENTS.md checkboxes reflect actual completion status
@@ -1343,5 +1345,5 @@ Plans:
 | v0.25-03. Traceability Matrix | 1/2 | Complete    | 2026-03-03 | - |
 | v0.25-04. Bidirectional Validation | 2/2 | Complete    | 2026-03-03 | - |
 | v0.25-05. Decomposition Awareness | 3/3 | Complete | 2026-03-03 | - |
-| v0.25-06. Annotation Regression Fix | 0/0 | Pending | - | Gap Closure |
+| v0.25-06. Annotation Regression Fix | 0/2 | Planned | - | Gap Closure |
 | v0.25-07. Retroactive Verification & Bookkeeping | 0/0 | Pending | - | Gap Closure |
