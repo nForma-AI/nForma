@@ -1282,7 +1282,10 @@ Archive: .planning/milestones/v0.25-ROADMAP.md
   2. User can configure update policy (auto / prompt / skip) for any slot from the same menu
   3. When manage-agents starts, slots configured as `auto` trigger an update policy check automatically
   4. Invalid policy values (e.g., timeout < 0, unknown update policy) are rejected with a clear error message
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] v0.26-01-01-PLAN.md -- Input validation for timeout and policy values
+- [ ] v0.26-01-02-PLAN.md -- Wire PLCY-03 auto-update check into startup
+- [ ] v0.26-01-03-PLAN.md -- Integrate validation into TUI flows and add structure tests
 
 ### Phase v0.26-02: Credential Management
 **Goal**: Users can rotate API keys efficiently and key health survives across sessions
@@ -1343,7 +1346,7 @@ Phases execute in order: v0.26-01 -> v0.26-02 -> v0.26-03 -> v0.26-04 (parallel)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| v0.26-01. Policy Configuration | v0.26 | 0/TBD | Not started | - |
+| v0.26-01. Policy Configuration | v0.26 | 0/3 | Planned | - |
 | v0.26-02. Credential Management | v0.26 | 0/TBD | Not started | - |
 | v0.26-03. Portable Installer & Presets | v0.26 | 0/TBD | Not started | - |
 | v0.26-04. Health Dashboard | v0.26 | 0/TBD | Not started | - |

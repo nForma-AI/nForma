@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 ## Current Position
 
 Phase: v0.26-01 of 6 (Policy Configuration)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-03 — Roadmap created for v0.26
+Plan: 0 of 3 in current phase
+Status: Planned — ready to execute
+Last activity: 2026-03-03 — Phase v0.26-01 planned (3 plans, 2 waves)
 
 Progress: [░░░░░░░░░░] 0%
 
