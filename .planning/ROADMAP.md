@@ -1257,7 +1257,10 @@ Plans:
   2. Running a formal verification check (e.g., `node bin/run-tlc.cjs`) produces NDJSON output where each line contains a `requirement_ids` array linking the check result to specific requirements
   3. Running `cat formal/requirements.json | jq '.[] | select(.formal_models != null)'` shows requirements that have formal model paths linked back to them
   4. The check-result JSON schema validation accepts objects with the new `requirement_ids` field and rejects objects where `requirement_ids` contains non-string elements
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
+  - [ ] v0.25-01-01-PLAN.md -- Seed requirement linkage into model-registry.json (SCHEMA-01) and requirements.json (SCHEMA-04)
+  - [ ] v0.25-01-02-PLAN.md -- Extend check-result schema and write-check-result.cjs with requirement_ids (SCHEMA-02)
+  - [ ] v0.25-01-03-PLAN.md -- Wire all verification runners to emit requirement_ids via centralized map (SCHEMA-03)
 
 ### Phase v0.25-02: Property Annotations
 **Goal**: Every formal property/invariant/assertion across all 22 model files has a structured @requirement annotation that a parser can extract without manual mapping

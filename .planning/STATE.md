@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-03-03 after v0.25 roadmap creation)
 ## Current Position
 
 Phase: v0.25-01 of 5 (Schema Foundation)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-03 -- v0.25 roadmap created, 18 requirements mapped to 5 phases
+Plan: 0 of 3 in current phase (3 plans in 2 waves)
+Status: Planned -- ready to execute
+Last activity: 2026-03-03 -- v0.25-01 planned: 3 plans (01: model-registry+requirements.json seeding, 02: check-result schema+writer, 03: runner wiring)
 
 Progress: [                    ] 0% v0.25
 
@@ -65,5 +65,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: v0.25 roadmap created -- 5 phases, 18 requirements mapped, ready to plan Phase v0.25-01
+Stopped at: v0.25-01 planned -- 3 plans in 2 waves, ready to execute
 Resume file: None
