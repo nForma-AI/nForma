@@ -200,9 +200,11 @@ test('readProvidersJson: handles empty providers array gracefully', () => {
   }
 });
 
-test('buildTimeoutChoices: returns empty array for empty providers', () => {
-  const result = _pure.buildTimeoutChoices([], {}, { providers: [] });
-  assert.deepStrictEqual(result, []);
+test('buildScoreboardLines: handles empty providers without crashing', () => {
+  const lines = _pure.buildScoreboardLines({ models: {} }, { roster: new Set(), providers: [] });
+  assert.ok(Array.isArray(lines), 'should return an array');
+  const joined = lines.join('\n');
+  assert.ok(joined.includes('No agents configured in providers.json'), 'should show empty roster message');
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
