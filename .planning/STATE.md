@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 after v0.23 milestone completion)
 
 ## Current Position
 
-Phase: v0.24-04 of 5 (Self-Healing Consensus) — IN PROGRESS (1 of 2 plans started)
-Plan: 01/02 complete (TDD RED Test Scaffolding — HEAL-01, HEAL-02)
-Status: v0.24 milestone CONTINUING — HEAL-01 and HEAL-02 test contracts defined, ready for GREEN implementation
-Last activity: 2026-03-03 - Completed v0.24-04-01 plan: TDD RED test scaffolding created. 11 RED tests for computeEarlyEscalation (HEAL-01) + 10 RED tests for suggestMaxDeliberation/applyMaxDeliberationUpdate (HEAL-02). All existing tests remain GREEN. Plan ready for v0.24-04-02 GREEN implementation.
+Phase: v0.24-04 of 5 (Self-Healing Consensus) — IN PROGRESS (2 of 2 plans started)
+Plan: 02/02 complete (HEAL-01 Early Escalation Implementation)
+Status: v0.24 milestone CONTINUING — HEAL-01 complete, HEAL-02 test contracts defined and ready for GREEN implementation in Plan 03
+Last activity: 2026-03-03 - Completed v0.24-04-02 plan: HEAL-01 early escalation gate implemented. computeEarlyEscalation and readEarlyEscalationThreshold exported from quorum-consensus-gate.cjs. CLI routes to early escalation when --remaining-rounds=N. Quorum dispatch prompt updated with HEAL-01 step. All 11 HEAL-01 RED tests now GREEN. Backward compatibility preserved. Ready for v0.24-04-03 HEAL-02 implementation.
 
-Progress: [#########........] 40% v0.24-04-01 → COMPLETE (1 of 2 plans complete; 12 of 12 total v0.24 plans started)
+Progress: [##########.......] 50% v0.24-04-01,02 → COMPLETE (2 of 2 plans complete; 12 of 12 total v0.24 plans started)
 
 ## Performance Metrics
 
@@ -49,6 +49,9 @@ Progress: [#########........] 40% v0.24-04-01 → COMPLETE (1 of 2 plans complet
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.24-04-02]: Early escalation routing: CLI --remaining-rounds parameter gates computeEarlyEscalation instead of checkConsensusGate. Backward compatible: without --remaining-rounds, CLI behaves as before (original gate path).
+- [v0.24-04-02]: Config fail-open: readEarlyEscalationThreshold returns 0.10 default on JSON parse error, invalid ranges, or missing config files. No crashes on I/O.
+- [v0.24-04-02]: Quorum prompt wiring: both fallback and dynamic instruction builders updated with HEAL-01 step. Prompt instructs Claude to compute R = maxDeliberation - currentRound and pass --remaining-rounds=R to CLI after each merge-wave.
 - [v0.24-04-01]: TDD RED scaffolding: 21 RED tests (11 + 10) defining behavioral contracts for HEAL-01 (computeEarlyEscalation, readEarlyEscalationThreshold) and HEAL-02 (suggestMaxDeliberation, applyMaxDeliberationUpdate). Fail-open guards enable graceful test failure when functions don't exist yet. Plans 02-03 will implement functions to turn tests GREEN.
 - [v0.24-04-01]: Test contract discipline: Each RED test documents expected return values, error handling, edge cases (remainingRounds=0, pPerRound=0/1.0, invalid thresholds, missing files, rollback safety). These become specifications for implementation.
 - [v0.24-03-03]: Delivery stats computation: parseFloat(...toFixed(1)) ensures pct is JSON number, not string (85.2 not "85.2")
@@ -108,10 +111,12 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed v0.24-04-01 plan execution — TDD RED test scaffolding
+Stopped at: Completed v0.24-04-02 plan execution — HEAL-01 early escalation implementation
 Resume file: None
 
-**v0.24-04-01 Plan Complete:** TDD RED test scaffolding created (2 test files, 21 RED tests). All existing tests remain GREEN. Ready for v0.24-04-02 GREEN implementation (HEAL-01) and v0.24-04-03 (HEAL-02).
+**v0.24-04-02 Plan Complete:** HEAL-01 early escalation gate implemented. computeEarlyEscalation and readEarlyEscalationThreshold exported from quorum-consensus-gate.cjs. CLI routes to early escalation when --remaining-rounds=N. Quorum dispatch prompt updated with HEAL-01 step. All 11 HEAL-01 RED tests now GREEN. Backward compatibility preserved. Ready for v0.24-04-03 HEAL-02 implementation.
+
+**v0.24-04-01 Plan Complete:** TDD RED test scaffolding created (2 test files, 21 RED tests). All existing tests remain GREEN. Green implementation started in v0.24-04-02 (HEAL-01) and ready for v0.24-04-03 (HEAL-02).
 
 **v0.24-03 Phase Complete:** All 3 plans finished (TDD test scaffolding, telemetry logging implementation, delivery stats + flakiness scoring). Total: 3 requirements (OBS-01, OBS-02, OBS-03) fully implemented and verified. All 40 tests GREEN (17 telemetry + 23 observability). Ready for v0.24-04 self-healing.
 
