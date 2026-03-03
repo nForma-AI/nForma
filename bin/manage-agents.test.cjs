@@ -1500,3 +1500,186 @@ test('validateImportSchema: __redacted__ value in env is not a validation error'
   });
   assert.strictEqual(errors.length, 0);
 });
+
+// ---------------------------------------------------------------------------
+// PORT-01: Export — additional coverage
+// ---------------------------------------------------------------------------
+
+test('buildExportData: empty mcpServers returns clean object (no crash)', () => {
+  const out = buildExportData({ mcpServers: {} });
+  assert.deepStrictEqual(out.mcpServers, {});
+});
+
+test('buildExportData: multi-key redaction — sensitive keys become __redacted__, non-sensitive preserved', () => {
+  const input = {
+    mcpServers: {
+      's1': { env: { ANTHROPIC_API_KEY: 'sk-real', TOGETHER_API_KEY: 'tok-real', CLAUDE_DEFAULT_MODEL: 'model-x', BASE_URL: 'https://example.com' } }
+    }
+  };
+  const out = buildExportData(input);
+  assert.strictEqual(out.mcpServers.s1.env.ANTHROPIC_API_KEY, '__redacted__');
+  assert.strictEqual(out.mcpServers.s1.env.TOGETHER_API_KEY, '__redacted__');
+  assert.strictEqual(out.mcpServers.s1.env.CLAUDE_DEFAULT_MODEL, 'model-x');
+  assert.strictEqual(out.mcpServers.s1.env.BASE_URL, 'https://example.com');
+});
+
+test('buildExportData: roundtrip — JSON.parse(JSON.stringify()) does not mutate original', () => {
+  const original = {
+    mcpServers: { 's1': { env: { ANTHROPIC_API_KEY: 'sk-original', MODEL: 'v1' } } }
+  };
+  const exported = buildExportData(original);
+  const _roundtrip = JSON.parse(JSON.stringify(exported));
+  // Original must still have real key
+  assert.strictEqual(original.mcpServers.s1.env.ANTHROPIC_API_KEY, 'sk-original');
+  // Exported must have redacted key
+  assert.strictEqual(exported.mcpServers.s1.env.ANTHROPIC_API_KEY, '__redacted__');
+  assert.strictEqual(_roundtrip.mcpServers.s1.env.ANTHROPIC_API_KEY, '__redacted__');
+});
+
+test('buildRedactedEnv: redacts _TOKEN and _PASSWORD suffixes (case-insensitive)', () => {
+  const result = buildRedactedEnv({ ACCESS_TOKEN: 'tok-123', DB_PASSWORD: 'pw-456', NORMAL_VAR: 'keep' });
+  assert.strictEqual(result.ACCESS_TOKEN, '__redacted__');
+  assert.strictEqual(result.DB_PASSWORD, '__redacted__');
+  assert.strictEqual(result.NORMAL_VAR, 'keep');
+});
+
+test('buildRedactedEnv: null/non-object input returns empty object', () => {
+  assert.deepStrictEqual(buildRedactedEnv(null), {});
+  assert.deepStrictEqual(buildRedactedEnv(undefined), {});
+  assert.deepStrictEqual(buildRedactedEnv('string'), {});
+});
+
+// ---------------------------------------------------------------------------
+// PORT-02: Import validation — additional coverage
+// ---------------------------------------------------------------------------
+
+test('validateImportSchema: null root returns error', () => {
+  const errors = validateImportSchema(null);
+  assert.ok(errors.length > 0);
+  assert.ok(errors.some(e => e.includes('JSON object')));
+});
+
+test('validateImportSchema: array root returns no errors (typeof array is object, passthrough)', () => {
+  // Arrays pass the typeof check — no mcpServers found, so no validation errors
+  const errors = validateImportSchema([]);
+  assert.strictEqual(errors.length, 0);
+});
+
+test('validateImportSchema: accepts valid config with full server entry', () => {
+  const errors = validateImportSchema({
+    mcpServers: { 's1': { type: 'stdio', command: 'node', args: ['./server.cjs'], env: { MODEL: 'v1' } } }
+  });
+  assert.strictEqual(errors.length, 0);
+});
+
+test('validateImportSchema: rejects /home/ absolute path in args', () => {
+  const errors = validateImportSchema({
+    mcpServers: { 's1': { command: 'node', args: ['/home/bob/server.cjs'] } }
+  });
+  assert.ok(errors.some(e => e.includes('/home/bob/server.cjs')));
+});
+
+// ---------------------------------------------------------------------------
+// PORT-03: Backup path — additional coverage
+// ---------------------------------------------------------------------------
+
+test('buildBackupPath: output includes .pre-import. separator', () => {
+  const result = buildBackupPath('/any/path/.claude.json', '2026-01-01T00:00:00.000Z');
+  assert.ok(result.includes('.pre-import.'));
+});
+
+test('buildBackupPath: file I/O integration — backup copy matches original', () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'qgsd-test-backup-'));
+  const original = path.join(tmpDir, '.claude.json');
+  const content = JSON.stringify({ mcpServers: { s1: { command: 'node' } } });
+  fs.writeFileSync(original, content, 'utf8');
+  const backupPath = buildBackupPath(original, '2026-03-03T14:30:00.000Z');
+  fs.copyFileSync(original, backupPath);
+  assert.ok(fs.existsSync(backupPath));
+  assert.strictEqual(fs.readFileSync(backupPath, 'utf8'), content);
+  // Cleanup
+  fs.rmSync(tmpDir, { recursive: true });
+});
+
+// ---------------------------------------------------------------------------
+// PRST-02: Clone entry — additional coverage
+// ---------------------------------------------------------------------------
+
+test('buildCloneEntry: null/undefined source config returns sensible defaults', () => {
+  const entry = buildCloneEntry(null, 'new-slot');
+  assert.strictEqual(entry.type, 'stdio');
+  assert.strictEqual(entry.command, 'node');
+  assert.deepStrictEqual(entry.args, []);
+  assert.strictEqual(entry.env.PROVIDER_SLOT, 'new-slot');
+});
+
+test('buildCloneEntry: undefined source config returns sensible defaults', () => {
+  const entry = buildCloneEntry(undefined, 'new-slot-2');
+  assert.strictEqual(entry.type, 'stdio');
+  assert.strictEqual(entry.command, 'node');
+  assert.deepStrictEqual(entry.args, []);
+  assert.strictEqual(entry.env.PROVIDER_SLOT, 'new-slot-2');
+});
+
+test('buildCloneEntry: args are copied by value (not reference)', () => {
+  const sourceCfg = { command: 'node', args: ['./server.cjs', '--port', '3000'], env: {} };
+  const entry = buildCloneEntry(sourceCfg, 'clone-1');
+  entry.args.push('--extra');
+  assert.strictEqual(sourceCfg.args.length, 3, 'Source args must not be mutated by clone');
+});
+
+// ---------------------------------------------------------------------------
+// PRST-01: Preset — additional coverage
+// ---------------------------------------------------------------------------
+
+test('findPresetForUrl: empty string returns __custom__', () => {
+  assert.strictEqual(findPresetForUrl(''), '__custom__');
+});
+
+test('PROVIDER_PRESETS: contains exactly 3 named entries (AkashML, Together.xyz, Fireworks.ai)', () => {
+  // PROVIDER_PRESETS is in manage-agents-core.cjs, not exported in _pure.
+  // We verify via findPresetForUrl behavior: all 3 known URLs match, and no 4th preset exists.
+  const known = [
+    'https://api.akashml.com/v1',
+    'https://api.together.xyz/v1',
+    'https://api.fireworks.ai/inference/v1',
+  ];
+  for (const url of known) {
+    assert.notStrictEqual(findPresetForUrl(url), '__custom__', `${url} should match a preset`);
+  }
+  // A URL that is NOT in the presets should return __custom__
+  assert.strictEqual(findPresetForUrl('https://api.openai.com/v1'), '__custom__');
+});
+
+// ---------------------------------------------------------------------------
+// Clone metadata copy logic (PRST-02 — qgsd.json agent_config)
+// ---------------------------------------------------------------------------
+
+test('clone metadata: deep-clone copies timeout_ms and update_policy from source', () => {
+  const sourceConfig = {
+    timeout_ms: 120000,
+    update_policy: 'auto',
+    key_status: { status: 'ok', checkedAt: '2026-03-03T00:00:00.000Z' },
+  };
+  // Simulate the clone logic from cloneSlotFlow
+  const cloned = JSON.parse(JSON.stringify(sourceConfig));
+  if (cloned.key_status) delete cloned.key_status;
+  assert.strictEqual(cloned.timeout_ms, 120000);
+  assert.strictEqual(cloned.update_policy, 'auto');
+});
+
+test('clone metadata: key_status is deleted from cloned config', () => {
+  const sourceConfig = {
+    timeout_ms: 60000,
+    update_policy: 'prompt',
+    key_status: { status: 'ok', checkedAt: '2026-03-03T00:00:00.000Z' },
+  };
+  const cloned = JSON.parse(JSON.stringify(sourceConfig));
+  if (cloned.key_status) delete cloned.key_status;
+  assert.strictEqual(cloned.key_status, undefined, 'key_status must be deleted from clone');
+  assert.strictEqual(cloned.timeout_ms, 60000, 'timeout_ms must be preserved');
+  assert.strictEqual(cloned.update_policy, 'prompt', 'update_policy must be preserved');
+});

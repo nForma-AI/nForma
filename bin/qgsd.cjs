@@ -804,6 +804,22 @@ async function cloneSlotFlow() {
 
   data.mcpServers = { ...servers, [newName]: cloned };
   writeClaudeJson(data);
+
+  // Copy qgsd.json agent_config metadata from source to cloned slot
+  try {
+    const qgsd = readQgsdJson();
+    const sourceConfig = (qgsd.agent_config || {})[source.value];
+    if (sourceConfig) {
+      if (!qgsd.agent_config) qgsd.agent_config = {};
+      qgsd.agent_config[newName] = JSON.parse(JSON.stringify(sourceConfig));
+      // Clear key_status from clone (needs fresh probe)
+      if (qgsd.agent_config[newName].key_status) {
+        delete qgsd.agent_config[newName].key_status;
+      }
+      writeQgsdJson(qgsd);
+    }
+  } catch (_) { /* qgsd.json might not exist yet -- non-fatal */ }
+
   toast(`✓ Cloned "${source.value}" → "${newName}"`);
   renderList();
 }
