@@ -264,6 +264,129 @@ test('VALID_FORMALISMS includes uppaal (UPPAAL-02)', () => {
   );
 });
 
+// ─── Test 16: requirement_ids defaults to empty array when not provided ─────
+test('requirement_ids defaults to empty array when not provided', () => {
+  const tmpDir  = fs.mkdtempSync(path.join(os.tmpdir(), 'wcr-test-'));
+  const tmpFile = path.join(tmpDir, 'check-results.ndjson');
+  try {
+    const origEnv = process.env.CHECK_RESULTS_PATH;
+    process.env.CHECK_RESULTS_PATH = tmpFile;
+    delete require.cache[require.resolve(MODULE_PATH)];
+    const { writeCheckResult } = require(MODULE_PATH);
+
+    writeCheckResult({
+      tool: 'run-tlc', formalism: 'tla', result: 'pass',
+      check_id: 'tla:quorum-safety', surface: 'tla',
+      property: 'Safety invariants', runtime_ms: 100,
+      summary: 'pass: test'
+    });
+
+    const line   = fs.readFileSync(tmpFile, 'utf8').trim();
+    const record = JSON.parse(line);
+
+    assert.ok(Array.isArray(record.requirement_ids) && record.requirement_ids.length === 0,
+      'requirement_ids must default to empty array []');
+
+    process.env.CHECK_RESULTS_PATH = origEnv;
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    delete require.cache[require.resolve(MODULE_PATH)];
+  }
+});
+
+// ─── Test 17: requirement_ids is emitted when provided ──────────────────────
+test('requirement_ids is emitted when provided', () => {
+  const tmpDir  = fs.mkdtempSync(path.join(os.tmpdir(), 'wcr-test-'));
+  const tmpFile = path.join(tmpDir, 'check-results.ndjson');
+  try {
+    const origEnv = process.env.CHECK_RESULTS_PATH;
+    process.env.CHECK_RESULTS_PATH = tmpFile;
+    delete require.cache[require.resolve(MODULE_PATH)];
+    const { writeCheckResult } = require(MODULE_PATH);
+
+    writeCheckResult({
+      tool: 'run-tlc', formalism: 'tla', result: 'pass',
+      check_id: 'tla:quorum-safety', surface: 'tla',
+      property: 'Safety invariants', runtime_ms: 100,
+      summary: 'pass: test',
+      requirement_ids: ['SCHEMA-01', 'SCHEMA-02']
+    });
+
+    const line   = fs.readFileSync(tmpFile, 'utf8').trim();
+    const record = JSON.parse(line);
+
+    assert.deepStrictEqual(record.requirement_ids, ['SCHEMA-01', 'SCHEMA-02'],
+      'requirement_ids must equal the provided array');
+
+    process.env.CHECK_RESULTS_PATH = origEnv;
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    delete require.cache[require.resolve(MODULE_PATH)];
+  }
+});
+
+// ─── Test 18: requirement_ids rejects non-string elements ───────────────────
+test('requirement_ids rejects non-string elements', () => {
+  delete require.cache[require.resolve(MODULE_PATH)];
+  const { writeCheckResult } = require(MODULE_PATH);
+  assert.throws(
+    () => writeCheckResult({
+      tool: 'run-tlc', formalism: 'tla', result: 'pass',
+      check_id: 'tla:quorum-safety', surface: 'tla',
+      property: 'Safety invariants', runtime_ms: 100,
+      summary: 'pass: test',
+      requirement_ids: ['SCHEMA-01', 42]
+    }),
+    /requirement_ids must contain only strings/
+  );
+});
+
+// ─── Test 19: requirement_ids rejects non-array values ──────────────────────
+test('requirement_ids rejects non-array values', () => {
+  delete require.cache[require.resolve(MODULE_PATH)];
+  const { writeCheckResult } = require(MODULE_PATH);
+  assert.throws(
+    () => writeCheckResult({
+      tool: 'run-tlc', formalism: 'tla', result: 'pass',
+      check_id: 'tla:quorum-safety', surface: 'tla',
+      property: 'Safety invariants', runtime_ms: 100,
+      summary: 'pass: test',
+      requirement_ids: 'SCHEMA-01'
+    }),
+    /requirement_ids must be an array/
+  );
+});
+
+// ─── Test 20: backward compatibility: existing valid entry without requirement_ids ─
+test('backward compatibility: existing valid entry without requirement_ids', () => {
+  const tmpDir  = fs.mkdtempSync(path.join(os.tmpdir(), 'wcr-test-'));
+  const tmpFile = path.join(tmpDir, 'check-results.ndjson');
+  try {
+    const origEnv = process.env.CHECK_RESULTS_PATH;
+    process.env.CHECK_RESULTS_PATH = tmpFile;
+    delete require.cache[require.resolve(MODULE_PATH)];
+    const { writeCheckResult } = require(MODULE_PATH);
+
+    assert.doesNotThrow(() => {
+      writeCheckResult({
+        tool: 'run-tlc', formalism: 'tla', result: 'pass',
+        check_id: 'tla:quorum-safety', surface: 'tla',
+        property: 'Safety invariants', runtime_ms: 1823,
+        summary: 'pass: MCsafety in 1823ms'
+      });
+    });
+
+    const line   = fs.readFileSync(tmpFile, 'utf8').trim();
+    const record = JSON.parse(line);
+    assert.ok(typeof record === 'object' && record !== null, 'Output must be valid JSON object');
+
+    process.env.CHECK_RESULTS_PATH = origEnv;
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    delete require.cache[require.resolve(MODULE_PATH)];
+  }
+});
+
 // ─── Test 15: triage_tags defaults to empty array when not provided ─────────
 test('triage_tags defaults to empty array when not provided', () => {
   const tmpDir  = fs.mkdtempSync(path.join(os.tmpdir(), 'wcr-test-'));

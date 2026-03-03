@@ -27,6 +27,7 @@ const NDJSON_PATH = process.env.CHECK_RESULTS_PATH ||
  * @param {string} entry.summary    - One-line outcome (e.g. 'pass: MCsafety in 1823ms'), required
  * @param {string[]} [entry.triage_tags] - Optional anomaly tags. Defaults to [].
  * @param {object} [entry.observation_window] - Optional stochastic check window metadata (PRISM-critical). Contains { window_start, window_end, n_traces, n_events, window_days }.
+ * @param {string[]} [entry.requirement_ids] - Optional array of requirement IDs this check covers. Defaults to [].
  * @param {Object} [entry.metadata] - Optional extra fields (spec, config, etc.)
  * @throws {Error} On validation failure
  */
@@ -64,6 +65,18 @@ function writeCheckResult(entry) {
     throw new Error('[write-check-result] summary is required and must be a non-empty string');
   }
 
+  // requirement_ids: optional array of requirement IDs this check covers
+  if (entry.requirement_ids !== undefined) {
+    if (!Array.isArray(entry.requirement_ids)) {
+      throw new Error('[write-check-result] requirement_ids must be an array');
+    }
+    for (const id of entry.requirement_ids) {
+      if (typeof id !== 'string') {
+        throw new Error('[write-check-result] requirement_ids must contain only strings (got: ' + typeof id + ')');
+      }
+    }
+  }
+
   const record = {
     tool:       entry.tool,
     formalism:  entry.formalism,
@@ -75,6 +88,7 @@ function writeCheckResult(entry) {
     runtime_ms: Math.round(entry.runtime_ms),
     summary:    entry.summary,
     triage_tags: entry.triage_tags || [],
+    requirement_ids: Array.isArray(entry.requirement_ids) ? entry.requirement_ids : [],
     metadata:   entry.metadata || {},
   };
 
