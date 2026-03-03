@@ -11,6 +11,7 @@ Run the requirements aggregation pipeline. Merges current `.planning/REQUIREMENT
 SKIP_ARCHIVE=""
 DRY_RUN=""
 SKIP_VALIDATE=""
+STRICT=""
 if arguments contain "--dry-run"; then
   DRY_RUN="--dry-run"
 fi
@@ -19,6 +20,9 @@ if arguments contain "--skip-archive"; then
 fi
 if arguments contain "--skip-validate"; then
   SKIP_VALIDATE="true"
+fi
+if arguments contain "--strict"; then
+  STRICT="--strict"
 fi
 ```
 </step>
@@ -40,6 +44,50 @@ node bin/aggregate-requirements.cjs $DRY_RUN $SKIP_ARCHIVE
 ```
 
 Note: Run from the QGSD project root directory.
+</step>
+
+<step name="invariant_gate">
+**Invariant gate (write mode only):**
+
+After aggregation, run the invariant gate on the full envelope:
+
+```bash
+node bin/validate-invariant.cjs --batch --envelope=.formal/requirements.json
+```
+
+If `--strict` flag was passed to this workflow, also pass `--strict` to the invariant gate — this will automatically move regex-caught non-invariant entries to `.formal/archived-non-invariants.json`.
+
+The script outputs three verdicts per requirement:
+- `NON_INVARIANT` — caught by regex, removed in strict mode
+- `BORDERLINE` — needs Haiku sub-agent classification
+- `INVARIANT` — passed
+
+**For BORDERLINE entries:** Spawn a Haiku sub-agent to classify each one:
+
+Use the **Agent tool** with these parameters:
+- `subagent_type`: `"general-purpose"`
+- `model`: `"haiku"`
+- `description`: `"Classify borderline requirements"`
+- `prompt`:
+```
+You are a requirements invariant classifier. For each requirement below, classify as exactly one of:
+- INVARIANT: <one-line reason>
+- NON_INVARIANT: <one-line reason>
+
+A VALID requirement is an INVARIANT — a property that must hold at any point in time.
+Test: "At any point, if you inspect the system, this property holds."
+A NON-INVARIANT is a task, migration, past achievement, or process step.
+
+Requirements to classify:
+{list each borderline requirement as "ID: text"}
+```
+
+For any classified as NON_INVARIANT by Haiku: treat as non-invariant (archive in strict mode, warn otherwise).
+
+Display the results:
+- If non-invariants found: warn with count and list
+- If `--strict`: report how many were archived
+- If all pass: `◆ Invariant gate: all {N} requirements are invariants`
 </step>
 
 <step name="haiku_validate">
@@ -106,6 +154,26 @@ Display the Haiku agent's findings to the user. If high-severity findings exist,
 After validation, re-freeze by reading `.formal/requirements.json`, setting `frozen_at` to current ISO timestamp, and writing back.
 </step>
 
+<step name="check_memory">
+**Memory staleness check (write mode only):**
+
+After the envelope has been rewritten, check whether MEMORY.md references are now stale:
+
+```bash
+node bin/validate-memory.cjs --quiet
+```
+
+Or call inline: `require('../bin/validate-memory.cjs').validateMemory({ cwd, quiet: true })`.
+
+If findings exist:
+1. Display each finding with its suggested fix
+2. Ask: "MEMORY.md has stale entries after re-aggregation. Should I update them now?"
+3. If yes: apply the suggested fixes to MEMORY.md using Edit tool
+4. If no: note the staleness for the user to fix later
+
+Common case: the requirement count in MEMORY.md (e.g., "199 reqs") no longer matches the new envelope count after aggregation. The validator detects this automatically.
+</step>
+
 <step name="summarize">
 **Show summary:**
 
@@ -114,6 +182,7 @@ After validation, re-freeze by reading `.formal/requirements.json`, setting `fro
 - Haiku validation results (if run): duplicates, contradictions, ambiguities found
 - If dry-run: note this was a preview
 - If write: confirm the file was written, validated, and re-frozen
+- If memory was updated: note which entries were fixed
 </step>
 
 </process>

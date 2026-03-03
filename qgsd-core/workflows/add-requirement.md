@@ -108,6 +108,59 @@ If Haiku returns `CLEAR`:
 Display: `◆ Semantic conflict check: CLEAR (scanned {N} existing requirements)`
 </step>
 
+<step name="check_invariant">
+**Invariant gate:**
+
+Run the invariant classifier against the new requirement:
+
+```bash
+node bin/validate-invariant.cjs --id={id} --text="{text}"
+```
+
+Three possible verdicts:
+
+**If `NON_INVARIANT`:**
+1. Display: `⚠ This requirement does not appear to be an invariant: {reason}`
+2. Ask the user:
+   ```
+   Requirements should define boundaries the system must always respect.
+   Do you want to: (a) Proceed anyway, (b) Rephrase as invariant, (c) Cancel?
+   ```
+3. If (a): proceed with a warning note
+4. If (b): return to parse_args step with user's revised text
+5. If (c): abort the workflow
+
+**If `BORDERLINE`:**
+Spawn a Haiku sub-agent to classify:
+
+Use the **Agent tool** with these parameters:
+- `subagent_type`: `"general-purpose"`
+- `model`: `"haiku"`
+- `description`: `"Classify invariant"`
+- `prompt`:
+```
+You are a requirements invariant classifier.
+
+A VALID requirement is an INVARIANT — a property that must hold at any point in time.
+Test: "At any point, if you inspect the system, this property holds."
+
+A NON-INVARIANT is a task, migration, past achievement, or process step.
+
+Requirement: {id}: {text}
+
+Classify as exactly one of:
+- INVARIANT: <one-line reason>
+- NON_INVARIANT: <one-line reason>
+```
+
+Parse the sub-agent response:
+- If `NON_INVARIANT`: treat as NON_INVARIANT above (display warning, ask user)
+- If `INVARIANT`: display `◆ Invariant check: PASS (confirmed by Haiku)`
+
+**If `INVARIANT`:**
+Display: `◆ Invariant check: PASS`
+</step>
+
 <step name="unfreeze">
 **Unfreeze envelope if frozen:**
 
@@ -150,6 +203,26 @@ If `frozen_at` is not null:
 1. Read `.formal/requirements.json`
 2. Set `frozen_at` to current ISO timestamp
 3. Write back atomically
+</step>
+
+<step name="check_memory">
+**Memory staleness check:**
+
+Run the memory validator to detect stale references caused by this envelope change:
+
+```bash
+node bin/validate-memory.cjs --quiet
+```
+
+Or call inline: `require('../bin/validate-memory.cjs').validateMemory({ cwd, quiet: true })`.
+
+If findings exist (especially `stale_count` type — the requirement count in MEMORY.md no longer matches the envelope):
+1. Display each finding and its suggested fix
+2. Ask: "MEMORY.md has stale entries after this change. Should I update them now?"
+3. If yes: apply the suggested fixes to MEMORY.md using Edit tool
+4. If no: note the staleness for the user to fix later
+
+If no findings: skip silently.
 </step>
 
 <step name="summarize">
