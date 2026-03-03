@@ -79,10 +79,11 @@ Recent decisions affecting current work:
 | # | Description | Date | Commit | Status | Directory |
 |---|---|---|---|---|---|
 | 134 | Integrate formal_models field and detect-coverage-gaps into requirements TUI | 2026-03-03 | c1d5bf18 | Verified | [134-integrate-formal-models-field-and-detect](./quick/134-integrate-formal-models-field-and-detect/) |
+| 135 | Rename formal/ to .formal/ and update all references | 2026-03-03 | 5fe49c8c | Complete | [135-rename-formal-to-formal-and-update-all-r](./quick/135-rename-formal-to-formal-and-update-all-r/) |
 
 ## Session Continuity
 
 Last session: 2026-03-03
-Last activity: 2026-03-03 -- Phase v0.25-04 complete: bidirectional validation (TRACE-04) + CI coverage guard (TRACE-05)
+Last activity: 2026-03-03 -- Quick-135: renamed formal/ to .formal/ across 509 files
 Stopped at: None
 Resume file: None
