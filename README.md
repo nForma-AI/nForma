@@ -25,7 +25,7 @@ npx qgsd@latest
 
 <br>
 
-[Why I Built QGSD](#why-i-built-qgsd) · [How It Works](#how-it-works) · [Commands](#commands) · [Why It Works](#why-it-works) · [User Guide](docs/USER-GUIDE.md)
+[Why I Built QGSD](#why-i-built-qgsd) · [How It Works](#how-it-works) · [Why It Works](#why-it-works) · [Formal Verification](#formal-verification) · [Commands](#commands) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
 
@@ -676,15 +676,56 @@ lmn012o feat(08-02): create registration endpoint
 
 Every commit is surgical, traceable, and meaningful.
 
-### Formal Verification
+### Modular by Design
 
-> **Note:** The formal verification pipeline is optional and primarily intended for developers who want to verify the correctness of QGSD's protocol implementation. If you just want to use QGSD, skip this section — you do not need Java 17, PRISM, or Alloy to run QGSD normally.
+- Add phases to current milestone
+- Insert urgent work between phases
+- Complete milestones and start fresh
+- Adjust plans without rebuilding everything
 
-QGSD ships formal models of its core protocols — quorum consensus, circuit breaker, account manager, MCP availability — verified by four independent tools: TLA+, Alloy, PRISM, and Petri nets.
+You're never locked in. The system adapts.
 
-These aren't documentation. They're executable specs that check safety, liveness, and probabilistic properties of the protocols that govern how your planning decisions get made.
+---
 
-#### Prerequisites
+## Formal Verification
+
+> **Note:** The formal verification pipeline is optional. If you just want to use QGSD, skip this section — you do not need Java 17, PRISM, or Alloy to run QGSD normally. This is for developers who want to verify the correctness of QGSD's protocol implementation.
+
+QGSD ships executable formal models of its core protocols — not documentation, but machine-checked specs that verify safety, liveness, and probabilistic properties of the protocols that govern how your planning decisions get made.
+
+### What's Modeled
+
+The `formal/` directory contains 25+ specs across five verification tools:
+
+| Tool | Specs | What they model |
+|------|-------|-----------------|
+| **TLA+** (11 models) | `QGSDQuorum`, `QGSDCircuitBreaker`, `QGSDOscillation`, `QGSDConvergence`, `QGSDDeliberation`, `QGSDPreFilter`, `QGSDAccountManager`, `QGSDMCPEnv`, `QGSDRecruiting`, `QGSDStopHook`, `TUINavigation` | State-space exhaustive model checking — safety invariants and liveness properties |
+| **Alloy** (8 models) | quorum-votes, quorum-composition, scoreboard-recompute, availability-parsing, transcript-scan, install-scope, taxonomy-safety, account-pool-structure | Structural correctness — no impossible states, constraint satisfaction |
+| **PRISM** (3 models) | quorum consensus, OAuth rotation, MCP availability | Probabilistic model checking — convergence probability, expected rounds to consensus |
+| **Petri nets** (2 models) | quorum flow, account manager lifecycle | Visual concurrency models — token flow, place/transition reachability |
+| **UPPAAL** (1 model) | quorum timed races | Real-time model checking — timeout race conditions between concurrent slots |
+
+### Spec Sources
+
+Each protocol has a human-readable spec in `formal/spec/` that defines the invariants, then one or more tool-specific models that check them:
+
+```
+formal/
+├── spec/           # Human-readable protocol specs (invariants.md per protocol)
+├── tla/            # TLA+ models + config files (MCsafety.cfg, MCliveness.cfg, etc.)
+├── alloy/          # Alloy 6 models (.als)
+├── prism/          # PRISM models (.pm) + property files (.props)
+├── petri/          # Petri net DOT sources + rendered SVGs
+├── uppaal/         # UPPAAL timed automata (.xml) + queries (.q)
+├── trace/          # TLA+ counterexample traces for debugging
+├── model-registry.json   # Version tracking for all spec files
+├── diff-report.md        # Delta between current and previous verification runs
+├── suspects.md           # Failing or inconclusive checks needing attention
+├── requirements.json     # Formal requirements with traceability to specs
+└── policy.yaml           # Calibration governance (cold-start thresholds, PRISM priors)
+```
+
+### Prerequisites
 
 TLA+, Alloy, and PRISM all require Java 17+. Petri nets need no extra install (bundled via npm).
 
@@ -697,54 +738,42 @@ node bin/install-formal-tools.cjs
 
 Full per-tool documentation: **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)**
 
-Quick summary:
-
 | Tool | Requires | One-time setup |
 |------|----------|----------------|
 | TLA+ | Java 17+ | Auto-downloaded to `formal/tla/` by install script |
 | Alloy 6 | Java 17+ | Auto-downloaded to `formal/alloy/` by install script |
 | PRISM | Java 17+ | Downloaded + installed by script; set `PRISM_BIN` as instructed |
 | Petri nets | — | Nothing — bundled via `@hpcc-js/wasm-graphviz` |
+| UPPAAL | Java 17+ | Manual install — [uppaal.org](https://uppaal.org) |
 
-#### Running Verification
+### Running Verification
 
 ```bash
-# Full pipeline — all 21 steps (generate → Petri → TLA+ → Alloy → PRISM)
+# Full pipeline — all steps (generate → Petri → TLA+ → Alloy → PRISM)
 node bin/run-formal-verify.cjs
 
 # Subsets
-node bin/run-formal-verify.cjs --only=tla      # 8 TLA+ model checks
-node bin/run-formal-verify.cjs --only=alloy    # 7 Alloy assertions
-node bin/run-formal-verify.cjs --only=prism    # 2 PRISM analyses (quorum + oauth-rotation)
-node bin/run-formal-verify.cjs --only=petri    # 2 Petri net renders
+node bin/run-formal-verify.cjs --only=tla      # TLA+ model checks
+node bin/run-formal-verify.cjs --only=alloy    # Alloy assertions
+node bin/run-formal-verify.cjs --only=prism    # PRISM probabilistic analyses
+node bin/run-formal-verify.cjs --only=petri    # Petri net renders
 node bin/run-formal-verify.cjs --only=generate # Regenerate specs from source only
 ```
 
 Exit code 0 = all checks pass. Exit code 1 = at least one violation or configuration error.
 
-#### What Gets Checked
+Individual runners: `bin/run-tlc.cjs`, `bin/run-alloy.cjs`, `bin/run-prism.cjs`, `bin/generate-petri-net.cjs`.
 
-| Tool | Models | Properties |
-|------|--------|------------|
-| TLA+ | Quorum, CircuitBreaker, Oscillation, Convergence, Deliberation, PreFilter, AccountManager, MCP Environment | Safety invariants + liveness (quorum always terminates, breaker never infinite-loops) |
-| Alloy | Quorum votes, scoreboard recompute, availability parsing, transcript scan, install scope, taxonomy safety, account pool structure | Structural correctness (no impossible states) |
-| PRISM | Quorum consensus, OAuth rotation, MCP availability | Probabilistic reachability (convergence probability, expected rounds to consensus) |
-| Petri nets | Quorum flow, account manager lifecycle | Visual concurrency model (token flow, place/transition reachability) |
+### CI Pipeline Artifacts
 
-Individual runners are in `bin/run-tlc.cjs`, `bin/run-alloy.cjs`, `bin/run-prism.cjs`, and `bin/generate-petri-net.cjs`. Spec source files are in `formal/tla/`, `formal/alloy/`, `formal/prism/`, and `formal/petri/`.
+Each verification run produces machine-readable outputs:
 
----
-
-[Back to top](#table-of-contents)
-
-### Modular by Design
-
-- Add phases to current milestone
-- Insert urgent work between phases
-- Complete milestones and start fresh
-- Adjust plans without rebuilding everything
-
-You're never locked in. The system adapts.
+| File | Purpose |
+|------|---------|
+| `check-results.ndjson` | Structured results per check (pass/fail/warn with timing) |
+| `diff-report.md` | What changed since last run — new failures, regressions, fixes |
+| `suspects.md` | Failing or inconclusive checks that need attention |
+| `model-registry.json` | Version tracking — detects when specs drift from source |
 
 ---
 
