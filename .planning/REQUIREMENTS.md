@@ -9,27 +9,27 @@ Make quorum dispatch reliable end-to-end -- every quorum call reliably delivers 
 
 ### Dispatch Reliability
 
-- [ ] **DISP-01**: qgsd-prompt.js runs a fast health probe (<3s) per provider before building the dispatch list -- dead providers' slots excluded from DISPATCH_LIST
-- [ ] **DISP-02**: qgsd-prompt.js reads scoreboard `availability` windows and excludes slots whose `available_at` is in the future from dispatch
-- [ ] **DISP-03**: Dispatch list ordered by recent success rate (from scoreboard slot stats) rather than static FALLBACK-01 tier sequence -- most reliable slots dispatched first
+- [x] **DISP-01**: qgsd-prompt.js runs a fast health probe (<3s) per provider before building the dispatch list -- dead providers' slots excluded from DISPATCH_LIST
+- [x] **DISP-02**: qgsd-prompt.js reads scoreboard `availability` windows and excludes slots whose `available_at` is in the future from dispatch
+- [x] **DISP-03**: Dispatch list ordered by recent success rate (from scoreboard slot stats) rather than static FALLBACK-01 tier sequence -- most reliable slots dispatched first
 - [x] **DISP-04**: Prompt construction (Mode A/B, Round 1/2+, artifact injection, prior_positions, review_context, improvements request) happens deterministically in JavaScript (call-quorum-slot.cjs or wrapper), not via LLM string manipulation in the slot worker agent
 - [x] **DISP-05**: Output parsing (verdict, reasoning, citations, improvements extraction from raw CLI output) happens in JavaScript with structured YAML output -- the slot worker agent returns script output verbatim without LLM post-processing
 
 ### Failover & Recovery
 
-- [ ] **FAIL-01**: call-quorum-slot.cjs retries a failed slot call up to 2 times with exponential backoff (1s, 3s) before recording UNAVAIL in quorum-failures.json
-- [ ] **FAIL-02**: providers.json contains explicit slot-to-provider mapping; when a provider probe returns DOWN, all slots on that provider skipped in a single dispatch decision
+- [x] **FAIL-01**: call-quorum-slot.cjs retries a failed slot call up to 2 times with exponential backoff (1s, 3s) before recording UNAVAIL in quorum-failures.json
+- [x] **FAIL-02**: providers.json contains explicit slot-to-provider mapping; when a provider probe returns DOWN, all slots on that provider skipped in a single dispatch decision
 
 ### Observability
 
-- [ ] **OBS-01**: Each quorum round emits structured telemetry (slot, round, verdict, latency_ms, provider status) to a per-session log file
-- [ ] **OBS-02**: Scoreboard tracks quorum delivery rate -- percentage of calls that achieved target vote count (3/3 vs degraded 2/3)
-- [ ] **OBS-03**: Each slot gets a flakiness score from recent UNAVAIL/timeout frequency; high-flakiness slots deprioritized in dispatch ordering
+- [x] **OBS-01**: Each quorum round emits structured telemetry (slot, round, verdict, latency_ms, provider status) to a per-session log file
+- [x] **OBS-02**: Scoreboard tracks quorum delivery rate -- percentage of calls that achieved target vote count (3/3 vs degraded 2/3)
+- [x] **OBS-03**: Each slot gets a flakiness score from recent UNAVAIL/timeout frequency; high-flakiness slots deprioritized in dispatch ordering
 
 ### Self-Healing
 
-- [ ] **HEAL-01**: After each deliberation round, system computes P(consensus | remaining rounds); if P < threshold (default 10%), escalation fires early instead of exhausting maxDeliberation
-- [ ] **HEAL-02**: When verify-quorum-health detects P(consensus) < 95%, it recommends and auto-adjusts maxDeliberation in qgsd.json (with user approval)
+- [x] **HEAL-01**: After each deliberation round, system computes P(consensus | remaining rounds); if P < threshold (default 10%), escalation fires early instead of exhausting maxDeliberation
+- [x] **HEAL-02**: When verify-quorum-health detects P(consensus) < 95%, it recommends and auto-adjusts maxDeliberation in qgsd.json (with user approval)
 
 ## Out of Scope
 
@@ -45,18 +45,18 @@ Make quorum dispatch reliable end-to-end -- every quorum call reliably delivers 
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DISP-01 | v0.24-02 | Pending |
-| DISP-02 | v0.24-02 | Pending |
-| DISP-03 | v0.24-02 | Pending |
-| FAIL-01 | v0.24-01 | Pending |
-| FAIL-02 | v0.24-01 | Pending |
-| OBS-01 | v0.24-03 | Pending |
-| OBS-02 | v0.24-03 | Pending |
-| OBS-03 | v0.24-03 | Pending |
+| DISP-01 | v0.24-02 | Complete |
+| DISP-02 | v0.24-02 | Complete |
+| DISP-03 | v0.24-02 | Complete |
+| FAIL-01 | v0.24-01 | Complete |
+| FAIL-02 | v0.24-01 | Complete |
+| OBS-01 | v0.24-03 | Complete |
+| OBS-02 | v0.24-03 | Complete |
+| OBS-03 | v0.24-03 | Complete |
 | DISP-04 | v0.24-05 | Complete |
 | DISP-05 | v0.24-05 | Complete |
-| HEAL-01 | v0.24-04 | Pending |
-| HEAL-02 | v0.24-04 | Pending |
+| HEAL-01 | v0.24-04 | Complete |
+| HEAL-02 | v0.24-04 | Complete |
 
 **Coverage:**
 - v0.24 requirements: 12 total
@@ -65,4 +65,4 @@ Make quorum dispatch reliable end-to-end -- every quorum call reliably delivers 
 
 ---
 *Requirements defined: 2026-03-02*
-*Last updated: 2026-03-02 after roadmap creation (all 10 requirements mapped to phases)*
+*Last updated: 2026-03-03 — all 12 requirements satisfied and verified*
