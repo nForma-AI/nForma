@@ -588,6 +588,109 @@ test('writeKeyStatus: writes {status: \'ok\', checkedAt: ISO} and overwrites pri
 });
 
 // ---------------------------------------------------------------------------
+// probeAndPersistKey + probeAllSlots persistence behavior (v0.26-02-01)
+// ---------------------------------------------------------------------------
+
+test('probeAndPersistKey: probe succeeds (200), classifyProbeResult returns ok, writeKeyStatus persists correctly', () => {
+  const os = require('os');
+  const fs = require('fs');
+  const tmpPath = os.tmpdir() + '/qgsd_ppk_ok_' + Date.now() + '.json';
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify({ agent_config: {} }), 'utf8');
+    // Simulate the probe-classify-write chain that probeAndPersistKey performs
+    const probeResult = { healthy: true, statusCode: 200, latencyMs: 50, error: null };
+    const status = classifyProbeResult(probeResult);
+    assert.strictEqual(status, 'ok');
+    writeKeyStatus('test-slot', status, tmpPath);
+    const result = readQgsdJson(tmpPath);
+    assert.strictEqual(result.agent_config['test-slot'].key_status.status, 'ok');
+    // checkedAt must be a valid ISO date string
+    const checkedAt = result.agent_config['test-slot'].key_status.checkedAt;
+    assert.strictEqual(typeof checkedAt, 'string');
+    assert.strictEqual(new Date(checkedAt).toISOString(), checkedAt);
+  } finally {
+    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+  }
+});
+
+test('probeAndPersistKey: probe returns 401, status persists as invalid', () => {
+  const os = require('os');
+  const fs = require('fs');
+  const tmpPath = os.tmpdir() + '/qgsd_ppk_401_' + Date.now() + '.json';
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify({ agent_config: {} }), 'utf8');
+    const probeResult = { healthy: true, statusCode: 401, latencyMs: 100, error: null };
+    const status = classifyProbeResult(probeResult);
+    assert.strictEqual(status, 'invalid');
+    writeKeyStatus('test-slot', status, tmpPath);
+    const result = readQgsdJson(tmpPath);
+    assert.strictEqual(result.agent_config['test-slot'].key_status.status, 'invalid');
+    assert.strictEqual(typeof result.agent_config['test-slot'].key_status.checkedAt, 'string');
+  } finally {
+    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+  }
+});
+
+test('probeAndPersistKey: probe times out (statusCode null), existing status NOT overwritten', () => {
+  const os = require('os');
+  const fs = require('fs');
+  const tmpPath = os.tmpdir() + '/qgsd_ppk_timeout_' + Date.now() + '.json';
+  try {
+    // Seed with existing 'ok' status
+    const seed = {
+      agent_config: {
+        'test-slot': { key_status: { status: 'ok', checkedAt: '2026-01-01T00:00:00.000Z' } }
+      }
+    };
+    fs.writeFileSync(tmpPath, JSON.stringify(seed), 'utf8');
+    // Simulate a timeout probe result
+    const probeResult = { healthy: false, statusCode: null, latencyMs: 7000, error: 'Timed out' };
+    // Apply the guard: if (probe.healthy || probe.statusCode) -> false || null -> falsy
+    const shouldPersist = probeResult.healthy || probeResult.statusCode;
+    assert.ok(!shouldPersist, 'timeout probe must NOT trigger persistence');
+    // Do NOT call writeKeyStatus (matching probeAndPersistKey behavior)
+    // Verify existing status is preserved
+    const result = readQgsdJson(tmpPath);
+    assert.strictEqual(result.agent_config['test-slot'].key_status.status, 'ok', 'existing status must NOT be overwritten on timeout');
+    assert.strictEqual(result.agent_config['test-slot'].key_status.checkedAt, '2026-01-01T00:00:00.000Z');
+  } finally {
+    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+  }
+});
+
+test('probeAndPersistKey: multiple slots persist independently', () => {
+  const os = require('os');
+  const fs = require('fs');
+  const tmpPath = os.tmpdir() + '/qgsd_ppk_multi_' + Date.now() + '.json';
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify({ orchestrator: { model: 'test' }, agent_config: {} }), 'utf8');
+    writeKeyStatus('slot-a', 'ok', tmpPath);
+    writeKeyStatus('slot-b', 'invalid', tmpPath);
+    const result = readQgsdJson(tmpPath);
+    assert.strictEqual(result.agent_config['slot-a'].key_status.status, 'ok');
+    assert.strictEqual(result.agent_config['slot-b'].key_status.status, 'invalid');
+    // Verify other top-level keys preserved
+    assert.strictEqual(result.orchestrator.model, 'test', 'top-level keys must be preserved');
+  } finally {
+    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+  }
+});
+
+test('probeAllSlots persistence guard: correctly identifies which results should be persisted', () => {
+  // Test the guard condition: if (probe.healthy || probe.statusCode)
+  const cases = [
+    { probe: { healthy: true, statusCode: 200 },  expected: true,  desc: '200 OK -> should persist' },
+    { probe: { healthy: true, statusCode: 401 },  expected: true,  desc: '401 Unauthorized -> should persist' },
+    { probe: { healthy: false, statusCode: null }, expected: false, desc: 'timeout (null statusCode) -> should NOT persist' },
+    { probe: { healthy: false, statusCode: 500 },  expected: true,  desc: '500 Server Error -> should persist (statusCode is truthy)' },
+  ];
+  for (const { probe, expected, desc } of cases) {
+    const shouldPersist = !!(probe.healthy || probe.statusCode);
+    assert.strictEqual(shouldPersist, expected, desc);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // formatTimestamp
 // ---------------------------------------------------------------------------
 

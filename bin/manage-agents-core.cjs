@@ -610,6 +610,27 @@ function validateImportSchema(parsed) {
 // Async helpers: probing, health checks, updates
 // ---------------------------------------------------------------------------
 
+/**
+ * Probe a single slot and persist key_status to qgsd.json if the provider responded.
+ * Does NOT persist for timeout/network errors (statusCode is null) -- this is
+ * a provider/network issue, not a key validity issue.
+ * @param {string} slotName - MCP server slot name (e.g. 'claude-1')
+ * @param {string} baseUrl - Provider base URL (e.g. 'https://api.akashml.com/v1')
+ * @param {string} apiKey - API key for authentication
+ * @returns {Promise<Object>} The raw probe result from probeProviderUrl
+ */
+async function probeAndPersistKey(slotName, baseUrl, apiKey) {
+  const probe = await probeProviderUrl(baseUrl, apiKey);
+  // Only persist status if provider actually responded (statusCode present).
+  // Do NOT persist for timeout/network errors (statusCode is null) -- this is
+  // a provider/network issue, not a key validity issue (see invariants.md).
+  if (probe.healthy || probe.statusCode) {
+    const status = classifyProbeResult(probe);
+    writeKeyStatus(slotName, status);
+  }
+  return probe;
+}
+
 async function probeAllSlots(mcpServers, slots, secretsLib) {
   const results = await Promise.all(slots.map(async (slotName) => {
     const cfg = mcpServers[slotName] || {};
@@ -625,7 +646,7 @@ async function probeAllSlots(mcpServers, slots, secretsLib) {
         if (k) apiKey = k;
       } catch (_) {}
     }
-    const probe = await probeProviderUrl(env.ANTHROPIC_BASE_URL, apiKey);
+    const probe = await probeAndPersistKey(slotName, env.ANTHROPIC_BASE_URL, apiKey);
     return [slotName, probe];
   }));
   return Object.fromEntries(results);
@@ -776,6 +797,7 @@ module.exports._pure = {
   validateUpdatePolicy,
   buildUpdateLogEntry,
   parseUpdateLogErrors,
+  probeAndPersistKey,
   probeAllSlots,
   liveDashboard,
   runAutoUpdateCheck,
