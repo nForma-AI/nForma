@@ -857,6 +857,7 @@ Each verification run produces machine-readable outputs:
 | `/qgsd:triage [--source github\|sentry\|bash] [--since 24h\|7d] [--limit N]` | Fetch and prioritize issues from GitHub, Sentry, or custom sources; route selected issue to QGSD workflow |
 | `/qgsd:queue <command>` | Queue a command to auto-invoke after the next /clear — survives context compaction |
 | `/qgsd:reapply-patches` | Restore local modifications after an update |
+| `/qgsd:aggregate-requirements [--dry-run] [--skip-archive] [--skip-validate]` | Merge current + archived milestone requirements into `formal/requirements.json` |
 | `/qgsd:health [--repair]` | Validate `.planning/` directory integrity, auto-repair with `--repair` |
 
 ---
