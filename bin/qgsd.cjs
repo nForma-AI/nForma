@@ -1316,6 +1316,16 @@ function buildScoreboardLines(data, opts) {
     }
   }
 
+  // Guard for empty providers
+  if (opts && opts.providers && opts.providers.length === 0) {
+    const lines = [];
+    lines.push('{bold}  Quorum Scoreboard{/bold}');
+    lines.push('  {gray-fg}No agents configured in providers.json.{/}');
+    lines.push('  {gray-fg}Run /qgsd:mcp-setup to add agents.{/}');
+    lines.push('');
+    return lines;
+  }
+
   const W = { slot: 10, cli: 8, model: 16, score: 5, inv: 4, norm: 6, tp: 3, tn: 3, fp: 3, fn: 3, impr: 4 };
   const SEP_W = 85;
   const lines = [];
@@ -1489,8 +1499,9 @@ function renderScoreboard() {
     }
     const data  = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
     const pdata = readProvidersJson();
-    const roster = new Set(pdata.providers.map(p => p.name));
-    const lines = buildScoreboardLines(data, { roster, providers: pdata.providers });
+    const providersList = pdata.providers || [];
+    const roster = new Set(providersList.map(p => p.name));
+    const lines = buildScoreboardLines(data, { roster, providers: providersList });
     setContent('Scoreboard', lines.join('\n'));
   } catch (err) {
     setContent('Scoreboard', `{red-fg}Error: ${err.message}{/}`);

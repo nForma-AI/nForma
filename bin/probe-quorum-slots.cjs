@@ -132,6 +132,12 @@ async function main() {
     process.exit(0);
   }
 
+  if (providers.length === 0) {
+    process.stderr.write('[probe-quorum-slots] No providers configured in providers.json — skipping probe\n');
+    process.stdout.write('[]\n');
+    process.exit(0);
+  }
+
   const slotNames = slotsArg.split(',').map(s => s.trim()).filter(Boolean);
 
   const results = await Promise.all(

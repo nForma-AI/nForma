@@ -420,17 +420,24 @@ process.stdin.on('end', () => {
         slot,
         authType: (agentCfg[slot] && agentCfg[slot].auth_type) || 'api',
       }));
-      if (preferSub) {
-        orderedSlots.sort((a, b) => {
-          if (a.authType === 'sub' && b.authType !== 'sub') return -1;
-          if (a.authType !== 'sub' && b.authType === 'sub') return 1;
-          return 0;
-        });
-      }
 
-      // externalSlotCap = fanOutCount - 1 (Claude accounts for the +1 in total participants)
-      const externalSlotCap = fanOutCount - 1;
-      let cappedSlots = orderedSlots.slice(0, externalSlotCap);
+      // Guard: empty roster — no external agents configured at all
+      if (orderedSlots.length === 0) {
+        // Fail-open to solo mode: Claude is the only quorum participant
+        console.error('[qgsd-dispatch] WARNING: no external agents in roster — falling back to solo quorum');
+        instructions = `<!-- QGSD_SOLO_MODE -->\nSOLO MODE ACTIVE (empty roster): No external agents configured in providers.json or quorum_active. Claude's vote is the quorum. Write <!-- GSD_DECISION --> in your final output. The Stop hook is informed.\n\nTo add agents, run /qgsd:mcp-setup or edit ~/.claude/qgsd.json quorum_active.\n`;
+      } else {
+        if (preferSub) {
+          orderedSlots.sort((a, b) => {
+            if (a.authType === 'sub' && b.authType !== 'sub') return -1;
+            if (a.authType !== 'sub' && b.authType === 'sub') return 1;
+            return 0;
+          });
+        }
+
+        // externalSlotCap = fanOutCount - 1 (Claude accounts for the +1 in total participants)
+        const externalSlotCap = fanOutCount - 1;
+        let cappedSlots = orderedSlots.slice(0, externalSlotCap);
 
       // DISP-01: Trigger fresh health probe before reading cache
       triggerHealthProbe();
@@ -567,6 +574,7 @@ process.stdin.on('end', () => {
         `  ${afterSteps + 3}. Include the token <!-- GSD_DECISION --> in your FINAL output\n\n` +
         `Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.\n` +
         `The Stop hook reads the transcript — skipping quorum will block your response.`;
+      }
     } else {
       // Neither quorum_instructions nor quorum_active configured — use hardcoded fallback
       instructions = DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK;

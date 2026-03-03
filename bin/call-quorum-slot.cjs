@@ -443,6 +443,11 @@ async function main() {
     process.exit(1);
   }
 
+  if (providers.length === 0) {
+    process.stderr.write('[call-quorum-slot] No providers configured in providers.json — cannot dispatch slot\n');
+    process.exit(1);
+  }
+
   const provider = providers.find(p => p.name === slot);
   if (!provider) {
     const names = providers.map(p => p.name).join(', ');

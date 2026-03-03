@@ -185,6 +185,26 @@ test('readProvidersJson: throws on malformed JSON', () => {
   }
 });
 
+test('readProvidersJson: handles empty providers array gracefully', () => {
+  const src  = path.join(__dirname, 'providers.json');
+  const bak  = src + '.test-bak';
+  const had  = fs.existsSync(src);
+  if (had) fs.renameSync(src, bak);
+  fs.writeFileSync(src, JSON.stringify({ providers: [] }), 'utf8');
+  try {
+    const result = _pure.readProvidersJson();
+    assert.deepStrictEqual(result.providers, []);
+  } finally {
+    fs.unlinkSync(src);
+    if (had) fs.renameSync(bak, src);
+  }
+});
+
+test('buildTimeoutChoices: returns empty array for empty providers', () => {
+  const result = _pure.buildTimeoutChoices([], {}, { providers: [] });
+  assert.deepStrictEqual(result, []);
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. writeProvidersJson()
 // ─────────────────────────────────────────────────────────────────────────────

@@ -29,6 +29,12 @@ try {
   process.exit(1);
 }
 
+// Guard: handle empty providers array gracefully
+if (!Array.isArray(providers) || providers.length === 0) {
+  process.stderr.write('[unified-mcp-server] WARNING: No providers configured in providers.json — server will start with zero tools\n');
+  providers = providers || [];
+}
+
 // ─── PROVIDER_SLOT mode detection ─────────────────────────────────────────────
 const SLOT = process.env.PROVIDER_SLOT ?? null;
 const slotProvider = SLOT ? providers.find(p => p.name === SLOT) : null;
