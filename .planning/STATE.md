@@ -69,8 +69,15 @@ Recent decisions affecting current work:
 - [v0.18-06/07 open]: v0.18-06 (FAN-04 Stop hook ceiling fix) and v0.18-07 (ENV-03 envelope path wiring) not yet started
 - [v0.21-02 carry-forward]: 3983 unmappable_action divergences remain (correctly excluded from state_mismatch rate)
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Status | Directory |
+|---|---|---|---|---|---|
+| 134 | Integrate formal_models field and detect-coverage-gaps into requirements TUI | 2026-03-03 | cb764f6f | Complete | [134-integrate-formal-models-field-and-detect](./quick/134-integrate-formal-models-field-and-detect/) |
+
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed v0.25-01-03-PLAN.md -- requirement-map.cjs + all 18 runners wired + 27 tests passing
+Last activity: 2026-03-03 -- Completed quick task 134: Integrate formal_models field and detect-coverage-gaps into requirements TUI
+Stopped at: None
 Resume file: None
