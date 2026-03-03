@@ -1246,7 +1246,7 @@ Plans:
 - [x] **Phase v0.25-04: Bidirectional Validation** - Detect asymmetric links between models and requirements; CI guard on coverage regression (completed 2026-03-03)
 - [x] **Phase v0.25-05: Decomposition Awareness** - Analyze model state-space size, flag unbounded domains, and validate coverage preservation during model splits
 - [x] **Phase v0.25-06: Annotation Regression Fix** - Re-add @requirement annotations to generated model files stripped by spec-regen hook; make spec-regen annotation-aware to prevent recurrence (ANNOT-01, ANNOT-02, ANNOT-03) (Gap Closure)
-- [ ] **Phase v0.25-07: Retroactive Verification & Bookkeeping** - Create VERIFICATION.md for v0.25-02/04/05; update REQUIREMENTS.md checkboxes and SUMMARY frontmatter (ANNOT-04, TRACE-04, TRACE-05, DECOMP-01..04) (Gap Closure)
+- [x] **Phase v0.25-07: Retroactive Verification & Bookkeeping** - Create VERIFICATION.md for v0.25-02/04/05; update REQUIREMENTS.md checkboxes and SUMMARY frontmatter (ANNOT-04, TRACE-04, TRACE-05, DECOMP-01..04) (Gap Closure) (completed 2026-03-03)
 
 ## Phase Details
 
@@ -1349,4 +1349,4 @@ Plans:
 | v0.25-04. Bidirectional Validation | 2/2 | Complete    | 2026-03-03 | - |
 | v0.25-05. Decomposition Awareness | 3/3 | Complete | 2026-03-03 | - |
 | v0.25-06. Annotation Regression Fix | 2/2 | Complete | 2026-03-03 | Gap Closure |
-| v0.25-07. Retroactive Verification & Bookkeeping | 0/2 | Pending | - | Gap Closure |
+| v0.25-07. Retroactive Verification & Bookkeeping | 0/2 | Complete    | 2026-03-03 | Gap Closure |
