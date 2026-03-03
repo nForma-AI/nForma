@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 after v0.23 milestone completion)
 
 ## Current Position
 
-Phase: v0.24-03 of 5 (Quorum Observability) — IN PROGRESS (1 of 3 plans complete)
-Plan: 01/03 complete (TDD Test Scaffolding — OBS-01, OBS-02, OBS-03)
-Status: v0.24 milestone CONTINUING — OBS requirements phase active (OBS-01, OBS-02, OBS-03)
-Last activity: 2026-03-03 - Completed v0.24-03-01: TDD test scaffolding with 15 GREEN unit tests and 19 RED structural tests. Next: implement telemetry logging (Plan 02) and scoreboard observability (Plan 03)
+Phase: v0.24-03 of 5 (Quorum Observability) — COMPLETE (3 of 3 plans complete)
+Plan: 03/03 complete (Scoreboard Delivery Stats & Flakiness Scoring — OBS-02, OBS-03)
+Status: v0.24 milestone CONTINUING — OBS requirements FULFILLED (OBS-01, OBS-02, OBS-03 all complete)
+Last activity: 2026-03-03 - Completed v0.24-03 phase: All 3 plans implemented. Plan 02 telemetry logging with recordTelemetry function (OBS-01), Plan 03 scoreboard delivery stats and flakiness scoring (OBS-02/OBS-03). All 40 tests GREEN. Phase ready for v0.24-04 self-healing.
 
-Progress: [########........] 20% v0.24-03 (1 of 3 plans complete in observability phase; 9 of 12 total v0.24 plans complete)
+Progress: [###########.....] 33% v0.24-03 → COMPLETE (3 of 3 plans complete; 11 of 12 total v0.24 plans complete)
 
 ## Performance Metrics
 
@@ -37,9 +37,9 @@ Progress: [########........] 20% v0.24-03 (1 of 3 plans complete in observabilit
 - Trend: stable
 
 *Updated after each plan completion*
-| Phase v0.24-03 P01 | 1 | 0 tasks | 2 files |
-| Phase v0.24-05 P02 | 7 | 2 tasks | 2 files |
-| Phase v0.24-05 P03 | 23 | 2 tasks | 1 file |
+| Phase v0.24-03 P01 | 1 | 0 tasks | 2 files created (tests) |
+| Phase v0.24-03 P02 | 2 | 1 task | 1 file modified (telemetry) |
+| Phase v0.24-03 P03 | 2 | 2 tasks | 2 files modified (scoreboard + dispatch) |
 
 ## Accumulated Context
 
@@ -48,6 +48,11 @@ Progress: [########........] 20% v0.24-03 (1 of 3 plans complete in observabilit
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v0.24-03-03]: Delivery stats computation: parseFloat(...toFixed(1)) ensures pct is JSON number, not string (85.2 not "85.2")
+- [v0.24-03-03]: Flakiness scoring: trailing 10-round window, count UNAVAIL/TIMEOUT/empty/falsy as failures, score 0.0-1.0 as number
+- [v0.24-03-03]: Flakiness-aware dispatch: primary sort key = flakiness ASC (lower = reliable), secondary = success rate DESC (higher = better)
+- [v0.24-03-03]: Automatic recomputation: both computeDeliveryStats and computeFlakiness called in merge-wave after recomputeStats/recomputeSlots — no separate CLI call
+- [v0.24-03-02]: recordTelemetry function in call-quorum-slot.cjs: 10 fields (ts, session_id, round, slot, verdict, latency_ms, provider, provider_status, retry_count, error_type)
 - [v0.24-03-01]: TDD test scaffolding for observability: 15 GREEN unit tests (pure functions) and 19 RED structural tests (waiting for Plans 02/03 implementation)
 - [v0.24-03-01]: Session ID fallback: CLAUDE_SESSION_ID from environment OR 'session-' + Date.now()
 - [v0.24-03-01]: Flakiness window: exactly 10 rounds, trailing (last 10 verdicts), not first 10
@@ -99,9 +104,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: Completed v0.24-05-04 human verification — phase fully closed
+Last session: 2026-03-03
+Stopped at: Completed v0.24-03-03 plan execution — phase fully closed
 Resume file: None
+
+**v0.24-03 Phase Complete:** All 3 plans finished (TDD test scaffolding, telemetry logging implementation, delivery stats + flakiness scoring). Total: 3 requirements (OBS-01, OBS-02, OBS-03) fully implemented and verified. All 40 tests GREEN (17 telemetry + 23 observability). Ready for v0.24-04 self-healing.
 
 **v0.24-01 Phase Complete:** All 4 plans finished (TDD scaffolding, retry backoff, provider infrastructure, acceptance tests). Total: 2 requirements (FAIL-01, FAIL-02) fully implemented and verified.
 
