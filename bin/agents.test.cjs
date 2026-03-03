@@ -359,7 +359,9 @@ test('MENU_ITEMS: contains all expected actions', () => {
     'list', 'add', 'clone', 'edit', 'remove', 'reorder',
     'health-single', 'login', 'provider-keys',
     'batch-rotate', 'health', 'scoreboard', 'update-agents', 'tune-timeouts',
-    'update-policy', 'export', 'import', 'exit',
+    'update-policy', 'req-browse', 'req-coverage', 'req-traceability', 'req-aggregate',
+    'req-gaps',
+    'export', 'import', 'exit',
   ]) {
     assert.ok(actions.has(expected), `action "${expected}" missing from MENU_ITEMS`);
   }

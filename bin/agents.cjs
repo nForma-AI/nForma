@@ -22,6 +22,7 @@ const {
 } = pure;
 
 const { updateAgents, getUpdateStatuses } = require('./update-agents.cjs');
+const reqCore = require('./requirements-core.cjs');
 
 // ─── File paths ───────────────────────────────────────────────────────────────
 const CLAUDE_JSON_PATH   = path.join(os.homedir(), '.claude.json');
@@ -65,6 +66,12 @@ const MENU_ITEMS = [
   { label: '  Settings',                action: 'settings'      },
   { label: '  Tune Timeouts',           action: 'tune-timeouts' },
   { label: '  Set Update Policy',       action: 'update-policy' },
+  { label: ' ── Requirements ───',       action: 'sep'              },
+  { label: '  Browse Reqs',             action: 'req-browse'      },
+  { label: '  Coverage',                action: 'req-coverage'    },
+  { label: '  Traceability',            action: 'req-traceability'},
+  { label: '  Aggregate',               action: 'req-aggregate'  },
+  { label: '  Coverage Gaps',           action: 'req-gaps'       },
   { label: ' ─────────────────',        action: 'sep'           },
   { label: '  Export Roster',           action: 'export'        },
   { label: '  Import Roster',           action: 'import'        },
@@ -1892,9 +1899,299 @@ async function dispatch(action) {
     else if (action === 'update-policy') await updatePolicyFlow();
     else if (action === 'export')        await exportFlow();
     else if (action === 'import')        await importFlow();
+    else if (action === 'req-browse')       await reqBrowseFlow();
+    else if (action === 'req-coverage')     renderReqCoverage();
+    else if (action === 'req-traceability') await reqTraceabilityFlow();
+    else if (action === 'req-aggregate')    await reqAggregateFlow();
+    else if (action === 'req-gaps')         reqCoverageGapsFlow();
   } catch (err) {
     if (err.message !== 'cancelled') toast(err.message, true);
     menuList.focus();
+  }
+}
+
+// ─── Requirements: Coverage ──────────────────────────────────────────────────
+function renderReqCoverage() {
+  try {
+    const { envelope, requirements } = reqCore.readRequirementsJson();
+    const registry     = reqCore.readModelRegistry();
+    const checkResults = reqCore.readCheckResults();
+    const cov = reqCore.computeCoverage(requirements, registry, checkResults);
+
+    const lines = [];
+    lines.push('{bold}Requirements Coverage{/bold}');
+    lines.push('─'.repeat(60));
+    lines.push('');
+
+    // Totals
+    const completePct = cov.total ? ((cov.byStatus.Complete || 0) / cov.total * 100).toFixed(1) : '0.0';
+    const pendingPct  = cov.total ? ((cov.byStatus.Pending  || 0) / cov.total * 100).toFixed(1) : '0.0';
+    lines.push(`  Total:    ${cov.total}`);
+    lines.push(`  {green-fg}Complete:{/} ${cov.byStatus.Complete || 0} (${completePct}%)`);
+    lines.push(`  {yellow-fg}Pending:{/}  ${cov.byStatus.Pending || 0} (${pendingPct}%)`);
+    for (const [status, count] of Object.entries(cov.byStatus).sort()) {
+      if (status !== 'Complete' && status !== 'Pending') {
+        lines.push(`  ${status}: ${count}`);
+      }
+    }
+    lines.push('');
+
+    // Category breakdown
+    lines.push('{bold}By Category{/bold}');
+    const cats = Object.entries(cov.byCategory).sort((a, b) => b[1].total - a[1].total);
+    const catW = Math.max(...cats.map(([c]) => c.length), 12);
+    lines.push(`  ${pad('Category', catW)}  Total  Complete`);
+    lines.push('  ' + '─'.repeat(catW + 18));
+    for (const [cat, info] of cats) {
+      const pct = info.total ? (info.complete / info.total * 100).toFixed(0) : '0';
+      lines.push(`  ${pad(cat, catW)}  ${pad(String(info.total), 5)}  ${info.complete} (${pct}%)`);
+    }
+    lines.push('');
+
+    // Formal model coverage
+    const fmPct = cov.total ? (cov.withFormalModels / cov.total * 100).toFixed(1) : '0.0';
+    lines.push('{bold}Formal Verification{/bold}');
+    lines.push(`  Models:     ${cov.totalModels} formal models registered`);
+    lines.push(`  Coverage:   ${cov.withFormalModels}/${cov.total} requirements have formal models (${fmPct}%)`);
+    lines.push('');
+
+    // Check results
+    const crPct = cov.total ? (cov.withCheckResults / cov.total * 100).toFixed(1) : '0.0';
+    lines.push('{bold}Check Results{/bold}');
+    lines.push(`  Linked:     ${cov.withCheckResults}/${cov.total} requirements have check results (${crPct}%)`);
+    for (const [res, count] of Object.entries(cov.checksByResult).sort()) {
+      const color = res === 'pass' ? 'green' : res === 'fail' ? 'red' : 'yellow';
+      lines.push(`  {${color}-fg}${pad(res, 14)}{/} ${count}`);
+    }
+    lines.push('');
+
+    // Envelope
+    if (envelope) {
+      lines.push('{bold}Envelope{/bold}');
+      if (envelope.aggregated_at) lines.push(`  Aggregated: ${envelope.aggregated_at}`);
+      if (envelope.frozen_at)     lines.push(`  Frozen:     ${envelope.frozen_at}`);
+      if (envelope.content_hash)  lines.push(`  Hash:       ${envelope.content_hash.slice(0, 20)}…`);
+    }
+
+    setContent('Coverage', lines.join('\n'));
+  } catch (err) {
+    setContent('Coverage', `{red-fg}Error: ${err.message}{/}`);
+  }
+}
+
+// ─── Requirements: Browse ────────────────────────────────────────────────────
+async function reqBrowseFlow() {
+  const { requirements } = reqCore.readRequirementsJson();
+  if (!requirements.length) { setContent('Browse Reqs', 'No requirements found.'); return; }
+
+  const categories = reqCore.getUniqueCategories(requirements);
+  const statuses   = [...new Set(requirements.map(r => r.status || 'Unknown'))].sort();
+
+  const filterChoice = await promptList({ title: 'Browse — Filter', items: [
+    { label: 'All',         value: 'all'      },
+    { label: 'By Category', value: 'category' },
+    { label: 'By Status',   value: 'status'   },
+    { label: 'Search',      value: 'search'   },
+  ] });
+
+  let filters = {};
+  if (filterChoice.value === 'category') {
+    const catChoice = await promptList({ title: 'Category', items: categories.map(c => ({ label: c, value: c })) });
+    filters.category = catChoice.value;
+  } else if (filterChoice.value === 'status') {
+    const statusChoice = await promptList({ title: 'Status', items: statuses.map(s => ({ label: s, value: s })) });
+    filters.status = statusChoice.value;
+  } else if (filterChoice.value === 'search') {
+    const term = await promptInput({ title: 'Search', prompt: 'Search text (id or description):' });
+    if (term) filters.search = term;
+  }
+
+  const filtered = reqCore.filterRequirements(requirements, filters);
+  renderReqList(filtered, filters);
+}
+
+function renderReqList(reqs, filters) {
+  const lines = [];
+  const filterDesc = [];
+  if (filters.category) filterDesc.push(`category=${filters.category}`);
+  if (filters.status)   filterDesc.push(`status=${filters.status}`);
+  if (filters.search)   filterDesc.push(`search="${filters.search}"`);
+  const subtitle = filterDesc.length ? ` (${filterDesc.join(', ')})` : '';
+
+  lines.push(`{bold}Requirements (${reqs.length})${subtitle}{/bold}`);
+  lines.push('─'.repeat(70));
+
+  const W = { id: 12, status: 3, cat: 16, text: 36 };
+  lines.push(`  ${pad('ID', W.id)}  St  ${pad('Category', W.cat)}  Text`);
+  lines.push('  ' + '─'.repeat(W.id + 2 + W.status + 2 + W.cat + 2 + W.text));
+
+  // Check model-registry AND requirement.formal_models for FM badge
+  const registry = reqCore.readModelRegistry();
+  const reqsWithModels = new Set();
+  for (const entry of Object.values(registry.models || {})) {
+    for (const rid of (entry.requirements || [])) reqsWithModels.add(rid);
+  }
+  // Also check direct formal_models field (SCHEMA-04)
+  for (const r of reqs) {
+    if (Array.isArray(r.formal_models) && r.formal_models.length > 0) {
+      reqsWithModels.add(r.id);
+    }
+  }
+
+  for (const r of reqs) {
+    const icon = r.status === 'Complete' ? '{green-fg}✓{/}' : '{yellow-fg}○{/}';
+    const fm   = reqsWithModels.has(r.id) ? ' {cyan-fg}[FM]{/}' : '';
+    lines.push(
+      `  {#4a9090-fg}${pad(r.id, W.id)}{/}  ${icon}   ${pad(r.category || 'Uncategorized', W.cat)}  ${pad(r.text, W.text)}${fm}`
+    );
+  }
+
+  setContent(`Browse Reqs (${reqs.length})`, lines.join('\n'));
+}
+
+// ─── Requirements: Traceability ──────────────────────────────────────────────
+async function reqTraceabilityFlow() {
+  const { requirements } = reqCore.readRequirementsJson();
+  if (!requirements.length) { setContent('Traceability', 'No requirements found.'); return; }
+
+  const items = requirements.map(r => ({
+    label: `${pad(r.id, 12)} ${r.status === 'Complete' ? '✓' : '○'} ${(r.text || '').slice(0, 40)}`,
+    value: r.id,
+  }));
+
+  const choice = await promptList({ title: 'Traceability — Pick Requirement', items });
+  const reqId  = choice.value;
+
+  const registry     = reqCore.readModelRegistry();
+  const checkResults = reqCore.readCheckResults();
+  const trace = reqCore.buildTraceability(reqId, requirements, registry, checkResults);
+
+  if (!trace) { setContent('Traceability', `{red-fg}Requirement ${reqId} not found{/}`); return; }
+
+  const lines = [];
+  const r = trace.requirement;
+
+  lines.push(`{bold}${r.id}{/bold}  ${r.status === 'Complete' ? '{green-fg}Complete{/}' : '{yellow-fg}' + (r.status || 'Unknown') + '{/}'}`);
+  lines.push('─'.repeat(60));
+  lines.push('');
+  if (r.category) lines.push(`  Category:   ${r.category}`);
+  if (r.phase)    lines.push(`  Phase:      ${r.phase}`);
+  lines.push('');
+  lines.push(`  {bold}Text:{/bold}`);
+  lines.push(`  ${r.text || '—'}`);
+  if (r.background) {
+    lines.push('');
+    lines.push(`  {bold}Background:{/bold}`);
+    lines.push(`  {gray-fg}${r.background}{/}`);
+  }
+  if (r.provenance) {
+    lines.push('');
+    lines.push(`  {bold}Source:{/bold}`);
+    if (r.provenance.source_file) lines.push(`  File:      ${r.provenance.source_file}`);
+    if (r.provenance.milestone)   lines.push(`  Milestone: ${r.provenance.milestone}`);
+  }
+
+  // Formal Models
+  lines.push('');
+  lines.push(`{bold}Formal Models (${trace.formalModels.length}){/bold}`);
+  if (trace.formalModels.length) {
+    for (const fm of trace.formalModels) {
+      lines.push(`  {cyan-fg}${fm.path}{/}`);
+      if (fm.description) lines.push(`    ${fm.description}`);
+      if (fm.version != null) lines.push(`    {gray-fg}v${fm.version}{/}`);
+    }
+  } else {
+    lines.push('  {gray-fg}No formal models linked{/}');
+  }
+
+  // Check Results
+  lines.push('');
+  lines.push(`{bold}Check Results (${trace.checkResults.length}){/bold}`);
+  if (trace.checkResults.length) {
+    for (const cr of trace.checkResults) {
+      const color = cr.result === 'pass' ? 'green' : cr.result === 'fail' ? 'red' : 'yellow';
+      const runtime = cr.runtime_ms != null ? ` (${cr.runtime_ms}ms)` : '';
+      lines.push(`  {${color}-fg}${pad(cr.result, 14)}{/} ${cr.check_id || '—'}${runtime}`);
+      if (cr.summary) lines.push(`    {gray-fg}${cr.summary}{/}`);
+    }
+  } else {
+    lines.push('  {gray-fg}No check results{/}');
+  }
+
+  // Unmapped check_ids
+  if (trace.unmappedCheckIds.length) {
+    lines.push('');
+    lines.push(`{bold}Awaiting Results (${trace.unmappedCheckIds.length}){/bold}`);
+    for (const cid of trace.unmappedCheckIds) {
+      lines.push(`  {gray-fg}${cid}{/}`);
+    }
+  }
+
+  setContent(`Trace: ${reqId}`, lines.join('\n'));
+}
+
+// ─── Requirements: Aggregate ─────────────────────────────────────────────────
+async function reqAggregateFlow() {
+  try {
+    const { aggregateRequirements } = require('./aggregate-requirements.cjs');
+    const result = aggregateRequirements();
+    const count  = result && result.count != null ? result.count : '?';
+    const output = result && result.outputPath ? result.outputPath : 'formal/requirements.json';
+    toast(`Aggregated ${count} requirements → ${output}`);
+  } catch (err) {
+    const hint = err.message && err.message.includes('frozen')
+      ? '\n{gray-fg}Hint: the envelope may be frozen. Delete frozen_at to re-aggregate.{/}'
+      : '';
+    setContent('Aggregate', `{red-fg}Error: ${err.message}{/}${hint}`);
+  }
+}
+
+// ─── Requirements: Coverage Gaps -------------------------------------------------
+function reqCoverageGapsFlow() {
+  try {
+    const { detectCoverageGaps } = require('./detect-coverage-gaps.cjs');
+    const lines = [];
+    lines.push('{bold}TLC Coverage Gap Analysis{/bold}');
+    lines.push('─'.repeat(60));
+    lines.push('');
+
+    // Run for all known specs
+    const specs = ['QGSDQuorum', 'QGSDStopHook', 'QGSDCircuitBreaker'];
+    let totalGaps = 0;
+
+    for (const specName of specs) {
+      const result = detectCoverageGaps({ specName });
+      lines.push(`{bold}${specName}{/bold}`);
+
+      if (result.status === 'full-coverage') {
+        lines.push('  {green-fg}Full coverage{/} — all TLC-reachable states observed in traces');
+      } else if (result.status === 'gaps-found') {
+        totalGaps += result.gaps.length;
+        lines.push(`  {yellow-fg}${result.gaps.length} gap(s){/} — states reachable by TLC but not observed:`);
+        for (const gap of result.gaps) {
+          lines.push(`    {red-fg}${gap}{/}`);
+        }
+        if (result.outputPath) {
+          lines.push(`  Report: ${result.outputPath}`);
+        }
+      } else if (result.status === 'no-traces') {
+        lines.push('  {gray-fg}No conformance traces found{/}');
+      } else if (result.status === 'unknown-spec') {
+        lines.push(`  {gray-fg}${result.reason}{/}`);
+      }
+      lines.push('');
+    }
+
+    lines.push('─'.repeat(60));
+    if (totalGaps > 0) {
+      lines.push(`{yellow-fg}Total gaps: ${totalGaps} state(s) need test coverage{/}`);
+    } else {
+      lines.push('{green-fg}No coverage gaps detected across all specs{/}');
+    }
+
+    setContent('Coverage Gaps', lines.join('\n'));
+  } catch (err) {
+    setContent('Coverage Gaps', `{red-fg}Error: ${err.message}{/}`);
   }
 }
 
