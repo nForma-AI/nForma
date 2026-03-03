@@ -1683,3 +1683,57 @@ test('clone metadata: key_status is deleted from cloned config', () => {
   assert.strictEqual(cloned.timeout_ms, 60000, 'timeout_ms must be preserved');
   assert.strictEqual(cloned.update_policy, 'prompt', 'update_policy must be preserved');
 });
+
+// ---------------------------------------------------------------------------
+// REN-03: No hardcoded get-shit-done/ paths — regression smoke tests
+// ---------------------------------------------------------------------------
+
+test('REN-03: zero get-shit-done/ directory paths in bin/*.cjs', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const binDir = path.join(__dirname, '.');
+  const cjsFiles = fs.readdirSync(binDir).filter(f => f.endsWith('.cjs') && !f.includes('.test.'));
+  const re = /\/get-shit-done\//g;
+  const violations = [];
+  for (const f of cjsFiles) {
+    const content = fs.readFileSync(path.join(binDir, f), 'utf8');
+    re.lastIndex = 0;
+    const matches = content.match(re);
+    if (matches) violations.push({ file: f, count: matches.length });
+  }
+  assert.deepStrictEqual(violations, [], 'No bin/*.cjs file should contain /get-shit-done/ path segments');
+});
+
+test('REN-03: zero get-shit-done/ directory paths in workflow files', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const wfDir = path.join(__dirname, '..', 'qgsd-core', 'workflows');
+  if (!fs.existsSync(wfDir)) return; // skip if dir doesn't exist
+  const mdFiles = fs.readdirSync(wfDir).filter(f => f.endsWith('.md'));
+  const re = /\/get-shit-done\//g;
+  const violations = [];
+  for (const f of mdFiles) {
+    const content = fs.readFileSync(path.join(wfDir, f), 'utf8');
+    re.lastIndex = 0;
+    const matches = content.match(re);
+    if (matches) violations.push({ file: f, count: matches.length });
+  }
+  assert.deepStrictEqual(violations, [], 'No workflow file should contain /get-shit-done/ path segments');
+});
+
+test('REN-03: zero get-shit-done/ directory paths in template files', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const tplDir = path.join(__dirname, '..', 'qgsd-core', 'templates');
+  if (!fs.existsSync(tplDir)) return; // skip if dir doesn't exist
+  const mdFiles = fs.readdirSync(tplDir).filter(f => f.endsWith('.md'));
+  const re = /\/get-shit-done\//g;
+  const violations = [];
+  for (const f of mdFiles) {
+    const content = fs.readFileSync(path.join(tplDir, f), 'utf8');
+    re.lastIndex = 0;
+    const matches = content.match(re);
+    if (matches) violations.push({ file: f, count: matches.length });
+  }
+  assert.deepStrictEqual(violations, [], 'No template file should contain /get-shit-done/ path segments');
+});
