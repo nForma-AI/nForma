@@ -1,6 +1,6 @@
 {
   "name": "@nforma.ai/qgsd",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "QGSD: Quorum Gets Shit Done — multi-model quorum enforcement for GSD planning commands via Claude Code hooks.",
   "bin": {
     "qgsd": "bin/install.js",
