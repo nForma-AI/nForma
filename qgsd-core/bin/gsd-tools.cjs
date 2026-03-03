@@ -2226,7 +2226,6 @@ function cmdFormalSummary(cwd, raw) {
         }
       }
 
-      coveredByModel = modelCoverageSet.size;
     } catch (e) {
       console.error(`Warning: Failed to parse model-registry.json: ${e.message}`);
       // Continue with empty coverage
@@ -2234,9 +2233,12 @@ function cmdFormalSummary(cwd, raw) {
   }
 
   // Compute uncovered IDs (IDs in requirements.json but not in model-registry)
-  const allReqIds = requirements.map(r => r.id);
+  const allReqIds = requirements.map(r => r.id).filter(Boolean);
   const uncoveredIds = allReqIds.filter(id => !modelCoverageSet.has(id));
   const uncoveredCount = uncoveredIds.length;
+
+  // covered_by_model = requirements that ARE in model-registry (intersection, not raw set size)
+  coveredByModel = total - uncoveredCount;
 
   // Compute coverage percentage
   const coveragePct = total > 0 ? Math.round((coveredByModel / total) * 100) : 0;
