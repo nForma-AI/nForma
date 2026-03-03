@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-03-02 after v0.23 milestone completion)
 
 ## Current Position
 
-Phase: v0.24-04 of 5 (Self-Healing Consensus) — IN PROGRESS (2 of 2 plans started)
-Plan: 02/02 complete (HEAL-01 Early Escalation Implementation)
-Status: v0.24 milestone CONTINUING — HEAL-01 complete, HEAL-02 test contracts defined and ready for GREEN implementation in Plan 03
-Last activity: 2026-03-03 - Completed v0.24-04-02 plan: HEAL-01 early escalation gate implemented. computeEarlyEscalation and readEarlyEscalationThreshold exported from quorum-consensus-gate.cjs. CLI routes to early escalation when --remaining-rounds=N. Quorum dispatch prompt updated with HEAL-01 step. All 11 HEAL-01 RED tests now GREEN. Backward compatibility preserved. Ready for v0.24-04-03 HEAL-02 implementation.
+Phase: v0.24-04 of 5 (Self-Healing Consensus) — COMPLETE (3 of 3 plans finished)
+Plan: 03/03 complete (HEAL-02 Config Auto-Adjust Implementation)
+Status: v0.24-04 COMPLETE — HEAL-01 early escalation + HEAL-02 config auto-adjust both implemented. All 21 RED tests (11 HEAL-01 + 10 HEAL-02) now GREEN. Ready for v0.24 integration verification.
+Last activity: 2026-03-03 - Completed v0.24-04-03 plan: HEAL-02 implementation done. suggestMaxDeliberation and applyMaxDeliberationUpdate exported from verify-quorum-health.cjs. --auto-apply flag added for automated config adjustment. Atomic file updates with rollback safety. All 13 HEAL-02 RED tests now GREEN; all 51 existing CLI tests remain GREEN. v0.24-04 phase complete.
 
-Progress: [##########.......] 50% v0.24-04-01,02 → COMPLETE (2 of 2 plans complete; 12 of 12 total v0.24 plans started)
+Progress: [##########|........] 60% v0.24-04 → COMPLETE (3 of 5 phases complete; 12 of 12 total v0.24 plans started)
 
 ## Performance Metrics
 
@@ -51,6 +51,9 @@ Recent decisions affecting current work:
 
 - [v0.24-04-02]: Early escalation routing: CLI --remaining-rounds parameter gates computeEarlyEscalation instead of checkConsensusGate. Backward compatible: without --remaining-rounds, CLI behaves as before (original gate path).
 - [v0.24-04-02]: Config fail-open: readEarlyEscalationThreshold returns 0.10 default on JSON parse error, invalid ranges, or missing config files. No crashes on I/O.
+- [v0.24-04-03]: CLI module pattern: verify-quorum-health.cjs refactored with require.main === module guard. Exports 4 functions (suggestMaxDeliberation, applyMaxDeliberationUpdate, computeRates, pMajorityExternal) for library use; CLI main() execution isolated, enabling safe module import without side effects.
+- [v0.24-04-03]: Atomic config updates: applyMaxDeliberationUpdate backs up original files, updates machine.ts and config.json, regenerates specs via generate-formal-specs.cjs and check-spec-sync.cjs, rolls back all changes on any failure. Transactional guarantee prevents partial updates.
+- [v0.24-04-03]: --auto-apply flag: added to verify-quorum-health CLI to bypass interactive approval in CI/automation. When FAIL detected and --auto-apply passed, automatically applies recommended maxDeliberation update atomically.
 - [v0.24-04-02]: Quorum prompt wiring: both fallback and dynamic instruction builders updated with HEAL-01 step. Prompt instructs Claude to compute R = maxDeliberation - currentRound and pass --remaining-rounds=R to CLI after each merge-wave.
 - [v0.24-04-01]: TDD RED scaffolding: 21 RED tests (11 + 10) defining behavioral contracts for HEAL-01 (computeEarlyEscalation, readEarlyEscalationThreshold) and HEAL-02 (suggestMaxDeliberation, applyMaxDeliberationUpdate). Fail-open guards enable graceful test failure when functions don't exist yet. Plans 02-03 will implement functions to turn tests GREEN.
 - [v0.24-04-01]: Test contract discipline: Each RED test documents expected return values, error handling, edge cases (remainingRounds=0, pPerRound=0/1.0, invalid thresholds, missing files, rollback safety). These become specifications for implementation.
