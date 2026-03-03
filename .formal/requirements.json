@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-03T20:46:38.510Z",
-  "content_hash": "c5681f9c82dca2b9",
-  "frozen_at": "2026-03-03T20:46:38.511Z",
+  "aggregated_at": "2026-03-03T21:49:09.367Z",
+  "content_hash": "48c8ab800ec57142",
+  "frozen_at": "2026-03-03T21:49:09.368Z",
   "requirements": [
     {
       "id": "ACT-01",
@@ -1989,6 +1989,18 @@
       }
     },
     {
+      "id": "SOLVE-02",
+      "text": "Parse all Alloy default constants from newline-separated constraint blocks and clear formalTestSyncCache at each solver iteration to ensure fresh residual computation after file mutations",
+      "category": "Formal Verification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The solver parseAlloyDefaults() was splitting constraint blocks on commas instead of newlines, missing 2 of 3 Alloy default constants. The formalTestSyncCache was never cleared between iterations, causing stale results after autoClose() mutations.",
+      "provenance": {
+        "source_file": ".planning/quick/141-fix-solver-loop-bugs-parsealloydefaults-/141-PLAN.md",
+        "milestone": "quick-141"
+      }
+    },
+    {
       "id": "SPEC-01",
       "text": "Stop hook formalized in `QGSDStopHook.tla` + `MCStopHook.cfg`, TLC verifies safety + liveness",
       "category": "Formal Verification",
@@ -2648,5 +2660,6 @@
     }
   ],
   "schema_version": "1",
-  "source": ".planning/REQUIREMENTS.md"
+  "source": ".planning/REQUIREMENTS.md",
+  "total_requirements": 208
 }
