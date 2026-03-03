@@ -1266,7 +1266,7 @@ Archive: .planning/milestones/v0.25-ROADMAP.md
 
 - [x] **Phase v0.26-01: Policy Configuration** - Users can configure quorum timeout and update policy per slot from dedicated menus (completed 2026-03-03)
 - [x] **Phase v0.26-02: Credential Management** - Users can rotate API keys in batch and key health persists across sessions (completed 2026-03-03)
-- [ ] **Phase v0.26-03: Portable Installer & Presets** - Users can export/import roster configs portably, use provider presets, clone slots, and all hardcoded GSD paths are removed
+- [x] **Phase v0.26-03: Portable Installer & Presets** - Users can export/import roster configs portably, use provider presets, clone slots, and all hardcoded GSD paths are removed (completed 2026-03-03)
 - [ ] **Phase v0.26-04: Health Dashboard** - Users can view live slot health from a terminal dashboard with refresh and clean exit
 - [ ] **Phase v0.26-05: Architecture Enforcement** - QGSD never bundles LLM SDKs; all Haiku/Sonnet/Opus calls use the Agent tool
 - [ ] **Phase v0.26-06: Cross-Model Decomposition** - analyze-state-space.cjs recommends model merges or flags interface contracts based on shared files and requirement prefixes
@@ -1312,7 +1312,7 @@ Plans:
   4. User can select a named provider preset (AkashML / Together.xyz / Fireworks.ai) in addAgent/editAgent instead of typing a URL
   5. User can clone an existing slot — copies provider URL and model config, prompts for new slot name
   6. Zero `get-shit-done/` hardcoded path strings remain in bin/gsd-tools.cjs, workflow files, agent files, or template files
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] v0.26-03-01-PLAN.md -- Pure function tests + clone metadata fix (PORT-01, PORT-02, PORT-03, PRST-01, PRST-02)
 - [ ] v0.26-03-02-PLAN.md -- REN-03 hardcoded path removal + install sync (REN-03)
@@ -1355,7 +1355,7 @@ Phases execute in order: v0.26-01 -> v0.26-02 -> v0.26-03 -> v0.26-04 (parallel)
 |-------|-----------|----------------|--------|-----------|
 | v0.26-01. Policy Configuration | v0.26 | Complete    | 2026-03-03 | 2026-03-03 |
 | v0.26-02. Credential Management | v0.26 | Complete    | 2026-03-03 | - |
-| v0.26-03. Portable Installer & Presets | v0.26 | 0/TBD | Not started | - |
+| v0.26-03. Portable Installer & Presets | 2/2 | Complete   | 2026-03-03 | - |
 | v0.26-04. Health Dashboard | v0.26 | 0/TBD | Not started | - |
 | v0.26-05. Architecture Enforcement | v0.26 | 0/TBD | Not started | - |
 | v0.26-06. Cross-Model Decomposition | v0.26 | 0/TBD | Not started | - |
