@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-03 after v0.25 roadmap creation)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following -- a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.25 Formal Traceability & Coverage -- Phase v0.25-01 complete (all 3 plans done)
+**Current focus:** v0.25 Formal Traceability & Coverage -- Phase v0.25-02 complete (all 3 plans done), ready for v0.25-03
 **Last shipped:** v0.24 -- Quorum Reliability Hardening (2026-03-03, 5 phases, 17 plans, 12/12 requirements)
 
 ## Current Position
 
-Phase: v0.25-01 of 5 (Schema Foundation) -- COMPLETE
+Phase: v0.25-02 of 5 (Property Annotations) -- COMPLETE
 Plan: 3 of 3 in current phase (3 plans in 2 waves) -- COMPLETE
-Status: Phase v0.25-01 done -- all 3 plans complete, ready for v0.25-02 (Annotation Layer)
-Last activity: 2026-03-03 -- v0.25-01-03 complete: requirement-map.cjs with 28 check_ids wired to all 18 formal verification runners (SCHEMA-03)
+Status: Phase v0.25-02 done -- all 3 plans complete, ready for v0.25-03 (Traceability Matrix)
+Last activity: 2026-03-03 -- v0.25-02-03 complete: extract-annotations.cjs parser covering 23 files, 93 properties, 104 requirement links (ANNOT-04)
 
-Progress: [####                ] 20% v0.25 (1/5 phases done)
+Progress: [########            ] 40% v0.25 (2/5 phases done)
 
 ## Performance Metrics
 
@@ -56,6 +56,11 @@ Recent decisions affecting current work:
 - [Phase v0.25-01-01]: Aggregator uses pre-aggregation capture + merge-back for formal_models (enrichment data not milestone-sourced)
 - [Phase v0.25-01-03]: check_id name mismatches between plan and runners -- actual runner check_ids used (alloy:scoreboard not alloy:scoreboard-recompute, etc.); run-phase-tlc.cjs excluded (no writeCheckResult calls)
 - [Phase v0.25-01-03]: getRequirementIds returns .slice() copy to prevent caller mutation of shared source-of-truth arrays
+- [Phase v0.25-02]: Annotation format per formalism: TLA+ `\* @requirement REQ-ID`, Alloy `-- @requirement REQ-ID`, PRISM `// @requirement REQ-ID` -- one per line, stacked for multi-requirement properties
+- [Phase v0.25-02]: Generated files (QGSDQuorum.tla, QGSDQuorum_xstate.tla, quorum-votes.als, quorum.props) annotated with preservation notes to survive regeneration
+- [Phase v0.25-02]: Section-based TLA+ property detection: parser tracks section context (Safety/Liveness vs Actions/Init) to distinguish properties from action definitions that share `Name ==` syntax
+- [Phase v0.25-02]: extract-annotations.cjs uses model-registry.json for file discovery (not globbing), filters paths starting with `..` or `/`, resolves .props siblings of .pm entries
+- [Phase v0.25-02]: TUI-05 and TUI-06 assigned to EventuallyExits and MainMenuReachable (not in original research map)
 
 ### Pending Todos
 
@@ -78,6 +83,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-03
-Last activity: 2026-03-03 -- Completed quick task 134: Integrate formal_models field and detect-coverage-gaps into requirements TUI
+Last activity: 2026-03-03 -- Phase v0.25-02 complete: @requirement annotations on all 23 model files + extraction parser (ANNOT-01..04)
 Stopped at: None
 Resume file: None
