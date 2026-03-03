@@ -23,6 +23,7 @@
 - 🚧 **v0.22 — Requirements Envelope** — Phases v0.22-01..v0.22-04 (in progress)
 - ✅ **v0.23 — Formal Gates** — Phases v0.23-01..v0.23-04 (shipped 2026-03-02)
 - ✅ **v0.24 — Quorum Reliability Hardening** — Phases v0.24-01..v0.24-05 (shipped 2026-03-03)
+- 🚧 **v0.25 — Formal Traceability & Coverage** — Phases v0.25-01..v0.25-05 (in progress)
 
 ## Phases
 
@@ -1234,3 +1235,74 @@ Plans:
 | v0.24-03. Quorum Observability | v0.24 | Complete    | 2026-03-03 | 2026-03-03 |
 | v0.24-04. Self-Healing Consensus | v0.24 | Complete    | 2026-03-03 | - |
 | v0.24-05. Slot Worker Thin Passthrough | v0.24 | Complete    | 2026-03-03 | 2026-03-02 |
+
+### 🚧 v0.25 — Formal Traceability & Coverage
+
+**Milestone Goal:** Connect human requirements to formal models with bidirectional, queryable traceability -- answer "which specs verify requirement X?" and "which requirements broke?" when a check fails, with coverage dashboards and decomposition awareness.
+
+- [ ] **Phase v0.25-01: Schema Foundation** - Extend model-registry, check-result schema, runners, and requirements.json with requirement linkage fields
+- [ ] **Phase v0.25-02: Property Annotations** - Add structured @requirement comments to all TLA+, Alloy, and PRISM model files and build the extraction parser
+- [ ] **Phase v0.25-03: Traceability Matrix** - Generate a property-level traceability matrix with coverage statistics from registry, annotations, and check results
+- [ ] **Phase v0.25-04: Bidirectional Validation** - Detect asymmetric links between models and requirements; CI guard on coverage regression
+- [ ] **Phase v0.25-05: Decomposition Awareness** - Analyze model state-space size, flag unbounded domains, and validate coverage preservation during model splits
+
+## Phase Details
+
+### Phase v0.25-01: Schema Foundation
+**Goal**: Every formal artifact (model registry, check results, runners, requirements envelope) carries structured requirement linkage fields that downstream tools can query
+**Depends on**: Nothing (first phase)
+**Requirements**: SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04
+**Success Criteria** (what must be TRUE):
+  1. Running `cat formal/model-registry.json | jq '.[].requirements'` shows a non-empty string array for every model entry that has known requirement coverage (seeded from TRACEABILITY_RESEARCH.md Section 5 map)
+  2. Running a formal verification check (e.g., `node bin/run-tlc.cjs`) produces NDJSON output where each line contains a `requirement_ids` array linking the check result to specific requirements
+  3. Running `cat formal/requirements.json | jq '.[] | select(.formal_models != null)'` shows requirements that have formal model paths linked back to them
+  4. The check-result JSON schema validation accepts objects with the new `requirement_ids` field and rejects objects where `requirement_ids` contains non-string elements
+**Plans**: TBD
+
+### Phase v0.25-02: Property Annotations
+**Goal**: Every formal property/invariant/assertion across all 22 model files has a structured @requirement annotation that a parser can extract without manual mapping
+**Depends on**: Nothing (can run parallel with v0.25-01)
+**Requirements**: ANNOT-01, ANNOT-02, ANNOT-03, ANNOT-04
+**Success Criteria** (what must be TRUE):
+  1. Every TLA+ invariant and temporal property in all 11 TLA+ model files has a `\* @requirement REQ-ID` comment immediately preceding its definition -- verified by running the extraction parser and confirming zero unannotated properties
+  2. Every Alloy assertion and check in all 8 Alloy model files has a `-- @requirement REQ-ID` comment -- verified by running the extraction parser and confirming zero unannotated assertions
+  3. Every PRISM property in all 3 .props files has a `// @requirement REQ-ID` comment -- verified by the extraction parser
+  4. Running `node bin/extract-annotations.cjs` produces a JSON map of `{ model_file: [{ property, requirement_ids }] }` covering all annotated properties across all three formalisms
+**Plans**: TBD
+
+### Phase v0.25-03: Traceability Matrix
+**Goal**: A single generated artifact links every requirement to every formal property that verifies it, with coverage statistics, produced automatically after each verification run
+**Depends on**: Phase v0.25-01, Phase v0.25-02
+**Requirements**: TRACE-01, TRACE-02, TRACE-03, ANNOT-05
+**Success Criteria** (what must be TRUE):
+  1. Running `node bin/generate-traceability-matrix.cjs` produces `formal/traceability-matrix.json` with property-level links between requirements and formal properties, including model file paths, property names, and latest check results
+  2. The generated matrix contains a `coverage_summary` section showing total requirements, covered count, coverage percentage, a list of uncovered requirements, and a list of orphan properties
+  3. Running `node bin/run-formal-verify.cjs` produces the traceability matrix as a post-verification step -- the matrix reflects the latest pass/fail/warn results from the current run
+  4. The matrix generator reads extracted annotations (from extract-annotations.cjs) as its primary data source, falling back to model-registry `requirements` arrays when annotations are absent
+**Plans**: TBD
+
+### Phase v0.25-04: Bidirectional Validation
+**Goal**: Asymmetric and stale links between models and requirements are automatically detected, and formal coverage regressions are caught before they merge
+**Depends on**: Phase v0.25-03
+**Requirements**: TRACE-04, TRACE-05
+**Success Criteria** (what must be TRUE):
+  1. Running the traceability matrix generator on a codebase where model A claims requirement X but requirement X does not list model A produces a warning identifying the asymmetric link with both sides of the mismatch
+  2. Running the CI coverage guard after removing a model-to-requirement link produces a warning when formal coverage percentage drops below the configured threshold (default 15%) compared to the previous matrix snapshot
+**Plans**: TBD
+
+### Phase v0.25-05: Decomposition Awareness
+**Goal**: Model state-space risk is quantified and visible, unbounded domains are flagged, and splitting a model cannot silently drop requirement coverage
+**Depends on**: Phase v0.25-03
+**Requirements**: DECOMP-01, DECOMP-02, DECOMP-03, DECOMP-04
+**Success Criteria** (what must be TRUE):
+  1. Running `node bin/analyze-state-space.cjs` on the TLA+ model corpus produces a report classifying each model as MINIMAL/LOW/MODERATE/HIGH risk based on estimated state-space size from .cfg constants and model variables
+  2. The state-space analyzer flags QGSDQuorum_xstate.tla (which uses unbounded Nat domains) as HIGH risk without manual intervention
+  3. When a traceability matrix is generated after a model split, the generator validates that no requirement lost formal coverage compared to the pre-split matrix -- a coverage decrease for any specific requirement triggers a warning
+  4. The traceability matrix output includes a `state_space` section per model showing the risk classification, estimated state count, and any unbounded domain warnings
+**Plans**: TBD
+
+| v0.25-01. Schema Foundation | v0.25 | 0/TBD | Not started | - |
+| v0.25-02. Property Annotations | v0.25 | 0/TBD | Not started | - |
+| v0.25-03. Traceability Matrix | v0.25 | 0/TBD | Not started | - |
+| v0.25-04. Bidirectional Validation | v0.25 | 0/TBD | Not started | - |
+| v0.25-05. Decomposition Awareness | v0.25 | 0/TBD | Not started | - |

@@ -41,8 +41,8 @@ Connect human requirements to formal models with bidirectional, queryable tracea
 
 | Feature | Reason |
 |---------|--------|
-| Writing new formal models for non-verifiable requirements (ACT, DASH, KEY, META, WIZ) | Most requirements are UI/config/deployment — not amenable to formal verification |
-| Assume-guarantee compositional reasoning | Research identified applicability but it's premature — no current model needs it |
+| Writing new formal models for non-verifiable requirements (ACT, DASH, KEY, META, WIZ) | Most requirements are UI/config/deployment -- not amenable to formal verification |
+| Assume-guarantee compositional reasoning | Research identified applicability but it's premature -- no current model needs it |
 | Renaming existing TLA+ properties to encode requirement IDs | Disruptive change across all models; annotations solve the same problem non-invasively |
 | TypeOK-to-requirement mapping | TypeOK is structural validation, not domain requirements; tracked separately in the matrix |
 | Dynamic coverage threshold auto-adjustment | Simple configurable threshold is sufficient for v0.25 |
@@ -51,30 +51,30 @@ Connect human requirements to formal models with bidirectional, queryable tracea
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCHEMA-01 | | Pending |
-| SCHEMA-02 | | Pending |
-| SCHEMA-03 | | Pending |
-| SCHEMA-04 | | Pending |
-| TRACE-01 | | Pending |
-| TRACE-02 | | Pending |
-| TRACE-03 | | Pending |
-| TRACE-04 | | Pending |
-| TRACE-05 | | Pending |
-| ANNOT-01 | | Pending |
-| ANNOT-02 | | Pending |
-| ANNOT-03 | | Pending |
-| ANNOT-04 | | Pending |
-| ANNOT-05 | | Pending |
-| DECOMP-01 | | Pending |
-| DECOMP-02 | | Pending |
-| DECOMP-03 | | Pending |
-| DECOMP-04 | | Pending |
+| SCHEMA-01 | v0.25-01 | Pending |
+| SCHEMA-02 | v0.25-01 | Pending |
+| SCHEMA-03 | v0.25-01 | Pending |
+| SCHEMA-04 | v0.25-01 | Pending |
+| TRACE-01 | v0.25-03 | Pending |
+| TRACE-02 | v0.25-03 | Pending |
+| TRACE-03 | v0.25-03 | Pending |
+| TRACE-04 | v0.25-04 | Pending |
+| TRACE-05 | v0.25-04 | Pending |
+| ANNOT-01 | v0.25-02 | Pending |
+| ANNOT-02 | v0.25-02 | Pending |
+| ANNOT-03 | v0.25-02 | Pending |
+| ANNOT-04 | v0.25-02 | Pending |
+| ANNOT-05 | v0.25-03 | Pending |
+| DECOMP-01 | v0.25-05 | Pending |
+| DECOMP-02 | v0.25-05 | Pending |
+| DECOMP-03 | v0.25-05 | Pending |
+| DECOMP-04 | v0.25-05 | Pending |
 
 **Coverage:**
 - v0.25 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-03 after initial definition*
+*Last updated: 2026-03-03 after roadmap creation -- all 18 requirements mapped to phases v0.25-01..v0.25-05*
