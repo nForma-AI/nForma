@@ -1280,7 +1280,7 @@ Plans:
 
 | v0.24-01. Provider Infrastructure and Failover | v0.24 | 4/4 | Complete   | 2026-03-02 |
 | v0.24-02. Dispatch Reliability | v0.24 | Complete    | 2026-03-03 | - |
-| v0.24-03. Quorum Observability | v0.24 | 3/3 | Complete | 2026-03-03 |
+| v0.24-03. Quorum Observability | v0.24 | Complete    | 2026-03-03 | 2026-03-03 |
 | v0.24-04. Self-Healing Consensus | v0.24 | 0/TBD | Not started | - |
 
 ### Phase v0.24-05: Slot Worker Thin Passthrough
