@@ -1244,7 +1244,7 @@ Plans:
 - [x] **Phase v0.25-02: Property Annotations** - Add structured @requirement comments to all TLA+, Alloy, and PRISM model files and build the extraction parser (completed 2026-03-03)
 - [x] **Phase v0.25-03: Traceability Matrix** - Generate a property-level traceability matrix with coverage statistics from registry, annotations, and check results (completed 2026-03-03)
 - [x] **Phase v0.25-04: Bidirectional Validation** - Detect asymmetric links between models and requirements; CI guard on coverage regression (completed 2026-03-03)
-- [ ] **Phase v0.25-05: Decomposition Awareness** - Analyze model state-space size, flag unbounded domains, and validate coverage preservation during model splits
+- [x] **Phase v0.25-05: Decomposition Awareness** - Analyze model state-space size, flag unbounded domains, and validate coverage preservation during model splits
 
 ## Phase Details
 
@@ -1307,13 +1307,13 @@ Plans:
   2. The state-space analyzer flags QGSDQuorum_xstate.tla (which uses unbounded Nat domains) as HIGH risk without manual intervention
   3. When a traceability matrix is generated after a model split, the generator validates that no requirement lost formal coverage compared to the pre-split matrix -- a coverage decrease for any specific requirement triggers a warning
   4. The traceability matrix output includes a `state_space` section per model showing the risk classification, estimated state count, and any unbounded domain warnings
-**Plans**: 3 plans in 2 waves
-  - [ ] v0.25-05-01-PLAN.md -- Create state-space risk analyzer (DECOMP-01, DECOMP-02)
-  - [ ] v0.25-05-02-PLAN.md -- Add coverage preservation validation on model splits (DECOMP-03)
-  - [ ] v0.25-05-03-PLAN.md -- Integrate state-space data into traceability matrix (DECOMP-04)
+**Plans**: 3 plans in 2 waves — complete
+  - [x] v0.25-05-01-PLAN.md -- Create state-space risk analyzer (DECOMP-01, DECOMP-02)
+  - [x] v0.25-05-02-PLAN.md -- Add coverage preservation validation on model splits (DECOMP-03)
+  - [x] v0.25-05-03-PLAN.md -- Integrate state-space data into traceability matrix (DECOMP-04)
 
 | v0.25-01. Schema Foundation | 3/3 | Complete    | 2026-03-03 |  |
 | v0.25-02. Property Annotations | 3/3 | Complete | 2026-03-03 |  |
 | v0.25-03. Traceability Matrix | 1/2 | Complete    | 2026-03-03 | - |
 | v0.25-04. Bidirectional Validation | 2/2 | Complete    | 2026-03-03 | - |
-| v0.25-05. Decomposition Awareness | 0/3 | Not started | - | - |
+| v0.25-05. Decomposition Awareness | 3/3 | Complete | 2026-03-03 | - |
