@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-02 after v0.23 milestone completion)
+See: .planning/PROJECT.md (updated 2026-03-03 after v0.24 milestone completion)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following -- a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
-**Current focus:** v0.24 -- Quorum Reliability Hardening
-**Last shipped:** v0.23 -- Formal Gates (2026-03-02, 4 phases, 12 plans, 11/11 requirements)
+**Current focus:** Planning next milestone
+**Last shipped:** v0.24 -- Quorum Reliability Hardening (2026-03-03, 5 phases, 17 plans, 12/12 requirements)
 
 ## Current Position
 
-Phase: v0.24-04 of 5 (Self-Healing Consensus) — COMPLETE (3 of 3 plans finished)
-Plan: 03/03 complete (HEAL-02 Config Auto-Adjust Implementation)
-Status: v0.24-04 COMPLETE — HEAL-01 early escalation + HEAL-02 config auto-adjust both implemented. All 21 RED tests (11 HEAL-01 + 10 HEAL-02) now GREEN. Ready for v0.24 integration verification.
-Last activity: 2026-03-03 - Completed v0.24-04-03 plan: HEAL-02 implementation done. suggestMaxDeliberation and applyMaxDeliberationUpdate exported from verify-quorum-health.cjs. --auto-apply flag added for automated config adjustment. Atomic file updates with rollback safety. All 13 HEAL-02 RED tests now GREEN; all 51 existing CLI tests remain GREEN. v0.24-04 phase complete.
+Phase: Milestone v0.24 complete — all 5 phases shipped
+Plan: All 17 plans complete
+Status: v0.24 SHIPPED — Quorum Reliability Hardening milestone archived. 12/12 requirements satisfied, 240 tests GREEN, 24/24 formal properties passed.
+Last activity: 2026-03-03 - Completed v0.24 milestone: provider infrastructure, dispatch reliability, observability, self-healing, slot worker thin passthrough all shipped and verified.
 
-Progress: [##########|........] 60% v0.24-04 → COMPLETE (3 of 5 phases complete; 12 of 12 total v0.24 plans started)
+Progress: [####################] 100% v0.24 COMPLETE — milestone archived
 
 ## Performance Metrics
 

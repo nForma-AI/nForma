@@ -289,3 +289,32 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.24 — Quorum Reliability Hardening (Shipped: 2026-03-03)
+
+**Phases:** v0.24-01..v0.24-05 (5 phases, 17 plans)
+**Requirements:** 12/12 (FAIL-01/02, DISP-01–05, OBS-01–03, HEAL-01/02)
+**Git range:** 65119818..78dec73e (86 commits, 133 files changed, +19,811/−789 lines)
+**Timeline:** 2026-03-02 → 2026-03-03 (2 days)
+
+**Delivered:** Made quorum dispatch reliable end-to-end — every quorum call reliably delivers 3 votes by detecting dead slots pre-dispatch, self-healing around mid-session failures without user action, and providing observability into slot health, success rates, and flakiness. Slot worker token cost reduced from 22-25k to 11-12k per dispatch.
+
+**Key accomplishments:**
+- Provider infrastructure: explicit slot-to-provider mapping in providers.json; `retryWithBackoff` in call-quorum-slot.cjs retries 2x with 1s/3s exponential backoff before UNAVAIL recording; `getDownProviderSlots` skips all slots on a failed provider in one decision (FAIL-01, FAIL-02, v0.24-01)
+- Live health dispatch: `triggerHealthProbe` runs 3s spawnSync probe pre-dispatch; `getAvailableSlots` reads scoreboard availability windows and excludes cooling-down slots; `sortBySuccessRate` + flakiness-aware ordering dispatches most reliable slots first (DISP-01–03, v0.24-02)
+- Structured telemetry: `recordTelemetry` appends 10-field JSONL per dispatch (slot, round, verdict, latency_ms, provider_status, retry_count); `computeDeliveryStats` tracks 3/3 vs degraded 2/3 delivery rate; `computeFlakiness` scores trailing 10-round window with auto-deprioritization (OBS-01–03, v0.24-03)
+- Self-healing consensus: `computeEarlyEscalation` uses Poisson binomial CDF to detect P(consensus) < 10% and fires escalation immediately; `suggestMaxDeliberation` + `applyMaxDeliberationUpdate` with atomic config rollback and --auto-apply flag for CI (HEAL-01, HEAL-02, v0.24-04)
+- Slot worker thin passthrough: prompt construction (buildModeAPrompt/buildModeBPrompt) and output parsing (parseVerdict/parseCitations/parseImprovements) moved from Haiku agent to quorum-slot-dispatch.cjs; agent spec reduced to 29 content lines with 1 Bash call; per-worker cost 22-25k → 11-12k tokens (DISP-04, DISP-05, v0.24-05)
+
+**Tests:** 240 tests GREEN (28 + 47 + 40 + 85 + 40 per phase), 0 regressions
+**Formal:** 24/24 properties passed, 0 counterexamples
+
+**Tech debt incurred:**
+- Token floor ~10k (platform overhead) limits further reduction below 11-12k per worker
+- SUMMARY frontmatter inconsistency: only v0.24-03 uses requirements_addressed field
+
+**Audit:** PASSED — 12/12 requirements, 5/5 phases verified, 5/5 E2E flows, 12/12 cross-phase wirings
+**Archive:** `.planning/milestones/v0.24-MILESTONE-AUDIT.md`
+
+---
+

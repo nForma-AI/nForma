@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.24-04",
+  "created_at": "2026-03-03T01:15:37.730Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Phase v0.24-04 implements automatic detection and healing of degraded consensus conditions. The system uses the existing PRISM consensus probability model to predict P(consensus | remaining rounds) af",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.24-04-self-healing-consensus/v0.24-04-01-PLAN.md",
+    "key_decisions": []
+  }
+}
