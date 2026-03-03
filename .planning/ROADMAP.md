@@ -1242,7 +1242,7 @@ Plans:
 
 - [x] **Phase v0.25-01: Schema Foundation** - Extend model-registry, check-result schema, runners, and requirements.json with requirement linkage fields (completed 2026-03-03)
 - [x] **Phase v0.25-02: Property Annotations** - Add structured @requirement comments to all TLA+, Alloy, and PRISM model files and build the extraction parser (completed 2026-03-03)
-- [ ] **Phase v0.25-03: Traceability Matrix** - Generate a property-level traceability matrix with coverage statistics from registry, annotations, and check results
+- [x] **Phase v0.25-03: Traceability Matrix** - Generate a property-level traceability matrix with coverage statistics from registry, annotations, and check results (completed 2026-03-03)
 - [ ] **Phase v0.25-04: Bidirectional Validation** - Detect asymmetric links between models and requirements; CI guard on coverage regression
 - [ ] **Phase v0.25-05: Decomposition Awareness** - Analyze model state-space size, flag unbounded domains, and validate coverage preservation during model splits
 
@@ -1309,6 +1309,6 @@ Plans:
 
 | v0.25-01. Schema Foundation | 3/3 | Complete    | 2026-03-03 |  |
 | v0.25-02. Property Annotations | 3/3 | Complete | 2026-03-03 |  |
-| v0.25-03. Traceability Matrix | v0.25 | 0/TBD | Not started | - |
+| v0.25-03. Traceability Matrix | 1/2 | Complete    | 2026-03-03 | - |
 | v0.25-04. Bidirectional Validation | v0.25 | 0/TBD | Not started | - |
 | v0.25-05. Decomposition Awareness | v0.25 | 0/TBD | Not started | - |
