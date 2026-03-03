@@ -8,7 +8,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["CRED-07", "CRED-08", "CRED-09", "CRED-10", "CRED-11"]
     },
     "formal/alloy/availability-parsing.als": {
       "version": 1,
@@ -16,7 +17,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["CALIB-01", "CALIB-02", "CALIB-03"]
     },
     "formal/alloy/install-scope.als": {
       "version": 1,
@@ -24,7 +26,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["INST-01", "INST-02", "INST-03", "INST-04", "INST-05"]
     },
     "formal/alloy/quorum-composition.als": {
       "version": 1,
@@ -32,7 +35,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": "SPEC-03: Quorum composition selection rules — no empty selection, high-risk full fan-out, solo mode single slot"
+      "description": "SPEC-03: Quorum composition selection rules — no empty selection, high-risk full fan-out, solo mode single slot",
+      "requirements": ["SPEC-03", "COMP-01"]
     },
     "formal/alloy/quorum-votes.als": {
       "version": 343,
@@ -40,7 +44,8 @@
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["QUORUM-02", "SAFE-01", "SAFE-04"]
     },
     "formal/alloy/scoreboard-recompute.als": {
       "version": 1,
@@ -48,7 +53,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["SCBD-01", "SCBD-02", "SCBD-03", "SCBD-04"]
     },
     "formal/alloy/taxonomy-safety.als": {
       "version": 1,
@@ -56,7 +62,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["SCBD-05", "SCBD-06", "SCBD-07"]
     },
     "formal/alloy/transcript-scan.als": {
       "version": 1,
@@ -64,7 +71,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["STOP-08", "STOP-09", "STOP-10", "STOP-11"]
     },
     "formal/prism/mcp-availability.pm": {
       "version": 1,
@@ -72,7 +80,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["MCPENV-04", "FAIL-01"]
     },
     "formal/prism/oauth-rotation.pm": {
       "version": 1,
@@ -80,7 +89,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["PRM-AM-01", "CRED-12"]
     },
     "formal/prism/quorum.pm": {
       "version": 343,
@@ -88,7 +98,8 @@
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["PRM-01", "QUORUM-04", "LOOP-01"]
     },
     "formal/tla/QGSDAccountManager.tla": {
       "version": 1,
@@ -96,7 +107,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["CRED-01", "CRED-02", "CRED-03", "CRED-04", "CRED-05", "CRED-06"]
     },
     "formal/tla/QGSDCircuitBreaker.tla": {
       "version": 1,
@@ -104,7 +116,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["DETECT-01", "DETECT-02", "DETECT-03"]
     },
     "formal/tla/QGSDConvergence.tla": {
       "version": 1,
@@ -112,15 +125,17 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["ORES-01", "ORES-02", "ORES-03", "ORES-04", "ORES-05"]
     },
     "formal/tla/QGSDDeliberation.tla": {
       "version": 1,
-      "last_updated": "2026-02-25T13:15:55.708Z",
+      "last_updated": "2026-02-25T13:15:55.648Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["PLAN-01", "PLAN-02", "SAFE-03", "IMPR-01", "LOOP-02"]
     },
     "formal/tla/QGSDMCPEnv.tla": {
       "version": 1,
@@ -128,15 +143,17 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["MCPENV-01", "MCPENV-02", "MCPENV-03"]
     },
     "formal/tla/QGSDOscillation.tla": {
       "version": 1,
-      "last_updated": "2026-02-25T11:16:21.725Z",
+      "last_updated": "2026-02-25T11:16:21.745Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["DETECT-04", "DETECT-05", "DETECT-06"]
     },
     "formal/tla/QGSDPreFilter.tla": {
       "version": 1,
@@ -144,7 +161,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["PLAN-03", "PLAN-04", "PLAN-05", "PLAN-06", "LOOP-03"]
     },
     "formal/tla/QGSDQuorum.tla": {
       "version": 343,
@@ -152,7 +170,8 @@
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["QUORUM-01", "QUORUM-02", "QUORUM-03", "QUORUM-04", "SAFE-01", "SAFE-02", "SAFE-03", "LOOP-01", "RECV-01"]
     },
     "formal/tla/QGSDQuorum_xstate.tla": {
       "version": 1,
@@ -160,7 +179,8 @@
       "update_source": "generate",
       "source_id": "generate:tla-from-xstate",
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": []
     },
     "formal/tla/QGSDRecruiting.tla": {
       "version": 1,
@@ -168,7 +188,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": ["SLOT-02", "SLOT-03", "SLOT-04", "SLOT-05"]
     },
     "formal/tla/QGSDStopHook.tla": {
       "version": 1,
@@ -176,7 +197,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": "SPEC-01: Stop hook decision logic — HasPlanningCommand ∧ ¬HasQuorumEvidence ⟹ BLOCK"
+      "description": "SPEC-01: Stop hook decision logic — HasPlanningCommand ∧ ¬HasQuorumEvidence ⟹ BLOCK",
+      "requirements": ["STOP-01", "STOP-02", "STOP-03", "STOP-04", "STOP-05", "STOP-06", "STOP-07", "SPEC-01"]
     },
     "formal/tla/TUINavigation.tla": {
       "version": 1,
@@ -184,7 +206,8 @@
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": []
     },
     "../../../../tmp/promote-test/formal/tla/QGSDQuorum.tla": {
       "version": 1,
@@ -192,7 +215,8 @@
       "update_source": "plan-promote",
       "source_id": "test-001",
       "session_id": null,
-      "description": ""
+      "description": "",
+      "requirements": []
     }
   }
 }
