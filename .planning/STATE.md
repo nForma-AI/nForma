@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 ## Current Position
 
 Phase: v0.26-01 of 6 (Policy Configuration)
-Plan: 0 of 3 in current phase
-Status: Planned — ready to execute
-Last activity: 2026-03-03 — Phase v0.26-01 planned (3 plans, 2 waves)
+Plan: 2 of 3 in current phase
+Status: In progress — 2 of 3 plans complete
+Last activity: 2026-03-03 — Completed v0.26-01-02 (Wire auto-update check into startup)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████░░░░] 33%
 
 ## Performance Metrics
 
@@ -45,6 +45,8 @@ Recent decisions affecting current work:
 - [v0.26 roadmap]: Policy config (PLCY) is foundation phase; credentials and installer depend on it
 - [v0.26 roadmap]: Dashboard and architecture enforcement can run in parallel after Phase 2
 - [v0.26 roadmap]: DECOMP-05 (cross-model decomposition) is last phase; deferrable to v0.27 if needed
+- [v0.26-01-02]: Non-blocking startup pattern - auto-update check fires asynchronously, TUI renders immediately
+- [v0.26-01-02]: runAutoUpdateCheck dependency-injected via getStatusesFn parameter for testability
 
 ### Pending Todos
 
