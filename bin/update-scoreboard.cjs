@@ -159,6 +159,11 @@ function emptyData() {
     categories: {},
     rounds: [],
     availability: {}, // per-slot availability windows: { slotOrModel: { available_at_iso, ... } }
+    delivery_stats: {
+      total_rounds: 0,
+      target_vote_count: 3,
+      achieved_by_outcome: {},
+    },
   };
 }
 
@@ -258,6 +263,164 @@ function recomputeSlots(data) {
       if (vote === 'FN')  s.fn += 1;
       if (vote === 'TP+' || vote === 'TN+') s.impr += 1;
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Delivery stats computation
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute delivery statistics from rounds data.
+ * Counts how many rounds achieved each vote count and calculates percentages.
+ * Stores result in data.delivery_stats.
+ */
+function computeDeliveryStats(data) {
+  try {
+    if (!data.rounds || data.rounds.length === 0) {
+      data.delivery_stats = {
+        total_rounds: 0,
+        target_vote_count: 3,
+        achieved_by_outcome: {},
+      };
+      return data;
+    }
+
+    // Helper to count valid votes in a round
+    function countValidVotes(votes) {
+      let count = 0;
+      for (const key of Object.keys(votes)) {
+        const v = votes[key];
+        if (v && v !== '' && v !== 'UNAVAIL' && v !== 'TIMEOUT') count++;
+      }
+      return count;
+    }
+
+    // Tally vote counts across all rounds
+    const voteCountHistogram = {};
+    for (const round of data.rounds) {
+      const voteCount = countValidVotes(round.votes || {});
+      const key = voteCount + '_votes';
+      voteCountHistogram[key] = (voteCountHistogram[key] || 0) + 1;
+    }
+
+    // Compute percentages
+    const totalRounds = data.rounds.length;
+    const achievedByOutcome = {};
+    for (const [key, count] of Object.entries(voteCountHistogram)) {
+      const pct = parseFloat(((count / totalRounds) * 100).toFixed(1));
+      achievedByOutcome[key] = { count, pct };
+    }
+
+    data.delivery_stats = {
+      total_rounds: totalRounds,
+      target_vote_count: 3,
+      achieved_by_outcome: achievedByOutcome,
+    };
+
+    return data;
+  } catch (e) {
+    process.stderr.write(`[computeDeliveryStats] ERROR: ${e.message}\n`);
+    return data;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Flakiness scoring
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute per-slot flakiness scores from recent verdicts.
+ * Flakiness = failure rate in trailing 10-round window.
+ * Stores result in data.slots[key].flakiness_score and recent_verdicts.
+ */
+function computeFlakiness(data, windowSize = 10) {
+  try {
+    if (!data.rounds || data.rounds.length === 0) {
+      // No rounds yet — all slots have default score 0.0
+      return data;
+    }
+
+    // Collect all unique slot names from all rounds
+    const allSlots = new Set();
+    for (const round of data.rounds) {
+      const votes = round.votes || {};
+      for (const key of Object.keys(votes)) {
+        // Handle both model-keyed (e.g., 'claude') and slot-keyed (e.g., 'gemini-1:model-id')
+        if (key.includes(':')) {
+          // Slot-keyed: extract slot name (before ':')
+          const slotName = key.split(':')[0];
+          allSlots.add(slotName);
+        } else {
+          // Model-keyed: use model name as slot key
+          allSlots.add(key);
+        }
+      }
+    }
+
+    // For each slot, compute flakiness from trailing window
+    for (const slotName of allSlots) {
+      // Collect all verdicts for this slot from data.rounds
+      const verdictWindow = [];
+      for (const round of data.rounds) {
+        const votes = round.votes || {};
+        // Look for any vote entry matching this slot
+        let verdict = null;
+        for (const [key, voteValue] of Object.entries(votes)) {
+          const keySlotName = key.includes(':') ? key.split(':')[0] : key;
+          if (keySlotName === slotName) {
+            // Count as failure: UNAVAIL, TIMEOUT, empty string, or any other falsy value
+            if (voteValue === 'UNAVAIL' || voteValue === 'TIMEOUT' || voteValue === '' || !voteValue) {
+              verdict = 'FAILED';
+            } else {
+              // Success (any other value including verdict names)
+              verdict = 'SUCCESS';
+            }
+            break;
+          }
+        }
+        if (verdict) {
+          verdictWindow.push({
+            round_num: round.round || verdictWindow.length + 1,
+            verdict,
+          });
+        }
+      }
+
+      // Use trailing window
+      const window = verdictWindow.slice(-windowSize);
+      if (window.length === 0) {
+        // No verdicts for this slot — default to 0.0 (reliable)
+        // Ensure slot entry exists
+        for (const [key, slotEntry] of Object.entries(data.slots)) {
+          const keySlotName = key.split(':')[0];
+          if (keySlotName === slotName && !slotEntry.flakiness_score) {
+            slotEntry.flakiness_score = 0.0;
+            slotEntry.recent_verdicts = [];
+          }
+        }
+        continue;
+      }
+
+      // Count failures in window
+      const failures = window.filter(v => v.verdict === 'FAILED').length;
+      const flakinessScore = failures / window.length;
+      const score = parseFloat(flakinessScore.toFixed(2)); // Store as number
+
+      // Store flakiness in all slot entries matching this slot name
+      for (const [key, slotEntry] of Object.entries(data.slots)) {
+        const keySlotName = key.split(':')[0];
+        if (keySlotName === slotName) {
+          slotEntry.flakiness_score = score;
+          slotEntry.recent_verdicts = window;
+        }
+      }
+    }
+
+    return data;
+  } catch (e) {
+    process.stderr.write(`[computeFlakiness] ERROR: ${e.message}\n`);
+    return data;
   }
 }
 
@@ -751,6 +914,8 @@ async function mergeWave(argv) {
   // Recompute stats from scratch
   recomputeStats(data);
   recomputeSlots(data);
+  computeDeliveryStats(data);
+  computeFlakiness(data);
 
   // Single atomic write
   const absPath = path.resolve(process.cwd(), scoreboardPath);
@@ -916,7 +1081,15 @@ async function main() {
   process.stdout.write(confirmation + '\n');
 }
 
-main().catch(err => {
-  process.stderr.write(`[update-scoreboard] FATAL: ${err.message}\n`);
-  process.exit(1);
-});
+// Guard pattern: only export when require()d by tests, not when run as a CLI script
+if (typeof module !== 'undefined') {
+  module.exports = { computeDeliveryStats, computeFlakiness, emptyData };
+}
+
+// Only run main() when invoked as a script, not when require()d by tests
+if (require.main === module) {
+  main().catch(err => {
+    process.stderr.write(`[update-scoreboard] FATAL: ${err.message}\n`);
+    process.exit(1);
+  });
+}
