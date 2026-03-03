@@ -193,7 +193,10 @@
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
         "milestone": "v0.19"
       },
-      "background": "Hardcoding PRISM parameters across run-prism.cjs, test files, and configurations made updates error-prone and created inconsistent model behavior. Moving all calibration (tp_rate, unavail, observation_window) to formal/policy.yaml creates a single source of truth, enabling policy reviews and parameter audits without code searches."
+      "background": "Hardcoding PRISM parameters across run-prism.cjs, test files, and configurations made updates error-prone and created inconsistent model behavior. Moving all calibration (tp_rate, unavail, observation_window) to formal/policy.yaml creates a single source of truth, enabling policy reviews and parameter audits without code searches.",
+      "formal_models": [
+        "formal/alloy/availability-parsing.als"
+      ]
     },
     {
       "id": "CALIB-02",
@@ -205,7 +208,10 @@
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
         "milestone": "v0.19"
       },
-      "background": "run-prism.cjs must read policy.yaml on startup and pass observation_window metadata in writeCheckResult calls. This wires the policy layer into PRISM output, enabling the MCP environment model and other downstream consumers to understand the observation conditions under which availability rates were measured."
+      "background": "run-prism.cjs must read policy.yaml on startup and pass observation_window metadata in writeCheckResult calls. This wires the policy layer into PRISM output, enabling the MCP environment model and other downstream consumers to understand the observation conditions under which availability rates were measured.",
+      "formal_models": [
+        "formal/alloy/availability-parsing.als"
+      ]
     },
     {
       "id": "CALIB-03",
@@ -217,7 +223,10 @@
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
         "milestone": "v0.19"
       },
-      "background": "A typed read-policy.cjs module exports all policy fields with schema validation, preventing silent defaults or schema drift. Callers can safely access policy.conservative_priors.tp_rate knowing the type is correct, enabling other tools (trace validation, quorum tests) to reference policy without replicating YAML parsing."
+      "background": "A typed read-policy.cjs module exports all policy fields with schema validation, preventing silent defaults or schema drift. Callers can safely access policy.conservative_priors.tp_rate knowing the type is correct, enabling other tools (trace validation, quorum tests) to reference policy without replicating YAML parsing.",
+      "formal_models": [
+        "formal/alloy/availability-parsing.als"
+      ]
     },
     {
       "id": "CALIB-04",
@@ -265,7 +274,10 @@
         "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Enables users to choose which available slots participate in planning verification by configuration rather than hardcoding. Solves the problem of forcing unwanted agents into quorum when a user has limited credentials or wants to test with a subset. Introduces the core configuration point (`quorum.active`) that drives all v0.7 behavior downstream."
+      "background": "Enables users to choose which available slots participate in planning verification by configuration rather than hardcoding. Solves the problem of forcing unwanted agents into quorum when a user has limited credentials or wants to test with a subset. Introduces the core configuration point (`quorum.active`) that drives all v0.7 behavior downstream.",
+      "formal_models": [
+        "formal/alloy/quorum-composition.als"
+      ]
     },
     {
       "id": "COMP-02",
@@ -421,7 +433,10 @@
         "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
         "milestone": "v0.10"
       },
-      "background": "Batch key rotation solves the operational pain of having to rotate keys one slot at a time through the edit flow. In multi-slot deployments (when the quorum spans 4-6 providers), manual per-slot rotation is tedious and error-prone. This requirement groups all key rotation into a single workflow from the main menu, reducing repetitive interaction and ensuring consistency. It pairs with CRED-02 (persistent validation status) so users can rotate keys only when validation actually fails, not speculatively."
+      "background": "Batch key rotation solves the operational pain of having to rotate keys one slot at a time through the edit flow. In multi-slot deployments (when the quorum spans 4-6 providers), manual per-slot rotation is tedious and error-prone. This requirement groups all key rotation into a single workflow from the main menu, reducing repetitive interaction and ensuring consistency. It pairs with CRED-02 (persistent validation status) so users can rotate keys only when validation actually fails, not speculatively.",
+      "formal_models": [
+        "formal/tla/QGSDAccountManager.tla"
+      ]
     },
     {
       "id": "CRED-02",
@@ -433,7 +448,10 @@
         "source_file": ".planning/milestones/v0.11-REQUIREMENTS.md",
         "milestone": "v0.10"
       },
-      "background": "Persistent key validity status persists validation probe results to qgsd.json, enabling the DISP-03 display badge to survive session restarts without re-probing every slot. Probing can be slow (multi-provider round-trip), so caching the 401 status is essential for responsive interactive sessions. This is the enabling infrastructure for DISP-03, which depends on availability of cached validation data."
+      "background": "Persistent key validity status persists validation probe results to qgsd.json, enabling the DISP-03 display badge to survive session restarts without re-probing every slot. Probing can be slow (multi-provider round-trip), so caching the 401 status is essential for responsive interactive sessions. This is the enabling infrastructure for DISP-03, which depends on availability of cached validation data.",
+      "formal_models": [
+        "formal/tla/QGSDAccountManager.tla"
+      ]
     },
     {
       "id": "DASH-01",
@@ -481,7 +499,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "PreToolUse hook intercepts Bash tool calls before execution, checking if circuit breaker is already active. If active, skip detection and go straight to enforcement. If inactive, run oscillation detection on the Bash call."
+      "background": "PreToolUse hook intercepts Bash tool calls before execution, checking if circuit breaker is already active. If active, skip detection and go straight to enforcement. If inactive, run oscillation detection on the Bash call.",
+      "formal_models": [
+        "formal/tla/QGSDCircuitBreaker.tla"
+      ]
     },
     {
       "id": "DETECT-02",
@@ -493,7 +514,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Hook fetches last N commits via git log --name-only, where N is the configured commit_window. This efficient git query provides the recent commit history needed for oscillation pattern matching."
+      "background": "Hook fetches last N commits via git log --name-only, where N is the configured commit_window. This efficient git query provides the recent commit history needed for oscillation pattern matching.",
+      "formal_models": [
+        "formal/tla/QGSDCircuitBreaker.tla"
+      ]
     },
     {
       "id": "DETECT-03",
@@ -505,7 +529,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Oscillation is identified by strict file set equality — the exact same file set appears ≥ oscillation_depth times in the commit_window. Strict equality avoids false positives during TDD cycles where each commit touches different files. The requirement explicitly rejects intersection-based matching because it would trigger during legitimate refactoring."
+      "background": "Oscillation is identified by strict file set equality — the exact same file set appears ≥ oscillation_depth times in the commit_window. Strict equality avoids false positives during TDD cycles where each commit touches different files. The requirement explicitly rejects intersection-based matching because it would trigger during legitimate refactoring.",
+      "formal_models": [
+        "formal/tla/QGSDCircuitBreaker.tla"
+      ]
     },
     {
       "id": "DETECT-04",
@@ -517,7 +544,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) always pass through without detection. These commands cannot create oscillation (they don't modify files), so blocking them would only slow debugging work."
+      "background": "Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) always pass through without detection. These commands cannot create oscillation (they don't modify files), so blocking them would only slow debugging work.",
+      "formal_models": [
+        "formal/tla/QGSDOscillation.tla"
+      ]
     },
     {
       "id": "DETECT-05",
@@ -529,7 +559,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Detection is skipped when the current working directory has no git repository. QGSD should not crash on non-git projects; it gracefully degrades to allow all Bash execution."
+      "background": "Detection is skipped when the current working directory has no git repository. QGSD should not crash on non-git projects; it gracefully degrades to allow all Bash execution.",
+      "formal_models": [
+        "formal/tla/QGSDOscillation.tla"
+      ]
     },
     {
       "id": "DIAG-01",
@@ -709,7 +742,10 @@
         "source_file": ".planning/milestones/v0.24-REQUIREMENTS.md",
         "milestone": "v0.24"
       },
-      "background": "Handles transient failures (network blips, rate limits) by implementing retry logic with exponential backoff (1s, 3s) in call-quorum-slot.cjs. Before marking a slot UNAVAIL in quorum-failures.json, the system gives each slot 2 additional chances with increasing delay. This dramatically reduces false failures from temporary glitches while preserving the ability to detect genuinely dead endpoints after exhausting retries."
+      "background": "Handles transient failures (network blips, rate limits) by implementing retry logic with exponential backoff (1s, 3s) in call-quorum-slot.cjs. Before marking a slot UNAVAIL in quorum-failures.json, the system gives each slot 2 additional chances with increasing delay. This dramatically reduces false failures from temporary glitches while preserving the ability to detect genuinely dead endpoints after exhausting retries.",
+      "formal_models": [
+        "formal/prism/mcp-availability.pm"
+      ]
     },
     {
       "id": "FAIL-02",
@@ -793,7 +829,10 @@
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
         "milestone": "v0.19"
       },
-      "background": "v0.19-06 reviewed R3.6 (quorum enforcement) against the delivered slot worker implementation and identified that dispatch was still using sequential direct MCP tool calls rather than Task-based parallelism, reducing liveness and causing provider rotations to serialize."
+      "background": "v0.19-06 reviewed R3.6 (quorum enforcement) against the delivered slot worker implementation and identified that dispatch was still using sequential direct MCP tool calls rather than Task-based parallelism, reducing liveness and causing provider rotations to serialize.",
+      "formal_models": [
+        "formal/tla/QGSDDeliberation.tla"
+      ]
     },
     {
       "id": "IMPR-02",
@@ -841,7 +880,10 @@
         "source_file": ".planning/milestones/v0.6-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Detects when QGSD is installed but no quorum agents are configured, and directs users to the wizard (WIZ-01). This prevents silent quorum failures and ensures users understand that /qgsd:quick and plan-phase require functional MCP agents."
+      "background": "Detects when QGSD is installed but no quorum agents are configured, and directs users to the wizard (WIZ-01). This prevents silent quorum failures and ensures users understand that /qgsd:quick and plan-phase require functional MCP agents.",
+      "formal_models": [
+        "formal/alloy/install-scope.als"
+      ]
     },
     {
       "id": "INST-02",
@@ -853,7 +895,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "QGSD's package.json pins the GSD version number. This ensures hook compatibility — if GSD changes planning command behavior, QGSD must be updated to match, preventing silent compatibility breaks."
+      "background": "QGSD's package.json pins the GSD version number. This ensures hook compatibility — if GSD changes planning command behavior, QGSD must be updated to match, preventing silent compatibility breaks.",
+      "formal_models": [
+        "formal/alloy/install-scope.als"
+      ]
     },
     {
       "id": "INST-03",
@@ -865,7 +910,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Installer writes hooks directly to ~/.claude/settings.json rather than using plugin.json hooks (which are silently discarded per GitHub #10225). Direct settings.json write is the reliable method to register hooks in Claude Code."
+      "background": "Installer writes hooks directly to ~/.claude/settings.json rather than using plugin.json hooks (which are silently discarded per GitHub #10225). Direct settings.json write is the reliable method to register hooks in Claude Code.",
+      "formal_models": [
+        "formal/alloy/install-scope.als"
+      ]
     },
     {
       "id": "INST-04",
@@ -877,7 +925,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Installer registers both UserPromptSubmit and Stop hook entries in ~/.claude/settings.json hooks array. Both hooks must be registered for full enforcement — UserPromptSubmit injects quorum instructions, Stop verifies them."
+      "background": "Installer registers both UserPromptSubmit and Stop hook entries in ~/.claude/settings.json hooks array. Both hooks must be registered for full enforcement — UserPromptSubmit injects quorum instructions, Stop verifies them.",
+      "formal_models": [
+        "formal/alloy/install-scope.als"
+      ]
     },
     {
       "id": "INST-05",
@@ -889,7 +940,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Installer validates before registering — checks that configured MCPs exist in Claude Code settings and warns if Codex/Gemini/OpenCode are missing. This early validation prevents silent failures where hooks would block forever because required models are unavailable."
+      "background": "Installer validates before registering — checks that configured MCPs exist in Claude Code settings and warns if Codex/Gemini/OpenCode are missing. This early validation prevents silent failures where hooks would block forever because required models are unavailable.",
+      "formal_models": [
+        "formal/alloy/install-scope.als"
+      ]
     },
     {
       "id": "INST-06",
@@ -1033,7 +1087,11 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Closes the audit gap by integrating audit-milestone into the final phase transition workflow. The last phase must call audit-milestone before complete-milestone to verify that all planned work has been completed and to detect whether gap closure is needed. This is the primary path in the autonomous execution loop and ensures no phase exits without verification. Relates to LOOP-03 (which auto-spawns gap closure) and STATE-01 (which tracks audit outcome)."
+      "background": "Closes the audit gap by integrating audit-milestone into the final phase transition workflow. The last phase must call audit-milestone before complete-milestone to verify that all planned work has been completed and to detect whether gap closure is needed. This is the primary path in the autonomous execution loop and ensures no phase exits without verification. Relates to LOOP-03 (which auto-spawns gap closure) and STATE-01 (which tracks audit outcome).",
+      "formal_models": [
+        "formal/tla/QGSDQuorum.tla",
+        "formal/prism/quorum.pm"
+      ]
     },
     {
       "id": "LOOP-02",
@@ -1045,7 +1103,10 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Implements the re-audit loop for gap closure by detecting the **Gap Closure:** ROADMAP marker in a completed phase and routing to audit-milestone instead of complete-milestone. This allows the system to continuously verify and close gaps without manual intervention. Critical to the autonomous loop and requires installed copy sync to runtime. Directly enables repeat verification cycles without returning to new-milestone."
+      "background": "Implements the re-audit loop for gap closure by detecting the **Gap Closure:** ROADMAP marker in a completed phase and routing to audit-milestone instead of complete-milestone. This allows the system to continuously verify and close gaps without manual intervention. Critical to the autonomous loop and requires installed copy sync to runtime. Directly enables repeat verification cycles without returning to new-milestone.",
+      "formal_models": [
+        "formal/tla/QGSDDeliberation.tla"
+      ]
     },
     {
       "id": "LOOP-03",
@@ -1057,7 +1118,10 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Adds automatic gap closure planning by having audit-milestone spawn plan-milestone-gaps Task when gaps_found is detected and at least one phase is missing_no_plan. Bridges the gap discovery (from LOOP-02) to planning (LOOP-04). Works with STATE-01 to ensure audit results drive next actions. Prevents gap discovery from becoming a dead-end."
+      "background": "Adds automatic gap closure planning by having audit-milestone spawn plan-milestone-gaps Task when gaps_found is detected and at least one phase is missing_no_plan. Bridges the gap discovery (from LOOP-02) to planning (LOOP-04). Works with STATE-01 to ensure audit results drive next actions. Prevents gap discovery from becoming a dead-end.",
+      "formal_models": [
+        "formal/tla/QGSDPreFilter.tla"
+      ]
     },
     {
       "id": "LOOP-04",
@@ -1153,7 +1217,10 @@
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
         "milestone": "v0.19"
       },
-      "background": "The MCP environment model (TLA+ specs in formal/spec/mcp-calls/) captures how external MCP calls succeed/fail/timeout and how providers rotate on unavailability. This enables the core QGSD protocol model to be analyzed under realistic MCP conditions rather than idealized synchronous calls."
+      "background": "The MCP environment model (TLA+ specs in formal/spec/mcp-calls/) captures how external MCP calls succeed/fail/timeout and how providers rotate on unavailability. This enables the core QGSD protocol model to be analyzed under realistic MCP conditions rather than idealized synchronous calls.",
+      "formal_models": [
+        "formal/tla/QGSDMCPEnv.tla"
+      ]
     },
     {
       "id": "MCPENV-02",
@@ -1165,7 +1232,10 @@
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
         "milestone": "v0.19"
       },
-      "background": "MCMCPEnv is added as a SURFACE_MAP entry and VALID_CONFIGS option in the TLC runner, allowing users to run formal verification with the MCP environment model. invariants.md documents EventualDecision fairness (ensuring slots eventually choose), and a CI step validates the model."
+      "background": "MCMCPEnv is added as a SURFACE_MAP entry and VALID_CONFIGS option in the TLC runner, allowing users to run formal verification with the MCP environment model. invariants.md documents EventualDecision fairness (ensuring slots eventually choose), and a CI step validates the model.",
+      "formal_models": [
+        "formal/tla/QGSDMCPEnv.tla"
+      ]
     },
     {
       "id": "MCPENV-03",
@@ -1177,7 +1247,10 @@
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
         "milestone": "v0.19"
       },
-      "background": "MCP availability rates measured by run-prism.cjs (from provider endpoint health checks) are fed into the MCP environment model as parameters, making the formal model's assumptions empirically grounded rather than speculative. This bridges the gap between offline formal verification and runtime provider reliability."
+      "background": "MCP availability rates measured by run-prism.cjs (from provider endpoint health checks) are fed into the MCP environment model as parameters, making the formal model's assumptions empirically grounded rather than speculative. This bridges the gap between offline formal verification and runtime provider reliability.",
+      "formal_models": [
+        "formal/tla/QGSDMCPEnv.tla"
+      ]
     },
     {
       "id": "MCPENV-04",
@@ -1189,7 +1262,10 @@
         "source_file": ".planning/milestones/v0.19-REQUIREMENTS.md",
         "milestone": "v0.19"
       },
-      "background": "readMCPAvailabilityRates exports a module function with composite-key filtering (provider + model combination) so other tools can query rates without re-running PRISM. The require.main guard ensures the function is reachable in both require() and require('./bin/...') contexts. A CI step validates the availability feed."
+      "background": "readMCPAvailabilityRates exports a module function with composite-key filtering (provider + model combination) so other tools can query rates without re-running PRISM. The require.main guard ensures the function is reachable in both require() and require('./bin/...') contexts. A CI step validates the availability feed.",
+      "formal_models": [
+        "formal/prism/mcp-availability.pm"
+      ]
     },
     {
       "id": "META-01",
@@ -1321,7 +1397,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "When oscillation is detected and the oscillating files are only internal code (not config/data files), enter oscillation resolution mode instead of hard-stopping. This allows structural problems to be investigated and fixed through quorum deliberation rather than immediate failure."
+      "background": "When oscillation is detected and the oscillating files are only internal code (not config/data files), enter oscillation resolution mode instead of hard-stopping. This allows structural problems to be investigated and fixed through quorum deliberation rather than immediate failure.",
+      "formal_models": [
+        "formal/tla/QGSDConvergence.tla"
+      ]
     },
     {
       "id": "ORES-02",
@@ -1333,7 +1412,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Resolution mode presents oscillation evidence (file set and commit graph) to all available quorum models with structural-coupling framing. This primes the quorum to diagnose why the files keep changing together and propose a unified fix."
+      "background": "Resolution mode presents oscillation evidence (file set and commit graph) to all available quorum models with structural-coupling framing. This primes the quorum to diagnose why the files keep changing together and propose a unified fix.",
+      "formal_models": [
+        "formal/tla/QGSDConvergence.tla"
+      ]
     },
     {
       "id": "ORES-03",
@@ -1345,7 +1427,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Quorum deliberates (up to 4 rounds per R3.3) and may only approve unified solutions. Partial fixes are rejected because addressing only part of a structural coupling would perpetuate the oscillation. All quorum models must agree the proposed solution is complete."
+      "background": "Quorum deliberates (up to 4 rounds per R3.3) and may only approve unified solutions. Partial fixes are rejected because addressing only part of a structural coupling would perpetuate the oscillation. All quorum models must agree the proposed solution is complete.",
+      "formal_models": [
+        "formal/tla/QGSDConvergence.tla"
+      ]
     },
     {
       "id": "ORES-04",
@@ -1357,7 +1442,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "On consensus, Claude presents the unified solution plan to the user for approval before execution. The user sees the complete fix proposal and approves it explicitly before any code changes are made, maintaining human oversight."
+      "background": "On consensus, Claude presents the unified solution plan to the user for approval before execution. The user sees the complete fix proposal and approves it explicitly before any code changes are made, maintaining human oversight.",
+      "formal_models": [
+        "formal/tla/QGSDConvergence.tla"
+      ]
     },
     {
       "id": "ORES-05",
@@ -1369,7 +1457,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "If no consensus after 4 rounds, Claude hard-stops and escalates to the human with all model positions. Unresolvable quorum disagreement indicates the problem is complex enough to require human judgment and architectural discussion."
+      "background": "If no consensus after 4 rounds, Claude hard-stops and escalates to the human with all model positions. Unresolvable quorum disagreement indicates the problem is complex enough to require human judgment and architectural discussion.",
+      "formal_models": [
+        "formal/tla/QGSDConvergence.tla"
+      ]
     },
     {
       "id": "PLAN-01",
@@ -1381,7 +1472,10 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Auto-synthesizes TLA+ spec deltas from PLAN.md truths declared in planning. This bridges planning intent and formal verification: when a planner writes 'must_haves: [some truth]', PLAN-01 generates the corresponding PROPERTY statement. Essential for PLAN-02 to verify plans before implementation."
+      "background": "Auto-synthesizes TLA+ spec deltas from PLAN.md truths declared in planning. This bridges planning intent and formal verification: when a planner writes 'must_haves: [some truth]', PLAN-01 generates the corresponding PROPERTY statement. Essential for PLAN-02 to verify plans before implementation.",
+      "formal_models": [
+        "formal/tla/QGSDDeliberation.tla"
+      ]
     },
     {
       "id": "PLAN-02",
@@ -1393,7 +1487,10 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Provides the iterative TLC verification loop that gates planning: once PLAN-01 synthesizes spec deltas, this tool runs TLC up to 3 times with incrementally relaxed properties to find a satisfying configuration. Prevents plans from advancing if they violate formal safety or liveness invariants. Central gating point for v0.21's closed-loop assurance."
+      "background": "Provides the iterative TLC verification loop that gates planning: once PLAN-01 synthesizes spec deltas, this tool runs TLC up to 3 times with incrementally relaxed properties to find a satisfying configuration. Prevents plans from advancing if they violate formal safety or liveness invariants. Central gating point for v0.21's closed-loop assurance.",
+      "formal_models": [
+        "formal/tla/QGSDDeliberation.tla"
+      ]
     },
     {
       "id": "PLAN-03",
@@ -1405,7 +1502,10 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Generates formal evidence blocks for quorum slots by extracting PRISM probabilities, TLC coverage metrics, and conformance rates. These blocks inform quorum consensus gates (SIG-04) and provide formal justification for quorum decisions. Supplies the data that makes SIG-01 and SIG-02 output actionable for slot workers."
+      "background": "Generates formal evidence blocks for quorum slots by extracting PRISM probabilities, TLC coverage metrics, and conformance rates. These blocks inform quorum consensus gates (SIG-04) and provide formal justification for quorum decisions. Supplies the data that makes SIG-01 and SIG-02 output actionable for slot workers.",
+      "formal_models": [
+        "formal/tla/QGSDPreFilter.tla"
+      ]
     },
     {
       "id": "PLCY-01",
@@ -1549,7 +1649,10 @@
         "source_file": ".planning/milestones/v0.13-REQUIREMENTS.md",
         "milestone": "v0.13"
       },
-      "background": "Replaces the manual AskUserQuestion confirmation gate in plan-milestone-gaps with R3 multi-model quorum approval before ROADMAP.md is updated. Ensures gap closure phases are structurally verified by independent models before being committed to the plan. Part of the broader shift from instruction-following to structural enforcement via quorum. Works with LOOP-04 to gate the auto-spawn Task."
+      "background": "Replaces the manual AskUserQuestion confirmation gate in plan-milestone-gaps with R3 multi-model quorum approval before ROADMAP.md is updated. Ensures gap closure phases are structurally verified by independent models before being committed to the plan. Part of the broader shift from instruction-following to structural enforcement via quorum. Works with LOOP-04 to gate the auto-spawn Task.",
+      "formal_models": [
+        "formal/tla/QGSDQuorum.tla"
+      ]
     },
     {
       "id": "QUORUM-02",
@@ -1561,7 +1664,11 @@
         "source_file": ".planning/milestones/v0.13-REQUIREMENTS.md",
         "milestone": "v0.13"
       },
-      "background": "Replaces the chain halt + manual suggestion pattern with automated quorum diagnosis and resolution when execute-phase hits gaps_found. Allows the system to propose diagnostic insights and recovery strategies via multi-model consensus without human intervention. Demonstrates quorum as a decision gate rather than just a verification check."
+      "background": "Replaces the chain halt + manual suggestion pattern with automated quorum diagnosis and resolution when execute-phase hits gaps_found. Allows the system to propose diagnostic insights and recovery strategies via multi-model consensus without human intervention. Demonstrates quorum as a decision gate rather than just a verification check.",
+      "formal_models": [
+        "formal/tla/QGSDQuorum.tla",
+        "formal/alloy/quorum-votes.als"
+      ]
     },
     {
       "id": "QUORUM-03",
@@ -1573,7 +1680,10 @@
         "source_file": ".planning/milestones/v0.13-REQUIREMENTS.md",
         "milestone": "v0.13"
       },
-      "background": "Routes user_questions that survive R4 pre-filtering to quorum in auto mode instead of halting with AskUserQuestion. Handles ambiguous or gray-area discoveries by invoking collective intelligence, enabling discuss-phase to resolve uncertainties without blocking. Extends quorum's role beyond binary decisions to nuanced interpretation."
+      "background": "Routes user_questions that survive R4 pre-filtering to quorum in auto mode instead of halting with AskUserQuestion. Handles ambiguous or gray-area discoveries by invoking collective intelligence, enabling discuss-phase to resolve uncertainties without blocking. Extends quorum's role beyond binary decisions to nuanced interpretation.",
+      "formal_models": [
+        "formal/tla/QGSDQuorum.tla"
+      ]
     },
     {
       "id": "RECV-01",
@@ -1585,7 +1695,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "CLI flag npx qgsd --reset-breaker clears the circuit-breaker-state.json file. This manual recovery enables users to escape deadlocks when the breaker blocks indefinitely (e.g., if the user cannot commit the fix and the root cause is genuinely unsolvable without external changes)."
+      "background": "CLI flag npx qgsd --reset-breaker clears the circuit-breaker-state.json file. This manual recovery enables users to escape deadlocks when the breaker blocks indefinitely (e.g., if the user cannot commit the fix and the root cause is genuinely unsolvable without external changes).",
+      "formal_models": [
+        "formal/tla/QGSDQuorum.tla"
+      ]
     },
     {
       "id": "REDACT-01",
@@ -1729,7 +1842,11 @@
         "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
         "milestone": "v0.15"
       },
-      "background": "This requirement prevents catastrophic silent data loss when the `--repair` flag is used on a rich STATE.md file (>50 lines), which happened in practice when the full 160-line QGSD STATE.md was replaced with a 15-line template without user confirmation. The fix implements a content-length safety gate that blocks the overwrite unless an explicit `--force` flag is provided. This is critical for operator safety because STATE.md contains the complete project history and status; silent overwrites destroy irreplaceable planning metadata. The requirement also establishes a new CLI pattern (`--force`) that mirrors existing precedents in the codebase, improving consistency."
+      "background": "This requirement prevents catastrophic silent data loss when the `--repair` flag is used on a rich STATE.md file (>50 lines), which happened in practice when the full 160-line QGSD STATE.md was replaced with a 15-line template without user confirmation. The fix implements a content-length safety gate that blocks the overwrite unless an explicit `--force` flag is provided. This is critical for operator safety because STATE.md contains the complete project history and status; silent overwrites destroy irreplaceable planning metadata. The requirement also establishes a new CLI pattern (`--force`) that mirrors existing precedents in the codebase, improving consistency.",
+      "formal_models": [
+        "formal/tla/QGSDQuorum.tla",
+        "formal/alloy/quorum-votes.als"
+      ]
     },
     {
       "id": "SAFE-02",
@@ -1741,7 +1858,10 @@
         "source_file": ".planning/milestones/v0.15-REQUIREMENTS.md",
         "milestone": "v0.15"
       },
-      "background": "This requirement archives 22 legacy numeric phase directories (18-39) that predate QGSD's adoption of versioned naming, moving them from `.planning/phases/` to `.planning/archive/legacy/` to eliminate orphaned-phase noise from health reports. Although the W007 false positives for these dirs were already resolved by the v0.15-01 regex fix, the physical archive is still valuable housekeeping: it keeps the active phases directory clean (containing only versioned `v0.X-YY-name` dirs), prevents confusion about which phases are current, and establishes a clear archive boundary. This requirement completes the versioning migration by removing the last vestige of pre-versioning era phase organization."
+      "background": "This requirement archives 22 legacy numeric phase directories (18-39) that predate QGSD's adoption of versioned naming, moving them from `.planning/phases/` to `.planning/archive/legacy/` to eliminate orphaned-phase noise from health reports. Although the W007 false positives for these dirs were already resolved by the v0.15-01 regex fix, the physical archive is still valuable housekeeping: it keeps the active phases directory clean (containing only versioned `v0.X-YY-name` dirs), prevents confusion about which phases are current, and establishes a clear archive boundary. This requirement completes the versioning migration by removing the last vestige of pre-versioning era phase organization.",
+      "formal_models": [
+        "formal/tla/QGSDQuorum.tla"
+      ]
     },
     {
       "id": "SCBD-01",
@@ -1753,7 +1873,10 @@
         "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Establishes slot as the stable primary key for scoreboard performance tracking, decoupling slot identity from the model running inside. Without this, changing a slot's model would orphan its historical performance data. Solves the problem of tracking \"how well does claude-1 perform\" rather than \"how well does DeepSeek perform.\""
+      "background": "Establishes slot as the stable primary key for scoreboard performance tracking, decoupling slot identity from the model running inside. Without this, changing a slot's model would orphan its historical performance data. Solves the problem of tracking \"how well does claude-1 perform\" rather than \"how well does DeepSeek perform.\"",
+      "formal_models": [
+        "formal/alloy/scoreboard-recompute.als"
+      ]
     },
     {
       "id": "SCBD-02",
@@ -1765,7 +1888,10 @@
         "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Enriches scoreboard entries with the current model name for context, acknowledging that users need to know which model is in which slot. Pairs with SCBD-01 by showing both the stable slot key and the current model running in it. Enables users to correlate performance with model versions across time."
+      "background": "Enriches scoreboard entries with the current model name for context, acknowledging that users need to know which model is in which slot. Pairs with SCBD-01 by showing both the stable slot key and the current model running in it. Enables users to correlate performance with model versions across time.",
+      "formal_models": [
+        "formal/alloy/scoreboard-recompute.als"
+      ]
     },
     {
       "id": "SCBD-03",
@@ -1777,7 +1903,10 @@
         "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Specifies that when a slot's model changes (e.g., claude-1 switches from DeepSeek to MiniMax), a new scoreboard row is created rather than overwriting the old one. Preserves historical performance baselines for each model separately. Enables comparative analysis: \"how much did performance change when I switched models in this slot.\""
+      "background": "Specifies that when a slot's model changes (e.g., claude-1 switches from DeepSeek to MiniMax), a new scoreboard row is created rather than overwriting the old one. Preserves historical performance baselines for each model separately. Enables comparative analysis: \"how much did performance change when I switched models in this slot.\"",
+      "formal_models": [
+        "formal/alloy/scoreboard-recompute.als"
+      ]
     },
     {
       "id": "SCHEMA-01",
@@ -1921,7 +2050,10 @@
         "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Provides non-destructive migration from the legacy model-based naming scheme to slot-based names, preserving user data and enabling rollback if needed. Critical infrastructure that protects existing installations when adopting the new naming convention. Invertibility ensures that if slot-based naming causes unexpected issues, users can safely revert to the original names without data loss."
+      "background": "Provides non-destructive migration from the legacy model-based naming scheme to slot-based names, preserving user data and enabling rollback if needed. Critical infrastructure that protects existing installations when adopting the new naming convention. Invertibility ensures that if slot-based naming causes unexpected issues, users can safely revert to the original names without data loss.",
+      "formal_models": [
+        "formal/tla/QGSDRecruiting.tla"
+      ]
     },
     {
       "id": "SLOT-03",
@@ -1933,7 +2065,10 @@
         "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Ensures consistency across the entire QGSD codebase by purging all legacy model-based references and replacing them with slot names. Without this, mixed terminology in different tools (some showing slot names, others showing old names) would confuse users about whether they are the same entity. Completes the naming migration and prevents gradual regression back to old names."
+      "background": "Ensures consistency across the entire QGSD codebase by purging all legacy model-based references and replacing them with slot names. Without this, mixed terminology in different tools (some showing slot names, others showing old names) would confuse users about whether they are the same entity. Completes the naming migration and prevents gradual regression back to old names.",
+      "formal_models": [
+        "formal/tla/QGSDRecruiting.tla"
+      ]
     },
     {
       "id": "SLOT-04",
@@ -1945,7 +2080,10 @@
         "source_file": ".planning/milestones/v0.7-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Establishes slot-aware UX in the main operational commands that users interact with daily. These commands must accept and display slot names consistently so users can manage their quorum using the unified naming convention established in SLOT-01. Closes the gap between conceptual (slot names) and operational (user commands)."
+      "background": "Establishes slot-aware UX in the main operational commands that users interact with daily. These commands must accept and display slot names consistently so users can manage their quorum using the unified naming convention established in SLOT-01. Closes the gap between conceptual (slot names) and operational (user commands).",
+      "formal_models": [
+        "formal/tla/QGSDRecruiting.tla"
+      ]
     },
     {
       "id": "SPEC-01",
@@ -1957,7 +2095,10 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Formalizes the stop hook (which blocks planning responses without quorum consent) in TLA+ with its own model checker config (MCStopHook.cfg). TLC verifies that the stop hook satisfies safety (never allows unvetted responses) and liveness (quorum consent eventually arrives). Foundation for SPEC-02 and SPEC-03 which extend this spec composition."
+      "background": "Formalizes the stop hook (which blocks planning responses without quorum consent) in TLA+ with its own model checker config (MCStopHook.cfg). TLC verifies that the stop hook satisfies safety (never allows unvetted responses) and liveness (quorum consent eventually arrives). Foundation for SPEC-02 and SPEC-03 which extend this spec composition.",
+      "formal_models": [
+        "formal/tla/QGSDStopHook.tla"
+      ]
     },
     {
       "id": "SPEC-02",
@@ -1981,7 +2122,10 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Verifies in Alloy that quorum composition rules hold: (1) at least 2 of 5 slots must agree, (2) no single slot dominates consensus, (3) slot selection is deterministic. These three rules are verified through formal constraint satisfaction. Supports LOOP-01 and SIG-04 by proving quorum semantics are sound."
+      "background": "Verifies in Alloy that quorum composition rules hold: (1) at least 2 of 5 slots must agree, (2) no single slot dominates consensus, (3) slot selection is deterministic. These three rules are verified through formal constraint satisfaction. Supports LOOP-01 and SIG-04 by proving quorum semantics are sound.",
+      "formal_models": [
+        "formal/alloy/quorum-composition.als"
+      ]
     },
     {
       "id": "SPEC-04",
@@ -2077,7 +2221,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "STOP hook is the foundational enforcement gate that prevents planning responses without quorum. This requirement establishes that the hook must inspect the actual transcript JSONL for evidence of quorum tool invocations — reading tool_use entries is the authoritative, reliable method to verify that multi-model deliberation actually occurred. This is foundational to the entire quorum enforcement architecture."
+      "background": "STOP hook is the foundational enforcement gate that prevents planning responses without quorum. This requirement establishes that the hook must inspect the actual transcript JSONL for evidence of quorum tool invocations — reading tool_use entries is the authoritative, reliable method to verify that multi-model deliberation actually occurred. This is foundational to the entire quorum enforcement architecture.",
+      "formal_models": [
+        "formal/tla/QGSDStopHook.tla"
+      ]
     },
     {
       "id": "STOP-02",
@@ -2089,7 +2236,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Prevents infinite loops where the Stop hook itself might trigger on subsequent Claude responses. The stop_hook_active flag is a simple state guard that allows the hook to exit early if already executing, ensuring it cannot recurse and block itself indefinitely. This is a safety mechanism essential to hook stability."
+      "background": "Prevents infinite loops where the Stop hook itself might trigger on subsequent Claude responses. The stop_hook_active flag is a simple state guard that allows the hook to exit early if already executing, ensuring it cannot recurse and block itself indefinitely. This is a safety mechanism essential to hook stability.",
+      "formal_models": [
+        "formal/tla/QGSDStopHook.tla"
+      ]
     },
     {
       "id": "STOP-03",
@@ -2101,7 +2251,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Excludes subagent invocations from quorum verification. Subagents operate in constrained contexts where they cannot invoke quorum tools themselves, so requiring full quorum at the subagent boundary would deadlock. This requirement ensures hooks only apply to top-level Claude responses."
+      "background": "Excludes subagent invocations from quorum verification. Subagents operate in constrained contexts where they cannot invoke quorum tools themselves, so requiring full quorum at the subagent boundary would deadlock. This requirement ensures hooks only apply to top-level Claude responses.",
+      "formal_models": [
+        "formal/tla/QGSDStopHook.tla"
+      ]
     },
     {
       "id": "STOP-04",
@@ -2113,7 +2266,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Scopes quorum verification to the current turn only, meaning only the user message and its corresponding Claude response are checked for quorum evidence. This survives context compaction because the scope is defined by message boundaries, not absolute line numbers. Ensures quorum checks remain valid even after context is summarized."
+      "background": "Scopes quorum verification to the current turn only, meaning only the user message and its corresponding Claude response are checked for quorum evidence. This survives context compaction because the scope is defined by message boundaries, not absolute line numbers. Ensures quorum checks remain valid even after context is summarized.",
+      "formal_models": [
+        "formal/tla/QGSDStopHook.tla"
+      ]
     },
     {
       "id": "STOP-05",
@@ -2125,7 +2281,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Establishes JSONL parsing as the authoritative source rather than heuristics like substring matching in last_assistant_message. This design decision prioritizes correctness over speed — parsing is synchronous and accurate regardless of transcript size, preventing false negatives where quorum evidence exists but heuristics miss it."
+      "background": "Establishes JSONL parsing as the authoritative source rather than heuristics like substring matching in last_assistant_message. This design decision prioritizes correctness over speed — parsing is synchronous and accurate regardless of transcript size, preventing false negatives where quorum evidence exists but heuristics miss it.",
+      "formal_models": [
+        "formal/tla/QGSDStopHook.tla"
+      ]
     },
     {
       "id": "STOP-06",
@@ -2137,7 +2296,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Quorum is only required when a planning command was actually issued in the current turn. This scope filtering prevents false blocks on non-planning responses (e.g., answering casual questions). The hook checks if the user message matches the configured quorum_commands list before enforcing verification."
+      "background": "Quorum is only required when a planning command was actually issued in the current turn. This scope filtering prevents false blocks on non-planning responses (e.g., answering casual questions). The hook checks if the user message matches the configured quorum_commands list before enforcing verification.",
+      "formal_models": [
+        "formal/tla/QGSDStopHook.tla"
+      ]
     },
     {
       "id": "STOP-07",
@@ -2149,7 +2311,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Defines the block response format for blocking responses. Using a structured decision field with reason text allows Claude Code to display clear, actionable feedback to the user. The reason must include tool names so Claude knows exactly what to invoke."
+      "background": "Defines the block response format for blocking responses. Using a structured decision field with reason text allows Claude Code to display clear, actionable feedback to the user. The reason must include tool names so Claude knows exactly what to invoke.",
+      "formal_models": [
+        "formal/tla/QGSDStopHook.tla"
+      ]
     },
     {
       "id": "STOP-08",
@@ -2161,7 +2326,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Specifies the exact message format for blocks, ensuring consistent UX and clear instructions. The message pattern 'QUORUM REQUIRED: ... call [tool1], [tool2], [tool3] ... Present their responses, then deliver your final output' is explicit enough that Claude can understand what to do without additional context."
+      "background": "Specifies the exact message format for blocks, ensuring consistent UX and clear instructions. The message pattern 'QUORUM REQUIRED: ... call [tool1], [tool2], [tool3] ... Present their responses, then deliver your final output' is explicit enough that Claude can understand what to do without additional context.",
+      "formal_models": [
+        "formal/alloy/transcript-scan.als"
+      ]
     },
     {
       "id": "STOP-09",
@@ -2173,7 +2341,10 @@
         "source_file": ".planning/milestones/v0.2-REQUIREMENTS.md",
         "milestone": "unknown"
       },
-      "background": "Defines the success case — the hook passes (exits cleanly with no decision field) when quorum evidence is found in transcript or when no planning command triggered in the current turn. This allows planning responses with full quorum to complete without further blocking."
+      "background": "Defines the success case — the hook passes (exits cleanly with no decision field) when quorum evidence is found in transcript or when no planning command triggered in the current turn. This allows planning responses with full quorum to complete without further blocking.",
+      "formal_models": [
+        "formal/alloy/transcript-scan.als"
+      ]
     },
     {
       "id": "SYNC-01",

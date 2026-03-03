@@ -237,11 +237,21 @@ function aggregateRequirements(options) {
   const skipArchive = options.skipArchive || false;
   const archiveDir = options.archiveDir || '.planning/milestones';
 
-  // Check if output path exists and is frozen
+  // Check if output path exists and is frozen; also capture existing formal_models enrichment
+  // formal_models is enrichment data (not milestone-sourced) and must survive re-aggregation
+  const existingFormalModels = {};
   if (fs.existsSync(outputPath)) {
     const existing = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
     if (existing.frozen_at !== null) {
       throw new Error('Envelope is frozen -- use amendment workflow (ENV-04)');
+    }
+    // Capture formal_models keyed by requirement id for merge-back after aggregation
+    if (Array.isArray(existing.requirements)) {
+      existing.requirements.forEach(function(req) {
+        if (req.formal_models !== undefined) {
+          existingFormalModels[req.id] = req.formal_models;
+        }
+      });
     }
   }
 
@@ -265,6 +275,14 @@ function aggregateRequirements(options) {
   // Convert Map to sorted array
   const merged = Array.from(reqMap.values());
   merged.sort(function(a, b) { return a.id.localeCompare(b.id); });
+
+  // Merge back formal_models enrichment data (preserved from previous output)
+  // formal_models is not milestone-sourced so the aggregator must not discard it
+  merged.forEach(function(req) {
+    if (existingFormalModels[req.id] !== undefined) {
+      req.formal_models = existingFormalModels[req.id];
+    }
+  });
 
   // Compute content hash from the requirements array (before envelope wrapping)
   const contentHash = computeContentHash(merged);
