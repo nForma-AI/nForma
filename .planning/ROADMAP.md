@@ -1304,7 +1304,7 @@ Plans:
   4. The traceability matrix output includes a `state_space` section per model showing the risk classification, estimated state count, and any unbounded domain warnings
 **Plans**: TBD
 
-| v0.25-01. Schema Foundation | 3/3 | Complete   | 2026-03-03 |  |
+| v0.25-01. Schema Foundation | 3/3 | Complete    | 2026-03-03 |  |
 | v0.25-02. Property Annotations | v0.25 | 0/TBD | Not started | - |
 | v0.25-03. Traceability Matrix | v0.25 | 0/TBD | Not started | - |
 | v0.25-04. Bidirectional Validation | v0.25 | 0/TBD | Not started | - |
