@@ -238,7 +238,7 @@
 **Milestone Goal:** Add a governance layer to QGSD's existing formal verification pipeline — unified check-results output, cold-start calibration policy, liveness fairness declarations, redaction enforcement, evidence confidence qualifiers, and trace schema drift guards — making the FV infrastructure production-grade.
 
 - [x] **Phase v0.19-01: Unified Verdict Format** — canonical check-results.ndjson stream; all 13 FV checkers emit normalized NDJSON; CI gate exits non-zero on fail (UNIF-01..04) (completed 2026-02-27)
-- [x] **Phase v0.19-02: Calibration Governance** — formal/policy.yaml cold-start thresholds; run-prism.cjs reads policy; observation_window metadata (CALIB-01..04) (completed 2026-02-27)
+- [x] **Phase v0.19-02: Calibration Governance** — .formal/policy.yaml cold-start thresholds; run-prism.cjs reads policy; observation_window metadata (CALIB-01..04) (completed 2026-02-27)
 - [x] **Phase v0.19-03: Liveness Fairness** — invariants.md fairness declarations; TLA+ emits result=inconclusive when declaration missing (LIVE-01..02) (completed 2026-02-27)
 - [x] **Phase v0.19-04: Enforcement Layer** — check-trace-redaction.cjs, validate-traces.cjs confidence metadata, check-trace-schema-drift.cjs; all CI-wired (REDACT-01..03, EVID-01..02, DRIFT-01..02) (completed 2026-02-27)
 - [x] **Phase v0.19-05: MCP Environment Model** — QGSDMCPEnv.tla fault-tolerance proof; mcp-availability.pm PRISM model (MCPENV-01..04) (completed 2026-02-27)
@@ -276,8 +276,8 @@ Archive: `.planning/milestones/v0.19-ROADMAP.md`
 <details>
 <summary>✅ v0.21 — FV Closed Loop (Phases v0.21-01..v0.21-06) — SHIPPED 2026-03-01</summary>
 
-- [x] **Phase v0.21-01: Central Model Registry** — formal/model-registry.json as single source of truth; promote-model.cjs atomic promotion; accept-debug-invariant.cjs debug write path (ARCH-01, ARCH-02, ARCH-03) (completed 2026-03-01)
-- [x] **Phase v0.21-02: Conformance Crisis Fix** — Reduced 69% divergence to 0% on mapped events; xstate-trace-walker.cjs + attribute-trace-divergence.cjs + formal/diff-report.md (DIAG-01, DIAG-02, DIAG-03) (completed 2026-03-01)
+- [x] **Phase v0.21-01: Central Model Registry** — .formal/model-registry.json as single source of truth; promote-model.cjs atomic promotion; accept-debug-invariant.cjs debug write path (ARCH-01, ARCH-02, ARCH-03) (completed 2026-03-01)
+- [x] **Phase v0.21-02: Conformance Crisis Fix** — Reduced 69% divergence to 0% on mapped events; xstate-trace-walker.cjs + attribute-trace-divergence.cjs + .formal/diff-report.md (DIAG-01, DIAG-02, DIAG-03) (completed 2026-03-01)
 - [x] **Phase v0.21-03: Self-Calibrating Feedback Loops** — PRISM auto-calibrates from scoreboard; qgsd-spec-regen.js PostToolUse hook; sensitivity-sweep-feedback.cjs; propose-debug-invariants.cjs (LOOP-01, LOOP-02, LOOP-03, LOOP-04) (completed 2026-03-01)
 - [x] **Phase v0.21-04: Spec Completeness** — QGSDStopHook.tla; QGSDOscillation.tla audit; quorum-composition.als; generate-phase-spec.cjs (SPEC-01, SPEC-02, SPEC-03, SPEC-04) (completed 2026-03-01)
 - [x] **Phase v0.21-05: Planning Integration** — generate-proposed-changes.cjs TLA+ delta synthesis; run-phase-tlc.cjs iterative verification; quorum-formal-context.cjs evidence blocks (PLAN-01, PLAN-02, PLAN-03) (completed 2026-03-01)
@@ -569,14 +569,14 @@ Plans:
 **Depends on**: Phase v0.12-01
 **Requirements**: TLA-01, TLA-02, TLA-03, TLA-04
 **Success Criteria** (what must be TRUE):
-  1. Developer can find `formal/tla/QGSDQuorum.tla` with named invariants `MinQuorumMet`, `NoInvalidTransition`, and `EventualConsensus` — state names mirror the XState machine from v0.12-01
-  2. Running TLC with `formal/tla/MCsafety.cfg` (symmetry sets, N=5) completes with no violations; running TLC with `formal/tla/MCliveness.cfg` (no symmetry, N=3) completes with no liveness violations
+  1. Developer can find `.formal/tla/QGSDQuorum.tla` with named invariants `MinQuorumMet`, `NoInvalidTransition`, and `EventualConsensus` — state names mirror the XState machine from v0.12-01
+  2. Running TLC with `.formal/tla/MCsafety.cfg` (symmetry sets, N=5) completes with no violations; running TLC with `.formal/tla/MCliveness.cfg` (no symmetry, N=3) completes with no liveness violations
   3. Developer can run `node bin/run-tlc.cjs` — the script checks for Java ≥17, invokes the TLC JAR, and exits with a clear error message if `JAVA_HOME` is unset; `npm test` passes without Java installed
 **Plans**: 3 plans
 
 Plans:
 - [ ] v0.12-02-01-PLAN.md — Wave 0 RED stubs for bin/run-tlc.test.cjs + package.json update (TLA-04)
-- [ ] v0.12-02-02-PLAN.md — Author QGSDQuorum.tla + MCsafety.cfg + MCliveness.cfg + formal/tla/ scaffolding (TLA-01, TLA-02, TLA-03)
+- [ ] v0.12-02-02-PLAN.md — Author QGSDQuorum.tla + MCsafety.cfg + MCliveness.cfg + .formal/tla/ scaffolding (TLA-01, TLA-02, TLA-03)
 - [ ] v0.12-02-03-PLAN.md — Implement bin/run-tlc.cjs (GREEN phase) + full npm test verification (TLA-04)
 
 ### Phase v0.12-03: Static Analysis Suite
@@ -584,16 +584,16 @@ Plans:
 **Depends on**: Phase v0.12-01
 **Requirements**: ALY-01, ALY-02, PRM-01, PRM-02, PRM-03, PET-01, PET-02, PET-03
 **Success Criteria** (what must be TRUE):
-  1. Developer can find `formal/alloy/quorum-votes.als` with `pred`-based vote-counting predicates (not `fact`) and a `check` assertion for `NoSpuriousApproval`; running `bin/run-alloy.cjs` invokes Alloy 6 JAR headless and is gated on `JAVA_HOME`
-  2. Developer can find `formal/prism/quorum.pm` — a DTMC model of quorum convergence; running `bin/export-prism-constants.cjs` reads scoreboard TP/TN/UNAVAIL data and writes a `.const` file; the script warns and uses conservative priors when any slot has fewer than 30 rounds
+  1. Developer can find `.formal/alloy/quorum-votes.als` with `pred`-based vote-counting predicates (not `fact`) and a `check` assertion for `NoSpuriousApproval`; running `bin/run-alloy.cjs` invokes Alloy 6 JAR headless and is gated on `JAVA_HOME`
+  2. Developer can find `.formal/prism/quorum.pm` — a DTMC model of quorum convergence; running `bin/export-prism-constants.cjs` reads scoreboard TP/TN/UNAVAIL data and writes a `.const` file; the script warns and uses conservative priors when any slot has fewer than 30 rounds
   3. Developer can run `bin/generate-petri-net.cjs` to get a DOT-format Petri Net rendered to SVG via `@hpcc-js/wasm-graphviz` with no system Graphviz install; the script prints a structural deadlock warning if `min_quorum_size > available_slots`
   4. `VERIFICATION_TOOLS.md` documents Java 17 as the single installation prerequisite for TLA+, Alloy, and PRISM; all three JVM invocations are gated on `JAVA_HOME`/`PRISM_BIN`; `npm test` passes on a machine without Java
 **Plans**: 4 plans
 
 Plans:
-- [ ] v0.12-03-01-PLAN.md — Wave 0: RED test stubs for all 3 scripts + formal/ directory scaffolding + .gitignore entries (ALY-02, PRM-02, PRM-03, PET-01, PET-02, PET-03)
-- [ ] v0.12-03-02-PLAN.md — Wave 1: formal/alloy/quorum-votes.als spec + bin/run-alloy.cjs wrapper + GREEN tests (ALY-01, ALY-02)
-- [ ] v0.12-03-03-PLAN.md — Wave 1 (parallel): formal/prism/quorum.pm DTMC + bin/export-prism-constants.cjs + GREEN tests (PRM-01, PRM-02, PRM-03)
+- [ ] v0.12-03-01-PLAN.md — Wave 0: RED test stubs for all 3 scripts + .formal/ directory scaffolding + .gitignore entries (ALY-02, PRM-02, PRM-03, PET-01, PET-02, PET-03)
+- [ ] v0.12-03-02-PLAN.md — Wave 1: .formal/alloy/quorum-votes.als spec + bin/run-alloy.cjs wrapper + GREEN tests (ALY-01, ALY-02)
+- [ ] v0.12-03-03-PLAN.md — Wave 1 (parallel): .formal/prism/quorum.pm DTMC + bin/export-prism-constants.cjs + GREEN tests (PRM-01, PRM-02, PRM-03)
 - [ ] v0.12-03-04-PLAN.md — Wave 2: bin/generate-petri-net.cjs + VERIFICATION_TOOLS.md + npm test update (PET-01, PET-02, PET-03)
 
 ### Phase v0.12-04: Circuit Breaker Algorithm Verification
@@ -601,9 +601,9 @@ Plans:
 **Depends on**: Phase v0.12-03
 **Requirements**: GAP-1, GAP-5
 **Success Criteria** (what must be TRUE):
-  1. `formal/tla/QGSDOscillation.tla` exists with state vars `commits`, `runs`, `flagCount`; invariant `OscillationFlaggedCorrectly` (flag iff ≥3 alternating groups with net-negative diff); liveness property `AlgorithmTerminates`
+  1. `.formal/tla/QGSDOscillation.tla` exists with state vars `commits`, `runs`, `flagCount`; invariant `OscillationFlaggedCorrectly` (flag iff ≥3 alternating groups with net-negative diff); liveness property `AlgorithmTerminates`
   2. TLC verifies `MCoscillation.cfg` with INVARIANT + PROPERTY — no violations
-  3. `formal/tla/QGSDConvergence.tla` exists with `resolvedAt` write-once invariant; log-write-before-state-delete ordering; Haiku unavailability cannot corrupt state
+  3. `.formal/tla/QGSDConvergence.tla` exists with `resolvedAt` write-once invariant; log-write-before-state-delete ordering; Haiku unavailability cannot corrupt state
   4. `bin/run-oscillation-tlc.cjs` exists, is gated on JAVA_HOME, and `npm test` passes without Java installed; 4 error-path tests in `bin/run-oscillation-tlc.test.cjs` are GREEN
 **Plans**: 3 plans
 
@@ -617,9 +617,9 @@ Plans:
 **Depends on**: Phase v0.12-04
 **Requirements**: GAP-2, GAP-6
 **Success Criteria** (what must be TRUE):
-  1. `formal/tla/QGSDDeliberation.tla` exists with vars `deliberationRound`, `improvementIteration`, `voteState`; invariant `TotalRoundsBounded` (deliberationRound + improvementIteration ≤ 20); liveness `ProtocolTerminates` (<>(phase = "ESCALATED" \/ phase = "CONSENSUS")); regression rule: APPROVE→BLOCK transition treated as new blocker
+  1. `.formal/tla/QGSDDeliberation.tla` exists with vars `deliberationRound`, `improvementIteration`, `voteState`; invariant `TotalRoundsBounded` (deliberationRound + improvementIteration ≤ 20); liveness `ProtocolTerminates` (<>(phase = "ESCALATED" \/ phase = "CONSENSUS")); regression rule: APPROVE→BLOCK transition treated as new blocker
   2. TLC verifies `MCdeliberation.cfg` — no violations
-  3. `formal/tla/QGSDPreFilter.tla` exists with invariant `AutoResolutionSound` (auto-resolved iff all models agree + same answer) and liveness `PreFilterTerminates` (≤3 rounds)
+  3. `.formal/tla/QGSDPreFilter.tla` exists with invariant `AutoResolutionSound` (auto-resolved iff all models agree + same answer) and liveness `PreFilterTerminates` (≤3 rounds)
   4. `bin/run-protocol-tlc.cjs` exists, gated on JAVA_HOME; `npm test` passes without Java; `bin/run-protocol-tlc.test.cjs` has error-path tests GREEN
 **Plans**: 3 plans
 
@@ -633,8 +633,8 @@ Plans:
 **Depends on**: Phase v0.12-03
 **Requirements**: GAP-3, GAP-9
 **Success Criteria** (what must be TRUE):
-  1. `formal/alloy/scoreboard-recompute.als` exists with assertions `RecomputeIdempotent` (applying recompute twice = once), `NoVoteLoss` (every vote in rounds appears in final score), `NoDoubleCounting` (no vote counted twice); uses Alloy integer arithmetic for delta accumulation
-  2. `formal/alloy/availability-parsing.als` exists with assertions `ParseCorrect` (parsed timestamp ≥ now), `YearRolloverHandled` (Dec→Jan crossing), `FallbackIsNull` (unrecognized format → null, not crash)
+  1. `.formal/alloy/scoreboard-recompute.als` exists with assertions `RecomputeIdempotent` (applying recompute twice = once), `NoVoteLoss` (every vote in rounds appears in final score), `NoDoubleCounting` (no vote counted twice); uses Alloy integer arithmetic for delta accumulation
+  2. `.formal/alloy/availability-parsing.als` exists with assertions `ParseCorrect` (parsed timestamp ≥ now), `YearRolloverHandled` (Dec→Jan crossing), `FallbackIsNull` (unrecognized format → null, not crash)
   3. `bin/run-audit-alloy.cjs` targets both .als files, is gated on JAVA_HOME; `npm test` passes without Java; `bin/run-audit-alloy.test.cjs` has error-path tests GREEN
 **Plans**: 3 plans
 
@@ -648,14 +648,14 @@ Plans:
 **Depends on**: Phase v0.12-06
 **Requirements**: GAP-4
 **Success Criteria** (what must be TRUE):
-  1. `formal/alloy/transcript-scan.als` exists with sigs `Entry`, `ToolUse extends Entry`, `ToolResult extends Entry`, `HumanMessage extends Entry` modeling JSONL transcript as ordered sequence; predicates `BoundaryCorrect`, `PairingUnique`, `NoDuplicateCounting`, `SuccessCountNeverExceedsMinSize` (renamed from CeilingEnforced per quorum deliberation — clarifies upper-bound semantics)
+  1. `.formal/alloy/transcript-scan.als` exists with sigs `Entry`, `ToolUse extends Entry`, `ToolResult extends Entry`, `HumanMessage extends Entry` modeling JSONL transcript as ordered sequence; predicates `BoundaryCorrect`, `PairingUnique`, `NoDuplicateCounting`, `SuccessCountNeverExceedsMinSize` (renamed from CeilingEnforced per quorum deliberation — clarifies upper-bound semantics)
   2. All 4 predicates are asserted as checks — Alloy Analyzer finds no counterexamples
   3. `bin/run-transcript-alloy.cjs` exists, gated on JAVA_HOME; `npm test` passes without Java; `bin/run-transcript-alloy.test.cjs` has error-path tests GREEN
 **Plans**: 3 plans
 
 Plans:
 - [x] v0.12-07-01-PLAN.md — Wave 0 RED stubs for run-transcript-alloy.test.cjs (GAP-4)
-- [x] v0.12-07-02-PLAN.md — Author formal/alloy/transcript-scan.als (GAP-4)
+- [x] v0.12-07-02-PLAN.md — Author .formal/alloy/transcript-scan.als (GAP-4)
 - [x] v0.12-07-03-PLAN.md — Implement bin/run-transcript-alloy.cjs + GREEN tests (GAP-4)
 
 ### Phase v0.12-08: Installer and Taxonomy Extensions
@@ -663,8 +663,8 @@ Plans:
 **Depends on**: Phase v0.12-07
 **Requirements**: GAP-7, GAP-8
 **Success Criteria** (what must be TRUE):
-  1. `formal/alloy/install-scope.als` is extended with pred `RollbackSound` (uninstall restores previous state) and pred `ConfigSyncComplete` (after install, hooks/dist/ and ~/.claude/hooks/ are identical)
-  2. `formal/alloy/taxonomy-safety.als` exists with sigs `TaskDescription`, `Category`, `Subcategory`; asserts `NoInjection` (taskDescription content cannot alter category structure), `TaxonomyClosed` (is_new=false implies category already in sig), `NewCategoryConsistent` (is_new=true implies category not previously in sig)
+  1. `.formal/alloy/install-scope.als` is extended with pred `RollbackSound` (uninstall restores previous state) and pred `ConfigSyncComplete` (after install, hooks/dist/ and ~/.claude/hooks/ are identical)
+  2. `.formal/alloy/taxonomy-safety.als` exists with sigs `TaskDescription`, `Category`, `Subcategory`; asserts `NoInjection` (taskDescription content cannot alter category structure), `TaxonomyClosed` (is_new=false implies category already in sig), `NewCategoryConsistent` (is_new=true implies category not previously in sig)
   3. `bin/run-installer-alloy.cjs` exists, targets both install-scope.als and taxonomy-safety.als, is gated on JAVA_HOME; `npm test` passes without Java; `bin/run-installer-alloy.test.cjs` has error-path tests GREEN
 **Plans**: 3 plans
 
@@ -680,8 +680,8 @@ Plans:
 **Gap Closure:** Closes gaps from v0.12 audit
 **Success Criteria** (what must be TRUE):
   1. `bin/run-oscillation-tlc.cjs`: MCconvergence branch uses `-workers 1` (not `'auto'`) — liveness PROPERTY verified safely
-  2. `bin/run-tlc.test.cjs`: JAR-not-found test skips (not fails) when `formal/tla/tla2tools.jar` is present — consistent with pattern in run-audit-alloy.test.cjs
-  3. `bin/run-alloy.test.cjs`: JAR-not-found test skips (not fails) when `formal/alloy/org.alloytools.alloy.dist.jar` is present
+  2. `bin/run-tlc.test.cjs`: JAR-not-found test skips (not fails) when `.formal/tla/tla2tools.jar` is present — consistent with pattern in run-audit-alloy.test.cjs
+  3. `bin/run-alloy.test.cjs`: JAR-not-found test skips (not fails) when `.formal/alloy/org.alloytools.alloy.dist.jar` is present
   4. `bin/run-alloy.cjs`: error message uses the actual assertion name from `quorum-votes.als` (not the stale "NoSpuriousApproval")
   5. Either: `bin/export-prism-constants.cjs` generates aggregate `tp_rate`/`unavail` variables matching `quorum.pm`, OR `VERIFICATION_TOOLS.md` documents the manual aggregation step with a concrete example
   6. `bin/generate-petri-net.cjs`: deadlock condition uses a runtime-visible threshold (not hardcoded `MIN_QUORUM_SIZE=3` vs `SLOTS=5`); `npm test` 312/312 pass
@@ -700,7 +700,7 @@ Plans:
 **Requirements**: LOG-03, VAL-01, VAL-02
 **Gap Closure:** Closes gaps from v0.12 audit
 **Success Criteria** (what must be TRUE):
-  1. `formal/shared/conformance-schema.cjs` VALID_PHASES includes "DECIDING" — hooks no longer emit schema-violating phase values
+  1. `.formal/shared/conformance-schema.cjs` VALID_PHASES includes "DECIDING" — hooks no longer emit schema-violating phase values
   2. `bin/validate-traces.cjs` groups conformance events by quorum session (quorum_id field) before replay — each session replayed as a full state sequence (quorum_start → quorum_block* → quorum_complete), not one fresh-IDLE actor per event
   3. The conformance score reported by validate-traces.cjs reflects only genuine state transition violations (events that do not follow valid sequences), not structural artifacts from single-step replay
   4. quorum_start events validate to COLLECTING_VOTES, quorum_block to DELIBERATING, quorum_complete to DECIDED — transitions correct in multi-step context
@@ -826,10 +826,10 @@ Plans:
   2. `npm test` fails when TLA+ or Alloy specs reference a state or guard name that no longer exists in the XState machine
   3. The drift detector uses the TypeScript compiler API to parse the XState machine — not a regex pattern match against raw source text
   4. `npm test` passes with no drift when the XState machine and all specs are in sync
-  5. `node bin/run-formal-verify.cjs` runs without overwriting `formal/tla/QGSDQuorum.tla` — xstate-to-tla.cjs writes to `formal/tla/QGSDQuorum_xstate.tla`
+  5. `node bin/run-formal-verify.cjs` runs without overwriting `.formal/tla/QGSDQuorum.tla` — xstate-to-tla.cjs writes to `.formal/tla/QGSDQuorum_xstate.tla`
   6. `formal-verify.yml` CI job fails (does not silently continue) when any formal verification step fails
 **Plans**:
-  - TASK-00: Implement BROKEN-01 Option A — update xstate-to-tla.cjs `--output` default to `formal/tla/QGSDQuorum_xstate.tla`; update run-formal-verify.cjs STEPS[0] to reference `QGSDQuorum_xstate.tla`; update MCQGSDQuorum.cfg SPECIFICATION reference accordingly. Hand-authored `QGSDQuorum.tla` (with `phase`, CONSTANTS Agents/MaxDeliberation, AgentSymmetry, MinQuorumMet) remains canonical.
+  - TASK-00: Implement BROKEN-01 Option A — update xstate-to-tla.cjs `--output` default to `.formal/tla/QGSDQuorum_xstate.tla`; update run-formal-verify.cjs STEPS[0] to reference `QGSDQuorum_xstate.tla`; update MCQGSDQuorum.cfg SPECIFICATION reference accordingly. Hand-authored `QGSDQuorum.tla` (with `phase`, CONSTANTS Agents/MaxDeliberation, AgentSymmetry, MinQuorumMet) remains canonical.
   - TASK-01: Wire `check-spec-sync.cjs` into `npm test` — add as a step in package.json test script or as a test file loaded by the test runner (DRFT-01)
   - TASK-02: Replace regex-based XState state extraction in check-spec-sync.cjs (lines 39-48) with TypeScript compiler API / AST walk — catches transition and guard names, not just state list (DRFT-02)
   - TASK-03: Add orphaned spec detection to check-spec-sync.cjs — flag TLA+/Alloy/PRISM states or guards that have no corresponding XState state (DRFT-03)
@@ -1144,7 +1144,7 @@ Plans:
 
 **Milestone Goal:** Promote milestone requirements from a working document into a validated, immutable formal artifact that constrains what formal specs must prove.
 
-- [x] **Phase v0.22-01: Requirements Envelope Foundation** - Aggregate requirements into `formal/requirements.json` and validate with Haiku for duplicates, conflicts, and ambiguity (completed 2026-03-01)
+- [x] **Phase v0.22-01: Requirements Envelope Foundation** - Aggregate requirements into `.formal/requirements.json` and validate with Haiku for duplicates, conflicts, and ambiguity (completed 2026-03-01)
 - [ ] **Phase v0.22-02: Formal Spec Integration** - Frozen envelope becomes the source of truth for TLA+ PROPERTY generation in `generate-phase-spec.cjs`
 - [ ] **Phase v0.22-03: Immutability and Amendment Workflow** - Lock the frozen envelope against automated modification; provide a structured amendment workflow requiring user consent
 - [ ] **Phase v0.22-04: Drift Detection** - Detect and warn when `.planning/REQUIREMENTS.md` diverges from the frozen envelope after freeze
@@ -1154,9 +1154,9 @@ Plans:
 **Depends on**: Nothing (first phase)
 **Requirements**: ENV-01, ENV-02
 **Success Criteria** (what must be TRUE):
-  1. Running `bin/aggregate-requirements.cjs` on a populated `.planning/REQUIREMENTS.md` produces `formal/requirements.json` with every requirement containing REQ-ID, text, category, phase assignment, and provenance fields -- validated against a JSON Schema
+  1. Running `bin/aggregate-requirements.cjs` on a populated `.planning/REQUIREMENTS.md` produces `.formal/requirements.json` with every requirement containing REQ-ID, text, category, phase assignment, and provenance fields -- validated against a JSON Schema
   2. Running `bin/validate-requirements-haiku.cjs` on the aggregated envelope presents the user with any semantic duplicates, contradictions, or ambiguous requirements found by Haiku -- the user resolves or accepts each finding before the envelope is frozen
-  3. After the user approves validation results, `formal/requirements.json` gains a `frozen_at` timestamp and the envelope is considered immutable from that point
+  3. After the user approves validation results, `.formal/requirements.json` gains a `frozen_at` timestamp and the envelope is considered immutable from that point
   4. Re-running aggregation on the same REQUIREMENTS.md produces an identical envelope (deterministic output) -- schema version is explicitly tracked in the document root
 **Plans**: 3 plans
 
@@ -1170,7 +1170,7 @@ Plans:
 **Depends on**: Phase v0.22-01
 **Requirements**: ENV-03
 **Success Criteria** (what must be TRUE):
-  1. `bin/generate-phase-spec.cjs` reads `formal/requirements.json` (checking `frozen_at` is set), filters requirements by the current phase, and produces TLA+ PROPERTY templates from each requirement
+  1. `bin/generate-phase-spec.cjs` reads `.formal/requirements.json` (checking `frozen_at` is set), filters requirements by the current phase, and produces TLA+ PROPERTY templates from each requirement
   2. If a generated formal spec contradicts a frozen requirement (e.g., a PROPERTY that negates an envelope constraint), the contradiction is flagged as a violation in the verification output -- not silently accepted
   3. `bin/run-formal-verify.cjs` includes an envelope validation step that analyzes ENV-derived property results separately in its summary output
 **Plans**: TBD
@@ -1180,7 +1180,7 @@ Plans:
 **Depends on**: Phase v0.22-01
 **Requirements**: ENV-04
 **Success Criteria** (what must be TRUE):
-  1. Direct modifications to `formal/requirements.json` by any automated workflow (hook, script, agent) are blocked -- a guard (hook or pre-commit) detects the modification and prevents it
+  1. Direct modifications to `.formal/requirements.json` by any automated workflow (hook, script, agent) are blocked -- a guard (hook or pre-commit) detects the modification and prevents it
   2. Running `bin/amend-requirements.cjs` presents a structured amendment workflow: the user proposes changes, Haiku re-validates the updated set, and the user explicitly approves before the envelope is re-frozen
   3. Amendment history is preserved -- each amendment records what changed, when, and the user approval that authorized it
 **Plans**: TBD
@@ -1190,7 +1190,7 @@ Plans:
 **Depends on**: Phase v0.22-03
 **Requirements**: ENV-05
 **Success Criteria** (what must be TRUE):
-  1. Running `bin/detect-requirements-drift.cjs` compares `.planning/REQUIREMENTS.md` against `formal/requirements.json` and reports any semantic differences (not formatting noise) -- drift categories distinguish NOISE from SEMANTIC DRIFT
+  1. Running `bin/detect-requirements-drift.cjs` compares `.planning/REQUIREMENTS.md` against `.formal/requirements.json` and reports any semantic differences (not formatting noise) -- drift categories distinguish NOISE from SEMANTIC DRIFT
   2. When drift is detected during a planning command, a non-blocking warning is injected into Claude's context (via `hooks/qgsd-prompt.js`) identifying the specific requirements that have diverged
   3. The drift warning directs the user to the amendment workflow (ENV-04) for legitimate changes -- there is no path to silently accept drift
 **Plans**: TBD
@@ -1253,9 +1253,9 @@ Plans:
 **Depends on**: Nothing (first phase)
 **Requirements**: SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04
 **Success Criteria** (what must be TRUE):
-  1. Running `cat formal/model-registry.json | jq '.[].requirements'` shows a non-empty string array for every model entry that has known requirement coverage (seeded from TRACEABILITY_RESEARCH.md Section 5 map)
+  1. Running `cat .formal/model-registry.json | jq '.[].requirements'` shows a non-empty string array for every model entry that has known requirement coverage (seeded from TRACEABILITY_RESEARCH.md Section 5 map)
   2. Running a formal verification check (e.g., `node bin/run-tlc.cjs`) produces NDJSON output where each line contains a `requirement_ids` array linking the check result to specific requirements
-  3. Running `cat formal/requirements.json | jq '.[] | select(.formal_models != null)'` shows requirements that have formal model paths linked back to them
+  3. Running `cat .formal/requirements.json | jq '.[] | select(.formal_models != null)'` shows requirements that have formal model paths linked back to them
   4. The check-result JSON schema validation accepts objects with the new `requirement_ids` field and rejects objects where `requirement_ids` contains non-string elements
 **Plans**: 3 plans in 2 waves
   - [ ] v0.25-01-01-PLAN.md -- Seed requirement linkage into model-registry.json (SCHEMA-01) and requirements.json (SCHEMA-04)
@@ -1281,7 +1281,7 @@ Plans:
 **Depends on**: Phase v0.25-01, Phase v0.25-02
 **Requirements**: TRACE-01, TRACE-02, TRACE-03, ANNOT-05
 **Success Criteria** (what must be TRUE):
-  1. Running `node bin/generate-traceability-matrix.cjs` produces `formal/traceability-matrix.json` with property-level links between requirements and formal properties, including model file paths, property names, and latest check results
+  1. Running `node bin/generate-traceability-matrix.cjs` produces `.formal/traceability-matrix.json` with property-level links between requirements and formal properties, including model file paths, property names, and latest check results
   2. The generated matrix contains a `coverage_summary` section showing total requirements, covered count, coverage percentage, a list of uncovered requirements, and a list of orphan properties
   3. Running `node bin/run-formal-verify.cjs` produces the traceability matrix as a post-verification step -- the matrix reflects the latest pass/fail/warn results from the current run
   4. The matrix generator reads extracted annotations (from extract-annotations.cjs) as its primary data source, falling back to model-registry `requirements` arrays when annotations are absent
@@ -1307,10 +1307,13 @@ Plans:
   2. The state-space analyzer flags QGSDQuorum_xstate.tla (which uses unbounded Nat domains) as HIGH risk without manual intervention
   3. When a traceability matrix is generated after a model split, the generator validates that no requirement lost formal coverage compared to the pre-split matrix -- a coverage decrease for any specific requirement triggers a warning
   4. The traceability matrix output includes a `state_space` section per model showing the risk classification, estimated state count, and any unbounded domain warnings
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
+  - [ ] v0.25-05-01-PLAN.md -- Create state-space risk analyzer (DECOMP-01, DECOMP-02)
+  - [ ] v0.25-05-02-PLAN.md -- Add coverage preservation validation on model splits (DECOMP-03)
+  - [ ] v0.25-05-03-PLAN.md -- Integrate state-space data into traceability matrix (DECOMP-04)
 
 | v0.25-01. Schema Foundation | 3/3 | Complete    | 2026-03-03 |  |
 | v0.25-02. Property Annotations | 3/3 | Complete | 2026-03-03 |  |
 | v0.25-03. Traceability Matrix | 1/2 | Complete    | 2026-03-03 | - |
 | v0.25-04. Bidirectional Validation | 2/2 | Complete    | 2026-03-03 | - |
-| v0.25-05. Decomposition Awareness | v0.25 | 0/TBD | Not started | - |
+| v0.25-05. Decomposition Awareness | 0/3 | Not started | - | - |
