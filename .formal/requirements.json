@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-03T19:49:52.779Z",
-  "content_hash": "21f559c441dfb722ff3251a8d385c9ded1c8e974fc0cc4f363f421f3d2ffc77f",
-  "frozen_at": "2026-03-03T19:49:52.779Z",
+  "aggregated_at": "2026-03-03T20:46:38.510Z",
+  "content_hash": "c5681f9c82dca2b9",
+  "frozen_at": "2026-03-03T20:46:38.511Z",
   "requirements": [
     {
       "id": "ACT-01",
@@ -1975,6 +1975,18 @@
         ".formal/tla/QGSDRecruiting.tla"
       ],
       "category_raw": "Slot-based Naming"
+    },
+    {
+      "id": "SOLVE-01",
+      "text": "Execute `/qgsd:solve` command to sweep all 5 layer transitions (Requirements→Formal, Formal→Tests, Code→Formal, Tests→Code, Formal→Code) and compute residual vectors showing gaps at each boundary, with optional auto-closing of gaps through iteration until convergence",
+      "category": "Formal Verification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The consistency solver provides a single command for diagnosing and fixing all verification layer gaps across the Requirements→Formal→Tests→Code stack. It replaces the need to manually run individual verification tools and cross-reference their outputs.",
+      "provenance": {
+        "source_file": ".planning/quick/140-implement-qgsd-solve-consistency-solver-/140-PLAN.md",
+        "milestone": "quick-140"
+      }
     },
     {
       "id": "SPEC-01",
