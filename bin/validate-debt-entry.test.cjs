@@ -636,3 +636,67 @@ test('Task 1: Debt schema validation (TDD)', async (t) => {
     assert.strictEqual(result, true, 'Valid ledger should pass validation');
   });
 });
+
+// ── v0.27-03 formal_ref_source tests ──────────────────────────────────────
+
+test('v0.27-03: formal_ref_source validation', async (t) => {
+  function makeEntry(overrides = {}) {
+    return {
+      id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      fingerprint: 'abc123def456789012345',
+      title: 'Test entry',
+      occurrences: 1,
+      first_seen: '2026-03-04T12:00:00Z',
+      last_seen: '2026-03-04T12:00:00Z',
+      environments: ['production'],
+      status: 'open',
+      formal_ref: null,
+      source_entries: [{ source_type: 'github', source_id: 'gh-1', observed_at: '2026-03-04T12:00:00Z' }],
+      ...overrides
+    };
+  }
+
+  await t.test('accepts formal_ref_source: "manual"', () => {
+    const result = validateDebtEntry(makeEntry({ formal_ref_source: 'manual' }));
+    assert.strictEqual(result, true);
+  });
+
+  await t.test('accepts formal_ref_source: "auto-detect"', () => {
+    const result = validateDebtEntry(makeEntry({ formal_ref_source: 'auto-detect' }));
+    assert.strictEqual(result, true);
+  });
+
+  await t.test('accepts formal_ref_source: "spec-inferred"', () => {
+    const result = validateDebtEntry(makeEntry({ formal_ref_source: 'spec-inferred' }));
+    assert.strictEqual(result, true);
+  });
+
+  await t.test('accepts formal_ref_source: null', () => {
+    const result = validateDebtEntry(makeEntry({ formal_ref_source: null }));
+    assert.strictEqual(result, true);
+  });
+
+  await t.test('accepts entry without formal_ref_source (backward compatible)', () => {
+    const entry = makeEntry();
+    delete entry.formal_ref_source;
+    const result = validateDebtEntry(entry);
+    assert.strictEqual(result, true);
+  });
+
+  await t.test('rejects invalid formal_ref_source value', () => {
+    const result = validateDebtEntry(makeEntry({ formal_ref_source: 'invalid' }));
+    assert.notStrictEqual(result, true);
+    assert.ok(result.some(e => e.includes('formal_ref_source')));
+  });
+
+  await t.test('rejects formal_ref_source as number', () => {
+    const result = validateDebtEntry(makeEntry({ formal_ref_source: 42 }));
+    assert.notStrictEqual(result, true);
+    assert.ok(result.some(e => e.includes('formal_ref_source')));
+  });
+
+  await t.test('allows formal_ref_source: "manual" with formal_ref: null', () => {
+    const result = validateDebtEntry(makeEntry({ formal_ref_source: 'manual', formal_ref: null }));
+    assert.strictEqual(result, true);
+  });
+});

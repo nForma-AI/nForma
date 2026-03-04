@@ -91,6 +91,11 @@
       "minItems": 1,
       "description": "Array of source observations that triggered this debt entry"
     },
+    "formal_ref_source": {
+      "type": ["string", "null"],
+      "enum": ["manual", "auto-detect", "spec-inferred", null],
+      "description": "Source of formal_ref assignment: manual, auto-detect, spec-inferred, or null if unlinked"
+    },
     "resolved_at": {
       "type": ["string", "null"],
       "format": "date-time",

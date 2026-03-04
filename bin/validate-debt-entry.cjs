@@ -143,10 +143,19 @@ function validateDebtEntry(entry) {
     }
   }
 
+  // Check optional fields: formal_ref_source
+  if (entry.hasOwnProperty('formal_ref_source')) {
+    const validSources = ['manual', 'auto-detect', 'spec-inferred'];
+    if (entry.formal_ref_source !== null &&
+        (typeof entry.formal_ref_source !== 'string' || !validSources.includes(entry.formal_ref_source))) {
+      errors.push('formal_ref_source must be "manual", "auto-detect", "spec-inferred", or null');
+    }
+  }
+
   // Check for additional properties (additionalProperties: false)
   const allowedProps = new Set([
     'id', 'fingerprint', 'title', 'occurrences', 'first_seen', 'last_seen',
-    'environments', 'status', 'formal_ref', 'source_entries', 'resolved_at'
+    'environments', 'status', 'formal_ref', 'formal_ref_source', 'source_entries', 'resolved_at'
   ]);
   for (const key of Object.keys(entry)) {
     if (!allowedProps.has(key)) {
