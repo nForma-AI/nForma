@@ -249,11 +249,13 @@ Display final result and exit.
 
 ### Auto: If tech_debt
 
-Display: `◆ Audit found tech debt but no blockers — auto-completing milestone with accepted debt...`
+Treat `tech_debt` as `gaps_found` — tech debt items are gaps that need closure before the milestone can complete.
 
-Same as passed path — spawn complete-milestone. Tech debt is tracked in MILESTONE-AUDIT.md for the next milestone.
+Display: `◆ Audit found tech debt — treating as gaps for auto-closure...`
 
-### Auto: If gaps_found
+Fall through to the gaps_found path below.
+
+### Auto: If gaps_found (also handles tech_debt)
 
 Increment `current_iteration`.
 
