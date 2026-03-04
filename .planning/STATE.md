@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 Phase: —
 Plan: —
 Status: v0.26 archived, ready for next milestone
-Last activity: 2026-03-04 - Completed quick task 152: Expand /qgsd:settings into guided project manager hub
+Last activity: 2026-03-04 - Completed quick task 153: Create bin/sync-baseline-requirements.cjs
 
 Progress: [████████████] 100%
 
@@ -83,9 +83,10 @@ None. All v0.26 phases complete.
 | 150 | Set up 3-tool 2-layer secret detection: Gitleaks + detect-secrets pre-commit via Husky, TruffleHog CI pipeline | 2026-03-04 | 65f40a08 | Verified | [150-set-up-3-tool-2-layer-secret-detection-g](./quick/150-set-up-3-tool-2-layer-secret-detection-g/) |
 | 151 | Wire baseline requirements into new-project and new-milestone workflows | 2026-03-04 | 133d8a72 | Verified | [151-wire-baseline-requirements-into-new-proj](./quick/151-wire-baseline-requirements-into-new-proj/) |
 | 152 | Expand /qgsd:settings into guided project manager hub | 2026-03-04 | 64e7b315 | Pending | [152-expand-qgsd-settings-into-guided-project](./quick/152-expand-qgsd-settings-into-guided-project/) |
+| 153 | Create bin/sync-baseline-requirements.cjs — idempotent merge of baseline requirements into existing .formal/requirements.json, matching on text description | 2026-03-04 | 7a70a337 | Pending | [153-create-bin-sync-baseline-requirements-cj](./quick/153-create-bin-sync-baseline-requirements-cj/) |
 
 ## Session Continuity
 
-Last activity: 2026-03-04 - Completed quick task 152: Expand /qgsd:settings into guided project manager hub
-Stopped at: Completed quick-152
-Resume file: .planning/quick/152-expand-qgsd-settings-into-guided-project/152-SUMMARY.md
+Last activity: 2026-03-04 - Completed quick task 153: Create bin/sync-baseline-requirements.cjs
+Stopped at: Completed quick-153
+Resume file: .planning/quick/153-create-bin-sync-baseline-requirements-cj/153-SUMMARY.md
