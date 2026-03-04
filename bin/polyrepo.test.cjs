@@ -258,6 +258,111 @@ describe('polyrepo.cjs', () => {
       fs.rmSync(env.tmpDir, { recursive: true, force: true });
     });
 
+    test('PR-DOCS-SET-1: docs set writes doc paths to marker', () => {
+      const env = createTestEnv();
+
+      runCLI(['create', 'test-product'], env.tmpDir);
+      runCLI(['add', 'test-product', env.repoA, 'frontend'], env.tmpDir);
+
+      // Set docs via CLI from within repoA
+      const setResult = spawnSync(process.execPath, [
+        path.join(__dirname, 'polyrepo.cjs'), 'docs', 'set', 'user', 'docs/'
+      ], {
+        encoding: 'utf8',
+        env: { ...process.env, HOME: env.tmpDir },
+        cwd: env.repoA
+      });
+      assert.equal(setResult.status, 0, `docs set failed: ${setResult.stderr}`);
+
+      // Verify marker now has docs
+      const marker = JSON.parse(fs.readFileSync(
+        path.join(env.repoA, '.planning', 'polyrepo.json'), 'utf8'
+      ));
+      assert.equal(marker.docs.user, 'docs/');
+      assert.equal(marker.name, 'test-product');
+      assert.equal(marker.role, 'frontend');
+
+      fs.rmSync(env.tmpDir, { recursive: true, force: true });
+    });
+
+    test('PR-DOCS-SET-2: docs set merges multiple keys', () => {
+      const env = createTestEnv();
+
+      runCLI(['create', 'test-product'], env.tmpDir);
+      runCLI(['add', 'test-product', env.repoA, 'backend'], env.tmpDir);
+
+      const cliOpts = {
+        encoding: 'utf8',
+        env: { ...process.env, HOME: env.tmpDir },
+        cwd: env.repoA
+      };
+
+      // Set multiple doc paths
+      spawnSync(process.execPath, [path.join(__dirname, 'polyrepo.cjs'), 'docs', 'set', 'user', 'docs/'], cliOpts);
+      spawnSync(process.execPath, [path.join(__dirname, 'polyrepo.cjs'), 'docs', 'set', 'developer', 'docs/internal/'], cliOpts);
+      spawnSync(process.execPath, [path.join(__dirname, 'polyrepo.cjs'), 'docs', 'set', 'examples', 'examples/'], cliOpts);
+
+      const marker = JSON.parse(fs.readFileSync(
+        path.join(env.repoA, '.planning', 'polyrepo.json'), 'utf8'
+      ));
+      assert.equal(marker.docs.user, 'docs/');
+      assert.equal(marker.docs.developer, 'docs/internal/');
+      assert.equal(marker.docs.examples, 'examples/');
+
+      fs.rmSync(env.tmpDir, { recursive: true, force: true });
+    });
+
+    test('PR-DOCS-REMOVE-1: docs remove deletes a key', () => {
+      const env = createTestEnv();
+
+      runCLI(['create', 'test-product'], env.tmpDir);
+      runCLI(['add', 'test-product', env.repoA, 'frontend'], env.tmpDir);
+
+      const cliOpts = {
+        encoding: 'utf8',
+        env: { ...process.env, HOME: env.tmpDir },
+        cwd: env.repoA
+      };
+
+      // Set then remove
+      spawnSync(process.execPath, [path.join(__dirname, 'polyrepo.cjs'), 'docs', 'set', 'user', 'docs/'], cliOpts);
+      spawnSync(process.execPath, [path.join(__dirname, 'polyrepo.cjs'), 'docs', 'set', 'developer', 'internal/'], cliOpts);
+      spawnSync(process.execPath, [path.join(__dirname, 'polyrepo.cjs'), 'docs', 'remove', 'user'], cliOpts);
+
+      const marker = JSON.parse(fs.readFileSync(
+        path.join(env.repoA, '.planning', 'polyrepo.json'), 'utf8'
+      ));
+      assert.equal(marker.docs.developer, 'internal/');
+      assert.equal(marker.docs.user, undefined, 'user key should be removed');
+
+      fs.rmSync(env.tmpDir, { recursive: true, force: true });
+    });
+
+    test('PR-DOCS-INFO-1: info shows docs when present', () => {
+      const env = createTestEnv();
+
+      runCLI(['create', 'test-product'], env.tmpDir);
+      runCLI(['add', 'test-product', env.repoA, 'frontend'], env.tmpDir);
+
+      const cliOpts = {
+        encoding: 'utf8',
+        env: { ...process.env, HOME: env.tmpDir },
+        cwd: env.repoA
+      };
+
+      spawnSync(process.execPath, [path.join(__dirname, 'polyrepo.cjs'), 'docs', 'set', 'user', 'docs/guide/'], cliOpts);
+
+      const infoResult = spawnSync(process.execPath, [
+        path.join(__dirname, 'polyrepo.cjs'), 'info'
+      ], cliOpts);
+
+      assert.equal(infoResult.status, 0);
+      assert.ok(infoResult.stdout.includes('Docs:'), 'info should show Docs section');
+      assert.ok(infoResult.stdout.includes('docs/guide/'), 'info should show doc path');
+
+      fs.rmSync(env.tmpDir, { recursive: true, force: true });
+    });
+
     test('PR-MULTI-ADD-1: adding multiple repos to same group creates correct structure', () => {
       const env = createTestEnv();
 

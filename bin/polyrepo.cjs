@@ -59,17 +59,67 @@ function saveGroup(group) {
 
 /**
  * Write per-repo marker at <repoPath>/.planning/polyrepo.json
+ * Optional docs: { user?, developer?, examples? } — relative paths within the repo
  */
-function writeMarker(repoPath, name, role) {
+function writeMarker(repoPath, name, role, docs) {
   try {
     const markerDir = path.join(repoPath, '.planning');
     fs.mkdirSync(markerDir, { recursive: true });
     const markerPath = path.join(markerDir, MARKER_FILE);
     const marker = { name, role };
+    if (docs && Object.keys(docs).length > 0) {
+      marker.docs = docs;
+    }
     fs.writeFileSync(markerPath, JSON.stringify(marker, null, 2), 'utf8');
   } catch (err) {
     console.error(`${TAG} Failed to write marker:`, err.message);
     throw err;
+  }
+}
+
+/**
+ * Read per-repo marker from <repoPath>/.planning/polyrepo.json
+ * Returns parsed object or null if not found/malformed.
+ */
+function readMarker(repoPath) {
+  try {
+    const markerPath = path.join(repoPath, '.planning', MARKER_FILE);
+    if (!fs.existsSync(markerPath)) return null;
+    return JSON.parse(fs.readFileSync(markerPath, 'utf8'));
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      console.error(`${TAG} Warning: malformed marker at ${repoPath}`);
+      return null;
+    }
+    throw err;
+  }
+}
+
+/**
+ * Set docs paths on an existing per-repo marker.
+ * docs: { user?, developer?, examples? } — relative paths within the repo.
+ * Merges with existing docs (pass null value to remove a key).
+ */
+function setDocs(repoPath, docs) {
+  const marker = readMarker(repoPath);
+  if (!marker) {
+    return { ok: false, error: `No polyrepo marker found at ${repoPath}/.planning/polyrepo.json` };
+  }
+  const merged = { ...(marker.docs || {}) };
+  for (const [key, val] of Object.entries(docs)) {
+    if (val === null) {
+      delete merged[key];
+    } else {
+      merged[key] = val;
+    }
+  }
+  marker.docs = Object.keys(merged).length > 0 ? merged : undefined;
+  try {
+    const markerPath = path.join(repoPath, '.planning', MARKER_FILE);
+    fs.writeFileSync(markerPath, JSON.stringify(marker, null, 2), 'utf8');
+    return { ok: true, docs: merged };
+  } catch (err) {
+    return { ok: false, error: err.message };
   }
 }
 
@@ -304,6 +354,7 @@ Usage:
   node polyrepo.cjs remove <group> <path>
   node polyrepo.cjs list [group]
   node polyrepo.cjs info
+  node polyrepo.cjs docs [show|set|remove]
   node polyrepo.cjs --help
 
 Commands:
@@ -313,6 +364,9 @@ Commands:
   remove <group> <path>   Remove a repo from a group
   list [group]            List all groups or repos in a specific group
   info                    Show this repo's polyrepo group membership
+  docs show               Show doc paths for current repo
+  docs set <key> <path>   Set a doc path (user, developer, examples, or custom)
+  docs remove <key>       Remove a doc path
   --help                  Show this help message
 `);
     return;
@@ -404,31 +458,76 @@ Commands:
     }
   } else if (cmd === 'info') {
     const cwd = process.cwd();
-    const markerPath = path.join(cwd, '.planning', MARKER_FILE);
-    if (!fs.existsSync(markerPath)) {
+    const marker = readMarker(cwd);
+    if (!marker) {
       process.stdout.write(`${TAG} This repo is not part of any polyrepo group\n`);
       process.exit(1);
     }
-    try {
-      const marker = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
-      process.stdout.write(`\nThis repo belongs to polyrepo group: ${marker.name}\n`);
-      process.stdout.write(`Role: ${marker.role}\n`);
-      const group = listGroup(marker.name);
-      if (group) {
-        const repo = group.repos.find(r => r.path === cwd);
-        if (repo) {
-          process.stdout.write(`Planning: ${repo.planning ? 'yes' : 'no'}\n`);
-        } else {
-          // Fallback if repo not found in group but marker exists
-          process.stdout.write(`Planning: yes\n`);
-        }
-      } else {
-        // Fallback if group not found but marker exists
-        process.stdout.write(`Planning: yes\n`);
+    process.stdout.write(`\nThis repo belongs to polyrepo group: ${marker.name}\n`);
+    process.stdout.write(`Role: ${marker.role}\n`);
+    const group = listGroup(marker.name);
+    if (group) {
+      const repo = group.repos.find(r => r.path === cwd);
+      process.stdout.write(`Planning: ${(repo ? repo.planning : true) ? 'yes' : 'no'}\n`);
+    } else {
+      process.stdout.write(`Planning: yes\n`);
+    }
+    if (marker.docs) {
+      process.stdout.write(`Docs:\n`);
+      for (const [key, val] of Object.entries(marker.docs)) {
+        process.stdout.write(`  ${key.padEnd(12)} ${val}\n`);
       }
-      process.stdout.write('\n');
-    } catch (err) {
-      console.error(`${TAG} Error reading marker:`, err.message);
+    }
+    process.stdout.write('\n');
+  } else if (cmd === 'docs') {
+    const subcmd = args[1];
+    const cwd = process.cwd();
+    if (!subcmd || subcmd === 'show') {
+      const marker = readMarker(cwd);
+      if (!marker) {
+        console.error(`${TAG} No polyrepo marker found in current directory`);
+        process.exit(1);
+      }
+      if (!marker.docs || Object.keys(marker.docs).length === 0) {
+        process.stdout.write(`${TAG} No docs paths configured for this repo\n`);
+      } else {
+        process.stdout.write(`\nDocs paths for ${marker.name} (${marker.role}):\n`);
+        for (const [key, val] of Object.entries(marker.docs)) {
+          process.stdout.write(`  ${key.padEnd(12)} ${val}\n`);
+        }
+        process.stdout.write('\n');
+      }
+    } else if (subcmd === 'set') {
+      // docs set <key> <path>
+      const key = args[2];
+      const docPath = args[3];
+      if (!key || !docPath) {
+        console.error(`${TAG} docs set: usage: docs set <key> <path>`);
+        console.error(`  Keys: user, developer, examples (or any custom key)`);
+        process.exit(1);
+      }
+      const result = setDocs(cwd, { [key]: docPath });
+      if (result.ok) {
+        process.stdout.write(`${TAG} Set docs.${key} = ${docPath}\n`);
+      } else {
+        console.error(`${TAG} Error: ${result.error}`);
+        process.exit(1);
+      }
+    } else if (subcmd === 'remove') {
+      const key = args[2];
+      if (!key) {
+        console.error(`${TAG} docs remove: usage: docs remove <key>`);
+        process.exit(1);
+      }
+      const result = setDocs(cwd, { [key]: null });
+      if (result.ok) {
+        process.stdout.write(`${TAG} Removed docs.${key}\n`);
+      } else {
+        console.error(`${TAG} Error: ${result.error}`);
+        process.exit(1);
+      }
+    } else {
+      console.error(`${TAG} docs: unknown subcommand '${subcmd}'. Use: show, set, remove`);
       process.exit(1);
     }
   } else {
@@ -447,7 +546,9 @@ module.exports = {
   loadGroup,
   saveGroup,
   writeMarker,
+  readMarker,
   removeMarker,
+  setDocs,
   ensurePolyreposDir,
   POLYREPOS_DIR,
   MARKER_FILE
