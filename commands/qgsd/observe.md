@@ -1,7 +1,7 @@
 ---
 name: qgsd:observe
 description: Fetch issues and drifts from configured sources, render dual-table output, and write to debt ledger. Replaces /qgsd:triage.
-argument-hint: "[--source github|sentry|sentry-feedback|bash] [--since 24h|7d] [--limit N]"
+argument-hint: "[--source github|sentry|sentry-feedback|bash|internal] [--since 24h|7d] [--limit N]"
 allowed-tools:
   - Read
   - Bash
@@ -54,18 +54,39 @@ Stop.
 
 **If `$SOURCE_FILTER` is set**, keep only sources whose `type` matches.
 
+**Always-on internal source:** Regardless of config or filters, inject an internal work detection source:
+
+```javascript
+// Inject internal scanner unconditionally (always-on, no config needed)
+const internalSource = { type: 'internal', label: 'Internal Work', issue_type: 'issue' };
+// Add to sources array if not already present and not filtered out by --source
+if (!$SOURCE_FILTER || $SOURCE_FILTER === 'internal') {
+  config.sources.push(internalSource);
+}
+
+// Critical: check for empty sources AFTER internal injection
+if (config.sources.length === 0) {
+  // Display "no sources" message only if sources is empty AFTER internal source injection
+  display("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n QGSD > OBSERVE: No sources configured\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nCreate .planning/observe-sources.md to configure issue sources.");
+  stop();
+}
+```
+
+This ensures internal work detection runs even if observe-sources.md doesn't exist or if the user filters to `--source internal`.
+
 ## Step 3: Register handlers
 
 Import handler functions and register them with the registry:
 
 ```javascript
 const { registerHandler } = require('./bin/observe-registry.cjs');
-const { handleGitHub, handleSentry, handleSentryFeedback, handleBash } = require('./bin/observe-handlers.cjs');
+const { handleGitHub, handleSentry, handleSentryFeedback, handleBash, handleInternal } = require('./bin/observe-handlers.cjs');
 
 registerHandler('github', handleGitHub);
 registerHandler('sentry', handleSentry);
 registerHandler('sentry-feedback', handleSentryFeedback);
 registerHandler('bash', handleBash);
+registerHandler('internal', handleInternal);
 ```
 
 Display dispatch header:
@@ -197,14 +218,16 @@ Debt ledger: {open} open, {acknowledged} acknowledged, {resolving} resolving, {r
 Prompt the user:
 
 ```
-Enter issue # to work on, "ack N" to acknowledge, "all" for full details, or press Enter to skip:
+Enter issue # to work on, "ack N" to acknowledge, "solve" for all internal issues, "all" for full details, or press Enter to skip:
 ```
 
 **If user enters a number:**
 - Load the full issue details (title, URL, meta) for that index.
 - Determine routing:
-  - `severity: error` or `severity: bug` → suggest `/qgsd:debug`
-  - `severity: warning` or `severity: info` → suggest `/qgsd:quick`
+  - If the issue has `source_type: 'internal'` and `_route` metadata: use the `_route` value as the suggested action (example: unfinished quick task suggests `/qgsd:quick "original-slug"`, debug session suggests `/qgsd:debug --resume`)
+  - Otherwise, routing by severity:
+    - `severity: error` or `severity: bug` → suggest `/qgsd:debug`
+    - `severity: warning` or `severity: info` → suggest `/qgsd:quick`
 - Display:
   ```
   ◆ Issue: <title>
@@ -215,6 +238,11 @@ Enter issue # to work on, "ack N" to acknowledge, "all" for full details, or pre
   Run it? [Y/n]
   ```
 - If confirmed, invoke the suggested skill with the issue as context.
+
+**If user enters "solve":**
+- Collect all issues with `source_type: 'internal'`
+- Display: `Routing all internal issues to /qgsd:solve...`
+- Invoke `/qgsd:solve` to address all internal consistency issues at once
 
 **If user enters "ack N":**
 - Acknowledge the debt entry for issue #N (transition status from "open" to "acknowledged" via the debt state machine).

@@ -412,6 +412,9 @@ const { handlePrometheus } = require('./observe-handler-prometheus.cjs');
 const { handleGrafana } = require('./observe-handler-grafana.cjs');
 const { handleLogstash } = require('./observe-handler-logstash.cjs');
 
+// Internal work detection handler
+const { handleInternal } = require('./observe-handler-internal.cjs');
+
 module.exports = {
   handleGitHub,
   handleSentry,
@@ -423,6 +426,8 @@ module.exports = {
   handlePrometheus,
   handleGrafana,
   handleLogstash,
+  // Internal work detection (quick-168)
+  handleInternal,
   // Exported for testing
   parseDuration,
   formatAge,
