@@ -1,7 +1,8 @@
 {
-  "aggregated_at": "2026-03-04T09:45:57.092Z",
-  "content_hash": "28b12ab9d3310f96",
+  "aggregated_at": "2026-03-04T10:52:11.478Z",
+  "content_hash": "sha256:29ecce53508c2f0c2b202575c4ba15f9f1de2ff60fb09d8d7fe6d28dbb83c17e",
   "frozen_at": "2026-03-04T09:45:57.092Z",
+  "schema_version": "1",
   "requirements": [
     {
       "id": "ACT-01",
@@ -337,6 +338,39 @@
       "formal_models": [
         ".formal/alloy/provider-failure.als"
       ]
+    },
+    {
+      "id": "CI-01",
+      "text": "Automated test suite runs on every pull request and merge to main is blocked when tests fail",
+      "category": "CI/CD",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "CI-02",
+      "text": "Linting and formatting checks run in CI and block merge on violations",
+      "category": "CI/CD",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "CI-03",
+      "text": "Type checking (if applicable to the language) runs in CI and blocks merge on type errors",
+      "category": "CI/CD",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
     },
     {
       "id": "COMP-01",
@@ -1234,6 +1268,18 @@
       "background": "When scripts are installed to ~/.claude/bin/, __dirname becomes ~/.claude/bin/ and path.resolve(__dirname, ..) gives ~/.claude/ — not the users project directory. This caused R->F, F->T, and C->F layer transitions to report UNKNOWN in cross-repo usage."
     },
     {
+      "id": "INST-12",
+      "text": "Baseline requirements are merged into .formal/requirements.json using an idempotent CLI tool that matches on text field to prevent duplicates and assigns next-available IDs per prefix namespace.",
+      "category": "Installation & Toolchain",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/quick/153-create-bin-sync-baseline-requirements-cj/153-PLAN.md",
+        "milestone": "quick-153"
+      },
+      "background": "After baseline requirements are defined per project profile, the system needs a way to sync them into the formal requirements envelope without manual copy-paste and without creating duplicate entries on re-run."
+    },
+    {
       "id": "KEY-01",
       "text": "User can set or update the API key for any agent through the wizard",
       "category": "Configuration",
@@ -1660,6 +1706,17 @@
       ]
     },
     {
+      "id": "OBS-05",
+      "text": "CLI tools exit with appropriate codes (0 = success, non-zero = failure) and write errors to stderr, output to stdout",
+      "category": "Observability",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
       "id": "ORES-01",
       "text": "When oscillation is detected and the oscillating file set contains only internal code files, Claude MUST enter oscillation resolution mode instead of hard-stopping",
       "category": "Hooks & Enforcement",
@@ -2031,6 +2088,28 @@
       ]
     },
     {
+      "id": "REL-01",
+      "text": "Failures in external services (APIs, databases, third-party SDKs) are caught and handled gracefully — the application degrades functionality rather than crashing",
+      "category": "Reliability",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "REL-02",
+      "text": "Long-running operations (file uploads, data processing, API calls >2s) show progress indication and can be cancelled by the user",
+      "category": "Reliability",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
       "id": "REN-03",
       "text": "All hardcoded `get-shit-done/` path strings removed from `bin/gsd-tools.cjs`, workflow files, agent files, and template files",
       "category": "Installer & CLI",
@@ -2150,6 +2229,50 @@
       "formal_models": [
         ".formal/alloy/schema-extensions.als"
       ]
+    },
+    {
+      "id": "SEC-01",
+      "text": "Pre-commit hook runs secret scanning (e.g., Gitleaks) to block commits containing API keys, tokens, passwords, or credentials",
+      "category": "Security",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "SEC-02",
+      "text": "CI pipeline runs deep secret scanning (e.g., TruffleHog) across full repo history on every PR",
+      "category": "Security",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "SEC-03",
+      "text": "All external input (user input, API request bodies, query parameters, file uploads) is validated and sanitized at system boundaries before processing",
+      "category": "Security",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "SEC-04",
+      "text": "Dependencies are scanned for known vulnerabilities in CI (e.g., npm audit, Dependabot, Snyk) and critical/high findings block merge",
+      "category": "Security",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
     },
     {
       "id": "SENS-01",
@@ -2942,6 +3065,39 @@
       ]
     },
     {
+      "id": "UX-01",
+      "text": "Every user-initiated action produces immediate feedback (loading/disabled state) and completion feedback (result message, navigation change, or visible state update)",
+      "category": "UX Heuristics",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "UX-02",
+      "text": "Destructive actions (delete, reset, remove, overwrite) require explicit confirmation or provide undo within a reasonable window",
+      "category": "UX Heuristics",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "UX-03",
+      "text": "Error messages are human-readable, explain what went wrong, and suggest a next step or recovery action",
+      "category": "UX Heuristics",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "qgsd-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
       "id": "VERIFY-01",
       "text": "`qgsd-verifier` agent runs `run-formal-verify` after implementation and includes `check-results.ndjson` digest in `VERIFICATION.md`",
       "category": "Testing & Quality",
@@ -3106,8 +3262,5 @@
         ".formal/tla/QGSDSetupWizard.tla"
       ]
     }
-  ],
-  "schema_version": "1",
-  "source": ".planning/REQUIREMENTS.md",
-  "total_requirements": 208
+  ]
 }
