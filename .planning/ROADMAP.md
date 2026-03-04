@@ -69,9 +69,9 @@ Plans:
   5. One failing source does not block the others — each handler has configurable timeout and fail-open behavior
 **Plans**: 3 plans
 Plans:
-- [ ] v0.27-01-01-PLAN.md — Schema definition, validation, and state machine (DEBT-01, DEBT-03)
-- [ ] v0.27-01-02-PLAN.md — Issue and drift fingerprinting algorithms (FP-01, FP-02)
-- [ ] v0.27-01-03-PLAN.md — Ledger I/O, retention policy, and integration test (DEBT-04)
+- [ ] v0.27-02-01-PLAN.md — Config loader, handler registry, and default observe-sources.md (OBS-02, OBS-07)
+- [ ] v0.27-02-02-PLAN.md — Source handler implementations with fail-open behavior (OBS-08)
+- [ ] v0.27-02-03-PLAN.md — Observe command spec, dual-table rendering, and debt write-through (OBS-01, OBS-06, DEBT-06)
 
 ### Phase v0.27-03: Cross-Source Deduplication
 **Goal**: Observations from multiple sources are deduplicated by fingerprint, near-duplicates are merged, and debt entries link to formal model references
@@ -124,8 +124,8 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| v0.27-01. Debt Schema & Fingerprinting Foundation | 0/TBD | Not started | - |
-| v0.27-02. Observe Skill Core | 0/TBD | Not started | - |
+| v0.27-01. Debt Schema & Fingerprinting Foundation | 3/3 | Complete    | 2026-03-04 |
+| v0.27-02. Observe Skill Core | 0/3 | Planned | - |
 | v0.27-03. Cross-Source Deduplication | 0/TBD | Not started | - |
 | v0.27-04. Production Source Types | 0/TBD | Not started | - |
 | v0.27-05. Solve P->F Integration | 0/TBD | Not started | - |
