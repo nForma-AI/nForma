@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 Phase: —
 Plan: —
 Status: Milestone v0.27 archived. Ready for next milestone.
-Last activity: 2026-03-04 - Archived milestone v0.27 Production Feedback Loop
+Last activity: 2026-03-04 - Completed quick task 168: Add internal work detection handler to observe
 
 Progress: Ready for /qgsd:new-milestone
 
@@ -75,6 +75,7 @@ Resume file: None
 | 164 | Add UPPAAL verifyta installation to bin/install.js | 2026-03-04 | 8caf29e4 | Completed | [164-add-uppaal-verifyta-installation-to-bin-](./quick/164-add-uppaal-verifyta-installation-to-bin-/) |
 | 165 | Fix solver F→C diagnostic to read all 26+ formal checks instead of 4 CI-only | 2026-03-04 | 6ff105da | Completed | [165-fix-qgsd-solve-cjs-f-to-c-diagnostic-to-](./quick/165-fix-qgsd-solve-cjs-f-to-c-diagnostic-to-/) |
 | 166 | Autonomous milestone completion loop via audit-milestone --auto | 2026-03-04 | e6d375c3 | Pending | [166-implement-autonomous-milestone-completio](./quick/166-implement-autonomous-milestone-completio/) |
+| 168 | Add internal work detection handler to observe | 2026-03-04 | 21951ed3 | Completed | [168-add-internal-work-detection-handler-to-o](./quick/168-add-internal-work-detection-handler-to-o/) |
 
 ## Recent Accomplishments
 
