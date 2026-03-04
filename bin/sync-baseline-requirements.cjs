@@ -209,13 +209,16 @@ if (require.main === module) {
   // --json flag
   const jsonOutput = args.includes('--json');
 
-  // Priority: --intent-file > --detect > --profile > config.json intent > config.json profile
+  // --detect is deprecated (auto-detect is now the default behavior) — silently strip it
+  const cleanArgs = args.filter(arg => arg !== '--detect');
+
+  // Priority: --intent-file > --profile > config.json intent > config.json profile > AUTO-DETECT
 
   // Check --intent-file
-  const intentFileIdx = args.indexOf('--intent-file');
-  if (intentFileIdx !== -1 && args[intentFileIdx + 1]) {
+  const intentFileIdx = cleanArgs.indexOf('--intent-file');
+  if (intentFileIdx !== -1 && cleanArgs[intentFileIdx + 1]) {
     try {
-      const intentFilePath = args[intentFileIdx + 1];
+      const intentFilePath = cleanArgs[intentFileIdx + 1];
       const intentContent = fs.readFileSync(intentFilePath, 'utf8');
       const intent = JSON.parse(intentContent);
       const result = syncBaselineRequirementsFromIntent(intent);
@@ -231,31 +234,12 @@ if (require.main === module) {
     }
   }
 
-  // Check --detect
-  if (args.includes('--detect')) {
-    try {
-      const { detectProjectIntent } = require('./detect-project-intent.cjs');
-      const detectionResult = detectProjectIntent(process.cwd());
-      const intent = detectionResult.suggested;
-      const result = syncBaselineRequirementsFromIntent(intent);
-      if (jsonOutput) {
-        console.log(JSON.stringify(result, null, 2));
-      } else {
-        printReport(result, `auto-detected intent (base_profile: ${intent.base_profile})`);
-      }
-      process.exit(0);
-    } catch (err) {
-      console.error(`Error detecting project intent: ${err.message}`);
-      process.exit(1);
-    }
-  }
-
   // Parse --profile
-  const profileIdx = args.indexOf('--profile');
+  const profileIdx = cleanArgs.indexOf('--profile');
   let profile = null;
 
-  if (profileIdx !== -1 && args[profileIdx + 1]) {
-    profile = args[profileIdx + 1];
+  if (profileIdx !== -1 && cleanArgs[profileIdx + 1]) {
+    profile = cleanArgs[profileIdx + 1];
   } else {
     // Try reading from .planning/config.json (intent first, then profile)
     try {
@@ -273,12 +257,24 @@ if (require.main === module) {
       }
       profile = config.profile;
     } catch (_) {}
+  }
 
-    if (!profile) {
-      console.error('Usage: node bin/sync-baseline-requirements.cjs --profile <web|mobile|desktop|api|cli|library>');
-      console.error('       node bin/sync-baseline-requirements.cjs --intent-file <path>');
-      console.error('       node bin/sync-baseline-requirements.cjs --detect');
-      console.error('       Or set "profile" or "intent" in .planning/config.json');
+  // If no profile found, auto-detect (new default behavior)
+  if (!profile) {
+    try {
+      const { detectProjectIntent } = require('./detect-project-intent.cjs');
+      const detectionResult = detectProjectIntent(process.cwd());
+      const intent = detectionResult.suggested;
+      const result = syncBaselineRequirementsFromIntent(intent);
+      if (jsonOutput) {
+        console.log(JSON.stringify({ ...result, detection: detectionResult }, null, 2));
+      } else {
+        printReport(result, `auto-detected intent (base_profile: ${intent.base_profile})`);
+      }
+      process.exit(0);
+    } catch (err) {
+      console.error(`Error auto-detecting project intent: ${err.message}`);
+      console.error('Hint: use --profile <web|mobile|desktop|api|cli|library> to specify manually');
       process.exit(1);
     }
   }

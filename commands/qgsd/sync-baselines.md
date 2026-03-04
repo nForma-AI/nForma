@@ -1,7 +1,7 @@
 ---
 name: qgsd:sync-baselines
-description: Sync baseline requirements into .formal/requirements.json (idempotent merge by text match, with optional auto-detect)
-argument-hint: [--profile <web|mobile|desktop|api|cli|library>] [--detect]
+description: Sync baseline requirements into .formal/requirements.json (auto-detects project intent by default)
+argument-hint: [--profile <web|mobile|desktop|api|cli|library>]
 allowed-tools:
   - Read
   - Bash
@@ -9,20 +9,16 @@ allowed-tools:
 ---
 
 <objective>
-Sync baseline requirements from the QGSD defaults into `.formal/requirements.json`. Supports three modes: profile-based (explicit or from config), intent-based with auto-detect (scans repo for signals), or intent-file (manual JSON). Runs `node bin/sync-baseline-requirements.cjs`, displays results, and commits if requirements were added.
+Sync baseline requirements from the QGSD defaults into `.formal/requirements.json`. Auto-detects project intent by default by scanning the repo for framework, deployment, and configuration signals. Supports explicit `--profile` override. Runs `node bin/sync-baseline-requirements.cjs`, displays results, and commits if requirements were added.
 </objective>
 
 <process>
 
-## Step 1: Determine Intent/Profile
+## Step 1: Detect Intent
 
-Check in priority order:
+If `--profile` in $ARGUMENTS, skip detection and jump to Step 3.
 
-### 1a. Parse `--profile` from $ARGUMENTS
-If present, use it directly. Jump to Step 2.
-
-### 1b. Parse `--detect` from $ARGUMENTS
-If present, run auto-detect:
+Otherwise, run auto-detection first (read-only, no sync yet):
 
 ```bash
 node bin/detect-project-intent.cjs --root . --json > /tmp/detection.json
@@ -30,151 +26,73 @@ DETECTION=$(cat /tmp/detection.json)
 ```
 
 Display signals table to user from `signals` array (dimension, confidence, evidence).
+Display suggested profile: `Detected profile: <base_profile>`.
 
-If `needs_confirmation` array is non-empty, ask user for confirmation on each dimension:
+## Step 2: Confirm Intent
 
-```
-AskUserQuestion([
-  {
-    header: "Confirm Intent Dimensions",
-    question: "Please confirm detected project dimensions:",
-    multiSelect: false,
-    options: [
-      { label: "Use suggested intent as-is", description: "Accept auto-detected values" },
-      { label: "Customize dimensions", description: "Adjust specific values" }
-    ]
-  }
-])
-```
-
-If "customize", prompt for each dimension in `needs_confirmation`:
+If `needs_confirmation` array is non-empty, ask user:
 
 ```
-AskUserQuestion([
-  {
-    header: "base_profile",
-    question: "What is your project profile?",
-    multiSelect: false,
-    options: [
-      { label: "web", description: "Web Application" },
-      { label: "mobile", description: "Mobile Application" },
-      { label: "desktop", description: "Desktop Application" },
-      { label: "api", description: "API Service" },
-      { label: "cli", description: "CLI Tool" },
-      { label: "library", description: "Library / Package" }
-    ]
-  }
-])
+AskUserQuestion([{
+  header: "Confirm Project Intent",
+  question: "Auto-detected base profile: <base_profile>. Is this correct?",
+  multiSelect: false,
+  options: [
+    { label: "Accept", description: "Use auto-detected intent as-is" },
+    { label: "Customize", description: "Choose a different profile" },
+    { label: "Cancel", description: "Skip baseline sync" }
+  ]
+}])
 ```
 
-Build confirmed intent JSON and write to temp file. Jump to Step 2 with `--intent-file` flag.
+If "Customize", ask for profile selection (same AskUserQuestion as below), then use `--profile` in Step 3.
+If "Cancel", exit.
+If "Accept", proceed to Step 3 with no flags (auto-detect default).
 
-### 1c. Read `.planning/config.json`
+If `needs_confirmation` is empty (all high confidence), proceed directly to Step 3 without asking.
 
-Check for existing `intent` field (takes priority over `profile`):
+## Step 3: Run Sync
 
-```bash
-INTENT=$(node -e "const c = require('./.planning/config.json'); const i = c.intent; process.stdout.write(i ? JSON.stringify(i) : '')")
-```
-
-If intent found, use it. Jump to Step 2 with intent object.
-
-Otherwise, check for `profile` field:
-
-```bash
-PROFILE=$(node -e "const c = require('./.planning/config.json'); console.log(c.profile || '')")
-```
-
-If neither available, ask the user:
-
-```
-AskUserQuestion([
-  {
-    header: "Choose Sync Mode",
-    question: "How would you like to sync baseline requirements?",
-    multiSelect: false,
-    options: [
-      { label: "auto-detect", description: "Automatically detect project intent from repo signals" },
-      { label: "manual-profile", description: "Choose a project profile manually" }
-    ]
-  }
-])
-```
-
-If "auto-detect", jump to Step 1b. Otherwise continue to profile selection:
-
-```
-AskUserQuestion([
-  {
-    header: "Profile",
-    question: "Which project profile should be used for baseline requirements?",
-    multiSelect: false,
-    options: [
-      { label: "web", description: "Web Application" },
-      { label: "mobile", description: "Mobile Application" },
-      { label: "desktop", description: "Desktop Application" },
-      { label: "api", description: "API Service" },
-      { label: "cli", description: "CLI Tool" },
-      { label: "library", description: "Library / Package" }
-    ]
-  }
-])
-```
-
-Store as `$PROFILE`.
-
-## Step 2: Run Sync
-
-If using profile mode:
+If --profile was given or chosen via customize:
 
 ```bash
 node bin/sync-baseline-requirements.cjs --profile "$PROFILE" --json
 ```
 
-If using intent mode (from auto-detect or intent-file):
+Otherwise (auto-detect default):
 
 ```bash
-node bin/sync-baseline-requirements.cjs --intent-file /tmp/confirmed-intent.json --json
+node bin/sync-baseline-requirements.cjs --json
 ```
 
-Or directly with --detect:
-
-```bash
-node bin/sync-baseline-requirements.cjs --detect --json
-```
-
-Parse the JSON output. Display a human-readable summary:
+Parse JSON output. Display human-readable summary:
 
 ```
-Baseline sync complete (profile/intent)
+Baseline sync complete (<mode>)
   Added:   N new requirements
   Skipped: M (already present)
   Total:   K requirements
 ```
 
-If added > 0, list each added requirement:
+If added > 0, list each: `+ [ID] text`
 
-```
-  + [ID] text
-```
+## Step 4: Store Intent (if auto-detected)
 
-## Step 3: Store Intent (if auto-detected)
-
-If intent was auto-detected or manually confirmed, persist it to config:
+If intent was auto-detected (no --profile flag), persist to config:
 
 ```bash
-# Merge confirmed intent into .planning/config.json
 node -e "
 const fs = require('fs');
 const path = require('path');
 const configPath = '.planning/config.json';
 const config = fs.existsSync(configPath) ? JSON.parse(fs.readFileSync(configPath, 'utf8')) : {};
-config.intent = <confirmed_intent_object>;
+const intent = JSON.parse(process.argv[1]);
+config.intent = intent;
 fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
-"
+" '<detected_intent_json>'
 ```
 
-## Step 4: Commit if Needed
+## Step 5: Commit if Needed
 
 If `added.length > 0`:
 

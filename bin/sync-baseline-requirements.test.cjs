@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { execFileSync } = require('child_process');
 
 // We need to mock loadBaselineRequirements, so we use a wrapper approach.
 // The sync module requires load-baseline-requirements.cjs internally,
@@ -370,5 +371,69 @@ describe('syncBaselineRequirements', () => {
     assert.equal(typeof result.total_before, 'number');
     assert.equal(typeof result.total_after, 'number');
     assert.equal(result.total_after, result.total_before + result.added.length);
+  });
+});
+
+describe('CLI auto-detect default', () => {
+  let tmpDir;
+
+  afterEach(() => {
+    if (tmpDir) cleanupTmpDir(tmpDir);
+  });
+
+  it('19. CLI with no flags auto-detects and exits 0', () => {
+    tmpDir = createTempProject([]);
+    // Write a package.json with bin field so detect-project-intent finds CLI profile
+    fs.writeFileSync(
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify({ bin: { test: 'test.js' } }, null, 2)
+    );
+
+    const scriptPath = path.join(__dirname, 'sync-baseline-requirements.cjs');
+    const output = execFileSync('node', [scriptPath, '--json'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    const result = JSON.parse(output);
+    assert.ok(Array.isArray(result.added), 'added should be array');
+    assert.ok(result.added.length > 0, 'auto-detect should add requirements');
+    assert.ok(result.detection, 'detection metadata should be included');
+    assert.equal(result.detection.suggested.base_profile, 'cli', 'should detect CLI profile');
+  });
+
+  it('20. CLI --profile override bypasses auto-detect', () => {
+    tmpDir = createTempProject([]);
+
+    const scriptPath = path.join(__dirname, 'sync-baseline-requirements.cjs');
+    const output = execFileSync('node', [scriptPath, '--profile', 'cli', '--json'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    const result = JSON.parse(output);
+    assert.ok(Array.isArray(result.added), 'added should be array');
+    assert.ok(result.added.length > 0, 'profile sync should add requirements');
+    assert.ok(!result.detection, 'detection metadata should NOT be included with explicit profile');
+  });
+
+  it('21. CLI --detect flag accepted silently for backwards compat', () => {
+    tmpDir = createTempProject([]);
+    // Write a package.json with bin field
+    fs.writeFileSync(
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify({ bin: { test: 'test.js' } }, null, 2)
+    );
+
+    const scriptPath = path.join(__dirname, 'sync-baseline-requirements.cjs');
+    // Should not throw, should exit 0
+    const output = execFileSync('node', [scriptPath, '--detect', '--json'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    const result = JSON.parse(output);
+    assert.ok(Array.isArray(result.added), 'added should be array');
+    assert.ok(result.added.length > 0, 'detect should add requirements');
   });
 });
