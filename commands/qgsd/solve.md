@@ -203,6 +203,21 @@ F -> C (Formal→Code)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
 Total                      {N}    {M}    {delta}
 ```
 
+**IMPORTANT — Expand non-zero layers:** For any layer with residual > 0, display the full detail below the table. The residual number alone hides severity. For example, F→C residual=1 might mean "1 check failed with 7,086 individual divergences." Always show:
+
+- **R→F**: List all uncovered requirement IDs
+- **F→T**: Count of formal properties without test backing
+- **T→C**: List failing test names and error summaries
+- **C→F**: Table of each constant mismatch (name, formal value, config value)
+- **F→C**: For each failing check: check_id, summary (including counts like "7086 divergences"), affected requirement IDs. Also list inconclusive checks separately.
+
+Example F→C expansion:
+```
+F → C Detail:
+  ✗ ci:conformance-traces — 7086 divergence(s) in 20199 traces
+  ⚠ ci:liveness-fairness-lint — fairness declarations missing for 10 properties
+```
+
 If any gaps remain after convergence, append a summary of what couldn't be auto-fixed and why.
 
 ## Important Constraints

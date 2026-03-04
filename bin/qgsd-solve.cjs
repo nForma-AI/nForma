@@ -305,8 +305,10 @@ function sweepFtoC() {
     try {
       const lines = fs.readFileSync(checkResultsPath, 'utf8').split('\n');
       let failedCount = 0;
+      let inconclusiveCount = 0;
       let totalCount = 0;
       const failures = [];
+      const inconclusive = [];
 
       for (const line of lines) {
         if (!line.trim()) continue;
@@ -315,7 +317,17 @@ function sweepFtoC() {
           const entry = JSON.parse(line);
           if (entry.result === 'fail') {
             failedCount++;
-            failures.push(entry.check_id || entry.id || '?');
+            failures.push({
+              check_id: entry.check_id || entry.id || '?',
+              summary: entry.summary || '',
+              requirement_ids: entry.requirement_ids || [],
+            });
+          } else if (entry.result === 'inconclusive') {
+            inconclusiveCount++;
+            inconclusive.push({
+              check_id: entry.check_id || entry.id || '?',
+              summary: entry.summary || '',
+            });
           }
         } catch (e) {
           // skip malformed lines
@@ -326,9 +338,11 @@ function sweepFtoC() {
         residual: failedCount,
         detail: {
           total_checks: totalCount,
-          passed: Math.max(0, totalCount - failedCount),
+          passed: Math.max(0, totalCount - failedCount - inconclusiveCount),
           failed: failedCount,
+          inconclusive: inconclusiveCount,
           failures: failures,
+          inconclusive_checks: inconclusive,
           stale: true,
         },
       };
@@ -365,8 +379,10 @@ function sweepFtoC() {
   try {
     const lines = fs.readFileSync(checkResultsPath, 'utf8').split('\n');
     let failedCount = 0;
+    let inconclusiveCount = 0;
     let totalCount = 0;
     const failures = [];
+    const inconclusiveChecks = [];
 
     for (const line of lines) {
       if (!line.trim()) continue;
@@ -375,7 +391,17 @@ function sweepFtoC() {
         const entry = JSON.parse(line);
         if (entry.result === 'fail') {
           failedCount++;
-          failures.push(entry.check_id || entry.id || '?');
+          failures.push({
+            check_id: entry.check_id || entry.id || '?',
+            summary: entry.summary || '',
+            requirement_ids: entry.requirement_ids || [],
+          });
+        } else if (entry.result === 'inconclusive') {
+          inconclusiveCount++;
+          inconclusiveChecks.push({
+            check_id: entry.check_id || entry.id || '?',
+            summary: entry.summary || '',
+          });
         }
       } catch (e) {
         // skip malformed lines
@@ -386,9 +412,11 @@ function sweepFtoC() {
       residual: failedCount,
       detail: {
         total_checks: totalCount,
-        passed: Math.max(0, totalCount - failedCount),
+        passed: Math.max(0, totalCount - failedCount - inconclusiveCount),
         failed: failedCount,
+        inconclusive: inconclusiveCount,
         failures: failures,
+        inconclusive_checks: inconclusiveChecks,
       },
     };
   } catch (err) {
@@ -630,23 +658,35 @@ function formatReport(iterations, finalResidual, converged) {
     lines.push('');
   }
 
-  if (finalResidual.f_to_c.residual > 0) {
+  if (finalResidual.f_to_c.residual > 0 || (finalResidual.f_to_c.detail && finalResidual.f_to_c.detail.inconclusive > 0)) {
     lines.push('## F -> C (Formal -> Code)');
     const detail = finalResidual.f_to_c.detail;
-    lines.push(
-      'Failed checks: ' +
-        detail.failed +
-        ' / ' +
-        detail.total_checks
-    );
+    const parts = [];
+    if (detail.passed > 0) parts.push(detail.passed + ' pass');
+    if (detail.failed > 0) parts.push(detail.failed + ' fail');
+    if (detail.inconclusive > 0) parts.push(detail.inconclusive + ' inconclusive');
+    lines.push('Checks: ' + parts.join(', ') + ' (of ' + detail.total_checks + ' total)');
     if (detail.failures && detail.failures.length > 0) {
-      lines.push('Failed checks:');
-      for (const fail of detail.failures.slice(0, 5)) {
-        lines.push('  - ' + fail);
+      lines.push('');
+      lines.push('Failures:');
+      for (const fail of detail.failures) {
+        const f = typeof fail === 'string' ? { check_id: fail, summary: '' } : fail;
+        lines.push('  ✗ ' + f.check_id + (f.summary ? ' — ' + f.summary : ''));
+        if (f.requirement_ids && f.requirement_ids.length > 0) {
+          lines.push('    reqs: ' + f.requirement_ids.join(', '));
+        }
       }
-      if (detail.failures.length > 5) {
-        lines.push('  ... and ' + (detail.failures.length - 5) + ' more');
+    }
+    if (detail.inconclusive_checks && detail.inconclusive_checks.length > 0) {
+      lines.push('');
+      lines.push('Inconclusive:');
+      for (const w of detail.inconclusive_checks) {
+        lines.push('  ⚠ ' + w.check_id + (w.summary ? ' — ' + w.summary : ''));
       }
+    }
+    if (detail.stale) {
+      lines.push('');
+      lines.push('Note: results may be stale (from cached check-results.ndjson)');
     }
     lines.push('');
   }
