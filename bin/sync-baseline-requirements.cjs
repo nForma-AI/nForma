@@ -6,26 +6,11 @@ const path = require('path');
 const crypto = require('crypto');
 
 /**
- * Merge baseline requirements into .formal/requirements.json.
- * Idempotent: matches on exact `text` field to skip duplicates.
- * Assigns next-available IDs per category prefix for new entries.
- *
- * @param {string} profile - One of: web, mobile, desktop, api, cli, library
- * @param {string} [projectRoot] - Path to project root, defaults to process.cwd()
- * @returns {{ added: Array, skipped: Array, total_before: number, total_after: number }}
+ * Internal helper: merge baseline into existing requirements.
+ * Handles the core sync logic (steps 2-7 from original implementation).
  */
-function syncBaselineRequirements(profile, projectRoot) {
+function _syncFromBaseline(baseline, projectRoot) {
   const root = projectRoot || process.cwd();
-
-  // 1. Load baseline requirements
-  let baseline;
-  try {
-    const { loadBaselineRequirements } = require('./load-baseline-requirements.cjs');
-    baseline = loadBaselineRequirements(profile);
-  } catch (err) {
-    console.error(`Error loading baseline requirements: ${err.message}`);
-    process.exit(2);
-  }
 
   // 2. Read existing requirements
   const reqPath = path.join(root, '.formal', 'requirements.json');
@@ -142,6 +127,56 @@ function syncBaselineRequirements(profile, projectRoot) {
   };
 }
 
+/**
+ * Merge baseline requirements into .formal/requirements.json.
+ * Idempotent: matches on exact `text` field to skip duplicates.
+ * Assigns next-available IDs per category prefix for new entries.
+ *
+ * @param {string} profile - One of: web, mobile, desktop, api, cli, library
+ * @param {string} [projectRoot] - Path to project root, defaults to process.cwd()
+ * @returns {{ added: Array, skipped: Array, total_before: number, total_after: number }}
+ */
+function syncBaselineRequirements(profile, projectRoot) {
+  const root = projectRoot || process.cwd();
+
+  // 1. Load baseline requirements
+  let baseline;
+  try {
+    const { loadBaselineRequirements } = require('./load-baseline-requirements.cjs');
+    baseline = loadBaselineRequirements(profile);
+  } catch (err) {
+    console.error(`Error loading baseline requirements: ${err.message}`);
+    process.exit(2);
+  }
+
+  return _syncFromBaseline(baseline, root);
+}
+
+/**
+ * Merge intent-based baseline requirements into .formal/requirements.json.
+ * Idempotent: matches on exact `text` field to skip duplicates.
+ * Assigns next-available IDs per category prefix for new entries.
+ *
+ * @param {Object} intent - Intent object with base_profile and optional dimensions
+ * @param {string} [projectRoot] - Path to project root, defaults to process.cwd()
+ * @returns {{ added: Array, skipped: Array, total_before: number, total_after: number }}
+ */
+function syncBaselineRequirementsFromIntent(intent, projectRoot) {
+  const root = projectRoot || process.cwd();
+
+  // 1. Load baseline requirements from intent
+  let baseline;
+  try {
+    const { loadBaselineRequirementsFromIntent } = require('./load-baseline-requirements.cjs');
+    baseline = loadBaselineRequirementsFromIntent(intent);
+  } catch (err) {
+    console.error(`Error loading baseline requirements: ${err.message}`);
+    process.exit(2);
+  }
+
+  return _syncFromBaseline(baseline, root);
+}
+
 // ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
@@ -174,6 +209,47 @@ if (require.main === module) {
   // --json flag
   const jsonOutput = args.includes('--json');
 
+  // Priority: --intent-file > --detect > --profile > config.json intent > config.json profile
+
+  // Check --intent-file
+  const intentFileIdx = args.indexOf('--intent-file');
+  if (intentFileIdx !== -1 && args[intentFileIdx + 1]) {
+    try {
+      const intentFilePath = args[intentFileIdx + 1];
+      const intentContent = fs.readFileSync(intentFilePath, 'utf8');
+      const intent = JSON.parse(intentContent);
+      const result = syncBaselineRequirementsFromIntent(intent);
+      if (jsonOutput) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        printReport(result, `intent (base_profile: ${intent.base_profile})`);
+      }
+      process.exit(0);
+    } catch (err) {
+      console.error(`Error loading intent file: ${err.message}`);
+      process.exit(1);
+    }
+  }
+
+  // Check --detect
+  if (args.includes('--detect')) {
+    try {
+      const { detectProjectIntent } = require('./detect-project-intent.cjs');
+      const detectionResult = detectProjectIntent(process.cwd());
+      const intent = detectionResult.suggested;
+      const result = syncBaselineRequirementsFromIntent(intent);
+      if (jsonOutput) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        printReport(result, `auto-detected intent (base_profile: ${intent.base_profile})`);
+      }
+      process.exit(0);
+    } catch (err) {
+      console.error(`Error detecting project intent: ${err.message}`);
+      process.exit(1);
+    }
+  }
+
   // Parse --profile
   const profileIdx = args.indexOf('--profile');
   let profile = null;
@@ -181,17 +257,28 @@ if (require.main === module) {
   if (profileIdx !== -1 && args[profileIdx + 1]) {
     profile = args[profileIdx + 1];
   } else {
-    // Try reading from .planning/config.json
+    // Try reading from .planning/config.json (intent first, then profile)
     try {
       const config = JSON.parse(fs.readFileSync(
         path.join(process.cwd(), '.planning/config.json'), 'utf8'
       ));
+      if (config.intent) {
+        const result = syncBaselineRequirementsFromIntent(config.intent);
+        if (jsonOutput) {
+          console.log(JSON.stringify(result, null, 2));
+        } else {
+          printReport(result, `config intent (base_profile: ${config.intent.base_profile})`);
+        }
+        process.exit(0);
+      }
       profile = config.profile;
     } catch (_) {}
 
     if (!profile) {
       console.error('Usage: node bin/sync-baseline-requirements.cjs --profile <web|mobile|desktop|api|cli|library>');
-      console.error('       Or set "profile" in .planning/config.json');
+      console.error('       node bin/sync-baseline-requirements.cjs --intent-file <path>');
+      console.error('       node bin/sync-baseline-requirements.cjs --detect');
+      console.error('       Or set "profile" or "intent" in .planning/config.json');
       process.exit(1);
     }
   }
@@ -204,4 +291,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { syncBaselineRequirements };
+module.exports = { syncBaselineRequirements, syncBaselineRequirementsFromIntent };
