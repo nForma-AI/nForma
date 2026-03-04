@@ -213,7 +213,8 @@ Each dispatch is independent — if one fails, continue to the next.
 
 ### 3f. R->D Gaps (residual_vector.r_to_d.residual > 0)
 
-Requirements that shipped but are not mentioned in developer docs. This is a manual-review-only gap — there is no automated remediation because documentation must be authored by humans.
+Requirements that shipped but are not mentioned in developer docs (docs/dev/).
+User docs (docs/) are human-controlled and are never auto-modified.
 
 Display the undocumented requirement IDs from `residual_vector.r_to_d.detail.undocumented_requirements`:
 
@@ -224,9 +225,30 @@ R->D: {N} requirement(s) undocumented in developer docs:
   ...
 ```
 
-Log: `"R->D: {N} requirement(s) undocumented in developer docs — manual review required"`
+Then auto-remediate by dispatching `/qgsd:quick` to generate developer doc entries:
 
-Do NOT dispatch any skill — this is informational only.
+1. Read `.formal/requirements.json` to get the text/description for each undocumented requirement ID.
+2. For each undocumented ID, identify the most relevant source file(s) by grepping the codebase for the requirement ID and its key terms (use Grep tool).
+3. Group IDs into batches of up to 10.
+4. For each batch, dispatch:
+
+```
+/qgsd:quick Generate developer doc entries for requirements {IDS}: For each requirement ID, read its text from .formal/requirements.json, read the relevant source files identified by searching for the ID and key terms, then append a new section to docs/dev/requirements-coverage.md (create the file if it does not exist). Each section must follow this format:
+
+## {REQ-ID}: {requirement title or first 80 chars of text}
+
+**Requirement:** {full requirement text}
+
+**Implementation:** {1-3 sentence summary of how the codebase satisfies this requirement, citing specific files/functions}
+
+**Source files:** {comma-separated list of relevant source files}
+
+Do NOT modify docs/ (user docs). Only write to docs/dev/requirements-coverage.md.
+```
+
+Wait for each batch to complete before dispatching the next. If a batch fails, log the failure and continue.
+
+Log: `"R->D: dispatching auto-generation for {N} requirement(s) into docs/dev/requirements-coverage.md"`
 
 ### 3g. D->C Gaps (residual_vector.d_to_c.residual > 0)
 
@@ -270,7 +292,7 @@ Compare the baseline total residual against the post-remediation total:
 
 If `--max-iterations=N` was passed and N > 1:
 - Increment iteration counter
-- Compute `automatable_residual` = r_to_f + f_to_t + c_to_f + t_to_c + f_to_c (exclude r_to_d and d_to_c which are manual-only)
+- Compute `automatable_residual` = r_to_f + f_to_t + c_to_f + t_to_c + f_to_c + r_to_d (exclude d_to_c which is manual-only)
 - If iterations < max_iterations AND automatable_residual > 0 AND at least one automatable layer changed: loop back to Step 3
 - If iterations >= max_iterations OR automatable_residual == 0 OR no automatable layer changed: proceed to Step 6
 
@@ -290,7 +312,7 @@ F -> T (Formal→Test)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
 C -> F (Code→Formal)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
 T -> C (Test→Code)         {N}    {M}    {delta}   [GREEN|YELLOW|RED]
 F -> C (Formal→Code)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-R -> D (Req→Docs)          {N}    {M}    {delta}   [MANUAL]
+R -> D (Req→Docs)          {N}    {M}    {delta}   [AUTO]
 D -> C (Docs→Code)         {N}    {M}    {delta}   [MANUAL]
 ──────────────────────────────────────────────────────────
 Total                      {N}    {M}    {delta}
@@ -321,7 +343,7 @@ T -> C Detail:
 
 If any gaps remain after convergence, append a summary of what couldn't be auto-fixed and why.
 
-Note: R->D and D->C gaps require manual review. R->D gaps mean shipped requirements are undiscoverable in docs. D->C gaps mean docs reference files, commands, or dependencies that no longer exist.
+Note: R->D gaps are auto-remediated by generating developer doc entries in docs/dev/requirements-coverage.md. D->C gaps (stale file paths, CLI commands, dependencies) require manual review.
 
 ## Step 7: Full Formal Verification Detail Table
 
