@@ -1,7 +1,7 @@
 ---
 name: qgsd:audit-milestone
 description: Audit milestone completion against original intent before archiving
-argument-hint: "[version]"
+argument-hint: "[version] [--auto]"
 allowed-tools:
   - Read
   - Glob
@@ -9,6 +9,7 @@ allowed-tools:
   - Bash
   - Task
   - Write
+  - AskUserQuestion
 ---
 <objective>
 Verify milestone achieved its definition of done. Check requirements coverage, cross-phase integration, and end-to-end flows.

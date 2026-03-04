@@ -5,8 +5,9 @@ type: execute
 wave: 1
 depends_on: []
 files_modified:
-  - commands/qgsd/auto-complete-milestone.md
-  - qgsd-core/workflows/auto-complete-milestone.md
+  - qgsd-core/workflows/audit-milestone.md
+  - qgsd-core/workflows/transition.md
+  - commands/qgsd/audit-milestone.md
 autonomous: true
 formal_artifacts: none
 requirements:
@@ -14,43 +15,49 @@ requirements:
 
 must_haves:
   truths:
-    - "Running /qgsd:auto-complete-milestone invokes audit-milestone as first step"
-    - "If audit returns gaps_found, the workflow auto-spawns plan-milestone-gaps then execute-phase for each gap phase, then re-audits"
-    - "If audit returns passed, the workflow auto-spawns complete-milestone"
-    - "A max iteration limit of 3 prevents infinite loops"
-    - "After iteration 2, a user confirmation gate requires approval to continue"
-    - "The command is installable via bin/install.js and appears as /qgsd:auto-complete-milestone"
+    - "audit-milestone.md accepts --auto flag and propagates it through the loop"
+    - "When --auto and audit returns passed, complete-milestone is auto-invoked"
+    - "When --auto and audit returns gaps_found, plan-milestone-gaps is auto-spawned, gap phases are auto-executed, then re-audit runs — looping until passed or max iterations"
+    - "When --auto and audit returns tech_debt, milestone is auto-completed (accept debt)"
+    - "A MAX_ITERATIONS=3 limit prevents infinite loops"
+    - "After iteration 2, a user confirmation gate via AskUserQuestion requires approval to continue"
+    - "transition.md passes --auto flag through to audit-milestone invocation"
   artifacts:
-    - path: "commands/qgsd/auto-complete-milestone.md"
-      provides: "Slash command entry point with YAML frontmatter"
-      contains: "qgsd:auto-complete-milestone"
-    - path: "qgsd-core/workflows/auto-complete-milestone.md"
-      provides: "Orchestration workflow with loop logic, safety limits, and routing"
-      contains: "max_iterations"
+    - path: "qgsd-core/workflows/audit-milestone.md"
+      provides: "Auto-loop logic in offer_next section"
+      contains: "MAX_ITERATIONS"
+    - path: "qgsd-core/workflows/transition.md"
+      provides: "--auto flag passthrough to audit-milestone"
+      contains: "--auto"
+    - path: "commands/qgsd/audit-milestone.md"
+      provides: "Updated argument-hint showing --auto flag"
+      contains: "--auto"
   key_links:
-    - from: "commands/qgsd/auto-complete-milestone.md"
-      to: "qgsd-core/workflows/auto-complete-milestone.md"
-      via: "execution_context reference"
-      pattern: "workflows/auto-complete-milestone\\.md"
-    - from: "qgsd-core/workflows/auto-complete-milestone.md"
-      to: "~/.claude/qgsd/workflows/audit-milestone.md"
-      via: "Task spawn referencing audit-milestone workflow"
-      pattern: "audit-milestone"
-    - from: "qgsd-core/workflows/auto-complete-milestone.md"
-      to: "~/.claude/qgsd/workflows/plan-milestone-gaps.md"
-      via: "Task spawn referencing plan-milestone-gaps workflow"
+    - from: "qgsd-core/workflows/transition.md"
+      to: "qgsd-core/workflows/audit-milestone.md"
+      via: "--auto flag passthrough in Route B yolo mode"
+      pattern: "audit-milestone.*--auto"
+    - from: "qgsd-core/workflows/audit-milestone.md"
+      to: "qgsd-core/workflows/plan-milestone-gaps.md"
+      via: "Task spawn in auto-loop"
       pattern: "plan-milestone-gaps"
-    - from: "qgsd-core/workflows/auto-complete-milestone.md"
-      to: "~/.claude/qgsd/workflows/complete-milestone.md"
-      via: "Task spawn referencing complete-milestone workflow"
+    - from: "qgsd-core/workflows/audit-milestone.md"
+      to: "qgsd-core/workflows/execute-phase.md"
+      via: "Task spawn for each gap phase"
+      pattern: "execute-phase"
+    - from: "qgsd-core/workflows/audit-milestone.md"
+      to: "qgsd-core/workflows/complete-milestone.md"
+      via: "Task spawn on passed status"
       pattern: "complete-milestone"
 ---
 
 <objective>
-Create `/qgsd:auto-complete-milestone` — an autonomous orchestrator that loops audit-milestone, plan-milestone-gaps, execute-phase cycles until the audit passes, then auto-completes the milestone.
+Extend the existing --auto pipeline to handle milestone completion autonomously.
 
-Purpose: Eliminate the manual multi-command dance of audit -> plan gaps -> execute -> re-audit -> complete. One command drives the milestone to completion autonomously with safety limits.
-Output: Command file + workflow file, installable via bin/install.js.
+Currently the --auto chain flows: plan-phase → execute-phase → transition → audit-milestone → STOP.
+After this task, audit-milestone --auto will loop: audit → [gaps?] → plan-gaps → execute → re-audit → [repeat] → complete-milestone.
+
+No new commands needed — this extends existing workflows.
 </objective>
 
 <execution_context>
@@ -61,199 +68,201 @@ Output: Command file + workflow file, installable via bin/install.js.
 <context>
 @.planning/STATE.md
 
-Existing workflow patterns to follow:
-- commands/qgsd/audit-milestone.md — command frontmatter pattern (name, description, argument-hint, allowed-tools)
-- commands/qgsd/execute-phase.md — command that references a workflow via @~/.claude/qgsd/workflows/
-- qgsd-core/workflows/audit-milestone.md — workflow structure (<purpose>, <process>, <success_criteria>)
-- qgsd-core/workflows/plan-milestone-gaps.md — Task spawning pattern for sub-workflows
-- qgsd-core/workflows/complete-milestone.md — milestone completion workflow
+Source files (in repo, NOT ~/.claude — installer copies them):
+- qgsd-core/workflows/audit-milestone.md — workflow to add --auto loop logic
+- qgsd-core/workflows/transition.md — needs --auto passthrough to audit-milestone
+- commands/qgsd/audit-milestone.md — needs --auto in argument-hint
 
-Key architectural decisions:
-- The command file (commands/qgsd/) has YAML frontmatter + references the workflow via execution_context
-- The workflow file (qgsd-core/workflows/) has the full orchestration logic
-- Sub-workflows are invoked via Task() spawns referencing the workflow .md files
-- The installer (bin/install.js) copies commands/ to ~/.claude/commands/ and qgsd-core/workflows/ to ~/.claude/qgsd/workflows/
+Key architecture:
+- transition.md Route B (yolo mode): currently invokes `SlashCommand("/qgsd:audit-milestone {version}")`
+  → needs to become `SlashCommand("/qgsd:audit-milestone {version} --auto")`
+- audit-milestone.md `<offer_next>` section: currently presents suggestions
+  → needs auto-loop when --auto flag present
 </context>
 
 <tasks>
 
 <task type="auto">
-  <name>Task 1: Create auto-complete-milestone command and workflow files</name>
+  <name>Task 1: Add --auto loop to audit-milestone workflow</name>
   <files>
-    commands/qgsd/auto-complete-milestone.md
-    qgsd-core/workflows/auto-complete-milestone.md
+    qgsd-core/workflows/audit-milestone.md
+    commands/qgsd/audit-milestone.md
   </files>
   <action>
-Create TWO files following established QGSD patterns:
+**1a. Update command file** `commands/qgsd/audit-milestone.md`:
+- Add `--auto` to argument-hint: `"[version] [--auto]"`
+- Add `AskUserQuestion` to allowed-tools list
 
-**File 1: `commands/qgsd/auto-complete-milestone.md`**
+**1b. Update workflow file** `qgsd-core/workflows/audit-milestone.md`:
 
-YAML frontmatter matching audit-milestone.md pattern:
-- name: qgsd:auto-complete-milestone
-- description: Autonomously loop audit/plan-gaps/execute until milestone passes, then complete it
-- argument-hint: "[version]"
-- allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, AskUserQuestion
-
-Objective section: Explain this is an autonomous orchestrator that drives a milestone to completion by iterating audit -> gap closure -> re-audit cycles.
-
-execution_context: Reference `@~/.claude/qgsd/workflows/auto-complete-milestone.md`
-
-context section: Version from $ARGUMENTS, Glob patterns for audit files and phase summaries.
-
-process section: "Execute the auto-complete-milestone workflow end-to-end."
-
-**File 2: `qgsd-core/workflows/auto-complete-milestone.md`**
-
-Structure with `<purpose>`, `<process>`, `<success_criteria>` sections.
-
-Purpose: Orchestrate audit-milestone -> plan-milestone-gaps -> execute-phase cycles in a loop until audit passes, with safety limits.
-
-Process steps:
-
-**Step 0 — Initialize:** Parse version from arguments or detect from ROADMAP.md. Set MAX_ITERATIONS=3, current_iteration=0.
-
-**Step 1 — Run audit-milestone:** Spawn Task:
+Add argument parsing at the top of Step 0 (Initialize Milestone Context):
 ```
-Task(
-  prompt="Run /qgsd:audit-milestone {version}
-  Follow @~/.claude/qgsd/workflows/audit-milestone.md end-to-end.
-  Return ONLY the structured result: status (passed/gaps_found/tech_debt), score (N/M), and audit file path.
-  Do NOT present offer_next routing — the caller handles routing.",
-  subagent_type="general-purpose",
-  description="Auto-complete: audit milestone {version} (iteration {N})"
-)
+Parse $ARGUMENTS for:
+- Version number (existing)
+- `--auto` flag → store as $AUTO_MODE (true/false)
+
+If $AUTO_MODE:
+  Set MAX_ITERATIONS=3
+  Set current_iteration=0
 ```
 
-**Step 2 — Route on audit status:**
+Replace the `<offer_next>` section with auto-loop logic when --auto:
 
-- **If `passed`:** Jump to Step 5 (complete milestone).
-- **If `tech_debt`:** Present tech debt summary. Ask user: "Accept debt and complete? (yes/no)". If yes, jump to Step 5. If no, treat as gaps_found.
-- **If `gaps_found`:** Increment current_iteration. Check safety limits (Step 3). If safe, proceed to Step 4.
-
-**Step 3 — Safety limits:**
-
-- If current_iteration > MAX_ITERATIONS (3): HALT. Display iteration count, remaining gaps, and instruct user to investigate manually. Do NOT continue looping.
-- If current_iteration == 2: Insert user confirmation gate via AskUserQuestion: "Iteration 2 complete, gaps remain. Continue to iteration 3? (yes/abort)". If abort, halt with current state summary.
-
-**Step 4 — Close gaps and re-audit:**
-
-4a. Spawn plan-milestone-gaps:
 ```
-Task(
-  prompt="Run /qgsd:plan-milestone-gaps
-  Audit file: .planning/v{version}-v{version}-MILESTONE-AUDIT.md
-  Milestone: {version}
-  Follow @~/.claude/qgsd/workflows/plan-milestone-gaps.md end-to-end.
-  After phases are created and planned, return the list of gap closure phase numbers.",
-  subagent_type="general-purpose",
-  description="Auto-complete: plan milestone gaps (iteration {N})"
-)
-```
+## 7. Present Results
 
-4b. For each gap closure phase returned, spawn execute-phase:
-```
-Task(
-  prompt="Run /qgsd:execute-phase {phase_number}
-  Follow @~/.claude/qgsd/workflows/execute-phase.md end-to-end.",
-  subagent_type="qgsd-executor",
-  description="Auto-complete: execute gap phase {phase_number} (iteration {N})"
-)
-```
+**If NOT $AUTO_MODE:** Use existing <offer_next> routing (unchanged).
 
-4c. After all gap phases execute, loop back to Step 1 (re-audit).
+**If $AUTO_MODE:** Enter autonomous completion loop.
 
-**Step 5 — Complete milestone:**
+### Auto-Loop Logic (only when $AUTO_MODE)
+
+**If passed:**
+  Display: "Audit passed. Auto-completing milestone..."
+  Spawn complete-milestone:
+  ```
+  Task(
+    prompt="Run /qgsd:complete-milestone {version}
+    Follow @~/.claude/qgsd/workflows/complete-milestone.md end-to-end.",
+    subagent_type="general-purpose",
+    description="Auto-complete: milestone {version}"
+  )
+  ```
+  Display final result and exit.
+
+**If tech_debt:**
+  Display: "Audit found tech debt but no blockers. Auto-completing with accepted debt..."
+  Same as passed — spawn complete-milestone.
+
+**If gaps_found:**
+  Increment current_iteration.
+
+  Safety check:
+  - If current_iteration > MAX_ITERATIONS (3): HALT. Display iteration count,
+    remaining gaps, instruct user to investigate manually. Do NOT continue.
+  - If current_iteration == 2: Insert user gate:
+    AskUserQuestion(
+      header: "Continue?",
+      question: "Iteration 2 of 3 complete, gaps remain. Continue to iteration 3?",
+      options: [
+        { label: "Yes, continue", description: "Attempt one more gap closure cycle" },
+        { label: "Abort", description: "Stop here, investigate manually" }
+      ]
+    )
+    If abort → halt with current state summary.
+
+  Pre-routing check (existing logic): classify missing phases as
+  plan_exists_not_executed vs missing_no_plan.
+
+  If ALL gaps are executable (plan_exists_not_executed):
+    Auto-execute each phase, then re-audit:
+    For each missing phase (lowest first):
+      Task(
+        prompt="Run /qgsd:execute-phase {phase} --auto",
+        subagent_type="general-purpose",
+        description="Auto-complete: execute gap phase {phase}"
+      )
+    After all execute, loop back: re-invoke audit (recursively or via loop).
+
+  If ANY phase is missing_no_plan:
+    Spawn plan-milestone-gaps:
+    Task(
+      prompt="Run /qgsd:plan-milestone-gaps --auto
+      Audit file: .planning/v{version}-v{version}-MILESTONE-AUDIT.md
+      Follow @~/.claude/qgsd/workflows/plan-milestone-gaps.md end-to-end.
+      After phases are created and the first phase is planned, execute all gap
+      phases sequentially.",
+      subagent_type="general-purpose",
+      description="Auto-complete: plan & execute milestone gaps (iteration {N})"
+    )
+
+    After plan-milestone-gaps completes (which auto-spawns plan-phase → execute):
+    Loop back: re-invoke audit.
+
+  Re-audit: Recursively re-run audit workflow from Step 1 with same --auto
+  flag and incremented iteration counter.
 ```
-Task(
-  prompt="Run /qgsd:complete-milestone {version}
-  Follow @~/.claude/qgsd/workflows/complete-milestone.md end-to-end.",
-  subagent_type="general-purpose",
-  description="Auto-complete: complete milestone {version}"
-)
-```
-
-**Step 6 — Present result:**
-Display final status: milestone version, iterations taken, audit score, completion status.
-
-Success criteria section:
-- [ ] Audit-milestone invoked as first step
-- [ ] Gaps trigger plan-milestone-gaps then execute-phase for each gap phase
-- [ ] Re-audit after gap closure
-- [ ] Passed status triggers complete-milestone
-- [ ] Max 3 iterations enforced (hard halt)
-- [ ] User confirmation gate after iteration 2
-- [ ] tech_debt status gives user choice to accept or treat as gaps
-- [ ] Final status summary presented
   </action>
   <verify>
-Verify both files exist and have correct structure:
-- `head -10 commands/qgsd/auto-complete-milestone.md` shows YAML frontmatter with name field
-- `grep -c "Task(" qgsd-core/workflows/auto-complete-milestone.md` returns at least 3 (audit, plan-gaps, execute, complete)
-- `grep "MAX_ITERATIONS\|max_iterations\|max iterations" qgsd-core/workflows/auto-complete-milestone.md` finds safety limit
-- `grep "AskUserQuestion\|user confirmation\|iteration 2" qgsd-core/workflows/auto-complete-milestone.md` finds user gate
-- `grep "audit-milestone" qgsd-core/workflows/auto-complete-milestone.md` finds audit reference
-- `grep "complete-milestone" qgsd-core/workflows/auto-complete-milestone.md` finds completion reference
+- `grep -c "AUTO_MODE\|auto_mode\|--auto" qgsd-core/workflows/audit-milestone.md` returns 5+
+- `grep "MAX_ITERATIONS" qgsd-core/workflows/audit-milestone.md` finds safety limit
+- `grep "AskUserQuestion" qgsd-core/workflows/audit-milestone.md` finds user gate
+- `grep "complete-milestone" qgsd-core/workflows/audit-milestone.md` finds auto-completion
+- `grep "\-\-auto" commands/qgsd/audit-milestone.md` finds flag in argument-hint
   </verify>
   <done>
-Both files exist with correct structure. Command has YAML frontmatter referencing workflow. Workflow has loop logic with 3 sub-workflow Task spawns (audit, plan-gaps+execute, complete), MAX_ITERATIONS=3 safety limit, user gate after iteration 2, and routing by audit status (passed/gaps_found/tech_debt).
+audit-milestone.md has --auto loop logic with 3-iteration safety limit, user gate after iteration 2,
+auto-complete on passed/tech_debt, and auto gap-closure with re-audit on gaps_found.
   </done>
 </task>
 
 <task type="auto">
-  <name>Task 2: Install command and workflow, verify end-to-end availability</name>
+  <name>Task 2: Wire --auto through transition.md and install</name>
   <files>
-    commands/qgsd/auto-complete-milestone.md
-    qgsd-core/workflows/auto-complete-milestone.md
+    qgsd-core/workflows/transition.md
   </files>
   <action>
-Run the installer to copy the new command and workflow to their installed locations:
+**2a. Update transition.md** Route B (yolo mode):
+
+In the `offer_next_phase` step, Route B, both sub-routes (LOOP-01 primary and LOOP-02 gap closure):
+
+Currently (LOOP-01 yolo):
+```
+Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version}")
+```
+
+Change to:
+```
+Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version} --auto")
+```
+
+Currently (LOOP-02 yolo):
+```
+Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version}")
+```
+
+Change to:
+```
+Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version} --auto")
+```
+
+This ensures --auto propagates from plan-phase → execute-phase → transition → audit-milestone.
+
+**2b. Run installer to deploy updated files:**
 
 ```bash
 node bin/install.js --claude --global
 ```
 
-After install, verify both files are in place:
-1. Check `~/.claude/commands/qgsd/auto-complete-milestone.md` exists and matches source
-2. Check `~/.claude/qgsd/workflows/auto-complete-milestone.md` exists and matches source
-
-If install fails or files are missing, debug the installer output and ensure the files are in the correct source directories (commands/qgsd/ and qgsd-core/workflows/).
-
-As a fallback, manually copy:
-```bash
-cp commands/qgsd/auto-complete-milestone.md ~/.claude/commands/qgsd/auto-complete-milestone.md
-cp qgsd-core/workflows/auto-complete-milestone.md ~/.claude/qgsd/workflows/auto-complete-milestone.md
-```
+Verify installed files match source.
   </action>
   <verify>
-- `test -f ~/.claude/commands/qgsd/auto-complete-milestone.md && echo "command installed"` prints "command installed"
-- `test -f ~/.claude/qgsd/workflows/auto-complete-milestone.md && echo "workflow installed"` prints "workflow installed"
-- `diff commands/qgsd/auto-complete-milestone.md ~/.claude/commands/qgsd/auto-complete-milestone.md` shows no differences (or the installed version matches)
+- `grep -c "\-\-auto" qgsd-core/workflows/transition.md` returns 2+ (both Route B paths)
+- `diff qgsd-core/workflows/audit-milestone.md ~/.claude/qgsd/workflows/audit-milestone.md` shows no diff (installed matches source)
+- `diff qgsd-core/workflows/transition.md ~/.claude/qgsd/workflows/transition.md` shows no diff
   </verify>
   <done>
-The /qgsd:auto-complete-milestone command is installed and available. Both the command entry point (~/.claude/commands/qgsd/) and the workflow logic (~/.claude/qgsd/workflows/) are in place and match the source files in the repo.
+transition.md passes --auto to audit-milestone in both Route B paths (primary and gap closure).
+All updated files installed to ~/.claude/ locations.
   </done>
 </task>
 
 </tasks>
 
 <verification>
-1. Command file has valid YAML frontmatter with name, description, argument-hint, allowed-tools
-2. Workflow file has <purpose>, <process>, <success_criteria> sections
-3. Workflow references all 4 sub-workflows: audit-milestone, plan-milestone-gaps, execute-phase, complete-milestone
-4. Safety limits: MAX_ITERATIONS=3, user gate after iteration 2
-5. Routing: passed -> complete, gaps_found -> loop, tech_debt -> user choice
-6. Both files installed and accessible as /qgsd:auto-complete-milestone
+1. audit-milestone.md parses --auto flag
+2. When --auto + passed → auto-invokes complete-milestone
+3. When --auto + gaps_found → auto plan-gaps → execute → re-audit loop
+4. When --auto + tech_debt → auto-complete (accept debt)
+5. MAX_ITERATIONS=3 prevents infinite loops
+6. User gate after iteration 2
+7. transition.md Route B passes --auto through
+8. All files installed via bin/install.js
 </verification>
 
 <success_criteria>
-- /qgsd:auto-complete-milestone command exists and is installed
-- Workflow orchestrates audit -> plan-gaps -> execute -> re-audit loop
-- Max 3 iterations with hard halt prevents infinite loops
-- User confirmation gate after iteration 2 prevents runaway automation
-- Passed audit triggers complete-milestone automatically
-- tech_debt gives user choice to accept or continue fixing
+- The --auto chain now goes all the way from plan-phase to complete-milestone
+- audit-milestone --auto loops through gap closure automatically
+- Safety limits prevent runaway automation (3 iterations max, user gate at 2)
+- No new commands needed — extends existing workflows
 </success_criteria>
-
-<output>
-After completion, create `.planning/quick/166-implement-autonomous-milestone-completio/166-SUMMARY.md`
-</output>

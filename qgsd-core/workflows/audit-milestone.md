@@ -10,6 +10,14 @@ Read all files referenced by the invoking prompt's execution_context before star
 
 ## 0. Initialize Milestone Context
 
+Parse $ARGUMENTS for:
+- Version number (optional — defaults to current milestone)
+- `--auto` flag → store as `$AUTO_MODE` (true/false)
+
+If `$AUTO_MODE`:
+  Set `MAX_ITERATIONS=3`
+  Set `current_iteration` from `--iteration N` argument (default 0)
+
 ```bash
 INIT=$(node ~/.claude/qgsd/bin/gsd-tools.cjs init milestone-op)
 ```
@@ -210,6 +218,131 @@ Route by status (see `<offer_next>`).
 </process>
 
 <offer_next>
+
+## Auto-Loop Mode ($AUTO_MODE = true)
+
+**If `$AUTO_MODE`:** Use this section instead of the interactive routing below.
+
+Display:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► AUTO-COMPLETE MILESTONE (iteration {current_iteration}/{MAX_ITERATIONS})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+◆ Audit status: {AUDIT_STATUS} ({REQUIREMENTS_SATISFIED}/{REQUIREMENTS_TOTAL} requirements)
+```
+
+### Auto: If passed
+
+Display: `◆ Audit passed — auto-completing milestone {version}...`
+
+```
+Task(
+  prompt="Run /qgsd:complete-milestone {version}
+  Follow @~/.claude/qgsd/workflows/complete-milestone.md end-to-end.",
+  subagent_type="general-purpose",
+  description="Auto-complete: milestone {version}"
+)
+```
+
+Display final result and exit.
+
+### Auto: If tech_debt
+
+Display: `◆ Audit found tech debt but no blockers — auto-completing milestone with accepted debt...`
+
+Same as passed path — spawn complete-milestone. Tech debt is tracked in MILESTONE-AUDIT.md for the next milestone.
+
+### Auto: If gaps_found
+
+Increment `current_iteration`.
+
+**Safety check — MAX_ITERATIONS:**
+
+If `current_iteration > MAX_ITERATIONS` (3):
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ QGSD ► AUTO-COMPLETE HALTED (iteration {current_iteration}/{MAX_ITERATIONS})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+◆ Max iterations reached. Remaining gaps:
+
+{list of unsatisfied requirements and integration gaps}
+
+Investigate manually:
+  cat .planning/v{version}-MILESTONE-AUDIT.md
+  /qgsd:plan-milestone-gaps
+  /qgsd:complete-milestone {version}  (accept current state)
+```
+
+HALT. Do NOT continue looping.
+
+**Safety check — User gate after iteration 2:**
+
+If `current_iteration == 2`:
+
+```
+AskUserQuestion(
+  header: "Continue?",
+  question: "Auto-complete iteration 2/3 complete — gaps remain. Continue to iteration 3?",
+  options: [
+    { label: "Yes, continue", description: "Attempt one more gap closure cycle" },
+    { label: "Abort", description: "Stop here, investigate manually" }
+  ],
+  multiSelect: false
+)
+```
+
+If "Abort" → halt with current state summary and manual next steps.
+
+**Gap closure — Pre-routing check:**
+
+Check gap classification from Step 2b:
+
+- If ALL unsatisfied requirements are from phases classified as `plan_exists_not_executed`:
+  → Display: `◆ All gap phases have plans — auto-executing...`
+  → Auto-execute each phase (lowest first):
+  ```
+  Task(
+    prompt="Run /qgsd:execute-phase {phase} --auto",
+    subagent_type="general-purpose",
+    description="Auto-complete: execute gap phase {phase} (iteration {current_iteration})"
+  )
+  ```
+  → After all execute, re-audit by invoking:
+  ```
+  SlashCommand("/qgsd:audit-milestone {version} --auto --iteration {current_iteration}")
+  ```
+
+- If ANY phase is `missing_no_plan`:
+  → Display: `◆ Gap phases need planning — auto-spawning plan-milestone-gaps...`
+  → Spawn plan-milestone-gaps:
+  ```
+  Task(
+    prompt="Run /qgsd:plan-milestone-gaps --auto
+
+  Audit file: .planning/v{version}-MILESTONE-AUDIT.md
+  Milestone: {version}
+  Missing phases (no plan): {list of missing_no_plan phase names and their unsatisfied requirements}
+
+  Follow @~/.claude/qgsd/workflows/plan-milestone-gaps.md to create gap closure phases.
+  plan-milestone-gaps Step 10 will auto-spawn plan-phase for the first gap phase.
+  After planning, execute all gap phases.",
+    subagent_type="general-purpose",
+    description="Auto-complete: plan & execute gaps (iteration {current_iteration})"
+  )
+  ```
+  → After plan-milestone-gaps completes (which triggers plan-phase → execute → transition chain):
+  → Re-audit by invoking:
+  ```
+  SlashCommand("/qgsd:audit-milestone {version} --auto --iteration {current_iteration}")
+  ```
+
+---
+
+## Interactive Mode ($AUTO_MODE = false)
+
 Output this markdown directly (not as a code block). Route based on status:
 
 **Pre-routing check (gaps_found only):** Before using the standard gaps_found output, check gap classification from Step 2b:
@@ -349,4 +482,11 @@ All requirements met. No critical blockers. Accumulated tech debt needs review.
 - [ ] Missing phases classified as plan_exists_not_executed vs missing_no_plan (Step 2b)
 - [ ] If all gaps are executable: auto-execute phases then re-audit instead of routing to plan-milestone-gaps
 - [ ] Results presented with actionable next steps
+- [ ] (--auto) `$AUTO_MODE` parsed from arguments
+- [ ] (--auto) If passed → auto-invoke complete-milestone
+- [ ] (--auto) If tech_debt → auto-invoke complete-milestone (accept debt)
+- [ ] (--auto) If gaps_found → auto plan-gaps → execute → re-audit loop
+- [ ] (--auto) MAX_ITERATIONS=3 enforced (hard halt)
+- [ ] (--auto) User confirmation gate after iteration 2
+- [ ] (--auto) Iteration counter passed via --iteration flag across re-invocations
 </success_criteria>

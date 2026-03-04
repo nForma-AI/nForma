@@ -472,7 +472,7 @@ Phase {X} marked complete.
 ⚡ Auto-continuing: Re-run milestone audit to verify gaps are closed
 ```
 
-Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version}")
+Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version} --auto")
 
 </if>
 
@@ -510,7 +510,7 @@ Phase {X} marked complete.
 ⚡ Auto-continuing: Run milestone audit before completing
 ```
 
-Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version}")
+Exit skill and invoke SlashCommand("/qgsd:audit-milestone {version} --auto")
 
 </if>
 
