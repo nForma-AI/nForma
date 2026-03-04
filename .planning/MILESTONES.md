@@ -341,3 +341,35 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.26 — Operational Completeness (Shipped: 2026-03-04)
+
+**Phases:** v0.26-01..v0.26-06 (6 phases, 11 plans)
+**Requirements:** 16/16 (PLCY-01–03, CRED-01/02, PORT-01–03, PRST-01/02, REN-03, DASH-01–03, ARCH-10, DECOMP-05)
+**Git range:** 41796066..59adc341 (90 commits, 106 files changed, +27,516/−3,318 lines)
+**Timeline:** 2026-03-03 → 2026-03-04 (2 days)
+
+**Delivered:** Closed all operational gaps in QGSD's agent management — per-slot policy configuration, batch credential rotation with persistent health status, portable roster export/import with provider presets, SDK bundling elimination with architecture linter enforcement, and cross-model decomposition analysis for formal verification state-space optimization.
+
+**Key accomplishments:**
+- Per-slot policy configuration: `validateTimeout` and `validateUpdatePolicy` pure functions with TUI integration; non-blocking `runAutoUpdateCheck` fires on startup for auto-policy slots (PLCY-01–03, v0.26-01)
+- Credential management pipeline: `probeAndPersistKey` encapsulates probe-classify-write chain; `validateRotatedKeys` fire-and-forget post-rotation validation; key_status persists to qgsd.json across sessions (CRED-01/02, v0.26-02)
+- Portable roster & presets: export replaces API keys with `__redacted__`; import validates schema and prompts for re-entry; deep-clone slot with metadata copy and key_status pruning; all `get-shit-done/` paths replaced with QGSD-native commands (PORT-01–03, PRST-01/02, REN-03, v0.26-03)
+- Health dashboard coverage: 10 DASH-tagged tests for existing v0.10-04 dashboard implementation; formal coverage registry updated (DASH-01–03, v0.26-04)
+- SDK bundling elimination: `@anthropic-ai/sdk` replaced with raw `https.request` in update-scoreboard.cjs and validate-requirements-haiku.cjs; `check-bundled-sdks.cjs` architecture linter with 17-test suite prevents re-introduction (ARCH-10, v0.26-05)
+- Cross-model decomposition: 5 pure functions for requirement-prefix extraction, source-file intersection, merged state-space estimation, and merge/interface-contract recommendations; MERGE_BUDGET at 3M states (DECOMP-05, v0.26-06)
+
+**Tests:** All existing tests GREEN, 0 regressions
+**Formal:** Audit PASSED — 16/16 requirements, 6/6 phases, 6/6 integration checks, 8/8 E2E flows
+
+**Tech debt incurred:**
+- REQUIREMENTS.md tracking was stale for PLCY-03 (corrected during audit)
+- v0.26-05 VERIFICATION.md and SUMMARY.md created during audit (phase executed in main context without subagent)
+- Source file intersection in cross-model analysis is inert (model-registry source_files arrays empty) — requirement-prefix matching is active heuristic
+- Raw HTTPS calls in update-scoreboard.cjs and validate-requirements-haiku.cjs use fail-open pattern (no retry) — intentional design
+
+**Audit:** PASSED — 16/16 requirements satisfied
+**Archive:** `.planning/milestones/v0.26-MILESTONE-AUDIT.md`
+
+---
+

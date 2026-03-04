@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.26-06",
+  "created_at": "2026-03-04T00:22:56.475Z",
+  "risk_level": "low",
+  "research": {
+    "objective": "Extend analyze-state-space.cjs to detect model pairs sharing source files or requirement prefixes, estimate merged state-space, and recommend merge or flag interface contracts",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.26-06-cross-model-decomposition/v0.26-06-01-PLAN.md",
+    "key_decisions": []
+  }
+}
