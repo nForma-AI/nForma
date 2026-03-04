@@ -59,19 +59,19 @@ const MOCK_UPDATE_AGENTS = {
   ]),
 };
 
-// ─── Mock blessed-xterm ──────────────────────────────────────────────────────
-// Returns a constructor that produces a no-op terminal widget (no real PTY).
-function MockXTerm() {
+// ─── Mock blessed-terminal.cjs ───────────────────────────────────────────────
+// Returns a constructor that produces a no-op terminal widget (no real process).
+function MockBlessedTerminal() {
   return makeWidget({
     terminate: () => {}, hide: () => {}, show: () => {},
   });
 }
 
 // ─── Inject mocks and require subject ────────────────────────────────────────
-const BLESSED_PATH       = require.resolve('blessed');
-const XTERM_PATH         = require.resolve('blessed-xterm');
-const CORE_PATH          = require.resolve('./manage-agents-core.cjs');
-const UPDATE_AGENTS_PATH = require.resolve('./update-agents.cjs');
+const BLESSED_PATH          = require.resolve('blessed');
+const BLESSED_TERMINAL_PATH = require.resolve('./blessed-terminal.cjs');
+const CORE_PATH             = require.resolve('./manage-agents-core.cjs');
+const UPDATE_AGENTS_PATH    = require.resolve('./update-agents.cjs');
 const SUBJECT_PATH       = require.resolve('./nForma.cjs');
 
 let _pure;
@@ -82,10 +82,10 @@ before(() => {
     id: BLESSED_PATH, filename: BLESSED_PATH, loaded: true,
     exports: MOCK_BLESSED,
   };
-  // Inject blessed-xterm mock (no real PTY)
-  require.cache[XTERM_PATH] = {
-    id: XTERM_PATH, filename: XTERM_PATH, loaded: true,
-    exports: MockXTerm,
+  // Inject blessed-terminal.cjs mock (no real child process)
+  require.cache[BLESSED_TERMINAL_PATH] = {
+    id: BLESSED_TERMINAL_PATH, filename: BLESSED_TERMINAL_PATH, loaded: true,
+    exports: MockBlessedTerminal,
   };
   // Inject default core mock
   require.cache[CORE_PATH] = {
@@ -104,7 +104,7 @@ before(() => {
 after(() => {
   // Clean up injected mocks so they don't bleed into other suites
   delete require.cache[BLESSED_PATH];
-  delete require.cache[XTERM_PATH];
+  delete require.cache[BLESSED_TERMINAL_PATH];
   delete require.cache[CORE_PATH];
   delete require.cache[UPDATE_AGENTS_PATH];
   delete require.cache[SUBJECT_PATH];
