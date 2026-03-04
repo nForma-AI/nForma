@@ -785,7 +785,12 @@ function sweepRtoD() {
   }
 
   // Discover doc files
-  const docFiles = discoverDocFiles();
+  const allDiscovered = discoverDocFiles();
+  // Only scan developer-category docs for R->D gap detection.
+  // User docs (category='user') are human-controlled and must not drive auto-remediation.
+  // Fall back to all docs only if no developer-category files exist (legacy setup).
+  const developerDocs = allDiscovered.filter(f => f.category === 'developer');
+  const docFiles = developerDocs.length > 0 ? developerDocs : allDiscovered;
   if (docFiles.length === 0) {
     return {
       residual: 0,
@@ -858,6 +863,7 @@ function sweepRtoD() {
       total_requirements: requirements.length,
       documented: documented,
       doc_files_scanned: docFiles.length,
+      developer_docs_only: developerDocs.length > 0,
     },
   };
 }
