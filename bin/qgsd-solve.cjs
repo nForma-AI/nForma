@@ -570,15 +570,23 @@ function sweepTtoC() {
   const output = (result.stdout || '') + (result.stderr || '');
 
   // Parse TAP output for test summary.
-  // Look for lines like: "# tests N" and "# fail M"
+  // Support both # prefix (Node <= v24) and ℹ prefix (Node v25+)
   let totalTests = 0;
   let failCount = 0;
+  let skipCount = 0;
+  let todoCount = 0;
 
-  const testsMatch = output.match(/^#\s+tests\s+(\d+)/m);
+  const testsMatch = output.match(/^[ℹ#]\s+tests\s+(\d+)/m);
   if (testsMatch) totalTests = parseInt(testsMatch[1], 10);
 
-  const failMatch = output.match(/^#\s+fail\s+(\d+)/m);
+  const failMatch = output.match(/^[ℹ#]\s+fail\s+(\d+)/m);
   if (failMatch) failCount = parseInt(failMatch[1], 10);
+
+  const skipMatch = output.match(/^[ℹ#]\s+skipped\s+(\d+)/m);
+  if (skipMatch) skipCount = parseInt(skipMatch[1], 10);
+
+  const todoMatch = output.match(/^[ℹ#]\s+todo\s+(\d+)/m);
+  if (todoMatch) todoCount = parseInt(todoMatch[1], 10);
 
   // Fallback: count "not ok" lines if summary not found
   if (failCount === 0 && totalTests === 0) {
@@ -586,14 +594,18 @@ function sweepTtoC() {
     failCount = notOkMatches.length;
     const okMatches = output.match(/^ok\s+\d+/gm) || [];
     totalTests = notOkMatches.length + okMatches.length;
+    skipCount = 0;
+    todoCount = 0;
   }
 
   return {
-    residual: failCount,
+    residual: failCount + skipCount,
     detail: {
       total_tests: totalTests,
-      passed: Math.max(0, totalTests - failCount),
+      passed: Math.max(0, totalTests - failCount - skipCount - todoCount),
       failed: failCount,
+      skipped: skipCount,
+      todo: todoCount,
     },
   };
 }
@@ -1210,12 +1222,11 @@ function formatReport(iterations, finalResidual, converged) {
   if (finalResidual.t_to_c.residual > 0) {
     lines.push('## T -> C (Tests -> Code)');
     const detail = finalResidual.t_to_c.detail;
-    lines.push(
-      'Failed tests: ' +
-        detail.failed +
-        ' / ' +
-        detail.total_tests
-    );
+    const parts = [];
+    if (detail.failed > 0) parts.push('\u2717 ' + detail.failed + ' failed');
+    if (detail.skipped > 0) parts.push('\u2298 ' + detail.skipped + ' skipped');
+    if (detail.todo > 0) parts.push('\u25F7 ' + detail.todo + ' todo');
+    lines.push('Tests: ' + parts.join(', ') + ' (of ' + detail.total_tests + ' total)');
     lines.push('');
   }
 
@@ -1419,6 +1430,7 @@ module.exports = {
   extractStructuralClaims,
   sweepRtoD,
   sweepDtoC,
+  sweepTtoC,
 };
 
 // ── Entry point ──────────────────────────────────────────────────────────────
