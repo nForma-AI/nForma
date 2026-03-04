@@ -16,7 +16,14 @@ const fs   = require('fs');
 const path = require('path');
 
 const TAG = '[check-coverage-guard]';
-const ROOT = path.resolve(__dirname, '..');
+let ROOT = process.cwd();
+
+// Parse --project-root (overrides CWD-based ROOT for cross-repo usage)
+for (const arg of process.argv.slice(2)) {
+  if (arg.startsWith('--project-root=')) {
+    ROOT = path.resolve(arg.slice('--project-root='.length));
+  }
+}
 
 const MATRIX_PATH   = process.env.COVERAGE_GUARD_MATRIX_PATH || path.join(ROOT, '.formal', 'traceability-matrix.json');
 const BASELINE_PATH = process.env.COVERAGE_GUARD_BASELINE_PATH || path.join(ROOT, '.formal', 'traceability-matrix.baseline.json');

@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-03T21:49:09.367Z",
-  "content_hash": "48c8ab800ec57142",
-  "frozen_at": "2026-03-03T21:49:09.368Z",
+  "aggregated_at": "2026-03-04T08:30:28.218Z",
+  "content_hash": "e0e05125e7d1b078",
+  "frozen_at": "2026-03-04T08:30:28.220Z",
   "requirements": [
     {
       "id": "ACT-01",
@@ -1169,6 +1169,18 @@
       "formal_models": [
         ".formal/tla/QGSDInstallerIdempotency.tla"
       ]
+    },
+    {
+      "id": "INST-11",
+      "text": "Bin scripts resolve ROOT from process.cwd() (the invoking project directory) rather than __dirname (the script install location). __dirname resolves to ~/.claude/ when installed, breaking all .formal/ and .planning/ path lookups. The --project-root= flag provides an explicit override but the default must be process.cwd().",
+      "category": "Installation & Toolchain",
+      "phase": "v0.26-quick",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.26"
+      },
+      "background": "When scripts are installed to ~/.claude/bin/, __dirname becomes ~/.claude/bin/ and path.resolve(__dirname, ..) gives ~/.claude/ — not the users project directory. This caused R->F, F->T, and C->F layer transitions to report UNKNOWN in cross-repo usage."
     },
     {
       "id": "KEY-01",

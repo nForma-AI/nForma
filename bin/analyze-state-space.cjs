@@ -20,7 +20,14 @@ const fs   = require('fs');
 const path = require('path');
 
 const TAG = '[analyze-state-space]';
-const ROOT = path.resolve(__dirname, '..');
+let ROOT = process.cwd();
+
+// Parse --project-root (overrides CWD-based ROOT for cross-repo usage)
+for (const arg of process.argv.slice(2)) {
+  if (arg.startsWith('--project-root=')) {
+    ROOT = path.resolve(arg.slice('--project-root='.length));
+  }
+}
 
 const REGISTRY_PATH = path.join(ROOT, '.formal', 'model-registry.json');
 const TLA_DIR       = path.join(ROOT, '.formal', 'tla');
