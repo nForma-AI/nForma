@@ -86,9 +86,10 @@ None. All v0.26 phases complete.
 | 153 | Create bin/sync-baseline-requirements.cjs — idempotent merge of baseline requirements into existing .formal/requirements.json, matching on text description | 2026-03-04 | 7a70a337 | Verified | [153-create-bin-sync-baseline-requirements-cj](./quick/153-create-bin-sync-baseline-requirements-cj/) |
 | 154 | Wire sync-baseline-requirements into QGSD: create /qgsd:sync-baselines skill, add sync call to new-milestone and new-project workflows | 2026-03-04 | 8232d7b5 | Pending | [154-wire-sync-baseline-requirements-into-qgs](./quick/154-wire-sync-baseline-requirements-into-qgs/) |
 | 156 | Add Sessions module to nForma with blessed-xterm for embedded Claude Code terminal sessions | 2026-03-04 | 818e3443 | Verified | [156-add-sessions-module-to-nforma-with-bless](./quick/156-add-sessions-module-to-nforma-with-bless/) |
+| 157 | Implement intent-driven baseline requirements pack system | 2026-03-04 | 75c9a2d8 | Pending | [157-implement-intent-driven-baseline-require](./quick/157-implement-intent-driven-baseline-require/) |
 
 ## Session Continuity
 
-Last activity: 2026-03-04 - Completed quick task 156: Add Sessions module to nForma with blessed-xterm
-Stopped at: Completed quick-156
-Resume file: .planning/quick/156-add-sessions-module-to-nforma-with-bless/156-SUMMARY.md
+Last activity: 2026-03-04 - Completed quick task 157: Implement intent-driven baseline requirements pack system
+Stopped at: Completed quick-157
+Resume file: .planning/quick/157-implement-intent-driven-baseline-require/157-SUMMARY.md
