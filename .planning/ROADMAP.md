@@ -116,9 +116,9 @@ Plans:
   5. P->F remediation dispatches `/qgsd:quick` tasks to update formal model parameters or flags investigation when production has regressed
 **Plans**: 3 plans
 Plans:
-- [ ] v0.27-01-01-PLAN.md — Schema definition, validation, and state machine (DEBT-01, DEBT-03)
-- [ ] v0.27-01-02-PLAN.md — Issue and drift fingerprinting algorithms (FP-01, FP-02)
-- [ ] v0.27-01-03-PLAN.md — Ledger I/O, retention policy, and integration test (DEBT-04)
+- [ ] v0.27-05-01-PLAN.md — sweepPtoF core sweep + helpers (compareDrift, extractFormalExpected, isNumericThreshold) (PF-01, PF-02, PF-03)
+- [ ] v0.27-05-02-PLAN.md — autoClosePtoF remediation dispatch with freeze semantics (PF-04, PF-05)
+- [ ] v0.27-05-03-PLAN.md — Integration into qgsd-solve.cjs + end-to-end test (PF-01..PF-05)
 
 ## Progress
 
