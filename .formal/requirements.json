@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-04T13:06:37.485Z",
-  "content_hash": "552ce06982e6236e",
-  "frozen_at": "2026-03-04T13:06:37.485Z",
+  "aggregated_at": "2026-03-04T18:50:21.077899Z",
+  "content_hash": "fff3d80bc609862f",
+  "frozen_at": "2026-03-04T18:50:21.078078Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -21,7 +21,7 @@
     },
     {
       "id": "ACT-02",
-      "text": "Activity schema: `{ activity, sub_activity, phase?, plan?, wave?, debug_round?, checkpoint?, quorum_round?, updated }` — all fields except `activity` and `updated` are optional; unknown fields are preserved",
+      "text": "Activity schema: `{ activity, sub_activity, phase?, plan?, wave?, debug_round?, checkpoint?, quorum_round?, updated }` \u2014 all fields except `activity` and `updated` are optional; unknown fields are preserved",
       "category": "Planning & Tracking",
       "phase": "unknown",
       "status": "Complete",
@@ -51,7 +51,7 @@
     },
     {
       "id": "ACT-04",
-      "text": "`resume-work` reads current-activity.json and routes to the exact recovery point — displaying the interrupted state before resuming execution",
+      "text": "`resume-work` reads current-activity.json and routes to the exact recovery point \u2014 displaying the interrupted state before resuming execution",
       "category": "Planning & Tracking",
       "phase": "unknown",
       "status": "Complete",
@@ -153,7 +153,7 @@
     },
     {
       "id": "AGT-01",
-      "text": "Subagents spawned by QGSD skills MUST loop autonomously until a terminal condition is reached. Valid terminal conditions: (1) success — the goal is verifiably met, (2) iteration cap exhausted (default max 5), (3) unrecoverable — all available paths are low-confidence or unavailable. Returning a message instructing the user to \"run again\" or \"re-invoke\" instead of looping is a violation.",
+      "text": "Subagents spawned by QGSD skills MUST loop autonomously until a terminal condition is reached. Valid terminal conditions: (1) success \u2014 the goal is verifiably met, (2) iteration cap exhausted (default max 5), (3) unrecoverable \u2014 all available paths are low-confidence or unavailable. Returning a message instructing the user to \"run again\" or \"re-invoke\" instead of looping is a violation.",
       "category": "Agent Behavior",
       "phase": "unknown",
       "status": "Pending",
@@ -434,7 +434,7 @@
     },
     {
       "id": "CONF-01",
-      "text": "Global config at `~/.claude/qgsd.json` — installed once, applies to all projects",
+      "text": "Global config at `~/.claude/qgsd.json` \u2014 installed once, applies to all projects",
       "category": "Configuration",
       "phase": "unknown",
       "status": "Complete",
@@ -446,7 +446,7 @@
     },
     {
       "id": "CONF-02",
-      "text": "Per-project override at `.claude/qgsd.json` — merged with global, project values take precedence",
+      "text": "Per-project override at `.claude/qgsd.json` \u2014 merged with global, project values take precedence",
       "category": "Configuration",
       "phase": "unknown",
       "status": "Complete",
@@ -482,7 +482,7 @@
     },
     {
       "id": "CONF-05",
-      "text": "Config validates on read — malformed config falls back to hardcoded defaults with warning",
+      "text": "Config validates on read \u2014 malformed config falls back to hardcoded defaults with warning",
       "category": "Configuration",
       "phase": "unknown",
       "status": "Complete",
@@ -494,7 +494,7 @@
     },
     {
       "id": "CONF-06",
-      "text": "qgsd.json schema extended with `circuit_breaker.oscillation_depth` (integer, default: 3) — minimum commits touching same file set to trigger breaker",
+      "text": "qgsd.json schema extended with `circuit_breaker.oscillation_depth` (integer, default: 3) \u2014 minimum commits touching same file set to trigger breaker",
       "category": "Configuration",
       "phase": "unknown",
       "status": "Complete",
@@ -509,7 +509,7 @@
     },
     {
       "id": "CONF-07",
-      "text": "qgsd.json schema extended with `circuit_breaker.commit_window` (integer, default: 6) — number of recent commits to analyze",
+      "text": "qgsd.json schema extended with `circuit_breaker.commit_window` (integer, default: 6) \u2014 number of recent commits to analyze",
       "category": "Configuration",
       "phase": "unknown",
       "status": "Complete",
@@ -724,11 +724,11 @@
     },
     {
       "id": "DECOMP-05",
-      "text": "`analyze-state-space.cjs` identifies model pairs sharing source files or requirement prefixes, estimates the merged state space, and recommends merge when combined TLC runtime < 5 minutes — or flags the interface contract needed when merge would exceed the time budget",
+      "text": "`analyze-state-space.cjs` identifies model pairs sharing source files or requirement prefixes, estimates the merged state space, and recommends merge when combined TLC runtime < 5 minutes \u2014 or flags the interface contract needed when merge would exceed the time budget",
       "category": "Planning & Tracking",
       "phase": "v0.26-01",
       "status": "Pending",
-      "background": "If a bug or instability can cross the boundary of two models, those models should be merged — unless the merged model would be computationally infeasible (>5 min TLC budget). When merge is infeasible, explicit assume-guarantee interface contracts are required between the models.",
+      "background": "If a bug or instability can cross the boundary of two models, those models should be merged \u2014 unless the merged model would be computationally infeasible (>5 min TLC budget). When merge is infeasible, explicit assume-guarantee interface contracts are required between the models.",
       "provenance": {
         "source_file": "manual",
         "milestone": "v0.26"
@@ -769,7 +769,7 @@
     },
     {
       "id": "DETECT-03",
-      "text": "Hook identifies oscillation when the exact same file set (strict set equality, not intersection) appears in ≥ oscillation_depth of the last commit_window commits — strict equality prevents false positives during TDD cycles where different files are touched per commit",
+      "text": "Hook identifies oscillation when the exact same file set (strict set equality, not intersection) appears in \u2265 oscillation_depth of the last commit_window commits \u2014 strict equality prevents false positives during TDD cycles where different files are touched per commit",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -1122,7 +1122,7 @@
     },
     {
       "id": "INST-02",
-      "text": "QGSD's package.json pins GSD version — version lockstep ensures hook compatibility",
+      "text": "QGSD's package.json pins GSD version \u2014 version lockstep ensures hook compatibility",
       "category": "Installer & CLI",
       "phase": "unknown",
       "status": "Complete",
@@ -1137,7 +1137,7 @@
     },
     {
       "id": "INST-03",
-      "text": "Installer writes hooks to `~/.claude/settings.json` directly (not plugin.json hooks — stdout is silently discarded per GitHub #10225)",
+      "text": "Installer writes hooks to `~/.claude/settings.json` directly (not plugin.json hooks \u2014 stdout is silently discarded per GitHub #10225)",
       "category": "Installer & CLI",
       "phase": "unknown",
       "status": "Complete",
@@ -1182,7 +1182,7 @@
     },
     {
       "id": "INST-06",
-      "text": "Installer is idempotent — running `npx qgsd@latest` again updates hooks and config without duplicating entries",
+      "text": "Installer is idempotent \u2014 running `npx qgsd@latest` again updates hooks and config without duplicating entries",
       "category": "Installer & CLI",
       "phase": "unknown",
       "status": "Complete",
@@ -1265,7 +1265,7 @@
         "source_file": "manual",
         "milestone": "v0.26"
       },
-      "background": "When scripts are installed to ~/.claude/bin/, __dirname becomes ~/.claude/bin/ and path.resolve(__dirname, ..) gives ~/.claude/ — not the users project directory. This caused R->F, F->T, and C->F layer transitions to report UNKNOWN in cross-repo usage."
+      "background": "When scripts are installed to ~/.claude/bin/, __dirname becomes ~/.claude/bin/ and path.resolve(__dirname, ..) gives ~/.claude/ \u2014 not the users project directory. This caused R->F, F->T, and C->F layer transitions to report UNKNOWN in cross-repo usage."
     },
     {
       "id": "INST-12",
@@ -1658,6 +1658,18 @@
       }
     },
     {
+      "id": "NAV-03",
+      "text": "Sessions terminal widget uses pure-JavaScript @xterm/headless terminal emulation with child_process.spawn, eliminating native addon dependencies and enabling compatibility across all Node.js versions",
+      "category": "TUI Navigation",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The original blessed-xterm widget depends on node-pty, a native C++ addon causing ABI mismatch errors on Node.js upgrades. Replacing it with @xterm/headless (pure JavaScript ANSI/VT100 parser) and standard child_process.spawn eliminates the native addon requirement, making nforma portable across all Node versions without recompilation.",
+      "provenance": {
+        "source_file": ".planning/quick/161-replace-blessed-xterm-node-pty-with-pure/161-PLAN.md",
+        "milestone": "quick-161"
+      }
+    },
+    {
       "id": "OBS-01",
       "text": "Each quorum round emits structured telemetry (slot, round, verdict, latency_ms, provider status) to a per-session log file",
       "category": "Observability & Diagnostics",
@@ -1760,7 +1772,7 @@
     },
     {
       "id": "ORES-03",
-      "text": "Quorum deliberates (R3.3, up to 4 rounds) and may only approve unified solutions — partial/incremental fixes are rejected",
+      "text": "Quorum deliberates (R3.3, up to 4 rounds) and may only approve unified solutions \u2014 partial/incremental fixes are rejected",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -1850,7 +1862,7 @@
     },
     {
       "id": "PLCY-01",
-      "text": "User can set quorum timeout (ms) per slot from a dedicated menu shortcut — not buried inside editAgent",
+      "text": "User can set quorum timeout (ms) per slot from a dedicated menu shortcut \u2014 not buried inside editAgent",
       "category": "Configuration",
       "phase": "v0.10-05",
       "status": "Pending",
@@ -1886,7 +1898,7 @@
     },
     {
       "id": "PORT-01",
-      "text": "User can export full roster config to a portable JSON file — all API key values replaced with `__redacted__` placeholders",
+      "text": "User can export full roster config to a portable JSON file \u2014 all API key values replaced with `__redacted__` placeholders",
       "category": "Installer & CLI",
       "phase": "v0.10-06",
       "status": "Pending",
@@ -1901,7 +1913,7 @@
     },
     {
       "id": "PORT-02",
-      "text": "User can import roster config from JSON file — validates schema, prompts to re-enter any redacted key, confirms before applying",
+      "text": "User can import roster config from JSON file \u2014 validates schema, prompts to re-enter any redacted key, confirms before applying",
       "category": "Installer & CLI",
       "phase": "v0.10-06",
       "status": "Pending",
@@ -1982,7 +1994,7 @@
     },
     {
       "id": "PRST-02",
-      "text": "User can clone an existing slot — copies provider URL and model config, prompts for new slot name",
+      "text": "User can clone an existing slot \u2014 copies provider URL and model config, prompts for new slot name",
       "category": "Installer & CLI",
       "phase": "unknown",
       "status": "Pending",
@@ -2041,7 +2053,7 @@
     },
     {
       "id": "RECV-01",
-      "text": "`npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation — enables manual recovery when circuit breaker deadlocks due to blocked git commit",
+      "text": "`npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation \u2014 enables manual recovery when circuit breaker deadlocks due to blocked git commit",
       "category": "Testing & Quality",
       "phase": "unknown",
       "status": "Complete",
@@ -2101,7 +2113,7 @@
     },
     {
       "id": "REL-01",
-      "text": "Failures in external services (APIs, databases, third-party SDKs) are caught and handled gracefully — the application degrades functionality rather than crashing",
+      "text": "Failures in external services (APIs, databases, third-party SDKs) are caught and handled gracefully \u2014 the application degrades functionality rather than crashing",
       "category": "Reliability",
       "phase": "baseline",
       "status": "Pending",
@@ -2154,7 +2166,7 @@
     },
     {
       "id": "SCBD-01",
-      "text": "Scoreboard tracks performance by slot name (`claude-1`, `copilot-1`) — slot is the stable key",
+      "text": "Scoreboard tracks performance by slot name (`claude-1`, `copilot-1`) \u2014 slot is the stable key",
       "category": "Observability & Diagnostics",
       "phase": "unknown",
       "status": "Complete",
@@ -2288,7 +2300,7 @@
     },
     {
       "id": "SENS-01",
-      "text": "`bin/run-sensitivity-sweep.cjs` varies key model parameters (at minimum: quorum size N across its full range, timeout threshold T across low/medium/high values) across ≥3 values each, running TLA+/PRISM checks for each configuration, and records outcome deltas (pass→fail, pass→inconclusive transitions) in `.formal/sensitivity-report.ndjson` using v2.1 schema — each record annotated with which parameter value caused the transition.",
+      "text": "`bin/run-sensitivity-sweep.cjs` varies key model parameters (at minimum: quorum size N across its full range, timeout threshold T across low/medium/high values) across \u22653 values each, running TLA+/PRISM checks for each configuration, and records outcome deltas (pass\u2192fail, pass\u2192inconclusive transitions) in `.formal/sensitivity-report.ndjson` using v2.1 schema \u2014 each record annotated with which parameter value caused the transition.",
       "category": "Formal Verification",
       "phase": "v0.20-08",
       "status": "Complete",
@@ -2318,7 +2330,7 @@
     },
     {
       "id": "SENS-03",
-      "text": "`bin/sensitivity-report.cjs` generates `.formal/sensitivity-report.md` — a human-readable ranked list of sensitive parameters by outcome-flip count, each annotated with (a) the code path or configuration variable that controls it, (b) recommended unit/integration test cases for boundary values, (c) recommended monitoring metrics to track in production.",
+      "text": "`bin/sensitivity-report.cjs` generates `.formal/sensitivity-report.md` \u2014 a human-readable ranked list of sensitive parameters by outcome-flip count, each annotated with (a) the code path or configuration variable that controls it, (b) recommended unit/integration test cases for boundary values, (c) recommended monitoring metrics to track in production.",
       "category": "Formal Verification",
       "phase": "v0.20-08",
       "status": "Complete",
@@ -2436,11 +2448,11 @@
     },
     {
       "id": "SOLVE-01",
-      "text": "Execute `/qgsd:solve` command to sweep all 7 layer transitions (Requirements→Formal, Formal→Tests, Code→Formal, Tests→Code, Formal→Code, Requirements→Docs, Docs→Code) and compute residual vectors showing gaps at each boundary, with optional auto-closing of gaps through iteration until convergence",
+      "text": "Execute `/qgsd:solve` command to sweep all 7 layer transitions (Requirements\u2192Formal, Formal\u2192Tests, Code\u2192Formal, Tests\u2192Code, Formal\u2192Code, Requirements\u2192Docs, Docs\u2192Code) and compute residual vectors showing gaps at each boundary, with optional auto-closing of gaps through iteration until convergence",
       "category": "Formal Verification",
       "phase": "unknown",
       "status": "Complete",
-      "background": "The consistency solver provides a single command for diagnosing and fixing all verification layer gaps across the Requirements→Formal→Tests→Code stack. It replaces the need to manually run individual verification tools and cross-reference their outputs.",
+      "background": "The consistency solver provides a single command for diagnosing and fixing all verification layer gaps across the Requirements\u2192Formal\u2192Tests\u2192Code stack. It replaces the need to manually run individual verification tools and cross-reference their outputs.",
       "provenance": {
         "source_file": ".planning/quick/140-implement-qgsd-solve-consistency-solver-/140-PLAN.md",
         "milestone": "quick-140"
@@ -2466,11 +2478,11 @@
     },
     {
       "id": "SOLVE-03",
-      "text": "Solver discovers documentation files via config (docs_paths in .planning/config.json) with convention fallback (README.md, docs/**/*.md), checks R→D coverage by literal ID and keyword matching, and verifies D→C structural claims (file paths, CLI commands, dependencies) with false-positive filtering for template variables, example headings, home paths, and fenced code blocks",
+      "text": "Solver discovers documentation files via config (docs_paths in .planning/config.json) with convention fallback (README.md, docs/**/*.md), checks R\u2192D coverage by literal ID and keyword matching, and verifies D\u2192C structural claims (file paths, CLI commands, dependencies) with false-positive filtering for template variables, example headings, home paths, and fenced code blocks",
       "category": "Formal Verification",
       "phase": "unknown",
       "status": "Complete",
-      "background": "The solver had zero visibility into documentation consistency. A README could list commands that don't exist, reference deleted files, or omit shipped features — and /qgsd:solve would report all-green. R→D and D→C are manual-review-only layers (no auto-fix) that surface documentation drift.",
+      "background": "The solver had zero visibility into documentation consistency. A README could list commands that don't exist, reference deleted files, or omit shipped features \u2014 and /qgsd:solve would report all-green. R\u2192D and D\u2192C are manual-review-only layers (no auto-fix) that surface documentation drift.",
       "provenance": {
         "source_file": ".planning/quick/143-add-r-to-d-and-d-to-c-layer-transitions-/143-PLAN.md",
         "milestone": "quick-143"
@@ -2496,7 +2508,7 @@
     },
     {
       "id": "SPEC-03",
-      "text": "Quorum composition verified in `quorum-composition.als` — 3 composition rules hold",
+      "text": "Quorum composition verified in `quorum-composition.als` \u2014 3 composition rules hold",
       "category": "Formal Verification",
       "phase": "v0.21-04",
       "status": "Complete",
@@ -2541,7 +2553,7 @@
     },
     {
       "id": "STATE-02",
-      "text": "State schema: `{ active, file_set[], activated_at, commit_window_snapshot[] }` — captures what triggered the breaker",
+      "text": "State schema: `{ active, file_set[], activated_at, commit_window_snapshot[] }` \u2014 captures what triggered the breaker",
       "category": "Planning & Tracking",
       "phase": "unknown",
       "status": "Complete",
@@ -2556,7 +2568,7 @@
     },
     {
       "id": "STATE-03",
-      "text": "Hook reads existing state first — if active, applies enforcement immediately without re-running git log detection",
+      "text": "Hook reads existing state first \u2014 if active, applies enforcement immediately without re-running git log detection",
       "category": "Planning & Tracking",
       "phase": "unknown",
       "status": "Complete",
@@ -2586,7 +2598,7 @@
     },
     {
       "id": "STD-10",
-      "text": "gemini-mcp-server npm package name is unscoped (`gemini-mcp-server`, not `@tuannvm/gemini-mcp-server`) — `~/.claude.json` mcpServers[\"gemini-cli\"].args reflects the unscoped name",
+      "text": "gemini-mcp-server npm package name is unscoped (`gemini-mcp-server`, not `@tuannvm/gemini-mcp-server`) \u2014 `~/.claude.json` mcpServers[\"gemini-cli\"].args reflects the unscoped name",
       "category": "Testing & Quality",
       "phase": "unknown",
       "status": "Complete",
@@ -2616,7 +2628,7 @@
     },
     {
       "id": "STOP-02",
-      "text": "Stop hook checks `stop_hook_active` flag first — if true, exits 0 immediately (infinite loop prevention)",
+      "text": "Stop hook checks `stop_hook_active` flag first \u2014 if true, exits 0 immediately (infinite loop prevention)",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -2631,7 +2643,7 @@
     },
     {
       "id": "STOP-03",
-      "text": "Stop hook checks `hook_event_name` — if `SubagentStop`, exits 0 immediately (subagent exclusion)",
+      "text": "Stop hook checks `hook_event_name` \u2014 if `SubagentStop`, exits 0 immediately (subagent exclusion)",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -2646,7 +2658,7 @@
     },
     {
       "id": "STOP-04",
-      "text": "Stop hook scopes transcript search to current turn only (lines since last user message boundary) — survives context compaction",
+      "text": "Stop hook scopes transcript search to current turn only (lines since last user message boundary) \u2014 survives context compaction",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -2661,7 +2673,7 @@
     },
     {
       "id": "STOP-05",
-      "text": "Stop hook reads transcript JSONL as the authoritative source of quorum evidence — no fast-path pre-check (design decision: last_assistant_message substring matching is not a reliable signal; JSONL parse is synchronous and correct for all transcript sizes)",
+      "text": "Stop hook reads transcript JSONL as the authoritative source of quorum evidence \u2014 no fast-path pre-check (design decision: last_assistant_message substring matching is not a reliable signal; JSONL parse is synchronous and correct for all transcript sizes)",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -2691,7 +2703,7 @@
     },
     {
       "id": "STOP-07",
-      "text": "Stop hook blocks with `{\"decision\": \"block\", \"reason\": \"...\"}` when quorum is missing — reason includes exact tool names and instructions",
+      "text": "Stop hook blocks with `{\"decision\": \"block\", \"reason\": \"...\"}` when quorum is missing \u2014 reason includes exact tool names and instructions",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -2778,7 +2790,7 @@
     },
     {
       "id": "SYNC-04",
-      "text": "No QGSD code modifies any GSD source files — all additions are in separate files (`hooks/qgsd-stop.js`, `hooks/qgsd-prompt.js`, `bin/qgsd-install.js`)",
+      "text": "No QGSD code modifies any GSD source files \u2014 all additions are in separate files (`hooks/qgsd-stop.js`, `hooks/qgsd-prompt.js`, `bin/qgsd-install.js`)",
       "category": "Planning & Tracking",
       "phase": "unknown",
       "status": "Complete",
@@ -2904,7 +2916,7 @@
     },
     {
       "id": "UNIF-01",
-      "text": "All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`",
+      "text": "All FV checkers append normalized JSON to `check-results.ndjson` \u2014 `{ tool, check_id, result, detail, ts }`",
       "category": "Quorum & Dispatch",
       "phase": "v0.19-01",
       "status": "Complete",
@@ -2961,7 +2973,7 @@
     },
     {
       "id": "UPPAAL-01",
-      "text": "A UPPAAL timed automaton model (`.formal/uppaal/quorum-races.xml`) captures the concurrency structure of the quorum protocol — specifically when concurrent slot responses and timeout expirations fire relative to each other. The model uses `runtime_ms` bounds from `check-results.ndjson` as empirical timing constraints (clock guards and invariants), not hardcoded constants.",
+      "text": "A UPPAAL timed automaton model (`.formal/uppaal/quorum-races.xml`) captures the concurrency structure of the quorum protocol \u2014 specifically when concurrent slot responses and timeout expirations fire relative to each other. The model uses `runtime_ms` bounds from `check-results.ndjson` as empirical timing constraints (clock guards and invariants), not hardcoded constants.",
       "category": "Formal Verification",
       "phase": "v0.20-07",
       "status": "Complete",
@@ -3033,7 +3045,7 @@
     },
     {
       "id": "UPS-03",
-      "text": "UserPromptSubmit hook injects quorum instructions via `hookSpecificOutput.additionalContext` (not systemMessage — goes into Claude's context window)",
+      "text": "UserPromptSubmit hook injects quorum instructions via `hookSpecificOutput.additionalContext` (not systemMessage \u2014 goes into Claude's context window)",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -3141,7 +3153,7 @@
     },
     {
       "id": "VIS-01",
-      "text": "`/qgsd:health` surfaces W008 warning when a quorum slot has ≥3 failures recorded in `quorum-failures.json`",
+      "text": "`/qgsd:health` surfaces W008 warning when a quorum slot has \u22653 failures recorded in `quorum-failures.json`",
       "category": "Observability & Diagnostics",
       "phase": "unknown",
       "status": "Complete",
