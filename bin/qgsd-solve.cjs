@@ -151,19 +151,51 @@ function walkDir(dir, maxDepth, currentDepth) {
 }
 
 /**
- * Discover documentation files based on .planning/config.json docs_paths
- * or fallback patterns. Returns array of absolute paths.
+ * Discover documentation files based on:
+ *   1. .planning/polyrepo.json docs field (preferred — knows user vs developer vs examples)
+ *   2. .planning/config.json docs_paths (legacy)
+ *   3. Fallback patterns: README.md, docs/**/*.md
+ * Returns array of absolute paths.
  */
 function discoverDocFiles() {
   let docPatterns = ['README.md', 'docs/**/*.md'];
-  const configPath = path.join(ROOT, '.planning', 'config.json');
+
+  // Prefer polyrepo marker docs field
+  const markerPath = path.join(ROOT, '.planning', 'polyrepo.json');
   try {
-    const configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    if (Array.isArray(configData.docs_paths) && configData.docs_paths.length > 0) {
-      docPatterns = configData.docs_paths;
+    const marker = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
+    if (marker.docs && typeof marker.docs === 'object') {
+      const patterns = [];
+      for (const [, docPath] of Object.entries(marker.docs)) {
+        if (typeof docPath !== 'string') continue;
+        // If it ends with / treat as directory glob, otherwise treat as literal file
+        if (docPath.endsWith('/')) {
+          patterns.push(docPath + '**/*.md');
+        } else {
+          patterns.push(docPath);
+        }
+      }
+      if (patterns.length > 0) {
+        // Always include README.md at root
+        patterns.unshift('README.md');
+        docPatterns = patterns;
+      }
     }
   } catch (e) {
-    // Use defaults
+    // No marker or malformed — fall through to config.json
+  }
+
+  // Fall back to config.json docs_paths if marker didn't provide patterns
+  if (docPatterns[0] === 'README.md' && docPatterns.length === 2 && docPatterns[1] === 'docs/**/*.md') {
+    const configPath = path.join(ROOT, '.planning', 'config.json');
+    try {
+      const configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (Array.isArray(configData.docs_paths) && configData.docs_paths.length > 0) {
+        docPatterns = configData.docs_paths;
+      }
+    } catch (e) {
+      // Use defaults
+    }
   }
 
   const found = new Set();
