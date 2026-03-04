@@ -151,9 +151,14 @@ function main() {
   ];
 
   process.stderr.write(TAG + ' Running: ' + verifytaBin + ' ' + args.join(' ') + '\n');
-  const result = spawnSync(verifytaBin, args, { stdio: 'inherit', encoding: 'utf8' });
+  const result = spawnSync(verifytaBin, args, { stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8' });
 
   const runtimeMs = Date.now() - startMs;
+  const combinedOutput = (result.stdout || '') + (result.stderr || '');
+
+  // Stream output for visibility
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
 
   if (result.error) {
     process.stderr.write(TAG + ' Launch error: ' + result.error.message + '\n');
@@ -165,6 +170,72 @@ function main() {
       triage_tags: ['verifyta-error'],
       requirement_ids: getRequirementIds(CHECK_ID),
       metadata: { bounds },
+    });
+    process.exit(0);
+  }
+
+  // Detect UPPAAL 5.x license requirement (free academic license changed in 5.0)
+  if (combinedOutput.includes('License does not cover verifier') ||
+      combinedOutput.includes('license key is not set')) {
+    process.stderr.write(
+      TAG + ' UPPAAL 5.x requires a free academic license key.\n' +
+      TAG + '   Register at: https://uppaal.org/academic/ \n' +
+      TAG + '   Then set: export UPPAAL_LICENSE_FILE=/path/to/license.key\n'
+    );
+    writeCheckResult({
+      tool: 'run-uppaal', formalism: 'uppaal', result: 'inconclusive',
+      check_id: CHECK_ID, surface: SURFACE, property: PROPERTY,
+      runtime_ms: runtimeMs,
+      summary: 'inconclusive: UPPAAL 5.x license required — register at uppaal.org/academic/',
+      triage_tags: ['needs-license'],
+      requirement_ids: getRequirementIds(CHECK_ID),
+      metadata: { bounds },
+    });
+    process.exit(0);
+  }
+
+  // Detect --disable-memory-reduction duplicate option bug (UPPAAL 5.0.0 bug with -C flags)
+  if (combinedOutput.includes('--disable-memory-reduction') &&
+      combinedOutput.includes('cannot be specified more than once')) {
+    process.stderr.write(
+      TAG + ' Known UPPAAL 5.0.0 bug: -C flags trigger duplicate --disable-memory-reduction.\n' +
+      TAG + ' Workaround: set constants in the XML model directly instead of via -C.\n'
+    );
+    writeCheckResult({
+      tool: 'run-uppaal', formalism: 'uppaal', result: 'inconclusive',
+      check_id: CHECK_ID, surface: SURFACE, property: PROPERTY,
+      runtime_ms: runtimeMs,
+      summary: 'inconclusive: UPPAAL 5.0.0 -C flag bug — falling back to XML-embedded constants',
+      triage_tags: ['uppaal-bug'],
+      requirement_ids: getRequirementIds(CHECK_ID),
+      metadata: { bounds },
+    });
+    // Retry without -C flags — use the XML-embedded default constants
+    process.stderr.write(TAG + ' Retrying without -C flags...\n');
+    const retryArgs = [modelPath, queryPath];
+    const retry = spawnSync(verifytaBin, retryArgs, { stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8' });
+    const retryOutput = (retry.stdout || '') + (retry.stderr || '');
+    if (retry.stdout) process.stdout.write(retry.stdout);
+    if (retry.stderr) process.stderr.write(retry.stderr);
+
+    // If retry also hits license error, handle that
+    if (retryOutput.includes('License does not cover verifier')) {
+      process.stderr.write(TAG + ' License required — see above.\n');
+      process.exit(0);  // already wrote inconclusive check result
+    }
+
+    const retryPassed = retry.status === 0;
+    const retryMs = Date.now() - startMs;
+    writeCheckResult({
+      tool: 'run-uppaal', formalism: 'uppaal',
+      result: retryPassed ? 'pass' : 'fail',
+      check_id: CHECK_ID, surface: SURFACE, property: PROPERTY,
+      runtime_ms: retryMs,
+      summary: (retryPassed ? 'pass' : 'fail') + ': uppaal:quorum-races in ' + retryMs +
+        'ms (XML defaults, -C workaround)',
+      triage_tags: retryPassed ? [] : ['race-detected'],
+      requirement_ids: getRequirementIds(CHECK_ID),
+      metadata: { bounds, exit_status: retry.status, workaround: 'no-C-flags' },
     });
     process.exit(0);
   }

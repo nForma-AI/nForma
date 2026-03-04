@@ -624,69 +624,11 @@ function sweepFtoC() {
     };
   }
 
-  // In report-only mode, read stale check results without re-running
-  if (reportOnly) {
-    const checkResultsPath = path.join(ROOT, '.formal', 'check-results.ndjson');
-    if (!fs.existsSync(checkResultsPath)) {
-      return {
-        residual: 0,
-        detail: { skipped: true, reason: 'check-results.ndjson not found', stale: true },
-      };
-    }
-
-    try {
-      const lines = fs.readFileSync(checkResultsPath, 'utf8').split('\n');
-      let failedCount = 0;
-      let inconclusiveCount = 0;
-      let totalCount = 0;
-      const failures = [];
-      const inconclusive = [];
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        totalCount++;
-        try {
-          const entry = JSON.parse(line);
-          if (entry.result === 'fail') {
-            failedCount++;
-            failures.push({
-              check_id: entry.check_id || entry.id || '?',
-              summary: entry.summary || '',
-              requirement_ids: entry.requirement_ids || [],
-            });
-          } else if (entry.result === 'inconclusive') {
-            inconclusiveCount++;
-            inconclusive.push({
-              check_id: entry.check_id || entry.id || '?',
-              summary: entry.summary || '',
-            });
-          }
-        } catch (e) {
-          // skip malformed lines
-        }
-      }
-
-      return {
-        residual: failedCount,
-        detail: {
-          total_checks: totalCount,
-          passed: Math.max(0, totalCount - failedCount - inconclusiveCount),
-          failed: failedCount,
-          inconclusive: inconclusiveCount,
-          failures: failures,
-          inconclusive_checks: inconclusive,
-          stale: true,
-        },
-      };
-    } catch (err) {
-      return {
-        residual: -1,
-        detail: { error: 'Failed to read check-results.ndjson: ' + err.message },
-      };
-    }
-  }
-
-  // Full run (mutating, expensive)
+  // Always run formal verification to get fresh data (all 26+ checks).
+  // Previously, report-only mode read stale check-results.ndjson which often
+  // contained only 4 CI-gated checks, hiding individual alloy/tla/prism failures.
+  // Now matches sweepTtoC behavior: always compute fresh diagnostic data.
+  // The --report-only flag prevents auto-close remediation (line ~1400), not data collection.
   const result = spawnTool('bin/run-formal-verify.cjs', [], {
     timeout: 300000,
   });
