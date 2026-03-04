@@ -1,0 +1,39 @@
+# QGSD Gitleaks Configuration
+# Defense-in-depth: local pre-commit gate + CI backup scan
+
+title = "QGSD Secret Detection"
+
+[extend]
+# Use the default gitleaks rules as a base
+# (gitleaks built-in rules cover AWS, GCP, GitHub, Slack, Stripe, generic API keys, etc.)
+
+[allowlist]
+description = "QGSD global allowlist"
+
+# Path-based allowlist: test fixtures, planning data, formal verification, generated stubs
+paths = [
+  '''bin/secrets\.test\.cjs''',
+  '''bin/ccr-secure-config\.test\.cjs''',
+  '''bin/set-secret\.test\.cjs''',
+  '''\.planning/.*\.jsonl''',
+  '''\.formal/''',
+  '''hooks/generated-stubs/''',
+  '''\.secrets\.baseline''',
+  '''\.gitleaks\.toml''',
+  '''node_modules/''',
+]
+
+# Regex-based allowlist: mock/test token patterns used in test fixtures
+regexes = [
+  '''ak-secret-[a-zA-Z0-9-]+''',
+  '''tg-secret-[a-zA-Z0-9-]+''',
+  '''fw-secret-[a-zA-Z0-9-]+''',
+  '''sk-test-[a-zA-Z0-9-]+''',
+  '''sk-ant-[a-zA-Z0-9-]+''',
+  '''old-[a-zA-Z0-9-]+''',
+  '''new-[a-zA-Z0-9-]+''',
+  '''mock-password''',
+  '''test-api-key-[a-zA-Z0-9]+''',
+  '''fake-secret-[a-zA-Z0-9]+''',
+  '''placeholder-key-[a-zA-Z0-9]+''',
+]

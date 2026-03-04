@@ -31,3 +31,43 @@ Security issues in the QGSD codebase that could:
 ## Recognition
 
 We appreciate responsible disclosure and will credit reporters in release notes (unless you prefer to remain anonymous).
+
+## Secret Detection
+
+QGSD uses a 3-tool, 2-layer secret detection architecture:
+
+### Layer 1: Local (Pre-commit)
+
+| Tool | Trigger | Purpose |
+|------|---------|---------|
+| **Gitleaks** | `git commit` (via Husky + lint-staged) | Scans staged files for secrets before they enter git history |
+
+Configuration: `.gitleaks.toml` (rules + allowlists for test fixtures)
+
+### Layer 2: CI (GitHub Actions)
+
+| Tool | Job | Purpose |
+|------|-----|---------|
+| **TruffleHog** | `trufflehog` | Full git history scan with `--only-verified` to reduce noise |
+| **Gitleaks** | `gitleaks-ci` | Backup scan (defense in depth) |
+| **detect-secrets** | `detect-secrets-ci` | Pattern-based scan against tracked `.secrets.baseline` |
+
+Workflow: `.github/workflows/secret-scan.yml` (3 parallel jobs)
+
+### Local Commands
+
+```bash
+npm run secrets:gitleaks   # Full repo scan with gitleaks
+npm run secrets:scan       # Re-generate detect-secrets baseline
+npm run secrets:audit      # Audit detect-secrets baseline interactively
+npm run secrets:history    # Full-history audit (gitleaks + trufflehog)
+```
+
+### Allowlisted Paths
+
+Test fixtures and planning data are allowlisted to prevent false positives:
+
+- `bin/secrets.test.cjs`, `bin/ccr-secure-config.test.cjs`, `bin/set-secret.test.cjs`
+- `.planning/*.jsonl`
+- `.formal/` (formal verification fixtures)
+- `hooks/generated-stubs/`

@@ -67,3 +67,7 @@ RAILROAD_ARCHITECTURE.md
 
 # XState runtime artifacts (state dumps, snapshots)
 states/
+
+# Secret scanning report artifacts (local only)
+.gitleaks-report.json
+.trufflehog-report.json
