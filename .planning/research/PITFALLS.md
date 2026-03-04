@@ -1,8 +1,8 @@
-# Domain Pitfalls Research: v0.26 Operational Completeness
+# Domain Pitfalls: Production Feedback Loop & Debt Tracking Integration
 
-**Domain:** Adding portable installers, credential management, policy configuration, terminal dashboards, architecture constraints, and cross-model decomposition analysis to an existing Claude Code plugin with formal verification enforcement.
+**Domain:** Adding production feedback loops (observe, fingerprint, aggregate), debt tracking ledgers, and P→F (production-to-formal) residual integration to an existing formal verification system with 7 active consistency layers.
 
-**Researched:** 2026-03-03
+**Researched:** 2026-03-04
 
 **Overall Confidence:** HIGH
 
@@ -10,560 +10,935 @@
 
 ## Executive Summary
 
-v0.26 targets six operational features: portable cross-platform installation, credential lifecycle management, policy-driven configuration, real-time terminal observability, structural architecture constraints, and formal model composition analysis. These features integrate into an existing system with rigid architectural boundaries:
+QGSD currently has:
+- A **triage system** (GitHub, Sentry, bash-scripted sources) routing issues to `/qgsd:debug` and `/qgsd:quick`
+- A **Solve layer** (7 consistency transitions: R→F, F→T, C→F, T→C, F→C, R→D, D→C) that auto-closes gaps
+- A **formal verification pipeline** (TLA+, Alloy, PRISM) with 5-minute budgets and state space constraints
+- **Requirements envelope** (214 requirements, 9 category groups) with strict schema validation
 
-- Global ~/.claude/ hook installations with no per-project override capability
-- Shallow config merge semantics that silently lose nested overrides
-- Installed hook copies that diverge from source files when not synced
-- Hardcoded paths throughout hook source and installer logic
-- Plugin-to-hook signal channels (YAML Task envelopes, `--n N` flags) that are hard contracts
-- Formal verification pipelines with strict 5-minute budgets and state space explosion risk
+Adding production feedback loops and debt tracking creates **integration seams** where small mistakes compound silently:
 
-Adding these features creates integration seams where small mistakes compound into silent failures. Portable installers introduce path handling fragility. Credential management adds secret leakage risks and rotation complexity. Policy configuration enables misconfiguration that violates R3 quorum protocol. Dashboards create state consistency issues between the hook layer and display layer. Architecture linting has false-positive/negative tuning problems. Cross-model decomposition merges state spaces that can explode beyond time budgets.
+1. **False positive floods** — Sources like Sentry, GitHub, and bash commands emit noise at scale; naïve aggregation creates 10x duplication and overwhelms triage lanes
+2. **Unbounded debt ledgers** — Without retention policies and automatic cleanup, the debt registry grows ~5% per sprint, consuming storage and slowing checks
+3. **Fingerprint collisions/splits** — Coarse fingerprints mask separate bugs as one issue; fine fingerprints fragment single bugs across 20 issues
+4. **Solve layer instability** — Adding P→F as a new residual layer shifts the equilibrium point; the 7-layer solver can diverge or oscillate instead of converge
+5. **Source abstraction leaks** — Framework-specific patterns (Prometheus labels, Sentry fingerprinting rules, GitHub label semantics) bleed into domain logic, making new sources require deep patches
+6. **Human gate bypass** — Automatic promotion of high-confidence observations to requirements violates R3 quorum protocol, allowing bad data to enter the formal layer
 
-This document catalogs 12 critical pitfalls, 11 technical debt patterns, 9 integration gotchas, 5 performance traps, 3 security mistakes, and 2 UX anti-patterns specific to this integration problem.
+This document catalogs 10 critical pitfalls, 8 technical debt patterns, 9 integration gotchas, 4 performance traps, 3 security mistakes, and 2 UX anti-patterns specific to this integration problem.
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Hardcoded Paths in Installer Break Portable Installs
+### Pitfall 1: False Positive Floods from Noisy Observe Sources
 
 **What goes wrong:**
 
-The existing `bin/install.js` contains hardcoded absolute paths like `/opt/homebrew/bin/codex` in `bin/providers.json` and absolute home directory expansions. When the installer runs on a different machine or OS, these paths are invalid, causing provider health checks to fail silently and quorum dispatch to halt with cryptic "provider unavailable" errors. The user has no indication that the CLI path is wrong — the provider just doesn't appear in the available slots.
+After renaming `/qgsd:triage` to `/qgsd:observe` and adding a persistent Sentry connection, false positives from noisy sources accumulate faster than deduplication can handle. A single common error (e.g., "TypeError in React hydration") appears as 5+ distinct issues in Sentry due to variation in stack depth, module names, and browser versions. The triage table grows from 4 issues to 47 in a single day. The user sees a wall of duplicates and stops using the system.
 
 **Why it happens:**
 
-The macOS development environment has standard homebrew paths. The installer was initially written to work "on Jonathan's machine" where homebrew is installed at `/opt/homebrew/bin/`. When ported to Linux, Windows, or non-homebrew environments, the same paths are hardcoded into the installed hooks and config, creating environment-specific binaries that don't travel.
+- **Sentry's fingerprinting is too coarse by default** — Built-in fingerprinting groups errors by exception type + message, ignoring call site variation. A hydration error triggered from 10 different components appears as 1 issue in raw Sentry but as 10 separate issues after custom fingerprinting rules are applied.
+- **Bash triage sources run unchecked** — Custom `command: "grep TODO *"` or `command: "gh run list --status=failure"` queries are not rate-limited or deduplicated. A CI that fails on every commit generates 20+ issues daily without dedup logic.
+- **No pre-aggregation filtering** — The observe command fetches and deduplicates, but sources emit data at different cadences. Sentry fires every 30s, GitHub updates every 5min, bash scripts run on-demand. Without dedup *per source*, aggregation happens too late.
 
 **How to avoid:**
 
-1. Eliminate hardcoded CLI paths from `bin/providers.json`. Instead, store only the binary name (`codex`, `gemini`, `copilot`) and use dynamic `resolve-cli.cjs` (already exists in the codebase) to locate them at runtime via `which` / `where.exe`.
-2. In `bin/install.js`, replace any absolute home expansions with parameterized templates. For example, instead of writing `/Users/jonathan/.claude/`, write a template like `${HOME}/.claude/` that `bin/install.js` expands during installation, with the expansion happening at install-time using `os.homedir()`, not at source-code-time.
-3. For macOS-specific paths (like OpenCode's XDG paths), use environment variable detection (`OPENCODE_CONFIG_DIR`, `XDG_CONFIG_HOME`) at installation time, not at source time. The `install.js` already does this for OpenCode (lines 82-100) — apply the same pattern to all runtime paths.
-4. All paths written to installed files must go through a template expansion phase in `install.js`. Source files should contain placeholder tokens like `{HOME}` or `{HOMEBREW_PREFIX}` that are replaced during `node bin/install.js --global`.
+1. **Implement per-source deduplication before aggregation:**
+   - For **Sentry**: Use Sentry's fingerprinting API to collapse similar stack traces before ingestion. Configure fingerprint rules in `.planning/observe-sources.md`:
+     ```yaml
+     sentry_fingerprint_rules:
+       - name: "hydration-errors"
+         pattern: "TypeError.*hydration"
+         strategy: "group_by_component"  # Group by top-level component, not call site
+         max_variants: 3  # Cap to 3 variants; merge older ones
+     ```
+   - For **GitHub**: Deduplicate by URL before fetching full details. Return only the latest issue per label combination.
+   - For **Bash sources**: Add `--dedupe-cache=~/.cache/qgsd/observe-bash-{source_hash}` to cache and skip identical outputs within 1 hour.
+
+2. **Add a noise filter gate** before issues enter the triage table:
+   ```javascript
+   // Hook: before rendering triage table, filter by signal quality
+   const filtered = issues.filter(issue => {
+     const signalScore = computeSignal(issue); // entropy of metadata
+     return signalScore > 0.3; // Only issues with >30% unique metadata
+   });
+   ```
+
+3. **Limit observe source output** by default:
+   - Sentry: Cap to top 10 by event count (not creation time)
+   - GitHub: Show only issues updated in the last 3 days
+   - Bash: Apply strict regex validation — reject commands that produce >50 lines per run
+
+4. **Add a `--dedupe-strict` mode** for production:
+   ```bash
+   /qgsd:observe --dedupe-strict --since 24h  # Uses AI embeddings to cluster duplicates
+   ```
 
 **Warning signs:**
 
-- Provider health check passes locally but fails on CI or a different machine
-- `check-provider-health.cjs --json` shows providers as "unavailable" immediately after fresh install
-- Installation log shows `Installed ~/.claude/` but actual files contain `/Users/jonathan/.claude/`
-- New developer tries to install QGSD on their machine and quorum dispatch fails with "no providers available"
-- `diff ~/.claude/hooks/qgsd-prompt.js bin/install.js` reveals that the installed file has different paths than what `install.js` would produce
+- Triage table grows to 20+ items after a single day of running observe
+- Scrolling through triage shows the same bug title repeated 5+ times with minor variation
+- `node bin/generate-triage-bundle.cjs --json | jq '.issues | length'` shows count > 20 when expected max is 10
+- Sentry dashboard shows "Issues: 150" but observe CLI shows "Issues: 47" (footprint mismatch)
+- Users report: "Triage is a wall of duplicates; I stopped using it"
 
 **Phase to address:**
 
-Portable installer phase (PORT-01, PORT-02, PORT-03). This is a blocker for any subsequent feature: if paths are hardcoded, all downstream installers will fail on non-development machines.
+Observe integration phase. This is a **blocker** — if false positives flood the triage table, the feedback loop loses signal and users bypass the system. Must implement source-specific dedup logic and AI-powered similarity clustering before going production.
 
 ---
 
-### Pitfall 2: Shallow Config Merge Loses Nested Policy Configuration
+### Pitfall 2: Debt Ledger Grows Unbounded
 
 **What goes wrong:**
 
-Policy configuration (PLCY-01..03) introduces a new nested config block: `policy: { quorum_gate_threshold, model_selection_rules, escalation_policy }`. When a user sets `.claude/qgsd.json` with only `policy.quorum_gate_threshold`, the entire `policy` object replaces the global config's `policy` object due to shallow merge. Any keys not in the project config revert to undefined, and the policy validation logic fails silently or uses undefined defaults.
-
-```javascript
-// hooks/config-loader.js shallow merge (line 259)
-const merged = { ...DEFAULT_CONFIG, ...globalConfig, ...projectConfig };
-// If DEFAULT_CONFIG.policy = { quorum_gate_threshold: 0.8, model_selection_rules: [...], escalation_policy: {...} }
-// And projectConfig = { policy: { quorum_gate_threshold: 0.9 } }
-// Then merged.policy = { quorum_gate_threshold: 0.9 } — other fields are gone
-```
-
-This is a documented Key Decision ("shallow merge for config layering") but is a silent data-loss trap for nested config blocks where partial override is the expected user behavior.
+The debt registry (`.formal/debt.json` or similar) tracks unresolved observations: "Error X occurred 5 times, created but not resolved, needs investigation." Without cleanup policies, the ledger grows ~100 items per sprint. After 12 sprints, it contains 1,200 items. The `/qgsd:solve` command slows from 2s to 45s because it scans the entire ledger. The ledger.json file is 50MB. Users disable debt tracking to speed up the solver.
 
 **Why it happens:**
 
-The shallow merge rule was designed for `required_models` and `quorum_active` where full replacement is the intent. Policy configuration is additive metadata where users expect to override only one sub-key without specifying the entire block. The shallow merge contract is not documented for policy configuration, creating a mismatch between user expectations and implementation.
+- **No retention policy** — Observations accumulate without automatic cleanup. An issue fixed in production is still marked "open" in the ledger because the feedback loop didn't update it.
+- **Stale observations not culled** — An observation with `last_occurrence: 2026-01-01` is still in the ledger on 2026-03-04, taking up space and cluttering reports.
+- **Promotions to requirements** — Each observation that becomes a requirement is copied to the requirements envelope. If 50 observations are promoted per milestone, the 214-requirement envelope grows by 23% per release.
+- **Duplicate entries due to fingerprint drift** — A fingerprint that changes (e.g., build hash in stack trace) creates a new debt entry instead of updating the existing one. The same bug appears as 3 separate debt items.
 
 **How to avoid:**
 
-1. Policy configuration must use flat config keys, not a nested object. Instead of `policy.quorum_gate_threshold`, use `policy_quorum_gate_threshold`. Flat keys survive shallow merge correctly.
-2. Alternatively, if nested config is unavoidable, add a validator in `validateConfig()` (hooks/config-loader.js) that warns when a partial override is detected. For example:
+1. **Implement automatic cleanup in the debt ledger:**
+   ```json
+   {
+     "$schema": "debt-ledger-1.0",
+     "retention_policy": {
+       "max_age_days": 90,
+       "max_entries": 500,
+       "promotion_holds_days": 14
+     },
+     "entries": [...]
+   }
+   ```
+   - Entries older than 90 days are automatically archived to `.formal/debt-archive/{date}.json`
+   - If debt count exceeds 500, evict oldest entries first
+   - Observations promoted to requirements are held for 14 days (grace period for reversal), then archived
+
+2. **Add fingerprint stability tracking:**
    ```javascript
-   if (projectConfig.policy && DEFAULT_CONFIG.policy) {
-     const defaultKeys = Object.keys(DEFAULT_CONFIG.policy);
-     const projectKeys = Object.keys(projectConfig.policy);
-     if (projectKeys.length < defaultKeys.length) {
-       console.warn(`Policy config partial override detected. Project specifies ${projectKeys} but global has ${defaultKeys}. Backfilling missing keys from defaults.`);
-       // Backfill missing keys from DEFAULT_CONFIG.policy
+   // Each debt entry must include:
+   {
+     "id": "debt-001",
+     "fingerprint": {
+       "hash": "sha256:...",
+       "variant_count": 1,  // How many times this fingerprint changed
+       "stable_since": "2026-02-15"
+     },
+     "created_at": "2026-02-01",
+     "last_occurrence": "2026-03-04",
+     "occurrences_total": 47
+   }
+   ```
+   If `variant_count > 3`, the fingerprint is unstable; merge with manual review before next solve run.
+
+3. **Implement debt status transitions** to track lifecycle:
+   ```
+   OPEN → INVESTIGATING → FIXED_IN_STAGING → FIXED_IN_PRODUCTION → ARCHIVED
+   ```
+   - Debt entry is automatically transitioned to `FIXED_IN_PRODUCTION` if no occurrence seen for 7 days AND the corresponding code fix is deployed.
+   - Use `/qgsd:solve` output to detect deployments that should close debt items.
+
+4. **Add garbage collection to the solve command:**
+   ```bash
+   /qgsd:solve --gc-debt  # Before main solver run, evict stale entries and compact
+   ```
+
+**Warning signs:**
+
+- `.formal/debt.json` grows >10MB or has >500 entries
+- `node bin/qgsd-solve.cjs --report-only` takes >10s to complete (was <2s previously)
+- Users report: "Solve is slow now; it used to be instant"
+- Debt ledger contains entries from 60+ days ago with `last_occurrence: null` (never seen again)
+- Solver output shows debt items that contradict production behavior (e.g., "debt: bug happened 5 times" but no related code change in the last 30 days)
+
+**Phase to address:**
+
+Debt tracking phase. Must establish retention and cleanup policies **before** adding observations to the ledger. Without auto-cleanup, the ledger becomes a technical debt sink that slows down the solver and obscures signal.
+
+---
+
+### Pitfall 3: Fingerprint Collision or Splitting Hides Real Issues
+
+**What goes wrong:**
+
+The fingerprinting strategy for observations is either too coarse or too fine. **Too coarse:** All "network errors" map to one fingerprint, so a timeout bug and a DNS resolution bug appear as the same issue, hiding the real cause. **Too fine:** Each unique stack trace gets a unique fingerprint, so the same bug triggered from 20 components creates 20 separate debt items. The triage table is either empty (everything collapsed) or contains 100+ duplicates.
+
+**Why it happens:**
+
+- **Fingerprinting algorithm is simplistic** — Default: hash(exception_type, message). This ignores context (which component, which endpoint, which user cohort). The hash collides across unrelated errors.
+- **No collision detection** — When two very different errors collide (e.g., both map to "Error"), the system logs the collision but doesn't alert the user. The user doesn't know the fingerprint is wrong.
+- **Fingerprint rules are unmaintained** — Custom rules in `.planning/observe-sources.md` are written once and never updated. As the codebase evolves, rules become stale and cause splits/collisions.
+- **Fingerprinting strategy is hard-coded** — Sentry uses one strategy, Prometheus uses another, GitHub uses labels. The integration layer doesn't expose strategy choice to the user; it's buried in the source handler.
+
+**How to avoid:**
+
+1. **Implement configurable fingerprinting strategies:**
+   ```yaml
+   # .planning/observe-sources.md
+   fingerprinting:
+     strategy: "semantic"  # or "hash", "rules-based", "ai-embedding"
+     parameters:
+       - name: exception_type
+         weight: 0.4
+       - name: root_cause_file
+         weight: 0.3
+       - name: affected_component
+         weight: 0.3
+     collision_threshold: 0.85  # If similarity > 85%, consider a collision
+     split_threshold: 0.60      # If similarity < 60%, consider a split
+   ```
+
+2. **Add automatic collision and split detection:**
+   ```javascript
+   // In observe aggregation phase:
+   const collisions = issues.filter(i => i.fingerprint_variants > 2 && i.issue_count === 1);
+   const splits = issues.filter(i => i.fingerprint_variants === 1 && i.issue_count > 5);
+
+   if (collisions.length > 0) {
+     console.warn(`FINGERPRINT COLLISION: ${collisions.map(c => c.id).join(', ')}`);
+     // Alert user before triage
+   }
+   if (splits.length > 0) {
+     console.warn(`FINGERPRINT SPLIT: ${splits.map(s => s.id).join(', ')}`);
+     // Suggest merging these entries
+   }
+   ```
+
+3. **Implement an AI-based similarity check** (not just hash):
+   - Use embeddings (sentence-transformers or similar) to cluster error descriptions
+   - If two fingerprints have embeddings with cosine similarity > 0.85, flag as collision
+   - If one fingerprint's variants cluster into N sub-groups (cosine distance > 0.4 within group), flag as split
+
+4. **Publish fingerprint metrics** in the solver output:
+   ```
+   Fingerprinting Health:
+   ──────────────────────
+   Collisions detected: 0
+   Splits detected: 0
+   Avg variant count: 1.2
+   Coverage: 98% (2 errors could not be fingerprinted)
+   ```
+
+**Warning signs:**
+
+- Triage table shows the same issue title under two different IDs on the same day
+- Fingerprint hash collisions detected in logs: `"Fingerprint hash collision for error_type:TypeError"`
+- An issue's `occurrences_total` is huge (>100) but `last_7_day_count` is 0 (old fingerprint no longer matched)
+- Manually reviewing debt items reveals duplicates that should have been merged
+- Users report: "I see the same bug listed 10 different ways"
+
+**Phase to address:**
+
+Observe phase (fingerprinting strategy), and Debt phase (collision/split detection). Cannot proceed to P→F integration without stable fingerprinting — fingerprint errors will cascade into requirements.
+
+---
+
+### Pitfall 4: Solve Layer Instability When Adding P→F Residual
+
+**What goes wrong:**
+
+The Solve layer currently tracks 7 transitions (R→F, F→T, C→F, T→C, F→C, R→D, D→C). Adding P→F (observations-to-formal) as an 8th transition destabilizes the convergence loop. The solver runs: fixes R→F gaps (creates new F→T gaps), fixes F→T gaps (creates new T→C gaps), runs again, and on iteration 5, the residual vector oscillates between [3, 2, 1, 0, 0, 0, 0] and [2, 3, 1, 0, 0, 0, 0]. It never hits zero. The user runs `solve --max-iterations=10` and after 10 iterations, total residual is still 4. The solve loop gives up.
+
+**Why it happens:**
+
+- **P→F feedback loop is decoupled from formal verification** — When an observation is promoted to a requirement (P→F), it creates a new requirement that doesn't have formal coverage (R→F gap). But the solver doesn't know that observations → requirements, so it treats P→F gaps and R→F gaps separately. The R→F solver creates formal models for the new requirements, but those models might conflict with existing models or introduce new bugs.
+- **Cascade ordering is wrong** — The solve command dispatches remediations in order: R→F, F→T, C→F, T→C, F→C, R→D, D→C. It doesn't include P→F in the order. So observations never get properly triaged and promoted; they pile up in the ledger while formal gaps are fixed around them.
+- **Solve input assumptions break** — The solver assumes requirements are stable (they don't change during a solve run). But if P→F promotion happens during the run, requirements change, invalidating the initial diagnostic. The solve loop's "re-diagnose" phase doesn't account for new observations arriving mid-run.
+- **Residual vector is multi-objective, not unimodal** — Fixing one layer (R→F) often creates gaps in the next layer (F→T). The total residual goes DOWN (good) but oscillates. The convergence check `if (post_residual.total < baseline_residual.total) continue loop` is too coarse; it hides oscillation.
+
+**How to avoid:**
+
+1. **Integrate P→F into the solver's layer ordering:**
+   ```
+   1. Diagnose P→F: how many observations are promotion-ready?
+   2. Dispatch observation triage and promotion (Observe phase)
+   3. Diagnose R→F: how many requirements lack formal coverage? (includes newly promoted requirements)
+   4. Dispatch R→F remediation (close-formal-gaps)
+   5. [... rest of layers ...]
+   7. Diagnose R→F again (re-check after P→F promotion)
+   ```
+
+2. **Add per-layer "change detection" to stop oscillation:**
+   ```javascript
+   // Instead of checking total residual, check if ANY automatable layer changed
+   const layerChanges = {
+     r_to_f: residual_prev.r_to_f.residual - residual_curr.r_to_f.residual,
+     f_to_t: residual_prev.f_to_t.residual - residual_curr.f_to_t.residual,
+     // ... for all automatable layers (exclude R->D, D->C which are manual)
+   };
+
+   const anyLayerChanged = Object.values(layerChanges).some(delta => Math.abs(delta) > 0);
+   const stillConverging = anyLayerChanged && iteration < maxIterations;
+
+   if (stillConverging) {
+     // Continue loop
+   } else {
+     // Exit: no change detected or max iterations reached
+   }
+   ```
+   This prevents oscillation: if residual swaps between [3, 2] and [2, 3], change detection sees zero net change and stops.
+
+3. **Freeze observations during a solve run:**
+   - P→F promotion happens only at the START of a solve run (Step 1), not during.
+   - New observations that arrive during solving are queued for the NEXT solve run.
+   - This prevents requirements from changing mid-run and invalidating diagnostics.
+
+4. **Add oscillation detection to the circuit breaker:**
+   ```javascript
+   // In hooks/qgsd-circuit-breaker.js
+   if (solve_residual_oscillates_between_N_states(last_5_iterations)) {
+     console.error("Solve loop oscillating — manual review required");
+     // Trigger oscillation resolution mode
+   }
+   ```
+
+**Warning signs:**
+
+- `solve --max-iterations=10` completes but `post_residual.total >= baseline_residual.total`
+- The before/after table shows R→F goes from 3 to 2, then 2 to 3, then 3 to 2 across iterations
+- Solver output logs: `"Iteration 1: total=5 → 4, Iteration 2: total=4 → 5, Iteration 3: total=5 → 4"`
+- `/qgsd:solve` runs for >5 minutes (iteration loop timeout)
+- Users report: "Solve doesn't finish; it gets stuck"
+
+**Phase to address:**
+
+P→F integration phase. Must integrate observation promotion into the solver's layer ordering and add oscillation detection **before** P→F becomes a formal residual. Without this, the solver destabilizes.
+
+---
+
+### Pitfall 5: Source Type Abstraction Leaks
+
+**What goes wrong:**
+
+The observe command abstracts sources (GitHub, Sentry, bash). Each source handler returns the same JSON schema: `{ id, title, url, severity, age, meta }`. But framework-specific details bleed through:
+
+- **Sentry:** The `meta` field contains `"<file>:<line> · 7,086 divergences"` (Sentry-specific event counting).
+- **GitHub:** The `meta` field contains `"assignee: @alice, labels: bug,critical"` (GitHub-specific label semantics).
+- **Bash:** The `meta` field is undefined because custom scripts don't provide it.
+
+When you add a new source (e.g., Grafana alerts, PagerDuty), the domain logic has to know about Grafana's "severity" level mapping and PagerDuty's "incident status" enum. Each new source requires patches to:
+- The source handler (obvious)
+- The dedup logic (is Grafana severity "CRITICAL" the same as GitHub severity "critical"?)
+- The fingerprinting strategy (how to hash a PagerDuty incident ID?)
+- The debt ledger promotion logic (does a Grafana alert automatically become a requirement?)
+
+The system is not extensible; each source is a special case.
+
+**Why it happens:**
+
+- **Source semantics are implicit, not declared** — There's no interface contract that sources must implement. Handlers are written as scripts, not classes with interfaces.
+- **Severity level mapping is ad-hoc** — GitHub labels are strings ("bug", "critical"); Sentry levels are enums ("fatal", "error", "warning"); Grafana alerts have numeric severity (1-5). The triage command maps these to a common "error|warning|info" scale, but the mapping is buried in code, not declared.
+- **No abstraction layer** — Observe directly calls source handlers and returns raw data. The data is not normalized through a schema validator.
+
+**How to avoid:**
+
+1. **Define a source interface contract:**
+   ```typescript
+   // observe-source.interface.ts
+   interface ObserveSource {
+     id: string;              // Unique source type ID
+     normalize(raw: any): Issue[];  // Convert source's format to canonical schema
+     getDeduplicator(): (issues: Issue[]) => Issue[];  // Source-specific dedup logic
+     getSeverityMap(): Record<string, "error"|"warning"|"info">;
+   }
+   ```
+
+2. **Require all sources to declare severity mapping upfront:**
+   ```yaml
+   # .planning/observe-sources.md
+   sources:
+     - type: sentry
+       severity_map:
+         fatal: error
+         error: error
+         warning: warning
+         info: info
+       fingerprinting_strategy: "sentry_builtin"
+
+     - type: github
+       severity_map:
+         bug: error
+         critical: error
+         warning: warning
+         enhancement: info
+       fingerprinting_strategy: "label_based"
+   ```
+
+3. **Add a schema validator** that all sources must conform to:
+   ```javascript
+   // In observe aggregation:
+   const issue_schema = {
+     id: /^[a-z]+-\d+$/, // source-id
+     title: string,
+     url: string,
+     severity: enum("error", "warning", "info"),
+     age: string,
+     meta: string,
+     source_type: enum("github", "sentry", "bash", ...), // known types
+     source_original_data: object  // For debugging; hidden from triage table
+   };
+
+   issues.forEach(issue => {
+     if (!validate(issue, issue_schema)) {
+       throw new Error(`Issue ${issue.id} violates schema`);
+     }
+   });
+   ```
+
+4. **Segregate source-specific logic in adapter classes:**
+   ```
+   sources/
+   ├── sentry-adapter.js     (implements ObserveSource interface)
+   ├── github-adapter.js
+   └── bash-adapter.js
+   ```
+   Each adapter is self-contained; adding a new source means adding one new file, not patching the core logic.
+
+**Warning signs:**
+
+- Adding a new observe source requires changes to 3+ files outside the source handler
+- Fingerprinting logic contains `if (source === 'sentry')` or `if (source === 'github')` conditionals
+- Severity mappings are duplicated across multiple files
+- Users report: "Adding a new alert source is hard; I need help from the core team"
+
+**Phase to address:**
+
+Observe phase (source abstraction), before adding framework-specific sources. Critical for long-term extensibility.
+
+---
+
+### Pitfall 6: Human Quorum Gate Bypass via Auto-Promotion
+
+**What goes wrong:**
+
+The design sketches auto-promotion from observation to requirement: "If an observation occurs in production 5+ times with high confidence (fingerprint stability > 0.9), automatically promote it to the requirements envelope and dispatch formal coverage." This is efficient — humans don't have to review every stable observation.
+
+But it violates **R3 quorum consensus** requirement: "All requirements must be approved by quorum before entering the formal verification envelope." An observation might be high-confidence (numerically) but low-value (strategically). For example:
+
+- A network timeout in a fallback service that users work around
+- A deprecation warning in a non-critical library
+- A performance regression in an internal dashboard
+
+All are "high-confidence" in the data (fingerprint is stable, occurs repeatedly), but none should be formal requirements. Auto-promotion bypasses the human decision gate, polluting the requirements envelope.
+
+Downstream effects:
+- Formal models are generated for non-requirements, wasting verification budget
+- The 214-requirement envelope grows to 250+ requirements with mixed signal
+- Quorum consensus is undermined: "The solver added these, not us"
+- Requirements traceability breaks: no provenance link to original observation
+
+**Why it happens:**
+
+- **Efficiency pressure** — Processing observations manually is slow. Auto-promotion seems like a productivity boost.
+- **Confidence ≠ Value confusion** — High fingerprint confidence (data signal) is conflated with high business value (product signal). They're orthogonal.
+- **No human gate in the pipeline** — The observe → debt → requirements path has no explicit quorum checkpoint.
+
+**How to avoid:**
+
+1. **Never auto-promote observations to requirements.** Period. Require explicit human approval.
+   - Observations can auto-transition to **debt items** (no quorum needed).
+   - Debt items can be **flagged for human review** (e.g., "likely a requirement").
+   - Humans explicitly promote: `/qgsd:add-requirement --from-debt=debt-001`
+
+2. **Add a human review queue** in the observe pipeline:
+   ```
+   Observation → Stable (after 7 days, >5 occurrences) → FLAGGED_FOR_REVIEW → Human approves → Debt item
+   ```
+   Not: `Observation → Auto-promoted requirement`
+
+3. **Implement debt-to-requirement promotion as an explicit command:**
+   ```bash
+   /qgsd:observe --show-promotable  # List stable observations ready for human review
+   /qgsd:add-requirement --from-debt=debt-001 --quorum # Triggers R3 quorum consensus
+   ```
+
+4. **Decorate auto-flagged debt items with confidence metadata** so humans can quickly filter:
+   ```json
+   {
+     "id": "debt-001",
+     "title": "TypeError in React hydration",
+     "promotion_confidence": 0.92,  // High fingerprint stability
+     "promotion_value_signal": "UNKNOWN",  // No human judgment yet
+     "promotion_recommended": false  // <- Set to false by default
+   }
+   ```
+
+**Warning signs:**
+
+- The requirements envelope grows >20% in a sprint with no explicit `/qgsd:add-requirement` commands
+- Requirements added by the solver lack provenance ("source_file": null, "milestone": "unknown")
+- Formal verification budget is consumed by non-essential requirements
+- Users report: "Requirements are being added without our input"
+
+**Phase to address:**
+
+P→F integration phase. Must establish quorum consensus gate **before** adding observation-to-requirement promotion. This is a critical control to prevent pollution of the formal layer.
+
+---
+
+### Pitfall 7: Production Signal Jitter Overloads Formal Verification Budget
+
+**What goes wrong:**
+
+Observations arrive from production at unpredictable rates. A deployment spike might generate 50 new observations in 1 hour. The P→F promotion logic flags them as promotion-ready. The solver's next run (which is scheduled or manual) attempts to generate formal models for all 50, expecting a few formal specs. Instead, the formal verification tools (TLA+, Alloy) are asked to verify 50 new models in parallel. The verifier runs out of memory or hits the 5-minute budget timeout. Formal verification hangs or produces inconclusive results. The solver stalls.
+
+**Why it happens:**
+
+- **Observe rate is unbounded** — Production signals arrive continuously; there's no throttling between observation arrival and formal model generation.
+- **Solver is greedy** — When the solver runs, it processes ALL promotion-ready debt items in one batch, not in priority order.
+- **Formal verification has hard time budgets** — TLA+ and Alloy have ~5 minute limits per run. If 50 models are queued, the batch fails.
+
+**How to avoid:**
+
+1. **Throttle P→F promotion by observation rate:**
+   ```javascript
+   // In the solver, before dispatching P→F:
+   const promotionReadyCount = debt.filter(d => d.promotion_confidence > 0.9).length;
+   const maxNewRequirementsPerRun = 3;  // Conservative batch size
+
+   if (promotionReadyCount > maxNewRequirementsPerRun) {
+     const toPromote = debt
+       .filter(d => d.promotion_confidence > 0.9)
+       .sort((a, b) => b.occurrences_total - a.occurrences_total)  // Prioritize high-signal
+       .slice(0, maxNewRequirementsPerRun);
+
+     console.log(`Promotion throttled: ${promotionReadyCount} ready, promoting top ${maxNewRequirementsPerRun}`);
+   }
+   ```
+
+2. **Add formal verification budget tracking:**
+   ```javascript
+   // In solve.md step 3a (R→F remediation):
+   const formalVerfBudgetMs = 5 * 60 * 1000;  // 5 minutes
+   const startTime = Date.now();
+
+   for (const req of newRequirements) {
+     const elapsed = Date.now() - startTime;
+     const remaining = formalVerfBudgetMs - elapsed;
+     if (remaining < 30_000) {  // Less than 30s left
+       console.warn(`Formal verification budget exhausted. ${newRequirements.length - i} requirements deferred to next run.`);
+       break;  // Stop processing, save the rest for next iteration
+     }
+     // Process req...
+   }
+   ```
+
+3. **Implement observation coalescing** — batch observations that arrive within a time window:
+   ```yaml
+   # .planning/observe-sources.md
+   observe:
+     coalescing_window_ms: 300000  # 5 minutes
+     batch_promotion_on: "timer"   # Don't promote immediately; wait for batch
+   ```
+   Instead of promoting an observation the instant it's stable, wait 5 minutes and batch all stable observations together. This smooths out jitter.
+
+4. **Add a "high-stress" mode** that disables P→F promotion temporarily:
+   ```bash
+   /qgsd:observe --stress-level=high  # Collects observations but doesn't promote
+   /qgsd:solve --stress-level=high     # Solves only existing gaps, no new promotions
+   ```
+
+**Warning signs:**
+
+- Formal verification times out during a solve run: `"Formal verification timeout after 5 minutes"`
+- The solver's iteration loop hits max iterations with residual still high
+- Production incident spikes → following day's solve run fails
+- Users report: "Solve started hanging after we added Sentry integration"
+
+**Phase to address:**
+
+P→F integration phase. Must add throttling and budget tracking **before** connecting to high-volume production signals.
+
+---
+
+### Pitfall 8: Debt Fingerprint Drift Causes Requirement Fragmentation
+
+**What goes wrong:**
+
+An observation's fingerprint changes over time due to non-semantic variations (build hash in stack trace, minor version bump in dependency, code optimization). The fingerprint hash for "TypeError in component X" might be `hash1` on day 1 and `hash2` on day 2 due to a rebuild. The debt tracker treats them as separate issues: debt-001 (hash1) and debt-002 (hash2). Both are promoted to requirements as separate items. Now there are two formal models for the same logical bug. The requirement envelope is polluted with duplicates.
+
+**Why it happens:**
+
+- **Fingerprints include build-specific data** — Stack traces include line numbers, build hashes, or optimization levels that change between builds without semantic change.
+- **No fingerprint variant consolidation** — The debt tracker doesn't detect when a fingerprint changes and consolidate variants back to the original entry.
+
+**How to avoid:**
+
+1. **Implement fingerprint variant tracking** in the debt ledger:
+   ```json
+   {
+     "id": "debt-001",
+     "primary_fingerprint": "hash1",
+     "fingerprint_variants": ["hash1", "hash2", "hash3"],
+     "variant_first_seen": {
+       "hash1": "2026-02-01",
+       "hash2": "2026-02-15",
+       "hash3": "2026-03-02"
+     },
+     "occurrences_by_variant": {
+       "hash1": 15,
+       "hash2": 8,
+       "hash3": 4
      }
    }
    ```
-3. Document the config merge behavior explicitly in the policy configuration section of ~/.claude/qgsd.json template comments.
+
+2. **Detect fingerprint drift during aggregation:**
+   ```javascript
+   // In observe aggregation:
+   const issue = issues.find(i => i.id === "debt-001");
+   if (issue.fingerprint !== issue.primary_fingerprint) {
+     if (areSemanticallyEquivalent(issue.fingerprint, issue.primary_fingerprint)) {
+       // Same bug, variant of primary fingerprint
+       issue.fingerprint_variants.push(issue.fingerprint);
+     } else {
+       // Different bug, needs separate entry
+     }
+   }
+   ```
+
+3. **Pin promotions to primary fingerprint:**
+   ```bash
+   # When promoting debt-001 to requirement:
+   # Use the primary fingerprint's description, not the current variant
+   /qgsd:add-requirement --from-debt=debt-001 --use-primary-fingerprint
+   ```
 
 **Warning signs:**
 
-- Policy configuration validation passes locally with full DEFAULT_CONFIG but fails in CI where project config exists
-- `node -e "console.log(require('./hooks/config-loader.js').loadConfig())"` shows undefined policy sub-keys
-- Fallback defaults appear to be used instead of user-set policy values
-- No validator output when partial policy override is detected
-- Test coverage of `loadConfig()` only tests full block replacement, not partial override
+- A single logical bug appears as 3+ separate debt entries with nearly identical titles
+- Requirement envelope contains duplicates that only differ in build hash or line number
+- The solver output shows "3 requirements to formalize" but 2 are actually the same bug
 
 **Phase to address:**
 
-Policy configuration schema phase (PLCY-01..03). The flat-vs-nested decision must be made before any code reads the policy config — schema changes require updating `validateConfig()`, DEFAULT_CONFIG, and documentation in the same commit.
+Debt tracking phase. Implement fingerprint variant consolidation before any P→F promotion.
 
 ---
 
-### Pitfall 3: Dashboard State Diverges from Hook Layer — Display Lies
+### Pitfall 9: No Observability into Which Observations Will Become Requirements
 
 **What goes wrong:**
 
-The terminal dashboard (DASH-01..03) reads quorum status from `quorum-scoreboard.json` and displays it in real-time. Meanwhile, the hook layer (`qgsd-stop.js`, `qgsd-prompt.js`) is dispatching quorum in parallel and updating the scoreboard atomically. Due to timing windows between scoreboard reads and writes, the dashboard displays stale state or shows consensus complete when it's actually still pending. Users see "APPROVED" on the dashboard and assume the decision is made, but the Stop hook hasn't seen the evidence yet and will block the plan delivery.
+A user runs `/qgsd:observe` and sees a list of issues. But there's no indication which ones are "close to becoming a requirement" or which ones are "stable enough to promote." The user has to manually guess based on occurrence counts and timestamps. This is opaque. Alternatively, if there IS an automatic promotion list shown, the user can't challenge it — the criteria are hidden in code.
 
 **Why it happens:**
 
-The dashboard reads `quorum-scoreboard.json` via `fs.readFileSync()` without coordination with the atomic write path. The scoreboard is updated via `update-scoreboard.cjs` which uses `tmpPath + fs.renameSync()` for atomicity. Between the dashboard's read and the actual quorum completion, the file can be stale. The dashboard also doesn't track which turn it last read — it can miss updates if reads slow down and the hook writes faster than the display refreshes.
+- **Promotion criteria are implicit** — The code checks fingerprint_confidence > 0.9, but this threshold is hardcoded, not declared.
+- **No criteria audit trail** — When an observation is flagged for promotion, there's no explanation of WHY. "Why is this debt item ready for promotion?"
 
 **How to avoid:**
 
-1. Dashboard state must derive from a single source of truth with explicit versioning. Add a `version` field to `quorum-scoreboard.json` that increments on every write. The dashboard caches the last seen `version` and only updates the display when a new version is detected.
+1. **Declare promotion criteria explicitly** in the observe config:
+   ```yaml
+   # .planning/observe-sources.md
+   promotion_criteria:
+     - name: "fingerprint_stability"
+       threshold: 0.9
+       window: 7d
+       description: "Fingerprint must not change more than 10% in last 7 days"
+
+     - name: "occurrence_frequency"
+       threshold: 5
+       window: 7d
+       description: "Must occur at least 5 times in the last 7 days"
+
+     - name: "user_impact"
+       threshold: "high"
+       window: 7d
+       description: "Must affect >10 users or >100 transactions"
+   ```
+
+2. **Add promotion reasoning to the debt entry:**
    ```json
-   { "version": 47, "rounds": [...], "final_verdict": "PENDING" }
+   {
+     "id": "debt-001",
+     "title": "TypeError in component X",
+     "promotion_candidate": true,
+     "promotion_reasoning": {
+       "fingerprint_stability": { "value": 0.94, "passed": true },
+       "occurrence_frequency": { "value": 12, "passed": true },
+       "user_impact": { "value": "high" (23 users affected), "passed": true }
+     },
+     "promotion_ready_since": "2026-03-02"
+   }
    ```
-2. Dashboard reads must be synchronized with hook writes using a lock-free, atomic read pattern. Instead of reading the scoreboard directly, read a "manifest" file that points to the current scoreboard version. The hook writes both the new scoreboard AND the manifest atomically (write manifest last).
-3. For real-time updates, don't poll the scoreboard on a fixed interval. Use `fs.watch()` on the scoreboard file and only refresh the display when the file changes.
-4. Dashboard must never display a state that contradicts the Stop hook's decision channel. If the dashboard shows "APPROVED" but the Stop hook hasn't injected a decision, the dashboard is lying.
 
-**Warning signs:**
-
-- Dashboard shows "Quorum APPROVED" but Stop hook immediately blocks the turn (check `conformance-events.jsonl`)
-- Stale quorum state persists in the display even after `update-scoreboard.cjs` has written new data
-- Dashboard refresh rate misses rapid quorum rounds (multiple rounds within 1 second)
-- No versioning mechanism on the scoreboard — every read is treated as equally current
-- Dashboard state diverges from `conformance-events.jsonl` truth log
-
-**Phase to address:**
-
-Dashboard & observability phase (DASH-01..03). Dashboard implementation must include explicit synchronization with the hook layer's scoreboard writes. Test must compare dashboard display with `conformance-events.jsonl` to verify consistency.
-
----
-
-### Pitfall 4: Credential Rotation Without Offline Fallback Causes Quorum Deadlock
-
-**What goes wrong:**
-
-Credential management (CRED-01, CRED-02) introduces OAuth token rotation to the provider slots. A background task rotates credentials every 24 hours. If the rotation fails or takes too long, and the CLI slot is mid-quorum dispatch, the slot worker receives an expired token and hangs. The quorum orchestrator waits for the slot-worker response with the old timeout. The slot worker is in a retry loop trying to rotate, exceeding the timeout. The quorum round fails. The Stop hook never sees 3+ consensus votes, so it blocks the plan delivery. The user cannot proceed with the plan because the credentials are stale but also cannot be rotated because quorum is blocked.
-
-**Why it happens:**
-
-Token rotation is implemented as a synchronous pre-dispatch check in the quorum orchestrator. If rotation takes longer than expected or fails, the orchestrator has no offline fallback. The quorum timeout is global (e.g., 30s per slot). If rotation takes 25s, the slot worker has only 5s to complete its work before timeout.
-
-Additionally, the rotation machinery and the quorum dispatch machinery are tightly coupled. A failure in rotation should not block quorum — the slot should either use the old token or be marked unavailable, not hang the entire orchestrator.
-
-**How to avoid:**
-
-1. Credential rotation must be asynchronous and decoupled from quorum dispatch. Implement a background rotation service (separate from the dispatcher) that rotates credentials in the background. Store both the current token and the next token. At dispatch time, the slot checks if the current token is expired; if so, it atomically swaps to the next token (which was refreshed in the background). No synchronous rotation at dispatch time.
-2. Implement a credential staleness heuristic. If the credential is within 5 minutes of expiration but the background rotator hasn't finished yet, mark the slot as "stale_cred" and exclude it from the available pool for that round. Don't block the rotation — just deprioritize the slot.
-3. Implement an offline fallback. If rotation fails, the slot should fall back to the last known-good token (cached in secure storage) with a "fallback" flag in the scoreboard. This allows quorum to complete even if rotation is broken, with explicit fallback notation per R6.4.
-4. Set a separate timeout for credential rotation (e.g., 3s) that is much shorter than the quorum slot timeout (30s). If rotation takes longer than 3s, fail fast and fall back to offline.
-
-**Warning signs:**
-
-- Slot worker hangs with timeout waiting for token rotation to complete
-- Quorum round fails with "timeout" error while credentials are being rotated
-- No explicit handling of rotation failures in the quorum dispatch path
-- Credentials are checked/rotated at dispatch time, not in the background
-- No fallback token mechanism if rotation fails
-
-**Phase to address:**
-
-Credential management phase (CRED-01, CRED-02). Must be designed before any slot worker dispatches with rotated credentials. The async/background architecture decision must be made during the schema design phase.
-
----
-
-### Pitfall 5: Policy as Code Lets Users Violate R3 Quorum Protocol
-
-**What goes wrong:**
-
-Policy configuration (PLCY-01..03) allows users to set `policy.model_selection_rules` that exclude all available external models, reducing the quorum to just Claude (1 model). This violates R3.5: "CONSENSUS requires agreement from all available models" (minimum 2). Or a user sets `policy.quorum_gate_threshold: 0.99`, which in a 4-model quorum requires 3.96 votes (impossible), causing consensus to never succeed. The hook layer has no validation of policy rules against R3 protocol requirements. The policy layer silently violates the requirement.
-
-**Why it happens:**
-
-Policy configuration is designed to be flexible and user-editable. The assumption is that users know what they're doing. But QGSD's R3 quorum protocol has non-negotiable constraints. A mismatch between what policy allows and what R3 requires creates silent protocol violations.
-
-**How to avoid:**
-
-1. Implement R3 protocol validation in the policy loading layer. Add a `validatePolicyAgainstR3()` function in `hooks/config-loader.js` that checks:
-   - `policy.model_selection_rules` do not exclude all external models (minimum 1 external required after filtering)
-   - `policy.quorum_gate_threshold` is between 0.5 (strict majority) and 1.0 (full consensus)
-   - `policy.escalation_policy` steps do not violate the consensus gate (e.g., escalation cannot reduce quorum size below R3.5 minimum)
-2. If policy violates R3, emit a CRITICAL warning to stderr and fail the planning command with a specific error message. Do NOT silently downgrade to a reduced protocol.
-3. Document the R3 constraints explicitly in the policy configuration schema comment.
-
-**Warning signs:**
-
-- Planning command proceeds with a quorum that violates R3.5 (only 1 model available)
-- Policy configuration allows setting impossible thresholds (>1.0, <0.5)
-- No R3 compliance check in the policy validation layer
-- Consensus gate behavior changes based on user-set policy without protocol constraints
-
-**Phase to address:**
-
-Policy configuration schema phase (PLCY-01..03). R3 validation must be in `validateConfig()` before any policy is ever used. This is a "must-have" pre-shipping validation, not a nice-to-have.
-
----
-
-### Pitfall 6: Architecture Linting False Positives Cause Alert Fatigue
-
-**What goes wrong:**
-
-Architecture constraint enforcement (ARCH-10: no LLM SDK bundling) is implemented as a linting rule that scans the codebase for `require('openai')`, `require('anthropic')`, etc. The rule works initially but produces false positives: it flags vendored dependencies in `node_modules`, it flags example code in comments, it flags error messages that mention SDK names. The user sees dozens of alerts, all false. They add `.architecture-lintignore` files everywhere to silence the linter. The linting rule becomes noise and is ignored. One day an actual SDK is bundled and nobody notices.
-
-**Why it happens:**
-
-Linting rules are tuned for one codebase and one use case. QGSD is a plugin system where it depends on external CLIs and the host Claude Code environment. A blanket "no SDK" rule is too broad. The rule needs nuance: SDKs are forbidden in the core plugin code but permitted in test fixtures, documentation, etc.
-
-**How to avoid:**
-
-1. Architecture linting must support scoping. Define which file globs are subject to the rule: `forbidden_sdks: { pattern: ["bin/**", "hooks/**"], exclude: ["**/*.test.cjs", "docs/**"] }`. This allows legitimate SDK references in test/doc files without triggering the linter.
-2. Implement a "baseline" feature where the linting rule generates a baseline report on first run, and subsequent runs only flag NEW violations. Existing violations are grandfathered in but tracked separately.
-3. Keep linting rule documentation up-to-date with examples of false positives and explain why they're false positives. This helps users understand the rule and reduces the impulse to ignore it.
-4. When a linting rule starts producing >5% false positives (measured over a month), trigger a review and either refine the rule or document the exceptions.
-
-**Warning signs:**
-
-- `check-architecture.cjs` flags 20+ violations on a clean codebase
-- Users add large `.architecture-lintignore` files to silence the linter
-- Linting rule catches SDK references in comments, vendored code, or test files
-- CI passes with linting warnings; developers stop reading the output
-- Architecture violations appear without triggering the linter
-
-**Phase to address:**
-
-Architecture enforcement phase (ARCH-10). Linting rules must be tuned with realistic false-positive expectations from the start. This includes scoping, baselining, and documentation.
-
----
-
-### Pitfall 7: Cross-Model Decomposition Exceeds TLC Time Budget
-
-**What goes wrong:**
-
-Cross-model decomposition analysis (DECOMP-05) merges state spaces from multiple TLA+ models to analyze interactions. For example, merging the QGSDQuorum.tla model (interactions between slots) with QGSDHook.tla model (hook lifecycle) and QGSDConfig.tla (config validation). The merge creates a combined state space with thousands more states. TLC is given a 5-minute budget per model (line in PROJECT.md). The combined model exceeds the budget and TLC times out without completing the analysis. The user has no result and cannot proceed with the plan.
-
-**Why it happens:**
-
-State space explosion is a known problem in model checking. Combining two models multiplicatively increases the state space. If Model A has 1M states and Model B has 100k states, the combined model can have 100B+ states depending on synchronization points. The 5-minute budget is reasonable for individual models but becomes a bottleneck when decomposing into sub-models.
-
-**How to avoid:**
-
-1. Decomposition analysis must include a state space size estimate BEFORE running TLC. Use a lightweight heuristic (count variables, compute upper bounds on their domains) to estimate the state space. If estimated states exceed a threshold (e.g., 10M), alert the user that TLC will likely timeout and offer to run a reduced analysis (fewer variables, fewer steps).
-2. Implement state space reduction techniques in the merged model: symmetry declarations, abstract models (ignore irrelevant variables), fairness constraints (reduce interleavings). The TLA+ model repository already uses these; apply them to merged models.
-3. Increase the time budget for decomposition analysis specifically. The 5-minute budget is for single-model checking. Decomposition analysis can have a separate 15-minute budget to allow for the larger combined state space.
-4. Implement a "decomposition depth" limit. If decomposing beyond 2 models, require explicit user approval and additional time budget. Decomposition is valuable for finding interactions but is expensive.
-
-**Warning signs:**
-
-- TLC times out on decomposition analysis after exactly 5 minutes
-- No pre-flight estimate of merged state space size
-- Decomposition analysis is attempted on large models without reduction techniques
-- User has no alternative if TLC exceeds budget (can't proceed with the plan)
-- Merged model includes all variables from both parent models (should prune irrelevant ones)
-
-**Phase to address:**
-
-Cross-model decomposition phase (DECOMP-05). Requires TLC time budget review and state space estimation heuristics before any decomposition is attempted. This is a "must-have" for shipping decomposition analysis.
-
----
-
-### Pitfall 8: Hook Sync Omitted After Config-Loader.js Edit — Installed Config Is Stale
-
-**What goes wrong:**
-
-Policy configuration (PLCY-01..03) requires adding new validation logic to `hooks/config-loader.js`. A developer edits the file with new `validatePolicyConfig()` function. They commit and push. But they forget to sync the file: `cp hooks/config-loader.js hooks/dist/config-loader.js && node bin/install.js --claude --global`. The source file has new logic, but the installed copy at `~/.claude/hooks/config-loader.js` is stale. In production, the new validation never runs. Users can set invalid policy values. Quorum behavior diverges from what was designed.
-
-This is Pitfall 5 from the v0.18 research ("Hook Install Sync Omitted After Hook Edits — Silent Non-Deployment") applied to v0.26 with policy config changes.
-
-**Why it happens:**
-
-QGSD's architecture has two copies of each hook: source in `hooks/` and installed in `~/.claude/hooks/`. The installer reads from `hooks/dist/`, not `hooks/`. If a developer forgets to sync, the installed copy is outdated. CI tests run against the source, so tests pass. But production behavior is unchanged. This is the most common integration mistake in QGSD.
-
-**How to avoid:**
-
-Apply the existing v0.18 pattern:
-1. Every plan that modifies a hook source file MUST include an explicit install sync task:
+3. **Add a `--explain` flag to observe:**
+   ```bash
+   /qgsd:observe --show-promotable --explain
+   # Output:
+   # debt-001: TypeError in component X
+   #   WILL PROMOTE in 2 days (2026-03-06) if criteria continue to hold
+   #   Fingerprint stability: 0.94/0.90 ✓
+   #   Occurrence frequency: 12/5 in 7d ✓
+   #   User impact: high (23 users) ✓
    ```
-   - [ ] Sync to dist and reinstall: cp hooks/qgsd-stop.js hooks/dist/qgsd-stop.js && node bin/install.js --claude --global
-   - [ ] Verify installed copy updated: diff hooks/dist/qgsd-stop.js ~/.claude/hooks/qgsd-stop.js
+
+**Warning signs:**
+
+- Users ask: "Why is this debt item ready for promotion? How did it get there?"
+- No way to challenge or override the promotion criteria
+- Promotion happens silently; users only notice when new requirements appear in the envelope
+
+**Phase to address:**
+
+Observe phase. Transparency is essential before any automatic promotion.
+
+---
+
+### Pitfall 10: Debt Ledger Schema Incompatibility with Formal Verification Envelope
+
+**What goes wrong:**
+
+The debt ledger has its own schema (`.formal/debt.json`). The formal requirements envelope has its own schema (`.formal/requirements.json`). When a debt item is promoted to a requirement, the fields don't map cleanly:
+
+- Debt entry has `occurrences_total: 47`, but requirements don't. New requirement is created with no count.
+- Debt entry has `fingerprint: {hash: "...", stable_since: "2026-02-15"}`, but requirements expect `provenance: {source_file: ..., milestone: ...}`. Fingerprint metadata is lost.
+- Debt entry has `source_type: "sentry"`, but requirements expect `category: "..."` (from category-groups.json). The mapping is ambiguous.
+
+When the solver runs and tries to compute R→F gaps, it sees a requirement with incomplete metadata. The requirement can't be matched to a formal model. The solver gets confused.
+
+**Why it happens:**
+
+- **Debt schema and requirements schema were designed independently** — They don't overlap. Promotion logic has to "translate" between them, and the translation is lossy.
+- **Requirements expect provenance from code/doc, not from production** — A requirement's `provenance.source_file` is something like `docs/REQUIREMENTS.md` or `.planning/quick-001-PLAN.md`. But an observation-promoted requirement has no source_file — its source is Sentry.
+
+**How to avoid:**
+
+1. **Extend the requirements schema to accommodate observation-promoted requirements:**
+   ```json
+   {
+     "$schema": "requirements-2.0",
+     "requirements": [
+       {
+         "id": "REQ-001",
+         "text": "...",
+         "category": "...",
+         "status": "Pending|Complete",
+         "provenance": {
+           "source_file": "docs/REQUIREMENTS.md",  // For code/doc-sourced reqs
+           "milestone": "v0.27",
+           "observation_source": "sentry",          // NEW: for observation-sourced reqs
+           "observation_fingerprint": "hash:...",
+           "observation_first_seen": "2026-02-01",
+           "observation_occurrences": 47
+         }
+       }
+     ]
+   }
    ```
-2. The verification diff step is mandatory — it confirms the installed copy matches the source.
-3. Plans that modify hooks without this step should be flagged during plan-phase review.
+
+2. **Implement a debt-to-requirement mapping** with field translation:
+   ```javascript
+   function promoteDebtToRequirement(debt, requirementId) {
+     return {
+       id: requirementId,
+       text: debt.title,  // Debt's title becomes requirement text
+       category: mapSourceToCategory(debt.source_type),  // "sentry" → "Observability"
+       phase: getCurrentPhase(),
+       status: "Pending",
+       provenance: {
+         observation_source: debt.source_type,
+         observation_fingerprint: debt.fingerprint.hash,
+         observation_first_seen: debt.created_at,
+         observation_occurrences: debt.occurrences_total,
+         promoted_at: new Date().toISOString()
+       }
+     };
+   }
+   ```
+
+3. **Validate promoted requirements against the requirements schema:**
+   ```javascript
+   // After promotion, before adding to the envelope:
+   const promoted = promoteDebtToRequirement(debt, "REQ-215");
+   const validationResult = validateAgainstSchema(promoted, requirements_schema);
+   if (!validationResult.valid) {
+     throw new Error(`Promoted requirement ${promoted.id} fails schema validation: ${validationResult.errors}`);
+   }
+   ```
 
 **Warning signs:**
 
-- A plan that edits a hook source file with no `cp hooks/...` step
-- New hook behavior not observed in a live session despite tests passing
-- `diff hooks/dist/qgsd-stop.js ~/.claude/hooks/qgsd-stop.js` showing differences after a plan run
-- Policy validation logic not firing even though the code was added to config-loader.js
+- Promoted requirements have incomplete fields: `provenance.source_file: null`
+- The solver skips R→F checking for observation-promoted requirements
+- Users manually edit promoted requirements to fill in missing fields
+- Solver output shows "Warning: {N} requirements have incomplete provenance"
 
 **Phase to address:**
 
-Every phase that modifies any hook file. This is a process requirement, not a one-time fix. Applied at each phase through plan review and execution checklist.
-
----
-
-### Pitfall 9: Installer Paths Parameterized But Not Expanded for Users
-
-**What goes wrong:**
-
-The installer (PORT-01..03) has been updated to use template paths: `${HOME}/.claude/` in source files, expanded to `/Users/jonathan/.claude/` at install time. But the user-facing installation documentation says "Clone the repo and run `node bin/install.js --global`". What actually happens? The installer reads source files, expands templates, and writes to the installed location. But if a user later edits the installed file directly (thinking it's the source), their edit is lost next time the installer runs. Worse, if the user copies the installed file to another machine, the templates are already expanded and the paths are machine-specific.
-
-**Why it happens:**
-
-Template expansion is a runtime decision. The installer chooses the expansion at install time. But users don't understand that the installed files contain expanded paths and shouldn't be edited or copied to other machines.
-
-**How to avoid:**
-
-1. Document in the installation guide that `node bin/install.js --global` is a one-way operation. Installed files are generated and should not be hand-edited. If the user needs to customize behavior, they edit `.claude/qgsd.json` config, not the installed hooks.
-2. If a user wants to share QGSD with a teammate, they share the SOURCE repo (bin/, hooks/), not the installed files. The teammate runs the installer on their own machine to get machine-specific paths.
-3. Consider adding a "reinstall" safeguard in the installer. If the user runs `node bin/install.js --global` again, the installer checks if installed files are stale and offers to refresh them. This prevents divergence.
-
-**Warning signs:**
-
-- User edits installed hooks directly and complains the changes were lost
-- User copies `~/.claude/hooks/` to another machine and quorum dispatch fails with invalid paths
-- Installer documentation doesn't mention template expansion
-- No mechanism to detect stale installed files vs. the source repo
-
-**Phase to address:**
-
-Portable installer phase (PORT-01..03). Documentation and installer safety mechanisms must be in place during initial release.
-
----
-
-### Pitfall 10: Credential Secrets Checked Into Git History
-
-**What goes wrong:**
-
-Credential management (CRED-01, CRED-02) uses keytar to store secrets securely. But if a developer hardcodes a test credential in a test file or in `.claude/qgsd.json` during development, the credential gets committed to the repo. Even if it's later deleted, Git history preserves it. An attacker can browse the commit history and extract credentials. Additionally, GitHub now scans for hardcoded secrets, but the detector might miss domain-specific credentials used by QGSD (e.g., a provider API key that doesn't match GitHub's regex patterns).
-
-**Why it happens:**
-
-Credentials are sensitive but credentials are also necessary for development and testing. Developers create test credentials to verify the rotation logic works. They check them in for easy testing. Later they realize the mistake and delete the files. But Git history is forever.
-
-**How to avoid:**
-
-1. Use environment variable injection for test credentials, never hardcoded values. Tests read credentials from `process.env.TEST_CRED_*` and skip credential tests if the env var is not set. This way, credentials never touch the source tree.
-2. Add a pre-commit hook that scans for common credential patterns: API_KEY, SECRET, TOKEN in config files and source code. Use a tool like `detect-secrets` or GitHub's `secret-scanning` locally.
-3. Provide a `.credentials.template.json` file in the repo showing the structure of credentials, but with all values as placeholders: `{ "provider_api_key": "your-key-here" }`. Users copy this to `.credentials.json` (in .gitignore), fill in real values, and source code never sees them.
-
-**Warning signs:**
-
-- Test file contains hardcoded API keys or tokens
-- `.claude/qgsd.json` in a commit includes real credentials
-- `git log --all -S "SECRET_KEY"` returns results
-- GitHub secret-scanning alerts are being ignored or dismissed
-
-**Phase to address:**
-
-Credential management phase (CRED-01, CRED-02). Credential handling patterns must be enforced from the start of development, not retrofitted later.
-
----
-
-### Pitfall 11: Terminal Dashboard Renders While TTY Disconnects
-
-**What goes wrong:**
-
-The terminal dashboard (DASH-01..03) uses a terminal UI library (blessed, ink, etc.) to render real-time quorum status. The dashboard listens to stdin for keyboard input and renders to stdout. If the terminal disconnects (user closes the terminal window, SSH session drops, or the terminal is piped to a file), the dashboard tries to write to a closed stdout and crashes with EPIPE error. The quorum orchestrator is still running in the background, but the user sees nothing on the display.
-
-**Why it happens:**
-
-Terminal UI libraries expect an interactive terminal. When stdout is not a TTY (e.g., piped to a file), the library's rendering calls fail. The dashboard code doesn't check for TTY before rendering.
-
-**How to avoid:**
-
-1. Before starting the dashboard, check `process.stdout.isTTY`. If false, don't render the TUI; instead, log quorum status to plain text (no colors, no formatting).
-2. If the terminal disconnects during operation, the EPIPE error should be caught and logged without crashing. The quorum dispatcher should continue operating in the background.
-3. Implement a fallback "non-interactive" mode for the dashboard. If no TTY, the dashboard outputs structured JSON or plaintext status updates to stdout/stderr, which can be piped to files or parsed by other tools.
-
-**Warning signs:**
-
-- Dashboard crashes with "EPIPE" or "write after close" error
-- Dashboard only works in an interactive terminal; fails when piped or in CI
-- No output if stdout is redirected to a file
-- User loses visibility into quorum status because the TUI crashed
-
-**Phase to address:**
-
-Dashboard & observability phase (DASH-01..03). Must handle TTY detection and fallback modes from day 1.
-
----
-
-### Pitfall 12: Formal Model Annotations Drift From Actual Implementation
-
-**What goes wrong:**
-
-Cross-model decomposition (DECOMP-05) relies on `@requirement` annotations in TLA+ model files (established in v0.25). Each annotation links a formal property to a requirement ID (e.g., `@requirement R3.5`). The annotation says the model verifies R3.5 (quorum consensus). But the planner updates the quorum logic in `quorum.md` without updating the TLA+ model. The annotation is now stale — the model no longer captures the actual behavior. When decomposition analysis composes models, it merges outdated models with current implementation, creating a false sense of verification coverage.
-
-**Why it happens:**
-
-Annotations are metadata that must be maintained alongside code. When code changes and specs don't change (or vice versa), the annotations become stale. There's no enforcement mechanism to keep them in sync.
-
-**How to avoid:**
-
-1. Implement a drift detection step: before decomposition analysis runs, verify that all `@requirement` annotations in the merged models have corresponding requirements in `.formal/requirements.json`. If an annotation references a requirement that doesn't exist, flag as stale annotation.
-2. Add a mandatory update step in the planning process: when a planner modifies a core workflow (quorum.md, plan-phase.md, etc.), the planner must update the corresponding TLA+ model or explicitly mark the annotation as "pending spec update". This creates a backlog of spec updates that are tracked.
-3. Implement a "spec-drift" check in CI that runs after every plan execution. If any formal specs are older than the last implementation change for their linked requirement, flag it as requiring a spec update.
-
-**Warning signs:**
-
-- `@requirement` annotations reference requirements that don't exist in `.formal/requirements.json`
-- Formal model state space size doesn't match actual implementation complexity
-- Decomposition analysis reports "all properties verified" but a real bug exists in the implementation
-- No tracking of when formal specs were last updated vs. when requirements changed
-- TLA+ model hasn't been regenerated after quorum.md logic change
-
-**Phase to address:**
-
-Cross-model decomposition phase (DECOMP-05) and formal model maintenance (v0.25 ongoing). Annotation drift must be detected at plan time, not after the fact.
+P→F integration phase. Debt and requirements schemas must be aligned **before** any promotion happens.
 
 ---
 
 ## Technical Debt Patterns
 
+Common shortcuts that seem reasonable but create long-term problems.
+
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Hardcoded homebrew paths in providers.json | Works immediately on macOS | Installer fails on Linux/Windows; not portable | Never — use dynamic `resolve-cli.cjs` from the start |
-| Nested policy config (policy.quorum_gate_threshold) | More readable config file | Silent data loss on partial project override due to shallow merge | Never — use flat keys (policy_quorum_gate_threshold) always |
-| No validator for policy config | Faster to ship | Users silently violate R3 protocol; hard to debug | Never — R3 validation is non-negotiable |
-| Dashboard reads scoreboard without versioning | Simple implementation | Stale state in display; user confusion | Never — state version tracking is required |
-| Credential rotation in the quorum dispatch path | Simple, synchronous code | Rotation failures block quorum; users stuck | Never — rotation must be async/background |
-| Skipping install sync for hook changes | Faster iteration | Production hook behavior diverges; silent non-deployment | Never — install sync is mandatory for all hook changes |
-| Architecture linting without scoping or baselining | Easy to implement | False positives cause alert fatigue; rule is ignored | Only in MVP with explicit backlog for scoping/baselining |
-| No state space estimate before TLC | Faster to run analysis | TLC timeout exceeds budget; user blocked; no fallback | Never — pre-flight estimate is required |
-| Test credentials hardcoded in source | Easier to test | Credentials in Git history; security breach | Never — use environment variables or test fixtures in .gitignore |
-| Dashboard doesn't check for TTY | Simpler code | EPIPE crashes when piped to file or in CI | Never — TTY check and fallback required |
+| **Hardcoded fingerprint thresholds in source handlers** | Fast deployment; no config needed | Fingerprinting is tuned for one source type; adding new sources requires code changes | Only in prototype phase; must move to config before production |
+| **Fingerprint collisions logged but not fixed** | Reduces work during observe deployment | Collisions accumulate; duplicate debt entries pollute the ledger | Never; collisions must be detected and auto-merged or warned |
+| **Skipping fingerprint stability check on high-confidence observations** | Faster promotion; high-signal observations go to requirements immediately | Noisy observations escape to requirements; formal verification budget is wasted | Only if human review gate is in place; never with auto-promotion |
+| **Debt ledger stored in a single `.formal/debt.json` file** | Simple; easy to read/write | File grows unbounded; slow queries; difficult to archive old entries | Only for <1000 entries; must migrate to database or split by date range at larger scale |
+| **Observation → Requirement mapping is implicit (observation.id.startswith('obs-') becomes REQ-XXX)** | Quick to implement | Traceability is fragile; if observation IDs change, requirement provenance breaks | Only in prototype; must implement explicit mapping table before production |
+| **P→F promotion happens inside the solve loop** | Simplifies orchestration; one command does everything | Destabilizes solver convergence; observations created during solve run invalidate diagnostics | Never; promotion must happen before solve run starts |
+| **Debt status transitions are inferred from last_occurrence timestamp** | No explicit state machine; saves code | Status is ambiguous; a debt item with no recent occurrence might be "resolved" or "stale", unclear which | Only in prototype; implement explicit state machine (OPEN → INVESTIGATING → FIXED → ARCHIVED) |
+| **Fingerprint algorithm is embedded in source handler** | Source handler is self-contained | Adding a new source requires understanding fingerprinting; no code reuse | Acceptable if <3 sources; must abstract fingerprinting to pluggable interface for >3 sources |
 
 ---
 
 ## Integration Gotchas
 
+Common mistakes when connecting observe, debt, and formal verification.
+
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Portable installer & provider paths | Hardcode `/opt/homebrew/bin/codex` in providers.json | Use dynamic `resolve-cli.cjs` at runtime; installer writes template tokens {HOME}, {HOMEBREW_PREFIX}, etc. |
-| Config-loader shallow merge | Add nested policy config expecting partial override to work | Use flat config keys (policy_quorum_gate_threshold) or implement deep-merge with warning in validateConfig() |
-| Policy config & R3 protocol | Allow policy.quorum_gate_threshold > 1.0 or < 0.5 | Validate policy against R3 constraints in validateConfig(); emit CRITICAL error if violated |
-| Dashboard & scoreboard sync | Dashboard polls scoreboard without versioning; reads can be stale | Add version field to scoreboard; dashboard caches last seen version; only refresh on new version detected |
-| Credential rotation & quorum dispatch | Rotate credentials synchronously at dispatch time | Implement async background rotation; cache current + next token; swap at dispatch with offline fallback |
-| Hook edit & installation | Edit hooks/config-loader.js without syncing to hooks/dist/ | Always: `cp hooks/config-loader.js hooks/dist/config-loader.js && node bin/install.js --claude --global`; verify with diff |
-| Policy config & user override | Document "project config overrides global" without specifying full block replacement | Document that shallow merge replaces entire policy object; if partial override is needed, use flat keys |
-| TLC decomposition & time budget | Merge two large models without state space estimate | Pre-flight estimate with heuristic (count variables, compute bounds); offer reduced analysis if >10M states |
-| Credentials & Git history | Hardcode test credentials in .claude/qgsd.json | Use environment variables; add pre-commit hook for secret scanning; provide .credentials.template.json in .gitignore |
-| Terminal dashboard & TTY detection | Render TUI without checking if stdout is a TTY | Check process.stdout.isTTY; fallback to plaintext output if no TTY; catch EPIPE errors gracefully |
-| Formal models & requirement annotations | Don't update @requirement annotations when quorum logic changes | Add drift detection step before decomposition; track when specs were last updated; flag stale annotations |
+| **Observe → Debt** | Storing raw observations without dedup; ledger fills with duplicates | Deduplicate per source before adding to ledger; use fingerprint as dedup key; consolidate variants |
+| **Debt → Promote to Requirement** | Auto-promoting without human gate; requirements polluted with low-value debt | Require explicit human approval; flag candidate requirements for review, human approves with `/qgsd:add-requirement --from-debt` |
+| **Requirement → Formal Model** | Assuming all requirements have similar verification complexity; simple ones timeout | Estimate complexity per requirement before generating models; batch only similar-complexity requirements together |
+| **Formal Model → Test Stubs** | Generating stubs for models without checking if the requirement can be tested in unit tests | Separate "formal-only" requirements from "testable" requirements; only stub testable ones |
+| **Production signals → Priority ranking** | Treating observation frequency as priority; most-frequent bug becomes most-important requirement | Separate "signal frequency" (how many times it occurs) from "business value" (how much it costs when it breaks); rank by value, not frequency |
+| **Debt ledger growth** | No cleanup; ledger grows indefinitely | Implement retention policy: auto-archive entries >90 days old or when debt count >500 |
+| **Fingerprinting across sources** | Each source uses its own fingerprinting; GitHub issues and Sentry errors can't be deduplicated across sources | Implement a "canonical fingerprint" that all sources map to; use AI similarity to detect cross-source duplicates |
+| **Solve loop and observation arrival rate mismatch** | Solver runs on a fixed schedule; high-volume production incidents create bottleneck | Decouple observation arrival from solve scheduling; use async promotion queue, batch observations, throttle P→F to avoid overwhelming formal verification |
+| **Debt promotion criteria not auditable** | Criteria hardcoded; user can't understand why an observation was promoted | Declare promotion criteria in config; include reasoning in promoted requirement's provenance |
 
 ---
 
 ## Performance Traps
 
+Patterns that work at small scale but fail as usage grows.
+
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Dashboard refreshes on fixed interval while scoreboard updates asynchronously | Display lags behind actual state; user confusion | Use fs.watch() on scoreboard file; refresh only on change detected, not on fixed interval | When quorum completes faster than refresh interval (e.g., sub-second rounds) |
-| Policy validation runs on every config load | Config loading latency increases | Cache validated policy in memory; invalidate cache only when config file changes or on explicit reload | At 100+ planning commands per session; noticeable latency in startup |
-| Credentials rotated for every slot dispatch | Token rotation overhead exceeds slot timeout | Rotate credentials async in background every 20 hours; cache rotation result; swap at dispatch time | When 4+ slots are dispatched in parallel; rotation delays exceed quorum timeout |
-| Architecture linting runs on entire codebase | Lint time exceeds user patience | Scope linting to changed files via git diff; run baseline on full codebase only once; incremental linting after | At 100k+ lines of code; linting takes >5s on each planning command |
-| Decomposition analysis merges all models regardless of complexity | TLC timeout occurs on every decomposition attempt | Estimate state space size before merging; skip decomposition if estimated >10M states; offer reduced merge | When decomposing 3+ large models simultaneously |
+| **Deduplicating observations with naive string similarity (Levenshtein distance)** | Dedup is O(N²) for N observations; takes 30s to dedup 100 items | Use AI embeddings or multi-pass filtering; cluster by fingerprint first, then similarity within cluster | >50 observations per run |
+| **Debt ledger stored as single JSON file** | Loading `.formal/debt.json` takes >1s; adding new entries requires reading + re-writing entire file | Split ledger by date: `.formal/debt-2026-02.json`, `.formal/debt-2026-03.json`; archive old files | >10MB file size or >500 entries |
+| **Formal model verification runs in sequence for each requirement** | Each TLA+ or Alloy model takes 30s; verifying 10 models takes 5+ minutes | Batch models; run verifiers in parallel with time budget per model | >5 requirements per solve run |
+| **Fingerprint matching uses exact hash lookup** | Adding a new source with slightly different fingerprint format breaks matching; fingerprints collide due to hash collision | Use semantic similarity for fingerprint matching, not just hash equality; detect collisions | New source type added; scale to >10k observations |
+| **Observation aggregation fetches from all sources sequentially** | Observe command takes 2 minutes when fetching from 5 sources (GitHub 20s, Sentry 30s, bash commands 50s) | Parallelize source fetches using async/await; set per-source timeout (10s for GitHub, 15s for Sentry) | >3 sources configured |
+| **Requirements envelope grows unbounded** | Checking R→F gaps requires scanning all 214+ requirements; `/qgsd:solve --report-only` takes 15s | Index requirements by status; only check "Pending" requirements for coverage | >300 requirements |
+| **Solve convergence loop doesn't detect oscillation** | Solver loops forever or hits max iterations with residual still high | Add per-layer change detection; exit if no layer changed between iterations | Adding P→F layer (iteration count increases) |
 
 ---
 
 ## Security Mistakes
 
+Domain-specific security issues beyond general web security.
+
 | Mistake | Risk | Prevention |
-|---------|------|----------|
-| Credentials hardcoded in config files or source code | Leaked secrets in Git history; attacker can impersonate provider calls | Use keytar for secure storage; environment variables for tests; .credentials.template.json template; pre-commit scanning for secrets |
-| Policy configuration allows users to disable all quorum models | Reduces to single-model decision; violates R3.5 protocol; allows plan delivery without consensus | Validate policy.model_selection_rules to ensure >= 1 external model available after filtering; emit CRITICAL error if violated |
-| Installed hook files expose sensitive paths or credentials in plaintext | Path disclosure enables targeted attacks; credential exposure in installed files | Sanitize installed files; don't write real credentials to hooks; use config layer for sensitive data; installed files should be read-only (chmod 644) |
+|---------|------|------------|
+| **Storing Sentry auth tokens in `.planning/observe-sources.md` as plain text** | Tokens exposed in git history; anyone with repo access can fetch all Sentry data | Never store secrets in `.planning/`; use environment variables or a secrets manager (`~/.claude/secrets.enc`); validate that `.planning/` is in `.gitignore` |
+| **Observations contain sensitive user data (emails, IP addresses, PII from stack traces)** | Privacy leak; GDPR violation if user PII is logged in debt ledger | Implement PII redaction in source handlers; mask emails as `user-***@company.com`, IPs as `IP:***`, before adding to ledger |
+| **Promoted requirements expose internal service names or architecture details via observation titles** | Architecture reconnaissance; attacker learns internal service structure from public requirements | Sanitize observation titles before promotion; replace internal service names with generic placeholders (`ServiceA` instead of `AuthTokenCache`) |
 
 ---
 
 ## UX Pitfalls
 
+Common user experience mistakes in this domain.
+
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| Portable installer fails silently with "provider unavailable" | User can't run quorum; no indication that install failed; assumes quorum is broken | Show installer verification step that tests each provider health; report failure with specific remediation (e.g., "Codex CLI not found at /opt/homebrew/bin/codex. Install with brew install codex.") |
-| Dashboard state diverges from hook layer; shows "APPROVED" but plan blocks | User sees confusing conflict; trusts dashboard, plan is blocked, user confused about reason | Ensure dashboard state always matches Stop hook decision channel; use versioned scoreboard; sync mechanism explicit |
-| Policy configuration allows invalid thresholds; silently fails consensus | User sets policy.quorum_gate_threshold: 1.5; consensus never succeeds; user has no idea why | Emit CRITICAL error at policy load time with specific reason and correct values; offer to reset to defaults |
+| **Observe command shows raw Sentry data without context** | User sees 47 issues and doesn't know which are critical or duplicates | Render deduplicated triage table with signal strength indicator (e.g., "5x in 24h", "23 users affected"); sort by impact, not recency |
+| **Promotion candidate list is not visible; observations disappear into debt ledger with no explanation** | User doesn't know when an observation is ready to become a requirement | Add `/qgsd:observe --show-promotable` command; show countdown: "Will promote in 2 days if criteria hold"; let user intervene manually |
+| **No feedback after human approves a debt item for promotion** | User approves an observation, nothing visibly happens; they don't know if it was actually promoted | After `/qgsd:add-requirement --from-debt=debt-001`, show confirmation: "Promoted to REQ-215, will be formalized in next solve run" |
 
 ---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Portable installer:** Verify that `node bin/install.js --global` works on a fresh Linux machine (not just macOS) — hardcoded paths are discovered immediately
-- [ ] **Template path expansion:** Run `diff ~/.claude/hooks/config-loader.js <(node bin/install.js --claude --show-files | grep config-loader)` to verify installed files have expanded paths, not templates
-- [ ] **Config shallow merge:** Run `node -e "const c = require('./hooks/config-loader.js'); console.log(JSON.stringify(c.loadConfig('.'), null, 2))"` with a partial project policy override — verify no policy sub-keys are undefined
-- [ ] **Policy R3 validation:** Try to set policy.quorum_gate_threshold: 0.99 in project config and run `node bin/install.js --claude --global` — verify CRITICAL error is emitted, not silent failure
-- [ ] **Dashboard state sync:** Open dashboard, watch scoreboard file with `tail -f .planning/quorum-scoreboard.json`, run quorum, compare dashboard display to latest scoreboard version field — must match exactly
-- [ ] **Credential rotation offline fallback:** Simulate a provider API being down during credential rotation — verify quorum dispatch either falls back to old token or marks slot unavailable, doesn't timeout
-- [ ] **Hook install sync:** Edit `hooks/config-loader.js`, don't sync, run test that reads config — verify test passes (source is used), but installed config is stale (would fail in production)
-- [ ] **TLC decomposition budget:** Attempt to decompose two large models (e.g., QGSDQuorum.tla + QGSDHook.tla) — verify pre-flight estimate is shown and TLC respects 5-min budget without timeout
-- [ ] **Credential secrets:** Run `git log --all --full-history -S "CRED_" -- "." ":!node_modules"` — verify no hardcoded credentials in history
-- [ ] **Dashboard TTY fallback:** Run `node bin/quorum.md 2>&1 | tee quorum.log` to pipe dashboard output to file — verify fallback plaintext mode is used, not EPIPE crash
+Things that appear complete but are missing critical pieces.
+
+- [ ] **Observe source integrated:** Often missing deduplication per source and severity mapping declaration — verify `.planning/observe-sources.md` includes `severity_map` and `fingerprinting_strategy` for every source
+- [ ] **Debt ledger created:** Often missing cleanup policy and retention rules — verify `.formal/debt.json` includes `retention_policy` with `max_age_days`, `max_entries`
+- [ ] **Fingerprinting strategy chosen:** Often missing collision detection and variant consolidation — verify fingerprint drift is tracked and variants are consolidated before promotion
+- [ ] **P→F integration designed:** Often missing quorum consensus gate and throttling logic — verify `/qgsd:add-requirement --from-debt` requires human approval, not auto-promotion
+- [ ] **Solve loop updated for P→F:** Often missing oscillation detection and per-layer change tracking — verify solve command includes cascade-aware convergence detection
+- [ ] **Promotion criteria declared:** Often missing audit trail and user visibility — verify `.planning/observe-sources.md` includes explicit criteria with thresholds; verify `--explain` flag works
+- [ ] **Debt schema maps to requirements schema:** Often missing provenance translation — verify promoted requirements can be validated against `requirements.schema.json`
+- [ ] **Performance regression testing:** Often missing benchmarks for large-scale debt — verify observe and solve commands still complete <10s with 500+ debt entries
 
 ---
 
 ## Recovery Strategies
 
+When pitfalls occur despite prevention, how to recover.
+
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Hardcoded paths in installer cause provider unavailability | MEDIUM | Refactor providers.json to use dynamic resolve-cli.cjs; update installer to template expand {HOME} and {HOMEBREW_PREFIX}; regenerate ~/.claude/ with fresh install |
-| Config shallow merge loses policy sub-keys | LOW | Flatten policy config keys (policy_quorum_gate_threshold instead of policy.quorum_gate_threshold); update validateConfig() and DEFAULT_CONFIG; document the change |
-| Dashboard state diverges from Stop hook | MEDIUM | Add version field to scoreboard; implement fs.watch() on scoreboard; verify dashboard matches version before displaying decision; test sync against conformance-events.jsonl |
-| Credential rotation blocks quorum dispatch | MEDIUM | Decouple rotation from dispatch; implement async background rotation; add offline fallback token with atomic swap; test with provider API down scenario |
-| Policy violates R3 protocol silently | LOW | Add validatePolicyAgainstR3() to config-loader.js; emit CRITICAL error if threshold > 1.0 or model count < 2; provide reset-to-defaults option |
-| Hook edit without install sync (stale production behavior) | LOW | `cp hooks/config-loader.js hooks/dist/config-loader.js && node bin/install.js --claude --global`; verify with `diff hooks/dist/config-loader.js ~/.claude/hooks/config-loader.js` |
-| Credentials in Git history | MEDIUM | Use `git filter-repo` to purge commit history (requires repo rewrite); regenerate all credentials; add pre-commit hook for secret scanning; rotate all potentially exposed credentials at providers |
-| TLC decomposition timeout | LOW | Implement state space size estimate heuristic; if > 10M states, offer reduced analysis (fewer variables or steps); increase TLC time budget for decomposition to 15 min |
-| Terminal dashboard TTY failure (EPIPE) | LOW | Add process.stdout.isTTY check before rendering TUI; implement fallback plaintext mode; wrap render calls in try/catch for EPIPE |
-| Formal model annotations drift from implementation | MEDIUM | Add drift detection step before decomposition; run spec-drift check in CI; update @requirement annotations when implementation changes; track spec last-modified date |
+| **False positive flood (Pitfall 1)** | MEDIUM | 1. Disable noisy source (`--source github` only). 2. Review recent Sentry fingerprint rules; adjust collision threshold. 3. Re-run observe with stricter filters. 4. Archive false-positive debt entries. |
+| **Unbounded debt ledger (Pitfall 2)** | MEDIUM-HIGH | 1. Run debt GC: `node bin/compact-debt.cjs --max-age 60 --archive`. 2. Review debt-to-requirement promotions; undo non-essential ones. 3. Establish retention policy going forward. |
+| **Fingerprint collision/split (Pitfall 3)** | HIGH | 1. Manually review all fingerprints with >1 variant; consolidate variants. 2. Regenerate fingerprints for all observations using new strategy. 3. Merge duplicate debt entries. 4. Rebuild debt ledger from archive if original is corrupted. |
+| **Solve layer instability (Pitfall 4)** | HIGH | 1. Disable P→F integration temporarily: `--no-promote-observations`. 2. Run solve with lower max iterations: `--max-iterations 3`. 3. Diagnose oscillation; check which layer is flip-flopping. 4. Manually fix the oscillating layer's entries. 5. Re-enable P→F after investigation. |
+| **Source abstraction leak (Pitfall 5)** | MEDIUM | 1. List all source-specific conditionals in code: `grep -r "source ===" bin/`. 2. Extract conditional logic into source-specific adapters. 3. Define a common interface that all adapters implement. |
+| **Auto-promotion bypass (Pitfall 6)** | HIGH | 1. Remove auto-promotion logic from P→F integration. 2. Audit requirements added in last sprint; undo observation-sourced ones that lack human approval. 3. Implement explicit `/qgsd:add-requirement` workflow. |
+| **Formal verification budget exhaustion (Pitfall 7)** | MEDIUM | 1. Reduce max new requirements per solve run: `--max-new-reqs 2`. 2. Increase formal verification timeout: `QGSD_FORMAL_VERIFY_TIMEOUT_MS=600000` (10 min). 3. Batch observations; throttle P→F promotion. |
+| **Fingerprint drift fragmentation (Pitfall 8)** | MEDIUM | 1. Compute fingerprint variants for all debt entries. 2. Merge variants back to primary fingerprint. 3. Audit promoted requirements; undo duplicates. 4. Implement variant consolidation going forward. |
+| **Lack of observability (Pitfall 9)** | LOW | 1. Add promotion criteria to config. 2. Add `--explain` flag to observe command. 3. Log promotion reasoning to each promoted requirement. |
+| **Schema incompatibility (Pitfall 10)** | HIGH | 1. Extend requirements.schema.json to include `observation_source`, `observation_fingerprint` in provenance. 2. Implement debt-to-requirement mapping with field translation. 3. Validate promoted requirements before adding to envelope. 4. Rebuild requirement envelope if schema changed; audit existing promoted requirements. |
 
 ---
 
 ## Pitfall-to-Phase Mapping
 
+How roadmap phases should address these pitfalls.
+
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Hardcoded paths in installer (Pitfall 1) | Portable installer phase (PORT-01, PORT-02, PORT-03) | `node bin/install.js --global` works on fresh Linux/Windows machine; `check-provider-health.cjs --json` shows all providers available |
-| Shallow config merge loses policy (Pitfall 2) | Policy config schema phase (PLCY-01, PLCY-02, PLCY-03) | `loadConfig()` partial override test passes with no undefined policy fields; `validateConfig()` emits warning on partial override |
-| Dashboard state diverges (Pitfall 3) | Dashboard & observability phase (DASH-01, DASH-02, DASH-03) | Dashboard display matches latest scoreboard version field; compare dashboard with `conformance-events.jsonl` to verify consistency |
-| Credential rotation deadlock (Pitfall 4) | Credential management phase (CRED-01, CRED-02) | Simulate provider API down during rotation; verify quorum either falls back or marks slot unavailable; test succeeds without timeout |
-| Policy violates R3 protocol (Pitfall 5) | Policy config schema phase (PLCY-01..03) | Attempt to set invalid policy threshold; verify CRITICAL error is emitted; cannot proceed with quorum |
-| Architecture linting false positives (Pitfall 6) | Architecture enforcement phase (ARCH-10) | Run `check-architecture.cjs` on clean codebase; verify < 5% false positives; scope linting to core/ exclude test/ docs/ |
-| Cross-model decomposition timeout (Pitfall 7) | Cross-model decomposition phase (DECOMP-05) | Pre-flight state space estimate is shown; TLC completes within 5-min budget; offer reduced analysis if >10M states |
-| Hook sync omitted (Pitfall 8) | Every phase modifying hooks | `diff hooks/dist/config-loader.js ~/.claude/hooks/config-loader.js` is empty after plan execution; new validation logic fires in production |
-| Installer paths parameterized but not expanded (Pitfall 9) | Portable installer phase (PORT-01..03) | Documentation states "don't edit installed files"; installer checks for stale files on re-run; user guide recommends reinstall after OS upgrade |
-| Credentials in Git history (Pitfall 10) | Credential management phase (CRED-01, CRED-02) | Pre-commit hook scans for secrets; test credentials use environment variables; no credentials in any commit history |
-| Dashboard renders without TTY check (Pitfall 11) | Dashboard & observability phase (DASH-01..03) | `process.stdout.isTTY` is checked before TUI rendering; plaintext fallback works when piped to file; no EPIPE crashes |
-| Formal model annotations drift (Pitfall 12) | Cross-model decomposition phase (DECOMP-05) | Drift detection runs before decomposition; stale annotations are flagged with specific requirement IDs; spec-drift CI check passes |
+| **1. False positive floods** | Observe: Implement per-source dedup + AI similarity clustering | Test observe with 50+ Sentry issues; verify triage table is <15 items after dedup |
+| **2. Unbounded debt ledger** | Debt Tracking: Establish retention policy + GC logic | Run observe for 30 days; verify debt ledger stays <500 entries via auto-cleanup |
+| **3. Fingerprint collision/split** | Observe: Implement collision/split detection + variant consolidation | Generate fingerprints for 100+ similar errors; verify no collisions detected |
+| **4. Solve layer instability** | P→F Integration: Add oscillation detection + per-layer change tracking | Run solve with P→F enabled; verify convergence in <5 iterations; monitor residual vector for oscillation |
+| **5. Source abstraction leak** | Observe: Define source interface contract + adapter pattern | Add 2 new sources without modifying core observe logic; all source-specific code is in adapters |
+| **6. Auto-promotion bypass** | P→F Integration: Implement human review gate + explicit approval command | Attempt auto-promotion; verify it fails without human approval; verify `/qgsd:add-requirement --from-debt` works |
+| **7. Formal verification budget exhaustion** | P→F Integration: Add throttling + budget tracking | Generate 50 observations; verify formal model generation batches to ≤3 models per run |
+| **8. Fingerprint drift fragmentation** | Debt Tracking: Implement variant tracking + consolidation | Rebuild the same error 3 times (with build hash changes); verify all 3 occurrences map to same debt entry |
+| **9. Lack of observability** | Observe: Declare promotion criteria + explain command | Run `observe --show-promotable --explain`; verify output explains why each observation is ready for promotion |
+| **10. Schema incompatibility** | P→F Integration: Extend requirements schema + implement mapping | Promote 10 debt items; verify all mapped requirements pass schema validation; verify provenance includes observation metadata |
+
+---
+
+## Phase Structure Recommendations
+
+Based on these pitfalls, the roadmap should be structured as:
+
+### Phase A: Observe Integration
+- **Pitfalls addressed:** 1, 5, 9
+- **Deliverables:** Per-source dedup, severity mapping config, AI similarity clustering, collision/split detection
+- **Success criteria:** Triage table is dedup'd; no false duplicate detection; can add new sources without code changes
+
+### Phase B: Debt Tracking
+- **Pitfalls addressed:** 2, 8
+- **Deliverables:** Debt ledger schema, retention policy, GC logic, fingerprint variant tracking
+- **Success criteria:** Ledger stays bounded; variants consolidate automatically; old entries auto-archive
+
+### Phase C: P→F Integration
+- **Pitfalls addressed:** 3, 4, 6, 7, 10
+- **Deliverables:** Human review gate, oscillation detection, formal verification throttling, requirements schema extension, debt-to-requirement mapping
+- **Success criteria:** Auto-promotion is prevented; solve loop converges in <5 iterations; promoted requirements validate against schema
 
 ---
 
 ## Sources
 
-- **Live source analysis** (HIGH confidence):
-  - `/Users/jonathanborduas/code/QGSD/bin/install.js` — hardcoded paths, template expansion patterns
-  - `/Users/jonathanborduas/code/QGSD/hooks/dist/config-loader.js` — shallow merge at line 259; DEFAULT_CONFIG structure
-  - `/Users/jonathanborduas/code/QGSD/bin/providers.json` — provider path definitions; no dynamic resolution
-  - `/Users/jonathanborduas/code/QGSD/.planning/PROJECT.md` — Key Decisions on hook install sync (v0.13-06 INT-03), shallow merge (Phase 2 CONF-02), atomic writes (Phase v0.24)
-  - `/Users/jonathanborduas/code/QGSD/CLAUDE.md` — R3 protocol requirements (R3.5: consensus from all available models; R6.2: minimum valid quorum)
-
-- **Prior research** (HIGH confidence):
-  - `.planning/research/PITFALLS.md` (v0.18) — Pitfalls 1-5 from token efficiency work; hook sync pattern; config merge semantics; Stop hook contract
-  - `.planning/research/ARCHITECTURE.md` (v0.18) — Integration seams, component boundaries, atomic write patterns, fail-open design
-  - `.planning/PROJECT.md` current milestone v0.26 — Lists all 6 target features (PORT, CRED, PLCY, DASH, ARCH, DECOMP)
-
-- **External research** (MEDIUM-HIGH confidence):
-  - Node.js portable installer guidance: [portable-node-guide on GitHub](https://github.com/tumregels/portable-node-guide); path handling via path.normalize(), os.homedir(); cross-platform spawning pitfalls
-  - Terminal UI/TUI in Node.js: [Building Terminal Interfaces with Node.js](https://blog.openreplay.com/building-terminal-interfaces-nodejs/); TTY detection with process.stdout.isTTY; Ink/blessed frameworks; EPIPE error handling
-  - Credential management: [npm security changes](https://github.blog/changelog/2025-12-09-npm-classic-tokens-revoked-session-based-auth-and-cli-token-management-now-available/); token rotation strategies [How to Create Token Rotation Strategies](https://oneuptime.com/blog/post/2026-01-30-token-rotation-strategies/view); async patterns; fallback mechanisms
-  - Policy as code: [Spacelift Policy as Code tools](https://spacelift.io/blog/policy-as-code-tools); validation patterns; YAML configuration pitfalls [Your configs suck? Try a real programming language](https://beepb00p.xyz/configs-suck.html)
-  - Architecture linting: [OWASP linting guidelines](https://owasp.org/www-project-devsecops-guideline/latest/01b-Linting-Code); scoping strategies; false-positive tuning
-  - Formal verification: [TLA+ state space explosion](https://pzuliani.github.io/papers/LASER2011-Model-Checking.pdf); [Model checking survey](https://www.sciencedirect.com/science/article/pii/S1474667017372166); [Alibaba TLA+ intro](https://www.alibabacloud.com/blog/formal-verification-tool-tla%2B-an-introduction-from-the-perspective-of-a-programmer_598373); compositional verification; PRISM [Wikipedia](https://en.wikipedia.org/wiki/PRISM_model_checker) and [manual](https://prismmodelchecker.org/manual/Main/AllOnOnePage)
+- [Sentry's Event Grouping and Fingerprinting Rules](https://docs.sentry.io/concepts/data-management/event-grouping/)
+- [Sentry's AI-Powered Similarity Detection](https://blog.sentry.io/how-sentry-decreased-issue-noise-with-ai/)
+- [Grafana's 2026 Observability Trends](https://grafana.com/blog/2026-observability-trends-predictions-from-grafana-labs-unified-intelligent-and-open/)
+- [Architectural Observability for Managing Technical Debt](https://vfunction.com/blog/why-mastering-architectural-observability-is-pivotal-to-managing-technical-debt/)
+- [On the Impact of Formal Verification on Software Development](https://ranjitjhala.github.io/static/oopsla25-formal.pdf)
+- [Verification of Strong Eventual Consistency in Distributed Systems](https://arxiv.org/pdf/1707.01747)
 
 ---
 
-*Pitfalls research for: QGSD v0.26 Operational Completeness*
-*Domain: Portable installers, credential management, policy configuration, terminal dashboards, architecture constraints, and cross-model formal model composition*
-*Researched: 2026-03-03*
+*Pitfalls research for: Production Feedback Loops & Debt Tracking Integration*
+*Researched: 2026-03-04*
+*Confidence: HIGH (based on QGSD's existing architecture, Solve layer 7-transition design, and production observability best practices)*
