@@ -71,7 +71,8 @@ Resume file: None
 | 161 | Replace blessed-xterm/node-pty with pure-JS terminal widget using @xterm/headless | 2026-03-04 | ba5e0b58 | Verified | [161-replace-blessed-xterm-node-pty-with-pure](./quick/161-replace-blessed-xterm-node-pty-with-pure/) |
 | 162 | Make sync-baselines always use detect mode by default | 2026-03-04 | 39fc61e9 | Completed | [162-make-sync-baselines-always-use-detect-mo](./quick/162-make-sync-baselines-always-use-detect-mo/) |
 | 163 | Add developer doc auto-generation to qgsd solve skill | 2026-03-04 | ea9363ea | Pending | [163-add-developer-doc-auto-generation-to-qgs](./quick/163-add-developer-doc-auto-generation-to-qgs/) |
-| 164 | Add UPPAAL verifyta installation to bin/install.js | 2026-03-04 | 8caf29e4 | Pending | [164-add-uppaal-verifyta-installation-to-bin-](./quick/164-add-uppaal-verifyta-installation-to-bin-/) |
+| 164 | Add UPPAAL verifyta installation to bin/install.js | 2026-03-04 | 8caf29e4 | Completed | [164-add-uppaal-verifyta-installation-to-bin-](./quick/164-add-uppaal-verifyta-installation-to-bin-/) |
+| 165 | Fix solver F→C diagnostic to read all 26+ formal checks instead of 4 CI-only | 2026-03-04 | 6ff105da | Completed | [165-fix-qgsd-solve-cjs-f-to-c-diagnostic-to-](./quick/165-fix-qgsd-solve-cjs-f-to-c-diagnostic-to-/) |
 
 ## Recent Accomplishments
 
