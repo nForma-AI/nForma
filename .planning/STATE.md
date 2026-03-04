@@ -79,7 +79,7 @@ None. All v0.26 phases complete.
 | 145 | T->C TAP regex fix + skip/todo tracking | 2026-03-04 | pending | Pending | [145-create-plan-for-t-c-tap-regex-fix-skip](./quick/145-create-plan-for-t-c-tap-regex-fix-skip/) |
 | 146 | Create plan for T->C TAP regex fix + skip/todo tracking | 2026-03-04 | 3e5cc7b2 | Verified | [146-create-plan-for-t-c-tap-regex-fix-skip](./quick/146-create-plan-for-t-c-tap-regex-fix-skip/) |
 | 147 | Add polyrepo config support | 2026-03-04 | 5c1037b6 | Verified | [147-add-polyrepo-config-support-global-confi](./quick/147-add-polyrepo-config-support-global-confi/) |
-| 149 | Add VS Code-style activity bar to TUI with 3 modules (Agents, Reqs, Config) and F1/F2/F3 + Tab switching | 2026-03-04 | 01c0a3a5 | Pending | [149-add-vs-code-style-activity-bar-to-tui-wi](./quick/149-add-vs-code-style-activity-bar-to-tui-wi/) |
+| 149 | Add VS Code-style activity bar to TUI with 3 modules (Agents, Reqs, Config) and F1/F2/F3 + Tab switching | 2026-03-04 | 01c0a3a5 | Verified | [149-add-vs-code-style-activity-bar-to-tui-wi](./quick/149-add-vs-code-style-activity-bar-to-tui-wi/) |
 
 ## Session Continuity
 
