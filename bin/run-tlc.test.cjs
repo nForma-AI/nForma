@@ -50,12 +50,12 @@ test('exits non-zero with descriptive message for unknown --config value', () =>
   assert.match(result.stderr, /Unknown config|bogus/i);
 });
 
-test('exits non-zero and lists valid configs in error output for invalid config', () => {
+test('exits non-zero and reports config file not found for invalid config', () => {
   const result = spawnSync(process.execPath, [RUN_TLC, '--config=invalid'], {
     encoding: 'utf8',
   });
   assert.strictEqual(result.status, 1);
-  assert.match(result.stderr, /MCsafety|MCliveness/i);
+  assert.match(result.stderr, /Config file not found|invalid\.cfg/i);
 });
 
 test('detectLivenessProperties returns [] for config with no PROPERTY lines (safety config)', () => {

@@ -71,15 +71,16 @@ test('parallelization smoke (PERF-01): all 8 TLA+ step IDs appear in output with
   // Verify that parallelization does not silently drop steps.
   // With --only=tla, the 8 TLA+ step IDs must all appear in stdout.
   // Steps will fail (no Java) but must be ATTEMPTED — step IDs are printed at header before execution.
+  // Dynamic discovery uses cfg filenames lowercased as IDs
   const TLA_STEP_IDS = [
-    'tla:quorum-safety',
-    'tla:quorum-liveness',
-    'tla:oscillation',
-    'tla:convergence',
-    'tla:breaker',
-    'tla:deliberation',
-    'tla:prefilter',
-    'tla:account-manager',
+    'tla:mcsafety',
+    'tla:mcliveness',
+    'tla:mcoscillation',
+    'tla:mcconvergence',
+    'tla:mcbreaker',
+    'tla:mcdeliberation',
+    'tla:mcprefilter',
+    'tla:mcaccount-manager',
   ];
 
   const result = spawnSync(process.execPath, [RUN_FV, '--only=tla'], {
