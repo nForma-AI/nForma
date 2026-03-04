@@ -1268,7 +1268,7 @@ Archive: .planning/milestones/v0.25-ROADMAP.md
 - [x] **Phase v0.26-02: Credential Management** - Users can rotate API keys in batch and key health persists across sessions (completed 2026-03-03)
 - [x] **Phase v0.26-03: Portable Installer & Presets** - Users can export/import roster configs portably, use provider presets, clone slots, and all hardcoded GSD paths are removed (completed 2026-03-03)
 - [x] **Phase v0.26-04: Health Dashboard** - Users can view live slot health from a terminal dashboard with refresh and clean exit (completed 2026-03-03)
-- [ ] **Phase v0.26-05: Architecture Enforcement** - QGSD never bundles LLM SDKs; all Haiku/Sonnet/Opus calls use the Agent tool
+- [x] **Phase v0.26-05: Architecture Enforcement** - QGSD never bundles LLM SDKs; all Haiku/Sonnet/Opus calls use the Agent tool (completed 2026-03-04)
 - [ ] **Phase v0.26-06: Cross-Model Decomposition** - analyze-state-space.cjs recommends model merges or flags interface contracts based on shared files and requirement prefixes
 
 ## Phase Details — v0.26
@@ -1360,5 +1360,5 @@ Phases execute in order: v0.26-01 -> v0.26-02 -> v0.26-03 -> v0.26-04 (parallel)
 | v0.26-02. Credential Management | v0.26 | Complete    | 2026-03-03 | - |
 | v0.26-03. Portable Installer & Presets | 2/2 | Complete    | 2026-03-03 | - |
 | v0.26-04. Health Dashboard | 1/1 | Complete    | 2026-03-03 | - |
-| v0.26-05. Architecture Enforcement | v0.26 | 0/2 | Planned | - |
+| v0.26-05. Architecture Enforcement | v0.26 | 2/2 | Complete | 2026-03-04 |
 | v0.26-06. Cross-Model Decomposition | v0.26 | 0/TBD | Not started | - |

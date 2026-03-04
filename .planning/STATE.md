@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.26 Operational Completeness — Phase v0.26-04 Health Dashboard (ready to plan)
+**Current focus:** v0.26 Operational Completeness — Phase v0.26-06 Cross-Model Decomposition (ready to discuss)
 
 ## Current Position
 
-Phase: v0.26-04 of 6 (Health Dashboard)
+Phase: v0.26-06 of 6 (Cross-Model Decomposition)
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-03 — Completed quick task 142: Enhance /qgsd:solve to orchestrate remediation skills for auto-closing gaps
+Status: Ready to discuss
+Last activity: 2026-03-04 — Completed phase v0.26-05 Architecture Enforcement (ARCH-10)
 
 Progress: [████████████] 100%
 
@@ -52,6 +52,9 @@ Recent decisions affecting current work:
 - [v0.26-02-02]: validateRotatedKeys is fire-and-forget with .catch(() => {}) to avoid blocking quorum dispatch
 - [v0.26-03-01]: Deep-clone agent_config on clone to prevent reference sharing; delete key_status from clone (needs fresh probe)
 - [v0.26-03-02]: Replace upstream npx get-shit-done-cc with QGSD-native node bin/install.js commands; keep migration guard annotated
+- [v0.26-04]: Health Dashboard — existing v0.10-04 implementation verified; added 10 DASH-tagged tests for coverage
+- [v0.26-05-01]: Refactored update-scoreboard.cjs and validate-requirements-haiku.cjs from @anthropic-ai/sdk to raw https.request (ARCH-10)
+- [v0.26-05-02]: Created check-bundled-sdks.cjs architecture linter + 17-test suite for ongoing ARCH-10 enforcement
 
 ### Pending Todos
 
@@ -59,7 +62,6 @@ None yet.
 
 ### Blockers/Concerns
 
-- Research flag: Phase v0.26-04 (Dashboard) needs blessed TUI state sync testing
 - Research flag: Phase v0.26-06 (Decomposition) needs TLC budget validation
 
 ## Quick Tasks Completed
@@ -74,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-03
-Stopped at: Phase v0.26-04 context gathered
-Resume file: .planning/phases/v0.26-04-health-dashboard/v0.26-04-CONTEXT.md
+Last session: 2026-03-04
+Stopped at: Phase v0.26-05 completed, v0.26-06 ready to discuss
+Resume file: .planning/phases/v0.26-06-cross-model-decomposition/
