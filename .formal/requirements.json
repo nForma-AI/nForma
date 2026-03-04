@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-04T09:15:50.382Z",
-  "content_hash": "a05a40143ea7900a",
-  "frozen_at": "2026-03-04T09:15:50.383Z",
+  "aggregated_at": "2026-03-04T09:35:12.646Z",
+  "content_hash": "710fad893b860533",
+  "frozen_at": "2026-03-04T09:35:12.647Z",
   "requirements": [
     {
       "id": "ACT-01",
@@ -526,6 +526,19 @@
       "status": "Complete",
       "provenance": {
         "source_file": ".planning/quick/147-add-polyrepo-config-support-global-confi/147-PLAN.md",
+        "milestone": "quick-147"
+      },
+      "category_raw": "Configuration",
+      "formal_models": []
+    },
+    {
+      "id": "CONF-12",
+      "text": "Per-repo marker at .planning/polyrepo.json supports an optional `docs` field with merge-semantic key-value pairs (user, developer, examples, or custom) identifying documentation and example locations relative to the repo root",
+      "category": "Configuration",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "bin/polyrepo.cjs",
         "milestone": "quick-147"
       },
       "category_raw": "Configuration",
