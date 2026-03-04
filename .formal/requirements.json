@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-04T08:30:28.218Z",
-  "content_hash": "e0e05125e7d1b078",
-  "frozen_at": "2026-03-04T08:30:28.220Z",
+  "aggregated_at": "2026-03-04T09:00:11.776Z",
+  "content_hash": "eb1b2028683a62e3",
+  "frozen_at": "2026-03-04T09:00:11.776Z",
   "requirements": [
     {
       "id": "ACT-01",
@@ -517,6 +517,19 @@
       "formal_models": [
         ".formal/alloy/config-zero-providers.als"
       ]
+    },
+    {
+      "id": "CONF-11",
+      "text": "Global polyrepo registry at ~/.claude/polyrepos/<name>.json and per-repo marker at .planning/polyrepo.json enable named groups of related repositories with cross-repo awareness support",
+      "category": "Configuration",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/quick/147-add-polyrepo-config-support-global-confi/147-PLAN.md",
+        "milestone": "quick-147"
+      },
+      "category_raw": "Configuration",
+      "formal_models": []
     },
     {
       "id": "CRED-01",
