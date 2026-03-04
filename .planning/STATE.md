@@ -74,7 +74,7 @@ None. All v0.26 phases complete.
 | 140 | Implement /qgsd:solve consistency solver command | 2026-03-03 | fa9debb2 | Verified | [140-implement-qgsd-solve-consistency-solver-](./quick/140-implement-qgsd-solve-consistency-solver-/) |
 | 141 | Fix solver loop bugs: parseAlloyDefaults parsing, stale cache invalidation | 2026-03-03 | ed8df4cf | Verified | [141-fix-solver-loop-bugs-parsealloydefaults-](./quick/141-fix-solver-loop-bugs-parsealloydefaults-/) |
 | 142 | Enhance /qgsd:solve to orchestrate remediation skills for auto-closing gaps | 2026-03-03 | ca591d87 | Verified | [142-enhance-qgsd-solve-to-orchestrate-remedi](./quick/142-enhance-qgsd-solve-to-orchestrate-remedi/) |
-| 143 | Add R-to-D and D-to-C layer transitions to qgsd-solve consistency solver | 2026-03-04 | 6a1fac44 | Pending | [143-add-r-to-d-and-d-to-c-layer-transitions-](./quick/143-add-r-to-d-and-d-to-c-layer-transitions-/) |
+| 143 | Add R-to-D and D-to-C layer transitions to qgsd-solve consistency solver | 2026-03-04 | 6a1fac44 | Verified | [143-add-r-to-d-and-d-to-c-layer-transitions-](./quick/143-add-r-to-d-and-d-to-c-layer-transitions-/) |
 
 ## Session Continuity
 
