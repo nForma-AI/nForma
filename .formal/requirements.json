@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-04T19:42:41.668Z",
-  "content_hash": "5f101518cfc35cc7",
-  "frozen_at": "2026-03-04T19:42:41.668Z",
+  "aggregated_at": "2026-03-04T23:22:17.976Z",
+  "content_hash": "2b77d872eea1a58e",
+  "frozen_at": "2026-03-04T23:22:17.977Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -886,6 +886,18 @@
       "formal_models": [
         ".formal/tla/QGSDDispatchPipeline.tla"
       ]
+    },
+    {
+      "id": "DISP-06",
+      "text": "Quorum dispatch prompts inject a matched subset of formal requirements (from .formal/requirements.json) based on keywords extracted from the question and artifact path, enabling agents to evaluate changes against concrete acceptance criteria.",
+      "category": "Quorum & Dispatch",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Quorum agents previously lacked knowledge of the 237 formal requirements and could not verify whether proposed changes satisfy specific acceptance criteria. By injecting a keyword-matched subset (capped at 20) into dispatch prompts, agents gain concrete context for evaluating design decisions against project constraints.",
+      "provenance": {
+        "source_file": ".planning/quick/170-inject-relevant-requirements-subset-into/170-PLAN.md",
+        "milestone": "quick-170"
+      }
     },
     {
       "id": "DRIFT-01",
@@ -1861,6 +1873,17 @@
       "category_raw": "Planning Integration"
     },
     {
+      "id": "PLAT-01",
+      "text": "QGSD installs and operates correctly on macOS, Ubuntu, and Windows without platform-specific workarounds",
+      "category": "Installation & Toolchain",
+      "phase": "v0.28-01",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.28"
+      }
+    },
+    {
       "id": "PLCY-01",
       "text": "User can set quorum timeout (ms) per slot from a dedicated menu shortcut — not buried inside editAgent",
       "category": "Configuration",
@@ -2050,6 +2073,29 @@
         ".formal/tla/QGSDQuorum.tla"
       ],
       "category_raw": "Quorum Gates"
+    },
+    {
+      "id": "QUORUM-04",
+      "text": "A quorum round reaches consensus when all voting members return the same verdict AND none propose further improvements; no additional iteration is required once consensus is achieved",
+      "category": "Quorum & Dispatch",
+      "phase": "v0.27",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.27"
+      }
+    },
+    {
+      "id": "QUORUM-05",
+      "text": "All quorum members (including Claude) MUST review prior-round positions from other voters and revise their own position before each deliberation round. No voter's position may be frozen across rounds — every participant re-evaluates after seeing peer arguments.",
+      "category": "Quorum & Dispatch",
+      "phase": "v0.27",
+      "status": "Pending",
+      "background": "Fixes a behavioral gap where Claude's position was frozen at Round 1 and never revised during deliberation, creating an asymmetry where Claude could not be persuaded by BLOCK reasoning. This led to Claude writing solo rebuttals to override BLOCKs instead of dispatching proper deliberation rounds with cross-pollination.",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.27"
+      }
     },
     {
       "id": "RECV-01",
@@ -2501,6 +2547,18 @@
       "provenance": {
         "source_file": ".planning/quick/163-add-developer-doc-auto-generation-to-qgs/163-PLAN.md",
         "milestone": "quick-163"
+      }
+    },
+    {
+      "id": "SOLVE-05",
+      "text": "When qgsd:solve runs in another project, run-formal-verify.cjs discovers and verifies that project's formal models (from ROOT/.formal/{tla,alloy,prism,petri}/) rather than hardcoding QGSD-internal model names. All child runners (run-tlc.cjs, run-alloy.cjs, run-prism.cjs, and variants) must honor --project-root for spec file resolution, JAR/tool lookup, and NDJSON output. QGSD-specific checks (XState machine extraction, provider roster constants) are gracefully skipped when their prerequisites do not exist in the target project.",
+      "category": "Formal Verification",
+      "phase": "unknown",
+      "status": "Pending",
+      "background": "The formal verification harness is hardcoded to QGSD's own models. When /qgsd:solve runs in another repo, it tries to verify QGSD-internal TLA+, Alloy, and PRISM models that don't exist there, producing 21+ false failures. The harness should be project-agnostic — discovering models from the target project's .formal/ directory.",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "unknown"
       }
     },
     {
