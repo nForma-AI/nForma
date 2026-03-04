@@ -5,36 +5,35 @@
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** Planning next milestone
+**Current focus:** v0.27 Production Feedback Loop — Phase v0.27-01
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-04 — Milestone v0.27 started
+Phase: v0.27-01 of 5 (Debt Schema & Fingerprinting Foundation)
+Plan: 02 of 03 (Deterministic Fingerprinting)
+Status: In Progress (2/3 tasks complete)
+Last activity: 2026-03-04 — Completed v0.27-01-02 (Issue & Drift Fingerprinting)
 
-Progress: [░░░░░░░░░░░░] 0%
+Progress: [████░░░░░░░░] 33%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 12 minutes
+- Total execution time: 0.2 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| v0.27-01 | 1/3 | 2/5 | 12 min |
 
 **Recent Trend:**
 - Last 5 plans: -
 - Trend: -
 
 *Updated after each plan completion*
-| Phase v0.26-01-policy-configuration P03 | 2 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -43,19 +42,12 @@ Progress: [░░░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [v0.26 roadmap]: Policy config (PLCY) is foundation phase; credentials and installer depend on it
-- [v0.26 roadmap]: Dashboard and architecture enforcement can run in parallel after Phase 2
-- [v0.26 roadmap]: DECOMP-05 (cross-model decomposition) is last phase; deferrable to v0.27 if needed
-- [v0.26-01-02]: Non-blocking startup pattern - auto-update check fires asynchronously, TUI renders immediately
-- [v0.26-01-02]: runAutoUpdateCheck dependency-injected via getStatusesFn parameter for testability
-- [v0.26-02-01]: probeAndPersistKey encapsulates probe-classify-write chain; timeout guard prevents stale persistence
-- [v0.26-02-02]: validateRotatedKeys is fire-and-forget with .catch(() => {}) to avoid blocking quorum dispatch
-- [v0.26-03-01]: Deep-clone agent_config on clone to prevent reference sharing; delete key_status from clone (needs fresh probe)
-- [v0.26-03-02]: Replace upstream npx get-shit-done-cc with QGSD-native node bin/install.js commands; keep migration guard annotated
-- [v0.26-04]: Health Dashboard — existing v0.10-04 implementation verified; added 10 DASH-tagged tests for coverage
-- [v0.26-05-01]: Refactored update-scoreboard.cjs and validate-requirements-haiku.cjs from @anthropic-ai/sdk to raw https.request (ARCH-10)
-- [v0.26-05-02]: Created check-bundled-sdks.cjs architecture linter + 17-test suite for ongoing ARCH-10 enforcement
-- [v0.26-06-01]: Cross-model pair detection via requirement prefix matching (5 pure functions), MERGE_BUDGET at 3M states, 8 new tests
+- [v0.27 roadmap]: Debt schema + fingerprinting are foundation phase — everything depends on valid data structure
+- [v0.27 roadmap]: Observe skill core in Phase 2 reuses existing triage architecture (pluggable sources, parallel fetch)
+- [v0.27 roadmap]: Production source types (Prometheus/Grafana/Logstash) are framework-ready stubs, no live endpoints required
+- [v0.27 roadmap]: Cross-source dedup (Phase 3) and production sources (Phase 4) can run in parallel after Phase 2
+- [v0.27 roadmap]: Solve P->F integration is last — requires stable debt ledger + dedup before feedback loop closes
+- [v0.27 research]: Six critical pitfalls identified (false positive floods, unbounded growth, fingerprint collisions, solve instability, abstraction leaks, human gate bypass)
 
 ### Pending Todos
 
@@ -63,33 +55,18 @@ None yet.
 
 ### Blockers/Concerns
 
-None. All v0.26 phases complete.
-
-## Quick Tasks Completed
-
-| # | Description | Date | Commit | Status | Directory |
-|---|---|---|---|---|---|
-| 138 | Add formal coverage section to progress and resume-work workflows | 2026-03-03 | pending | Pending | [138-add-formal-coverage-section-to-progress-](./quick/138-add-formal-coverage-section-to-progress-/) |
-| 139 | Implement /qgsd:formal-test-sync command | 2026-03-03 | 753e0870 | Verified | [139-implement-qgsd-formal-test-sync-command-](./quick/139-implement-qgsd-formal-test-sync-command-/) |
-| 140 | Implement /qgsd:solve consistency solver command | 2026-03-03 | fa9debb2 | Verified | [140-implement-qgsd-solve-consistency-solver-](./quick/140-implement-qgsd-solve-consistency-solver-/) |
-| 141 | Fix solver loop bugs: parseAlloyDefaults parsing, stale cache invalidation | 2026-03-03 | ed8df4cf | Verified | [141-fix-solver-loop-bugs-parsealloydefaults-](./quick/141-fix-solver-loop-bugs-parsealloydefaults-/) |
-| 142 | Enhance /qgsd:solve to orchestrate remediation skills for auto-closing gaps | 2026-03-03 | ca591d87 | Verified | [142-enhance-qgsd-solve-to-orchestrate-remedi](./quick/142-enhance-qgsd-solve-to-orchestrate-remedi/) |
-| 143 | Add R-to-D and D-to-C layer transitions to qgsd-solve consistency solver | 2026-03-04 | 6a1fac44 | Verified | [143-add-r-to-d-and-d-to-c-layer-transitions-](./quick/143-add-r-to-d-and-d-to-c-layer-transitions-/) |
-| 144 | Make /qgsd:solve fully autonomous — add --project-root to diagnostic scripts, rewrite solve.md for autonomy, add --batch to close-formal-gaps | 2026-03-04 | 40282191 | Verified | [144-make-qgsd-solve-fully-autonomous-add-pro](./quick/144-make-qgsd-solve-fully-autonomous-add-pro/) |
-| 145 | T->C TAP regex fix + skip/todo tracking | 2026-03-04 | pending | Pending | [145-create-plan-for-t-c-tap-regex-fix-skip](./quick/145-create-plan-for-t-c-tap-regex-fix-skip/) |
-| 146 | Create plan for T->C TAP regex fix + skip/todo tracking | 2026-03-04 | 3e5cc7b2 | Verified | [146-create-plan-for-t-c-tap-regex-fix-skip](./quick/146-create-plan-for-t-c-tap-regex-fix-skip/) |
-| 147 | Add polyrepo config support | 2026-03-04 | 5c1037b6 | Verified | [147-add-polyrepo-config-support-global-confi](./quick/147-add-polyrepo-config-support-global-confi/) |
-| 149 | Add VS Code-style activity bar to TUI with 3 modules (Agents, Reqs, Config) and F1/F2/F3 + Tab switching | 2026-03-04 | 01c0a3a5 | Verified | [149-add-vs-code-style-activity-bar-to-tui-wi](./quick/149-add-vs-code-style-activity-bar-to-tui-wi/) |
-| 150 | Set up 3-tool 2-layer secret detection: Gitleaks + detect-secrets pre-commit via Husky, TruffleHog CI pipeline | 2026-03-04 | 65f40a08 | Verified | [150-set-up-3-tool-2-layer-secret-detection-g](./quick/150-set-up-3-tool-2-layer-secret-detection-g/) |
-| 151 | Wire baseline requirements into new-project and new-milestone workflows | 2026-03-04 | 133d8a72 | Verified | [151-wire-baseline-requirements-into-new-proj](./quick/151-wire-baseline-requirements-into-new-proj/) |
-| 152 | Expand /qgsd:settings into guided project manager hub | 2026-03-04 | 3ee90a59 | Verified | [152-expand-qgsd-settings-into-guided-project](./quick/152-expand-qgsd-settings-into-guided-project/) |
-| 153 | Create bin/sync-baseline-requirements.cjs — idempotent merge of baseline requirements into existing .formal/requirements.json, matching on text description | 2026-03-04 | 7a70a337 | Verified | [153-create-bin-sync-baseline-requirements-cj](./quick/153-create-bin-sync-baseline-requirements-cj/) |
-| 154 | Wire sync-baseline-requirements into QGSD: create /qgsd:sync-baselines skill, add sync call to new-milestone and new-project workflows | 2026-03-04 | 8232d7b5 | Pending | [154-wire-sync-baseline-requirements-into-qgs](./quick/154-wire-sync-baseline-requirements-into-qgs/) |
-| 156 | Add Sessions module to nForma with blessed-xterm for embedded Claude Code terminal sessions | 2026-03-04 | 818e3443 | Verified | [156-add-sessions-module-to-nforma-with-bless](./quick/156-add-sessions-module-to-nforma-with-bless/) |
-| 157 | Implement intent-driven baseline requirements pack system | 2026-03-04 | 75c9a2d8 | Pending | [157-implement-intent-driven-baseline-require](./quick/157-implement-intent-driven-baseline-require/) |
+None yet.
 
 ## Session Continuity
 
-Last activity: 2026-03-04 - Completed quick task 157: Implement intent-driven baseline requirements pack system
-Stopped at: Completed quick-157
-Resume file: .planning/quick/157-implement-intent-driven-baseline-require/157-SUMMARY.md
+Last session: 2026-03-04
+Stopped at: Completed v0.27-01-02 (Fingerprinting algorithms)
+Resume file: None
+
+## Recent Accomplishments
+
+- **v0.27-01-02 (Deterministic Fingerprinting)** [2026-03-04]
+  - Issue fingerprinting: hierarchical (exception_type → function_name → message hash)
+  - Drift fingerprinting: formal parameter key hash
+  - 38 tests (20 issue + 18 drift), all passing
+  - Requirements FP-01 and FP-02 completed

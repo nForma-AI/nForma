@@ -44,6 +44,7 @@
 **Goal**: A validated debt ledger exists with correct schema, state machine enforcement, retention policy, and deterministic fingerprinting algorithms for both issues and drifts
 **Depends on**: Nothing (first phase)
 **Requirements**: DEBT-01, DEBT-03, DEBT-04, FP-01, FP-02
+**Status**: 1/3 plans complete (33%)
 **Success Criteria** (what must be TRUE):
   1. `.formal/debt.json` exists with validated schema (id, fingerprint, title, occurrences, first_seen, last_seen, environments, status, formal_ref, source_entries) and ajv validation passes
   2. Debt status transitions enforce the state machine (open -> acknowledged -> resolving -> resolved) and reject invalid transitions (e.g., resolved -> open)
@@ -53,7 +54,7 @@
 **Plans**: 3 plans
 Plans:
 - [ ] v0.27-01-01-PLAN.md — Schema definition, validation, and state machine (DEBT-01, DEBT-03)
-- [ ] v0.27-01-02-PLAN.md — Issue and drift fingerprinting algorithms (FP-01, FP-02)
+- [x] v0.27-01-02-PLAN.md — Issue and drift fingerprinting algorithms (FP-01, FP-02) ✅ (2026-03-04, 12min, 38 tests)
 - [ ] v0.27-01-03-PLAN.md — Ledger I/O, retention policy, and integration test (DEBT-04)
 
 ### Phase v0.27-02: Observe Skill Core
