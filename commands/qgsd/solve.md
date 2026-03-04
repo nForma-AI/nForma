@@ -117,35 +117,49 @@ If it fails, log the failure and continue.
 
 ### 3d. C->F Gaps (residual_vector.c_to_f.residual > 0)
 
-**Do NOT auto-remediate.** Constant mismatches require human judgment (formal value vs config value divergence may be intentional or a bug).
+Constant mismatches between code and formal specs. Display the mismatch table, then dispatch `/qgsd:quick` to align them:
 
-Log each mismatch with this message:
 ```
-C->F: {N} constant mismatch(es) require manual review (formal value vs config value divergence is intentional-or-not judgment)
+C->F: {N} constant mismatch(es) — dispatching quick task to align
 ```
 
-Display a detail table:
+Display detail table:
 ```
 Constant        Source            Formal Value    Config Value
 ─────────────────────────────────────────────────────────────
 constant_name   formal_spec_file  formal_val      config_val
-...
 ```
 
-Then skip to the next gap type.
+Dispatch:
+```
+/qgsd:quick Fix C->F constant mismatches: update formal specs OR code config to align these values: {mismatch_summary}
+```
+
+If the mismatch has `intentional_divergence: true`, skip it and log as intentional.
 
 ### 3e. F->C Gaps (residual_vector.f_to_c.residual > 0)
 
-Run the formal verification script:
+First, run the formal verification to get fresh failure data:
 ```bash
 node bin/run-formal-verify.cjs
 ```
 
-Capture the exit code. If non-zero, this indicates verification failures.
+Then parse `.formal/check-results.ndjson` and classify each failure:
 
-Log: `"Dispatching F->C remediation: run-formal-verify for {N} failing checks"`
+| Classification | Criteria | Dispatch |
+|---------------|----------|----------|
+| **Syntax error** | Summary contains "Syntax error", "parse error" | `/qgsd:quick Fix Alloy/TLA+ syntax error in {model_file}: {error_detail}` |
+| **Scope error** | Summary contains "scope", "sig" | `/qgsd:quick Fix scope declaration in {model_file}: {error_detail}` |
+| **Conformance divergence** | check_id contains "conformance" | `/qgsd:debug Investigate conformance trace divergences: {N} divergences in {model}` |
+| **Verification failure** | Counterexample found | `/qgsd:debug Investigate formal verification counterexample in {check_id}: {summary}` |
+| **Missing tool** | "not found", "not installed" | Log as infrastructure gap, skip |
+| **Inconclusive** | result = "inconclusive" | Skip — not a failure |
 
-If the script fails completely, log the error and continue.
+Dispatch each fixable failure to the appropriate skill. Process syntax/scope errors first (they're usually quick fixes), then conformance/verification failures (require deeper investigation).
+
+Log: `"F->C: {total} checks, {pass} pass, {fail} fail — dispatching {syntax_count} to quick, {debug_count} to debug, {skip_count} skipped"`
+
+Each dispatch is independent — if one fails, continue to the next.
 
 ## Step 4: Re-Diagnostic Sweep
 
@@ -171,7 +185,7 @@ If `--max-iterations=N` was passed and N > 1:
 - If iterations < max_iterations AND residual decreased AND residual > 0: loop back to Step 3 (re-dispatch remediation)
 - If iterations >= max_iterations OR residual unchanged OR residual == 0: proceed to Step 6
 
-Default behavior (no `--max-iterations` flag): max iterations = 3.
+Default behavior (no `--max-iterations` flag): max iterations = 5.
 
 ## Step 6: Before/After Summary
 
@@ -180,19 +194,16 @@ Display a comprehensive before/after comparison table:
 ```
 Layer Transition         Before  After   Delta     Status
 ─────────────────────────────────────────────────────────
-R -> F (Req->Formal)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-F -> T (Formal->Test)      {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-C -> F (Code->Formal)      {N}    {M}    {delta}   [MANUAL]
-T -> C (Test->Code)        {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-F -> C (Formal->Code)      {N}    {M}    {delta}   [GREEN|YELLOW|RED]
+R -> F (Req→Formal)        {N}    {M}    {delta}   [GREEN|YELLOW|RED]
+F -> T (Formal→Test)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
+C -> F (Code→Formal)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
+T -> C (Test→Code)         {N}    {M}    {delta}   [GREEN|YELLOW|RED]
+F -> C (Formal→Code)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
 ──────────────────────────────────────────────────────────
 Total                      {N}    {M}    {delta}
 ```
 
-If any C->F gaps were skipped, append a note:
-```
-Note: C->F gaps ({N} mismatches) require manual review. Constant divergence may be intentional or indicative of schema drift. Review each mismatch and update either the formal spec or the config to align.
-```
+If any gaps remain after convergence, append a summary of what couldn't be auto-fixed and why.
 
 ## Important Constraints
 
@@ -200,8 +211,17 @@ Note: C->F gaps ({N} mismatches) require manual review. Constant divergence may 
 
 2. **Convergence loop is at skill level** — when the skill calls diagnostic again in Step 4, it uses `--json --report-only` to get fresh data. The skill then decides whether to loop back to Step 3 or exit. The script's internal auto-close loop is bypassed.
 
-3. **Error handling** — each remediation dispatch (R->F, F->T, T->C, F->C) is wrapped in error handling. If a sub-skill or script fails, log the failure and continue to the next gap type. Do not let one failure abort the entire solve cycle.
+3. **Error handling** — each remediation dispatch is wrapped in error handling. If a sub-skill or script fails, log the failure and continue to the next gap type. Do not let one failure abort the entire solve cycle.
 
-4. **Ordering** — remediation order is strict because R->F must precede F->T. New formal specs create new invariants that need test backing. T->C fixes must happen before F->C verification runs. C->F is always manual.
+4. **Ordering** — remediation order is strict because R→F must precede F→T (new formal specs create new invariants needing test backing). T→C fixes must happen before F→C verification (tests must pass before checking formal properties against code).
+
+5. **Full skill arsenal** — the solver dispatches to the right skill for each gap type. It never stops at "manual review required" if a skill exists that can attempt the fix. The hierarchy is:
+   - **close-formal-gaps** for missing formal models (R→F)
+   - **formal-test-sync** for missing test backing (F→T)
+   - **fix-tests** for failing tests (T→C)
+   - **quick** for constant mismatches (C→F) and syntax/scope errors in formal models (F→C)
+   - **debug** for conformance divergences and verification counterexamples (F→C)
+
+6. **Cascade awareness** — fixing one layer often creates gaps in the next (e.g., new formal models → new F→T gaps → new stubs → new T→C gaps). The iteration loop handles this naturally. Expect the total to fluctuate between iterations before converging.
 
 </process>
