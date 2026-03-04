@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 Phase: —
 Plan: —
 Status: v0.26 archived, ready for next milestone
-Last activity: 2026-03-04 - Completed quick task 149: Add VS Code-style activity bar to TUI
+Last activity: 2026-03-04 - Completed quick task 152: Expand /qgsd:settings into guided project manager hub
 
 Progress: [████████████] 100%
 
@@ -82,9 +82,10 @@ None. All v0.26 phases complete.
 | 149 | Add VS Code-style activity bar to TUI with 3 modules (Agents, Reqs, Config) and F1/F2/F3 + Tab switching | 2026-03-04 | 01c0a3a5 | Verified | [149-add-vs-code-style-activity-bar-to-tui-wi](./quick/149-add-vs-code-style-activity-bar-to-tui-wi/) |
 | 150 | Set up 3-tool 2-layer secret detection: Gitleaks + detect-secrets pre-commit via Husky, TruffleHog CI pipeline | 2026-03-04 | 65f40a08 | Verified | [150-set-up-3-tool-2-layer-secret-detection-g](./quick/150-set-up-3-tool-2-layer-secret-detection-g/) |
 | 151 | Wire baseline requirements into new-project and new-milestone workflows | 2026-03-04 | 133d8a72 | Verified | [151-wire-baseline-requirements-into-new-proj](./quick/151-wire-baseline-requirements-into-new-proj/) |
+| 152 | Expand /qgsd:settings into guided project manager hub | 2026-03-04 | 64e7b315 | Pending | [152-expand-qgsd-settings-into-guided-project](./quick/152-expand-qgsd-settings-into-guided-project/) |
 
 ## Session Continuity
 
-Last activity: 2026-03-04 - Completed quick task 151: Wire baseline requirements into new-project and new-milestone workflows
-Stopped at: Completed quick-151
-Resume file: .planning/quick/151-wire-baseline-requirements-into-new-proj/151-SUMMARY.md
+Last activity: 2026-03-04 - Completed quick task 152: Expand /qgsd:settings into guided project manager hub
+Stopped at: Completed quick-152
+Resume file: .planning/quick/152-expand-qgsd-settings-into-guided-project/152-SUMMARY.md
