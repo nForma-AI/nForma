@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-04T23:22:17.976Z",
-  "content_hash": "2b77d872eea1a58e",
-  "frozen_at": "2026-03-04T23:22:17.977Z",
+  "aggregated_at": "2026-03-04T23:40:13.836Z",
+  "content_hash": "bd8683a6dd4d69b9",
+  "frozen_at": "2026-03-04T23:40:13.836Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -2554,11 +2554,11 @@
       "text": "When qgsd:solve runs in another project, run-formal-verify.cjs discovers and verifies that project's formal models (from ROOT/.formal/{tla,alloy,prism,petri}/) rather than hardcoding QGSD-internal model names. All child runners (run-tlc.cjs, run-alloy.cjs, run-prism.cjs, and variants) must honor --project-root for spec file resolution, JAR/tool lookup, and NDJSON output. QGSD-specific checks (XState machine extraction, provider roster constants) are gracefully skipped when their prerequisites do not exist in the target project.",
       "category": "Formal Verification",
       "phase": "unknown",
-      "status": "Pending",
+      "status": "Complete",
       "background": "The formal verification harness is hardcoded to QGSD's own models. When /qgsd:solve runs in another repo, it tries to verify QGSD-internal TLA+, Alloy, and PRISM models that don't exist there, producing 21+ false failures. The harness should be project-agnostic — discovering models from the target project's .formal/ directory.",
       "provenance": {
-        "source_file": "manual",
-        "milestone": "unknown"
+        "source_file": ".planning/quick/167-implement-solve-05-make-the-formal-verif/167-PLAN.md",
+        "milestone": "quick-167"
       }
     },
     {
