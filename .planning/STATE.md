@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 Phase: —
 Plan: —
 Status: v0.26 archived, ready for next milestone
-Last activity: 2026-03-04 - Completed quick task 143: Add R-to-D and D-to-C layer transitions to qgsd-solve consistency solver
+Last activity: 2026-03-04 - Completed quick task 149: Add VS Code-style activity bar to TUI
 
 Progress: [████████████] 100%
 
@@ -79,9 +79,10 @@ None. All v0.26 phases complete.
 | 145 | T->C TAP regex fix + skip/todo tracking | 2026-03-04 | pending | Pending | [145-create-plan-for-t-c-tap-regex-fix-skip](./quick/145-create-plan-for-t-c-tap-regex-fix-skip/) |
 | 146 | Create plan for T->C TAP regex fix + skip/todo tracking | 2026-03-04 | 3e5cc7b2 | Verified | [146-create-plan-for-t-c-tap-regex-fix-skip](./quick/146-create-plan-for-t-c-tap-regex-fix-skip/) |
 | 147 | Add polyrepo config support | 2026-03-04 | 5c1037b6 | Verified | [147-add-polyrepo-config-support-global-confi](./quick/147-add-polyrepo-config-support-global-confi/) |
+| 149 | Add VS Code-style activity bar to TUI with 3 modules (Agents, Reqs, Config) and F1/F2/F3 + Tab switching | 2026-03-04 | 01c0a3a5 | Pending | [149-add-vs-code-style-activity-bar-to-tui-wi](./quick/149-add-vs-code-style-activity-bar-to-tui-wi/) |
 
 ## Session Continuity
 
-Last activity: 2026-03-04 - Completed quick task 147: Add polyrepo config support
-Stopped at: Completed quick-147
-Resume file: .planning/quick/144-make-qgsd-solve-fully-autonomous-add-pro/144-SUMMARY.md
+Last activity: 2026-03-04 - Completed quick task 149: Add VS Code-style activity bar to TUI
+Stopped at: Completed quick-149
+Resume file: .planning/quick/149-add-vs-code-style-activity-bar-to-tui-wi/149-SUMMARY.md
