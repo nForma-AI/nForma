@@ -34,7 +34,7 @@
 
 - [x] **Phase v0.27-01: Debt Schema & Fingerprinting Foundation** - Debt ledger schema, state machine, retention policy, and fingerprinting algorithms (✅ 2026-03-04)
 - [x] **Phase v0.27-02: Observe Skill Core** - Pluggable observe command replacing triage with parallel source fetching and debt write-through (completed 2026-03-04)
-- [ ] **Phase v0.27-03: Cross-Source Deduplication** - Fingerprint matching, near-duplicate merging, and formal parameter linkage
+- [x] **Phase v0.27-03: Cross-Source Deduplication** - Fingerprint matching, near-duplicate merging, and formal parameter linkage (✅ 2026-03-04)
 - [ ] **Phase v0.27-04: Production Source Types** - Prometheus, Grafana, and Logstash source handlers (framework-ready)
 - [ ] **Phase v0.27-05: Solve P->F Integration** - Production-to-Formal residual layer closing the feedback loop
 
@@ -82,11 +82,12 @@ Plans:
   2. Cross-source near-duplicates are detected via Levenshtein similarity (configurable threshold, default 0.85) on titles when fingerprints do not match
   3. When two debt entries merge by fingerprint, source_entries from both are preserved and the entry with higher occurrence count is kept as primary
   4. Each debt entry can link to a formal reference (model file, parameter key, requirement ID) via the formal_ref field
+**Status**: 3/3 plans complete (100%) — Phase complete ✅
 **Plans**: 3 plans
 Plans:
-- [ ] v0.27-03-01-PLAN.md — Levenshtein similarity and schema extension for formal_ref_source (FP-03, DEBT-02)
-- [ ] v0.27-03-02-PLAN.md — Dedup engine and formal reference auto-linker (FP-03, FP-04, DEBT-02, DEBT-05)
-- [ ] v0.27-03-03-PLAN.md — Integration into observe-debt-writer and end-to-end test (FP-03, FP-04, DEBT-02, DEBT-05)
+- [x] v0.27-03-01-PLAN.md — Levenshtein similarity and schema extension for formal_ref_source (FP-03, DEBT-02) ✅ (2026-03-04, 4min, 27 tests)
+- [x] v0.27-03-02-PLAN.md — Dedup engine and formal reference auto-linker (FP-03, FP-04, DEBT-02, DEBT-05) ✅ (2026-03-04, 5min, 41 tests)
+- [x] v0.27-03-03-PLAN.md — Integration into observe-debt-writer and end-to-end test (FP-03, FP-04, DEBT-02, DEBT-05) ✅ (2026-03-04, 4min, 24 tests)
 
 ### Phase v0.27-04: Production Source Types
 **Goal**: Observe supports Prometheus, Grafana, and Logstash as pluggable source types with framework-ready handlers
@@ -126,6 +127,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | v0.27-01. Debt Schema & Fingerprinting Foundation | 3/3 | Complete    | 2026-03-04 |
 | v0.27-02. Observe Skill Core | 0/3 | Complete    | 2026-03-04 |
-| v0.27-03. Cross-Source Deduplication | 0/TBD | Not started | - |
+| v0.27-03. Cross-Source Deduplication | 3/3 | Complete    | 2026-03-04 |
 | v0.27-04. Production Source Types | 0/TBD | Not started | - |
 | v0.27-05. Solve P->F Integration | 0/TBD | Not started | - |
