@@ -2226,7 +2226,7 @@
     },
     {
       "id": "SOLVE-01",
-      "text": "Execute `/qgsd:solve` command to sweep all 5 layer transitions (Requirements→Formal, Formal→Tests, Code→Formal, Tests→Code, Formal→Code) and compute residual vectors showing gaps at each boundary, with optional auto-closing of gaps through iteration until convergence",
+      "text": "Execute `/qgsd:solve` command to sweep all 7 layer transitions (Requirements→Formal, Formal→Tests, Code→Formal, Tests→Code, Formal→Code, Requirements→Docs, Docs→Code) and compute residual vectors showing gaps at each boundary, with optional auto-closing of gaps through iteration until convergence",
       "category": "Formal Verification",
       "phase": "unknown",
       "status": "Complete",
@@ -2249,6 +2249,21 @@
       "provenance": {
         "source_file": ".planning/quick/141-fix-solver-loop-bugs-parsealloydefaults-/141-PLAN.md",
         "milestone": "quick-141"
+      },
+      "formal_models": [
+        ".formal/alloy/solve-consistency.als"
+      ]
+    },
+    {
+      "id": "SOLVE-03",
+      "text": "Solver discovers documentation files via config (docs_paths in .planning/config.json) with convention fallback (README.md, docs/**/*.md), checks R→D coverage by literal ID and keyword matching, and verifies D→C structural claims (file paths, CLI commands, dependencies) with false-positive filtering for template variables, example headings, home paths, and fenced code blocks",
+      "category": "Formal Verification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The solver had zero visibility into documentation consistency. A README could list commands that don't exist, reference deleted files, or omit shipped features — and /qgsd:solve would report all-green. R→D and D→C are manual-review-only layers (no auto-fix) that surface documentation drift.",
+      "provenance": {
+        "source_file": ".planning/quick/143-add-r-to-d-and-d-to-c-layer-transitions-/143-PLAN.md",
+        "milestone": "quick-143"
       },
       "formal_models": [
         ".formal/alloy/solve-consistency.als"
