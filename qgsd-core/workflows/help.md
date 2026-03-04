@@ -312,13 +312,16 @@ Usage: `/qgsd:plan-milestone-gaps`
 ### Configuration
 
 **`/qgsd:settings`**
-Configure workflow toggles and model profile interactively.
+Project manager hub — dashboard, smart routing, and configuration.
 
-- Toggle researcher, plan checker, verifier agents
-- Select model profile (quality/balanced/budget)
-- Updates `.planning/config.json`
+- Shows project status dashboard (milestone, phase, progress, config)
+- 4-category menu: Continue Working, Project Management, Configuration, Quick Task
+- Smart routing recommends next action based on project state
+- Manage project profile and baseline requirements
+- Configure workflow agents and model profiles
 
 Usage: `/qgsd:settings`
+Usage: `/qgsd:settings --config` (skip hub, jump to workflow settings)
 
 **`/qgsd:set-profile <profile>`**
 Quick switch model profile for GSD agents.

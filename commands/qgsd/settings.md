@@ -1,22 +1,25 @@
 ---
 name: qgsd:settings
-description: Configure GSD workflow toggles and model profile
+description: Project manager hub — dashboard, smart routing, and configuration
 allowed-tools:
   - Read
   - Write
   - Bash
   - AskUserQuestion
+  - Glob
+  - Grep
 ---
 
 <objective>
-Interactive configuration of GSD workflow agents and model profile via multi-question prompt.
+Guided project manager hub with state-aware dashboard and categorized action menu.
 
-Routes to the settings workflow which handles:
-- Config existence ensuring
-- Current settings reading and parsing
-- Interactive 5-question prompt (model, research, plan_check, verifier, branching)
-- Config merging and writing
-- Confirmation display with quick command references
+Shows project status (milestone, phase, progress, config) then routes to:
+- Continue Working — smart routing based on project state (same as /qgsd:progress)
+- Project Management — phases, milestones, todos, debug, roadmap
+- Configuration — workflow settings, project profile, baselines, quorum agents
+- Quick Task — ad-hoc tasks via /qgsd:quick
+
+Backward compatible: /qgsd:settings --config goes directly to workflow settings (original 6-question config form).
 </objective>
 
 <execution_context>
@@ -27,10 +30,10 @@ Routes to the settings workflow which handles:
 **Follow the settings workflow** from `@~/.claude/qgsd/workflows/settings.md`.
 
 The workflow handles all logic including:
-1. Config file creation with defaults if missing
-2. Current config reading
-3. Interactive settings presentation with pre-selection
-4. Answer parsing and config merging
-5. File writing
-6. Confirmation display
+1. Flag check (--config for backward compat)
+2. Dashboard state loading via gsd-tools
+3. Status dashboard display
+4. Main menu presentation (4 categories)
+5. Sub-menu routing and action execution
+6. Original config flow (via --config or Configuration menu)
 </process>
