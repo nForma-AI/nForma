@@ -68,7 +68,7 @@ Resume file: None
 | # | Task | Date | Commit | Status | Link |
 |---|------|------|--------|--------|------|
 | 146 | TAP regex fix for Node v25 and skip/todo tracking in sweepTtoC | 2026-03-04 | 54d7f780 | Completed | [146-track-skip-todo-in-t-c-sweep-fix-broken-](./quick/146-track-skip-todo-in-t-c-sweep-fix-broken-/) |
-| 161 | Replace blessed-xterm/node-pty with pure-JS terminal widget using @xterm/headless | 2026-03-04 | ba5e0b58 | Pending | [161-replace-blessed-xterm-node-pty-with-pure](./quick/161-replace-blessed-xterm-node-pty-with-pure/) |
+| 161 | Replace blessed-xterm/node-pty with pure-JS terminal widget using @xterm/headless | 2026-03-04 | ba5e0b58 | Verified | [161-replace-blessed-xterm-node-pty-with-pure](./quick/161-replace-blessed-xterm-node-pty-with-pure/) |
 | 162 | Make sync-baselines always use detect mode by default | 2026-03-04 | 39fc61e9 | Completed | [162-make-sync-baselines-always-use-detect-mo](./quick/162-make-sync-baselines-always-use-detect-mo/) |
 
 ## Recent Accomplishments
