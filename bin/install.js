@@ -135,14 +135,14 @@ function getGlobalDir(runtime, explicitDir = null) {
 }
 
 const banner = '\n' +
-  salmon + '  ██████╗ ' + cyan + ' ██████╗ ███████╗██████╗\n' +
-  salmon + ' ██╔═══██╗' + cyan + '██╔════╝ ██╔════╝██╔══██╗\n' +
-  salmon + ' ██║   ██║' + cyan + '██║  ███╗███████╗██║  ██║\n' +
-  salmon + ' ██║▄▄ ██║' + cyan + '██║   ██║╚════██║██║  ██║\n' +
-  salmon + ' ╚██████╔╝' + cyan + '╚██████╔╝███████║██████╔╝\n' +
-  salmon + '  ╚══▀▀═╝ ' + cyan + ' ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
+  salmon + ' ███╗   ██╗' + cyan + '███████╗ ██████╗ ██████╗ ███╗   ███╗ █████╗\n' +
+  salmon + ' ████╗  ██║' + cyan + '██╔════╝██╔═══██╗██╔══██╗████╗ ████║██╔══██╗\n' +
+  salmon + ' ██╔██╗ ██║' + cyan + '█████╗  ██║   ██║██████╔╝██╔████╔██║███████║\n' +
+  salmon + ' ██║╚██╗██║' + cyan + '██╔══╝  ██║   ██║██╔══██╗██║╚██╔╝██║██╔══██║\n' +
+  salmon + ' ██║ ╚████║' + cyan + '██║     ╚██████╔╝██║  ██║██║ ╚═╝ ██║██║  ██║\n' +
+  salmon + ' ╚═╝  ╚═══╝' + cyan + '╚═╝      ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝' + reset + '\n' +
   '\n' +
-  '  Quorum Gets Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
+  '  nForma — Quorum Gets Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
   '  Built on GSD-CC by TÂCHES.\n' +
   '  Full automation through quorum of coding agents. By Jonathan Borduas.\n' +
   '\n' +
@@ -150,7 +150,7 @@ const banner = '\n' +
   '   so strong that it makes the system\u2019s weaknesses irrelevant.\n' +
   dim + '  \u2014 Peter Drucker' + reset + '\n';
 
-// QGSD: MCP auto-detection — keyword map for quorum model server matching
+// nForma: MCP auto-detection — keyword map for quorum model server matching
 const QGSD_KEYWORD_MAP = {
   codex:    { keywords: ['codex'],    defaultPrefix: 'mcp__codex-cli-1__'  },
   gemini:   { keywords: ['gemini'],   defaultPrefix: 'mcp__gemini-cli-1__' },
@@ -1022,12 +1022,12 @@ function uninstall(isGlobal, runtime = 'claude') {
     console.log(`  ${green}✓${reset} Removed qgsd/`);
   }
 
-  // 2b. Migration: warn about old get-shit-done/ and commands/gsd/ paths from pre-v0.2 QGSD installs
+  // 2b. Migration: warn about old get-shit-done/ and commands/gsd/ paths from pre-v0.2 nForma installs
   // REN-03: intentional legacy path reference for migration detection
   const oldGsdDir = path.join(targetDir, 'get-shit-done');
   const oldCommandsGsdDir = path.join(targetDir, 'commands', 'gsd');
   if (fs.existsSync(oldGsdDir) || fs.existsSync(oldCommandsGsdDir)) {
-    console.log(`\n  ${yellow}⚠ Migration notice:${reset} Old QGSD paths detected from a pre-v0.2 install:`);
+    console.log(`\n  ${yellow}⚠ Migration notice:${reset} Old nForma paths detected from a pre-v0.2 install:`);
     if (fs.existsSync(oldGsdDir)) console.log(`    ${yellow}•${reset} ${oldGsdDir}`);
     if (fs.existsSync(oldCommandsGsdDir)) console.log(`    ${yellow}•${reset} ${oldCommandsGsdDir}`);
     console.log(`  ${yellow}  If you don't have upstream GSD installed, these can be safely removed:${reset}`);
@@ -1049,13 +1049,13 @@ function uninstall(isGlobal, runtime = 'claude') {
     }
     if (agentCount > 0) {
       removedCount++;
-      console.log(`  ${green}✓${reset} Removed ${agentCount} QGSD agents`);
+      console.log(`  ${green}✓${reset} Removed ${agentCount} nForma agents`);
     }
 
-    // Migration: warn about old gsd-*.md agents from pre-v0.2 QGSD installs
+    // Migration: warn about old gsd-*.md agents from pre-v0.2 nForma installs
     const oldAgents = fs.readdirSync(agentsDir).filter(f => f.startsWith('gsd-') && f.endsWith('.md'));
     if (oldAgents.length > 0) {
-      console.log(`\n  ${yellow}⚠ Migration notice:${reset} Old QGSD agents (gsd-*.md) detected from a pre-v0.2 install:`);
+      console.log(`\n  ${yellow}⚠ Migration notice:${reset} Old nForma agents (gsd-*.md) detected from a pre-v0.2 install:`);
       oldAgents.forEach(f => console.log(`    ${yellow}•${reset} ${path.join(agentsDir, f)}`));
       console.log(`  ${yellow}  If you don't use upstream GSD, these can be safely removed:${reset}`);
       console.log(`    for f in ~/.claude/agents/gsd-*.md; do rm "$f"; done\n`);
@@ -1144,7 +1144,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       );
       if (settings.hooks.UserPromptSubmit.length < before) {
         settingsModified = true;
-        console.log(`  ${green}✓${reset} Removed QGSD quorum injection hook`);
+        console.log(`  ${green}✓${reset} Removed nForma quorum injection hook`);
       }
       if (settings.hooks.UserPromptSubmit.length === 0) delete settings.hooks.UserPromptSubmit;
     }
@@ -1155,7 +1155,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       );
       if (settings.hooks.Stop.length < before) {
         settingsModified = true;
-        console.log(`  ${green}✓${reset} Removed QGSD quorum gate hook`);
+        console.log(`  ${green}✓${reset} Removed nForma quorum gate hook`);
       }
       if (settings.hooks.Stop.length === 0) delete settings.hooks.Stop;
     }
@@ -1166,7 +1166,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       );
       if (settings.hooks.PreToolUse.length < before) {
         settingsModified = true;
-        console.log(`  ${green}✓${reset} Removed QGSD circuit breaker hook`);
+        console.log(`  ${green}✓${reset} Removed nForma circuit breaker hook`);
       }
       if (settings.hooks.PreToolUse.length === 0) delete settings.hooks.PreToolUse;
     }
@@ -1177,7 +1177,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       );
       if (settings.hooks.PostToolUse.length < before) {
         settingsModified = true;
-        console.log(`  ${green}✓${reset} Removed QGSD context monitor hook`);
+        console.log(`  ${green}✓${reset} Removed nForma context monitor hook`);
       }
       if (settings.hooks.PostToolUse.length === 0) delete settings.hooks.PostToolUse;
     }
@@ -1189,7 +1189,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       );
       if (settings.hooks.PostToolUse.length < before) {
         settingsModified = true;
-        console.log(`  ${green}✓${reset} Removed QGSD spec-regen hook`);
+        console.log(`  ${green}✓${reset} Removed nForma spec-regen hook`);
       }
       if (settings.hooks.PostToolUse.length === 0) delete settings.hooks.PostToolUse;
     }
@@ -1200,7 +1200,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       );
       if (settings.hooks.PreCompact.length < before) {
         settingsModified = true;
-        console.log(`  ${green}✓${reset} Removed QGSD PreCompact hook`);
+        console.log(`  ${green}✓${reset} Removed nForma PreCompact hook`);
       }
       if (settings.hooks.PreCompact.length === 0) delete settings.hooks.PreCompact;
     }
@@ -1817,7 +1817,7 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Configured update check hook`);
     }
 
-    // Register QGSD session-start secret sync hook
+    // Register nForma session-start secret sync hook
     const hasGsdSessionStartHook = settings.hooks.SessionStart.some(entry =>
       entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-session-start'))
     );
@@ -1830,13 +1830,13 @@ function install(isGlobal, runtime = 'claude') {
           }
         ]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD secret sync hook (SessionStart)`);
+      console.log(`  ${green}✓${reset} Configured nForma secret sync hook (SessionStart)`);
     }
 
     // INST-05: Warn (yellow) if quorum MCP servers are absent — runs every install
     warnMissingMcpServers();
 
-    // Register QGSD UserPromptSubmit hook (quorum injection)
+    // Register nForma UserPromptSubmit hook (quorum injection)
     // MUST be in settings.json — plugin hooks.json silently discards UserPromptSubmit output (GitHub #10225)
     if (!settings.hooks.UserPromptSubmit) settings.hooks.UserPromptSubmit = [];
     const hasQgsdPromptHook = settings.hooks.UserPromptSubmit.some(entry =>
@@ -1846,10 +1846,10 @@ function install(isGlobal, runtime = 'claude') {
       settings.hooks.UserPromptSubmit.push({
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-prompt.js') }]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD quorum injection hook (UserPromptSubmit)`);
+      console.log(`  ${green}✓${reset} Configured nForma quorum injection hook (UserPromptSubmit)`);
     }
 
-    // Register QGSD Stop hook (quorum gate — verifies quorum evidence before Claude delivers planning output)
+    // Register nForma Stop hook (quorum gate — verifies quorum evidence before Claude delivers planning output)
     if (!settings.hooks.Stop) settings.hooks.Stop = [];
     const hasQgsdStopHook = settings.hooks.Stop.some(entry =>
       entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-stop'))
@@ -1858,10 +1858,10 @@ function install(isGlobal, runtime = 'claude') {
       settings.hooks.Stop.push({
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-stop.js'), timeout: 30 }]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD quorum gate hook (Stop)`);
+      console.log(`  ${green}✓${reset} Configured nForma quorum gate hook (Stop)`);
     }
 
-    // INST-08: Register QGSD circuit breaker hook (PreToolUse — Claude Code only)
+    // INST-08: Register nForma circuit breaker hook (PreToolUse — Claude Code only)
     if (!settings.hooks.PreToolUse) settings.hooks.PreToolUse = [];
     const hasCircuitBreakerHook = settings.hooks.PreToolUse.some(entry =>
       entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-circuit-breaker'))
@@ -1870,10 +1870,10 @@ function install(isGlobal, runtime = 'claude') {
       settings.hooks.PreToolUse.push({
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-circuit-breaker.js'), timeout: 10 }]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD circuit breaker hook (PreToolUse)`);
+      console.log(`  ${green}✓${reset} Configured nForma circuit breaker hook (PreToolUse)`);
     }
 
-    // Register QGSD context monitor hook (PostToolUse — context window warnings)
+    // Register nForma context monitor hook (PostToolUse — context window warnings)
     if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = [];
     const hasContextMonitorHook = settings.hooks.PostToolUse.some(entry =>
       entry.hooks && entry.hooks.some(h => h.command && h.command.includes('gsd-context-monitor'))
@@ -1882,10 +1882,10 @@ function install(isGlobal, runtime = 'claude') {
       settings.hooks.PostToolUse.push({
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'gsd-context-monitor.js') }]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD context monitor hook (PostToolUse)`);
+      console.log(`  ${green}✓${reset} Configured nForma context monitor hook (PostToolUse)`);
     }
 
-    // Register QGSD spec-regen hook (PostToolUse — auto-regenerate specs on machine file write)
+    // Register nForma spec-regen hook (PostToolUse — auto-regenerate specs on machine file write)
     if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = [];
     const hasSpecRegenHook = settings.hooks.PostToolUse.some(entry =>
       entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-spec-regen'))
@@ -1894,10 +1894,10 @@ function install(isGlobal, runtime = 'claude') {
       settings.hooks.PostToolUse.push({
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-spec-regen.js') }]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD spec-regen hook (PostToolUse)`);
+      console.log(`  ${green}✓${reset} Configured nForma spec-regen hook (PostToolUse)`);
     }
 
-    // Register QGSD PreCompact hook (phase state injection at compaction time)
+    // Register nForma PreCompact hook (phase state injection at compaction time)
     if (!settings.hooks.PreCompact) settings.hooks.PreCompact = [];
     const hasPreCompactHook = settings.hooks.PreCompact.some(entry =>
       entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-precompact'))
@@ -1906,10 +1906,10 @@ function install(isGlobal, runtime = 'claude') {
       settings.hooks.PreCompact.push({
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-precompact.js') }]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD PreCompact hook (phase state injection)`);
+      console.log(`  ${green}✓${reset} Configured nForma PreCompact hook (phase state injection)`);
     }
 
-    // Register QGSD token collector hook (SubagentStop — logs per-slot token usage)
+    // Register nForma token collector hook (SubagentStop — logs per-slot token usage)
     if (!settings.hooks.SubagentStop) settings.hooks.SubagentStop = [];
     const hasTokenCollectorHook = settings.hooks.SubagentStop.some(entry =>
       entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-token-collector'))
@@ -1919,10 +1919,10 @@ function install(isGlobal, runtime = 'claude') {
         matcher: 'qgsd-quorum-slot-worker',
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-token-collector.js'), async: true }]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD token collector hook (SubagentStop)`);
+      console.log(`  ${green}✓${reset} Configured nForma token collector hook (SubagentStop)`);
     }
 
-    // Register QGSD slot correlator hook (SubagentStart — writes agent_id correlation file)
+    // Register nForma slot correlator hook (SubagentStart — writes agent_id correlation file)
     if (!settings.hooks.SubagentStart) settings.hooks.SubagentStart = [];
     const hasSlotCorrelatorHook = settings.hooks.SubagentStart.some(entry =>
       entry.hooks && entry.hooks.some(h => h.command && h.command.includes('qgsd-slot-correlator'))
@@ -1932,10 +1932,10 @@ function install(isGlobal, runtime = 'claude') {
         matcher: 'qgsd-quorum-slot-worker',
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'qgsd-slot-correlator.js'), async: true }]
       });
-      console.log(`  ${green}✓${reset} Configured QGSD slot correlator hook (SubagentStart)`);
+      console.log(`  ${green}✓${reset} Configured nForma slot correlator hook (SubagentStart)`);
     }
 
-    // Write QGSD config — skip if exists unless --redetect-mcps flag set
+    // Write nForma config — skip if exists unless --redetect-mcps flag set
     const qgsdConfigPath = path.join(targetDir, 'qgsd.json');
 
     // --redetect-mcps: delete existing config so fresh detection runs below
@@ -1965,7 +1965,7 @@ function install(isGlobal, runtime = 'claude') {
       };
 
       fs.writeFileSync(qgsdConfigPath, JSON.stringify(qgsdConfig, null, 2) + '\n', 'utf8');
-      console.log(`  ${green}✓${reset} Wrote QGSD config with detected MCP prefixes (~/.claude/qgsd.json)`);
+      console.log(`  ${green}✓${reset} Wrote nForma config with detected MCP prefixes (~/.claude/qgsd.json)`);
       console.log(`  ${green}✓${reset} Wrote quorum_active (${qgsdConfig.quorum_active.length} slots) to qgsd.json`);
     } else {
       // INST-06: print active config summary on reinstall
@@ -2127,13 +2127,13 @@ function handleStatusline(settings, isInteractive, callback) {
   Your current statusline:
     ${dim}command: ${existingCmd}${reset}
 
-  QGSD includes a statusline showing:
+  nForma includes a statusline showing:
     • Model name
     • Current task (from todo list)
     • Context window usage (color-coded)
 
   ${cyan}1${reset}) Keep existing
-  ${cyan}2${reset}) Replace with QGSD statusline
+  ${cyan}2${reset}) Replace with nForma statusline
 `);
 
   rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {

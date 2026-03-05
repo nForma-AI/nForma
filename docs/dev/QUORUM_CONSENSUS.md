@@ -1,7 +1,7 @@
-# QGSD Quorum Consensus - Formal Verification of Agent Transitions
+# nForma Quorum Consensus - Formal Verification of Agent Transitions
 
 ## Question
-What formalism could we use to verify that all transitions are logically sound between our agents in the QGSD state machine — acknowledging Claude Code won't follow them exactly, but wanting the system to be "close" to a verified design?
+What formalism could we use to verify that all transitions are logically sound between our agents in the nForma state machine — acknowledging Claude Code won't follow them exactly, but wanting the system to be "close" to a verified design?
 
 ## Consensus Answer
 A hybrid formal verification approach that combines structural and probabilistic methods. Use Labeled Transition Systems (LTS) or Statecharts to model the deterministic control structure of the QGSD state machine, augmented with probabilistic extensions (MDPs/POMDPs) to account for uncertainty in agent behavior. Apply temporal logic (LTL/CTL) for safety and liveness properties, with probabilistic temporal logic (PCTL) for quantitative bounds. Verify the design using model checkers like PRISM or NuSMV, and complement with runtime verification techniques including trace alignment and conformance testing to ensure deployed agents remain "close" to the verified design.

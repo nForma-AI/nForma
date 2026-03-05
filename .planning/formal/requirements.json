@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-05T21:14:27.513Z",
-  "content_hash": "97106ca185e20ba743dd827e5c0c24e677e3c243f7fdb1195ace3be62ffdda1c",
-  "frozen_at": "2026-03-05T19:46:43.015Z",
+  "aggregated_at": "2026-03-05T21:22:42.178Z",
+  "content_hash": "738fbcaacd81b590209bcc047d8287b63dee11d85dcf54b94834e6e114378b21",
+  "frozen_at": "2026-03-05T21:22:42.178Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -1203,7 +1203,7 @@
     },
     {
       "id": "INST-01",
-      "text": "Installer detects no configured quorum agents and prompts user to run `/qgsd:mcp-setup`",
+      "text": "Installer detects no configured quorum agents and prompts user to run `/nf:mcp-setup`",
       "category": "Installer & CLI",
       "phase": "unknown",
       "status": "Complete",
@@ -1856,7 +1856,7 @@
     },
     {
       "id": "OBS-06",
-      "text": "Scan local project state for unfinished quick tasks, stale debug sessions, and unverified milestone phases; surface them as always-on issues in /qgsd:observe without requiring configuration.",
+      "text": "Scan local project state for unfinished quick tasks, stale debug sessions, and unverified milestone phases; surface them as always-on issues in /nf:observe without requiring configuration.",
       "category": "Observability & Diagnostics",
       "phase": "unknown",
       "status": "Complete",
@@ -2113,6 +2113,28 @@
       "formal_models": [
         ".planning/formal/tla/QGSDConfigPortability.tla"
       ]
+    },
+    {
+      "id": "PROJECT-01",
+      "text": "The project shall be referred to as 'nForma' in all user-facing contexts",
+      "category": "Project Identity",
+      "phase": "v0.28-00",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.28"
+      }
+    },
+    {
+      "id": "PROJECT-02",
+      "text": "All skill shortcuts shall use the 'nf:' prefix (e.g., nf:solve, nf:quick)",
+      "category": "Project Identity",
+      "phase": "v0.28-00",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.28"
+      }
     },
     {
       "id": "PROV-01",
@@ -2668,7 +2690,7 @@
     },
     {
       "id": "SOLVE-01",
-      "text": "Execute `/qgsd:solve` command to sweep all 7 layer transitions (Requirements→Formal, Formal→Tests, Code→Formal, Tests→Code, Formal→Code, Requirements→Docs, Docs→Code) and compute residual vectors showing gaps at each boundary, with optional auto-closing of gaps through iteration until convergence",
+      "text": "Execute `/nf:solve` command to sweep all 7 layer transitions (Requirements→Formal, Formal→Tests, Code→Formal, Tests→Code, Formal→Code, Requirements→Docs, Docs→Code) and compute residual vectors showing gaps at each boundary, with optional auto-closing of gaps through iteration until convergence",
       "category": "Formal Verification",
       "phase": "unknown",
       "status": "Complete",
@@ -2714,7 +2736,7 @@
     },
     {
       "id": "SOLVE-04",
-      "text": "Scope R→D gap detection to developer-category documentation files (docs/dev/) and automatically dispatch /qgsd:quick batches to generate requirement-to-documentation entries into docs/dev/requirements-coverage.md, while preserving user-controlled docs (docs/) as manual-only",
+      "text": "Scope R→D gap detection to developer-category documentation files (docs/dev/) and automatically dispatch /nf:quick batches to generate requirement-to-documentation entries into docs/dev/requirements-coverage.md, while preserving user-controlled docs (docs/) as manual-only",
       "category": "Formal Verification",
       "phase": "unknown",
       "status": "Complete",
@@ -3020,7 +3042,7 @@
     },
     {
       "id": "STOP-08",
-      "text": "Block reason message format: \"QUORUM REQUIRED: Before completing this /qgsd:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output.\"",
+      "text": "Block reason message format: \"QUORUM REQUIRED: Before completing this /nf:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output.\"",
       "category": "Hooks & Enforcement",
       "phase": "unknown",
       "status": "Complete",
@@ -3176,7 +3198,7 @@
     },
     {
       "id": "TRACE-06",
-      "text": "The /qgsd:formal-test-sync command cross-references formal model invariants with unit test coverage, validates formal constants against runtime config defaults, reports coverage gaps, generates test stubs, and integrates unit test coverage into the traceability matrix",
+      "text": "The /nf:formal-test-sync command cross-references formal model invariants with unit test coverage, validates formal constants against runtime config defaults, reports coverage gaps, generates test stubs, and integrates unit test coverage into the traceability matrix",
       "category": "Formal Verification",
       "phase": "unknown",
       "status": "Complete",
@@ -3500,7 +3522,7 @@
     },
     {
       "id": "VIS-01",
-      "text": "`/qgsd:health` surfaces W008 warning when a quorum slot has ≥3 failures recorded in `quorum-failures.json`",
+      "text": "`/nf:health` surfaces W008 warning when a quorum slot has ≥3 failures recorded in `quorum-failures.json`",
       "category": "Observability & Diagnostics",
       "phase": "unknown",
       "status": "Complete",
@@ -3515,7 +3537,7 @@
     },
     {
       "id": "WIZ-01",
-      "text": "User can run `/qgsd:mcp-setup` to start the MCP configuration wizard",
+      "text": "User can run `/nf:mcp-setup` to start the MCP configuration wizard",
       "category": "Installer & CLI",
       "phase": "unknown",
       "status": "Complete",
@@ -3590,7 +3612,7 @@
     },
     {
       "id": "WIZ-08",
-      "text": "`/qgsd:mcp-setup` re-run menu includes an \"Edit Quorum Composition\" option",
+      "text": "`/nf:mcp-setup` re-run menu includes an \"Edit Quorum Composition\" option",
       "category": "Installer & CLI",
       "phase": "unknown",
       "status": "Complete",
@@ -3635,7 +3657,7 @@
     },
     {
       "id": "WIZ-11",
-      "text": "User can run /qgsd:settings to access a guided project manager hub with state-aware dashboard (milestone, progress, phase, config summary) and categorized main menu (Continue Working, Project Management, Configuration, Quick Task) with smart routing and profile/baselines management",
+      "text": "User can run /nf:settings to access a guided project manager hub with state-aware dashboard (milestone, progress, phase, config summary) and categorized main menu (Continue Working, Project Management, Configuration, Quick Task) with smart routing and profile/baselines management",
       "category": "Installer & CLI",
       "phase": "unknown",
       "status": "Complete",

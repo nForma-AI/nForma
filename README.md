@@ -1,6 +1,6 @@
 <div align="center">
 
-# QGSD: Quorum Gets Shit Done
+# nForma — Quorum Gets Shit Done
 
 **Every planning decision verified by a quorum of AI models before Claude executes a single line.**
 
@@ -21,17 +21,17 @@ npx qgsd@latest
 
 <br>
 
-![QGSD Install](assets/terminal.svg)
+![nForma Install](assets/terminal.svg)
 
 <br>
 
-[Why I Built QGSD](#why-i-built-qgsd) · [How It Works](#how-it-works) · [Why It Works](#why-it-works) · [Formal Verification](#formal-verification) · [Commands](#commands) · [User Guide](docs/USER-GUIDE.md)
+[Why I Built nForma](#why-i-built-nforma) · [How It Works](#how-it-works) · [Why It Works](#why-it-works) · [Formal Verification](#formal-verification) · [Commands](#commands) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
 
 ---
 
-## Why I Built QGSD
+## Why I Built nForma
 
 GSD nailed the workflow. But I wanted to push it further.
 
@@ -61,14 +61,14 @@ The installer prompts you to choose:
 1. **Runtime** — Claude Code, OpenCode, Gemini, or all
 2. **Location** — Global (all projects) or local (current project only)
 
-Verify with `/qgsd:help` inside your chosen runtime.
+Verify with `/nf:help` inside your chosen runtime.
 
 ### Setting Up Your Quorum
 
 The fastest path is the interactive wizard — it handles everything from installing CLI tools to registering MCP servers and configuring API keys:
 
 ```
-/qgsd:mcp-setup
+/nf:mcp-setup
 ```
 
 **First run:** linear onboarding — picks provider, configures API key (stored in system keychain), registers MCP server with Claude Code, verifies live connectivity via identity ping.
@@ -78,12 +78,12 @@ The fastest path is the interactive wizard — it handles everything from instal
 <details>
 <summary><strong>Manual setup (advanced)</strong></summary>
 
-All quorum agents run through QGSD's **unified MCP server** (`bin/unified-mcp-server.mjs`). There are two agent families:
+All quorum agents run through nForma's **unified MCP server** (`bin/unified-mcp-server.mjs`). There are two agent families:
 
 - **CLI agents** (codex, gemini, opencode, copilot) — wrap native CLI tools
 - **API agents** (claude-1..6) — route requests to third-party LLM providers via [Claude Code Router (CCR)](https://github.com/musistudio/claude-code-router)
 
-QGSD uses a **slot-based naming scheme** (`<family>-<N>`) so you can run multiple instances of the same agent family. `claude-1` is the first Claude slot, `copilot-1` is the first Copilot slot, etc.
+nForma uses a **slot-based naming scheme** (`<family>-<N>`) so you can run multiple instances of the same agent family. `claude-1` is the first Claude slot, `copilot-1` is the first Copilot slot, etc.
 
 ---
 
@@ -118,7 +118,7 @@ API-based slots (`claude-1` through `claude-6`) use [Claude Code Router](https:/
 
 #### Registration
 
-The `/qgsd:mcp-setup` wizard handles all registration automatically. If you prefer manual setup, slots are registered in `~/.claude.json` pointing to the unified server:
+The `/nf:mcp-setup` wizard handles all registration automatically. If you prefer manual setup, slots are registered in `~/.claude.json` pointing to the unified server:
 
 ```bash
 # All slots use the same entrypoint
@@ -181,11 +181,11 @@ The TUI also includes a **requirements management** section — browse, filter, 
 **Navigation:** arrow keys to move, Enter to select, Escape or `q` to go back or exit.
 
 > [!NOTE]
-> QGSD works with as few as one quorum member — more models means stronger consensus. Claude is always the fifth voting member in every quorum round.
+> nForma works with as few as one quorum member — more models means stronger consensus. Claude is always the fifth voting member in every quorum round.
 
 ### Staying Updated
 
-QGSD evolves fast. Update periodically:
+nForma evolves fast. Update periodically:
 
 ```bash
 npx qgsd@latest
@@ -231,14 +231,14 @@ Installs to `./.claude/` for testing modifications before contributing.
 
 ### Recommended: Skip Permissions Mode
 
-QGSD is designed for frictionless automation. Run Claude Code with:
+nForma is designed for frictionless automation. Run Claude Code with:
 
 ```bash
 claude --dangerously-skip-permissions
 ```
 
 > [!TIP]
-> This is how QGSD is intended to be used — stopping to approve `date` and `git commit` 50 times defeats the purpose.
+> This is how nForma is intended to be used — stopping to approve `date` and `git commit` 50 times defeats the purpose.
 
 <details>
 <summary><strong>Alternative: Granular Permissions</strong></summary>
@@ -277,12 +277,12 @@ If you prefer not to use that flag, add this to your project's `.claude/settings
 
 ## How It Works
 
-> **Already have code?** Run `/qgsd:map-codebase` first. It spawns parallel agents to analyze your stack, architecture, conventions, and concerns. Then `/qgsd:new-project` knows your codebase — questions focus on what you're adding, and planning automatically loads your patterns.
+> **Already have code?** Run `/nf:map-codebase` first. It spawns parallel agents to analyze your stack, architecture, conventions, and concerns. Then `/nf:new-project` knows your codebase — questions focus on what you're adding, and planning automatically loads your patterns.
 
 ### 1. Initialize Project
 
 ```
-/qgsd:new-project
+/nf:new-project
 ```
 
 One command, one flow. The system:
@@ -301,7 +301,7 @@ You approve the roadmap. Now you're ready to build.
 ### 2. Discuss Phase
 
 ```
-/qgsd:discuss-phase 1
+/nf:discuss-phase 1
 ```
 
 **This is where you shape the implementation.**
@@ -329,7 +329,7 @@ The deeper you go here, the more the system builds what you actually want. Skip 
 ### 3. Plan Phase
 
 ```
-/qgsd:plan-phase 1
+/nf:plan-phase 1
 ```
 
 The system:
@@ -347,7 +347,7 @@ Each plan is small enough to execute in a fresh context window. No degradation, 
 ### 4. Execute Phase
 
 ```
-/qgsd:execute-phase 1
+/nf:execute-phase 1
 ```
 
 The system:
@@ -398,7 +398,7 @@ This is why "vertical slices" (Plan 01: User feature end-to-end) parallelize bet
 ### 5. Verify Work
 
 ```
-/qgsd:verify-work 1
+/nf:verify-work 1
 ```
 
 **This is where you confirm it actually works.**
@@ -412,7 +412,7 @@ The system:
 3. **Diagnoses failures automatically** — Spawns debug agents to find root causes
 4. **Creates verified fix plans** — Ready for immediate re-execution
 
-If everything passes, you move on. If something's broken, you don't manually debug — you just run `/qgsd:execute-phase` again with the fix plans it created.
+If everything passes, you move on. If something's broken, you don't manually debug — you just run `/nf:execute-phase` again with the fix plans it created.
 
 **Creates:** `{phase_num}-UAT.md`, fix plans if issues found
 
@@ -421,34 +421,34 @@ If everything passes, you move on. If something's broken, you don't manually deb
 ### 6. Repeat → Complete → Next Milestone
 
 ```
-/qgsd:discuss-phase 2
-/qgsd:plan-phase 2
-/qgsd:execute-phase 2
-/qgsd:verify-work 2
+/nf:discuss-phase 2
+/nf:plan-phase 2
+/nf:execute-phase 2
+/nf:verify-work 2
 ...
-/qgsd:complete-milestone
-/qgsd:new-milestone
+/nf:complete-milestone
+/nf:new-milestone
 ```
 
 Loop **discuss → plan → execute → verify** until milestone complete.
 
 Each phase gets your input (discuss), proper research (plan), clean execution (execute), and human verification (verify). Context stays fresh. Quality stays high.
 
-When all phases are done, `/qgsd:complete-milestone` archives the milestone and tags the release.
+When all phases are done, `/nf:complete-milestone` archives the milestone and tags the release.
 
-Then `/qgsd:new-milestone` starts the next version — same flow as `new-project` but for your existing codebase. You describe what you want to build next, the system researches the domain, you scope requirements, and it creates a fresh roadmap. Each milestone is a clean cycle: define → build → ship.
+Then `/nf:new-milestone` starts the next version — same flow as `new-project` but for your existing codebase. You describe what you want to build next, the system researches the domain, you scope requirements, and it creates a fresh roadmap. Each milestone is a clean cycle: define → build → ship.
 
 ---
 
 ### Quick Mode
 
 ```
-/qgsd:quick
+/nf:quick
 ```
 
 **For ad-hoc tasks that don't need full planning.**
 
-Quick mode gives you QGSD guarantees (atomic commits, state tracking) with a faster path:
+Quick mode gives you nForma guarantees (atomic commits, state tracking) with a faster path:
 
 - **Same agents** — Planner + executor, same quality
 - **Skips optional steps** — No research, no plan checker, no verifier
@@ -457,7 +457,7 @@ Quick mode gives you QGSD guarantees (atomic commits, state tracking) with a fas
 Use for: bug fixes, small features, config changes, one-off tasks.
 
 ```
-/qgsd:quick
+/nf:quick
 > What do you want to do? "Add dark mode toggle to settings"
 ```
 
@@ -468,7 +468,7 @@ Use for: bug fixes, small features, config changes, one-off tasks.
 ### Test Suite Maintenance
 
 ```
-/qgsd:fix-tests
+/nf:fix-tests
 ```
 
 An autonomous command that discovers every test in your project, runs them, diagnoses failures, and dispatches fix tasks — looping until all tests are either passing or classified.
@@ -483,10 +483,10 @@ An autonomous command that discovers every test in your project, runs them, diag
    - `isolate` — Test only fails alongside specific other tests (pollution); ddmin algorithm finds the minimal polluter set
    - `real-bug` — Genuine regression; deferred to user report
    - `fixture` — Missing test data or environment setup
-4. **Dispatch** — `adapt`, `fixture`, and `isolate` failures are dispatched as `/qgsd:quick` fix tasks automatically
+4. **Dispatch** — `adapt`, `fixture`, and `isolate` failures are dispatched as `/nf:quick` fix tasks automatically
 5. **Loop** — Repeats until all tests pass or no progress for 5 consecutive batches
 
-Interrupted runs resume to the exact batch step via `/qgsd:resume-work`.
+Interrupted runs resume to the exact batch step via `/nf:resume-work`.
 
 ---
 
@@ -496,7 +496,7 @@ Interrupted runs resume to the exact batch step via `/qgsd:resume-work`.
 
 Claude Code is incredibly powerful *if* you give it the context it needs. Most people don't.
 
-QGSD handles it for you:
+nForma handles it for you:
 
 | File | What it does |
 |------|--------------|
@@ -548,17 +548,17 @@ The orchestrator never does heavy lifting. It spawns agents, waits, integrates r
 
 ### Token Efficiency
 
-QGSD manages token consumption automatically across three mechanisms:
+nForma manages token consumption automatically across three mechanisms:
 
-**Tiered model sizing** — Researcher and plan-checker sub-agents use a smaller model (haiku by default) for a 15–20x cost reduction vs. using sonnet everywhere. The primary planner and executor retain sonnet. Configure via `model_tier_planner` and `model_tier_worker` keys in qgsd.json, or switch via `/qgsd:set-profile`.
+**Tiered model sizing** — Researcher and plan-checker sub-agents use a smaller model (haiku by default) for a 15–20x cost reduction vs. using sonnet everywhere. The primary planner and executor retain sonnet. Configure via `model_tier_planner` and `model_tier_worker` keys in qgsd.json, or switch via `/nf:set-profile`.
 
 **Adaptive quorum fan-out** — Quorum dispatches fewer workers for routine tasks (2 workers) than for high-risk ones (max). The task envelope's `risk_level` field drives this automatically. Override with `--n N` in any quorum call.
 
-**Token observability** — The SubagentStop hook collects per-slot token usage and writes to `.planning/token-usage.jsonl`. Run `/qgsd:health` to see a ranked breakdown of token consumption by slot and stage — spot which agents are spending the most before it becomes a problem.
+**Token observability** — The SubagentStop hook collects per-slot token usage and writes to `.planning/token-usage.jsonl`. Run `/nf:health` to see a ranked breakdown of token consumption by slot and stage — spot which agents are spending the most before it becomes a problem.
 
 ### Autonomous Milestone Loop
 
-From `/qgsd:new-milestone` through `/qgsd:complete-milestone`, the execution chain runs without AskUserQuestion interruptions. When audit-milestone detects gaps, plan-milestone-gaps is spawned automatically. All confirmation gates (plan approval, gap resolution, gray-area discussion) route to quorum consensus instead of pausing for a human. The loop only escalates when the quorum cannot reach consensus — which is the signal that a human judgment call is actually needed.
+From `/nf:new-milestone` through `/nf:complete-milestone`, the execution chain runs without AskUserQuestion interruptions. When audit-milestone detects gaps, plan-milestone-gaps is spawned automatically. All confirmation gates (plan approval, gap resolution, gray-area discussion) route to quorum consensus instead of pausing for a human. The loop only escalates when the quorum cannot reach consensus — which is the signal that a human judgment call is actually needed.
 
 Enable auto-chaining via the `workflow.auto_advance` setting.
 
@@ -590,9 +590,9 @@ fix: auth token was wrong               ← file A again
 fix: session expiry broke again         ← file B again
 ```
 
-**What QGSD does about it:**
+**What nForma does about it:**
 
-QGSD's circuit breaker watches your git history for exactly this pattern. It collapses consecutive commits on the same file set into run-groups, then flags when the same file set alternates across 3+ run-groups. That's the structural signal: not "these files changed a lot," but "these files are ping-ponging."
+nForma's circuit breaker watches your git history for exactly this pattern. It collapses consecutive commits on the same file set into run-groups, then flags when the same file set alternates across 3+ run-groups. That's the structural signal: not "these files changed a lot," but "these files are ping-ponging."
 
 When the pattern is detected, a Haiku reviewer first checks whether this is genuine oscillation or normal iterative refinement (polishing the same files toward a clear goal). If it's genuine, the circuit breaker fires.
 
@@ -622,7 +622,7 @@ npx qgsd --enable-breaker
 
 ### Hooks Ecosystem
 
-QGSD installs seven Claude Code hooks that fire at different lifecycle points:
+nForma installs seven Claude Code hooks that fire at different lifecycle points:
 
 | Hook Type | File | When it fires | What it does |
 |-----------|------|---------------|--------------|
@@ -667,9 +667,9 @@ You're never locked in. The system adapts.
 
 ## Formal Verification
 
-> **Note:** The formal verification pipeline is optional. If you just want to use QGSD, skip this section — you do not need Java 17, PRISM, or Alloy to run QGSD normally. This is for developers who want to verify the correctness of QGSD's protocol implementation.
+> **Note:** The formal verification pipeline is optional. If you just want to use nForma, skip this section — you do not need Java 17, PRISM, or Alloy to run nForma normally. This is for developers who want to verify the correctness of nForma's protocol implementation.
 
-QGSD ships executable formal models of its core protocols — not documentation, but machine-checked specs that verify safety, liveness, and probabilistic properties of the protocols that govern how your planning decisions get made.
+nForma ships executable formal models of its core protocols — not documentation, but machine-checked specs that verify safety, liveness, and probabilistic properties of the protocols that govern how your planning decisions get made.
 
 ### What's Modeled
 
@@ -761,90 +761,90 @@ Each verification run produces machine-readable outputs:
 
 | Command | What it does |
 |---------|--------------|
-| `/qgsd:new-project [--auto]` | Full initialization: questions → research → requirements → roadmap |
-| `/qgsd:discuss-phase [N] [--auto]` | Capture implementation decisions before planning |
-| `/qgsd:plan-phase [N] [--auto]` | Research + plan + verify for a phase |
-| `/qgsd:execute-phase <N>` | Execute all plans in parallel waves, verify when complete |
-| `/qgsd:verify-work [N]` | Manual user acceptance testing |
-| `/qgsd:audit-milestone` | Verify milestone achieved its definition of done |
-| `/qgsd:complete-milestone` | Archive milestone, tag release |
-| `/qgsd:new-milestone [name]` | Start next version: questions → research → requirements → roadmap |
+| `/nf:new-project [--auto]` | Full initialization: questions → research → requirements → roadmap |
+| `/nf:discuss-phase [N] [--auto]` | Capture implementation decisions before planning |
+| `/nf:plan-phase [N] [--auto]` | Research + plan + verify for a phase |
+| `/nf:execute-phase <N>` | Execute all plans in parallel waves, verify when complete |
+| `/nf:verify-work [N]` | Manual user acceptance testing |
+| `/nf:audit-milestone` | Verify milestone achieved its definition of done |
+| `/nf:complete-milestone` | Archive milestone, tag release |
+| `/nf:new-milestone [name]` | Start next version: questions → research → requirements → roadmap |
 
 ### Navigation
 
 | Command | What it does |
 |---------|--------------|
-| `/qgsd:progress` | Where am I? What's next? |
-| `/qgsd:help` | Show all commands and usage guide |
-| `/qgsd:update` | Update QGSD with changelog preview |
-| `/qgsd:join-discord` | Join the QGSD Discord community |
+| `/nf:progress` | Where am I? What's next? |
+| `/nf:help` | Show all commands and usage guide |
+| `/nf:update` | Update nForma with changelog preview |
+| `/nf:join-discord` | Join the nForma Discord community |
 
 ### Brownfield
 
 | Command | What it does |
 |---------|--------------|
-| `/qgsd:map-codebase` | Analyze existing codebase before new-project |
-| `/qgsd:map-requirements [--dry-run] [--skip-archive] [--skip-validate]` | Merge current + archived milestone requirements into `.planning/formal/requirements.json` |
-| `/qgsd:add-requirement [--id=PREFIX-NN] [--text="..."]` | Add a single requirement with duplicate/conflict checks |
-| `/qgsd:close-formal-gaps [--category="..."] [--ids=...] [--all]` | Generate formal models for uncovered requirements |
+| `/nf:map-codebase` | Analyze existing codebase before new-project |
+| `/nf:map-requirements [--dry-run] [--skip-archive] [--skip-validate]` | Merge current + archived milestone requirements into `.planning/formal/requirements.json` |
+| `/nf:add-requirement [--id=PREFIX-NN] [--text="..."]` | Add a single requirement with duplicate/conflict checks |
+| `/nf:close-formal-gaps [--category="..."] [--ids=...] [--all]` | Generate formal models for uncovered requirements |
 
 ### Phase Management
 
 | Command | What it does |
 |---------|--------------|
-| `/qgsd:add-phase` | Append phase to roadmap |
-| `/qgsd:insert-phase [N]` | Insert urgent work between phases |
-| `/qgsd:remove-phase [N]` | Remove future phase, renumber |
-| `/qgsd:research-phase [N]` | Deep ecosystem research only (usually prefer plan-phase) |
-| `/qgsd:list-phase-assumptions [N]` | See Claude's intended approach before planning |
-| `/qgsd:plan-milestone-gaps` | Create phases to close gaps from audit |
-| `/qgsd:cleanup` | Archive completed phase directories |
+| `/nf:add-phase` | Append phase to roadmap |
+| `/nf:insert-phase [N]` | Insert urgent work between phases |
+| `/nf:remove-phase [N]` | Remove future phase, renumber |
+| `/nf:research-phase [N]` | Deep ecosystem research only (usually prefer plan-phase) |
+| `/nf:list-phase-assumptions [N]` | See Claude's intended approach before planning |
+| `/nf:plan-milestone-gaps` | Create phases to close gaps from audit |
+| `/nf:cleanup` | Archive completed phase directories |
 
 ### Session
 
 | Command | What it does |
 |---------|--------------|
-| `/qgsd:pause-work` | Create handoff when stopping mid-phase |
-| `/qgsd:resume-work` | Restore from last session |
+| `/nf:pause-work` | Create handoff when stopping mid-phase |
+| `/nf:resume-work` | Restore from last session |
 
 ### MCP Management
 
 | Command | What it does |
 |---------|--------------|
-| `/qgsd:mcp-setup` | Interactive wizard: first-run onboarding or reconfigure any agent (key, provider, model, composition) |
-| `/qgsd:mcp-status` | Poll all quorum agents for identity and availability; show scoreboard |
-| `/qgsd:mcp-set-model <agent> <model>` | Switch a quorum agent's model with live validation and preference persistence |
-| `/qgsd:mcp-update` | Update all quorum agent MCP servers (npm/npx/git install methods auto-detected) |
-| `/qgsd:mcp-restart` | Restart all quorum agent processes and verify reconnection via identity ping |
+| `/nf:mcp-setup` | Interactive wizard: first-run onboarding or reconfigure any agent (key, provider, model, composition) |
+| `/nf:mcp-status` | Poll all quorum agents for identity and availability; show scoreboard |
+| `/nf:mcp-set-model <agent> <model>` | Switch a quorum agent's model with live validation and preference persistence |
+| `/nf:mcp-update` | Update all quorum agent MCP servers (npm/npx/git install methods auto-detected) |
+| `/nf:mcp-restart` | Restart all quorum agent processes and verify reconnection via identity ping |
 
 ### Test Maintenance
 
 | Command | What it does |
 |---------|--------------|
-| `/qgsd:fix-tests` | Discover all tests, AI-categorize failures into 5 types, dispatch fixes, loop until clean |
+| `/nf:fix-tests` | Discover all tests, AI-categorize failures into 5 types, dispatch fixes, loop until clean |
 
 ### Utilities
 
 | Command | What it does |
 |---------|--------------|
-| `/qgsd:settings` | Configure model profile and workflow agents |
-| `/qgsd:set-profile <profile>` | Switch model profile (quality/balanced/budget) |
-| `/qgsd:add-todo [desc]` | Capture idea for later |
-| `/qgsd:check-todos` | List pending todos |
-| `/qgsd:debug [desc]` | Start a debugging session with persistent state: spawns quorum diagnosis on failure, tracks hypotheses across invocations, resumes where it left off |
-| `/qgsd:quorum-test` | Run multi-model quorum on a plan or verification artifact |
-| `/qgsd:quorum [question]` | Ask a question and get full five-model consensus answer |
-| `/qgsd:quick [--full]` | Execute ad-hoc task with QGSD guarantees (`--full` adds plan-checking and verification) |
-| `/qgsd:triage [--source github\|sentry\|bash] [--since 24h\|7d] [--limit N]` | Fetch and prioritize issues from GitHub, Sentry, or custom sources; route selected issue to QGSD workflow |
-| `/qgsd:queue <command>` | Queue a command to auto-invoke after the next /clear — survives context compaction |
-| `/qgsd:reapply-patches` | Restore local modifications after an update |
-| `/qgsd:health [--repair]` | Validate `.planning/` directory integrity, auto-repair with `--repair` |
+| `/nf:settings` | Configure model profile and workflow agents |
+| `/nf:set-profile <profile>` | Switch model profile (quality/balanced/budget) |
+| `/nf:add-todo [desc]` | Capture idea for later |
+| `/nf:check-todos` | List pending todos |
+| `/nf:debug [desc]` | Start a debugging session with persistent state: spawns quorum diagnosis on failure, tracks hypotheses across invocations, resumes where it left off |
+| `/nf:quorum-test` | Run multi-model quorum on a plan or verification artifact |
+| `/nf:quorum [question]` | Ask a question and get full five-model consensus answer |
+| `/nf:quick [--full]` | Execute ad-hoc task with nForma guarantees (`--full` adds plan-checking and verification) |
+| `/nf:triage [--source github\|sentry\|bash] [--since 24h\|7d] [--limit N]` | Fetch and prioritize issues from GitHub, Sentry, or custom sources; route selected issue to nForma workflow |
+| `/nf:queue <command>` | Queue a command to auto-invoke after the next /clear — survives context compaction |
+| `/nf:reapply-patches` | Restore local modifications after an update |
+| `/nf:health [--repair]` | Validate `.planning/` directory integrity, auto-repair with `--repair` |
 
 ---
 
 ## Configuration
 
-QGSD stores project settings in `.planning/config.json`. Configure during `/qgsd:new-project` or update later with `/qgsd:settings`. For the full config schema, workflow toggles, git branching options, and per-agent model breakdown, see the [User Guide](docs/USER-GUIDE.md#configuration-reference).
+nForma stores project settings in `.planning/config.json`. Configure during `/nf:new-project` or update later with `/nf:settings`. For the full config schema, workflow toggles, git branching options, and per-agent model breakdown, see the [User Guide](docs/USER-GUIDE.md#configuration-reference).
 
 ### Core Settings
 
@@ -865,10 +865,10 @@ Control which Claude model each agent uses. Balance quality vs token spend.
 
 Switch profiles:
 ```
-/qgsd:set-profile budget
+/nf:set-profile budget
 ```
 
-Or configure via `/qgsd:settings`.
+Or configure via `/nf:settings`.
 
 ### Workflow Agents
 
@@ -881,9 +881,9 @@ These spawn additional agents during planning/execution. They improve quality bu
 | `workflow.verifier` | `true` | Confirms must-haves were delivered after execution |
 | `workflow.auto_advance` | `false` | Auto-chain discuss → plan → execute without stopping |
 
-Use `/qgsd:settings` to toggle these, or override per-invocation:
-- `/qgsd:plan-phase --skip-research`
-- `/qgsd:plan-phase --skip-verify`
+Use `/nf:settings` to toggle these, or override per-invocation:
+- `/nf:plan-phase --skip-research`
+- `/nf:plan-phase --skip-verify`
 
 ### Execution
 
@@ -894,7 +894,7 @@ Use `/qgsd:settings` to toggle these, or override per-invocation:
 
 ### Git Branching
 
-Control how QGSD handles branches during execution.
+Control how nForma handles branches during execution.
 
 | Setting | Options | Default | What it does |
 |---------|---------|---------|--------------|
@@ -903,11 +903,11 @@ Control how QGSD handles branches during execution.
 | `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | Template for milestone branches |
 
 **Strategies:**
-- **`none`** — Commits to current branch (default QGSD behavior)
+- **`none`** — Commits to current branch (default nForma behavior)
 - **`phase`** — Creates a branch per phase, merges at phase completion
 - **`milestone`** — Creates one branch for entire milestone, merges at completion
 
-At milestone completion, QGSD offers squash merge (recommended) or merge with history.
+At milestone completion, nForma offers squash merge (recommended) or merge with history.
 
 ### Quorum Composition
 
@@ -919,7 +919,7 @@ Control which agent slots participate in quorum via `quorum_active` in your `qgs
 }
 ```
 
-This is auto-populated at install time based on your registered MCP servers. Toggle slots on/off via `/qgsd:mcp-setup` → "Edit Quorum Composition" without editing config files directly.
+This is auto-populated at install time based on your registered MCP servers. Toggle slots on/off via `/nf:mcp-setup` → "Edit Quorum Composition" without editing config files directly.
 
 You can run multiple instances of the same agent family (multi-slot): `claude-1` and `claude-2` for two Claude agent slots, `copilot-1` and `copilot-2` for two Copilot slots, etc.
 
@@ -929,7 +929,7 @@ You can run multiple instances of the same agent family (multi-slot): `claude-1`
 
 ### Protecting Sensitive Files
 
-QGSD's codebase mapping and analysis commands read files to understand your project. **Protect files containing secrets** by adding them to Claude Code's deny list:
+nForma's codebase mapping and analysis commands read files to understand your project. **Protect files containing secrets** by adding them to Claude Code's deny list:
 
 1. Open Claude Code settings (`.claude/settings.json` or global)
 2. Add sensitive file patterns to the deny list:
@@ -952,7 +952,7 @@ QGSD's codebase mapping and analysis commands read files to understand your proj
 This prevents Claude from reading these files entirely, regardless of what commands you run.
 
 > [!IMPORTANT]
-> QGSD includes built-in protections against committing secrets, but defense-in-depth is best practice. Deny read access to sensitive files as a first line of defense.
+> nForma includes built-in protections against committing secrets, but defense-in-depth is best practice. Deny read access to sensitive files as a first line of defense.
 
 ---
 
@@ -963,7 +963,7 @@ This prevents Claude from reading these files entirely, regardless of what comma
 - Verify files exist in `~/.claude/commands/qgsd/` (global) or `./.claude/commands/qgsd/` (local)
 
 **Commands not working as expected?**
-- Run `/qgsd:help` to verify installation
+- Run `/nf:help` to verify installation
 - Re-run `npx qgsd@latest` to reinstall
 
 **Updating to the latest version?**
@@ -981,7 +981,7 @@ This ensures absolute paths are used instead of `~` which may not expand correct
 
 ### Uninstalling
 
-To remove QGSD completely:
+To remove nForma completely:
 
 ```bash
 # Global installs
@@ -993,7 +993,7 @@ npx qgsd --claude --local --uninstall
 npx qgsd --opencode --local --uninstall
 ```
 
-This removes all QGSD commands, agents, hooks, and settings while preserving your other configurations.
+This removes all nForma commands, agents, hooks, and settings while preserving your other configurations.
 
 ---
 
