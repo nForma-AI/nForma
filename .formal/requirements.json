@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-05T08:31:07.982Z",
-  "content_hash": "2fdb049fdf06295c3b2e9590f43f9c25c14dcecf6fb133d000446d91c91e1b6a",
-  "frozen_at": "2026-03-05T08:31:07.983Z",
+  "aggregated_at": "2026-03-05T08:56:25.346Z",
+  "content_hash": "cfca67a483c63ca7",
+  "frozen_at": "2026-03-05T08:56:25.346Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -1786,6 +1786,18 @@
       "provenance": {
         "source_file": ".planning/quick/172-build-assumption-to-instrumentation-anal/172-PLAN.md",
         "milestone": "quick-172"
+      }
+    },
+    {
+      "id": "OBS-08",
+      "text": "The analyze-assumptions CLI classifies each extracted assumption into priority tiers (Tier 1: directly monitorable numeric constants, Tier 2: named invariants/assertions checkable via probes, Tier 3: structural constraints not runtime-observable), sorts gap reports by tier, supports --actionable filtering to Tier 1 only, and generates Prometheus gauge/histogram instrumentation snippets for Tier 1 assumptions.",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Raw assumption lists from formal models are noisy — operators need to focus on the most actionable gaps first. Tiering by monitorability lets the observe skill prioritize numeric thresholds that can be directly instrumented with Prometheus metrics, while deferring structural constraints that require manual review.",
+      "provenance": {
+        "source_file": ".planning/quick/175-add-priority-tiering-and-actionable-filt/175-PLAN.md",
+        "milestone": "quick-175"
       }
     },
     {
