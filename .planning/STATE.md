@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 Phase: —
 Plan: —
 Status: Milestone v0.27 archived. Ready for next milestone.
-Last activity: 2026-03-05 - Completed quick task 184: Implement 5 solve automation improvements
+Last activity: 2026-03-05 - Completed quick task 185: Fix conformance trace divergences
 
 Progress: Ready for /qgsd:new-milestone
 
@@ -93,6 +93,7 @@ Resume file: None
 | 182 | Add test recipe generation to formal-test-sync.cjs and update solve.md F-T template | 2026-03-05 | 825048c7 | Verified | [182-add-test-recipe-generation-to-formal-tes](./quick/182-add-test-recipe-generation-to-formal-tes/) |
 | 183 | Add legacy .formal/ migration step to qgsd:solve | 2026-03-05 | c5368b60 | Verified | [183-add-legacy-formal-migration-step-to-qgsd](./quick/183-add-legacy-formal-migration-step-to-qgsd/) |
 | 184 | Implement 5 solve automation improvements | 2026-03-05 | d0ae6285 | Verified | [184-implement-5-solve-automation-improvement](./quick/184-implement-5-solve-automation-improvement/) |
+| 185 | Fix conformance trace divergences — add circuit_break action to XState machine | 2026-03-05 | 429d0f60 | Pending | [185-fix-conformance-trace-divergences-add-ci](./quick/185-fix-conformance-trace-divergences-add-ci/) |
 
 ## Recent Accomplishments
 
