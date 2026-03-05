@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-05T17:58:18.140Z",
-  "content_hash": "cd91b2b6aca71a05",
-  "frozen_at": "2026-03-05T17:58:18.141Z",
+  "aggregated_at": "2026-03-05T19:46:43.012Z",
+  "content_hash": "fd6c9d1eff65d2e6",
+  "frozen_at": "2026-03-05T19:46:43.015Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -2731,6 +2731,18 @@
       "provenance": {
         "source_file": ".planning/quick/183-add-legacy-formal-migration-step-to-qgsd/183-PLAN.md",
         "milestone": "quick-183"
+      }
+    },
+    {
+      "id": "SOLVE-09",
+      "text": "The solve diagnostic engine provides fast-mode iteration (--fast skips F->C and T->C layers), pattern-based D->C false-positive suppression via acknowledged-false-positives.json regex rules, auto-acknowledgement of Category B reverse discovery candidates, and recipe sidecars with absolute paths and pre-classified test templates.",
+      "category": "Solver Orchestration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The full solve loop took 30+ minutes per iteration and surfaced hundreds of false positives from prose word matches and Category B reverse candidates requiring unnecessary human review. These five improvements reduce iteration time to sub-second for file-parsing layers, suppress pattern-matched false positives, eliminate manual Category B triage, and provide executors with ready-to-use absolute paths and test boilerplate in recipe sidecars.",
+      "provenance": {
+        "source_file": ".planning/quick/184-implement-5-solve-automation-improvement/184-PLAN.md",
+        "milestone": "quick-184"
       }
     },
     {
