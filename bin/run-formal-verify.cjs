@@ -455,6 +455,30 @@ function runNodeStep(step) {
   return result.status === 0;
 }
 
+function runShellStep(step) {
+  // NOTE: command.split(/\s+/) is a known limitation — quoted arguments
+  // with spaces (e.g., 'echo "hello world"') will be split incorrectly.
+  // Future enhancement: accept command as an array format for complex args.
+  const parts = step.command.split(/\s+/);
+  const cmd = parts[0];
+  const args = parts.slice(1);
+  // Substitute {{config}} placeholder if config is set
+  const resolvedArgs = step.config
+    ? args.map(a => a.replace('{{config}}', step.config))
+    : args;
+  const result = spawnSync(cmd, resolvedArgs, {
+    stdio: 'inherit',
+    encoding: 'utf8',
+    cwd: step.cwd || ROOT,
+    env: { ...process.env, CHECK_RESULTS_ROOT: ROOT },
+  });
+  if (result.error) {
+    process.stderr.write(TAG + ' Shell launch error: ' + result.error.message + '\n');
+    return false;
+  }
+  return result.status === 0;
+}
+
 async function runWasmDotStep(step) {
   const petriDir = path.join(ROOT, '.formal', 'petri');
   const dotPath  = path.join(petriDir, step.dot);
@@ -502,6 +526,8 @@ async function runGroup(groupSteps) {
       passed = runNodeStep(step);
     } else if (step.type === 'wasm-dot') {
       passed = await runWasmDotStep(step);
+    } else if (step.type === 'shell') {
+      passed = runShellStep(step);
     }
 
     const mark = passed ? '✓' : '✗';

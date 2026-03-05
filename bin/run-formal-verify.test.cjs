@@ -303,8 +303,8 @@ test('TRIAGE-02: STEPS includes ci:triage-bundle entry as final step', () => {
   );
   // Verify total STEPS count is now 28 (updated from 27 when uppaal:quorum-races was added)
   assert.ok(
-    src.includes('Total:    28 steps'),
-    'Comment block must reflect updated total of 28 steps'
+    src.includes('Total:    34+ steps'),
+    'Comment block must reflect updated total of 34+ steps (dynamic)'
   );
 });
 
@@ -319,9 +319,128 @@ test('UPPAAL-02: STEPS includes uppaal:quorum-races entry', () => {
     src.includes('run-uppaal.cjs'),
     'uppaal:quorum-races STEPS entry must reference run-uppaal.cjs'
   );
-  // Verify total STEPS count is now 28
+  // Verify total STEPS count is now dynamic
   assert.ok(
-    src.includes('Total:    28 steps'),
-    'Comment block must reflect updated total of 28 steps'
+    src.includes('Total:    34+ steps'),
+    'Comment block must reflect updated total of 34+ steps (dynamic)'
   );
+});
+
+// ── Registry-driven discovery tests (SOLVE-05) ─────────────────────────────
+
+test('registry search_dirs discovery: scan additional directories for models', { timeout: 30000 }, () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rfv-searchdirs-'));
+  try {
+    // Create minimal .formal/ so script does not error
+    fs.mkdirSync(path.join(tmpDir, '.formal', 'tla'), { recursive: true });
+    // Create search_dirs target with a cfg file
+    const specsDir = path.join(tmpDir, 'specs');
+    fs.mkdirSync(specsDir, { recursive: true });
+    fs.writeFileSync(path.join(specsDir, 'MCTestModel.cfg'), 'SPECIFICATION Spec\n');
+    // Create model-registry.json with search_dirs
+    const registry = {
+      version: '1.0',
+      last_sync: '2026-01-01T00:00:00Z',
+      search_dirs: ['specs/'],
+      models: {},
+    };
+    fs.writeFileSync(
+      path.join(tmpDir, '.formal', 'model-registry.json'),
+      JSON.stringify(registry, null, 2)
+    );
+    // Also need check-results.ndjson to exist
+    fs.writeFileSync(path.join(tmpDir, '.formal', 'check-results.ndjson'), '');
+
+    const result = spawnSync(process.execPath, [RUN_FV, '--project-root=' + tmpDir, '--only=tla'], {
+      encoding: 'utf8',
+      timeout: 20000,
+    });
+    const output = (result.stdout || '') + (result.stderr || '');
+    // Must find the prefixed step ID from search_dirs
+    assert.ok(
+      output.includes('tla:specs/'),
+      'Expected tla:specs/ prefix in output for search_dirs model — got: ' + output.slice(0, 500)
+    );
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('registry check.command discovery: creates type:shell steps', { timeout: 30000 }, () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rfv-checkcmd-'));
+  try {
+    fs.mkdirSync(path.join(tmpDir, '.formal', 'tla'), { recursive: true });
+    const registry = {
+      version: '1.0',
+      last_sync: '2026-01-01T00:00:00Z',
+      search_dirs: [],
+      models: {
+        '.formal/alloy/test-model.als': {
+          version: 1,
+          last_updated: '2026-01-01T00:00:00Z',
+          update_source: 'manual',
+          source_id: null,
+          session_id: null,
+          description: 'test',
+          requirements: [],
+          check: { command: 'echo hello' },
+        },
+      },
+    };
+    fs.writeFileSync(
+      path.join(tmpDir, '.formal', 'model-registry.json'),
+      JSON.stringify(registry, null, 2)
+    );
+    fs.writeFileSync(path.join(tmpDir, '.formal', 'check-results.ndjson'), '');
+
+    const result = spawnSync(process.execPath, [RUN_FV, '--project-root=' + tmpDir, '--only=registry'], {
+      encoding: 'utf8',
+      timeout: 20000,
+    });
+    const output = (result.stdout || '') + (result.stderr || '');
+    assert.ok(
+      output.includes('registry:'),
+      'Expected registry: step ID in output — got: ' + output.slice(0, 500)
+    );
+    // echo hello should succeed (exit 0)
+    assert.strictEqual(result.status, 0, 'registry check.command "echo hello" should exit 0');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('shell step type handled: source contains type === shell branch', () => {
+  const src = fs.readFileSync(path.join(__dirname, 'run-formal-verify.cjs'), 'utf8');
+  assert.ok(
+    src.includes("type === 'shell'"),
+    'run-formal-verify.cjs must contain type === \'shell\' dispatch branch'
+  );
+});
+
+test('fail-open: missing registry does not crash', { timeout: 30000 }, () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rfv-noreg-'));
+  try {
+    // Create .formal/tla/ but NO model-registry.json
+    fs.mkdirSync(path.join(tmpDir, '.formal', 'tla'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, '.formal', 'check-results.ndjson'), '');
+
+    const result = spawnSync(process.execPath, [RUN_FV, '--project-root=' + tmpDir, '--only=tla'], {
+      encoding: 'utf8',
+      timeout: 20000,
+    });
+    const output = (result.stdout || '') + (result.stderr || '');
+    // Should not crash — it may exit 0 (no tla steps to run) or show warning
+    // The key is it should NOT throw an unhandled exception
+    assert.ok(
+      !output.includes('SyntaxError') && !output.includes('Unexpected token'),
+      'Should not crash with SyntaxError when registry is missing'
+    );
+    // It should show a warning about missing registry
+    assert.ok(
+      output.includes('could not read model-registry.json') || output.includes('Warning'),
+      'Should warn about missing registry — got: ' + output.slice(0, 500)
+    );
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
 });
