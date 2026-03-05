@@ -90,7 +90,7 @@ Resume file: None
 | 178 | Implement all 7 solver improvements (preflight, test runner, triage, FP filter, state, self-healing, categorization) | 2026-03-05 | b0d31ed6 | Completed | [178-implement-all-7-solver-improvements-auto](./quick/178-implement-all-7-solver-improvements-auto/) |
 | 179 | Review TODO scanner implementation in observe-handler-internal | 2026-03-05 | 08b49281 | Completed | [179-review-todo-scanner-implementation-in-ob](./quick/179-review-todo-scanner-implementation-in-ob/) |
 | 181 | Cap JVM memory in formal model runners and add sequential execution to prevent RAM exhaustion | 2026-03-05 | f336091d | Verified | [181-cap-jvm-memory-in-formal-model-runners-a](./quick/181-cap-jvm-memory-in-formal-model-runners-a/) |
-| 182 | Add test recipe generation to formal-test-sync.cjs and update solve.md F-T template | 2026-03-05 | 825048c7 | Pending | [182-add-test-recipe-generation-to-formal-tes](./quick/182-add-test-recipe-generation-to-formal-tes/) |
+| 182 | Add test recipe generation to formal-test-sync.cjs and update solve.md F-T template | 2026-03-05 | 825048c7 | Verified | [182-add-test-recipe-generation-to-formal-tes](./quick/182-add-test-recipe-generation-to-formal-tes/) |
 
 ## Recent Accomplishments
 
