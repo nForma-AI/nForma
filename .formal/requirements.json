@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-05T07:38:32.912Z",
-  "content_hash": "5945f33641722848",
-  "frozen_at": "2026-03-04T23:40:13.836Z",
+  "aggregated_at": "2026-03-05T08:19:32.010Z",
+  "content_hash": "0643639c78b61631",
+  "frozen_at": "2026-03-05T08:19:32.011Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -1762,6 +1762,18 @@
       "provenance": {
         "source_file": ".planning/quick/168-add-internal-work-detection-handler-to-o/168-PLAN.md",
         "milestone": "quick-168"
+      }
+    },
+    {
+      "id": "OBS-07",
+      "text": "The analyze-assumptions CLI parses TLA+, Alloy, and PRISM formal models to extract assumptions, thresholds, and invariants, cross-references them against the debt ledger and observe handler registry, and outputs a gap report with proposed qgsd_-prefixed metrics and instrumentation snippets for every uncovered assumption.",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Formal models encode critical system assumptions (e.g., max deliberation rounds, quorum thresholds) that must be monitored in production, but no mechanism existed to detect which assumptions lacked corresponding observe sources or debt entries. This script closes the observability loop by surfacing instrumentation gaps automatically.",
+      "provenance": {
+        "source_file": ".planning/quick/172-build-assumption-to-instrumentation-anal/172-PLAN.md",
+        "milestone": "quick-172"
       }
     },
     {
