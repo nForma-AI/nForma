@@ -92,7 +92,7 @@ Resume file: None
 | 181 | Cap JVM memory in formal model runners and add sequential execution to prevent RAM exhaustion | 2026-03-05 | f336091d | Verified | [181-cap-jvm-memory-in-formal-model-runners-a](./quick/181-cap-jvm-memory-in-formal-model-runners-a/) |
 | 182 | Add test recipe generation to formal-test-sync.cjs and update solve.md F-T template | 2026-03-05 | 825048c7 | Verified | [182-add-test-recipe-generation-to-formal-tes](./quick/182-add-test-recipe-generation-to-formal-tes/) |
 | 183 | Add legacy .formal/ migration step to qgsd:solve | 2026-03-05 | c5368b60 | Verified | [183-add-legacy-formal-migration-step-to-qgsd](./quick/183-add-legacy-formal-migration-step-to-qgsd/) |
-| 184 | Implement 5 solve automation improvements | 2026-03-05 | d0ae6285 | Pending | [184-implement-5-solve-automation-improvement](./quick/184-implement-5-solve-automation-improvement/) |
+| 184 | Implement 5 solve automation improvements | 2026-03-05 | d0ae6285 | Verified | [184-implement-5-solve-automation-improvement](./quick/184-implement-5-solve-automation-improvement/) |
 
 ## Recent Accomplishments
 
