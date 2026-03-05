@@ -26,10 +26,15 @@ all iterations exhausted, or total residual is zero.
 This is a self-contained orchestrator skill. It runs the diagnostic engine (bin/qgsd-solve.cjs) and orchestrates higher-level remediation via sub-skills and scripts. No external quorum dispatch is needed — quorum enforcement, if required, is the responsibility of the sub-skills being called.
 
 BULK REMEDIATION: For F->T and R->D gaps, the solve skill writes PLAN.md files
-directly and dispatches qgsd-executor agents in parallel — it does NOT invoke
+directly and dispatches qgsd-executor agents — it does NOT invoke
 /qgsd:quick for bulk remediation. This avoids per-batch quorum overhead while
 maintaining quality through the convergence loop's before/after verification.
 The solve skill IS the planner for these mechanical remediation tasks.
+
+RAM BUDGET: Never exceed 3 concurrent subagent Tasks at any point during
+execution. Each Task subprocess consumes ~1GB RAM. With MCP servers and the
+parent process, 3 parallel tasks keeps total usage under ~20GB. Dispatch in
+sequential waves of 3, waiting for each wave to finish before the next.
 </execution_context>
 
 <process>
@@ -125,11 +130,26 @@ If ~/.claude/qgsd-bin/formal-test-sync.cjs does not exist, fall back to bin/form
 
 Log: `"F->T phase 1: formal-test-sync generated {N} stubs"`
 
+**Phase 1b — Validate recipes:** After stubs are generated, count recipe files and check completeness:
+```bash
+node -e "
+const fs = require('fs');
+const dir = '.planning/formal/generated-stubs';
+const recipes = fs.readdirSync(dir).filter(f => f.endsWith('.stub.recipe.json'));
+const incomplete = recipes.filter(f => {
+  const r = JSON.parse(fs.readFileSync(dir + '/' + f, 'utf8'));
+  return !r.source_files.length || !r.formal_property.definition;
+});
+console.log('[solve] Recipes: ' + recipes.length + ' total, ' + incomplete.length + ' incomplete');
+"
+```
+Incomplete recipes (missing source_files or definition) produce lower-quality tests but do NOT block dispatch.
+
 **Phase 2 — Implement stubs via direct parallel executor dispatch:** Stubs alone do not close the gap — they contain `assert.fail('TODO')`. The solver dispatches `qgsd-executor` agents directly to implement real test logic — it does NOT use `/qgsd:quick` for bulk stub implementation.
 
-1. **Load context:** Parse `.planning/formal/formal-test-sync-report.json` for each stub's `requirement_id`, `formal_properties[].model_file`, `formal_properties[].property`. Cross-reference `.planning/formal/requirements.json` for requirement text.
+1. **Load context:** Parse `.planning/formal/formal-test-sync-report.json` for each stub's `requirement_id`, `formal_properties[].model_file`, `formal_properties[].property`. Also verify recipe files exist at `.planning/formal/generated-stubs/{ID}.stub.recipe.json` — these contain pre-resolved context (requirement text, property definition, source files, import hints, test strategy).
 
-2. **Group into batches** by category prefix (e.g., all `ACT-*`, all `CONF-*`), max 15 stubs per batch. **No cap per iteration** — process ALL stubs. The convergence loop handles failures.
+2. **Group into batches** by category prefix (e.g., all `ACT-*`, all `CONF-*`), max 5 stubs per batch. **No cap per iteration** — process ALL stubs. The convergence loop handles failures.
 
 3. **Write PLAN.md files directly** — The solve skill IS the planner for these mechanical tasks. For each batch, write a PLAN.md to `.planning/quick/solve-ft-batch-{iteration}-{B}/PLAN.md` with:
    - YAML frontmatter: `autonomous: true`, `requirements: [IDs]`, `files_modified: [stub paths]`
@@ -156,11 +176,12 @@ Log: `"F->T phase 1: formal-test-sync generated {N} stubs"`
    <objective>
    Implement {N} test stubs for {category} requirements.
 
-   For each stub, read the formal model and requirement text, then replace
+   For each stub, read its recipe JSON for pre-resolved context, then replace
    assert.fail('TODO') with real test logic using node:test + node:assert/strict.
 
    Formal context:
    - {ID1}: model={model_file} property={property_name} text="{requirement text}"
+     recipe=.planning/formal/generated-stubs/{ID1}.stub.recipe.json
    - {ID2}: ...
    </objective>
 
@@ -170,13 +191,16 @@ Log: `"F->T phase 1: formal-test-sync generated {N} stubs"`
      <files>.planning/formal/generated-stubs/{ID1}.stub.test.js, ...</files>
      <action>
    For each stub:
-   1. Read the stub file
-   2. Read the formal model (find the property/invariant definition)
-   3. Grep codebase for the source module implementing this requirement
-   4. Replace assert.fail('TODO') with test logic that imports the source
-      module and asserts the invariant behavior
-   5. For behavioral reqs that can't be unit-tested directly, test the
-      structural constraint (function exists, constants match, exports present)
+   1. Read .planning/formal/generated-stubs/{ID}.stub.recipe.json
+   2. Read the stub file (.stub.test.js)
+   3. Use recipe.formal_property.definition as the property under test
+   4. Import from recipe.import_hint (adjust relative path if needed)
+   5. Follow recipe.test_strategy:
+      - structural: assert function/export exists with correct signature
+      - behavioral: call function with known input, assert output matches formal property
+      - constant: assert code constant === formal value from property definition
+   6. If recipe.source_files is empty, use Grep to find the implementing module
+   7. Replace assert.fail('TODO') with real test logic using node:test + node:assert/strict
      </action>
      <verify>node --test .planning/formal/generated-stubs/{ID1}.stub.test.js</verify>
      <done>No assert.fail('TODO') remains. Each stub has real test logic.</done>
@@ -184,15 +208,19 @@ Log: `"F->T phase 1: formal-test-sync generated {N} stubs"`
    </tasks>
    ```
 
-4. **Spawn all executors in parallel** — Single wave, all batches simultaneously:
+4. **Spawn executors in sequential waves of 3** — To avoid OOM on developer machines (each executor consumes ~1GB RAM), dispatch at most 3 parallel executors at a time. Wait for each wave to finish before starting the next:
    ```
-   Task(subagent_type="qgsd-executor", description="F->T stubs batch {B}: {category prefixes}")
+   Wave 1: Task(subagent_type="qgsd-executor", description="F->T stubs batch 1"), batch 2, batch 3
+   [wait for all 3 to complete]
+   Wave 2: Task(subagent_type="qgsd-executor", description="F->T stubs batch 4"), batch 5, batch 6
+   [wait for all 3 to complete]
+   ... continue until all batches dispatched
    ```
-   Wait for ALL to complete.
+   MAX_PARALLEL_EXECUTORS = 3. This is a hard limit — never exceed it regardless of batch count.
 
 5. **Run tests once:** `node --test .planning/formal/generated-stubs/*.stub.test.js`. Log pass/fail counts. Failed stubs are handled by T->C in the next iteration.
 
-6. Log: `"F->T phase 2: spawned {N} parallel executors for {M} stubs (no quorum overhead)"`
+6. Log: `"F->T phase 2: spawned {N} executors in waves of 3 for {M} stubs (no quorum overhead)"`
 
 ### 3c. T->C Gaps (residual_vector.t_to_c.residual > 0)
 
@@ -254,11 +282,11 @@ Then parse `.planning/formal/check-results.ndjson` and classify each failure:
 | **Missing tool** | "not found", "not installed" | Log as infrastructure gap, skip |
 | **Inconclusive** | result = "inconclusive" | Skip — not a failure |
 
-Dispatch each fixable failure to the appropriate skill. Process syntax/scope errors first (they're usually quick fixes), then conformance/verification failures (require deeper investigation).
+Dispatch each fixable failure **sequentially** (one at a time) to the appropriate skill. Process syntax/scope errors first (they're usually quick fixes), then conformance/verification failures (require deeper investigation). Wait for each dispatch to complete before starting the next.
 
 Log: `"F->C: {total} checks, {pass} pass, {fail} fail — dispatching {syntax_count} to quick, {debug_count} to debug, {skip_count} skipped"`
 
-Each dispatch is independent — if one fails, continue to the next.
+Each dispatch is independent — if one fails, log and continue to the next. Do NOT dispatch F->C fixes in parallel.
 
 ### 3f. R->D Gaps (residual_vector.r_to_d.residual > 0)
 
