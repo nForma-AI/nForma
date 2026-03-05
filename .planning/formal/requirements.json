@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-05T17:09:46.131Z",
-  "content_hash": "d014aa05f5e2f2c5",
-  "frozen_at": "2026-03-05T17:09:46.132Z",
+  "aggregated_at": "2026-03-05T17:58:18.140Z",
+  "content_hash": "cd91b2b6aca71a05",
+  "frozen_at": "2026-03-05T17:58:18.141Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -2719,6 +2719,18 @@
       "provenance": {
         "source_file": ".planning/quick/182-add-test-recipe-generation-to-formal-tes/182-PLAN.md",
         "milestone": "quick-182"
+      }
+    },
+    {
+      "id": "SOLVE-8",
+      "text": "The solve orchestrator detects a legacy root-level .formal/ directory before the diagnostic sweep (Step 0), merges its contents into .planning/formal/ with canonical-wins conflict resolution, and proceeds fail-open if the migration script is missing or errors.",
+      "category": "Solver Orchestration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Projects that adopted formal verification before the .planning/formal/ consolidation may retain a root-level .formal/ directory. Without migration, the solver silently misses models and artifacts stored in the old location, causing incomplete diagnostics.",
+      "provenance": {
+        "source_file": ".planning/quick/183-add-legacy-formal-migration-step-to-qgsd/183-PLAN.md",
+        "milestone": "quick-183"
       }
     },
     {
