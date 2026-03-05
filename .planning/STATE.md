@@ -91,7 +91,7 @@ Resume file: None
 | 179 | Review TODO scanner implementation in observe-handler-internal | 2026-03-05 | 08b49281 | Completed | [179-review-todo-scanner-implementation-in-ob](./quick/179-review-todo-scanner-implementation-in-ob/) |
 | 181 | Cap JVM memory in formal model runners and add sequential execution to prevent RAM exhaustion | 2026-03-05 | f336091d | Verified | [181-cap-jvm-memory-in-formal-model-runners-a](./quick/181-cap-jvm-memory-in-formal-model-runners-a/) |
 | 182 | Add test recipe generation to formal-test-sync.cjs and update solve.md F-T template | 2026-03-05 | 825048c7 | Verified | [182-add-test-recipe-generation-to-formal-tes](./quick/182-add-test-recipe-generation-to-formal-tes/) |
-| 183 | Add legacy .formal/ migration step to qgsd:solve | 2026-03-05 | c5368b60 | Pending | [183-add-legacy-formal-migration-step-to-qgsd](./quick/183-add-legacy-formal-migration-step-to-qgsd/) |
+| 183 | Add legacy .formal/ migration step to qgsd:solve | 2026-03-05 | c5368b60 | Verified | [183-add-legacy-formal-migration-step-to-qgsd](./quick/183-add-legacy-formal-migration-step-to-qgsd/) |
 
 ## Recent Accomplishments
 
