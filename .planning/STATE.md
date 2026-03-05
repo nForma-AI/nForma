@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 Phase: —
 Plan: —
 Status: Milestone v0.27 archived. Ready for next milestone.
-Last activity: 2026-03-04 - Completed quick task 170: Inject relevant requirements subset into quorum dispatch prompts for better-informed agent judgement
+Last activity: 2026-03-05 - Completed quick task 168: Add internal work detection handler to observe (Verified)
 
 Progress: Ready for /qgsd:new-milestone
 
@@ -76,7 +76,7 @@ Resume file: None
 | 165 | Fix solver F→C diagnostic to read all 26+ formal checks instead of 4 CI-only | 2026-03-04 | 6ff105da | Completed | [165-fix-qgsd-solve-cjs-f-to-c-diagnostic-to-](./quick/165-fix-qgsd-solve-cjs-f-to-c-diagnostic-to-/) |
 | 166 | Autonomous milestone completion loop via audit-milestone --auto | 2026-03-04 | e6d375c3 | Pending | [166-implement-autonomous-milestone-completio](./quick/166-implement-autonomous-milestone-completio/) |
 | 167 | Implement SOLVE-05: Make the formal verification harness project-agnostic | 2026-03-04 | f3341590 | Verified | [167-implement-solve-05-make-the-formal-verif](./quick/167-implement-solve-05-make-the-formal-verif/) |
-| 168 | Add internal work detection handler to observe | 2026-03-04 | 21951ed3 | Completed | [168-add-internal-work-detection-handler-to-o](./quick/168-add-internal-work-detection-handler-to-o/) |
+| 168 | Add internal work detection handler to observe | 2026-03-04 | 21951ed3 | Verified | [168-add-internal-work-detection-handler-to-o](./quick/168-add-internal-work-detection-handler-to-o/) |
 | 170 | Inject relevant requirements subset into quorum dispatch prompts for better-informed agent judgement | 2026-03-04 | 12fe407e | Verified | [170-inject-relevant-requirements-subset-into](./quick/170-inject-relevant-requirements-subset-into/) |
 
 ## Recent Accomplishments
