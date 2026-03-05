@@ -358,6 +358,52 @@ function scanAllFormalModels(root) {
   return results;
 }
 
+// ── Tier Classification ─────────────────────────────────────────────────────
+
+/**
+ * Classify an assumption into a priority tier (1, 2, or 3).
+ *
+ * Tier 1 (directly monitorable): Numeric constants with concrete values
+ *   sourced from .cfg files or PRISM const with numeric value.
+ * Tier 2 (indirectly monitorable): Named invariants and assertions
+ *   that can be checked via periodic probes.
+ * Tier 3 (not runtime-observable): Structural type constraints,
+ *   state-space bounds, assumptions without concrete numeric values.
+ *
+ * @param {object} assumption - Assumption object with type and value fields
+ * @returns {number} 1, 2, or 3
+ */
+function classifyTier(assumption) {
+  const { type, value } = assumption;
+  const isNumeric = value !== null && value !== undefined && !isNaN(Number(value));
+  const tier1Types = ['constant', 'const', 'property', 'constraint'];
+
+  // NOTE: 'constraint' with numeric value is tier 1 because the numeric value
+  // represents a cardinality bound that can be monitored at runtime (e.g.,
+  // max replicas). Alloy constraints that express relational/structural rules
+  // without numeric values fall through to tier 3. This is a deliberate
+  // classification choice -- not all constraints are monitorable, only those
+  // with numeric thresholds.
+
+  // Tier 1: numeric value AND monitorable type
+  if (isNumeric && tier1Types.includes(type)) {
+    return 1;
+  }
+
+  // Edge case: 'assume' with numeric value is tier 1 (has a monitorable threshold)
+  if (type === 'assume' && isNumeric) {
+    return 1;
+  }
+
+  // Tier 2: invariants, assertions, facts (checkable via periodic probes)
+  if (['invariant', 'assert', 'fact'].includes(type)) {
+    return 2;
+  }
+
+  // Tier 3: everything else
+  return 3;
+}
+
 // ── Cross-reference ─────────────────────────────────────────────────────────
 
 /**
@@ -479,7 +525,7 @@ function generateGapReport(crossRefResults) {
       return { ...a, _baseName: baseName };
     });
 
-  // Apply collision suffix where needed
+  // Apply collision suffix and classify tier
   for (const gap of gaps) {
     const count = metricNameCounts.get(gap._baseName);
     if (count > 1) {
@@ -488,6 +534,9 @@ function generateGapReport(crossRefResults) {
       gap.metric_name = gap._baseName;
     }
     delete gap._baseName;
+
+    // Classify tier
+    gap.tier = classifyTier(gap);
 
     // Determine metric type
     if (['constant', 'bound', 'property'].includes(gap.type)) {
@@ -503,6 +552,9 @@ function generateGapReport(crossRefResults) {
     // Generate instrumentation snippet
     gap.instrumentation_snippet = generateSnippet(gap);
   }
+
+  // Sort by tier ascending (tier 1 first), preserving original order within same tier
+  gaps.sort((a, b) => a.tier - b.tier);
 
   return {
     total_assumptions,
@@ -523,6 +575,39 @@ function generateSnippet(gap) {
   const metricName = gap.metric_name;
   const metricType = gap.metric_type;
 
+  // Tier 1: Prometheus gauge/histogram instrumentation snippets
+  if (gap.tier === 1) {
+    const thresholdVal = gap.value !== null && gap.value !== undefined ? Number(gap.value) : 0;
+    // Use histogram for probability-like property thresholds (0 < value < 1)
+    if (gap.type === 'property' && thresholdVal > 0 && thresholdVal < 1) {
+      return [
+        `// Prometheus histogram for ${gap.name} (${gap.source}/${gap.type})`,
+        `# HELP ${metricName} Monitors ${gap.name} from ${gap.source} model`,
+        `# TYPE ${metricName} histogram`,
+        `const ${metricName} = new Histogram({`,
+        `  name: '${metricName}',`,
+        `  help: 'Monitors ${gap.name} from ${gap.source} model',`,
+        `  labelNames: ['model', 'file'],`,
+        `  buckets: [0.5, 0.75, 0.9, 0.95, 0.99, 1.0]`,
+        `});`,
+        `${metricName}.observe({ model: 'formal', file: '${gap.file}' }, ${thresholdVal});`
+      ].join('\n');
+    }
+    // Default tier 1: Prometheus gauge
+    return [
+      `// Prometheus gauge for ${gap.name} (${gap.source}/${gap.type})`,
+      `# HELP ${metricName} Monitors ${gap.name} from ${gap.source} model`,
+      `# TYPE ${metricName} gauge`,
+      `const ${metricName} = new Gauge({`,
+      `  name: '${metricName}',`,
+      `  help: 'Monitors ${gap.name} from ${gap.source} model',`,
+      `  labelNames: ['model', 'file']`,
+      `});`,
+      `${metricName}.set({ model: 'formal', file: '${gap.file}' }, ${thresholdVal});`
+    ].join('\n');
+  }
+
+  // Tier 2/3 (or undefined tier -- defensive default): observe handler JSON format
   if (metricType === 'counter') {
     return [
       `// Observe handler for ${gap.name} (${gap.source}/${gap.type})`,
@@ -590,11 +675,11 @@ function formatMarkdownReport(report) {
 
   lines.push('## Gaps');
   lines.push('');
-  lines.push('| # | Source | Name | Type | Coverage | Proposed Metric | Metric Type |');
-  lines.push('|---|--------|------|------|----------|-----------------|-------------|');
+  lines.push('| # | Source | Name | Type | Tier | Coverage | Proposed Metric | Metric Type |');
+  lines.push('|---|--------|------|------|------|----------|-----------------|-------------|');
 
   report.gaps.forEach((gap, idx) => {
-    lines.push(`| ${idx + 1} | ${gap.source} | ${gap.name} | ${gap.type} | ${gap.coverage} | \`${gap.metric_name}\` | ${gap.metric_type} |`);
+    lines.push(`| ${idx + 1} | ${gap.source} | ${gap.name} | ${gap.type} | ${gap.tier} | ${gap.coverage} | \`${gap.metric_name}\` | ${gap.metric_type} |`);
   });
 
   lines.push('');
@@ -620,10 +705,17 @@ if (require.main === module) {
   const outputArg = args.find(a => a.startsWith('--output='));
   const jsonOnly = args.includes('--json');
   const verbose = args.includes('--verbose');
+  const actionable = args.includes('--actionable');
 
   const root = process.cwd();
   const assumptions = scanAllFormalModels(root);
-  const crossRefed = crossReference(assumptions, { root });
+  let crossRefed = crossReference(assumptions, { root });
+
+  // --actionable: filter to tier 1 assumptions only before gap report generation
+  if (actionable) {
+    crossRefed = crossRefed.filter(a => classifyTier(a) === 1);
+  }
+
   const report = generateGapReport(crossRefed);
 
   if (jsonOnly) {
@@ -653,6 +745,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  classifyTier,
   extractTlaAssumptions,
   extractTlaCfgValues,
   extractAlloyAssumptions,
