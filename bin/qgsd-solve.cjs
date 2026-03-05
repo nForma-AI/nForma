@@ -24,6 +24,7 @@
 //   node bin/qgsd-solve.cjs --max-iterations=1
 //   node bin/qgsd-solve.cjs --json           # machine-readable output
 //   node bin/qgsd-solve.cjs --verbose        # pipe child stderr to parent stderr
+//   node bin/qgsd-solve.cjs --fast           # skip F->C and T->C layers for sub-second iteration
 //
 // Requirements: QUICK-140
 
@@ -42,6 +43,7 @@ const args = process.argv.slice(2);
 const reportOnly = args.includes('--report-only');
 const jsonMode = args.includes('--json');
 const verboseMode = args.includes('--verbose');
+const fastMode = args.includes('--fast');
 
 // Parse --project-root (overrides CWD-based ROOT for cross-repo usage)
 for (const arg of args) {
@@ -1123,6 +1125,20 @@ function sweepDtoC() {
     }
   } catch (e) { /* no ack file */ }
 
+  // Load pattern-based suppression rules
+  let fpPatterns = [];
+  try {
+    const fpData = JSON.parse(fs.readFileSync(fpPath, 'utf8'));
+    for (const entry of (fpData.patterns || [])) {
+      if (entry.enabled === false) continue;
+      try {
+        fpPatterns.push({ type: entry.type, regex: new RegExp(entry.regex), reason: entry.reason });
+      } catch (regexErr) {
+        console.warn('Skipping malformed FP pattern:', entry.regex, regexErr.message);
+      }
+    }
+  } catch (e) { /* no ack file or malformed */ }
+
   // Severity weights: user-facing broken claims count more
   const CATEGORY_WEIGHT = { user: 2, examples: 1.5, developer: 1, unknown: 1 };
 
@@ -1175,6 +1191,19 @@ function sweepDtoC() {
       if (isBroken) {
         // Filter acknowledged false positives
         if (acknowledgedFPs.has(claim.doc_file + ':' + claim.value)) {
+          suppressedFpCount++;
+          continue;
+        }
+
+        // Filter by pattern-based suppression rules
+        let patternSuppressed = false;
+        for (const pat of fpPatterns) {
+          if (pat.type === claim.type && pat.regex.test(claim.value)) {
+            patternSuppressed = true;
+            break;
+          }
+        }
+        if (patternSuppressed) {
           suppressedFpCount++;
           continue;
         }
@@ -1727,6 +1756,42 @@ function assembleReverseCandidates(c_to_r, t_to_r, d_to_r) {
     c.suggestion = classification.suggestion;
   }
 
+  // Auto-acknowledge Category B candidates (documentation-only, no human review needed)
+  const catBCandidates = candidates.filter(c => c.category === 'B');
+  const autoAcknowledgedB = catBCandidates.length;
+
+  if (catBCandidates.length > 0 && !reportOnly) {
+    // Write Category B to acknowledged-not-required.json
+    const ackNrPath = path.join(ROOT, '.planning', 'formal', 'acknowledged-not-required.json');
+    let ackNrData = { entries: [] };
+    try {
+      ackNrData = JSON.parse(fs.readFileSync(ackNrPath, 'utf8'));
+      if (!Array.isArray(ackNrData.entries)) ackNrData.entries = [];
+    } catch (e) { /* create fresh */ }
+
+    const existingKeys = new Set(ackNrData.entries.map(e => e.file_or_claim));
+    for (const c of catBCandidates) {
+      if (!existingKeys.has(c.file_or_claim)) {
+        ackNrData.entries.push({
+          file_or_claim: c.file_or_claim,
+          category: 'B',
+          reason: c.category_reason,
+          acknowledged_at: new Date().toISOString(),
+        });
+      }
+    }
+    try {
+      fs.writeFileSync(ackNrPath, JSON.stringify(ackNrData, null, 2) + '\n', 'utf8');
+    } catch (e) {
+      process.stderr.write(TAG + ' WARNING: could not write acknowledged-not-required.json: ' + e.message + '\n');
+    }
+  }
+
+  // Remove Category B from candidates (never surface to humans)
+  const afterCatB = candidates.filter(c => c.category !== 'B');
+  candidates.length = 0;
+  for (const c of afterCatB) candidates.push(c);
+
   // Count by category for summary
   const categoryCounts = { A: 0, B: 0, C: 0 };
   for (const c of candidates) {
@@ -1748,6 +1813,7 @@ function assembleReverseCandidates(c_to_r, t_to_r, d_to_r) {
     deduped: deduped,
     filtered: filtered,
     acknowledged: acknowledged,
+    auto_acknowledged_b: autoAcknowledgedB,
     category_counts: categoryCounts,
   };
 }
@@ -1762,8 +1828,12 @@ function computeResidual() {
   const r_to_f = sweepRtoF();
   const f_to_t = sweepFtoT();
   const c_to_f = sweepCtoF();
-  const t_to_c = sweepTtoC();
-  const f_to_c = sweepFtoC();
+  const t_to_c = fastMode
+    ? { residual: -1, detail: { skipped: true, reason: 'fast mode' } }
+    : sweepTtoC();
+  const f_to_c = fastMode
+    ? { residual: -1, detail: { skipped: true, reason: 'fast mode' } }
+    : sweepFtoC();
   const r_to_d = sweepRtoD();
   const d_to_c = sweepDtoC();
   const p_to_f = sweepPtoF({ root: ROOT });
@@ -2264,6 +2334,7 @@ function formatJSON(iterations, finalResidual, converged) {
   return {
     solver_version: '1.2',
     generated_at: new Date().toISOString(),
+    fast_mode: fastMode ? true : false,
     iteration_count: iterations.length,
     max_iterations: maxIterations,
     converged: converged,
