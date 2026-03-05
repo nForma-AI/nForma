@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-05T11:23:13.640Z",
-  "content_hash": "a13eb51d591c7fd2",
-  "frozen_at": "2026-03-05T11:06:49.183Z",
+  "aggregated_at": "2026-03-05T16:24:34.531Z",
+  "content_hash": "db2750dc42f480ca",
+  "frozen_at": "2026-03-05T16:24:34.534Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -3377,6 +3377,30 @@
       "formal_models": [
         ".planning/formal/alloy/verification-integration.als"
       ]
+    },
+    {
+      "id": "VERIFY-03",
+      "text": "Formal model runners (Alloy, TLA+, PRISM, UPPAAL) MUST execute in headless mode — no GUI windows or AWT initialization. For Java-based tools, `-Djava.awt.headless=true` MUST be passed before `-jar`.",
+      "category": "Testing & Quality",
+      "phase": "v0.27",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.27"
+      },
+      "background": "On macOS, Java-based formal tools (especially Alloy) initialize AWT/Swing GUI even in CLI exec mode unless explicitly told not to. This causes unexpected GUI windows during automated qgsd:solve runs."
+    },
+    {
+      "id": "VERIFY-04",
+      "text": "All JVM-spawning formal model runners (TLC and Alloy) MUST include -Xms64m and -Xmx heap cap flags before -jar, defaulting to 512MB and configurable via QGSD_JAVA_HEAP_MAX env var, and run-formal-verify.cjs MUST execute tool groups sequentially by default with --concurrent opt-in.",
+      "category": "Testing & Quality",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The formal verification suite spawns up to 14 JVM processes across 5 tool groups. Without -Xmx caps each JVM claims ~25% of physical RAM, and concurrent execution via Promise.all causes 5+ JVMs competing for 125%+ RAM, leading to swap thrashing or OOM kills. Sequential-by-default execution with heap caps limits peak memory to one capped JVM at a time.",
+      "provenance": {
+        "source_file": ".planning/quick/181-cap-jvm-memory-in-formal-model-runners-a/181-PLAN.md",
+        "milestone": "quick-181"
+      }
     },
     {
       "id": "VIS-01",
