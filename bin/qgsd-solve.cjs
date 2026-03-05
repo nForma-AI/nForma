@@ -73,11 +73,13 @@ function spawnTool(script, args, opts = {}) {
   if (!childArgs.some(a => a.startsWith('--project-root='))) {
     childArgs.push('--project-root=' + ROOT);
   }
+  const defaultStdio = verboseMode ? ['pipe', 'pipe', 'inherit'] : 'pipe';
   const spawnOpts = {
     encoding: 'utf8',
     cwd: ROOT,
     timeout: opts.timeout || 120000,
-    stdio: verboseMode ? ['pipe', 'pipe', 'inherit'] : 'pipe',
+    stdio: opts.stdio || defaultStdio,
+    maxBuffer: opts.maxBuffer || 10 * 1024 * 1024,
   };
 
   try {
@@ -413,6 +415,46 @@ function extractStructuralClaims(docContent, filePath) {
   return claims;
 }
 
+// ── Preflight bootstrap ──────────────────────────────────────────────────────
+
+/**
+ * Auto-creates .planning/formal/ subdirectories if missing on first run.
+ * Called at the top of main() before the iteration loop.
+ */
+function preflight() {
+  const formalDir = path.join(ROOT, '.planning', 'formal');
+  const subdirs = ['tla', 'alloy', 'generated-stubs'];
+  let created = false;
+
+  if (!fs.existsSync(formalDir)) {
+    fs.mkdirSync(formalDir, { recursive: true });
+    created = true;
+  }
+
+  for (const sub of subdirs) {
+    const subPath = path.join(formalDir, sub);
+    if (!fs.existsSync(subPath)) {
+      fs.mkdirSync(subPath, { recursive: true });
+      created = true;
+    }
+  }
+
+  // Seed model-registry.json if missing
+  const registryPath = path.join(formalDir, 'model-registry.json');
+  if (!fs.existsSync(registryPath)) {
+    try {
+      fs.writeFileSync(registryPath, JSON.stringify({ models: [], search_dirs: [] }, null, 2) + '\n');
+      created = true;
+    } catch (e) {
+      // fail-open
+    }
+  }
+
+  if (created) {
+    process.stderr.write(TAG + ' Bootstrapped formal infrastructure\n');
+  }
+}
+
 // ── Layer transition sweeps ──────────────────────────────────────────────────
 
 /**
@@ -560,6 +602,21 @@ function sweepCtoF() {
  * Returns { residual: N, detail: {...} }
  */
 function sweepTtoC() {
+  // Load configurable test runner settings
+  const configPath = path.join(ROOT, '.planning', 'config.json');
+  let tToCConfig = { runner: 'node-test', command: null, scope: 'all' };
+  try {
+    const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    if (cfg.solve && cfg.solve.t_to_c) {
+      tToCConfig = { ...tToCConfig, ...cfg.solve.t_to_c };
+    }
+  } catch (e) { /* use defaults */ }
+
+  // Runner mode: none — skip entirely
+  if (tToCConfig.runner === 'none') {
+    return { residual: 0, detail: { skipped: true, reason: 'runner=none in config' } };
+  }
+
   const spawnOpts = {
     encoding: 'utf8',
     cwd: ROOT,
@@ -567,6 +624,49 @@ function sweepTtoC() {
     stdio: verboseMode ? ['pipe', 'pipe', 'inherit'] : 'pipe',
   };
 
+  // Runner mode: jest
+  if (tToCConfig.runner === 'jest') {
+    const jestCmd = tToCConfig.command || 'npx';
+    const jestArgs = tToCConfig.command ? [] : ['jest', '--ci', '--json'];
+    let result;
+    try {
+      result = spawnSync(jestCmd, jestArgs, spawnOpts);
+    } catch (err) {
+      return {
+        residual: -1,
+        detail: { error: 'Failed to spawn jest: ' + err.message },
+      };
+    }
+
+    const output = (result.stdout || '') + (result.stderr || '');
+    // Try to parse Jest JSON output
+    try {
+      const jsonStart = output.indexOf('{');
+      if (jsonStart >= 0) {
+        const jestResult = JSON.parse(output.slice(jsonStart));
+        const failCount = jestResult.numFailedTests || 0;
+        const totalTests = jestResult.numTotalTests || 0;
+        return {
+          residual: failCount,
+          detail: {
+            total_tests: totalTests,
+            passed: totalTests - failCount,
+            failed: failCount,
+            skipped: 0,
+            todo: 0,
+            runner: 'jest',
+          },
+        };
+      }
+    } catch (e) { /* fall through to TAP parsing */ }
+
+    return {
+      residual: -1,
+      detail: { error: 'Failed to parse jest output', runner: 'jest' },
+    };
+  }
+
+  // Runner mode: node-test (default)
   let result;
   try {
     result = spawnSync(process.execPath, ['--test'], spawnOpts);
@@ -608,6 +708,27 @@ function sweepTtoC() {
     todoCount = 0;
   }
 
+  // Scope-based auto-detection: if scope is "generated-stubs-only", check if all failures
+  // are outside .planning/formal/generated-stubs/
+  if (tToCConfig.runner === 'node-test' && tToCConfig.scope === 'generated-stubs-only' && failCount > 0) {
+    const failLines = output.match(/^not ok\s+\d+\s+.*/gm) || [];
+    const stubFailures = failLines.filter(l => l.includes('generated-stubs'));
+    if (stubFailures.length === 0 && failLines.length > 0) {
+      return {
+        residual: 0,
+        detail: {
+          total_tests: totalTests,
+          passed: Math.max(0, totalTests - failCount - skipCount - todoCount),
+          failed: failCount,
+          skipped: skipCount,
+          todo: todoCount,
+          runner_mismatch: true,
+          warning: 'All ' + failLines.length + ' failures are outside generated-stubs scope — likely runner mismatch',
+        },
+      };
+    }
+  }
+
   return {
     residual: failCount + skipCount,
     detail: {
@@ -634,13 +755,19 @@ function sweepFtoC() {
     };
   }
 
-  // Always run formal verification to get fresh data (all 26+ checks).
+  // Always run formal verification to get fresh data (all 88+ checks).
   // Previously, report-only mode read stale check-results.ndjson which often
   // contained only 4 CI-gated checks, hiding individual alloy/tla/prism failures.
   // Now matches sweepTtoC behavior: always compute fresh diagnostic data.
   // The --report-only flag prevents auto-close remediation (line ~1400), not data collection.
+  //
+  // stdio: discard stdout ('ignore') because run-formal-verify.cjs writes ~4MB of
+  // verbose progress output. We only need the NDJSON file it writes to disk.
+  // Without this, spawnSync's maxBuffer limit kills the child mid-run, resulting
+  // in a partial NDJSON with only 3-4 CI checks instead of the full 88+.
   const result = spawnTool('bin/run-formal-verify.cjs', [], {
     timeout: 300000,
+    stdio: ['pipe', 'ignore', 'pipe'],
   });
 
   // Non-zero exit is expected when checks fail — still parse check-results.ndjson.
@@ -1919,6 +2046,9 @@ function formatJSON(iterations, finalResidual, converged) {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 function main() {
+  // Step 0: Bootstrap formal infrastructure
+  preflight();
+
   const iterations = [];
   let converged = false;
   let prevTotal = null;
@@ -1967,6 +2097,37 @@ function main() {
 
   const finalResidual = iterations[iterations.length - 1].residual;
 
+  // Write solver state persistence
+  const solveState = {
+    last_run: new Date().toISOString(),
+    converged: converged,
+    iteration_count: iterations.length,
+    final_residual_total: finalResidual.total,
+    reverse_discovery_total: finalResidual.reverse_discovery_total || 0,
+    known_issues: [],
+    r_to_f_progress: {
+      total: finalResidual.r_to_f.detail.total || 0,
+      covered: finalResidual.r_to_f.detail.covered || 0,
+      percentage: finalResidual.r_to_f.detail.percentage || 0,
+    },
+  };
+  // Collect known issues from non-zero non-error layers
+  for (const [key, val] of Object.entries(finalResidual)) {
+    if (val && typeof val === 'object' && val.residual > 0) {
+      solveState.known_issues.push({ layer: key, residual: val.residual });
+    }
+  }
+  try {
+    const stateDir = path.join(ROOT, '.planning', 'formal');
+    fs.mkdirSync(stateDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(stateDir, 'solve-state.json'),
+      JSON.stringify(solveState, null, 2) + '\n'
+    );
+  } catch (e) {
+    process.stderr.write(TAG + ' WARNING: could not write solve-state.json: ' + e.message + '\n');
+  }
+
   if (jsonMode) {
     process.stdout.write(
       JSON.stringify(formatJSON(iterations, finalResidual, converged), null, 2) +
@@ -1989,6 +2150,7 @@ module.exports = {
   formatReport,
   formatJSON,
   healthIndicator,
+  preflight,
   discoverDocFiles,
   extractKeywords,
   extractStructuralClaims,
