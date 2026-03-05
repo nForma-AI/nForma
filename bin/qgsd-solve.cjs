@@ -458,6 +458,49 @@ function preflight() {
 // ── Layer transition sweeps ──────────────────────────────────────────────────
 
 /**
+ * Triage requirements by formalizability.
+ * Scores each requirement into HIGH/MEDIUM/LOW/SKIP priority buckets.
+ * @param {Array} requirements - Array of requirement objects with text/description fields
+ * @returns {{ high: string[], medium: string[], low: string[], skip: string[] }}
+ */
+function triageRequirements(requirements) {
+  const HIGH_KEYWORDS = ['shall', 'must', 'invariant', 'constraint'];
+  const MEDIUM_KEYWORDS = ['should', 'verify', 'ensure', 'validate', 'check'];
+  const LOW_KEYWORDS = ['may', 'could', 'consider', 'nice-to-have'];
+  const SKIP_KEYWORDS = ['deferred', 'out-of-scope', 'deprecated'];
+
+  const result = { high: [], medium: [], low: [], skip: [] };
+
+  for (const req of requirements) {
+    const id = req.id || req.requirement_id || '';
+    if (!id) continue;
+
+    const text = (req.text || req.description || '').toLowerCase();
+
+    // Check formalizability field override
+    if (req.formalizability === 'high') {
+      result.high.push(id);
+      continue;
+    }
+
+    // Priority order: SKIP > HIGH > MEDIUM > LOW
+    if (SKIP_KEYWORDS.some(kw => new RegExp('\\b' + kw + '\\b', 'i').test(text))) {
+      result.skip.push(id);
+    } else if (HIGH_KEYWORDS.some(kw => new RegExp('\\b' + kw + '\\b', 'i').test(text))) {
+      result.high.push(id);
+    } else if (MEDIUM_KEYWORDS.some(kw => new RegExp('\\b' + kw + '\\b', 'i').test(text))) {
+      result.medium.push(id);
+    } else if (LOW_KEYWORDS.some(kw => new RegExp('\\b' + kw + '\\b', 'i').test(text))) {
+      result.low.push(id);
+    } else {
+      result.low.push(id); // default to low if no keywords match
+    }
+  }
+
+  return result;
+}
+
+/**
  * R->F: Requirements to Formal coverage.
  * Returns { residual: N, detail: {...} }
  */
@@ -484,6 +527,35 @@ function sweepRtoF() {
     const covered = coverage.covered_requirements || 0;
     const percentage = total > 0 ? ((covered / total) * 100).toFixed(1) : 0;
 
+    // Triage uncovered requirements by formalizability
+    // Load full requirements to get text for keyword matching
+    const reqPath = path.join(ROOT, '.planning', 'formal', 'requirements.json');
+    let uncoveredReqs = [];
+    try {
+      const reqData = JSON.parse(fs.readFileSync(reqPath, 'utf8'));
+      let allReqs = [];
+      if (Array.isArray(reqData)) {
+        allReqs = reqData;
+      } else if (reqData.requirements && Array.isArray(reqData.requirements)) {
+        allReqs = reqData.requirements;
+      } else if (reqData.groups && Array.isArray(reqData.groups)) {
+        for (const group of reqData.groups) {
+          if (group.requirements && Array.isArray(group.requirements)) {
+            for (const r of group.requirements) allReqs.push(r);
+          }
+        }
+      }
+      const uncoveredSet = new Set(uncovered);
+      uncoveredReqs = allReqs.filter(r => uncoveredSet.has(r.id || r.requirement_id || ''));
+    } catch (e) {
+      // Can't load requirements — skip triage
+    }
+
+    const triage = triageRequirements(uncoveredReqs);
+    const highIds = triage.high;
+    const mediumIds = triage.medium;
+    const priority_batch = highIds.concat(mediumIds).slice(0, 15);
+
     return {
       residual: uncovered.length,
       detail: {
@@ -491,6 +563,13 @@ function sweepRtoF() {
         total: total,
         covered: covered,
         percentage: percentage,
+        triage: {
+          high: triage.high.length,
+          medium: triage.medium.length,
+          low: triage.low.length,
+          skip: triage.skip.length,
+        },
+        priority_batch: priority_batch,
       },
     };
   } catch (err) {
@@ -821,16 +900,75 @@ function sweepFtoC() {
       }
     }
 
+    const existingDetail = {
+      total_checks: totalCount,
+      passed: Math.max(0, totalCount - failedCount - inconclusiveCount),
+      failed: failedCount,
+      inconclusive: inconclusiveCount,
+      failures: failures,
+      inconclusive_checks: inconclusiveChecks,
+    };
+
+    // Conformance trace self-healing: detect schema mismatch
+    const conformancePath = path.join(ROOT, '.planning', 'formal', 'trace', 'conformance-events.jsonl');
+    if (fs.existsSync(conformancePath)) {
+      try {
+        const events = fs.readFileSync(conformancePath, 'utf8').split('\n')
+          .filter(l => l.trim())
+          .map(l => { try { return JSON.parse(l); } catch(e) { return null; } })
+          .filter(Boolean);
+
+        const eventTypes = new Set(events.map(e => e.type || e.event));
+
+        // Try to load XState machine event types from spec/
+        const specDir = path.join(ROOT, '.planning', 'formal', 'spec');
+        let machineEventTypes = new Set();
+        if (fs.existsSync(specDir)) {
+          const specFiles = walkDir(specDir, 3, 0);
+          for (const f of specFiles) {
+            if (!f.endsWith('.json') && !f.endsWith('.js')) continue;
+            try {
+              const content = fs.readFileSync(f, 'utf8');
+              // Extract event types from "on": { "EVENT_NAME": ... } patterns
+              const onMatches = content.matchAll(/"on"\s*:\s*\{([^}]+)\}/g);
+              for (const m of onMatches) {
+                const keys = m[1].matchAll(/"([A-Z_]+)"/g);
+                for (const k of keys) machineEventTypes.add(k[1]);
+              }
+            } catch(e) { /* skip */ }
+          }
+        }
+
+        if (machineEventTypes.size > 0 && eventTypes.size > 0) {
+          const overlap = [...eventTypes].filter(t => machineEventTypes.has(t)).length;
+          const overlapPct = overlap / Math.max(eventTypes.size, 1);
+
+          if (overlapPct < 0.5) {
+            // Schema mismatch — reclassify
+            return {
+              residual: failedCount,
+              detail: {
+                ...existingDetail,
+                schema_mismatch: true,
+                schema_mismatch_detail: {
+                  trace_event_types: eventTypes.size,
+                  machine_event_types: machineEventTypes.size,
+                  overlap: overlap,
+                  overlap_pct: (overlapPct * 100).toFixed(1) + '%',
+                },
+                note: 'Conformance trace has <50% event type overlap with state machine — likely schema mismatch, not verification failure',
+              },
+            };
+          }
+        }
+      } catch (e) {
+        // Conformance trace check failed — fail-open, continue with normal result
+      }
+    }
+
     return {
       residual: failedCount,
-      detail: {
-        total_checks: totalCount,
-        passed: Math.max(0, totalCount - failedCount - inconclusiveCount),
-        failed: failedCount,
-        inconclusive: inconclusiveCount,
-        failures: failures,
-        inconclusive_checks: inconclusiveChecks,
-      },
+      detail: existingDetail,
     };
   } catch (err) {
     return {
@@ -974,11 +1112,23 @@ function sweepDtoC() {
     // No package.json — skip dependency checks
   }
 
+  // Load acknowledged false positives
+  const fpPath = path.join(ROOT, '.planning', 'formal', 'acknowledged-false-positives.json');
+  let acknowledgedFPs = new Set();
+  try {
+    const fpData = JSON.parse(fs.readFileSync(fpPath, 'utf8'));
+    for (const entry of (fpData.entries || [])) {
+      // Key by doc_file + value only (no line numbers — line numbers shift on edits and break suppression)
+      acknowledgedFPs.add(entry.doc_file + ':' + entry.value);
+    }
+  } catch (e) { /* no ack file */ }
+
   // Severity weights: user-facing broken claims count more
   const CATEGORY_WEIGHT = { user: 2, examples: 1.5, developer: 1, unknown: 1 };
 
   const brokenClaims = [];
   let totalClaimsChecked = 0;
+  let suppressedFpCount = 0;
 
   for (const { absPath, category } of docFiles) {
     let content;
@@ -1023,13 +1173,28 @@ function sweepDtoC() {
       }
 
       if (isBroken) {
+        // Filter acknowledged false positives
+        if (acknowledgedFPs.has(claim.doc_file + ':' + claim.value)) {
+          suppressedFpCount++;
+          continue;
+        }
+
+        // Reduce weight for historical/archived docs
+        let effectiveCategory = category;
+        const docLower = claim.doc_file.toLowerCase();
+        if (docLower.includes('changelog') || docLower.includes('history') ||
+            docLower.includes('archived/') || docLower.includes('deprecated/')) {
+          effectiveCategory = '_historical';
+        }
+
         brokenClaims.push({
           doc_file: claim.doc_file,
           line: claim.line,
           type: claim.type,
           value: claim.value,
           reason: reason,
-          category: category,
+          category: effectiveCategory === '_historical' ? category : category,
+          weight: effectiveCategory === '_historical' ? 0.1 : (CATEGORY_WEIGHT[category] || 1),
         });
       }
     }
@@ -1039,7 +1204,7 @@ function sweepDtoC() {
   let weightedResidual = 0;
   const categoryBreakdown = {};
   for (const bc of brokenClaims) {
-    const w = CATEGORY_WEIGHT[bc.category] || 1;
+    const w = bc.weight !== undefined ? bc.weight : (CATEGORY_WEIGHT[bc.category] || 1);
     weightedResidual += w;
     categoryBreakdown[bc.category] = (categoryBreakdown[bc.category] || 0) + 1;
   }
@@ -1053,6 +1218,7 @@ function sweepDtoC() {
       raw_broken_count: brokenClaims.length,
       weighted_residual: weightedResidual,
       category_breakdown: categoryBreakdown,
+      suppressed_fp_count: suppressedFpCount,
     },
   };
 }
@@ -1383,6 +1549,46 @@ function sweepDtoR() {
 }
 
 /**
+ * Classify a reverse discovery candidate into category A/B/C.
+ * Category A (likely requirements): strong requirement language or source modules/tests.
+ * Category B (likely documentation): descriptive/documentation language only.
+ * Category C (ambiguous): needs human review.
+ * @param {object} candidate - Candidate with file_or_claim, evidence, type fields
+ * @returns {{ category: string, reason: string, suggestion: string }}
+ */
+function classifyCandidate(candidate) {
+  const text = (candidate.file_or_claim || '').toLowerCase();
+
+  // Category A signals: strong requirement language
+  // Use word-boundary regex to avoid false matches (e.g. "mustard" matching "must")
+  // Consistent with triageRequirements() which also uses \b boundaries
+  const reqSignals = ['must', 'shall', 'ensures', 'invariant', 'constraint', 'enforces', 'guarantees'];
+  const hasReqLanguage = reqSignals.some(s => new RegExp('\\b' + s + '\\b', 'i').test(text));
+
+  // Category B signals: weak/descriptive language in doc claims
+  const docSignals = ['supports', 'handles', 'provides', 'describes', 'documents', 'explains'];
+  const hasDocLanguage = docSignals.some(s => new RegExp('\\b' + s + '\\b', 'i').test(text));
+
+  // Module and test types are more likely to be real requirements
+  if (candidate.type === 'module' || candidate.type === 'test') {
+    // Source modules and tests are usually genuine missing requirements
+    return { category: 'A', reason: 'source ' + candidate.type + ' without requirement tracing', suggestion: 'approve' };
+  }
+
+  if (candidate.type === 'claim') {
+    if (hasReqLanguage) {
+      return { category: 'A', reason: 'strong requirement language in doc claim', suggestion: 'approve' };
+    }
+    if (hasDocLanguage && !hasReqLanguage) {
+      return { category: 'B', reason: 'descriptive/documentation language only', suggestion: 'acknowledge' };
+    }
+    return { category: 'C', reason: 'ambiguous — review needed', suggestion: 'review' };
+  }
+
+  return { category: 'C', reason: 'unclassified candidate type', suggestion: 'review' };
+}
+
+/**
  * Assemble and deduplicate reverse traceability candidates from all 3 scanners.
  * Merges C→R, T→R, D→R results, deduplicates, filters, and respects acknowledged-not-required.json.
  * Returns { candidates: [...], total_raw, deduped, filtered, acknowledged }
@@ -1513,6 +1719,20 @@ function assembleReverseCandidates(c_to_r, t_to_r, d_to_r) {
     }
   }
 
+  // Auto-categorize candidates into A/B/C
+  for (const c of candidates) {
+    const classification = classifyCandidate(c);
+    c.category = classification.category;
+    c.category_reason = classification.reason;
+    c.suggestion = classification.suggestion;
+  }
+
+  // Count by category for summary
+  const categoryCounts = { A: 0, B: 0, C: 0 };
+  for (const c of candidates) {
+    categoryCounts[c.category] = (categoryCounts[c.category] || 0) + 1;
+  }
+
   // Apply max candidate cap (R3.6 improvement from copilot-1)
   if (candidates.length > MAX_REVERSE_CANDIDATES) {
     if (verboseMode) {
@@ -1528,6 +1748,7 @@ function assembleReverseCandidates(c_to_r, t_to_r, d_to_r) {
     deduped: deduped,
     filtered: filtered,
     acknowledged: acknowledged,
+    category_counts: categoryCounts,
   };
 }
 
@@ -1632,12 +1853,20 @@ function autoClose(residual) {
     );
   }
 
-  // R->F gaps: log but do not auto-fix
+  // R->F gaps: log with triage info
   if (residual.r_to_f.residual > 0) {
-    actions.push(
-      residual.r_to_f.residual +
-        ' requirement(s) lack formal model coverage — manual modeling required'
-    );
+    const triageDetail = residual.r_to_f.detail.triage;
+    if (triageDetail) {
+      actions.push(
+        triageDetail.high + ' HIGH + ' + triageDetail.medium +
+          ' MEDIUM priority requirements lack formal coverage'
+      );
+    } else {
+      actions.push(
+        residual.r_to_f.residual +
+          ' requirement(s) lack formal model coverage — manual modeling required'
+      );
+    }
   }
 
   // F->C failures: log but do not auto-fix
@@ -1791,6 +2020,11 @@ function formatReport(iterations, finalResidual, converged) {
       lines.push('Candidates: ' + ac.candidates.length + ' (raw: ' + ac.total_raw +
         ', deduped: ' + ac.deduped + ', filtered: ' + ac.filtered +
         ', acknowledged: ' + ac.acknowledged + ')');
+      if (ac.category_counts) {
+        lines.push('  Category A (likely reqs): ' + (ac.category_counts.A || 0) +
+          ', Category B (likely docs): ' + (ac.category_counts.B || 0) +
+          ', Category C (ambiguous): ' + (ac.category_counts.C || 0));
+      }
     }
   }
   lines.push('');
@@ -2151,6 +2385,7 @@ module.exports = {
   formatJSON,
   healthIndicator,
   preflight,
+  triageRequirements,
   discoverDocFiles,
   extractKeywords,
   extractStructuralClaims,
@@ -2161,6 +2396,7 @@ module.exports = {
   sweepTtoR,
   sweepDtoR,
   assembleReverseCandidates,
+  classifyCandidate,
 };
 
 // ── Entry point ──────────────────────────────────────────────────────────────
