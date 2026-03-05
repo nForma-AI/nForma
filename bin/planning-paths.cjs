@@ -38,6 +38,20 @@ const TYPES = {
     legacy:    (root, p) => path.join(root, '.planning', `quorum-slot-corr-${p.agentId}.json`),
   },
 
+  // Quorum aggregate data
+  'quorum-scoreboard': {
+    canonical: (root) => path.join(root, '.planning', 'quorum', 'scoreboard.json'),
+    legacy:    (root) => path.join(root, '.planning', 'quorum-scoreboard.json'),
+  },
+  'quorum-failures': {
+    canonical: (root) => path.join(root, '.planning', 'quorum', 'failures.json'),
+    legacy:    (root) => path.join(root, '.planning', 'quorum-failures.json'),
+  },
+  'quorum-debate': {
+    canonical: (root, p) => path.join(root, '.planning', 'quorum', 'debates', p.filename),
+    legacy:    (root, p) => path.join(root, '.planning', 'debates', p.filename),
+  },
+
   // Telemetry
   'conformance-events': {
     canonical: (root) => path.join(root, '.planning', 'telemetry', 'conformance-events.jsonl'),
@@ -131,6 +145,9 @@ function needsMigration(root) {
       e.startsWith('quorum-slot-corr-') ||
       e === 'conformance-events.jsonl' ||
       e === 'token-usage.jsonl' ||
+      e === 'quorum-scoreboard.json' ||
+      e === 'quorum-failures.json' ||
+      e === 'debates' ||
       /^v[\d.]+-MILESTONE-AUDIT\.md$/.test(e) ||
       /^v[\d.]+-INTEGRATION-/.test(e) ||
       /^STATE\.md\.bak-/.test(e)

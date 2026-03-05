@@ -92,7 +92,8 @@ function findProjectRoot() {
 
 function writeFailureLog(slotName, errorMsg, stderrText) {
   try {
-    const logPath = path.join(findProjectRoot(), '.planning', 'quorum-failures.json');
+    const pp = require('./planning-paths.cjs');
+    const logPath = pp.resolve(findProjectRoot(), 'quorum-failures');
 
     // Classify error type
     let error_type;

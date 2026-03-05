@@ -42,6 +42,8 @@ RAILROAD_ARCHITECTURE.md
 .planning/quorum-scoreboard.md
 .planning/quorum-scoreboard.json
 .planning/quorum-failures.json
+.planning/quorum/scoreboard.json
+.planning/quorum/failures.json
 .planning/maintain-tests-state.json
 .planning/oscillation-log.json
 .planning/telemetry/

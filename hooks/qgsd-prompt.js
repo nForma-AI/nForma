@@ -134,7 +134,8 @@ function mapRiskLevelToCount(riskLevel, maxSize) {
 // Reads quorum-failures.json written by call-quorum-slot.cjs on every failure.
 function getRecentlyTimedOutSlots(cwd, ttlMinutes = 30) {
   try {
-    const logPath = path.join(cwd, '.planning', 'quorum-failures.json');
+    const pp = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+    const logPath = pp.resolveWithFallback(cwd, 'quorum-failures');
     if (!fs.existsSync(logPath)) return [];
     const records = JSON.parse(fs.readFileSync(logPath, 'utf8'));
     if (!Array.isArray(records)) return [];
@@ -185,7 +186,8 @@ function triggerHealthProbe() {
 // Fail-open: if scoreboard missing, malformed, or any error, returns all slots unchanged.
 function getAvailableSlots(slots, cwd) {
   try {
-    const sbPath = path.join(cwd, '.planning', 'quorum-scoreboard.json');
+    const pp = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+    const sbPath = pp.resolveWithFallback(cwd, 'quorum-scoreboard');
     if (!fs.existsSync(sbPath)) return slots;
     const scoreboard = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
     if (!scoreboard || !scoreboard.availability) return slots;
@@ -217,7 +219,8 @@ function getAvailableSlots(slots, cwd) {
 // Fail-open: if scoreboard missing or any error, returns slots in original order.
 function sortBySuccessRate(slots, cwd) {
   try {
-    const sbPath = path.join(cwd, '.planning', 'quorum-scoreboard.json');
+    const pp = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+    const sbPath = pp.resolveWithFallback(cwd, 'quorum-scoreboard');
     if (!fs.existsSync(sbPath)) return [...slots];
     const scoreboard = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
     if (!scoreboard || !scoreboard.slots) return [...slots];

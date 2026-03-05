@@ -161,7 +161,13 @@ for (const [name, cfg] of Object.entries(activeMcpServers)) {
 function printQuorumFailures() {
   if (JSON_OUT) return;
   try {
-    const failuresPath = path.join(findProjectRoot(), '.planning', 'quorum-failures.json');
+    let failuresPath;
+    try {
+      const pp = require('./planning-paths.cjs');
+      failuresPath = pp.resolve(findProjectRoot(), 'quorum-failures');
+    } catch (_) {
+      failuresPath = path.join(findProjectRoot(), '.planning', 'quorum-failures.json');
+    }
     if (!fs.existsSync(failuresPath)) return;
 
     let records;

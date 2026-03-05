@@ -480,9 +480,9 @@ Run one command per model per round. Each call is atomic and idempotent — if r
 
 6. If `request_improvements` was not set (false or absent): do NOT emit the signal block.
 
-**Debate file path:** If `artifact_path` was provided → write to the same directory as the artifact (e.g. `.planning/phases/v0.14-02/QUORUM_DEBATE.md`). Otherwise → `.planning/debates/YYYY-MM-DD-<short-slug>.md` where `<short-slug>` is the first 6 words of the question lowercased, spaces replaced with hyphens, non-alphanumeric chars stripped.
+**Debate file path:** If `artifact_path` was provided → write to the same directory as the artifact (e.g. `.planning/phases/v0.14-02/QUORUM_DEBATE.md`). Otherwise → `.planning/quorum/debates/YYYY-MM-DD-<short-slug>.md` where `<short-slug>` is the first 6 words of the question lowercased, spaces replaced with hyphens, non-alphanumeric chars stripped.
 
-Create `.planning/debates/` if it does not exist.
+Create `.planning/quorum/debates/` if it does not exist.
 
 Write QUORUM_DEBATE.md using the debate file path rule above. Set `Consensus: APPROVE` (Mode A consensus means all models agree on APPROVE). Include one `## Round N` section per round that occurred, populated from the per-round position data collected during this quorum run.
 

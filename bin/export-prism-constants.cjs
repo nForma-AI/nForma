@@ -98,7 +98,13 @@ module.exports._pure = { computeSlotRates, buildConstLines };
 // ── Main ─────────────────────────────────────────────────────────────────────
 // Guard against running main logic when required as a module (test imports)
 if (require.main === module) {
-  const scoreboardPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+  let scoreboardPath;
+  try {
+    const pp = require('./planning-paths.cjs');
+    scoreboardPath = pp.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
+  } catch (_) {
+    scoreboardPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+  }
   const outputPath     = path.join(process.cwd(), '.planning', 'formal', 'prism', 'rates.const');
 
   // ── Locate scoreboard ──────────────────────────────────────────────────────

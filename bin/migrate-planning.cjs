@@ -62,7 +62,36 @@ function migrate(root, dryRun) {
     }
   }
 
-  // ─── 3. Telemetry files → telemetry/ ──────────────────────────────────────
+  // ─── 3. Scoreboard + failures → quorum/ ──────────────────────────────────
+  moveFile(
+    path.join(planDir, 'quorum-scoreboard.json'),
+    path.join(planDir, 'quorum', 'scoreboard.json')
+  );
+  moveFile(
+    path.join(planDir, 'quorum-failures.json'),
+    path.join(planDir, 'quorum', 'failures.json')
+  );
+
+  // ─── 3b. debates/ → quorum/debates/ ────────────────────────────────────
+  const debatesDir = path.join(planDir, 'debates');
+  if (fs.existsSync(debatesDir) && fs.statSync(debatesDir).isDirectory()) {
+    const debateFiles = fs.readdirSync(debatesDir);
+    for (const f of debateFiles) {
+      moveFile(
+        path.join(debatesDir, f),
+        path.join(planDir, 'quorum', 'debates', f)
+      );
+    }
+    // Remove empty debates/ directory
+    if (!dryRun) {
+      try {
+        const remaining = fs.readdirSync(debatesDir);
+        if (remaining.length === 0) fs.rmdirSync(debatesDir);
+      } catch (_) {}
+    }
+  }
+
+  // ─── 4. Telemetry files → telemetry/ ──────────────────────────────────────
   moveFile(
     path.join(planDir, 'conformance-events.jsonl'),
     path.join(planDir, 'telemetry', 'conformance-events.jsonl')
@@ -132,6 +161,8 @@ function migrate(root, dryRun) {
       '# Ephemeral quorum runtime data',
       'quorum/rounds/',
       'quorum/correlations/',
+      'quorum/scoreboard.json',
+      'quorum/failures.json',
       '',
       '# Telemetry (append-only logs)',
       'telemetry/conformance-events.jsonl',

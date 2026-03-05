@@ -156,7 +156,8 @@ let quorumResult = {
 };
 
 try {
-  const scoreboardPath = path.join(PROJECT_DIR, '.planning', 'quorum-scoreboard.json');
+  const pp = require('./planning-paths.cjs');
+  const scoreboardPath = pp.resolveWithFallback(PROJECT_DIR, 'quorum-scoreboard');
   if (fs.existsSync(scoreboardPath)) {
     const sb = JSON.parse(fs.readFileSync(scoreboardPath, 'utf8'));
     if (Array.isArray(sb.rounds)) {

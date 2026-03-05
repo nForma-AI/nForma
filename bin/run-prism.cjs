@@ -83,7 +83,15 @@ if (!fs.existsSync(modelPath)) {
 // Rate = 1.0 - (unavail_count / total_count) per slot, excluding 'claude' (self).
 // Exported for tests.
 function readMCPAvailabilityRates(sbPath) {
-  const p = sbPath || path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+  let p = sbPath;
+  if (!p) {
+    try {
+      const pp = require('./planning-paths.cjs');
+      p = pp.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
+    } catch (_) {
+      p = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+    }
+  }
   try {
     const raw = fs.readFileSync(p, 'utf8');
     const sb = JSON.parse(raw);
@@ -126,7 +134,13 @@ function readMCPAvailabilityRates(sbPath) {
 // a fixture by spawning with a custom cwd (same pattern as run-formal-verify).
 let liveTPRate    = null;
 let liveUnavail   = null;
-const scoreboardPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+let scoreboardPath;
+try {
+  const pp = require('./planning-paths.cjs');
+  scoreboardPath = pp.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
+} catch (_) {
+  scoreboardPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+}
 
 // ── Load calibration policy ───────────────────────────────────────────────
 const policyPath = path.join(__dirname, '..', '.planning', 'formal', 'policy.yaml');

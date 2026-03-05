@@ -66,6 +66,17 @@ function parseArgs(argv) {
 }
 
 // ---------------------------------------------------------------------------
+// Default scoreboard path helper
+// ---------------------------------------------------------------------------
+function defaultScoreboardPath() {
+  try {
+    return require('./planning-paths.cjs').resolveWithFallback(process.cwd(), 'quorum-scoreboard');
+  } catch (_) {
+    return '.planning/quorum-scoreboard.json';
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Usage / validation
 // ---------------------------------------------------------------------------
 
@@ -127,7 +138,7 @@ function validate(args) {
     task:            args.task,
     round:           roundNum,
     verdict:         args.verdict,
-    scoreboard:      args.scoreboard || '.planning/quorum-scoreboard.json',
+    scoreboard:      args.scoreboard || defaultScoreboardPath(),
     category:        args.category        || null,
     subcategory:     args.subcategory     || null,
     taskDescription: args['task-description'] || null,
@@ -527,7 +538,7 @@ Choose the single best match. Return nothing except the JSON object.`;
 
 async function initTeam(argv) {
   const args = parseArgs(argv);
-  const scoreboardPath = args.scoreboard || '.planning/quorum-scoreboard.json';
+  const scoreboardPath = args.scoreboard || defaultScoreboardPath();
   const claudeModel = args['claude-model'] || process.env.CLAUDE_MODEL || process.env.ANTHROPIC_MODEL || 'unknown';
 
   // Parse agent identities from --team JSON
@@ -699,7 +710,7 @@ function formatDuration(ms) {
 
 async function setAvailability(argv) {
   const args           = parseArgs(argv);
-  const scoreboardPath = args.scoreboard || '.planning/quorum-scoreboard.json';
+  const scoreboardPath = args.scoreboard || defaultScoreboardPath();
   const key            = args.slot || args.model;
   const message        = args.message || '';
 
@@ -758,7 +769,7 @@ async function setAvailability(argv) {
 
 async function getAvailability(argv) {
   const args           = parseArgs(argv);
-  const scoreboardPath = args.scoreboard || '.planning/quorum-scoreboard.json';
+  const scoreboardPath = args.scoreboard || defaultScoreboardPath();
   const data           = loadData(scoreboardPath);
   const now            = Date.now();
 
@@ -806,7 +817,7 @@ async function getAvailability(argv) {
 
 async function mergeWave(argv) {
   const args           = parseArgs(argv);
-  const scoreboardPath = args.scoreboard || '.planning/quorum-scoreboard.json';
+  const scoreboardPath = args.scoreboard || defaultScoreboardPath();
   const dir            = args.dir        || '.planning/scoreboard-tmp';
   const task           = args.task;
   const round          = parseInt(args.round, 10);

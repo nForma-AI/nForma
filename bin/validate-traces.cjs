@@ -28,7 +28,8 @@ function computeConfidenceTier(n_rounds, window_days) {
 }
 
 function readScoreboardMeta() {
-  const scoreboardPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+  const pp = require('./planning-paths.cjs');
+  const scoreboardPath = pp.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
   try {
     const raw = fs.readFileSync(scoreboardPath, 'utf8');
     const sb = JSON.parse(raw);
@@ -210,7 +211,8 @@ function expectedState(event) {
 function buildObservationWindow(scoreboardMeta, n_events) {
   let window_start = new Date().toISOString();
   try {
-    const sbPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+    const pp2 = require('./planning-paths.cjs');
+    const sbPath = pp2.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
     if (fs.existsSync(sbPath)) {
       const sb = JSON.parse(fs.readFileSync(sbPath, 'utf8'));
       const rounds = Array.isArray(sb.rounds) ? sb.rounds : [];

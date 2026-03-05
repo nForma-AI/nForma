@@ -81,7 +81,8 @@ function computeConsensusProbability(slotRates, minQuorum) {
  * @returns {{ action: string, probability: number, threshold: number, message: string }}
  */
 function checkConsensusGate(options = {}) {
-  const scoreboardPath = options.scoreboardPath || path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+  const pp = require('./planning-paths.cjs');
+  const scoreboardPath = options.scoreboardPath || pp.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
   const configPath     = options.configPath || path.join(process.cwd(), '.planning', 'config.json');
   const minQuorum      = options.minQuorum || 2;
 
@@ -212,7 +213,8 @@ if (require.main === module) {
   if (remainingRoundsArg) {
     // HEAL-01: Early escalation mode -- compute P(consensus | remaining rounds)
     const remainingRounds = parseInt(remainingRoundsArg.split('=')[1], 10);
-    const scoreboardPath = path.join(process.cwd(), '.planning', 'quorum-scoreboard.json');
+    const pp2 = require('./planning-paths.cjs');
+    const scoreboardPath = pp2.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
     let slotRates = null;
     try {
       const { readMCPAvailabilityRates } = require('./run-prism.cjs');

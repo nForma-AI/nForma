@@ -516,7 +516,13 @@ function agentRows() {
     // Last failure from quorum-failures.json (best-effort read)
     let lastFailure = null;
     try {
-      const failPath = path.join(os.homedir(), '.claude', 'qgsd', 'quorum-failures.json');
+      let failPath;
+      try {
+        const pp = require('./planning-paths.cjs');
+        failPath = pp.resolveWithFallback(process.cwd(), 'quorum-failures');
+      } catch (_) {
+        failPath = path.join(os.homedir(), '.claude', 'qgsd', 'quorum-failures.json');
+      }
       if (fs.existsSync(failPath)) {
         const failures = JSON.parse(fs.readFileSync(failPath, 'utf8'));
         const entry = failures[provSlot] || failures[name];
@@ -1832,13 +1838,17 @@ function buildScoreboardLines(data, opts) {
   return lines;
 }
 
-const SCOREBOARD_REL = path.join('.planning', 'quorum-scoreboard.json');
-
 function renderScoreboard() {
   try {
-    const sbPath = path.resolve(process.cwd(), SCOREBOARD_REL);
+    let sbPath;
+    try {
+      const pp = require('./planning-paths.cjs');
+      sbPath = pp.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
+    } catch (_) {
+      sbPath = path.resolve(process.cwd(), path.join('.planning', 'quorum-scoreboard.json'));
+    }
     if (!fs.existsSync(sbPath)) {
-      setContent('Scoreboard', '{gray-fg}No scoreboard found at ' + SCOREBOARD_REL + '{/}');
+      setContent('Scoreboard', '{gray-fg}No scoreboard found{/}');
       return;
     }
     const data  = JSON.parse(fs.readFileSync(sbPath, 'utf8'));

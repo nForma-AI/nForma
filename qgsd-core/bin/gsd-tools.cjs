@@ -4019,7 +4019,13 @@ function cmdValidateHealth(cwd, options, raw) {
   }
 
   // ─── Check 9: Quorum failure patterns ─────────────────────────────────────────
-  const failuresPath = path.join(planningDir, 'quorum-failures.json');
+  let failuresPath;
+  try {
+    const pp = require(path.join(__dirname, '..', '..', 'bin', 'planning-paths.cjs'));
+    failuresPath = pp.resolveWithFallback(path.dirname(planningDir), 'quorum-failures');
+  } catch (_) {
+    failuresPath = path.join(planningDir, 'quorum-failures.json');
+  }
   if (fs.existsSync(failuresPath)) {
     try {
       const failures = JSON.parse(fs.readFileSync(failuresPath, 'utf-8'));

@@ -155,7 +155,13 @@ function main() {
   }
 
   // ── Load scoreboard ────────────────────────────────────────────────────────────
-  const scoreboardPath = path.join(ROOT, '.planning', 'quorum-scoreboard.json');
+  let scoreboardPath;
+  try {
+    const pp = require('./planning-paths.cjs');
+    scoreboardPath = pp.resolveWithFallback(ROOT, 'quorum-scoreboard');
+  } catch (_) {
+    scoreboardPath = path.join(ROOT, '.planning', 'quorum-scoreboard.json');
+  }
   if (!fs.existsSync(scoreboardPath)) {
     process.stderr.write('[verify-quorum-health] No scoreboard found — cannot compute empirical rates.\n');
     process.stderr.write('[verify-quorum-health] Run some quorum rounds first.\n');
