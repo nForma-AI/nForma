@@ -45,7 +45,7 @@ test('writes correlation placeholder for qgsd-quorum-slot-worker', () => {
   const { exitCode } = runHook(payload, tmpDir);
   assert.equal(exitCode, 0);
 
-  const corrFile = path.join(tmpDir, '.planning', 'quorum-slot-corr-agent42.json');
+  const corrFile = path.join(tmpDir, '.planning', 'quorum', 'correlations', 'quorum-slot-corr-agent42.json');
   assert.equal(fs.existsSync(corrFile), true, 'Correlation file should exist');
 
   const data = JSON.parse(fs.readFileSync(corrFile, 'utf8'));

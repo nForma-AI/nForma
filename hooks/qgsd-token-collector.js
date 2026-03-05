@@ -25,7 +25,8 @@ const path = require('path');
 //   3. Fallback: return agent_id or 'unknown'
 function resolveSlot(input) {
   if (input.agent_id) {
-    const corrPath = path.join(process.cwd(), '.planning', 'quorum-slot-corr-' + input.agent_id + '.json');
+    const pp = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+    const corrPath = pp.resolveWithFallback(process.cwd(), 'quorum-correlation', { agentId: input.agent_id });
     if (fs.existsSync(corrPath)) {
       try {
         const data = JSON.parse(fs.readFileSync(corrPath, 'utf8'));
@@ -63,8 +64,8 @@ function appendRecord(input, inputTokens, outputTokens, cacheCreate, cacheRead) 
       cache_creation_input_tokens:   cacheCreate,
       cache_read_input_tokens:       cacheRead,
     });
-    const logPath = path.join(process.cwd(), '.planning', 'token-usage.jsonl');
-    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    const pp2 = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+    const logPath = pp2.resolve(process.cwd(), 'token-usage');
     fs.appendFileSync(logPath, record + '\n', 'utf8');
   } catch (_) {} // observational — never fails
 }

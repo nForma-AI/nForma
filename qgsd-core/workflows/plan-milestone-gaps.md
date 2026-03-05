@@ -12,7 +12,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 
 ```bash
 # Find the most recent audit file
-ls -t .planning/v*-MILESTONE-AUDIT.md 2>/dev/null | head -1
+# Check new location first, then legacy
+ls -t .planning/milestones/v*-MILESTONE-AUDIT.md .planning/v*-MILESTONE-AUDIT.md 2>/dev/null | head -1
 ```
 
 Parse YAML frontmatter to extract structured gaps:

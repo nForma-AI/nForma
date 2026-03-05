@@ -383,8 +383,8 @@ function makePatternHash(fileSets) {
 // NEVER writes to stdout — stdout is the Claude Code hook decision channel.
 function appendConformanceEvent(event) {
   try {
-    const logPath = path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
-    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    const pp = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+    const logPath = pp.resolve(process.cwd(), 'conformance-events');
     fs.appendFileSync(logPath, JSON.stringify(event) + '\n', 'utf8');
   } catch (err) {
     process.stderr.write('[qgsd] conformance log write failed: ' + err.message + '\n');

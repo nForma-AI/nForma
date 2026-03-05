@@ -23,7 +23,7 @@ One command creates all fix phases — no manual `/qgsd:add-phase` per gap.
 
 <context>
 **Audit results:**
-Glob: .planning/v*-MILESTONE-AUDIT.md (use most recent)
+Glob: .planning/milestones/v*-MILESTONE-AUDIT.md or .planning/v*-MILESTONE-AUDIT.md (use most recent)
 
 Original intent and current planning state are loaded on demand inside the workflow.
 </context>

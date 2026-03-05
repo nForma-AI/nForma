@@ -35,13 +35,10 @@ function main() {
         process.exit(0);
       }
 
-      const corrPath = path.join(
-        process.cwd(), '.planning',
-        'quorum-slot-corr-' + input.agent_id + '.json'
-      );
+      const pp = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+      const corrPath = pp.resolve(process.cwd(), 'quorum-correlation', { agentId: input.agent_id });
 
       try {
-        fs.mkdirSync(path.dirname(corrPath), { recursive: true });
         fs.writeFileSync(corrPath, JSON.stringify({
           agent_id: input.agent_id,
           ts:       new Date().toISOString(),

@@ -246,7 +246,8 @@ if (require.main === module) {
     walker = require('./xstate-trace-walker.cjs');
   } catch (_) { /* walker not available — TTrace export will use empty guardEvaluations */ }
 
-  const logPath = path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
+  const pp = require('./planning-paths.cjs');
+  const logPath = pp.resolveWithFallback(process.cwd(), 'conformance-events');
 
   if (!fs.existsSync(logPath)) {
     process.stdout.write('[validate-traces] No conformance log at: ' + logPath + ' — nothing to validate\n');

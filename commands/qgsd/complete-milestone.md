@@ -41,7 +41,7 @@ Output: Milestone archived (roadmap + requirements), PROJECT.md evolved, git tag
 
 0. **Check for audit:**
 
-   - Look for `.planning/v{{version}}-MILESTONE-AUDIT.md`
+   - Look for `.planning/milestones/v{{version}}-MILESTONE-AUDIT.md` (or legacy `.planning/v{{version}}-MILESTONE-AUDIT.md`)
    - If missing or stale: recommend `/qgsd:audit-milestone` first
    - If audit status is `gaps_found`: recommend `/qgsd:plan-milestone-gaps` first
    - If audit status is `passed`: proceed to step 1
@@ -49,7 +49,7 @@ Output: Milestone archived (roadmap + requirements), PROJECT.md evolved, git tag
    ```markdown
    ## Pre-flight Check
 
-   {If no v{{version}}-MILESTONE-AUDIT.md:}
+   {If no v{{version}}-MILESTONE-AUDIT.md in milestones/ or root:}
    ⚠ No milestone audit found. Run `/qgsd:audit-milestone` first to verify
    requirements coverage, cross-phase integration, and E2E flows.
 

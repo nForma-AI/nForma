@@ -26,12 +26,15 @@ animation/
 # Compiled TypeScript machine artifacts
 dist/machines/
 
-# Conformance event log — per-user runtime artifact
+# Conformance event log — per-user runtime artifact (legacy + new paths)
 .planning/conformance-events.jsonl
+.planning/telemetry/conformance-events.jsonl
 
-# Runtime token usage and correlation data
+# Runtime token usage and correlation data (legacy + new paths)
 .planning/token-usage.jsonl
+.planning/telemetry/token-usage.jsonl
 .planning/quorum-slot-corr-*.json
+.planning/quorum/correlations/
 
 # Internal planning documents
 reports/
@@ -90,12 +93,18 @@ states/
 # Nested planning artifacts in .formal
 .planning/formal/alloy/.planning/
 
-# Quorum round session logs (ephemeral)
+# Quorum round session logs (legacy + new paths)
 .planning/quorum-rounds-session-*.jsonl
+.planning/quorum/rounds/
+
+# Planning migration marker
+.planning/.migrated
+.planning/.gitignore
 
 # Screenshots / images (keep in docs/assets/ instead)
 *.png
 !docs/assets/*.png
 
-# STATE.md backups
+# STATE.md backups (legacy + new paths)
 .planning/STATE.md.bak-*
+.planning/archive/state-backups/

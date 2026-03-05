@@ -51,8 +51,8 @@ The Stop hook reads the transcript — skipping quorum will block your response.
 // NEVER writes to stdout — stdout is the Claude Code hook decision channel.
 function appendConformanceEvent(event) {
   try {
-    const logPath = path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
-    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    const pp = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+    const logPath = pp.resolve(process.cwd(), 'conformance-events');
     fs.appendFileSync(logPath, JSON.stringify(event) + '\n', 'utf8');
   } catch (err) {
     process.stderr.write('[qgsd] conformance log write failed: ' + err.message + '\n');
@@ -515,8 +515,8 @@ process.stdin.on('end', () => {
       // cases where T2 was used without T1 being exhausted first.
       if (t1Unused.length > 0) {
         try {
-          const logPath = require('path').join(cwd, '.planning', 'conformance-events.jsonl');
-          require('fs').mkdirSync(require('path').dirname(logPath), { recursive: true });
+          const pp = require(require('path').join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+          const logPath = pp.resolve(cwd, 'conformance-events');
           require('fs').appendFileSync(logPath, JSON.stringify({
             type: 'quorum_fallback_t1_required',
             t1Slots: t1Unused,

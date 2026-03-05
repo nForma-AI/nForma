@@ -70,7 +70,8 @@ function parseTlcStates(specName) {
  * @returns {Set<string> | null} - set of observed state names, or null if file missing
  */
 function parseTraceStates(logPath) {
-  const p = logPath || path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
+  const pp = require('./planning-paths.cjs');
+  const p = logPath || pp.resolveWithFallback(process.cwd(), 'conformance-events');
   try {
     if (!fs.existsSync(p)) return null;
     const raw = fs.readFileSync(p, 'utf8');
@@ -102,7 +103,8 @@ function parseTraceStates(logPath) {
  */
 function detectCoverageGaps(options = {}) {
   const specName   = options.specName || 'QGSDQuorum';
-  const logPath    = options.logPath || path.join(process.cwd(), '.planning', 'conformance-events.jsonl');
+  const pp2 = require('./planning-paths.cjs');
+  const logPath    = options.logPath || pp2.resolveWithFallback(process.cwd(), 'conformance-events');
   const outputPath = options.outputPath || path.join(process.cwd(), '.planning', 'formal', 'coverage-gaps.md');
 
   const tlcResult = parseTlcStates(specName);

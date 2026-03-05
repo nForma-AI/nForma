@@ -3613,8 +3613,10 @@ function cmdMilestoneComplete(cwd, version, options, raw) {
     fs.writeFileSync(path.join(archiveDir, `${version}-REQUIREMENTS.md`), archiveHeader + reqContent, 'utf-8');
   }
 
-  // Archive audit file if exists
-  const auditFile = path.join(cwd, '.planning', `${version}-MILESTONE-AUDIT.md`);
+  // Archive audit file if exists (check new milestones/ path first, then legacy root)
+  const auditFileNew = path.join(cwd, '.planning', 'milestones', `${version}-MILESTONE-AUDIT.md`);
+  const auditFileLegacy = path.join(cwd, '.planning', `${version}-MILESTONE-AUDIT.md`);
+  const auditFile = fs.existsSync(auditFileNew) ? auditFileNew : auditFileLegacy;
   if (fs.existsSync(auditFile)) {
     fs.renameSync(auditFile, path.join(archiveDir, `${version}-MILESTONE-AUDIT.md`));
   }

@@ -39,7 +39,7 @@ function runHook(stdinPayload, tmpDir) {
 
 // Helper: read token-usage.jsonl from tmpDir
 function readTokenLog(tmpDir) {
-  const logPath = path.join(tmpDir, '.planning', 'token-usage.jsonl');
+  const logPath = path.join(tmpDir, '.planning', 'telemetry', 'token-usage.jsonl');
   if (!fs.existsSync(logPath)) return null;
   const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(l => l.trim());
   return lines.map(l => JSON.parse(l));

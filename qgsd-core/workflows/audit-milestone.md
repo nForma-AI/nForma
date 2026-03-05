@@ -155,7 +155,9 @@ For each REQ-ID, determine status using all three sources:
 
 ## 6. Aggregate into v{version}-MILESTONE-AUDIT.md
 
-Create `.planning/v{version}-v{version}-MILESTONE-AUDIT.md` with:
+Create `.planning/milestones/v{version}-MILESTONE-AUDIT.md` with:
+
+> **Legacy compat:** If `.planning/milestones/` does not exist (pre-v0.27 project), write to `.planning/v{version}-MILESTONE-AUDIT.md` instead. The migration script will auto-relocate it.
 
 ```yaml
 ---
@@ -273,7 +275,7 @@ If `current_iteration > MAX_ITERATIONS` (3):
 {list of unsatisfied requirements and integration gaps}
 
 Investigate manually:
-  cat .planning/v{version}-MILESTONE-AUDIT.md
+  cat .planning/milestones/v{version}-MILESTONE-AUDIT.md
   /qgsd:plan-milestone-gaps
   /qgsd:complete-milestone {version}  (accept current state)
 ```
@@ -347,7 +349,7 @@ Check gap classification from Step 2b:
   Task(
     prompt="Run /qgsd:plan-milestone-gaps --auto
 
-  Audit file: .planning/v{version}-MILESTONE-AUDIT.md
+  Audit file: .planning/milestones/v{version}-MILESTONE-AUDIT.md
   Milestone: {version}
   Missing phases (no plan): {list of missing_no_plan phase names and their unsatisfied requirements}
 
@@ -387,7 +389,7 @@ Output this markdown directly (not as a code block). Route based on status:
 ## ✓ Milestone {version} — Audit Passed
 
 **Score:** {N}/{M} requirements satisfied
-**Report:** .planning/v{version}-MILESTONE-AUDIT.md
+**Report:** .planning/milestones/v{version}-MILESTONE-AUDIT.md
 
 All requirements covered. Cross-phase integration verified. E2E flows complete.
 
@@ -410,7 +412,7 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 ## ⚠ Milestone {version} — Gaps Found
 
 **Score:** {N}/{M} requirements satisfied
-**Report:** .planning/v{version}-MILESTONE-AUDIT.md
+**Report:** .planning/milestones/v{version}-MILESTONE-AUDIT.md
 
 ### Unsatisfied Requirements
 
@@ -463,7 +465,7 @@ Follow @~/.claude/qgsd/workflows/plan-milestone-gaps.md to create gap closure ph
 ## ⚡ Milestone {version} — Tech Debt Review
 
 **Score:** {N}/{M} requirements satisfied
-**Report:** .planning/v{version}-MILESTONE-AUDIT.md
+**Report:** .planning/milestones/v{version}-MILESTONE-AUDIT.md
 
 All requirements met. No critical blockers. Accumulated tech debt needs review.
 

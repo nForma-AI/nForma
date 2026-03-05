@@ -46,8 +46,8 @@ function appendTokenSentinel(slotName) {
       cache_creation_input_tokens: null,
       cache_read_input_tokens:     null,
     });
-    const logPath = path.join(findProjectRoot(), '.planning', 'token-usage.jsonl');
-    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    const pp = require('./planning-paths.cjs');
+    const logPath = pp.resolve(findProjectRoot(), 'token-usage');
     fs.appendFileSync(logPath, record + '\n', 'utf8');
   } catch (_) {} // observational — never fails
 }
@@ -68,8 +68,8 @@ function recordTelemetry(slotName, round, verdict, latencyMs, provider, provider
       retry_count: retryCount,
       error_type: errorType,
     });
-    const logPath = path.join(findProjectRoot(), '.planning', 'quorum-rounds-' + sessionId + '.jsonl');
-    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    const pp = require('./planning-paths.cjs');
+    const logPath = pp.resolve(findProjectRoot(), 'quorum-rounds', { sessionId });
     fs.appendFileSync(logPath, record + '\n', 'utf8');
   } catch (_) {
     // Fail-open: telemetry errors never block or crash the dispatch
