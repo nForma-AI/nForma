@@ -1,0 +1,35 @@
+{
+  "category": "CI/CD",
+  "description": "Baseline continuous integration and delivery requirements ensuring code quality gates are enforced automatically before merge.",
+  "profiles": ["web", "mobile", "desktop", "cli", "api", "library"],
+  "requirements": [
+    {
+      "id_template": "CI-{N}",
+      "text": "Automated test suite runs on every pull request and merge to main is blocked when tests fail",
+      "intent": "Regressions must be caught before they reach the default branch",
+      "verifiable_by": "Open PR with a failing test; confirm CI blocks merge",
+      "profiles": ["web", "mobile", "desktop", "cli", "api", "library"]
+    },
+    {
+      "id_template": "CI-{N}",
+      "text": "Linting and formatting checks run in CI and block merge on violations",
+      "intent": "Code style must be enforced automatically, not through review comments",
+      "verifiable_by": "Open PR with a linting violation; confirm CI blocks merge",
+      "profiles": ["web", "mobile", "desktop", "cli", "api", "library"]
+    },
+    {
+      "id_template": "CI-{N}",
+      "text": "Type checking (if applicable to the language) runs in CI and blocks merge on type errors",
+      "intent": "Type safety must be enforced at the pipeline level, not just the IDE",
+      "verifiable_by": "Introduce a type error; confirm CI catches it and blocks merge",
+      "profiles": ["web", "mobile", "desktop", "cli", "api", "library"]
+    },
+    {
+      "id_template": "CI-{N}",
+      "text": "Build artifacts are produced from a clean CI environment, not from developer machines",
+      "intent": "Deployable artifacts must be reproducible and untainted by local state",
+      "verifiable_by": "Confirm deployment pipeline pulls from CI artifacts, not local builds",
+      "profiles": ["web", "mobile", "desktop", "api"]
+    }
+  ]
+}

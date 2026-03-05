@@ -1,0 +1,84 @@
+{
+  "category": "UX Heuristics",
+  "description": "Universal usability requirements based on Nielsen's heuristics. Ensures every interface is learnable, recoverable, and transparent.",
+  "profiles": ["web", "mobile", "desktop", "cli"],
+  "requirements": [
+    {
+      "id_template": "UX-{N}",
+      "text": "Every interactive element (button, icon, link) has a discoverable label — visible text, tooltip, or aria-label",
+      "intent": "Users must understand what every interactive element does",
+      "verifiable_by": "Audit interactive elements for accessible names; no unlabeled controls",
+      "profiles": ["web", "mobile", "desktop"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Every user-initiated action produces immediate feedback (loading/disabled state) and completion feedback (result message, navigation change, or visible state update)",
+      "intent": "Users must receive feedback after actions and understand what happened",
+      "verifiable_by": "Trigger each action; confirm loading indicator appears within 200ms and completion feedback follows",
+      "profiles": ["web", "mobile", "desktop", "cli"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Modals, dialogs, forms, and multi-step workflows provide cancel, close, or back paths",
+      "intent": "Users must be able to exit or cancel operations",
+      "verifiable_by": "Open each modal/dialog/form; confirm escape route exists and works",
+      "profiles": ["web", "mobile", "desktop"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Destructive actions (delete, reset, remove, overwrite) require explicit confirmation or provide undo within a reasonable window",
+      "intent": "Users must be protected from irreversible mistakes",
+      "verifiable_by": "Trigger each destructive action; confirm confirmation dialog or undo mechanism exists",
+      "profiles": ["web", "mobile", "desktop", "cli"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Error messages are human-readable, explain what went wrong, and suggest a next step or recovery action",
+      "intent": "Users must understand errors and how to recover",
+      "verifiable_by": "Trigger known error conditions; confirm messages are actionable, not raw stack traces or codes",
+      "profiles": ["web", "mobile", "desktop", "cli", "api", "library"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Required inputs are marked, input constraints (format, length, allowed values) are visible before submission, and available options are discoverable",
+      "intent": "Users must not need to remember hidden information",
+      "verifiable_by": "Review all forms; confirm required markers, format hints, and validation rules are visible pre-submit",
+      "profiles": ["web", "mobile", "desktop"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Pages and flows provide contextual orientation — page titles, breadcrumbs, highlighted navigation state, or step indicators",
+      "intent": "Users must always know where they are in the interface",
+      "verifiable_by": "Navigate each route; confirm title updates and navigation state reflects current location",
+      "profiles": ["web", "mobile", "desktop"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Interactive elements meet WCAG 2.2 minimum target size (24x24 CSS px) and are visually distinguishable from non-interactive content",
+      "intent": "Users must be able to interact comfortably",
+      "verifiable_by": "Measure tap/click targets; confirm minimum 24x24px and visual affordance (border, color, cursor)",
+      "profiles": ["web", "mobile", "desktop"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Core user flows are fully keyboard-navigable with visible focus indicators on all interactive elements",
+      "intent": "Users must be able to operate the interface without a mouse",
+      "verifiable_by": "Tab through each core flow; confirm focus is visible and all actions reachable via keyboard",
+      "profiles": ["web", "desktop"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Text and interactive element colors meet WCAG AA contrast ratio (minimum 4.5:1 for normal text, 3:1 for large text and UI components)",
+      "intent": "Content must be readable for users with low vision or in bright environments",
+      "verifiable_by": "Run automated contrast check (axe-core, Lighthouse); confirm no AA violations on text or interactive elements",
+      "profiles": ["web", "mobile", "desktop"]
+    },
+    {
+      "id_template": "UX-{N}",
+      "text": "Touch targets on mobile meet platform guidelines (minimum 44x44pt on iOS, 48x48dp on Android)",
+      "intent": "Mobile users must be able to tap targets accurately without frustration",
+      "verifiable_by": "Audit touch targets on mobile viewports; confirm minimum 44x44pt sizing",
+      "profiles": ["mobile"]
+    }
+  ]
+}

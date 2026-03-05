@@ -1,0 +1,49 @@
+{
+  "category": "Security",
+  "description": "Baseline security requirements to prevent common vulnerabilities. Covers secrets, input handling, dependencies, and authentication hygiene.",
+  "profiles": ["web", "mobile", "desktop", "cli", "api", "library"],
+  "requirements": [
+    {
+      "id_template": "SEC-{N}",
+      "text": "Pre-commit hook runs secret scanning (e.g., Gitleaks) to block commits containing API keys, tokens, passwords, or credentials",
+      "intent": "Secrets must never reach the repository",
+      "verifiable_by": "Attempt to commit a file containing a test secret pattern; confirm commit is blocked",
+      "profiles": ["web", "mobile", "desktop", "cli", "api", "library"]
+    },
+    {
+      "id_template": "SEC-{N}",
+      "text": "CI pipeline runs deep secret scanning (e.g., TruffleHog) across full repo history on every PR",
+      "intent": "Historical secret leaks must be caught before merge",
+      "verifiable_by": "Open PR with repo containing a planted historical secret; confirm CI flags it",
+      "profiles": ["web", "mobile", "desktop", "cli", "api", "library"]
+    },
+    {
+      "id_template": "SEC-{N}",
+      "text": "All external input (user input, API request bodies, query parameters, file uploads) is validated and sanitized at system boundaries before processing",
+      "intent": "Untrusted input must never reach business logic raw",
+      "verifiable_by": "Send malformed/malicious input to each entry point; confirm rejection or safe handling",
+      "profiles": ["web", "mobile", "api", "cli"]
+    },
+    {
+      "id_template": "SEC-{N}",
+      "text": "Dependencies are scanned for known vulnerabilities in CI (e.g., npm audit, Dependabot, Snyk) and critical/high findings block merge",
+      "intent": "Known vulnerable dependencies must not ship",
+      "verifiable_by": "Introduce a dependency with a known CVE; confirm CI blocks the PR",
+      "profiles": ["web", "mobile", "desktop", "cli", "api", "library"]
+    },
+    {
+      "id_template": "SEC-{N}",
+      "text": "Sensitive data (tokens, session IDs, PII) is never logged in plaintext, included in URLs, or exposed in client-side error messages",
+      "intent": "Sensitive data must not leak through side channels",
+      "verifiable_by": "Trigger error paths and log outputs; grep for sensitive patterns in logs, URLs, and responses",
+      "profiles": ["web", "mobile", "api"]
+    },
+    {
+      "id_template": "SEC-{N}",
+      "text": "Authentication tokens have expiration, and session invalidation is enforced on logout and password change",
+      "intent": "Stale credentials must not grant access",
+      "verifiable_by": "Log out or change password; confirm old tokens are rejected",
+      "profiles": ["web", "mobile", "api"]
+    }
+  ]
+}

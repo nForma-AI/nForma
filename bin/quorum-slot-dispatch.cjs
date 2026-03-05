@@ -286,13 +286,14 @@ function formatRequirementsSection(requirements) {
  * @param {string}  opts.repoDir
  * @param {string}  opts.question
  * @param {string} [opts.artifactPath]
+ * @param {string} [opts.artifactContent]  - pre-read content (avoids model read failures)
  * @param {string} [opts.reviewContext]
  * @param {string} [opts.priorPositions]   - Round 2+ cross-pollination
  * @param {boolean}[opts.requestImprovements]
  * @param {Array}  [opts.requirements]     - array of requirement objects to inject
  * @returns {string}
  */
-function buildModeAPrompt({ round, repoDir, question, artifactPath, reviewContext, priorPositions, requestImprovements, requirements }) {
+function buildModeAPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, requestImprovements, requirements }) {
   const lines = [];
 
   // Header
@@ -309,7 +310,12 @@ function buildModeAPrompt({ round, repoDir, question, artifactPath, reviewContex
     lines.push('');
     lines.push('=== Artifact ===');
     lines.push(`Path: ${artifactPath}`);
-    lines.push('(Read this file to obtain its full content before evaluating.)');
+    if (artifactContent) {
+      lines.push('Content:');
+      lines.push(artifactContent);
+    } else {
+      lines.push('(Read this file to obtain its full content before evaluating.)');
+    }
     lines.push('================');
   }
 
@@ -347,9 +353,14 @@ function buildModeAPrompt({ round, repoDir, question, artifactPath, reviewContex
     }
 
     lines.push('');
-    lines.push('Before revising your position, use your tools to re-check relevant files. At minimum');
-    lines.push('re-read CLAUDE.md and .planning/STATE.md if they exist, and re-read the artifact file if');
-    lines.push('one was provided.');
+    if (artifactContent) {
+      lines.push('Before revising your position, re-review the artifact content provided above and');
+      lines.push('use your tools to check any other relevant files if needed.');
+    } else {
+      lines.push('Before revising your position, use your tools to re-check relevant files. At minimum');
+      lines.push('re-read CLAUDE.md and .planning/STATE.md if they exist, and re-read the artifact file if');
+      lines.push('one was provided.');
+    }
     lines.push('');
     lines.push('Given the above, do you maintain your answer or revise it? State your updated position');
     lines.push('clearly (2\u20134 sentences).');
@@ -372,11 +383,17 @@ function buildModeAPrompt({ round, repoDir, question, artifactPath, reviewContex
   } else {
     // ── Round 1 path ──────────────────────────────────────────────────────
     lines.push('');
-    lines.push('IMPORTANT: Before answering, use your available tools to read files from the');
-    lines.push('Repository directory above. At minimum read: CLAUDE.md (if it exists),');
-    lines.push('.planning/STATE.md (if it exists), and the artifact file at the path shown in the');
-    lines.push('Artifact section above (if present). Then read any other files directly relevant to');
-    lines.push('the question. Your answer must be grounded in what you actually find in the repo.');
+    if (artifactContent) {
+      lines.push('The artifact content is provided above. Use your available tools to read any other');
+      lines.push('relevant files from the Repository directory if needed. Your answer must be grounded');
+      lines.push('in the artifact content and what you actually find in the repo.');
+    } else {
+      lines.push('IMPORTANT: Before answering, use your available tools to read files from the');
+      lines.push('Repository directory above. At minimum read: CLAUDE.md (if it exists),');
+      lines.push('.planning/STATE.md (if it exists), and the artifact file at the path shown in the');
+      lines.push('Artifact section above (if present). Then read any other files directly relevant to');
+      lines.push('the question. Your answer must be grounded in what you actually find in the repo.');
+    }
     lines.push('');
     lines.push('You are one AI model in a multi-model quorum. Your peer reviewers are other AI language');
     lines.push('models \u2014 not human experts. Give your honest answer with reasoning. Be concise (3\u20136');
@@ -413,12 +430,13 @@ function buildModeAPrompt({ round, repoDir, question, artifactPath, reviewContex
  * @param {string}  opts.question
  * @param {string}  opts.traces             - execution trace output (required for Mode B)
  * @param {string} [opts.artifactPath]
+ * @param {string} [opts.artifactContent]  - pre-read content (avoids model read failures)
  * @param {string} [opts.reviewContext]
  * @param {string} [opts.priorPositions]   - Round 2+
  * @param {Array}  [opts.requirements]     - array of requirement objects to inject
  * @returns {string}
  */
-function buildModeBPrompt({ round, repoDir, question, traces, artifactPath, reviewContext, priorPositions, requirements }) {
+function buildModeBPrompt({ round, repoDir, question, traces, artifactPath, artifactContent, reviewContext, priorPositions, requirements }) {
   const lines = [];
 
   // Header
@@ -435,7 +453,12 @@ function buildModeBPrompt({ round, repoDir, question, traces, artifactPath, revi
     lines.push('');
     lines.push('=== Artifact ===');
     lines.push(`Path: ${artifactPath}`);
-    lines.push('(Read this file to obtain its full content before evaluating.)');
+    if (artifactContent) {
+      lines.push('Content:');
+      lines.push(artifactContent);
+    } else {
+      lines.push('(Read this file to obtain its full content before evaluating.)');
+    }
     lines.push('================');
   }
 
@@ -474,9 +497,14 @@ function buildModeBPrompt({ round, repoDir, question, traces, artifactPath, revi
   }
 
   lines.push('');
-  lines.push('Before giving your verdict, use your tools to read files from the Repository directory');
-  lines.push('above. At minimum read: CLAUDE.md (if it exists), .planning/STATE.md (if it exists), and');
-  lines.push('the artifact file at the path shown above (if present).');
+  if (artifactContent) {
+    lines.push('The artifact content is provided above. Use your tools to read any other relevant files');
+    lines.push('from the Repository directory if needed.');
+  } else {
+    lines.push('Before giving your verdict, use your tools to read files from the Repository directory');
+    lines.push('above. At minimum read: CLAUDE.md (if it exists), .planning/STATE.md (if it exists), and');
+    lines.push('the artifact file at the path shown above (if present).');
+  }
   lines.push('');
   lines.push('Note: prior positions are opinions from other AI models \u2014 not human specialists.');
   lines.push('');
@@ -777,15 +805,32 @@ async function main() {
   // Build prompt
   const repoDir = cwd;
 
+  // Pre-read artifact file content to inline in prompt (prevents read failures in models)
+  const ARTIFACT_MAX_BYTES = 50 * 1024; // 50KB cap
+  let artifactContent = null;
+  if (artifactPath) {
+    try {
+      const resolvedPath = path.isAbsolute(artifactPath) ? artifactPath : path.join(cwd, artifactPath);
+      const stat = fs.statSync(resolvedPath);
+      if (stat.size <= ARTIFACT_MAX_BYTES) {
+        artifactContent = fs.readFileSync(resolvedPath, 'utf8');
+      } else {
+        process.stderr.write(`[quorum-slot-dispatch] artifact too large (${stat.size} bytes > ${ARTIFACT_MAX_BYTES}), models must read it themselves\n`);
+      }
+    } catch (e) {
+      process.stderr.write(`[quorum-slot-dispatch] could not pre-read artifact: ${e.message}\n`);
+    }
+  }
+
   // Load and match requirements (fail-open: if loading fails, requirements will be empty)
   const allRequirements = loadRequirements(repoDir);
   const matchedRequirements = matchRequirementsByKeywords(allRequirements, question, artifactPath);
 
   let prompt;
   if (mode === 'B') {
-    prompt = buildModeBPrompt({ round, repoDir, question, artifactPath, reviewContext, priorPositions, traces: traces || '', requirements: matchedRequirements });
+    prompt = buildModeBPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, traces: traces || '', requirements: matchedRequirements });
   } else {
-    prompt = buildModeAPrompt({ round, repoDir, question, artifactPath, reviewContext, priorPositions, requestImprovements, requirements: matchedRequirements });
+    prompt = buildModeAPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, requestImprovements, requirements: matchedRequirements });
   }
 
   // Locate call-quorum-slot.cjs relative to this script

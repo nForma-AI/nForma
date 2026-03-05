@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-05T07:51:08.510Z",
+  "last_sync": "2026-03-05T08:16:23.613Z",
   "search_dirs": [],
   "models": {
     ".formal/alloy/account-pool-structure.als": {
@@ -59,8 +59,8 @@
       ]
     },
     ".formal/alloy/quorum-votes.als": {
-      "version": 1019,
-      "last_updated": "2026-03-05T07:51:08.510Z",
+      "version": 1044,
+      "last_updated": "2026-03-05T08:16:23.613Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -132,8 +132,8 @@
       ]
     },
     ".formal/prism/quorum.pm": {
-      "version": 1019,
-      "last_updated": "2026-03-05T07:51:08.510Z",
+      "version": 1044,
+      "last_updated": "2026-03-05T08:16:23.613Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -240,8 +240,8 @@
       ]
     },
     ".formal/tla/QGSDQuorum.tla": {
-      "version": 1019,
-      "last_updated": "2026-03-05T07:51:08.509Z",
+      "version": 1044,
+      "last_updated": "2026-03-05T08:16:23.612Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,

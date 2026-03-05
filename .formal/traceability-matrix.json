@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-03-04T00:30:15.315Z",
+    "generated_at": "2026-03-05T08:16:17.314Z",
     "generator_version": "1.1",
     "data_sources": {
       "annotations": {
@@ -12,11 +12,11 @@
         "used_as_fallback": 4
       },
       "check_results": {
-        "entry_count": 4
+        "entry_count": 141
       },
       "unit_test_coverage": {
         "available": true,
-        "requirements_matched": 208
+        "requirements_matched": 209
       }
     }
   },
@@ -28,8 +28,8 @@
           "model_file": ".formal/alloy/account-pool-structure.als",
           "property_name": "AddPreservesValidity",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:account-pool"
         }
       ]
     },
@@ -40,8 +40,8 @@
           "model_file": ".formal/alloy/account-pool-structure.als",
           "property_name": "SwitchPreservesValidity",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:account-pool"
         }
       ]
     },
@@ -52,8 +52,8 @@
           "model_file": ".formal/alloy/account-pool-structure.als",
           "property_name": "RemovePreservesValidity",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:account-pool"
         }
       ]
     },
@@ -64,8 +64,8 @@
           "model_file": ".formal/alloy/account-pool-structure.als",
           "property_name": "SwitchPreservesPool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:account-pool"
         }
       ]
     },
@@ -76,8 +76,8 @@
           "model_file": ".formal/alloy/account-pool-structure.als",
           "property_name": "RemoveShrinksPool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:account-pool"
         }
       ]
     },
@@ -88,8 +88,8 @@
           "model_file": ".formal/alloy/availability-parsing.als",
           "property_name": "ParseCorrect",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:availability"
         }
       ],
       "unit_test_coverage": {
@@ -109,8 +109,8 @@
           "model_file": ".formal/alloy/availability-parsing.als",
           "property_name": "YearRolloverHandled",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:availability"
         }
       ],
       "unit_test_coverage": {
@@ -130,8 +130,8 @@
           "model_file": ".formal/alloy/availability-parsing.als",
           "property_name": "FallbackIsNull",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:availability"
         }
       ],
       "unit_test_coverage": {
@@ -151,8 +151,8 @@
           "model_file": ".formal/alloy/install-scope.als",
           "property_name": "AllEquivalence",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -172,8 +172,8 @@
           "model_file": ".formal/alloy/install-scope.als",
           "property_name": "InstallIdempotent",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -193,8 +193,8 @@
           "model_file": ".formal/alloy/install-scope.als",
           "property_name": "NoConflict",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -214,8 +214,8 @@
           "model_file": ".formal/alloy/install-scope.als",
           "property_name": "RollbackSoundCheck",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -235,8 +235,8 @@
           "model_file": ".formal/alloy/install-scope.als",
           "property_name": "ConfigSyncCompleteCheck",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -256,8 +256,8 @@
           "model_file": ".formal/alloy/quorum-composition.als",
           "property_name": "AllRulesHold",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-composition"
         }
       ],
       "unit_test_coverage": {
@@ -277,8 +277,8 @@
           "model_file": ".formal/alloy/quorum-composition.als",
           "property_name": "AllRulesHold",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-composition"
         }
       ],
       "unit_test_coverage": {
@@ -298,22 +298,22 @@
           "model_file": ".formal/alloy/quorum-votes.als",
           "property_name": "ThresholdPasses",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-votes"
         },
         {
           "model_file": ".formal/alloy/quorum-votes.als",
           "property_name": "BelowThresholdFails",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-votes"
         },
         {
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "UnanimityMet",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-votes"
         }
       ],
       "unit_test_coverage": {
@@ -333,22 +333,22 @@
           "model_file": ".formal/alloy/quorum-votes.als",
           "property_name": "ThresholdPasses",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-votes"
         },
         {
           "model_file": ".formal/alloy/quorum-votes.als",
           "property_name": "BelowThresholdFails",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-votes"
         },
         {
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "UnanimityMet",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-votes"
         }
       ],
       "unit_test_coverage": {
@@ -368,8 +368,8 @@
           "model_file": ".formal/alloy/quorum-votes.als",
           "property_name": "ZeroApprovalsFail",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:quorum-votes"
         }
       ]
     },
@@ -380,8 +380,8 @@
           "model_file": ".formal/alloy/scoreboard-recompute.als",
           "property_name": "RecomputeIdempotent",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:scoreboard"
         }
       ],
       "unit_test_coverage": {
@@ -401,8 +401,8 @@
           "model_file": ".formal/alloy/scoreboard-recompute.als",
           "property_name": "NoVoteLoss",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:scoreboard"
         }
       ],
       "unit_test_coverage": {
@@ -422,8 +422,8 @@
           "model_file": ".formal/alloy/scoreboard-recompute.als",
           "property_name": "NoDoubleCounting",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:scoreboard"
         }
       ],
       "unit_test_coverage": {
@@ -443,8 +443,8 @@
           "model_file": ".formal/alloy/scoreboard-recompute.als",
           "property_name": "TNplusScoreIsCorrect",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "alloy:scoreboard"
         }
       ]
     },
@@ -455,8 +455,8 @@
           "model_file": ".formal/alloy/taxonomy-safety.als",
           "property_name": "NoInjection",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:taxonomy-safety"
         }
       ]
     },
@@ -467,8 +467,8 @@
           "model_file": ".formal/alloy/taxonomy-safety.als",
           "property_name": "TaxonomyClosed",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:taxonomy-safety"
         }
       ]
     },
@@ -479,8 +479,8 @@
           "model_file": ".formal/alloy/taxonomy-safety.als",
           "property_name": "NewCategoryConsistent",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:taxonomy-safety"
         }
       ]
     },
@@ -491,8 +491,8 @@
           "model_file": ".formal/alloy/transcript-scan.als",
           "property_name": "BoundaryCorrectCheck",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:transcript"
         }
       ],
       "unit_test_coverage": {
@@ -512,8 +512,8 @@
           "model_file": ".formal/alloy/transcript-scan.als",
           "property_name": "PairingUniqueCheck",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:transcript"
         }
       ],
       "unit_test_coverage": {
@@ -533,8 +533,8 @@
           "model_file": ".formal/alloy/transcript-scan.als",
           "property_name": "NoDuplicateCountingCheck",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:transcript"
         }
       ]
     },
@@ -545,8 +545,8 @@
           "model_file": ".formal/alloy/transcript-scan.als",
           "property_name": "SuccessCountNeverExceedsMinSizeCheck",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:transcript"
         }
       ]
     },
@@ -557,8 +557,8 @@
           "model_file": ".formal/tla/QGSDAccountManager.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:account-manager"
         }
       ],
       "unit_test_coverage": {
@@ -578,8 +578,8 @@
           "model_file": ".formal/tla/QGSDAccountManager.tla",
           "property_name": "ActiveIsPoolMember",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:account-manager"
         }
       ],
       "unit_test_coverage": {
@@ -599,8 +599,8 @@
           "model_file": ".formal/tla/QGSDAccountManager.tla",
           "property_name": "NoActiveWhenEmpty",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:account-manager"
         }
       ]
     },
@@ -611,8 +611,8 @@
           "model_file": ".formal/tla/QGSDAccountManager.tla",
           "property_name": "IdleNoPending",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:account-manager"
         }
       ]
     },
@@ -623,8 +623,8 @@
           "model_file": ".formal/tla/QGSDAccountManager.tla",
           "property_name": "OpMatchesState",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:account-manager"
         }
       ]
     },
@@ -635,8 +635,8 @@
           "model_file": ".formal/tla/QGSDAccountManager.tla",
           "property_name": "IdleReachable",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:account-manager"
         }
       ]
     },
@@ -647,8 +647,8 @@
           "model_file": ".formal/tla/QGSDCircuitBreaker.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:breaker"
         }
       ],
       "unit_test_coverage": {
@@ -668,8 +668,8 @@
           "model_file": ".formal/tla/QGSDCircuitBreaker.tla",
           "property_name": "DisabledExcludesActive",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:breaker"
         }
       ],
       "unit_test_coverage": {
@@ -689,8 +689,8 @@
           "model_file": ".formal/tla/QGSDCircuitBreaker.tla",
           "property_name": "MonitoringReachable",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:breaker"
         }
       ],
       "unit_test_coverage": {
@@ -710,8 +710,8 @@
           "model_file": ".formal/tla/QGSDConvergence.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:convergence"
         }
       ],
       "unit_test_coverage": {
@@ -731,8 +731,8 @@
           "model_file": ".formal/tla/QGSDConvergence.tla",
           "property_name": "ResolvedAtWriteOnce",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:convergence"
         }
       ],
       "unit_test_coverage": {
@@ -752,8 +752,8 @@
           "model_file": ".formal/tla/QGSDConvergence.tla",
           "property_name": "LogBeforeDelete",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:convergence"
         }
       ],
       "unit_test_coverage": {
@@ -773,8 +773,8 @@
           "model_file": ".formal/tla/QGSDConvergence.tla",
           "property_name": "HaikuUnavailableNoCorruption",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:convergence"
         }
       ],
       "unit_test_coverage": {
@@ -794,8 +794,8 @@
           "model_file": ".formal/tla/QGSDConvergence.tla",
           "property_name": "ConvergenceEventuallyResolves",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:convergence"
         }
       ],
       "unit_test_coverage": {
@@ -815,8 +815,8 @@
           "model_file": ".formal/tla/QGSDDeliberation.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:deliberation"
         }
       ],
       "unit_test_coverage": {
@@ -836,8 +836,8 @@
           "model_file": ".formal/tla/QGSDDeliberation.tla",
           "property_name": "TotalRoundsBounded",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:deliberation"
         }
       ],
       "unit_test_coverage": {
@@ -857,15 +857,15 @@
           "model_file": ".formal/tla/QGSDDeliberation.tla",
           "property_name": "DeliberationMonotone",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:deliberation"
         },
         {
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "DeliberationMonotone",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:deliberation"
         }
       ]
     },
@@ -876,8 +876,8 @@
           "model_file": ".formal/tla/QGSDDeliberation.tla",
           "property_name": "ImprovementMonotone",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:deliberation"
         }
       ]
     },
@@ -888,8 +888,8 @@
           "model_file": ".formal/tla/QGSDDeliberation.tla",
           "property_name": "ProtocolTerminates",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "tla:deliberation"
         }
       ],
       "unit_test_coverage": {
@@ -909,8 +909,8 @@
           "model_file": ".formal/tla/QGSDMCPEnv.tla",
           "property_name": "NoSpuriousConsensus",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ]
     },
@@ -921,8 +921,8 @@
           "model_file": ".formal/tla/QGSDMCPEnv.tla",
           "property_name": "TypeInvariantHolds",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -942,8 +942,8 @@
           "model_file": ".formal/tla/QGSDMCPEnv.tla",
           "property_name": "EventualDecision",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -963,8 +963,8 @@
           "model_file": ".formal/tla/QGSDOscillation.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:oscillation"
         }
       ],
       "unit_test_coverage": {
@@ -984,8 +984,8 @@
           "model_file": ".formal/tla/QGSDOscillation.tla",
           "property_name": "OscillationFlaggedCorrectly",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:oscillation"
         }
       ],
       "unit_test_coverage": {
@@ -994,6 +994,10 @@
           {
             "test_file": "hooks/qgsd-circuit-breaker.test.js",
             "test_name": "CB-TC1: No git repo in cwd exits 0 with no output"
+          },
+          {
+            "test_file": "hooks/generated-stubs/DETECT-05.stub.test.js",
+            "test_name": "TODO: implement test for DETECT-05 — OscillationFlaggedCorrectly"
           },
           {
             "test_file": "bin/run-oscillation-tlc.test.cjs",
@@ -1009,8 +1013,8 @@
           "model_file": ".formal/tla/QGSDOscillation.tla",
           "property_name": "AlgorithmTerminates",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:oscillation"
         }
       ]
     },
@@ -1021,8 +1025,8 @@
           "model_file": ".formal/tla/QGSDPreFilter.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:prefilter"
         }
       ],
       "unit_test_coverage": {
@@ -1042,8 +1046,8 @@
           "model_file": ".formal/tla/QGSDPreFilter.tla",
           "property_name": "AutoResolutionSound",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:prefilter"
         }
       ]
     },
@@ -1054,8 +1058,8 @@
           "model_file": ".formal/tla/QGSDPreFilter.tla",
           "property_name": "FilterRoundsBounded",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:prefilter"
         }
       ],
       "unit_test_coverage": {
@@ -1075,8 +1079,8 @@
           "model_file": ".formal/tla/QGSDPreFilter.tla",
           "property_name": "AutoResolvedPhaseConsistent",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:prefilter"
         }
       ]
     },
@@ -1087,8 +1091,8 @@
           "model_file": ".formal/tla/QGSDPreFilter.tla",
           "property_name": "PreFilterTerminates",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:prefilter"
         }
       ]
     },
@@ -1099,15 +1103,15 @@
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:quorum-safety"
         },
         {
           "model_file": ".formal/tla/QGSDQuorum_xstate.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:quorum-safety"
         }
       ],
       "unit_test_coverage": {
@@ -1127,8 +1131,8 @@
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "QuorumCeilingMet",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:quorum-safety"
         }
       ],
       "unit_test_coverage": {
@@ -1148,8 +1152,8 @@
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "QuorumCeilingMet",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:quorum-safety"
         },
         {
           "model_file": ".formal/alloy/multi-slot-structure.als",
@@ -1190,8 +1194,8 @@
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "AllTransitionsValid",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:quorum-safety"
         }
       ]
     },
@@ -1202,15 +1206,15 @@
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "DeliberationBounded",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:quorum"
         },
         {
           "model_file": ".formal/prism/quorum.props",
           "property_name": "P=? [ F<=9 s=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:quorum"
         }
       ],
       "unit_test_coverage": {
@@ -1230,17 +1234,26 @@
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "EventualConsensus",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:quorum-liveness"
         },
         {
           "model_file": ".formal/prism/quorum.props",
           "property_name": "P=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:quorum"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": "hooks/generated-stubs/QUORUM-04.stub.test.js",
+            "test_name": "TODO: implement test for QUORUM-04 — EventualConsensus"
+          }
+        ]
+      }
     },
     "RECV-01": {
       "id": "RECV-01",
@@ -1249,8 +1262,8 @@
           "model_file": ".formal/tla/QGSDQuorum.tla",
           "property_name": "EventualConsensus",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:quorum-liveness"
         }
       ],
       "unit_test_coverage": {
@@ -1336,8 +1349,8 @@
           "model_file": ".formal/tla/QGSDStopHook.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:stop-hook"
         }
       ],
       "unit_test_coverage": {
@@ -1357,8 +1370,8 @@
           "model_file": ".formal/tla/QGSDStopHook.tla",
           "property_name": "SafetyInvariant1",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:stop-hook"
         }
       ],
       "unit_test_coverage": {
@@ -1378,8 +1391,8 @@
           "model_file": ".formal/tla/QGSDStopHook.tla",
           "property_name": "SafetyInvariant1",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:stop-hook"
         }
       ],
       "unit_test_coverage": {
@@ -1399,8 +1412,8 @@
           "model_file": ".formal/tla/QGSDStopHook.tla",
           "property_name": "SafetyInvariant2",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:stop-hook"
         }
       ],
       "unit_test_coverage": {
@@ -1420,8 +1433,8 @@
           "model_file": ".formal/tla/QGSDStopHook.tla",
           "property_name": "SafetyInvariant3",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:stop-hook"
         }
       ],
       "unit_test_coverage": {
@@ -1441,8 +1454,8 @@
           "model_file": ".formal/tla/QGSDStopHook.tla",
           "property_name": "LivenessProperty1",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:stop-hook"
         }
       ],
       "unit_test_coverage": {
@@ -1462,8 +1475,8 @@
           "model_file": ".formal/tla/QGSDStopHook.tla",
           "property_name": "LivenessProperty2",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:stop-hook"
         }
       ],
       "unit_test_coverage": {
@@ -1483,8 +1496,8 @@
           "model_file": ".formal/tla/QGSDStopHook.tla",
           "property_name": "LivenessProperty3",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "tla:stop-hook"
         }
       ],
       "unit_test_coverage": {
@@ -1613,7 +1626,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/ACT-01.stub.test.js",
-            "test_name": "TODO: implement test for ACT-01 — ActivityValid"
+            "test_name": "TODO: implement test for ACT-01 — WriteActivity"
           }
         ]
       }
@@ -1970,7 +1983,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/UPS-05.stub.test.js",
-            "test_name": "TODO: implement test for UPS-05 — NonPlanningNeverInjected"
+            "test_name": "TODO: implement test for UPS-05 — DetectNonPlanningCommand"
           }
         ]
       }
@@ -2593,7 +2606,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/AGENT-01.stub.test.js",
-            "test_name": "TODO: implement test for AGENT-01 — VerifiedInRoster"
+            "test_name": "TODO: implement test for AGENT-01 — AddAgent"
           }
         ]
       }
@@ -2684,7 +2697,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/AGENT-02.stub.test.js",
-            "test_name": "TODO: implement test for AGENT-02 — RemoveClears"
+            "test_name": "TODO: implement test for AGENT-02 — RemoveAgent"
           }
         ]
       }
@@ -2712,7 +2725,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/PROV-01.stub.test.js",
-            "test_name": "TODO: implement test for PROV-01 — ProviderChangeInvalidates"
+            "test_name": "TODO: implement test for PROV-01 — ChangeProvider"
           }
         ]
       }
@@ -2888,6 +2901,10 @@
           {
             "test_file": "hooks/config-loader.test.js",
             "test_name": "TC1: no project config → returns valid config (from global or DEFAULT_CONFIG)"
+          },
+          {
+            "test_file": "hooks/generated-stubs/CONF-01.stub.test.js",
+            "test_name": "TODO: implement test for CONF-01 — ConfigLayer"
           }
         ]
       }
@@ -3034,7 +3051,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/CONF-06.stub.test.js",
-            "test_name": "TODO: implement test for CONF-06 — CircuitBreakerBounded"
+            "test_name": "TODO: implement test for CONF-06 — ConfigLayer"
           }
         ]
       }
@@ -3062,7 +3079,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/CONF-07.stub.test.js",
-            "test_name": "TODO: implement test for CONF-07 — CircuitBreakerBounded"
+            "test_name": "TODO: implement test for CONF-07 — ConfigLayer"
           }
         ]
       }
@@ -3132,7 +3149,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/CONF-09.stub.test.js",
-            "test_name": "TODO: implement test for CONF-09 — MergedAlwaysValid"
+            "test_name": "TODO: implement test for CONF-09 — ConfigLayer"
           }
         ]
       }
@@ -3251,7 +3268,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/MCP-04.stub.test.js",
-            "test_name": "TODO: implement test for MCP-04 — FallbackHasDefaults"
+            "test_name": "TODO: implement test for MCP-04 — MCPServer"
           }
         ]
       }
@@ -3314,7 +3331,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/MCP-06.stub.test.js",
-            "test_name": "TODO: implement test for MCP-06 — PrefixMatchConsistent"
+            "test_name": "TODO: implement test for MCP-06 — MCPServer"
           }
         ]
       }
@@ -3349,7 +3366,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SCHEMA-01.stub.test.js",
-            "test_name": "TODO: implement test for SCHEMA-01 — RegistryNonEmpty"
+            "test_name": "TODO: implement test for SCHEMA-01 — Requirement"
           }
         ]
       }
@@ -3403,7 +3420,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SCHEMA-03.stub.test.js",
-            "test_name": "TODO: implement test for SCHEMA-03 — CheckResultsMatchRegistry"
+            "test_name": "TODO: implement test for SCHEMA-03 — Requirement"
           }
         ]
       }
@@ -3438,7 +3455,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SCHEMA-04.stub.test.js",
-            "test_name": "TODO: implement test for SCHEMA-04 — BidirectionalConsistency"
+            "test_name": "TODO: implement test for SCHEMA-04 — Requirement"
           }
         ]
       }
@@ -3480,7 +3497,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/UNIF-01.stub.test.js",
-            "test_name": "TODO: implement test for UNIF-01 — AllEntriesNormalized"
+            "test_name": "TODO: implement test for UNIF-01 — FVTool"
           }
         ]
       }
@@ -3550,7 +3567,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/UNIF-03.stub.test.js",
-            "test_name": "TODO: implement test for UNIF-03 — TriageFromNDJSONOnly"
+            "test_name": "TODO: implement test for UNIF-03 — FVTool"
           }
         ]
       }
@@ -3592,7 +3609,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/UNIF-04.stub.test.js",
-            "test_name": "TODO: implement test for UNIF-04 — CIFailsOnFailure"
+            "test_name": "TODO: implement test for UNIF-04 — FVTool"
           }
         ]
       }
@@ -3655,7 +3672,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/MULTI-02.stub.test.js",
-            "test_name": "TODO: implement test for MULTI-02 — NoFamilyNameCollision"
+            "test_name": "TODO: implement test for MULTI-02 — AgentFamily"
           }
         ]
       }
@@ -3802,7 +3819,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/COMP-02.stub.test.js",
-            "test_name": "TODO: implement test for COMP-02 — ActiveFromConfig"
+            "test_name": "TODO: implement test for COMP-02 — UpdatePolicy"
           }
         ]
       }
@@ -3837,7 +3854,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/COMP-03.stub.test.js",
-            "test_name": "TODO: implement test for COMP-03 — ToolsConsistent"
+            "test_name": "TODO: implement test for COMP-03 — UpdatePolicy"
           }
         ]
       }
@@ -3872,7 +3889,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/COMP-04.stub.test.js",
-            "test_name": "TODO: implement test for COMP-04 — DiscoveredIsActive"
+            "test_name": "TODO: implement test for COMP-04 — UpdatePolicy"
           }
         ]
       }
@@ -3914,7 +3931,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/ARCH-01.stub.test.js",
-            "test_name": "TODO: implement test for ARCH-01 — AllInRegistry"
+            "test_name": "TODO: implement test for ARCH-01 — Requirement"
           }
         ]
       }
@@ -3949,7 +3966,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/ARCH-02.stub.test.js",
-            "test_name": "TODO: implement test for ARCH-02 — PromotionNoDuplicates"
+            "test_name": "TODO: implement test for ARCH-02 — Requirement"
           }
         ]
       }
@@ -4040,7 +4057,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/META-02.stub.test.js",
-            "test_name": "TODO: implement test for META-02 — EscalationOnlyOnFail"
+            "test_name": "TODO: implement test for META-02 — Requirement"
           }
         ]
       }
@@ -4131,7 +4148,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/TRACE-02.stub.test.js",
-            "test_name": "TODO: implement test for TRACE-02 — CoverageComplete"
+            "test_name": "TODO: implement test for TRACE-02 — ModelType"
           }
         ]
       }
@@ -4187,7 +4204,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/TRACE-04.stub.test.js",
-            "test_name": "TODO: implement test for TRACE-04 — BidirectionalConsistent"
+            "test_name": "TODO: implement test for TRACE-04 — ModelType"
           }
         ]
       }
@@ -4215,7 +4232,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/TRACE-05.stub.test.js",
-            "test_name": "TODO: implement test for TRACE-05 — CIGuardCheck"
+            "test_name": "TODO: implement test for TRACE-05 — ModelType"
           }
         ]
       }
@@ -4430,8 +4447,8 @@
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteDrift",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "ci:trace-schema-drift"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -4451,15 +4468,15 @@
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteDrift",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "ci:trace-schema-drift"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "AllChecksEventuallyRun",
           "source": "annotation",
-          "latest_result": "inconclusive",
-          "check_id": "ci:liveness-fairness-lint"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -4479,8 +4496,8 @@
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "ci:trace-redaction"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -4500,15 +4517,15 @@
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "ci:trace-redaction"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "AllChecksEventuallyRun",
           "source": "annotation",
-          "latest_result": "inconclusive",
-          "check_id": "ci:liveness-fairness-lint"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -4528,8 +4545,8 @@
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "ci:trace-redaction"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".formal/tla/QGSDCIChecks.tla",
@@ -4556,15 +4573,15 @@
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteLiveness",
           "source": "annotation",
-          "latest_result": "inconclusive",
-          "check_id": "ci:liveness-fairness-lint"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "LivenessNeverFail",
           "source": "annotation",
-          "latest_result": "inconclusive",
-          "check_id": "ci:liveness-fairness-lint"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -4584,15 +4601,15 @@
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteLiveness",
           "source": "annotation",
-          "latest_result": "inconclusive",
-          "check_id": "ci:liveness-fairness-lint"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".formal/tla/QGSDCIChecks.tla",
           "property_name": "AllChecksEventuallyRun",
           "source": "annotation",
-          "latest_result": "inconclusive",
-          "check_id": "ci:liveness-fairness-lint"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -4838,7 +4855,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/DECOMP-02.stub.test.js",
-            "test_name": "TODO: implement test for DECOMP-02 — UnboundedAlwaysHigh"
+            "test_name": "TODO: implement test for DECOMP-02 — RiskLevel"
           }
         ]
       }
@@ -4873,7 +4890,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/DECOMP-03.stub.test.js",
-            "test_name": "TODO: implement test for DECOMP-03 — SplitNeverLosesReqs"
+            "test_name": "TODO: implement test for DECOMP-03 — RiskLevel"
           }
         ]
       }
@@ -4908,7 +4925,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/DECOMP-04.stub.test.js",
-            "test_name": "TODO: implement test for DECOMP-04 — AllModelsInMatrix"
+            "test_name": "TODO: implement test for DECOMP-04 — RiskLevel"
           }
         ]
       }
@@ -4950,7 +4967,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/EVID-01.stub.test.js",
-            "test_name": "TODO: implement test for EVID-01 — LowVolumeIsLowConfidence"
+            "test_name": "TODO: implement test for EVID-01 — Confidence"
           }
         ]
       }
@@ -5020,7 +5037,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/TRIAGE-01.stub.test.js",
-            "test_name": "TODO: implement test for TRIAGE-01 — SuspectsAreFailOrTagged"
+            "test_name": "TODO: implement test for TRIAGE-01 — Confidence"
           }
         ]
       }
@@ -5060,29 +5077,29 @@
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         },
         {
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "UppaalModel",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         },
         {
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "EmpiricalTiming",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         },
         {
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "AllConstraintsEmpirical",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         }
       ],
       "unit_test_coverage": {
@@ -5090,7 +5107,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/UPPAAL-01.stub.test.js",
-            "test_name": "TODO: implement test for UPPAAL-01 — AllConstraintsEmpirical"
+            "test_name": "TODO: implement test for UPPAAL-01 — Bool"
           }
         ]
       }
@@ -5102,22 +5119,22 @@
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         },
         {
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "UppaalRunner",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         },
         {
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "RunnerProducesResult",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         }
       ],
       "unit_test_coverage": {
@@ -5137,29 +5154,29 @@
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         },
         {
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "AnnotatedProperty",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         },
         {
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "BothMeasurements",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         },
         {
           "model_file": ".formal/alloy/uppaal-model-reqs.als",
           "property_name": "BothMeasurementsPresent",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "inconclusive",
+          "check_id": "uppaal:quorum-races"
         }
       ],
       "unit_test_coverage": {
@@ -5167,7 +5184,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/UPPAAL-03.stub.test.js",
-            "test_name": "TODO: implement test for UPPAAL-03 — BothMeasurementsPresent"
+            "test_name": "TODO: implement test for UPPAAL-03 — Bool"
           }
         ]
       }
@@ -5202,7 +5219,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SIG-01.stub.test.js",
-            "test_name": "TODO: implement test for SIG-01 — GapDetectorDiffsBoth"
+            "test_name": "TODO: implement test for SIG-01 — Bool"
           }
         ]
       }
@@ -5237,7 +5254,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SIG-02.stub.test.js",
-            "test_name": "TODO: implement test for SIG-02 — PetriHasCriticalPath"
+            "test_name": "TODO: implement test for SIG-02 — Bool"
           }
         ]
       }
@@ -5300,7 +5317,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SIG-04.stub.test.js",
-            "test_name": "TODO: implement test for SIG-04 — ConsensusUsesPoisson"
+            "test_name": "TODO: implement test for SIG-04 — Bool"
           }
         ]
       }
@@ -5335,7 +5352,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SYNC-01.stub.test.js",
-            "test_name": "TODO: implement test for SYNC-01 — QGSDWrapsGSD"
+            "test_name": "TODO: implement test for SYNC-01 — Bool"
           }
         ]
       }
@@ -5377,7 +5394,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SYNC-02.stub.test.js",
-            "test_name": "TODO: implement test for SYNC-02 — AllGSDCommandsInQuorum"
+            "test_name": "TODO: implement test for SYNC-02 — Bool"
           }
         ]
       }
@@ -5447,7 +5464,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/SYNC-04.stub.test.js",
-            "test_name": "TODO: implement test for SYNC-04 — GSDFilesUntouched"
+            "test_name": "TODO: implement test for SYNC-04 — Bool"
           }
         ]
       }
@@ -5489,7 +5506,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/HLTH-01.stub.test.js",
-            "test_name": "TODO: implement test for HLTH-01 — ZeroW005OnVersioned"
+            "test_name": "TODO: implement test for HLTH-01 — Bool"
           }
         ]
       }
@@ -5524,7 +5541,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/HLTH-02.stub.test.js",
-            "test_name": "TODO: implement test for HLTH-02 — ZeroW007OnVersioned"
+            "test_name": "TODO: implement test for HLTH-02 — Bool"
           }
         ]
       }
@@ -5587,7 +5604,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/VIS-01.stub.test.js",
-            "test_name": "TODO: implement test for VIS-01 — W008SurfacedForFailures"
+            "test_name": "TODO: implement test for VIS-01 — Bool"
           }
         ]
       }
@@ -5629,7 +5646,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/VERIFY-01.stub.test.js",
-            "test_name": "TODO: implement test for VERIFY-01 — VerifierRunsFV"
+            "test_name": "TODO: implement test for VERIFY-01 — Bool"
           }
         ]
       }
@@ -5671,7 +5688,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/VERIFY-02.stub.test.js",
-            "test_name": "TODO: implement test for VERIFY-02 — AllFormalismsHaveCounts"
+            "test_name": "TODO: implement test for VERIFY-02 — Bool"
           }
         ]
       }
@@ -5720,7 +5737,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/FAIL-02.stub.test.js",
-            "test_name": "TODO: implement test for FAIL-02 — DownSkipsAll"
+            "test_name": "TODO: implement test for FAIL-02 — Bool"
           }
         ]
       }
@@ -5769,7 +5786,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/CALIB-04.stub.test.js",
-            "test_name": "TODO: implement test for CALIB-04 — PolicyWired"
+            "test_name": "TODO: implement test for CALIB-04 — Bool"
           }
         ]
       }
@@ -5804,7 +5821,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/ARCH-10.stub.test.js",
-            "test_name": "TODO: implement test for ARCH-10 — NoLLMSDKs"
+            "test_name": "TODO: implement test for ARCH-10 — Bool"
           }
         ]
       }
@@ -5839,7 +5856,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/REN-03.stub.test.js",
-            "test_name": "TODO: implement test for REN-03 — NoHardcodedGSDPaths"
+            "test_name": "TODO: implement test for REN-03 — Bool"
           }
         ]
       }
@@ -5874,7 +5891,7 @@
         "test_cases": [
           {
             "test_file": "hooks/generated-stubs/STD-10.stub.test.js",
-            "test_name": "TODO: implement test for STD-10 — GeminiUnscoped"
+            "test_name": "TODO: implement test for STD-10 — Bool"
           }
         ]
       }
@@ -6026,29 +6043,29 @@
           "model_file": ".formal/prism/mcp-availability.props",
           "property_name": "S=? [ \"min_quorum_available\" ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:mcp-availability"
         },
         {
           "model_file": ".formal/prism/mcp-availability.props",
           "property_name": "S=? [ \"total_outage\" ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:mcp-availability"
         },
         {
           "model_file": ".formal/prism/mcp-availability.props",
           "property_name": "S=? [ \"majority_available\" ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:mcp-availability"
         },
         {
           "model_file": ".formal/prism/mcp-availability.pm",
           "property_name": "(model-level)",
           "source": "model-registry",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:mcp-availability"
         }
       ],
       "unit_test_coverage": {
@@ -6068,15 +6085,15 @@
           "model_file": ".formal/prism/mcp-availability.props",
           "property_name": "S=? [ \"total_outage\" ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:mcp-availability"
         },
         {
           "model_file": ".formal/prism/mcp-availability.pm",
           "property_name": "(model-level)",
           "source": "model-registry",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:mcp-availability"
         }
       ],
       "unit_test_coverage": {
@@ -6096,29 +6113,29 @@
           "model_file": ".formal/prism/oauth-rotation.props",
           "property_name": "P=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:oauth-rotation"
         },
         {
           "model_file": ".formal/prism/oauth-rotation.props",
           "property_name": "P=? [ F s=0 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:oauth-rotation"
         },
         {
           "model_file": ".formal/prism/oauth-rotation.props",
           "property_name": "R{\"rotations\"}=? [ F s<=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:oauth-rotation"
         },
         {
           "model_file": ".formal/prism/oauth-rotation.pm",
           "property_name": "(model-level)",
           "source": "model-registry",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:oauth-rotation"
         }
       ]
     },
@@ -6129,15 +6146,15 @@
           "model_file": ".formal/prism/oauth-rotation.props",
           "property_name": "P=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:oauth-rotation"
         },
         {
           "model_file": ".formal/prism/oauth-rotation.pm",
           "property_name": "(model-level)",
           "source": "model-registry",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:oauth-rotation"
         }
       ]
     },
@@ -6148,29 +6165,29 @@
           "model_file": ".formal/prism/quorum.props",
           "property_name": "P=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:quorum"
         },
         {
           "model_file": ".formal/prism/quorum.props",
           "property_name": "R{\"rounds\"}=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:quorum"
         },
         {
           "model_file": ".formal/prism/quorum.props",
           "property_name": "P=? [ F<=9 s=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:quorum"
         },
         {
           "model_file": ".formal/prism/quorum.props",
           "property_name": "P=? [ F<=10 s=1 ]",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "fail",
+          "check_id": "prism:quorum"
         }
       ]
     },
@@ -6379,8 +6396,8 @@
         "CRED-07"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:account-pool"
     },
     ".formal/alloy/account-pool-structure.als::SwitchPreservesValidity": {
       "model_file": ".formal/alloy/account-pool-structure.als",
@@ -6389,8 +6406,8 @@
         "CRED-08"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:account-pool"
     },
     ".formal/alloy/account-pool-structure.als::RemovePreservesValidity": {
       "model_file": ".formal/alloy/account-pool-structure.als",
@@ -6399,8 +6416,8 @@
         "CRED-09"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:account-pool"
     },
     ".formal/alloy/account-pool-structure.als::SwitchPreservesPool": {
       "model_file": ".formal/alloy/account-pool-structure.als",
@@ -6409,8 +6426,8 @@
         "CRED-10"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:account-pool"
     },
     ".formal/alloy/account-pool-structure.als::RemoveShrinksPool": {
       "model_file": ".formal/alloy/account-pool-structure.als",
@@ -6419,8 +6436,8 @@
         "CRED-11"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:account-pool"
     },
     ".formal/alloy/availability-parsing.als::ParseCorrect": {
       "model_file": ".formal/alloy/availability-parsing.als",
@@ -6429,8 +6446,8 @@
         "CALIB-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:availability"
     },
     ".formal/alloy/availability-parsing.als::YearRolloverHandled": {
       "model_file": ".formal/alloy/availability-parsing.als",
@@ -6439,8 +6456,8 @@
         "CALIB-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:availability"
     },
     ".formal/alloy/availability-parsing.als::FallbackIsNull": {
       "model_file": ".formal/alloy/availability-parsing.als",
@@ -6449,8 +6466,8 @@
         "CALIB-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:availability"
     },
     ".formal/alloy/install-scope.als::AllEquivalence": {
       "model_file": ".formal/alloy/install-scope.als",
@@ -6459,8 +6476,8 @@
         "INST-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:install-scope"
     },
     ".formal/alloy/install-scope.als::InstallIdempotent": {
       "model_file": ".formal/alloy/install-scope.als",
@@ -6469,8 +6486,8 @@
         "INST-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:install-scope"
     },
     ".formal/alloy/install-scope.als::NoConflict": {
       "model_file": ".formal/alloy/install-scope.als",
@@ -6479,8 +6496,8 @@
         "INST-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:install-scope"
     },
     ".formal/alloy/install-scope.als::RollbackSoundCheck": {
       "model_file": ".formal/alloy/install-scope.als",
@@ -6489,8 +6506,8 @@
         "INST-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:install-scope"
     },
     ".formal/alloy/install-scope.als::ConfigSyncCompleteCheck": {
       "model_file": ".formal/alloy/install-scope.als",
@@ -6499,8 +6516,8 @@
         "INST-05"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:install-scope"
     },
     ".formal/alloy/quorum-composition.als::AllRulesHold": {
       "model_file": ".formal/alloy/quorum-composition.als",
@@ -6510,8 +6527,8 @@
         "COMP-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:quorum-composition"
     },
     ".formal/alloy/quorum-votes.als::ThresholdPasses": {
       "model_file": ".formal/alloy/quorum-votes.als",
@@ -6521,8 +6538,8 @@
         "SAFE-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:quorum-votes"
     },
     ".formal/alloy/quorum-votes.als::BelowThresholdFails": {
       "model_file": ".formal/alloy/quorum-votes.als",
@@ -6532,8 +6549,8 @@
         "SAFE-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:quorum-votes"
     },
     ".formal/alloy/quorum-votes.als::ZeroApprovalsFail": {
       "model_file": ".formal/alloy/quorum-votes.als",
@@ -6542,8 +6559,8 @@
         "SAFE-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:quorum-votes"
     },
     ".formal/alloy/scoreboard-recompute.als::RecomputeIdempotent": {
       "model_file": ".formal/alloy/scoreboard-recompute.als",
@@ -6552,8 +6569,8 @@
         "SCBD-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:scoreboard"
     },
     ".formal/alloy/scoreboard-recompute.als::NoVoteLoss": {
       "model_file": ".formal/alloy/scoreboard-recompute.als",
@@ -6562,8 +6579,8 @@
         "SCBD-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:scoreboard"
     },
     ".formal/alloy/scoreboard-recompute.als::NoDoubleCounting": {
       "model_file": ".formal/alloy/scoreboard-recompute.als",
@@ -6572,8 +6589,8 @@
         "SCBD-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:scoreboard"
     },
     ".formal/alloy/scoreboard-recompute.als::TNplusScoreIsCorrect": {
       "model_file": ".formal/alloy/scoreboard-recompute.als",
@@ -6582,8 +6599,8 @@
         "SCBD-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "alloy:scoreboard"
     },
     ".formal/alloy/taxonomy-safety.als::NoInjection": {
       "model_file": ".formal/alloy/taxonomy-safety.als",
@@ -6592,8 +6609,8 @@
         "SCBD-05"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:taxonomy-safety"
     },
     ".formal/alloy/taxonomy-safety.als::TaxonomyClosed": {
       "model_file": ".formal/alloy/taxonomy-safety.als",
@@ -6602,8 +6619,8 @@
         "SCBD-06"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:taxonomy-safety"
     },
     ".formal/alloy/taxonomy-safety.als::NewCategoryConsistent": {
       "model_file": ".formal/alloy/taxonomy-safety.als",
@@ -6612,8 +6629,8 @@
         "SCBD-07"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:taxonomy-safety"
     },
     ".formal/alloy/transcript-scan.als::BoundaryCorrectCheck": {
       "model_file": ".formal/alloy/transcript-scan.als",
@@ -6622,8 +6639,8 @@
         "STOP-08"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:transcript"
     },
     ".formal/alloy/transcript-scan.als::PairingUniqueCheck": {
       "model_file": ".formal/alloy/transcript-scan.als",
@@ -6632,8 +6649,8 @@
         "STOP-09"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:transcript"
     },
     ".formal/alloy/transcript-scan.als::NoDuplicateCountingCheck": {
       "model_file": ".formal/alloy/transcript-scan.als",
@@ -6642,8 +6659,8 @@
         "STOP-10"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:transcript"
     },
     ".formal/alloy/transcript-scan.als::SuccessCountNeverExceedsMinSizeCheck": {
       "model_file": ".formal/alloy/transcript-scan.als",
@@ -6652,8 +6669,8 @@
         "STOP-11"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:transcript"
     },
     ".formal/tla/QGSDAccountManager.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDAccountManager.tla",
@@ -6662,8 +6679,8 @@
         "CRED-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:account-manager"
     },
     ".formal/tla/QGSDAccountManager.tla::ActiveIsPoolMember": {
       "model_file": ".formal/tla/QGSDAccountManager.tla",
@@ -6672,8 +6689,8 @@
         "CRED-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:account-manager"
     },
     ".formal/tla/QGSDAccountManager.tla::NoActiveWhenEmpty": {
       "model_file": ".formal/tla/QGSDAccountManager.tla",
@@ -6682,8 +6699,8 @@
         "CRED-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:account-manager"
     },
     ".formal/tla/QGSDAccountManager.tla::IdleNoPending": {
       "model_file": ".formal/tla/QGSDAccountManager.tla",
@@ -6692,8 +6709,8 @@
         "CRED-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:account-manager"
     },
     ".formal/tla/QGSDAccountManager.tla::OpMatchesState": {
       "model_file": ".formal/tla/QGSDAccountManager.tla",
@@ -6702,8 +6719,8 @@
         "CRED-05"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:account-manager"
     },
     ".formal/tla/QGSDAccountManager.tla::IdleReachable": {
       "model_file": ".formal/tla/QGSDAccountManager.tla",
@@ -6712,8 +6729,8 @@
         "CRED-06"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:account-manager"
     },
     ".formal/tla/QGSDCircuitBreaker.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDCircuitBreaker.tla",
@@ -6722,8 +6739,8 @@
         "DETECT-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:breaker"
     },
     ".formal/tla/QGSDCircuitBreaker.tla::DisabledExcludesActive": {
       "model_file": ".formal/tla/QGSDCircuitBreaker.tla",
@@ -6732,8 +6749,8 @@
         "DETECT-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:breaker"
     },
     ".formal/tla/QGSDCircuitBreaker.tla::MonitoringReachable": {
       "model_file": ".formal/tla/QGSDCircuitBreaker.tla",
@@ -6742,8 +6759,8 @@
         "DETECT-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:breaker"
     },
     ".formal/tla/QGSDConvergence.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDConvergence.tla",
@@ -6752,8 +6769,8 @@
         "ORES-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:convergence"
     },
     ".formal/tla/QGSDConvergence.tla::ResolvedAtWriteOnce": {
       "model_file": ".formal/tla/QGSDConvergence.tla",
@@ -6762,8 +6779,8 @@
         "ORES-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:convergence"
     },
     ".formal/tla/QGSDConvergence.tla::LogBeforeDelete": {
       "model_file": ".formal/tla/QGSDConvergence.tla",
@@ -6772,8 +6789,8 @@
         "ORES-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:convergence"
     },
     ".formal/tla/QGSDConvergence.tla::HaikuUnavailableNoCorruption": {
       "model_file": ".formal/tla/QGSDConvergence.tla",
@@ -6782,8 +6799,8 @@
         "ORES-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:convergence"
     },
     ".formal/tla/QGSDConvergence.tla::ConvergenceEventuallyResolves": {
       "model_file": ".formal/tla/QGSDConvergence.tla",
@@ -6792,8 +6809,8 @@
         "ORES-05"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:convergence"
     },
     ".formal/tla/QGSDDeliberation.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDDeliberation.tla",
@@ -6802,8 +6819,8 @@
         "PLAN-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:deliberation"
     },
     ".formal/tla/QGSDDeliberation.tla::TotalRoundsBounded": {
       "model_file": ".formal/tla/QGSDDeliberation.tla",
@@ -6812,8 +6829,8 @@
         "LOOP-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:deliberation"
     },
     ".formal/tla/QGSDDeliberation.tla::DeliberationMonotone": {
       "model_file": ".formal/tla/QGSDDeliberation.tla",
@@ -6822,8 +6839,8 @@
         "SAFE-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:deliberation"
     },
     ".formal/tla/QGSDDeliberation.tla::ImprovementMonotone": {
       "model_file": ".formal/tla/QGSDDeliberation.tla",
@@ -6832,8 +6849,8 @@
         "IMPR-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:deliberation"
     },
     ".formal/tla/QGSDDeliberation.tla::ProtocolTerminates": {
       "model_file": ".formal/tla/QGSDDeliberation.tla",
@@ -6842,8 +6859,8 @@
         "PLAN-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:deliberation"
     },
     ".formal/tla/QGSDMCPEnv.tla::NoSpuriousConsensus": {
       "model_file": ".formal/tla/QGSDMCPEnv.tla",
@@ -6852,8 +6869,8 @@
         "MCPENV-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:mcp-environment"
     },
     ".formal/tla/QGSDMCPEnv.tla::TypeInvariantHolds": {
       "model_file": ".formal/tla/QGSDMCPEnv.tla",
@@ -6862,8 +6879,8 @@
         "MCPENV-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:mcp-environment"
     },
     ".formal/tla/QGSDMCPEnv.tla::EventualDecision": {
       "model_file": ".formal/tla/QGSDMCPEnv.tla",
@@ -6872,8 +6889,8 @@
         "MCPENV-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:mcp-environment"
     },
     ".formal/tla/QGSDOscillation.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDOscillation.tla",
@@ -6882,8 +6899,8 @@
         "DETECT-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:oscillation"
     },
     ".formal/tla/QGSDOscillation.tla::OscillationFlaggedCorrectly": {
       "model_file": ".formal/tla/QGSDOscillation.tla",
@@ -6892,8 +6909,8 @@
         "DETECT-05"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:oscillation"
     },
     ".formal/tla/QGSDOscillation.tla::AlgorithmTerminates": {
       "model_file": ".formal/tla/QGSDOscillation.tla",
@@ -6902,8 +6919,8 @@
         "DETECT-06"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:oscillation"
     },
     ".formal/tla/QGSDPreFilter.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDPreFilter.tla",
@@ -6912,8 +6929,8 @@
         "PLAN-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:prefilter"
     },
     ".formal/tla/QGSDPreFilter.tla::AutoResolutionSound": {
       "model_file": ".formal/tla/QGSDPreFilter.tla",
@@ -6922,8 +6939,8 @@
         "PLAN-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:prefilter"
     },
     ".formal/tla/QGSDPreFilter.tla::FilterRoundsBounded": {
       "model_file": ".formal/tla/QGSDPreFilter.tla",
@@ -6932,8 +6949,8 @@
         "LOOP-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:prefilter"
     },
     ".formal/tla/QGSDPreFilter.tla::AutoResolvedPhaseConsistent": {
       "model_file": ".formal/tla/QGSDPreFilter.tla",
@@ -6942,8 +6959,8 @@
         "PLAN-05"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:prefilter"
     },
     ".formal/tla/QGSDPreFilter.tla::PreFilterTerminates": {
       "model_file": ".formal/tla/QGSDPreFilter.tla",
@@ -6952,8 +6969,8 @@
         "PLAN-06"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:prefilter"
     },
     ".formal/tla/QGSDQuorum.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDQuorum.tla",
@@ -6962,8 +6979,8 @@
         "QUORUM-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:quorum-safety"
     },
     ".formal/tla/QGSDQuorum.tla::UnanimityMet": {
       "model_file": ".formal/tla/QGSDQuorum.tla",
@@ -6973,8 +6990,8 @@
         "SAFE-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:quorum-votes"
     },
     ".formal/tla/QGSDQuorum.tla::QuorumCeilingMet": {
       "model_file": ".formal/tla/QGSDQuorum.tla",
@@ -6984,8 +7001,8 @@
         "SLOT-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:quorum-safety"
     },
     ".formal/tla/QGSDQuorum.tla::AllTransitionsValid": {
       "model_file": ".formal/tla/QGSDQuorum.tla",
@@ -6994,8 +7011,8 @@
         "SAFE-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:quorum-safety"
     },
     ".formal/tla/QGSDQuorum.tla::DeliberationBounded": {
       "model_file": ".formal/tla/QGSDQuorum.tla",
@@ -7004,8 +7021,8 @@
         "LOOP-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:quorum"
     },
     ".formal/tla/QGSDQuorum.tla::DeliberationMonotone": {
       "model_file": ".formal/tla/QGSDQuorum.tla",
@@ -7014,8 +7031,8 @@
         "SAFE-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "tla:deliberation"
     },
     ".formal/tla/QGSDQuorum.tla::EventualConsensus": {
       "model_file": ".formal/tla/QGSDQuorum.tla",
@@ -7025,8 +7042,8 @@
         "RECV-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:quorum-liveness"
     },
     ".formal/tla/QGSDQuorum_xstate.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDQuorum_xstate.tla",
@@ -7035,8 +7052,8 @@
         "QUORUM-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:quorum-safety"
     },
     ".formal/tla/QGSDRecruiting.tla::TypeOK": {
       "model_file": ".formal/tla/QGSDRecruiting.tla",
@@ -7085,8 +7102,8 @@
         "STOP-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:stop-hook"
     },
     ".formal/tla/QGSDStopHook.tla::SafetyInvariant1": {
       "model_file": ".formal/tla/QGSDStopHook.tla",
@@ -7096,8 +7113,8 @@
         "SPEC-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:stop-hook"
     },
     ".formal/tla/QGSDStopHook.tla::SafetyInvariant2": {
       "model_file": ".formal/tla/QGSDStopHook.tla",
@@ -7106,8 +7123,8 @@
         "STOP-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:stop-hook"
     },
     ".formal/tla/QGSDStopHook.tla::SafetyInvariant3": {
       "model_file": ".formal/tla/QGSDStopHook.tla",
@@ -7116,8 +7133,8 @@
         "STOP-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:stop-hook"
     },
     ".formal/tla/QGSDStopHook.tla::LivenessProperty1": {
       "model_file": ".formal/tla/QGSDStopHook.tla",
@@ -7126,8 +7143,8 @@
         "STOP-05"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:stop-hook"
     },
     ".formal/tla/QGSDStopHook.tla::LivenessProperty2": {
       "model_file": ".formal/tla/QGSDStopHook.tla",
@@ -7136,8 +7153,8 @@
         "STOP-06"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:stop-hook"
     },
     ".formal/tla/QGSDStopHook.tla::LivenessProperty3": {
       "model_file": ".formal/tla/QGSDStopHook.tla",
@@ -7146,8 +7163,8 @@
         "STOP-07"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "tla:stop-hook"
     },
     ".formal/tla/TUINavigation.tla::TypeOK": {
       "model_file": ".formal/tla/TUINavigation.tla",
@@ -8791,8 +8808,8 @@
         "DRIFT-02"
       ],
       "source": "annotation",
-      "latest_result": "pass",
-      "check_id": "ci:trace-schema-drift"
+      "latest_result": null,
+      "check_id": null
     },
     ".formal/tla/QGSDCIChecks.tla::CompleteRedaction": {
       "model_file": ".formal/tla/QGSDCIChecks.tla",
@@ -8803,8 +8820,8 @@
         "REDACT-03"
       ],
       "source": "annotation",
-      "latest_result": "pass",
-      "check_id": "ci:trace-redaction"
+      "latest_result": null,
+      "check_id": null
     },
     ".formal/tla/QGSDCIChecks.tla::CompleteLiveness": {
       "model_file": ".formal/tla/QGSDCIChecks.tla",
@@ -8814,8 +8831,8 @@
         "LIVE-02"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
-      "check_id": "ci:liveness-fairness-lint"
+      "latest_result": null,
+      "check_id": null
     },
     ".formal/tla/QGSDCIChecks.tla::RedactionNeverInconclusive": {
       "model_file": ".formal/tla/QGSDCIChecks.tla",
@@ -8834,8 +8851,8 @@
         "LIVE-01"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
-      "check_id": "ci:liveness-fairness-lint"
+      "latest_result": null,
+      "check_id": null
     },
     ".formal/tla/QGSDCIChecks.tla::AllChecksEventuallyRun": {
       "model_file": ".formal/tla/QGSDCIChecks.tla",
@@ -8846,8 +8863,8 @@
         "LIVE-02"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
-      "check_id": "ci:liveness-fairness-lint"
+      "latest_result": null,
+      "check_id": null
     },
     ".formal/tla/QGSDSensitivity.tla::StartSweep": {
       "model_file": ".formal/tla/QGSDSensitivity.tla",
@@ -9184,8 +9201,8 @@
         "UPPAAL-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/uppaal-model-reqs.als::UppaalModel": {
       "model_file": ".formal/alloy/uppaal-model-reqs.als",
@@ -9194,8 +9211,8 @@
         "UPPAAL-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/uppaal-model-reqs.als::EmpiricalTiming": {
       "model_file": ".formal/alloy/uppaal-model-reqs.als",
@@ -9204,8 +9221,8 @@
         "UPPAAL-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/uppaal-model-reqs.als::UppaalRunner": {
       "model_file": ".formal/alloy/uppaal-model-reqs.als",
@@ -9214,8 +9231,8 @@
         "UPPAAL-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/uppaal-model-reqs.als::RunnerProducesResult": {
       "model_file": ".formal/alloy/uppaal-model-reqs.als",
@@ -9224,8 +9241,8 @@
         "UPPAAL-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/uppaal-model-reqs.als::AnnotatedProperty": {
       "model_file": ".formal/alloy/uppaal-model-reqs.als",
@@ -9234,8 +9251,8 @@
         "UPPAAL-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/uppaal-model-reqs.als::BothMeasurements": {
       "model_file": ".formal/alloy/uppaal-model-reqs.als",
@@ -9244,8 +9261,8 @@
         "UPPAAL-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/uppaal-model-reqs.als::AllConstraintsEmpirical": {
       "model_file": ".formal/alloy/uppaal-model-reqs.als",
@@ -9254,8 +9271,8 @@
         "UPPAAL-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/uppaal-model-reqs.als::BothMeasurementsPresent": {
       "model_file": ".formal/alloy/uppaal-model-reqs.als",
@@ -9264,8 +9281,8 @@
         "UPPAAL-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "inconclusive",
+      "check_id": "uppaal:quorum-races"
     },
     ".formal/alloy/signal-analysis-tools.als::Bool": {
       "model_file": ".formal/alloy/signal-analysis-tools.als",
@@ -9878,8 +9895,8 @@
         "MCPENV-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:mcp-availability"
     },
     ".formal/prism/mcp-availability.props::S=? [ \"total_outage\" ]": {
       "model_file": ".formal/prism/mcp-availability.props",
@@ -9889,8 +9906,8 @@
         "FAIL-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:mcp-availability"
     },
     ".formal/prism/mcp-availability.props::S=? [ \"majority_available\" ]": {
       "model_file": ".formal/prism/mcp-availability.props",
@@ -9899,8 +9916,8 @@
         "MCPENV-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:mcp-availability"
     },
     ".formal/prism/oauth-rotation.props::P=? [ F s=1 ]": {
       "model_file": ".formal/prism/oauth-rotation.props",
@@ -9910,8 +9927,8 @@
         "CRED-12"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:oauth-rotation"
     },
     ".formal/prism/oauth-rotation.props::P=? [ F s=0 ]": {
       "model_file": ".formal/prism/oauth-rotation.props",
@@ -9920,8 +9937,8 @@
         "PRM-AM-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:oauth-rotation"
     },
     ".formal/prism/oauth-rotation.props::R{\"rotations\"}=? [ F s<=1 ]": {
       "model_file": ".formal/prism/oauth-rotation.props",
@@ -9930,8 +9947,8 @@
         "PRM-AM-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:oauth-rotation"
     },
     ".formal/prism/quorum.props::P=? [ F s=1 ]": {
       "model_file": ".formal/prism/quorum.props",
@@ -9941,8 +9958,8 @@
         "QUORUM-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:quorum"
     },
     ".formal/prism/quorum.props::R{\"rounds\"}=? [ F s=1 ]": {
       "model_file": ".formal/prism/quorum.props",
@@ -9951,8 +9968,8 @@
         "PRM-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:quorum"
     },
     ".formal/prism/quorum.props::P=? [ F<=9 s=1 ]": {
       "model_file": ".formal/prism/quorum.props",
@@ -9962,8 +9979,8 @@
         "LOOP-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:quorum"
     },
     ".formal/prism/quorum.props::P=? [ F<=10 s=1 ]": {
       "model_file": ".formal/prism/quorum.props",
@@ -9972,8 +9989,8 @@
         "PRM-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:quorum"
     },
     ".formal/prism/observability-delivery.props::S=? [ \"full_delivery\" ]": {
       "model_file": ".formal/prism/observability-delivery.props",
@@ -10074,8 +10091,8 @@
         "FAIL-01"
       ],
       "source": "model-registry",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:mcp-availability"
     },
     ".formal/prism/oauth-rotation.pm::(model-level)": {
       "model_file": ".formal/prism/oauth-rotation.pm",
@@ -10085,8 +10102,8 @@
         "CRED-12"
       ],
       "source": "model-registry",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "fail",
+      "check_id": "prism:oauth-rotation"
     },
     ".formal/prism/observability-delivery.pm::(model-level)": {
       "model_file": ".formal/prism/observability-delivery.pm",
@@ -10114,10 +10131,41 @@
     }
   },
   "coverage_summary": {
-    "total_requirements": 208,
-    "covered_count": 208,
-    "coverage_percentage": 100,
-    "uncovered_requirements": [],
+    "total_requirements": 239,
+    "covered_count": 209,
+    "coverage_percentage": 87.4,
+    "uncovered_requirements": [
+      "AGT-01",
+      "CI-01",
+      "CI-02",
+      "CI-03",
+      "CONF-11",
+      "CONF-12",
+      "DISP-06",
+      "INIT-01",
+      "INST-11",
+      "INST-12",
+      "NAV-01",
+      "NAV-02",
+      "NAV-03",
+      "OBS-05",
+      "OBS-06",
+      "PLAT-01",
+      "QUORUM-05",
+      "REL-01",
+      "REL-02",
+      "SEC-01",
+      "SEC-02",
+      "SEC-03",
+      "SEC-04",
+      "SOLVE-03",
+      "SOLVE-04",
+      "SOLVE-05",
+      "UX-01",
+      "UX-02",
+      "UX-03",
+      "WIZ-11"
+    ],
     "orphan_properties": []
   },
   "bidirectional_validation": {
@@ -10505,6 +10553,12 @@
         "requirement_id": "SLOT-01",
         "direction": "requirement_claims_model",
         "detail": "requirements.json SLOT-01 lists .formal/tla/QGSDQuorum.tla in formal_models but model-registry .formal/tla/QGSDQuorum.tla does not list SLOT-01 in requirements"
+      },
+      {
+        "model_file": ".formal/alloy/solve-consistency.als",
+        "requirement_id": "SOLVE-03",
+        "direction": "requirement_claims_model",
+        "detail": "requirements.json SOLVE-03 lists .formal/alloy/solve-consistency.als in formal_models but model-registry .formal/alloy/solve-consistency.als does not list SOLVE-03 in requirements"
       }
     ],
     "stale_links": [
@@ -10645,8 +10699,8 @@
       }
     ],
     "summary": {
-      "total_checked": 249,
-      "asymmetric_count": 64,
+      "total_checked": 250,
+      "asymmetric_count": 65,
       "stale_count": 27,
       "clean": false
     }
@@ -10945,7 +10999,7 @@
   },
   "coverage_preservation": {
     "baseline_found": true,
-    "baseline_date": "2026-03-04T00:30:15.143Z",
+    "baseline_date": "2026-03-05T08:15:45.419Z",
     "requirements_checked": 245,
     "regressions": [],
     "summary": {

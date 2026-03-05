@@ -1,42 +1,55 @@
 # Formal Verification Diff Report
 
-**Generated:** 2026-03-03T12:11:15.234Z
-**Current Run:** 13 pass, 7 fail, 5 warn/inconclusive
-**Previous Run:** 0 transitions, 21 new, 0 removed
+**Generated:** 2026-03-05T08:15:26.810Z
+**Current Run:** 0 pass, 6 fail
+**Previous Run:** 3 transitions, 2 new, 21 removed
 **Overall Status:** fail
+
+## Transitioned Checks
+
+| Check | Previous | Current | Summary |
+|-------|----------|---------|---------|
+| tla:oscillation | pass | fail | fail: Java not found in 0ms |
+| prism:oauth-rotation | pass | fail | fail: prism:oauth-rotation (binary not found) |
+| prism:oauth-rotation | pass | fail | fail: prism:oauth-rotation (binary not found) |
 
 ## New Checks
 
 | Check | Result | Summary |
 |-------|--------|---------|
-| tla:quorum-safety | inconclusive | inconclusive: fairness missing in 365ms |
-| tla:quorum-liveness | pass | pass: MCliveness in 301ms |
-| tla:oscillation | pass | pass: MCoscillation in 1309ms |
-| tla:convergence | inconclusive | inconclusive: fairness missing in 264ms |
-| tla:breaker | pass | pass: MCbreaker in 278ms |
-| tla:deliberation | inconclusive | inconclusive: fairness missing in 298ms |
-| tla:prefilter | pass | pass: MCprefilter in 278ms |
-| tla:account-manager | pass | pass: MCaccount-manager in 311ms |
-| tla:mcp-environment | fail | fail: MCMCPEnv in 176ms |
-| tla:stop-hook | inconclusive | inconclusive: fairness missing in 270ms |
-| alloy:quorum-votes | pass | pass: alloy:quorum-votes in 1052ms |
-| alloy:scoreboard | fail | fail: alloy:scoreboard in 559ms |
-| alloy:availability | pass | pass: alloy:availability in 720ms |
-| alloy:transcript | pass | pass: alloy:transcript in 726ms |
-| alloy:install-scope | fail | fail: alloy:install-scope in 713ms |
-| alloy:taxonomy-safety | pass | pass: alloy:taxonomy-safety in 686ms |
-| alloy:account-pool | fail | fail: alloy:account-pool in 864ms |
-| alloy:quorum-composition | pass | pass: alloy:quorum-composition in 659ms |
-| prism:quorum | fail | fail: quorum in 482ms |
-| prism:oauth-rotation | pass | pass: prism:oauth-rotation in 326ms |
-| prism:quorum | fail | fail: quorum in 284ms |
+| alloy:bogus | fail | fail: alloy:bogus (invalid spec) |
+| alloy:invalid | fail | fail: alloy:invalid (invalid spec) |
+
+## Removed Checks
+
+- tla:quorum-safety: no longer run
+- tla:quorum-liveness: no longer run
+- tla:convergence: no longer run
+- tla:breaker: no longer run
+- tla:deliberation: no longer run
+- tla:prefilter: no longer run
+- tla:account-manager: no longer run
+- tla:mcp-environment: no longer run
+- tla:stop-hook: no longer run
+- alloy:quorum-votes: no longer run
+- alloy:scoreboard: no longer run
+- alloy:availability: no longer run
+- alloy:transcript: no longer run
+- alloy:install-scope: no longer run
+- alloy:taxonomy-safety: no longer run
+- alloy:account-pool: no longer run
+- alloy:quorum-composition: no longer run
+- prism:quorum: no longer run
+- ci:trace-redaction: no longer run
+- ci:trace-schema-drift: no longer run
+- ci:liveness-fairness-lint: no longer run
 
 ## Unchanged Checks
 
-4 check(s) unchanged from previous run — no action needed.
+1 check(s) unchanged from previous run — no action needed.
 
 ## Previous Run (for next comparison)
 
 ```json
-{"tla:quorum-safety":"inconclusive","tla:quorum-liveness":"pass","tla:oscillation":"pass","tla:convergence":"inconclusive","tla:breaker":"pass","tla:deliberation":"inconclusive","tla:prefilter":"pass","tla:account-manager":"pass","tla:mcp-environment":"fail","tla:stop-hook":"inconclusive","alloy:quorum-votes":"pass","alloy:scoreboard":"fail","alloy:availability":"pass","alloy:transcript":"pass","alloy:install-scope":"fail","alloy:taxonomy-safety":"pass","alloy:account-pool":"fail","alloy:quorum-composition":"pass","prism:quorum":"fail","prism:oauth-rotation":"pass","ci:trace-redaction":"pass","ci:trace-schema-drift":"pass","ci:liveness-fairness-lint":"inconclusive","ci:conformance-traces":"fail"}
+{"alloy:bogus":"fail","alloy:invalid":"fail","tla:oscillation":"fail","prism:oauth-rotation":"fail","ci:conformance-traces":"fail"}
 ```

@@ -1,0 +1,42 @@
+{
+  "category": "Performance",
+  "description": "Baseline performance requirements ensuring responsive user experience. Thresholds based on Core Web Vitals and industry standards.",
+  "profiles": ["web", "mobile", "api"],
+  "requirements": [
+    {
+      "id_template": "PERF-{N}",
+      "text": "Initial page load (Largest Contentful Paint) completes within 2.5 seconds on a 4G connection, with meaningful content visible within 1 second (First Contentful Paint)",
+      "intent": "Users must not wait for the interface to become usable",
+      "verifiable_by": "Run Lighthouse or WebPageTest on key pages; confirm LCP ≤2.5s and FCP ≤1s on simulated 4G",
+      "profiles": ["web", "mobile"]
+    },
+    {
+      "id_template": "PERF-{N}",
+      "text": "UI interactions (clicks, typing, toggling) respond within 100ms — no visible input lag or jank (Interaction to Next Paint ≤200ms)",
+      "intent": "The interface must feel instant to the user",
+      "verifiable_by": "Run Lighthouse INP audit; confirm INP ≤200ms on key interaction paths",
+      "profiles": ["web", "mobile"]
+    },
+    {
+      "id_template": "PERF-{N}",
+      "text": "Layout does not shift unexpectedly after initial render (Cumulative Layout Shift ≤0.1)",
+      "intent": "Users must not misclick because content moved under their cursor",
+      "verifiable_by": "Run Lighthouse CLS audit; confirm CLS ≤0.1 on all pages",
+      "profiles": ["web", "mobile"]
+    },
+    {
+      "id_template": "PERF-{N}",
+      "text": "API endpoints respond within 200ms at p95 under normal load, and within 1 second at p99",
+      "intent": "Backend latency must not become the UX bottleneck",
+      "verifiable_by": "Load test API endpoints; confirm p95 ≤200ms and p99 ≤1s under expected traffic",
+      "profiles": ["api", "web"]
+    },
+    {
+      "id_template": "PERF-{N}",
+      "text": "JavaScript bundle size for initial load is under 200KB gzipped, with code splitting for non-critical paths",
+      "intent": "Minimize download time and parsing cost on slow connections",
+      "verifiable_by": "Check bundle analyzer output; confirm initial bundle ≤200KB gzipped with lazy-loaded routes",
+      "profiles": ["web"]
+    }
+  ]
+}

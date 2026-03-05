@@ -46,8 +46,10 @@
   "dependencies": {
     "@xterm/headless": "^5.5.0",
     "blessed": "^0.1.81",
+    "blessed-xterm": "^1.5.1",
     "inquirer": "^8.2.7",
-    "keytar": "^7.9.0"
+    "keytar": "^7.9.0",
+    "node-pty": "^1.1.0"
   },
   "devDependencies": {
     "@hpcc-js/wasm-graphviz": "^1.21.0",

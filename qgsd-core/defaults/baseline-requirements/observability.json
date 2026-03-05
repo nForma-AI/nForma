@@ -1,0 +1,35 @@
+{
+  "category": "Observability",
+  "description": "Baseline observability requirements ensuring production issues can be detected, diagnosed, and resolved quickly.",
+  "profiles": ["web", "mobile", "api", "cli"],
+  "requirements": [
+    {
+      "id_template": "OBS-{N}",
+      "text": "All API endpoints and critical business operations emit structured log entries with correlation IDs, timestamps, and outcome (success/failure)",
+      "intent": "Every significant operation must be traceable in production",
+      "verifiable_by": "Trigger API calls and business operations; confirm structured log output with correlation IDs",
+      "profiles": ["web", "api"]
+    },
+    {
+      "id_template": "OBS-{N}",
+      "text": "Application exposes a health check endpoint (or equivalent) that reports service status and dependency connectivity",
+      "intent": "Operational status must be machine-queryable for monitoring and alerting",
+      "verifiable_by": "Call health endpoint; confirm it reports up/down status for the service and its dependencies",
+      "profiles": ["web", "api"]
+    },
+    {
+      "id_template": "OBS-{N}",
+      "text": "Errors and exceptions are reported to an error tracking service (e.g., Sentry) with sufficient context to reproduce — stack trace, user action, environment",
+      "intent": "Production errors must be captured with enough context to diagnose without reproduction",
+      "verifiable_by": "Trigger an error; confirm it appears in error tracker with stack trace and contextual metadata",
+      "profiles": ["web", "mobile", "api"]
+    },
+    {
+      "id_template": "OBS-{N}",
+      "text": "CLI tools exit with appropriate codes (0 = success, non-zero = failure) and write errors to stderr, output to stdout",
+      "intent": "CLI tools must be composable in pipelines and scripts",
+      "verifiable_by": "Run CLI with valid and invalid inputs; confirm correct exit codes and stream separation",
+      "profiles": ["cli"]
+    }
+  ]
+}

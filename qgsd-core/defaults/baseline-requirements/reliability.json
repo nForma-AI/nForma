@@ -1,0 +1,35 @@
+{
+  "category": "Reliability",
+  "description": "Baseline reliability requirements ensuring graceful failure, recovery, and resilience against external dependency issues.",
+  "profiles": ["web", "mobile", "desktop", "cli", "api"],
+  "requirements": [
+    {
+      "id_template": "REL-{N}",
+      "text": "Failures in external services (APIs, databases, third-party SDKs) are caught and handled gracefully — the application degrades functionality rather than crashing",
+      "intent": "External failures must not cascade into total app failure",
+      "verifiable_by": "Simulate external service downtime; confirm app remains usable with degraded features and informative messaging",
+      "profiles": ["web", "mobile", "desktop", "cli", "api"]
+    },
+    {
+      "id_template": "REL-{N}",
+      "text": "Transient network failures on critical paths are retried with exponential backoff and a maximum retry count",
+      "intent": "Flaky networks must not cause permanent failures for recoverable operations",
+      "verifiable_by": "Simulate intermittent network failure; confirm retries occur with increasing delays and eventually succeed or surface a clear error",
+      "profiles": ["web", "mobile", "api"]
+    },
+    {
+      "id_template": "REL-{N}",
+      "text": "Unhandled exceptions are caught at application boundaries (error boundary in UI, global handler in API) and produce a safe fallback rather than a white screen or raw stack trace",
+      "intent": "Unexpected errors must never leave the user stranded",
+      "verifiable_by": "Throw an unhandled exception in a component/route; confirm error boundary catches it with a user-friendly message",
+      "profiles": ["web", "mobile", "desktop", "api"]
+    },
+    {
+      "id_template": "REL-{N}",
+      "text": "Long-running operations (file uploads, data processing, API calls >2s) show progress indication and can be cancelled by the user",
+      "intent": "Users must not be trapped waiting without feedback or escape",
+      "verifiable_by": "Trigger long-running operation; confirm progress is shown and cancel works",
+      "profiles": ["web", "mobile", "desktop", "cli"]
+    }
+  ]
+}

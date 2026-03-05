@@ -2,7 +2,7 @@
 // GENERATED — do not edit by hand.
 // Source of truth: src/machines/qgsd-workflow.machine.ts
 // Regenerate:      node bin/generate-formal-specs.cjs
-// Generated:       2026-03-03
+// Generated:       2026-03-05
 
 // QGSD Quorum Convergence — DTMC Model
 // Requirements: PRM-01
@@ -34,8 +34,8 @@ dtmc
 // Slot aggregate rates (conservative priors — override with empirical data)
 // tp_rate = P(a slot votes APPROVE | it is AVAILABLE) — unanimityMet criterion
 // unavail = P(slot is UNAVAILABLE in a given round)
-const double tp_rate = 0.85;   // conservative prior (see bin/export-prism-constants.cjs)
-const double unavail = 0.15;   // conservative prior (see bin/export-prism-constants.cjs)
+const double tp_rate;   // injected by run-prism.cjs from scoreboard (see bin/export-prism-constants.cjs)
+const double unavail;   // injected by run-prism.cjs from scoreboard (see bin/export-prism-constants.cjs)
 
 module quorum_convergence
     s : [0..2] init 0;
