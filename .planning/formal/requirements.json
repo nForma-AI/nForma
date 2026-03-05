@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-05T19:46:43.012Z",
-  "content_hash": "fd6c9d1eff65d2e6",
+  "aggregated_at": "2026-03-05T21:14:27.513Z",
+  "content_hash": "97106ca185e20ba743dd827e5c0c24e677e3c243f7fdb1195ace3be62ffdda1c",
   "frozen_at": "2026-03-05T19:46:43.015Z",
   "schema_version": "1",
   "requirements": [
@@ -652,6 +652,18 @@
       "category_raw": "Credentials"
     },
     {
+      "id": "CRED-12",
+      "text": "Account and credential management modules (account-manager, CCR secure config/start, GitHub account rotation) SHALL have @requirement annotations and test tracing.",
+      "category": "Credentials & Account Management",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "4 credential management modules lack requirement tracing. Extends the existing CRED-* prefix to cover the full account management toolchain.",
+      "provenance": {
+        "source_file": "reverse-discovery",
+        "milestone": "solve-iteration-1"
+      }
+    },
+    {
       "id": "DASH-01",
       "text": "User can open a live health dashboard from main menu showing all slots' provider, model, and health status",
       "category": "Observability & Diagnostics",
@@ -695,6 +707,18 @@
       "formal_models": [
         ".planning/formal/tla/QGSDDashboard.tla"
       ]
+    },
+    {
+      "id": "DEBT-01",
+      "text": "The debt/observability subsystem (debt ledger, dedup, retention, state machine, drift fingerprinting) SHALL maintain requirement traceability via @requirement annotations in source and @req annotations in tests.",
+      "category": "Observability & Triage",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "7 debt/observability modules and their tests lack requirement tracing. This generalized requirement covers the entire debt subsystem rather than creating per-module requirements.",
+      "provenance": {
+        "source_file": "reverse-discovery",
+        "milestone": "solve-iteration-1"
+      }
     },
     {
       "id": "DECOMP-01",
@@ -934,6 +958,18 @@
       ]
     },
     {
+      "id": "DOC-01",
+      "text": "README.md capability claims (setup wizard, verification workflow, adaptive fan-out, model registry, branch config, CLI commands) SHALL be backed by traceable requirements in requirements.json.",
+      "category": "Documentation",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "13 README.md claims describe user-facing capabilities without requirement backing. This generalized requirement ensures documentation claims are traceable to formal requirements rather than creating per-claim entries.",
+      "provenance": {
+        "source_file": "reverse-discovery",
+        "milestone": "solve-iteration-1"
+      }
+    },
+    {
       "id": "DRIFT-01",
       "text": "`check-trace-schema-drift.cjs` detects schema drift and emits `check-results.ndjson`",
       "category": "Hooks & Enforcement",
@@ -1065,6 +1101,18 @@
       "formal_models": [
         ".planning/formal/alloy/provider-failure.als"
       ]
+    },
+    {
+      "id": "FVTOOL-01",
+      "text": "All formal verification tooling scripts (model generators, checkers, linkers, registry initializers in bin/) SHALL include @requirement annotations linking to the requirements they implement, and each SHALL have a corresponding test file with @req tracing.",
+      "category": "Testing & Quality",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "9 bin/ modules (formal-core, generate-formal-specs, check-liveness-fairness, etc.) and ~10 test files lack requirement tracing. This generalized requirement covers the entire formal verification toolchain rather than creating per-file requirements.",
+      "provenance": {
+        "source_file": "reverse-discovery",
+        "milestone": "solve-iteration-1"
+      }
     },
     {
       "id": "HEAL-01",
@@ -2710,6 +2758,18 @@
       ]
     },
     {
+      "id": "SOLVE-09",
+      "text": "The solve diagnostic engine provides fast-mode iteration (--fast skips F->C and T->C layers), pattern-based D->C false-positive suppression via acknowledged-false-positives.json regex rules, auto-acknowledgement of Category B reverse discovery candidates, and recipe sidecars with absolute paths and pre-classified test templates.",
+      "category": "Solver Orchestration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The full solve loop took 30+ minutes per iteration and surfaced hundreds of false positives from prose word matches and Category B reverse candidates requiring unnecessary human review. These five improvements reduce iteration time to sub-second for file-parsing layers, suppress pattern-matched false positives, eliminate manual Category B triage, and provide executors with ready-to-use absolute paths and test boilerplate in recipe sidecars.",
+      "provenance": {
+        "source_file": ".planning/quick/184-implement-5-solve-automation-improvement/184-PLAN.md",
+        "milestone": "quick-184"
+      }
+    },
+    {
       "id": "SOLVE-7",
       "text": "The solve F->T remediation pipeline SHALL provide pre-resolved context (requirement text, formal property definition, source file hints) alongside each test stub so executors can generate meaningful tests without codebase-wide search.",
       "category": "solve",
@@ -2731,18 +2791,6 @@
       "provenance": {
         "source_file": ".planning/quick/183-add-legacy-formal-migration-step-to-qgsd/183-PLAN.md",
         "milestone": "quick-183"
-      }
-    },
-    {
-      "id": "SOLVE-09",
-      "text": "The solve diagnostic engine provides fast-mode iteration (--fast skips F->C and T->C layers), pattern-based D->C false-positive suppression via acknowledged-false-positives.json regex rules, auto-acknowledgement of Category B reverse discovery candidates, and recipe sidecars with absolute paths and pre-classified test templates.",
-      "category": "Solver Orchestration",
-      "phase": "unknown",
-      "status": "Complete",
-      "background": "The full solve loop took 30+ minutes per iteration and surfaced hundreds of false positives from prose word matches and Category B reverse candidates requiring unnecessary human review. These five improvements reduce iteration time to sub-second for file-parsing layers, suppress pattern-matched false positives, eliminate manual Category B triage, and provide executors with ready-to-use absolute paths and test boilerplate in recipe sidecars.",
-      "provenance": {
-        "source_file": ".planning/quick/184-implement-5-solve-automation-improvement/184-PLAN.md",
-        "milestone": "quick-184"
       }
     },
     {
@@ -3140,6 +3188,18 @@
       "formal_models": [
         ".planning/formal/alloy/formal-test-trace.als"
       ]
+    },
+    {
+      "id": "TRACE-07",
+      "text": "Conformance tracing infrastructure (schema definition, divergence attribution, trace validation) SHALL be requirement-traced and have test coverage with @req annotations.",
+      "category": "Conformance & Traces",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "2 conformance tracing modules (conformance-schema, attribute-trace-divergence) and ~4 related test files lack requirement tracing. Generalizes coverage for the trace validation subsystem.",
+      "provenance": {
+        "source_file": "reverse-discovery",
+        "milestone": "solve-iteration-1"
+      }
     },
     {
       "id": "TRIAGE-01",

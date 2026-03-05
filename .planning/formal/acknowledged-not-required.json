@@ -1,0 +1,88 @@
+{
+  "entries": [
+    {
+      "file_or_claim": "The fastest path is the interactive wizard — it handles everything from installing CLI tools to registering MCP servers ",
+      "category": "B",
+      "reason": "descriptive/documentation language only",
+      "acknowledged_at": "2026-03-05T19:29:19.859Z"
+    },
+    {
+      "file_or_claim": "The `/qgsd:mcp-setup` wizard handles all registration automatically. If you prefer manual setup, slots are registered in",
+      "category": "B",
+      "reason": "descriptive/documentation language only",
+      "acknowledged_at": "2026-03-05T19:29:19.905Z"
+    },
+    {
+      "file_or_claim": "QGSD handles it for you:",
+      "category": "B",
+      "reason": "descriptive/documentation language only",
+      "acknowledged_at": "2026-03-05T19:29:19.905Z"
+    },
+    {
+      "file_or_claim": "Control how QGSD handles branches during execution.",
+      "category": "B",
+      "reason": "descriptive/documentation language only",
+      "acknowledged_at": "2026-03-05T19:29:19.905Z"
+    },
+    {
+      "file_or_claim": "│ Copilot     │ APPROVE      │ Supports with caveat on test coverage    │",
+      "category": "B",
+      "reason": "descriptive/documentation language only",
+      "acknowledged_at": "2026-03-05T19:29:19.905Z"
+    },
+    {
+      "file_or_claim": "supports feature X",
+      "category": "B",
+      "reason": "descriptive/documentation language only",
+      "acknowledged_at": "2026-03-05T19:56:53.396Z"
+    },
+    {
+      "file_or_claim": "bin/blessed-terminal.cjs",
+      "source_scanners": [
+        "C->R"
+      ],
+      "acknowledged_at": "2026-03-05T21:14:41.413Z",
+      "reason": "TUI implementation detail, not a user-facing capability"
+    },
+    {
+      "file_or_claim": "bin/check-bundled-sdks.cjs",
+      "source_scanners": [
+        "C->R"
+      ],
+      "acknowledged_at": "2026-03-05T21:14:41.413Z",
+      "reason": "Build infrastructure, not a user-facing capability"
+    },
+    {
+      "file_or_claim": "docs/dev/quorum_interface.md:20",
+      "source_scanners": [
+        "D->R"
+      ],
+      "acknowledged_at": "2026-03-05T21:14:41.413Z",
+      "reason": "Example output snippet, not a capability claim"
+    },
+    {
+      "file_or_claim": "docs/dev/quorum_interface.md:91",
+      "source_scanners": [
+        "D->R"
+      ],
+      "acknowledged_at": "2026-03-05T21:14:41.413Z",
+      "reason": "Example output snippet, not a capability claim"
+    },
+    {
+      "file_or_claim": "docs/dev/quorum_interface.md:95",
+      "source_scanners": [
+        "D->R"
+      ],
+      "acknowledged_at": "2026-03-05T21:14:41.413Z",
+      "reason": "Example output snippet, not a capability claim"
+    },
+    {
+      "file_or_claim": "docs/dev/quorum_interface.md:155",
+      "source_scanners": [
+        "D->R"
+      ],
+      "acknowledged_at": "2026-03-05T21:14:41.413Z",
+      "reason": "Example output snippet, not a capability claim"
+    }
+  ]
+}
