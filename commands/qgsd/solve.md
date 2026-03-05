@@ -1,6 +1,6 @@
 ---
 name: qgsd:solve
-description: Orchestrator skill that diagnoses consistency gaps, dispatches to remediation skills for each gap type, and converges via diagnose-remediate-rediagnose loop with before/after comparison
+description: Orchestrator skill that migrates legacy .formal/ layouts, diagnoses consistency gaps, dispatches to remediation skills for each gap type, and converges via diagnose-remediate-rediagnose loop with before/after comparison
 argument-hint: [--report-only] [--max-iterations=N] [--json] [--verbose]
 allowed-tools:
   - Read
@@ -38,6 +38,25 @@ sequential waves of 3, waiting for each wave to finish before the next.
 </execution_context>
 
 <process>
+
+## Step 0: Legacy .formal/ Migration
+
+Before running the diagnostic sweep, check for a legacy `.formal/` directory at the project root (next to `.planning/`). This is the OLD layout from before formal verification was consolidated under `.planning/formal/`.
+
+Run the migration script using absolute paths (or fall back to CWD-relative):
+
+```bash
+MIGRATE=$(node ~/.claude/qgsd-bin/migrate-formal-dir.cjs --json --project-root=$(pwd) 2>&1)
+```
+
+If `~/.claude/qgsd-bin/migrate-formal-dir.cjs` does not exist, fall back to `bin/migrate-formal-dir.cjs` (CWD-relative).
+If neither exists, skip this step silently — the migration script is optional for projects that never had a legacy layout.
+
+Parse the JSON output:
+- If `legacy_found` is `false`: log `"Step 0: No legacy .formal/ found — skipping migration"` and proceed to Step 1.
+- If `legacy_found` is `true`: log the migration summary: `"Step 0: Migrated legacy .formal/ — {copied} files copied, {skipped} conflicts (canonical .planning/formal/ preserved)"`. The legacy `.formal/` directory is NOT auto-removed — the user can run `node bin/migrate-formal-dir.cjs --remove-legacy --project-root=$(pwd)` manually after verifying the migration.
+
+**Important:** This step is fail-open. If the migration script errors or is not found, log the issue and proceed to Step 1. Migration failure must never block the diagnostic sweep.
 
 ## Step 1: Initial Diagnostic Sweep
 
