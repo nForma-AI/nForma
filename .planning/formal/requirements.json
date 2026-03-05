@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-05T08:56:25.346Z",
-  "content_hash": "cfca67a483c63ca7",
-  "frozen_at": "2026-03-05T08:56:25.346Z",
+  "aggregated_at": "2026-03-05T11:06:49.182Z",
+  "content_hash": "a821b464107b27d0",
+  "frozen_at": "2026-03-05T11:06:49.183Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -16,7 +16,7 @@
       },
       "category_raw": "Activity Tracking",
       "formal_models": [
-        ".formal/tla/QGSDActivityTracking.tla"
+        ".planning/formal/tla/QGSDActivityTracking.tla"
       ]
     },
     {
@@ -31,7 +31,7 @@
       },
       "category_raw": "Activity Tracking",
       "formal_models": [
-        ".formal/tla/QGSDActivityTracking.tla"
+        ".planning/formal/tla/QGSDActivityTracking.tla"
       ]
     },
     {
@@ -46,7 +46,7 @@
       },
       "category_raw": "Activity Tracking",
       "formal_models": [
-        ".formal/tla/QGSDActivityTracking.tla"
+        ".planning/formal/tla/QGSDActivityTracking.tla"
       ]
     },
     {
@@ -61,7 +61,7 @@
       },
       "category_raw": "Activity Tracking",
       "formal_models": [
-        ".formal/tla/QGSDActivityTracking.tla"
+        ".planning/formal/tla/QGSDActivityTracking.tla"
       ]
     },
     {
@@ -76,7 +76,7 @@
       },
       "category_raw": "Activity Tracking",
       "formal_models": [
-        ".formal/tla/QGSDActivityTracking.tla"
+        ".planning/formal/tla/QGSDActivityTracking.tla"
       ]
     },
     {
@@ -91,7 +91,7 @@
       },
       "category_raw": "Activity Tracking",
       "formal_models": [
-        ".formal/tla/QGSDActivityTracking.tla"
+        ".planning/formal/tla/QGSDActivityTracking.tla"
       ]
     },
     {
@@ -106,7 +106,7 @@
       },
       "category_raw": "Activity Tracking",
       "formal_models": [
-        ".formal/tla/QGSDActivityTracking.tla"
+        ".planning/formal/tla/QGSDActivityTracking.tla"
       ]
     },
     {
@@ -121,7 +121,7 @@
       },
       "category_raw": "Agent Roster",
       "formal_models": [
-        ".formal/tla/QGSDAgentProvisioning.tla"
+        ".planning/formal/tla/QGSDAgentProvisioning.tla"
       ]
     },
     {
@@ -136,7 +136,7 @@
       },
       "category_raw": "Agent Roster",
       "formal_models": [
-        ".formal/tla/QGSDAgentProvisioning.tla"
+        ".planning/formal/tla/QGSDAgentProvisioning.tla"
       ]
     },
     {
@@ -235,7 +235,7 @@
       },
       "category_raw": "Architecture",
       "formal_models": [
-        ".formal/alloy/architecture-registry.als"
+        ".planning/formal/alloy/architecture-registry.als"
       ]
     },
     {
@@ -250,7 +250,7 @@
       },
       "category_raw": "Architecture",
       "formal_models": [
-        ".formal/alloy/architecture-registry.als"
+        ".planning/formal/alloy/architecture-registry.als"
       ]
     },
     {
@@ -276,7 +276,7 @@
         "milestone": "v0.26"
       },
       "formal_models": [
-        ".formal/alloy/codebase-arch-constraints.als"
+        ".planning/formal/alloy/codebase-arch-constraints.als"
       ]
     },
     {
@@ -290,7 +290,7 @@
         "milestone": "v0.19"
       },
       "formal_models": [
-        ".formal/alloy/availability-parsing.als"
+        ".planning/formal/alloy/availability-parsing.als"
       ],
       "category_raw": "Calibration Governance"
     },
@@ -305,7 +305,7 @@
         "milestone": "v0.19"
       },
       "formal_models": [
-        ".formal/alloy/availability-parsing.als"
+        ".planning/formal/alloy/availability-parsing.als"
       ],
       "category_raw": "Calibration Governance"
     },
@@ -320,7 +320,7 @@
         "milestone": "v0.19"
       },
       "formal_models": [
-        ".formal/alloy/availability-parsing.als"
+        ".planning/formal/alloy/availability-parsing.als"
       ],
       "category_raw": "Calibration Governance"
     },
@@ -336,7 +336,7 @@
       },
       "category_raw": "Calibration Governance",
       "formal_models": [
-        ".formal/alloy/provider-failure.als"
+        ".planning/formal/alloy/provider-failure.als"
       ]
     },
     {
@@ -395,7 +395,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/quorum-composition.als"
+        ".planning/formal/alloy/quorum-composition.als"
       ],
       "category_raw": "Composition Config"
     },
@@ -411,7 +411,7 @@
       },
       "category_raw": "Composition Config",
       "formal_models": [
-        ".formal/alloy/quorum-policy.als"
+        ".planning/formal/alloy/quorum-policy.als"
       ]
     },
     {
@@ -426,7 +426,7 @@
       },
       "category_raw": "Composition Config",
       "formal_models": [
-        ".formal/alloy/quorum-policy.als"
+        ".planning/formal/alloy/quorum-policy.als"
       ]
     },
     {
@@ -441,7 +441,7 @@
       },
       "category_raw": "Composition Config",
       "formal_models": [
-        ".formal/alloy/quorum-policy.als"
+        ".planning/formal/alloy/quorum-policy.als"
       ]
     },
     {
@@ -516,7 +516,7 @@
       },
       "category_raw": "Config Extensions",
       "formal_models": [
-        ".formal/alloy/config-two-layer.als"
+        ".planning/formal/alloy/config-two-layer.als"
       ]
     },
     {
@@ -531,7 +531,7 @@
       },
       "category_raw": "Config Extensions",
       "formal_models": [
-        ".formal/alloy/config-two-layer.als"
+        ".planning/formal/alloy/config-two-layer.als"
       ]
     },
     {
@@ -558,7 +558,7 @@
       },
       "category_raw": "Config Extensions",
       "formal_models": [
-        ".formal/alloy/config-two-layer.als"
+        ".planning/formal/alloy/config-two-layer.als"
       ]
     },
     {
@@ -573,7 +573,7 @@
         "milestone": "quick-137"
       },
       "formal_models": [
-        ".formal/alloy/config-zero-providers.als"
+        ".planning/formal/alloy/config-zero-providers.als"
       ]
     },
     {
@@ -613,7 +613,7 @@
         "milestone": "v0.10"
       },
       "formal_models": [
-        ".formal/tla/QGSDAccountManager.tla"
+        ".planning/formal/tla/QGSDAccountManager.tla"
       ],
       "category_raw": "Credentials"
     },
@@ -628,7 +628,7 @@
         "milestone": "v0.10"
       },
       "formal_models": [
-        ".formal/tla/QGSDAccountManager.tla"
+        ".planning/formal/tla/QGSDAccountManager.tla"
       ],
       "category_raw": "Credentials"
     },
@@ -644,7 +644,7 @@
       },
       "category_raw": "Dashboard",
       "formal_models": [
-        ".formal/tla/QGSDDashboard.tla"
+        ".planning/formal/tla/QGSDDashboard.tla"
       ]
     },
     {
@@ -659,7 +659,7 @@
       },
       "category_raw": "Dashboard",
       "formal_models": [
-        ".formal/tla/QGSDDashboard.tla"
+        ".planning/formal/tla/QGSDDashboard.tla"
       ]
     },
     {
@@ -674,7 +674,7 @@
       },
       "category_raw": "Dashboard",
       "formal_models": [
-        ".formal/tla/QGSDDashboard.tla"
+        ".planning/formal/tla/QGSDDashboard.tla"
       ]
     },
     {
@@ -701,7 +701,7 @@
       },
       "category_raw": "Decomposition Awareness",
       "formal_models": [
-        ".formal/alloy/state-space-analysis.als"
+        ".planning/formal/alloy/state-space-analysis.als"
       ]
     },
     {
@@ -716,7 +716,7 @@
       },
       "category_raw": "Decomposition Awareness",
       "formal_models": [
-        ".formal/alloy/state-space-analysis.als"
+        ".planning/formal/alloy/state-space-analysis.als"
       ]
     },
     {
@@ -731,7 +731,7 @@
       },
       "category_raw": "Decomposition Awareness",
       "formal_models": [
-        ".formal/alloy/state-space-analysis.als"
+        ".planning/formal/alloy/state-space-analysis.als"
       ]
     },
     {
@@ -746,7 +746,7 @@
         "milestone": "v0.26"
       },
       "formal_models": [
-        ".formal/alloy/decomp-cross-model.als"
+        ".planning/formal/alloy/decomp-cross-model.als"
       ]
     },
     {
@@ -760,7 +760,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDCircuitBreaker.tla"
+        ".planning/formal/tla/QGSDCircuitBreaker.tla"
       ],
       "category_raw": "Detection"
     },
@@ -775,7 +775,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDCircuitBreaker.tla"
+        ".planning/formal/tla/QGSDCircuitBreaker.tla"
       ],
       "category_raw": "Detection"
     },
@@ -790,7 +790,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDCircuitBreaker.tla"
+        ".planning/formal/tla/QGSDCircuitBreaker.tla"
       ],
       "category_raw": "Detection"
     },
@@ -805,7 +805,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDOscillation.tla"
+        ".planning/formal/tla/QGSDOscillation.tla"
       ],
       "category_raw": "Detection"
     },
@@ -820,7 +820,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDOscillation.tla"
+        ".planning/formal/tla/QGSDOscillation.tla"
       ],
       "category_raw": "Detection"
     },
@@ -836,7 +836,7 @@
       },
       "category_raw": "Dispatch Reliability",
       "formal_models": [
-        ".formal/tla/QGSDDispatchPipeline.tla"
+        ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ]
     },
     {
@@ -851,7 +851,7 @@
       },
       "category_raw": "Dispatch Reliability",
       "formal_models": [
-        ".formal/tla/QGSDDispatchPipeline.tla"
+        ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ]
     },
     {
@@ -866,7 +866,7 @@
       },
       "category_raw": "Dispatch Reliability",
       "formal_models": [
-        ".formal/tla/QGSDDispatchPipeline.tla"
+        ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ]
     },
     {
@@ -881,7 +881,7 @@
       },
       "category_raw": "Dispatch Reliability",
       "formal_models": [
-        ".formal/tla/QGSDDispatchPipeline.tla"
+        ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ]
     },
     {
@@ -896,7 +896,7 @@
       },
       "category_raw": "Dispatch Reliability",
       "formal_models": [
-        ".formal/tla/QGSDDispatchPipeline.tla"
+        ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ]
     },
     {
@@ -923,7 +923,7 @@
       },
       "category_raw": "Enforcement Layer",
       "formal_models": [
-        ".formal/tla/QGSDCIChecks.tla"
+        ".planning/formal/tla/QGSDCIChecks.tla"
       ]
     },
     {
@@ -938,7 +938,7 @@
       },
       "category_raw": "Enforcement Layer",
       "formal_models": [
-        ".formal/tla/QGSDCIChecks.tla"
+        ".planning/formal/tla/QGSDCIChecks.tla"
       ]
     },
     {
@@ -953,7 +953,7 @@
       },
       "category_raw": "Enforcement",
       "formal_models": [
-        ".formal/tla/QGSDEnforcement.tla"
+        ".planning/formal/tla/QGSDEnforcement.tla"
       ]
     },
     {
@@ -968,7 +968,7 @@
       },
       "category_raw": "Enforcement",
       "formal_models": [
-        ".formal/tla/QGSDEnforcement.tla"
+        ".planning/formal/tla/QGSDEnforcement.tla"
       ]
     },
     {
@@ -983,7 +983,7 @@
       },
       "category_raw": "Enforcement",
       "formal_models": [
-        ".formal/tla/QGSDEnforcement.tla"
+        ".planning/formal/tla/QGSDEnforcement.tla"
       ]
     },
     {
@@ -998,7 +998,7 @@
       },
       "category_raw": "Evidence Confidence",
       "formal_models": [
-        ".formal/alloy/evidence-triage.als"
+        ".planning/formal/alloy/evidence-triage.als"
       ]
     },
     {
@@ -1024,8 +1024,8 @@
         "milestone": "v0.24"
       },
       "formal_models": [
-        ".formal/prism/mcp-availability.pm",
-        ".formal/prism/mcp-availability.props"
+        ".planning/formal/prism/mcp-availability.pm",
+        ".planning/formal/prism/mcp-availability.props"
       ],
       "category_raw": "Failover & Recovery"
     },
@@ -1041,7 +1041,7 @@
       },
       "category_raw": "Failover & Recovery",
       "formal_models": [
-        ".formal/alloy/provider-failure.als"
+        ".planning/formal/alloy/provider-failure.als"
       ]
     },
     {
@@ -1056,7 +1056,7 @@
       },
       "category_raw": "Self-Healing",
       "formal_models": [
-        ".formal/prism/deliberation-healing.props"
+        ".planning/formal/prism/deliberation-healing.props"
       ]
     },
     {
@@ -1071,7 +1071,7 @@
       },
       "category_raw": "Self-Healing",
       "formal_models": [
-        ".formal/prism/deliberation-healing.props"
+        ".planning/formal/prism/deliberation-healing.props"
       ]
     },
     {
@@ -1086,7 +1086,7 @@
       },
       "category_raw": "Health Checker",
       "formal_models": [
-        ".formal/alloy/health-validation.als"
+        ".planning/formal/alloy/health-validation.als"
       ]
     },
     {
@@ -1101,7 +1101,7 @@
       },
       "category_raw": "Health Checker",
       "formal_models": [
-        ".formal/alloy/health-validation.als"
+        ".planning/formal/alloy/health-validation.als"
       ]
     },
     {
@@ -1140,7 +1140,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/install-scope.als"
+        ".planning/formal/alloy/install-scope.als"
       ],
       "category_raw": "Install Integration"
     },
@@ -1155,7 +1155,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/install-scope.als"
+        ".planning/formal/alloy/install-scope.als"
       ],
       "category_raw": "Installer"
     },
@@ -1170,7 +1170,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/install-scope.als"
+        ".planning/formal/alloy/install-scope.als"
       ],
       "category_raw": "Installer"
     },
@@ -1185,7 +1185,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/install-scope.als"
+        ".planning/formal/alloy/install-scope.als"
       ],
       "category_raw": "Installer"
     },
@@ -1200,7 +1200,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/install-scope.als"
+        ".planning/formal/alloy/install-scope.als"
       ],
       "category_raw": "Installer"
     },
@@ -1216,7 +1216,7 @@
       },
       "category_raw": "Installer",
       "formal_models": [
-        ".formal/tla/QGSDInstallerIdempotency.tla"
+        ".planning/formal/tla/QGSDInstallerIdempotency.tla"
       ]
     },
     {
@@ -1231,7 +1231,7 @@
       },
       "category_raw": "Installer",
       "formal_models": [
-        ".formal/tla/QGSDInstallerIdempotency.tla"
+        ".planning/formal/tla/QGSDInstallerIdempotency.tla"
       ]
     },
     {
@@ -1246,7 +1246,7 @@
       },
       "category_raw": "Installer Extensions",
       "formal_models": [
-        ".formal/tla/QGSDInstallerIdempotency.tla"
+        ".planning/formal/tla/QGSDInstallerIdempotency.tla"
       ]
     },
     {
@@ -1261,7 +1261,7 @@
       },
       "category_raw": "Installer Extensions",
       "formal_models": [
-        ".formal/tla/QGSDInstallerIdempotency.tla"
+        ".planning/formal/tla/QGSDInstallerIdempotency.tla"
       ]
     },
     {
@@ -1276,7 +1276,7 @@
       },
       "category_raw": "Installer Extensions",
       "formal_models": [
-        ".formal/tla/QGSDInstallerIdempotency.tla"
+        ".planning/formal/tla/QGSDInstallerIdempotency.tla"
       ]
     },
     {
@@ -1315,7 +1315,7 @@
       },
       "category_raw": "API Key Management",
       "formal_models": [
-        ".formal/tla/QGSDKeyManagement.tla"
+        ".planning/formal/tla/QGSDKeyManagement.tla"
       ]
     },
     {
@@ -1330,7 +1330,7 @@
       },
       "category_raw": "API Key Management",
       "formal_models": [
-        ".formal/tla/QGSDKeyManagement.tla"
+        ".planning/formal/tla/QGSDKeyManagement.tla"
       ]
     },
     {
@@ -1345,7 +1345,7 @@
       },
       "category_raw": "API Key Management",
       "formal_models": [
-        ".formal/tla/QGSDKeyManagement.tla"
+        ".planning/formal/tla/QGSDKeyManagement.tla"
       ]
     },
     {
@@ -1360,7 +1360,7 @@
       },
       "category_raw": "API Key Management",
       "formal_models": [
-        ".formal/tla/QGSDKeyManagement.tla"
+        ".planning/formal/tla/QGSDKeyManagement.tla"
       ]
     },
     {
@@ -1375,7 +1375,7 @@
       },
       "category_raw": "Liveness Lint",
       "formal_models": [
-        ".formal/tla/QGSDCIChecks.tla"
+        ".planning/formal/tla/QGSDCIChecks.tla"
       ]
     },
     {
@@ -1390,7 +1390,7 @@
       },
       "category_raw": "Liveness Lint",
       "formal_models": [
-        ".formal/tla/QGSDCIChecks.tla"
+        ".planning/formal/tla/QGSDCIChecks.tla"
       ]
     },
     {
@@ -1404,9 +1404,9 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/prism/quorum.pm",
-        ".formal/prism/quorum.props",
-        ".formal/tla/QGSDQuorum.tla"
+        ".planning/formal/prism/quorum.pm",
+        ".planning/formal/prism/quorum.props",
+        ".planning/formal/tla/QGSDQuorum.tla"
       ],
       "category_raw": "Feedback Loops"
     },
@@ -1421,7 +1421,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDDeliberation.tla"
+        ".planning/formal/tla/QGSDDeliberation.tla"
       ],
       "category_raw": "Feedback Loops"
     },
@@ -1436,7 +1436,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDPreFilter.tla"
+        ".planning/formal/tla/QGSDPreFilter.tla"
       ],
       "category_raw": "Feedback Loops"
     },
@@ -1452,7 +1452,7 @@
       },
       "category_raw": "Feedback Loops",
       "formal_models": [
-        ".formal/tla/QGSDSpecGeneration.tla"
+        ".planning/formal/tla/QGSDSpecGeneration.tla"
       ]
     },
     {
@@ -1503,7 +1503,7 @@
       },
       "category_raw": "MCP Server Detection",
       "formal_models": [
-        ".formal/alloy/mcp-detection.als"
+        ".planning/formal/alloy/mcp-detection.als"
       ]
     },
     {
@@ -1530,7 +1530,7 @@
       },
       "category_raw": "MCP Server Detection",
       "formal_models": [
-        ".formal/alloy/mcp-detection.als"
+        ".planning/formal/alloy/mcp-detection.als"
       ]
     },
     {
@@ -1544,7 +1544,7 @@
         "milestone": "v0.19"
       },
       "formal_models": [
-        ".formal/tla/QGSDMCPEnv.tla"
+        ".planning/formal/tla/QGSDMCPEnv.tla"
       ],
       "category_raw": "MCP Environment Model"
     },
@@ -1559,7 +1559,7 @@
         "milestone": "v0.19"
       },
       "formal_models": [
-        ".formal/tla/QGSDMCPEnv.tla"
+        ".planning/formal/tla/QGSDMCPEnv.tla"
       ],
       "category_raw": "MCP Environment Model"
     },
@@ -1574,8 +1574,8 @@
         "milestone": "v0.19"
       },
       "formal_models": [
-        ".formal/prism/mcp-availability.pm",
-        ".formal/prism/mcp-availability.props"
+        ".planning/formal/prism/mcp-availability.pm",
+        ".planning/formal/prism/mcp-availability.props"
       ],
       "category_raw": "MCP Environment Model"
     },
@@ -1603,7 +1603,7 @@
       },
       "category_raw": "Quorum-First Behavior (Meta",
       "formal_models": [
-        ".formal/alloy/architecture-registry.als"
+        ".planning/formal/alloy/architecture-registry.als"
       ]
     },
     {
@@ -1642,7 +1642,7 @@
       },
       "category_raw": "Multiple Slots",
       "formal_models": [
-        ".formal/alloy/multi-slot-structure.als"
+        ".planning/formal/alloy/multi-slot-structure.als"
       ]
     },
     {
@@ -1705,7 +1705,7 @@
       },
       "category_raw": "Observability",
       "formal_models": [
-        ".formal/prism/observability-delivery.props"
+        ".planning/formal/prism/observability-delivery.props"
       ]
     },
     {
@@ -1720,7 +1720,7 @@
       },
       "category_raw": "Observability",
       "formal_models": [
-        ".formal/prism/observability-delivery.props"
+        ".planning/formal/prism/observability-delivery.props"
       ]
     },
     {
@@ -1735,7 +1735,7 @@
       },
       "category_raw": "Observability",
       "formal_models": [
-        ".formal/prism/observability-delivery.props"
+        ".planning/formal/prism/observability-delivery.props"
       ]
     },
     {
@@ -1750,7 +1750,7 @@
       },
       "category_raw": "Observability",
       "formal_models": [
-        ".formal/prism/observability-delivery.props"
+        ".planning/formal/prism/observability-delivery.props"
       ]
     },
     {
@@ -1811,7 +1811,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDConvergence.tla"
+        ".planning/formal/tla/QGSDConvergence.tla"
       ],
       "category_raw": "Oscillation Resolution Mode"
     },
@@ -1826,7 +1826,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDConvergence.tla"
+        ".planning/formal/tla/QGSDConvergence.tla"
       ],
       "category_raw": "Oscillation Resolution Mode"
     },
@@ -1841,7 +1841,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDConvergence.tla"
+        ".planning/formal/tla/QGSDConvergence.tla"
       ],
       "category_raw": "Oscillation Resolution Mode"
     },
@@ -1856,7 +1856,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDConvergence.tla"
+        ".planning/formal/tla/QGSDConvergence.tla"
       ],
       "category_raw": "Oscillation Resolution Mode"
     },
@@ -1871,7 +1871,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDConvergence.tla"
+        ".planning/formal/tla/QGSDConvergence.tla"
       ],
       "category_raw": "Oscillation Resolution Mode"
     },
@@ -1886,7 +1886,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDDeliberation.tla"
+        ".planning/formal/tla/QGSDDeliberation.tla"
       ],
       "category_raw": "Planning Integration"
     },
@@ -1901,7 +1901,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDDeliberation.tla"
+        ".planning/formal/tla/QGSDDeliberation.tla"
       ],
       "category_raw": "Planning Integration"
     },
@@ -1916,7 +1916,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDPreFilter.tla"
+        ".planning/formal/tla/QGSDPreFilter.tla"
       ],
       "category_raw": "Planning Integration"
     },
@@ -1979,7 +1979,7 @@
       },
       "category_raw": "Portability",
       "formal_models": [
-        ".formal/tla/QGSDConfigPortability.tla"
+        ".planning/formal/tla/QGSDConfigPortability.tla"
       ]
     },
     {
@@ -1994,7 +1994,7 @@
       },
       "category_raw": "Portability",
       "formal_models": [
-        ".formal/tla/QGSDConfigPortability.tla"
+        ".planning/formal/tla/QGSDConfigPortability.tla"
       ]
     },
     {
@@ -2009,7 +2009,7 @@
       },
       "category_raw": "Portability",
       "formal_models": [
-        ".formal/tla/QGSDConfigPortability.tla"
+        ".planning/formal/tla/QGSDConfigPortability.tla"
       ]
     },
     {
@@ -2024,7 +2024,7 @@
       },
       "category_raw": "Provider Swap",
       "formal_models": [
-        ".formal/tla/QGSDAgentProvisioning.tla"
+        ".planning/formal/tla/QGSDAgentProvisioning.tla"
       ]
     },
     {
@@ -2086,8 +2086,8 @@
         "milestone": "v0.13"
       },
       "formal_models": [
-        ".formal/tla/QGSDQuorum.tla",
-        ".formal/tla/QGSDQuorum_xstate.tla"
+        ".planning/formal/tla/QGSDQuorum.tla",
+        ".planning/formal/tla/QGSDQuorum_xstate.tla"
       ],
       "category_raw": "Quorum Gates"
     },
@@ -2102,8 +2102,8 @@
         "milestone": "v0.13"
       },
       "formal_models": [
-        ".formal/tla/QGSDQuorum.tla",
-        ".formal/alloy/quorum-votes.als"
+        ".planning/formal/tla/QGSDQuorum.tla",
+        ".planning/formal/alloy/quorum-votes.als"
       ],
       "category_raw": "Quorum Gates"
     },
@@ -2118,7 +2118,7 @@
         "milestone": "v0.13"
       },
       "formal_models": [
-        ".formal/tla/QGSDQuorum.tla"
+        ".planning/formal/tla/QGSDQuorum.tla"
       ],
       "category_raw": "Quorum Gates"
     },
@@ -2156,7 +2156,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDQuorum.tla"
+        ".planning/formal/tla/QGSDQuorum.tla"
       ],
       "category_raw": "Recovery"
     },
@@ -2172,7 +2172,7 @@
       },
       "category_raw": "Enforcement Layer",
       "formal_models": [
-        ".formal/tla/QGSDCIChecks.tla"
+        ".planning/formal/tla/QGSDCIChecks.tla"
       ]
     },
     {
@@ -2187,7 +2187,7 @@
       },
       "category_raw": "Enforcement Layer",
       "formal_models": [
-        ".formal/tla/QGSDCIChecks.tla"
+        ".planning/formal/tla/QGSDCIChecks.tla"
       ]
     },
     {
@@ -2202,7 +2202,7 @@
       },
       "category_raw": "Enforcement Layer",
       "formal_models": [
-        ".formal/tla/QGSDCIChecks.tla"
+        ".planning/formal/tla/QGSDCIChecks.tla"
       ]
     },
     {
@@ -2239,7 +2239,7 @@
       },
       "category_raw": "Portability",
       "formal_models": [
-        ".formal/alloy/codebase-arch-constraints.als"
+        ".planning/formal/alloy/codebase-arch-constraints.als"
       ]
     },
     {
@@ -2253,8 +2253,8 @@
         "milestone": "v0.15"
       },
       "formal_models": [
-        ".formal/tla/QGSDQuorum.tla",
-        ".formal/alloy/quorum-votes.als"
+        ".planning/formal/tla/QGSDQuorum.tla",
+        ".planning/formal/alloy/quorum-votes.als"
       ],
       "category_raw": "Repair Safety"
     },
@@ -2269,7 +2269,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/scoreboard-recompute.als"
+        ".planning/formal/alloy/scoreboard-recompute.als"
       ],
       "category_raw": "Scoreboard Slot Tracking"
     },
@@ -2284,7 +2284,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/scoreboard-recompute.als"
+        ".planning/formal/alloy/scoreboard-recompute.als"
       ],
       "category_raw": "Scoreboard Slot Tracking"
     },
@@ -2299,7 +2299,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/scoreboard-recompute.als"
+        ".planning/formal/alloy/scoreboard-recompute.als"
       ],
       "category_raw": "Scoreboard Slot Tracking"
     },
@@ -2315,7 +2315,7 @@
       },
       "category_raw": "Schema Foundation",
       "formal_models": [
-        ".formal/alloy/schema-extensions.als"
+        ".planning/formal/alloy/schema-extensions.als"
       ]
     },
     {
@@ -2330,7 +2330,7 @@
       },
       "category_raw": "Schema Foundation",
       "formal_models": [
-        ".formal/alloy/schema-extensions.als"
+        ".planning/formal/alloy/schema-extensions.als"
       ]
     },
     {
@@ -2345,7 +2345,7 @@
       },
       "category_raw": "Schema Foundation",
       "formal_models": [
-        ".formal/alloy/schema-extensions.als"
+        ".planning/formal/alloy/schema-extensions.als"
       ]
     },
     {
@@ -2404,7 +2404,7 @@
       },
       "category_raw": "Sensitivity Analysis",
       "formal_models": [
-        ".formal/tla/QGSDSensitivity.tla"
+        ".planning/formal/tla/QGSDSensitivity.tla"
       ]
     },
     {
@@ -2419,7 +2419,7 @@
       },
       "category_raw": "Sensitivity Analysis",
       "formal_models": [
-        ".formal/tla/QGSDSensitivity.tla"
+        ".planning/formal/tla/QGSDSensitivity.tla"
       ]
     },
     {
@@ -2434,7 +2434,7 @@
       },
       "category_raw": "Sensitivity Analysis",
       "formal_models": [
-        ".formal/tla/QGSDSensitivity.tla"
+        ".planning/formal/tla/QGSDSensitivity.tla"
       ]
     },
     {
@@ -2449,7 +2449,7 @@
       },
       "category_raw": "Operational Signals",
       "formal_models": [
-        ".formal/alloy/signal-analysis-tools.als"
+        ".planning/formal/alloy/signal-analysis-tools.als"
       ]
     },
     {
@@ -2464,7 +2464,7 @@
       },
       "category_raw": "Operational Signals",
       "formal_models": [
-        ".formal/alloy/signal-analysis-tools.als"
+        ".planning/formal/alloy/signal-analysis-tools.als"
       ]
     },
     {
@@ -2491,7 +2491,7 @@
       },
       "category_raw": "Operational Signals",
       "formal_models": [
-        ".formal/alloy/signal-analysis-tools.als"
+        ".planning/formal/alloy/signal-analysis-tools.als"
       ]
     },
     {
@@ -2506,8 +2506,8 @@
       },
       "category_raw": "Slot-based Naming",
       "formal_models": [
-        ".formal/alloy/multi-slot-structure.als",
-        ".formal/tla/QGSDQuorum.tla"
+        ".planning/formal/alloy/multi-slot-structure.als",
+        ".planning/formal/tla/QGSDQuorum.tla"
       ]
     },
     {
@@ -2521,7 +2521,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDRecruiting.tla"
+        ".planning/formal/tla/QGSDRecruiting.tla"
       ],
       "category_raw": "Slot-based Naming"
     },
@@ -2536,7 +2536,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDRecruiting.tla"
+        ".planning/formal/tla/QGSDRecruiting.tla"
       ],
       "category_raw": "Slot-based Naming"
     },
@@ -2552,7 +2552,7 @@
         "milestone": "quick-140"
       },
       "formal_models": [
-        ".formal/alloy/solve-consistency.als"
+        ".planning/formal/alloy/solve-consistency.als"
       ]
     },
     {
@@ -2567,7 +2567,7 @@
         "milestone": "quick-141"
       },
       "formal_models": [
-        ".formal/alloy/solve-consistency.als"
+        ".planning/formal/alloy/solve-consistency.als"
       ]
     },
     {
@@ -2582,7 +2582,7 @@
         "milestone": "quick-143"
       },
       "formal_models": [
-        ".formal/alloy/solve-consistency.als"
+        ".planning/formal/alloy/solve-consistency.als"
       ]
     },
     {
@@ -2610,6 +2610,18 @@
       }
     },
     {
+      "id": "SOLVE-06",
+      "text": "qgsd-solve diagnostic engine provides reverse traceability sweeps (C→R, T→R, D→R) that discover implementation artifacts without requirement backing, assembled via deduplication and acknowledged-not-required filtering, presented through a two-step candidate-then-approve pattern that prevents unbounded requirement expansion",
+      "category": "Traceability & Verification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Forward traceability (R→F→T→C→D) ensures requirements are implemented, but does not catch code, tests, or doc claims that exist without any requirement backing. Reverse sweeps close this gap by surfacing untraced artifacts as candidates, gated by human approval to prevent automated feedback loops from inflating the requirement set.",
+      "provenance": {
+        "source_file": ".planning/quick/176-add-reverse-traceability-discovery-c-r-t/176-PLAN.md",
+        "milestone": "quick-176"
+      }
+    },
+    {
       "id": "SPEC-01",
       "text": "Stop hook formalized in `QGSDStopHook.tla` + `MCStopHook.cfg`, TLC verifies safety + liveness",
       "category": "Formal Verification",
@@ -2620,7 +2632,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDStopHook.tla"
+        ".planning/formal/tla/QGSDStopHook.tla"
       ],
       "category_raw": "Spec Completeness"
     },
@@ -2635,7 +2647,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/quorum-composition.als"
+        ".planning/formal/alloy/quorum-composition.als"
       ],
       "category_raw": "Spec Completeness"
     },
@@ -2651,7 +2663,7 @@
       },
       "category_raw": "Spec Completeness",
       "formal_models": [
-        ".formal/tla/QGSDSpecGeneration.tla"
+        ".planning/formal/tla/QGSDSpecGeneration.tla"
       ]
     },
     {
@@ -2666,7 +2678,7 @@
       },
       "category_raw": "State Tracking",
       "formal_models": [
-        ".formal/tla/QGSDBreakerState.tla"
+        ".planning/formal/tla/QGSDBreakerState.tla"
       ]
     },
     {
@@ -2681,7 +2693,7 @@
       },
       "category_raw": "State Management",
       "formal_models": [
-        ".formal/tla/QGSDBreakerState.tla"
+        ".planning/formal/tla/QGSDBreakerState.tla"
       ]
     },
     {
@@ -2696,7 +2708,7 @@
       },
       "category_raw": "State Management",
       "formal_models": [
-        ".formal/tla/QGSDBreakerState.tla"
+        ".planning/formal/tla/QGSDBreakerState.tla"
       ]
     },
     {
@@ -2711,7 +2723,7 @@
       },
       "category_raw": "State Management",
       "formal_models": [
-        ".formal/tla/QGSDBreakerState.tla"
+        ".planning/formal/tla/QGSDBreakerState.tla"
       ]
     },
     {
@@ -2726,7 +2738,7 @@
       },
       "category_raw": "Standardization",
       "formal_models": [
-        ".formal/alloy/codebase-arch-constraints.als"
+        ".planning/formal/alloy/codebase-arch-constraints.als"
       ]
     },
     {
@@ -2740,7 +2752,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDStopHook.tla"
+        ".planning/formal/tla/QGSDStopHook.tla"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2755,7 +2767,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDStopHook.tla"
+        ".planning/formal/tla/QGSDStopHook.tla"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2770,7 +2782,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDStopHook.tla"
+        ".planning/formal/tla/QGSDStopHook.tla"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2785,7 +2797,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDStopHook.tla"
+        ".planning/formal/tla/QGSDStopHook.tla"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2800,7 +2812,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDStopHook.tla"
+        ".planning/formal/tla/QGSDStopHook.tla"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2815,7 +2827,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDStopHook.tla"
+        ".planning/formal/tla/QGSDStopHook.tla"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2830,7 +2842,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/tla/QGSDStopHook.tla"
+        ".planning/formal/tla/QGSDStopHook.tla"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2845,7 +2857,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/transcript-scan.als"
+        ".planning/formal/alloy/transcript-scan.als"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2860,7 +2872,7 @@
         "milestone": "unknown"
       },
       "formal_models": [
-        ".formal/alloy/transcript-scan.als"
+        ".planning/formal/alloy/transcript-scan.als"
       ],
       "category_raw": "Stop Hook"
     },
@@ -2876,7 +2888,7 @@
       },
       "category_raw": "GSD Sync Strategy",
       "formal_models": [
-        ".formal/alloy/gsd-sync-invariants.als"
+        ".planning/formal/alloy/gsd-sync-invariants.als"
       ]
     },
     {
@@ -2891,7 +2903,7 @@
       },
       "category_raw": "GSD Sync Strategy",
       "formal_models": [
-        ".formal/alloy/gsd-sync-invariants.als"
+        ".planning/formal/alloy/gsd-sync-invariants.als"
       ]
     },
     {
@@ -2918,7 +2930,7 @@
       },
       "category_raw": "GSD Sync Strategy",
       "formal_models": [
-        ".formal/alloy/gsd-sync-invariants.als"
+        ".planning/formal/alloy/gsd-sync-invariants.als"
       ]
     },
     {
@@ -2945,7 +2957,7 @@
       },
       "category_raw": "Traceability Matrix",
       "formal_models": [
-        ".formal/alloy/traceability-annotations.als"
+        ".planning/formal/alloy/traceability-annotations.als"
       ]
     },
     {
@@ -2972,7 +2984,7 @@
       },
       "category_raw": "Traceability Matrix",
       "formal_models": [
-        ".formal/alloy/traceability-annotations.als"
+        ".planning/formal/alloy/traceability-annotations.als"
       ]
     },
     {
@@ -2987,7 +2999,7 @@
       },
       "category_raw": "Traceability Matrix",
       "formal_models": [
-        ".formal/alloy/traceability-annotations.als"
+        ".planning/formal/alloy/traceability-annotations.als"
       ]
     },
     {
@@ -3002,7 +3014,7 @@
       },
       "category_raw": "Formal Verification",
       "formal_models": [
-        ".formal/alloy/formal-test-trace.als"
+        ".planning/formal/alloy/formal-test-trace.als"
       ]
     },
     {
@@ -3017,7 +3029,7 @@
       },
       "category_raw": "Triage Bundle",
       "formal_models": [
-        ".formal/alloy/evidence-triage.als"
+        ".planning/formal/alloy/evidence-triage.als"
       ]
     },
     {
@@ -3044,7 +3056,7 @@
       },
       "category_raw": "Unified Verdict Format",
       "formal_models": [
-        ".formal/alloy/unified-check-results.als"
+        ".planning/formal/alloy/unified-check-results.als"
       ]
     },
     {
@@ -3071,7 +3083,7 @@
       },
       "category_raw": "Unified Verdict Format",
       "formal_models": [
-        ".formal/alloy/unified-check-results.als"
+        ".planning/formal/alloy/unified-check-results.als"
       ]
     },
     {
@@ -3086,7 +3098,7 @@
       },
       "category_raw": "Unified Verdict Format",
       "formal_models": [
-        ".formal/alloy/unified-check-results.als"
+        ".planning/formal/alloy/unified-check-results.als"
       ]
     },
     {
@@ -3101,7 +3113,7 @@
       },
       "category_raw": "UPPAAL Timed Race Modeling",
       "formal_models": [
-        ".formal/alloy/uppaal-model-reqs.als"
+        ".planning/formal/alloy/uppaal-model-reqs.als"
       ]
     },
     {
@@ -3128,7 +3140,7 @@
       },
       "category_raw": "UPPAAL Timed Race Modeling",
       "formal_models": [
-        ".formal/alloy/uppaal-model-reqs.als"
+        ".planning/formal/alloy/uppaal-model-reqs.als"
       ]
     },
     {
@@ -3143,7 +3155,7 @@
       },
       "category_raw": "UserPromptSubmit Hook",
       "formal_models": [
-        ".formal/tla/QGSDPromptHook.tla"
+        ".planning/formal/tla/QGSDPromptHook.tla"
       ]
     },
     {
@@ -3158,7 +3170,7 @@
       },
       "category_raw": "UserPromptSubmit Hook",
       "formal_models": [
-        ".formal/tla/QGSDPromptHook.tla"
+        ".planning/formal/tla/QGSDPromptHook.tla"
       ]
     },
     {
@@ -3173,7 +3185,7 @@
       },
       "category_raw": "UserPromptSubmit Hook",
       "formal_models": [
-        ".formal/tla/QGSDPromptHook.tla"
+        ".planning/formal/tla/QGSDPromptHook.tla"
       ]
     },
     {
@@ -3188,7 +3200,7 @@
       },
       "category_raw": "UserPromptSubmit Hook",
       "formal_models": [
-        ".formal/tla/QGSDPromptHook.tla"
+        ".planning/formal/tla/QGSDPromptHook.tla"
       ]
     },
     {
@@ -3203,7 +3215,7 @@
       },
       "category_raw": "UserPromptSubmit Hook",
       "formal_models": [
-        ".formal/tla/QGSDPromptHook.tla"
+        ".planning/formal/tla/QGSDPromptHook.tla"
       ]
     },
     {
@@ -3251,7 +3263,7 @@
       },
       "category_raw": "Verification Gate",
       "formal_models": [
-        ".formal/alloy/verification-integration.als"
+        ".planning/formal/alloy/verification-integration.als"
       ]
     },
     {
@@ -3266,7 +3278,7 @@
       },
       "category_raw": "Verification Gate",
       "formal_models": [
-        ".formal/alloy/verification-integration.als"
+        ".planning/formal/alloy/verification-integration.als"
       ]
     },
     {
@@ -3281,7 +3293,7 @@
       },
       "category_raw": "Visibility",
       "formal_models": [
-        ".formal/alloy/health-validation.als"
+        ".planning/formal/alloy/health-validation.als"
       ]
     },
     {
@@ -3296,7 +3308,7 @@
       },
       "category_raw": "Wizard UX",
       "formal_models": [
-        ".formal/tla/QGSDSetupWizard.tla"
+        ".planning/formal/tla/QGSDSetupWizard.tla"
       ]
     },
     {
@@ -3311,7 +3323,7 @@
       },
       "category_raw": "Wizard UX",
       "formal_models": [
-        ".formal/tla/QGSDSetupWizard.tla"
+        ".planning/formal/tla/QGSDSetupWizard.tla"
       ]
     },
     {
@@ -3326,7 +3338,7 @@
       },
       "category_raw": "Wizard UX",
       "formal_models": [
-        ".formal/tla/QGSDSetupWizard.tla"
+        ".planning/formal/tla/QGSDSetupWizard.tla"
       ]
     },
     {
@@ -3341,7 +3353,7 @@
       },
       "category_raw": "Wizard UX",
       "formal_models": [
-        ".formal/tla/QGSDSetupWizard.tla"
+        ".planning/formal/tla/QGSDSetupWizard.tla"
       ]
     },
     {
@@ -3356,7 +3368,7 @@
       },
       "category_raw": "Wizard UX",
       "formal_models": [
-        ".formal/tla/QGSDSetupWizard.tla"
+        ".planning/formal/tla/QGSDSetupWizard.tla"
       ]
     },
     {
@@ -3371,7 +3383,7 @@
       },
       "category_raw": "Wizard Composition Screen",
       "formal_models": [
-        ".formal/tla/QGSDSetupWizard.tla"
+        ".planning/formal/tla/QGSDSetupWizard.tla"
       ]
     },
     {
@@ -3386,7 +3398,7 @@
       },
       "category_raw": "Wizard Composition Screen",
       "formal_models": [
-        ".formal/tla/QGSDSetupWizard.tla"
+        ".planning/formal/tla/QGSDSetupWizard.tla"
       ]
     },
     {
@@ -3401,7 +3413,7 @@
       },
       "category_raw": "Wizard Composition Screen",
       "formal_models": [
-        ".formal/tla/QGSDSetupWizard.tla"
+        ".planning/formal/tla/QGSDSetupWizard.tla"
       ]
     },
     {
