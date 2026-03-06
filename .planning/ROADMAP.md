@@ -36,7 +36,7 @@ This milestone optimizes the nForma agent harness for production use -- adding c
 
 - [x] **Phase v0.28-01: Foundation -- Hook Profiles + De-Sloppify** - Configurable hook profiles and post-verification cleanup subagent (completed 2026-03-06)
 - [x] **Phase v0.28-02: Data Pipeline -- Quorum Cache + Pass@k Metrics** - SHA-256 quorum response caching and pass@k conformance tracking (completed 2026-03-06)
-- [ ] **Phase v0.28-03: Runtime Intelligence -- Budget Downgrade + Stall Detection + Smart Compact** - Token budget monitoring, stall escalation, and workflow-aware compaction suggestions
+- [x] **Phase v0.28-03: Runtime Intelligence -- Budget Downgrade + Stall Detection + Smart Compact** - Token budget monitoring, stall escalation, and workflow-aware compaction suggestions (completed 2026-03-06)
 - [ ] **Phase v0.28-04: Safety & Diagnostics -- Security Sweep + Session State + Harness Diagnostics** - Verify-time security scanning, session state reminders, and unified diagnostic reporting
 
 ## Phase Details
@@ -83,7 +83,7 @@ Plans:
   3. Subscription-type slots (auth_type: "sub") are excluded from budget calculations
   4. When a quorum slot has not responded within the configured timeout (default 90s), it is marked stalled; after 2 consecutive stalled checkpoints with no new commits, the user receives a structured stall report
   5. At clean workflow boundaries (phase completion, verification done, commit just made), the user sees a `/compact` suggestion when context usage exceeds the warn threshold, including what will survive and what will be lost
-**Plans:** 3 plans
+**Plans:** 0/3 plans complete
 Plans:
 - [ ] v0.28-03-01-PLAN.md -- Config-loader extensions (budget, stall, smart_compact) and budget tracker module (BUDG-01, BUDG-02, BUDG-03)
 - [ ] v0.28-03-02-PLAN.md -- Stall detector module with timeout tracking and structured reports (STALL-01, STALL-02)
@@ -110,7 +110,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | v0.28-01. Foundation -- Hook Profiles + De-Sloppify | 3/3 | Complete    | 2026-03-06 |
 | v0.28-02. Data Pipeline -- Quorum Cache + Pass@k Metrics | 3/3 | Complete    | 2026-03-06 |
-| v0.28-03. Runtime Intelligence -- Budget + Stall + Smart Compact | 0/3 | Not started | - |
+| v0.28-03. Runtime Intelligence -- Budget + Stall + Smart Compact | 0/3 | Complete    | 2026-03-06 |
 | v0.28-04. Safety & Diagnostics -- Security + State + Diagnostics | 0/TBD | Not started | - |
 
 ## v0.29 — Three-Layer Formal Verification Architecture
