@@ -87,36 +87,36 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EVID-01 | — | Pending |
-| EVID-02 | — | Pending |
-| EVID-03 | — | Pending |
-| EVID-04 | — | Pending |
-| EVID-05 | — | Pending |
-| SEM-01 | — | Pending |
-| SEM-02 | — | Pending |
-| SEM-03 | — | Pending |
-| SEM-04 | — | Pending |
-| RSN-01 | — | Pending |
-| RSN-02 | — | Pending |
-| RSN-03 | — | Pending |
-| RSN-04 | — | Pending |
-| RSN-05 | — | Pending |
-| GATE-01 | — | Pending |
-| GATE-02 | — | Pending |
-| GATE-03 | — | Pending |
-| GATE-04 | — | Pending |
-| INTG-01 | — | Pending |
-| INTG-02 | — | Pending |
-| INTG-03 | — | Pending |
-| INTG-04 | — | Pending |
-| INTG-05 | — | Pending |
-| INTG-06 | — | Pending |
+| EVID-01 | v0.29-01 | Pending |
+| EVID-02 | v0.29-01 | Pending |
+| EVID-03 | v0.29-01 | Pending |
+| EVID-04 | v0.29-01 | Pending |
+| EVID-05 | v0.29-01 | Pending |
+| SEM-01 | v0.29-02 | Pending |
+| SEM-02 | v0.29-02 | Pending |
+| SEM-03 | v0.29-02 | Pending |
+| SEM-04 | v0.29-02 | Pending |
+| RSN-01 | v0.29-03 | Pending |
+| RSN-02 | v0.29-03 | Pending |
+| RSN-03 | v0.29-03 | Pending |
+| RSN-04 | v0.29-04 | Pending |
+| RSN-05 | v0.29-04 | Pending |
+| GATE-01 | v0.29-02 | Pending |
+| GATE-02 | v0.29-03 | Pending |
+| GATE-03 | v0.29-04 | Pending |
+| GATE-04 | v0.29-03 | Pending |
+| INTG-01 | v0.29-01 | Pending |
+| INTG-02 | v0.29-04 | Pending |
+| INTG-03 | v0.29-04 | Pending |
+| INTG-04 | v0.29-05 | Pending |
+| INTG-05 | v0.29-01 | Pending |
+| INTG-06 | v0.29-01 | Pending |
 
 **Coverage:**
 - v0.29 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24
+- Mapped to phases: 24
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-06*
-*Last updated: 2026-03-06 after initial definition*
+*Last updated: 2026-03-06 after roadmap creation*
