@@ -31,6 +31,7 @@ const {
   sweepRtoD,
   sweepDtoC,
   sweepTtoC,
+  crossReferenceFormalCoverage,
 } = require('./nf-solve.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -580,4 +581,50 @@ test('TC-INT: --project-root overrides CWD for diagnostic sweep', () => {
   const parsed = JSON.parse(result.stdout);
   assert.ok(parsed.residual_vector, 'Should have residual_vector');
   assert.equal(typeof parsed.residual_vector.total, 'number');
+});
+
+// ── TC-COV: crossReferenceFormalCoverage Tests ────────────────────────────────
+
+test('TC-COV-1: crossReferenceFormalCoverage returns unavailable when null input', () => {
+  const result = crossReferenceFormalCoverage(null);
+  assert.deepStrictEqual(result, { available: false });
+});
+
+test('TC-COV-2: crossReferenceFormalCoverage returns unavailable when undefined input', () => {
+  const result = crossReferenceFormalCoverage(undefined);
+  assert.deepStrictEqual(result, { available: false });
+});
+
+test('TC-COV-3: crossReferenceFormalCoverage returns available with empty coverage array', () => {
+  const result = crossReferenceFormalCoverage([]);
+  assert.equal(result.available, true);
+  assert.ok(Array.isArray(result.false_greens), 'false_greens should be an array');
+  assert.ok(result.summary, 'should have summary object');
+  assert.equal(typeof result.summary.fully_covered, 'number');
+  assert.equal(typeof result.summary.partially_covered, 'number');
+  assert.equal(typeof result.summary.uncovered, 'number');
+});
+
+test('TC-COV-4: crossReferenceFormalCoverage parses V8 coverage format and returns available', () => {
+  const coverageArray = [{
+    result: [{
+      url: 'file:///some/other/file.js',
+      functions: [{
+        ranges: [{ startOffset: 0, endOffset: 100, count: 1 }],
+      }],
+    }],
+  }];
+  const result = crossReferenceFormalCoverage(coverageArray);
+  assert.equal(result.available, true);
+  assert.ok(result.summary, 'should have summary object');
+  assert.equal(typeof result.summary.fully_covered, 'number');
+  assert.equal(typeof result.summary.partially_covered, 'number');
+  assert.equal(typeof result.summary.uncovered, 'number');
+  assert.equal(typeof result.total_properties, 'number');
+});
+
+test('TC-COV-5: sweepTtoC detail contains v8_coverage field', () => {
+  const result = sweepTtoC();
+  assert.ok(result.detail, 'sweepTtoC should return detail');
+  assert.ok('v8_coverage' in result.detail, 'detail should have v8_coverage key');
 });
