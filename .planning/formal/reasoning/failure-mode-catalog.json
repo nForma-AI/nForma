@@ -1,0 +1,780 @@
+{
+  "schema_version": "1",
+  "generated": "2026-03-06T14:33:00.952Z",
+  "failure_modes": [
+    {
+      "id": "FM-IDLE-QUORUM_START-OMISSION",
+      "state": "IDLE",
+      "event": "QUORUM_START",
+      "to_state": "COLLECTING_VOTES",
+      "failure_mode": "omission",
+      "description": "Transition IDLE --[QUORUM_START]--> COLLECTING_VOTES does not fire when expected (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System stays in IDLE; expected state change does not occur",
+      "severity_class": "degraded",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.IDLE.QUORUM_START"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-IDLE-QUORUM_START]"
+        }
+      ]
+    },
+    {
+      "id": "FM-IDLE-CIRCUIT_BREAK-OMISSION",
+      "state": "IDLE",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "IDLE",
+      "failure_mode": "omission",
+      "description": "Transition IDLE --[CIRCUIT_BREAK]--> IDLE does not fire when expected (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System stays in IDLE; expected state change does not occur",
+      "severity_class": "stalled",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.IDLE.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-IDLE-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-IDLE-CIRCUIT_BREAK-CORRUPTION",
+      "state": "IDLE",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "IDLE",
+      "failure_mode": "corruption",
+      "description": "Transition IDLE --[CIRCUIT_BREAK]--> fires but produces wrong target state (not IDLE) (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System enters incorrect state instead of IDLE; downstream behavior undefined",
+      "severity_class": "stalled",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.IDLE.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-IDLE-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-IDLE-DECIDE-OMISSION",
+      "state": "IDLE",
+      "event": "DECIDE",
+      "to_state": "IDLE",
+      "failure_mode": "omission",
+      "description": "Transition IDLE --[DECIDE]--> IDLE does not fire when expected (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System stays in IDLE; expected state change does not occur",
+      "severity_class": "degraded",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.IDLE.DECIDE"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-IDLE-DECIDE]"
+        }
+      ]
+    },
+    {
+      "id": "FM-IDLE-DECIDE-COMMISSION",
+      "state": "IDLE",
+      "event": "DECIDE",
+      "to_state": "IDLE",
+      "failure_mode": "commission",
+      "description": "Transition IDLE --[DECIDE]--> IDLE fires but is not modeled in XState (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "Unmodeled state transition from IDLE to IDLE on DECIDE; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.IDLE.DECIDE"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-IDLE-DECIDE]"
+        }
+      ]
+    },
+    {
+      "id": "FM-IDLE-VOTES_COLLECTED-OMISSION",
+      "state": "IDLE",
+      "event": "VOTES_COLLECTED",
+      "to_state": "IDLE",
+      "failure_mode": "omission",
+      "description": "Transition IDLE --[VOTES_COLLECTED]--> IDLE does not fire when expected (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System stays in IDLE; expected state change does not occur",
+      "severity_class": "degraded",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.IDLE.VOTES_COLLECTED"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-IDLE-VOTES_COLLECTED]"
+        }
+      ]
+    },
+    {
+      "id": "FM-IDLE-VOTES_COLLECTED-COMMISSION",
+      "state": "IDLE",
+      "event": "VOTES_COLLECTED",
+      "to_state": "IDLE",
+      "failure_mode": "commission",
+      "description": "Transition IDLE --[VOTES_COLLECTED]--> IDLE fires but is not modeled in XState (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "Unmodeled state transition from IDLE to IDLE on VOTES_COLLECTED; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.IDLE.VOTES_COLLECTED"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-IDLE-VOTES_COLLECTED]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-QUORUM_START-OMISSION",
+      "state": "COLLECTING_VOTES",
+      "event": "QUORUM_START",
+      "to_state": "COLLECTING_VOTES",
+      "failure_mode": "omission",
+      "description": "Transition COLLECTING_VOTES --[QUORUM_START]--> COLLECTING_VOTES does not fire when expected",
+      "effect": "System stays in COLLECTING_VOTES; expected state change does not occur",
+      "severity_class": "degraded",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.QUORUM_START"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-QUORUM_START]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-QUORUM_START-COMMISSION",
+      "state": "COLLECTING_VOTES",
+      "event": "QUORUM_START",
+      "to_state": "COLLECTING_VOTES",
+      "failure_mode": "commission",
+      "description": "Transition COLLECTING_VOTES --[QUORUM_START]--> COLLECTING_VOTES fires but is not modeled in XState",
+      "effect": "Unmodeled state transition from COLLECTING_VOTES to COLLECTING_VOTES on QUORUM_START; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.QUORUM_START"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-QUORUM_START]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-CIRCUIT_BREAK-OMISSION",
+      "state": "COLLECTING_VOTES",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "COLLECTING_VOTES",
+      "failure_mode": "omission",
+      "description": "Transition COLLECTING_VOTES --[CIRCUIT_BREAK]--> COLLECTING_VOTES does not fire when expected",
+      "effect": "System stays in COLLECTING_VOTES; expected state change does not occur",
+      "severity_class": "stalled",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-CIRCUIT_BREAK-COMMISSION",
+      "state": "COLLECTING_VOTES",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "COLLECTING_VOTES",
+      "failure_mode": "commission",
+      "description": "Transition COLLECTING_VOTES --[CIRCUIT_BREAK]--> COLLECTING_VOTES fires but is not modeled in XState",
+      "effect": "Unmodeled state transition from COLLECTING_VOTES to COLLECTING_VOTES on CIRCUIT_BREAK; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-CIRCUIT_BREAK-CORRUPTION",
+      "state": "COLLECTING_VOTES",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "COLLECTING_VOTES",
+      "failure_mode": "corruption",
+      "description": "Transition COLLECTING_VOTES --[CIRCUIT_BREAK]--> fires but produces wrong target state (not COLLECTING_VOTES)",
+      "effect": "System enters incorrect state instead of COLLECTING_VOTES; downstream behavior undefined",
+      "severity_class": "stalled",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-DECIDE-OMISSION",
+      "state": "COLLECTING_VOTES",
+      "event": "DECIDE",
+      "to_state": "COLLECTING_VOTES",
+      "failure_mode": "omission",
+      "description": "Transition COLLECTING_VOTES --[DECIDE]--> COLLECTING_VOTES does not fire when expected",
+      "effect": "System stays in COLLECTING_VOTES; expected state change does not occur",
+      "severity_class": "degraded",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.DECIDE"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-DECIDE]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-DECIDE-COMMISSION",
+      "state": "COLLECTING_VOTES",
+      "event": "DECIDE",
+      "to_state": "COLLECTING_VOTES",
+      "failure_mode": "commission",
+      "description": "Transition COLLECTING_VOTES --[DECIDE]--> COLLECTING_VOTES fires but is not modeled in XState",
+      "effect": "Unmodeled state transition from COLLECTING_VOTES to COLLECTING_VOTES on DECIDE; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.DECIDE"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-DECIDE]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-VOTES_COLLECTED-OMISSION",
+      "state": "COLLECTING_VOTES",
+      "event": "VOTES_COLLECTED",
+      "to_state": "DELIBERATING",
+      "failure_mode": "omission",
+      "description": "Transition COLLECTING_VOTES --[VOTES_COLLECTED]--> DELIBERATING does not fire when expected",
+      "effect": "System stays in COLLECTING_VOTES; expected state change does not occur",
+      "severity_class": "stalled",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.VOTES_COLLECTED"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-VOTES_COLLECTED]"
+        }
+      ]
+    },
+    {
+      "id": "FM-COLLECTING_VOTES-VOTES_COLLECTED-CORRUPTION",
+      "state": "COLLECTING_VOTES",
+      "event": "VOTES_COLLECTED",
+      "to_state": "DELIBERATING",
+      "failure_mode": "corruption",
+      "description": "Transition COLLECTING_VOTES --[VOTES_COLLECTED]--> fires but produces wrong target state (not DELIBERATING)",
+      "effect": "System enters incorrect state instead of DELIBERATING; downstream behavior undefined",
+      "severity_class": "stalled",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.VOTES_COLLECTED"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-VOTES_COLLECTED]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DELIBERATING-DECIDE-OMISSION",
+      "state": "DELIBERATING",
+      "event": "DECIDE",
+      "to_state": "DECIDED",
+      "failure_mode": "omission",
+      "description": "Transition DELIBERATING --[DECIDE]--> DECIDED does not fire when expected",
+      "effect": "System stays in DELIBERATING; expected state change does not occur",
+      "severity_class": "critical",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.DECIDE"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-DECIDE]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DELIBERATING-DECIDE-CORRUPTION",
+      "state": "DELIBERATING",
+      "event": "DECIDE",
+      "to_state": "DECIDED",
+      "failure_mode": "corruption",
+      "description": "Transition DELIBERATING --[DECIDE]--> fires but produces wrong target state (not DECIDED)",
+      "effect": "System enters incorrect state instead of DECIDED; downstream behavior undefined",
+      "severity_class": "critical",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.DECIDE"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-DECIDE]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DELIBERATING-VOTES_COLLECTED-OMISSION",
+      "state": "DELIBERATING",
+      "event": "VOTES_COLLECTED",
+      "to_state": "DELIBERATING",
+      "failure_mode": "omission",
+      "description": "Transition DELIBERATING --[VOTES_COLLECTED]--> DELIBERATING does not fire when expected",
+      "effect": "System stays in DELIBERATING; expected state change does not occur",
+      "severity_class": "degraded",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.VOTES_COLLECTED"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-VOTES_COLLECTED]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DELIBERATING-QUORUM_START-OMISSION",
+      "state": "DELIBERATING",
+      "event": "QUORUM_START",
+      "to_state": "DELIBERATING",
+      "failure_mode": "omission",
+      "description": "Transition DELIBERATING --[QUORUM_START]--> DELIBERATING does not fire when expected",
+      "effect": "System stays in DELIBERATING; expected state change does not occur",
+      "severity_class": "degraded",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.QUORUM_START"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-QUORUM_START]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DELIBERATING-QUORUM_START-COMMISSION",
+      "state": "DELIBERATING",
+      "event": "QUORUM_START",
+      "to_state": "DELIBERATING",
+      "failure_mode": "commission",
+      "description": "Transition DELIBERATING --[QUORUM_START]--> DELIBERATING fires but is not modeled in XState",
+      "effect": "Unmodeled state transition from DELIBERATING to DELIBERATING on QUORUM_START; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.QUORUM_START"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-QUORUM_START]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DELIBERATING-CIRCUIT_BREAK-OMISSION",
+      "state": "DELIBERATING",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "DELIBERATING",
+      "failure_mode": "omission",
+      "description": "Transition DELIBERATING --[CIRCUIT_BREAK]--> DELIBERATING does not fire when expected",
+      "effect": "System stays in DELIBERATING; expected state change does not occur",
+      "severity_class": "stalled",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DELIBERATING-CIRCUIT_BREAK-COMMISSION",
+      "state": "DELIBERATING",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "DELIBERATING",
+      "failure_mode": "commission",
+      "description": "Transition DELIBERATING --[CIRCUIT_BREAK]--> DELIBERATING fires but is not modeled in XState",
+      "effect": "Unmodeled state transition from DELIBERATING to DELIBERATING on CIRCUIT_BREAK; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DELIBERATING-CIRCUIT_BREAK-CORRUPTION",
+      "state": "DELIBERATING",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "DELIBERATING",
+      "failure_mode": "corruption",
+      "description": "Transition DELIBERATING --[CIRCUIT_BREAK]--> fires but produces wrong target state (not DELIBERATING)",
+      "effect": "System enters incorrect state instead of DELIBERATING; downstream behavior undefined",
+      "severity_class": "stalled",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DECIDED-DECIDE-OMISSION",
+      "state": "DECIDED",
+      "event": "DECIDE",
+      "to_state": "DECIDED",
+      "failure_mode": "omission",
+      "description": "Transition DECIDED --[DECIDE]--> DECIDED does not fire when expected (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System stays in DECIDED; expected state change does not occur",
+      "severity_class": "cosmetic",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DECIDED.DECIDE"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DECIDED-DECIDE]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DECIDED-DECIDE-COMMISSION",
+      "state": "DECIDED",
+      "event": "DECIDE",
+      "to_state": "DECIDED",
+      "failure_mode": "commission",
+      "description": "Transition DECIDED --[DECIDE]--> DECIDED fires but is not modeled in XState (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "Unmodeled state transition from DECIDED to DECIDED on DECIDE; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DECIDED.DECIDE"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DECIDED-DECIDE]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DECIDED-CIRCUIT_BREAK-OMISSION",
+      "state": "DECIDED",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "DECIDED",
+      "failure_mode": "omission",
+      "description": "Transition DECIDED --[CIRCUIT_BREAK]--> DECIDED does not fire when expected (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System stays in DECIDED; expected state change does not occur",
+      "severity_class": "cosmetic",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DECIDED.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DECIDED-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DECIDED-CIRCUIT_BREAK-COMMISSION",
+      "state": "DECIDED",
+      "event": "CIRCUIT_BREAK",
+      "to_state": "DECIDED",
+      "failure_mode": "commission",
+      "description": "Transition DECIDED --[CIRCUIT_BREAK]--> DECIDED fires but is not modeled in XState (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "Unmodeled state transition from DECIDED to DECIDED on CIRCUIT_BREAK; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DECIDED.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DECIDED-CIRCUIT_BREAK]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DECIDED-QUORUM_START-OMISSION",
+      "state": "DECIDED",
+      "event": "QUORUM_START",
+      "to_state": "DECIDED",
+      "failure_mode": "omission",
+      "description": "Transition DECIDED --[QUORUM_START]--> DECIDED does not fire when expected (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System stays in DECIDED; expected state change does not occur",
+      "severity_class": "cosmetic",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DECIDED.QUORUM_START"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DECIDED-QUORUM_START]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DECIDED-QUORUM_START-COMMISSION",
+      "state": "DECIDED",
+      "event": "QUORUM_START",
+      "to_state": "DECIDED",
+      "failure_mode": "commission",
+      "description": "Transition DECIDED --[QUORUM_START]--> DECIDED fires but is not modeled in XState (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "Unmodeled state transition from DECIDED to DECIDED on QUORUM_START; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DECIDED.QUORUM_START"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DECIDED-QUORUM_START]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DECIDED-VOTES_COLLECTED-OMISSION",
+      "state": "DECIDED",
+      "event": "VOTES_COLLECTED",
+      "to_state": "DECIDED",
+      "failure_mode": "omission",
+      "description": "Transition DECIDED --[VOTES_COLLECTED]--> DECIDED does not fire when expected (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "System stays in DECIDED; expected state change does not occur",
+      "severity_class": "cosmetic",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DECIDED.VOTES_COLLECTED"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DECIDED-VOTES_COLLECTED]"
+        }
+      ]
+    },
+    {
+      "id": "FM-DECIDED-VOTES_COLLECTED-COMMISSION",
+      "state": "DECIDED",
+      "event": "VOTES_COLLECTED",
+      "to_state": "DECIDED",
+      "failure_mode": "commission",
+      "description": "Transition DECIDED --[VOTES_COLLECTED]--> DECIDED fires but is not modeled in XState (10 observed mismatch(es): MISMATCH-001, MISMATCH-002, MISMATCH-003, MISMATCH-004, MISMATCH-005, MISMATCH-006, MISMATCH-007, MISMATCH-008, MISMATCH-009, MISMATCH-010)",
+      "effect": "Unmodeled state transition from DECIDED to DECIDED on VOTES_COLLECTED; behavior diverges from spec",
+      "severity_class": "model_gap",
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "model_comparison.missing_in_model"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DECIDED.VOTES_COLLECTED"
+        },
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DECIDED-VOTES_COLLECTED]"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 32,
+    "by_mode": {
+      "omission": 16,
+      "commission": 11,
+      "corruption": 5
+    },
+    "by_severity_class": {
+      "degraded": 7,
+      "stalled": 8,
+      "model_gap": 11,
+      "critical": 2,
+      "cosmetic": 4
+    }
+  }
+}
