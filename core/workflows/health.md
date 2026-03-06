@@ -149,6 +149,21 @@ console.log('');
 Display the output inline in the health report, between the main status section and the Errors/Warnings section.
 </step>
 
+<step name="run_harness_diagnostic">
+**Run harness diagnostic report:**
+
+```bash
+# Try installed path first, fall back to dev path
+if [ -f "$HOME/.claude/nf-bin/harness-diagnostic.cjs" ]; then
+  node "$HOME/.claude/nf-bin/harness-diagnostic.cjs" --cwd "$(pwd)"
+else
+  node bin/harness-diagnostic.cjs --cwd "$(pwd)"
+fi
+```
+
+Display the output inline in the health report, after the token usage section.
+</step>
+
 <step name="offer_repair">
 **If repairable issues exist and --repair was NOT used:**
 
