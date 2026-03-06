@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-06T14:33:49.464Z",
-  "content_hash": "a3028eb89f3ecdbb",
-  "frozen_at": "2026-03-06T14:33:49.465Z",
+  "aggregated_at": "2026-03-06T15:13:19.291Z",
+  "content_hash": "5f5afde00a1ccef0",
+  "frozen_at": "2026-03-06T15:13:19.292Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -1082,6 +1082,18 @@
         "milestone": "v0.20"
       },
       "category_raw": "Evidence Confidence"
+    },
+    {
+      "id": "EVID-03",
+      "text": "`bin/git-heatmap.cjs` mines git history for numerical adjustments, bugfix hotspots, and churn ranking, producing `.planning/formal/evidence/git-heatmap.json` with multiplicative priority scoring and formal-coverage cross-reference for uncovered hot zones",
+      "category": "Formal Verification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "High-churn and frequently-patched files without formal model coverage are blind spots for verification. This evidence artifact feeds nf:solve with empirical signal data so it can prioritize which files most need formal models.",
+      "provenance": {
+        "source_file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-PLAN.md",
+        "milestone": "quick-193"
+      }
     },
     {
       "id": "FAIL-01",
