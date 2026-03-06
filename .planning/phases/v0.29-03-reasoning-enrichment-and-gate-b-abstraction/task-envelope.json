@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.29-03",
+  "created_at": "2026-03-06T14:20:25.565Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Phase v0.29-03 builds Layer 3 (Reasoning) on top of the Layer 2 (Semantics) artifacts completed in v0.29-02. The core deliverables are three new CLI scripts: (1) a hazard model that applies FMEA scori",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.29-03-reasoning-enrichment-and-gate-b-abstraction/v0.29-03-01-PLAN.md",
+    "key_decisions": []
+  }
+}

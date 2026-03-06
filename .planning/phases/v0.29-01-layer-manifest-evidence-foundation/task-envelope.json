@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.29-01",
+  "created_at": "2026-03-06T12:32:46.305Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Layer manifest and L1 evidence foundation",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.29-01-layer-manifest-evidence-foundation/v0.29-01-01-PLAN.md",
+    "key_decisions": []
+  }
+}

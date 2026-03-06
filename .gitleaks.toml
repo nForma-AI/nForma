@@ -25,6 +25,7 @@ paths = [
   '''bin/providers\.json''',
   '''get-shit-done/bin/gsd-tools\.test\.js''',
   '''\.planning/quick/''',
+  '''\.planning/milestones/.*-phases/''',
   '''test-secret-file\.txt''',
 ]
 
