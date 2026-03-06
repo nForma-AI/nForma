@@ -135,6 +135,40 @@ function applyMaxDeliberationUpdate(newValue, options = {}) {
   }
 }
 
+// computePassAtKRates(conformanceEventsPath)
+// Reads a JSONL conformance events file and computes pass@k consensus efficiency
+// rates from quorum_complete APPROVE events that have a pass_at_k field.
+// Excludes cache-hit events (pass_at_k === 0) and pre-PASSK events (no pass_at_k field).
+// Returns { total, pass_at_1, pass_at_3, avg_k } — rates as floats 0.0-1.0.
+function computePassAtKRates(conformanceEventsPath) {
+  const result = { total: 0, pass_at_1: 0, pass_at_3: 0, avg_k: 0 };
+  if (!fs.existsSync(conformanceEventsPath)) return result;
+
+  const lines = fs.readFileSync(conformanceEventsPath, 'utf8')
+    .split('\n')
+    .filter(l => l.trim().length > 0);
+
+  const qualifying = [];
+  for (const line of lines) {
+    try {
+      const evt = JSON.parse(line);
+      if (evt.action !== 'quorum_complete') continue;
+      if (evt.outcome !== 'APPROVE') continue;
+      if (typeof evt.pass_at_k !== 'number') continue; // skip pre-PASSK events
+      if (evt.pass_at_k === 0) continue; // skip cache hits
+      qualifying.push(evt.pass_at_k);
+    } catch { /* skip malformed lines */ }
+  }
+
+  if (qualifying.length === 0) return result;
+
+  result.total = qualifying.length;
+  result.pass_at_1 = qualifying.filter(k => k === 1).length / qualifying.length;
+  result.pass_at_3 = qualifying.filter(k => k <= 3).length / qualifying.length;
+  result.avg_k = qualifying.reduce((sum, k) => sum + k, 0) / qualifying.length;
+  return result;
+}
+
 // ── CLI Handler ───────────────────────────────────────────────────────────────
 
 function main() {
@@ -233,6 +267,33 @@ function main() {
   // ── Gate ──────────────────────────────────────────────────────────────────────
   const pass = pActual >= TARGET_CONFIDENCE;
 
+  // ── Pass@k Consensus Efficiency ──────────────────────────────────────────
+  try {
+    let conformancePath;
+    try {
+      const pp = require('./planning-paths.cjs');
+      conformancePath = pp.resolve(ROOT, 'conformance-events');
+    } catch (_) {
+      // Fallback: try both canonical and legacy paths directly
+      const canonical = path.join(ROOT, '.planning', 'telemetry', 'conformance-events.jsonl');
+      const legacy = path.join(ROOT, '.planning', 'conformance-events.jsonl');
+      conformancePath = fs.existsSync(canonical) ? canonical : legacy;
+    }
+    const passAtK = computePassAtKRates(conformancePath);
+    process.stdout.write('## Pass@k Consensus Efficiency\n');
+    if (passAtK.total > 0) {
+      process.stdout.write('  pass@1:              ' + (passAtK.pass_at_1 * 100).toFixed(1) + '%\n');
+      process.stdout.write('  pass@3:              ' + (passAtK.pass_at_3 * 100).toFixed(1) + '%\n');
+      process.stdout.write('  avg rounds:          ' + passAtK.avg_k.toFixed(1) + '\n');
+      process.stdout.write('  total quorum events: ' + passAtK.total + '\n');
+    } else {
+      process.stdout.write('  No pass@k data available yet (requires quorum runs after v0.28-02).\n');
+    }
+    process.stdout.write('\n');
+  } catch (_) {
+    // Fail-open: pass@k reporting is informational, never blocks the gate
+  }
+
   if (pass) {
     process.stdout.write('✓ PASS  P(within ' + maxDelib + ' rounds) = ' + (pActual * 100).toFixed(1) + '% ≥ ' + (TARGET_CONFIDENCE * 100).toFixed(0) + '% target\n\n');
   } else {
@@ -264,7 +325,7 @@ function main() {
 
 // ── Exports ───────────────────────────────────────────────────────────────────
 
-module.exports = { suggestMaxDeliberation, applyMaxDeliberationUpdate, computeRates, pMajorityExternal };
+module.exports = { suggestMaxDeliberation, applyMaxDeliberationUpdate, computeRates, pMajorityExternal, computePassAtKRates };
 
 // ── CLI Execution ─────────────────────────────────────────────────────────────
 

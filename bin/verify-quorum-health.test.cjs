@@ -1179,3 +1179,108 @@ test('--auto-apply flag is recognized and produces different output', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 });
+
+// ─── Test: computePassAtKRates ─────────────────────────────────────────────
+
+test('computePassAtKRates with mixed events computes correct rates', () => {
+  const { computePassAtKRates } = require('./verify-quorum-health.cjs');
+  const tmpDir = makeTmpDir();
+  try {
+    const eventsPath = path.join(tmpDir, 'events.jsonl');
+    const events = [
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 1 },
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 2 },
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 1 },
+    ];
+    fs.writeFileSync(eventsPath, events.map(e => JSON.stringify(e)).join('\n'), 'utf8');
+
+    const result = computePassAtKRates(eventsPath);
+    assert.equal(result.total, 3, 'total should be 3');
+    assert.ok(Math.abs(result.pass_at_1 - 2/3) < 0.001, 'pass_at_1 should be 2/3');
+    assert.equal(result.pass_at_3, 1.0, 'pass_at_3 should be 1.0');
+    assert.ok(Math.abs(result.avg_k - 4/3) < 0.001, 'avg_k should be 4/3');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('computePassAtKRates skips cache hits (pass_at_k: 0)', () => {
+  const { computePassAtKRates } = require('./verify-quorum-health.cjs');
+  const tmpDir = makeTmpDir();
+  try {
+    const eventsPath = path.join(tmpDir, 'events.jsonl');
+    const events = [
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 0, cache_hit: true },
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 1 },
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 0, cache_hit: true },
+    ];
+    fs.writeFileSync(eventsPath, events.map(e => JSON.stringify(e)).join('\n'), 'utf8');
+
+    const result = computePassAtKRates(eventsPath);
+    assert.equal(result.total, 1, 'only non-cache-hit events count');
+    assert.equal(result.pass_at_1, 1.0, 'the one qualifying event has k=1');
+    assert.equal(result.avg_k, 1.0, 'avg_k should be 1');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('computePassAtKRates skips pre-PASSK events (no pass_at_k field)', () => {
+  const { computePassAtKRates } = require('./verify-quorum-health.cjs');
+  const tmpDir = makeTmpDir();
+  try {
+    const eventsPath = path.join(tmpDir, 'events.jsonl');
+    const events = [
+      { action: 'quorum_complete', outcome: 'APPROVE' },  // no pass_at_k
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 2 },
+      { action: 'quorum_block', outcome: 'BLOCK', pass_at_k: 1 },  // wrong action
+    ];
+    fs.writeFileSync(eventsPath, events.map(e => JSON.stringify(e)).join('\n'), 'utf8');
+
+    const result = computePassAtKRates(eventsPath);
+    assert.equal(result.total, 1, 'only the one qualifying event');
+    assert.equal(result.pass_at_1, 0, 'k=2 is not pass@1');
+    assert.equal(result.pass_at_3, 1.0, 'k=2 is within pass@3');
+    assert.equal(result.avg_k, 2, 'avg_k should be 2');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('computePassAtKRates returns zeros for empty/nonexistent file', () => {
+  const { computePassAtKRates } = require('./verify-quorum-health.cjs');
+  const result = computePassAtKRates('/nonexistent/path/events.jsonl');
+  assert.equal(result.total, 0);
+  assert.equal(result.pass_at_1, 0);
+  assert.equal(result.pass_at_3, 0);
+  assert.equal(result.avg_k, 0);
+});
+
+test('full script output includes pass@k section', () => {
+  const tmpDir = makeTmpDir();
+  try {
+    writeMachineFile(tmpDir, 10);
+    const rounds = makeRounds(35, { gemini: 'TP', opencode: 'TP', copilot: 'TP', codex: 'TP' });
+    writeScoreboard(tmpDir, rounds);
+
+    // Create telemetry dir with conformance events containing pass_at_k
+    const telDir = path.join(tmpDir, '.planning', 'telemetry');
+    fs.mkdirSync(telDir, { recursive: true });
+    const events = [
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 1 },
+      { action: 'quorum_complete', outcome: 'APPROVE', pass_at_k: 3 },
+    ];
+    fs.writeFileSync(
+      path.join(telDir, 'conformance-events.jsonl'),
+      events.map(e => JSON.stringify(e)).join('\n'),
+      'utf8'
+    );
+
+    const { stdout } = runScript(tmpDir);
+    assert.match(stdout, /pass@1/i, 'output should contain pass@1');
+    assert.match(stdout, /pass@3/i, 'output should contain pass@3');
+    assert.match(stdout, /Pass@k Consensus Efficiency/i, 'output should contain section header');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
