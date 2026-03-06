@@ -40,6 +40,35 @@ function findSecrets() {
   return null;
 }
 
+// ─── State reminder parser ──────────────────────────────────────────────────
+
+/**
+ * Parse STATE.md content for an in-progress phase and return a terse reminder.
+ * Returns null if no reminder is needed (complete, not started, or missing fields).
+ * @param {string} stateContent - Raw STATE.md content.
+ * @returns {string|null}
+ */
+function parseStateForReminder(stateContent) {
+  if (!stateContent || typeof stateContent !== 'string') return null;
+
+  const phaseMatch = stateContent.match(/Phase:\s*(.+)/);
+  const statusMatch = stateContent.match(/Status:\s*(.+)/);
+  const planMatch = stateContent.match(/Plan:\s*(.+)/);
+  const lastMatch = stateContent.match(/Last activity:\s*(.+)/);
+
+  if (!phaseMatch) return null;
+  if (!statusMatch) return null;
+
+  const status = statusMatch[1].trim();
+  if (status === 'Complete' || status === 'Not started') return null;
+
+  const phase = phaseMatch[1].trim();
+  const plan = planMatch ? planMatch[1].trim() : 'unknown plan';
+  const lastActivity = lastMatch ? lastMatch[1].trim() : 'unknown';
+
+  return 'SESSION STATE REMINDER: Phase ' + phase + ' -- ' + plan + ' -- ' + status + ' (last: ' + lastActivity + ')';
+}
+
 (async () => {
   // Resolve project cwd from hook input JSON
   await _stdinPromise;
@@ -84,6 +113,9 @@ function findSecrets() {
     process.stderr.write('[nf-session-start] CCR config error: ' + e.message + '\n');
   }
 
+  // Collect all additionalContext pieces — write once at the end
+  const _contextPieces = [];
+
   // Telemetry surfacing — inject top unsurfaced issue as additionalContext
   // Guard: only active when running inside the nForma dev repo itself
   try {
@@ -98,13 +130,29 @@ function findSecrets() {
         issue.surfaced = true;
         issue.surfacedAt = new Date().toISOString();
         fs.writeFileSync(fixesPath, JSON.stringify(fixes, null, 2), 'utf8');
-        const ctx = 'Telemetry alert [priority=' + issue.priority + ']: ' + issue.description + '\nSuggested fix: ' + issue.action;
-        process.stdout.write(JSON.stringify({
-          hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: ctx }
-        }));
+        _contextPieces.push('Telemetry alert [priority=' + issue.priority + ']: ' + issue.description + '\nSuggested fix: ' + issue.action);
       }
     }
   } catch (_) {}
+
+  // Session state reminder — inject brief context when work is in progress
+  try {
+    const statePath = path.join(_hookCwd, '.planning', 'STATE.md');
+    if (fs.existsSync(statePath)) {
+      const stateContent = fs.readFileSync(statePath, 'utf8');
+      const reminder = parseStateForReminder(stateContent);
+      if (reminder) {
+        _contextPieces.push(reminder);
+      }
+    }
+  } catch (_) {}
+
+  // Write combined additionalContext output (once)
+  if (_contextPieces.length > 0) {
+    process.stdout.write(JSON.stringify({
+      hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: _contextPieces.join('\n\n') }
+    }));
+  }
 
   // Memory staleness check — warn about outdated MEMORY.md entries
   try {
@@ -129,3 +177,9 @@ function findSecrets() {
 
   process.exit(0);
 })();
+
+// Export for unit testing
+if (typeof module !== 'undefined') {
+  module.exports = module.exports || {};
+  module.exports.parseStateForReminder = parseStateForReminder;
+}

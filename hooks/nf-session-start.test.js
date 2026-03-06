@@ -322,6 +322,74 @@ test('cwd field absent in stdin JSON → exits 0 (defaults to process.cwd, no cr
   assert.equal(exitCode, 0, 'hook must exit 0 when cwd is absent from stdin');
 });
 
+// ─── State Reminder Unit Tests ──────────────────────────────────────────────
+
+// Import parseStateForReminder — the require triggers the async IIFE + stdin listener,
+// but for unit test purposes we only need the exported function.
+const { parseStateForReminder } = require('./nf-session-start.js');
+
+test('parseStateForReminder returns reminder for in-progress phase', () => {
+  const content = [
+    '## Current Position',
+    'Phase: v0.28-04 (Safety & Diagnostics)',
+    'Status: In Progress',
+    'Plan: 2 of 3',
+    'Last activity: 2026-03-06 - Implementing security sweep',
+  ].join('\n');
+  const result = parseStateForReminder(content);
+  assert.ok(result !== null, 'should return a reminder');
+  assert.ok(result.includes('SESSION STATE REMINDER'), 'should contain SESSION STATE REMINDER');
+  assert.ok(result.includes('v0.28-04'), 'should contain phase number');
+  assert.ok(result.includes('2 of 3'), 'should contain plan info');
+  assert.ok(result.includes('2026-03-06'), 'should contain last activity');
+});
+
+test('parseStateForReminder returns null for completed phase', () => {
+  const content = [
+    'Phase: v0.28-03',
+    'Status: Complete',
+    'Plan: 3 of 3',
+    'Last activity: 2026-03-05',
+  ].join('\n');
+  const result = parseStateForReminder(content);
+  assert.equal(result, null, 'should return null for completed phase');
+});
+
+test('parseStateForReminder returns null for not-started phase', () => {
+  const content = [
+    'Phase: v0.28-05',
+    'Status: Not started',
+  ].join('\n');
+  const result = parseStateForReminder(content);
+  assert.equal(result, null, 'should return null for not-started phase');
+});
+
+test('parseStateForReminder returns null for missing Phase field', () => {
+  const content = [
+    'Status: In Progress',
+    'Plan: 1 of 2',
+  ].join('\n');
+  const result = parseStateForReminder(content);
+  assert.equal(result, null, 'should return null when Phase is missing');
+});
+
+test('parseStateForReminder handles partial content (no Plan or Last activity)', () => {
+  const content = [
+    'Phase: v0.28-04',
+    'Status: In Progress',
+  ].join('\n');
+  const result = parseStateForReminder(content);
+  assert.ok(result !== null, 'should return a reminder even with partial content');
+  assert.ok(result.includes('unknown plan'), 'should use "unknown plan" fallback');
+  assert.ok(result.includes('unknown'), 'should use "unknown" for last activity');
+});
+
+test('parseStateForReminder returns null for null/undefined input', () => {
+  assert.equal(parseStateForReminder(null), null);
+  assert.equal(parseStateForReminder(undefined), null);
+  assert.equal(parseStateForReminder(''), null);
+});
+
 test('stdout is either empty or valid JSON (never partial/corrupt output)', () => {
   const tmpDir = makeTmpDir();
   // Repo with a surfaceable issue to exercise the stdout write path.
