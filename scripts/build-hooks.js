@@ -11,12 +11,19 @@ const DIST_DIR = path.join(HOOKS_DIR, 'dist');
 
 // Hooks to copy (pure Node.js, no bundling needed)
 const HOOKS_TO_COPY = [
-  'qgsd-check-update.js',
-  'qgsd-statusline.js',
-  'qgsd-prompt.js',      // QGSD: UserPromptSubmit quorum injection hook
-  'qgsd-stop.js',        // QGSD: Stop quorum verification gate
-  'config-loader.js',    // QGSD: shared config loader (required by qgsd-prompt.js and qgsd-stop.js)
-  'qgsd-circuit-breaker.js', // QGSD: PreToolUse oscillation detection and state persistence
+  'nf-check-update.js',
+  'nf-statusline.js',
+  'nf-prompt.js',      // nForma: UserPromptSubmit quorum injection hook
+  'nf-stop.js',        // nForma: Stop quorum verification gate
+  'nf-circuit-breaker.js', // nForma: PreToolUse oscillation detection and state persistence
+  'nf-session-start.js',   // nForma: SessionStart hook
+  'nf-precompact.js',      // nForma: PreCompact hook
+  'nf-spec-regen.js',      // nForma: PostToolUse spec regeneration
+  'nf-token-collector.js', // nForma: SubagentStop token collection
+  'nf-slot-correlator.js', // nForma: SubagentStart slot correlation
+  'gsd-context-monitor.js', // nForma: PostToolUse context monitoring
+  'config-loader.js',       // shared config loader (required by multiple hooks)
+  'conformance-schema.cjs', // shared conformance schema (required by nf-prompt, nf-stop, nf-circuit-breaker)
 ];
 
 function build() {
