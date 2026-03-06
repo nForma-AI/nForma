@@ -10,21 +10,25 @@ Profile: cli-tool
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.29 — Three-Layer Formal Verification Architecture
+## Current Milestone
+
+Planning next milestone. Use `/nf:new-milestone` to start.
+
+## Shipped: v0.29 — Three-Layer Formal Verification Architecture (2026-03-06)
 
 **Goal:** Build a grounded formal verification chain — observed code behavior → structured operational model → analytical model for risk, failure reasoning, test generation, and design evaluation — with measurable cross-layer alignment gates that prevent model drift from reality.
 
-**Target features:**
-- Layer 1 (Evidence): instrumentation map, trace corpus, failure taxonomy, state candidate list from real code behavior
-- Layer 2 (Semantics): operational state machine, invariant catalog, mismatch register, assumption register derived from observed traces
-- Layer 3 (Reasoning): hazard model, failure mode catalog, risk ranking, test generation rules, design comparison model abstracted from Layer 2
-- Gate A (Grounding): Layer 2 must explain real traces — measurable alignment dashboard with unexplained behavior queue
-- Gate B (Abstraction): Layer 3 must be traceable to Layer 2 — abstraction map with no hidden hazards
-- Gate C (Validation): Layer 3 outputs must map back to concrete testable code scenarios — counterexample-to-code translation
-- Per-model rollout plan with progressive maturity across all three layers
-- Model-driven test generation from failure mode analysis
-- Risk heatmap with ranked transition list for targeted validation
-- Design guidance framework using all three layers for change impact analysis
+**Shipped:** 24/24 requirements satisfied (EVID-01–05, SEM-01–04, RSN-01–05, GATE-01–04, INTG-01–06). 6 phases, 13 plans, 268 tests. Audit: PASSED.
+
+**Key features shipped:**
+- Three-layer architecture (Evidence, Semantics, Reasoning) organizing 92+ formal models with layer manifest and model registry
+- Layer 1 evidence scripts cataloging 35K+ conformance traces with canonical event vocabulary
+- Layer 2 operational FSM, invariant catalog (151), mismatch register, assumption register grounded in observed traces
+- Gate A grounding score 82.2% (target >= 80% MET) quantifying L2-L1 alignment
+- Layer 3 FMEA hazard model, failure mode catalog, risk heatmap with Gate B traceability enforcement
+- 32 model-driven test recipes from failure modes with Gate C validation score 1.0
+- Cross-layer alignment dashboard with nf-solve layer sweeps and run-formal-verify gate integration
+- Design impact analysis tracing git diffs through all three layers
 
 ## Shipped: v0.28 — Agent Harness Optimization (2026-03-06)
 

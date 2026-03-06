@@ -413,3 +413,36 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.29 — Three-Layer Formal Verification Architecture (Shipped: 2026-03-06)
+
+**Phases:** v0.29-01..v0.29-06 (6 phases, 13 plans)
+**Requirements:** 24/24 (EVID-01–05, SEM-01–04, RSN-01–05, GATE-01–04, INTG-01–06)
+**Git range:** c57aa78e..3b79cb53 (68 commits, 280 files changed, +134,423/−1,673 lines)
+**Timeline:** 2026-03-06 (single day)
+
+**Delivered:** Organized nForma's 92+ formal models and 35K+ conformance traces into a three-layer architecture (Evidence, Semantics, Reasoning) connected by three inter-layer gates (Grounding, Abstraction, Validation) with quantitative alignment scores and a single-command cross-layer dashboard.
+
+**Key accomplishments:**
+- Layer 1 evidence foundation: 5 scripts (instrumentation-map, trace-corpus-stats, failure-taxonomy, state-candidates, event-vocabulary) cataloging 35K+ conformance traces with canonical vocabulary validation (EVID-01–05, v0.29-01)
+- Layer 2 semantic grounding: operational FSM derived from trace replay (4 states, 16 transitions), invariant catalog (151 invariants from 3 sources), mismatch register (10 L2-vs-L1 disagreements), assumption register (567 entries) (SEM-01–04, v0.29-02)
+- Gate A grounding score: 82.2% alignment (29,476/35,845 traces explained), target >= 80% MET; all 6,369 unexplained traces classified as instrumentation_bug (GATE-01, v0.29-02)
+- Layer 3 hazard analysis: FMEA methodology (Severity x Occurrence x Detection = RPN) applied to L2 state machine; failure mode catalog with effects and severity; risk heatmap ranked by RPN + coverage gaps (RSN-01–03, v0.29-03)
+- Gate B abstraction enforcement + Gate C validation: every L3 artifact traces to L2 sources (zero orphans); 32 test recipes generated from failure modes with Gate C score 1.0 (GATE-02–04, RSN-04, v0.29-04)
+- Cross-layer dashboard + pipeline integration: single terminal view aggregating L1 coverage %, Gate A/B/C scores; nf-solve gains 3 layer sweeps (L1->L2, L2->L3, L3->TC); run-formal-verify gains 3 gate step groups; design impact analysis traces git diffs through all 3 layers (INTG-01–06, RSN-05, v0.29-04/05)
+- Tech debt closure: fixed nf-solve data contract mismatch and exit-code handling; synced 14 stale REQUIREMENTS.md checkboxes (v0.29-06)
+
+**Tests:** 268 tests GREEN, 0 regressions
+**Formal:** 24/24 integration connections verified, 5/5 E2E flows complete
+
+**Tech debt incurred:**
+- Pre-existing TLC counterexamples (deliberation:tlc, oscillation:tlc)
+- state-candidates.json is informational only (no downstream consumer)
+- 567 untested assumptions in assumption-register.json
+- 6,369 instrumentation_bug traces (unmapped actions like quorum_fallback_t1_required)
+
+**Audit:** PASSED — 24/24 requirements, 6/6 phases, 268 tests, 5/5 E2E flows
+**Archive:** `.planning/milestones/v0.29-MILESTONE-AUDIT.md`
+
+---
+
