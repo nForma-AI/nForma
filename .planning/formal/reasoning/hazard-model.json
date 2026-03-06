@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-06T14:32:01.920Z",
+  "generated": "2026-03-06T14:36:52.462Z",
   "methodology": "FMEA (IEC 60812)",
   "scoring_scale": {
     "severity": "1-10: 1=no impact, 2=cosmetic, 4=degraded, 6=stalled/interrupted, 8=incorrect verdict, 10=crash/data loss",
@@ -32,7 +32,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -59,7 +59,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -113,7 +113,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -140,7 +140,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -167,7 +167,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -194,7 +194,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -221,7 +221,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -248,7 +248,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -329,7 +329,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -356,7 +356,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -383,7 +383,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -410,7 +410,7 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQuorum]"
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },

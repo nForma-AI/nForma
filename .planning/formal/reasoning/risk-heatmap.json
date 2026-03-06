@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-06T14:35:23.313Z",
+  "generated": "2026-03-06T14:36:52.551Z",
   "formula": "risk_score = RPN * (1 + coverage_gap_penalty); coverage_gap_penalty = 0.5 if missing_in_model, else 0.0",
   "risk_tiers": {
     "critical": "risk_score >= 200",

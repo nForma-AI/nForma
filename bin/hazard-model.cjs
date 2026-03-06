@@ -149,10 +149,10 @@ function generateHazardModel(observedFsm, traceStats, failureTaxonomy, unitTestC
 
       // Add invariant link if any invariant relates to this state
       const invariantConfigs = {
-        'IDLE':             'MCQuorum',
-        'COLLECTING_VOTES': 'MCQuorum',
+        'IDLE':             'MCQGSDQuorum',
+        'COLLECTING_VOTES': 'MCQGSDQuorum',
         'DELIBERATING':     'MCdeliberation',
-        'DECIDED':          'MCQuorum',
+        'DECIDED':          'MCQGSDQuorum',
       };
       const config = invariantConfigs[fromState];
       if (config) {
