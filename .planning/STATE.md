@@ -112,7 +112,7 @@ None yet.
 | 194 | Fix gsd-tools.cjs phase-complete to detect next phase from ROADMAP.md when no directory exists on disk | 2026-03-06 | 3d186560 | Verified | [194-fix-gsd-tools-cjs-phase-complete-to-dete](./quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/) |
 | 195 | Add automated audit→plan→execute loop to nf:audit-milestone for tech debt auto-remediation | 2026-03-06 | c5467c79 | Pending | [195-add-automated-audit-plan-execute-loop-to](./quick/195-add-automated-audit-plan-execute-loop-to/) |
 | 196 | Improve formal scope scan to use semantic relevance instead of keyword-only matching for determining which formal spec modules apply | 2026-03-06 | d1ea24da | Verified | [196-improve-formal-scope-scan-to-use-semanti](./quick/196-improve-formal-scope-scan-to-use-semanti/) |
-| 197 | Add CI virgin install tests and workflow | 2026-03-06 | 97563a54 | Pending | [197-add-ci-virgin-install-tests-and-workflow](./quick/197-add-ci-virgin-install-tests-and-workflow/) |
+| 197 | Add CI virgin install tests and workflow | 2026-03-06 | 0a0c07e5 | Verified | [197-add-ci-virgin-install-tests-and-workflow](./quick/197-add-ci-virgin-install-tests-and-workflow/) |
 
 ## Session Continuity
 
