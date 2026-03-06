@@ -434,5 +434,5 @@ if (require.main === module) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { computeConfidenceTier, CONFIDENCE_THRESHOLDS, validateMCPMetadata, buildTTrace };
+  module.exports = { computeConfidenceTier, CONFIDENCE_THRESHOLDS, validateMCPMetadata, buildTTrace, mapToXStateEvent };
 }

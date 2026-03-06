@@ -1,0 +1,1001 @@
+{
+  "schema_version": "1",
+  "generated": "2026-03-06T12:59:47.451Z",
+  "total_failures": 45,
+  "categories": {
+    "crash": [],
+    "timeout": [
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:00.922Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 1185268,
+        "summary": "fail: MCinstaller in 1185268ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=1185268 exceeds 60000ms threshold"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:00.921Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 1640032,
+        "summary": "fail: MCinstaller in 1640032ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=1640032 exceeds 60000ms threshold"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:00.921Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 1306019,
+        "summary": "fail: MCinstaller in 1306019ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=1306019 exceeds 60000ms threshold"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:00.922Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 728693,
+        "summary": "fail: MCinstaller in 728693ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=728693 exceeds 60000ms threshold"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:00.940Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 1296923,
+        "summary": "fail: MCinstaller in 1296923ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=1296923 exceeds 60000ms threshold"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:49.965Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 1803706,
+        "summary": "fail: MCinstaller in 1803706ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=1803706 exceeds 60000ms threshold"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:50.612Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 1803608,
+        "summary": "fail: MCinstaller in 1803608ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=1803608 exceeds 60000ms threshold"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:54.016Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 1803598,
+        "summary": "fail: MCinstaller in 1803598ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=1803598 exceeds 60000ms threshold"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:59:43.221Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 1803497,
+        "summary": "fail: MCinstaller in 1803497ms",
+        "triage_tags": [
+          "timeout-risk"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "timeout",
+        "classification_reason": "runtime_ms=1803497 exceeds 60000ms threshold"
+      }
+    ],
+    "logic_violation": [
+      {
+        "tool": "run-stop-hook-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:37:56.356Z",
+        "check_id": "tla:stop-hook",
+        "surface": "tla",
+        "property": "Stop hook safety (BLOCK => hasCommand) + liveness (hasQuorumEvidence => <>PASS)",
+        "runtime_ms": 440,
+        "summary": "fail: MCStopHook in 440ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "STOP-01",
+          "STOP-02",
+          "STOP-03",
+          "STOP-04",
+          "STOP-05",
+          "STOP-06",
+          "STOP-07",
+          "SPEC-01"
+        ],
+        "metadata": {
+          "config": "MCStopHook"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCStopHook in 440ms"
+      },
+      {
+        "tool": "run-account-manager-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:38:02.283Z",
+        "check_id": "tla:account-manager",
+        "surface": "tla",
+        "property": "Account manager quorum state machine — MCAM correctness",
+        "runtime_ms": 540,
+        "summary": "fail: MCaccount-manager in 540ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "CRED-01",
+          "CRED-02",
+          "CRED-03",
+          "CRED-04",
+          "CRED-05",
+          "CRED-06"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCaccount-manager in 540ms"
+      },
+      {
+        "tool": "run-breaker-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:38:07.412Z",
+        "check_id": "tla:breaker",
+        "surface": "tla",
+        "property": "Circuit breaker state persistence and oscillation detection algorithm",
+        "runtime_ms": 209,
+        "summary": "fail: MCbreaker in 209ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-01",
+          "DETECT-02",
+          "DETECT-03"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCbreaker in 209ms"
+      },
+      {
+        "tool": "run-oscillation-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:38:10.074Z",
+        "check_id": "tla:convergence",
+        "surface": "tla",
+        "property": "Haiku convergence — OscillationConvergence liveness property",
+        "runtime_ms": 615,
+        "summary": "fail: MCconvergence in 615ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "ORES-01",
+          "ORES-02",
+          "ORES-03",
+          "ORES-04",
+          "ORES-05"
+        ],
+        "metadata": {
+          "config": "MCconvergence"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCconvergence in 615ms"
+      },
+      {
+        "tool": "run-protocol-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:38:12.486Z",
+        "check_id": "tla:deliberation",
+        "surface": "tla",
+        "property": "R3 deliberation loop — max 10 rounds + 10 improvement iterations",
+        "runtime_ms": 324,
+        "summary": "fail: MCdeliberation in 324ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PLAN-01",
+          "PLAN-02",
+          "SAFE-03",
+          "IMPR-01",
+          "LOOP-02"
+        ],
+        "metadata": {
+          "config": "MCdeliberation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCdeliberation in 324ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:44:42.987Z",
+        "check_id": "tla:mcbreaker",
+        "surface": "tla",
+        "property": "MCbreaker",
+        "runtime_ms": 646,
+        "summary": "fail: MCbreaker in 646ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCbreaker"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCbreaker in 646ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:01.905Z",
+        "check_id": "tla:mckey-mgmt",
+        "surface": "tla",
+        "property": "MCkey-mgmt",
+        "runtime_ms": 722,
+        "summary": "fail: MCkey-mgmt in 722ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCkey-mgmt"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCkey-mgmt in 722ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:01.916Z",
+        "check_id": "tla:mckey-mgmt",
+        "surface": "tla",
+        "property": "MCkey-mgmt",
+        "runtime_ms": 733,
+        "summary": "fail: MCkey-mgmt in 733ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCkey-mgmt"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCkey-mgmt in 733ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:01.939Z",
+        "check_id": "tla:mckey-mgmt",
+        "surface": "tla",
+        "property": "MCkey-mgmt",
+        "runtime_ms": 744,
+        "summary": "fail: MCkey-mgmt in 744ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCkey-mgmt"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCkey-mgmt in 744ms"
+      },
+      {
+        "tool": "run-oscillation-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:03.754Z",
+        "check_id": "tla:oscillation",
+        "surface": "tla",
+        "property": "Run-collapse oscillation detection algorithm correctness",
+        "runtime_ms": 347,
+        "summary": "fail: MCoscillation in 347ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-04",
+          "DETECT-05",
+          "DETECT-06"
+        ],
+        "metadata": {
+          "config": "MCoscillation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCoscillation in 347ms"
+      },
+      {
+        "tool": "run-oscillation-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:03.933Z",
+        "check_id": "tla:oscillation",
+        "surface": "tla",
+        "property": "Run-collapse oscillation detection algorithm correctness",
+        "runtime_ms": 516,
+        "summary": "fail: MCoscillation in 516ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-04",
+          "DETECT-05",
+          "DETECT-06"
+        ],
+        "metadata": {
+          "config": "MCoscillation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCoscillation in 516ms"
+      },
+      {
+        "tool": "run-protocol-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:05.809Z",
+        "check_id": "tla:prefilter",
+        "surface": "tla",
+        "property": "R4 pre-filter protocol — max 3 rounds bounded termination",
+        "runtime_ms": 615,
+        "summary": "fail: MCprefilter in 615ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PLAN-03",
+          "PLAN-04",
+          "PLAN-05",
+          "PLAN-06",
+          "LOOP-03"
+        ],
+        "metadata": {
+          "config": "MCprefilter"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCprefilter in 615ms"
+      },
+      {
+        "tool": "run-protocol-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:06.328Z",
+        "check_id": "tla:prefilter",
+        "surface": "tla",
+        "property": "R4 pre-filter protocol — max 3 rounds bounded termination",
+        "runtime_ms": 665,
+        "summary": "fail: MCprefilter in 665ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PLAN-03",
+          "PLAN-04",
+          "PLAN-05",
+          "PLAN-06",
+          "LOOP-03"
+        ],
+        "metadata": {
+          "config": "MCprefilter"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCprefilter in 665ms"
+      },
+      {
+        "tool": "run-account-pool-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:14.755Z",
+        "check_id": "alloy:account-pool",
+        "surface": "alloy",
+        "property": "Account pool state machine — slot assignment and release invariants",
+        "runtime_ms": 1385,
+        "summary": "fail: alloy:account-pool in 1385ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "CRED-07",
+          "CRED-08",
+          "CRED-09",
+          "CRED-10",
+          "CRED-11"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:account-pool in 1385ms"
+      },
+      {
+        "tool": "run-account-pool-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:14.844Z",
+        "check_id": "alloy:account-pool",
+        "surface": "alloy",
+        "property": "Account pool state machine — slot assignment and release invariants",
+        "runtime_ms": 1150,
+        "summary": "fail: alloy:account-pool in 1150ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "CRED-07",
+          "CRED-08",
+          "CRED-09",
+          "CRED-10",
+          "CRED-11"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:account-pool in 1150ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:39.851Z",
+        "check_id": "tla:mcinstaller",
+        "surface": "tla",
+        "property": "MCinstaller",
+        "runtime_ms": 772,
+        "summary": "fail: MCinstaller in 772ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCinstaller"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCinstaller in 772ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:42.068Z",
+        "check_id": "tla:mckey-mgmt",
+        "surface": "tla",
+        "property": "MCkey-mgmt",
+        "runtime_ms": 1133,
+        "summary": "fail: MCkey-mgmt in 1133ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCkey-mgmt"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCkey-mgmt in 1133ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:50.677Z",
+        "check_id": "tla:mckey-mgmt",
+        "surface": "tla",
+        "property": "MCkey-mgmt",
+        "runtime_ms": 502,
+        "summary": "fail: MCkey-mgmt in 502ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCkey-mgmt"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCkey-mgmt in 502ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:51.271Z",
+        "check_id": "tla:mckey-mgmt",
+        "surface": "tla",
+        "property": "MCkey-mgmt",
+        "runtime_ms": 484,
+        "summary": "fail: MCkey-mgmt in 484ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCkey-mgmt"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCkey-mgmt in 484ms"
+      },
+      {
+        "tool": "run-installer-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:52.060Z",
+        "check_id": "alloy:install-scope",
+        "surface": "alloy",
+        "property": "Installer rollback soundness and config sync completeness",
+        "runtime_ms": 1348,
+        "summary": "fail: alloy:install-scope in 1348ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "INST-01",
+          "INST-02",
+          "INST-03",
+          "INST-04",
+          "INST-05"
+        ],
+        "metadata": {
+          "spec": "install-scope"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:install-scope in 1348ms"
+      },
+      {
+        "tool": "run-oscillation-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:52.109Z",
+        "check_id": "tla:oscillation",
+        "surface": "tla",
+        "property": "Run-collapse oscillation detection algorithm correctness",
+        "runtime_ms": 314,
+        "summary": "fail: MCoscillation in 314ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-04",
+          "DETECT-05",
+          "DETECT-06"
+        ],
+        "metadata": {
+          "config": "MCoscillation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCoscillation in 314ms"
+      },
+      {
+        "tool": "run-installer-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:53.071Z",
+        "check_id": "alloy:install-scope",
+        "surface": "alloy",
+        "property": "Installer rollback soundness and config sync completeness",
+        "runtime_ms": 1464,
+        "summary": "fail: alloy:install-scope in 1464ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "INST-01",
+          "INST-02",
+          "INST-03",
+          "INST-04",
+          "INST-05"
+        ],
+        "metadata": {
+          "spec": "install-scope"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:install-scope in 1464ms"
+      },
+      {
+        "tool": "run-oscillation-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:53.192Z",
+        "check_id": "tla:oscillation",
+        "surface": "tla",
+        "property": "Run-collapse oscillation detection algorithm correctness",
+        "runtime_ms": 447,
+        "summary": "fail: MCoscillation in 447ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-04",
+          "DETECT-05",
+          "DETECT-06"
+        ],
+        "metadata": {
+          "config": "MCoscillation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCoscillation in 447ms"
+      },
+      {
+        "tool": "run-protocol-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:53.976Z",
+        "check_id": "tla:prefilter",
+        "surface": "tla",
+        "property": "R4 pre-filter protocol — max 3 rounds bounded termination",
+        "runtime_ms": 336,
+        "summary": "fail: MCprefilter in 336ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PLAN-03",
+          "PLAN-04",
+          "PLAN-05",
+          "PLAN-06",
+          "LOOP-03"
+        ],
+        "metadata": {
+          "config": "MCprefilter"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCprefilter in 336ms"
+      },
+      {
+        "tool": "run-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:54.629Z",
+        "check_id": "tla:mckey-mgmt",
+        "surface": "tla",
+        "property": "MCkey-mgmt",
+        "runtime_ms": 402,
+        "summary": "fail: MCkey-mgmt in 402ms",
+        "triage_tags": [],
+        "requirement_ids": [],
+        "metadata": {
+          "config": "MCkey-mgmt"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCkey-mgmt in 402ms"
+      },
+      {
+        "tool": "run-protocol-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:54.817Z",
+        "check_id": "tla:prefilter",
+        "surface": "tla",
+        "property": "R4 pre-filter protocol — max 3 rounds bounded termination",
+        "runtime_ms": 257,
+        "summary": "fail: MCprefilter in 257ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PLAN-03",
+          "PLAN-04",
+          "PLAN-05",
+          "PLAN-06",
+          "LOOP-03"
+        ],
+        "metadata": {
+          "config": "MCprefilter"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCprefilter in 257ms"
+      },
+      {
+        "tool": "run-oscillation-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:56.936Z",
+        "check_id": "tla:oscillation",
+        "surface": "tla",
+        "property": "Run-collapse oscillation detection algorithm correctness",
+        "runtime_ms": 654,
+        "summary": "fail: MCoscillation in 654ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-04",
+          "DETECT-05",
+          "DETECT-06"
+        ],
+        "metadata": {
+          "config": "MCoscillation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCoscillation in 654ms"
+      },
+      {
+        "tool": "run-protocol-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:59.381Z",
+        "check_id": "tla:prefilter",
+        "surface": "tla",
+        "property": "R4 pre-filter protocol — max 3 rounds bounded termination",
+        "runtime_ms": 628,
+        "summary": "fail: MCprefilter in 628ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PLAN-03",
+          "PLAN-04",
+          "PLAN-05",
+          "PLAN-06",
+          "LOOP-03"
+        ],
+        "metadata": {
+          "config": "MCprefilter"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCprefilter in 628ms"
+      },
+      {
+        "tool": "run-account-pool-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:59:06.248Z",
+        "check_id": "alloy:account-pool",
+        "surface": "alloy",
+        "property": "Account pool state machine — slot assignment and release invariants",
+        "runtime_ms": 1078,
+        "summary": "fail: alloy:account-pool in 1078ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "CRED-07",
+          "CRED-08",
+          "CRED-09",
+          "CRED-10",
+          "CRED-11"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:account-pool in 1078ms"
+      },
+      {
+        "tool": "run-account-pool-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:59:10.461Z",
+        "check_id": "alloy:account-pool",
+        "surface": "alloy",
+        "property": "Account pool state machine — slot assignment and release invariants",
+        "runtime_ms": 1016,
+        "summary": "fail: alloy:account-pool in 1016ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "CRED-07",
+          "CRED-08",
+          "CRED-09",
+          "CRED-10",
+          "CRED-11"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:account-pool in 1016ms"
+      },
+      {
+        "tool": "run-audit-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:59:17.764Z",
+        "check_id": "alloy:scoreboard",
+        "surface": "alloy",
+        "property": "Scoreboard idempotency — no vote loss, no double counting",
+        "runtime_ms": 765,
+        "summary": "fail: alloy:scoreboard in 765ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "SCBD-01",
+          "SCBD-02",
+          "SCBD-03",
+          "SCBD-04"
+        ],
+        "metadata": {
+          "spec": "scoreboard-recompute"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:scoreboard in 765ms"
+      },
+      {
+        "tool": "run-audit-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:59:19.095Z",
+        "check_id": "alloy:scoreboard",
+        "surface": "alloy",
+        "property": "Scoreboard idempotency — no vote loss, no double counting",
+        "runtime_ms": 1269,
+        "summary": "fail: alloy:scoreboard in 1269ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "SCBD-01",
+          "SCBD-02",
+          "SCBD-03",
+          "SCBD-04"
+        ],
+        "metadata": {
+          "spec": "scoreboard-recompute"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:scoreboard in 1269ms"
+      },
+      {
+        "tool": "run-installer-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:59:40.826Z",
+        "check_id": "alloy:install-scope",
+        "surface": "alloy",
+        "property": "Installer rollback soundness and config sync completeness",
+        "runtime_ms": 1138,
+        "summary": "fail: alloy:install-scope in 1138ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "INST-01",
+          "INST-02",
+          "INST-03",
+          "INST-04",
+          "INST-05"
+        ],
+        "metadata": {
+          "spec": "install-scope"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:install-scope in 1138ms"
+      },
+      {
+        "tool": "run-installer-alloy",
+        "formalism": "alloy",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:59:43.576Z",
+        "check_id": "alloy:install-scope",
+        "surface": "alloy",
+        "property": "Installer rollback soundness and config sync completeness",
+        "runtime_ms": 1226,
+        "summary": "fail: alloy:install-scope in 1226ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "INST-01",
+          "INST-02",
+          "INST-03",
+          "INST-04",
+          "INST-05"
+        ],
+        "metadata": {
+          "spec": "install-scope"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: alloy:install-scope in 1226ms"
+      }
+    ],
+    "drift": [
+      {
+        "tool": "validate-traces",
+        "formalism": "trace",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:37:47.955Z",
+        "check_id": "ci:conformance-traces",
+        "surface": "ci",
+        "property": "Conformance event replay through XState machine",
+        "runtime_ms": 1534,
+        "summary": "fail: 6369 divergence(s) in 35721 traces (1534ms)",
+        "triage_tags": [
+          "trace-divergence"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "divergences": 6369,
+          "total": 35721
+        },
+        "observation_window": {
+          "window_start": "2001-02-21T00:00:00.000Z",
+          "window_end": "2026-03-06T12:37:47.916Z",
+          "n_traces": 564,
+          "n_events": 35721,
+          "window_days": 9134
+        },
+        "category": "drift",
+        "classification_reason": "Trace divergence: 6369 divergence(s) detected"
+      },
+      {
+        "tool": "validate-traces",
+        "formalism": "trace",
+        "result": "fail",
+        "timestamp": "2026-03-06T12:58:25.303Z",
+        "check_id": "ci:conformance-traces",
+        "surface": "ci",
+        "property": "Conformance event replay through XState machine",
+        "runtime_ms": 752,
+        "summary": "fail: 6369 divergence(s) in 35790 traces (752ms)",
+        "triage_tags": [
+          "trace-divergence"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "divergences": 6369,
+          "total": 35790
+        },
+        "observation_window": {
+          "window_start": "2001-02-21T00:00:00.000Z",
+          "window_end": "2026-03-06T12:58:25.290Z",
+          "n_traces": 564,
+          "n_events": 35790,
+          "window_days": 9134
+        },
+        "category": "drift",
+        "classification_reason": "Trace divergence: 6369 divergence(s) detected"
+      }
+    ],
+    "degradation": []
+  },
+  "category_counts": {
+    "crash": 0,
+    "timeout": 9,
+    "logic_violation": 34,
+    "drift": 2,
+    "degradation": 0
+  },
+  "degradation_fallback_note": "When no baseline exists, potential degradation entries are classified as logic_violation",
+  "unclassified": [],
+  "summary": "45 failures classified: crash=0, timeout=9, logic_violation=34, drift=2, degradation=0. 0 unclassified."
+}
