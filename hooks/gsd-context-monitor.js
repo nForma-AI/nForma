@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 // hooks/gsd-context-monitor.js
-// PostToolUse hook — context window monitor.
+// PostToolUse hook — context window monitor with budget tracking and smart compact.
 //
 // Reads context_window metrics from the PostToolUse event payload.
 // Injects WARNING or CRITICAL into additionalContext when context usage
-// exceeds configurable thresholds. Fails open on all errors.
+// exceeds configurable thresholds. Also injects budget warnings and
+// smart compact suggestions at clean workflow boundaries.
+// Fails open on all errors.
 //
 // Config: context_monitor.warn_pct (default 70%) and
 //         context_monitor.critical_pct (default 90%) in nf.json.
@@ -12,7 +14,54 @@
 
 'use strict';
 
+const path = require('path');
+const fs = require('fs');
 const { loadConfig, shouldRunHook } = require('./config-loader');
+
+// Append a conformance event to conformance-events.jsonl (fail-open)
+function appendConformanceEvent(event) {
+  try {
+    let eventsPath;
+    try {
+      const planningPaths = require(path.join(__dirname, '..', 'bin', 'planning-paths.cjs'));
+      eventsPath = planningPaths.resolveWithFallback(process.cwd(), 'conformance-events');
+    } catch {
+      eventsPath = path.join(process.cwd(), '.planning', 'telemetry', 'conformance-events.jsonl');
+    }
+    const dir = path.dirname(eventsPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(eventsPath, JSON.stringify(event) + '\n', 'utf8');
+  } catch {
+    // Fail-open
+  }
+}
+
+// Detect if the just-completed tool call represents a clean workflow boundary
+function detectCleanBoundary(toolName, toolInput) {
+  if (toolName !== 'Bash' || !toolInput) return null;
+  const input = typeof toolInput === 'string' ? toolInput : (toolInput.command || '');
+  if (input.includes('gsd-tools.cjs phase-complete')) return 'phase_complete';
+  if (input.includes('gsd-tools.cjs commit') && input.includes('VERIFICATION')) return 'verification_done';
+  if (input.includes('gsd-tools.cjs commit')) return 'commit';
+  return null;
+}
+
+// Format a smart compact suggestion
+function formatCompactSuggestion(usedPct, boundaryType) {
+  return `SMART COMPACT SUGGESTION: Context at ${usedPct}% -- clean workflow boundary (${boundaryType}).
+Consider running /compact now.
+
+What survives compaction:
+  + STATE.md Current Position (phase, plan, last activity)
+  + Pending task files (.claude/pending-task*.txt)
+  + CLAUDE.md project rules
+
+What will be lost:
+  - Conversation history and reasoning
+  - File contents read during this session
+  - Quorum deliberation transcripts
+  - Intermediate tool outputs`;
+}
 
 let raw = '';
 process.stdin.setEncoding('utf8');
@@ -36,30 +85,79 @@ process.stdin.on('end', () => {
     const remaining = ctxWindow.remaining_percentage;
     const usedPct = Math.round(100 - remaining);
 
-    const config = loadConfig(input.cwd || process.cwd());
     const monitorCfg = config.context_monitor || {};
     const warnPct = monitorCfg.warn_pct != null ? monitorCfg.warn_pct : 70;
     const criticalPct = monitorCfg.critical_pct != null ? monitorCfg.critical_pct : 90;
 
-    let message;
+    // Context window message
+    let contextMessage = null;
     if (usedPct >= criticalPct) {
-      message =
+      contextMessage =
         `CONTEXT MONITOR CRITICAL: Context window ${usedPct}% used (${Math.round(remaining)}% remaining). ` +
         'STOP new work immediately. Save state and inform the user that context is nearly exhausted. ' +
         'Run /nf:pause-work to save execution state.';
     } else if (usedPct >= warnPct) {
-      message =
+      contextMessage =
         `CONTEXT MONITOR WARNING: Context window ${usedPct}% used (${Math.round(remaining)}% remaining). ` +
         'Begin wrapping up current task. Do not start new complex work. ' +
         'Consider /nf:pause-work to save state.';
-    } else {
-      process.exit(0); // Below warning threshold — no injection needed
     }
+
+    // Budget tracking
+    let budgetMessage = null;
+    const budgetTracker = (() => {
+      try { return require(path.join(__dirname, '..', 'bin', 'budget-tracker.cjs')); }
+      catch { return null; }
+    })();
+
+    if (budgetTracker) {
+      const status = budgetTracker.computeBudgetStatus(usedPct, config.budget || {}, config.agent_config || {});
+      if (status.active && status.shouldDowngrade) {
+        const downgradeResult = budgetTracker.triggerProfileDowngrade(input.cwd || process.cwd());
+        budgetMessage = budgetTracker.formatBudgetWarning(status, downgradeResult);
+        appendConformanceEvent({
+          action: 'budget_downgrade',
+          ts: new Date().toISOString(),
+          budget_used_pct: status.budgetUsedPct,
+          estimated_tokens: status.estimatedTokens,
+          downgrade: downgradeResult,
+        });
+      } else if (status.active && status.shouldWarn) {
+        budgetMessage = budgetTracker.formatBudgetWarning(status, null);
+        appendConformanceEvent({
+          action: 'budget_warn',
+          ts: new Date().toISOString(),
+          budget_used_pct: status.budgetUsedPct,
+          estimated_tokens: status.estimatedTokens,
+        });
+      }
+    }
+
+    // Smart compact suggestion
+    let compactMessage = null;
+    const smartCfg = config.smart_compact || {};
+    if (smartCfg.enabled !== false) {
+      const compactThreshold = smartCfg.context_warn_pct || 60;
+      if (usedPct >= compactThreshold) {
+        const boundary = detectCleanBoundary(input.tool_name, input.tool_input);
+        if (boundary) {
+          compactMessage = formatCompactSuggestion(usedPct, boundary);
+        }
+      }
+    }
+
+    // Combine all messages
+    const messages = [contextMessage, budgetMessage, compactMessage].filter(Boolean);
+    if (messages.length === 0) {
+      process.exit(0);
+    }
+
+    const combined = messages.join('\n\n');
 
     process.stdout.write(JSON.stringify({
       hookSpecificOutput: {
         hookEventName: 'PostToolUse',
-        additionalContext: message,
+        additionalContext: combined,
       },
     }));
     process.exit(0);

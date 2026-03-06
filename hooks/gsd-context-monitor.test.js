@@ -176,3 +176,111 @@ test('custom thresholds: below custom warn_pct=80 → no output', () => {
   });
   assert.equal(stdout, '', 'No output when below custom threshold');
 });
+
+// ─── Budget warning tests ────────────────────────────────────────────────────
+
+test('budget warning injected at 60% budget', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { budget: { session_limit_tokens: 200000, warn_pct: 60, downgrade_pct: 85 } });
+
+  const { parsed } = runHook({
+    context_window: { remaining_percentage: 40 }, // used = 60% => 120000 tokens => 60% of 200K budget
+    cwd: tmpDir,
+  });
+  assert.ok(parsed, 'Should emit output with budget warning');
+  assert.ok(parsed.hookSpecificOutput.additionalContext.includes('BUDGET WARNING'));
+});
+
+test('budget downgrade message at 85% budget', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { budget: { session_limit_tokens: 200000, warn_pct: 60, downgrade_pct: 85 } });
+  // Create .planning/config.json for downgrade
+  const planningDir = path.join(tmpDir, '.planning');
+  fs.mkdirSync(planningDir, { recursive: true });
+  fs.writeFileSync(path.join(planningDir, 'config.json'), JSON.stringify({ model_profile: 'quality' }), 'utf8');
+
+  const { parsed } = runHook({
+    context_window: { remaining_percentage: 15 }, // used = 85% => 170000 tokens => 85% of 200K budget
+    cwd: tmpDir,
+  });
+  assert.ok(parsed, 'Should emit output with budget alert');
+  assert.ok(parsed.hookSpecificOutput.additionalContext.includes('BUDGET ALERT'));
+});
+
+test('no budget message when disabled', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { budget: { session_limit_tokens: null }, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { stdout } = runHook({
+    context_window: { remaining_percentage: 15 }, // used = 85% but budget disabled
+    cwd: tmpDir,
+  });
+  // With warn_pct=99, no context warning, and budget disabled => no output
+  assert.equal(stdout, '', 'No output when budget disabled');
+});
+
+// ─── Smart compact tests ─────────────────────────────────────────────────────
+
+test('smart compact suggestion at phase_complete boundary', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: true, context_warn_pct: 60 }, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { parsed } = runHook({
+    context_window: { remaining_percentage: 35 }, // used = 65%
+    tool_name: 'Bash',
+    tool_input: { command: 'node gsd-tools.cjs phase-complete v0.28-03' },
+    cwd: tmpDir,
+  });
+  assert.ok(parsed, 'Should emit output');
+  const ctx = parsed.hookSpecificOutput.additionalContext;
+  assert.ok(ctx.includes('SMART COMPACT SUGGESTION'));
+  assert.ok(ctx.includes('phase_complete'));
+  assert.ok(ctx.includes('What survives'));
+  assert.ok(ctx.includes('What will be lost'));
+});
+
+test('no smart compact when below threshold', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: true, context_warn_pct: 60 }, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { stdout } = runHook({
+    context_window: { remaining_percentage: 75 }, // used = 25%, below compact threshold
+    tool_name: 'Bash',
+    tool_input: { command: 'node gsd-tools.cjs phase-complete v0.28-03' },
+    cwd: tmpDir,
+  });
+  assert.equal(stdout, '', 'No output when below compact threshold');
+});
+
+test('no smart compact when disabled', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: false }, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { stdout } = runHook({
+    context_window: { remaining_percentage: 35 }, // used = 65%
+    tool_name: 'Bash',
+    tool_input: { command: 'node gsd-tools.cjs phase-complete v0.28-03' },
+    cwd: tmpDir,
+  });
+  assert.equal(stdout, '', 'No output when smart compact disabled');
+});
+
+test('no smart compact at non-boundary tool call', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: true, context_warn_pct: 60 }, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { stdout } = runHook({
+    context_window: { remaining_percentage: 35 }, // used = 65%
+    tool_name: 'Read',
+    cwd: tmpDir,
+  });
+  assert.equal(stdout, '', 'No output at non-boundary tool call');
+});
+
+test('double loadConfig bug is fixed: hook runs without error', () => {
+  const { exitCode } = runHook({
+    context_window: { remaining_percentage: 50 },
+    cwd: os.tmpdir(),
+  });
+  assert.equal(exitCode, 0, 'Hook should exit cleanly (double const config bug fixed)');
+});
