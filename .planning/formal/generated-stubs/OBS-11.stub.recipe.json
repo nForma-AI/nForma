@@ -1,0 +1,20 @@
+{
+  "requirement_id": "OBS-11",
+  "requirement_text": "Every upstream change is classified as SKIP, CANDIDATE, or INCOMPATIBLE before porting. No upstream change is ported without this evaluation.",
+  "formal_property": {
+    "name": "UpstreamAlwaysEvaluated",
+    "model_file": ".planning/formal/alloy/observability-handlers.als",
+    "definition": "all u: UpstreamChange | u.evaluated = True",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/observe-handler-upstream.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs"
+  ],
+  "import_hint": "const { classifyUpstreamOverlap, handleUpstream } = require('/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs');",
+  "test_strategy": "behavioral",
+  "template": "classification-check"
+}

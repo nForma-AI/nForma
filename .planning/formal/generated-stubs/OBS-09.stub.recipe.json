@@ -1,0 +1,24 @@
+{
+  "requirement_id": "OBS-09",
+  "requirement_text": "Every handler result has source_label, source_type, status, and issues fields. Error responses include an error string.",
+  "formal_property": {
+    "name": "SchemaAlwaysComplete",
+    "model_file": ".planning/formal/alloy/observability-handlers.als",
+    "definition": "all r: HandlerResult | r.sourceLabel = True and r.sourceType = True",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/observe-handlers.cjs",
+    "bin/observe-handler-internal.cjs",
+    "bin/observe-handler-upstream.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/observe-handlers.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handlers.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-internal.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs"
+  ],
+  "import_hint": "const { handleGitHub } = require('/Users/jonathanborduas/code/QGSD/bin/observe-handlers.cjs');",
+  "test_strategy": "behavioral",
+  "template": "handler-schema"
+}

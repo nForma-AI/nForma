@@ -1,0 +1,24 @@
+{
+  "requirement_id": "OBS-12",
+  "requirement_text": "No handler throws exceptions. Errors are caught internally and returned as status: 'error' with a descriptive error string.",
+  "formal_property": {
+    "name": "HandlerNeverThrows",
+    "model_file": ".planning/formal/alloy/observability-handlers.als",
+    "definition": "all e: HandlerExecution | e.throwsException = False",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/observe-handlers.cjs",
+    "bin/observe-handler-internal.cjs",
+    "bin/observe-handler-upstream.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/observe-handlers.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handlers.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-internal.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs"
+  ],
+  "import_hint": "const { handleGitHub, handleBash } = require('/Users/jonathanborduas/code/QGSD/bin/observe-handlers.cjs');",
+  "test_strategy": "behavioral",
+  "template": "error-containment"
+}
