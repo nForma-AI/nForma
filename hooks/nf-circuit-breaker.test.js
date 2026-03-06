@@ -71,11 +71,18 @@ function createOscillationCommits(repoDir, fileSet, commitCount) {
 // Each "group" is a single commit to fileSetA; between groups a different file (filler_N.txt) is committed.
 // depth controls how many A-groups are created, producing depth-1 B-groups between them.
 // Example: createAlternatingCommits(repo, ['app.js'], 3) → app.js, filler_0.txt, app.js, filler_1.txt, app.js
+//
+// Content alternates between 1 line (even i) and 2 lines (odd i) to produce
+// at least one pair with negative net change — required by the hasNegativePair
+// reversion check to distinguish true oscillation from monotonic substitution workflows.
 function createAlternatingCommits(repoDir, fileSetA, depth) {
   for (let i = 0; i < depth; i++) {
-    // Commit to fileSetA
+    // Commit to fileSetA — alternate line count to create true oscillation signal
     fileSetA.forEach(file => {
-      fs.writeFileSync(path.join(repoDir, file), `content-a-${i}`, 'utf8');
+      const content = i % 2 === 0
+        ? `state-a-${i}\n`
+        : `state-b-${i}\noscillation-extra\n`;
+      fs.writeFileSync(path.join(repoDir, file), content, 'utf8');
     });
     spawnSync('git', ['add', '.'], { cwd: repoDir, encoding: 'utf8' });
     spawnSync('git', ['commit', '-m', `a-group ${i}`], { cwd: repoDir, encoding: 'utf8' });
@@ -599,8 +606,11 @@ test('CB-TC17: Block reason includes file names, R5 reference, git log, and rese
 test('CB-TC18: Project config oscillation_depth:2 triggers oscillation detection at depth 2', () => {
   const repoDir = createTempGitRepo();
   try {
-    // Create true A→B→A oscillation with 2 A-groups (depth=2): app.js, filler, app.js
-    createAlternatingCommits(repoDir, ['app.js'], 2);
+    // Create true oscillation with 2 A-groups (depth=2) and a reversion:
+    // Commit 1: app.js with 2 lines. Commit 2: filler. Commit 3: app.js with 1 line (net -1 = negative pair).
+    commitInRepo(repoDir, 'app.js', 'line1\nline2\n', 'a-group 0');
+    commitInRepo(repoDir, 'filler_0.txt', 'filler 0', 'b-group 0');
+    commitInRepo(repoDir, 'app.js', 'line1\n', 'a-group 1');
 
     // Write project config AFTER commits to avoid git add capturing the config file
     const claudeDir = path.join(repoDir, '.claude');
@@ -751,19 +761,19 @@ test('CB-TC21: True oscillation — lines added then removed then added again tr
   // Result: SHOULD trigger circuit breaker (net deletions exist between consecutive pairs)
   const repoDir = createTempGitRepo();
   try {
-    // Commit 1: app.js with original content
+    // Commit 1: app.js with original content (1 line)
     commitInRepo(repoDir, 'app.js', 'function foo() { return 1; }\n', 'feat: add foo returning 1');
 
     // Commit 2: filler (different file → creates run-group boundary)
     commitInRepo(repoDir, 'filler1.txt', 'filler content 1\n', 'chore: filler 1');
 
-    // Commit 3: app.js with modified content (removes original line, net deletion)
-    commitInRepo(repoDir, 'app.js', 'function foo() { return 2; }\n', 'fix: change foo to return 2');
+    // Commit 3: app.js with modified content + extra line (2 lines, net +1)
+    commitInRepo(repoDir, 'app.js', 'function foo() { return 2; }\nconst extra = true;\n', 'fix: change foo to return 2');
 
     // Commit 4: filler (different file → another run-group boundary)
     commitInRepo(repoDir, 'filler2.txt', 'filler content 2\n', 'chore: filler 2');
 
-    // Commit 5: app.js reverted to original (removes commit-3 line, re-adds original — reversion!)
+    // Commit 5: app.js reverted to 1 line (removes extra line — net -1 on this pair = negative pair)
     commitInRepo(repoDir, 'app.js', 'function foo() { return 1; }\n', 'revert: revert foo back to 1');
 
     // Now app.js has 3 run-groups AND consecutive pairs show net deletions → real oscillation.
@@ -841,6 +851,106 @@ test('CB-TC22: appendFalseNegative creates and appends audit log entries', () =>
     assert.ok(src.includes('appendFalseNegative'), 'hook source must define appendFalseNegative');
     assert.ok(src.includes('circuit-breaker-false-negatives.json'), 'hook source must reference false-negatives log file');
     assert.ok(src.includes('[nf] INFO'), 'hook source must emit INFO log on false-negative');
+  } finally {
+    fs.rmSync(repoDir, { recursive: true, force: true });
+  }
+});
+
+// Test CB-TC23: Workflow progression with substitutions does NOT trigger oscillation
+// Simulates VALIDATION.md false-positive scenario: template → linter substitution → population
+// Each pair has additions == deletions (net 0), so hasNegativePair stays false → not oscillation.
+test('CB-TC23: Workflow progression with substitutions does NOT trigger oscillation', () => {
+  const repoDir = createTempGitRepo();
+  try {
+    const valFile = 'VALIDATION.md';
+
+    // Commit 1: Template with placeholders (3 lines)
+    commitInRepo(repoDir, valFile,
+      'phase: {PHASE_NAME}\nplans: {PLAN_COUNT}\nwaves: {WAVE_COUNT}\n',
+      'docs: create VALIDATION.md template');
+
+    // Commit 2: Filler (creates run-group boundary for VALIDATION.md)
+    commitInRepo(repoDir, 'RESEARCH.md', 'research content\n', 'docs: add research');
+
+    // Commit 3: Linter replaces ALL placeholders with "TBD" (same line count — pure substitution)
+    commitInRepo(repoDir, valFile,
+      'phase: TBD\nplans: TBD\nwaves: TBD\n',
+      'style: linter cleanup of VALIDATION.md');
+
+    // Commit 4: Another filler (creates run-group boundary)
+    commitInRepo(repoDir, 'PLAN.md', 'plan content\n', 'docs: add plan');
+
+    // Commit 5: Replace "TBD" with real data (same line count — pure substitution)
+    commitInRepo(repoDir, valFile,
+      'phase: v0.29-02\nplans: 3\nwaves: 1\n',
+      'docs: populate VALIDATION.md with real data');
+
+    // VALIDATION.md has 3 run-groups but all pairs are zero-net substitutions.
+    // Circuit breaker must NOT trigger.
+    const { stdout, exitCode } = runHook({
+      tool_name: 'Bash',
+      tool_input: { command: 'echo write > output.txt', description: 'test', timeout: 5000 },
+      cwd: repoDir,
+      hook_event_name: 'PreToolUse',
+      tool_use_id: 'test-id',
+      session_id: 'test-session',
+      transcript_path: '/tmp/test.jsonl',
+      permission_mode: 'default',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty — substitution workflow must not trigger circuit breaker');
+    const statePath = path.join(repoDir, '.claude', 'circuit-breaker-state.json');
+    assert(!fs.existsSync(statePath), 'state file must NOT be written — monotonic substitution workflow is not oscillation (CB-TC23)');
+  } finally {
+    fs.rmSync(repoDir, { recursive: true, force: true });
+  }
+});
+
+// Test CB-TC24: True oscillation with content reversion STILL triggers correctly
+// At least one pair has negative net change (content removed) → hasNegativePair = true
+test('CB-TC24: True oscillation with content reversion still triggers detection', () => {
+  const repoDir = createTempGitRepo();
+  try {
+    // Commit 1: config.js with 2 lines
+    commitInRepo(repoDir, 'config.js',
+      'const mode = "debug";\nconst verbose = true;\n',
+      'feat: add config');
+
+    // Commit 2: Filler (creates run-group boundary)
+    commitInRepo(repoDir, 'filler1.txt', 'filler\n', 'chore: filler 1');
+
+    // Commit 3: Change config — replace both lines + add an extra line (net +1)
+    commitInRepo(repoDir, 'config.js',
+      'const mode = "production";\nconst verbose = false;\nconst extra = "added";\n',
+      'fix: switch to production mode');
+
+    // Commit 4: Filler (creates run-group boundary)
+    commitInRepo(repoDir, 'filler2.txt', 'filler\n', 'chore: filler 2');
+
+    // Commit 5: Revert config — remove the extra line (net -1 on this pair = negative pair)
+    commitInRepo(repoDir, 'config.js',
+      'const mode = "debug";\nconst verbose = true;\n',
+      'revert: back to debug mode');
+
+    // config.js has 3 run-groups AND the last pair removes a line → hasNegativePair = true
+    // Circuit breaker MUST trigger.
+    const { stdout, exitCode } = runHook({
+      tool_name: 'Bash',
+      tool_input: { command: 'echo write > output.txt', description: 'test', timeout: 5000 },
+      cwd: repoDir,
+      hook_event_name: 'PreToolUse',
+      tool_use_id: 'test-id',
+      session_id: 'test-session',
+      transcript_path: '/tmp/test.jsonl',
+      permission_mode: 'default',
+    });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.strictEqual(stdout, '', 'stdout must be empty (state written, no blocking on first detection)');
+    const statePath = path.join(repoDir, '.claude', 'circuit-breaker-state.json');
+    assert(fs.existsSync(statePath), 'state file MUST be written — true oscillation with reversion detected (CB-TC24)');
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    assert.strictEqual(state.active, true, 'state.active must be true');
+    assert(state.file_set.includes('config.js'), 'file_set must include config.js');
   } finally {
     fs.rmSync(repoDir, { recursive: true, force: true });
   }

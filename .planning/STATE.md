@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-06)
 Phase: v0.29-02 (Semantics Layer and Gate A Grounding)
 Plan: 2 of 3 in current phase
 Status: In Progress
-Last activity: 2026-03-06 - Completed v0.29-02-02 (Mismatch Register + Observed FSM)
+Last activity: 2026-03-06 - Completed quick task 191: Harden circuit breaker false-positive detection
 
 Progress: [######----] 67%
 
@@ -74,6 +74,7 @@ None yet.
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 190 | Review and validate session persistence and modal fix changes in nForma.cjs | 2026-03-06 | fd0c6634 | Verified | [190-review-and-validate-session-persistence-](./quick/190-review-and-validate-session-persistence-/) |
+| 191 | Harden circuit breaker to prevent false positives on monotonic workflow progression | 2026-03-06 | Pending | Pending | [191-harden-circuit-breaker-to-prevent-false-](./quick/191-harden-circuit-breaker-to-prevent-false-/) |
 
 ## Session Continuity
 

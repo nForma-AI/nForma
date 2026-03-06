@@ -94,30 +94,38 @@ function getCommitDiff(gitRoot, olderHash, newerHash, files) {
 
 // Second-pass reversion check: given the hashes (newest-first) belonging to
 // run-groups for an oscillating file set key, and the files in that set,
-// determines whether the pattern is true oscillation or TDD progression.
+// determines whether the pattern is true oscillation or TDD/workflow progression.
 //
-// Algorithm: sum net change (additions - deletions) across all consecutive pairs.
+// Algorithm: sum net change (additions - deletions) across all consecutive pairs,
+// AND track whether at least one pair has negative net change (content removal).
+//
 // - Positive total net change → file grew overall → TDD progression (not oscillation).
-// - Zero or negative total net change → file didn't grow → true oscillation.
+// - Zero or negative total net change WITH at least one pair showing net deletions
+//   → true oscillation (content was added then removed).
+// - Zero or negative total net change with NO pair showing net deletions
+//   (all pairs are zero-net substitutions) → NOT oscillation. This is monotonic
+//   workflow progression (e.g., template → linter substitution → population).
 //
 // This correctly handles TDD patterns where a line like `module.exports` is modified
 // (1 deletion, 1 addition per commit) alongside net-new lines — the net change remains
 // positive because new functions are added each time.
 //
-// For true oscillation (same content toggled back and forth), each pair is symmetric
-// (same number added as removed) so the total net change is zero.
+// For true oscillation (same content toggled back and forth), at least one pair
+// will show a net-negative change (lines removed that were added in a prior pair).
 //
 // hashes: all commit hashes (newest-first) in the oscillating run-groups
 // files: file paths in the oscillating set
 // gitRoot: git repository root
 //
-// Returns true if real oscillation (net change <= 0), false if TDD progression (net change > 0).
+// Returns true if real oscillation (net change <= 0 AND at least one negative pair).
+// Returns false if all pairs are zero-net substitutions (monotonic workflow progression).
 // Returns true also if ALL pairs errored out (git unavailable → fall back to original behavior).
 function hasReversionInHashes(gitRoot, hashes, files) {
   // hashes are newest-first; consecutive pairs: (hashes[i], hashes[i-1]) where
   // hashes[i] is older (higher index = earlier in time), hashes[i-1] is newer.
   // We diff older → newer: git diff <hashes[i]> <hashes[i-1]>
   let totalNetChange = 0;
+  let hasNegativePair = false;
   let errorsOnly = true;
 
   for (let i = hashes.length - 1; i >= 1; i--) {
@@ -142,15 +150,18 @@ function hasReversionInHashes(gitRoot, hashes, files) {
       else if (line.startsWith('-')) deletions++;
     }
 
-    totalNetChange += (additions - deletions);
+    const pairNet = additions - deletions;
+    totalNetChange += pairNet;
+    if (pairNet < 0) hasNegativePair = true;
   }
 
   // If all pairs errored out → fall back to original behavior (treat as oscillation)
   if (errorsOnly) return true;
 
   // Positive net change → file grew overall → TDD progression, not oscillation
-  // Zero or negative net change → file didn't grow → real oscillation
-  return totalNetChange <= 0;
+  // Zero or negative net change WITH at least one negative pair → real oscillation
+  // Zero or negative net change with NO negative pair → monotonic substitution workflow, not oscillation
+  return totalNetChange <= 0 && hasNegativePair;
 }
 
 // Detects true oscillation: returns { detected: bool, fileSet: string[] }
