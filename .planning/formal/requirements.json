@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-06T14:11:08.604Z",
-  "content_hash": "ac7d9144d5bd3863",
-  "frozen_at": "2026-03-06T14:11:08.605Z",
+  "aggregated_at": "2026-03-06T14:33:49.464Z",
+  "content_hash": "a3028eb89f3ecdbb",
+  "frozen_at": "2026-03-06T14:33:49.465Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -2995,6 +2995,18 @@
       "formal_models": [
         ".planning/formal/tla/QGSDBreakerState.tla"
       ]
+    },
+    {
+      "id": "STATE-05",
+      "text": "execute-plan Route C (all phases complete) chains into /nf:audit-milestone with gap-closure detection instead of suggesting /nf:complete-milestone directly, matching transition.md Route B logic for both yolo (auto-invoke) and interactive (suggest) modes.",
+      "category": "Planning & Tracking",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Previously, when the last plan of the last phase completed, execute-plan Route C suggested /nf:complete-milestone directly, bypassing the mandatory milestone audit step. Route C now mirrors transition.md Route B to ensure audits are always enforced.",
+      "provenance": {
+        "source_file": ".planning/quick/192-fix-execute-plan-route-c-to-chain-into-t/192-PLAN.md",
+        "milestone": "quick-192"
+      }
     },
     {
       "id": "STD-10",
