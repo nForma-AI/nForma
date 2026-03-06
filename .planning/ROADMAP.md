@@ -181,7 +181,11 @@ Plans:
   3. Running the design impact analysis on a git diff shows instrumentation (L1), state (L2), and hazard (L3) effects of the change
   4. Running nf-solve includes three new layer-transition sweeps (L1->L2, L2->L3, L3->TC) in its convergence loop
   5. Running run-formal-verify includes three new gate check step groups that produce alignment scores and gap reports
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] v0.29-04-01-PLAN.md -- Gate C validation + test recipe generation (RSN-04, GATE-03)
+- [ ] v0.29-04-02-PLAN.md -- Design impact analysis (RSN-05)
+- [ ] v0.29-04-03-PLAN.md -- nf-solve layer sweeps + run-formal-verify gate step group (INTG-02, INTG-03)
 
 ### Phase v0.29-05: Dashboard and Progressive Maturity Rollout
 **Goal**: Users see cross-layer verification health in a single terminal view and all models progress through gate maturity levels
