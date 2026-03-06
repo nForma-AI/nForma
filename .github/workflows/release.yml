@@ -1,0 +1,66 @@
+name: Create Release on Tag
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+*'
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract tag info
+        id: tag_info
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Build release notes
+        env:
+          TAG_NAME: ${{ steps.tag_info.outputs.tag_name }}
+        run: |
+          # Extract annotated tag subject and body
+          TITLE=$(git tag -l --format='%(contents:subject)' "$TAG_NAME")
+          BODY=$(git tag -l --format='%(contents:body)' "$TAG_NAME")
+
+          if [ -z "$TITLE" ]; then
+            TITLE="$TAG_NAME"
+          fi
+          if [ -z "$BODY" ]; then
+            BODY="Release $TAG_NAME"
+          fi
+
+          # Write title for later use
+          echo "$TITLE" > /tmp/release-title.txt
+
+          # Build release notes from tag body + install instructions
+          {
+            echo "$BODY"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### Install"
+            echo ""
+            echo '```bash'
+            echo "npx @nforma.ai/nforma@latest"
+            echo '```'
+          } > /tmp/release-notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.tag_info.outputs.tag_name }}
+        run: |
+          TITLE=$(cat /tmp/release-title.txt)
+          gh release create "$TAG_NAME" \
+            --title "$TITLE" \
+            --notes-file /tmp/release-notes.md
