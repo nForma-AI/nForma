@@ -162,7 +162,10 @@ Plans:
   3. Running the risk heatmap script produces a ranked transition list (highest-risk-first) combining FMEA severity with coverage gap data from Layer 1
   4. Running Gate B verifies every L3 artifact has derived_from links to L2 sources and reports any orphaned hazards
   5. Each model in the registry shows its current gate enforcement level (ADVISORY, SOFT_GATE, or HARD_GATE) and the level can be promoted
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] v0.29-03-01-PLAN.md -- FMEA hazard model and failure mode catalog (RSN-01, RSN-02)
+- [ ] v0.29-03-02-PLAN.md -- Risk heatmap, Gate B traceability, and gate maturity promotion (RSN-03, GATE-02, GATE-04)
 
 ### Phase v0.29-04: Gate C Validation and Test Generation
 **Goal**: Every Layer 3 finding maps to a concrete executable test scenario, and the three-layer pipeline integrates into nf-solve and run-formal-verify
@@ -193,6 +196,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | v0.29-01. Layer Manifest and Evidence Foundation | 0/3 | Complete    | 2026-03-06 |
 | v0.29-02. Semantics Layer and Gate A Grounding | 2/3 | Complete    | 2026-03-06 |
-| v0.29-03. Reasoning Enrichment and Gate B Abstraction | 0/TBD | Not started | - |
+| v0.29-03. Reasoning Enrichment and Gate B Abstraction | 0/2 | Not started | - |
 | v0.29-04. Gate C Validation and Test Generation | 0/TBD | Not started | - |
 | v0.29-05. Dashboard and Progressive Maturity Rollout | 0/TBD | Not started | - |
