@@ -100,7 +100,11 @@ Plans:
   4. State reminder fires only on new sessions, not on compaction events
   5. Running `bin/harness-diagnostic.cjs` (or `/nf:health`) produces a structured report covering per-slot availability, pass@k trend, cumulative token spend, stall events, and actionable recommendations
   6. Stop hook continues to BLOCK planning responses that lack quorum evidence and PASS responses that include it, regardless of which features are active (formal: LivenessProperty2 and LivenessProperty3 invariants preserved)
-**Plans**: TBD
+**Plans:** 1/3 plans executed
+Plans:
+- [ ] v0.28-04-01-PLAN.md -- Security sweep script and conformance schema update (SEC-01, SEC-02, SEC-03)
+- [ ] v0.28-04-02-PLAN.md -- Session state reminder in nf-session-start.js (STATE-01, STATE-02)
+- [ ] v0.28-04-03-PLAN.md -- Harness diagnostic tool and /nf:health integration (DIAG-01, DIAG-02, DIAG-03)
 
 ## v0.28 Progress
 
@@ -111,7 +115,7 @@ Plans:
 | v0.28-01. Foundation -- Hook Profiles + De-Sloppify | 3/3 | Complete    | 2026-03-06 |
 | v0.28-02. Data Pipeline -- Quorum Cache + Pass@k Metrics | 3/3 | Complete    | 2026-03-06 |
 | v0.28-03. Runtime Intelligence -- Budget + Stall + Smart Compact | 0/3 | Complete    | 2026-03-06 |
-| v0.28-04. Safety & Diagnostics -- Security + State + Diagnostics | 0/TBD | Not started | - |
+| v0.28-04. Safety & Diagnostics -- Security + State + Diagnostics | 1/3 | In Progress|  |
 
 ## v0.29 — Three-Layer Formal Verification Architecture
 
@@ -212,7 +216,9 @@ Plans:
   1. Running nf-solve sweepL1toL2 reports correct unexplained_breakdown values (not zeros) matching gate-a's unexplained_counts
   2. Running nf-solve sweeps with a gate that exits code 1 (target not met) still produces valid residual scores instead of error responses
   3. All 14 previously-stale REQUIREMENTS.md checkboxes show `[x]` Complete for verified requirements
-Plans: TBD
+**Plans:** 1/1 plans complete
+Plans:
+- [x] v0.29-06-01-PLAN.md -- Fix data contract mismatch + exit-code handling in gate sweeps
 
 ## Progress
 
@@ -225,4 +231,4 @@ Plans: TBD
 | v0.29-03. Reasoning Enrichment and Gate B Abstraction | 2/2 | Complete    | 2026-03-06 |
 | v0.29-04. Gate C Validation and Test Generation | 3/3 | Complete   | 2026-03-06 |
 | v0.29-05. Dashboard and Progressive Maturity Rollout | 1/1 | Complete    | 2026-03-06 |
-| v0.29-06. Tech Debt Cleanup — nf-solve Fixes and Bookkeeping Sync | 0/TBD | Not started | - |
+| v0.29-06. Tech Debt Cleanup — nf-solve Fixes and Bookkeeping Sync | 1/1 | Complete | 2026-03-06 |

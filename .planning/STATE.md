@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.28-02 — Phase complete (Data Pipeline, Quorum Cache, Pass@k Metrics)
+**Current focus:** v0.28-04 — Safety & Diagnostics (Security Sweep, Session State, Harness Diagnostics)
 
 ## Current Position
 
-Phase: v0.28-02 (Data Pipeline, Quorum Cache, Pass@k Metrics)
-Plan: 3 of 3 in current phase
-Status: Complete
-Last activity: 2026-03-06 - Completed quick task 195: Add automated audit→plan→execute loop to nf:audit-milestone for tech debt auto-remediation
+Phase: v0.28-04 (Safety & Diagnostics -- Security Sweep + Session State + Harness Diagnostics)
+Plan: 1 of 3 in current phase
+Status: Executing
+Last activity: 2026-03-06 - Completed v0.28-04-01-PLAN.md (Security Sweep Scanner)
 
-Progress: [##########] 100%
+Progress: [###.......] 33%
 
 ## Performance Metrics
 
@@ -43,6 +43,7 @@ Progress: [##########] 100%
 | Phase v0.29-05 P01 | 3min | 2 tasks | 2 files |
 | Phase v0.28-02 P02 | 3min | 2 tasks | 4 files |
 | Phase v0.28-02 P03 | 3min | 2 tasks | 4 files |
+| Phase v0.28-04 P01 | 2min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,7 @@ Recent decisions affecting current work:
 - [v0.29-05-01]: Gate scripts spawned via child_process for isolation -- matches nf-solve.cjs pattern
 - [v0.29-05-01]: Accept exit code 0 OR 1 from gate scripts -- exit 1 means target not met but JSON valid
 - [v0.29-05-01]: require.main guard prevents auto-execution when module required for testing
+- [Phase v0.28-04]: Advisory-only security scanner -- exit code 0 always, findings are informational not blocking
 
 ### Pending Todos
 
@@ -106,5 +108,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-06
-Stopped at: Completed v0.28-02-03-PLAN.md (Pass@k Consensus Efficiency Tracking) -- Phase v0.28-02 complete
+Stopped at: Completed v0.28-04-01-PLAN.md (Security Sweep Scanner)
 Resume file: None
