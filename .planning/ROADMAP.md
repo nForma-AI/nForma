@@ -115,7 +115,7 @@ Plans:
 | v0.28-01. Foundation -- Hook Profiles + De-Sloppify | 3/3 | Complete    | 2026-03-06 |
 | v0.28-02. Data Pipeline -- Quorum Cache + Pass@k Metrics | 3/3 | Complete    | 2026-03-06 |
 | v0.28-03. Runtime Intelligence -- Budget + Stall + Smart Compact | 0/3 | Complete    | 2026-03-06 |
-| v0.28-04. Safety & Diagnostics -- Security + State + Diagnostics | 3/3 | Complete   | 2026-03-06 |
+| v0.28-04. Safety & Diagnostics -- Security + State + Diagnostics | 3/3 | Complete    | 2026-03-06 |
 
 ## v0.29 — Three-Layer Formal Verification Architecture
 
