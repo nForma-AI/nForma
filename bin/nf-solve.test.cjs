@@ -140,6 +140,10 @@ test('TC-FORMAT-3: formatReport includes layer transition table', () => {
   assert.ok(result.includes('C -> F'));
   assert.ok(result.includes('T -> C'));
   assert.ok(result.includes('F -> C'));
+  // Unified table structure checks
+  assert.ok(result.includes('Reverse Discovery'), 'Should have Reverse Discovery section divider');
+  assert.ok(result.includes('Grand total'), 'Should have Grand total instead of Total residual');
+  assert.ok(!result.includes('Total residual'), 'Should NOT have old Total residual header');
 });
 
 test('TC-FORMAT-4: formatReport includes R -> D and D -> C labels', () => {
@@ -165,6 +169,85 @@ test('TC-FORMAT-4: formatReport includes R -> D and D -> C labels', () => {
 
   assert.ok(result.includes('R -> D'));
   assert.ok(result.includes('D -> C'));
+});
+
+test('TC-FORMAT-5: formatReport renders all three sections in unified table', () => {
+  const iterations = [
+    {
+      iteration: 1,
+      residual: {
+        r_to_f: { residual: 2, detail: { uncovered_requirements: ['REQ-001', 'REQ-002'] } },
+        f_to_t: { residual: 0, detail: {} },
+        c_to_f: { residual: 0, detail: {} },
+        t_to_c: { residual: 0, detail: {} },
+        f_to_c: { residual: 0, detail: {} },
+        r_to_d: { residual: 0, detail: {} },
+        d_to_c: { residual: 0, detail: {} },
+        total: 2,
+        c_to_r: { residual: 3, detail: { untraced_modules: [], total_modules: 10 } },
+        t_to_r: { residual: 1, detail: { orphan_tests: [], total_tests: 5 } },
+        d_to_r: { residual: 0, detail: { unbacked_claims: [], total_claims: 3 } },
+        reverse_discovery_total: 4,
+        l1_to_l2: { residual: 1, detail: {} },
+        l2_to_l3: { residual: 0, detail: {} },
+        l3_to_tc: { residual: 2, detail: {} },
+        layer_total: 3,
+        timestamp: '2026-03-03T00:00:00Z',
+      },
+      actions: [],
+    },
+  ];
+  const finalResidual = iterations[0].residual;
+  const result = formatReport(iterations, finalResidual, false);
+
+  // All three section types present in a single output
+  assert.ok(result.includes('R -> F'), 'Forward row present');
+  assert.ok(result.includes('C -> R'), 'Reverse row present');
+  assert.ok(result.includes('L1 -> L2'), 'Layer alignment row present');
+  assert.ok(result.includes('L2 -> L3'), 'Gate B row present');
+  assert.ok(result.includes('L3 -> TC'), 'Gate C row present');
+  // No separate "Reverse Traceability Discovery:" header (old format)
+  assert.ok(!result.includes('Reverse Traceability Discovery:'), 'Old reverse header should not exist');
+  // No separate "Layer Alignment (cross-layer gate checks):" header (old format)
+  assert.ok(!result.includes('Layer Alignment (cross-layer gate checks):'), 'Old layer header should not exist');
+  // Grand total should combine all three
+  assert.ok(result.includes('Grand total:'), 'Grand total line present');
+  // Grand total value = 2 + 4 + 3 = 9
+  assert.ok(result.includes('Grand total:             9'), 'Grand total equals 9');
+});
+
+test('TC-FORMAT-6: formatReport includes subtotals for all three sections', () => {
+  const iterations = [
+    {
+      iteration: 1,
+      residual: {
+        r_to_f: { residual: 1, detail: {} },
+        f_to_t: { residual: 0, detail: {} },
+        c_to_f: { residual: 0, detail: {} },
+        t_to_c: { residual: 0, detail: {} },
+        f_to_c: { residual: 0, detail: {} },
+        r_to_d: { residual: 0, detail: {} },
+        d_to_c: { residual: 0, detail: {} },
+        total: 1,
+        c_to_r: { residual: 0, detail: {} },
+        t_to_r: { residual: 0, detail: {} },
+        d_to_r: { residual: 0, detail: {} },
+        reverse_discovery_total: 0,
+        l1_to_l2: { residual: 0, detail: {} },
+        l2_to_l3: { residual: 0, detail: {} },
+        l3_to_tc: { residual: 0, detail: {} },
+        layer_total: 0,
+        timestamp: '2026-03-03T00:00:00Z',
+      },
+      actions: [],
+    },
+  ];
+  const finalResidual = iterations[0].residual;
+  const result = formatReport(iterations, finalResidual, false);
+
+  assert.ok(result.includes('Forward subtotal:'), 'Forward subtotal present');
+  assert.ok(result.includes('Discovery subtotal:'), 'Discovery subtotal present');
+  assert.ok(result.includes('Alignment subtotal:'), 'Alignment subtotal present');
 });
 
 // ── TC-JSON: JSON Formatting Tests ───────────────────────────────────────────

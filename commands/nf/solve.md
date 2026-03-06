@@ -81,18 +81,31 @@ Parse the JSON output to extract the `residual_vector` object. Key fields:
 
 Store the parsed baseline residual as `baseline_residual` for the before/after comparison at the end.
 
-Display the baseline residual in human-readable format:
+Display the baseline residual in human-readable format (unified table):
 ```
-Layer Transition         Baseline  Health
-────────────────────────────────────────
-R -> F (Req->Formal)        N      [status]
-F -> T (Formal->Test)       N      [status]
-C -> F (Code->Formal)       N      [status]
-T -> C (Test->Code)         N      [status]
-F -> C (Formal->Code)       N      [status]
-R -> D (Req->Docs)          N      [status]
-D -> C (Docs->Code)         N      [status]
-Total                       N
+Layer Transition             Residual  Health
+─────────────────────────────────────────────
+R -> F (Req->Formal)             N    [status]
+F -> T (Formal->Test)            N    [status]
+C -> F (Code->Formal)            N    [status]
+T -> C (Test->Code)              N    [status]
+F -> C (Formal->Code)            N    [status]
+R -> D (Req->Docs)               N    [status]
+D -> C (Docs->Code)              N    [status]
+P -> F (Prod->Formal)            N    [status]
+  Forward subtotal:              N
+─ Reverse Discovery (human-gated) ─────────
+C -> R (Code->Req)               N    [status]
+T -> R (Test->Req)               N    [status]
+D -> R (Docs->Req)               N    [status]
+  Discovery subtotal:            N
+─ Layer Alignment (cross-layer gates) ─────
+L1 -> L2 (Gate A)                N    [status]
+L2 -> L3 (Gate B)                N    [status]
+L3 -> TC (Gate C)                N    [status]
+  Alignment subtotal:            N
+═════════════════════════════════════════════
+Grand total:                     N
 ```
 
 Health status: GREEN (0), YELLOW (1-3), RED (4+), or UNKNOWN (error).
@@ -460,15 +473,27 @@ Display a comprehensive before/after comparison table:
 ```
 Layer Transition         Before  After   Delta     Status
 ─────────────────────────────────────────────────────────
-R -> F (Req→Formal)        {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-F -> T (Formal→Test)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-C -> F (Code→Formal)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-T -> C (Test→Code)         {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-F -> C (Formal→Code)       {N}    {M}    {delta}   [GREEN|YELLOW|RED]
-R -> D (Req→Docs)          {N}    {M}    {delta}   [AUTO]
-D -> C (Docs→Code)         {N}    {M}    {delta}   [MANUAL]
-──────────────────────────────────────────────────────────
-Total                      {N}    {M}    {delta}
+R -> F (Req->Formal)        {N}    {M}    {delta}   [status]
+F -> T (Formal->Test)       {N}    {M}    {delta}   [status]
+C -> F (Code->Formal)       {N}    {M}    {delta}   [status]
+T -> C (Test->Code)         {N}    {M}    {delta}   [status]
+F -> C (Formal->Code)       {N}    {M}    {delta}   [status]
+R -> D (Req->Docs)          {N}    {M}    {delta}   [status]
+D -> C (Docs->Code)         {N}    {M}    {delta}   [status]
+P -> F (Prod->Formal)       {N}    {M}    {delta}   [status]
+  Forward subtotal:         {N}    {M}    {delta}
+─ Reverse Discovery ────────────────────────────────────
+C -> R (Code->Req)          {N}    {M}    {delta}   [status]
+T -> R (Test->Req)          {N}    {M}    {delta}   [status]
+D -> R (Docs->Req)          {N}    {M}    {delta}   [status]
+  Discovery subtotal:       {N}    {M}    {delta}
+─ Layer Alignment ──────────────────────────────────────
+L1 -> L2 (Gate A)           {N}    {M}    {delta}   [status]
+L2 -> L3 (Gate B)           {N}    {M}    {delta}   [status]
+L3 -> TC (Gate C)           {N}    {M}    {delta}   [status]
+  Alignment subtotal:       {N}    {M}    {delta}
+═════════════════════════════════════════════════════════
+Grand total:                {N}    {M}    {delta}
 ```
 
 **IMPORTANT — Expand non-zero layers:** For any layer with residual > 0, display the full detail below the table. The residual number alone hides severity. For example, F→C residual=1 might mean "1 check failed with 7,086 individual divergences." Always show:
