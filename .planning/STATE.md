@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.28-02 — Cache integration into quorum hooks
+**Current focus:** v0.28-02 — Phase complete (Data Pipeline, Quorum Cache, Pass@k Metrics)
 
 ## Current Position
 
 Phase: v0.28-02 (Data Pipeline, Quorum Cache, Pass@k Metrics)
-Plan: 2 of 3 in current phase
-Status: In Progress
-Last activity: 2026-03-06 - Completed v0.28-02-02 Hook Cache Integration
+Plan: 3 of 3 in current phase
+Status: Complete
+Last activity: 2026-03-06 - Completed v0.28-02-03 Pass@k Consensus Efficiency Tracking
 
-Progress: [######----] 67%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -42,6 +42,7 @@ Progress: [######----] 67%
 | Phase v0.29-04 P01 | 3min | 2 tasks | 6 files |
 | Phase v0.29-05 P01 | 3min | 2 tasks | 2 files |
 | Phase v0.28-02 P02 | 3min | 2 tasks | 4 files |
+| Phase v0.28-02 P03 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,9 @@ Recent decisions affecting current work:
 - [v0.28-02-01]: Cache validity checks both git HEAD and quorum composition to prevent stale results
 - [v0.28-02-02]: nf-stop.js trusts NF_CACHE_HIT marker because nf-prompt.js is the validation gatekeeper
 - [v0.28-02-02]: Cache backfill reads raw file instead of readCache() since pending entries lack completed field
+- [v0.28-02-03]: countDeliberationRounds counts assistant messages with slot-worker dispatches, not individual slot calls
+- [v0.28-02-03]: Cache-hit events get pass_at_k: 0 to distinguish from live quorum decisions
+- [v0.28-02-03]: computePassAtKRates excludes cache hits and pre-PASSK events from rate calculations
 - [v0.29-04-02]: L2/L3 analysis skipped when L1 produces zero impact -- avoids false positives from non-instrumented files
 - [v0.29-04-02]: Emission points with null xstate_event excluded from L2 chaining -- only mapped events propagate
 - [v0.29-04-01]: Oracle type directly maps to failure mode type: omission->state_assertion, commission->guard_rejection, corruption->state_equality
@@ -101,5 +105,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-06
-Stopped at: Completed v0.28-02-02-PLAN.md (Hook Cache Integration)
+Stopped at: Completed v0.28-02-03-PLAN.md (Pass@k Consensus Efficiency Tracking) -- Phase v0.28-02 complete
 Resume file: None

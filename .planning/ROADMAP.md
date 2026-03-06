@@ -35,7 +35,7 @@ This milestone optimizes the nForma agent harness for production use -- adding c
 ## Phases
 
 - [x] **Phase v0.28-01: Foundation -- Hook Profiles + De-Sloppify** - Configurable hook profiles and post-verification cleanup subagent (completed 2026-03-06)
-- [ ] **Phase v0.28-02: Data Pipeline -- Quorum Cache + Pass@k Metrics** - SHA-256 quorum response caching and pass@k conformance tracking
+- [x] **Phase v0.28-02: Data Pipeline -- Quorum Cache + Pass@k Metrics** - SHA-256 quorum response caching and pass@k conformance tracking (completed 2026-03-06)
 - [ ] **Phase v0.28-03: Runtime Intelligence -- Budget Downgrade + Stall Detection + Smart Compact** - Token budget monitoring, stall escalation, and workflow-aware compaction suggestions
 - [ ] **Phase v0.28-04: Safety & Diagnostics -- Security Sweep + Session State + Harness Diagnostics** - Verify-time security scanning, session state reminders, and unified diagnostic reporting
 
@@ -67,7 +67,7 @@ Plans:
   3. Cache files are stored in `.planning/.quorum-cache/` and are gitignored
   4. `verify-quorum-health.cjs` reports pass@1, pass@3, and pass@k rates computed from conformance event history
   5. Quorum still reaches a DECIDED state on every run where at least one slot responds, whether results come from cache or live dispatch (formal: EventualConsensus invariant preserved)
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [ ] v0.28-02-01-PLAN.md -- Cache infrastructure, conformance schema, gitignore, planning-paths (CACHE-01, CACHE-03, CACHE-04)
 - [ ] v0.28-02-02-PLAN.md -- Cache integration in nf-prompt.js and nf-stop.js hooks (CACHE-02)
@@ -105,7 +105,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | v0.28-01. Foundation -- Hook Profiles + De-Sloppify | 3/3 | Complete    | 2026-03-06 |
-| v0.28-02. Data Pipeline -- Quorum Cache + Pass@k Metrics | 2/3 | In Progress|  |
+| v0.28-02. Data Pipeline -- Quorum Cache + Pass@k Metrics | 3/3 | Complete   | 2026-03-06 |
 | v0.28-03. Runtime Intelligence -- Budget + Stall + Smart Compact | 0/TBD | Not started | - |
 | v0.28-04. Safety & Diagnostics -- Security + State + Diagnostics | 0/TBD | Not started | - |
 
