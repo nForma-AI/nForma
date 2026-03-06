@@ -444,3 +444,47 @@ test('fail-open: missing registry does not crash', { timeout: 30000 }, () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 });
+
+// ── Gates step group tests ────────────────────────────────────────────────────
+
+test('STATIC_STEPS includes 3 entries with tool=gates', () => {
+  // Re-read the module source to inspect STATIC_STEPS without executing
+  const src = fs.readFileSync(RUN_FV, 'utf8');
+  const gateEntries = src.match(/tool:\s*'gates'/g) || [];
+  assert.strictEqual(gateEntries.length, 3, 'Should have exactly 3 gate entries in STATIC_STEPS');
+});
+
+test('gate step IDs are gates:gate-a, gates:gate-b, gates:gate-c', () => {
+  const src = fs.readFileSync(RUN_FV, 'utf8');
+  assert.ok(src.includes("id: 'gates:gate-a'"), 'Should have gates:gate-a');
+  assert.ok(src.includes("id: 'gates:gate-b'"), 'Should have gates:gate-b');
+  assert.ok(src.includes("id: 'gates:gate-c'"), 'Should have gates:gate-c');
+});
+
+test('gate steps are marked nonCritical', () => {
+  const src = fs.readFileSync(RUN_FV, 'utf8');
+  // Each gate entry must have nonCritical: true on the same block
+  const gateABlock = src.match(/id:\s*'gates:gate-a'[\s\S]*?nonCritical:\s*true/);
+  const gateBBlock = src.match(/id:\s*'gates:gate-b'[\s\S]*?nonCritical:\s*true/);
+  const gateCBlock = src.match(/id:\s*'gates:gate-c'[\s\S]*?nonCritical:\s*true/);
+  assert.ok(gateABlock, 'gates:gate-a should be nonCritical');
+  assert.ok(gateBBlock, 'gates:gate-b should be nonCritical');
+  assert.ok(gateCBlock, 'gates:gate-c should be nonCritical');
+});
+
+test('--only=gates filtering returns exactly 3 steps', () => {
+  const result = spawnSync(process.execPath, [RUN_FV, '--only=gates'], {
+    encoding: 'utf8',
+    timeout: 60000,
+  });
+  const output = (result.stdout || '') + (result.stderr || '');
+  // Should NOT match the "Unknown --only value" error
+  assert.doesNotMatch(output, /Unknown --only value/i,
+    '--only=gates should be accepted as a valid filter');
+  // The output should mention the 3 gate step IDs
+  assert.ok(output.includes('gates:gate-a'), 'output should include gates:gate-a');
+  assert.ok(output.includes('gates:gate-b'), 'output should include gates:gate-b');
+  assert.ok(output.includes('gates:gate-c'), 'output should include gates:gate-c');
+  // Verify Steps: 3 in output
+  assert.ok(output.includes('Steps: 3'), 'Should report exactly 3 steps for --only=gates');
+});

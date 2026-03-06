@@ -21,9 +21,10 @@
 //   Traceability (3) — generate-traceability-matrix.cjs (requirements <-> properties matrix)
 //                      check-coverage-guard.cjs (coverage regression guard vs baseline)
 //                      analyze-state-space.cjs (state-space risk classification per TLA+ model)
+//   Gates     (3)  — gate-a-grounding.cjs, gate-b-abstraction.cjs, gate-c-validation.cjs
 //   Registry  (N)  — custom check commands from model-registry.json
 //   ─────────────────────────────────────────────────────────────
-//   Total:    34+ steps (dynamic — registry can add more)
+//   Total:    37+ steps (dynamic — registry can add more)
 //
 // Usage:
 //   node bin/run-formal-verify.cjs                    # all 28 steps
@@ -394,6 +395,26 @@ const STATIC_STEPS = [
     type: 'node', script: 'analyze-state-space.cjs', args: [],
     nonCritical: true,
   },
+
+  // ─ Gates — cross-layer alignment checks ───────────────────────────────────
+  {
+    tool: 'gates', id: 'gates:gate-a',
+    label: 'Gate A -- L1-L2 grounding alignment score',
+    type: 'node', script: 'gate-a-grounding.cjs', args: [],
+    nonCritical: true,
+  },
+  {
+    tool: 'gates', id: 'gates:gate-b',
+    label: 'Gate B -- L2-L3 traceability alignment score',
+    type: 'node', script: 'gate-b-abstraction.cjs', args: [],
+    nonCritical: true,
+  },
+  {
+    tool: 'gates', id: 'gates:gate-c',
+    label: 'Gate C -- L3-TC validation alignment score',
+    type: 'node', script: 'gate-c-validation.cjs', args: [],
+    nonCritical: true,
+  },
 ];
 
 // Discover dynamic model steps from ROOT/.planning/formal/
@@ -421,7 +442,7 @@ const steps = only
 if (only && steps.length === 0) {
   process.stderr.write(
     TAG + ' Unknown --only value: ' + only + '\n' +
-    TAG + ' Valid values: tla, alloy, prism, petri, generate, ci, uppaal, registry, or a step id\n'
+    TAG + ' Valid values: tla, alloy, prism, petri, generate, ci, uppaal, gates, registry, or a step id\n'
   );
   process.exit(1);
 }
