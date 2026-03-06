@@ -319,6 +319,35 @@ const ARTIFACT_PATTERNS = [
   /PROJECT\.md/,      // PROJECT.md (new-project early commit)
 ];
 
+// Counts the number of distinct quorum dispatch rounds in the current turn.
+// A dispatch round is one assistant message that contains at least one Task tool_use
+// block targeting nf-quorum-slot-worker. Multiple parallel dispatches within one
+// assistant message count as a single round (they are dispatched simultaneously).
+// Returns Math.max(1, rounds) — at least round 1 even if no explicit dispatch detected.
+function countDeliberationRounds(currentTurnLines) {
+  let rounds = 0;
+  for (const line of currentTurnLines) {
+    try {
+      const entry = JSON.parse(line);
+      if (entry.type !== 'assistant') continue;
+      const content = entry.message && entry.message.content;
+      if (!Array.isArray(content)) continue;
+      let hasSlotWorker = false;
+      for (const block of content) {
+        if (block.type === 'tool_use' && block.name === 'Task') {
+          const inputStr = JSON.stringify(block.input || {});
+          if (inputStr.includes('nf-quorum-slot-worker')) {
+            hasSlotWorker = true;
+            break; // One per assistant message — no need to check more blocks
+          }
+        }
+      }
+      if (hasSlotWorker) rounds++;
+    } catch { /* skip malformed lines */ }
+  }
+  return Math.max(1, rounds);
+}
+
 // Returns true if the current turn contains a Bash tool_use block that BOTH:
 // (a) invokes gsd-tools.cjs commit, AND
 // (b) references a planning artifact file path (not codebase/*.md).
@@ -541,6 +570,7 @@ function main() {
           phase:           'DECIDING',
           action:          'quorum_complete',
           cache_hit:       true,
+          pass_at_k:       0,
           slots_available: 0,
           vote_result:     0,
           outcome:         'APPROVE',
@@ -639,6 +669,7 @@ function main() {
         ts:              new Date().toISOString(),
         phase:           'DECIDING',
         action:          'quorum_complete',
+        pass_at_k:       countDeliberationRounds(currentTurnLines),
         slots_available: agentPool.length,
         vote_result:     successCount,
         outcome:         'APPROVE',
