@@ -3488,6 +3488,36 @@ function cmdPhaseComplete(cwd, phaseNum, raw) {
     }
   } catch {}
 
+  // Segment-aware version comparator: splits on '-' and compares sub-segments as numbers.
+  // parseFloat('0.28-01') === parseFloat('0.28-02') === 0.28, so parseFloat is WRONG
+  // for versioned phases like v0.28-01 vs v0.28-02. This helper compares [0.28, 1] vs [0.28, 2].
+  function comparePhaseVersions(a, b) {
+    const sa = String(a).replace(/^v/i, '').split('-').map(Number);
+    const sb = String(b).replace(/^v/i, '').split('-').map(Number);
+    const len = Math.max(sa.length, sb.length);
+    for (let i = 0; i < len; i++) {
+      const va = sa[i] || 0;
+      const vb = sb[i] || 0;
+      if (va !== vb) return va - vb;
+    }
+    return 0;
+  }
+
+  // Fallback: check ROADMAP.md for phases not yet on disk
+  if (isLastPhase && fs.existsSync(roadmapPath)) {
+    const roadmapContent = fs.readFileSync(roadmapPath, 'utf-8');
+    const phasePattern = /#{2,4}\s*Phase\s+(v\d+\.\d+-\d+(?:\.\d+)?|\d+(?:\.\d+)?)\s*:\s*([^\n]+)/gi;
+    let pm;
+    while ((pm = phasePattern.exec(roadmapContent)) !== null) {
+      if (comparePhaseVersions(pm[1], phaseNum) > 0) {
+        nextPhaseNum = pm[1];
+        nextPhaseName = pm[2].replace(/\(INSERTED\)/i, '').trim().replace(/\s+/g, '-').toLowerCase();
+        isLastPhase = false;
+        break;
+      }
+    }
+  }
+
   // Update STATE.md
   if (fs.existsSync(statePath)) {
     let stateContent = fs.readFileSync(statePath, 'utf-8');
