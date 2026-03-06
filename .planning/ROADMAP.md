@@ -194,7 +194,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Running the cross-layer alignment dashboard displays L1 coverage %, Gate A score, Gate B score, and Gate C score in a single terminal view
   2. The dashboard reflects real-time state: changes from any prior phase (new traces, updated models, gate score changes) appear on next dashboard invocation
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] v0.29-05-01-PLAN.md -- Cross-layer alignment dashboard with gate aggregation and terminal rendering
 
 ## Progress
 
@@ -206,4 +208,4 @@ Plans:
 | v0.29-02. Semantics Layer and Gate A Grounding | 2/3 | Complete    | 2026-03-06 |
 | v0.29-03. Reasoning Enrichment and Gate B Abstraction | 0/2 | Not started | - |
 | v0.29-04. Gate C Validation and Test Generation | 3/3 | Complete   | 2026-03-06 |
-| v0.29-05. Dashboard and Progressive Maturity Rollout | 0/TBD | Not started | - |
+| v0.29-05. Dashboard and Progressive Maturity Rollout | 0/1 | Not started | - |
