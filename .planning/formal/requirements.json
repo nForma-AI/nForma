@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-06T15:13:19.291Z",
-  "content_hash": "5f5afde00a1ccef0",
-  "frozen_at": "2026-03-06T15:13:19.292Z",
+  "aggregated_at": "2026-03-06T15:19:01.696Z",
+  "content_hash": "75d18bbbf87a8a26",
+  "frozen_at": "2026-03-06T15:19:01.696Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -3018,6 +3018,18 @@
       "provenance": {
         "source_file": ".planning/quick/192-fix-execute-plan-route-c-to-chain-into-t/192-PLAN.md",
         "milestone": "quick-192"
+      }
+    },
+    {
+      "id": "STATE-06",
+      "text": "phase-complete falls back to ROADMAP.md heading parsing when no next-phase directory exists on disk, using segment-aware version comparison for versioned phase IDs (e.g., v0.28-01 vs v0.28-02), and sets is_last_phase=true only when the roadmap contains no higher-numbered phase",
+      "category": "Planning & Tracking",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Previously, phase-complete relied solely on disk directory scanning to detect the next phase, causing false is_last_phase=true when the next phase existed in ROADMAP.md but had no directory yet. This broke the auto-advance chain (Route A) by incorrectly triggering milestone-complete (Route B). The fix also replaces parseFloat-based comparison with segment-aware splitting, since parseFloat('0.28-01') and parseFloat('0.28-02') both yield 0.28.",
+      "provenance": {
+        "source_file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-PLAN.md",
+        "milestone": "quick-194"
       }
     },
     {
