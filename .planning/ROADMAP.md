@@ -37,7 +37,7 @@ This milestone optimizes the nForma agent harness for production use -- adding c
 - [x] **Phase v0.28-01: Foundation -- Hook Profiles + De-Sloppify** - Configurable hook profiles and post-verification cleanup subagent (completed 2026-03-06)
 - [x] **Phase v0.28-02: Data Pipeline -- Quorum Cache + Pass@k Metrics** - SHA-256 quorum response caching and pass@k conformance tracking (completed 2026-03-06)
 - [x] **Phase v0.28-03: Runtime Intelligence -- Budget Downgrade + Stall Detection + Smart Compact** - Token budget monitoring, stall escalation, and workflow-aware compaction suggestions (completed 2026-03-06)
-- [ ] **Phase v0.28-04: Safety & Diagnostics -- Security Sweep + Session State + Harness Diagnostics** - Verify-time security scanning, session state reminders, and unified diagnostic reporting
+- [x] **Phase v0.28-04: Safety & Diagnostics -- Security Sweep + Session State + Harness Diagnostics** - Verify-time security scanning, session state reminders, and unified diagnostic reporting (completed 2026-03-06)
 
 ## Phase Details
 
@@ -100,7 +100,7 @@ Plans:
   4. State reminder fires only on new sessions, not on compaction events
   5. Running `bin/harness-diagnostic.cjs` (or `/nf:health`) produces a structured report covering per-slot availability, pass@k trend, cumulative token spend, stall events, and actionable recommendations
   6. Stop hook continues to BLOCK planning responses that lack quorum evidence and PASS responses that include it, regardless of which features are active (formal: LivenessProperty2 and LivenessProperty3 invariants preserved)
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [ ] v0.28-04-01-PLAN.md -- Security sweep script and conformance schema update (SEC-01, SEC-02, SEC-03)
 - [ ] v0.28-04-02-PLAN.md -- Session state reminder in nf-session-start.js (STATE-01, STATE-02)
@@ -115,7 +115,7 @@ Plans:
 | v0.28-01. Foundation -- Hook Profiles + De-Sloppify | 3/3 | Complete    | 2026-03-06 |
 | v0.28-02. Data Pipeline -- Quorum Cache + Pass@k Metrics | 3/3 | Complete    | 2026-03-06 |
 | v0.28-03. Runtime Intelligence -- Budget + Stall + Smart Compact | 0/3 | Complete    | 2026-03-06 |
-| v0.28-04. Safety & Diagnostics -- Security + State + Diagnostics | 2/3 | In Progress|  |
+| v0.28-04. Safety & Diagnostics -- Security + State + Diagnostics | 3/3 | Complete   | 2026-03-06 |
 
 ## v0.29 — Three-Layer Formal Verification Architecture
 
