@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-06T08:16:09.649Z",
-  "content_hash": "8bacfa1a94818d8c",
-  "frozen_at": "2026-03-06T08:16:09.656Z",
+  "aggregated_at": "2026-03-06T11:15:42.147Z",
+  "content_hash": "64af4018f35ca361",
+  "frozen_at": "2026-03-06T11:15:42.149Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -1900,6 +1900,46 @@
       ]
     },
     {
+      "id": "OBS-09",
+      "text": "Observe handlers return the standard schema { source_label, source_type, status: ok|error, issues: Array, error?: string } with all issue fields populated (id, title, severity, url, age, created_at, meta, source_type, issue_type). The dispatch layer validates the return shape before passing to the renderer.",
+      "category": "Observability",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Currently enforced by convention with no runtime validation. The renderer silently handles missing fields with fallbacks, which masks handler bugs. A schema check at dispatch catches issues before they reach the render pipeline.",
+      "source_file": ".planning/quick/188-review-upstream-and-deps-handler-impleme/188-PLAN.md",
+      "milestone": "quick-188"
+    },
+    {
+      "id": "OBS-10",
+      "text": "Observe utility functions (formatAge, parseDuration, classifySeverity) are defined in a single canonical module and imported by all handlers. No handler duplicates these functions.",
+      "category": "Observability",
+      "phase": "unknown",
+      "status": "Planned",
+      "background": "formatAge is duplicated in 6 files with 3 different null-handling behaviors (unknown, empty string, new vs future). parseDuration is duplicated in 2 files. This drift already causes visual inconsistency in observe output.",
+      "source_file": ".planning/quick/188-review-upstream-and-deps-handler-impleme/188-PLAN.md",
+      "milestone": "quick-188"
+    },
+    {
+      "id": "OBS-11",
+      "text": "Upstream changes surfaced by observe are evaluated against existing code before porting. The system compares overlapping areas and classifies each as SKIP (our implementation is equivalent or better), CANDIDATE (upstream introduces something we lack), or INCOMPATIBLE (conflicts with our architecture). No upstream change is ported without this evaluation.",
+      "category": "Observability",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Even for tight fork parents, nForma may have intentionally diverged with better implementations. Blindly porting upstream changes would regress quality. The evaluation routing in observe.md implements SKIP/CANDIDATE/INCOMPATIBLE comparison.",
+      "source_file": ".planning/quick/188-review-upstream-and-deps-handler-impleme/188-PLAN.md",
+      "milestone": "quick-188"
+    },
+    {
+      "id": "OBS-12",
+      "text": "Observe handlers catch all errors internally and return status: error with a descriptive error string. No handler throws — the dispatch layer Promise.allSettled is a safety net, not the primary error boundary.",
+      "category": "Observability",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Already followed by all 8+ handlers and enforced at the dispatch layer via Promise.allSettled, but not formalized. Critical for handler authors to know when adding new source types.",
+      "source_file": ".planning/quick/188-review-upstream-and-deps-handler-impleme/188-PLAN.md",
+      "milestone": "quick-188"
+    },
+    {
       "id": "ORES-01",
       "text": "When oscillation is detected and the oscillating file set contains only internal code files, Claude MUST enter oscillation resolution mode instead of hard-stopping",
       "category": "Hooks & Enforcement",
@@ -2780,30 +2820,6 @@
       ]
     },
     {
-      "id": "SOLVE-09",
-      "text": "The solve diagnostic engine provides fast-mode iteration (--fast skips F->C and T->C layers), pattern-based D->C false-positive suppression via acknowledged-false-positives.json regex rules, auto-acknowledgement of Category B reverse discovery candidates, and recipe sidecars with absolute paths and pre-classified test templates.",
-      "category": "Solver Orchestration",
-      "phase": "unknown",
-      "status": "Complete",
-      "background": "The full solve loop took 30+ minutes per iteration and surfaced hundreds of false positives from prose word matches and Category B reverse candidates requiring unnecessary human review. These five improvements reduce iteration time to sub-second for file-parsing layers, suppress pattern-matched false positives, eliminate manual Category B triage, and provide executors with ready-to-use absolute paths and test boilerplate in recipe sidecars.",
-      "provenance": {
-        "source_file": ".planning/quick/184-implement-5-solve-automation-improvement/184-PLAN.md",
-        "milestone": "quick-184"
-      }
-    },
-    {
-      "id": "SOLVE-10",
-      "text": "The T->C sweep collects line-level test coverage data and crossReferenceFormalCoverage() cross-references covered source files against formal-test-sync recipe source_files to identify false-green properties (tests pass but exercise zero implementing source files), surfacing an F->T->C coverage summary without altering residual scores, with coverage collection fail-open.",
-      "category": "Solver Orchestration",
-      "phase": "unknown",
-      "status": "Complete",
-      "background": "The T->C sweep previously only checked test pass/fail. Line-level coverage closes the full Formal->Test->Code traceability chain by detecting false greens — regardless of language or test framework.",
-      "provenance": {
-        "source_file": ".planning/quick/187-add-v8-line-level-coverage-to-t-c-sweep-/187-PLAN.md",
-        "milestone": "quick-187"
-      }
-    },
-    {
       "id": "SOLVE-7",
       "text": "The solve F->T remediation pipeline SHALL provide pre-resolved context (requirement text, formal property definition, source file hints) alongside each test stub so executors can generate meaningful tests without codebase-wide search.",
       "category": "solve",
@@ -2825,6 +2841,30 @@
       "provenance": {
         "source_file": ".planning/quick/183-add-legacy-formal-migration-step-to-qgsd/183-PLAN.md",
         "milestone": "quick-183"
+      }
+    },
+    {
+      "id": "SOLVE-09",
+      "text": "The solve diagnostic engine provides fast-mode iteration (--fast skips F->C and T->C layers), pattern-based D->C false-positive suppression via acknowledged-false-positives.json regex rules, auto-acknowledgement of Category B reverse discovery candidates, and recipe sidecars with absolute paths and pre-classified test templates.",
+      "category": "Solver Orchestration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The full solve loop took 30+ minutes per iteration and surfaced hundreds of false positives from prose word matches and Category B reverse candidates requiring unnecessary human review. These five improvements reduce iteration time to sub-second for file-parsing layers, suppress pattern-matched false positives, eliminate manual Category B triage, and provide executors with ready-to-use absolute paths and test boilerplate in recipe sidecars.",
+      "provenance": {
+        "source_file": ".planning/quick/184-implement-5-solve-automation-improvement/184-PLAN.md",
+        "milestone": "quick-184"
+      }
+    },
+    {
+      "id": "SOLVE-10",
+      "text": "The T->C sweep collects line-level test coverage data and crossReferenceFormalCoverage() cross-references covered source files against formal-test-sync recipe source_files to identify false-green properties (tests pass but exercise zero implementing source files), surfacing an F->T->C coverage summary without altering residual scores, with coverage collection fail-open.",
+      "category": "Solver Orchestration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The T->C sweep previously only checked test pass/fail. Line-level coverage closes the full Formal->Test->Code traceability chain by detecting false greens — regardless of language or test framework.",
+      "provenance": {
+        "source_file": ".planning/quick/187-add-v8-line-level-coverage-to-t-c-sweep-/187-PLAN.md",
+        "milestone": "quick-187"
       }
     },
     {
