@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const { loadConfig, DEFAULT_CONFIG, slotToToolCall } = require('./config-loader');
+const { loadConfig, DEFAULT_CONFIG, slotToToolCall, shouldRunHook } = require('./config-loader');
 const { schema_version } = require('./conformance-schema.cjs');
 
 // Appends a structured conformance event to .planning/conformance-events.jsonl.
@@ -426,6 +426,12 @@ function main() {
 
       const config = loadConfig();
 
+      // Profile guard — exit early if this hook is not active for the current profile
+      const profile = config.hook_profile || 'standard';
+      if (!shouldRunHook('nf-stop', profile)) {
+        process.exit(0);
+      }
+
       // Read and split transcript JSONL; skip empty lines
       const lines = fs.readFileSync(input.transcript_path, 'utf8')
         .split('\n')
@@ -435,7 +441,10 @@ function main() {
       const currentTurnLines = getCurrentTurnLines(lines);
 
       // Build command pattern once; reuse for detection and extraction
-      const cmdPattern = buildCommandPattern(config.quorum_commands);
+      // Strict mode: match ANY /nf: or /gsd: or /qgsd: command, not just quorum_commands list.
+      const cmdPattern = profile === 'strict'
+        ? /\/(nf|q?gsd):[\w][\w-]*/
+        : buildCommandPattern(config.quorum_commands);
 
       // GUARD 4: Only enforce quorum if a planning command is in current turn (STOP-06)
       if (!hasQuorumCommand(currentTurnLines, cmdPattern)) {

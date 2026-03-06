@@ -5,6 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { loadConfig, shouldRunHook } = require('./config-loader');
 
 // Read JSON from stdin
 let input = '';
@@ -13,6 +14,14 @@ process.stdin.on('data', chunk => input += chunk);
 process.stdin.on('end', () => {
   try {
     const data = JSON.parse(input);
+
+    // Profile guard — exit early if this hook is not active for the current profile
+    const config = loadConfig(data.workspace?.current_dir || process.cwd());
+    const profile = config.hook_profile || 'standard';
+    if (!shouldRunHook('nf-statusline', profile)) {
+      process.exit(0);
+    }
+
     const model = data.model?.display_name || 'Claude';
     const dir = data.workspace?.current_dir || process.cwd();
     const session = data.session_id || '';

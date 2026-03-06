@@ -35,6 +35,42 @@ function slotToToolCall(slotName) {
   return 'mcp__' + slotName + '__' + suffix;
 }
 
+const HOOK_PROFILE_MAP = {
+  minimal: new Set([
+    'nf-circuit-breaker',
+    'nf-precompact',
+  ]),
+  standard: new Set([
+    'nf-circuit-breaker',
+    'nf-precompact',
+    'nf-prompt',
+    'nf-stop',
+    'gsd-context-monitor',
+    'nf-spec-regen',
+    'nf-token-collector',
+    'nf-slot-correlator',
+    'nf-session-start',
+    'nf-statusline',
+  ]),
+  strict: new Set([
+    'nf-circuit-breaker',
+    'nf-precompact',
+    'nf-prompt',
+    'nf-stop',
+    'gsd-context-monitor',
+    'nf-spec-regen',
+    'nf-token-collector',
+    'nf-slot-correlator',
+    'nf-session-start',
+    'nf-statusline',
+  ]),
+};
+
+function shouldRunHook(hookBasename, profile) {
+  const validProfile = HOOK_PROFILE_MAP[profile] ? profile : 'standard';
+  return HOOK_PROFILE_MAP[validProfile].has(hookBasename);
+}
+
 const DEFAULT_CONFIG = {
   quorum_commands: [
     'plan-phase', 'new-project', 'new-milestone',
@@ -86,6 +122,7 @@ const DEFAULT_CONFIG = {
   // task_envelope_enabled: master switch for task-envelope.json sidecar writes.
   // Flat key required — nested objects lost in shallow merge.
   task_envelope_enabled: true,
+  hook_profile: 'standard',
 };
 
 // Reads and parses a JSON config file.
@@ -264,6 +301,15 @@ function validateConfig(config) {
     }
   }
 
+  // Validate hook_profile
+  const VALID_PROFILES = ['minimal', 'standard', 'strict'];
+  if (config.hook_profile !== undefined) {
+    if (typeof config.hook_profile !== 'string' || !VALID_PROFILES.includes(config.hook_profile)) {
+      process.stderr.write('[nf] WARNING: nf.json: hook_profile must be "minimal", "standard", or "strict"; defaulting to "standard"\n');
+      config.hook_profile = 'standard';
+    }
+  }
+
   return config;
 }
 
@@ -294,4 +340,4 @@ function loadConfig(projectDir) {
   return config;
 }
 
-module.exports = { loadConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall };
+module.exports = { loadConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP };

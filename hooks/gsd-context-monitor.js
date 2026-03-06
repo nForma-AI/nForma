@@ -12,7 +12,7 @@
 
 'use strict';
 
-const { loadConfig } = require('./config-loader');
+const { loadConfig, shouldRunHook } = require('./config-loader');
 
 let raw = '';
 process.stdin.setEncoding('utf8');
@@ -20,6 +20,13 @@ process.stdin.on('data', chunk => { raw += chunk; });
 process.stdin.on('end', () => {
   try {
     const input = JSON.parse(raw);
+
+    // Profile guard — exit early if this hook is not active for the current profile
+    const config = loadConfig(input.cwd || process.cwd());
+    const profile = config.hook_profile || 'standard';
+    if (!shouldRunHook('gsd-context-monitor', profile)) {
+      process.exit(0);
+    }
 
     const ctxWindow = input.context_window;
     if (!ctxWindow || ctxWindow.remaining_percentage == null) {

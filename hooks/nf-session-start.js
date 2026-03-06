@@ -11,6 +11,8 @@ const path = require('path');
 const os   = require('os');
 const fs   = require('fs');
 
+const { loadConfig, shouldRunHook } = require('./config-loader');
+
 // ─── Stdin accumulation (for hook input JSON containing cwd) ─────────────────
 let _stdinRaw = '';
 process.stdin.setEncoding('utf8');
@@ -43,6 +45,13 @@ function findSecrets() {
   await _stdinPromise;
   let _hookCwd = process.cwd();
   try { _hookCwd = JSON.parse(_stdinRaw).cwd || process.cwd(); } catch (_) {}
+
+  // Profile guard — exit early if this hook is not active for the current profile
+  const config = loadConfig(_hookCwd);
+  const profile = config.hook_profile || 'standard';
+  if (!shouldRunHook('nf-session-start', profile)) {
+    process.exit(0);
+  }
 
   const secrets = findSecrets();
   if (!secrets) {

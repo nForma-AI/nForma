@@ -22,7 +22,7 @@ const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
 const { spawnSync } = require('child_process');
-const { loadConfig, slotToToolCall } = require('./config-loader');
+const { loadConfig, slotToToolCall, shouldRunHook } = require('./config-loader');
 const { schema_version } = require('./conformance-schema.cjs');
 
 const DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK = `QUORUM REQUIRED (structural enforcement — Stop hook will verify)
@@ -366,6 +366,13 @@ process.stdin.on('end', () => {
 
     // ── Priority 3: Planning command → inject quorum instructions ────────────
     const config = loadConfig(cwd);
+
+    // Profile guard — exit early if this hook is not active for the current profile
+    const profile = config.hook_profile || 'standard';
+    if (!shouldRunHook('nf-prompt', profile)) {
+      process.exit(0);
+    }
+
     const commands = config.quorum_commands;
 
     // Parse --n N override from the raw prompt
@@ -613,7 +620,10 @@ process.stdin.on('end', () => {
     }
 
     // Anchored allowlist — requires /nf:, /gsd:, or /qgsd: prefix and word boundary after command name.
-    const cmdPattern = new RegExp('^\\s*\\/(nf|q?gsd):(' + commands.join('|') + ')(\\s|$)');
+    // Strict mode: match ANY /nf: or /gsd: or /qgsd: command, not just quorum_commands list.
+    const cmdPattern = profile === 'strict'
+      ? /^\s*\/(nf|q?gsd):[\w][\w-]*(\s|$)/
+      : new RegExp('^\\s*\\/(nf|q?gsd):(' + commands.join('|') + ')(\\s|$)');
     if (!cmdPattern.test(prompt)) {
       process.exit(0); // Silent pass — UPS-05
     }

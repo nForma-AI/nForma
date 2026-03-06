@@ -15,6 +15,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { loadConfig, shouldRunHook } = require('./config-loader');
 
 // Resolve slot name from correlation file or last_assistant_message preamble.
 // Order:
@@ -77,6 +78,13 @@ function main() {
   process.stdin.on('end', () => {
     try {
       const input = JSON.parse(raw);
+
+      // Profile guard — exit early if this hook is not active for the current profile
+      const config = loadConfig();
+      const profile = config.hook_profile || 'standard';
+      if (!shouldRunHook('nf-token-collector', profile)) {
+        process.exit(0);
+      }
 
       // Guard: only process nf-quorum-slot-worker subagents
       if (input.agent_type !== 'nf-quorum-slot-worker') {
