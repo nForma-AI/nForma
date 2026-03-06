@@ -1708,6 +1708,108 @@ describe('phase complete command', () => {
     assert.ok(state.includes('Milestone complete'), 'status should be milestone complete');
   });
 
+  test('roadmap fallback: detects next phase when no disk directory exists (integer phases)', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 1: Foundation
+**Goal:** Setup
+**Plans:** 1 plans
+
+### Phase 2: API
+**Goal:** Build API
+**Plans:** 0 plans
+`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# State\n\n**Current Phase:** 01\n**Current Phase Name:** Foundation\n**Status:** In progress\n**Current Plan:** 01-01\n**Last Activity:** 2025-01-01\n**Last Activity Description:** Working on phase 1\n`
+    );
+
+    const p1 = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    fs.mkdirSync(p1, { recursive: true });
+    fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    // NO Phase 2 directory on disk
+
+    const result = runGsdTools('phase complete 1', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.is_last_phase, false, 'should detect next phase from roadmap');
+    assert.strictEqual(output.next_phase, '2', 'next_phase should be 2');
+    assert.ok(output.next_phase_name, 'next_phase_name should be truthy');
+
+    const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    assert.ok(state.includes('Ready to plan'), 'status should be ready to plan');
+    assert.ok(!state.includes('Milestone complete'), 'should NOT say milestone complete');
+  });
+
+  test('roadmap fallback: detects next versioned phase v0.28-01 -> v0.28-02', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase v0.28-01: Cache Infrastructure
+**Goal:** Build cache
+**Plans:** 1 plans
+
+### Phase v0.28-02: Data Pipeline
+**Goal:** Build pipeline
+**Plans:** 0 plans
+`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# State\n\n**Current Phase:** v0.28-01\n**Current Phase Name:** Cache Infrastructure\n**Status:** In progress\n**Current Plan:** v0.28-01-01\n**Last Activity:** 2025-01-01\n**Last Activity Description:** Working\n`
+    );
+
+    const p1 = path.join(tmpDir, '.planning', 'phases', 'v0.28-01-cache-infrastructure');
+    fs.mkdirSync(p1, { recursive: true });
+    fs.writeFileSync(path.join(p1, 'v0.28-01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(p1, 'v0.28-01-01-SUMMARY.md'), '# Summary');
+    // NO v0.28-02 directory on disk
+
+    const result = runGsdTools('phase complete v0.28-01', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.is_last_phase, false, 'should detect next phase from roadmap');
+    assert.strictEqual(output.next_phase, 'v0.28-02', 'next_phase should be v0.28-02 (exact, not just truthy)');
+  });
+
+  test('roadmap fallback: true last phase when roadmap has no higher phase', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 1: Only Phase
+**Goal:** Everything
+**Plans:** 1 plans
+`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# State\n\n**Current Phase:** 01\n**Current Phase Name:** Only Phase\n**Status:** In progress\n**Current Plan:** 01-01\n**Last Activity:** 2025-01-01\n**Last Activity Description:** Working\n`
+    );
+
+    const p1 = path.join(tmpDir, '.planning', 'phases', '01-only-phase');
+    fs.mkdirSync(p1, { recursive: true });
+    fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    // NO other phase directories
+
+    const result = runGsdTools('phase complete 1', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.is_last_phase, true, 'should be true last phase');
+
+    const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    assert.ok(state.includes('Milestone complete'), 'status should be milestone complete');
+  });
+
   test('updates REQUIREMENTS.md traceability when phase completes', () => {
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'ROADMAP.md'),
