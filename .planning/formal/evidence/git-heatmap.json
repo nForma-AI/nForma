@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-06T15:04:28.677Z",
+  "generated": "2026-03-06T21:57:56.809Z",
   "signals": {
     "numerical_adjustments": [
       {
@@ -1183,7 +1183,7 @@
     "bugfix_hotspots": [
       {
         "file": ".planning/STATE.md",
-        "fix_count": 67,
+        "fix_count": 70,
         "has_formal_coverage": false
       },
       {
@@ -1198,7 +1198,7 @@
       },
       {
         "file": ".planning/ROADMAP.md",
-        "fix_count": 40,
+        "fix_count": 41,
         "has_formal_coverage": false
       },
       {
@@ -1262,6 +1262,11 @@
         "has_formal_coverage": true
       },
       {
+        "file": "package.json",
+        "fix_count": 17,
+        "has_formal_coverage": false
+      },
+      {
         "file": "agents/gsd-executor.md",
         "fix_count": 16,
         "has_formal_coverage": false
@@ -1269,11 +1274,6 @@
       {
         "file": "agents/gsd-plan-checker.md",
         "fix_count": 16,
-        "has_formal_coverage": false
-      },
-      {
-        "file": "package.json",
-        "fix_count": 15,
         "has_formal_coverage": false
       },
       {
@@ -1567,6 +1567,11 @@
         "has_formal_coverage": false
       },
       {
+        "file": ".secrets.baseline",
+        "fix_count": 4,
+        "has_formal_coverage": false
+      },
+      {
         "file": ".github/workflows/secret-scan.yml",
         "fix_count": 4,
         "has_formal_coverage": false
@@ -1742,12 +1747,12 @@
         "has_formal_coverage": false
       },
       {
-        "file": "scripts/build-hooks.js",
+        "file": ".github/workflows/publish.yml",
         "fix_count": 3,
         "has_formal_coverage": false
       },
       {
-        "file": ".secrets.baseline",
+        "file": "scripts/build-hooks.js",
         "fix_count": 3,
         "has_formal_coverage": false
       },
@@ -1827,6 +1832,16 @@
         "has_formal_coverage": false
       },
       {
+        "file": "bin/nf-solve.cjs",
+        "fix_count": 2,
+        "has_formal_coverage": true
+      },
+      {
+        "file": "hooks/dist/config-loader.js",
+        "fix_count": 2,
+        "has_formal_coverage": false
+      },
+      {
         "file": "bin/nForma.cjs",
         "fix_count": 2,
         "has_formal_coverage": false
@@ -1843,11 +1858,6 @@
       },
       {
         "file": ".github/workflows/formal-verify.yml",
-        "fix_count": 2,
-        "has_formal_coverage": false
-      },
-      {
-        "file": ".github/workflows/publish.yml",
         "fix_count": 2,
         "has_formal_coverage": false
       },
@@ -2374,6 +2384,51 @@
       {
         "file": "commands/gsd/discuss-milestone.md",
         "fix_count": 2,
+        "has_formal_coverage": false
+      },
+      {
+        "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-01-SUMMARY.md",
+        "fix_count": 1,
+        "has_formal_coverage": false
+      },
+      {
+        "file": "bin/security-sweep.test.cjs",
+        "fix_count": 1,
+        "has_formal_coverage": false
+      },
+      {
+        "file": "hooks/gsd-context-monitor.js",
+        "fix_count": 1,
+        "has_formal_coverage": false
+      },
+      {
+        "file": "hooks/gsd-context-monitor.test.js",
+        "fix_count": 1,
+        "has_formal_coverage": false
+      },
+      {
+        "file": "bin/nf-solve.test.cjs",
+        "fix_count": 1,
+        "has_formal_coverage": false
+      },
+      {
+        "file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-PLAN.md",
+        "fix_count": 1,
+        "has_formal_coverage": false
+      },
+      {
+        "file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-SUMMARY.md",
+        "fix_count": 1,
+        "has_formal_coverage": false
+      },
+      {
+        "file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-PLAN.md",
+        "fix_count": 1,
+        "has_formal_coverage": false
+      },
+      {
+        "file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-SUMMARY.md",
+        "fix_count": 1,
         "has_formal_coverage": false
       },
       {
@@ -3867,11 +3922,6 @@
         "has_formal_coverage": false
       },
       {
-        "file": "hooks/dist/config-loader.js",
-        "fix_count": 1,
-        "has_formal_coverage": false
-      },
-      {
         "file": ".planning/quick/79-generalize-fix-tests-workflow-for-extrem/79-SUMMARY.md",
         "fix_count": 1,
         "has_formal_coverage": false
@@ -4679,6 +4729,13 @@
     ],
     "churn_ranking": [
       {
+        "file": ".planning/formal/evidence/git-heatmap.json",
+        "commits": 1,
+        "lines_added": 83172,
+        "lines_removed": 0,
+        "total_churn": 83172
+      },
+      {
         "file": ".planning/formal/traceability-matrix.json",
         "commits": 2,
         "lines_added": 10230,
@@ -4691,6 +4748,13 @@
         "lines_added": 12120,
         "lines_removed": 3302,
         "total_churn": 15422
+      },
+      {
+        "file": ".planning/ROADMAP.md",
+        "commits": 551,
+        "lines_added": 6305,
+        "lines_removed": 6034,
+        "total_churn": 12339
       },
       {
         "file": "get-shit-done/workflows/execute-phase.md",
@@ -4707,18 +4771,11 @@
         "total_churn": 12020
       },
       {
-        "file": ".planning/ROADMAP.md",
-        "commits": 532,
-        "lines_added": 6228,
-        "lines_removed": 5781,
-        "total_churn": 12009
-      },
-      {
         "file": "bin/install.js",
-        "commits": 166,
-        "lines_added": 7975,
+        "commits": 167,
+        "lines_added": 8023,
         "lines_removed": 3548,
-        "total_churn": 11523
+        "total_churn": 11571
       },
       {
         "file": ".planning/research/ARCHITECTURE.md",
@@ -4736,17 +4793,17 @@
       },
       {
         "file": ".planning/STATE.md",
-        "commits": 796,
-        "lines_added": 4888,
-        "lines_removed": 4615,
-        "total_churn": 9503
+        "commits": 819,
+        "lines_added": 4998,
+        "lines_removed": 4760,
+        "total_churn": 9758
       },
       {
         "file": "package-lock.json",
-        "commits": 76,
-        "lines_added": 6671,
-        "lines_removed": 2295,
-        "total_churn": 8966
+        "commits": 78,
+        "lines_added": 6675,
+        "lines_removed": 2299,
+        "total_churn": 8974
       },
       {
         "file": "get-shit-done/workflows/plan-phase.md",
@@ -4771,10 +4828,10 @@
       },
       {
         "file": ".planning/REQUIREMENTS.md",
-        "commits": 187,
-        "lines_added": 3925,
-        "lines_removed": 2828,
-        "total_churn": 6753
+        "commits": 192,
+        "lines_added": 3966,
+        "lines_removed": 2869,
+        "total_churn": 6835
       },
       {
         "file": ".planning/research/PITFALLS.md",
@@ -4994,6 +5051,13 @@
         "total_churn": 2906
       },
       {
+        "file": "bin/nf-solve.cjs",
+        "commits": 5,
+        "lines_added": 2804,
+        "lines_removed": 14,
+        "total_churn": 2818
+      },
+      {
         "file": ".planning/research/SUMMARY.md",
         "commits": 12,
         "lines_added": 1572,
@@ -5034,13 +5098,6 @@
         "lines_added": 1586,
         "lines_removed": 1102,
         "total_churn": 2688
-      },
-      {
-        "file": "bin/nf-solve.cjs",
-        "commits": 2,
-        "lines_added": 2608,
-        "lines_removed": 0,
-        "total_churn": 2608
       },
       {
         "file": "node_modules/get-shit-done-cc/get-shit-done/workflows/execute-phase.md",
@@ -5093,10 +5150,10 @@
       },
       {
         "file": ".planning/PROJECT.md",
-        "commits": 103,
-        "lines_added": 1536,
-        "lines_removed": 833,
-        "total_churn": 2369
+        "commits": 106,
+        "lines_added": 1581,
+        "lines_removed": 857,
+        "total_churn": 2438
       },
       {
         "file": "commands/gsd/research-project.md",
@@ -5435,6 +5492,13 @@
         "total_churn": 1512
       },
       {
+        "file": ".planning/formal/test-recipes/test-recipes.json",
+        "commits": 1,
+        "lines_added": 1469,
+        "lines_removed": 0,
+        "total_churn": 1469
+      },
+      {
         "file": "get-shit-done/references/debugging/when-to-research.md",
         "commits": 6,
         "lines_added": 734,
@@ -5589,6 +5653,13 @@
         "total_churn": 1312
       },
       {
+        "file": "bin/verify-quorum-health.test.cjs",
+        "commits": 3,
+        "lines_added": 1297,
+        "lines_removed": 11,
+        "total_churn": 1308
+      },
+      {
         "file": ".planning/phases/v0.19-04-enforcement-layer/v0.19-04-RESEARCH.md",
         "commits": 3,
         "lines_added": 654,
@@ -5708,13 +5779,6 @@
         "total_churn": 1204
       },
       {
-        "file": "bin/verify-quorum-health.test.cjs",
-        "commits": 2,
-        "lines_added": 1192,
-        "lines_removed": 11,
-        "total_churn": 1203
-      },
-      {
         "file": "agents/qgsd-planner.md",
         "commits": 4,
         "lines_added": 10,
@@ -5764,6 +5828,13 @@
         "total_churn": 1188
       },
       {
+        "file": "bin/run-formal-verify.cjs",
+        "commits": 27,
+        "lines_added": 954,
+        "lines_removed": 232,
+        "total_churn": 1186
+      },
+      {
         "file": ".planning/phases/19-state-schema-activity-integration/19-01-PLAN.md",
         "commits": 2,
         "lines_added": 593,
@@ -5797,13 +5868,6 @@
         "lines_added": 738,
         "lines_removed": 430,
         "total_churn": 1168
-      },
-      {
-        "file": "bin/run-formal-verify.cjs",
-        "commits": 26,
-        "lines_added": 931,
-        "lines_removed": 230,
-        "total_churn": 1161
       },
       {
         "file": "commands/gsd/plan-milestone-gaps.md",
@@ -5874,6 +5938,13 @@
         "lines_added": 544,
         "lines_removed": 544,
         "total_churn": 1088
+      },
+      {
+        "file": ".planning/formal/requirements.json",
+        "commits": 17,
+        "lines_added": 735,
+        "lines_removed": 346,
+        "total_churn": 1081
       },
       {
         "file": ".planning/phases/v0.19-07-wire-liveness-check-to-all-tlc-runners/v0.19-07-01-PLAN.md",
@@ -6028,13 +6099,6 @@
         "lines_added": 1010,
         "lines_removed": 0,
         "total_churn": 1010
-      },
-      {
-        "file": ".planning/formal/requirements.json",
-        "commits": 13,
-        "lines_added": 675,
-        "lines_removed": 334,
-        "total_churn": 1009
       },
       {
         "file": ".planning/formal/evidence/failure-taxonomy.json",
@@ -6268,6 +6332,13 @@
         "total_churn": 912
       },
       {
+        "file": "package.json",
+        "commits": 365,
+        "lines_added": 514,
+        "lines_removed": 394,
+        "total_churn": 908
+      },
+      {
         "file": ".planning/phases/v0.20-06-triage-bundle/v0.20-06-RESEARCH.md",
         "commits": 2,
         "lines_added": 453,
@@ -6287,13 +6358,6 @@
         "lines_added": 451,
         "lines_removed": 451,
         "total_churn": 902
-      },
-      {
-        "file": "package.json",
-        "commits": 360,
-        "lines_added": 508,
-        "lines_removed": 391,
-        "total_churn": 899
       },
       {
         "file": ".planning/phases/v0.12-06-audit-trail-invariants/v0.12-06-RESEARCH.md",
@@ -6779,6 +6843,13 @@
         "total_churn": 739
       },
       {
+        "file": "bin/nf-solve.test.cjs",
+        "commits": 4,
+        "lines_added": 731,
+        "lines_removed": 7,
+        "total_churn": 738
+      },
+      {
         "file": ".planning/phases/v0.15-01-health-checker-regex-fix/v0.15-01-RESEARCH.md",
         "commits": 2,
         "lines_added": 368,
@@ -6968,6 +7039,20 @@
         "total_churn": 692
       },
       {
+        "file": "hooks/dist/nf-stop.js",
+        "commits": 4,
+        "lines_added": 689,
+        "lines_removed": 2,
+        "total_churn": 691
+      },
+      {
+        "file": "hooks/nf-stop.js",
+        "commits": 4,
+        "lines_added": 689,
+        "lines_removed": 2,
+        "total_churn": 691
+      },
+      {
         "file": "bin/aggregate-requirements.test.cjs",
         "commits": 5,
         "lines_added": 663,
@@ -7066,6 +7151,20 @@
         "total_churn": 672
       },
       {
+        "file": "hooks/config-loader.js",
+        "commits": 17,
+        "lines_added": 623,
+        "lines_removed": 45,
+        "total_churn": 668
+      },
+      {
+        "file": "hooks/dist/config-loader.js",
+        "commits": 13,
+        "lines_added": 623,
+        "lines_removed": 45,
+        "total_churn": 668
+      },
+      {
         "file": "commands/gsd/add-phase.md",
         "commits": 9,
         "lines_added": 272,
@@ -7106,6 +7205,13 @@
         "lines_added": 548,
         "lines_removed": 110,
         "total_churn": 658
+      },
+      {
+        "file": "bin/run-formal-verify.test.cjs",
+        "commits": 14,
+        "lines_added": 573,
+        "lines_removed": 83,
+        "total_churn": 656
       },
       {
         "file": ".planning/phases/05-subagent-codebase-analysis/05-01-PLAN.md",
@@ -7164,6 +7270,13 @@
         "total_churn": 643
       },
       {
+        "file": ".secrets.baseline",
+        "commits": 5,
+        "lines_added": 590,
+        "lines_removed": 51,
+        "total_churn": 641
+      },
+      {
         "file": "commands/gsd/create-roadmap.md",
         "commits": 27,
         "lines_added": 263,
@@ -7197,13 +7310,6 @@
         "lines_added": 634,
         "lines_removed": 0,
         "total_churn": 634
-      },
-      {
-        "file": "bin/nf-solve.test.cjs",
-        "commits": 2,
-        "lines_added": 630,
-        "lines_removed": 0,
-        "total_churn": 630
       },
       {
         "file": "agents/nf-quorum-orchestrator.md",
@@ -7318,13 +7424,6 @@
         "total_churn": 616
       },
       {
-        "file": "bin/run-formal-verify.test.cjs",
-        "commits": 13,
-        "lines_added": 529,
-        "lines_removed": 83,
-        "total_churn": 612
-      },
-      {
         "file": ".planning/phases/v0.10-04-live-health-dashboard/v0.10-04-RESEARCH.md",
         "commits": 1,
         "lines_added": 612,
@@ -7358,6 +7457,13 @@
         "lines_added": 599,
         "lines_removed": 12,
         "total_churn": 611
+      },
+      {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-RESEARCH.md",
+        "commits": 1,
+        "lines_added": 610,
+        "lines_removed": 0,
+        "total_churn": 610
       },
       {
         "file": ".planning/phases/v0.19-05-mcp-environment-model/v0.19-05-04-PLAN.md",
@@ -7477,6 +7583,13 @@
         "lines_added": 300,
         "lines_removed": 300,
         "total_churn": 600
+      },
+      {
+        "file": ".planning/MILESTONES.md",
+        "commits": 25,
+        "lines_added": 539,
+        "lines_removed": 59,
+        "total_churn": 598
       },
       {
         "file": "test/generate-traceability-matrix.test.cjs",
@@ -7675,6 +7788,13 @@
         "total_churn": 574
       },
       {
+        "file": "bin/git-heatmap.cjs",
+        "commits": 2,
+        "lines_added": 572,
+        "lines_removed": 1,
+        "total_churn": 573
+      },
+      {
         "file": ".planning/v0.20-INTEGRATION-CHECK.md",
         "commits": 2,
         "lines_added": 558,
@@ -7717,6 +7837,13 @@
         "total_churn": 572
       },
       {
+        "file": ".github/workflows/release.yml",
+        "commits": 9,
+        "lines_added": 318,
+        "lines_removed": 252,
+        "total_churn": 570
+      },
+      {
         "file": ".planning/quick/1-rebrand-project-to-qgsd-quorum-gets-shit/1-PLAN.md",
         "commits": 2,
         "lines_added": 570,
@@ -7757,20 +7884,6 @@
         "lines_added": 387,
         "lines_removed": 180,
         "total_churn": 567
-      },
-      {
-        "file": "hooks/dist/nf-stop.js",
-        "commits": 2,
-        "lines_added": 564,
-        "lines_removed": 2,
-        "total_churn": 566
-      },
-      {
-        "file": "hooks/nf-stop.js",
-        "commits": 2,
-        "lines_added": 564,
-        "lines_removed": 2,
-        "total_churn": 566
       },
       {
         "file": ".planning/phases/01-hook-enforcement/01-04-PLAN.md",
@@ -7885,27 +7998,6 @@
         "total_churn": 555
       },
       {
-        "file": ".planning/MILESTONES.md",
-        "commits": 23,
-        "lines_added": 496,
-        "lines_removed": 59,
-        "total_churn": 555
-      },
-      {
-        "file": "hooks/dist/config-loader.js",
-        "commits": 11,
-        "lines_added": 508,
-        "lines_removed": 44,
-        "total_churn": 552
-      },
-      {
-        "file": "hooks/config-loader.js",
-        "commits": 15,
-        "lines_added": 508,
-        "lines_removed": 44,
-        "total_churn": 552
-      },
-      {
         "file": ".planning/phases/27-model-switching/27-01-PLAN.md",
         "commits": 2,
         "lines_added": 276,
@@ -8009,6 +8101,13 @@
         "lines_added": 514,
         "lines_removed": 28,
         "total_churn": 542
+      },
+      {
+        "file": "bin/verify-quorum-health.cjs",
+        "commits": 6,
+        "lines_added": 437,
+        "lines_removed": 103,
+        "total_churn": 540
       },
       {
         "file": ".planning/phases/29-restore-mcp-status-v2-and-checkbox-cleanup/29-01-PLAN.md",
@@ -8368,13 +8467,6 @@
         "total_churn": 505
       },
       {
-        "file": ".github/workflows/release.yml",
-        "commits": 8,
-        "lines_added": 252,
-        "lines_removed": 252,
-        "total_churn": 504
-      },
-      {
         "file": ".planning/milestones/v0.20-phases/v0.20-03-planning-gate/v0.20-03-RESEARCH.md",
         "commits": 2,
         "lines_added": 500,
@@ -8442,13 +8534,6 @@
         "commits": 1,
         "lines_added": 498,
         "lines_removed": 0,
-        "total_churn": 498
-      },
-      {
-        "file": ".secrets.baseline",
-        "commits": 4,
-        "lines_added": 460,
-        "lines_removed": 38,
         "total_churn": 498
       },
       {
@@ -8708,13 +8793,6 @@
         "commits": 2,
         "lines_added": 464,
         "lines_removed": 13,
-        "total_churn": 477
-      },
-      {
-        "file": "bin/verify-quorum-health.cjs",
-        "commits": 5,
-        "lines_added": 375,
-        "lines_removed": 102,
         "total_churn": 477
       },
       {
@@ -9208,6 +9286,13 @@
         "total_churn": 440
       },
       {
+        "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-RESEARCH.md",
+        "commits": 1,
+        "lines_added": 437,
+        "lines_removed": 0,
+        "total_churn": 437
+      },
+      {
         "file": "bin/invariant-catalog.cjs",
         "commits": 1,
         "lines_added": 437,
@@ -9423,6 +9508,13 @@
         "lines_added": 188,
         "lines_removed": 235,
         "total_churn": 423
+      },
+      {
+        "file": "hooks/nf-session-start.test.js",
+        "commits": 2,
+        "lines_added": 422,
+        "lines_removed": 0,
+        "total_churn": 422
       },
       {
         "file": "bin/write-check-result.test.cjs",
@@ -9717,6 +9809,13 @@
         "lines_added": 201,
         "lines_removed": 201,
         "total_churn": 402
+      },
+      {
+        "file": "test/install-virgin.test.cjs",
+        "commits": 1,
+        "lines_added": 401,
+        "lines_removed": 0,
+        "total_churn": 401
       },
       {
         "file": "bin/validate-memory.cjs",
@@ -10130,6 +10229,13 @@
         "lines_added": 378,
         "lines_removed": 0,
         "total_churn": 378
+      },
+      {
+        "file": "bin/design-impact.cjs",
+        "commits": 1,
+        "lines_added": 377,
+        "lines_removed": 0,
+        "total_churn": 377
       },
       {
         "file": ".planning/formal/reasoning/risk-heatmap.json",
@@ -10566,13 +10672,6 @@
         "total_churn": 355
       },
       {
-        "file": "hooks/nf-session-start.test.js",
-        "commits": 1,
-        "lines_added": 354,
-        "lines_removed": 0,
-        "total_churn": 354
-      },
-      {
         "file": "hooks/qgsd-session-start.test.js",
         "commits": 1,
         "lines_added": 354,
@@ -10620,6 +10719,20 @@
         "lines_added": 175,
         "lines_removed": 175,
         "total_churn": 350
+      },
+      {
+        "file": "bin/design-impact.test.cjs",
+        "commits": 1,
+        "lines_added": 349,
+        "lines_removed": 0,
+        "total_churn": 349
+      },
+      {
+        "file": ".planning/milestones/v0.29-MILESTONE-AUDIT.md",
+        "commits": 2,
+        "lines_added": 228,
+        "lines_removed": 120,
+        "total_churn": 348
       },
       {
         "file": ".planning/quick/133-build-a-phase-index-routing-table-for-re/133-PLAN.md",
@@ -10965,6 +11078,13 @@
         "total_churn": 327
       },
       {
+        "file": "bin/harness-diagnostic.cjs",
+        "commits": 1,
+        "lines_added": 326,
+        "lines_removed": 0,
+        "total_churn": 326
+      },
+      {
         "file": "bin/observe-config.test.cjs",
         "commits": 1,
         "lines_added": 326,
@@ -11019,6 +11139,20 @@
         "lines_added": 325,
         "lines_removed": 0,
         "total_churn": 325
+      },
+      {
+        "file": ".planning/quick/196-improve-formal-scope-scan-to-use-semanti/196-PLAN.md",
+        "commits": 2,
+        "lines_added": 302,
+        "lines_removed": 22,
+        "total_churn": 324
+      },
+      {
+        "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-RESEARCH.md",
+        "commits": 1,
+        "lines_added": 324,
+        "lines_removed": 0,
+        "total_churn": 324
       },
       {
         "file": ".planning/phases/v0.23-02-execute-phase-verifier-formal-integration/v0.23-02-02-PLAN.md",
@@ -11399,6 +11533,13 @@
         "total_churn": 302
       },
       {
+        "file": "hooks/gsd-context-monitor.test.js",
+        "commits": 4,
+        "lines_added": 293,
+        "lines_removed": 7,
+        "total_churn": 300
+      },
+      {
         "file": "bin/task-envelope.test.cjs",
         "commits": 2,
         "lines_added": 299,
@@ -11467,6 +11608,13 @@
         "lines_added": 150,
         "lines_removed": 150,
         "total_churn": 300
+      },
+      {
+        "file": "bin/cross-layer-dashboard.cjs",
+        "commits": 2,
+        "lines_added": 298,
+        "lines_removed": 1,
+        "total_churn": 299
       },
       {
         "file": ".planning/milestones/v0.19-phases/v0.19-11-unif-03-summary-fix-checkbox-cleanup/v0.19-11-RESEARCH.md",
@@ -11763,6 +11911,13 @@
         "total_churn": 287
       },
       {
+        "file": ".planning/milestones/v0.28-phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-RESEARCH.md",
+        "commits": 1,
+        "lines_added": 286,
+        "lines_removed": 0,
+        "total_churn": 286
+      },
+      {
         "file": ".planning/archive/legacy/27-model-switching/27-02-PLAN.md",
         "commits": 1,
         "lines_added": 286,
@@ -11936,6 +12091,13 @@
         "lines_added": 93,
         "lines_removed": 186,
         "total_churn": 279
+      },
+      {
+        "file": ".planning/quick/198-implement-ecc-best-practices-post-edit-a/198-PLAN.md",
+        "commits": 2,
+        "lines_added": 274,
+        "lines_removed": 4,
+        "total_churn": 278
       },
       {
         "file": ".planning/milestones/v0.20-phases/v0.20-08-sensitivity-analysis-fv-parameter-sweep-identifies-high-impact-variables-for-planning-signal/v0.20-08-RESEARCH.md",
@@ -12533,6 +12695,13 @@
         "total_churn": 259
       },
       {
+        "file": "bin/git-heatmap.test.cjs",
+        "commits": 1,
+        "lines_added": 258,
+        "lines_removed": 0,
+        "total_churn": 258
+      },
+      {
         "file": "bin/observe-render.cjs",
         "commits": 4,
         "lines_added": 236,
@@ -12566,6 +12735,13 @@
         "lines_added": 258,
         "lines_removed": 0,
         "total_churn": 258
+      },
+      {
+        "file": ".planning/milestones/v0.28-phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-03-PLAN.md",
+        "commits": 1,
+        "lines_added": 257,
+        "lines_removed": 0,
+        "total_churn": 257
       },
       {
         "file": "bin/generate-phase-spec.cjs",
@@ -12736,6 +12912,13 @@
         "total_churn": 253
       },
       {
+        "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-03-PLAN.md",
+        "commits": 1,
+        "lines_added": 252,
+        "lines_removed": 0,
+        "total_churn": 252
+      },
+      {
         "file": "bin/quorum-consensus-gate.cjs",
         "commits": 4,
         "lines_added": 245,
@@ -12804,6 +12987,13 @@
         "lines_added": 251,
         "lines_removed": 0,
         "total_churn": 251
+      },
+      {
+        "file": "bin/test-recipe-gen.cjs",
+        "commits": 1,
+        "lines_added": 250,
+        "lines_removed": 0,
+        "total_churn": 250
       },
       {
         "file": ".planning/phases/v0.29-02-semantics-layer-and-gate-a-grounding/v0.29-02-03-PLAN.md",
@@ -13191,6 +13381,13 @@
         "total_churn": 241
       },
       {
+        "file": "bin/test-recipe-gen.test.cjs",
+        "commits": 1,
+        "lines_added": 240,
+        "lines_removed": 0,
+        "total_churn": 240
+      },
+      {
         "file": ".planning/phases/v0.29-02-semantics-layer-and-gate-a-grounding/v0.29-02-01-SUMMARY.md",
         "commits": 2,
         "lines_added": 134,
@@ -13273,6 +13470,13 @@
         "lines_added": 239,
         "lines_removed": 0,
         "total_churn": 239
+      },
+      {
+        "file": "bin/security-sweep.cjs",
+        "commits": 1,
+        "lines_added": 238,
+        "lines_removed": 0,
+        "total_churn": 238
       },
       {
         "file": "bin/run-stop-hook-tlc.cjs",
@@ -13401,6 +13605,13 @@
         "total_churn": 236
       },
       {
+        "file": ".planning/milestones/v0.28-ROADMAP.md",
+        "commits": 1,
+        "lines_added": 234,
+        "lines_removed": 0,
+        "total_churn": 234
+      },
+      {
         "file": "bin/run-account-pool-alloy.cjs",
         "commits": 9,
         "lines_added": 196,
@@ -13434,6 +13645,13 @@
         "lines_added": 234,
         "lines_removed": 0,
         "total_churn": 234
+      },
+      {
+        "file": ".planning/quick/197-add-ci-virgin-install-tests-and-workflow/197-PLAN.md",
+        "commits": 1,
+        "lines_added": 233,
+        "lines_removed": 0,
+        "total_churn": 233
       },
       {
         "file": "bin/telemetry-collector.cjs",
@@ -13609,6 +13827,13 @@
         "lines_added": 115,
         "lines_removed": 115,
         "total_churn": 230
+      },
+      {
+        "file": "bin/security-sweep.test.cjs",
+        "commits": 2,
+        "lines_added": 228,
+        "lines_removed": 1,
+        "total_churn": 229
       },
       {
         "file": ".planning/phases/v0.29-01-layer-manifest-evidence-foundation/v0.29-01-02-PLAN.md",
@@ -13926,6 +14151,27 @@
         "total_churn": 223
       },
       {
+        "file": ".gitignore",
+        "commits": 47,
+        "lines_added": 177,
+        "lines_removed": 45,
+        "total_churn": 222
+      },
+      {
+        "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-01-PLAN.md",
+        "commits": 1,
+        "lines_added": 222,
+        "lines_removed": 0,
+        "total_churn": 222
+      },
+      {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-03-PLAN.md",
+        "commits": 1,
+        "lines_added": 222,
+        "lines_removed": 0,
+        "total_churn": 222
+      },
+      {
         "file": ".planning/phases/v0.29-02-semantics-layer-and-gate-a-grounding/v0.29-02-02-SUMMARY.md",
         "commits": 2,
         "lines_added": 125,
@@ -14134,13 +14380,6 @@
         "lines_added": 109,
         "lines_removed": 109,
         "total_churn": 218
-      },
-      {
-        "file": ".gitignore",
-        "commits": 46,
-        "lines_added": 174,
-        "lines_removed": 43,
-        "total_churn": 217
       },
       {
         "file": "bin/mismatch-register.cjs",
@@ -14442,6 +14681,13 @@
         "lines_added": 105,
         "lines_removed": 105,
         "total_churn": 210
+      },
+      {
+        "file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-PLAN.md",
+        "commits": 1,
+        "lines_added": 209,
+        "lines_removed": 0,
+        "total_churn": 209
       },
       {
         "file": "bin/validate-debt-entry.cjs",
@@ -14822,6 +15068,13 @@
         "total_churn": 202
       },
       {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-01-PLAN.md",
+        "commits": 1,
+        "lines_added": 201,
+        "lines_removed": 0,
+        "total_churn": 201
+      },
+      {
         "file": ".planning/quick/93-add-cli-auto-discovery-to-resolve-codex-/93-PLAN.md",
         "commits": 1,
         "lines_added": 201,
@@ -14911,6 +15164,13 @@
         "lines_added": 200,
         "lines_removed": 0,
         "total_churn": 200
+      },
+      {
+        "file": ".planning/milestones/v0.28-REQUIREMENTS.md",
+        "commits": 2,
+        "lines_added": 165,
+        "lines_removed": 34,
+        "total_churn": 199
       },
       {
         "file": "bin/requirement-map.test.cjs",
@@ -15046,6 +15306,13 @@
         "total_churn": 197
       },
       {
+        "file": ".planning/milestones/v0.28-phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-01-PLAN.md",
+        "commits": 1,
+        "lines_added": 196,
+        "lines_removed": 0,
+        "total_churn": 196
+      },
+      {
         "file": "bin/dispatch-availability-window.test.cjs",
         "commits": 3,
         "lines_added": 165,
@@ -15079,6 +15346,13 @@
         "lines_added": 196,
         "lines_removed": 0,
         "total_churn": 196
+      },
+      {
+        "file": "hooks/gsd-context-monitor.js",
+        "commits": 5,
+        "lines_added": 182,
+        "lines_removed": 13,
+        "total_churn": 195
       },
       {
         "file": ".planning/quick/133-build-a-phase-index-routing-table-for-re/133-VERIFICATION.md",
@@ -15165,6 +15439,20 @@
         "total_churn": 194
       },
       {
+        "file": "hooks/dist/nf-session-start.js",
+        "commits": 3,
+        "lines_added": 189,
+        "lines_removed": 4,
+        "total_churn": 193
+      },
+      {
+        "file": "hooks/nf-session-start.js",
+        "commits": 3,
+        "lines_added": 189,
+        "lines_removed": 4,
+        "total_churn": 193
+      },
+      {
         "file": ".planning/phases/v0.26-02-credential-management/v0.26-02-01-PLAN.md",
         "commits": 2,
         "lines_added": 186,
@@ -15225,13 +15513,6 @@
         "commits": 1,
         "lines_added": 192,
         "lines_removed": 0,
-        "total_churn": 192
-      },
-      {
-        "file": "hooks/gsd-context-monitor.test.js",
-        "commits": 3,
-        "lines_added": 185,
-        "lines_removed": 7,
         "total_churn": 192
       },
       {
@@ -15550,6 +15831,13 @@
         "total_churn": 185
       },
       {
+        "file": "bin/harness-diagnostic.test.cjs",
+        "commits": 1,
+        "lines_added": 184,
+        "lines_removed": 0,
+        "total_churn": 184
+      },
+      {
         "file": "bin/qgsd-manage.test.cjs",
         "commits": 1,
         "lines_added": 180,
@@ -15737,6 +16025,20 @@
         "lines_added": 180,
         "lines_removed": 0,
         "total_churn": 180
+      },
+      {
+        "file": "bin/formal-scope-scan.cjs",
+        "commits": 1,
+        "lines_added": 179,
+        "lines_removed": 0,
+        "total_churn": 179
+      },
+      {
+        "file": ".planning/milestones/v0.28-phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-02-PLAN.md",
+        "commits": 1,
+        "lines_added": 179,
+        "lines_removed": 0,
+        "total_churn": 179
       },
       {
         "file": ".planning/quick/184-implement-5-solve-automation-improvement/184-PLAN.md",
@@ -16059,6 +16361,13 @@
         "lines_added": 174,
         "lines_removed": 0,
         "total_churn": 174
+      },
+      {
+        "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-VALIDATION.md",
+        "commits": 2,
+        "lines_added": 133,
+        "lines_removed": 40,
+        "total_churn": 173
       },
       {
         "file": "bin/planning-paths.cjs",
@@ -16502,6 +16811,20 @@
         "total_churn": 167
       },
       {
+        "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-01-PLAN.md",
+        "commits": 1,
+        "lines_added": 166,
+        "lines_removed": 0,
+        "total_churn": 166
+      },
+      {
+        "file": "bin/gate-c-validation.cjs",
+        "commits": 1,
+        "lines_added": 166,
+        "lines_removed": 0,
+        "total_churn": 166
+      },
+      {
         "file": ".planning/phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-02-PLAN.md",
         "commits": 1,
         "lines_added": 166,
@@ -16542,6 +16865,13 @@
         "lines_added": 83,
         "lines_removed": 83,
         "total_churn": 166
+      },
+      {
+        "file": ".planning/quick/195-add-automated-audit-plan-execute-loop-to/195-PLAN.md",
+        "commits": 1,
+        "lines_added": 165,
+        "lines_removed": 0,
+        "total_churn": 165
       },
       {
         "file": ".planning/phases/v0.26-02-credential-management/v0.26-02-VALIDATION.md",
@@ -16712,6 +17042,20 @@
         "total_churn": 162
       },
       {
+        "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-02-PLAN.md",
+        "commits": 1,
+        "lines_added": 161,
+        "lines_removed": 0,
+        "total_churn": 161
+      },
+      {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-02-PLAN.md",
+        "commits": 1,
+        "lines_added": 161,
+        "lines_removed": 0,
+        "total_churn": 161
+      },
+      {
         "file": ".planning/formal/evidence/state-candidates.json",
         "commits": 1,
         "lines_added": 161,
@@ -16759,6 +17103,13 @@
         "lines_added": 161,
         "lines_removed": 0,
         "total_churn": 161
+      },
+      {
+        "file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-PLAN.md",
+        "commits": 1,
+        "lines_added": 160,
+        "lines_removed": 0,
+        "total_churn": 160
       },
       {
         "file": ".planning/phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-03-PLAN.md",
@@ -16878,6 +17229,13 @@
         "lines_added": 158,
         "lines_removed": 0,
         "total_churn": 158
+      },
+      {
+        "file": "core/workflows/execute-phase.md",
+        "commits": 3,
+        "lines_added": 103,
+        "lines_removed": 54,
+        "total_churn": 157
       },
       {
         "file": ".planning/observe-sources.md",
@@ -17102,6 +17460,13 @@
         "lines_added": 154,
         "lines_removed": 0,
         "total_churn": 154
+      },
+      {
+        "file": "bin/budget-tracker.test.cjs",
+        "commits": 1,
+        "lines_added": 153,
+        "lines_removed": 0,
+        "total_churn": 153
       },
       {
         "file": "bin/build-layer-manifest.cjs",
@@ -17405,6 +17770,13 @@
         "total_churn": 147
       },
       {
+        "file": "bin/stall-detector.test.cjs",
+        "commits": 1,
+        "lines_added": 146,
+        "lines_removed": 0,
+        "total_churn": 146
+      },
+      {
         "file": "bin/assumption-register.cjs",
         "commits": 1,
         "lines_added": 146,
@@ -17459,6 +17831,13 @@
         "lines_added": 145,
         "lines_removed": 0,
         "total_churn": 145
+      },
+      {
+        "file": ".planning/milestones/v0.29-ROADMAP.md",
+        "commits": 1,
+        "lines_added": 144,
+        "lines_removed": 0,
+        "total_churn": 144
       },
       {
         "file": "bin/quorum-cache.cjs",
@@ -17755,6 +18134,20 @@
         "total_churn": 140
       },
       {
+        "file": ".planning/milestones/v0.28-MILESTONE-AUDIT.md",
+        "commits": 1,
+        "lines_added": 139,
+        "lines_removed": 0,
+        "total_churn": 139
+      },
+      {
+        "file": "bin/cross-layer-dashboard.test.cjs",
+        "commits": 1,
+        "lines_added": 139,
+        "lines_removed": 0,
+        "total_churn": 139
+      },
+      {
         "file": "hooks/qgsd-token-collector.js",
         "commits": 2,
         "lines_added": 136,
@@ -17874,6 +18267,13 @@
         "total_churn": 137
       },
       {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-VALIDATION.md",
+        "commits": 3,
+        "lines_added": 114,
+        "lines_removed": 22,
+        "total_churn": 136
+      },
+      {
         "file": ".planning/quick/141-fix-solver-loop-bugs-parsealloydefaults-/141-VERIFICATION.md",
         "commits": 1,
         "lines_added": 136,
@@ -17935,6 +18335,13 @@
         "lines_added": 68,
         "lines_removed": 68,
         "total_churn": 136
+      },
+      {
+        "file": ".planning/milestones/v0.28-phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/CLEANUP-REPORT.md",
+        "commits": 1,
+        "lines_added": 135,
+        "lines_removed": 0,
+        "total_churn": 135
       },
       {
         "file": "bin/sweepPtoF.test.cjs",
@@ -18210,17 +18617,10 @@
         "total_churn": 132
       },
       {
-        "file": "hooks/dist/nf-session-start.js",
+        "file": "core/workflows/plan-phase.md",
         "commits": 2,
-        "lines_added": 131,
-        "lines_removed": 0,
-        "total_churn": 131
-      },
-      {
-        "file": "hooks/nf-session-start.js",
-        "commits": 2,
-        "lines_added": 131,
-        "lines_removed": 0,
+        "lines_added": 59,
+        "lines_removed": 72,
         "total_churn": 131
       },
       {
@@ -18383,6 +18783,13 @@
         "lines_added": 129,
         "lines_removed": 0,
         "total_churn": 129
+      },
+      {
+        "file": "bin/gate-c-validation.test.cjs",
+        "commits": 1,
+        "lines_added": 128,
+        "lines_removed": 0,
+        "total_churn": 128
       },
       {
         "file": ".planning/quick/188-review-upstream-and-deps-handler-impleme/188-REQUIREMENTS.md",
@@ -18581,6 +18988,13 @@
         "total_churn": 127
       },
       {
+        "file": "bin/stall-detector.cjs",
+        "commits": 1,
+        "lines_added": 126,
+        "lines_removed": 0,
+        "total_churn": 126
+      },
+      {
         "file": "bin/risk-heatmap.test.cjs",
         "commits": 1,
         "lines_added": 126,
@@ -18690,13 +19104,6 @@
         "commits": 1,
         "lines_added": 124,
         "lines_removed": 0,
-        "total_churn": 124
-      },
-      {
-        "file": "core/workflows/execute-phase.md",
-        "commits": 2,
-        "lines_added": 89,
-        "lines_removed": 35,
         "total_churn": 124
       },
       {
@@ -18831,6 +19238,13 @@
         "lines_added": 123,
         "lines_removed": 0,
         "total_churn": 123
+      },
+      {
+        "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 122,
+        "lines_removed": 0,
+        "total_churn": 122
       },
       {
         "file": "bin/check-coverage-guard.cjs",
@@ -19043,6 +19457,13 @@
         "total_churn": 119
       },
       {
+        "file": ".planning/quick/198-implement-ecc-best-practices-post-edit-a/198-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 118,
+        "lines_removed": 0,
+        "total_churn": 118
+      },
+      {
         "file": "bin/build-layer-manifest.test.cjs",
         "commits": 1,
         "lines_added": 118,
@@ -19195,6 +19616,13 @@
         "lines_added": 117,
         "lines_removed": 0,
         "total_churn": 117
+      },
+      {
+        "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-03-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 116,
+        "lines_removed": 0,
+        "total_churn": 116
       },
       {
         "file": "bin/autoClosePtoF.cjs",
@@ -19372,6 +19800,13 @@
         "total_churn": 115
       },
       {
+        "file": "core/bin/gsd-tools.test.cjs",
+        "commits": 2,
+        "lines_added": 108,
+        "lines_removed": 6,
+        "total_churn": 114
+      },
+      {
         "file": ".planning/phases/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-03-SUMMARY.md",
         "commits": 1,
         "lines_added": 114,
@@ -19447,6 +19882,20 @@
         "lines_added": 114,
         "lines_removed": 0,
         "total_churn": 114
+      },
+      {
+        "file": ".planning/milestones/v0.28-phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 113,
+        "lines_removed": 0,
+        "total_churn": 113
+      },
+      {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-03-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 113,
+        "lines_removed": 0,
+        "total_churn": 113
       },
       {
         "file": ".planning/quick/162-make-sync-baselines-always-use-detect-mo/162-SUMMARY.md",
@@ -19841,6 +20290,20 @@
         "total_churn": 109
       },
       {
+        "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-02-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 108,
+        "lines_removed": 0,
+        "total_churn": 108
+      },
+      {
+        "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-01-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 108,
+        "lines_removed": 0,
+        "total_churn": 108
+      },
+      {
         "file": "bin/sensitivity-sweep-feedback.test.cjs",
         "commits": 3,
         "lines_added": 102,
@@ -19932,6 +20395,20 @@
         "total_churn": 108
       },
       {
+        "file": "hooks/nf-console-guard.js",
+        "commits": 1,
+        "lines_added": 107,
+        "lines_removed": 0,
+        "total_churn": 107
+      },
+      {
+        "file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 107,
+        "lines_removed": 0,
+        "total_churn": 107
+      },
+      {
         "file": ".planning/quick/121-build-install-formal-tools-cjs-cross-pla/121-SUMMARY.md",
         "commits": 2,
         "lines_added": 105,
@@ -19979,6 +20456,20 @@
         "lines_added": 107,
         "lines_removed": 0,
         "total_churn": 107
+      },
+      {
+        "file": "core/workflows/quick.md",
+        "commits": 2,
+        "lines_added": 50,
+        "lines_removed": 56,
+        "total_churn": 106
+      },
+      {
+        "file": ".planning/phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-03-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 106,
+        "lines_removed": 0,
+        "total_churn": 106
       },
       {
         "file": ".planning/formal/acknowledged-not-required.json",
@@ -20527,6 +21018,13 @@
         "total_churn": 102
       },
       {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-01-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 101,
+        "lines_removed": 0,
+        "total_churn": 101
+      },
+      {
         "file": "bin/instrumentation-map.test.cjs",
         "commits": 1,
         "lines_added": 101,
@@ -20751,6 +21249,13 @@
         "total_churn": 100
       },
       {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-02-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 99,
+        "lines_removed": 0,
+        "total_churn": 99
+      },
+      {
         "file": "bin/auth-drivers/gh-cli.cjs",
         "commits": 4,
         "lines_added": 96,
@@ -20840,6 +21345,20 @@
         "lines_added": 99,
         "lines_removed": 0,
         "total_churn": 99
+      },
+      {
+        "file": ".planning/quick/197-add-ci-virgin-install-tests-and-workflow/197-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 98,
+        "lines_removed": 0,
+        "total_churn": 98
+      },
+      {
+        "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-01-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 98,
+        "lines_removed": 0,
+        "total_churn": 98
       },
       {
         "file": "hooks/nf-prompt-fan-out.test.cjs",
@@ -20940,6 +21459,20 @@
         "total_churn": 98
       },
       {
+        "file": ".planning/quick/198-implement-ecc-best-practices-post-edit-a/198-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 97,
+        "lines_removed": 0,
+        "total_churn": 97
+      },
+      {
+        "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 97,
+        "lines_removed": 0,
+        "total_churn": 97
+      },
+      {
         "file": ".planning/phases/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-VALIDATION.md",
         "commits": 1,
         "lines_added": 97,
@@ -21022,6 +21555,13 @@
         "lines_added": 97,
         "lines_removed": 0,
         "total_churn": 97
+      },
+      {
+        "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-VALIDATION.md",
+        "commits": 2,
+        "lines_added": 92,
+        "lines_removed": 4,
+        "total_churn": 96
       },
       {
         "file": ".planning/phases/v0.29-01-layer-manifest-evidence-foundation/v0.29-01-VERIFICATION.md",
@@ -21395,7 +21935,21 @@
         "total_churn": 93
       },
       {
-        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-VALIDATION.md",
+        "file": "hooks/nf-post-edit-format.js",
+        "commits": 1,
+        "lines_added": 92,
+        "lines_removed": 0,
+        "total_churn": 92
+      },
+      {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 92,
+        "lines_removed": 0,
+        "total_churn": 92
+      },
+      {
+        "file": ".planning/phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-02-SUMMARY.md",
         "commits": 1,
         "lines_added": 92,
         "lines_removed": 0,
@@ -21514,6 +22068,13 @@
         "total_churn": 92
       },
       {
+        "file": "core/workflows/new-milestone.md",
+        "commits": 2,
+        "lines_added": 40,
+        "lines_removed": 51,
+        "total_churn": 91
+      },
+      {
         "file": ".planning/quick/191-harden-circuit-breaker-to-prevent-false-/191-VERIFICATION.md",
         "commits": 1,
         "lines_added": 91,
@@ -21596,6 +22157,13 @@
         "lines_added": 91,
         "lines_removed": 0,
         "total_churn": 91
+      },
+      {
+        "file": ".planning/quick/196-improve-formal-scope-scan-to-use-semanti/196-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 90,
+        "lines_removed": 0,
+        "total_churn": 90
       },
       {
         "file": ".planning/quick/190-review-and-validate-session-persistence-/190-SUMMARY.md",
@@ -21703,6 +22271,13 @@
         "total_churn": 90
       },
       {
+        "file": ".planning/quick/195-add-automated-audit-plan-execute-loop-to/195-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 89,
+        "lines_removed": 0,
+        "total_churn": 89
+      },
+      {
         "file": ".planning/quick/182-add-test-recipe-generation-to-formal-tes/182-SUMMARY.md",
         "commits": 1,
         "lines_added": 89,
@@ -21792,6 +22367,20 @@
         "lines_added": 89,
         "lines_removed": 0,
         "total_churn": 89
+      },
+      {
+        "file": ".planning/quick/197-add-ci-virgin-install-tests-and-workflow/197-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 88,
+        "lines_removed": 0,
+        "total_churn": 88
+      },
+      {
+        "file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 88,
+        "lines_removed": 0,
+        "total_churn": 88
       },
       {
         "file": "bin/nf-stop-hook.test.cjs",
@@ -22081,13 +22670,6 @@
         "total_churn": 85
       },
       {
-        "file": "core/workflows/plan-phase.md",
-        "commits": 1,
-        "lines_added": 42,
-        "lines_removed": 42,
-        "total_churn": 84
-      },
-      {
         "file": "qgsd-core/defaults/baseline-requirements/ux-heuristics.json",
         "commits": 1,
         "lines_added": 84,
@@ -22242,6 +22824,13 @@
         "total_churn": 83
       },
       {
+        "file": ".github/workflows/publish.yml",
+        "commits": 4,
+        "lines_added": 75,
+        "lines_removed": 7,
+        "total_churn": 82
+      },
+      {
         "file": ".planning/phases/v0.29-02-semantics-layer-and-gate-a-grounding/v0.29-02-VERIFICATION.md",
         "commits": 1,
         "lines_added": 82,
@@ -22375,6 +22964,27 @@
         "total_churn": 81
       },
       {
+        "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-01-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 80,
+        "lines_removed": 0,
+        "total_churn": 80
+      },
+      {
+        "file": ".planning/quick/196-improve-formal-scope-scan-to-use-semanti/196-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 80,
+        "lines_removed": 0,
+        "total_churn": 80
+      },
+      {
+        "file": ".planning/phases/v0.29-03-reasoning-enrichment-and-gate-b-abstraction/v0.29-03-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 80,
+        "lines_removed": 0,
+        "total_churn": 80
+      },
+      {
         "file": "hooks/{qgsd-prompt.test.js => dist/nf-prompt.test.js}",
         "commits": 1,
         "lines_added": 40,
@@ -22487,10 +23097,10 @@
         "total_churn": 80
       },
       {
-        "file": "hooks/gsd-context-monitor.js",
-        "commits": 4,
-        "lines_added": 75,
-        "lines_removed": 4,
+        "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 79,
+        "lines_removed": 0,
         "total_churn": 79
       },
       {
@@ -22512,13 +23122,6 @@
         "commits": 2,
         "lines_added": 71,
         "lines_removed": 7,
-        "total_churn": 78
-      },
-      {
-        "file": ".github/workflows/publish.yml",
-        "commits": 3,
-        "lines_added": 73,
-        "lines_removed": 5,
         "total_churn": 78
       },
       {
@@ -22625,6 +23228,13 @@
         "lines_added": 78,
         "lines_removed": 0,
         "total_churn": 78
+      },
+      {
+        "file": "bin/budget-tracker.cjs",
+        "commits": 1,
+        "lines_added": 77,
+        "lines_removed": 0,
+        "total_churn": 77
       },
       {
         "file": "test/alloy-headless.test.cjs",
@@ -23495,6 +24105,20 @@
         "total_churn": 68
       },
       {
+        "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-CONTEXT.md",
+        "commits": 1,
+        "lines_added": 67,
+        "lines_removed": 0,
+        "total_churn": 67
+      },
+      {
+        "file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 67,
+        "lines_removed": 0,
+        "total_churn": 67
+      },
+      {
         "file": ".planning/quick/177-add-both-test-approaches-for-verify-03-s/177-VERIFICATION.md",
         "commits": 1,
         "lines_added": 67,
@@ -23782,6 +24406,13 @@
         "total_churn": 64
       },
       {
+        "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 63,
+        "lines_removed": 0,
+        "total_churn": 63
+      },
+      {
         "file": "bin/nf-fan-out.test.cjs",
         "commits": 1,
         "lines_added": 63,
@@ -24034,13 +24665,6 @@
         "total_churn": 60
       },
       {
-        "file": "core/workflows/quick.md",
-        "commits": 1,
-        "lines_added": 30,
-        "lines_removed": 30,
-        "total_churn": 60
-      },
-      {
         "file": "bin/isNumericThreshold.test.cjs",
         "commits": 1,
         "lines_added": 60,
@@ -24216,6 +24840,13 @@
         "total_churn": 58
       },
       {
+        "file": "core/workflows/audit-milestone.md",
+        "commits": 2,
+        "lines_added": 35,
+        "lines_removed": 22,
+        "total_churn": 57
+      },
+      {
         "file": ".planning/phases/v0.26-04-health-dashboard/v0.26-04-01-SUMMARY.md",
         "commits": 1,
         "lines_added": 57,
@@ -24263,13 +24894,6 @@
         "lines_added": 35,
         "lines_removed": 22,
         "total_churn": 57
-      },
-      {
-        "file": "core/workflows/new-milestone.md",
-        "commits": 1,
-        "lines_added": 28,
-        "lines_removed": 28,
-        "total_churn": 56
       },
       {
         "file": "qgsd-core/workflows/verify-work.md",
@@ -24496,6 +25120,20 @@
         "total_churn": 53
       },
       {
+        "file": ".github/workflows/ci-install.yml",
+        "commits": 1,
+        "lines_added": 52,
+        "lines_removed": 0,
+        "total_churn": 52
+      },
+      {
+        "file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 52,
+        "lines_removed": 0,
+        "total_churn": 52
+      },
+      {
         "file": ".planning/quick/186-full-qgsd-to-nforma-rebrand-rename-all-r/186-SUMMARY.md",
         "commits": 1,
         "lines_added": 52,
@@ -24720,6 +25358,13 @@
         "total_churn": 50
       },
       {
+        "file": ".gitleaks.toml",
+        "commits": 4,
+        "lines_added": 47,
+        "lines_removed": 2,
+        "total_churn": 49
+      },
+      {
         "file": "templates/nf.json",
         "commits": 1,
         "lines_added": 49,
@@ -24867,13 +25512,6 @@
         "total_churn": 47
       },
       {
-        "file": ".planning/milestones/v0.28-REQUIREMENTS.md",
-        "commits": 1,
-        "lines_added": 47,
-        "lines_removed": 0,
-        "total_churn": 47
-      },
-      {
         "file": "commands/nf/observe.md",
         "commits": 1,
         "lines_added": 40,
@@ -24885,13 +25523,6 @@
         "commits": 2,
         "lines_added": 46,
         "lines_removed": 1,
-        "total_churn": 47
-      },
-      {
-        "file": ".gitleaks.toml",
-        "commits": 2,
-        "lines_added": 45,
-        "lines_removed": 2,
         "total_churn": 47
       },
       {
@@ -24958,6 +25589,13 @@
         "total_churn": 47
       },
       {
+        "file": "core/bin/gsd-tools.cjs",
+        "commits": 2,
+        "lines_added": 38,
+        "lines_removed": 8,
+        "total_churn": 46
+      },
+      {
         "file": "commands/nf/solve.md",
         "commits": 1,
         "lines_added": 23,
@@ -25012,6 +25650,13 @@
         "lines_added": 46,
         "lines_removed": 0,
         "total_churn": 46
+      },
+      {
+        "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-01-PLAN.md",
+        "commits": 1,
+        "lines_added": 45,
+        "lines_removed": 0,
+        "total_churn": 45
       },
       {
         "file": ".planning/quick/191-harden-circuit-breaker-to-prevent-false-/191-SUMMARY.md",
@@ -25630,6 +26275,13 @@
         "total_churn": 37
       },
       {
+        "file": "Dockerfile.test-install",
+        "commits": 2,
+        "lines_added": 33,
+        "lines_removed": 3,
+        "total_churn": 36
+      },
+      {
         "file": "core/workflows/verify-work.md",
         "commits": 1,
         "lines_added": 18,
@@ -26120,13 +26772,6 @@
         "total_churn": 31
       },
       {
-        "file": "core/workflows/audit-milestone.md",
-        "commits": 1,
-        "lines_added": 15,
-        "lines_removed": 15,
-        "total_churn": 30
-      },
-      {
         "file": "core/workflows/discuss-phase.md",
         "commits": 1,
         "lines_added": 15,
@@ -26145,13 +26790,6 @@
         "commits": 3,
         "lines_added": 15,
         "lines_removed": 15,
-        "total_churn": 30
-      },
-      {
-        "file": "Dockerfile.test-install",
-        "commits": 1,
-        "lines_added": 30,
-        "lines_removed": 0,
         "total_churn": 30
       },
       {
@@ -26519,6 +27157,13 @@
         "total_churn": 22
       },
       {
+        "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-VALIDATION.md",
+        "commits": 1,
+        "lines_added": 21,
+        "lines_removed": 0,
+        "total_churn": 21
+      },
+      {
         "file": "bin/compareDrift.cjs",
         "commits": 1,
         "lines_added": 21,
@@ -26538,6 +27183,20 @@
         "lines_added": 21,
         "lines_removed": 0,
         "total_churn": 21
+      },
+      {
+        "file": "bin/conformance-schema.cjs",
+        "commits": 5,
+        "lines_added": 16,
+        "lines_removed": 4,
+        "total_churn": 20
+      },
+      {
+        "file": "hooks/conformance-schema.cjs",
+        "commits": 5,
+        "lines_added": 16,
+        "lines_removed": 4,
+        "total_churn": 20
       },
       {
         "file": "commands/nf/quorum-test.md",
@@ -26636,6 +27295,13 @@
         "lines_added": 10,
         "lines_removed": 10,
         "total_churn": 20
+      },
+      {
+        "file": "core/workflows/health.md",
+        "commits": 2,
+        "lines_added": 17,
+        "lines_removed": 2,
+        "total_churn": 19
       },
       {
         "file": ".planning/quick/135-rename-formal-to-formal-and-update-all-r/135-SUMMARY.md",
@@ -26750,29 +27416,57 @@
         "total_churn": 17
       },
       {
-        "file": "bin/conformance-schema.cjs",
-        "commits": 3,
-        "lines_added": 14,
-        "lines_removed": 2,
+        "file": ".planning/milestones/v0.28-phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/task-envelope.json",
+        "commits": 1,
+        "lines_added": 16,
+        "lines_removed": 0,
         "total_churn": 16
       },
       {
-        "file": "hooks/conformance-schema.cjs",
-        "commits": 3,
-        "lines_added": 14,
-        "lines_removed": 2,
+        "file": ".planning/milestones/v0.28-phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/task-envelope.json",
+        "commits": 1,
+        "lines_added": 16,
+        "lines_removed": 0,
+        "total_churn": 16
+      },
+      {
+        "file": ".planning/phases/v0.29-01-layer-manifest-evidence-foundation/task-envelope.json",
+        "commits": 1,
+        "lines_added": 16,
+        "lines_removed": 0,
+        "total_churn": 16
+      },
+      {
+        "file": ".planning/phases/v0.29-02-semantics-layer-and-gate-a-grounding/task-envelope.json",
+        "commits": 1,
+        "lines_added": 16,
+        "lines_removed": 0,
+        "total_churn": 16
+      },
+      {
+        "file": ".planning/phases/v0.29-03-reasoning-enrichment-and-gate-b-abstraction/task-envelope.json",
+        "commits": 1,
+        "lines_added": 16,
+        "lines_removed": 0,
+        "total_churn": 16
+      },
+      {
+        "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/task-envelope.json",
+        "commits": 1,
+        "lines_added": 16,
+        "lines_removed": 0,
+        "total_churn": 16
+      },
+      {
+        "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/task-envelope.json",
+        "commits": 1,
+        "lines_added": 16,
+        "lines_removed": 0,
         "total_churn": 16
       },
       {
         "file": ".planning/formal/prism/quorum.pm",
         "commits": 2,
-        "lines_added": 8,
-        "lines_removed": 8,
-        "total_churn": 16
-      },
-      {
-        "file": "core/bin/gsd-tools.cjs",
-        "commits": 1,
         "lines_added": 8,
         "lines_removed": 8,
         "total_churn": 16
@@ -27415,13 +28109,6 @@
         "total_churn": 12
       },
       {
-        "file": "core/bin/gsd-tools.test.cjs",
-        "commits": 1,
-        "lines_added": 6,
-        "lines_removed": 6,
-        "total_churn": 12
-      },
-      {
         "file": "core/references/planning-config.md",
         "commits": 1,
         "lines_added": 6,
@@ -27541,6 +28228,13 @@
         "total_churn": 12
       },
       {
+        "file": ".planning/formal/gates/gate-c-validation.json",
+        "commits": 1,
+        "lines_added": 11,
+        "lines_removed": 0,
+        "total_churn": 11
+      },
+      {
         "file": ".planning/formal/gates/gate-b-abstraction.json",
         "commits": 1,
         "lines_added": 11,
@@ -27588,6 +28282,13 @@
         "lines_added": 11,
         "lines_removed": 0,
         "total_churn": 11
+      },
+      {
+        "file": ".claude/rules/coding-style.md",
+        "commits": 1,
+        "lines_added": 10,
+        "lines_removed": 0,
+        "total_churn": 10
       },
       {
         "file": ".planning/formal/semantics/mismatch-register.jsonl",
@@ -27737,6 +28438,20 @@
         "total_churn": 10
       },
       {
+        "file": ".claude/rules/git-workflow.md",
+        "commits": 1,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "total_churn": 9
+      },
+      {
+        "file": ".planning/{REQUIREMENTS.md => milestones/v0.29-REQUIREMENTS.md}",
+        "commits": 1,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "total_churn": 9
+      },
+      {
         "file": "hooks/dist/nf-spec-regen.js",
         "commits": 1,
         "lines_added": 9,
@@ -27833,6 +28548,27 @@
         "lines_added": 9,
         "lines_removed": 0,
         "total_churn": 9
+      },
+      {
+        "file": ".claude/rules/security.md",
+        "commits": 1,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "total_churn": 8
+      },
+      {
+        "file": ".claude/rules/testing.md",
+        "commits": 1,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "total_churn": 8
+      },
+      {
+        "file": "commands/nf/audit-milestone.md",
+        "commits": 2,
+        "lines_added": 4,
+        "lines_removed": 4,
+        "total_churn": 8
       },
       {
         "file": "hooks/dist/nf-slot-correlator.js",
@@ -28123,13 +28859,6 @@
       },
       {
         "file": "commands/nf/add-todo.md",
-        "commits": 1,
-        "lines_added": 3,
-        "lines_removed": 3,
-        "total_churn": 6
-      },
-      {
-        "file": "commands/nf/audit-milestone.md",
         "commits": 1,
         "lines_added": 3,
         "lines_removed": 3,
@@ -28500,6 +29229,111 @@
         "total_churn": 6
       },
       {
+        "file": ".planning/formal/spec/account-manager/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/agent-loop/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/breaker/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/convergence/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/deliberation-revision/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/deliberation/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/installer/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/mcp-calls/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/oscillation/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/prefilter/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/quorum/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/recruiting/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/safety/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/stop-hook/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
+        "file": ".planning/formal/spec/tui-nav/scope.json",
+        "commits": 1,
+        "lines_added": 5,
+        "lines_removed": 0,
+        "total_churn": 5
+      },
+      {
         "file": ".planning/quick/80-consolidate-all-mcp-sub-repos-into-qgsd-/80-DEPRECATED.md",
         "commits": 1,
         "lines_added": 5,
@@ -28578,13 +29412,6 @@
       },
       {
         "file": "core/workflows/diagnose-issues.md",
-        "commits": 1,
-        "lines_added": 2,
-        "lines_removed": 2,
-        "total_churn": 4
-      },
-      {
-        "file": "core/workflows/health.md",
         "commits": 1,
         "lines_added": 2,
         "lines_removed": 2,
@@ -29702,6 +30529,209 @@
         "lines_added": 1,
         "lines_removed": 1,
         "total_churn": 2
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/task-envelope.json",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-01-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-01-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-02-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-02-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-03-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-03-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-RESEARCH.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-VALIDATION.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-01-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-01-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-02-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-02-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-03-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-03-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-RESEARCH.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-VALIDATION.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-01-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-02-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-03-PLAN.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-RESEARCH.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-VALIDATION.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-01-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-02-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-03-SUMMARY.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-CONTEXT.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
+      },
+      {
+        "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-VERIFICATION.md",
+        "commits": 1,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "total_churn": 0
       },
       {
         "file": ".planning/formal/gates/.gitkeep",
@@ -37956,9 +38986,9 @@
     },
     {
       "file": ".planning/STATE.md",
-      "priority": 646204,
-      "churn": 9503,
-      "fixes": 67,
+      "priority": 692818,
+      "churn": 9758,
+      "fixes": 70,
       "adjustments": 0,
       "signals": [
         "churn",
@@ -37967,9 +38997,9 @@
     },
     {
       "file": ".planning/ROADMAP.md",
-      "priority": 492369,
-      "churn": 12009,
-      "fixes": 40,
+      "priority": 518238,
+      "churn": 12339,
+      "fixes": 41,
       "adjustments": 0,
       "signals": [
         "churn",
@@ -38044,8 +39074,8 @@
     },
     {
       "file": ".planning/REQUIREMENTS.md",
-      "priority": 108048,
-      "churn": 6753,
+      "priority": 109360,
+      "churn": 6835,
       "fixes": 15,
       "adjustments": 0,
       "signals": [
@@ -38062,6 +39092,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/formal/evidence/git-heatmap.json",
+      "priority": 83172,
+      "churn": 83172,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -38210,8 +39250,8 @@
     },
     {
       "file": "package-lock.json",
-      "priority": 35864,
-      "churn": 8966,
+      "priority": 35896,
+      "churn": 8974,
       "fixes": 3,
       "adjustments": 0,
       "signals": [
@@ -38440,6 +39480,17 @@
       ]
     },
     {
+      "file": "package.json",
+      "priority": 16344,
+      "churn": 908,
+      "fixes": 17,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": "commands/qgsd/quorum.md",
       "priority": 16191,
       "churn": 1799,
@@ -38477,17 +39528,6 @@
       "priority": 14651,
       "churn": 2093,
       "fixes": 6,
-      "adjustments": 0,
-      "signals": [
-        "churn",
-        "bugfix"
-      ]
-    },
-    {
-      "file": "package.json",
-      "priority": 14384,
-      "churn": 899,
-      "fixes": 15,
       "adjustments": 0,
       "signals": [
         "churn",
@@ -38539,6 +39579,17 @@
       ]
     },
     {
+      "file": ".planning/PROJECT.md",
+      "priority": 12190,
+      "churn": 2438,
+      "fixes": 4,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": "gsd-memory/package-lock.json",
       "priority": 12020,
       "churn": 12020,
@@ -38546,17 +39597,6 @@
       "adjustments": 0,
       "signals": [
         "churn"
-      ]
-    },
-    {
-      "file": ".planning/PROJECT.md",
-      "priority": 11845,
-      "churn": 2369,
-      "fixes": 4,
-      "adjustments": 0,
-      "signals": [
-        "churn",
-        "bugfix"
       ]
     },
     {
@@ -39223,6 +40263,17 @@
       ]
     },
     {
+      "file": ".secrets.baseline",
+      "priority": 3205,
+      "churn": 641,
+      "fixes": 4,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": "node_modules/get-shit-done-cc/get-shit-done/workflows/plan-phase.md",
       "priority": 3180,
       "churn": 1590,
@@ -39777,9 +40828,9 @@
       ]
     },
     {
-      "file": "commands/gsd/add-phase.md",
-      "priority": 1995,
-      "churn": 665,
+      "file": "hooks/dist/config-loader.js",
+      "priority": 2004,
+      "churn": 668,
       "fixes": 2,
       "adjustments": 0,
       "signals": [
@@ -39788,10 +40839,10 @@
       ]
     },
     {
-      "file": ".secrets.baseline",
-      "priority": 1992,
-      "churn": 498,
-      "fixes": 3,
+      "file": "commands/gsd/add-phase.md",
+      "priority": 1995,
+      "churn": 665,
+      "fixes": 2,
       "adjustments": 0,
       "signals": [
         "churn",
@@ -40330,6 +41381,27 @@
       ]
     },
     {
+      "file": "bin/nf-solve.test.cjs",
+      "priority": 1476,
+      "churn": 738,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/formal/test-recipes/test-recipes.json",
+      "priority": 1469,
+      "churn": 1469,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "get-shit-done/references/debugging/when-to-research.md",
       "priority": 1468,
       "churn": 1468,
@@ -40731,6 +41803,17 @@
       ]
     },
     {
+      "file": "bin/run-formal-verify.test.cjs",
+      "priority": 1312,
+      "churn": 656,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": "get-shit-done/workflows/help.md",
       "priority": 1312,
       "churn": 1312,
@@ -40749,6 +41832,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": "bin/verify-quorum-health.test.cjs",
+      "priority": 1308,
+      "churn": 1308,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -40919,17 +42012,6 @@
       ]
     },
     {
-      "file": "bin/run-formal-verify.test.cjs",
-      "priority": 1224,
-      "churn": 612,
-      "fixes": 1,
-      "adjustments": 0,
-      "signals": [
-        "churn",
-        "bugfix"
-      ]
-    },
-    {
       "file": ".formal/state-space-report.json",
       "priority": 1224,
       "churn": 1224,
@@ -40975,16 +42057,6 @@
       "file": ".planning/phases/15-dedicated-planner-agent/15-02-PLAN.md",
       "priority": 1204,
       "churn": 1204,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
-      "file": "bin/verify-quorum-health.test.cjs",
-      "priority": 1203,
-      "churn": 1203,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -41249,6 +42321,17 @@
       ]
     },
     {
+      "file": ".gitignore",
+      "priority": 1110,
+      "churn": 222,
+      "fixes": 4,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": "get-shit-done/templates/research-subagent-prompt.md",
       "priority": 1104,
       "churn": 368,
@@ -41261,17 +42344,6 @@
     },
     {
       "file": ".planning/phases/27-model-switching/27-01-PLAN.md",
-      "priority": 1104,
-      "churn": 552,
-      "fixes": 1,
-      "adjustments": 0,
-      "signals": [
-        "churn",
-        "bugfix"
-      ]
-    },
-    {
-      "file": "hooks/dist/config-loader.js",
       "priority": 1104,
       "churn": 552,
       "fixes": 1,
@@ -41366,10 +42438,20 @@
       ]
     },
     {
-      "file": ".gitignore",
-      "priority": 1085,
-      "churn": 217,
-      "fixes": 4,
+      "file": ".planning/formal/requirements.json",
+      "priority": 1081,
+      "churn": 1081,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/29-restore-mcp-status-v2-and-checkbox-cleanup/29-01-PLAN.md",
+      "priority": 1080,
+      "churn": 540,
+      "fixes": 1,
       "adjustments": 0,
       "signals": [
         "churn",
@@ -41377,7 +42459,7 @@
       ]
     },
     {
-      "file": ".planning/phases/29-restore-mcp-status-v2-and-checkbox-cleanup/29-01-PLAN.md",
+      "file": "bin/verify-quorum-health.cjs",
       "priority": 1080,
       "churn": 540,
       "fixes": 1,
@@ -41620,16 +42702,6 @@
       ]
     },
     {
-      "file": ".planning/formal/requirements.json",
-      "priority": 1009,
-      "churn": 1009,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": "templates/qgsd.json",
       "priority": 1008,
       "churn": 168,
@@ -41863,17 +42935,6 @@
       "file": ".planning/phases/23-mcp-repo-surface-fixes/23-01-PLAN.md",
       "priority": 956,
       "churn": 478,
-      "fixes": 1,
-      "adjustments": 0,
-      "signals": [
-        "churn",
-        "bugfix"
-      ]
-    },
-    {
-      "file": "bin/verify-quorum-health.cjs",
-      "priority": 954,
-      "churn": 477,
       "fixes": 1,
       "adjustments": 0,
       "signals": [
@@ -43216,6 +44277,26 @@
       ]
     },
     {
+      "file": "hooks/dist/nf-stop.js",
+      "priority": 691,
+      "churn": 691,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "hooks/nf-stop.js",
+      "priority": 691,
+      "churn": 691,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/quick/8-update-qgsd-stop-js-and-qgsd-prompt-js-t/8-PLAN.md",
       "priority": 690,
       "churn": 230,
@@ -43580,16 +44661,6 @@
       ]
     },
     {
-      "file": "bin/nf-solve.test.cjs",
-      "priority": 630,
-      "churn": 630,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": ".github/workflows/ci.yml",
       "priority": 628,
       "churn": 314,
@@ -43781,6 +44852,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-RESEARCH.md",
+      "priority": 610,
+      "churn": 610,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.19-05-mcp-environment-model/v0.19-05-04-PLAN.md",
       "priority": 610,
       "churn": 610,
@@ -43831,6 +44912,17 @@
       ]
     },
     {
+      "file": "hooks/gsd-context-monitor.test.js",
+      "priority": 600,
+      "churn": 300,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.19-11-unif-03-summary-fix-checkbox-cleanup/v0.19-11-01-SUMMARY.md",
       "priority": 600,
       "churn": 300,
@@ -43871,6 +44963,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/MILESTONES.md",
+      "priority": 598,
+      "churn": 598,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -44091,6 +45193,16 @@
       ]
     },
     {
+      "file": "bin/git-heatmap.cjs",
+      "priority": 573,
+      "churn": 573,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/v0.20-INTEGRATION-CHECK.md",
       "priority": 573,
       "churn": 573,
@@ -44124,6 +45236,16 @@
       "file": "get-shit-done/templates/uat-issues.md",
       "priority": 572,
       "churn": 572,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".github/workflows/release.yml",
+      "priority": 570,
+      "churn": 570,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -44165,26 +45287,6 @@
       "file": "gsd-memory/tests/tools/register.test.ts",
       "priority": 568,
       "churn": 568,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
-      "file": "hooks/dist/nf-stop.js",
-      "priority": 566,
-      "churn": 566,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
-      "file": "hooks/nf-stop.js",
-      "priority": 566,
-      "churn": 566,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -44316,16 +45418,6 @@
     },
     {
       "file": ".planning/quick/186-full-qgsd-to-nforma-rebrand-rename-all-r/186-PLAN.md",
-      "priority": 555,
-      "churn": 555,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
-      "file": ".planning/MILESTONES.md",
       "priority": 555,
       "churn": 555,
       "fixes": 0,
@@ -44973,16 +46065,6 @@
       "signals": [
         "churn",
         "bugfix"
-      ]
-    },
-    {
-      "file": ".github/workflows/release.yml",
-      "priority": 504,
-      "churn": 504,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
       ]
     },
     {
@@ -45801,6 +46883,17 @@
       ]
     },
     {
+      "file": "bin/security-sweep.test.cjs",
+      "priority": 458,
+      "churn": 229,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.29-01-layer-manifest-evidence-foundation/v0.29-01-02-PLAN.md",
       "priority": 458,
       "churn": 229,
@@ -46151,6 +47244,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-RESEARCH.md",
+      "priority": 437,
+      "churn": 437,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/invariant-catalog.cjs",
       "priority": 437,
       "churn": 437,
@@ -46448,6 +47551,16 @@
       ]
     },
     {
+      "file": "hooks/nf-session-start.test.js",
+      "priority": 422,
+      "churn": 422,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/write-check-result.test.cjs",
       "priority": 422,
       "churn": 422,
@@ -46507,6 +47620,17 @@
       "adjustments": 0,
       "signals": [
         "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-PLAN.md",
+      "priority": 418,
+      "churn": 209,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
       ]
     },
     {
@@ -46889,6 +48013,16 @@
       ]
     },
     {
+      "file": "test/install-virgin.test.cjs",
+      "priority": 401,
+      "churn": 401,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/validate-memory.cjs",
       "priority": 401,
       "churn": 401,
@@ -47170,6 +48304,17 @@
       "adjustments": 0,
       "signals": [
         "churn"
+      ]
+    },
+    {
+      "file": "hooks/gsd-context-monitor.js",
+      "priority": 390,
+      "churn": 195,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
       ]
     },
     {
@@ -47504,6 +48649,16 @@
       "file": ".planning/phases/09-verify-phases-5-6/09-01-PLAN.md",
       "priority": 378,
       "churn": 378,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "bin/design-impact.cjs",
+      "priority": 377,
+      "churn": 377,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -48062,16 +49217,6 @@
       ]
     },
     {
-      "file": "hooks/nf-session-start.test.js",
-      "priority": 354,
-      "churn": 354,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": "hooks/qgsd-session-start.test.js",
       "priority": 354,
       "churn": 354,
@@ -48116,6 +49261,16 @@
       "file": ".planning/phases/v0.19-01-unified-verdict-format/v0.19-01-01-PLAN.md",
       "priority": 350,
       "churn": 350,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "bin/design-impact.test.cjs",
+      "priority": 349,
+      "churn": 349,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -48175,6 +49330,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/milestones/v0.29-MILESTONE-AUDIT.md",
+      "priority": 348,
+      "churn": 348,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -48650,6 +49815,17 @@
       ]
     },
     {
+      "file": ".github/workflows/publish.yml",
+      "priority": 328,
+      "churn": 82,
+      "fixes": 3,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.24-03-quorum-observability/v0.24-03-02-PLAN.md",
       "priority": 328,
       "churn": 164,
@@ -48719,6 +49895,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": "bin/harness-diagnostic.cjs",
+      "priority": 326,
+      "churn": 326,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -48800,6 +49986,26 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/quick/196-improve-formal-scope-scan-to-use-semanti/196-PLAN.md",
+      "priority": 324,
+      "churn": 324,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-RESEARCH.md",
+      "priority": 324,
+      "churn": 324,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -48961,6 +50167,17 @@
       "adjustments": 0,
       "signals": [
         "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-PLAN.md",
+      "priority": 320,
+      "churn": 160,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
       ]
     },
     {
@@ -49473,6 +50690,16 @@
       ]
     },
     {
+      "file": "bin/cross-layer-dashboard.cjs",
+      "priority": 299,
+      "churn": 299,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/milestones/v0.19-phases/v0.19-11-unif-03-summary-fix-checkbox-cleanup/v0.19-11-RESEARCH.md",
       "priority": 299,
       "churn": 299,
@@ -49805,6 +51032,16 @@
       ]
     },
     {
+      "file": ".planning/milestones/v0.28-phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-RESEARCH.md",
+      "priority": 286,
+      "churn": 286,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/archive/legacy/27-model-switching/27-02-PLAN.md",
       "priority": 286,
       "churn": 286,
@@ -50037,6 +51274,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/quick/198-implement-ecc-best-practices-post-edit-a/198-PLAN.md",
+      "priority": 278,
+      "churn": 278,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -50792,6 +52039,16 @@
       ]
     },
     {
+      "file": "bin/git-heatmap.test.cjs",
+      "priority": 258,
+      "churn": 258,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.25-05-decomposition-awareness/v0.25-05-03-PLAN.md",
       "priority": 258,
       "churn": 258,
@@ -50815,6 +52072,16 @@
       "file": ".planning/phases/13-circuit-breaker-oscillation-resolution-mode/13-02-SUMMARY.md",
       "priority": 258,
       "churn": 258,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/milestones/v0.28-phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-03-PLAN.md",
+      "priority": 257,
+      "churn": 257,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -51023,6 +52290,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-03-PLAN.md",
+      "priority": 252,
+      "churn": 252,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/accept-debug-invariant.test.cjs",
       "priority": 252,
       "churn": 252,
@@ -51076,6 +52353,16 @@
       "file": ".planning/phases/v0.21-03-self-calibrating-feedback-loops/v0.21-03-03-PLAN.md",
       "priority": 251,
       "churn": 251,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "bin/test-recipe-gen.cjs",
+      "priority": 250,
+      "churn": 250,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -51530,6 +52817,16 @@
       ]
     },
     {
+      "file": "bin/test-recipe-gen.test.cjs",
+      "priority": 240,
+      "churn": 240,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.29-02-semantics-layer-and-gate-a-grounding/v0.29-02-01-SUMMARY.md",
       "priority": 240,
       "churn": 240,
@@ -51659,6 +52956,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": "bin/security-sweep.cjs",
+      "priority": 238,
+      "churn": 238,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -51845,17 +53152,6 @@
       ]
     },
     {
-      "file": ".github/workflows/publish.yml",
-      "priority": 234,
-      "churn": 78,
-      "fixes": 2,
-      "adjustments": 0,
-      "signals": [
-        "churn",
-        "bugfix"
-      ]
-    },
-    {
       "file": ".planning/quick/102-full-review-of-quick-task-101/102-REVIEW.md",
       "priority": 234,
       "churn": 117,
@@ -51864,6 +53160,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/milestones/v0.28-ROADMAP.md",
+      "priority": 234,
+      "churn": 234,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -51890,6 +53196,16 @@
       "file": ".planning/phases/03-installer-distribution/03-01-PLAN.md",
       "priority": 234,
       "churn": 234,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/197-add-ci-virgin-install-tests-and-workflow/197-PLAN.md",
+      "priority": 233,
+      "churn": 233,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -52513,6 +53829,26 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-01-PLAN.md",
+      "priority": 222,
+      "churn": 222,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-03-PLAN.md",
+      "priority": 222,
+      "churn": 222,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.29-02-semantics-layer-and-gate-a-grounding/v0.29-02-02-SUMMARY.md",
       "priority": 222,
       "churn": 222,
@@ -52924,6 +54260,17 @@
       "adjustments": 0,
       "signals": [
         "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-SUMMARY.md",
+      "priority": 214,
+      "churn": 107,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
       ]
     },
     {
@@ -53715,6 +55062,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-01-PLAN.md",
+      "priority": 201,
+      "churn": 201,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/quick/93-add-cli-auto-discovery-to-resolve-codex-/93-PLAN.md",
       "priority": 201,
       "churn": 201,
@@ -53862,6 +55219,16 @@
       "file": ".planning/phases/02-config-mcp-detection/02-01-SUMMARY.md",
       "priority": 200,
       "churn": 200,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/milestones/v0.28-REQUIREMENTS.md",
+      "priority": 199,
+      "churn": 199,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -54083,6 +55450,16 @@
       ]
     },
     {
+      "file": ".planning/milestones/v0.28-phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-01-PLAN.md",
+      "priority": 196,
+      "churn": 196,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/dispatch-availability-window.test.cjs",
       "priority": 196,
       "churn": 196,
@@ -54233,6 +55610,26 @@
       ]
     },
     {
+      "file": "hooks/dist/nf-session-start.js",
+      "priority": 193,
+      "churn": 193,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "hooks/nf-session-start.js",
+      "priority": 193,
+      "churn": 193,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/quorum-formal-context.test.cjs",
       "priority": 193,
       "churn": 193,
@@ -54306,16 +55703,6 @@
     },
     {
       "file": "bin/failure-mode-catalog.test.cjs",
-      "priority": 192,
-      "churn": 192,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
-      "file": "hooks/gsd-context-monitor.test.js",
       "priority": 192,
       "churn": 192,
       "fixes": 0,
@@ -54794,6 +56181,16 @@
       ]
     },
     {
+      "file": "bin/harness-diagnostic.test.cjs",
+      "priority": 184,
+      "churn": 184,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/qgsd-manage.test.cjs",
       "priority": 184,
       "churn": 184,
@@ -55069,6 +56466,26 @@
       ]
     },
     {
+      "file": "bin/formal-scope-scan.cjs",
+      "priority": 179,
+      "churn": 179,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/milestones/v0.28-phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-02-PLAN.md",
+      "priority": 179,
+      "churn": 179,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/quick/184-implement-5-solve-automation-improvement/184-PLAN.md",
       "priority": 179,
       "churn": 179,
@@ -55256,6 +56673,17 @@
       "adjustments": 0,
       "signals": [
         "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-SUMMARY.md",
+      "priority": 176,
+      "churn": 88,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
       ]
     },
     {
@@ -55464,6 +56892,16 @@
       "file": ".planning/quick/4-quorum-agent-scoring-track-initial-votes/4-VERIFICATION.md",
       "priority": 174,
       "churn": 174,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-VALIDATION.md",
+      "priority": 173,
+      "churn": 173,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -55993,6 +57431,26 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-01-PLAN.md",
+      "priority": 166,
+      "churn": 166,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "bin/gate-c-validation.cjs",
+      "priority": 166,
+      "churn": 166,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-02-PLAN.md",
       "priority": 166,
       "churn": 166,
@@ -56026,6 +57484,16 @@
       "file": ".planning/phases/v0.24-05-slot-worker-thin-passthrough/v0.24-05-VERIFICATION.md",
       "priority": 166,
       "churn": 166,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/195-add-automated-audit-plan-execute-loop-to/195-PLAN.md",
+      "priority": 165,
+      "churn": 165,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -56266,6 +57734,26 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-02-PLAN.md",
+      "priority": 161,
+      "churn": 161,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-02-PLAN.md",
+      "priority": 161,
+      "churn": 161,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/formal/evidence/state-candidates.json",
       "priority": 161,
       "churn": 161,
@@ -56323,6 +57811,17 @@
       "adjustments": 0,
       "signals": [
         "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-01-SUMMARY.md",
+      "priority": 160,
+      "churn": 80,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
       ]
     },
     {
@@ -56781,6 +58280,16 @@
       ]
     },
     {
+      "file": "bin/budget-tracker.test.cjs",
+      "priority": 153,
+      "churn": 153,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/build-layer-manifest.cjs",
       "priority": 153,
       "churn": 153,
@@ -57196,6 +58705,16 @@
       ]
     },
     {
+      "file": "bin/stall-detector.test.cjs",
+      "priority": 146,
+      "churn": 146,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/assumption-register.cjs",
       "priority": 146,
       "churn": 146,
@@ -57274,6 +58793,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/milestones/v0.29-ROADMAP.md",
+      "priority": 144,
+      "churn": 144,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -57714,6 +59243,26 @@
       ]
     },
     {
+      "file": ".planning/milestones/v0.28-MILESTONE-AUDIT.md",
+      "priority": 139,
+      "churn": 139,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "bin/cross-layer-dashboard.test.cjs",
+      "priority": 139,
+      "churn": 139,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "hooks/qgsd-token-collector.js",
       "priority": 139,
       "churn": 139,
@@ -57897,6 +59446,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-VALIDATION.md",
+      "priority": 136,
+      "churn": 136,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/quick/141-fix-solver-loop-bugs-parsealloydefaults-/141-VERIFICATION.md",
       "priority": 136,
       "churn": 136,
@@ -57940,6 +59499,16 @@
       "file": "gsd-memory/dist/extractors/frontmatter.js",
       "priority": 136,
       "churn": 136,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/milestones/v0.28-phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/CLEANUP-REPORT.md",
+      "priority": 135,
+      "churn": 135,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -58298,26 +59867,6 @@
       ]
     },
     {
-      "file": "hooks/dist/nf-session-start.js",
-      "priority": 131,
-      "churn": 131,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
-      "file": "hooks/nf-session-start.js",
-      "priority": 131,
-      "churn": 131,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": ".formal/tla/QGSDSensitivity.tla",
       "priority": 131,
       "churn": 131,
@@ -58560,6 +60109,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": "bin/gate-c-validation.test.cjs",
+      "priority": 128,
+      "churn": 128,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -58831,6 +60390,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": "bin/stall-detector.cjs",
+      "priority": 126,
+      "churn": 126,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -59164,6 +60733,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-VERIFICATION.md",
+      "priority": 122,
+      "churn": 122,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/quick/143-add-r-to-d-and-d-to-c-layer-transitions-/143-SUMMARY.md",
       "priority": 122,
       "churn": 122,
@@ -59406,6 +60985,16 @@
       ]
     },
     {
+      "file": ".planning/quick/198-implement-ecc-best-practices-post-edit-a/198-SUMMARY.md",
+      "priority": 118,
+      "churn": 118,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/build-layer-manifest.test.cjs",
       "priority": 118,
       "churn": 118,
@@ -59584,6 +61173,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-03-SUMMARY.md",
+      "priority": 116,
+      "churn": 116,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -59787,6 +61386,16 @@
       ]
     },
     {
+      "file": "core/bin/gsd-tools.test.cjs",
+      "priority": 114,
+      "churn": 114,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-03-SUMMARY.md",
       "priority": 114,
       "churn": 114,
@@ -59880,6 +61489,26 @@
       "file": ".planning/quick/20-create-qgsd-quorum-orchestrator-qgsd-osc/20-SUMMARY.md",
       "priority": 114,
       "churn": 114,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/milestones/v0.28-phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-VERIFICATION.md",
+      "priority": 113,
+      "churn": 113,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-03-SUMMARY.md",
+      "priority": 113,
+      "churn": 113,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -60409,6 +62038,26 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-02-SUMMARY.md",
+      "priority": 108,
+      "churn": 108,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-01-SUMMARY.md",
+      "priority": 108,
+      "churn": 108,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/sensitivity-sweep-feedback.test.cjs",
       "priority": 108,
       "churn": 108,
@@ -60529,6 +62178,16 @@
       ]
     },
     {
+      "file": "hooks/nf-console-guard.js",
+      "priority": 107,
+      "churn": 107,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/quick/121-build-install-formal-tools-cjs-cross-pla/121-SUMMARY.md",
       "priority": 107,
       "churn": 107,
@@ -60607,6 +62266,26 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": "core/workflows/quick.md",
+      "priority": 106,
+      "churn": 106,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-03-SUMMARY.md",
+      "priority": 106,
+      "churn": 106,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -61310,6 +62989,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-01-SUMMARY.md",
+      "priority": 101,
+      "churn": 101,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/instrumentation-map.test.cjs",
       "priority": 101,
       "churn": 101,
@@ -61591,6 +63280,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-02-SUMMARY.md",
+      "priority": 99,
+      "churn": 99,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/auth-drivers/gh-cli.cjs",
       "priority": 99,
       "churn": 99,
@@ -61701,6 +63400,17 @@
       ]
     },
     {
+      "file": ".gitleaks.toml",
+      "priority": 98,
+      "churn": 49,
+      "fixes": 1,
+      "adjustments": 0,
+      "signals": [
+        "churn",
+        "bugfix"
+      ]
+    },
+    {
       "file": "formal/prism/quorum.props",
       "priority": 98,
       "churn": 49,
@@ -61709,6 +63419,26 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/quick/197-add-ci-virgin-install-tests-and-workflow/197-SUMMARY.md",
+      "priority": 98,
+      "churn": 98,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-01-SUMMARY.md",
+      "priority": 98,
+      "churn": 98,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -61832,6 +63562,26 @@
       ]
     },
     {
+      "file": ".planning/quick/198-implement-ecc-best-practices-post-edit-a/198-VERIFICATION.md",
+      "priority": 97,
+      "churn": 97,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-VERIFICATION.md",
+      "priority": 97,
+      "churn": 97,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-VALIDATION.md",
       "priority": 97,
       "churn": 97,
@@ -61945,6 +63695,16 @@
       "file": ".planning/quick/40-we-should-never-skip-research-just-run-i/40-SUMMARY.md",
       "priority": 97,
       "churn": 97,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-VALIDATION.md",
+      "priority": 96,
+      "churn": 96,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -62202,17 +63962,6 @@
       ]
     },
     {
-      "file": ".gitleaks.toml",
-      "priority": 94,
-      "churn": 47,
-      "fixes": 1,
-      "adjustments": 0,
-      "signals": [
-        "churn",
-        "bugfix"
-      ]
-    },
-    {
       "file": ".planning/quick/168-add-internal-work-detection-handler-to-o/168-SUMMARY.md",
       "priority": 94,
       "churn": 94,
@@ -62423,7 +64172,27 @@
       ]
     },
     {
-      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-VALIDATION.md",
+      "file": "hooks/nf-post-edit-format.js",
+      "priority": 92,
+      "churn": 92,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/v0.29-04-VERIFICATION.md",
+      "priority": 92,
+      "churn": 92,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-02-SUMMARY.md",
       "priority": 92,
       "churn": 92,
       "fixes": 0,
@@ -62546,6 +64315,16 @@
       "file": "gsd-memory/dist/tools/status.d.ts",
       "priority": 92,
       "churn": 92,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "core/workflows/new-milestone.md",
+      "priority": 91,
+      "churn": 91,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -62685,6 +64464,16 @@
       ]
     },
     {
+      "file": ".planning/quick/196-improve-formal-scope-scan-to-use-semanti/196-SUMMARY.md",
+      "priority": 90,
+      "churn": 90,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "hooks/qgsd-spec-regen.js",
       "priority": 90,
       "churn": 90,
@@ -62788,6 +64577,16 @@
       "file": ".planning/quick/38-codify-trust-plus-audit-enforcement-phil/38-SUMMARY.md",
       "priority": 90,
       "churn": 90,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/195-add-automated-audit-plan-execute-loop-to/195-SUMMARY.md",
+      "priority": 89,
+      "churn": 89,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -62944,6 +64743,16 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".planning/quick/197-add-ci-virgin-install-tests-and-workflow/197-VERIFICATION.md",
+      "priority": 88,
+      "churn": 88,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -63720,6 +65529,26 @@
       ]
     },
     {
+      "file": ".planning/quick/196-improve-formal-scope-scan-to-use-semanti/196-VERIFICATION.md",
+      "priority": 80,
+      "churn": 80,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-03-reasoning-enrichment-and-gate-b-abstraction/v0.29-03-VERIFICATION.md",
+      "priority": 80,
+      "churn": 80,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "hooks/{qgsd-prompt.test.js => dist/nf-prompt.test.js}",
       "priority": 80,
       "churn": 80,
@@ -63860,7 +65689,7 @@
       ]
     },
     {
-      "file": "hooks/gsd-context-monitor.js",
+      "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/v0.29-05-VERIFICATION.md",
       "priority": 79,
       "churn": 79,
       "fixes": 0,
@@ -64003,6 +65832,16 @@
       "file": "get-shit-done/templates/continue-here.md",
       "priority": 78,
       "churn": 78,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "bin/budget-tracker.cjs",
+      "priority": 77,
+      "churn": 77,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -65156,6 +66995,26 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-CONTEXT.md",
+      "priority": 67,
+      "churn": 67,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/193-build-bin-git-heatmap-cjs-mine-git-histo/193-VERIFICATION.md",
+      "priority": 67,
+      "churn": 67,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/quick/177-add-both-test-approaches-for-verify-03-s/177-VERIFICATION.md",
       "priority": 67,
       "churn": 67,
@@ -65517,6 +67376,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-VERIFICATION.md",
+      "priority": 63,
+      "churn": 63,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/nf-fan-out.test.cjs",
       "priority": 63,
       "churn": 63,
@@ -65868,16 +67737,6 @@
       ]
     },
     {
-      "file": "core/workflows/quick.md",
-      "priority": 60,
-      "churn": 60,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": "bin/isNumericThreshold.test.cjs",
       "priority": 60,
       "churn": 60,
@@ -66098,6 +67957,16 @@
       ]
     },
     {
+      "file": "core/workflows/audit-milestone.md",
+      "priority": 57,
+      "churn": 57,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/phases/v0.26-04-health-dashboard/v0.26-04-01-SUMMARY.md",
       "priority": 57,
       "churn": 57,
@@ -66176,16 +68045,6 @@
       "signals": [
         "churn",
         "bugfix"
-      ]
-    },
-    {
-      "file": "core/workflows/new-milestone.md",
-      "priority": 56,
-      "churn": 56,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
       ]
     },
     {
@@ -66483,6 +68342,26 @@
       "file": ".planning/phases/v0.24-02-dispatch-reliability/v0.24-02-01-SUMMARY.md",
       "priority": 53,
       "churn": 53,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".github/workflows/ci-install.yml",
+      "priority": 52,
+      "churn": 52,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/quick/194-fix-gsd-tools-cjs-phase-complete-to-dete/194-VERIFICATION.md",
+      "priority": 52,
+      "churn": 52,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -67011,16 +68890,6 @@
       ]
     },
     {
-      "file": ".planning/milestones/v0.28-REQUIREMENTS.md",
-      "priority": 47,
-      "churn": 47,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": "commands/nf/observe.md",
       "priority": 47,
       "churn": 47,
@@ -67204,6 +69073,16 @@
       "file": ".planning/quick/107-qgsd-self-improvement-passive-telemetry-/107-SUMMARY.md",
       "priority": 46,
       "churn": 46,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-01-PLAN.md",
+      "priority": 45,
+      "churn": 45,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -68057,6 +69936,16 @@
       ]
     },
     {
+      "file": "Dockerfile.test-install",
+      "priority": 36,
+      "churn": 36,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "core/workflows/verify-work.md",
       "priority": 36,
       "churn": 36,
@@ -68728,16 +70617,6 @@
       ]
     },
     {
-      "file": "core/workflows/audit-milestone.md",
-      "priority": 30,
-      "churn": 30,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": "core/workflows/discuss-phase.md",
       "priority": 30,
       "churn": 30,
@@ -68749,16 +70628,6 @@
     },
     {
       "file": "scripts/publish.sh",
-      "priority": 30,
-      "churn": 30,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
-      "file": "Dockerfile.test-install",
       "priority": 30,
       "churn": 30,
       "fixes": 0,
@@ -69291,6 +71160,16 @@
       ]
     },
     {
+      "file": ".planning/phases/v0.29-06-tech-debt-cleanup-nf-solve-fixes-and-bookkeeping-sync/v0.29-06-VALIDATION.md",
+      "priority": 21,
+      "churn": 21,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "bin/compareDrift.cjs",
       "priority": 21,
       "churn": 21,
@@ -69329,6 +71208,26 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": "bin/conformance-schema.cjs",
+      "priority": 20,
+      "churn": 20,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "hooks/conformance-schema.cjs",
+      "priority": 20,
+      "churn": 20,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -69455,6 +71354,16 @@
       "file": "gsd-memory/dist/extractors/index.js",
       "priority": 20,
       "churn": 20,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "core/workflows/health.md",
+      "priority": 19,
+      "churn": 19,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -69615,7 +71524,7 @@
       ]
     },
     {
-      "file": "bin/conformance-schema.cjs",
+      "file": ".planning/milestones/v0.28-phases/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/task-envelope.json",
       "priority": 16,
       "churn": 16,
       "fixes": 0,
@@ -69625,7 +71534,57 @@
       ]
     },
     {
-      "file": "hooks/conformance-schema.cjs",
+      "file": ".planning/milestones/v0.28-phases/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/task-envelope.json",
+      "priority": 16,
+      "churn": 16,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-01-layer-manifest-evidence-foundation/task-envelope.json",
+      "priority": 16,
+      "churn": 16,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-02-semantics-layer-and-gate-a-grounding/task-envelope.json",
+      "priority": 16,
+      "churn": 16,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-03-reasoning-enrichment-and-gate-b-abstraction/task-envelope.json",
+      "priority": 16,
+      "churn": 16,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-04-gate-c-validation-and-test-generation/task-envelope.json",
+      "priority": 16,
+      "churn": 16,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/phases/v0.29-05-dashboard-and-progressive-maturity-rollout/task-envelope.json",
       "priority": 16,
       "churn": 16,
       "fixes": 0,
@@ -70688,16 +72647,6 @@
       ]
     },
     {
-      "file": "core/bin/gsd-tools.test.cjs",
-      "priority": 12,
-      "churn": 12,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": "core/references/planning-config.md",
       "priority": 12,
       "churn": 12,
@@ -70838,6 +72787,16 @@
       ]
     },
     {
+      "file": ".planning/formal/gates/gate-c-validation.json",
+      "priority": 11,
+      "churn": 11,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/formal/gates/gate-b-abstraction.json",
       "priority": 11,
       "churn": 11,
@@ -70901,6 +72860,16 @@
       "file": ".formal/tla/MCprompt-hook.cfg",
       "priority": 11,
       "churn": 11,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".claude/rules/coding-style.md",
+      "priority": 10,
+      "churn": 10,
       "fixes": 0,
       "adjustments": 0,
       "signals": [
@@ -71108,6 +73077,26 @@
       ]
     },
     {
+      "file": ".claude/rules/git-workflow.md",
+      "priority": 9,
+      "churn": 9,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/{REQUIREMENTS.md => milestones/v0.29-REQUIREMENTS.md}",
+      "priority": 9,
+      "churn": 9,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": "hooks/dist/nf-spec-regen.js",
       "priority": 9,
       "churn": 9,
@@ -71246,6 +73235,36 @@
       "signals": [
         "churn",
         "bugfix"
+      ]
+    },
+    {
+      "file": ".claude/rules/security.md",
+      "priority": 8,
+      "churn": 8,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".claude/rules/testing.md",
+      "priority": 8,
+      "churn": 8,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": "commands/nf/audit-milestone.md",
+      "priority": 8,
+      "churn": 8,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
       ]
     },
     {
@@ -71650,16 +73669,6 @@
       ]
     },
     {
-      "file": "commands/nf/audit-milestone.md",
-      "priority": 6,
-      "churn": 6,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
       "file": "commands/nf/check-todos.md",
       "priority": 6,
       "churn": 6,
@@ -72050,6 +74059,156 @@
       ]
     },
     {
+      "file": ".planning/formal/spec/account-manager/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/agent-loop/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/breaker/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/convergence/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/deliberation-revision/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/deliberation/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/installer/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/mcp-calls/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/oscillation/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/prefilter/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/quorum/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/recruiting/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/safety/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/stop-hook/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
+      "file": ".planning/formal/spec/tui-nav/scope.json",
+      "priority": 5,
+      "churn": 5,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": [
+        "churn"
+      ]
+    },
+    {
       "file": ".planning/quick/80-consolidate-all-mcp-sub-repos-into-qgsd-/80-DEPRECATED.md",
       "priority": 5,
       "churn": 5,
@@ -72194,16 +74353,6 @@
     },
     {
       "file": "core/workflows/diagnose-issues.md",
-      "priority": 4,
-      "churn": 4,
-      "fixes": 0,
-      "adjustments": 0,
-      "signals": [
-        "churn"
-      ]
-    },
-    {
-      "file": "core/workflows/health.md",
       "priority": 4,
       "churn": 4,
       "fixes": 0,
@@ -73791,6 +75940,238 @@
       "signals": [
         "churn"
       ]
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/task-envelope.json",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-01-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-01-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-02-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-02-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-03-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-03-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-RESEARCH.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-VALIDATION.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-01-foundation-hook-profiles-de-sloppify/v0.28-01-VERIFICATION.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-01-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-01-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-02-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-02-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-03-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-03-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-RESEARCH.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-02-data-pipeline-quorum-cache-pass-at-k-metrics/v0.28-02-VALIDATION.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-01-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-02-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-03-PLAN.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-RESEARCH.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-VALIDATION.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-03-runtime-intelligence-budget-downgrade-stall-detection-smart-compact/v0.28-03-VERIFICATION.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-01-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-02-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-03-SUMMARY.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-CONTEXT.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
+    },
+    {
+      "file": ".planning/{phases => milestones/v0.28-phases}/v0.28-04-safety-diagnostics-security-sweep-session-state-harness-diagnostics/v0.28-04-VERIFICATION.md",
+      "priority": 1,
+      "churn": 0,
+      "fixes": 0,
+      "adjustments": 0,
+      "signals": []
     },
     {
       "file": ".planning/formal/gates/.gitkeep",

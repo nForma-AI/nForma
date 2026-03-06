@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-06T12:52:51.138Z",
+  "last_sync": "2026-03-06T21:57:54.519Z",
   "search_dirs": [],
   "models": {
     ".planning/formal/alloy/account-pool-structure.als": {
@@ -71,15 +71,12 @@
       "layer_maturity": 1
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 2719,
-      "last_updated": "2026-03-06T12:37:45.587Z",
+      "version": 3080,
+      "last_updated": "2026-03-06T21:57:54.519Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "source_layer": "L3",
-      "gate_maturity": "ADVISORY",
-      "layer_maturity": 1
+      "description": ""
     },
     ".planning/formal/alloy/scoreboard-recompute.als": {
       "version": 1,
@@ -162,15 +159,12 @@
       "layer_maturity": 0
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 2719,
-      "last_updated": "2026-03-06T12:37:45.587Z",
+      "version": 3080,
+      "last_updated": "2026-03-06T21:57:54.519Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "source_layer": "L3",
-      "gate_maturity": "ADVISORY",
-      "layer_maturity": 1
+      "description": ""
     },
     ".planning/formal/tla/QGSDAccountManager.tla": {
       "version": 1,
@@ -1324,15 +1318,12 @@
       "layer_maturity": 0
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 1473,
-      "last_updated": "2026-03-06T12:37:45.586Z",
+      "version": 1834,
+      "last_updated": "2026-03-06T21:57:54.518Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "source_layer": "L3",
-      "gate_maturity": "ADVISORY",
-      "layer_maturity": 1
+      "description": ""
     },
     ".planning/formal/alloy/solve-automation-features.als": {
       "version": 1,

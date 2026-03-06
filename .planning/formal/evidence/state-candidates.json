@@ -1,7 +1,7 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-06T13:01:16.629Z",
-  "total_unmapped_events": 5649,
+  "generated": "2026-03-06T21:57:53.298Z",
+  "total_unmapped_events": 5653,
   "candidates": [
     {
       "action": "quorum_fallback_t1_required",
@@ -33,6 +33,29 @@
       },
       "suggested_state": "instrumentation_gap",
       "confidence": "high"
+    },
+    {
+      "action": "security_sweep",
+      "count": 4,
+      "first_seen": "2026-03-06T18:45:33.417Z",
+      "last_seen": "2026-03-06T19:16:56.216Z",
+      "sample_timestamps": [
+        "2026-03-06T18:45:33.417Z",
+        "2026-03-06T18:45:34.306Z",
+        "2026-03-06T19:05:28.778Z",
+        "2026-03-06T19:16:56.216Z"
+      ],
+      "context_before": {
+        "quorum_block": 2,
+        "security_sweep": 2
+      },
+      "context_after": {
+        "security_sweep": 2,
+        "circuit_break": 1,
+        "quorum_start": 1
+      },
+      "suggested_state": "unknown",
+      "confidence": "low"
     }
   ],
   "missing_transitions": [
@@ -157,5 +180,5 @@
       "note": "XState mapping missing: from=null, to=null"
     }
   ],
-  "summary": "5649 unmapped events found. 1 candidate(s): quorum_fallback_t1_required (5649x). 20 potentially missing transitions."
+  "summary": "5653 unmapped events found. 2 candidate(s): quorum_fallback_t1_required (5649x), security_sweep (4x). 20 potentially missing transitions."
 }

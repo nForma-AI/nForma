@@ -75,16 +75,7 @@ Any server with `available: false` must be marked UNAVAIL immediately — skip i
 
 3. **`$QUORUM_ACTIVE`**: read from `~/.claude/nf.json` (project config takes precedence over global):
 ```bash
-node -e "
-const fs = require('fs'), os = require('os'), path = require('path');
-const globalCfg = path.join(os.homedir(), '.claude', 'nf.json');
-const projCfg   = path.join(process.cwd(), '.claude', 'nf.json');
-let cfg = {};
-for (const f of [globalCfg, projCfg]) {
-  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_){}
-}
-console.log(JSON.stringify(cfg.quorum_active || []));
-"
+node "$HOME/.claude/nf-bin/quorum-preflight.cjs" --quorum-active
 ```
 If `$QUORUM_ACTIVE` is empty (`[]`), all entries in `$CLAUDE_MCP_SERVERS` participate.
 If non-empty, intersect: only servers whose `serverName` appears in `$QUORUM_ACTIVE` are called.
@@ -98,16 +89,7 @@ A server in `$QUORUM_ACTIVE` but absent from `$CLAUDE_MCP_SERVERS` = skip silent
 
 **max_quorum_size check:** Read `max_quorum_size` from `~/.claude/nf.json` (project config takes precedence; default: 3 if absent):
 ```bash
-node -e "
-const fs = require('fs'), os = require('os'), path = require('path');
-const globalCfg = path.join(os.homedir(), '.claude', 'nf.json');
-const projCfg   = path.join(process.cwd(), '.claude', 'nf.json');
-let cfg = {};
-for (const f of [globalCfg, projCfg]) {
-  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_){}
-}
-console.log(cfg.max_quorum_size ?? 3);
-"
+node "$HOME/.claude/nf-bin/quorum-preflight.cjs" --max-quorum-size
 ```
 Count available slots (those not marked UNAVAIL and passing $QUORUM_ACTIVE filter). Include Claude itself as +1.
 If `availableCount < max_quorum_size`:
@@ -132,39 +114,7 @@ Provider pre-flight: <providerName>=✓/✗ ...  (<N> claude-mcp servers found)
 Before any quorum round, capture the active team fingerprint. Build TEAM_JSON directly from `providers.json` — no MCP calls needed for identity.
 
 ```bash
-node -e "
-const fs = require('fs'), path = require('path'), os = require('os');
-
-const searchPaths = [
-  path.join(os.homedir(), '.claude', 'nf-bin', 'providers.json'),
-];
-try {
-  const cj = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude.json'), 'utf8'));
-  const u1args = cj?.mcpServers?.['unified-1']?.args ?? [];
-  const srv = u1args.find(a => typeof a === 'string' && a.endsWith('unified-mcp-server.mjs'));
-  if (srv) searchPaths.unshift(path.join(path.dirname(srv), 'providers.json'));
-} catch(_) {}
-
-let providers = [];
-for (const p of searchPaths) {
-  try { providers = JSON.parse(fs.readFileSync(p, 'utf8')).providers; break; } catch(_) {}
-}
-
-const globalCfg = path.join(os.homedir(), '.claude', 'nf.json');
-const projCfg   = path.join(process.cwd(), '.claude', 'nf.json');
-let cfg = {};
-for (const f of [globalCfg, projCfg]) {
-  try { Object.assign(cfg, JSON.parse(fs.readFileSync(f, 'utf8'))); } catch(_) {}
-}
-const active = cfg.quorum_active || [];
-
-const team = {};
-for (const p of providers) {
-  if (active.length > 0 && !active.includes(p.name)) continue;
-  team[p.name] = { model: p.model };
-}
-console.log(JSON.stringify(team));
-"
+node "$HOME/.claude/nf-bin/quorum-preflight.cjs" --team
 ```
 
 Store result as `TEAM_JSON`. Also build three lookup maps from `providers.json` for use during dispatch:

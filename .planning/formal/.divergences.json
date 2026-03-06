@@ -1,0 +1,352 @@
+[
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:00.361Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 5
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:00.676Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 6
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:01.153Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 7
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:01.375Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 8
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:01.600Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 9
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:01.828Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 10
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:02.100Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 11
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:02.456Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 12
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:02.942Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 13
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  },
+  {
+    "event": {
+      "ts": "2026-02-24T23:36:07.353Z",
+      "phase": "IDLE",
+      "action": "circuit_break",
+      "slots_available": 0,
+      "vote_result": null,
+      "outcome": "BLOCK",
+      "schema_version": "1",
+      "_lineIndex": 19
+    },
+    "actualState": "IDLE",
+    "expectedState": "DECIDED",
+    "guardEvaluations": [
+      {
+        "guardName": "none",
+        "passed": true,
+        "context": {
+          "slotsAvailable": 0,
+          "successCount": 0,
+          "deliberationRounds": 0,
+          "currentPhase": "IDLE",
+          "maxDeliberation": 9,
+          "maxSize": 3,
+          "polledCount": 0
+        }
+      }
+    ],
+    "divergenceType": "state_mismatch",
+    "confidence": "low",
+    "observation_window": {
+      "n_rounds": 0,
+      "window_days": 0
+    }
+  }
+]

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-03-06T10:43:39.675Z",
+    "generated_at": "2026-03-06T21:57:37.945Z",
     "generator_version": "1.1",
     "data_sources": {
       "annotations": {
@@ -12,11 +12,11 @@
         "used_as_fallback": 4
       },
       "check_results": {
-        "entry_count": 2350
+        "entry_count": 141
       },
       "unit_test_coverage": {
         "available": true,
-        "requirements_matched": 256
+        "requirements_matched": 257
       }
     }
   },
@@ -88,8 +88,8 @@
           "model_file": ".planning/formal/alloy/availability-parsing.als",
           "property_name": "ParseCorrect",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:availability"
         }
       ],
       "unit_test_coverage": {
@@ -109,8 +109,8 @@
           "model_file": ".planning/formal/alloy/availability-parsing.als",
           "property_name": "YearRolloverHandled",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:availability"
         }
       ],
       "unit_test_coverage": {
@@ -130,8 +130,8 @@
           "model_file": ".planning/formal/alloy/availability-parsing.als",
           "property_name": "FallbackIsNull",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:availability"
         }
       ],
       "unit_test_coverage": {
@@ -1037,7 +1037,16 @@
           "latest_result": "fail",
           "check_id": "tla:oscillation"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/DETECT-06.stub.test.js",
+            "test_name": "TODO: implement test for DETECT-06 — AlgorithmTerminates"
+          }
+        ]
+      }
     },
     "PLAN-03": {
       "id": "PLAN-03",
@@ -1255,15 +1264,15 @@
           "model_file": ".planning/formal/tla/QGSDQuorum.tla",
           "property_name": "DeliberationBounded",
           "source": "annotation",
-          "latest_result": "fail",
-          "check_id": "prism:quorum"
+          "latest_result": "pass",
+          "check_id": "tla:quorum-safety"
         },
         {
           "model_file": ".planning/formal/tla/NFQuorum.tla",
           "property_name": "DeliberationBounded",
           "source": "annotation",
-          "latest_result": "fail",
-          "check_id": "prism:quorum"
+          "latest_result": "pass",
+          "check_id": "tla:quorum-safety"
         },
         {
           "model_file": ".planning/formal/prism/quorum.props",
@@ -8758,8 +8767,8 @@
         "CALIB-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:availability"
     },
     ".planning/formal/alloy/availability-parsing.als::YearRolloverHandled": {
       "model_file": ".planning/formal/alloy/availability-parsing.als",
@@ -8768,8 +8777,8 @@
         "CALIB-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:availability"
     },
     ".planning/formal/alloy/availability-parsing.als::FallbackIsNull": {
       "model_file": ".planning/formal/alloy/availability-parsing.als",
@@ -8778,8 +8787,8 @@
         "CALIB-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:availability"
     },
     ".planning/formal/alloy/install-scope.als::AllEquivalence": {
       "model_file": ".planning/formal/alloy/install-scope.als",
@@ -9333,8 +9342,8 @@
         "LOOP-01"
       ],
       "source": "annotation",
-      "latest_result": "fail",
-      "check_id": "prism:quorum"
+      "latest_result": "pass",
+      "check_id": "tla:quorum-safety"
     },
     ".planning/formal/tla/QGSDQuorum.tla::DeliberationMonotone": {
       "model_file": ".planning/formal/tla/QGSDQuorum.tla",
@@ -13918,8 +13927,8 @@
         "LOOP-01"
       ],
       "source": "annotation",
-      "latest_result": "fail",
-      "check_id": "prism:quorum"
+      "latest_result": "pass",
+      "check_id": "tla:quorum-safety"
     },
     ".planning/formal/tla/NFQuorum.tla::DeliberationMonotone": {
       "model_file": ".planning/formal/tla/NFQuorum.tla",
@@ -14588,10 +14597,21 @@
     }
   },
   "coverage_summary": {
-    "total_requirements": 256,
-    "covered_count": 256,
-    "coverage_percentage": 100,
-    "uncovered_requirements": [],
+    "total_requirements": 267,
+    "covered_count": 257,
+    "coverage_percentage": 96.3,
+    "uncovered_requirements": [
+      "EVID-03",
+      "GUARD-01",
+      "NAV-04",
+      "OBS-09",
+      "OBS-10",
+      "OBS-11",
+      "OBS-12",
+      "SPEC-05",
+      "STATE-05",
+      "STATE-06"
+    ],
     "orphan_properties": []
   },
   "bidirectional_validation": {
@@ -14601,6 +14621,12 @@
         "requirement_id": "CRED-12",
         "direction": "model_claims_requirement",
         "detail": "model-registry lists CRED-12 for .planning/formal/prism/oauth-rotation.pm but requirements.json CRED-12 does not list .planning/formal/prism/oauth-rotation.pm in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/QGSDOscillation.tla",
+        "requirement_id": "DETECT-06",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DETECT-06 for .planning/formal/tla/QGSDOscillation.tla but requirements.json DETECT-06 does not list .planning/formal/tla/QGSDOscillation.tla in formal_models"
       },
       {
         "model_file": ".planning/formal/tla/QGSDAgentProvisioning.tla",
@@ -15169,11 +15195,6 @@
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "DETECT-06",
-        "referenced_by": "model-registry .planning/formal/tla/QGSDOscillation.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
         "reference": "PLAN-04",
         "referenced_by": "model-registry .planning/formal/tla/QGSDPreFilter.tla requirements"
       },
@@ -15205,8 +15226,8 @@
     ],
     "summary": {
       "total_checked": 297,
-      "asymmetric_count": 79,
-      "stale_count": 26,
+      "asymmetric_count": 80,
+      "stale_count": 25,
       "clean": false
     }
   },
@@ -15568,7 +15589,7 @@
   },
   "coverage_preservation": {
     "baseline_found": true,
-    "baseline_date": "2026-03-06T10:43:37.525Z",
+    "baseline_date": "2026-03-06T21:56:54.132Z",
     "requirements_checked": 291,
     "regressions": [],
     "summary": {

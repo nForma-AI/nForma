@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-06T09:57:25.209Z",
+  "generated_at": "2026-03-06T21:57:50.700Z",
   "requirements": {
     "ACT-01": {
       "covered": true,
@@ -559,6 +559,15 @@
         {
           "test_file": "bin/run-oscillation-tlc.test.cjs",
           "test_name": "exits non-zero and prints clear error when JAVA_HOME points to nonexistent path"
+        }
+      ]
+    },
+    "DETECT-06": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/DETECT-06.stub.test.js",
+          "test_name": "TODO: implement test for DETECT-06 — AlgorithmTerminates"
         }
       ]
     },
@@ -2316,6 +2325,46 @@
           "test_name": "WIZ-11 — Bool: structural verification"
         }
       ]
+    },
+    "EVID-03": {
+      "covered": false,
+      "test_cases": []
+    },
+    "GUARD-01": {
+      "covered": false,
+      "test_cases": []
+    },
+    "NAV-04": {
+      "covered": false,
+      "test_cases": []
+    },
+    "OBS-09": {
+      "covered": false,
+      "test_cases": []
+    },
+    "OBS-10": {
+      "covered": false,
+      "test_cases": []
+    },
+    "OBS-11": {
+      "covered": false,
+      "test_cases": []
+    },
+    "OBS-12": {
+      "covered": false,
+      "test_cases": []
+    },
+    "SPEC-05": {
+      "covered": false,
+      "test_cases": []
+    },
+    "STATE-05": {
+      "covered": false,
+      "test_cases": []
+    },
+    "STATE-06": {
+      "covered": false,
+      "test_cases": []
     }
   }
 }

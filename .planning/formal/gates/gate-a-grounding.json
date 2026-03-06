@@ -1,13 +1,13 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-06T14:05:32.180Z",
-  "grounding_score": 0.82231831496722,
+  "generated": "2026-03-06T21:57:56.331Z",
+  "grounding_score": 0.8301348685964071,
   "target": 0.8,
   "target_met": true,
-  "explained": 29476,
-  "total": 35845,
+  "explained": 31145,
+  "total": 37518,
   "unexplained_counts": {
-    "instrumentation_bug": 6369,
+    "instrumentation_bug": 6373,
     "model_gap": 0,
     "genuine_violation": 0
   },
@@ -21,9 +21,13 @@
         {
           "action": "quorum_block_r3_2:no_xstate_map",
           "count": 720
+        },
+        {
+          "action": "security_sweep",
+          "count": 4
         }
       ],
-      "total": 6369
+      "total": 6373
     },
     "model_gap": {
       "top_mismatches": [],
@@ -36,9 +40,9 @@
   },
   "methodology": {
     "explains_definition": "vocabulary_mapped AND (xstate_valid OR methodology_skip)",
-    "h1_methodology_skips": 10575,
-    "xstate_validated": 18901,
-    "vocabulary_mapped": 30196
+    "h1_methodology_skips": 11135,
+    "xstate_validated": 20010,
+    "vocabulary_mapped": 31865
   },
   "warnings": []
 }
