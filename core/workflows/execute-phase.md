@@ -459,7 +459,7 @@ grep "^status:" "$PHASE_DIR"/*-VERIFICATION.md | cut -d: -f2 | tr -d ' '
 
 | Status | Action |
 |--------|--------|
-| `passed` | → update_roadmap |
+| `passed` | → cleanup_review → update_roadmap |
 | `human_needed` | Present items for human testing, get approval or feedback |
 | `gaps_found` | Present gap summary, offer `/nf:plan-phase {phase} --gaps` |
 | `counterexample_found` | → override prompt (see below) |
@@ -620,6 +620,60 @@ If user types "abort":
 - Do NOT advance phase completion.
 
 Key constraint: ANY override MUST produce a `counterexample_override:` entry with timestamp and reason in VERIFICATION.md. Execute-phase confirms the field exists before advancing. This is the ENF-02 audit trail requirement — there is NO silent bypass path.
+</step>
+
+<step name="cleanup_review">
+**Spawn Haiku-based cleanup subagent after successful verification.**
+
+This step runs ONLY when verification status is `passed` (or resolved to passed via quorum/override). It is non-blocking -- if cleanup fails, phase completion continues normally.
+
+**1. Determine files modified in the phase:**
+
+```bash
+# Get files modified across all phase commits
+MODIFIED_FILES=$(git diff --name-only $(git log --all --oneline --grep="${PHASE_NUMBER}" --format="%H" | tail -1)^..HEAD 2>/dev/null | head -20)
+```
+
+If git diff fails or returns empty, fall back to extracting `files_modified` from plan SUMMARY files in the phase directory.
+
+**2. Spawn cleanup subagent:**
+
+```
+Task(
+  subagent_type="general-purpose",
+  model="claude-haiku-4-5-20251001",
+  prompt="
+    <workflow>
+    @core/workflows/cleanup-review.md
+    </workflow>
+
+    <context>
+    Phase directory: {phase_dir}
+    Phase name: {phase_name}
+    Files modified in this phase:
+    {modified_files_list}
+    </context>
+
+    Review the listed files for redundancy, dead code, and over-defensive patterns.
+    Write CLEANUP-REPORT.md to the phase directory.
+  ",
+  description="Cleanup review for phase {phase_number}"
+)
+```
+
+**3. Handle result:**
+
+- If cleanup completes and CLEANUP-REPORT.md exists:
+  ```bash
+  FINDINGS=$(grep "Total:" "${PHASE_DIR}/CLEANUP-REPORT.md" 2>/dev/null || echo "unknown")
+  echo "Cleanup review complete: ${FINDINGS}"
+  ```
+- If cleanup fails or CLEANUP-REPORT.md is not generated:
+  ```
+  echo "Cleanup review skipped: subagent did not produce a report. Continuing with phase completion."
+  ```
+
+The cleanup report is informational only. Do NOT fail the phase or block update_roadmap regardless of cleanup outcome.
 </step>
 
 <step name="update_roadmap">
