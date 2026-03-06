@@ -108,6 +108,20 @@ const DEFAULT_CONFIG = {
     warn_pct: 70,
     critical_pct: 90,
   },
+  budget: {
+    session_limit_tokens: null,   // null = disabled (fail-open)
+    warn_pct: 60,                 // inject warning at this % of session_limit_tokens
+    downgrade_pct: 85,            // auto-downgrade model profile at this %
+  },
+  stall_detection: {
+    timeout_s: 90,                // mark slot stalled after this many seconds
+    consecutive_threshold: 2,     // require N consecutive stalled dispatches
+    check_commits: true,          // only escalate if no new commits
+  },
+  smart_compact: {
+    enabled: true,                // master switch
+    context_warn_pct: 60,        // suggest compact above this context usage %
+  },
   // quorum_active: array of slot names that participate in quorum.
   // [] = all discovered slots participate (fail-open, backward compatible with pre-Phase-40 installs).
   // A non-empty array is an explicit allowlist.
@@ -278,6 +292,102 @@ function validateConfig(config) {
     }
   }
 
+  // Validate budget sub-object
+  if (typeof config.budget !== 'object' || config.budget === null) {
+    process.stderr.write('[nf] WARNING: nf.json: budget must be an object; using defaults\n');
+    config.budget = { ...DEFAULT_CONFIG.budget };
+  } else {
+    // Validate session_limit_tokens: must be null, undefined, or integer >= 1000
+    if (config.budget.session_limit_tokens !== null && config.budget.session_limit_tokens !== undefined) {
+      if (!Number.isInteger(config.budget.session_limit_tokens) || config.budget.session_limit_tokens < 1000) {
+        process.stderr.write('[nf] WARNING: nf.json: budget.session_limit_tokens must be null or integer >= 1000; defaulting to null\n');
+        config.budget.session_limit_tokens = null;
+      }
+    }
+    // Validate warn_pct: integer 1-99, default 60
+    if (!Number.isInteger(config.budget.warn_pct) || config.budget.warn_pct < 1 || config.budget.warn_pct > 99) {
+      process.stderr.write('[nf] WARNING: nf.json: budget.warn_pct must be an integer 1-99; defaulting to 60\n');
+      config.budget.warn_pct = DEFAULT_CONFIG.budget.warn_pct;
+    }
+    // Validate downgrade_pct: integer 1-100, default 85
+    if (!Number.isInteger(config.budget.downgrade_pct) || config.budget.downgrade_pct < 1 || config.budget.downgrade_pct > 100) {
+      process.stderr.write('[nf] WARNING: nf.json: budget.downgrade_pct must be an integer 1-100; defaulting to 85\n');
+      config.budget.downgrade_pct = DEFAULT_CONFIG.budget.downgrade_pct;
+    }
+    // Validate warn_pct < downgrade_pct
+    if (config.budget.warn_pct >= config.budget.downgrade_pct) {
+      process.stderr.write('[nf] WARNING: nf.json: budget.warn_pct must be less than downgrade_pct; resetting to defaults\n');
+      config.budget.warn_pct = DEFAULT_CONFIG.budget.warn_pct;
+      config.budget.downgrade_pct = DEFAULT_CONFIG.budget.downgrade_pct;
+    }
+    // Fill missing sub-keys with defaults
+    if (config.budget.session_limit_tokens === undefined) {
+      config.budget.session_limit_tokens = DEFAULT_CONFIG.budget.session_limit_tokens;
+    }
+    if (config.budget.warn_pct === undefined) {
+      config.budget.warn_pct = DEFAULT_CONFIG.budget.warn_pct;
+    }
+    if (config.budget.downgrade_pct === undefined) {
+      config.budget.downgrade_pct = DEFAULT_CONFIG.budget.downgrade_pct;
+    }
+  }
+
+  // Validate stall_detection sub-object
+  if (typeof config.stall_detection !== 'object' || config.stall_detection === null) {
+    process.stderr.write('[nf] WARNING: nf.json: stall_detection must be an object; using defaults\n');
+    config.stall_detection = { ...DEFAULT_CONFIG.stall_detection };
+  } else {
+    // Validate timeout_s: positive integer, default 90
+    if (!Number.isInteger(config.stall_detection.timeout_s) || config.stall_detection.timeout_s < 1) {
+      process.stderr.write('[nf] WARNING: nf.json: stall_detection.timeout_s must be a positive integer; defaulting to 90\n');
+      config.stall_detection.timeout_s = DEFAULT_CONFIG.stall_detection.timeout_s;
+    }
+    // Validate consecutive_threshold: positive integer >= 1, default 2
+    if (!Number.isInteger(config.stall_detection.consecutive_threshold) || config.stall_detection.consecutive_threshold < 1) {
+      process.stderr.write('[nf] WARNING: nf.json: stall_detection.consecutive_threshold must be a positive integer; defaulting to 2\n');
+      config.stall_detection.consecutive_threshold = DEFAULT_CONFIG.stall_detection.consecutive_threshold;
+    }
+    // Validate check_commits: boolean, default true
+    if (typeof config.stall_detection.check_commits !== 'boolean') {
+      process.stderr.write('[nf] WARNING: nf.json: stall_detection.check_commits must be a boolean; defaulting to true\n');
+      config.stall_detection.check_commits = DEFAULT_CONFIG.stall_detection.check_commits;
+    }
+    // Fill missing sub-keys with defaults
+    if (config.stall_detection.timeout_s === undefined) {
+      config.stall_detection.timeout_s = DEFAULT_CONFIG.stall_detection.timeout_s;
+    }
+    if (config.stall_detection.consecutive_threshold === undefined) {
+      config.stall_detection.consecutive_threshold = DEFAULT_CONFIG.stall_detection.consecutive_threshold;
+    }
+    if (config.stall_detection.check_commits === undefined) {
+      config.stall_detection.check_commits = DEFAULT_CONFIG.stall_detection.check_commits;
+    }
+  }
+
+  // Validate smart_compact sub-object
+  if (typeof config.smart_compact !== 'object' || config.smart_compact === null) {
+    process.stderr.write('[nf] WARNING: nf.json: smart_compact must be an object; using defaults\n');
+    config.smart_compact = { ...DEFAULT_CONFIG.smart_compact };
+  } else {
+    // Validate enabled: boolean, default true
+    if (typeof config.smart_compact.enabled !== 'boolean') {
+      process.stderr.write('[nf] WARNING: nf.json: smart_compact.enabled must be a boolean; defaulting to true\n');
+      config.smart_compact.enabled = DEFAULT_CONFIG.smart_compact.enabled;
+    }
+    // Validate context_warn_pct: integer 1-99, default 60
+    if (!Number.isInteger(config.smart_compact.context_warn_pct) || config.smart_compact.context_warn_pct < 1 || config.smart_compact.context_warn_pct > 99) {
+      process.stderr.write('[nf] WARNING: nf.json: smart_compact.context_warn_pct must be an integer 1-99; defaulting to 60\n');
+      config.smart_compact.context_warn_pct = DEFAULT_CONFIG.smart_compact.context_warn_pct;
+    }
+    // Fill missing sub-keys with defaults
+    if (config.smart_compact.enabled === undefined) {
+      config.smart_compact.enabled = DEFAULT_CONFIG.smart_compact.enabled;
+    }
+    if (config.smart_compact.context_warn_pct === undefined) {
+      config.smart_compact.context_warn_pct = DEFAULT_CONFIG.smart_compact.context_warn_pct;
+    }
+  }
+
   // Validate model_tier_planner and model_tier_worker
   const VALID_TIERS = ['haiku', 'sonnet', 'opus'];
   if (config.model_tier_planner !== undefined) {
@@ -340,4 +450,4 @@ function loadConfig(projectDir) {
   return config;
 }
 
-module.exports = { loadConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP };
+module.exports = { loadConfig, validateConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP };
