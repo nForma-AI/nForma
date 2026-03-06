@@ -50,7 +50,7 @@
 - [ ] **RSN-02**: Failure mode catalog enumerates concrete failure modes per L2 state/transition with effects and severity classification
 - [ ] **RSN-03**: Risk heatmap produces ranked transition list (highest-risk-first) combining FMEA severity with coverage gap data
 - [ ] **RSN-04**: Model-driven test generation produces test recipe JSON from L3 failure modes with input sequence, expected outcome, and oracle
-- [ ] **RSN-05**: Design impact analysis traces a git diff through all three layers showing instrumentation, state, and hazard effects
+- [x] **RSN-05**: Design impact analysis traces a git diff through all three layers showing instrumentation, state, and hazard effects
 
 ### Gates
 - [ ] **GATE-01**: Gate A (Grounding) measures alignment as `grounding_score = traces_explained / total_traces` with target >= 80%, classifying unexplained traces
@@ -100,7 +100,7 @@
 | RSN-02 | v0.29-03 | Pending |
 | RSN-03 | v0.29-03 | Pending |
 | RSN-04 | v0.29-04 | Pending |
-| RSN-05 | v0.29-04 | Pending |
+| RSN-05 | v0.29-04 | Complete |
 | GATE-01 | v0.29-02 | Pending |
 | GATE-02 | v0.29-03 | Pending |
 | GATE-03 | v0.29-04 | Pending |
