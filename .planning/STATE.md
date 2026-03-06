@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.28-01 Foundation -- Hook Profiles + De-Sloppify
+**Current focus:** Defining requirements for v0.29 Three-Layer FV Architecture
 
 ## Current Position
 
-Phase: 1 of 4 (v0.28-01 Foundation -- Hook Profiles + De-Sloppify)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-06 -- Roadmap created for v0.28 Agent Harness Optimization
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-06 — Milestone v0.29 started
 
 Progress: [░░░░░░░░░░] 0%
 
