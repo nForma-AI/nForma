@@ -56,7 +56,7 @@ test('scanFile detects GitHub token', () => {
 });
 
 test('scanFile detects Stripe live key', () => {
-  const findings = scanFile('src/pay.js', 'const stripe = "sk_live_4eC39HqLyjWDarjtT1zdp7dc";\n');
+  const findings = scanFile('src/pay.js', 'const stripe = "sk_live_51OyBvh0Oc2JurFqNkYLEHbN";\n');
   assert.ok(findings.length > 0, 'should detect Stripe live key');
   assert.equal(findings[0].severity, 'high');
 });
