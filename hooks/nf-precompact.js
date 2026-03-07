@@ -10,6 +10,12 @@
 const fs   = require('fs');
 const path = require('path');
 
+// Fail-open require of execution-progress module (VERF-01)
+const executionProgress = (() => {
+  try { return require(path.join(__dirname, '..', 'bin', 'execution-progress.cjs')); }
+  catch { return null; }
+})();
+
 // Extract the "## Current Position" section from STATE.md content.
 // Returns the trimmed text between "## Current Position" and the next "## " header.
 // Returns null if the section is not found.
@@ -71,6 +77,81 @@ function readPendingTasks(cwd) {
   return results;
 }
 
+// Read execution progress and increment iteration counter on compaction (VERF-01).
+// Returns updated progress object or null if no active execution.
+function readExecutionProgress(cwd) {
+  if (!executionProgress) return null;
+  try {
+    const status = executionProgress.getStatus(cwd);
+    if (status.status === 'no_progress_file') return null;
+    if (status.status !== 'in_progress') return null;
+    // Increment iteration count (only happens on compaction, not on status checks)
+    const updated = executionProgress.incrementIteration(cwd);
+    return updated;
+  } catch (e) {
+    process.stderr.write('[nf-precompact] Could not read execution progress: ' + e.message + '\n');
+    return null;
+  }
+}
+
+// Format execution progress as injection block for compaction continuation context.
+// Returns string or null. Output capped at 3200 characters.
+function formatProgressInjection(progress) {
+  if (!progress) return null;
+
+  const completed = progress.tasks.filter(t => t.status === 'complete');
+  const completedCount = completed.length;
+  const next = progress.tasks.find(t => t.status === 'pending' || t.status === 'in_progress');
+
+  const lines = [
+    '## Execution Progress (auto-injected at compaction)',
+    '',
+    'Plan: ' + progress.plan_file,
+    'Status: ' + progress.status + ' (' + completedCount + '/' + progress.total_tasks + ' tasks complete, iteration ' + progress.iteration_count + ' of ' + progress.max_iterations + ')',
+  ];
+
+  if (progress.status === 'failed') {
+    lines.push('');
+    lines.push('EXECUTION FAILED: ' + progress.failure_reason);
+    lines.push('Report this failure to the user. Do NOT continue execution.');
+    return lines.join('\n');
+  }
+
+  // For plans with 6+ completed tasks, summarize instead of listing all
+  if (completedCount > 5) {
+    lines.push('');
+    lines.push('Tasks 1-' + completedCount + ' complete. Resume at Task ' + (next ? next.number : 'N/A') + '.');
+  } else if (completedCount > 0) {
+    lines.push('');
+    lines.push('Completed tasks:');
+    for (const t of completed) {
+      lines.push('  [x] ' + t.name + ' (commit ' + (t.commit_hash || 'unknown') + ')');
+    }
+  }
+
+  if (next) {
+    lines.push('');
+    lines.push('Resume at:');
+    lines.push('  [ ] ' + next.name);
+    lines.push('');
+    lines.push('IMPORTANT: Read ' + progress.plan_file + ' and continue from Task ' + next.number + '.');
+    lines.push('Do NOT re-execute Tasks 1-' + completedCount + ' -- they are already committed.');
+  }
+
+  const result = lines.join('\n');
+  // Cap at 3200 characters (800 token estimate)
+  if (result.length > 3200) {
+    // Truncate completed task list but keep header + resume instruction
+    const headerEnd = result.indexOf('Completed tasks:');
+    const resumeStart = result.indexOf('Resume at:');
+    if (headerEnd !== -1 && resumeStart !== -1) {
+      return result.slice(0, headerEnd) + 'Tasks 1-' + completedCount + ' complete (truncated for space).\n\n' + result.slice(resumeStart);
+    }
+    return result.slice(0, 3200);
+  }
+  return result;
+}
+
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => { raw += chunk; });
@@ -125,6 +206,14 @@ process.stdin.on('end', () => {
       lines.push('- Run `cat .planning/STATE.md` to get full project state if needed.');
       lines.push('- All project rules in CLAUDE.md still apply (quorum required for planning commands).');
 
+      // Execution progress injection (VERF-01)
+      const execProgress = readExecutionProgress(cwd);
+      const progressBlock = formatProgressInjection(execProgress);
+      if (progressBlock) {
+        lines.push('');
+        lines.push(progressBlock);
+      }
+
       additionalContext = lines.join('\n');
     }
 
@@ -153,4 +242,6 @@ if (typeof module !== 'undefined') {
   module.exports = module.exports || {};
   module.exports.extractCurrentPosition = extractCurrentPosition;
   module.exports.readPendingTasks = readPendingTasks;
+  module.exports.readExecutionProgress = readExecutionProgress;
+  module.exports.formatProgressInjection = formatProgressInjection;
 }
