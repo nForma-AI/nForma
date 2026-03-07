@@ -14,7 +14,7 @@ allowed-tools:
 ---
 
 <objective>
-Run the nForma consistency solver as a full orchestrator. Sweeps 7 layer transitions (R->F, F->T, C->F, T->C, F->C, R->D, D->C), computes a residual vector showing gaps at each boundary, and automatically dispatches to the correct remediation skill/script for each gap type. Re-diagnoses after each remediation round and iterates until convergence or max iterations reached. Returns before/after residual comparison.
+Run the nForma consistency solver as a full orchestrator. Sweeps 8 layer transitions (R->F, F->T, C->F, T->C, F->C, R->D, D->C, P->F) plus git heatmap risk signals, computes a residual vector showing gaps at each boundary, and automatically dispatches to the correct remediation skill/script for each gap type. Uses git heatmap hot zones to prioritize which files get exhaustive formal models. Re-diagnoses after each remediation round and iterates until convergence or max iterations reached. Returns before/after residual comparison.
 </objective>
 
 <execution_context>
@@ -320,6 +320,22 @@ Log: `"F->C: {total} checks, {pass} pass, {fail} fail — dispatching {syntax_co
 
 Each dispatch is independent — if one fails, log and continue to the next. Do NOT dispatch F->C fixes in parallel.
 
+**F->C Root-Cause Attribution:** After dispatching all F->C fixes, run `attribute-trace-divergence.cjs` to provide actionable root causes for any conformance divergences:
+
+```bash
+ATTR=$(node ~/.claude/nf-bin/attribute-trace-divergence.cjs --output-json 2>/dev/null || node bin/attribute-trace-divergence.cjs --output-json 2>/dev/null || echo '[]')
+```
+
+If the script returns non-empty JSON, log each attribution's `recommendation` field. These attributions help the next iteration target the right layer (spec-bug vs impl-bug) when dispatching fixes. Fail-open: if the script is not found or errors, skip silently.
+
+**F->C Trace Corpus Context:** Also run `trace-corpus-stats.cjs` to provide session/action/transition context for the divergences:
+
+```bash
+node ~/.claude/nf-bin/trace-corpus-stats.cjs --json 2>/dev/null || node bin/trace-corpus-stats.cjs --json 2>/dev/null || true
+```
+
+This writes `.planning/formal/evidence/trace-corpus-stats.json` which enriches subsequent analysis. Fail-open: if the script is not found or errors, skip silently.
+
 ### 3f. R->D Gaps (residual_vector.r_to_d.residual > 0)
 
 Requirements that shipped but are not mentioned in developer docs (docs/dev/).
@@ -380,7 +396,37 @@ Log: `"D->C: {N} stale structural claim(s) in docs — manual review required"`
 
 Do NOT dispatch any skill — this is informational only.
 
-### 3h. Reverse Traceability Discovery (C→R + T→R + D→R)
+### 3h. Git Heatmap Risk Prioritization (G→H)
+
+The diagnostic sweep includes a `git_heatmap` section that identifies **uncovered hot zones** — files with high churn, bugfix frequency, or oscillating numerical constants that lack formal model coverage.
+
+Extract from diagnostic output:
+- `residual_vector.git_heatmap.detail.uncovered_hot_zones` — ranked list of files with `priority`, `signals` (churn, bugfix, numerical), and coverage gaps
+- `residual_vector.git_heatmap.detail.total_hot_zones` — count of uncovered hot zones
+
+**This is NOT informational-only — it drives formal model prioritization.**
+
+When `total_hot_zones > 0`:
+1. Take the top 5 hot zones by priority score
+2. For each hot zone file, check if it already has a formal model in `.planning/formal/` (TLA+, Alloy, or PRISM spec referencing the file)
+3. For any hot zone file WITHOUT a formal model, dispatch `/nf:close-formal-gaps` with `--target=<file>` to generate an exhaustive formal spec. The `--exhaustive` flag should be passed for files in the top 3 — these are the highest-risk files and warrant thorough state-space modeling rather than lightweight property stubs.
+4. For hot zone files WITH existing formal models that have `signals` including `"numerical"` (oscillating constants), dispatch `/nf:quick` to verify the model's constants match current code values — these are drift-prone by definition.
+
+**After formal modeling, refresh proposed metrics:**
+
+Run `analyze-assumptions.cjs` to extract metric proposals from all formal models (including any newly generated ones):
+```bash
+node ~/.claude/nf-bin/analyze-assumptions.cjs --json --project-root=$(pwd)
+```
+If `~/.claude/nf-bin/analyze-assumptions.cjs` does not exist, fall back to `bin/analyze-assumptions.cjs`.
+
+This writes `.planning/formal/evidence/proposed-metrics.json` — a structured list of metrics that formal models say should exist in the codebase. Each entry includes `metric_name`, `metric_type`, `tier`, `source_model`, and `instrumentation_snippet`. The `nf:observe` internal handler reads this file and surfaces unimplemented metrics as drifts.
+
+**Why automated:** Unlike reverse discovery (C→R, T→R, D→R) which could cause infinite expansion loops, heatmap-driven formalization is bounded — it only targets files that already exist in the codebase and have demonstrated instability through git history. The formal models it generates enter the existing F→T→C forward flow naturally. The proposed metrics pipeline is also bounded — it only proposes metrics for assumptions that already exist in formal models.
+
+Log: `"Heatmap: {N} hot zones, {M} targeted for formal modeling, {K} already covered, {P} metrics proposed"`
+
+### 3i. Reverse Traceability Discovery (C→R + T→R + D→R)
 
 This step surfaces implementation artifacts that have no requirement backing. Unlike forward layers (which auto-remediate), reverse layers use a **two-step pattern**: autonomous discovery followed by human approval.
 
@@ -435,6 +481,97 @@ Wait for user input via AskUserQuestion. Route based on response:
 
 Log: `"Reverse discovery: {N} candidates presented, {M} approved, {K} rejected, {J} skipped"`
 
+### 3j. Hazard Model Refresh (pre-gate)
+
+Before remediating gate failures, refresh the L3 hazard model so gate checks evaluate current data:
+
+```bash
+node bin/hazard-model.cjs --json
+```
+
+Parse the JSON output. Log: `"Hazard model: {total_hazards} hazards scored, {high_rpn_count} high-RPN (>100)"`
+
+If hazard-model.cjs is not found or fails, skip silently and continue to gate remediation (fail-open). The hazard model is an input to Gate B (L2->L3 traceability) — stale hazard data produces false gate failures.
+
+### 3k. Gate A Remediation (residual_vector.l1_to_l2.residual > 0)
+
+Gate A measures grounding alignment between L1 evidence (conformance traces) and L2 semantics. The diagnostic engine already computed the residual via gate-a-grounding.cjs.
+
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate A dispatches. If the counter reaches 3, log `"Gate A: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip to Step 3l.
+
+Extract detail from `residual_vector.l1_to_l2.detail`:
+- `unexplained_breakdown.instrumentation_bug` — actions not in event-vocabulary.json
+- `unexplained_breakdown.model_gap` — actions in vocabulary but XState replay fails
+- `unexplained_breakdown.genuine_violation` — model_gap events violating declared invariants
+
+Remediation strategy by classification:
+
+| Classification | Count Field | Dispatch |
+|---------------|-------------|----------|
+| **instrumentation_bug** | > 0 | `/nf:quick Add missing action mappings to .planning/formal/evidence/event-vocabulary.json for {N} unmapped trace actions from Gate A` |
+| **model_gap** | > 0 | `/nf:quick Fix {N} XState model gaps identified by Gate A grounding check — update observed FSM or conformance trace annotations` |
+| **genuine_violation** | > 0 | Log as critical: `"Gate A: {N} genuine invariant violations require investigation"` — do NOT auto-remediate (these indicate real bugs requiring manual investigation, not automated dispatch) |
+
+All `/nf:quick` dispatches use default mode (no `--full` flag) to avoid unnecessary overhead during automated remediation. Dispatch instrumentation_bug and model_gap fixes sequentially. Wait for each to complete before the next. Each dispatch increments the Gate A counter.
+
+Log: `"Gate A: grounding_score={score}, {inst_bug} instrumentation bugs, {model_gap} model gaps, {genuine} genuine violations"`
+
+### 3l. Gate B Remediation (residual_vector.l2_to_l3.residual > 0)
+
+Gate B verifies every L3 reasoning artifact has valid derived_from links to L2 semantics sources. Orphaned hazards (L3 entries with broken/missing derived_from) inflate the residual.
+
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate B dispatches. If the counter reaches 3, log `"Gate B: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip to Step 3m.
+
+Extract detail from `residual_vector.l2_to_l3.detail`:
+- `orphaned_count` — L3 entries with no valid L2 back-link (mapped from gate-b-abstraction.cjs `orphaned_entries`)
+
+If `orphaned_count > 0`:
+```
+/nf:quick Fix {N} orphaned L3 reasoning entries identified by Gate B — add or repair derived_from links in .planning/formal/reasoning/ files to reference valid L2 semantics sources
+```
+
+If `gate_b_score < 1.0` but `orphaned_count == 0`, the gap is due to low coverage rather than broken links. Dispatch:
+```
+/nf:quick Improve Gate B L2->L3 traceability coverage — generate derived_from annotations for L3 entries missing semantic back-links (gate_b_score={score})
+```
+
+All `/nf:quick` dispatches use default mode (no `--full` flag). Each dispatch increments the Gate B counter.
+
+Log: `"Gate B: gate_b_score={score}, {orphaned_count} orphaned entries"`
+
+### 3m. Gate C Remediation (residual_vector.l3_to_tc.residual > 0)
+
+Gate C verifies every L3 failure mode maps to at least one test recipe. Unvalidated failure modes lack test coverage.
+
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate C dispatches. If the counter reaches 3, log `"Gate C: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip to Step 5.
+
+Extract detail from `residual_vector.l3_to_tc.detail`:
+- `unvalidated_count` — failure modes with no test recipe (mapped from gate-c-validation.cjs `unvalidated_entries`)
+- `total_failure_modes` — total L3 failure modes
+
+First, regenerate test recipes to ensure freshness:
+```bash
+node bin/test-recipe-gen.cjs
+```
+
+If unvalidated_count is still > 0 after regeneration, re-run gate-c-validation.cjs to get the updated gap list:
+```bash
+node bin/gate-c-validation.cjs --json
+```
+
+If gate-c-validation.cjs is not found or fails, skip the re-check and use the original unvalidated_count from the diagnostic (fail-open — consistent with Step 3j pattern).
+
+**Important:** The gate-c re-run here is a local freshness check only. It does NOT update the `residual_vector` used by the convergence loop in Step 5. The residual_vector is only updated at the top of the next iteration when nf-solve.cjs runs a full re-diagnostic sweep. This is by design — each iteration gets a consistent snapshot from the diagnostic engine rather than piecemeal updates from individual gate scripts.
+
+If the re-check confirms unvalidated failures remain, dispatch:
+```
+/nf:quick Generate test recipes for {N} uncovered L3 failure modes identified by Gate C — add entries to .planning/formal/test-recipes/test-recipes.json mapping each failure mode to concrete test steps
+```
+
+All `/nf:quick` dispatches use default mode (no `--full` flag). Each dispatch increments the Gate C counter.
+
+Log: `"Gate C: gate_c_score={score}, {unvalidated_count}/{total_failure_modes} failure modes lack test recipes"`
+
 ## Step 4: Re-Diagnostic Sweep
 
 After all remediations in Step 3 complete, run the diagnostic again using absolute paths:
@@ -458,7 +595,7 @@ Compare the baseline total residual against the post-remediation total:
 
 If `--max-iterations=N` was passed and N > 1:
 - Increment iteration counter
-- Compute `automatable_residual` = r_to_f + f_to_t + c_to_f + t_to_c + f_to_c + r_to_d (exclude d_to_c which is manual-only)
+- Compute `automatable_residual` = r_to_f + f_to_t + c_to_f + t_to_c + f_to_c + r_to_d + l1_to_l2 + l2_to_l3 + l3_to_tc (exclude d_to_c which is manual-only; include gate residuals so gate remediation triggers re-evaluation)
 - If iterations < max_iterations AND automatable_residual > 0 AND at least one automatable layer changed: loop back to Step 3
 - If iterations >= max_iterations OR automatable_residual == 0 OR no automatable layer changed: proceed to Step 6
 
@@ -492,6 +629,9 @@ L1 -> L2 (Gate A)           {N}    {M}    {delta}   [status]
 L2 -> L3 (Gate B)           {N}    {M}    {delta}   [status]
 L3 -> TC (Gate C)           {N}    {M}    {delta}   [status]
   Alignment subtotal:       {N}    {M}    {delta}
+─ Git Heatmap (risk signals) ──────────────────────────
+G -> H (Git->Heatmap)       {N}    {M}    {delta}   [status]
+  Heatmap subtotal:         {N}    {M}    {delta}
 ═════════════════════════════════════════════════════════
 Grand total:                {N}    {M}    {delta}
 ```
@@ -505,6 +645,7 @@ Grand total:                {N}    {M}    {delta}
 - **F→C**: For each failing check: check_id, summary (including counts like "7086 divergences"), affected requirement IDs. Also list inconclusive checks separately.
 - **R→D**: List all undocumented requirement IDs
 - **D→C**: Table of each broken claim (doc_file, line, type, value, reason)
+- **G→H**: Top uncovered hot zones with priority scores and signal types (churn, bugfix, numerical). Flag which ones were targeted for formal modeling this cycle.
 
 Example F→C expansion:
 ```
@@ -519,9 +660,31 @@ T -> C Detail:
   Tests: 2 failed, 3 skipped, 1 todo (of 42 total)
 ```
 
+**Cross-Layer Alignment Dashboard:**
+
+After displaying the before/after table, run the cross-layer dashboard for an aggregated alignment view:
+
+```bash
+node bin/cross-layer-dashboard.cjs --cached
+```
+
+Use `--cached` because gate scripts were already run during this solve cycle. Display the dashboard output as-is — it aggregates L1 coverage, Gate A, Gate B, and Gate C scores into a single terminal view showing overall cross-layer health.
+
+If cross-layer-dashboard.cjs is not found, skip silently (fail-open).
+
 If any gaps remain after convergence, append a summary of what couldn't be auto-fixed and why.
 
 Note: R->D gaps are auto-remediated by generating developer doc entries in docs/dev/requirements-coverage.md. D->C gaps (stale file paths, CLI commands, dependencies) require manual review.
+
+### State Candidate Discovery
+
+After the before/after summary, run `state-candidates.cjs` to discover missing states that should be modeled:
+
+```bash
+node ~/.claude/nf-bin/state-candidates.cjs --json 2>/dev/null || node bin/state-candidates.cjs --json 2>/dev/null || true
+```
+
+If the script produces output, display a summary of unmodeled state candidates: count of unmapped actions and suggested missing transitions. These are informational — they feed into the next `/nf:solve` iteration if new formal models are created. Fail-open: if the script is not found or errors, skip silently.
 
 ## Step 7: Full Formal Verification Detail Table
 
@@ -566,6 +729,51 @@ Inconclusive checks are not failures but indicate incomplete verification (usual
 
 This table is mandatory even when the solver layer residuals are all zero — because formal model failures (Alloy, TLA+, PRISM) may exist outside the solver's tracked CI checks.
 
+## Step 8: Post-Convergence Actions
+
+After convergence (or max iterations reached), run these additional steps. Each is fail-open — failures are logged but do not block the solve from completing.
+
+### 8a. Gate Maturity Promotion (promote-gate-maturity.cjs)
+
+Check if any gates can be promoted based on sustained zero residual. A gate qualifies for promotion when its corresponding layer alignment residual has been zero for the current and previous solve runs.
+
+```bash
+node bin/promote-gate-maturity.cjs --check --json --project-root=$(pwd)
+```
+
+If `~/.claude/nf-bin/promote-gate-maturity.cjs` exists, prefer the installed path. Parse the JSON output and log any promotions or demotions:
+- If models are eligible for promotion: log `"Gate maturity: {N} model(s) eligible for promotion"`
+- If models need demotion (violations detected): log `"Gate maturity: {N} model(s) demoted due to violations"`
+- If `--fix` would be appropriate (models have violations), log the suggestion but do NOT auto-fix — gate maturity changes require deliberate action.
+
+### 8b. Refresh Quorum Formal Context (quorum-formal-context.cjs)
+
+Regenerate the formal spec summary for subsequent quorum calls. This ensures quorum workers have up-to-date formal verification context.
+
+Look for the most recent PLAN.md in `.planning/quick/` (sorted by modification time):
+```bash
+LATEST_PLAN=$(ls -t .planning/quick/*/PLAN.md 2>/dev/null | head -1)
+if [ -n "$LATEST_PLAN" ]; then
+  node bin/quorum-formal-context.cjs "$LATEST_PLAN"
+fi
+```
+
+If no PLAN.md exists or the script fails, skip silently. The quorum context is refreshed opportunistically.
+
+Log: `"Quorum context: refreshed formal spec summary for next quorum dispatch"`
+
+### 8c. Sensitivity Sweep (optional — run-sensitivity-sweep.cjs)
+
+If `--verbose` flag was passed to solve, run a sensitivity sweep to identify which model parameters have the highest impact on verification outcomes:
+
+```bash
+node bin/run-sensitivity-sweep.cjs
+```
+
+This writes results to `.planning/formal/sensitivity-report.ndjson`. The sweep is computationally expensive (runs TLC/PRISM multiple times with varied parameters), so it only runs in verbose mode.
+
+Log: `"Sensitivity sweep: wrote {N} parameter variation(s) to sensitivity-report.ndjson"` or `"Sensitivity sweep: skipped (use --verbose to enable)"`
+
 ## Important Constraints
 
 1. **bin/nf-solve.cjs is NOT modified** — it remains the diagnostic engine. This skill orchestrates remediation at the skill/script level.
@@ -586,5 +794,7 @@ This table is mandatory even when the solver layer residuals are all zero — be
 6. **Cascade awareness** — fixing one layer often creates gaps in the next (e.g., new formal models → new F→T gaps → new stubs → new T→C gaps). The iteration loop handles this naturally. Expect the total to fluctuate between iterations before converging. Reverse discovery candidates that get approved also feed into the forward flow (R→F→T→C) in subsequent iterations.
 
 7. **Reverse flows are discovery-only** — C→R, T→R, and D→R never auto-remediate. They surface candidates for human approval. The human gate prevents unbounded requirement expansion (if C→R auto-added requirements, those would trigger R→F→T→C, generating more code, triggering more C→R — an infinite loop). Reverse residuals do NOT count toward the automatable total or affect the convergence check in Step 5.
+
+8. **Layer alignment remediation** — Gate A/B/C failures are remediated via `/nf:quick` dispatch (default mode, no `--full` flag) after the hazard model is refreshed (Step 3j). The full dependency chain is: hazard-model refresh (3j) -> Gate A (3k) -> Gate B (3l) -> test-recipe-gen (in 3m) -> Gate C (3m). This ordering ensures: (a) L3 artifacts are fresh before gates evaluate them, (b) Gate A (L1->L2) fixes propagate before Gate B (L2->L3) checks traceability, (c) test recipes are regenerated before Gate C (L3->TC) evaluates coverage. Each gate is capped at 3 remediation dispatches per solve cycle to prevent runaway loops if residuals never converge.
 
 </process>
