@@ -46,10 +46,31 @@ Present plan identification, wait for confirmation.
 </if>
 </step>
 
+<step name="check_resume_state">
+Check if resuming after compaction:
+
+```bash
+RESUME_STATE=$(node bin/execution-progress.cjs get-status)
+```
+
+Parse the JSON result:
+- If `status` is `"no_progress_file"`: fresh start, continue normally.
+- If `status` is `"failed"`: report failure reason to user. If `failure_reason` is `"iteration_cap_exhausted"`, say "Execution cap reached after {iteration_count} compaction cycles -- this plan may need manual intervention." If `failure_reason` is `"stuck_on_task"`, say "Stuck on Task {stuck_task} after {resume_attempts} attempts -- investigate why this task cannot complete."
+- If `status` is `"in_progress"`: this is a post-compaction resume. Check that `plan_file` matches the current plan. If it matches, skip completed tasks and resume at the first `pending` or `in_progress` task. If it does not match (stale from prior plan), call `node bin/execution-progress.cjs init ...` to overwrite with current plan.
+- If `status` is `"complete"`: stale file from a completed plan. Call `node bin/execution-progress.cjs clear` and continue fresh.
+</step>
+
 <step name="record_start_time">
 ```bash
 PLAN_START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 PLAN_START_EPOCH=$(date +%s)
+```
+
+Initialize execution progress tracking:
+```bash
+PLAN_TASK_COUNT=$(grep -c '<task type=' .planning/phases/XX-name/{phase}-{plan}-PLAN.md)
+PLAN_TASK_NAMES=$(grep '<name>' .planning/phases/XX-name/{phase}-{plan}-PLAN.md | sed 's/.*<name>//;s/<\/name>.*//' | paste -sd',' -)
+node bin/execution-progress.cjs init --plan "{phase}-{plan}-PLAN.md" --tasks "$PLAN_TASK_COUNT" --names "$PLAN_TASK_NAMES"
 ```
 </step>
 
@@ -257,6 +278,13 @@ TASK_COMMIT=$(git rev-parse --short HEAD)
 TASK_COMMITS+=("Task ${TASK_NUM}: ${TASK_COMMIT}")
 ```
 
+**6. Record execution progress:**
+```bash
+node bin/execution-progress.cjs complete-task --number ${TASK_NUM} --commit $(git rev-parse --short HEAD)
+```
+
+Note: For Pattern A/B (subagent), the orchestrator updates progress after the subagent returns, not the subagent itself. Orchestrator-level tracking for Pattern A/B is deferred.
+
 </task_commit>
 
 <step name="checkpoint_protocol">
@@ -325,6 +353,11 @@ One-liner SUBSTANTIVE: "JWT auth with refresh rotation using jose library" not "
 Include: duration, start/end times, task count, file count.
 
 Next: more plans → "Ready for {next-plan}" | last → "Phase complete, ready for transition".
+
+Clear execution progress (plan complete):
+```bash
+node bin/execution-progress.cjs clear
+```
 </step>
 
 <step name="update_current_position">

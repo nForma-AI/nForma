@@ -103,6 +103,9 @@ states/
 # Task classification (ephemeral, written by nf-prompt.js per quorum dispatch)
 .planning/task-classification.json
 
+# Execution progress (ephemeral, written by execute-plan workflow per plan execution)
+.planning/execution-progress.json
+
 # Quorum cache (ephemeral, per-session)
 .planning/.quorum-cache/
 
