@@ -8,6 +8,7 @@ files_modified:
   - .planning/formal/alloy/install-scope.als
   - .planning/formal/alloy/scoreboard-recompute.als
   - .planning/formal/tla/QGSDSessionPersistence.tla
+  - .planning/formal/tla/MCSessionPersistence.cfg
   - .planning/quick/204-audit-formal-models-for-state-space-expl/formal-model-audit.md
 autonomous: true
 formal_artifacts: update
@@ -15,23 +16,27 @@ requirements: []
 
 must_haves:
   truths:
-    - "Every assertion in every Alloy model verifies a non-trivial property (no tautologies)"
+    - "Every assertion in every Alloy model verifies a non-trivial property (no tautologies kept as assertions)"
     - "Every TLA+ variable used in TypeOK has a bounded domain for TLC model checking"
     - "Alloy check commands use per-sig scopes that adequately cover the signature hierarchy"
     - "All findings are documented in a formal-model-audit.md report with severity and fix status"
+    - "MCSessionPersistence.cfg includes CounterBounded invariant to validate derived bound across all reachable states"
   artifacts:
     - path: ".planning/quick/204-audit-formal-models-for-state-space-expl/formal-model-audit.md"
       provides: "Comprehensive audit report of all formal models"
       min_lines: 80
     - path: ".planning/formal/alloy/install-scope.als"
-      provides: "Fixed InstallIdempotent assertion and scope commands"
-      contains: "InstallIdempotent"
+      provides: "Temporal idempotency gap documented, RollbackSoundCheck/ConfigSyncCompleteCheck with concrete assertion bodies"
+      contains: "RollbackSoundCheck"
     - path: ".planning/formal/alloy/scoreboard-recompute.als"
-      provides: "Fixed RecomputeIdempotent and deduplicated NoVoteLoss/NoDoubleCounting"
-      contains: "RecomputeIdempotent"
+      provides: "RecomputeIdempotent removed (not kept as tautological assertion), NoDoubleCounting differentiated from NoVoteLoss"
+      contains: "NoDoubleCounting"
     - path: ".planning/formal/tla/QGSDSessionPersistence.tla"
-      provides: "Bounded idCounter and persistedCounter in TypeOK"
+      provides: "Bounded idCounter and persistedCounter in TypeOK, CounterBounded invariant"
       contains: "MaxCounter"
+    - path: ".planning/formal/tla/MCSessionPersistence.cfg"
+      provides: "CounterBounded invariant line for TLC checking"
+      contains: "CounterBounded"
   key_links:
     - from: ".planning/quick/204-audit-formal-models-for-state-space-expl/formal-model-audit.md"
       to: ".planning/formal/alloy/install-scope.als"
@@ -39,8 +44,8 @@ must_haves:
       pattern: "install-scope"
     - from: ".planning/formal/tla/QGSDSessionPersistence.tla"
       to: ".planning/formal/tla/MCSessionPersistence.cfg"
-      via: "TLA+ spec references MaxCounter constant that cfg must define"
-      pattern: "MaxCounter"
+      via: "TLA+ spec defines MaxCounter and CounterBounded; cfg must declare CounterBounded as INVARIANT"
+      pattern: "CounterBounded"
 ---
 
 <objective>
@@ -105,9 +110,14 @@ Scan for models where bounded induction could simplify or strengthen verificatio
 **Category E: Integer Overflow Risks (Alloy)**
 Check Alloy models using Int for potential overflow. `scoreboard-recompute.als` uses `7 Int` (range -64..63) with max possible score of 5*7=35, which fits but is fragile.
 
+**Category F: Temporal Idempotency Expressiveness Gap**
+Document which models attempt to verify idempotency in Alloy (a purely relational, non-temporal language) vs TLA+ (which can model pre/post temporal operations). Specifically:
+- `install-scope.als` `InstallIdempotent`: Alloy's relational structure cannot express "apply operation twice, get same result" because there is no operation predicate -- only static snapshots. The TLA+ spec `QGSDInstallerIdempotency.tla` is the correct place for temporal idempotency verification.
+- `scoreboard-recompute.als` `RecomputeIdempotent`: Alloy pure functions are trivially idempotent by language semantics -- `f(x) = f(x)` is definitional, not verifiable.
+
 For EACH finding, document:
 - File path and line number(s)
-- Category (A/B/C/D/E)
+- Category (A/B/C/D/E/F)
 - Severity (critical/moderate/low)
 - Description of the defect
 - Fix applied or recommended
@@ -119,13 +129,14 @@ Write the report to `.planning/quick/204-audit-formal-models-for-state-space-exp
   </action>
   <verify>
     The report file exists and contains:
-    - `grep -c 'Category' formal-model-audit.md` shows at least 5 category references
+    - `grep -c 'Category' formal-model-audit.md` shows at least 6 category references (A through F)
     - `grep -c 'Severity' formal-model-audit.md` shows findings with severity ratings
     - Every known finding listed above appears in the report
     - Summary statistics section exists
+    - Category F section documents the Alloy temporal expressiveness gap
   </verify>
   <done>
-    formal-model-audit.md contains a complete audit of all TLA+ and Alloy models with categorized findings, severity ratings, and fix recommendations. All findings reference specific file paths and line numbers.
+    formal-model-audit.md contains a complete audit of all TLA+ and Alloy models with categorized findings, severity ratings, and fix recommendations. All findings reference specific file paths and line numbers. Category F explicitly documents which idempotency assertions belong in TLA+ (temporal) vs Alloy (relational).
   </done>
 </task>
 
@@ -138,36 +149,77 @@ Write the report to `.planning/quick/204-audit-formal-models-for-state-space-exp
     .planning/formal/tla/MCSessionPersistence.cfg
   </files>
   <action>
-Apply fixes to the three models with critical/moderate defects. Each fix must preserve existing requirement annotations (@requirement tags) and file header comments.
+Apply fixes to the models with critical/moderate defects. Each fix must preserve existing requirement annotations (@requirement tags) and file header comments.
 
 **Fix 1: install-scope.als -- InstallIdempotent tautology (CRITICAL)**
 
-Replace the tautological `InstallIdempotent` assertion (line 62-65) with a meaningful idempotency check. The correct pattern models idempotency as: applying the same install operation to two states that started identically produces identical results. Since InstallState has no temporal dimension, model idempotency structurally:
+The current `InstallIdempotent` assertion (line 62-65) is `SameState[s1,s2] => SameState[s1,s2]` -- a pure tautology. The fundamental problem is that install-scope.als has no operation predicate modeling a temporal install action (pre-state -> post-state). Without an operation predicate, true idempotency ("apply operation twice, get same result") cannot be expressed in Alloy's purely relational structure.
 
-```
--- InstallIdempotent: if two states assign the same scope via an install operation,
--- the resulting assignments are identical (install is a pure function of the input).
--- Modeled as: for any runtime and target scope, all InstallStates that map that
--- runtime to that scope agree on all other runtime assignments.
+The fix has two parts:
+
+(a) **Add an `InstallOp` predicate** that models the install operation as a pre->post state transition, then verify idempotency as "applying InstallOp twice yields same result as applying once":
+
+```alloy
+-- InstallOp: models applying install with a target scope to a pre-state, producing a post-state.
+-- Each runtime in the target set gets assigned the given scope; others are unchanged.
+pred InstallOp [pre, post: InstallState, targets: set Runtime, sc: Scope] {
+    -- Targeted runtimes get the new scope
+    all r: targets | r.(post.assigned) = sc
+    -- Non-targeted runtimes keep their pre-state scope
+    all r: Runtime - targets | r.(post.assigned) = r.(pre.assigned)
+}
+
+-- InstallIdempotent: applying the same install operation twice yields the same result as once.
+-- If pre->mid via InstallOp and mid->post via same InstallOp, then post = mid.
+-- @requirement INST-03
 assert InstallIdempotent {
-    all s1, s2: InstallState |
-        (all r: Runtime | r.(s1.assigned) != Uninstalled) and
-        (all r: Runtime | r.(s2.assigned) != Uninstalled) and
-        (all r: Runtime | r.(s1.assigned) = r.(s2.assigned))
-        implies SameState[s1, s2]
+    all pre, mid, post: InstallState, targets: set Runtime, sc: Scope |
+        (InstallOp[pre, mid, targets, sc] and InstallOp[mid, post, targets, sc])
+        implies SameState[mid, post]
 }
 ```
 
-This checks that two post-install states with identical per-runtime assignments are recognized as SameState -- verifying the SameState predicate correctly captures state equality when all runtimes are installed.
+This is NOT a tautology because InstallOp constrains the relationship between states -- two applications of the same operation on different pre-states could theoretically produce different results if the predicate had side-channel dependencies.
 
-Also fix the GAP-7 extension assertions:
+(b) **Fix RollbackSoundCheck with concrete assertion body.** The current assertion uses an existential (`some post: InstallSnapshot | no post.files`) which only checks that an empty snapshot exists in the universe, not that uninstall produces it. Add a `RollbackOp` predicate and rewrite the assertion:
 
-For `RollbackSoundCheck`: Replace the existential check with a universal check that any snapshot with GSD files can transition to an empty snapshot (strengthen the assertion to verify the operation, not just existence).
+```alloy
+-- RollbackOp: models uninstall removing all GSD file tokens from a snapshot
+pred RollbackOp [pre, post: InstallSnapshot] {
+    -- After rollback, post contains no GSD files (all removed)
+    no post.files
+    -- pre must have had some files to roll back
+    some pre.files
+}
 
-For `ConfigSyncCompleteCheck`: Scope it to pre/post pairs related by the ConfigSyncComplete predicate rather than asserting it for ALL snapshot pairs.
-
-Update `check` commands to use per-sig scopes:
+-- RollbackSoundCheck: for every pre-state with files, applying RollbackOp produces
+-- a post-state with no files. This is universally quantified over ALL valid pre/post pairs.
+-- @requirement INST-04
+assert RollbackSoundCheck {
+    all pre, post: InstallSnapshot |
+        RollbackOp[pre, post] implies no post.files
+}
 ```
+
+(c) **Fix ConfigSyncCompleteCheck with concrete assertion body.** The current assertion checks ALL pairs which is broken. Scope it to pairs related by a sync operation:
+
+```alloy
+-- SyncOp: models the install sync step that copies files from dist to claude hooks dir
+pred SyncOp [dist, claude: InstallSnapshot] {
+    -- After sync, claude hooks dir has exactly the same files as dist
+    claude.files = dist.files
+}
+
+-- ConfigSyncCompleteCheck: after a SyncOp, the two snapshots have identical file sets.
+-- @requirement INST-05
+assert ConfigSyncCompleteCheck {
+    all dist, claude: InstallSnapshot |
+        SyncOp[dist, claude] implies ConfigSyncComplete[dist, claude]
+}
+```
+
+(d) **Update all check commands to use per-sig scopes:**
+```alloy
 check NoConflict         for 5 InstallState, 3 Runtime, 3 Scope
 check AllEquivalence     for 5 InstallState, 3 Runtime, 3 Scope
 check InstallIdempotent  for 5 InstallState, 3 Runtime, 3 Scope
@@ -177,87 +229,119 @@ check ConfigSyncCompleteCheck for 3 InstallSnapshot, 3 FileToken
 
 **Fix 2: scoreboard-recompute.als -- RecomputeIdempotent tautology + duplicate assertion (CRITICAL)**
 
-Replace the tautological `RecomputeIdempotent` (line 53-56) with a meaningful idempotency assertion. The scoreboard recompute function is pure (deterministic over the same input), so model idempotency as: computing the score from a set of rounds, then "recomputing" by applying the same function again, yields the same result. Since computeScore is already a pure function in Alloy, the real test is that the score equals the expected sum:
+The `RecomputeIdempotent` assertion (`computeScore[m,rounds] = computeScore[m,rounds]`) is a tautology. Since Alloy pure functions are trivially idempotent by language semantics, keeping it as a "documentation assertion" still gives false confidence to `check` output -- a passing `check RecomputeIdempotent` looks like verification of a real property when it verifies nothing. **Remove the assertion entirely** and replace with a comment block documenting the gap:
 
+```alloy
+-- NOTE: RecomputeIdempotent assertion REMOVED (was SCBD-01).
+-- Alloy pure functions are trivially idempotent by language semantics:
+-- f(x) = f(x) is definitional, not a verifiable property.
+-- True temporal idempotency (apply operation twice, get same result) requires
+-- modeling a mutable state machine, which is done in TLA+ (see QGSDInstallerIdempotency.tla).
+-- The scoreboard recompute operation's idempotency is verified by the JavaScript test suite
+-- (bin/update-scoreboard.test.cjs) which tests recomputeStats() called twice yields same result.
+-- @requirement SCBD-01 — verified via JS tests, not Alloy (expressiveness gap)
 ```
--- RecomputeIdempotent: the score for a model is exactly the sum of individual
--- round deltas — recomputing from scratch always yields the same total.
--- This is NOT a tautology because it verifies that computeScore's sum reduction
--- matches a per-round delta accumulation (the two formulations could diverge
--- if the Alloy integer semantics introduced overflow or rounding).
-assert RecomputeIdempotent {
-    all m: Model, rs: set Round |
-        computeScore[m, rs] = (sum r: rs | scoreDelta[r.votes[m]])
+
+Remove the `check RecomputeIdempotent` command as well.
+
+Differentiate `NoVoteLoss` from `NoDoubleCounting` -- currently they have identical bodies. Fix `NoDoubleCounting` to verify subset-monotonicity (adding rounds can only increase or match the score when deltas are non-negative, and removing a round reduces by exactly that round's delta):
+
+```alloy
+-- NoDoubleCounting: removing any single round from the set reduces the score
+-- by exactly that round's delta. This verifies additivity/linearity: no round's
+-- contribution is counted more than once or less than once.
+-- @requirement SCBD-03
+assert NoDoubleCounting {
+    all m: Model, rs: set Round, r: rs |
+        some r.votes[m] implies
+        computeScore[m, rs] = plus[computeScore[m, rs - r], scoreDelta[r.votes[m]]]
 }
 ```
 
-Wait -- this IS the same as NoVoteLoss/NoDoubleCounting. The real issue is that all three assertions check the same property. Fix by:
-
-1. Keep `RecomputeIdempotent` but make it test actual idempotency: computing twice on the same data yields the same result. Since `computeScore` is a pure function in Alloy, `computeScore[m,rs] = computeScore[m,rs]` is trivially true by Alloy semantics. Instead, verify the structural property that the computation is order-independent:
-```
-assert RecomputeIdempotent {
-    all m: Model, r1, r2: set Round |
-        r1 = r2 implies computeScore[m, r1] = computeScore[m, r2]
-}
-```
-This is STILL trivially true (= on sets is reflexive). The fundamental issue is that Alloy functions are always pure -- idempotency is definitional, not verifiable.
-
-The honest fix: rename or remove `RecomputeIdempotent` as a documented non-assertion (Alloy pure functions are trivially idempotent), and differentiate `NoVoteLoss` from `NoDoubleCounting`:
-
-- `NoVoteLoss`: Every round with a vote for model m contributes its delta to the total (already correct).
-- `NoDoubleCounting`: Removing a round from the set reduces the score by exactly that round's delta: `computeScore[m, rs] = plus[computeScore[m, rs - r], scoreDelta[r.votes[m]]]` for every `r in rs` that has a vote for m. This verifies additivity/linearity of the sum.
-- `RecomputeIdempotent`: Document as "trivially true by Alloy pure-function semantics" with a comment explaining WHY, and keep it as a documentation assertion rather than removing it. Add a comment block explaining the tautology and that the TLA+ model (QGSDInstallerIdempotency.tla) is the correct place for temporal idempotency verification.
+This is NOT a tautology because it asserts a structural property about `computeScore`'s decomposition that Alloy must verify holds for the `sum` reduction -- specifically that `sum` over a set equals `sum` over (set minus element) plus the element's value.
 
 **Fix 3: QGSDSessionPersistence.tla -- unbounded idCounter (MODERATE)**
 
-Add a `MaxCounter` constant and bound both counters:
+Add a `MaxCounter` derived operator and bound both counters. Also add an explicit `CounterBounded` invariant for TLC to check that the derived bound holds across all reachable states:
 
-1. Add `MaxCounter` to CONSTANTS: `MaxCounter == MaxSessions * (MaxRestarts + 1) + 1`
-
-Actually, MaxCounter should be derived, not a CONSTANT. Use a LET or define it as an operator:
-
-```
+1. Add `MaxCounter` as a derived operator (NOT a CONSTANT -- it is computed from existing constants):
+```tla
 MaxCounter == MaxSessions * (MaxRestarts + 1) + 1
 ```
 
 2. Update TypeOK to bound both counters:
-```
+```tla
 /\ idCounter \in 0..MaxCounter
 /\ persistedCounter \in 0..MaxCounter
 ```
 
-3. Update MCSessionPersistence.cfg: No change needed since MaxCounter is derived from existing constants.
+3. Add an explicit `CounterBounded` invariant for TLC to verify the derived bound holds:
+```tla
+(* CounterBounded: explicit check that idCounter never exceeds MaxCounter.
+   While TypeOK includes 0..MaxCounter, this standalone invariant makes the
+   bound visible in TLC output and catches any off-by-one in the derivation. *)
+CounterBounded ==
+  /\ idCounter <= MaxCounter
+  /\ persistedCounter <= MaxCounter
+```
 
-4. Verify that the bound is sufficient: MaxSessions=3, MaxRestarts=2 gives MaxCounter = 3*3+1 = 10. Each restart cycle can create up to MaxSessions new sessions, and there are MaxRestarts+1 total cycles (initial + restarts). The +1 accounts for the counter starting at 1 rather than 0.
+4. **Update MCSessionPersistence.cfg** to add the CounterBounded invariant:
+Add this line after the existing INVARIANT lines:
+```
+INVARIANT CounterBounded
+```
+
+This ensures TLC explicitly validates that the derived bound `MaxCounter = MaxSessions * (MaxRestarts + 1) + 1` (= 10 for MaxSessions=3, MaxRestarts=2) holds across ALL reachable states, catching any off-by-one errors in the derivation.
+
+5. Verify the bound is sufficient: MaxSessions=3, MaxRestarts=2 gives MaxCounter = 3*3+1 = 10. Each restart cycle can create up to MaxSessions new sessions, and there are MaxRestarts+1 total cycles (initial + restarts). The +1 accounts for the counter starting at 1 rather than 0.
   </action>
   <verify>
     Run these checks:
     1. `grep 'SameState\[s1, s2\] => SameState\[s1, s2\]' .planning/formal/alloy/install-scope.als` returns NO matches (tautology removed)
-    2. `grep 'computeScore\[m, rounds\] = computeScore\[m, rounds\]' .planning/formal/alloy/scoreboard-recompute.als` returns NO matches (tautology removed)
-    3. `grep 'MaxCounter' .planning/formal/tla/QGSDSessionPersistence.tla` returns at least 2 matches (definition + usage in TypeOK)
-    4. `grep 'idCounter \\in Nat' .planning/formal/tla/QGSDSessionPersistence.tla` returns NO matches (unbounded removed)
-    5. All @requirement annotations are preserved in modified files
+    2. `grep 'InstallOp' .planning/formal/alloy/install-scope.als` returns at least 3 matches (pred definition + assertion usage)
+    3. `grep 'RollbackOp' .planning/formal/alloy/install-scope.als` returns at least 2 matches (pred + assertion)
+    4. `grep 'SyncOp' .planning/formal/alloy/install-scope.als` returns at least 2 matches (pred + assertion)
+    5. `grep 'computeScore\[m, rounds\] = computeScore\[m, rounds\]' .planning/formal/alloy/scoreboard-recompute.als` returns NO matches (tautology removed)
+    6. `grep 'assert RecomputeIdempotent' .planning/formal/alloy/scoreboard-recompute.als` returns NO matches (assertion removed entirely, not kept as documentation assertion)
+    7. `grep 'check RecomputeIdempotent' .planning/formal/alloy/scoreboard-recompute.als` returns NO matches (check command removed)
+    8. `grep 'rs - r' .planning/formal/alloy/scoreboard-recompute.als` returns at least 1 match (NoDoubleCounting uses set subtraction)
+    9. `grep 'MaxCounter' .planning/formal/tla/QGSDSessionPersistence.tla` returns at least 3 matches (definition + TypeOK usage + CounterBounded)
+    10. `grep 'idCounter \\in Nat' .planning/formal/tla/QGSDSessionPersistence.tla` returns NO matches (unbounded removed)
+    11. `grep 'CounterBounded' .planning/formal/tla/MCSessionPersistence.cfg` returns 1 match (invariant added to cfg)
+    12. `grep 'CounterBounded' .planning/formal/tla/QGSDSessionPersistence.tla` returns at least 1 match (invariant defined in spec)
+    13. All @requirement annotations are preserved in modified files
   </verify>
   <done>
-    Three model files are fixed: install-scope.als has a non-tautological InstallIdempotent assertion with per-sig scopes, scoreboard-recompute.als has differentiated NoVoteLoss/NoDoubleCounting assertions with documented RecomputeIdempotent, and QGSDSessionPersistence.tla has bounded counters. All requirement annotations preserved.
+    Four model files are fixed:
+    - install-scope.als has InstallOp predicate enabling true temporal idempotency checking, concrete RollbackOp/SyncOp predicates for RollbackSoundCheck/ConfigSyncCompleteCheck, and per-sig scopes
+    - scoreboard-recompute.als has RecomputeIdempotent assertion REMOVED (not kept as tautological documentation assertion), NoDoubleCounting differentiated via set-subtraction additivity property
+    - QGSDSessionPersistence.tla has bounded counters via derived MaxCounter operator and explicit CounterBounded invariant
+    - MCSessionPersistence.cfg includes INVARIANT CounterBounded to validate the derived bound across all reachable states
+    All requirement annotations preserved.
   </done>
 </task>
 
 </tasks>
 
 <verification>
-1. formal-model-audit.md exists with categorized findings for all audited models
-2. No tautological assertions remain in install-scope.als or scoreboard-recompute.als
-3. QGSDSessionPersistence.tla TypeOK uses bounded domains only
-4. All @requirement annotations in modified files are preserved
-5. All check commands in install-scope.als use per-sig scopes
+1. formal-model-audit.md exists with categorized findings for all audited models (Categories A-F)
+2. No tautological assertions remain as `assert` blocks in install-scope.als or scoreboard-recompute.als
+3. install-scope.als has InstallOp, RollbackOp, and SyncOp predicates with concrete assertion bodies
+4. scoreboard-recompute.als has RecomputeIdempotent fully removed (comment block only, no assert/check)
+5. QGSDSessionPersistence.tla TypeOK uses bounded domains only (0..MaxCounter)
+6. QGSDSessionPersistence.tla defines CounterBounded invariant
+7. MCSessionPersistence.cfg includes INVARIANT CounterBounded
+8. All @requirement annotations in modified files are preserved
+9. All check commands in install-scope.als use per-sig scopes
 </verification>
 
 <success_criteria>
 - Audit report covers all TLA+ specs (excluding TTrace files) and all Alloy models
 - All critical findings (tautologies, unbounded state spaces) have fixes applied
+- No tautological assertion is kept as a "documentation assertion" with `check` command -- tautologies are either replaced with real properties or removed entirely with comment documenting the gap
 - Modified model files preserve existing requirement annotations
 - Report documents which fixes were applied vs which are recommendations only
+- MCSessionPersistence.cfg has CounterBounded invariant for TLC to validate derived bound
 </success_criteria>
 
 <output>
