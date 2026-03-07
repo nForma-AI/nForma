@@ -90,6 +90,20 @@ const TYPES = {
     legacy:    (root) => path.join(root, '.planning', '.quorum-cache'),
   },
 
+  // Memory persistence (MEMP-01/03/04)
+  'memory-decisions': {
+    canonical: (root) => path.join(root, '.planning', 'memory', 'decisions.jsonl'),
+    legacy:    (root) => path.join(root, '.planning', 'memory', 'decisions.jsonl'),
+  },
+  'memory-errors': {
+    canonical: (root) => path.join(root, '.planning', 'memory', 'errors.jsonl'),
+    legacy:    (root) => path.join(root, '.planning', 'memory', 'errors.jsonl'),
+  },
+  'memory-quorum': {
+    canonical: (root) => path.join(root, '.planning', 'memory', 'quorum-decisions.jsonl'),
+    legacy:    (root) => path.join(root, '.planning', 'memory', 'quorum-decisions.jsonl'),
+  },
+
   // State backups
   'state-backup': {
     canonical: (root, p) => path.join(root, '.planning', 'archive', 'state-backups', `STATE.md.bak-${p.timestamp}`),
