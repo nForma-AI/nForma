@@ -1,4 +1,4 @@
----- MODULE QGSDPreFilter ----
+---- MODULE NFPreFilter ----
 (*
  * formal/tla/QGSDPreFilter.tla
  * Handwritten — not generated from XState.

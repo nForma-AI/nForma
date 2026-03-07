@@ -30,9 +30,10 @@ const { writeCheckResult } = require('./write-check-result.cjs');
 const { getRequirementIds } = require('./requirement-map.cjs');
 
 // ── Locate PRISM binary ──────────────────────────────────────────────────────
-const prismBin = process.env.PRISM_BIN || 'prism';
+const { resolvePrismBin } = require('./resolve-prism-bin.cjs');
+const prismBin = resolvePrismBin();
 
-if (prismBin !== 'prism' && !fs.existsSync(prismBin)) {
+if (!prismBin) {
   process.stderr.write(
     '[run-oauth-rotation-prism] PRISM binary not found at: ' + prismBin + '\n' +
     '[run-oauth-rotation-prism] Install PRISM and set PRISM_BIN env var:\n' +
@@ -97,7 +98,7 @@ if (hasProps) {
 if (liveMaxRetries !== null && !callerOverridesRetries) {
   prismArgs.push('-const', 'max_retries=' + liveMaxRetries);
 }
-prismArgs.push(...extraArgs);
+prismArgs.push(...extraArgs.filter(a => !a.startsWith('--project-root')));
 
 process.stdout.write('[run-oauth-rotation-prism] Binary: ' + prismBin + '\n');
 process.stdout.write('[run-oauth-rotation-prism] Model:  ' + modelPath + '\n');

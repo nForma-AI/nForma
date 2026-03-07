@@ -1,4 +1,4 @@
----- MODULE QGSDRecruiting ----
+---- MODULE NFRecruiting ----
 (*
  * formal/tla/QGSDRecruiting.tla
  *

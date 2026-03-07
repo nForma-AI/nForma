@@ -1,4 +1,4 @@
----- MODULE QGSDDeliberation ----
+---- MODULE NFDeliberation ----
 (*
  * formal/tla/QGSDDeliberation.tla
  * Handwritten — not generated from XState.

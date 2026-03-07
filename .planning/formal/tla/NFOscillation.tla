@@ -1,4 +1,4 @@
----- MODULE QGSDOscillation ----
+---- MODULE NFOscillation ----
 (*
  * formal/tla/QGSDOscillation.tla
  * Handwritten — not generated from XState.

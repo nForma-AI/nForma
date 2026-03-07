@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-07T10:39:39.300Z",
+  "last_sync": "2026-03-07T15:27:21.901Z",
   "search_dirs": [],
   "models": {
     ".planning/formal/alloy/account-pool-structure.als": {
@@ -71,8 +71,8 @@
       "layer_maturity": 1
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 3765,
-      "last_updated": "2026-03-07T10:39:39.299Z",
+      "version": 3900,
+      "last_updated": "2026-03-07T15:27:21.900Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -159,14 +159,14 @@
       "layer_maturity": 0
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 3763,
-      "last_updated": "2026-03-07T10:39:39.300Z",
+      "version": 3898,
+      "last_updated": "2026-03-07T15:27:21.901Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": ""
     },
-    ".planning/formal/tla/QGSDAccountManager.tla": {
+    ".planning/formal/tla/NFAccountManager.tla": {
       "version": 1,
       "last_updated": "2026-02-25T18:34:04.349Z",
       "update_source": "manual",
@@ -185,7 +185,7 @@
       "gate_maturity": "ADVISORY",
       "layer_maturity": 0
     },
-    ".planning/formal/tla/QGSDCircuitBreaker.tla": {
+    ".planning/formal/tla/NFCircuitBreaker.tla": {
       "version": 1,
       "last_updated": "2026-02-25T09:43:12.088Z",
       "update_source": "manual",
@@ -201,7 +201,7 @@
       "gate_maturity": "ADVISORY",
       "layer_maturity": 1
     },
-    ".planning/formal/tla/QGSDConvergence.tla": {
+    ".planning/formal/tla/NFConvergence.tla": {
       "version": 1,
       "last_updated": "2026-02-25T11:17:02.645Z",
       "update_source": "manual",
@@ -219,7 +219,7 @@
       "gate_maturity": "ADVISORY",
       "layer_maturity": 1
     },
-    ".planning/formal/tla/QGSDDeliberation.tla": {
+    ".planning/formal/tla/NFDeliberation.tla": {
       "version": 1,
       "last_updated": "2026-02-25T13:15:55.648Z",
       "update_source": "manual",
@@ -253,7 +253,7 @@
       "gate_maturity": "ADVISORY",
       "layer_maturity": 0
     },
-    ".planning/formal/tla/QGSDOscillation.tla": {
+    ".planning/formal/tla/NFOscillation.tla": {
       "version": 1,
       "last_updated": "2026-02-25T11:16:21.745Z",
       "update_source": "manual",
@@ -269,7 +269,7 @@
       "gate_maturity": "ADVISORY",
       "layer_maturity": 1
     },
-    ".planning/formal/tla/QGSDPreFilter.tla": {
+    ".planning/formal/tla/NFPreFilter.tla": {
       "version": 1,
       "last_updated": "2026-02-25T13:16:37.722Z",
       "update_source": "manual",
@@ -296,7 +296,19 @@
       "description": "",
       "source_layer": "L3",
       "gate_maturity": "ADVISORY",
-      "layer_maturity": 1
+      "layer_maturity": 1,
+      "requirements": [
+        "LOOP-01",
+        "QUORUM-01",
+        "QUORUM-02",
+        "QUORUM-03",
+        "QUORUM-04",
+        "RECV-01",
+        "SAFE-01",
+        "SAFE-02",
+        "SAFE-03",
+        "SLOT-01"
+      ]
     },
     ".planning/formal/tla/QGSDQuorum_xstate.tla": {
       "version": 1,
@@ -305,12 +317,14 @@
       "source_id": "generate:tla-from-xstate",
       "session_id": null,
       "description": "",
-      "requirements": [],
+      "requirements": [
+        "QUORUM-01"
+      ],
       "source_layer": "L3",
       "gate_maturity": "ADVISORY",
       "layer_maturity": 1
     },
-    ".planning/formal/tla/QGSDRecruiting.tla": {
+    ".planning/formal/tla/NFRecruiting.tla": {
       "version": 1,
       "last_updated": "2026-02-27T09:33:27.083Z",
       "update_source": "manual",
@@ -327,7 +341,7 @@
       "gate_maturity": "ADVISORY",
       "layer_maturity": 1
     },
-    ".planning/formal/tla/QGSDStopHook.tla": {
+    ".planning/formal/tla/NFStopHook.tla": {
       "version": 1,
       "last_updated": "2026-03-01T18:00:00.000Z",
       "update_source": "manual",
@@ -355,7 +369,14 @@
       "source_id": null,
       "session_id": null,
       "description": "",
-      "requirements": [],
+      "requirements": [
+        "TUI-01",
+        "TUI-02",
+        "TUI-03",
+        "TUI-04",
+        "TUI-05",
+        "TUI-06"
+      ],
       "source_layer": "L3",
       "gate_maturity": "ADVISORY",
       "layer_maturity": 0
@@ -1318,8 +1339,8 @@
       "layer_maturity": 0
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 2517,
-      "last_updated": "2026-03-07T10:39:39.297Z",
+      "version": 2652,
+      "last_updated": "2026-03-07T15:27:21.899Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -1534,775 +1555,102 @@
       "source_layer": "L3",
       "gate_maturity": "ADVISORY",
       "layer_maturity": 0
+    },
+    ".planning/formal/alloy/gate-a-scoping.als": {
+      "version": 1,
+      "last_updated": "2026-03-07T14:12:37.900Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Models --base-ref scoping behavior of gate-a-grounding.cjs",
+      "requirements": [
+        "GATE-01"
+      ]
+    },
+    ".planning/formal/alloy/spec-quality-guardrails.als": {
+      "version": 1,
+      "last_updated": "2026-03-07T14:12:37.900Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Models formal spec quality guardrails: no tautologies, bounded domains, per-sig scopes",
+      "requirements": [
+        "SPEC-06"
+      ]
+    },
+    ".planning/formal/alloy/trace-event-normalization.als": {
+      "version": 1,
+      "last_updated": "2026-03-07T14:12:37.900Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Models mapToXStateEvent normalization with action||type fallback and non-FSM action handling",
+      "requirements": [
+        "TRACE-08"
+      ]
+    },
+    ".planning/formal/prism/mcp-availability.props": {
+      "version": 1,
+      "last_updated": "2026-03-03T23:20:47.231Z",
+      "update_source": "annotation-sync",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Auto-registered from @requirement annotations",
+      "requirements": [
+        "FAIL-01",
+        "MCPENV-04"
+      ]
+    },
+    ".planning/formal/prism/oauth-rotation.props": {
+      "version": 1,
+      "last_updated": "2026-03-03T23:20:47.231Z",
+      "update_source": "annotation-sync",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Auto-registered from @requirement annotations",
+      "requirements": [
+        "CRED-12",
+        "PRM-AM-01"
+      ]
+    },
+    ".planning/formal/prism/quorum.props": {
+      "version": 1,
+      "last_updated": "2026-03-03T23:20:47.231Z",
+      "update_source": "annotation-sync",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Auto-registered from @requirement annotations",
+      "requirements": [
+        "LOOP-01",
+        "PRM-01",
+        "QUORUM-04"
+      ]
+    },
+    ".planning/formal/prism/observability-delivery.props": {
+      "version": 1,
+      "last_updated": "2026-03-03T23:20:47.231Z",
+      "update_source": "annotation-sync",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Auto-registered from @requirement annotations",
+      "requirements": [
+        "OBS-01",
+        "OBS-02",
+        "OBS-03",
+        "OBS-04"
+      ]
+    },
+    ".planning/formal/prism/deliberation-healing.props": {
+      "version": 1,
+      "last_updated": "2026-03-03T23:20:47.231Z",
+      "update_source": "annotation-sync",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Auto-registered from @requirement annotations",
+      "requirements": [
+        "HEAL-01",
+        "HEAL-02"
+      ]
     }
-  },
-  ".planning/formal/alloy/account-pool-structure.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "CRED-07",
-      "CRED-08",
-      "CRED-09",
-      "CRED-10",
-      "CRED-11"
-    ]
-  },
-  ".planning/formal/alloy/availability-parsing.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "CALIB-01",
-      "CALIB-02",
-      "CALIB-03"
-    ]
-  },
-  ".planning/formal/alloy/install-scope.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "INST-01",
-      "INST-02",
-      "INST-03",
-      "INST-04",
-      "INST-05"
-    ]
-  },
-  ".planning/formal/alloy/quorum-composition.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "COMP-01",
-      "SPEC-03"
-    ]
-  },
-  ".planning/formal/alloy/quorum-votes.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "QUORUM-02",
-      "SAFE-01",
-      "SAFE-04"
-    ]
-  },
-  ".planning/formal/alloy/scoreboard-recompute.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "SCBD-01",
-      "SCBD-02",
-      "SCBD-03",
-      "SCBD-04"
-    ]
-  },
-  ".planning/formal/alloy/taxonomy-safety.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "SCBD-05",
-      "SCBD-06",
-      "SCBD-07"
-    ]
-  },
-  ".planning/formal/alloy/transcript-scan.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "STOP-08",
-      "STOP-09",
-      "STOP-10",
-      "STOP-11"
-    ]
-  },
-  ".planning/formal/tla/QGSDAccountManager.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "CRED-01",
-      "CRED-02",
-      "CRED-03",
-      "CRED-04",
-      "CRED-05",
-      "CRED-06"
-    ]
-  },
-  ".planning/formal/tla/QGSDCircuitBreaker.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "DETECT-01",
-      "DETECT-02",
-      "DETECT-03"
-    ]
-  },
-  ".planning/formal/tla/QGSDConvergence.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "ORES-01",
-      "ORES-02",
-      "ORES-03",
-      "ORES-04",
-      "ORES-05"
-    ]
-  },
-  ".planning/formal/tla/QGSDDeliberation.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "IMPR-01",
-      "LOOP-02",
-      "PLAN-01",
-      "PLAN-02",
-      "SAFE-03"
-    ]
-  },
-  ".planning/formal/tla/QGSDMCPEnv.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "MCPENV-01",
-      "MCPENV-02",
-      "MCPENV-03"
-    ]
-  },
-  ".planning/formal/tla/QGSDOscillation.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "DETECT-04",
-      "DETECT-05",
-      "DETECT-06"
-    ]
-  },
-  ".planning/formal/tla/QGSDPreFilter.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "LOOP-03",
-      "PLAN-03",
-      "PLAN-04",
-      "PLAN-05",
-      "PLAN-06"
-    ]
-  },
-  ".planning/formal/tla/QGSDQuorum.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "LOOP-01",
-      "QUORUM-01",
-      "QUORUM-02",
-      "QUORUM-03",
-      "QUORUM-04",
-      "RECV-01",
-      "SAFE-01",
-      "SAFE-02",
-      "SAFE-03",
-      "SLOT-01"
-    ]
-  },
-  ".planning/formal/tla/QGSDQuorum_xstate.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "QUORUM-01"
-    ]
-  },
-  ".planning/formal/tla/QGSDRecruiting.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "SLOT-02",
-      "SLOT-03",
-      "SLOT-04",
-      "SLOT-05"
-    ]
-  },
-  ".planning/formal/tla/QGSDStopHook.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "SPEC-01",
-      "STOP-01",
-      "STOP-02",
-      "STOP-03",
-      "STOP-04",
-      "STOP-05",
-      "STOP-06",
-      "STOP-07"
-    ]
-  },
-  ".planning/formal/tla/TUINavigation.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "TUI-01",
-      "TUI-02",
-      "TUI-03",
-      "TUI-04",
-      "TUI-05",
-      "TUI-06"
-    ]
-  },
-  ".planning/formal/tla/QGSDActivityTracking.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "ACT-01",
-      "ACT-02",
-      "ACT-03",
-      "ACT-04",
-      "ACT-05",
-      "ACT-06",
-      "ACT-07"
-    ]
-  },
-  ".planning/formal/tla/QGSDSetupWizard.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "WIZ-01",
-      "WIZ-02",
-      "WIZ-03",
-      "WIZ-04",
-      "WIZ-05",
-      "WIZ-08",
-      "WIZ-09",
-      "WIZ-10"
-    ]
-  },
-  ".planning/formal/tla/QGSDPromptHook.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "UPS-01",
-      "UPS-02",
-      "UPS-03",
-      "UPS-04",
-      "UPS-05"
-    ]
-  },
-  ".planning/formal/tla/QGSDDispatchPipeline.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "DISP-01",
-      "DISP-02",
-      "DISP-03",
-      "DISP-04",
-      "DISP-05"
-    ]
-  },
-  ".planning/formal/tla/QGSDEnforcement.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "ENFC-01",
-      "ENFC-02",
-      "ENFC-03"
-    ]
-  },
-  ".planning/formal/tla/QGSDInstallerIdempotency.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "INST-06",
-      "INST-07",
-      "INST-08",
-      "INST-09",
-      "INST-10"
-    ]
-  },
-  ".planning/formal/tla/QGSDBreakerState.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "STATE-01",
-      "STATE-02",
-      "STATE-03",
-      "STATE-04"
-    ]
-  },
-  ".planning/formal/tla/QGSDKeyManagement.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "KEY-01",
-      "KEY-02",
-      "KEY-03",
-      "KEY-04"
-    ]
-  },
-  ".planning/formal/tla/QGSDAgentProvisioning.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "AGENT-01",
-      "AGENT-02",
-      "PROV-01"
-    ]
-  },
-  ".planning/formal/tla/QGSDConfigPortability.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "PORT-01",
-      "PORT-02",
-      "PORT-03"
-    ]
-  },
-  ".planning/formal/alloy/config-two-layer.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "CONF-06",
-      "CONF-07",
-      "CONF-09"
-    ]
-  },
-  ".planning/formal/alloy/mcp-detection.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "MCP-04",
-      "MCP-06"
-    ]
-  },
-  ".planning/formal/alloy/schema-extensions.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "SCHEMA-01",
-      "SCHEMA-02",
-      "SCHEMA-03",
-      "SCHEMA-04"
-    ]
-  },
-  ".planning/formal/alloy/unified-check-results.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "UNIF-01",
-      "UNIF-03",
-      "UNIF-04"
-    ]
-  },
-  ".planning/formal/alloy/multi-slot-structure.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "MULTI-02",
-      "SLOT-01"
-    ]
-  },
-  ".planning/formal/alloy/quorum-policy.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "COMP-02",
-      "COMP-03",
-      "COMP-04"
-    ]
-  },
-  ".planning/formal/alloy/architecture-registry.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "ARCH-01",
-      "ARCH-02",
-      "META-02"
-    ]
-  },
-  ".planning/formal/alloy/traceability-annotations.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "TRACE-02",
-      "TRACE-04",
-      "TRACE-05"
-    ]
-  },
-  ".planning/formal/tla/QGSDDashboard.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "DASH-01",
-      "DASH-02",
-      "DASH-03"
-    ]
-  },
-  ".planning/formal/tla/QGSDCIChecks.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "DRIFT-01",
-      "DRIFT-02",
-      "LIVE-01",
-      "LIVE-02",
-      "REDACT-01",
-      "REDACT-02",
-      "REDACT-03"
-    ]
-  },
-  ".planning/formal/tla/QGSDSensitivity.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "SENS-01",
-      "SENS-02",
-      "SENS-03"
-    ]
-  },
-  ".planning/formal/tla/QGSDSpecGeneration.tla": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "LOOP-04",
-      "SPEC-04"
-    ]
-  },
-  ".planning/formal/alloy/state-space-analysis.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "DECOMP-02",
-      "DECOMP-03",
-      "DECOMP-04"
-    ]
-  },
-  ".planning/formal/alloy/evidence-triage.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "EVID-01",
-      "TRIAGE-01"
-    ]
-  },
-  ".planning/formal/alloy/uppaal-model-reqs.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "UPPAAL-01",
-      "UPPAAL-03"
-    ]
-  },
-  ".planning/formal/alloy/signal-analysis-tools.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "SIG-01",
-      "SIG-02",
-      "SIG-04"
-    ]
-  },
-  ".planning/formal/alloy/gsd-sync-invariants.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "SYNC-01",
-      "SYNC-02",
-      "SYNC-04"
-    ]
-  },
-  ".planning/formal/alloy/health-validation.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "HLTH-01",
-      "HLTH-02",
-      "VIS-01"
-    ]
-  },
-  ".planning/formal/alloy/verification-integration.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "VERIFY-01",
-      "VERIFY-02"
-    ]
-  },
-  ".planning/formal/alloy/provider-failure.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "CALIB-04",
-      "FAIL-02"
-    ]
-  },
-  ".planning/formal/alloy/codebase-arch-constraints.als": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "ARCH-10",
-      "REN-03",
-      "STD-10"
-    ]
-  },
-  ".planning/formal/prism/mcp-availability.props": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "FAIL-01",
-      "MCPENV-04"
-    ]
-  },
-  ".planning/formal/prism/oauth-rotation.props": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "CRED-12",
-      "PRM-AM-01"
-    ]
-  },
-  ".planning/formal/prism/quorum.props": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "LOOP-01",
-      "PRM-01",
-      "QUORUM-04"
-    ]
-  },
-  ".planning/formal/prism/observability-delivery.props": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "OBS-01",
-      "OBS-02",
-      "OBS-03",
-      "OBS-04"
-    ]
-  },
-  ".planning/formal/prism/deliberation-healing.props": {
-    "version": 1,
-    "last_updated": "2026-03-03T23:20:47.231Z",
-    "update_source": "annotation-sync",
-    "source_id": "close-formal-gaps",
-    "session_id": null,
-    "description": "Auto-registered from @requirement annotations",
-    "requirements": [
-      "HEAL-01",
-      "HEAL-02"
-    ]
   }
 }

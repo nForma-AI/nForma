@@ -1,4 +1,4 @@
----- MODULE QGSDConvergence ----
+---- MODULE NFConvergence ----
 (*
  * formal/tla/QGSDConvergence.tla
  * Handwritten — not generated from XState.

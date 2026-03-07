@@ -1,4 +1,4 @@
----- MODULE QGSDStopHook ----
+---- MODULE NFStopHook ----
 (*
  * formal/tla/QGSDStopHook.tla
  * Handwritten — not generated from XState.

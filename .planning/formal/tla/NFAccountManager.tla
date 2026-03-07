@@ -1,4 +1,4 @@
----- MODULE QGSDAccountManager ----
+---- MODULE NFAccountManager ----
 (*
  * formal/tla/QGSDAccountManager.tla
  * Handwritten — not generated from XState.

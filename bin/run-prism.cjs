@@ -35,10 +35,10 @@ const PROPERTY_MAP = {
 };
 
 // ── Locate PRISM binary ──────────────────────────────────────────────────────
-const prismBin = process.env.PRISM_BIN || 'prism';
+const { resolvePrismBin } = require('./resolve-prism-bin.cjs');
+const prismBin = resolvePrismBin();
 
-// Verify the binary exists (skip check if it's just 'prism' on PATH)
-if (prismBin !== 'prism' && !fs.existsSync(prismBin)) {
+if (!prismBin) {
   process.stderr.write(
     '[run-prism] PRISM binary not found at: ' + prismBin + '\n' +
     '[run-prism] Install PRISM and set PRISM_BIN env var:\n' +
@@ -291,10 +291,13 @@ const modelArgIdx = extraArgs.indexOf('--model');
 const modelArgValue = modelArgIdx >= 0 ? extraArgs[modelArgIdx + 1] : null;
 const useMCPAvailabilityModel = modelArgValue === 'mcp-availability';
 
-// Strip --model <value> from extraArgs before forwarding to PRISM
-const filteredExtraArgs = useMCPAvailabilityModel
-  ? extraArgs.filter((a, i) => i !== modelArgIdx && i !== modelArgIdx + 1)
-  : extraArgs;
+// Strip --model <value> and --project-root= from extraArgs before forwarding to PRISM
+const filteredExtraArgs = extraArgs
+  .filter((a, i) => {
+    if (useMCPAvailabilityModel && (i === modelArgIdx || i === modelArgIdx + 1)) return false;
+    if (a.startsWith('--project-root')) return false;
+    return true;
+  });
 
 let activeModelPath = modelPath; // default: quorum.pm
 let activeMcpRates = null;       // per-slot rates if mcp-availability model

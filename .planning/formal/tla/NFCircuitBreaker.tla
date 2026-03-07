@@ -1,4 +1,4 @@
----- MODULE QGSDCircuitBreaker ----
+---- MODULE NFCircuitBreaker ----
 (*
  * formal/tla/QGSDCircuitBreaker.tla
  * Handwritten — not generated from XState.
