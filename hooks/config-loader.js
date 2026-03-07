@@ -141,6 +141,17 @@ const DEFAULT_CONFIG = {
   // Flat key required — nested objects lost in shallow merge.
   task_envelope_enabled: true,
   hook_profile: 'standard',
+  // thinking_budget_scaling: per-task-type thinking token budgets.
+  // SHALLOW MERGE NOTE: project nf.json replaces entire object, not individual keys.
+  // User must set all 3 keys together: { exploration, review, architecture }.
+  thinking_budget_scaling: {
+    exploration: 0,
+    review: 4096,
+    architecture: 31999,
+  },
+  model_routing_enabled: true,
+  model_routing_cooldown_rounds: 3,
+  model_routing: {},  // per-complexity tier overrides, e.g. { simple: 'haiku' }
 };
 
 // Reads and parses a JSON config file.
