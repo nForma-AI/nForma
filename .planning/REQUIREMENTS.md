@@ -72,32 +72,32 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOKN-01 | Pending | Pending |
-| TOKN-02 | Pending | Pending |
-| TOKN-03 | Pending | Pending |
-| TOKN-04 | Pending | Pending |
-| MEMP-01 | Pending | Pending |
-| MEMP-02 | Pending | Pending |
-| MEMP-03 | Pending | Pending |
-| MEMP-04 | Pending | Pending |
-| LRNG-01 | Pending | Pending |
-| LRNG-02 | Pending | Pending |
-| LRNG-03 | Pending | Pending |
-| LRNG-04 | Pending | Pending |
-| VERF-01 | Pending | Pending |
-| VERF-02 | Pending | Pending |
-| VERF-03 | Pending | Pending |
-| PARA-01 | Pending | Pending |
-| PARA-02 | Pending | Pending |
-| ORCH-01 | Pending | Pending |
-| ORCH-02 | Pending | Pending |
-| ORCH-03 | Pending | Pending |
+| TOKN-01 | v0.30-01 | Pending |
+| TOKN-02 | v0.30-01 | Pending |
+| TOKN-03 | v0.30-01 | Pending |
+| TOKN-04 | v0.30-01 | Pending |
+| MEMP-01 | v0.30-03 | Pending |
+| MEMP-02 | v0.30-03 | Pending |
+| MEMP-03 | v0.30-03 | Pending |
+| MEMP-04 | v0.30-03 | Pending |
+| LRNG-01 | v0.30-04 | Pending |
+| LRNG-02 | v0.30-04 | Pending |
+| LRNG-03 | v0.30-04 | Pending |
+| LRNG-04 | v0.30-04 | Pending |
+| VERF-01 | v0.30-02 | Pending |
+| VERF-02 | v0.30-05 | Pending |
+| VERF-03 | v0.30-05 | Pending |
+| PARA-01 | v0.30-07 | Pending |
+| PARA-02 | v0.30-07 | Pending |
+| ORCH-01 | v0.30-06 | Pending |
+| ORCH-02 | v0.30-06 | Pending |
+| ORCH-03 | v0.30-06 | Pending |
 
 **Coverage:**
 - v0.30 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20
+- Mapped to phases: 20
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-07*
-*Last updated: 2026-03-07 after initial definition*
+*Last updated: 2026-03-07 after roadmap creation*
