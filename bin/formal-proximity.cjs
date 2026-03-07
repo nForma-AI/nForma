@@ -1,0 +1,597 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+const FORMAL_DIR = path.join(process.cwd(), '.planning', 'formal');
+const SPEC_DIR = path.join(FORMAL_DIR, 'spec');
+const OUTPUT_FILE = path.join(FORMAL_DIR, 'proximity-index.json');
+
+// Edge weights by relationship type (from DESIGN.md section 5.1)
+const EDGE_WEIGHTS = {
+  owns: 1.0,
+  owned_by: 1.0,
+  contains: 1.0,
+  in_file: 1.0,
+  emits: 0.9,
+  emitted_by: 0.9,
+  maps_to: 0.9,
+  mapped_from: 0.9,
+  declared_in: 0.9,
+  modeled_by: 0.8,
+  models: 0.8,
+  declares: 0.8,
+  verified_by: 0.8,
+  verifies: 0.8,
+  tested_by: 0.7,
+  tests: 0.7,
+  triggers: 0.7,
+  triggered_by: 0.7,
+  transitions: 0.6,
+  transitioned_by: 0.6,
+  describes: 0.5,
+  described_by: 0.5,
+  constrains: 0.5,
+  constrained_by: 0.5,
+  scores: 0.4,
+  scored_by: 0.4,
+  affects: 0.4,
+  affected_by: 0.4,
+  from_state: 0.6,
+  from_state_of: 0.6,
+};
+
+// Forward -> reverse relationship mapping
+const REVERSE_RELS = {
+  owns: 'owned_by',
+  owned_by: 'owns',
+  contains: 'in_file',
+  in_file: 'contains',
+  emits: 'emitted_by',
+  emitted_by: 'emits',
+  maps_to: 'mapped_from',
+  mapped_from: 'maps_to',
+  declared_in: 'declares',
+  declares: 'declared_in',
+  modeled_by: 'models',
+  models: 'modeled_by',
+  verified_by: 'verifies',
+  verifies: 'verified_by',
+  tested_by: 'tests',
+  tests: 'tested_by',
+  triggers: 'triggered_by',
+  triggered_by: 'triggers',
+  transitions: 'transitioned_by',
+  transitioned_by: 'transitions',
+  describes: 'described_by',
+  described_by: 'describes',
+  constrains: 'constrained_by',
+  constrained_by: 'constrains',
+  scores: 'scored_by',
+  scored_by: 'scores',
+  affects: 'affected_by',
+  affected_by: 'affects',
+  from_state: 'from_state_of',
+  from_state_of: 'from_state',
+};
+
+const DECAY = 0.7;
+
+function parseArgs(argv) {
+  const args = { dryRun: false, json: false, help: false };
+  for (let i = 2; i < argv.length; i++) {
+    if (argv[i] === '--dry-run') args.dryRun = true;
+    else if (argv[i] === '--json') args.json = true;
+    else if (argv[i] === '--help' || argv[i] === '-h') args.help = true;
+  }
+  return args;
+}
+
+function printHelp() {
+  console.log(`Usage: node bin/formal-proximity.cjs [options]
+
+Options:
+  --dry-run    Build index but don't write to disk
+  --json       Print index to stdout instead of file
+  --help       Show this help message
+
+Builds .planning/formal/proximity-index.json from all 12 source artifact types.
+`);
+}
+
+function readJsonSafe(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
+}
+
+function fileHash(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    return crypto.createHash('sha256').update(content).digest('hex').slice(0, 8);
+  } catch {
+    return null;
+  }
+}
+
+function fileMtime(filePath) {
+  try {
+    const stat = fs.statSync(filePath);
+    return stat.mtime.toISOString();
+  } catch {
+    return null;
+  }
+}
+
+function ensureNode(nodes, key, type, id, meta) {
+  if (!nodes[key]) {
+    nodes[key] = { type, id, edges: [] };
+  }
+  if (meta) {
+    Object.assign(nodes[key], meta);
+  }
+  return nodes[key];
+}
+
+function addEdge(node, to, rel, source) {
+  // Avoid duplicate edges
+  const exists = node.edges.some(e => e.to === to && e.rel === rel && e.source === source);
+  if (!exists) {
+    node.edges.push({ to, rel, source });
+  }
+}
+
+function buildIndex() {
+  const nodes = {};
+  const sources = {};
+  const warnings = [];
+
+  // Step 1: scope.json files
+  if (fs.existsSync(SPEC_DIR)) {
+    const specDirs = fs.readdirSync(SPEC_DIR, { withFileTypes: true })
+      .filter(d => d.isDirectory())
+      .map(d => d.name);
+
+    for (const dir of specDirs) {
+      const scopePath = path.join(SPEC_DIR, dir, 'scope.json');
+      const scope = readJsonSafe(scopePath);
+      if (!scope) continue;
+
+      const sourceKey = `scope.json:${dir}`;
+      sources[sourceKey] = { mtime: fileMtime(scopePath), hash: fileHash(scopePath) };
+
+      const moduleKey = `formal_module::${dir}`;
+      ensureNode(nodes, moduleKey, 'formal_module', dir);
+
+      // source_files -> code_file nodes with owns edges
+      if (Array.isArray(scope.source_files)) {
+        for (const sf of scope.source_files) {
+          const cfKey = `code_file::${sf}`;
+          ensureNode(nodes, cfKey, 'code_file', sf);
+          addEdge(nodes[cfKey], moduleKey, 'owns', 'scope.json');
+        }
+      }
+
+      // concepts -> concept nodes with describes edges
+      if (Array.isArray(scope.concepts)) {
+        for (const c of scope.concepts) {
+          const cKey = `concept::${c}`;
+          ensureNode(nodes, cKey, 'concept', c);
+          addEdge(nodes[cKey], moduleKey, 'describes', 'scope.json');
+        }
+      }
+    }
+  }
+
+  // Step 2: constants-mapping.json
+  const constPath = path.join(FORMAL_DIR, 'constants-mapping.json');
+  const constData = readJsonSafe(constPath);
+  if (constData && Array.isArray(constData.mappings)) {
+    sources['constants-mapping.json'] = { mtime: fileMtime(constPath), hash: fileHash(constPath) };
+    for (const m of constData.mappings) {
+      const constKey = `constant::${m.constant}`;
+      const meta = {};
+      if (m.formal_value !== undefined) meta.formal_value = m.formal_value;
+      ensureNode(nodes, constKey, 'constant', m.constant, meta);
+
+      if (m.config_path) {
+        const cpKey = `config_path::${m.config_path}`;
+        ensureNode(nodes, cpKey, 'config_path', m.config_path);
+        addEdge(nodes[constKey], cpKey, 'maps_to', 'constants-mapping');
+      }
+
+      if (m.source) {
+        const fmKey = `formal_model::${m.source}`;
+        ensureNode(nodes, fmKey, 'formal_model', m.source);
+        addEdge(nodes[constKey], fmKey, 'declared_in', 'constants-mapping');
+      }
+    }
+  } else {
+    warnings.push('constants-mapping.json not found or invalid, skipping');
+  }
+
+  // Step 3: model-registry.json
+  const regPath = path.join(FORMAL_DIR, 'model-registry.json');
+  const regData = readJsonSafe(regPath);
+  if (regData && regData.models) {
+    sources['model-registry.json'] = { mtime: fileMtime(regPath), hash: fileHash(regPath) };
+    for (const [modelPath, modelInfo] of Object.entries(regData.models)) {
+      const fmKey = `formal_model::${modelPath}`;
+      const meta = {};
+      if (modelInfo.source_layer) meta.source_layer = modelInfo.source_layer;
+      if (modelInfo.gate_maturity) meta.gate_maturity = modelInfo.gate_maturity;
+      ensureNode(nodes, fmKey, 'formal_model', modelPath, meta);
+
+      if (Array.isArray(modelInfo.requirements)) {
+        for (const reqId of modelInfo.requirements) {
+          const reqKey = `requirement::${reqId}`;
+          ensureNode(nodes, reqKey, 'requirement', reqId);
+          addEdge(nodes[reqKey], fmKey, 'modeled_by', 'model-registry');
+        }
+      }
+    }
+  } else {
+    warnings.push('model-registry.json not found or invalid, skipping');
+  }
+
+  // Step 4: invariant-catalog.json
+  const invPath = path.join(FORMAL_DIR, 'semantics', 'invariant-catalog.json');
+  const invData = readJsonSafe(invPath);
+  if (invData && Array.isArray(invData.invariants)) {
+    sources['invariant-catalog.json'] = { mtime: fileMtime(invPath), hash: fileHash(invPath) };
+    for (const inv of invData.invariants) {
+      // Use config or name+source_file for uniqueness since invariant names repeat (TypeOK)
+      const invId = inv.config ? `${inv.name}@${inv.config}` : inv.name;
+      const invKey = `invariant::${invId}`;
+      ensureNode(nodes, invKey, 'invariant', invId);
+
+      if (inv.source_file) {
+        const fmPath = `.planning/formal/${inv.source_file}`;
+        const fmKey = `formal_model::${fmPath}`;
+        ensureNode(nodes, fmKey, 'formal_model', fmPath);
+        addEdge(nodes[invKey], fmKey, 'declared_in', 'invariant-catalog');
+      }
+    }
+  } else {
+    warnings.push('invariant-catalog.json not found or invalid, skipping');
+  }
+
+  // Step 5: traceability-matrix.json
+  const tmPath = path.join(FORMAL_DIR, 'traceability-matrix.json');
+  const tmData = readJsonSafe(tmPath);
+  if (tmData && tmData.requirements) {
+    sources['traceability-matrix.json'] = { mtime: fileMtime(tmPath), hash: fileHash(tmPath) };
+    for (const [reqId, reqInfo] of Object.entries(tmData.requirements)) {
+      const reqKey = `requirement::${reqId}`;
+      ensureNode(nodes, reqKey, 'requirement', reqId);
+
+      if (Array.isArray(reqInfo.properties)) {
+        for (const prop of reqInfo.properties) {
+          if (prop.property_name) {
+            const invKey = `invariant::${prop.property_name}`;
+            // Only add edge if invariant exists or create it
+            ensureNode(nodes, invKey, 'invariant', prop.property_name);
+            addEdge(nodes[reqKey], invKey, 'verified_by', 'traceability-matrix');
+          }
+        }
+      }
+    }
+  } else {
+    warnings.push('traceability-matrix.json not found or invalid, skipping');
+  }
+
+  // Step 6: unit-test-coverage.json
+  const utcPath = path.join(FORMAL_DIR, 'unit-test-coverage.json');
+  const utcData = readJsonSafe(utcPath);
+  if (utcData && utcData.requirements) {
+    sources['unit-test-coverage.json'] = { mtime: fileMtime(utcPath), hash: fileHash(utcPath) };
+    for (const [reqId, reqInfo] of Object.entries(utcData.requirements)) {
+      if (!reqInfo.covered) continue;
+      const reqKey = `requirement::${reqId}`;
+      ensureNode(nodes, reqKey, 'requirement', reqId);
+
+      if (Array.isArray(reqInfo.test_cases)) {
+        for (const tc of reqInfo.test_cases) {
+          if (tc.test_file) {
+            const tfKey = `test_file::${tc.test_file}`;
+            ensureNode(nodes, tfKey, 'test_file', tc.test_file);
+            addEdge(nodes[reqKey], tfKey, 'tested_by', 'unit-test-coverage');
+          }
+        }
+      }
+    }
+  } else {
+    warnings.push('unit-test-coverage.json not found or invalid, skipping');
+  }
+
+  // Step 7: instrumentation-map.json
+  const imPath = path.join(FORMAL_DIR, 'evidence', 'instrumentation-map.json');
+  const imData = readJsonSafe(imPath);
+  if (imData && Array.isArray(imData.emission_points)) {
+    sources['instrumentation-map.json'] = { mtime: fileMtime(imPath), hash: fileHash(imPath) };
+    for (const ep of imData.emission_points) {
+      const clId = `${ep.file}:${ep.line_number}`;
+      const clKey = `code_line::${clId}`;
+      ensureNode(nodes, clKey, 'code_line', clId);
+
+      const faKey = `formal_action::${ep.action}`;
+      ensureNode(nodes, faKey, 'formal_action', ep.action);
+      addEdge(nodes[clKey], faKey, 'emits', 'instrumentation-map');
+
+      // contains edge from code_file to code_line
+      const cfKey = `code_file::${ep.file}`;
+      ensureNode(nodes, cfKey, 'code_file', ep.file);
+      addEdge(nodes[cfKey], clKey, 'contains', 'instrumentation-map');
+    }
+  } else {
+    warnings.push('instrumentation-map.json not found or invalid, skipping');
+  }
+
+  // Step 8: event-vocabulary.json
+  const evPath = path.join(FORMAL_DIR, 'evidence', 'event-vocabulary.json');
+  const evData = readJsonSafe(evPath);
+  if (evData && evData.vocabulary) {
+    sources['event-vocabulary.json'] = { mtime: fileMtime(evPath), hash: fileHash(evPath) };
+    for (const [actionName, info] of Object.entries(evData.vocabulary)) {
+      if (actionName === 'undefined') continue;
+      const faKey = `formal_action::${actionName}`;
+      ensureNode(nodes, faKey, 'formal_action', actionName);
+
+      if (info.xstate_event) {
+        const xeKey = `xstate_event::${info.xstate_event}`;
+        ensureNode(nodes, xeKey, 'xstate_event', info.xstate_event);
+        addEdge(nodes[faKey], xeKey, 'triggers', 'event-vocabulary');
+      }
+    }
+  } else {
+    warnings.push('event-vocabulary.json not found or invalid, skipping');
+  }
+
+  // Step 9: observed-fsm.json
+  const fsmPath = path.join(FORMAL_DIR, 'semantics', 'observed-fsm.json');
+  const fsmData = readJsonSafe(fsmPath);
+  if (fsmData && fsmData.observed_transitions) {
+    sources['observed-fsm.json'] = { mtime: fileMtime(fsmPath), hash: fileHash(fsmPath) };
+    for (const [state, events] of Object.entries(fsmData.observed_transitions)) {
+      const fromStateKey = `fsm_state::${state}`;
+      ensureNode(nodes, fromStateKey, 'fsm_state', state);
+
+      for (const [event, info] of Object.entries(events)) {
+        const xeKey = `xstate_event::${event}`;
+        ensureNode(nodes, xeKey, 'xstate_event', event);
+
+        const toStateKey = `fsm_state::${info.to_state}`;
+        ensureNode(nodes, toStateKey, 'fsm_state', info.to_state);
+
+        addEdge(nodes[xeKey], toStateKey, 'transitions', 'observed-fsm');
+        addEdge(nodes[xeKey], fromStateKey, 'from_state', 'observed-fsm');
+      }
+    }
+  } else {
+    warnings.push('observed-fsm.json not found or invalid, skipping');
+  }
+
+  // Step 10: risk-heatmap.json
+  const rhPath = path.join(FORMAL_DIR, 'reasoning', 'risk-heatmap.json');
+  const rhData = readJsonSafe(rhPath);
+  if (rhData && Array.isArray(rhData.transitions)) {
+    sources['risk-heatmap.json'] = { mtime: fileMtime(rhPath), hash: fileHash(rhPath) };
+    for (const t of rhData.transitions) {
+      // Composite key: risk_transition::FROM_STATE-EVENT-TO_STATE with hyphens
+      const rtId = `${t.state}-${t.event}-${t.to_state}`;
+      const rtKey = `risk_transition::${rtId}`;
+      const meta = { risk_score: t.risk_score, risk_tier: t.risk_tier };
+      ensureNode(nodes, rtKey, 'risk_transition', rtId, meta);
+
+      const fromKey = `fsm_state::${t.state}`;
+      ensureNode(nodes, fromKey, 'fsm_state', t.state);
+      addEdge(nodes[rtKey], fromKey, 'scores', 'risk-heatmap');
+
+      const toKey = `fsm_state::${t.to_state}`;
+      ensureNode(nodes, toKey, 'fsm_state', t.to_state);
+      addEdge(nodes[rtKey], toKey, 'scores', 'risk-heatmap');
+    }
+  } else {
+    warnings.push('risk-heatmap.json not found or invalid, skipping');
+  }
+
+  // Step 11: git-heatmap.json
+  const ghPath = path.join(FORMAL_DIR, 'evidence', 'git-heatmap.json');
+  const ghData = readJsonSafe(ghPath);
+  if (ghData && ghData.signals && Array.isArray(ghData.signals.numerical_adjustments)) {
+    sources['git-heatmap.json'] = { mtime: fileMtime(ghPath), hash: fileHash(ghPath) };
+    for (const signal of ghData.signals.numerical_adjustments) {
+      const constKey = `constant::${signal.constant_name}`;
+      if (nodes[constKey]) {
+        nodes[constKey].drift = {
+          direction: signal.drift_direction || 'unknown',
+          touch_count: signal.touch_count || 0,
+        };
+      }
+    }
+  } else {
+    warnings.push('git-heatmap.json not found or invalid, skipping');
+  }
+
+  // Step 12: debt.json
+  const debtPath = path.join(FORMAL_DIR, 'debt.json');
+  const debtData = readJsonSafe(debtPath);
+  if (debtData) {
+    sources['debt.json'] = { mtime: fileMtime(debtPath), hash: fileHash(debtPath) };
+    if (Array.isArray(debtData.debt_entries)) {
+      for (const entry of debtData.debt_entries) {
+        const deKey = `debt_entry::${entry.id || entry.title || 'unknown'}`;
+        ensureNode(nodes, deKey, 'debt_entry', entry.id || entry.title || 'unknown');
+
+        if (Array.isArray(entry.requirements)) {
+          for (const reqId of entry.requirements) {
+            const reqKey = `requirement::${reqId}`;
+            ensureNode(nodes, reqKey, 'requirement', reqId);
+            addEdge(nodes[deKey], reqKey, 'affects', 'debt');
+          }
+        }
+      }
+    }
+  } else {
+    warnings.push('debt.json not found or invalid, skipping');
+  }
+
+  // Step 13: REVERSE PASS
+  const reverseEdges = [];
+  for (const [nodeKey, node] of Object.entries(nodes)) {
+    for (const edge of node.edges) {
+      const reverseRel = REVERSE_RELS[edge.rel];
+      if (!reverseRel) continue;
+      const targetNode = nodes[edge.to];
+      if (!targetNode) continue;
+      // Check if reverse already exists
+      const hasReverse = targetNode.edges.some(
+        e => e.to === nodeKey && e.rel === reverseRel && e.source === edge.source
+      );
+      if (!hasReverse) {
+        reverseEdges.push({ targetKey: edge.to, from: nodeKey, rel: reverseRel, source: edge.source });
+      }
+    }
+  }
+  for (const re of reverseEdges) {
+    if (nodes[re.targetKey]) {
+      addEdge(nodes[re.targetKey], re.from, re.rel, re.source);
+    }
+  }
+
+  // Step 14: VALIDATE - count orphans
+  let orphanCount = 0;
+  const orphans = [];
+  for (const [key, node] of Object.entries(nodes)) {
+    if (node.edges.length === 0) {
+      orphanCount++;
+      orphans.push(key);
+    }
+  }
+
+  // Count totals
+  const totalNodes = Object.keys(nodes).length;
+  let totalEdges = 0;
+  for (const node of Object.values(nodes)) {
+    totalEdges += node.edges.length;
+  }
+
+  const index = {
+    schema_version: '1',
+    generated: new Date().toISOString(),
+    node_key_format: 'type::id',
+    sources,
+    nodes,
+  };
+
+  return { index, totalNodes, totalEdges, orphanCount, orphans, warnings };
+}
+
+/**
+ * Compute proximity score between two nodes using BFS with edge weight decay.
+ * proximity(A, B) = sum over all paths: min(edge_weight per edge in path) * decay^depth
+ */
+function proximity(index, nodeKeyA, nodeKeyB, maxDepth) {
+  if (typeof maxDepth === 'undefined') maxDepth = 4;
+  if (nodeKeyA === nodeKeyB) return 1.0;
+  if (!index.nodes[nodeKeyA] || !index.nodes[nodeKeyB]) return 0;
+
+  // BFS collecting all paths to B within maxDepth
+  let score = 0;
+  // Queue entries: [currentNode, depth, minWeight]
+  const queue = [[nodeKeyA, 0, 1.0]];
+  const visited = new Map(); // node -> best depth seen
+
+  while (queue.length > 0) {
+    const [current, depth, minWeight] = queue.shift();
+
+    if (depth > maxDepth) continue;
+
+    if (current === nodeKeyB && depth > 0) {
+      score += minWeight * Math.pow(DECAY, depth);
+      continue; // Don't expand beyond target
+    }
+
+    // Skip if we've visited this node at a lower depth
+    if (visited.has(current) && visited.get(current) <= depth) continue;
+    visited.set(current, depth);
+
+    const node = index.nodes[current];
+    if (!node) continue;
+
+    for (const edge of node.edges) {
+      const edgeWeight = EDGE_WEIGHTS[edge.rel] || 0.3;
+      const newMin = Math.min(minWeight, edgeWeight);
+      if (depth + 1 <= maxDepth) {
+        queue.push([edge.to, depth + 1, newMin]);
+      }
+    }
+  }
+
+  return Math.min(score, 1.0);
+}
+
+function main() {
+  const args = parseArgs(process.argv);
+
+  if (args.help) {
+    printHelp();
+    process.exit(0);
+  }
+
+  try {
+    const { index, totalNodes, totalEdges, orphanCount, orphans, warnings } = buildIndex();
+
+    // Print warnings to stderr
+    for (const w of warnings) {
+      process.stderr.write(`[WARN] ${w}\n`);
+    }
+
+    // Print orphan warnings to stderr
+    for (const o of orphans) {
+      process.stderr.write(`[WARN] Orphan node (0 edges): ${o}\n`);
+    }
+
+    // Print summary to stderr
+    process.stderr.write(`\nProximity Index Summary:\n`);
+    process.stderr.write(`  Nodes: ${totalNodes}\n`);
+    process.stderr.write(`  Edges: ${totalEdges}\n`);
+    process.stderr.write(`  Orphans: ${orphanCount}\n`);
+    process.stderr.write(`  Sources: ${Object.keys(index.sources).length}\n`);
+
+    // Node type breakdown
+    const typeCounts = {};
+    for (const node of Object.values(index.nodes)) {
+      typeCounts[node.type] = (typeCounts[node.type] || 0) + 1;
+    }
+    process.stderr.write(`  By type:\n`);
+    for (const [t, c] of Object.entries(typeCounts).sort((a, b) => b[1] - a[1])) {
+      process.stderr.write(`    ${t}: ${c}\n`);
+    }
+
+    if (args.json) {
+      process.stdout.write(JSON.stringify(index, null, 2) + '\n');
+    } else if (!args.dryRun) {
+      fs.writeFileSync(OUTPUT_FILE, JSON.stringify(index, null, 2) + '\n');
+      process.stderr.write(`\nWritten to: ${OUTPUT_FILE}\n`);
+    } else {
+      process.stderr.write(`\n[DRY RUN] Would write to: ${OUTPUT_FILE}\n`);
+    }
+
+    process.exit(0);
+  } catch (err) {
+    process.stderr.write(`[FATAL] ${err.message}\n`);
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = { buildIndex, proximity, EDGE_WEIGHTS, REVERSE_RELS };
