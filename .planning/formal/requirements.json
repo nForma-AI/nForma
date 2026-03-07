@@ -1,7 +1,6 @@
 {
-  "aggregated_at": "2026-03-07T15:47:18.613Z",
-  "content_hash": "425a64da5f48f1a3",
-  "frozen_at": "2026-03-07T15:47:18.622Z",
+  "aggregated_at": "2026-03-07T15:49:21.481Z",
+  "content_hash": "8767d7731e85abf4",
   "schema_version": "1",
   "requirements": [
     {
@@ -3888,6 +3887,19 @@
       "formal_models": [
         ".planning/formal/alloy/settings-hub.als"
       ]
+    },
+    {
+      "id": "SOLVE-11",
+      "text": "The formal verification result schema SHALL distinguish infrastructure errors (binary not found, model missing, Java version wrong) from requirement violations (counterexample, divergence, property violation) using separate result values, and only requirement violations SHALL inflate the F->C residual.",
+      "category": "Formal Verification",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/quick/209-distinguish-fail-vs-error-in-formal-veri/209-PLAN.md",
+        "milestone": "quick-209"
+      },
+      "formal_models": []
     }
-  ]
+  ],
+  "frozen_at": "2026-03-07T15:49:21.482Z"
 }
