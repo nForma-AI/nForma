@@ -37,6 +37,7 @@ const {
   sweepGitHeatmap,
   computeResidual,
   crossReferenceFormalCoverage,
+  autoClose,
 } = require('./nf-solve.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -837,4 +838,57 @@ test('TC-LAYER-6: computeResidual includes l1_to_l2, l2_to_l3, l3_to_tc in outpu
   assert.ok(typeof result.l1_to_l2.residual === 'number');
   assert.ok(typeof result.l2_to_l3.residual === 'number');
   assert.ok(typeof result.l3_to_tc.residual === 'number');
+});
+
+// ── TC-AUTOCLOSE-STUBS: autoClose stub implementation dispatch Tests ─────────
+
+test('TC-AUTOCLOSE-STUBS-1: autoClose returns actions_taken array and stubs_generated number', () => {
+  // Build a minimal residual object with f_to_t > 0 to trigger stub generation path
+  const mockResidual = {
+    r_to_f: { residual: 0, detail: {} },
+    f_to_t: { residual: 1, detail: { gaps: ['TEST-REQ'] } },
+    c_to_f: { residual: 0, detail: {} },
+    t_to_c: { residual: 0, detail: {} },
+    f_to_c: { residual: 0, detail: {} },
+    r_to_d: { residual: 0, detail: {} },
+    d_to_c: { residual: 0, detail: {} },
+    p_to_f: { residual: 0, detail: {} },
+    total: 1,
+  };
+
+  const result = autoClose(mockResidual);
+
+  assert.ok(typeof result === 'object', 'autoClose should return an object');
+  assert.ok(Array.isArray(result.actions_taken), 'should have actions_taken array');
+  assert.ok(typeof result.stubs_generated === 'number', 'should have stubs_generated number');
+
+  // When f_to_t > 0, actions should mention stub generation or _implement-stubs
+  const allActions = result.actions_taken.join(' ');
+  assert.ok(
+    allActions.includes('stub') || allActions.includes('Implemented') || allActions.includes('Upgraded') || allActions.includes('Skipped'),
+    'actions should reference stub generation or upgrade: ' + allActions
+  );
+});
+
+test('TC-AUTOCLOSE-STUBS-2: autoClose with zero f_to_t does not dispatch stub upgrade', () => {
+  const mockResidual = {
+    r_to_f: { residual: 0, detail: {} },
+    f_to_t: { residual: 0, detail: {} },
+    c_to_f: { residual: 0, detail: {} },
+    t_to_c: { residual: 0, detail: {} },
+    f_to_c: { residual: 0, detail: {} },
+    r_to_d: { residual: 0, detail: {} },
+    d_to_c: { residual: 0, detail: {} },
+    total: 0,
+  };
+
+  const result = autoClose(mockResidual);
+
+  assert.ok(Array.isArray(result.actions_taken), 'should have actions_taken array');
+  // With all zeros, no stub-related action should be present
+  const allActions = result.actions_taken.join(' ');
+  assert.ok(
+    !allActions.includes('Upgraded TODO stubs'),
+    'should not reference stub upgrade when f_to_t is 0'
+  );
 });
