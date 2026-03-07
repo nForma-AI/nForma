@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-07T22:21:39.928Z",
-  "content_hash": "93415a27c5dc3aef",
+  "aggregated_at": "2026-03-07T23:59:16.911Z",
+  "content_hash": "11bbd15f8dfe467d",
   "schema_version": "1",
   "requirements": [
     {
@@ -2988,6 +2988,30 @@
       ]
     },
     {
+      "id": "SOLVE-7",
+      "text": "The solve F->T remediation pipeline SHALL provide pre-resolved context (requirement text, formal property definition, source file hints) alongside each test stub so executors can generate meaningful tests without codebase-wide search.",
+      "category": "solve",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Without pre-resolved context, F->T executors produce empty stubs (assert.fail TODO). Pre-resolving context at stub generation time eliminates redundant codebase scanning across batch dispatches.",
+      "provenance": {
+        "source_file": ".planning/quick/182-add-test-recipe-generation-to-formal-tes/182-PLAN.md",
+        "milestone": "quick-182"
+      }
+    },
+    {
+      "id": "SOLVE-8",
+      "text": "The solve orchestrator detects a legacy root-level .formal/ directory before the diagnostic sweep (Step 0), merges its contents into .planning/formal/ with canonical-wins conflict resolution, and proceeds fail-open if the migration script is missing or errors.",
+      "category": "Solver Orchestration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Projects that adopted formal verification before the .planning/formal/ consolidation may retain a root-level .formal/ directory. Without migration, the solver silently misses models and artifacts stored in the old location, causing incomplete diagnostics.",
+      "provenance": {
+        "source_file": ".planning/quick/183-add-legacy-formal-migration-step-to-qgsd/183-PLAN.md",
+        "milestone": "quick-183"
+      }
+    },
+    {
       "id": "SOLVE-09",
       "text": "The solve diagnostic engine provides fast-mode iteration (--fast skips F->C and T->C layers), pattern-based D->C false-positive suppression via acknowledged-false-positives.json regex rules, auto-acknowledgement of Category B reverse discovery candidates, and recipe sidecars with absolute paths and pre-classified test templates.",
       "category": "Solver Orchestration",
@@ -3038,27 +3062,15 @@
       }
     },
     {
-      "id": "SOLVE-7",
-      "text": "The solve F->T remediation pipeline SHALL provide pre-resolved context (requirement text, formal property definition, source file hints) alongside each test stub so executors can generate meaningful tests without codebase-wide search.",
-      "category": "solve",
+      "id": "SOLVE-13",
+      "text": "nf-solve persists a timestamped markdown session summary to .planning/formal/solve-sessions/ after every run, containing the full residual vector report, machine state JSON, and actions taken, with automatic pruning to retain only the 20 most recent session files",
+      "category": "Formal Verification",
       "phase": "unknown",
       "status": "Complete",
-      "background": "Without pre-resolved context, F->T executors produce empty stubs (assert.fail TODO). Pre-resolving context at stub generation time eliminates redundant codebase scanning across batch dispatches.",
+      "background": "Solve session outputs (actionable items, config changes, unmapped events, fairness gaps) previously existed only in conversation context and were lost on /clear or compaction. Persisting them to disk enables multi-session continuity for gap closure without re-running diagnostics.",
       "provenance": {
-        "source_file": ".planning/quick/182-add-test-recipe-generation-to-formal-tes/182-PLAN.md",
-        "milestone": "quick-182"
-      }
-    },
-    {
-      "id": "SOLVE-8",
-      "text": "The solve orchestrator detects a legacy root-level .formal/ directory before the diagnostic sweep (Step 0), merges its contents into .planning/formal/ with canonical-wins conflict resolution, and proceeds fail-open if the migration script is missing or errors.",
-      "category": "Solver Orchestration",
-      "phase": "unknown",
-      "status": "Complete",
-      "background": "Projects that adopted formal verification before the .planning/formal/ consolidation may retain a root-level .formal/ directory. Without migration, the solver silently misses models and artifacts stored in the old location, causing incomplete diagnostics.",
-      "provenance": {
-        "source_file": ".planning/quick/183-add-legacy-formal-migration-step-to-qgsd/183-PLAN.md",
-        "milestone": "quick-183"
+        "source_file": ".planning/quick/220-nf-solve-should-auto-persist-its-session/220-PLAN.md",
+        "milestone": "quick-220"
       }
     },
     {
@@ -4002,6 +4014,6 @@
       ]
     }
   ],
-  "frozen_at": "2026-03-07T22:21:39.928Z",
+  "frozen_at": "2026-03-07T23:59:16.963Z",
   "total": 283
 }
