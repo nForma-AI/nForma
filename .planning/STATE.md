@@ -2,19 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-06 after v0.29)
+See: .planning/PROJECT.md (updated 2026-03-07 after v0.30 start)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** Milestone v0.29 archived. Use `/nf:new-milestone` to start next.
+**Current focus:** Milestone v0.30 — Advanced Agent Patterns
 
 ## Current Position
 
-Phase: None (between milestones)
-Plan: N/A
-Status: Milestone v0.29 complete
-Last activity: 2026-03-07 - Completed quick task 206: Add --base-ref to gate-a-grounding.cjs for diff-scoped grounding
-
-Progress: Milestone complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-07 — Milestone v0.30 started
 
 ## Accumulated Context
 

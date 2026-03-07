@@ -10,9 +10,17 @@ Profile: cli-tool
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone
+## Current Milestone: v0.30 — Advanced Agent Patterns
 
-Planning next milestone. Use `/nf:new-milestone` to start.
+**Goal:** Integrate six advanced Claude Code agent patterns — dynamic token optimization, cross-session memory persistence, continuous learning with skill extraction, file-based continuous verification, git worktree parallelization, and iterative subagent orchestration — closing the gap between nForma's mature quorum infrastructure and community-proven agent harness techniques.
+
+**Target features:**
+- Dynamic model downgrade based on token usage metrics and task complexity
+- Cross-session learning with pattern extraction from transcripts
+- Continuous skill extraction from error resolutions and user corrections
+- File-based continuous verification during execution (not just at phase end)
+- Git worktree isolation for parallel executor subagents and cascade method
+- Iterative retrieval pattern for quorum slot workers with context stack management
 
 ## Shipped: v0.29 — Three-Layer Formal Verification Architecture (2026-03-06)
 
@@ -444,7 +452,7 @@ Planning next milestone. Use `/nf:new-milestone` to start.
 
 ## Context
 
-nForma v0.29 shipped 2026-03-06. 29 milestones completed (v0.1–v0.29). The formal verification pipeline is now a three-layer architecture (Evidence → Semantics → Reasoning) with quantitative cross-layer gates, integrated into planning (plan-phase), execution (execute-phase), and convergence (nf-solve) workflows. v0.2.0 npm publish still deferred by user decision.
+nForma v0.29 shipped 2026-03-06. 29 milestones completed (v0.1–v0.29). The formal verification pipeline is a three-layer architecture (Evidence → Semantics → Reasoning) with quantitative cross-layer gates. v0.30 focuses on integrating advanced agent patterns from the Claude Code community — token optimization, cross-session learning, continuous verification, worktree parallelization, and iterative subagent orchestration. v0.2.0 npm publish still deferred by user decision.
 
 **Codebase:** ~100,000+ lines (JS + MD), 500+ files. 92+ formal models (TLA+, Alloy, PRISM), 35K+ conformance traces.
 **Tech stack:** Node.js, Claude Code hooks (UserPromptSubmit + Stop + PreToolUse + PostToolUse), npm package. Rebranded from QGSD to nForma (v0.28, skill prefix `/nf:`).
