@@ -284,31 +284,50 @@ if (coldStartState.inColdStart) {
 // Otherwise fall back to: -pf "P=? [ F s=1 ]"
 const extraArgs = process.argv.slice(2);
 
-// ── MCPENV-04: --model mcp-availability flag ─────────────────────────────────
-// When --model mcp-availability is passed, run mcp-availability.pm instead of quorum.pm.
-// Injects per-slot availability rates from scoreboard as -const flags.
-const modelArgIdx = extraArgs.indexOf('--model');
-const modelArgValue = modelArgIdx >= 0 ? extraArgs[modelArgIdx + 1] : null;
-const useMCPAvailabilityModel = modelArgValue === 'mcp-availability';
+// ── --model flag: select which PRISM model to run ─────────────────────────────
+// Supports any .pm file in .planning/formal/prism/ via --model <name>.
+// Default: quorum. Special handling for mcp-availability (per-slot rate injection).
+// Parse --model flag: supports both --model <value> and --model=<value>
+let modelArgIdx = extraArgs.indexOf('--model');
+let modelArgValue = modelArgIdx >= 0 ? extraArgs[modelArgIdx + 1] : null;
+let modelArgSpan = modelArgIdx >= 0 ? 2 : 0; // how many tokens to strip
 
-// Strip --model <value> and --project-root= from extraArgs before forwarding to PRISM
+if (!modelArgValue) {
+  // Try --model=<value> format
+  const eqIdx = extraArgs.findIndex(a => a.startsWith('--model='));
+  if (eqIdx >= 0) {
+    modelArgIdx = eqIdx;
+    modelArgValue = extraArgs[eqIdx].split('=')[1];
+    modelArgSpan = 1;
+  }
+}
+
+const useMCPAvailabilityModel = modelArgValue === 'mcp-availability';
+const activeModelName = modelArgValue || 'quorum';
+
+// Strip --model flag and --project-root= from extraArgs before forwarding to PRISM
 const filteredExtraArgs = extraArgs
   .filter((a, i) => {
-    if (useMCPAvailabilityModel && (i === modelArgIdx || i === modelArgIdx + 1)) return false;
+    if (modelArgIdx >= 0 && i >= modelArgIdx && i < modelArgIdx + modelArgSpan) return false;
     if (a.startsWith('--project-root')) return false;
+    if (a.startsWith('--model')) return false; // catch any remaining --model= variants
     return true;
   });
 
 let activeModelPath = modelPath; // default: quorum.pm
 let activeMcpRates = null;       // per-slot rates if mcp-availability model
 
-if (useMCPAvailabilityModel) {
-  const mcpModelPath = path.join(__dirname, '..', '.planning', 'formal', 'prism', 'mcp-availability.pm');
-  if (!fs.existsSync(mcpModelPath)) {
-    process.stderr.write('[run-prism] mcp-availability.pm not found at: ' + mcpModelPath + '\n');
+// Resolve model path for non-default models
+if (modelArgValue && modelArgValue !== 'quorum') {
+  const resolvedModelPath = path.join(__dirname, '..', '.planning', 'formal', 'prism', modelArgValue + '.pm');
+  if (!fs.existsSync(resolvedModelPath)) {
+    process.stderr.write('[run-prism] ' + modelArgValue + '.pm not found at: ' + resolvedModelPath + '\n');
     process.exit(1);
   }
-  activeModelPath = mcpModelPath;
+  activeModelPath = resolvedModelPath;
+}
+
+if (useMCPAvailabilityModel) {
   activeMcpRates = readMCPAvailabilityRates();
   if (activeMcpRates) {
     process.stdout.write('[run-prism] MCP rates from scoreboard: ' + JSON.stringify(activeMcpRates) + '\n');
@@ -319,7 +338,7 @@ if (useMCPAvailabilityModel) {
 }
 
 const hasPf    = filteredExtraArgs.some(a => a === '-pf' || a === '-prop');
-const propsFile = path.join(__dirname, '..', '.planning', 'formal', 'prism', useMCPAvailabilityModel ? 'mcp-availability.props' : 'quorum.props');
+const propsFile = path.join(__dirname, '..', '.planning', 'formal', 'prism', activeModelName + '.props');
 const hasProps  = !hasPf && fs.existsSync(propsFile);
 
 // Determine if caller already overrides tp_rate or unavail
@@ -335,15 +354,17 @@ if (hasProps) {
 
 if (useMCPAvailabilityModel) {
   // Inject per-slot rates as -const flags (slot name: 'codex-1' → 'codex_1_avail')
-  if (activeMcpRates) {
-    for (const [slot, rate] of Object.entries(activeMcpRates)) {
-      const constName = slot.replace(/-/g, '_') + '_avail';
-      prismArgs.push('-const', constName + '=' + rate);
-    }
+  // Only inject constants the model actually declares (codex_1, gemini_1, opencode_1, copilot_1)
+  // Inject rates for all 4 model slots, using scoreboard data or 0.85 prior as fallback
+  const MODEL_SLOTS = ['codex-1', 'gemini-1', 'opencode-1', 'copilot-1'];
+  for (const slot of MODEL_SLOTS) {
+    const rate = (activeMcpRates && activeMcpRates[slot] !== undefined) ? activeMcpRates[slot] : 0.85;
+    const constName = slot.replace(/-/g, '_') + '_avail';
+    prismArgs.push('-const', constName + '=' + rate);
   }
   // No tp_rate/unavail injection for mcp-availability model
-} else {
-  // Inject empirical/prior rates unless caller overrides (quorum.pm path)
+} else if (activeModelName === 'quorum') {
+  // Inject empirical/prior rates unless caller overrides (quorum.pm only)
   if (!callerOverridesTP) {
     prismArgs.push('-const', 'tp_rate=' + liveTPRate);
   }
@@ -351,6 +372,8 @@ if (useMCPAvailabilityModel) {
     prismArgs.push('-const', 'unavail=' + liveUnavail);
   }
 }
+// Other models (deliberation-healing, observability-delivery, etc.) use their own
+// constants — do not inject tp_rate/unavail
 prismArgs.push(...filteredExtraArgs);
 
 process.stdout.write('[run-prism] Binary: ' + prismBin + '\n');
@@ -368,14 +391,13 @@ const result = spawnSync(prismBin, prismArgs, {
 if (result.error) {
   process.stderr.write('[run-prism] Failed to launch PRISM: ' + result.error.message + '\n');
   const _runtimeMs = Date.now() - _startMs;
-  const modelName = useMCPAvailabilityModel ? 'mcp-availability' : 'quorum';
-  const check_id = CHECK_ID_MAP[modelName];
+  const _errCheckId = CHECK_ID_MAP[activeModelName] || ('prism:' + activeModelName);
   try {
     writeCheckResult({
       tool: 'run-prism', formalism: 'prism', result: 'error',
-      check_id: check_id, surface: 'prism', property: PROPERTY_MAP[modelName],
-      runtime_ms: _runtimeMs, summary: 'error: ' + check_id + ' (launch failed)', triage_tags: [],
-      requirement_ids: getRequirementIds(check_id),
+      check_id: _errCheckId, surface: 'prism', property: PROPERTY_MAP[activeModelName] || ('PRISM model: ' + activeModelName),
+      runtime_ms: _runtimeMs, summary: 'error: ' + _errCheckId + ' (launch failed)', triage_tags: [],
+      requirement_ids: getRequirementIds(_errCheckId),
       observation_window: { window_start: new Date().toISOString(), window_end: new Date().toISOString(), n_traces: 0, n_events: 0, window_days: 0 },
       metadata: {}
     });
@@ -394,9 +416,9 @@ if (!passed && coldStartState.inColdStart) {
 
 // Build observation_window as top-level field for v2.1 (CALIB-03)
 const _runtimeMs = Date.now() - _startMs;
-const modelName = useMCPAvailabilityModel ? 'mcp-availability' : 'quorum';
-const check_id = CHECK_ID_MAP[modelName];
-const property = PROPERTY_MAP[modelName];
+const modelName = activeModelName;
+const check_id = CHECK_ID_MAP[modelName] || ('prism:' + modelName);
+const property = PROPERTY_MAP[modelName] || ('PRISM model: ' + modelName);
 
 const observationWindow = {
   window_start: coldStartState.firstRunTimestamp

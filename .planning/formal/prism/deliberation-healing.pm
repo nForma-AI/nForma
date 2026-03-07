@@ -43,6 +43,11 @@ module deliberation
 
 endmodule
 
+// Reward structure: count rounds until termination
+rewards "round"
+  outcome=0 : 1; // cost of one deliberation round
+endrewards
+
 // Labels for property checking
 // Consensus reached (any round)
 label "consensus" = outcome=1;

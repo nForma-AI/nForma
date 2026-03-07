@@ -22,10 +22,10 @@ dtmc
 
 // Per-slot steady-state availability rates (overridden by run-prism.cjs at runtime)
 // Rate interpretation: probability that slot responds in a given quorum round
-const double codex_1_avail    = 0.85;  // prior; overridden by run-prism.cjs from scoreboard
-const double gemini_1_avail   = 0.85;  // prior
-const double opencode_1_avail = 0.85;  // prior
-const double copilot_1_avail  = 0.85;  // prior
+const double codex_1_avail;     // injected by run-prism.cjs from scoreboard (prior: 0.85)
+const double gemini_1_avail;    // injected by run-prism.cjs from scoreboard (prior: 0.85)
+const double opencode_1_avail;  // injected by run-prism.cjs from scoreboard (prior: 0.85)
+const double copilot_1_avail;   // injected by run-prism.cjs from scoreboard (prior: 0.85)
 
 // Slots: 0 = unavailable, 1 = available
 // Each slot modeled as an independent two-state Markov chain.
