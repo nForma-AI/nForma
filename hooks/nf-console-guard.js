@@ -7,8 +7,8 @@
 //
 // Input (stdin): Claude Code Stop event JSON payload
 //
-// Output (stdout): JSON { decision: "warn", reason: "..." }
-//   OR: no output (exit 0) when no console.log found.
+// Output (stderr): advisory warning when console.log found
+//   stdout: no output (pass-through) — Stop hooks only accept "approve" or "block"
 //
 // Fail-open: exits 0 in ALL cases — never blocks the Stop event.
 
@@ -91,12 +91,9 @@ process.stdin.on('end', () => {
     }
 
     if (findings.length > 0) {
-      process.stdout.write(JSON.stringify({
-        decision: 'warn',
-        reason: 'CONSOLE.LOG WARNING: Found console.log statements in: ' +
-          findings.join(', ') +
-          '. Consider removing debug logging before shipping.',
-      }));
+      process.stderr.write('[nf-console-guard] CONSOLE.LOG WARNING: Found console.log statements in: ' +
+        findings.join(', ') +
+        '. Consider removing debug logging before shipping.\n');
     }
 
     process.exit(0);
