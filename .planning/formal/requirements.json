@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-07T13:57:31.799Z",
-  "content_hash": "ffa8effeaa04c508",
-  "frozen_at": "2026-03-07T13:57:31.799Z",
+  "aggregated_at": "2026-03-07T15:47:18.613Z",
+  "content_hash": "425a64da5f48f1a3",
+  "frozen_at": "2026-03-07T15:47:18.622Z",
   "schema_version": "1",
   "requirements": [
     {
@@ -979,6 +979,18 @@
       "provenance": {
         "source_file": "reverse-discovery",
         "milestone": "solve-iteration-1"
+      }
+    },
+    {
+      "id": "DOC-02",
+      "text": "README.md Formal Verification section presents user-facing capabilities (what is guaranteed, how to run verification) without exposing internal model names, directory trees, or CI pipeline details",
+      "category": "Documentation",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The original section listed 25+ internal formal-model identifiers and a directory tree, which is developer-internal content. Users need to understand what formal verification guarantees and how to run it, with full details available via VERIFICATION_TOOLS.md link.",
+      "provenance": {
+        "source_file": ".planning/quick/208-rewrite-readme-md-to-focus-on-user-facin/208-PLAN.md",
+        "milestone": "quick-208"
       }
     },
     {
