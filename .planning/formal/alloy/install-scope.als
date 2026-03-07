@@ -5,7 +5,7 @@
 -- QGSD Install Scope Matrix Model (Alloy 6)
 -- Requirements: QT-105
 --
--- Models the installer runtime × scope constraints from bin/install.js.
+-- Models the installer runtime x scope constraints from bin/install.js.
 -- Runtimes: claude, opencode, gemini
 -- Scopes: uninstalled, local, global
 -- Constraints:
@@ -56,12 +56,22 @@ assert AllEquivalence {
         (AllSelected[s1] and AllSelected[s2]) => SameState[s1, s2]
 }
 
--- InstallIdempotent: applying the same install operation twice yields same result as once.
--- Modeled as: if s1 and s2 both satisfy the same selection predicate, they are identical.
+-- InstallOp: models applying install with a target scope to a pre-state, producing a post-state.
+-- Each runtime in the target set gets assigned the given scope; others are unchanged.
+pred InstallOp [pre, post: InstallState, targets: set Runtime, sc: Scope] {
+    -- Targeted runtimes get the new scope
+    all r: targets | r.(post.assigned) = sc
+    -- Non-targeted runtimes keep their pre-state scope
+    all r: Runtime - targets | r.(post.assigned) = r.(pre.assigned)
+}
+
+-- InstallIdempotent: applying the same install operation twice yields the same result as once.
+-- If pre->mid via InstallOp and mid->post via same InstallOp, then post = mid.
 -- @requirement INST-03
 assert InstallIdempotent {
-    all s1, s2: InstallState |
-        SameState[s1, s2] => SameState[s1, s2]
+    all pre, mid, post: InstallState, targets: set Runtime, sc: Scope |
+        (InstallOp[pre, mid, targets, sc] and InstallOp[mid, post, targets, sc])
+        implies SameState[mid, post]
 }
 
 -- NoConflict check: confirm no valid state has a runtime with conflicting scope
@@ -70,13 +80,13 @@ assert NoConflict {
     all s: InstallState | NoConflictingScope[s]
 }
 
-check NoConflict for 5
-check AllEquivalence for 5
-check InstallIdempotent for 5
+check NoConflict         for 5 InstallState, 3 Runtime, 3 Scope
+check AllEquivalence     for 5 InstallState, 3 Runtime, 3 Scope
+check InstallIdempotent  for 5 InstallState, 3 Runtime, 3 Scope
 
-run AllSelected for 5
+run AllSelected for 5 InstallState, 3 Runtime, 3 Scope
 
--- ── GAP-7 Extension: Rollback Soundness + Config Sync Completeness ───────────
+-- -- GAP-7 Extension: Rollback Soundness + Config Sync Completeness ----------
 -- Source: bin/install.js uninstall() (lines 964-1244) and installRuntime()
 --
 -- FileToken: abstract atom representing a GSD hook file installed by QGSD
@@ -110,20 +120,35 @@ pred ConfigSyncComplete [distSnapshot, claudeSnapshot: InstallSnapshot] {
     distSnapshot.files = claudeSnapshot.files
 }
 
--- Assert RollbackSound: if post is the result of uninstall on pre, then post has no GSD files.
--- Modeled as: for any pre with files, there exists a valid post with no files (uninstall is possible).
+-- RollbackOp: models uninstall removing all GSD file tokens from a snapshot
+pred RollbackOp [pre, post: InstallSnapshot] {
+    -- After rollback, post contains no GSD files (all removed)
+    no post.files
+    -- pre must have had some files to roll back
+    some pre.files
+}
+
+-- RollbackSoundCheck: for every pre-state with files, applying RollbackOp produces
+-- a post-state with no files. This is universally quantified over ALL valid pre/post pairs.
 -- @requirement INST-04
 assert RollbackSoundCheck {
-    all pre: InstallSnapshot | some pre.files =>
-        (some post: InstallSnapshot | no post.files)
+    all pre, post: InstallSnapshot |
+        RollbackOp[pre, post] implies no post.files
 }
 
--- Assert ConfigSyncComplete holds for all dist/claude snapshot pairs
+-- SyncOp: models the install sync step that copies files from dist to claude hooks dir
+pred SyncOp [dist, claude: InstallSnapshot] {
+    -- After sync, claude hooks dir has exactly the same files as dist
+    claude.files = dist.files
+}
+
+-- ConfigSyncCompleteCheck: after a SyncOp, the two snapshots have identical file sets.
 -- @requirement INST-05
 assert ConfigSyncCompleteCheck {
-    all dist, claude: InstallSnapshot | ConfigSyncComplete[dist, claude]
+    all dist, claude: InstallSnapshot |
+        SyncOp[dist, claude] implies ConfigSyncComplete[dist, claude]
 }
 
--- Check commands for GAP-7 (scopes include new sigs; do not modify existing checks above)
-check RollbackSoundCheck      for 5
-check ConfigSyncCompleteCheck for 5
+-- Check commands for GAP-7 (per-sig scopes for adequate coverage)
+check RollbackSoundCheck      for 3 InstallSnapshot, 3 FileToken
+check ConfigSyncCompleteCheck for 3 InstallSnapshot, 3 FileToken

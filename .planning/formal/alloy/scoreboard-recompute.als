@@ -7,10 +7,18 @@
 --   recomputeSlots: reset all slot stats to 0, then replay all rounds
 --
 -- Assertions:
---   RecomputeIdempotent: applying recompute twice = once (deterministic pure function)
 --   NoVoteLoss: every vote in rounds[] contributes to the final score
---   NoDoubleCounting: no vote's delta is counted more than once
+--   NoDoubleCounting: removing a round reduces score by exactly that round's delta (additivity)
 --   TNplusScoreIsCorrect: TN+ vote in a single round gives score 7 (sanity check)
+--
+-- NOTE: RecomputeIdempotent assertion REMOVED (was SCBD-01).
+-- Alloy pure functions are trivially idempotent by language semantics:
+-- f(x) = f(x) is definitional, not a verifiable property.
+-- True temporal idempotency (apply operation twice, get same result) requires
+-- modeling a mutable state machine, which is done in TLA+ (see QGSDInstallerIdempotency.tla).
+-- The scoreboard recompute operation's idempotency is verified by the JavaScript test suite
+-- (bin/update-scoreboard.test.cjs) which tests recomputeStats() called twice yields same result.
+-- @requirement SCBD-01 — verified via JS tests, not Alloy (expressiveness gap)
 --
 -- Scope: 5 rounds, 5 models, 7 vote codes, 7-bit integers (-64..63)
 
@@ -46,15 +54,6 @@ fun computeScore [m: Model, rounds: set Round] : Int {
   sum r: rounds | scoreDelta[r.votes[m]]
 }
 
--- RecomputeIdempotent: the score is a pure function of (model, rounds set)
--- Applying the computation twice on the same rounds set yields the same result.
--- Since computeScore is deterministic (no state), this verifies no hidden non-determinism.
--- @requirement SCBD-01
-assert RecomputeIdempotent {
-  all m: Model, rounds: set Round |
-    computeScore[m, rounds] = computeScore[m, rounds]
-}
-
 -- NoVoteLoss: every vote's delta is reflected in the total sum
 -- If every round has a vote for model m, the score equals the sum of all deltas.
 -- @requirement SCBD-02
@@ -64,12 +63,14 @@ assert NoVoteLoss {
     computeScore[m, rounds] = (sum r: rounds | scoreDelta[r.votes[m]])
 }
 
--- NoDoubleCounting: the score equals the sum of individual round deltas, not more
--- Verifies that no round's delta appears more than once in the total.
+-- NoDoubleCounting: removing any single round from the set reduces the score
+-- by exactly that round's delta. This verifies additivity/linearity: no round's
+-- contribution is counted more than once or less than once.
 -- @requirement SCBD-03
 assert NoDoubleCounting {
-  all m: Model, rounds: set Round |
-    computeScore[m, rounds] = (sum r: rounds | scoreDelta[r.votes[m]])
+  all m: Model, rs: set Round, r: rs |
+    some r.votes[m] implies
+    computeScore[m, rs] = plus[computeScore[m, rs - r], scoreDelta[r.votes[m]]]
 }
 
 -- TNplusScoreIsCorrect: TN+ vote in a single round gives score 7 (sanity check)
@@ -79,7 +80,6 @@ assert TNplusScoreIsCorrect {
     r.votes[m] = TNplus => computeScore[m, r] = 7
 }
 
-check RecomputeIdempotent  for 5 Round, 5 Model, 7 VoteCode, 7 Int
 check NoVoteLoss           for 5 Round, 5 Model, 7 VoteCode, 7 Int
 check NoDoubleCounting     for 5 Round, 5 Model, 7 VoteCode, 7 Int
 check TNplusScoreIsCorrect for 3 Round, 5 Model, 7 VoteCode, 7 Int
