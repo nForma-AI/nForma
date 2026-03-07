@@ -442,3 +442,68 @@ test('buildTTrace: exported and callable from module.exports', () => {
   const m = require('../bin/validate-traces.cjs');
   assert.strictEqual(typeof m.buildTTrace, 'function', 'buildTTrace must be exported');
 });
+
+// ── Quick-205: mapToXStateEvent expansion tests ───────────────────────────────
+
+test('mapToXStateEvent: normalizes event.type when event.action is missing', () => {
+  const { mapToXStateEvent } = require('../bin/validate-traces.cjs');
+  const event = { type: 'quorum_fallback_t1_required', fanOutCount: 3 };
+  const result = mapToXStateEvent(event);
+  assert.deepStrictEqual(result, { type: 'QUORUM_START', slotsAvailable: 3 });
+});
+
+test('mapToXStateEvent: quorum_fallback_t1_required maps to QUORUM_START', () => {
+  const { mapToXStateEvent } = require('../bin/validate-traces.cjs');
+  const event = { action: 'quorum_fallback_t1_required', fanOutCount: 2 };
+  const result = mapToXStateEvent(event);
+  assert.deepStrictEqual(result, { type: 'QUORUM_START', slotsAvailable: 2 });
+});
+
+test('mapToXStateEvent: quorum_block_r3_2 maps to DECIDE/BLOCK', () => {
+  const { mapToXStateEvent } = require('../bin/validate-traces.cjs');
+  const event = { action: 'quorum_block_r3_2' };
+  const result = mapToXStateEvent(event);
+  assert.deepStrictEqual(result, { type: 'DECIDE', outcome: 'BLOCK' });
+});
+
+test('mapToXStateEvent: security_sweep returns null (not an FSM event)', () => {
+  const { mapToXStateEvent } = require('../bin/validate-traces.cjs');
+  const event = { action: 'security_sweep' };
+  const result = mapToXStateEvent(event);
+  assert.strictEqual(result, null);
+});
+
+test('expectedState: quorum_fallback_t1_required returns COLLECTING_VOTES', () => {
+  const { expectedState } = require('../bin/validate-traces.cjs');
+  const event = { action: 'quorum_fallback_t1_required' };
+  assert.strictEqual(expectedState(event), 'COLLECTING_VOTES');
+});
+
+test('expectedState: quorum_block_r3_2 with non-IDLE phase returns null (H1 skip)', () => {
+  const { expectedState } = require('../bin/validate-traces.cjs');
+  const event = { action: 'quorum_block_r3_2', phase: 'DECIDING' };
+  assert.strictEqual(expectedState(event), null);
+});
+
+test('exit code 0 on valid quorum_fallback_t1_required trace', () => {
+  const event = JSON.stringify({
+    type: 'quorum_fallback_t1_required',
+    fanOutCount: 3,
+    phase: 'IDLE',
+    ts: new Date().toISOString(),
+  });
+  const result = runValidator([event]);
+  assert.strictEqual(result.status, 0);
+  assert.match(result.stdout, /100\.0%/);
+});
+
+test('exit code 0 on security_sweep trace (skipped, not divergent)', () => {
+  const event = JSON.stringify({
+    action: 'security_sweep',
+    phase: 'IDLE',
+    ts: new Date().toISOString(),
+  });
+  const result = runValidator([event]);
+  assert.strictEqual(result.status, 0);
+  assert.ok(!result.stdout.match(/divergence/i), 'security_sweep should not cause divergence');
+});
