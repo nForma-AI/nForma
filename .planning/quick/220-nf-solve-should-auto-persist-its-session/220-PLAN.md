@@ -69,15 +69,19 @@ Add a new function `persistSessionSummary(report, jsonData, converged, iteration
 4. After writing, prune old sessions: read the directory, sort by name (timestamps sort lexicographically), delete all but the newest 20 files. Use a constant `MAX_SESSION_FILES = 20`.
 5. Wrap the entire function in try/catch with stderr warning on failure (fail-open pattern, matching solve-state.json pattern on line 3147-3148).
 
-Call `persistSessionSummary()` in `main()` right after the solve-state.json write block (after line 3149), before the jsonMode/report stdout output. Pass:
-- `formatReport(iterations, finalResidual, converged)` for the report text
-- `formatJSON(iterations, finalResidual, converged)` for the JSON data
+Call `persistSessionSummary()` in `main()` right after the solve-state.json write block (after line 3149), before BOTH the jsonMode/report stdout output AND any `process.exit()` call (line 3163). This ordering is critical — if the call is placed after stdout but before exit, a premature exit could skip persistence; if placed after exit, it never runs. Pass:
+- The already-computed report string from `formatReport()` (which main() computes at ~line 3153; cache it in a local variable to avoid a redundant second call that re-iterates all layers)
+- The already-computed JSON string from `formatJSON()` (which main() computes at ~line 3157; same caching rationale)
 - `converged` boolean
 - `iterations` array
+
+The function signature should accept pre-computed strings: `persistSessionSummary(reportText, jsonText, converged, iterations)`. Do NOT call formatReport/formatJSON inside persistSessionSummary — accept them as arguments.
 
 Export `persistSessionSummary` in the module.exports block for testing.
 
 Do NOT use `--report-only` to skip session persistence — always persist regardless of mode, since report-only runs are still valuable diagnostics.
+
+**Git tracking decision:** Add `.planning/formal/solve-sessions/` to `.gitignore`. These files are local diagnostic artifacts (pruned to 20, containing machine-specific state). They should NOT be committed — they would create noise in diffs and are only useful to the local developer. Add the gitignore entry as part of this task.
   </action>
   <verify>
 Run `node bin/nf-solve.cjs --report-only --max-iterations=1 2>/dev/null; ls .planning/formal/solve-sessions/` and confirm a session file was created. Inspect the file to verify it contains the expected markdown structure with header, residual vector, machine state, and actions sections.
@@ -108,7 +112,7 @@ Import `persistSessionSummary` from the module exports. For tests that need file
 The cleanest approach: have persistSessionSummary accept an optional `sessionsDir` parameter override (defaulting to `path.join(ROOT, '.planning', 'formal', 'solve-sessions')`). This makes testing trivial without monkey-patching globals.
   </action>
   <verify>
-Run `node --test bin/nf-solve.test.cjs 2>&1 | tail -20` and confirm all TC-SESSION tests pass. Verify no pre-existing tests were broken.
+Run `npx vitest run bin/nf-solve.test.cjs 2>&1 | tail -30` and confirm all TC-SESSION tests pass. Verify no pre-existing tests were broken. NOTE: The project uses vitest (per testing rules), NOT node:test. Ensure test syntax uses vitest-compatible `describe`/`it`/`expect` — do NOT use node:test's `test()` or `node --test` runner.
   </verify>
   <done>
 4 new tests in TC-SESSION category all pass. persistSessionSummary is tested for file creation, content structure, pruning behavior, and fail-open error handling. All pre-existing tests continue to pass.
@@ -120,7 +124,7 @@ Run `node --test bin/nf-solve.test.cjs 2>&1 | tail -20` and confirm all TC-SESSI
 <verification>
 - `node bin/nf-solve.cjs --report-only --max-iterations=1 2>/dev/null; ls .planning/formal/solve-sessions/` shows a session file
 - `cat .planning/formal/solve-sessions/solve-session-*.md | head -5` shows the expected header
-- `node --test bin/nf-solve.test.cjs` passes with 0 failures
+- `npx vitest run bin/nf-solve.test.cjs` passes with 0 failures
 - `grep persistSessionSummary bin/nf-solve.cjs` shows function definition, call in main(), and export
 </verification>
 
