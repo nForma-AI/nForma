@@ -1,7 +1,7 @@
 ---
 name: nf:solve
 description: Orchestrator skill that migrates legacy .formal/ layouts, diagnoses consistency gaps, dispatches to remediation skills for each gap type, and converges via diagnose-remediate-rediagnose loop with before/after comparison
-argument-hint: [--report-only] [--max-iterations=N] [--json] [--verbose]
+argument-hint: [--report-only] [--max-iterations=N] [--json] [--verbose] [--targets=<path>]
 allowed-tools:
   - Read
   - Write
@@ -74,6 +74,30 @@ Parse the JSON output:
 - If `missing` array is non-empty: log `"Step 0b: {missing.length} provider slots have no agent_config entry"`.
 
 **Important:** This step is fail-open. Config audit failure must never block the diagnostic sweep.
+
+### Step 0c: Load Observe Targets (optional)
+
+If `--targets=<path>` flag was passed:
+
+1. Read the targets manifest:
+   ```javascript
+   const { readTargetsManifest } = require('./bin/observe-solve-pipe.cjs');
+   const targets = readTargetsManifest(targetsPath);
+   ```
+
+2. If targets is null or empty, log: `"Step 0c: No valid targets manifest at {path} -- falling back to full sweep"` and proceed normally.
+
+3. If targets is valid, log:
+   ```
+   Step 0c: Loaded {targets.targets.length} observe target(s) -- scoping remediation
+   ```
+
+4. Store targets in solve context. During Step 3 remediation dispatch, when targets are loaded:
+   - Include target titles and severity in the remediation context string passed to sub-skills
+   - Add a "Prioritized from /nf:observe" note to the solve output header
+   - The targets do NOT restrict which layer transitions are checked (full sweep still runs), but they add focused context so remediation sub-skills know which specific issues the user wants addressed
+
+**Important:** This step is fail-open. If the targets file is missing or malformed, solve proceeds with its normal full sweep.
 
 ## Step 1: Initial Diagnostic Sweep
 

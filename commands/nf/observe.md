@@ -242,7 +242,7 @@ Debt ledger: {open} open, {acknowledged} acknowledged, {resolving} resolving, {r
 Prompt the user:
 
 ```
-Enter issue # to work on, "ack N" to acknowledge, "solve" for all internal issues, "all" for full details, or press Enter to skip:
+Enter issue # to work on, "ack N" to acknowledge, "solve" for all internal issues, "solve N,M,..." to route selected issues, "all" for full details, or press Enter to skip:
 ```
 
 **If user enters a number:**
@@ -294,7 +294,25 @@ When the user selects an upstream item, do NOT blindly suggest porting it. Inste
 5. If there are CANDIDATE items, ask: `Port candidate changes? [Y/n]`
    - If yes → suggest `/nf:quick "port <area> from <repo> <tag>"` for each candidate
 
-**If user enters "solve":**
+**If user enters "solve" followed by numbers (e.g., "solve 1,3,5" or "solve 1-3,7"):**
+- Import the pipe bridge:
+  ```javascript
+  const { parseIssueSelection, buildTargetsManifest, writeTargetsManifest } = require('./bin/observe-solve-pipe.cjs');
+  ```
+- Call `parseIssueSelection(userInput, allIssues.length)` to get selected zero-based indices
+- If no valid indices, display: `"No valid issue numbers in selection. Try again."` and re-prompt
+- Map indices to the actual issue objects from the rendered issues list (the same numbered list shown in the ISSUES table)
+- Call `buildTargetsManifest(selectedIssues)` then `writeTargetsManifest(manifest)`
+- Display:
+  ```
+  Piping {N} issue(s) to /nf:solve as targets:
+    - #{idx}: {title}
+    ...
+  Targets written to .planning/observe-targets.json
+  ```
+- Invoke `/nf:solve --targets=.planning/observe-targets.json`
+
+**If user enters "solve" (bare, no numbers):**
 - Collect all issues with `source_type: 'internal'`
 - Display: `Routing all internal issues to /nf:solve...`
 - Invoke `/nf:solve` to address all internal consistency issues at once
