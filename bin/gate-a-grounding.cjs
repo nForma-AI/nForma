@@ -25,6 +25,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '..');
 const FORMAL = path.join(ROOT, '.planning', 'formal');
@@ -32,6 +33,10 @@ const GATES_DIR = path.join(FORMAL, 'gates');
 const OUT_FILE = path.join(GATES_DIR, 'gate-a-grounding.json');
 
 const JSON_FLAG = process.argv.includes('--json');
+
+// Parse --base-ref <sha>
+const BASE_REF_IDX = process.argv.indexOf('--base-ref');
+const BASE_REF = BASE_REF_IDX !== -1 ? process.argv[BASE_REF_IDX + 1] || null : null;
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -71,6 +76,67 @@ function checkGenuineViolation(event, observedInvariants, sessionContext) {
   }
 
   return null;
+}
+
+// ── Diff-scoped grounding ────────────────────────────────────────────────────
+
+/**
+ * Normalize a file path for comparison: strip leading ./ and resolve.
+ */
+function normalizePath(p) {
+  return path.normalize(p).replace(/^\.\//, '').replace(/^\.\\/, '');
+}
+
+/**
+ * Get the set of instrumentation actions associated with files changed since baseRef.
+ * Returns an object { scopedActions: Set, changedFiles: string[] }, or null if fallback to global mode is needed.
+ */
+function getChangedActions(baseRef) {
+  // Step 1: Get changed files from git diff
+  let changedFiles;
+  try {
+    const output = execSync(`git diff --name-only ${baseRef}..HEAD`, {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    changedFiles = output.split('\n').filter(l => l.trim().length > 0).map(normalizePath);
+  } catch (e) {
+    process.stderr.write(`WARNING: git diff failed for base-ref '${baseRef}': ${e.message}, falling back to global mode\n`);
+    return null;
+  }
+
+  if (changedFiles.length === 0) {
+    process.stderr.write('WARNING: No changed files found for base-ref, falling back to global mode\n');
+    return null;
+  }
+
+  // Step 2: Load instrumentation-map.json
+  let instrumentationMap;
+  const mapPath = path.join(FORMAL, 'evidence', 'instrumentation-map.json');
+  try {
+    instrumentationMap = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
+  } catch (e) {
+    process.stderr.write('WARNING: instrumentation-map.json missing or malformed, falling back to global mode\n');
+    return null;
+  }
+
+  if (!instrumentationMap || !Array.isArray(instrumentationMap.emission_points)) {
+    process.stderr.write('WARNING: instrumentation-map.json missing or malformed, falling back to global mode\n');
+    return null;
+  }
+
+  // Step 3: Build set of actions whose file matches changed files
+  const changedSet = new Set(changedFiles);
+  const scopedActions = new Set();
+  for (const ep of instrumentationMap.emission_points) {
+    const normalizedFile = normalizePath(ep.file);
+    if (changedSet.has(normalizedFile)) {
+      scopedActions.add(ep.action);
+    }
+  }
+
+  return { scopedActions, changedFiles };
 }
 
 // ── Core computation ────────────────────────────────────────────────────────
@@ -283,7 +349,45 @@ if (require.main === module) {
     process.stderr.write('WARNING: mismatch-register.jsonl not found, skipping mismatch incorporation\n');
   }
 
-  const result = computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchRegister);
+  // Determine scoping mode
+  let scopeInfo = { mode: 'global' };
+  let primaryResult;
+  let globalResult;
+
+  if (BASE_REF) {
+    const changed = getChangedActions(BASE_REF);
+    if (changed && changed.scopedActions.size > 0) {
+      // Diff-scoped mode
+      const scopedEvents = conformanceEvents.filter(e => changed.scopedActions.has(e.action));
+      const scopedResult = computeGateA(scopedEvents, vocabulary, invariantCatalog, mismatchRegister);
+      globalResult = computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchRegister);
+
+      scopeInfo = {
+        mode: 'diff',
+        base_ref: BASE_REF,
+        changed_files: changed.changedFiles,
+        scoped_actions: [...changed.scopedActions],
+        global_score: globalResult.grounding_score,
+        global_explained: globalResult.explained,
+        global_total: globalResult.total
+      };
+
+      primaryResult = scopedResult;
+    } else {
+      // Fallback to global mode (getChangedActions returned null or empty scoped actions)
+      if (changed && changed.scopedActions.size === 0) {
+        process.stderr.write('WARNING: No scoped actions found for changed files, falling back to global mode\n');
+      }
+      primaryResult = computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchRegister);
+      globalResult = primaryResult;
+    }
+  } else {
+    primaryResult = computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchRegister);
+    globalResult = primaryResult;
+  }
+
+  // Attach scope to result
+  const result = { ...primaryResult, scope: scopeInfo };
 
   // EARLY WARNING check
   if (result.grounding_score < 0.50) {
@@ -298,17 +402,23 @@ if (require.main === module) {
   try {
     const { writeCheckResult } = require(path.join(__dirname, 'write-check-result.cjs'));
     const startTime = Date.now();
+    const scopeLabel = scopeInfo.mode === 'diff' ? ' (scoped)' : '';
     writeCheckResult({
       tool: 'gate-a-grounding',
       formalism: 'trace',
       result: result.target_met ? 'pass' : 'fail',
       check_id: 'gate-a:grounding-score',
       surface: 'trace',
-      property: `Gate A grounding score: ${(result.grounding_score * 100).toFixed(1)}% (target: 80%)`,
+      property: `Gate A grounding score${scopeLabel}: ${(result.grounding_score * 100).toFixed(1)}% (target: 80%)`,
       runtime_ms: Date.now() - startTime,
-      summary: `${result.target_met ? 'pass' : 'fail'}: grounding ${(result.grounding_score * 100).toFixed(1)}%, ${result.explained}/${result.total} explained`,
+      summary: `${result.target_met ? 'pass' : 'fail'}: grounding ${(result.grounding_score * 100).toFixed(1)}%, ${result.explained}/${result.total} explained${scopeLabel}`,
       requirement_ids: ['GATE-01'],
-      metadata: { grounding_score: result.grounding_score, target: result.target, target_met: result.target_met }
+      metadata: {
+        grounding_score: result.grounding_score,
+        target: result.target,
+        target_met: result.target_met,
+        ...(scopeInfo.mode === 'diff' ? { base_ref: BASE_REF, scoped: true } : {})
+      }
     });
   } catch (e) {
     process.stderr.write('WARNING: Could not write check result: ' + e.message + '\n');
@@ -317,11 +427,21 @@ if (require.main === module) {
   if (JSON_FLAG) {
     process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   } else {
-    console.log(`Gate A Grounding Score: ${(result.grounding_score * 100).toFixed(1)}%`);
-    console.log(`  Target: >= 80% | Met: ${result.target_met}`);
-    console.log(`  Explained: ${result.explained} / ${result.total}`);
-    console.log(`  Unexplained: instrumentation_bug=${result.unexplained_counts.instrumentation_bug} model_gap=${result.unexplained_counts.model_gap} genuine_violation=${result.unexplained_counts.genuine_violation}`);
-    console.log(`  Methodology: xstate_validated=${result.methodology.xstate_validated} h1_skips=${result.methodology.h1_methodology_skips} vocab_mapped=${result.methodology.vocabulary_mapped}`);
+    if (scopeInfo.mode === 'diff') {
+      console.log(`Gate A Grounding Score (scoped): ${(result.grounding_score * 100).toFixed(1)}%`);
+      console.log(`  Scope: ${scopeInfo.changed_files.length} files changed, ${scopeInfo.scoped_actions.length} actions scoped`);
+      console.log(`  Target: >= 80% | Met: ${result.target_met}`);
+      console.log(`  Explained: ${result.explained} / ${result.total}`);
+      console.log(`  Unexplained: instrumentation_bug=${result.unexplained_counts.instrumentation_bug} model_gap=${result.unexplained_counts.model_gap} genuine_violation=${result.unexplained_counts.genuine_violation}`);
+      console.log(`  Methodology: xstate_validated=${result.methodology.xstate_validated} h1_skips=${result.methodology.h1_methodology_skips} vocab_mapped=${result.methodology.vocabulary_mapped}`);
+      console.log(`  Global (informational): ${(globalResult.grounding_score * 100).toFixed(1)}% (${globalResult.explained}/${globalResult.total} explained)`);
+    } else {
+      console.log(`Gate A Grounding Score: ${(result.grounding_score * 100).toFixed(1)}%`);
+      console.log(`  Target: >= 80% | Met: ${result.target_met}`);
+      console.log(`  Explained: ${result.explained} / ${result.total}`);
+      console.log(`  Unexplained: instrumentation_bug=${result.unexplained_counts.instrumentation_bug} model_gap=${result.unexplained_counts.model_gap} genuine_violation=${result.unexplained_counts.genuine_violation}`);
+      console.log(`  Methodology: xstate_validated=${result.methodology.xstate_validated} h1_skips=${result.methodology.h1_methodology_skips} vocab_mapped=${result.methodology.vocabulary_mapped}`);
+    }
     if (result.warnings.length > 0) {
       console.log(`  Warnings: ${result.warnings.join('; ')}`);
     }
@@ -331,4 +451,4 @@ if (require.main === module) {
   process.exit(0);
 }
 
-module.exports = { computeGateA, isMethodologySkip, checkGenuineViolation };
+module.exports = { computeGateA, isMethodologySkip, checkGenuineViolation, getChangedActions, normalizePath };
