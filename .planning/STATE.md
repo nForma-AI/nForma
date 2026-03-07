@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 Phase: 2 of 7 (File-Based Execution State)
 Plan: 0 of TBD in current phase
 Status: Ready to plan
-Last activity: 2026-03-07 - Phase v0.30-01 complete (Dynamic Model Selection — 3 plans, 88 tests, verified)
+Last activity: 2026-03-07 - Completed quick task 211: Add wiring-in checks to planner and verifier workflows
 
 Progress: [#.........] 14%
 
@@ -67,6 +67,7 @@ None yet.
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 207 | Improve nf:solve to auto-remediate TODO stubs including behavioral strategy | 2026-03-07 | b727a7b3 | Verified | [207-improve-nf-solve-to-auto-remediate-todo-](./quick/207-improve-nf-solve-to-auto-remediate-todo-/) |
+| 211 | Add wiring-in checks to planner and verifier workflows | 2026-03-07 | 369fda5e | Pending | [211-add-wiring-in-checks-to-planner-and-veri](./quick/211-add-wiring-in-checks-to-planner-and-veri/) |
 
 ## Session Continuity
 
