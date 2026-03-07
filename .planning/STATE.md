@@ -89,7 +89,7 @@ None yet.
 | 215 | Add observe→solve auto-pipe | 2026-03-07 | 16d0c7fe | Verified | [215-add-observe-solve-auto-pipe-route-select](./quick/215-add-observe-solve-auto-pipe-route-select/) |
 | 216 | Integrate solve with debt ledger | 2026-03-07 | 4f1f898b | Verified | [216-integrate-solve-with-debt-ledger-auto-fe](./quick/216-integrate-solve-with-debt-ledger-auto-fe/) |
 | 217 | Build formal proximity index builder and query CLI | 2026-03-07 | 2bfa067d | Verified | [217-build-formal-proximity-index-builder-and](./quick/217-build-formal-proximity-index-builder-and/) |
-| 218 | Build git history evidence extractor with commit classification and TLA+ cross-referencing | 2026-03-07 | 1378d295 | Pending | [218-build-git-history-evidence-extractor-wit](./quick/218-build-git-history-evidence-extractor-wit/) |
+| 218 | Build git history evidence extractor with commit classification and TLA+ cross-referencing | 2026-03-07 | 5ff2724c | Verified | [218-build-git-history-evidence-extractor-wit](./quick/218-build-git-history-evidence-extractor-wit/) |
 
 ## Session Continuity
 
