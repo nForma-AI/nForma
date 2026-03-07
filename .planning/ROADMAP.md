@@ -40,7 +40,7 @@ v0.30 extends nForma's hook-driven pipeline with six advanced agent patterns: dy
 
 - [x] **Phase v0.30-01: Dynamic Model Selection** - Task-complexity-aware routing, thinking budget scaling, token dashboarding, and auto-compaction at workflow boundaries (completed 2026-03-07)
 - [x] **Phase v0.30-02: File-Based Execution State** - Sub-task progress tracked in files so compaction never loses execution position (completed 2026-03-07)
-- [ ] **Phase v0.30-03: Memory Persistence** - Structured state, proactive session reminders, error resolution memory, and quorum decision memory survive compaction and sessions
+- [x] **Phase v0.30-03: Memory Persistence** - Structured state, proactive session reminders, error resolution memory, and quorum decision memory survive compaction and sessions (completed 2026-03-07)
 - [ ] **Phase v0.30-04: Continuous Learning** - Automatic pattern extraction, user correction capture, quorum-validated skills, and failure catalog with confidence scoring
 - [ ] **Phase v0.30-05: Continuous Verification** - Boundary-batched test/lint checks during execution and machine-verifiable completion conditions
 - [ ] **Phase v0.30-06: Subagent Orchestration** - Iterative retrieval for quorum slots, phase-based context accumulation, and specialized retrieval agents
@@ -150,7 +150,7 @@ v0.30-01 -> v0.30-02 -> v0.30-03 -> v0.30-04 -> v0.30-05 -> v0.30-06 -> v0.30-07
 |-------|----------------|--------|-----------|
 | v0.30-01. Dynamic Model Selection | 3/3 | Complete    | 2026-03-07 |
 | v0.30-02. File-Based Execution State | 1/1 | Complete   | 2026-03-07 |
-| v0.30-03. Memory Persistence | 0/TBD | Not started | - |
+| v0.30-03. Memory Persistence | 2/2 | Complete   | 2026-03-07 |
 | v0.30-04. Continuous Learning | 0/TBD | Not started | - |
 | v0.30-05. Continuous Verification | 0/TBD | Not started | - |
 | v0.30-06. Subagent Orchestration | 0/TBD | Not started | - |

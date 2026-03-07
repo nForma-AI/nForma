@@ -16,6 +16,12 @@ const executionProgress = (() => {
   catch { return null; }
 })();
 
+// Fail-open require of memory-store module (MEMP-01, MEMP-04)
+const memoryStore = (() => {
+  try { return require(path.join(__dirname, '..', 'bin', 'memory-store.cjs')); }
+  catch { return null; }
+})();
+
 // Extract the "## Current Position" section from STATE.md content.
 // Returns the trimmed text between "## Current Position" and the next "## " header.
 // Returns null if the section is not found.
@@ -152,6 +158,18 @@ function formatProgressInjection(progress) {
   return result;
 }
 
+// Read memory injection for compaction continuation context.
+// Returns formatted string or null if no entries or module unavailable.
+function readMemoryInjection(cwd) {
+  if (!memoryStore || !memoryStore.formatMemoryInjection) return null;
+  try {
+    return memoryStore.formatMemoryInjection(cwd);
+  } catch (e) {
+    process.stderr.write('[nf-precompact] Could not read memory: ' + e.message + '\n');
+    return null;
+  }
+}
+
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => { raw += chunk; });
@@ -214,6 +232,13 @@ process.stdin.on('end', () => {
         lines.push(progressBlock);
       }
 
+      // Memory snapshot injection (MEMP-01, MEMP-04)
+      const memoryBlock = readMemoryInjection(cwd);
+      if (memoryBlock) {
+        lines.push('');
+        lines.push(memoryBlock);
+      }
+
       additionalContext = lines.join('\n');
     }
 
@@ -244,4 +269,5 @@ if (typeof module !== 'undefined') {
   module.exports.readPendingTasks = readPendingTasks;
   module.exports.readExecutionProgress = readExecutionProgress;
   module.exports.formatProgressInjection = formatProgressInjection;
+  module.exports.readMemoryInjection = readMemoryInjection;
 }
