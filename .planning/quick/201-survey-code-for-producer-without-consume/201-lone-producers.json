@@ -1,8 +1,8 @@
 {
   "generated": "2026-03-07T00:14:58.323Z",
-  "total_bin_scripts": 154,
+  "total_bin_scripts": 153,
   "test_files_excluded": 144,
-  "wired_scripts": 86,
+  "wired_scripts": 82,
   "lone_producers": [
     {
       "path": "bin/accept-debug-invariant.cjs",
@@ -285,6 +285,14 @@
       "has_companion_test": true
     },
     {
+      "path": "bin/generate-traceability-matrix.cjs",
+      "purpose": "Generates .planning/formal/traceability-matrix.json — bidirectional index linking requirements to formal properties",
+      "classification": "standalone_tool",
+      "suggested_skill": "/nf:solve",
+      "referenced_by": [],
+      "has_companion_test": false
+    },
+    {
       "path": "bin/generate-triage-bundle.cjs",
       "purpose": "Reads .planning/formal/check-results.ndjson, writes .planning/formal/diff-report.md and .planning/formal/suspects.md.",
       "classification": "standalone_tool",
@@ -323,6 +331,14 @@
       "suggested_skill": null,
       "referenced_by": [],
       "has_companion_test": true
+    },
+    {
+      "path": "bin/install-formal-tools.cjs",
+      "purpose": "Installs formal verification tool dependencies (TLC, Alloy, PRISM, UPPAAL)",
+      "classification": "standalone_tool",
+      "suggested_skill": "/nf:close-formal-gaps",
+      "referenced_by": [],
+      "has_companion_test": false
     },
     {
       "path": "bin/instrumentation-map.cjs",
@@ -461,6 +477,14 @@
       "has_companion_test": true
     },
     {
+      "path": "bin/run-sensitivity-sweep.cjs",
+      "purpose": "Sensitivity sweep: varies key model parameters and records outcome deltas",
+      "classification": "standalone_tool",
+      "suggested_skill": "/nf:solve",
+      "referenced_by": [],
+      "has_companion_test": true
+    },
+    {
       "path": "bin/security-sweep.cjs",
       "purpose": "bin/security-sweep.cjs — Standalone security scanner for nForma.",
       "classification": "standalone_tool",
@@ -561,9 +585,6 @@
         "bin/migrate-formal-dir.cjs",
         "bin/install.js",
         "bin/run-formal-verify.cjs",
-        "bin/old-script.cjs",
-        "bin/missing.cjs",
-        "bin/foo.cjs",
         "bin/validate-traces.cjs"
       ],
       "mcp-setup.md": [
@@ -683,8 +704,7 @@
         "bin/load-baseline-requirements.cjs"
       ],
       "core/workflows/oscillation-resolution-mode.md": [
-        "bin/gsd-tools.cjs",
-        "bin/nf.cjs"
+        "bin/gsd-tools.cjs"
       ],
       "core/workflows/pause-work.md": [
         "bin/gsd-tools.cjs"
@@ -749,8 +769,7 @@
       ],
       "core/workflows/review-requirements.md": [
         "bin/account-manager.cjs",
-        "bin/validate-memory.cjs",
-        "bin/check-spec.cjs"
+        "bin/validate-memory.cjs"
       ],
       "core/workflows/map-requirements.md": [
         "bin/validate-invariant.cjs",
@@ -825,8 +844,7 @@
         "bin/load-baseline-requirements.cjs"
       ],
       "~/.claude/nf/workflows/oscillation-resolution-mode.md": [
-        "bin/gsd-tools.cjs",
-        "bin/nf.cjs"
+        "bin/gsd-tools.cjs"
       ],
       "~/.claude/nf/workflows/pause-work.md": [
         "bin/gsd-tools.cjs"
@@ -903,8 +921,7 @@
       ],
       "~/.claude/nf/workflows/review-requirements.md": [
         "bin/account-manager.cjs",
-        "bin/validate-memory.cjs",
-        "bin/check-spec.cjs"
+        "bin/validate-memory.cjs"
       ],
       "~/.claude/nf/workflows/map-requirements.md": [
         "bin/validate-invariant.cjs",
@@ -940,56 +957,8 @@
       "package.json#scripts.test:changed": [
         "bin/test-changed.cjs"
       ],
-      "package.json#scripts.test:ci": [
-        "bin/conformance-schema.test.cjs",
-        "bin/resolve-cli.test.cjs",
-        "bin/secrets.test.cjs",
-        "bin/verify-quorum-health.test.cjs",
-        "bin/gsd-tools.test.cjs",
-        "bin/update-scoreboard.test.cjs",
-        "bin/review-mcp-logs.test.cjs",
-        "bin/migrate-to-slots.test.cjs",
-        "bin/validate-traces.test.cjs",
-        "bin/write-check-result.test.cjs",
-        "bin/check-results-exit.test.cjs",
-        "bin/check-trace-redaction.test.cjs",
-        "bin/check-trace-schema-drift.test.cjs",
-        "bin/nForma.test.cjs",
-        "bin/set-secret.test.cjs",
-        "bin/issue-classifier.test.cjs",
-        "bin/generate-tla-cfg.test.cjs",
-        "bin/ccr-secure-config.test.cjs",
-        "bin/gsd-quorum-slot-worker-improvements.test.cjs",
-        "bin/quorum-improvements-signal.test.cjs",
-        "bin/claude-md-references.test.cjs",
-        "bin/propose-debug-invariants.test.cjs",
-        "bin/aggregate-requirements.test.cjs",
-        "bin/validate-requirements-haiku.test.cjs",
-        "bin/call-quorum-slot-retry.test.cjs",
-        "bin/provider-mapping.test.cjs"
-      ],
-      "package.json#scripts.test:formal": [
-        "bin/run-tlc.test.cjs",
-        "bin/run-alloy.test.cjs",
-        "bin/export-prism-constants.test.cjs",
-        "bin/generate-petri-net.test.cjs",
-        "bin/run-breaker-tlc.test.cjs",
-        "bin/run-oscillation-tlc.test.cjs",
-        "bin/run-protocol-tlc.test.cjs",
-        "bin/run-audit-alloy.test.cjs",
-        "bin/run-transcript-alloy.test.cjs",
-        "bin/run-installer-alloy.test.cjs",
-        "bin/run-formal-verify.test.cjs",
-        "bin/xstate-to-tla.test.cjs",
-        "bin/run-account-manager-tlc.test.cjs",
-        "bin/run-account-pool-alloy.test.cjs",
-        "bin/run-oauth-rotation-prism.test.cjs",
-        "bin/run-prism.test.cjs",
-        "bin/check-spec-sync.test.cjs",
-        "bin/sensitivity-sweep-feedback.test.cjs",
-        "bin/roadmapper-formal-integration.test.cjs",
-        "bin/test-formal-integration.test.cjs"
-      ]
+      "package.json#scripts.test:ci": [],
+      "package.json#scripts.test:formal": []
     },
     "by_other_bin": {
       "bin/manage-agents-core.cjs": [
@@ -1218,6 +1187,26 @@
       ],
       "bin/observe-render.cjs": [
         "bin/observe-utils.cjs"
+      ],
+      "bin/run-formal-verify.cjs": [
+        "bin/check-liveness-fairness.cjs",
+        "bin/run-account-manager-tlc.cjs",
+        "bin/run-account-pool-alloy.cjs",
+        "bin/run-alloy.cjs",
+        "bin/run-audit-alloy.cjs",
+        "bin/run-breaker-tlc.cjs",
+        "bin/run-installer-alloy.cjs",
+        "bin/run-oauth-rotation-prism.cjs",
+        "bin/run-oscillation-tlc.cjs",
+        "bin/run-phase-tlc.cjs",
+        "bin/run-protocol-tlc.cjs",
+        "bin/run-quorum-composition-alloy.cjs",
+        "bin/run-stop-hook-tlc.cjs",
+        "bin/run-transcript-alloy.cjs",
+        "bin/run-uppaal.cjs"
+      ],
+      "entry_points": [
+        "bin/nForma.cjs"
       ]
     }
   },
@@ -1506,5 +1495,10 @@
       "max_depth": 1,
       "root_consumer": "bin/run-formal-verify.cjs (dynamic runner dispatch)"
     }
-  ]
+  ],
+  "notes": {
+    "gsd_tools": "bin/gsd-tools.cjs is referenced in workflows but exists only at the installed path (~/.claude/nf/bin/gsd-tools.cjs). It is not a repo bin/ script and is excluded from the count.",
+    "install_js": "bin/install.js is a .js file (not .cjs/.mjs) and is excluded from the non-test bin/ script count per the survey scope.",
+    "auth_drivers": "bin/auth-drivers/*.cjs are subdirectory files referenced by bin/nForma.cjs and bin/gh-account-rotate.cjs. They are excluded from the top-level bin/ script count."
+  }
 }

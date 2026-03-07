@@ -6,7 +6,7 @@ tags: [bin-scripts, dead-code, code-survey, dependency-graph]
 
 requires:
   - phase: none
-    provides: existing bin/ directory with 154+ scripts
+    provides: existing bin/ directory with 153 scripts
 provides:
   - Machine-readable JSON inventory of all bin/ scripts with wired/lone classification
   - Coverage metric and integration recommendations for orphaned scripts
@@ -38,7 +38,7 @@ completed: 2026-03-07
 
 # Quick Task 201: Bin Script Survey Summary
 
-**55.8% of 154 non-test bin/ scripts are reachable from user-facing /nf: commands; 68 standalone tools, utilities, and helpers remain unwired lone producers**
+**53.6% of 153 non-test bin/ scripts are reachable from user-facing /nf: commands; 71 standalone tools, utilities, and helpers remain unwired lone producers**
 
 ## Performance
 
@@ -52,22 +52,22 @@ completed: 2026-03-07
 
 | Metric | Count |
 |--------|-------|
-| Total non-test bin/ scripts | 154 |
-| Wired (reachable from consumers) | 86 |
-| Lone producers (unreferenced) | 68 |
-| Coverage | 55.8% |
+| Total non-test bin/ scripts | 153 |
+| Wired (reachable from consumers) | 82 |
+| Lone producers (unreferenced) | 71 |
+| Coverage | 53.6% |
 
 ### Lone Producer Classification Breakdown
 
 | Classification | Count | Description |
 |---------------|-------|-------------|
-| standalone_tool | 60 | CLI tools with argv parsing or main-module execution |
+| standalone_tool | 63 | CLI tools with argv parsing or main-module execution |
 | internal_utility | 7 | Library modules exporting functions, no direct consumer found |
 | test_helper | 1 | Used exclusively in test contexts |
 
 ### Companion Test Coverage
 
-- 51 of 68 lone producers have companion `.test.cjs` files (75%)
+- 52 of 71 lone producers have companion `.test.cjs` files (73%)
 - This indicates intentional, quality-built code -- not throwaway scripts
 
 ## High-Value Integration Opportunities
@@ -93,8 +93,11 @@ These standalone tools provide significant user-facing value and should be wired
 | `export-prism-constants.cjs` | Exports scoreboard TP/UNAVAIL rates to PRISM constants | /nf:close-formal-gaps |
 | `prism-priority.cjs` | PRISM failure probability ranker for roadmap signals | /nf:solve |
 | `quorum-formal-context.cjs` | Generates formal_spec_summary for quorum prompts | /nf:solve |
+| `generate-traceability-matrix.cjs` | Generates bidirectional requirements-to-properties index | /nf:solve |
+| `install-formal-tools.cjs` | Installs formal verification tool dependencies (TLC, Alloy, PRISM) | /nf:close-formal-gaps |
+| `run-sensitivity-sweep.cjs` | Varies key model parameters and records outcome deltas | /nf:solve |
 
-These 15 scripts form a coherent formal verification toolkit that could be orchestrated by `/nf:solve` as sub-steps.
+These 18 scripts form a coherent formal verification toolkit that could be orchestrated by `/nf:solve` as sub-steps.
 
 ### Tier 2: Quorum and Health Tools
 
@@ -133,7 +136,7 @@ These 15 scripts form a coherent formal verification toolkit that could be orche
 
 ## Dead Code Candidates
 
-No scripts are classified as `dead_code`. All 68 lone producers export functions or accept CLI arguments, indicating they were deliberately built. However, several have minimal consumers:
+No scripts are classified as `dead_code`. All 71 lone producers export functions or accept CLI arguments, indicating they were deliberately built. However, several have minimal consumers:
 
 - `bin/ccr-secure-config.cjs` and `bin/ccr-secure-start.cjs` -- CCR (claude-code-router) integration that may be deprecated if CCR is no longer used
 - `bin/blessed-terminal.cjs` -- Drop-in blessed-xterm replacement; only useful if TUI terminal widget is active
@@ -178,7 +181,7 @@ The deepest chains are nForma.cjs (10 dependencies) and the observe/solve stacks
 
 ## Coverage Metric
 
-**55.8% of non-test bin/ scripts are reachable from user-facing /nf: skill commands.**
+**53.6% of non-test bin/ scripts are reachable from user-facing /nf: skill commands.**
 
 Wired by consumer type:
 - 8 skill commands reference bin/ scripts directly
@@ -189,11 +192,11 @@ Wired by consumer type:
 
 ## Accomplishments
 
-- Complete machine-readable inventory (201-lone-producers.json) classifying all 154 non-test bin/ scripts
-- Identified 68 lone producers with purpose, classification, and suggested skill integration
+- Complete machine-readable inventory (201-lone-producers.json) classifying all 153 non-test bin/ scripts
+- Identified 71 lone producers with purpose, classification, and suggested skill integration
 - Mapped 28 transitive dependency chains with depth metadata
 - Produced actionable integration recommendations organized by priority tier
-- 75% of lone producers have companion tests, indicating high-quality orphaned code
+- 73% of lone producers have companion tests, indicating high-quality orphaned code
 
 ## Task Commits
 
@@ -208,7 +211,13 @@ Wired by consumer type:
 
 ## Deviations from Plan
 
-None -- plan executed exactly as written.
+### Post-verification fixes
+
+1. **19 missing scripts classified:** 16 transitively-wired formal runners added to wired_summary.by_other_bin under run-formal-verify.cjs; nForma.cjs added as wired entry point; 3 scripts (generate-traceability-matrix.cjs, install-formal-tools.cjs, run-sensitivity-sweep.cjs) added as lone producers.
+2. **Phantom entries removed:** bin/old-script.cjs, bin/missing.cjs, bin/foo.cjs, bin/nf.cjs, bin/check-spec.cjs removed from wired_summary (do not exist on disk).
+3. **Test files removed:** 46 .test.cjs entries removed from wired_summary.by_package_json (test files excluded per plan scope).
+4. **gsd-tools.cjs documented:** Added notes field explaining bin/gsd-tools.cjs exists only at installed path (~/.claude/nf/bin/), not in repo bin/.
+5. **Counts corrected:** total_bin_scripts 154->153, wired 86->82, lone 68->71, coverage 55.8%->53.6%.
 
 ## Issues Encountered
 
