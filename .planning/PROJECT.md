@@ -23,6 +23,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - Iterative retrieval pattern for quorum slot workers with context stack management
 
 **Phase v0.30-01 shipped (2026-03-07):** Dynamic Model Selection — task classifier (trivial/simple/moderate/complex), TIER_SLOT_MAP slot filtering in quorum dispatch, thinking_budget_scaling nested config, token dashboard CLI (/nf:tokens), 65% smart compaction with quorum lockout, anti-oscillation cooldown. 3 plans, 9 commits, 88 tests.
+**Phase v0.30-02 shipped (2026-03-07):** File-Based Execution State — execution-progress.cjs with init/completeTask/getStatus/incrementIteration/clear, nf-precompact.js progress injection on compaction, execute-plan.md workflow wiring at 4 integration points, iteration cap (5) and stuck detection (3 attempts). 1 plan, 5 commits, 18 tests.
 
 ## Shipped: v0.29 — Three-Layer Formal Verification Architecture (2026-03-06)
 
