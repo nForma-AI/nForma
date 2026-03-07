@@ -22,6 +22,7 @@ Progress: Milestone complete
 
 Decisions logged in PROJECT.md Key Decisions table.
 v0.29 milestone archived — clean boundary.
+- [Phase solve-ft-batch-1-A]: NAV-04 uses source-grep instead of require because nForma.cjs launches TUI on import
 
 ### Pending Todos
 
