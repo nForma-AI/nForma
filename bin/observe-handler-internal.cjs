@@ -15,6 +15,7 @@
  * 12. Sensitivity sweep prediction mismatches (sensitivity-sweep-feedback.cjs)
  * 13. Security findings (security-sweep.cjs)
  * 14. Issue classification from telemetry (issue-classifier.cjs)
+ * 15. Health diagnostics (gsd-tools validate health) — QGSD repo only
  *
  * Returns standard observe schema: { source_label, source_type, status, issues[] }
  */
@@ -27,9 +28,10 @@ const { formatAgeFromMtime } = require('./observe-utils.cjs');
 
 /**
  * Internal work detection handler
- * Scans 14 categories: quick tasks, debug sessions, TODOs, unverified phases,
+ * Scans 15 categories: quick tasks, debug sessions, TODOs, unverified phases,
  * proposed metrics, quorum slots, XState calibration, MCP health, MCP logs,
- * telemetry, observed FSM, sensitivity sweep, security, issue classification
+ * telemetry, observed FSM, sensitivity sweep, security, issue classification,
+ * health diagnostics
  *
  * @param {object} sourceConfig - { label?, ...other config }
  * @param {object} options - { projectRoot?, limitOverride? }
@@ -739,6 +741,71 @@ function handleInternal(sourceConfig, options) {
       }
     } catch (err) {
       console.warn(`[observe-internal] Warning classifying issues: ${err.message}`);
+    }
+
+    // Category 15: nf:health diagnostics (self-development only)
+    try {
+      const gsdToolsPath = path.join(projectRoot, 'core', 'bin', 'gsd-tools.cjs');
+      if (fs.existsSync(gsdToolsPath)) {
+        const result = spawnSync(process.execPath, [gsdToolsPath, 'validate', 'health'], {
+          encoding: 'utf8',
+          timeout: 15000,
+          cwd: projectRoot
+        });
+        if (result.status === 0 && result.stdout) {
+          let healthData;
+          try { healthData = JSON.parse(result.stdout); } catch (_) { /* non-JSON */ }
+          if (healthData) {
+            // Map errors -> severity 'error'
+            for (const e of (healthData.errors || [])) {
+              issues.push({
+                id: `internal-health-${e.code}`,
+                title: `Health: ${e.message}`,
+                severity: 'error',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: e.fix || '',
+                source_type: 'internal',
+                issue_type: 'issue',
+                _route: '/nf:solve'
+              });
+            }
+            // Map warnings -> severity 'warning', route to /nf:health --repair if repairable
+            for (const w of (healthData.warnings || [])) {
+              issues.push({
+                id: `internal-health-${w.code}`,
+                title: `Health: ${w.message}`,
+                severity: 'warning',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: w.fix || '',
+                source_type: 'internal',
+                issue_type: 'issue',
+                _route: w.repairable ? '/nf:health --repair' : '/nf:solve'
+              });
+            }
+            // Map info -> severity 'info'
+            for (const i of (healthData.info || [])) {
+              issues.push({
+                id: `internal-health-${i.code}`,
+                title: `Health: ${i.message}`,
+                severity: 'info',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: i.fix || '',
+                source_type: 'internal',
+                issue_type: 'issue',
+                _route: '/nf:solve'
+              });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning running health diagnostics: ${err.message}`);
     }
 
     return {
