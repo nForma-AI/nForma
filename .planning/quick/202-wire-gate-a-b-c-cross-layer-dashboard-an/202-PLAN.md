@@ -16,6 +16,8 @@ must_haves:
     - "hazard-model.cjs is run before gate checks to ensure L3 reasoning artifacts are fresh"
     - "cross-layer-dashboard.cjs is run after remediation to display aggregated alignment summary"
     - "Remediation for gate failures dispatches targeted /nf:quick fixes (default mode, no --full flag)"
+    - "Max 3 remediation dispatches per gate per solve cycle prevents runaway loops"
+    - "genuine_violation classifications are never auto-remediated via /nf:quick dispatch"
   artifacts:
     - path: "commands/nf/solve.md"
       provides: "Gate A/B/C remediation steps, hazard-model pre-step, cross-layer-dashboard post-step"
@@ -82,6 +84,10 @@ Before wiring, the executor MUST verify the actual field names by running:
 
 The steps below reference `orphaned_count` and `unvalidated_count` (the nf-solve.cjs detail object field names, since solve.md reads from the diagnostic residual_vector). If nf-solve.cjs has changed these mappings, update the step text accordingly.
 
+**Important: Max remediation dispatch guard**
+
+Each gate step (3k, 3l, 3m) MUST enforce a maximum of 3 `/nf:quick` dispatches per gate per solve cycle. This prevents runaway remediation loops when gate residuals never converge to zero (e.g., a structural issue that quick fixes cannot resolve). Track dispatch count per gate using a simple counter. If the counter reaches 3, log a warning and skip further dispatches for that gate: `"Gate {X}: max remediation dispatches (3) reached this cycle — skipping further auto-fixes. Manual investigation required."` This guard applies across all iterations within a single solve cycle (not per-iteration).
+
 **1. Add Step 3j: Hazard Model Refresh (before gate remediation)**
 
 Insert after Step 3i (Reverse Traceability Discovery). This ensures L3 reasoning artifacts (hazard-model.json) are fresh before gate checks evaluate them.
@@ -107,6 +113,8 @@ If hazard-model.cjs is not found or fails, skip silently and continue to gate re
 
 Gate A measures grounding alignment between L1 evidence (conformance traces) and L2 semantics. The diagnostic engine already computed the residual via gate-a-grounding.cjs.
 
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate A dispatches. If the counter reaches 3, log `"Gate A: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip to Step 3l.
+
 Extract detail from `residual_vector.l1_to_l2.detail`:
 - `unexplained_breakdown.instrumentation_bug` — actions not in event-vocabulary.json
 - `unexplained_breakdown.model_gap` — actions in vocabulary but XState replay fails
@@ -118,9 +126,9 @@ Remediation strategy by classification:
 |---------------|-------------|----------|
 | **instrumentation_bug** | > 0 | `/nf:quick Add missing action mappings to .planning/formal/evidence/event-vocabulary.json for {N} unmapped trace actions from Gate A` |
 | **model_gap** | > 0 | `/nf:quick Fix {N} XState model gaps identified by Gate A grounding check — update observed FSM or conformance trace annotations` |
-| **genuine_violation** | > 0 | Log as critical: `"Gate A: {N} genuine invariant violations require investigation"` — do NOT auto-remediate (these indicate real bugs) |
+| **genuine_violation** | > 0 | Log as critical: `"Gate A: {N} genuine invariant violations require investigation"` — do NOT auto-remediate (these indicate real bugs, not fixable by /nf:quick dispatch) |
 
-All `/nf:quick` dispatches use default mode (no `--full` flag) to avoid unnecessary overhead during automated remediation. Dispatch instrumentation_bug and model_gap fixes sequentially. Wait for each to complete before the next.
+All `/nf:quick` dispatches use default mode (no `--full` flag) to avoid unnecessary overhead during automated remediation. Dispatch instrumentation_bug and model_gap fixes sequentially. Wait for each to complete before the next. Each dispatch increments the Gate A counter.
 
 Log: `"Gate A: grounding_score={score}, {inst_bug} instrumentation bugs, {model_gap} model gaps, {genuine} genuine violations"`
 ```
@@ -131,6 +139,8 @@ Log: `"Gate A: grounding_score={score}, {inst_bug} instrumentation bugs, {model_
 ### 3l. Gate B Remediation (residual_vector.l2_to_l3.residual > 0)
 
 Gate B verifies every L3 reasoning artifact has valid derived_from links to L2 semantics sources. Orphaned hazards (L3 entries with broken/missing derived_from) inflate the residual.
+
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate B dispatches. If the counter reaches 3, log `"Gate B: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip to Step 3m.
 
 Extract detail from `residual_vector.l2_to_l3.detail`:
 - `orphaned_count` — L3 entries with no valid L2 back-link (mapped from gate-b-abstraction.cjs `orphaned_entries`)
@@ -145,7 +155,7 @@ If `gate_b_score < 1.0` but `orphaned_count == 0`, the gap is due to low coverag
 /nf:quick Improve Gate B L2->L3 traceability coverage — generate derived_from annotations for L3 entries missing semantic back-links (gate_b_score={score})
 \`\`\`
 
-All `/nf:quick` dispatches use default mode (no `--full` flag).
+All `/nf:quick` dispatches use default mode (no `--full` flag). Each dispatch increments the Gate B counter.
 
 Log: `"Gate B: gate_b_score={score}, {orphaned_count} orphaned entries"`
 ```
@@ -156,6 +166,8 @@ Log: `"Gate B: gate_b_score={score}, {orphaned_count} orphaned entries"`
 ### 3m. Gate C Remediation (residual_vector.l3_to_tc.residual > 0)
 
 Gate C verifies every L3 failure mode maps to at least one test recipe. Unvalidated failure modes lack test coverage.
+
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate C dispatches. If the counter reaches 3, log `"Gate C: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip to Step 5.
 
 Extract detail from `residual_vector.l3_to_tc.detail`:
 - `unvalidated_count` — failure modes with no test recipe (mapped from gate-c-validation.cjs `unvalidated_entries`)
@@ -173,12 +185,14 @@ node bin/gate-c-validation.cjs --json
 
 If gate-c-validation.cjs is not found or fails, skip the re-check and use the original unvalidated_count from the diagnostic (fail-open — consistent with Step 3j pattern).
 
+**Important:** The gate-c re-run here is a local freshness check only. It does NOT update the `residual_vector` used by the convergence loop in Step 5. The residual_vector is only updated at the top of the next iteration when nf-solve.cjs runs a full re-diagnostic sweep. This is by design — each iteration gets a consistent snapshot from the diagnostic engine rather than piecemeal updates from individual gate scripts.
+
 If the re-check confirms unvalidated failures remain, dispatch:
 \`\`\`
 /nf:quick Generate test recipes for {N} uncovered L3 failure modes identified by Gate C — add entries to .planning/formal/test-recipes/test-recipes.json mapping each failure mode to concrete test steps
 \`\`\`
 
-All `/nf:quick` dispatches use default mode (no `--full` flag).
+All `/nf:quick` dispatches use default mode (no `--full` flag). Each dispatch increments the Gate C counter.
 
 Log: `"Gate C: gate_c_score={score}, {unvalidated_count}/{total_failure_modes} failure modes lack test recipes"`
 ```
@@ -215,7 +229,7 @@ This ensures gate remediation is included in the convergence loop — if gate re
 Add constraint 8:
 
 ```
-8. **Layer alignment remediation** — Gate A/B/C failures are remediated via `/nf:quick` dispatch (default mode, no `--full` flag) after the hazard model is refreshed (Step 3j). The order is: hazard-model refresh (3j) -> Gate A (3k) -> Gate B (3l) -> Gate C (3m). This ordering ensures L3 artifacts are fresh before gates evaluate them, and that Gate A (L1->L2) fixes propagate before Gate B (L2->L3) and Gate C (L3->TC) are remediated.
+8. **Layer alignment remediation** — Gate A/B/C failures are remediated via `/nf:quick` dispatch (default mode, no `--full` flag) after the hazard model is refreshed (Step 3j). The full dependency chain is: hazard-model refresh (3j) -> Gate A (3k) -> Gate B (3l) -> test-recipe-gen (in 3m) -> Gate C (3m). This ordering ensures: (a) L3 artifacts are fresh before gates evaluate them, (b) Gate A (L1->L2) fixes propagate before Gate B (L2->L3) checks traceability, (c) test recipes are regenerated before Gate C (L3->TC) evaluates coverage. Each gate is capped at 3 remediation dispatches per solve cycle to prevent runaway loops if residuals never converge.
 ```
   </action>
   <verify>
@@ -232,9 +246,13 @@ Verify the updated solve.md contains:
 10. `grep "test-recipe-gen" commands/nf/solve.md` confirms test recipe regeneration is referenced in step 3m
 11. `grep "fail-open" commands/nf/solve.md` returns >= 2 (step 3j + step 3m)
 12. `grep "no.*--full" commands/nf/solve.md` returns >= 1 (default mode documented)
+13. `grep -c "max remediation dispatches" commands/nf/solve.md` returns >= 3 (one per gate step 3k, 3l, 3m)
+14. `grep "genuine_violation" commands/nf/solve.md | grep -v "nf:quick"` returns matches (genuine_violation lines exist) AND `grep "genuine_violation" commands/nf/solve.md | grep "nf:quick"` returns NO matches (genuine_violation is never paired with /nf:quick dispatch)
+15. `grep "does NOT update the residual_vector" commands/nf/solve.md` returns >= 1 (gate-c re-run clarification)
+16. `grep "test-recipe-gen.*Gate C" commands/nf/solve.md` OR `grep "3m.*test-recipe" commands/nf/solve.md` confirms dependency chain ordering in constraint 8
   </verify>
   <done>
-solve.md contains Steps 3j-3m (hazard-model refresh, Gate A/B/C remediation dispatch), cross-layer-dashboard call in Step 6, updated convergence formula including gate residuals with clarification that nf-solve.cjs re-runs refresh the residuals, and constraint 8 documenting the ordering rationale. All 5 bin scripts plus test-recipe-gen.cjs are now wired into the orchestration flow. Gate remediation dispatches explicitly use default /nf:quick mode. Fail-open handling covers both hazard-model (3j) and gate-c re-run (3m). Field name mappings between gate scripts and nf-solve.cjs detail objects are documented with executor verification instructions.
+solve.md contains Steps 3j-3m (hazard-model refresh, Gate A/B/C remediation dispatch), cross-layer-dashboard call in Step 6, updated convergence formula including gate residuals with clarification that nf-solve.cjs re-runs refresh the residuals, and constraint 8 documenting the full dependency chain ordering (hazard-model -> Gate A -> Gate B -> test-recipe-gen -> Gate C). Each gate step enforces a max of 3 remediation dispatches per solve cycle to prevent runaway loops. genuine_violation entries are explicitly excluded from /nf:quick dispatch (logged only). The gate-c re-run in Step 3m is documented as a local freshness check that does NOT update the residual_vector until the next full nf-solve.cjs re-diagnostic sweep. All 5 bin scripts plus test-recipe-gen.cjs are wired into the orchestration flow. Fail-open handling covers hazard-model (3j) and gate-c re-run (3m). Field name mappings documented with executor verification instructions.
   </done>
 </task>
 
@@ -244,13 +262,15 @@ solve.md contains Steps 3j-3m (hazard-model refresh, Gate A/B/C remediation disp
 - solve.md parses correctly as a valid workflow file (YAML frontmatter intact)
 - All 6 scripts referenced: gate-a-grounding.cjs, gate-b-abstraction.cjs, gate-c-validation.cjs, cross-layer-dashboard.cjs, hazard-model.cjs, test-recipe-gen.cjs
 - Steps 3j-3m follow the existing step pattern (condition check, detail extraction, dispatch, logging)
-- Remediation ordering preserved: hazard-model (3j) before gate checks (3k-3m)
-- Genuine violations (Gate A) are NOT auto-remediated (logged only)
+- Remediation ordering preserved: hazard-model (3j) -> Gate A (3k) -> Gate B (3l) -> test-recipe-gen (in 3m) -> Gate C (3m)
+- Genuine violations (Gate A) are NOT auto-remediated (logged only, never paired with /nf:quick)
 - cross-layer-dashboard uses --cached flag (gates already ran this cycle)
 - Fail-open pattern maintained for missing scripts (3j hazard-model, 3m gate-c re-run)
 - All /nf:quick dispatches use default mode (no --full flag) to minimize overhead
 - Field name mapping documented: orphaned_entries -> orphaned_count, unvalidated_entries -> unvalidated_count
 - Convergence formula comment clarifies nf-solve.cjs re-diagnostic refreshes gate residuals
+- Max 3 remediation dispatches per gate per solve cycle enforced in steps 3k, 3l, 3m
+- Gate C re-run explicitly documented as NOT updating residual_vector (next iteration handles it)
 </verification>
 
 <success_criteria>
@@ -260,6 +280,9 @@ solve.md contains Steps 3j-3m (hazard-model refresh, Gate A/B/C remediation disp
 - Convergence loop includes gate residuals so improvements trigger re-evaluation
 - Remediation dispatches use default /nf:quick mode without --full overhead
 - Gate C step regenerates test recipes via test-recipe-gen.cjs before re-checking
+- No gate can dispatch more than 3 remediation /nf:quick calls per solve cycle
+- genuine_violation lines never trigger /nf:quick dispatch (safety guarantee)
+- Gate C re-run is a local check only; residual_vector updates deferred to next iteration's re-diagnostic
 </success_criteria>
 
 <output>
