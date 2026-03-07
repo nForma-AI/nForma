@@ -172,8 +172,9 @@ function checkJava() {
 
   // ── PRISM ─────────────────────────────────────────────────────────────
 
-  const prismBin = process.env.PRISM_BIN;
-  if (prismBin && fs.existsSync(prismBin)) {
+  const { resolvePrismBin } = require('./resolve-prism-bin.cjs');
+  const prismBin = resolvePrismBin();
+  if (prismBin) {
     skip('PRISM already configured — skipping');
     results.push({ name: 'PRISM', status: 'skip' });
   } else {

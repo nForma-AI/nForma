@@ -170,6 +170,21 @@ grep -r "$artifact_name" "${search_path:-src/}" --include="*.ts" --include="*.ts
 - ORPHANED: Exists but not imported/used
 - PARTIAL: Imported but not used (or vice versa)
 
+**System-level consumer check (Level 3b):** For bin/ scripts and data files, intra-phase imports are NOT sufficient. A script imported only by its own test file is NOT wired. Check that the artifact is consumed by at least one system-level consumer:
+
+```bash
+# Check if any skill command, workflow, or pipeline script references this artifact
+artifact_basename=$(basename "$artifact_path" .cjs)
+grep -r "$artifact_basename" commands/ core/workflows/ bin/nf-solve.cjs bin/run-formal-verify.cjs bin/observe-handler-*.cjs --include="*.md" --include="*.cjs" 2>/dev/null | grep -v "test" | grep -v ".planning/" | wc -l
+```
+
+If the count is 0, the artifact is an **ORPHANED PRODUCER** — it exists and works but nothing in the system invokes it. This MUST be flagged as a verification gap with suggested consumer.
+
+If the plan's `must_haves.consumers` section specifies expected consumers, verify each one:
+```bash
+grep "$verify_pattern" "$consumed_by_file" 2>/dev/null | wc -l
+```
+
 ### Final Artifact Status
 
 | Exists | Substantive | Wired | Status      |

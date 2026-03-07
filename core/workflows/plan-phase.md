@@ -65,7 +65,20 @@ If `context_path` is not null, display: `Using phase context from: ${context_pat
 If "Continue without context": Proceed to step 5.
 If "Run discuss-phase first": Display `/nf:discuss-phase {X}` and exit workflow.
 
-## 4.5. Formal Scope Scan
+## 4.5. Design Impact Analysis
+
+Before spawning the researcher, run `design-impact.cjs` to assess the three-layer git diff impact of recent changes. This provides context on which formal layers (L1 instrumentation, L2 state transitions, L3 hazards) are affected by pending or recent changes.
+
+```bash
+DESIGN_IMPACT=""
+if command -v node >/dev/null 2>&1; then
+  DESIGN_IMPACT=$(node ~/.claude/nf-bin/design-impact.cjs --json --project-root="$(pwd)" 2>/dev/null || node bin/design-impact.cjs --json --project-root="$(pwd)" 2>/dev/null || echo "")
+fi
+```
+
+If the script returns JSON, extract `impacted_layers` and `summary`. Pass this as additional context to the researcher and planner so they account for formal verification impact. Fail-open: if the script is not found, errors, or returns empty, skip silently and proceed.
+
+## 4.6. Formal Scope Scan
 
 Before spawning the researcher, scan `.planning/formal/spec/` for modules matching the phase description using centralized `bin/formal-scope-scan.cjs`. This populates `$FORMAL_SPEC_CONTEXT` for use in Step 8 (planner) and Step 10 (checker).
 

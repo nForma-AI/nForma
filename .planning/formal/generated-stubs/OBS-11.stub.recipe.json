@@ -1,10 +1,10 @@
 {
   "requirement_id": "OBS-11",
-  "requirement_text": "Every upstream change is classified as SKIP, CANDIDATE, or INCOMPATIBLE before porting. No upstream change is ported without this evaluation.",
+  "requirement_text": "Upstream changes surfaced by observe are evaluated against existing code before porting. The system compares overlapping areas and classifies each as SKIP (our implementation is equivalent or better), CANDIDATE (upstream introduces something we lack), or INCOMPATIBLE (conflicts with our architecture). No upstream change is ported without this evaluation.",
   "formal_property": {
-    "name": "UpstreamAlwaysEvaluated",
+    "name": "Bool",
     "model_file": ".planning/formal/alloy/observability-handlers.als",
-    "definition": "all u: UpstreamChange | u.evaluated = True",
+    "definition": "",
     "type": "assertion"
   },
   "source_files": [
@@ -14,7 +14,8 @@
   "source_files_absolute": [
     "/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs"
   ],
-  "import_hint": "const { classifyUpstreamOverlap, handleUpstream } = require('/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs');",
-  "test_strategy": "behavioral",
-  "template": "classification-check"
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
 }

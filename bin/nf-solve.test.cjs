@@ -34,6 +34,7 @@ const {
   sweepL1toL2,
   sweepL2toL3,
   sweepL3toTC,
+  sweepGitHeatmap,
   computeResidual,
   crossReferenceFormalCoverage,
 } = require('./nf-solve.cjs');
@@ -758,6 +759,38 @@ test('TC-LAYER-3: sweepL3toTC returns normalized residual from gate-c JSON', () 
     assert.ok('total_failure_modes' in result.detail, 'detail should have total_failure_modes');
     assert.ok('total_recipes' in result.detail, 'detail should have total_recipes');
   }
+});
+
+test('TC-HEATMAP-1: sweepGitHeatmap returns structured result from evidence file', () => {
+  const result = sweepGitHeatmap();
+  assert.ok(typeof result === 'object');
+  assert.ok(typeof result.residual === 'number');
+  if (result.residual >= 0) {
+    assert.ok('total_hot_zones' in result.detail, 'detail should have total_hot_zones');
+    assert.ok('numerical_adjustments_count' in result.detail, 'detail should have numerical_adjustments_count');
+    assert.ok('bugfix_hotspots_count' in result.detail, 'detail should have bugfix_hotspots_count');
+    assert.ok('churn_files_count' in result.detail, 'detail should have churn_files_count');
+    assert.ok(Array.isArray(result.detail.uncovered_hot_zones), 'uncovered_hot_zones should be an array');
+    assert.ok(result.detail.uncovered_hot_zones.length <= 20, 'uncovered_hot_zones capped at 20');
+  } else {
+    assert.ok(result.detail.skipped || result.detail.error, 'negative residual should have skipped or error detail');
+  }
+});
+
+test('TC-HEATMAP-2: computeResidual includes git_heatmap and heatmap_total', () => {
+  const residual = computeResidual();
+  assert.ok('git_heatmap' in residual, 'residual should include git_heatmap');
+  assert.ok('heatmap_total' in residual, 'residual should include heatmap_total');
+  assert.ok(typeof residual.heatmap_total === 'number');
+  // heatmap_total should NOT be included in forward total
+  const forwardKeys = ['r_to_f', 'f_to_t', 'c_to_f', 't_to_c', 'f_to_c', 'r_to_d', 'd_to_c', 'p_to_f'];
+  let expectedTotal = 0;
+  for (const key of forwardKeys) {
+    if (residual[key] && residual[key].residual >= 0) {
+      expectedTotal += residual[key].residual;
+    }
+  }
+  assert.equal(residual.total, expectedTotal, 'forward total should NOT include heatmap');
 });
 
 test('TC-LAYER-4: layer_total computed correctly (sum of 3 layer residuals, excluding -1 errors)', () => {

@@ -453,7 +453,19 @@ Execute quick task ${next_num}.
 After executor returns:
 1. Verify summary exists at `${QUICK_DIR}/${next_num}-SUMMARY.md`
 2. Extract commit hash from executor output ("Commit: {hash}" pattern)
-3. Display the completion banner (see below)
+3. **Consumer integration check:** For each new bin/ script or data file created by the executor, verify it has at least one system-level consumer (skill command, workflow, or pipeline script that invokes it). Check:
+   ```bash
+   # For each new .cjs file in the commit
+   for f in $(git diff --name-only --diff-filter=A HEAD~1 -- 'bin/*.cjs' | grep -v test); do
+     name=$(basename "$f" .cjs)
+     consumers=$(grep -rl "$name" commands/ core/workflows/ bin/nf-solve.cjs bin/run-formal-verify.cjs bin/observe-handler-*.cjs 2>/dev/null | grep -v test | wc -l)
+     if [ "$consumers" -eq 0 ]; then
+       echo "WARNING: $f has no system-level consumer — risk of orphaned producer"
+     fi
+   done
+   ```
+   If any new scripts lack consumers, log a warning in the completion banner. This does NOT block completion — it surfaces the integration gap for the user to address.
+4. Display the completion banner (see below)
 
 **Known Claude Code bug (classifyHandoffIfNeeded):** If executor reports "failed" with error `classifyHandoffIfNeeded is not defined`, this is a Claude Code runtime bug — not a real failure. Check if summary file exists and git log shows commits. If so, treat as successful.
 

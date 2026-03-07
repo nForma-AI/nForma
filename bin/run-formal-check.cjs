@@ -240,8 +240,9 @@ function runCheck(module, checkDef, javaExe, cwd) {
     return { module, tool, status, detail, runtimeMs };
   } else if (tool === 'prism') {
     // PRISM check
-    const prismBin = process.env.PRISM_BIN;
-    if (!prismBin || !fs.existsSync(prismBin)) {
+    const { resolvePrismBin } = require('./resolve-prism-bin.cjs');
+    const prismBin = resolvePrismBin();
+    if (!prismBin) {
       return {
         module,
         tool: 'prism',

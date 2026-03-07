@@ -510,7 +510,22 @@ Message list component wiring:
 - Maps over messages to render (not hardcoded)
 - Handles empty state (not just crashes)
 
-**Step 5: Identify Key Links**
+**Step 5: Identify Downstream Consumers**
+For each new artifact: "What EXISTING workflow, skill, or script needs to invoke/import this?"
+
+This is the critical integration step that prevents orphaned producers. Every new script, module, or data file MUST have at least one consumer planned. If no existing consumer needs it, either:
+- Add a task to wire it into the consuming skill/workflow (e.g., add a `spawnTool()` call in nf-solve.cjs, or a step in a skill .md file)
+- Add it as a new observe handler category
+- Add it to an existing pipeline (e.g., run-formal-verify.cjs check registry)
+
+Example for a new `bin/analyze-foo.cjs`:
+- Consumer: `bin/nf-solve.cjs` needs to call it during `autoClose()` for F→C gaps
+- Integration task: "Add `spawnTool('bin/analyze-foo.cjs', [])` to autoClose() after formal model generation"
+- Verify: `grep 'analyze-foo' bin/nf-solve.cjs` returns match
+
+**If a new artifact has NO downstream consumer, the plan MUST include an integration task.** A standalone tool with tests but no consumer is an orphaned producer — it will never be invoked by the system.
+
+**Step 6: Identify Key Links**
 "Where is this most likely to break?" Key links = critical connections where breakage causes cascading failures.
 
 For chat interface:
@@ -545,6 +560,11 @@ must_haves:
       to: "prisma.message"
       via: "database query"
       pattern: "prisma\\.message\\.(find|create)"
+  consumers:
+    - artifact: "bin/new-script.cjs"
+      consumed_by: "bin/nf-solve.cjs"
+      integration: "spawnTool() call in autoClose()"
+      verify_pattern: "new-script"
 ```
 
 ## Common Failures
@@ -560,6 +580,10 @@ must_haves:
 **Missing wiring:**
 - Bad: Listing components without how they connect
 - Good: "Chat.tsx fetches from /api/chat via useEffect on mount"
+
+**Missing consumers (MOST COMMON FAILURE):**
+- Bad: Plan creates `bin/new-tool.cjs` with tests but no task to wire it into any skill/workflow
+- Good: Plan includes a task "Wire new-tool.cjs into nf:solve step 3" with verify: `grep 'new-tool' bin/nf-solve.cjs`
 
 </goal_backward>
 
@@ -1005,6 +1029,8 @@ Apply goal-backward methodology (see goal_backward section):
 2. Derive observable truths (3-7, user perspective)
 3. Derive required artifacts (specific files)
 4. Derive required wiring (connections)
+5. Identify downstream consumers (what existing workflow/skill invokes this?)
+6. Plan integration tasks for any artifact without a consumer
 5. Identify key links (critical connections)
 </step>
 

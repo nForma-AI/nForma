@@ -30,12 +30,7 @@ function locateTLC() {
   return fs.existsSync(jar) ? jar : null;
 }
 
-function locatePRISM() {
-  const envBin = process.env.PRISM_BIN;
-  if (envBin) return fs.existsSync(envBin) ? envBin : null;
-  const which = spawnSync('which', ['prism'], { encoding: 'utf8' });
-  return (which.status === 0 && which.stdout.trim()) ? which.stdout.trim() : null;
-}
+const { resolvePrismBin: locatePRISM } = require('./resolve-prism-bin.cjs');
 
 // ── Sweep runners ────────────────────────────────────────────────────────────
 

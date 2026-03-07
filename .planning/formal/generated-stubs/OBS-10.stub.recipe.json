@@ -1,24 +1,21 @@
 {
   "requirement_id": "OBS-10",
-  "requirement_text": "All utility functions live in observe-utils.cjs. No handler module defines utility functions locally — they must import from the canonical module.",
+  "requirement_text": "Observe utility functions (formatAge, parseDuration, classifySeverity) are defined in a single canonical module and imported by all handlers. No handler duplicates these functions.",
   "formal_property": {
-    "name": "NoUtilDuplication",
+    "name": "Bool",
     "model_file": ".planning/formal/alloy/observability-handlers.als",
-    "definition": "all h: HandlerModule | no h.definesLocally",
+    "definition": "",
     "type": "assertion"
   },
   "source_files": [
-    "bin/observe-utils.cjs",
-    "bin/observe-handlers.cjs",
-    "bin/observe-handler-internal.cjs"
+    "bin/observe-utils.cjs"
   ],
   "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/observe-utils.cjs",
   "source_files_absolute": [
-    "/Users/jonathanborduas/code/QGSD/bin/observe-utils.cjs",
-    "/Users/jonathanborduas/code/QGSD/bin/observe-handlers.cjs",
-    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-internal.cjs"
+    "/Users/jonathanborduas/code/QGSD/bin/observe-utils.cjs"
   ],
-  "import_hint": "const utils = require('/Users/jonathanborduas/code/QGSD/bin/observe-utils.cjs');",
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/observe-utils.cjs');",
   "test_strategy": "structural",
-  "template": "no-duplication"
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
 }

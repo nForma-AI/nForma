@@ -460,6 +460,31 @@ function preflight() {
   if (created) {
     process.stderr.write(TAG + ' Bootstrapped formal infrastructure\n');
   }
+
+  // Check formal tool installation (install-formal-tools.cjs)
+  try {
+    const tlaJar = path.join(ROOT, '.planning', 'formal', 'tla', 'tla2tools.jar');
+    const alloyJar = path.join(ROOT, '.planning', 'formal', 'alloy', 'org.alloytools.alloy.dist.jar');
+    if (!fs.existsSync(tlaJar) || !fs.existsSync(alloyJar)) {
+      process.stderr.write(TAG + ' Formal tools missing — running install-formal-tools.cjs\n');
+      spawnTool('bin/install-formal-tools.cjs', []);
+    }
+  } catch (e) {
+    // fail-open: tools install is best-effort
+  }
+
+  // Refresh PRISM constants from scoreboard (export-prism-constants.cjs)
+  try {
+    const scoreboardPath = path.join(ROOT, '.planning', 'quorum-scoreboard.json');
+    if (fs.existsSync(scoreboardPath)) {
+      const prismResult = spawnTool('bin/export-prism-constants.cjs', []);
+      if (!prismResult.ok) {
+        process.stderr.write(TAG + ' WARNING: export-prism-constants.cjs failed; PRISM constants may be stale\n');
+      }
+    }
+  } catch (e) {
+    // fail-open: PRISM constants refresh is best-effort
+  }
 }
 
 // ── Layer transition sweeps ──────────────────────────────────────────────────
@@ -2072,6 +2097,125 @@ function sweepL3toTC() {
   }
 }
 
+// ── Git Heatmap sweep ────────────────────────────────────────────────────────
+
+/**
+ * Reads git-heatmap.json evidence and returns uncovered hot-zone count as residual.
+ * Refreshes the evidence file first (unless --report-only or --fast).
+ * This is informational — not added to the automatable forward total.
+ */
+function sweepGitHeatmap() {
+  const evidencePath = path.join(ROOT, '.planning', 'formal', 'evidence', 'git-heatmap.json');
+
+  // Refresh evidence (skip in fast/report-only modes — too slow for git mining)
+  if (!fastMode && !reportOnly) {
+    const refresh = spawnTool('bin/git-heatmap.cjs', []);
+    if (!refresh.ok) {
+      process.stderr.write(TAG + ' WARNING: git-heatmap.cjs failed; using stale evidence\n');
+    }
+  }
+
+  if (!fs.existsSync(evidencePath)) {
+    return { residual: -1, detail: { skipped: true, reason: 'no evidence file' } };
+  }
+
+  try {
+    const data = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
+    const hotZones = data.uncovered_hot_zones || [];
+    const signals = data.signals || {};
+
+    return {
+      residual: hotZones.length,
+      detail: {
+        uncovered_hot_zones: hotZones.slice(0, 20),
+        total_hot_zones: hotZones.length,
+        numerical_adjustments_count: (signals.numerical_adjustments || []).length,
+        bugfix_hotspots_count: (signals.bugfix_hotspots || []).length,
+        churn_files_count: (signals.churn_ranking || []).length,
+        generated: data.generated || null,
+      },
+    };
+  } catch (err) {
+    return { residual: -1, detail: { error: true, stderr: 'JSON parse failed: ' + err.message } };
+  }
+}
+
+// ── Formal model lint sweep ──────────────────────────────────────────────────
+
+/**
+ * Runs lint-formal-models.cjs to detect fat, unbounded, or overly complex models.
+ * Returns { residual: N, detail: {...} } where N = number of lint warnings.
+ * Informational — not added to the forward total.
+ */
+function sweepFormalLint() {
+  if (fastMode) {
+    return { residual: -1, detail: { skipped: true, reason: 'fast mode' } };
+  }
+
+  try {
+    const result = spawnTool('bin/lint-formal-models.cjs', ['--json']);
+
+    // lint-formal-models exits 1 when violations found but still produces JSON
+    if (!result.stdout) {
+      return { residual: -1, detail: { error: true, stderr: (result.stderr || '').slice(0, 500) } };
+    }
+
+    const data = JSON.parse(result.stdout);
+    const violations = data.violations || [];
+    return {
+      residual: violations.length,
+      detail: {
+        total_violations: violations.length,
+        violations: violations.slice(0, 20).map(function (v) {
+          return { model: v.model || v.file, rule: v.rule || v.type, message: v.message || '' };
+        }),
+        summary: data.summary || null,
+      },
+    };
+  } catch (err) {
+    return { residual: -1, detail: { error: true, stderr: 'sweepFormalLint failed: ' + err.message } };
+  }
+}
+
+// ── Hazard model sweep ───────────────────────────────────────────────────────
+
+/**
+ * Runs hazard-model.cjs --json and returns FMEA hazard summary.
+ * Informational — not added to the forward total.
+ */
+function sweepHazardModel() {
+  if (fastMode) {
+    return { residual: -1, detail: { skipped: true, reason: 'fast mode' } };
+  }
+
+  try {
+    const result = spawnTool('bin/hazard-model.cjs', ['--json']);
+
+    if (!result.ok && !result.stdout) {
+      return { residual: -1, detail: { error: true, stderr: (result.stderr || '').slice(0, 500) } };
+    }
+
+    const data = JSON.parse(result.stdout);
+    const hazards = data.hazards || data.transitions || [];
+    const critical = hazards.filter(function (h) { return (h.rpn || 0) >= 200; });
+    const high = hazards.filter(function (h) { return (h.rpn || 0) >= 100 && (h.rpn || 0) < 200; });
+
+    return {
+      residual: critical.length + high.length,
+      detail: {
+        total_hazards: hazards.length,
+        critical_count: critical.length,
+        high_count: high.length,
+        top_hazards: hazards.slice(0, 10).map(function (h) {
+          return { from: h.from_state || h.fromState, event: h.event, rpn: h.rpn || 0 };
+        }),
+      },
+    };
+  } catch (err) {
+    return { residual: -1, detail: { error: true, stderr: 'sweepHazardModel failed: ' + err.message } };
+  }
+}
+
 // ── Residual computation ─────────────────────────────────────────────────────
 
 /**
@@ -2132,6 +2276,16 @@ function computeResidual() {
     (l2_to_l3.residual >= 0 ? l2_to_l3.residual : 0) +
     (l3_to_tc.residual >= 0 ? l3_to_tc.residual : 0);
 
+  // Git heatmap sweep (informational — not added to forward total)
+  const git_heatmap = sweepGitHeatmap();
+  const heatmap_total = git_heatmap.residual >= 0 ? git_heatmap.residual : 0;
+
+  // Formal model lint sweep (informational — not added to forward total)
+  const formal_lint = sweepFormalLint();
+
+  // Hazard model sweep (informational — not added to forward total)
+  const hazard_model = sweepHazardModel();
+
   return {
     r_to_f,
     f_to_t,
@@ -2147,10 +2301,14 @@ function computeResidual() {
     l1_to_l2,
     l2_to_l3,
     l3_to_tc,
+    git_heatmap,
+    formal_lint,
+    hazard_model,
     assembled_candidates,
     total,
     layer_total,
     reverse_discovery_total,
+    heatmap_total,
     timestamp: new Date().toISOString(),
   };
 }
@@ -2246,6 +2404,27 @@ function autoClose(residual) {
     for (const action of result.actions_taken) {
       actions.push(action);
     }
+  }
+
+  // Regenerate TLA+ config files from XState machine (generate-tla-cfg.cjs)
+  try {
+    const machineFile = path.join(ROOT, 'src', 'machines', 'nf-workflow.machine.ts');
+    if (fs.existsSync(machineFile)) {
+      const cfgResult = spawnTool('bin/generate-tla-cfg.cjs', []);
+      if (cfgResult.ok) {
+        actions.push('Regenerated TLA+ config files (MCsafety.cfg, MCliveness.cfg)');
+      }
+    }
+  } catch (e) {
+    // fail-open: TLA+ config generation is best-effort
+  }
+
+  // Formal model lint (lint-formal-models.cjs) — catch quality issues after generation
+  if (residual.formal_lint && residual.formal_lint.residual > 0) {
+    actions.push(
+      residual.formal_lint.residual +
+        ' formal model lint warning(s) — review fat/unbounded/complex models'
+    );
   }
 
   return {
@@ -2359,6 +2538,76 @@ function formatReport(iterations, finalResidual, converged) {
 
   const layerTotal = finalResidual.layer_total || 0;
   lines.push('  Alignment subtotal:    ' + layerTotal);
+
+  // Git Heatmap section (informational)
+  lines.push('\u2500 Git Heatmap (risk signals) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+
+  const hmResidual = finalResidual.git_heatmap ? finalResidual.git_heatmap.residual : -1;
+  lines.push(renderRow('G -> H (Git->Heatmap)', hmResidual));
+  const hmTotal = finalResidual.heatmap_total || 0;
+  lines.push('  Heatmap subtotal:      ' + hmTotal);
+
+  if (finalResidual.git_heatmap && finalResidual.git_heatmap.detail && !finalResidual.git_heatmap.detail.skipped) {
+    const hd = finalResidual.git_heatmap.detail;
+    lines.push('  Signals: ' + (hd.numerical_adjustments_count || 0) + ' adjustments, ' +
+      (hd.bugfix_hotspots_count || 0) + ' bugfix hotspots, ' +
+      (hd.churn_files_count || 0) + ' churn files');
+  }
+
+  // Formal Model Lint section (informational)
+  lines.push('\u2500 Formal Model Lint (quality) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+
+  const flResidual = finalResidual.formal_lint ? finalResidual.formal_lint.residual : -1;
+  lines.push(renderRow('FL (Formal Lint)', flResidual));
+
+  if (finalResidual.formal_lint && finalResidual.formal_lint.detail && !finalResidual.formal_lint.detail.skipped) {
+    const fld = finalResidual.formal_lint.detail;
+    lines.push('  Violations: ' + (fld.total_violations || 0));
+  }
+
+  // Hazard Model section (informational — FMEA RPN scoring)
+  lines.push('\u2500 Hazard Model (FMEA) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+
+  const hmrResidual = finalResidual.hazard_model ? finalResidual.hazard_model.residual : -1;
+  lines.push(renderRow('HM (Hazard Model)', hmrResidual));
+
+  if (finalResidual.hazard_model && finalResidual.hazard_model.detail && !finalResidual.hazard_model.detail.skipped) {
+    const hmd = finalResidual.hazard_model.detail;
+    lines.push('  Hazards: ' + (hmd.total_hazards || 0) +
+      ' total, ' + (hmd.critical_count || 0) + ' critical, ' + (hmd.high_count || 0) + ' high');
+  }
+
+  // Cross-Layer Dashboard summary (aggregated view)
+  try {
+    const dashResult = spawnTool('bin/cross-layer-dashboard.cjs', ['--cached', '--json']);
+    if (dashResult.ok && dashResult.stdout) {
+      const dashData = JSON.parse(dashResult.stdout);
+      lines.push('\u2500 Cross-Layer Dashboard \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+      const layers = dashData.layers || dashData.scores || [];
+      for (const layer of (Array.isArray(layers) ? layers : [])) {
+        const label = (layer.name || layer.layer || '').padEnd(20);
+        const score = layer.score !== undefined ? (layer.score * 100).toFixed(0) + '%' : '?';
+        const status = layer.status || layer.health || '';
+        lines.push('  ' + label + score.padStart(6) + '  ' + status);
+      }
+    }
+  } catch (e) {
+    // fail-open: dashboard is informational
+  }
+
+  // PRISM Priority ranking (informational)
+  try {
+    const prismResult = spawnTool('bin/prism-priority.cjs', []);
+    if (prismResult.ok && prismResult.stdout && prismResult.stdout.trim()) {
+      lines.push('\u2500 PRISM Priority (failure probability) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+      const prismLines = prismResult.stdout.trim().split('\n');
+      for (const pl of prismLines.slice(0, 10)) {
+        lines.push('  ' + pl);
+      }
+    }
+  } catch (e) {
+    // fail-open: PRISM priority is informational
+  }
 
   // Combined total across all sections
   const grandTotal = (finalResidual.total || 0) + rdTotal + layerTotal;
@@ -2565,6 +2814,49 @@ function formatReport(iterations, finalResidual, converged) {
     lines.push('');
   }
 
+  if (finalResidual.git_heatmap && finalResidual.git_heatmap.residual > 0) {
+    lines.push('## G -> H (Git Heatmap) [risk signals]');
+    const detail = finalResidual.git_heatmap.detail;
+    if (detail.uncovered_hot_zones && detail.uncovered_hot_zones.length > 0) {
+      lines.push('Uncovered hot zones (' + detail.total_hot_zones + ' total):');
+      for (const hz of detail.uncovered_hot_zones.slice(0, 10)) {
+        lines.push('  - ' + hz.file + ' (priority: ' + hz.priority + ', signals: ' + (hz.signals || []).join(', ') + ')');
+      }
+      if (detail.total_hot_zones > 10) {
+        lines.push('  ... and ' + (detail.total_hot_zones - 10) + ' more');
+      }
+    }
+    lines.push('');
+  }
+
+  if (finalResidual.formal_lint && finalResidual.formal_lint.residual > 0) {
+    lines.push('## FL (Formal Model Lint) [quality]');
+    const detail = finalResidual.formal_lint.detail;
+    if (detail.violations && detail.violations.length > 0) {
+      lines.push('Lint violations (' + detail.total_violations + ' total):');
+      for (const v of detail.violations.slice(0, 10)) {
+        lines.push('  - ' + (v.model || '?') + ' [' + (v.rule || '?') + ']: ' + (v.message || ''));
+      }
+      if (detail.total_violations > 10) {
+        lines.push('  ... and ' + (detail.total_violations - 10) + ' more');
+      }
+    }
+    lines.push('');
+  }
+
+  if (finalResidual.hazard_model && finalResidual.hazard_model.residual > 0) {
+    lines.push('## HM (Hazard Model) [FMEA]');
+    const detail = finalResidual.hazard_model.detail;
+    lines.push('Critical+High hazards: ' + (detail.critical_count || 0) + ' critical, ' + (detail.high_count || 0) + ' high');
+    if (detail.top_hazards && detail.top_hazards.length > 0) {
+      lines.push('Top hazards by RPN:');
+      for (const h of detail.top_hazards.slice(0, 5)) {
+        lines.push('  - ' + (h.from || '?') + ' -> ' + (h.event || '?') + ' (RPN: ' + (h.rpn || 0) + ')');
+      }
+    }
+    lines.push('');
+  }
+
   return lines.join('\n');
 }
 
@@ -2601,7 +2893,7 @@ function truncateResidualDetail(residual) {
  */
 function formatJSON(iterations, finalResidual, converged) {
   const health = {};
-  for (const key of ['r_to_f', 'f_to_t', 'c_to_f', 't_to_c', 'f_to_c', 'r_to_d', 'd_to_c', 'p_to_f', 'c_to_r', 't_to_r', 'd_to_r', 'l1_to_l2', 'l2_to_l3', 'l3_to_tc']) {
+  for (const key of ['r_to_f', 'f_to_t', 'c_to_f', 't_to_c', 'f_to_c', 'r_to_d', 'd_to_c', 'p_to_f', 'c_to_r', 't_to_r', 'd_to_r', 'l1_to_l2', 'l2_to_l3', 'l3_to_tc', 'git_heatmap', 'formal_lint', 'hazard_model']) {
     const res = finalResidual[key] ? finalResidual[key].residual : -1;
     health[key] = healthIndicator(res).split(/\s+/)[1]; // Extract GREEN/YELLOW/RED/UNKNOWN
   }
@@ -2686,6 +2978,7 @@ function main() {
     iteration_count: iterations.length,
     final_residual_total: finalResidual.total,
     reverse_discovery_total: finalResidual.reverse_discovery_total || 0,
+    heatmap_total: finalResidual.heatmap_total || 0,
     known_issues: [],
     r_to_f_progress: {
       total: finalResidual.r_to_f.detail.total || 0,
@@ -2746,6 +3039,9 @@ module.exports = {
   sweepL1toL2,
   sweepL2toL3,
   sweepL3toTC,
+  sweepGitHeatmap,
+  sweepFormalLint,
+  sweepHazardModel,
   assembleReverseCandidates,
   classifyCandidate,
   crossReferenceFormalCoverage,

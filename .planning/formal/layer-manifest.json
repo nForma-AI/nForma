@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-06T21:57:46.866Z",
+  "generated": "2026-03-07T15:25:08.868Z",
   "layers": {
     "L1": [],
     "L2": [],
@@ -61,22 +61,22 @@
         "grounding_status": "has_semantic_declarations"
       },
       {
-        "path": ".planning/formal/tla/QGSDAccountManager.tla",
+        "path": ".planning/formal/tla/NFAccountManager.tla",
         "description": "",
         "grounding_status": "ungrounded"
       },
       {
-        "path": ".planning/formal/tla/QGSDCircuitBreaker.tla",
+        "path": ".planning/formal/tla/NFCircuitBreaker.tla",
         "description": "",
         "grounding_status": "has_semantic_declarations"
       },
       {
-        "path": ".planning/formal/tla/QGSDConvergence.tla",
+        "path": ".planning/formal/tla/NFConvergence.tla",
         "description": "",
         "grounding_status": "has_semantic_declarations"
       },
       {
-        "path": ".planning/formal/tla/QGSDDeliberation.tla",
+        "path": ".planning/formal/tla/NFDeliberation.tla",
         "description": "",
         "grounding_status": "has_semantic_declarations"
       },
@@ -86,12 +86,12 @@
         "grounding_status": "ungrounded"
       },
       {
-        "path": ".planning/formal/tla/QGSDOscillation.tla",
+        "path": ".planning/formal/tla/NFOscillation.tla",
         "description": "",
         "grounding_status": "has_semantic_declarations"
       },
       {
-        "path": ".planning/formal/tla/QGSDPreFilter.tla",
+        "path": ".planning/formal/tla/NFPreFilter.tla",
         "description": "",
         "grounding_status": "has_semantic_declarations"
       },
@@ -106,12 +106,12 @@
         "grounding_status": "has_semantic_declarations"
       },
       {
-        "path": ".planning/formal/tla/QGSDRecruiting.tla",
+        "path": ".planning/formal/tla/NFRecruiting.tla",
         "description": "",
         "grounding_status": "has_semantic_declarations"
       },
       {
-        "path": ".planning/formal/tla/QGSDStopHook.tla",
+        "path": ".planning/formal/tla/NFStopHook.tla",
         "description": "SPEC-01: Stop hook decision logic — HasPlanningCommand ∧ ¬HasQuorumEvidence ⟹ BLOCK",
         "grounding_status": "ungrounded"
       },
@@ -464,6 +464,76 @@
         "path": ".planning/formal/alloy/solve-tc-coverage.als",
         "description": "T->C false-green detection via cross-referenced coverage",
         "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/observability-handlers.als",
+        "description": "Observability handler contract: return schema, canonical utility module, upstream comparison, error containment",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/evidence-scope-scan.als",
+        "description": "Git heatmap evidence production and formal scope scan metadata matching",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/code-quality-guardrails.als",
+        "description": "Hook system code-quality guardrails: post-edit format, console.log guard, modular rules",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/QGSDPlanningState.tla",
+        "description": "Execute-plan Route C audit chaining and phase-complete ROADMAP.md heading fallback",
+        "grounding_status": "has_semantic_declarations"
+      },
+      {
+        "path": ".planning/formal/tla/QGSDSessionPersistence.tla",
+        "description": "TUI session persistence across restarts with ID counter restoration",
+        "grounding_status": "has_semantic_declarations"
+      },
+      {
+        "path": ".planning/formal/alloy/observability-handler-arch.als",
+        "description": "Observability handler architecture: script inventory, DI contracts, cursor persistence",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/gate-a-scoping.als",
+        "description": "Models --base-ref scoping behavior of gate-a-grounding.cjs",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/spec-quality-guardrails.als",
+        "description": "Models formal spec quality guardrails: no tautologies, bounded domains, per-sig scopes",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/trace-event-normalization.als",
+        "description": "Models mapToXStateEvent normalization with action||type fallback and non-FSM action handling",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/prism/mcp-availability.props",
+        "description": "Auto-registered from @requirement annotations",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/prism/oauth-rotation.props",
+        "description": "Auto-registered from @requirement annotations",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/prism/quorum.props",
+        "description": "Auto-registered from @requirement annotations",
+        "grounding_status": "has_semantic_declarations"
+      },
+      {
+        "path": ".planning/formal/prism/observability-delivery.props",
+        "description": "Auto-registered from @requirement annotations",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/prism/deliberation-healing.props",
+        "description": "Auto-registered from @requirement annotations",
+        "grounding_status": "has_semantic_declarations"
       }
     ]
   },
@@ -485,14 +555,14 @@
     }
   },
   "summary": {
-    "total_models": 92,
+    "total_models": 106,
     "L1_count": 0,
     "L2_count": 0,
-    "L3_count": 92,
+    "L3_count": 106,
     "maturity_distribution": {
-      "0": 72,
-      "1": 20
+      "0": 82,
+      "1": 24
     },
-    "spec_modules_with_invariants": 15
+    "spec_modules_with_invariants": 17
   }
 }

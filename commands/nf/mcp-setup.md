@@ -336,6 +336,10 @@ Changes applied and agents restarted.
 Run /nf:mcp-status to verify agent health.
 ```
 
+**Utility tools available during setup:**
+- `node bin/set-secret.cjs <agent-name> <key>` — CLI secret setter (wraps secrets.cjs keytar integration)
+- `node bin/gh-account-rotate.cjs` — Rotate gh auth accounts for copilot slots (useful when setting up copilot-1 agent)
+
 ---
 
 ## Re-run Agent Menu
@@ -1350,6 +1354,14 @@ If a restart fails, leave config written and display:
 ⚠ {agent-name}: restart failed. Config applied — reload on next Claude Code restart.
   Manual retry: /nf:mcp-restart {agent-name}
 ```
+
+## Utility Scripts Reference
+
+The following scripts are available for advanced configuration tasks:
+
+- **Secret management:** Use `node ~/.claude/nf-bin/set-secret.cjs <KEY_NAME> <value>` (or `node bin/set-secret.cjs`) to store API keys in the OS keychain under the `nforma` service and auto-sync them to `~/.claude.json` env blocks. This is the preferred method for managing secrets outside the interactive flow.
+
+- **GitHub account rotation:** Use `node ~/.claude/nf-bin/gh-account-rotate.cjs` (or `node bin/gh-account-rotate.cjs`) to rotate to the next `gh auth` account. This is used by copilot slots that require OAuth rotation between different GitHub accounts. Only relevant when multiple `gh auth` accounts are configured.
 
 </process>
 

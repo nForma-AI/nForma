@@ -196,6 +196,23 @@ If none: "All requirements are measurable"
 Collect findings into `measurability_issues[]`.
 </step>
 
+<step name="semantic_validation">
+**Pass 4 — Semantic validation (duplicates, contradictions, ambiguity):**
+
+Run the standalone semantic validator using Claude Haiku for cross-requirement consistency checks that go beyond the per-requirement scans above:
+
+```bash
+SEMANTIC_RESULT=$(node ~/.claude/nf-bin/validate-requirements-haiku.cjs --envelope=.planning/formal/requirements.json --passes=1 2>/dev/null || node bin/validate-requirements-haiku.cjs --envelope=.planning/formal/requirements.json --passes=1 2>/dev/null || echo "")
+```
+
+If the script returns findings (duplicates, contradictions, or ambiguity):
+- Merge DUPLICATE findings into `overlap_issues[]` (dedup against existing overlap scan results by ID pair)
+- Add CONTRADICTION findings as a new `contradiction_issues[]` array — these are high-severity and should be displayed prominently
+- Add AMBIGUITY findings to `measurability_issues[]` (ambiguity is a form of unmeasurability)
+
+Fail-open: if the script is not found, errors, or returns empty, skip this pass silently and proceed with findings from passes 1-3.
+</step>
+
 <step name="present_findings">
 **Present findings:**
 
@@ -293,6 +310,18 @@ Applied {N} fixes to requirements envelope:
   - {Z} requirements rewritten (measurability)
   Total: {before} → {after} requirements
 ```
+</step>
+
+<step name="semantic_validation">
+**Semantic validation via Haiku:**
+
+After applying fixes, run the standalone semantic validator for a second-pass quality check:
+
+```bash
+node bin/validate-requirements-haiku.cjs --project-root=$(pwd) 2>/dev/null || true
+```
+
+This script uses Claude Haiku to check each requirement for clarity, measurability, and non-redundancy. If the script is not found, skip silently (fail-open). Results are informational — they surface additional quality issues not caught by the pattern-based review above.
 </step>
 
 <step name="check_memory">

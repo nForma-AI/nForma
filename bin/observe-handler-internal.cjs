@@ -5,18 +5,31 @@
  * 2. Stale debug sessions (quorum-debug-latest.md)
  * 3. TODO/FIXME/HACK/XXX comments in codebase (tracked as debt)
  * 4. Active milestone phases without VERIFICATION.md
+ * 5. Proposed metrics from formal models (unimplemented instrumentation)
+ * 6. Quorum slot reachability (probe-quorum-slots.cjs)
+ * 7. XState maxDeliberation calibration (verify-quorum-health.cjs)
+ * 8. MCP server health (check-mcp-health.cjs)
+ * 9. MCP debug log anomalies (review-mcp-logs.cjs)
+ * 10. Telemetry anomalies (telemetry-collector.cjs)
+ * 11. Observed FSM divergences (observed-fsm.cjs)
+ * 12. Sensitivity sweep prediction mismatches (sensitivity-sweep-feedback.cjs)
+ * 13. Security findings (security-sweep.cjs)
+ * 14. Issue classification from telemetry (issue-classifier.cjs)
  *
  * Returns standard observe schema: { source_label, source_type, status, issues[] }
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
+const os = require('node:os');
 const { formatAgeFromMtime } = require('./observe-utils.cjs');
 
 /**
  * Internal work detection handler
- * Scans four categories: unfinished quick tasks, stale debug sessions, TODO comments, active unverified phases
+ * Scans 14 categories: quick tasks, debug sessions, TODOs, unverified phases,
+ * proposed metrics, quorum slots, XState calibration, MCP health, MCP logs,
+ * telemetry, observed FSM, sensitivity sweep, security, issue classification
  *
  * @param {object} sourceConfig - { label?, ...other config }
  * @param {object} options - { projectRoot?, limitOverride? }
@@ -262,6 +275,470 @@ function handleInternal(sourceConfig, options) {
     } catch (err) {
       // Log warning but continue with other scans (fail-open)
       console.warn(`[observe-internal] Warning scanning milestone phases: ${err.message}`);
+    }
+
+    // ── Helper: resolve script path (installed location first, then repo-local) ──
+    function resolveScript(scriptName) {
+      const installed = path.join(os.homedir(), '.claude', 'nf-bin', scriptName);
+      if (fs.existsSync(installed)) return installed;
+      const local = path.join(projectRoot, 'bin', scriptName);
+      if (fs.existsSync(local)) return local;
+      return null;
+    }
+
+    // Category 5: Proposed metrics from formal models (unimplemented instrumentation)
+    try {
+      const pmPath = path.resolve(projectRoot, '.planning/formal/evidence/proposed-metrics.json');
+      if (fs.existsSync(pmPath)) {
+        const pm = JSON.parse(fs.readFileSync(pmPath, 'utf8'));
+        const metrics = pm.metrics || [];
+        const outstanding = metrics.filter(m => m.status === 'proposed');
+        const limit = options.limitOverride || 20;
+
+        // Surface tier-1 outstanding metrics first, then tier-2
+        const sorted = outstanding.sort((a, b) => (a.tier || 99) - (b.tier || 99));
+
+        let count = 0;
+        for (const m of sorted) {
+          if (count >= limit) break;
+          issues.push({
+            id: `internal-metric-${m.metric_name}`,
+            title: `Unimplemented metric: ${m.metric_name} (tier ${m.tier})`,
+            severity: m.tier === 1 ? 'warning' : 'info',
+            url: '',
+            age: '',
+            created_at: pm.generated || new Date().toISOString(),
+            meta: `${m.assumption_type} "${m.assumption_name}" from ${m.source_model} — ${m.metric_type}`,
+            source_type: 'internal',
+            issue_type: 'drift',
+            _route: `/nf:quick "Add ${m.metric_name} instrumentation from ${m.source_model}"`
+          });
+          count++;
+        }
+
+        // Add a summary drift if there are outstanding metrics
+        if (pm.outstanding > 0) {
+          issues.push({
+            id: 'internal-metrics-summary',
+            title: `${pm.outstanding} proposed metrics outstanding (${pm.implemented} implemented, ${pm.partial} partial)`,
+            severity: pm.outstanding > 10 ? 'warning' : 'info',
+            url: '',
+            age: '',
+            created_at: pm.generated || new Date().toISOString(),
+            meta: `Formal models propose ${pm.total_proposed} metrics total`,
+            source_type: 'internal',
+            issue_type: 'drift',
+            _route: '/nf:solve'
+          });
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning scanning proposed metrics: ${err.message}`);
+    }
+
+    // Category 6: Quorum slot reachability (probe-quorum-slots.cjs)
+    try {
+      const probeScript = resolveScript('probe-quorum-slots.cjs');
+      if (probeScript) {
+        // Discover active slots from providers.json
+        let slotNames = '';
+        const providersPath = path.join(path.dirname(probeScript), 'providers.json');
+        if (fs.existsSync(providersPath)) {
+          const providers = JSON.parse(fs.readFileSync(providersPath, 'utf8'));
+          slotNames = (providers.providers || []).map(p => p.name).join(',');
+        }
+        if (slotNames) {
+          const result = spawnSync(process.execPath, [probeScript, '--slots', slotNames, '--timeout', '8000'], {
+            encoding: 'utf8',
+            timeout: 30000,
+            cwd: projectRoot
+          });
+          if (result.status === 0 && result.stdout) {
+            const probes = JSON.parse(result.stdout);
+            for (const probe of probes) {
+              if (!probe.healthy) {
+                issues.push({
+                  id: `internal-quorum-unreachable-${probe.slot}`,
+                  title: `Quorum slot unreachable: ${probe.slot}`,
+                  severity: 'warning',
+                  url: '',
+                  age: '',
+                  created_at: new Date().toISOString(),
+                  meta: probe.error || `Probe failed (${probe.latencyMs || '?'}ms)`,
+                  source_type: 'internal',
+                  issue_type: 'drift',
+                  _route: `/nf:mcp-setup`
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning probing quorum slots: ${err.message}`);
+    }
+
+    // Category 7: XState maxDeliberation calibration (verify-quorum-health.cjs)
+    try {
+      const verifyScript = resolveScript('verify-quorum-health.cjs');
+      if (verifyScript) {
+        const result = spawnSync(process.execPath, [verifyScript], {
+          encoding: 'utf8',
+          timeout: 15000,
+          cwd: projectRoot
+        });
+        // Exit code 1 means calibration is below target confidence
+        if (result.status === 1 && result.stdout) {
+          issues.push({
+            id: 'internal-quorum-calibration-drift',
+            title: 'XState maxDeliberation calibration below target confidence',
+            severity: 'warning',
+            url: '',
+            age: '',
+            created_at: new Date().toISOString(),
+            meta: result.stdout.trim().split('\n').pop() || 'Calibration drift detected',
+            source_type: 'internal',
+            issue_type: 'drift',
+            _route: '/nf:solve'
+          });
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning verifying quorum health: ${err.message}`);
+    }
+
+    // Category 8: MCP server health (check-mcp-health.cjs)
+    try {
+      const healthScript = resolveScript('check-mcp-health.cjs');
+      if (healthScript) {
+        const result = spawnSync(process.execPath, [healthScript, '--json'], {
+          encoding: 'utf8',
+          timeout: 30000,
+          cwd: projectRoot
+        });
+        if (result.stdout) {
+          let healthData;
+          try { healthData = JSON.parse(result.stdout); } catch (_) { /* non-JSON output */ }
+          if (healthData && Array.isArray(healthData.servers)) {
+            for (const srv of healthData.servers) {
+              if (!srv.healthy) {
+                issues.push({
+                  id: `internal-mcp-unhealthy-${srv.name || srv.server || 'unknown'}`,
+                  title: `MCP server unhealthy: ${srv.name || srv.server || 'unknown'}`,
+                  severity: 'warning',
+                  url: '',
+                  age: '',
+                  created_at: new Date().toISOString(),
+                  meta: srv.error || `latency=${srv.latencyMs || '?'}ms`,
+                  source_type: 'internal',
+                  issue_type: 'issue',
+                  _route: '/nf:mcp-setup'
+                });
+              }
+            }
+          } else if (healthData && Array.isArray(healthData)) {
+            // Alternate format: flat array of server results
+            for (const srv of healthData) {
+              if (!srv.healthy) {
+                issues.push({
+                  id: `internal-mcp-unhealthy-${srv.name || srv.server || 'unknown'}`,
+                  title: `MCP server unhealthy: ${srv.name || srv.server || 'unknown'}`,
+                  severity: 'warning',
+                  url: '',
+                  age: '',
+                  created_at: new Date().toISOString(),
+                  meta: srv.error || `latency=${srv.latencyMs || '?'}ms`,
+                  source_type: 'internal',
+                  issue_type: 'issue',
+                  _route: '/nf:mcp-setup'
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning checking MCP health: ${err.message}`);
+    }
+
+    // Category 9: MCP debug log anomalies (review-mcp-logs.cjs)
+    try {
+      const logScript = resolveScript('review-mcp-logs.cjs');
+      if (logScript) {
+        const result = spawnSync(process.execPath, [logScript, '--json', '--days', '3'], {
+          encoding: 'utf8',
+          timeout: 30000,
+          cwd: projectRoot
+        });
+        if (result.status === 0 && result.stdout) {
+          let logData;
+          try { logData = JSON.parse(result.stdout); } catch (_) { /* non-JSON */ }
+          if (logData) {
+            // Surface hung tools
+            const hangs = logData.hangs || logData.hung_tools || [];
+            for (const h of hangs.slice(0, 5)) {
+              issues.push({
+                id: `internal-mcp-hang-${h.server || 'unknown'}-${h.tool || 'unknown'}`,
+                title: `MCP tool hang: ${h.server || '?'}/${h.tool || '?'} (${h.count || 1}x)`,
+                severity: 'warning',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: `${h.elapsed_seconds || h.maxElapsed || '?'}s max elapsed`,
+                source_type: 'internal',
+                issue_type: 'issue',
+                _route: '/nf:mcp-setup'
+              });
+            }
+            // Surface failures
+            const failures = logData.failures || logData.failed_tools || [];
+            for (const f of failures.slice(0, 5)) {
+              issues.push({
+                id: `internal-mcp-fail-${f.server || 'unknown'}-${f.tool || 'unknown'}`,
+                title: `MCP tool failure: ${f.server || '?'}/${f.tool || '?'} (${f.count || 1}x)`,
+                severity: 'info',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: f.error || f.reason || 'See debug logs',
+                source_type: 'internal',
+                issue_type: 'issue',
+                _route: '/nf:mcp-setup'
+              });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning reviewing MCP logs: ${err.message}`);
+    }
+
+    // Category 10: Telemetry anomalies (telemetry-collector.cjs)
+    try {
+      const telScript = resolveScript('telemetry-collector.cjs');
+      if (telScript) {
+        const result = spawnSync(process.execPath, [telScript], {
+          encoding: 'utf8',
+          timeout: 30000,
+          cwd: projectRoot
+        });
+        if (result.status === 0) {
+          // Read the generated report
+          const reportPath = path.join(projectRoot, '.planning', 'telemetry', 'report.json');
+          if (fs.existsSync(reportPath)) {
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            // Surface circuit breaker active state
+            if (report.circuitBreaker && report.circuitBreaker.active) {
+              issues.push({
+                id: 'internal-telemetry-breaker-active',
+                title: 'Circuit breaker is currently ACTIVE',
+                severity: 'warning',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: `Trigger count: ${report.circuitBreaker.triggerCount || '?'}`,
+                source_type: 'internal',
+                issue_type: 'drift',
+                _route: '/nf:solve'
+              });
+            }
+            // Surface always-failing servers
+            const servers = report.servers || report.mcpServers || {};
+            for (const [name, srv] of Object.entries(servers)) {
+              if (srv.failureRate >= 1.0 || srv.alwaysFailing) {
+                issues.push({
+                  id: `internal-telemetry-always-failing-${name}`,
+                  title: `MCP server always failing: ${name}`,
+                  severity: 'warning',
+                  url: '',
+                  age: '',
+                  created_at: new Date().toISOString(),
+                  meta: `${srv.totalCalls || '?'} calls, 100% failure`,
+                  source_type: 'internal',
+                  issue_type: 'issue',
+                  _route: '/nf:mcp-setup'
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning collecting telemetry: ${err.message}`);
+    }
+
+    // Category 11: Observed FSM divergences (observed-fsm.cjs)
+    try {
+      const fsmScript = resolveScript('observed-fsm.cjs');
+      if (fsmScript) {
+        const result = spawnSync(process.execPath, [fsmScript, '--json'], {
+          encoding: 'utf8',
+          timeout: 30000,
+          cwd: projectRoot,
+          env: { ...process.env, PROJECT_ROOT: projectRoot }
+        });
+        if (result.status === 0 && result.stdout) {
+          let fsmData;
+          try { fsmData = JSON.parse(result.stdout); } catch (_) { /* non-JSON */ }
+          if (fsmData) {
+            const observedOnly = fsmData.observedOnlyTransitions || fsmData.observed_only || [];
+            const modelOnly = fsmData.modelOnlyTransitions || fsmData.model_only || [];
+            if (observedOnly.length > 0) {
+              issues.push({
+                id: 'internal-fsm-observed-only',
+                title: `${observedOnly.length} transition(s) observed but not in designed FSM`,
+                severity: 'warning',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: observedOnly.slice(0, 3).map(t => `${t.from || t.source}→${t.to || t.target}`).join(', '),
+                source_type: 'internal',
+                issue_type: 'drift',
+                _route: '/nf:solve'
+              });
+            }
+            if (modelOnly.length > 0) {
+              issues.push({
+                id: 'internal-fsm-model-only',
+                title: `${modelOnly.length} designed transition(s) never observed in traces`,
+                severity: 'info',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: modelOnly.slice(0, 3).map(t => `${t.from || t.source}→${t.to || t.target}`).join(', '),
+                source_type: 'internal',
+                issue_type: 'drift',
+                _route: '/nf:solve'
+              });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning comparing observed FSM: ${err.message}`);
+    }
+
+    // Category 12: Sensitivity sweep prediction mismatches (sensitivity-sweep-feedback.cjs)
+    try {
+      const sweepScript = resolveScript('sensitivity-sweep-feedback.cjs');
+      if (sweepScript) {
+        const result = spawnSync(process.execPath, [sweepScript], {
+          encoding: 'utf8',
+          timeout: 30000,
+          cwd: projectRoot
+        });
+        // Exit 0 = no new violations; stderr may contain deviation info
+        // Parse stderr for deviation warnings
+        const stderr = (result.stderr || '').trim();
+        if (stderr) {
+          const deviationMatch = stderr.match(/deviation.*?(\d+\.\d+)/i);
+          if (deviationMatch) {
+            issues.push({
+              id: 'internal-sensitivity-deviation',
+              title: 'Sensitivity sweep: empirical TP rate deviates from prediction',
+              severity: 'warning',
+              url: '',
+              age: '',
+              created_at: new Date().toISOString(),
+              meta: stderr.split('\n').pop() || `Deviation: ${deviationMatch[1]}`,
+              source_type: 'internal',
+              issue_type: 'drift',
+              _route: '/nf:solve'
+            });
+          }
+        }
+        // Also check if exit code indicates a threshold violation
+        if (result.status !== 0 && result.status !== null) {
+          issues.push({
+            id: 'internal-sensitivity-threshold-violation',
+            title: 'Sensitivity sweep threshold violation detected',
+            severity: 'warning',
+            url: '',
+            age: '',
+            created_at: new Date().toISOString(),
+            meta: stderr.split('\n').pop() || 'TP rate below predicted threshold',
+            source_type: 'internal',
+            issue_type: 'drift',
+            _route: '/nf:solve'
+          });
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning running sensitivity sweep feedback: ${err.message}`);
+    }
+
+    // Category 13: Security findings (security-sweep.cjs)
+    try {
+      const secScript = resolveScript('security-sweep.cjs');
+      if (secScript) {
+        const result = spawnSync(process.execPath, [secScript, '--json', '--cwd', projectRoot], {
+          encoding: 'utf8',
+          timeout: 30000,
+          cwd: projectRoot
+        });
+        if (result.status === 0 && result.stdout) {
+          let secData;
+          try { secData = JSON.parse(result.stdout); } catch (_) { /* non-JSON */ }
+          if (secData) {
+            const findings = secData.findings || secData.results || [];
+            const limit = options.limitOverride || 10;
+            let count = 0;
+            for (const f of findings) {
+              if (count >= limit) break;
+              issues.push({
+                id: `internal-security-${f.name || f.pattern || 'finding'}-${f.file || count}`.replace(/[^a-z0-9-]/gi, '-').toLowerCase(),
+                title: `Security: ${f.name || f.pattern || 'finding'} in ${f.file || 'unknown'}:${f.line || '?'}`,
+                severity: f.severity === 'high' ? 'warning' : 'info',
+                url: '',
+                age: '',
+                created_at: new Date().toISOString(),
+                meta: f.match || f.content || '',
+                source_type: 'internal',
+                issue_type: 'issue',
+                _route: `/nf:quick "Fix security finding: ${f.name || 'secret'} in ${f.file || 'unknown'}:${f.line || '?'}"`
+              });
+              count++;
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning running security sweep: ${err.message}`);
+    }
+
+    // Category 14: Issue classification from telemetry (issue-classifier.cjs)
+    try {
+      const classifierScript = resolveScript('issue-classifier.cjs');
+      if (classifierScript) {
+        const result = spawnSync(process.execPath, [classifierScript], {
+          encoding: 'utf8',
+          timeout: 15000,
+          cwd: projectRoot
+        });
+        if (result.status === 0) {
+          const fixesPath = path.join(projectRoot, '.planning', 'telemetry', 'pending-fixes.json');
+          if (fs.existsSync(fixesPath)) {
+            const fixes = JSON.parse(fs.readFileSync(fixesPath, 'utf8'));
+            const classified = fixes.issues || [];
+            for (const issue of classified) {
+              issues.push({
+                id: `internal-classified-${issue.slug || issue.id || 'unknown'}`,
+                title: `Classified issue: ${issue.title || issue.description || 'unknown'} (priority ${issue.priority || '?'})`,
+                severity: (issue.priority || 0) >= 80 ? 'warning' : 'info',
+                url: '',
+                age: '',
+                created_at: fixes.generatedAt || new Date().toISOString(),
+                meta: issue.reason || issue.meta || '',
+                source_type: 'internal',
+                issue_type: 'issue',
+                _route: issue.route || '/nf:solve'
+              });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning classifying issues: ${err.message}`);
     }
 
     return {

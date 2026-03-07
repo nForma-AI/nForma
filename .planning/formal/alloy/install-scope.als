@@ -80,11 +80,11 @@ assert NoConflict {
     all s: InstallState | NoConflictingScope[s]
 }
 
-check NoConflict         for 5 InstallState, 3 Runtime, 3 Scope
-check AllEquivalence     for 5 InstallState, 3 Runtime, 3 Scope
-check InstallIdempotent  for 5 InstallState, 3 Runtime, 3 Scope
+check NoConflict         for 5 InstallState, 3 Runtime, 3 Scope, 3 FileToken, 3 InstallSnapshot
+check AllEquivalence     for 5 InstallState, 3 Runtime, 3 Scope, 3 FileToken, 3 InstallSnapshot
+check InstallIdempotent  for 5 InstallState, 3 Runtime, 3 Scope, 3 FileToken, 3 InstallSnapshot
 
-run AllSelected for 5 InstallState, 3 Runtime, 3 Scope
+run AllSelected for 5 InstallState, 3 Runtime, 3 Scope, 3 FileToken, 3 InstallSnapshot
 
 -- -- GAP-7 Extension: Rollback Soundness + Config Sync Completeness ----------
 -- Source: bin/install.js uninstall() (lines 964-1244) and installRuntime()
@@ -150,5 +150,5 @@ assert ConfigSyncCompleteCheck {
 }
 
 -- Check commands for GAP-7 (per-sig scopes for adequate coverage)
-check RollbackSoundCheck      for 3 InstallSnapshot, 3 FileToken
-check ConfigSyncCompleteCheck for 3 InstallSnapshot, 3 FileToken
+check RollbackSoundCheck      for 3 InstallSnapshot, 3 FileToken, 5 InstallState, 3 Runtime, 3 Scope
+check ConfigSyncCompleteCheck for 3 InstallSnapshot, 3 FileToken, 5 InstallState, 3 Runtime, 3 Scope

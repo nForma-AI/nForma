@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-06T21:57:47.737Z",
+  "generated": "2026-03-07T15:25:10.142Z",
   "emission_points": [
     {
       "file": "hooks/nf-prompt.js",
@@ -76,13 +76,14 @@
     }
   ],
   "coverage": {
-    "total_vocabulary_actions": 6,
+    "total_vocabulary_actions": 7,
     "mapped_actions": 4,
-    "coverage_pct": 66.7
+    "coverage_pct": 57.1
   },
   "unmapped_actions": [
     "quorum_block_r3_2",
-    "mcp_call"
+    "mcp_call",
+    "security_sweep"
   ],
-  "summary": "Found 8 emission points across 3 hooks and observe handlers. Coverage: 4/6 vocabulary actions mapped (66.7%). Unmapped: quorum_block_r3_2, mcp_call."
+  "summary": "Found 8 emission points across 3 hooks and observe handlers. Coverage: 4/7 vocabulary actions mapped (57.1%). Unmapped: quorum_block_r3_2, mcp_call, security_sweep."
 }

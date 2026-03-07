@@ -698,6 +698,42 @@ function formatMarkdownReport(report) {
   return lines.join('\n');
 }
 
+// ── Proposed metrics evidence ───────────────────────────────────────────────
+
+/**
+ * Build proposed-metrics.json from gap report.
+ * Each entry is a metric that formal models say should exist in the codebase.
+ * nf:observe reads this file to surface unimplemented metrics as drifts.
+ *
+ * @param {object} report - Gap report from generateGapReport
+ * @param {string} root - Project root for scanning implemented metrics
+ * @returns {object} Proposed metrics evidence
+ */
+function buildProposedMetrics(report, root) {
+  const metrics = report.gaps.map(gap => ({
+    metric_name: gap.metric_name,
+    metric_type: gap.metric_type,
+    tier: gap.tier,
+    source_model: gap.file,
+    assumption_name: gap.name,
+    assumption_type: gap.type,
+    coverage: gap.coverage,
+    formal_ref: `spec:${gap.file}:${gap.name}`,
+    instrumentation_snippet: gap.instrumentation_snippet,
+    status: gap.coverage === 'covered' ? 'implemented' : gap.coverage === 'partial' ? 'partial' : 'proposed',
+  }));
+
+  return {
+    schema_version: '1',
+    generated: new Date().toISOString(),
+    total_proposed: metrics.length,
+    implemented: metrics.filter(m => m.status === 'implemented').length,
+    partial: metrics.filter(m => m.status === 'partial').length,
+    outstanding: metrics.filter(m => m.status === 'proposed').length,
+    metrics,
+  };
+}
+
 // ── CLI entrypoint ──────────────────────────────────────────────────────────
 
 if (require.main === module) {
@@ -736,6 +772,14 @@ if (require.main === module) {
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
   }
 
+  // Always write proposed-metrics.json for nf:observe consumption
+  const proposedMetrics = buildProposedMetrics(report, root);
+  const pmDir = path.join(root, '.planning', 'formal', 'evidence');
+  fs.mkdirSync(pmDir, { recursive: true });
+  const pmPath = path.join(pmDir, 'proposed-metrics.json');
+  fs.writeFileSync(pmPath, JSON.stringify(proposedMetrics, null, 2) + '\n');
+  process.stderr.write(`[analyze-assumptions] Proposed metrics written to ${pmPath}\n`);
+
   if (verbose) {
     process.stderr.write(`[analyze-assumptions] Total: ${report.total_assumptions}, Covered: ${report.covered}, Partial: ${report.partial}, Uncovered: ${report.uncovered}\n`);
   }
@@ -753,5 +797,6 @@ module.exports = {
   scanAllFormalModels,
   crossReference,
   generateGapReport,
-  formatMarkdownReport
+  formatMarkdownReport,
+  buildProposedMetrics
 };

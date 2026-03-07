@@ -157,6 +157,14 @@ node bin/install.js --claude --global
 
 Capture output. If install fails, show error and exit.
 
+**Post-update layout migration:** After the installer completes, run the planning directory migration script to update `.planning/` to the latest layout:
+
+```bash
+node ~/.claude/nf-bin/migrate-planning.cjs --root "$(pwd)" 2>/dev/null || node bin/migrate-planning.cjs --root "$(pwd)" 2>/dev/null || true
+```
+
+If the script moves files, display: `Migrated .planning/ layout: {moved} files moved, {skipped} skipped`. Fail-open: if the script is not found or errors, skip silently — not all projects need migration.
+
 Clear the update cache so statusline indicator disappears:
 
 **If LOCAL install:**
