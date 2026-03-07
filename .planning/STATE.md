@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 Phase: 4 of 7 (Continuous Learning) -- EXECUTING
 Plan: 0 of 2 in current phase
 Status: Ready to execute
-Last activity: 2026-03-07 - Completed quick task 216: Integrate solve with debt ledger
+Last activity: 2026-03-07 - Completed quick task 217: Build formal proximity index builder and query CLI
 
 Progress: [####......] 43%
 
@@ -88,6 +88,7 @@ None yet.
 | 214 | Add config-audit.cjs + solve wiring + regression test | 2026-03-07 | 23bba53f | Verified | [214-add-bin-config-audit-cjs-to-cross-refere](./quick/214-add-bin-config-audit-cjs-to-cross-refere/) |
 | 215 | Add observe→solve auto-pipe | 2026-03-07 | 16d0c7fe | Verified | [215-add-observe-solve-auto-pipe-route-select](./quick/215-add-observe-solve-auto-pipe-route-select/) |
 | 216 | Integrate solve with debt ledger | 2026-03-07 | 4f1f898b | Verified | [216-integrate-solve-with-debt-ledger-auto-fe](./quick/216-integrate-solve-with-debt-ledger-auto-fe/) |
+| 217 | Build formal proximity index builder and query CLI | 2026-03-07 | 6081bcfe | Pending | [217-build-formal-proximity-index-builder-and](./quick/217-build-formal-proximity-index-builder-and/) |
 
 ## Session Continuity
 
