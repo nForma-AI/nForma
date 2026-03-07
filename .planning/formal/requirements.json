@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-07T16:47:48.686Z",
-  "content_hash": "4dce8cd1850f2ded",
+  "aggregated_at": "2026-03-07T17:23:21.517Z",
+  "content_hash": "f58f29cfa6d12f57",
   "schema_version": "1",
   "requirements": [
     {
@@ -3767,6 +3767,18 @@
       }
     },
     {
+      "id": "VERIFY-05",
+      "text": "Planner agent includes a System Integration Awareness section that requires wiring tasks for new artifacts, and verifier agent includes a dedicated Orphaned Producer Check step (Step 5.5) that flags new files with no system-level consumer as verification gaps.",
+      "category": "Testing & Quality",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Plans could create new artifacts (bin/ scripts, hooks, workflows) with tests but no system-level consumer, leaving orphaned producers in the codebase. This requirement ensures planners explicitly plan wiring tasks and verifiers catch orphaned producers as first-class gaps.",
+      "provenance": {
+        "source_file": ".planning/quick/211-add-wiring-in-checks-to-planner-and-veri/211-PLAN.md",
+        "milestone": "quick-211"
+      }
+    },
+    {
       "id": "VIS-01",
       "text": "`/nf:health` surfaces W008 warning when a quorum slot has ≥3 failures recorded in `quorum-failures.json`",
       "category": "Observability & Diagnostics",
@@ -3918,5 +3930,5 @@
       ]
     }
   ],
-  "frozen_at": "2026-03-07T16:47:48.687Z"
+  "frozen_at": "2026-03-07T17:23:21.517Z"
 }
