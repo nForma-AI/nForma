@@ -90,7 +90,7 @@ None yet.
 | 216 | Integrate solve with debt ledger | 2026-03-07 | 4f1f898b | Verified | [216-integrate-solve-with-debt-ledger-auto-fe](./quick/216-integrate-solve-with-debt-ledger-auto-fe/) |
 | 217 | Build formal proximity index builder and query CLI | 2026-03-07 | 2bfa067d | Verified | [217-build-formal-proximity-index-builder-and](./quick/217-build-formal-proximity-index-builder-and/) |
 | 218 | Build git history evidence extractor with commit classification and TLA+ cross-referencing | 2026-03-07 | 5ff2724c | Verified | [218-build-git-history-evidence-extractor-wit](./quick/218-build-git-history-evidence-extractor-wit/) |
-| 219 | Wire nf:health diagnostics into nf:observe as nf-self source type | 2026-03-07 | ea645d56 | Pending | [219-wire-nf-health-diagnostics-into-nf-obser](./quick/219-wire-nf-health-diagnostics-into-nf-obser/) |
+| 219 | Wire nf:health diagnostics into nf:observe as nf-self source type | 2026-03-07 | ea645d56 | Verified | [219-wire-nf-health-diagnostics-into-nf-obser](./quick/219-wire-nf-health-diagnostics-into-nf-obser/) |
 
 ## Session Continuity
 
