@@ -40,6 +40,18 @@ function findSecrets() {
   return null;
 }
 
+// Locate memory-store.cjs — try installed global path first, then local dev path.
+function findMemoryStore() {
+  const candidates = [
+    path.join(os.homedir(), '.claude', 'nf-bin', 'memory-store.cjs'),
+    path.join(__dirname, '..', 'bin', 'memory-store.cjs'),
+  ];
+  for (const p of candidates) {
+    try { return require(p); } catch (_) {}
+  }
+  return null;
+}
+
 // ─── State reminder parser ──────────────────────────────────────────────────
 
 /**
@@ -147,6 +159,28 @@ function parseStateForReminder(stateContent) {
     }
   } catch (_) {}
 
+  // Memory reminder injection (MEMP-02)
+  try {
+    const memStore = findMemoryStore();
+    if (memStore && memStore.generateSessionReminder) {
+      const hasTelemetry = _contextPieces.some(p => p.includes('Telemetry alert'));
+      if (hasTelemetry && memStore.countEntries) {
+        // Lower priority — shorten to one-liner when telemetry alert is present
+        const dCount = memStore.countEntries(_hookCwd, 'decisions');
+        const eCount = memStore.countEntries(_hookCwd, 'errors');
+        const qCount = memStore.countEntries(_hookCwd, 'quorum');
+        if (dCount > 0 || eCount > 0 || qCount > 0) {
+          _contextPieces.push('Memory available: ' + dCount + ' decisions, ' + eCount + ' errors, ' + qCount + ' quorum entries. Query: node bin/memory-store.cjs query-decisions --last 5');
+        }
+      } else {
+        const reminder = memStore.generateSessionReminder(_hookCwd);
+        if (reminder) {
+          _contextPieces.push(reminder);
+        }
+      }
+    }
+  } catch (_) {}
+
   // Write combined additionalContext output (once)
   if (_contextPieces.length > 0) {
     process.stdout.write(JSON.stringify({
@@ -182,4 +216,5 @@ function parseStateForReminder(stateContent) {
 if (typeof module !== 'undefined') {
   module.exports = module.exports || {};
   module.exports.parseStateForReminder = parseStateForReminder;
+  module.exports.findMemoryStore = findMemoryStore;
 }
