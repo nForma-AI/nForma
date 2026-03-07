@@ -46,7 +46,7 @@ None — clean milestone boundary.
 | 198 | Implement ECC best practices: post-edit auto-format hook, console.log guard on Stop, and modular .claude/rules/ directory | 2026-03-06 | 1bd37864 | Verified | [198-implement-ecc-best-practices-post-edit-a](./quick/198-implement-ecc-best-practices-post-edit-a/) |
 | 199 | Consolidate nf:solve baseline diagnostic into a single unified table | 2026-03-06 | 08883451 | Pending | [199-consolidate-nf-solve-baseline-diagnostic](./quick/199-consolidate-nf-solve-baseline-diagnostic/) |
 | 200 | Verify OBS-09..12 code conformance and F->T test coverage | 2026-03-06 | ae9e1ecb | Verified | [200-verify-obs-09-12-code-conformance-and-f-t-test](./quick/200-verify-obs-09-12-code-conformance-and-f-t-test/) |
-| 201 | Survey code for producer-without-consumer lone features not wired into top-level skills | 2026-03-07 | 60377297 | Pending | [201-survey-code-for-producer-without-consume](./quick/201-survey-code-for-producer-without-consume/) |
+| 201 | Survey code for producer-without-consumer lone features not wired into top-level skills | 2026-03-07 | aa725efc | Verified | [201-survey-code-for-producer-without-consume](./quick/201-survey-code-for-producer-without-consume/) |
 
 ## Session Continuity
 
