@@ -3148,17 +3148,88 @@ function main() {
     process.stderr.write(TAG + ' WARNING: could not write solve-state.json: ' + e.message + '\n');
   }
 
+  // Pre-compute both outputs for session persistence (avoid redundant formatting)
+  const reportText = formatReport(iterations, finalResidual, converged);
+  const jsonText = JSON.stringify(formatJSON(iterations, finalResidual, converged), null, 2);
+
+  // Persist session summary before stdout/exit
+  persistSessionSummary(reportText, jsonText, converged, iterations);
+
   if (jsonMode) {
-    process.stdout.write(
-      JSON.stringify(formatJSON(iterations, finalResidual, converged), null, 2) +
-        '\n'
-    );
+    process.stdout.write(jsonText + '\n');
   } else {
-    process.stdout.write(formatReport(iterations, finalResidual, converged));
+    process.stdout.write(reportText);
   }
 
   // Exit with non-zero if residual > 0 (signals gaps remain)
   process.exit(finalResidual.total > 0 ? 1 : 0);
+}
+
+// ── Session Persistence ──────────────────────────────────────────────────────
+
+const MAX_SESSION_FILES = 20;
+
+/**
+ * Persist a timestamped session summary to disk.
+ * Accepts pre-computed strings to avoid redundant formatting calls.
+ * @param {string} reportText - Human-readable report from formatReport()
+ * @param {string} jsonText - JSON string from formatJSON()
+ * @param {boolean} converged - Whether the solver converged
+ * @param {Array} iterations - Array of iteration objects with actions
+ * @param {string} [sessionsDir] - Override directory (for testing)
+ */
+function persistSessionSummary(reportText, jsonText, converged, iterations, sessionsDir) {
+  try {
+    const dir = sessionsDir || path.join(ROOT, '.planning', 'formal', 'solve-sessions');
+    fs.mkdirSync(dir, { recursive: true });
+
+    const now = new Date();
+    const ts = now.toISOString().replace(/:/g, '-').replace(/\.\d+Z$/, 'Z');
+    const filename = 'solve-session-' + ts + '.md';
+
+    // Build actions section
+    let actionsContent = '';
+    for (let i = 0; i < iterations.length; i++) {
+      const iter = iterations[i];
+      const actions = iter.actions || [];
+      actionsContent += '### Iteration ' + (i + 1) + '\n\n';
+      if (actions.length === 0) {
+        actionsContent += '_No auto-close actions taken._\n\n';
+      } else {
+        for (const a of actions) {
+          actionsContent += '- ' + a + '\n';
+        }
+        actionsContent += '\n';
+      }
+    }
+
+    const content =
+      '# nf-solve Session Summary\n\n' +
+      '**Timestamp:** ' + now.toISOString() + '\n' +
+      '**Converged:** ' + (converged ? 'Yes' : 'No') + '\n' +
+      '**Iterations:** ' + iterations.length + '\n\n' +
+      '## Residual Vector\n\n' +
+      reportText + '\n\n' +
+      '## Machine State\n\n' +
+      '```json\n' + jsonText + '\n```\n\n' +
+      '## Actions Taken\n\n' +
+      actionsContent;
+
+    fs.writeFileSync(path.join(dir, filename), content);
+
+    // Prune old sessions — keep only the newest MAX_SESSION_FILES
+    const files = fs.readdirSync(dir)
+      .filter(f => f.startsWith('solve-session-') && f.endsWith('.md'))
+      .sort();
+    if (files.length > MAX_SESSION_FILES) {
+      const toDelete = files.slice(0, files.length - MAX_SESSION_FILES);
+      for (const f of toDelete) {
+        try { fs.unlinkSync(path.join(dir, f)); } catch (_) { /* ignore */ }
+      }
+    }
+  } catch (e) {
+    process.stderr.write(TAG + ' WARNING: could not write session summary: ' + e.message + '\n');
+  }
 }
 
 // ── Exports (for testing) ────────────────────────────────────────────────────
@@ -3191,6 +3262,7 @@ module.exports = {
   assembleReverseCandidates,
   classifyCandidate,
   crossReferenceFormalCoverage,
+  persistSessionSummary,
 };
 
 // ── Entry point ──────────────────────────────────────────────────────────────

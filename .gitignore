@@ -84,6 +84,9 @@ states/
 # Alloy solver output directories (receipt.json, solution-*.md)
 .planning/formal/alloy/*/
 
+# Solve session summaries (local diagnostic artifacts, pruned to 20)
+.planning/formal/solve-sessions/
+
 # Generated formal-test-sync stubs (regenerated on demand)
 .planning/formal/generated-stubs/
 
