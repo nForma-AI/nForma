@@ -110,6 +110,28 @@ Grand total:                     N
 
 Health status: GREEN (0), YELLOW (1-3), RED (4+), or UNKNOWN (error).
 
+### Git Churn Heatmap
+
+Run git heatmap analysis to identify files with high recent churn:
+
+```bash
+node bin/git-heatmap.cjs --json 2>/dev/null || true
+```
+
+Produces a ranked list of files by commit frequency and recency-weighted churn. Files at the top of the heatmap are likely candidates for the current issue. Feed heatmap results into the diagnostic context for targeted investigation.
+
+### Issue Classification (operational priority ranking)
+
+Run the issue classifier to rank operational issues by severity from telemetry data:
+
+```bash
+node bin/issue-classifier.cjs --json 2>/dev/null || true
+```
+
+Parse the JSON output. If issues are found, log: `"Issue classifier: {count} operational issues ranked — {critical} critical, {warning} warnings"`
+
+The classifier reads from telemetry data (produced by telemetry-collector.cjs) and surfaces issues that may affect solve cycle reliability. Critical issues should be flagged in the diagnostic output but do NOT block remediation (fail-open).
+
 ## Step 2: Report-Only Gate
 
 If `--report-only` flag was passed:
