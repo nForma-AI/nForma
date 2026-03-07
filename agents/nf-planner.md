@@ -241,7 +241,7 @@ When a plan creates NEW artifacts (bin/ scripts, hooks, data files, workflows), 
 **For each new artifact, answer:**
 1. **Who calls it?** — What existing script, workflow, or command will invoke this? (e.g., `nf-solve.cjs` calls it via `spawnTool()`, or a workflow step references it)
 2. **How is it called?** — What's the integration mechanism? (e.g., `require()`, `spawnTool()`, `@file` reference in a .md workflow)
-3. **What if nobody calls it?** — If no existing consumer needs it, the plan MUST include a task to wire it in. An artifact with tests but no consumer is an orphaned producer.
+3. **What if nobody calls it?** — If no existing system-level consumer needs it, the plan MUST include a task to wire it in. An artifact with tests but no system-level consumer is an orphaned producer.
 
 **Rule:** If a plan creates a new bin/ script or hook, it MUST either:
 - Include a task that wires it into an existing consumer (with specific `grep` verification), OR
