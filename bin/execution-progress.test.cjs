@@ -204,11 +204,11 @@ describe('execution-progress', () => {
       });
 
       const filePath = getProgressPath(tmpDir);
-      const before = fs.readFileSync(filePath, 'utf8');
+      const contentBefore = fs.readFileSync(filePath, 'utf8');
       getStatus(tmpDir);
-      const after = fs.readFileSync(filePath, 'utf8');
+      const contentAfter = fs.readFileSync(filePath, 'utf8');
 
-      assert.equal(after, before);
+      assert.equal(contentAfter, contentBefore);
     });
   });
 
