@@ -131,7 +131,7 @@ v0.30-01 -> v0.30-02 -> v0.30-03 -> v0.30-04 -> v0.30-05 -> v0.30-06 -> v0.30-07
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| v0.30-01. Dynamic Model Selection | 1/3 | In Progress|  |
+| v0.30-01. Dynamic Model Selection | 2/3 | In Progress|  |
 | v0.30-02. File-Based Execution State | 0/TBD | Not started | - |
 | v0.30-03. Memory Persistence | 0/TBD | Not started | - |
 | v0.30-04. Continuous Learning | 0/TBD | Not started | - |

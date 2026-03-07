@@ -8,9 +8,9 @@
 ### Token Optimization
 
 - [ ] **TOKN-01**: User benefits from automatic compaction at 60-70% context usage when at a clean workflow boundary (phase-complete, verification-done, wave-barrier)
-- [ ] **TOKN-02**: User can configure extended thinking budget scaling per task type — 0 for exploration subagents, reduced for simple reviews, full for architecture decisions
+- [x] **TOKN-02**: User can configure extended thinking budget scaling per task type — 0 for exploration subagents, reduced for simple reviews, full for architecture decisions
 - [x] **TOKN-03**: User can view a token usage dashboard aggregating cost per milestone, phase, and slot from token-usage.jsonl
-- [ ] **TOKN-04**: User benefits from automatic task-complexity-aware model routing — simple tasks routed to cheaper models, complex tasks to Opus based on classification
+- [x] **TOKN-04**: User benefits from automatic task-complexity-aware model routing — simple tasks routed to cheaper models, complex tasks to Opus based on classification
 
 ### Memory Persistence
 
@@ -73,9 +73,9 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | TOKN-01 | v0.30-01 | Pending |
-| TOKN-02 | v0.30-01 | Pending |
+| TOKN-02 | v0.30-01 | Complete |
 | TOKN-03 | v0.30-01 | Complete |
-| TOKN-04 | v0.30-01 | Pending |
+| TOKN-04 | v0.30-01 | Complete |
 | MEMP-01 | v0.30-03 | Pending |
 | MEMP-02 | v0.30-03 | Pending |
 | MEMP-03 | v0.30-03 | Pending |
