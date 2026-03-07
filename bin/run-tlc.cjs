@@ -55,6 +55,8 @@ const SURFACE_MAP = {
   'MCTUINavigation':       'tui-nav',
   'MCinstaller':           'installer',
   'MCDeliberationRevision': 'deliberation-revision',
+  'MCPlanningState':        'planningstate',
+  'MCSessionPersistence':   'sessionpersistence',
 };
 
 /**
@@ -298,7 +300,7 @@ if (require.main === module) {
   // Map config names to their corresponding spec files.
   // Static map for known exceptions; auto-discovery handles the rest.
   const SPEC_MAP = {
-    'MCMCPEnv':              'NFMCPEnv.tla',
+    'MCMCPEnv':              'QGSDMCPEnv.tla',
     'MCsafety':              'NFQuorum.tla',
     'MCliveness':            'NFQuorum.tla',
     'MCNFQuorum':          'NFQuorum_xstate.tla',
@@ -314,31 +316,42 @@ if (require.main === module) {
 
     const tlaDir = path.join(ROOT, '.planning', 'formal', 'tla');
 
-    // Strategy 1: read cfg header for nForma*.tla reference (with or without .tla suffix)
+    // Strategy 1: read cfg header for any .tla file reference (NF*, QGSD*, TUI*, etc.)
     try {
       const cfgContent = fs.readFileSync(path.join(tlaDir, cfgName + '.cfg'), 'utf8');
-      const headerLines = cfgContent.split('\n').slice(0, 5).join('\n');
-      // Match NF*.tla or "for nForma*." (without .tla extension)
-      const refMatch = headerLines.match(/NF\w+\.tla/) || headerLines.match(/NF\w+/);
+      const headerLines = cfgContent.split('\n').slice(0, 10).join('\n');
+      // Match any word*.tla reference in the header (e.g., QGSDStopHook.tla, NFQuorum.tla)
+      const refMatch = headerLines.match(/\b([A-Z]\w+)\.tla\b/);
       if (refMatch) {
-        const candidate = refMatch[0].endsWith('.tla') ? refMatch[0] : refMatch[0] + '.tla';
+        const candidate = refMatch[1] + '.tla';
+        if (fs.existsSync(path.join(tlaDir, candidate))) return candidate;
+      }
+      // Also match "for ModuleName" pattern without .tla suffix (e.g., "model for QGSDKeyManagement.")
+      const forMatch = headerLines.match(/\bfor\s+([A-Z]\w+)/);
+      if (forMatch) {
+        const candidate = forMatch[1] + '.tla';
         if (fs.existsSync(path.join(tlaDir, candidate))) return candidate;
       }
     } catch (_) { /* fall through */ }
 
-    // Strategy 2: naming convention — strip MC prefix, normalize hyphens, find matching NF*.tla
+    // Strategy 2: naming convention — strip MC prefix, search NF*, QGSD*, and bare names
     const stripped = cfgName.replace(/^MC/, '').toLowerCase().replace(/-/g, '');
     try {
       const allTla = fs.readdirSync(tlaDir).filter(f => f.endsWith('.tla') && !f.includes('TTrace'));
-      const nfFiles = allTla.filter(f => f.startsWith('NF'));
       const normalize = (s) => s.toLowerCase().replace(/-/g, '');
-      // Exact match against nForma-prefixed files
-      const match = nfFiles.find(f => normalize(f.replace('NF', '').replace('.tla', '')) === stripped);
-      if (match) return match;
-      // Fuzzy substring match against nForma-prefixed files
-      const fuzzy = nfFiles.find(f => normalize(f).includes(stripped));
-      if (fuzzy) return fuzzy;
-      // Fallback: check non-nForma-prefixed files (exact match on stripped name)
+      // 2a: NF-prefixed files (exact then fuzzy)
+      const nfFiles = allTla.filter(f => f.startsWith('NF'));
+      const nfMatch = nfFiles.find(f => normalize(f.replace('NF', '').replace('.tla', '')) === stripped);
+      if (nfMatch) return nfMatch;
+      const nfFuzzy = nfFiles.find(f => normalize(f).includes(stripped));
+      if (nfFuzzy) return nfFuzzy;
+      // 2b: QGSD-prefixed files (exact then fuzzy)
+      const qgsdFiles = allTla.filter(f => f.startsWith('QGSD'));
+      const qgsdMatch = qgsdFiles.find(f => normalize(f.replace('QGSD', '').replace('.tla', '')) === stripped);
+      if (qgsdMatch) return qgsdMatch;
+      const qgsdFuzzy = qgsdFiles.find(f => normalize(f).includes(stripped));
+      if (qgsdFuzzy) return qgsdFuzzy;
+      // 2c: Non-prefixed files (exact match on stripped name)
       const nonPrefixed = allTla.find(f => normalize(f.replace('.tla', '')) === stripped);
       if (nonPrefixed) return nonPrefixed;
     } catch (_) { /* fall through */ }

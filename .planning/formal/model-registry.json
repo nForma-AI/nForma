@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-06T21:57:54.519Z",
+  "last_sync": "2026-03-07T10:39:39.300Z",
   "search_dirs": [],
   "models": {
     ".planning/formal/alloy/account-pool-structure.als": {
@@ -71,8 +71,8 @@
       "layer_maturity": 1
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 3080,
-      "last_updated": "2026-03-06T21:57:54.519Z",
+      "version": 3765,
+      "last_updated": "2026-03-07T10:39:39.299Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -159,8 +159,8 @@
       "layer_maturity": 0
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 3080,
-      "last_updated": "2026-03-06T21:57:54.519Z",
+      "version": 3763,
+      "last_updated": "2026-03-07T10:39:39.300Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -1318,8 +1318,8 @@
       "layer_maturity": 0
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 1834,
-      "last_updated": "2026-03-06T21:57:54.518Z",
+      "version": 2517,
+      "last_updated": "2026-03-07T10:39:39.297Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -1449,6 +1449,87 @@
       "description": "T->C false-green detection via cross-referenced coverage",
       "requirements": [
         "SOLVE-10"
+      ],
+      "source_layer": "L3",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 0
+    },
+    ".planning/formal/alloy/observability-handlers.als": {
+      "version": 1,
+      "last_updated": "2026-03-06T22:08:44.431Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Observability handler contract: return schema, canonical utility module, upstream comparison, error containment",
+      "requirements": [
+        "OBS-09",
+        "OBS-10",
+        "OBS-11",
+        "OBS-12"
+      ],
+      "source_layer": "L3"
+    },
+    ".planning/formal/alloy/evidence-scope-scan.als": {
+      "version": 1,
+      "last_updated": "2026-03-06T22:08:44.431Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Git heatmap evidence production and formal scope scan metadata matching",
+      "requirements": [
+        "EVID-03",
+        "SPEC-05"
+      ],
+      "source_layer": "L3"
+    },
+    ".planning/formal/alloy/code-quality-guardrails.als": {
+      "version": 1,
+      "last_updated": "2026-03-06T22:08:44.431Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Hook system code-quality guardrails: post-edit format, console.log guard, modular rules",
+      "requirements": [
+        "GUARD-01"
+      ],
+      "source_layer": "L3"
+    },
+    ".planning/formal/tla/QGSDPlanningState.tla": {
+      "version": 1,
+      "last_updated": "2026-03-06T22:08:44.431Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Execute-plan Route C audit chaining and phase-complete ROADMAP.md heading fallback",
+      "requirements": [
+        "STATE-05",
+        "STATE-06"
+      ],
+      "source_layer": "L3"
+    },
+    ".planning/formal/tla/QGSDSessionPersistence.tla": {
+      "version": 1,
+      "last_updated": "2026-03-06T22:08:44.431Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "TUI session persistence across restarts with ID counter restoration",
+      "requirements": [
+        "NAV-04"
+      ],
+      "source_layer": "L3"
+    },
+    ".planning/formal/alloy/observability-handler-arch.als": {
+      "version": 1,
+      "last_updated": "2026-03-07T09:40:16.135Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Observability handler architecture: script inventory, DI contracts, cursor persistence",
+      "requirements": [
+        "OBS-13",
+        "OBS-14",
+        "OBS-15"
       ],
       "source_layer": "L3",
       "gate_maturity": "ADVISORY",

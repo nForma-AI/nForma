@@ -35,6 +35,12 @@
       "xstate_event": null,
       "layer": "L1"
     },
+    "security_sweep": {
+      "source": "nf-prompt.js",
+      "xstate_event": null,
+      "layer": "L1",
+      "classification": "observability"
+    },
     "undefined": {
       "source": "unknown",
       "classification": "instrumentation_gap",
