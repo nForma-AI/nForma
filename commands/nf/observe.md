@@ -171,6 +171,28 @@ Sources checked: <list>
 ```
 Stop.
 
+## Step 5b: Run analysis tools
+
+After rendering the observe output, run supplementary analysis tools to enrich the observation context. Each tool is optional — if not found, skip silently (fail-open).
+
+**Observed-behavior FSM derivation:**
+```bash
+node bin/observed-fsm.cjs --json 2>/dev/null || true
+```
+Derives an observed-behavior FSM from trace data. Useful for detecting state-transition anomalies that may correlate with observed issues. If JSON output is valid, log: `"Observed FSM: {state_count} states, {transition_count} transitions derived from traces"`
+
+**Sensitivity sweep feedback:**
+```bash
+node bin/sensitivity-sweep-feedback.cjs 2>/dev/null || true
+```
+Compares empirical true-positive rate with sensitivity sweep predictions. If a deviation is detected, logs a warning that threshold calibration may need updating. This feeds back into the observe loop by surfacing issues with the observation pipeline itself.
+
+**Security sweep:**
+```bash
+node bin/security-sweep.cjs --json 2>/dev/null || true
+```
+Runs a standalone security scan across the codebase. If findings are returned, inject them as additional issues with `source_type: 'internal'` and `severity: 'warning'` into the results array before the "Write to debt ledger" step processes them.
+
 ## Step 6a: Write to debt ledger
 
 Call `writeObservationsToDebt()` from `bin/observe-debt-writer.cjs`:
