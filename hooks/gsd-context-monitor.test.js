@@ -277,6 +277,117 @@ test('no smart compact at non-boundary tool call', () => {
   assert.equal(stdout, '', 'No output at non-boundary tool call');
 });
 
+// ─── Wave barrier and plan_complete boundary tests ─────────────────────────
+
+test('smart compact at wave_barrier boundary', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: true, context_warn_pct: 60 }, smart_compact_threshold_pct: 65, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { parsed } = runHook({
+    context_window: { remaining_percentage: 30 }, // used = 70%
+    tool_name: 'Bash',
+    tool_input: { command: 'node execute-plan.js --wave 2' },
+    cwd: tmpDir,
+  });
+  assert.ok(parsed, 'Should emit output');
+  const ctx = parsed.hookSpecificOutput.additionalContext;
+  assert.ok(ctx.includes('SMART COMPACT SUGGESTION'));
+  assert.ok(ctx.includes('wave_barrier'));
+});
+
+test('smart compact at plan_complete boundary (gsd-tools.cjs SUMMARY)', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: true, context_warn_pct: 60 }, smart_compact_threshold_pct: 65, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { parsed } = runHook({
+    context_window: { remaining_percentage: 30 }, // used = 70%
+    tool_name: 'Bash',
+    tool_input: { command: 'node gsd-tools.cjs commit "docs: SUMMARY.md"' },
+    cwd: tmpDir,
+  });
+  assert.ok(parsed, 'Should emit output');
+  const ctx = parsed.hookSpecificOutput.additionalContext;
+  assert.ok(ctx.includes('SMART COMPACT SUGGESTION'));
+  assert.ok(ctx.includes('plan_complete'));
+});
+
+// ─── Quorum-in-progress lockout tests ────────────────────────────────────────
+
+test('compaction suppressed when quorum-in-progress flag exists', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: true, context_warn_pct: 60 }, smart_compact_threshold_pct: 65, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+  // Create quorum-in-progress flag
+  const claudeDir = path.join(tmpDir, '.claude');
+  fs.mkdirSync(claudeDir, { recursive: true });
+  fs.writeFileSync(path.join(claudeDir, 'quorum-in-progress'), '', 'utf8');
+
+  const { stdout } = runHook({
+    context_window: { remaining_percentage: 30 }, // used = 70%, above threshold
+    tool_name: 'Bash',
+    tool_input: { command: 'node gsd-tools.cjs phase-complete v0.28-03' },
+    cwd: tmpDir,
+  });
+  assert.equal(stdout, '', 'No output when quorum is in progress');
+});
+
+// ─── 65% threshold from config tests ─────────────────────────────────────────
+
+test('compaction triggers at 65% threshold from smart_compact_threshold_pct config', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: true, context_warn_pct: 60 }, smart_compact_threshold_pct: 65, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { parsed } = runHook({
+    context_window: { remaining_percentage: 35 }, // used = 65%, exactly at threshold
+    tool_name: 'Bash',
+    tool_input: { command: 'node gsd-tools.cjs phase-complete v0.28-03' },
+    cwd: tmpDir,
+  });
+  assert.ok(parsed, 'Should emit output at 65% threshold');
+  const ctx = parsed.hookSpecificOutput.additionalContext;
+  assert.ok(ctx.includes('SMART COMPACT SUGGESTION'));
+  assert.ok(ctx.includes('threshold: 65%'));
+});
+
+test('no compaction below 65% threshold', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { smart_compact: { enabled: true, context_warn_pct: 60 }, smart_compact_threshold_pct: 65, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+
+  const { stdout } = runHook({
+    context_window: { remaining_percentage: 36 }, // used = 64%, below 65% threshold
+    tool_name: 'Bash',
+    tool_input: { command: 'node gsd-tools.cjs phase-complete v0.28-03' },
+    cwd: tmpDir,
+  });
+  assert.equal(stdout, '', 'No output below 65% threshold');
+});
+
+// ─── Budget downgrade cooldown integration test ──────────────────────────────
+
+test('budget downgrade skipped when cooldown is active', () => {
+  const tmpDir = makeTmpDir();
+  writeNfConfig(tmpDir, { budget: { session_limit_tokens: 200000, warn_pct: 60, downgrade_pct: 85 }, context_monitor: { warn_pct: 99, critical_pct: 100 } });
+  // Create .planning/config.json with recent downgrade_history
+  const planningDir = path.join(tmpDir, '.planning');
+  fs.mkdirSync(planningDir, { recursive: true });
+  fs.writeFileSync(path.join(planningDir, 'config.json'), JSON.stringify({
+    model_profile: 'quality',
+    downgrade_history: [{ ts: new Date().toISOString(), from: 'balanced', to: 'budget' }],
+  }), 'utf8');
+
+  const { parsed } = runHook({
+    context_window: { remaining_percentage: 15 }, // used = 85% => triggers downgrade threshold
+    cwd: tmpDir,
+  });
+  // With cooldown active, shouldDowngrade should be false, but shouldWarn may still fire
+  if (parsed) {
+    const ctx = parsed.hookSpecificOutput.additionalContext;
+    assert.ok(!ctx.includes('BUDGET ALERT'), 'Should NOT show BUDGET ALERT when cooldown is active');
+  }
+  // Also verify config was NOT modified (no downgrade happened)
+  const cfg = JSON.parse(fs.readFileSync(path.join(planningDir, 'config.json'), 'utf8'));
+  assert.equal(cfg.model_profile, 'quality', 'Profile should not change during cooldown');
+});
+
 test('double loadConfig bug is fixed: hook runs without error', () => {
   const { exitCode } = runHook({
     context_window: { remaining_percentage: 50 },
