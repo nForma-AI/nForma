@@ -70,7 +70,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User's sub-task progress within a plan is tracked in a file (not just conversation context) so that after compaction the agent resumes at the correct step rather than restarting from the beginning
   2. The agent loop reaches a terminal state (success, cap exhausted, or unrecoverable) on every execution run -- file-based state tracking does not introduce infinite loops or stalls (formal: EventuallyTerminates)
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] v0.30-02-01-PLAN.md — File-based execution progress tracking with compaction injection and termination guards
 
 #### Phase v0.30-03: Memory Persistence
 **Goal**: Users retain accumulated knowledge (decisions, error fixes, quorum rationale) across compaction and sessions without manual re-entry
@@ -132,7 +134,7 @@ v0.30-01 -> v0.30-02 -> v0.30-03 -> v0.30-04 -> v0.30-05 -> v0.30-06 -> v0.30-07
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | v0.30-01. Dynamic Model Selection | 3/3 | Complete    | 2026-03-07 |
-| v0.30-02. File-Based Execution State | 0/TBD | Not started | - |
+| v0.30-02. File-Based Execution State | 0/1 | Not started | - |
 | v0.30-03. Memory Persistence | 0/TBD | Not started | - |
 | v0.30-04. Continuous Learning | 0/TBD | Not started | - |
 | v0.30-05. Continuous Verification | 0/TBD | Not started | - |
