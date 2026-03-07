@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-06 after v0.29)
 Phase: None (between milestones)
 Plan: N/A
 Status: Milestone v0.29 complete
-Last activity: 2026-03-07 - Completed quick task 201: Survey code for producer-without-consumer lone features not wired into top-level skills
+Last activity: 2026-03-07 - Completed quick task 202: Wire gate-a/b/c, cross-layer-dashboard, and hazard-model into nf:solve remediation flow
 
 Progress: Milestone complete
 
@@ -47,6 +47,7 @@ None — clean milestone boundary.
 | 199 | Consolidate nf:solve baseline diagnostic into a single unified table | 2026-03-06 | 08883451 | Pending | [199-consolidate-nf-solve-baseline-diagnostic](./quick/199-consolidate-nf-solve-baseline-diagnostic/) |
 | 200 | Verify OBS-09..12 code conformance and F->T test coverage | 2026-03-06 | ae9e1ecb | Verified | [200-verify-obs-09-12-code-conformance-and-f-t-test](./quick/200-verify-obs-09-12-code-conformance-and-f-t-test/) |
 | 201 | Survey code for producer-without-consumer lone features not wired into top-level skills | 2026-03-07 | aa725efc | Verified | [201-survey-code-for-producer-without-consume](./quick/201-survey-code-for-producer-without-consume/) |
+| 202 | Wire gate-a/b/c, cross-layer-dashboard, and hazard-model into nf:solve remediation flow | 2026-03-07 | 4a5cdc5a | Pending | [202-wire-gate-a-b-c-cross-layer-dashboard-an](./quick/202-wire-gate-a-b-c-cross-layer-dashboard-an/) |
 
 ## Session Continuity
 
