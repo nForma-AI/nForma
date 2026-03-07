@@ -6,6 +6,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- **BREAKING: checkpoint:human-verify quorum gate** — Auto-mode no longer auto-approves `checkpoint:human-verify` tasks. Instead, a quorum consensus gate requires 100% APPROVE from all available workers before proceeding. Falls back to user escalation on any BLOCK vote or quorum unavailability. Affects `core/workflows/execute-phase.md`, `agents/nf-executor.md`, `core/references/checkpoints.md`.
+
 ## [0.2.1] - 2026-03-03
 
 ### Fixed
