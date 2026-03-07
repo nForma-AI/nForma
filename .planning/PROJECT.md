@@ -22,6 +22,8 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - Git worktree isolation for parallel executor subagents and cascade method
 - Iterative retrieval pattern for quorum slot workers with context stack management
 
+**Phase v0.30-01 shipped (2026-03-07):** Dynamic Model Selection — task classifier (trivial/simple/moderate/complex), TIER_SLOT_MAP slot filtering in quorum dispatch, thinking_budget_scaling nested config, token dashboard CLI (/nf:tokens), 65% smart compaction with quorum lockout, anti-oscillation cooldown. 3 plans, 9 commits, 88 tests.
+
 ## Shipped: v0.29 — Three-Layer Formal Verification Architecture (2026-03-06)
 
 **Goal:** Build a grounded formal verification chain — observed code behavior → structured operational model → analytical model for risk, failure reasoning, test generation, and design evaluation — with measurable cross-layer alignment gates that prevent model drift from reality.
