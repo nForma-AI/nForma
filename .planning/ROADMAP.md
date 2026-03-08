@@ -126,7 +126,10 @@ Plans:
   1. `.claude/rules/` files contain relevance tags (tool names, file globs, keywords) and only matching rules load per turn -- user can observe measurably fewer tokens consumed per turn when working in a narrow domain (e.g., only hook rules load during hook editing)
   2. Config values written to nf.json are normalized through an adapter layer -- boolean strings ("true"/"false") are stored as booleans, nested vs flat key formats are bidirectionally converted, and profile names are case-normalized so internal types never leak to config files
   3. Quorum debates in `.planning/quorum/debates/` follow a consistent template (Context, Question, Positions, Decision, Consequences) with frontmatter that downstream tools can parse programmatically
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] v0.31-03-01-PLAN.md — Rule sharding via paths: frontmatter, debate template and formatter
+- [ ] v0.31-03-02-PLAN.md — Bidirectional config adapter in config-loader.js
 
 ### Progress
 
@@ -138,4 +141,4 @@ v0.31-01 -> v0.31-02 -> v0.31-03
 |-------|----------------|--------|-----------|
 | v0.31-01. Hook Infrastructure Hardening | 2/2 | Complete    | 2026-03-08 |
 | v0.31-02. Runtime Safety Boundaries | 2/3 | Complete    | 2026-03-08 |
-| v0.31-03. Config & Governance DX | 0/TBD | Not started | - |
+| v0.31-03. Config & Governance DX | 0/2 | Not started | - |
