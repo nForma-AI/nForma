@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 Phase: 3 of 3 (Config & Governance DX)
 Plan: 2 of 2 in current phase
 Status: Phase v0.31-03 complete -- milestone v0.31 complete
-Last activity: 2026-03-08 - Completed quick task 225: Centralize PRISM invocation in run-formal-check.cjs via delegation to run-prism.cjs
+Last activity: 2026-03-08 - Completed quick task 224: Add formal grounding step to list-phase-assumptions workflow
 
 Progress: [##########] 100%
 
@@ -88,6 +88,7 @@ None yet.
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 222 | use those insights to recommend improvements to nforma | 2026-03-08 | 3d644a39 | Verified | [222-use-those-insights-to-recommend-improvem](./quick/222-use-those-insights-to-recommend-improvem/) |
+| 224 | Add formal grounding step to list-phase-assumptions workflow | 2026-03-08 | pending | Pending | [224-add-formal-grounding-step-to-list-phase-](./quick/224-add-formal-grounding-step-to-list-phase-/) |
 | 225 | Centralize PRISM invocation in run-formal-check.cjs via delegation to run-prism.cjs | 2026-03-08 | 941af210 | Verified | [225-centralize-prism-invocation-in-run-forma](./quick/225-centralize-prism-invocation-in-run-forma/) |
 
 ## Session Continuity

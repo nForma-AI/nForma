@@ -15,7 +15,9 @@ must_haves:
     - "Workflow reads formal artifacts (REQUIREMENTS.md, spec/, traceability-matrix.json, unit-test-coverage.json, requirements.json, model-registry.json) before analyzing assumptions"
     - "A Formal Grounding section appears before the 5 assumption areas in the output template"
     - "Each assumption in the 5 areas is tagged as grounded or inferred"
-    - "All phase requirement IDs are resolved to full text from REQUIREMENTS.md"
+    - "All phase requirement IDs are resolved to full text from REQUIREMENTS.md (or gracefully noted as empty when phase has no Requirements line)"
+    - "validate_phase 'Continue to' target updated from analyze_phase to ground_in_artifacts"
+    - "Tier 3 requirements.json lookup uses JSON-aware parsing (node -e or jq), not literal grep"
   artifacts:
     - path: "~/.claude/nf/workflows/list-phase-assumptions.md"
       provides: "Enhanced list-phase-assumptions workflow with formal grounding step"
@@ -58,7 +60,7 @@ Insert a new step `ground_in_artifacts` between `validate_phase` and `analyze_ph
 
 The new step must:
 
-1. **Extract phase requirement IDs** from the roadmap's `Requirements:` line for the validated phase (e.g., `[HOOK-01, HOOK-02]` becomes a list of IDs).
+1. **Extract phase requirement IDs** from the roadmap's `Requirements:` line for the validated phase (e.g., `[HOOK-01, HOOK-02]` becomes a list of IDs). **Graceful degradation:** If the phase has no `Requirements:` line (or the line is empty), set the requirement ID list to empty, log "No requirement IDs found for this phase" to the grounding data, and proceed — all Tier 1-3 reads that depend on requirement IDs are skipped, but domain-keyword-based reads (spec directory scan, test coverage, model registry) still execute. The workflow must never block on a missing Requirements line.
 
 2. **Tier 1 reads:**
    - Read `.planning/REQUIREMENTS.md` and extract the exact requirement text for each phase requirement ID.
@@ -69,7 +71,7 @@ The new step must:
    - Read `.planning/formal/unit-test-coverage.json` and extract test coverage for files/modules in the phase's domain.
 
 4. **Tier 3 reads:**
-   - Grep `.planning/formal/requirements.json` for the phase's requirement IDs only — extract category, status, any linked invariants.
+   - Parse `.planning/formal/requirements.json` using JSON-aware lookup (e.g., `node -e` with `JSON.parse` or `jq`) for the phase's requirement IDs — extract category, status, any linked invariants. Do NOT use literal grep on JSON, as it can produce partial/malformed matches.
    - Read `.planning/formal/model-registry.json` and check if any Alloy/TLA+/PRISM models reference the phase's requirements.
 
 5. **Collect all results** into a grounding data structure that flows into analyze_phase.
@@ -95,7 +97,10 @@ All reads use fail-open pattern: if an artifact is missing or unreadable, note "
 - Traceability gaps surfaced
 - Each assumption tagged as grounded or inferred
 
-**Do NOT change:** `validate_phase`, `gather_feedback`, `offer_next` steps. Still no file output — purely conversational.
+**Update `validate_phase` step:**
+- Change the "Continue to" target from `analyze_phase` to `ground_in_artifacts`, since the new step is inserted between them.
+
+**Do NOT change:** `gather_feedback`, `offer_next` steps. Still no file output — purely conversational.
   </action>
   <verify>
 Read the updated workflow file and confirm:
@@ -104,7 +109,10 @@ Read the updated workflow file and confirm:
 3. `analyze_phase` references grounding data and mentions grounded/inferred tagging
 4. `present_assumptions` template includes `### Formal Grounding` section before the 5 areas
 5. `success_criteria` includes the 4 new criteria
-6. `validate_phase`, `gather_feedback`, `offer_next` are unchanged
+6. `validate_phase` "Continue to" target updated to `ground_in_artifacts`
+7. `gather_feedback`, `offer_next` are unchanged
+8. Tier 3 requirements.json lookup uses JSON-aware parsing (not literal grep)
+9. Missing `Requirements:` line is handled gracefully (empty ID list, inference-only proceeds)
   </verify>
   <done>
 The list-phase-assumptions workflow has a ground_in_artifacts step that reads 6 formal artifacts across 3 tiers, the analyze_phase step tags assumptions as grounded vs inferred, the present_assumptions template shows a Formal Grounding section before the 5 assumption areas, and success_criteria includes requirement resolution, spec identification, traceability gaps, and grounded/inferred tagging.
@@ -125,7 +133,10 @@ The list-phase-assumptions workflow has a ground_in_artifacts step that reads 6 
 - Formal Grounding section appears in output template before the 5 assumption areas
 - Each assumption tagged as grounded or inferred
 - All phase requirement IDs resolved to full text
-- Existing workflow steps (validate_phase, gather_feedback, offer_next) unchanged
+- validate_phase "Continue to" target updated to ground_in_artifacts
+- Existing workflow steps (gather_feedback, offer_next) unchanged
+- Phases with no Requirements: line degrade gracefully (inference-only analysis proceeds)
+- Tier 3 requirements.json lookup uses JSON-aware parsing, not literal grep
 </success_criteria>
 
 <output>
