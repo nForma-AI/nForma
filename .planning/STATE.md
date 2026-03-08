@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** Phase v0.30-04: Continuous Learning
+**Current focus:** Phase v0.30-05: Continuous Verification
 
 ## Current Position
 
-Phase: 4 of 7 (Continuous Learning) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase Complete
-Last activity: 2026-03-08 - Completed v0.30-04-02: Hook Wiring + Install
+Phase: 5 of 7 (Continuous Verification) -- IN PROGRESS
+Plan: 1 of 2 in current phase
+Status: Executing
+Last activity: 2026-03-08 - Completed v0.30-05-01-PLAN.md
 
-Progress: [######....] 57%
+Progress: [#######...] 64%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 4min
 - Total execution time: 0.5 hours
 
@@ -37,6 +37,7 @@ Progress: [######....] 57%
 
 *Updated after each plan completion*
 | Phase v0.30-04 P01 | 4min | 2 tasks | 4 files |
+| Phase v0.30-05 P01 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,10 @@ Recent decisions affecting current work:
 - [v0.30-03-02]: hooks/dist/ is gitignored so install sync has no git commit (deployment artifact only)
 - [Phase v0.30-04]: Weekly decay 0.05/week with 0.1 floor for failure confidence scoring
 - [Phase v0.30-04]: Correction detection requires 2+ indicator matches to reduce false positives
+- [v0.30-05-01]: Used node:test runner for inline check execution, matching project test:ci convention
+- [v0.30-05-01]: Boundary triggers on 5+ file accumulation, test file edits, or config file edits
+- [v0.30-05-01]: Fail-open on all error paths: timeouts, missing tools, evaluation errors return pass=true
+- [v0.30-05-01]: Dual-path require pattern for continuous-verify.cjs resolution in execution-progress.cjs
 
 ### Pending Todos
 
@@ -95,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-07
-Stopped at: Completed v0.30-03-02-PLAN.md (Phase v0.30-03 complete)
+Last session: 2026-03-08
+Stopped at: Completed v0.30-05-01-PLAN.md
 Resume file: None

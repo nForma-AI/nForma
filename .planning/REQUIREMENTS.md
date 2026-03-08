@@ -29,8 +29,8 @@
 ### Verification Loops
 
 - [x] **VERF-01**: User's sub-task progress within a plan is tracked in file-based state so mid-execution compaction does not lose position
-- [ ] **VERF-02**: User benefits from continuous test verification during execution — relevant tests run after each code change via PostToolUse, not just at phase end
-- [ ] **VERF-03**: User benefits from machine-verifiable completion conditions — "done" defined as checkable conditions (tests pass, linter clean, type-check passes) rather than LLM judgment
+- [x] **VERF-02**: User benefits from continuous test verification during execution — relevant tests run after each code change via PostToolUse, not just at phase end
+- [x] **VERF-03**: User benefits from machine-verifiable completion conditions — "done" defined as checkable conditions (tests pass, linter clean, type-check passes) rather than LLM judgment
 
 ### Parallelization
 
@@ -85,8 +85,8 @@
 | LRNG-03 | v0.30-04 | Complete |
 | LRNG-04 | v0.30-04 | Complete |
 | VERF-01 | v0.30-02 | Complete |
-| VERF-02 | v0.30-05 | Pending |
-| VERF-03 | v0.30-05 | Pending |
+| VERF-02 | v0.30-05 | Complete |
+| VERF-03 | v0.30-05 | Complete |
 | PARA-01 | v0.30-07 | Pending |
 | PARA-02 | v0.30-07 | Pending |
 | ORCH-01 | v0.30-06 | Pending |
