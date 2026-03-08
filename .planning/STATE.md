@@ -5,40 +5,35 @@
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** Milestone v0.31 — Ruflo-Inspired Hardening
+**Current focus:** Phase v0.31-01 — Hook Infrastructure Hardening
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-08 — Milestone v0.31 started
+Phase: 1 of 3 (Hook Infrastructure Hardening)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-03-08 — Roadmap created for v0.31
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 4min
-- Total execution time: 0.5 hours
+- Total plans completed: 0 (v0.31)
+- Average duration: --
+- Total execution time: 0 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| v0.30-01 | 3 | 10min | 3min |
-| v0.30-02 | 1 | 4min | 4min |
-| v0.30-03 | 2 | 15min | 8min |
+| - | - | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 4min, 4min, 3min, 12min
+- Last 5 plans: (from v0.30) 3min, 4min, 4min, 5min, 4min
 - Trend: Stable
 
 *Updated after each plan completion*
-| Phase v0.30-04 P01 | 4min | 2 tasks | 4 files |
-| Phase v0.30-05 P01 | 3min | 2 tasks | 5 files |
-| Phase v0.30-05 P02 | 4min | 2 tasks | 5 files |
-| Phase v0.30-06 P01 | 4min | 2 tasks | 5 files |
-| Phase v0.30-06 P02 | 5min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -47,40 +42,11 @@ Last activity: 2026-03-08 — Milestone v0.31 started
 Decisions logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Roadmap]: 7-phase structure ordered by dependency depth and blast radius -- cost control first, parallelization last
-- [Roadmap]: VERF-01 (file-based state) separated into its own phase as foundation for both memory (Phase 3) and verification (Phase 5)
-- [Research]: Zero new npm dependencies -- all patterns build on Node.js built-ins and existing infrastructure
-- [v0.30-01-02]: Hardcoded cost table instead of live pricing to maintain zero-dependency constraint
-- [v0.30-01-02]: Copilot displays 'subscription' instead of '$0.00' to avoid user confusion
-- [v0.30-01-01]: Slot filtering uses TIER_SLOT_MAP with >= 2 slot minimum to preserve quorum diversity
-- [v0.30-01-01]: Classification inserted after DISP-03 sort and before cache check to affect cache key computation
-- [v0.30-01-03]: Compaction threshold defaults to 65% via smart_compact_threshold_pct, separate from smart_compact.context_warn_pct
-- [v0.30-01-03]: Quorum lockout checks .claude/quorum-in-progress file existence before suggesting compaction
-- [v0.30-01-03]: Oscillation detection requires 3+ alternating direction changes within 10 minutes
-- [v0.30-02-01]: Iteration counter only incremented via nf-precompact.js on compaction, not on status checks
-- [v0.30-02-01]: Progress injection capped at 3200 chars to stay within additionalContext token budget
-- [v0.30-02-01]: Pattern A/B orchestrator-level progress tracking deferred; calls target Pattern C main path
-- [v0.30-03-01]: Self-contained path resolution in memory-store.cjs (no planning-paths dependency) for module independence
-- [v0.30-03-01]: Bidirectional substring matching for dedup: hay.includes(needle) || needle.includes(hay)
-- [v0.30-03-01]: Malformed JSONL lines preserved during prune (no silent data loss)
-- [v0.30-03-02]: Memory reminder has lower priority than telemetry alerts -- shortened to one-liner when telemetry present
-- [v0.30-03-02]: Dual-path require pattern reused from findSecrets() for memory-store resolution
-- [v0.30-03-02]: hooks/dist/ is gitignored so install sync has no git commit (deployment artifact only)
-- [Phase v0.30-04]: Weekly decay 0.05/week with 0.1 floor for failure confidence scoring
-- [Phase v0.30-04]: Correction detection requires 2+ indicator matches to reduce false positives
-- [v0.30-05-01]: Used node:test runner for inline check execution, matching project test:ci convention
-- [v0.30-05-01]: Boundary triggers on 5+ file accumulation, test file edits, or config file edits
-- [v0.30-05-01]: Fail-open on all error paths: timeouts, missing tools, evaluation errors return pass=true
-- [v0.30-05-01]: Dual-path require pattern for continuous-verify.cjs resolution in execution-progress.cjs
-- [v0.30-05-02]: Verification warnings injected as advisory additionalContext only -- never blocking
-- [v0.30-05-02]: Config kill switch uses flat boolean key continuous_verify_enabled (shallow merge safe)
-- [v0.30-05-02]: done_conditions evaluation in execute-plan.md is advisory -- tasks can complete even if conditions fail
-- [v0.30-06-01]: Keyword-based domain detection with PATH_CATEGORY_MAP for artifact path analysis
-- [v0.30-06-01]: Explicit formal subdirectories (tla/, alloy/, prism/) in DOMAIN_CONFIG.formal.searchDirs for non-recursive readdirSync
-- [v0.30-06-01]: Per-phase entry cap (MAX_ENTRIES_PER_PHASE=10) to prevent unbounded growth
-- [Phase v0.30-06]: Pre-dispatch enrichment architecture: slot workers lack tool access, context injected before dispatch
-- [Phase v0.30-06]: Hook-level injection cap 800 chars vs module-level 2000 chars due to additionalContext contention
-- [Phase v0.30-06]: Config kill switch context_retrieval_enabled default ON (fail-open)
+- [Roadmap]: 3-phase structure -- hook hardening first (foundation), then runtime safety boundaries, then DX improvements
+- [Roadmap]: PRIO-01 and VALID-01 grouped together as both address hook execution reliability
+- [Roadmap]: BRKR-01, LTCY-01, EXEC-01 grouped as runtime safety boundaries (all constrain agent behavior at execution time)
+- [Roadmap]: SHARD-01, ADAPT-01, ADR-01 grouped as config/governance DX (all improve developer experience without changing runtime behavior)
+- [Roadmap]: Phase v0.31-03 can run in parallel with v0.31-02 (both depend only on v0.31-01)
 
 ### Pending Todos
 
@@ -88,29 +54,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- Research flags Phase 6 (Subagent Orchestration) and Phase 7 (Parallelization) as needing deeper research during planning
-- additionalContext token budget contention: multiple injection sources (quorum + memory + verification) must share ~4000 token ceiling
-
-### Quick Tasks Completed
-
-| # | Description | Date | Commit | Status | Directory |
-|---|-------------|------|--------|--------|-----------|
-| 207 | Improve nf:solve to auto-remediate TODO stubs including behavioral strategy | 2026-03-07 | b727a7b3 | Verified | [207-improve-nf-solve-to-auto-remediate-todo-](./quick/207-improve-nf-solve-to-auto-remediate-todo-/) |
-| 210 | Replace checkpoint:human-verify auto-approval with quorum consensus gate (100% APPROVE required) | 2026-03-07 | 0224c258 | Verified | [210-replace-checkpoint-human-verify-auto-app](./quick/210-replace-checkpoint-human-verify-auto-app/) |
-| 211 | Add wiring-in checks to planner and verifier workflows | 2026-03-07 | 369fda5e | Verified | [211-add-wiring-in-checks-to-planner-and-veri](./quick/211-add-wiring-in-checks-to-planner-and-veri/) |
-| 212 | Fix pre-existing hooks-sync issue: add nf-post-edit-format.js and nf-console-guard.js to HOOKS_TO_COPY | 2026-03-07 | 02ed5266 | Verified | [212-fix-pre-existing-hooks-sync-issue-add-nf](./quick/212-fix-pre-existing-hooks-sync-issue-add-nf/) |
-| 213 | Automate TUI asset generation with headless blessed screenshots to SVG | 2026-03-07 | 1c0c4a5e | Verified | [213-automate-tui-asset-generation-with-headl](./quick/213-automate-tui-asset-generation-with-headl/) |
-| 214 | Add config-audit.cjs + solve wiring + regression test | 2026-03-07 | 23bba53f | Verified | [214-add-bin-config-audit-cjs-to-cross-refere](./quick/214-add-bin-config-audit-cjs-to-cross-refere/) |
-| 215 | Add observe→solve auto-pipe | 2026-03-07 | 16d0c7fe | Verified | [215-add-observe-solve-auto-pipe-route-select](./quick/215-add-observe-solve-auto-pipe-route-select/) |
-| 216 | Integrate solve with debt ledger | 2026-03-07 | 4f1f898b | Verified | [216-integrate-solve-with-debt-ledger-auto-fe](./quick/216-integrate-solve-with-debt-ledger-auto-fe/) |
-| 217 | Build formal proximity index builder and query CLI | 2026-03-07 | 2bfa067d | Verified | [217-build-formal-proximity-index-builder-and](./quick/217-build-formal-proximity-index-builder-and/) |
-| 218 | Build git history evidence extractor with commit classification and TLA+ cross-referencing | 2026-03-07 | 5ff2724c | Verified | [218-build-git-history-evidence-extractor-wit](./quick/218-build-git-history-evidence-extractor-wit/) |
-| 219 | Wire nf:health diagnostics into nf:observe as nf-self source type | 2026-03-07 | ea645d56 | Verified | [219-wire-nf-health-diagnostics-into-nf-obser](./quick/219-wire-nf-health-diagnostics-into-nf-obser/) |
-| 220 | nf:solve should auto-persist its session summary | 2026-03-07 | 6771a1a4 | Verified | [220-nf-solve-should-auto-persist-its-session](./quick/220-nf-solve-should-auto-persist-its-session/) |
-| 221 | Refactor nf:solve into sub-skills | 2026-03-08 | e281ec29 | Verified | [221-refactor-nf-solve-into-sub-skills-to-red](./quick/221-refactor-nf-solve-into-sub-skills-to-red/) |
+- v0.30-07 (Worktree Parallelization) was not completed in v0.30 -- deferred requirements PARA-01, PARA-02 listed in v0.32+ consideration
+- additionalContext token budget contention remains from v0.30 (multiple injection sources share ~4000 token ceiling)
 
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Phase v0.30-06 complete, ready to plan Phase v0.30-07
+Stopped at: Roadmap created for v0.31, ready to plan Phase v0.31-01
 Resume file: None
