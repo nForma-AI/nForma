@@ -585,4 +585,102 @@ function loadConfig(projectDir) {
   return config;
 }
 
-module.exports = { loadConfig, validateConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP, validateHookInput, HOOK_INPUT_SCHEMAS, DEFAULT_HOOK_PRIORITIES };
+// ─── Config Write Adapter ────────────────────────────────────────────────────
+// Write-side normalization: boolean strings → booleans, case normalization,
+// nested/flat key bidirectional conversion, and writeConfig JSON output.
+
+// Bidirectional map: nested path -> flat key.
+// Covers keys that users might write in nested form but loadConfig expects flat.
+const NESTED_TO_FLAT_MAP = {
+  'model_tier.planner': 'model_tier_planner',
+  'model_tier.worker': 'model_tier_worker',
+  'smart_compact.threshold_pct': 'smart_compact_threshold_pct',
+};
+
+// Reverse map: flat key -> { parent, child }
+const FLAT_TO_NESTED_MAP = {};
+for (const [nestedPath, flatKey] of Object.entries(NESTED_TO_FLAT_MAP)) {
+  const [parent, child] = nestedPath.split('.');
+  FLAT_TO_NESTED_MAP[flatKey] = { parent, child };
+}
+
+function flattenNestedKeys(config) {
+  if (typeof config !== 'object' || config === null) return {};
+  const result = { ...config };
+
+  for (const [nestedPath, flatKey] of Object.entries(NESTED_TO_FLAT_MAP)) {
+    const [parent, child] = nestedPath.split('.');
+    if (result[parent] && typeof result[parent] === 'object' && child in result[parent]) {
+      // Only flatten if the flat key is NOT already set (flat key takes precedence)
+      if (!(flatKey in result)) {
+        result[flatKey] = result[parent][child];
+      }
+      // Remove the child from the nested object
+      const nested = { ...result[parent] };
+      delete nested[child];
+      if (Object.keys(nested).length === 0) {
+        // Remove empty parent if it's not a known DEFAULT_CONFIG nested object
+        // model_tier is NOT a nested object in DEFAULT_CONFIG (only flat keys exist)
+        if (!(parent in DEFAULT_CONFIG) || typeof DEFAULT_CONFIG[parent] !== 'object') {
+          delete result[parent];
+        } else {
+          result[parent] = nested;
+        }
+      } else {
+        result[parent] = nested;
+      }
+    }
+  }
+  return result;
+}
+
+function nestFlatKeys(config) {
+  if (typeof config !== 'object' || config === null) return {};
+  const result = { ...config };
+
+  for (const [flatKey, { parent, child }] of Object.entries(FLAT_TO_NESTED_MAP)) {
+    if (flatKey in result) {
+      if (!result[parent] || typeof result[parent] !== 'object') {
+        result[parent] = {};
+      }
+      result[parent] = { ...result[parent], [child]: result[flatKey] };
+      delete result[flatKey];
+    }
+  }
+  return result;
+}
+
+function normalizeConfigValue(key, value) {
+  // Boolean string normalization: "true"/"false" -> true/false
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase();
+    if (lower === 'true') return true;
+    if (lower === 'false') return false;
+  }
+  // Profile and tier case normalization
+  const CASE_NORMALIZED_KEYS = ['hook_profile', 'model_tier_planner', 'model_tier_worker', 'fail_mode'];
+  if (CASE_NORMALIZED_KEYS.includes(key) && typeof value === 'string') {
+    return value.toLowerCase();
+  }
+  // Pass through all other values unchanged
+  return value;
+}
+
+function normalizeConfig(config) {
+  if (typeof config !== 'object' || config === null) return {};
+  // Step 1: Flatten any nested keys to their flat equivalents
+  const flattened = flattenNestedKeys(config);
+  // Step 2: Normalize individual values (booleans, case)
+  const result = {};
+  for (const [key, value] of Object.entries(flattened)) {
+    result[key] = normalizeConfigValue(key, value);
+  }
+  return result;
+}
+
+function writeConfig(filePath, config) {
+  const normalized = normalizeConfig(config);
+  fs.writeFileSync(filePath, JSON.stringify(normalized, null, 2) + '\n', 'utf8');
+}
+
+module.exports = { loadConfig, validateConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP, validateHookInput, HOOK_INPUT_SCHEMAS, DEFAULT_HOOK_PRIORITIES, normalizeConfigValue, normalizeConfig, flattenNestedKeys, nestFlatKeys, writeConfig };
