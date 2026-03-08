@@ -73,6 +73,27 @@ const HOOK_PROFILE_MAP = {
   ]),
 };
 
+// Hook execution priority map.
+// Higher values = earlier execution within the same event type.
+// Inspired by ruflo HookPriority enum: Critical=1000, High=100, Normal=50, Low=10.
+// User overrides via nf.json hook_priorities: { "hook-name": number }
+const DEFAULT_HOOK_PRIORITIES = {
+  'nf-circuit-breaker': 1000,  // Critical — safety, must run first
+  'nf-stop':            1000,  // Critical — quorum gate
+  'nf-prompt':            50,  // Normal — quorum injection
+  'nf-precompact':        50,  // Normal — state injection
+  'nf-session-start':     50,  // Normal — secret sync
+  'nf-session-end':       50,  // Normal — session cleanup
+  'nf-check-update':      10,  // Low — update check
+  'gsd-context-monitor':  50,  // Normal — context warnings
+  'nf-spec-regen':        10,  // Low — spec regeneration
+  'nf-post-edit-format':  10,  // Low — formatting
+  'nf-console-guard':     10,  // Low — console.log warning
+  'nf-statusline':        10,  // Low — status display
+  'nf-token-collector':   10,  // Low — token tracking
+  'nf-slot-correlator':   10,  // Low — slot correlation
+};
+
 function shouldRunHook(hookBasename, profile) {
   const validProfile = HOOK_PROFILE_MAP[profile] ? profile : 'standard';
   return HOOK_PROFILE_MAP[validProfile].has(hookBasename);
@@ -144,6 +165,7 @@ const DEFAULT_CONFIG = {
   // Flat key required — nested objects lost in shallow merge.
   task_envelope_enabled: true,
   hook_profile: 'standard',
+  hook_priorities: {},
   learning_enabled: true,
   // thinking_budget_scaling: per-task-type thinking token budgets.
   // SHALLOW MERGE NOTE: project nf.json replaces entire object, not individual keys.
@@ -514,6 +536,22 @@ function validateConfig(config) {
     }
   }
 
+  // Validate hook_priorities
+  if (config.hook_priorities !== undefined) {
+    if (typeof config.hook_priorities !== 'object' || config.hook_priorities === null || Array.isArray(config.hook_priorities)) {
+      process.stderr.write('[nf] WARNING: nf.json: hook_priorities must be an object; using {}\n');
+      config.hook_priorities = {};
+    } else {
+      // Validate each entry: key must be string, value must be integer
+      for (const [hookName, priority] of Object.entries(config.hook_priorities)) {
+        if (!Number.isInteger(priority) || priority < 0) {
+          process.stderr.write('[nf] WARNING: nf.json: hook_priorities.' + hookName + ' must be a non-negative integer; removing\n');
+          delete config.hook_priorities[hookName];
+        }
+      }
+    }
+  }
+
   return config;
 }
 
@@ -544,4 +582,4 @@ function loadConfig(projectDir) {
   return config;
 }
 
-module.exports = { loadConfig, validateConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP, validateHookInput, HOOK_INPUT_SCHEMAS };
+module.exports = { loadConfig, validateConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP, validateHookInput, HOOK_INPUT_SCHEMAS, DEFAULT_HOOK_PRIORITIES };

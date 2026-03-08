@@ -13,7 +13,7 @@ const path = require('path');
 const os = require('os');
 
 // We test via the module under test
-const { loadConfig, DEFAULT_CONFIG, shouldRunHook, HOOK_PROFILE_MAP, validateHookInput, HOOK_INPUT_SCHEMAS } = require('./config-loader');
+const { loadConfig, DEFAULT_CONFIG, shouldRunHook, HOOK_PROFILE_MAP, validateHookInput, HOOK_INPUT_SCHEMAS, DEFAULT_HOOK_PRIORITIES } = require('./config-loader');
 
 // Helper: write a JSON file to a temp directory
 function writeTempConfig(dir, content) {
@@ -741,6 +741,111 @@ test('VHI-TC13: HOOK_INPUT_SCHEMAS exported and has expected event types', async
   assert.ok(HOOK_INPUT_SCHEMAS.PreCompact, 'must have PreCompact schema');
   assert.ok(HOOK_INPUT_SCHEMAS.SessionStart, 'must have SessionStart schema');
   assert.ok(HOOK_INPUT_SCHEMAS.SessionEnd, 'must have SessionEnd schema');
+});
+
+// ============================================================================
+// Hook Priorities Tests
+// ============================================================================
+
+// PRIO-TC1: DEFAULT_HOOK_PRIORITIES exports correct structure
+test('PRIO-TC1: DEFAULT_HOOK_PRIORITIES exports correct structure', async (t) => {
+  assert.ok(DEFAULT_HOOK_PRIORITIES, 'DEFAULT_HOOK_PRIORITIES must be exported');
+  assert.equal(typeof DEFAULT_HOOK_PRIORITIES, 'object', 'must be an object');
+  assert.equal(DEFAULT_HOOK_PRIORITIES['nf-circuit-breaker'], 1000, 'circuit-breaker must be 1000');
+  assert.equal(DEFAULT_HOOK_PRIORITIES['nf-stop'], 1000, 'nf-stop must be 1000');
+  assert.equal(DEFAULT_HOOK_PRIORITIES['nf-prompt'], 50, 'nf-prompt must be 50');
+  assert.equal(DEFAULT_HOOK_PRIORITIES['nf-check-update'], 10, 'nf-check-update must be 10');
+});
+
+// PRIO-TC2: loadConfig includes hook_priorities from DEFAULT_CONFIG
+test('PRIO-TC2: loadConfig includes hook_priorities from DEFAULT_CONFIG', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prio-tc2-'));
+  try {
+    const config = loadConfig(projectDir);
+    assert.ok(typeof config.hook_priorities === 'object', 'hook_priorities must be an object');
+  } finally {
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
+});
+
+// PRIO-TC3: validateConfig accepts valid hook_priorities
+test('PRIO-TC3: validateConfig accepts valid hook_priorities', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prio-tc3-'));
+  try {
+    writeTempConfig(projectDir, JSON.stringify({ hook_priorities: { 'nf-prompt': 100 } }));
+    const config = loadConfig(projectDir);
+    assert.equal(config.hook_priorities['nf-prompt'], 100, 'valid override should be preserved');
+  } finally {
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
+});
+
+// PRIO-TC4: validateConfig rejects non-integer priorities
+test('PRIO-TC4: validateConfig rejects non-integer priorities', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prio-tc4-'));
+  let stderrOutput = '';
+  const origWrite = process.stderr.write.bind(process.stderr);
+  process.stderr.write = (msg) => { stderrOutput += msg; return true; };
+  try {
+    writeTempConfig(projectDir, JSON.stringify({ hook_priorities: { 'nf-prompt': 'high' } }));
+    const config = loadConfig(projectDir);
+    assert.equal(config.hook_priorities['nf-prompt'], undefined, 'non-integer priority should be removed');
+    assert.ok(stderrOutput.includes('hook_priorities.nf-prompt'), 'warning should mention the key');
+  } finally {
+    process.stderr.write = origWrite;
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
+});
+
+// PRIO-TC5: validateConfig rejects negative priorities
+test('PRIO-TC5: validateConfig rejects negative priorities', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prio-tc5-'));
+  let stderrOutput = '';
+  const origWrite = process.stderr.write.bind(process.stderr);
+  process.stderr.write = (msg) => { stderrOutput += msg; return true; };
+  try {
+    writeTempConfig(projectDir, JSON.stringify({ hook_priorities: { 'nf-prompt': -1 } }));
+    const config = loadConfig(projectDir);
+    assert.equal(config.hook_priorities['nf-prompt'], undefined, 'negative priority should be removed');
+    assert.ok(stderrOutput.includes('hook_priorities.nf-prompt'), 'warning should mention the key');
+  } finally {
+    process.stderr.write = origWrite;
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
+});
+
+// PRIO-TC6: validateConfig rejects array hook_priorities
+test('PRIO-TC6: validateConfig rejects array hook_priorities', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prio-tc6-'));
+  let stderrOutput = '';
+  const origWrite = process.stderr.write.bind(process.stderr);
+  process.stderr.write = (msg) => { stderrOutput += msg; return true; };
+  try {
+    writeTempConfig(projectDir, JSON.stringify({ hook_priorities: [1, 2] }));
+    const config = loadConfig(projectDir);
+    assert.deepEqual(config.hook_priorities, {}, 'array hook_priorities should be reset to {}');
+    assert.ok(stderrOutput.includes('hook_priorities'), 'warning should mention hook_priorities');
+  } finally {
+    process.stderr.write = origWrite;
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
+});
+
+// PRIO-TC7: validateConfig rejects null hook_priorities
+test('PRIO-TC7: validateConfig rejects null hook_priorities', async (t) => {
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prio-tc7-'));
+  let stderrOutput = '';
+  const origWrite = process.stderr.write.bind(process.stderr);
+  process.stderr.write = (msg) => { stderrOutput += msg; return true; };
+  try {
+    writeTempConfig(projectDir, JSON.stringify({ hook_priorities: null }));
+    const config = loadConfig(projectDir);
+    assert.deepEqual(config.hook_priorities, {}, 'null hook_priorities should be reset to {}');
+    assert.ok(stderrOutput.includes('hook_priorities'), 'warning should mention hook_priorities');
+  } finally {
+    process.stderr.write = origWrite;
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  }
 });
 
 // TC-CRE: context_retrieval_enabled defaults to true when not specified in any config file
