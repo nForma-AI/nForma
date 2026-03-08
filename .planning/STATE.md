@@ -35,7 +35,7 @@ None.
 
 | # | Description | Date | Commit | Status | Link |
 |---|---|---|---|---|---|
-| 226 | Track formal model complexity and runtime; nf:solve ingests results to decide split/merge | 2026-03-08 | 86e2650b | Pending | [226-track-formal-model-complexity-and-runtim](./quick/226-track-formal-model-complexity-and-runtim/) |
+| 226 | Track formal model complexity and runtime; nf:solve ingests results to decide split/merge | 2026-03-08 | 86e2650b | Verified | [226-track-formal-model-complexity-and-runtim](./quick/226-track-formal-model-complexity-and-runtim/) |
 
 ## Session Continuity
 
