@@ -35,6 +35,16 @@
       "xstate_event": null,
       "layer": "L1"
     },
+    "quorum_fallback_t1_required": {
+      "source": "nf-prompt.js",
+      "xstate_event": "QUORUM_START",
+      "layer": "L1"
+    },
+    "deliberation_round": {
+      "source": "nf-prompt.js",
+      "xstate_event": "VOTES_COLLECTED",
+      "layer": "L1"
+    },
     "security_sweep": {
       "source": "nf-prompt.js",
       "xstate_event": null,

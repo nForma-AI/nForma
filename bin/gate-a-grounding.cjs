@@ -162,13 +162,19 @@ function computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchR
   })();
   const { createActor, nfWorkflowMachine } = require(machinePath);
 
-  // Extract vocabulary actions set
+  // Extract vocabulary actions set and full entries for classification lookup
   const vocabActions = new Set();
+  const vocabEntries = {};
   if (vocabulary && vocabulary.vocabulary) {
     for (const key of Object.keys(vocabulary.vocabulary)) {
       vocabActions.add(key);
+      vocabEntries[key] = vocabulary.vocabulary[key];
     }
   }
+
+  // Non-FSM classifications: actions in vocabulary that are known to have no XState mapping.
+  // These are "explained" without requiring XState event validation.
+  const NON_FSM_CLASSIFICATIONS = new Set(['observability', 'instrumentation_gap']);
 
   // Extract observed invariants for genuine_violation check
   let observedInvariants = [];
@@ -187,6 +193,7 @@ function computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchR
   let xstateValidated = 0;
   let methodologySkips = 0;
   let vocabularyMapped = 0;
+  let nonFsmSkips = 0;
 
   const unexplainedCounts = { instrumentation_bug: 0, model_gap: 0, genuine_violation: 0 };
   const unexplainedActions = { instrumentation_bug: {}, model_gap: {}, genuine_violation: {} };
@@ -199,29 +206,43 @@ function computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchR
   for (let i = 0; i < conformanceEvents.length; i++) {
     const event = conformanceEvents[i];
 
+    // Normalize action: use event.action, falling back to event.type (same as mapToXStateEvent).
+    // Many conformance events use 'type' instead of 'action' (e.g., quorum_fallback_t1_required).
+    const action = event.action || event.type || undefined;
+
     // Reset session context on IDLE phase events
-    if (event.phase === 'IDLE' && event.action === 'quorum_start') {
+    if (event.phase === 'IDLE' && action === 'quorum_start') {
       sessionContext = { seenQuorumStart: true };
     }
 
     // Step 1: Is the action in the vocabulary?
-    const inVocab = vocabActions.has(event.action);
+    const inVocab = action !== undefined && vocabActions.has(action);
 
     if (!inVocab) {
       // NOT in vocabulary -> instrumentation_bug
       unexplainedCounts.instrumentation_bug++;
-      unexplainedActions.instrumentation_bug[event.action] = (unexplainedActions.instrumentation_bug[event.action] || 0) + 1;
+      unexplainedActions.instrumentation_bug[action || 'undefined'] = (unexplainedActions.instrumentation_bug[action || 'undefined'] || 0) + 1;
       continue;
     }
 
     vocabularyMapped++;
+
+    // Step 1b: Check for non-FSM classification (observability, instrumentation_gap).
+    // These are known vocabulary entries that intentionally have no XState mapping.
+    // They are "explained" without requiring XState event validation.
+    const vocabEntry = vocabEntries[action];
+    if (vocabEntry && vocabEntry.classification && NON_FSM_CLASSIFICATIONS.has(vocabEntry.classification)) {
+      nonFsmSkips++;
+      explained++;
+      continue;
+    }
 
     // Step 2: Map to XState event
     const xstateEvent = mapToXStateEvent(event);
     if (!xstateEvent) {
       // In vocab but no XState mapping -> instrumentation_bug
       unexplainedCounts.instrumentation_bug++;
-      unexplainedActions.instrumentation_bug[event.action + ':no_xstate_map'] = (unexplainedActions.instrumentation_bug[event.action + ':no_xstate_map'] || 0) + 1;
+      unexplainedActions.instrumentation_bug[action + ':no_xstate_map'] = (unexplainedActions.instrumentation_bug[action + ':no_xstate_map'] || 0) + 1;
       continue;
     }
 
@@ -289,8 +310,9 @@ function computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchR
       genuine_violation: { violated_invariants: Object.entries(violatedInvariants).map(([k, v]) => ({ invariant: k, count: v })), total: unexplainedCounts.genuine_violation }
     },
     methodology: {
-      explains_definition: 'vocabulary_mapped AND (xstate_valid OR methodology_skip)',
+      explains_definition: 'vocabulary_mapped AND (xstate_valid OR methodology_skip OR non_fsm_classification)',
       h1_methodology_skips: methodologySkips,
+      non_fsm_skips: nonFsmSkips,
       xstate_validated: xstateValidated,
       vocabulary_mapped: vocabularyMapped
     },

@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 Phase: Milestone boundary
 Plan: N/A
 Status: v0.30 and v0.31 milestones archived. Ready for /nf:new-milestone.
-Last activity: 2026-03-08 - Completed quick task 226: Track formal model complexity and runtime
+Last activity: 2026-03-08 - Completed quick task 227: Add missing action mappings for Gate A
 
 Progress: [##########] 100%
 
@@ -36,6 +36,7 @@ None.
 | # | Description | Date | Commit | Status | Link |
 |---|---|---|---|---|---|
 | 226 | Track formal model complexity and runtime; nf:solve ingests results to decide split/merge | 2026-03-08 | 86e2650b | Verified | [226-track-formal-model-complexity-and-runtim](./quick/226-track-formal-model-complexity-and-runtim/) |
+| 227 | Add missing action mappings to event-vocabulary.json for Gate A unmapped trace actions | 2026-03-08 | pending | Pending | [227-add-missing-action-mappings-to-event-voc](./quick/227-add-missing-action-mappings-to-event-voc/) |
 
 ## Session Continuity
 
