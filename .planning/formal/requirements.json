@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-08T16:05:34.454Z",
-  "content_hash": "e2ac14ec7681df41",
+  "aggregated_at": "2026-03-08T17:39:02.416Z",
+  "content_hash": "f4bec13806c02e3b",
   "schema_version": "1",
   "requirements": [
     {
@@ -2323,6 +2323,18 @@
       ]
     },
     {
+      "id": "PORT-04",
+      "text": "nForma hooks and agent guidelines SHALL improve Claude's behavior in any project where nForma is installed, not only the nForma source repository.",
+      "category": "Architecture Constraints",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "nForma's value is portable — it improves Claude's behavior in any project, not just its own repo. Session insights revealed guidelines were placed in repo-local .claude/rules/ files instead of globally-installed agent definitions and hooks.",
+      "provenance": {
+        "source_file": "agents/nf-executor.md, agents/nf-planner.md, hooks/nf-destructive-git-guard.js",
+        "milestone": "quick-222"
+      }
+    },
+    {
       "id": "PROJECT-01",
       "text": "The project shall be referred to as 'nForma' in all user-facing contexts",
       "category": "Project Identity",
@@ -4038,6 +4050,6 @@
       ]
     }
   ],
-  "frozen_at": "2026-03-08T16:05:34.527Z",
+  "frozen_at": "2026-03-08T17:39:02.417Z",
   "total": 283
 }
