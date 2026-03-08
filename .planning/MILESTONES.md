@@ -472,3 +472,29 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.31 — Ruflo-Inspired Hardening (Shipped: 2026-03-08)
+
+**Phases:** v0.31-01..v0.31-03 (3 phases, 7 plans)
+**Requirements:** 8/8 (PRIO-01, VALID-01, BRKR-01, LTCY-01, EXEC-01, SHARD-01, ADAPT-01, ADR-01)
+**Git range:** b0eddc38..e56b4892 (103 commits)
+**Timeline:** 2026-03-08 (~10.5 hours)
+
+**Delivered:** Hardened nForma's hook and quorum infrastructure with ruflo-inspired patterns — deterministic hook execution ordering, JSON schema validation for hook stdin, cross-session oscillation memory, per-slot latency budgets, review-only tool restriction for quorum workers, rule relevance sharding, bidirectional config adapter, and structured debate templates.
+
+**Key accomplishments:**
+- Hook input validation: validateHookInput with per-event-type HOOK_INPUT_SCHEMAS across all 14 hooks; structured stderr diagnostics, fail-open behavior (PRIO-01, VALID-01, v0.31-01)
+- Hook priority ordering: DEFAULT_HOOK_PRIORITIES with Critical=1000/Normal=50/Low=10 tiers; sortHooksByPriority in install.js; circuit-breaker always first (PRIO-01, v0.31-01)
+- Oscillation evidence persistence: writeEvidenceSignature/checkPreemptiveEvidence/markEvidenceResolved; 50-entry cap with 30-day prune; warn-only preemptive detection (BRKR-01, v0.31-02)
+- Per-slot latency budgets: latency_budget_ms in providers.json as hard ceiling over --timeout; TIMEOUT in telemetry; 0/negative = not set (LTCY-01, v0.31-02)
+- Review-only tool restriction: structural --allowedTools for ccr slots, prompt-level READ-ONLY for non-ccr; review_mode flag in nf-prompt (EXEC-01, v0.31-02)
+- Rule sharding: paths: YAML frontmatter on all 4 .claude/rules/ files for per-turn selective loading (SHARD-01, v0.31-03)
+- Config write adapter: normalizeConfigValue, flattenNestedKeys, nestFlatKeys, writeConfig; boolean/profile/tier normalization; 17 new tests (ADAPT-01, v0.31-03)
+
+**Tech debt:** 4 items (var hoisting, duplicated functions, adapter has no runtime consumer, debate formatter standalone only)
+
+**Audit:** PASSED — 8/8 requirements, 3/3 phases, 8/8 integration points, 5/5 E2E flows
+**Archive:** `.planning/milestones/v0.31-MILESTONE-AUDIT.md`
+
+---
+

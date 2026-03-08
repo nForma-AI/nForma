@@ -10,19 +10,20 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.31 — Ruflo-Inspired Hardening
+## Shipped: v0.31 — Ruflo-Inspired Hardening (2026-03-08)
 
-**Goal:** Harden nForma's existing features with patterns identified from the ruflo reference codebase — adding hook execution priority ordering, circuit-breaker pattern learning, quorum latency budgets, executor read-only modes, rules shard retrieval to reduce token waste, config adapter normalization, input validation for hook stdin, and structured ADR formatting for quorum debates.
+**Goal:** Harden nForma's hook and quorum infrastructure with ruflo-inspired patterns.
 
-**Target features:**
-- Hook priority ordering — circuit-breaker (safety) always runs before prompt injection (enhancement)
-- Circuit-breaker learning — persist oscillation trigger patterns for future session preemption
-- Quorum latency budgets — per-slot timeout constants that cut off slow agents
-- Executor read-only mode — restricted tool access for review-only quorum workers
-- Rules shard retrieval — tag .claude/rules/ with relevance patterns, load only matching rules per turn
-- Config adapter pattern — bidirectional config translation with normalization, zero drift
-- Input validation — schema validation for hook stdin JSON, not just try/catch fail-open
-- Structured ADRs — consistent context/decision/consequences format for debates/
+**Shipped:** 8/8 requirements satisfied across 3 phases, 7 plans. Audit: PASSED.
+
+**Key features shipped:**
+- Hook input validation — per-event-type JSON schema validation for all 14 hooks with fail-open behavior
+- Hook priority ordering — deterministic Critical/Normal/Low tiers; circuit-breaker always first
+- Oscillation evidence persistence — cross-session signature memory with preemptive warnings
+- Per-slot latency budgets — hard ceiling in providers.json, TIMEOUT in telemetry
+- Review-only tool restriction — structural --allowedTools for ccr, prompt-level for non-ccr
+- Rule sharding — paths: frontmatter on .claude/rules/ for per-turn selective loading
+- Config write adapter — bidirectional nested/flat key conversion with normalization
 
 ## Shipped: v0.30 — Advanced Agent Patterns (2026-03-08)
 
@@ -462,6 +463,12 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ Continuous verification — boundary-batched checks, done_conditions evaluator, 3-run budget cap (VERF-02–03) — v0.30 (Phase v0.30-05)
 - ✓ Subagent orchestration — domain-specific context retrieval, phase context stack, pre-dispatch enrichment (ORCH-01–03) — v0.30 (Phase v0.30-06)
 - ✓ Worktree parallelization — nf-worktree-executor agent, worktree-merge.cjs, Pattern D parallel dispatch, SERIAL_FILES detection (PARA-01–02) — v0.30 (Phase v0.30-07)
+- ✓ Circuit breaker evidence persistence — cross-session oscillation signature memory with 50-entry cap and preemptive warnings (BRKR-01) — v0.31 (Phase v0.31-02)
+- ✓ Per-slot latency budgets — latency_budget_ms as hard ceiling in providers.json, TIMEOUT telemetry (LTCY-01) — v0.31 (Phase v0.31-02)
+- ✓ Review-only tool restriction — structural --allowedTools for ccr slots, prompt-level for non-ccr (EXEC-01) — v0.31 (Phase v0.31-02)
+- ✓ Rule sharding — paths: frontmatter on all .claude/rules/ files for per-turn selective loading (SHARD-01) — v0.31 (Phase v0.31-03)
+- ✓ Config write adapter — bidirectional nested/flat key conversion, boolean/profile normalization (ADAPT-01) — v0.31 (Phase v0.31-03)
+- ✓ Structured debate templates — YAML frontmatter + debate-formatter.cjs for programmatic parsing (ADR-01) — v0.31 (Phase v0.31-03)
 
 ### Active
 
@@ -478,7 +485,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Context
 
-nForma v0.30 shipped 2026-03-08 (20/20 requirements, 9 phases including gap closure). 30 milestones completed (v0.1–v0.30). v0.31 (Ruflo-Inspired Hardening) also complete — hook priority ordering, input validation, circuit-breaker learning, quorum latency budgets, executor read-only mode, rule sharding, config adapter normalization, and structured debate templates (8/8 requirements, 3 phases). v0.2.0 npm publish still deferred by user decision.
+nForma v0.31 shipped 2026-03-08 (8/8 requirements, 3 phases). 31 milestones completed (v0.1–v0.31). Both v0.30 (Advanced Agent Patterns) and v0.31 (Ruflo-Inspired Hardening) archived same day. Next milestone TBD — run `/nf:new-milestone` to start. v0.2.0 npm publish still deferred by user decision.
 
 **Codebase:** ~100,000+ lines (JS + MD), 500+ files. 92+ formal models (TLA+, Alloy, PRISM), 35K+ conformance traces.
 **Tech stack:** Node.js, Claude Code hooks (UserPromptSubmit + Stop + PreToolUse + PostToolUse), npm package. Rebranded from QGSD to nForma (v0.28, skill prefix `/nf:`).
@@ -646,4 +653,4 @@ nForma v0.30 shipped 2026-03-08 (20/20 requirements, 9 phases including gap clos
 | Production source handlers are framework-ready stubs | No live endpoints required; handlers validate schema and return standard issue objects; real auth deferred to v0.28+ (WIRE-01..05) | Phase v0.27-04 — OBS-03/04/05 |
 
 ---
-*Last updated: 2026-03-08 after v0.30 milestone*
+*Last updated: 2026-03-08 after v0.31 milestone*

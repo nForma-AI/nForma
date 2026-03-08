@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.31-03",
+  "created_at": "2026-03-08T17:49:52.467Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "This phase addresses three independent DX improvements: (1) adding YAML `paths:` frontmatter to `.claude/rules/` files so only relevant rules load per turn (SHARD-01), (2) building a config adapter la",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.31-03-config-governance-dx/v0.31-03-01-PLAN.md",
+    "key_decisions": []
+  }
+}
