@@ -39,7 +39,7 @@ None.
 | 227 | Add missing action mappings to event-vocabulary.json for Gate A unmapped trace actions | 2026-03-08 | pending | Pending | [227-add-missing-action-mappings-to-event-voc](./quick/227-add-missing-action-mappings-to-event-voc/) |
 | 228 | Build interactive TUI for browsing and acting on human-gated solve items | 2026-03-08 | cc0c08d8 | Verified | [228-build-interactive-tui-for-browsing-and-a](./quick/228-build-interactive-tui-for-browsing-and-a/) |
 | 229 | Integrate solve-tui into nForma.cjs as F5 Solve module | 2026-03-08 | 8a51cbe0 | Pending | [229-integrate-solve-tui-into-nforma-cjs-as-a](./quick/229-integrate-solve-tui-into-nforma-cjs-as-a/) |
-| 230 | Close all solver feedback loops in TUI Solve module | 2026-03-08 | d762995f | Pending | [230-close-all-solver-feedback-loops-in-tui-s](./quick/230-close-all-solver-feedback-loops-in-tui-s/) |
+| 230 | Close all solver feedback loops in TUI Solve module | 2026-03-08 | d762995f | Verified | [230-close-all-solver-feedback-loops-in-tui-s](./quick/230-close-all-solver-feedback-loops-in-tui-s/) |
 
 ## Session Continuity
 
