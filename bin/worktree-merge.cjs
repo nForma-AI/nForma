@@ -73,10 +73,12 @@ function mergeBranches(cwd, branches, options) {
       results.push({ branch, status: 'merged' });
     } catch (err) {
       const stderr = err.stderr ? err.stderr.toString() : '';
-      if (stderr.includes('CONFLICT') || err.message.includes('CONFLICT')) {
-        // Abort the conflicting merge
+      const stdout = err.stdout ? err.stdout.toString() : '';
+      const combined = stderr + stdout + (err.message || '');
+      if (combined.includes('CONFLICT')) {
+        // Abort the conflicting merge (git outputs CONFLICT to stdout)
         try { runGit(cwd, ['merge', '--abort']); } catch (_) { /* best-effort */ }
-        results.push({ branch, status: 'conflict', error: stderr.slice(0, 500) });
+        results.push({ branch, status: 'conflict', error: combined.slice(0, 500) });
       } else {
         results.push({ branch, status: 'failed', error: (stderr || err.message).slice(0, 500) });
       }
