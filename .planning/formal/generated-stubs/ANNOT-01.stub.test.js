@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @requirement ANNOT-01
-// Structural test: TLA+ model files contain @requirement structured comments
+// Verifies all TLA+ model files contain @requirement structured comments
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -8,28 +8,35 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..', '..', '..');
-const TLA_DIR = path.join(ROOT, '.planning', 'formal', 'tla');
+const REGISTRY_PATH = path.join(ROOT, '.planning', 'formal', 'model-registry.json');
 
-test('ANNOT-01 — TLA+ model files contain @requirement annotations on properties', () => {
-  // Get all non-trace TLA+ files
-  const tlaFiles = fs.readdirSync(TLA_DIR)
-    .filter(f => f.endsWith('.tla') && !f.includes('_TTrace_'));
+test('ANNOT-01: All TLA+ model files contain @requirement annotations on properties', () => {
+  const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
+  const tlaFiles = Object.keys(registry.models).filter(f =>
+    f.endsWith('.tla') && !f.includes('_TTrace_') && !f.startsWith('..') && !f.startsWith('/')
+  );
 
-  assert.ok(tlaFiles.length >= 11, `Expected at least 11 TLA+ model files, found ${tlaFiles.length}`);
+  assert.ok(tlaFiles.length >= 11, `Expected at least 11 TLA+ model files, got ${tlaFiles.length}`);
 
-  let filesWithAnnotations = 0;
-  const annotationPattern = /\\?\*\s*@requirement\s+[\w-]+/;
-
-  for (const file of tlaFiles) {
-    const content = fs.readFileSync(path.join(TLA_DIR, file), 'utf8');
-    if (annotationPattern.test(content)) {
-      filesWithAnnotations++;
+  const filesWithAnnotations = [];
+  for (const filePath of tlaFiles) {
+    const absPath = path.join(ROOT, filePath);
+    if (!fs.existsSync(absPath)) continue;
+    const content = fs.readFileSync(absPath, 'utf8');
+    if (/@requirement\s+[\w-]+/.test(content)) {
+      filesWithAnnotations.push(filePath);
     }
   }
 
-  // At least the original 11 model files should have annotations
-  assert.ok(
-    filesWithAnnotations >= 11,
-    `Expected at least 11 TLA+ files with @requirement annotations, found ${filesWithAnnotations}`
+  // Every TLA+ model file must have at least one @requirement annotation
+  const missing = tlaFiles.filter(f => {
+    const absPath = path.join(ROOT, f);
+    if (!fs.existsSync(absPath)) return false;
+    return !filesWithAnnotations.includes(f);
+  });
+
+  assert.strictEqual(
+    missing.length, 0,
+    `TLA+ files missing @requirement annotations: ${missing.join(', ')}`
   );
 });
