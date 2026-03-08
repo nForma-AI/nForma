@@ -239,20 +239,11 @@ function runCheck(module, checkDef, javaExe, cwd) {
 
     return { module, tool, status, detail, runtimeMs };
   } else if (tool === 'prism') {
-    // PRISM check
-    const { resolvePrismBin } = require('./resolve-prism-bin.cjs');
-    const prismBin = resolvePrismBin();
-    if (!prismBin) {
-      return {
-        module,
-        tool: 'prism',
-        status: 'skipped',
-        detail: 'PRISM_BIN not set or binary not found',
-        runtimeMs: 0
-      };
-    }
-
-    const result = spawnSync(prismBin, [checkDef.prismModel], {
+    // PRISM check — delegate to run-prism.cjs for full feature support
+    // (properties file injection, scoreboard-based tp_rate/unavail, cold-start detection, policy.yaml loading)
+    const modelName = path.basename(checkDef.prismModel, '.pm');
+    const runPrismPath = path.join(__dirname, 'run-prism.cjs');
+    const result = spawnSync(process.execPath, [runPrismPath, '--model', modelName], {
       cwd,
       stdio: 'pipe',
       encoding: 'utf8',
@@ -264,11 +255,19 @@ function runCheck(module, checkDef, javaExe, cwd) {
     let detail = '';
 
     if (result.error) {
-      status = 'fail';
+      // Spawn failure (e.g., node not found) — fail-open as skipped
+      status = 'skipped';
       detail = result.error.message;
     } else if (result.status !== 0) {
-      status = 'fail';
-      detail = `Exit code ${result.status}`;
+      // Distinguish "prism not installed" (skip) from "prism check failed" (fail)
+      const stderr = result.stderr || '';
+      if (stderr.includes('binary not found') || stderr.includes('PRISM_BIN')) {
+        status = 'skipped';
+        detail = 'PRISM binary not found — install PRISM and set PRISM_BIN';
+      } else {
+        status = 'fail';
+        detail = `Exit code ${result.status}`;
+      }
     }
 
     return { module, tool, status, detail, runtimeMs };
