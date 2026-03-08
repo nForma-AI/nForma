@@ -23,6 +23,7 @@ execution. Sub-skill Agent calls are sequential (diagnose -> remediate -> report
 
 Sub-skill files (do NOT @-include — they are loaded by Agent subprocesses):
 - commands/nf/solve-diagnose.md (Steps 0-1)
+- commands/nf/solve-classify.md (Haiku pre-classification)
 - commands/nf/solve-remediate.md (Steps 3a-3m)
 - commands/nf/solve-report.md (Steps 6-8)
 </execution_context>
@@ -45,6 +46,26 @@ Parse the Agent's JSON output:
 - If `status == "error"`: log reason, exit gracefully
 - If `status == "bail"` (zero residual): skip to Phase 4 (Report) with baseline as post_residual
 - Store: `baseline_residual`, `open_debt`, `heatmap`, `issues`, `targets`
+
+## Phase 1b: Classify (Haiku pre-triage)
+
+After diagnostic completes, pre-classify all sweep items using Haiku sub-agent.
+This populates solve-classifications.json so reverse flow items (D→C, C→R, T→R, D→R)
+have genuine/fp/review badges when viewed in the TUI.
+
+```
+Agent(
+  subagent_type="general-purpose",
+  description="solve: Haiku classification",
+  prompt="Read and follow commands/nf/solve-classify.md end-to-end.
+CLI flags from orchestrator: {flags}
+After completing all steps, output ONLY the JSON result object described in the output_contract section."
+)
+```
+
+Parse the Agent's JSON output:
+- If `status == "error"`: log warning but do NOT abort (classification is best-effort)
+- Store: `classification_verdicts` for inclusion in final report
 
 ## Phase 2: Report-Only Gate
 
