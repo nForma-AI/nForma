@@ -56,7 +56,7 @@ v0.31 hardens nForma's hook and quorum infrastructure with three layers of impro
 
 ### Phases
 
-- [ ] **Phase v0.31-01: Hook Infrastructure Hardening** - Deterministic hook priority ordering and JSON schema validation for hook stdin
+- [x] **Phase v0.31-01: Hook Infrastructure Hardening** - Deterministic hook priority ordering and JSON schema validation for hook stdin (completed 2026-03-08)
 - [ ] **Phase v0.31-02: Runtime Safety Boundaries** - Circuit breaker trigger persistence, per-slot latency budgets, and restricted tool access for review-only slots
 - [ ] **Phase v0.31-03: Config & Governance DX** - Rule relevance sharding, bidirectional config adapter, and structured debate templates
 
@@ -101,6 +101,6 @@ v0.31-01 -> v0.31-02 -> v0.31-03
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| v0.31-01. Hook Infrastructure Hardening | 1/2 | In Progress|  |
+| v0.31-01. Hook Infrastructure Hardening | 1/2 | Complete    | 2026-03-08 |
 | v0.31-02. Runtime Safety Boundaries | 0/TBD | Not started | - |
 | v0.31-03. Config & Governance DX | 0/TBD | Not started | - |
