@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 Phase: Milestone boundary
 Plan: N/A
 Status: v0.30 and v0.31 milestones archived. Ready for /nf:new-milestone.
-Last activity: 2026-03-08 - Completed quick task 231: Fix health checker W007 false positives for archived milestone phase directories
+Last activity: 2026-03-08 - Completed quick task 232: Fix token consumption display in nf:health
 
 Progress: [##########] 100%
 
@@ -41,6 +41,7 @@ None.
 | 229 | Integrate solve-tui into nForma.cjs as F5 Solve module | 2026-03-08 | 8a51cbe0 | Pending | [229-integrate-solve-tui-into-nforma-cjs-as-a](./quick/229-integrate-solve-tui-into-nforma-cjs-as-a/) |
 | 230 | Close all solver feedback loops in TUI Solve module | 2026-03-08 | d762995f | Verified | [230-close-all-solver-feedback-loops-in-tui-s](./quick/230-close-all-solver-feedback-loops-in-tui-s/) |
 | 231 | Fix health checker W007 false positives for archived milestone phase directories | 2026-03-08 | ddfa4108 | Pending | [231-fix-health-checker-w007-false-positives-](./quick/231-fix-health-checker-w007-false-positives-/) |
+| 232 | Fix token consumption display in nf:health | 2026-03-08 | pending | Pending | [232-fix-token-consumption-in-health-workflow](./quick/232-fix-token-consumption-in-health-workflow/) |
 
 ## Session Continuity
 
