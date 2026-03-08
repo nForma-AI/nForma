@@ -2,6 +2,12 @@
 Execute a phase prompt (PLAN.md) and create the outcome summary (SUMMARY.md).
 </purpose>
 
+<parallel_flag>
+If the user invokes /nf:execute-phase with --parallel flag, Pattern D routing is enabled.
+Without --parallel, existing Pattern A/B/C behavior is unchanged.
+Pattern D requires: no checkpoints in plan AND --parallel flag detected.
+</parallel_flag>
+
 <required_reading>
 Read STATE.md before any operation to load project context.
 Read config.json for planning behavior settings.
@@ -101,13 +107,16 @@ Note: done_conditions are optional. If a task has no `<done_conditions>` element
 grep -n "type=\"checkpoint" .planning/phases/XX-name/{phase}-{plan}-PLAN.md
 ```
 
-**Routing by checkpoint type:**
+**Routing by checkpoint type and independence:**
 
-| Checkpoints | Pattern | Execution |
-|-------------|---------|-----------|
-| None | A (autonomous) | Single subagent: full plan + SUMMARY + commit |
-| Verify-only | B (segmented) | Segments between checkpoints. After none/human-verify → SUBAGENT. After decision/human-action → MAIN |
-| Decision | C (main) | Execute entirely in main context |
+| Checkpoints | Independence | Pattern | Execution |
+|-------------|-------------|---------|-----------|
+| None | Yes, --parallel | D (parallel) | Parallel worktree executors per task, merge orchestration |
+| None | No or no --parallel | A (autonomous) | Single subagent: full plan |
+| Verify-only | - | B (segmented) | Segments between checkpoints |
+| Decision | - | C (main) | Execute entirely in main context |
+
+Pattern D is selected ONLY when: (1) no checkpoints found AND (2) --parallel flag is present. Otherwise, existing A/B/C routing applies unchanged.
 
 **Pattern A:** init_agent_tracking → spawn Task(subagent_type="nf-executor", model=executor_model, description="Execute plan {plan_number}: {phase_number}-{phase_name}") with prompt: execute plan at [path], autonomous, all tasks + SUMMARY + commit, follow deviation/auth rules, report: plan name, tasks, SUMMARY path, commit hash → track agent_id → wait → update tracking → report.
 
@@ -116,6 +125,163 @@ grep -n "type=\"checkpoint" .planning/phases/XX-name/{phase}-{plan}-PLAN.md
 **Pattern C:** Execute in main using standard flow (step name="execute").
 
 Fresh context per subagent preserves peak quality. Main context stays lean.
+</step>
+
+<step name="detect_parallel_tasks">
+Pattern D only (no checkpoints AND --parallel flag). Skip for A/B/C.
+
+Parse all `<task>` elements from the plan and extract their `<files>` lists:
+
+```bash
+# Extract file lists per task from PLAN.md
+node -e "
+  const fs = require('fs');
+  const plan = fs.readFileSync('$PLAN_PATH', 'utf8');
+  const tasks = plan.match(/<task[^>]*>[\s\S]*?<\/task>/g) || [];
+  const taskFiles = tasks.map((t, i) => {
+    const filesMatch = t.match(/<files>([\s\S]*?)<\/files>/);
+    const files = filesMatch ? filesMatch[1].trim().split(/\n/).map(f => f.trim()).filter(Boolean) : [];
+    return { task: i + 1, files };
+  });
+  console.log(JSON.stringify(taskFiles));
+"
+```
+
+**Independence detection algorithm:**
+
+1. **SERIAL_FILES list** — any task touching these files MUST run sequentially (never in parallel):
+   - STATE.md, ROADMAP.md, REQUIREMENTS.md
+   - package.json, package-lock.json
+   - .gitignore, .claude/settings.json
+   - Any config files matching `*.config.{js,ts,cjs,mjs}`
+   These shared resources have high contention risk and MUST NOT be modified by parallel worktrees.
+
+2. **Install sync detection** — tasks containing `install.js --claude --global` force sequential execution (modifies global state).
+
+3. **Empty files lists** — tasks with EMPTY `<files>` lists are treated as non-overlapping and parallelizable. Documentation-only or verification tasks with no file output can safely run in parallel.
+
+4. **Overlap detection** — for tasks with non-empty file lists, check pairwise overlap:
+   - If task A files intersect with task B files, they must run sequentially
+   - If no overlap, they can run in parallel
+
+5. **Output:** `parallel_groups` (tasks that can run simultaneously) and `sequential_tasks` (must run in order)
+
+6. **Fallback:** If no parallel groups found (all tasks overlap or all require serial files), fall back to Pattern A.
+
+```
+# Pseudocode for independence detection:
+SERIAL_FILES = [
+  "STATE.md", "ROADMAP.md", "REQUIREMENTS.md",
+  "package.json", "package-lock.json",
+  ".gitignore", ".claude/settings.json"
+]
+SERIAL_PATTERNS = ["*.config.js", "*.config.ts", "*.config.cjs", "*.config.mjs"]
+
+for each task:
+  if task.files intersects SERIAL_FILES or matches SERIAL_PATTERNS:
+    → sequential_tasks
+  elif task.action contains "install.js --claude --global":
+    → sequential_tasks
+  elif task.files is empty:
+    → parallel_groups (safe to parallelize)
+  else:
+    → check overlap with other tasks
+      overlapping → sequential_tasks
+      independent → parallel_groups
+
+if parallel_groups.length == 0:
+  fall back to Pattern A
+```
+</step>
+
+<step name="parallel_dispatch">
+Pattern D only. Executes after detect_parallel_tasks identifies parallel_groups and sequential_tasks.
+
+**PARALLEL_BATCH_TIMEOUT:** 15 minutes for the entire parallel batch. If any executor has not completed within this window, treat it as failed and proceed with completed executors only.
+
+**1. Pre-dispatch validation:**
+```bash
+# Ensure all current changes are committed before creating worktrees
+git status --porcelain | head -5
+# If uncommitted changes exist, commit or stash before proceeding
+```
+
+**2. Parallel task dispatch:**
+For each task in parallel_groups, spawn a worktree executor:
+
+```
+Spawn Task(subagent_type="nf-worktree-executor",
+           description="Execute task {N}: {task_name}",
+           prompt="Execute task {N} from plan at {plan_path}.
+                   IMPORTANT: Skip state_updates and final_commit steps -- the orchestrator handles those after merge.
+                   Report completion with a fenced JSON block at the end of your output:
+                   ```json
+                   {\"worktree_branch\": \"<branch>\", \"task_number\": <N>, \"status\": \"complete|failed\", \"files_modified\": [...]}
+                   ```",
+           maxTurns=50)
+```
+
+**maxTurns=50** prevents runaway execution (same default as nf-executor tasks).
+
+Wait for ALL parallel tasks to complete (or timeout at PARALLEL_BATCH_TIMEOUT of 15 minutes).
+
+**3. Collect results — structured JSON parsing:**
+Parse each executor's output by extracting the fenced JSON block:
+- Extract content between \`\`\`json and \`\`\` markers using regex
+- JSON.parse the extracted content
+- Do NOT use grep for free-form worktree_branch text
+- Collect branch names, task numbers, statuses, and files_modified from each
+
+**4. Partial failure handling:**
+When one or more executors fail but others succeed:
+  a. Log failed executors to stderr with task numbers and error details
+  b. Proceed with merging ONLY the successful branches (do not block on failures)
+  c. Record failed tasks in the SUMMARY.md with status "failed-parallel" and the error
+  d. After merge of successful branches, report which tasks need re-execution (fall back to Pattern A for those specific tasks)
+
+**5. Sequential task execution:**
+Run sequential_tasks in order (same as Pattern A, in main worktree). These run after parallel tasks complete and merge.
+
+**6. Merge orchestration:**
+After all parallel tasks complete:
+
+```bash
+# a. Pre-merge validation
+node bin/worktree-merge.cjs ensure-clean
+
+# b. Merge parallel branches
+node bin/worktree-merge.cjs merge <branch1> <branch2> ...
+
+# c. Check merge results -- if conflict, report to user and fall back to manual resolution
+
+# d. Post-merge verification (includes automatic rollback on failure)
+node bin/worktree-merge.cjs verify
+
+# e. Cleanup worktree branches
+node bin/worktree-merge.cjs cleanup <branch1> <branch2> ...
+
+# f. Aggregate execution progress from worktrees
+node bin/execution-progress.cjs aggregate-parallel <worktree-path1> <worktree-path2> ...
+```
+
+**7. Post-merge validation:**
+```bash
+# Verify no orphaned worktrees remain
+git worktree list
+# Should show only main worktree
+```
+
+**8. Completion:**
+- Create SUMMARY.md aggregating all task results (parallel + sequential)
+- Commit metadata (STATE.md, ROADMAP.md, REQUIREMENTS.md, SUMMARY.md)
+
+**Safety notes:**
+- If worktree creation fails (Claude Code error), fall back to Pattern A with stderr warning
+- Worktrees branch from origin/main -- ensure current changes are committed before parallel dispatch
+- After merge, verify no orphaned worktrees: `git worktree list` should show only main worktree
+- On partial executor failure: merge successful branches, report failures, suggest Pattern A re-run for failed tasks
+- Pre-merge state is validated by ensureCleanState; post-merge failures trigger automatic rollback
+- maxTurns=50 on worktree executors prevents runaway execution
 </step>
 
 <step name="init_agent_tracking">
