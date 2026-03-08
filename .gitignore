@@ -123,3 +123,6 @@ states/
 # STATE.md backups (legacy + new paths)
 .planning/STATE.md.bak-*
 .planning/archive/state-backups/
+
+# Worktree isolation (parallel execution)
+.claude/worktrees/
