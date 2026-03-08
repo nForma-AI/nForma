@@ -749,6 +749,12 @@ process.stdin.on('end', () => {
       process.exit(0); // Silent pass — UPS-05
     }
 
+    // EXEC-01: Detect review/verification commands for review_mode injection.
+    // These commands should trigger review-only dispatch (--review-only flag)
+    // so review slots are restricted to read-only tools.
+    const reviewCmdPattern = /^\s*\/(nf|q?gsd):(verify-work|check)\b/;
+    const isReviewTask = reviewCmdPattern.test(prompt);
+
     // ── CACHE MISS: Embed cache key marker and write pending entry ──────────
     if (typeof _nfCacheKey === 'string' && _nfCacheKey && _nfCacheModule && _nfCacheDir) {
       try {
@@ -766,6 +772,12 @@ process.stdin.on('end', () => {
         // Fail-open: pending entry write failure never blocks dispatch
         process.stderr.write('[nf] cache pending write failed (fail-open): ' + (pendingErr.message || pendingErr) + '\n');
       }
+    }
+
+    // EXEC-01: Inject review_mode instruction for verification/review commands
+    if (isReviewTask) {
+      instructions += '\n\nREVIEW MODE: All quorum slot dispatches for this task MUST use --review-only flag.\n' +
+        'Pass --review-only to quorum-slot-dispatch.cjs so review slots are restricted to read-only tools.';
     }
 
     appendConformanceEvent({

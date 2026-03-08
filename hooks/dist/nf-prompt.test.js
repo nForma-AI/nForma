@@ -739,6 +739,63 @@ test('TC-PROMPT-FALLBACK-EMPTY-AGENTCONFIG: empty agent_config → no T1, simple
   }
 });
 
+// ── EXEC-01: Review Mode Tests ──────────────────────────────────────────────
+
+// TC-REVIEW-MODE-VERIFY: /nf:verify-work injects REVIEW MODE instruction
+test('TC-REVIEW-MODE-VERIFY: /nf:verify-work injects REVIEW MODE instruction', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prompt-review-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1', 'gemini-1'] }),
+      'utf8'
+    );
+    const { stdout, exitCode } = runHook({ prompt: '/nf:verify-work', cwd: tempDir });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.ok(stdout.length > 0, 'stdout must contain quorum injection');
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    assert.ok(ctx.includes('REVIEW MODE'), 'must include REVIEW MODE instruction for verify-work');
+    assert.ok(ctx.includes('--review-only'), 'must include --review-only flag reference');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC-REVIEW-MODE-PLAN: /nf:plan-phase does NOT inject REVIEW MODE instruction
+test('TC-REVIEW-MODE-PLAN: /nf:plan-phase does NOT inject REVIEW MODE instruction', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prompt-noreview-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1', 'gemini-1'] }),
+      'utf8'
+    );
+    const { stdout, exitCode } = runHook({ prompt: '/nf:plan-phase 03', cwd: tempDir });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0');
+    assert.ok(stdout.length > 0, 'stdout must contain quorum injection');
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    assert.ok(!ctx.includes('REVIEW MODE'), 'must NOT include REVIEW MODE for plan-phase');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC-REVIEW-MODE-QGSD-PREFIX: /qgsd:verify-work also triggers REVIEW MODE
+test('TC-REVIEW-MODE-QGSD-PREFIX: /qgsd:verify-work also triggers REVIEW MODE', () => {
+  const { stdout, exitCode } = runHook({ prompt: '/qgsd:verify-work', cwd: process.cwd() });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  assert.ok(stdout.length > 0, 'stdout must contain quorum injection');
+  const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+  assert.ok(ctx.includes('REVIEW MODE'), 'must include REVIEW MODE for qgsd:verify-work');
+  assert.ok(ctx.includes('--review-only'), 'review_mode instruction must include --review-only flag');
+});
+
 // ── Profile Guard Tests ─────────────────────────────────────────────────────
 
 // TC-PROFILE-MINIMAL-EXIT: hook_profile=minimal → nf-prompt exits 0 with no output
