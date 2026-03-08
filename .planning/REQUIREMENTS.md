@@ -50,10 +50,10 @@
 
 *Reopened from v0.30 milestone audit (2026-03-08). Tracked here until v0.30-08 completes.*
 
-- [ ] **LRNG-01**: Auto error extraction at session end — install.js must register nf-session-end.js as SessionEnd hook so re-install does not silently drop it
-- [ ] **LRNG-02**: User correction capture — SessionEnd hook persists user corrections to memory store on session close
-- [ ] **LRNG-03**: Quorum-validated skill extraction — skill-extractor.cjs is invoked automatically by nf-session-end.js (not orphaned)
-- [ ] **LRNG-04**: Failure catalog with confidence — failure entries persist across sessions via SessionEnd hook pipeline
+- [x] **LRNG-01**: Auto error extraction at session end — install.js must register nf-session-end.js as SessionEnd hook so re-install does not silently drop it
+- [x] **LRNG-02**: User correction capture — SessionEnd hook persists user corrections to memory store on session close
+- [x] **LRNG-03**: Quorum-validated skill extraction — skill-extractor.cjs is invoked automatically by nf-session-end.js (not orphaned)
+- [x] **LRNG-04**: Failure catalog with confidence — failure entries persist across sessions via SessionEnd hook pipeline
 
 ## Future Requirements
 
@@ -82,10 +82,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LRNG-01 | Phase v0.30-08 (gap closure) | Pending |
-| LRNG-02 | Phase v0.30-08 (gap closure) | Pending |
-| LRNG-03 | Phase v0.30-08 (gap closure) | Pending |
-| LRNG-04 | Phase v0.30-08 (gap closure) | Pending |
+| LRNG-01 | Phase v0.30-08 (gap closure) | Complete |
+| LRNG-02 | Phase v0.30-08 (gap closure) | Complete |
+| LRNG-03 | Phase v0.30-08 (gap closure) | Complete |
+| LRNG-04 | Phase v0.30-08 (gap closure) | Complete |
 | PRIO-01 | Phase v0.31-01 | Pending |
 | VALID-01 | Phase v0.31-01 | Pending |
 | BRKR-01 | Phase v0.31-02 | Pending |
