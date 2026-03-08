@@ -18,7 +18,12 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '..');
+const ROOT = (() => {
+  const arg = process.argv.find(a => a.startsWith('--project-root='));
+  if (arg) return path.resolve(arg.slice('--project-root='.length));
+  if (process.env.PROJECT_ROOT) return process.env.PROJECT_ROOT;
+  return path.join(__dirname, '..');
+})();
 const FORMAL = path.join(ROOT, '.planning', 'formal');
 const REASONING_DIR = path.join(FORMAL, 'reasoning');
 const OUT_FILE = path.join(REASONING_DIR, 'hazard-model.json');

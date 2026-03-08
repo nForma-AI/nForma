@@ -441,7 +441,7 @@ function extractTestAnnotations() {
   const result = {};
 
   for (const filePath of testFiles) {
-    const absPath = path.resolve(__dirname, '..', filePath);
+    const absPath = path.resolve(ROOT, filePath);
     if (!fs.existsSync(absPath)) continue;
 
     const content = fs.readFileSync(absPath, 'utf8');

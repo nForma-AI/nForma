@@ -27,7 +27,12 @@ const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '..');
+const ROOT = (() => {
+  const arg = process.argv.find(a => a.startsWith('--project-root='));
+  if (arg) return path.resolve(arg.slice('--project-root='.length));
+  if (process.env.PROJECT_ROOT) return process.env.PROJECT_ROOT;
+  return path.join(__dirname, '..');
+})();
 const FORMAL = path.join(ROOT, '.planning', 'formal');
 const GATES_DIR = path.join(FORMAL, 'gates');
 const OUT_FILE = path.join(GATES_DIR, 'gate-a-grounding.json');
@@ -147,10 +152,12 @@ function computeGateA(conformanceEvents, vocabulary, invariantCatalog, mismatchR
   // Load mapToXStateEvent
   const { mapToXStateEvent } = require(path.join(__dirname, 'validate-traces.cjs'));
 
-  // Load XState machine
+  // Load XState machine — check ROOT first (for --project-root), then __dirname fallbacks
   const machinePath = (() => {
+    const rootDist    = path.join(ROOT, 'dist', 'machines', 'nf-workflow.machine.js');
     const repoDist    = path.join(__dirname, '..', 'dist', 'machines', 'nf-workflow.machine.js');
     const installDist = path.join(__dirname, 'dist', 'machines', 'nf-workflow.machine.js');
+    if (fs.existsSync(rootDist)) return rootDist;
     return fs.existsSync(repoDist) ? repoDist : installDist;
   })();
   const { createActor, nfWorkflowMachine } = require(machinePath);

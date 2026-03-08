@@ -600,8 +600,17 @@ function generateStubs(gaps, formalAnnotations, requirements) {
         fs.mkdirSync(stubsDir, { recursive: true });
       }
 
-      // Write stub file
-      const stubContent = `#!/usr/bin/env node
+      // Write stub file — but NEVER overwrite an implemented stub.
+      // An implemented stub is one that exists and does NOT contain assert.fail('TODO').
+      let skipStub = false;
+      if (fs.existsSync(stubFilePath)) {
+        const existing = fs.readFileSync(stubFilePath, 'utf8');
+        if (!existing.includes("assert.fail('TODO")) {
+          skipStub = true;
+        }
+      }
+      if (!skipStub) {
+        const stubContent = `#!/usr/bin/env node
 // @requirement ${requirement_id}
 // Auto-generated stub for uncovered invariant: ${property}
 
@@ -612,7 +621,8 @@ test('TODO: implement test for ${requirement_id} — ${property}', () => {
   assert.fail('TODO: implement test for ${requirement_id} — ${property}');
 });
 `;
-      fs.writeFileSync(stubFilePath, stubContent, 'utf8');
+        fs.writeFileSync(stubFilePath, stubContent, 'utf8');
+      }
 
       // Write recipe sidecar with pre-resolved context
       const recipeFileName = requirement_id + '.stub.recipe.json';

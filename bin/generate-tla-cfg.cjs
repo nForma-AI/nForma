@@ -19,7 +19,11 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT  = path.join(__dirname, '..');
+const ROOT = (() => {
+  const arg = process.argv.find(a => a.startsWith('--project-root='));
+  if (arg) return path.resolve(arg.slice('--project-root='.length));
+  return path.join(__dirname, '..');
+})();
 const DRY   = process.argv.includes('--dry');
 
 // ── Model-checking parameters (stable, not derived from code) ─────────────────
