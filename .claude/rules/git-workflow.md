@@ -1,3 +1,11 @@
+---
+paths:
+  - "hooks/**/*.js"
+  - "hooks/dist/**/*.js"
+  - "bin/install.js"
+  - ".planning/**"
+---
+
 # Git Workflow Rules
 
 - Install sync required: edits to hook source files in `hooks/` MUST be copied to `hooks/dist/` then run `node bin/install.js --claude --global`

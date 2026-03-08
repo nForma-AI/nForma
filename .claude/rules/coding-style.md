@@ -1,3 +1,10 @@
+---
+paths:
+  - "hooks/**/*.js"
+  - "hooks/dist/**/*.js"
+  - "bin/**/*.{js,cjs,mjs}"
+---
+
 # Coding Style Rules
 
 - All hook files use `'use strict'` at the top

@@ -1,3 +1,10 @@
+---
+paths:
+  - "hooks/**/*.js"
+  - "bin/**/*.{js,cjs,mjs}"
+  - ".env*"
+---
+
 # Security Rules
 
 - Never commit .env files, API keys, or secrets to git

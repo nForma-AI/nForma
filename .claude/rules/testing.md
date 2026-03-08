@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/*.test.{js,cjs}"
+  - "hooks/dist/**/*.test.js"
+---
+
 # Testing Rules
 
 - Test files live alongside source in hooks/dist/ (e.g., nf-stop.test.js)
