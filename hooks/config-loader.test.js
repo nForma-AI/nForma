@@ -13,7 +13,7 @@ const path = require('path');
 const os = require('os');
 
 // We test via the module under test
-const { loadConfig, DEFAULT_CONFIG, shouldRunHook, HOOK_PROFILE_MAP } = require('./config-loader');
+const { loadConfig, DEFAULT_CONFIG, shouldRunHook, HOOK_PROFILE_MAP, validateHookInput, HOOK_INPUT_SCHEMAS } = require('./config-loader');
 
 // Helper: write a JSON file to a temp directory
 function writeTempConfig(dir, content) {
@@ -646,4 +646,99 @@ test('HPM-TC5: nf-circuit-breaker is in all three profiles', async (t) => {
   assert.ok(HOOK_PROFILE_MAP.minimal.has('nf-circuit-breaker'), 'minimal must include circuit-breaker');
   assert.ok(HOOK_PROFILE_MAP.standard.has('nf-circuit-breaker'), 'standard must include circuit-breaker');
   assert.ok(HOOK_PROFILE_MAP.strict.has('nf-circuit-breaker'), 'strict must include circuit-breaker');
+});
+
+// ============================================================================
+// validateHookInput Tests
+// ============================================================================
+
+// VHI-TC1: validates PreToolUse with valid input
+test('VHI-TC1: validates PreToolUse with valid input', async (t) => {
+  const result = validateHookInput('PreToolUse', { tool_name: 'Bash', cwd: '/tmp' });
+  assert.equal(result.valid, true, 'valid PreToolUse input should pass');
+});
+
+// VHI-TC2: rejects PreToolUse with missing tool_name
+test('VHI-TC2: rejects PreToolUse with missing tool_name', async (t) => {
+  const result = validateHookInput('PreToolUse', {});
+  assert.equal(result.valid, false, 'missing tool_name should fail');
+  assert.ok(result.errors.some(e => e.field === 'tool_name' && e.error === 'missing'), 'should report tool_name as missing');
+});
+
+// VHI-TC3: rejects PreToolUse with wrong type tool_name
+test('VHI-TC3: rejects PreToolUse with wrong type tool_name', async (t) => {
+  const result = validateHookInput('PreToolUse', { tool_name: 123 });
+  assert.equal(result.valid, false, 'wrong type tool_name should fail');
+  assert.ok(result.errors.some(e => e.field === 'tool_name' && e.error === 'wrong_type'), 'should report wrong_type for tool_name');
+});
+
+// VHI-TC4: validates UserPromptSubmit with valid input
+test('VHI-TC4: validates UserPromptSubmit with valid input', async (t) => {
+  const result = validateHookInput('UserPromptSubmit', { prompt: 'hello' });
+  assert.equal(result.valid, true, 'valid UserPromptSubmit input should pass');
+});
+
+// VHI-TC5: rejects UserPromptSubmit with missing prompt
+test('VHI-TC5: rejects UserPromptSubmit with missing prompt', async (t) => {
+  const result = validateHookInput('UserPromptSubmit', {});
+  assert.equal(result.valid, false, 'missing prompt should fail');
+  assert.ok(result.errors.some(e => e.field === 'prompt' && e.error === 'missing'), 'should report prompt as missing');
+});
+
+// VHI-TC6: validates PostToolUse with valid input
+test('VHI-TC6: validates PostToolUse with valid input', async (t) => {
+  const result = validateHookInput('PostToolUse', { tool_name: 'Read', tool_response: {} });
+  assert.equal(result.valid, true, 'valid PostToolUse input should pass');
+});
+
+// VHI-TC7: validates Stop with minimal input (no required fields)
+test('VHI-TC7: validates Stop with minimal input', async (t) => {
+  const result = validateHookInput('Stop', {});
+  assert.equal(result.valid, true, 'Stop with no fields should pass (no required fields)');
+});
+
+// VHI-TC8: validates Stop with wrong type optional field
+test('VHI-TC8: validates Stop with wrong type optional field', async (t) => {
+  const result = validateHookInput('Stop', { stop_hook_active: 'yes' });
+  assert.equal(result.valid, false, 'wrong type stop_hook_active should fail');
+  assert.ok(result.errors.some(e => e.field === 'stop_hook_active' && e.error === 'wrong_type'), 'should report wrong_type for stop_hook_active');
+});
+
+// VHI-TC9: returns valid for unknown event type (fail-open)
+test('VHI-TC9: returns valid for unknown event type', async (t) => {
+  const result = validateHookInput('FutureEvent', {});
+  assert.equal(result.valid, true, 'unknown event type should pass (fail-open)');
+});
+
+// VHI-TC10: returns invalid for null input
+test('VHI-TC10: returns invalid for null input', async (t) => {
+  const result = validateHookInput('PreToolUse', null);
+  assert.equal(result.valid, false, 'null input should fail');
+  assert.ok(result.errors.some(e => e.field === '(root)' && e.error === 'not_object'), 'should report not_object');
+});
+
+// VHI-TC11: returns invalid for non-object input
+test('VHI-TC11: returns invalid for non-object input', async (t) => {
+  const result = validateHookInput('PreToolUse', 'string');
+  assert.equal(result.valid, false, 'string input should fail');
+  assert.ok(result.errors.some(e => e.error === 'not_object'), 'should report not_object');
+});
+
+// VHI-TC12: ignores null/undefined optional fields
+test('VHI-TC12: ignores null/undefined optional fields', async (t) => {
+  const result = validateHookInput('PostToolUse', { tool_name: 'Bash', tool_response: null });
+  assert.equal(result.valid, true, 'null optional field should be ignored');
+});
+
+// VHI-TC13: HOOK_INPUT_SCHEMAS exported and has expected event types
+test('VHI-TC13: HOOK_INPUT_SCHEMAS exported and has expected event types', async (t) => {
+  assert.ok(HOOK_INPUT_SCHEMAS, 'HOOK_INPUT_SCHEMAS must be exported');
+  assert.ok(HOOK_INPUT_SCHEMAS.PreToolUse, 'must have PreToolUse schema');
+  assert.ok(HOOK_INPUT_SCHEMAS.PostToolUse, 'must have PostToolUse schema');
+  assert.ok(HOOK_INPUT_SCHEMAS.UserPromptSubmit, 'must have UserPromptSubmit schema');
+  assert.ok(HOOK_INPUT_SCHEMAS.Stop, 'must have Stop schema');
+  assert.ok(HOOK_INPUT_SCHEMAS.SubagentStop, 'must have SubagentStop schema');
+  assert.ok(HOOK_INPUT_SCHEMAS.PreCompact, 'must have PreCompact schema');
+  assert.ok(HOOK_INPUT_SCHEMAS.SessionStart, 'must have SessionStart schema');
+  assert.ok(HOOK_INPUT_SCHEMAS.SessionEnd, 'must have SessionEnd schema');
 });

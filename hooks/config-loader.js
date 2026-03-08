@@ -160,6 +160,78 @@ const DEFAULT_CONFIG = {
   continuous_verify_enabled: true,  // Master switch for continuous verification in PostToolUse hook
 };
 
+// ─── Hook Input Schemas ──────────────────────────────────────────────────────
+// Per-event-type schemas defining required and optional fields with expected types.
+// Used by validateHookInput() to validate stdin JSON before business logic runs.
+const HOOK_INPUT_SCHEMAS = {
+  PreToolUse: {
+    required: { tool_name: 'string' },
+    optional: { tool_input: 'object', cwd: 'string', hook_event_name: 'string', hookEventName: 'string' },
+  },
+  PostToolUse: {
+    required: { tool_name: 'string' },
+    optional: { tool_input: 'object', tool_response: 'object', cwd: 'string', context_window: 'object', hook_event_name: 'string', hookEventName: 'string' },
+  },
+  UserPromptSubmit: {
+    required: { prompt: 'string' },
+    optional: { cwd: 'string', hook_event_name: 'string', hookEventName: 'string' },
+  },
+  Stop: {
+    required: {},
+    optional: { stop_hook_active: 'boolean', transcript_so_far: 'string', cwd: 'string', hook_event_name: 'string', hookEventName: 'string' },
+  },
+  SubagentStop: {
+    required: {},
+    optional: { stop_hook_active: 'boolean', transcript_so_far: 'string', cwd: 'string', hook_event_name: 'string', hookEventName: 'string' },
+  },
+  PreCompact: {
+    required: {},
+    optional: { cwd: 'string', hook_event_name: 'string', hookEventName: 'string', context_window: 'object' },
+  },
+  SessionStart: {
+    required: {},
+    optional: { cwd: 'string', hook_event_name: 'string', hookEventName: 'string' },
+  },
+  SessionEnd: {
+    required: {},
+    optional: { cwd: 'string', hook_event_name: 'string', hookEventName: 'string', transcript: 'string' },
+  },
+};
+
+// Validates hook input against the schema for the given event type.
+// Returns { valid: true } on success, or { valid: false, errors: [...] } on failure.
+// Unknown event types pass validation (fail-open) so future Claude Code updates do not break hooks.
+function validateHookInput(eventType, input) {
+  if (typeof input !== 'object' || input === null) {
+    return { valid: false, errors: [{ field: '(root)', error: 'not_object', expected: 'object', got: typeof input }] };
+  }
+
+  const schema = HOOK_INPUT_SCHEMAS[eventType];
+  if (!schema) return { valid: true }; // Unknown event type -> fail-open
+
+  const errors = [];
+
+  // Check required fields
+  for (const [field, expectedType] of Object.entries(schema.required || {})) {
+    if (!(field in input)) {
+      errors.push({ field, error: 'missing', expected: expectedType });
+    } else if (typeof input[field] !== expectedType) {
+      errors.push({ field, error: 'wrong_type', expected: expectedType, got: typeof input[field] });
+    }
+  }
+
+  // Check optional fields only if present and non-null
+  for (const [field, expectedType] of Object.entries(schema.optional || {})) {
+    if (field in input && input[field] !== null && input[field] !== undefined) {
+      if (typeof input[field] !== expectedType) {
+        errors.push({ field, error: 'wrong_type', expected: expectedType, got: typeof input[field] });
+      }
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors } : { valid: true };
+}
+
 // Reads and parses a JSON config file.
 // Returns the parsed object on success.
 // Returns null silently if the file does not exist.
@@ -471,4 +543,4 @@ function loadConfig(projectDir) {
   return config;
 }
 
-module.exports = { loadConfig, validateConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP };
+module.exports = { loadConfig, validateConfig, DEFAULT_CONFIG, SLOT_TOOL_SUFFIX, slotToToolCall, shouldRunHook, HOOK_PROFILE_MAP, validateHookInput, HOOK_INPUT_SCHEMAS };
