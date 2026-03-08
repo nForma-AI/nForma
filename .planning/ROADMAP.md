@@ -70,7 +70,10 @@ v0.31 hardens nForma's hook and quorum infrastructure with three layers of impro
   1. User can set `hook_priority` values in nf.json and observe that the circuit-breaker hook always executes before prompt-injection and other enhancement hooks, regardless of filesystem ordering
   2. User sees a diagnostic message on stderr when a hook receives malformed JSON on stdin, followed by a clean fail-open exit (not a crash or silent swallow)
   3. Hook stdin JSON is checked against a lightweight schema; fields with wrong types or missing required keys produce a structured error identifying the specific validation failure
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] v0.31-01-01-PLAN.md — Hook input validation via validateHookInput in config-loader.js
+- [x] v0.31-01-02-PLAN.md — Hook priority ordering via sortHooksByPriority in install.js
 
 #### Phase v0.31-02: Runtime Safety Boundaries
 **Goal**: Quorum dispatch and circuit breaker operate within explicit safety boundaries -- latency budgets cut off slow slots, review-only slots cannot write files, and oscillation signatures are remembered across sessions
@@ -81,7 +84,11 @@ v0.31 hardens nForma's hook and quorum infrastructure with three layers of impro
   2. User can set per-slot latency budgets in providers.json (e.g., `"latency_budget_ms": 15000`); a slot exceeding its budget is terminated mid-dispatch and marked TIMEOUT in telemetry instead of blocking the entire quorum pipeline
   3. Quorum slot workers performing review-only tasks (verification, code review) are dispatched with restricted tool access (Read/Grep/Glob only) -- no Bash, Write, or Edit tools available to review slots
   4. Quorum reaches a DECIDED state on every run where at least one slot responds, even when latency-budget timeouts remove slots mid-dispatch (formal: EventualConsensus)
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] v0.31-02-01-PLAN.md — Oscillation signature persistence in circuit breaker (BRKR-01)
+- [ ] v0.31-02-02-PLAN.md — Per-slot latency budgets in call-quorum-slot.cjs (LTCY-01)
+- [ ] v0.31-02-03-PLAN.md — Review-only tool restriction in quorum dispatch (EXEC-01)
 
 #### Phase v0.31-03: Config & Governance DX
 **Goal**: Users experience cleaner configuration, lower per-turn token cost from rule sharding, and parseable debate records
@@ -101,6 +108,6 @@ v0.31-01 -> v0.31-02 -> v0.31-03
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| v0.31-01. Hook Infrastructure Hardening | 1/2 | Complete    | 2026-03-08 |
-| v0.31-02. Runtime Safety Boundaries | 0/TBD | Not started | - |
+| v0.31-01. Hook Infrastructure Hardening | 2/2 | Complete    | 2026-03-08 |
+| v0.31-02. Runtime Safety Boundaries | 0/3 | Not started | - |
 | v0.31-03. Config & Governance DX | 0/TBD | Not started | - |
