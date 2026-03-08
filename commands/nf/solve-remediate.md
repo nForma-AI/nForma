@@ -66,7 +66,7 @@ When `status` is `"bail"` (e.g., all layers skipped or convergence stall detecte
 
 ## Remediation Dispatch Pattern
 
-For each gap type with residual > 0, dispatch an Agent call to handle that specific remediation. Each Agent call receives only the relevant residual detail and returns a compact status. This prevents context accumulation across the 13 remediation steps.
+Each layer is dispatched as its own **Agent call** to prevent context accumulation. The remediate agent only sees compact JSON results — the detailed remediation output stays in the per-layer subprocess.
 
 Track dispatched, skipped, and failed lists for the output report.
 
@@ -74,9 +74,7 @@ Track dispatched, skipped, and failed lists for the output report.
 
 **Important:** Dispatch remediation in this strict order because R->F coverage is a prerequisite for F->T test stubs. New formal specs create new invariants needing test backing.
 
-For each gap type with `residual > 0`, dispatch in this exact order:
-
-Additionally, after layer-based remediation dispatch, check if any openDebt entries were matched to this layer via `matchDebtToResidual()`. For matched entries, transition their status to 'resolving':
+**Pre-dispatch:** Transition matched debt entries to 'resolving':
 
 ```javascript
 const { transitionDebtEntries } = require('./bin/solve-debt-bridge.cjs');
@@ -87,6 +85,53 @@ transitionDebtEntries('.planning/formal/debt.json', resolvingFPs, 'acknowledged'
 ```
 
 Log: `"Debt: {resolvingFPs.length} entries transitioned to 'resolving'"`
+
+**Per-layer Agent dispatch:** For each layer in the strict order below, if residual > 0, dispatch:
+
+```
+Agent(
+  subagent_type="general-purpose",
+  description="solve-rem: {layer_label}",
+  prompt="Read commands/nf/solve-remediate.md and execute ONLY section '{section_header}'.
+Residual detail (JSON): {residual_vector.{layer_key}}
+Open debt entries: {relevant_debt_subset}
+Heatmap (for 3h only): {heatmap}
+After completing the section, return ONLY this JSON:
+{\"layer\": \"{layer_key}\", \"status\": \"ok\" | \"error\" | \"skipped\", \"actions_taken\": N, \"failures\": N, \"summary\": \"...\"}"
+)
+```
+
+Parse the compact JSON result. Append to dispatched/skipped/failed lists. Continue to next layer.
+
+**Dispatch order** (skip layers with residual == 0):
+
+| Order | Layer Key | Section | Agent? |
+|-------|-----------|---------|--------|
+| 1 | r_to_f | 3a. R->F Gaps | Yes — dispatches /nf:close-formal-gaps |
+| 2 | f_to_t | 3b. F->T Gaps | Yes — spawns nf-executor agents |
+| 3 | t_to_c | 3c. T->C Gaps | Yes — dispatches /nf:fix-tests |
+| 4 | c_to_f | 3d. C->F Gaps | Yes — dispatches /nf:quick |
+| 5 | f_to_c | 3e. F->C Gaps | Yes — runs verification + dispatches fixes |
+| 6 | r_to_d | 3f. R->D Gaps | Yes — spawns nf-executor agent |
+| 7 | d_to_c | 3g. D->C Gaps | **No** — display-only, keep inline |
+| 8 | git_heatmap | 3h. Git Heatmap | Yes — dispatches /nf:close-formal-gaps |
+| 9 | c_to_r + t_to_r + d_to_r | 3i. Reverse Discovery | Yes — interactive human approval |
+| 10 | (pre-gate) | 3j. Hazard Model Refresh | **No** — single bash command, keep inline |
+| 11 | l1_to_l2 | 3k. Gate A | Yes — dispatches /nf:quick |
+| 12 | l2_to_l3 | 3l. Gate B | Yes — dispatches /nf:quick |
+| 13 | l3_to_tc | 3m. Gate C | Yes — dispatches /nf:quick |
+
+For **inline layers** (3g, 3j): execute the section directly without Agent dispatch (they produce minimal output).
+
+For **Agent layers**: dispatch using the template above. Each sub-agent reads this file, finds its section, and executes only that section. The sub-agent has access to all tools (Read, Write, Edit, Bash, Glob, Grep, Agent, Skill).
+
+**RAM constraint:** Never exceed 3 concurrent Agent calls. Layers are dispatched **sequentially** (one at a time), except F->T batch executors which use waves of 3 internally per section 3b.
+
+---
+
+## Layer Reference Sections
+
+The following sections are executed by per-layer Agent subprocesses. Each sub-agent reads this file and executes ONLY the section matching its dispatch.
 
 ### 3a. R->F Gaps (residual_vector.r_to_f.residual > 0)
 
