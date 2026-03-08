@@ -34,7 +34,7 @@
 
 ### Quality Hardening
 
-- [ ] **PRIO-01**: User can configure hook execution priority in nf.json so safety hooks (circuit-breaker) always run before enhancement hooks (prompt injection), with deterministic ordering guaranteed
+- [x] **PRIO-01**: User can configure hook execution priority in nf.json so safety hooks (circuit-breaker) always run before enhancement hooks (prompt injection), with deterministic ordering guaranteed
 - [ ] **BRKR-01**: When circuit breaker fires, the oscillation trigger pattern (file set, alternation count, time window) is persisted to `.planning/formal/evidence/` so future sessions can preemptively avoid the same signature
 - [ ] **LTCY-01**: User can set per-slot latency budgets in providers.json; slots exceeding their budget are cut off mid-dispatch instead of blocking the quorum pipeline indefinitely
 - [ ] **EXEC-01**: Quorum slot workers performing review-only tasks (verification, code review) run with restricted tool access (Read/Grep/Glob only), reducing blast radius of misbehaving agents
@@ -86,7 +86,7 @@
 | LRNG-02 | Phase v0.30-08 (gap closure) | Complete |
 | LRNG-03 | Phase v0.30-08 (gap closure) | Complete |
 | LRNG-04 | Phase v0.30-08 (gap closure) | Complete |
-| PRIO-01 | Phase v0.31-01 | Pending |
+| PRIO-01 | Phase v0.31-01 | Complete |
 | VALID-01 | Phase v0.31-01 | Complete |
 | BRKR-01 | Phase v0.31-02 | Pending |
 | LTCY-01 | Phase v0.31-02 | Pending |

@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: 1 of 3 (Hook Infrastructure Hardening)
-Plan: 1 of 2 in current phase
-Status: Plan 01 complete, ready for Plan 02
-Last activity: 2026-03-08 -- Completed v0.31-01-01 (hook input validation)
+Plan: 2 of 2 in current phase
+Status: Phase v0.31-01 complete, ready for Phase v0.31-02
+Last activity: 2026-03-08 -- Completed v0.31-01-02 (hook priority ordering)
 
-Progress: [##░░░░░░░░] 17%
+Progress: [###░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -27,7 +27,7 @@ Progress: [##░░░░░░░░] 17%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| v0.31-01 | 1/2 | 30min | 30min |
+| v0.31-01 | 2/2 | 38min | 19min |
 
 **Recent Trend:**
 - Last 5 plans: (from v0.30) 3min, 4min, 4min, 5min, 4min
@@ -45,6 +45,9 @@ Recent decisions affecting current work:
 - [v0.31-01-01]: Statusline uses 'Notification' as default event type (fail-open for non-standard events)
 - [v0.31-01-01]: nf-check-update gets stdin reader with validation for uniform coverage
 - [v0.31-01-01]: Validation errors produce stderr warnings then fail-open exit(0)
+- [v0.31-01-02]: Priority values follow ruflo HookPriority enum: Critical=1000, Normal=50, Low=10
+- [v0.31-01-02]: Sorting placed in finishInstall before writeSettings for single code path
+- [v0.31-01-02]: Inline fallback priorities in install.js for bootstrap when config-loader unavailable
 - [Roadmap]: 3-phase structure -- hook hardening first (foundation), then runtime safety boundaries, then DX improvements
 
 ### Pending Todos
@@ -59,5 +62,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Completed v0.31-01-01-PLAN.md (hook input validation)
+Stopped at: Completed v0.31-01-02-PLAN.md (hook priority ordering)
 Resume file: None
