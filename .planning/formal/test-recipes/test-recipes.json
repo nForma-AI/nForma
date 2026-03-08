@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-07T15:25:20.729Z",
+  "generated": "2026-03-08T08:42:24.274Z",
   "source": {
     "failure_mode_catalog": "reasoning/failure-mode-catalog.json",
     "hazard_model": "reasoning/hazard-model.json",
@@ -36,7 +36,7 @@
       },
       "risk_context": {
         "severity_class": "degraded",
-        "rpn": 80,
+        "rpn": 160,
         "risk_tier": "medium"
       },
       "derived_from": [
@@ -81,7 +81,7 @@
       },
       "risk_context": {
         "severity_class": "stalled",
-        "rpn": 120,
+        "rpn": 240,
         "risk_tier": "high"
       },
       "derived_from": [
@@ -127,7 +127,7 @@
       },
       "risk_context": {
         "severity_class": "stalled",
-        "rpn": 120,
+        "rpn": 240,
         "risk_tier": "high"
       },
       "derived_from": [
@@ -172,7 +172,7 @@
       },
       "risk_context": {
         "severity_class": "degraded",
-        "rpn": 80,
+        "rpn": 160,
         "risk_tier": "high"
       },
       "derived_from": [
@@ -217,7 +217,7 @@
       },
       "risk_context": {
         "severity_class": "model_gap",
-        "rpn": 80,
+        "rpn": 160,
         "risk_tier": "high"
       },
       "derived_from": [
@@ -1121,7 +1121,7 @@
       },
       "risk_context": {
         "severity_class": "cosmetic",
-        "rpn": 40,
+        "rpn": 80,
         "risk_tier": "medium"
       },
       "derived_from": [
@@ -1166,7 +1166,7 @@
       },
       "risk_context": {
         "severity_class": "model_gap",
-        "rpn": 40,
+        "rpn": 80,
         "risk_tier": "medium"
       },
       "derived_from": [
@@ -1211,7 +1211,7 @@
       },
       "risk_context": {
         "severity_class": "cosmetic",
-        "rpn": 40,
+        "rpn": 80,
         "risk_tier": "medium"
       },
       "derived_from": [
@@ -1256,7 +1256,7 @@
       },
       "risk_context": {
         "severity_class": "model_gap",
-        "rpn": 40,
+        "rpn": 80,
         "risk_tier": "medium"
       },
       "derived_from": [
@@ -1301,7 +1301,7 @@
       },
       "risk_context": {
         "severity_class": "cosmetic",
-        "rpn": 40,
+        "rpn": 80,
         "risk_tier": "medium"
       },
       "derived_from": [
@@ -1346,7 +1346,7 @@
       },
       "risk_context": {
         "severity_class": "model_gap",
-        "rpn": 40,
+        "rpn": 80,
         "risk_tier": "medium"
       },
       "derived_from": [

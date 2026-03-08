@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-07T15:25:08.868Z",
+  "generated": "2026-03-08T08:42:12.760Z",
   "layers": {
     "L1": [],
     "L2": [],
@@ -534,6 +534,31 @@
         "path": ".planning/formal/prism/deliberation-healing.props",
         "description": "Auto-registered from @requirement annotations",
         "grounding_status": "has_semantic_declarations"
+      },
+      {
+        "path": ".planning/formal/alloy/config-audit.als",
+        "description": "Config audit cross-referencing: auth_type anti-pattern detection",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/solve-result-schema.als",
+        "description": "Solver result classification schema and stub upgrade behavior",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/proximity-index.als",
+        "description": "Formal proximity index bidirectional adjacency graph",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/wiring-awareness.als",
+        "description": "Planner wiring-awareness and verifier orphan-check invariants",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/QGSDCheckpointGate.tla",
+        "description": "Checkpoint:human-verify 100% APPROVE consensus gate",
+        "grounding_status": "ungrounded"
       }
     ]
   },
@@ -555,12 +580,12 @@
     }
   },
   "summary": {
-    "total_models": 106,
+    "total_models": 111,
     "L1_count": 0,
     "L2_count": 0,
-    "L3_count": 106,
+    "L3_count": 111,
     "maturity_distribution": {
-      "0": 82,
+      "0": 87,
       "1": 24
     },
     "spec_modules_with_invariants": 17

@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-07T15:25:09.090Z",
+  "generated": "2026-03-08T08:42:12.921Z",
   "total_proposed": 65,
   "implemented": 0,
   "partial": 0,
@@ -112,6 +112,18 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDActivityTracking.tla:MaxWorkflows",
       "instrumentation_snippet": "// Prometheus gauge for MaxWorkflows (tla/assume)\n# HELP nf_maxworkflows Monitors MaxWorkflows from tla model\n# TYPE nf_maxworkflows gauge\nconst nf_maxworkflows = new Gauge({\n  name: 'nf_maxworkflows',\n  help: 'Monitors MaxWorkflows from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxworkflows.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDActivityTracking.tla' }, 1);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_maxworkers__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDCheckpointGate.tla",
+      "assumption_name": "MaxWorkers",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDCheckpointGate.tla:MaxWorkers",
+      "instrumentation_snippet": "// Prometheus gauge for MaxWorkers (tla/assume)\n# HELP nf_maxworkers__tla Monitors MaxWorkers from tla model\n# TYPE nf_maxworkers__tla gauge\nconst nf_maxworkers__tla = new Gauge({\n  name: 'nf_maxworkers__tla',\n  help: 'Monitors MaxWorkers from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxworkers__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDCheckpointGate.tla' }, 0);",
       "status": "proposed"
     },
     {
@@ -439,6 +451,18 @@
       "status": "proposed"
     },
     {
+      "metric_name": "nf_maxworkers__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCcheckpointgate.cfg",
+      "assumption_name": "MaxWorkers",
+      "assumption_type": "constant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCcheckpointgate.cfg:MaxWorkers",
+      "instrumentation_snippet": "// Prometheus gauge for MaxWorkers (tla/constant)\n# HELP nf_maxworkers__tla Monitors MaxWorkers from tla model\n# TYPE nf_maxworkers__tla gauge\nconst nf_maxworkers__tla = new Gauge({\n  name: 'nf_maxworkers__tla',\n  help: 'Monitors MaxWorkers from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxworkers__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCcheckpointgate.cfg' }, 3);",
+      "status": "proposed"
+    },
+    {
       "metric_name": "nf_maxdeliberationrounds__tla",
       "metric_type": "gauge",
       "tier": 1,
@@ -607,6 +631,30 @@
       "status": "proposed"
     },
     {
+      "metric_name": "nf_residualequalsfailcount_rc_failcount",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/result-classification.als",
+      "assumption_name": "residualEqualsFailCount_rc.failCount",
+      "assumption_type": "constraint",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/result-classification.als:residualEqualsFailCount_rc.failCount",
+      "instrumentation_snippet": "// Prometheus gauge for residualEqualsFailCount_rc.failCount (alloy/constraint)\n# HELP nf_residualequalsfailcount_rc_failcount Monitors residualEqualsFailCount_rc.failCount from alloy model\n# TYPE nf_residualequalsfailcount_rc_failcount gauge\nconst nf_residualequalsfailcount_rc_failcount = new Gauge({\n  name: 'nf_residualequalsfailcount_rc_failcount',\n  help: 'Monitors residualEqualsFailCount_rc.failCount from alloy model',\n  labelNames: ['model', 'file']\n});\nnf_residualequalsfailcount_rc_failcount.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/result-classification.als' }, 0);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_residualequalsfailcount_rc_errorcount",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/result-classification.als",
+      "assumption_name": "residualEqualsFailCount_rc.errorCount",
+      "assumption_type": "constraint",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/result-classification.als:residualEqualsFailCount_rc.errorCount",
+      "instrumentation_snippet": "// Prometheus gauge for residualEqualsFailCount_rc.errorCount (alloy/constraint)\n# HELP nf_residualequalsfailcount_rc_errorcount Monitors residualEqualsFailCount_rc.errorCount from alloy model\n# TYPE nf_residualequalsfailcount_rc_errorcount gauge\nconst nf_residualequalsfailcount_rc_errorcount = new Gauge({\n  name: 'nf_residualequalsfailcount_rc_errorcount',\n  help: 'Monitors residualEqualsFailCount_rc.errorCount from alloy model',\n  labelNames: ['model', 'file']\n});\nnf_residualequalsfailcount_rc_errorcount.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/result-classification.als' }, 0);",
+      "status": "proposed"
+    },
+    {
       "metric_name": "nf_successcountneverexceedsminsize_config_minsize",
       "metric_type": "gauge",
       "tier": 1,
@@ -652,54 +700,6 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/prism/deliberation-healing.pm:MAX_ROUNDS",
       "instrumentation_snippet": "// Prometheus gauge for MAX_ROUNDS (prism/const)\n# HELP nf_max_rounds__prism Monitors MAX_ROUNDS from prism model\n# TYPE nf_max_rounds__prism gauge\nconst nf_max_rounds__prism = new Gauge({\n  name: 'nf_max_rounds__prism',\n  help: 'Monitors MAX_ROUNDS from prism model',\n  labelNames: ['model', 'file']\n});\nnf_max_rounds__prism.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/prism/deliberation-healing.pm' }, 3);",
-      "status": "proposed"
-    },
-    {
-      "metric_name": "nf_codex_1_avail",
-      "metric_type": "gauge",
-      "tier": 1,
-      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm",
-      "assumption_name": "codex_1_avail",
-      "assumption_type": "const",
-      "coverage": "uncovered",
-      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm:codex_1_avail",
-      "instrumentation_snippet": "// Prometheus gauge for codex_1_avail (prism/const)\n# HELP nf_codex_1_avail Monitors codex_1_avail from prism model\n# TYPE nf_codex_1_avail gauge\nconst nf_codex_1_avail = new Gauge({\n  name: 'nf_codex_1_avail',\n  help: 'Monitors codex_1_avail from prism model',\n  labelNames: ['model', 'file']\n});\nnf_codex_1_avail.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm' }, 0.85);",
-      "status": "proposed"
-    },
-    {
-      "metric_name": "nf_gemini_1_avail",
-      "metric_type": "gauge",
-      "tier": 1,
-      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm",
-      "assumption_name": "gemini_1_avail",
-      "assumption_type": "const",
-      "coverage": "uncovered",
-      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm:gemini_1_avail",
-      "instrumentation_snippet": "// Prometheus gauge for gemini_1_avail (prism/const)\n# HELP nf_gemini_1_avail Monitors gemini_1_avail from prism model\n# TYPE nf_gemini_1_avail gauge\nconst nf_gemini_1_avail = new Gauge({\n  name: 'nf_gemini_1_avail',\n  help: 'Monitors gemini_1_avail from prism model',\n  labelNames: ['model', 'file']\n});\nnf_gemini_1_avail.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm' }, 0.85);",
-      "status": "proposed"
-    },
-    {
-      "metric_name": "nf_opencode_1_avail",
-      "metric_type": "gauge",
-      "tier": 1,
-      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm",
-      "assumption_name": "opencode_1_avail",
-      "assumption_type": "const",
-      "coverage": "uncovered",
-      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm:opencode_1_avail",
-      "instrumentation_snippet": "// Prometheus gauge for opencode_1_avail (prism/const)\n# HELP nf_opencode_1_avail Monitors opencode_1_avail from prism model\n# TYPE nf_opencode_1_avail gauge\nconst nf_opencode_1_avail = new Gauge({\n  name: 'nf_opencode_1_avail',\n  help: 'Monitors opencode_1_avail from prism model',\n  labelNames: ['model', 'file']\n});\nnf_opencode_1_avail.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm' }, 0.85);",
-      "status": "proposed"
-    },
-    {
-      "metric_name": "nf_copilot_1_avail",
-      "metric_type": "gauge",
-      "tier": 1,
-      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm",
-      "assumption_name": "copilot_1_avail",
-      "assumption_type": "const",
-      "coverage": "uncovered",
-      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm:copilot_1_avail",
-      "instrumentation_snippet": "// Prometheus gauge for copilot_1_avail (prism/const)\n# HELP nf_copilot_1_avail Monitors copilot_1_avail from prism model\n# TYPE nf_copilot_1_avail gauge\nconst nf_copilot_1_avail = new Gauge({\n  name: 'nf_copilot_1_avail',\n  help: 'Monitors copilot_1_avail from prism model',\n  labelNames: ['model', 'file']\n});\nnf_copilot_1_avail.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/prism/mcp-availability.pm' }, 0.85);",
       "status": "proposed"
     },
     {

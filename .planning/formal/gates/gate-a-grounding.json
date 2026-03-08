@@ -1,13 +1,13 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-07T15:28:32.413Z",
-  "grounding_score": 0.85629305742685,
+  "generated": "2026-03-08T08:45:38.751Z",
+  "grounding_score": 0.8690887757453852,
   "target": 0.8,
   "target_met": true,
-  "explained": 33684,
-  "total": 39337,
+  "explained": 41479,
+  "total": 47727,
   "unexplained_counts": {
-    "instrumentation_bug": 5653,
+    "instrumentation_bug": 6248,
     "model_gap": 0,
     "genuine_violation": 0
   },
@@ -16,14 +16,14 @@
       "top_actions": [
         {
           "action": "undefined",
-          "count": 5649
+          "count": 6233
         },
         {
           "action": "security_sweep:no_xstate_map",
-          "count": 4
+          "count": 15
         }
       ],
-      "total": 5653
+      "total": 6248
     },
     "model_gap": {
       "top_mismatches": [],
@@ -36,9 +36,9 @@
   },
   "methodology": {
     "explains_definition": "vocabulary_mapped AND (xstate_valid OR methodology_skip)",
-    "h1_methodology_skips": 12433,
-    "xstate_validated": 21251,
-    "vocabulary_mapped": 33688
+    "h1_methodology_skips": 14791,
+    "xstate_validated": 26688,
+    "vocabulary_mapped": 41494
   },
   "warnings": [],
   "scope": {
