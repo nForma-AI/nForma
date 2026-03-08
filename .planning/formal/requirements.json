@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-07T23:59:16.911Z",
-  "content_hash": "11bbd15f8dfe467d",
+  "aggregated_at": "2026-03-08T08:38:36.746Z",
+  "content_hash": "aa2477d2e94ed32c",
   "schema_version": "1",
   "requirements": [
     {
@@ -3074,6 +3074,18 @@
       }
     },
     {
+      "id": "SOLVE-14",
+      "text": "The nf:solve skill decomposes into three Agent-dispatched sub-skills (solve-diagnose, solve-remediate, solve-report) orchestrated by a thin dispatcher that retains only the convergence loop, report-only gate, and phase-routing logic.",
+      "category": "Solver Orchestration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The monolithic solve.md (971 lines) was loaded in full on every invocation, consuming excessive context. Decomposing into sub-skills reduces per-invocation context by 75-90% while preserving all diagnostic, remediation, and reporting logic via structured JSON input/output contracts with status-based branching.",
+      "provenance": {
+        "source_file": ".planning/quick/221-refactor-nf-solve-into-sub-skills-to-red/221-PLAN.md",
+        "milestone": "quick-221"
+      }
+    },
+    {
       "id": "SPEC-01",
       "text": "Stop hook formalized in `QGSDStopHook.tla` + `MCStopHook.cfg`, TLC verifies safety + liveness",
       "category": "Formal Verification",
@@ -4014,6 +4026,6 @@
       ]
     }
   ],
-  "frozen_at": "2026-03-07T23:59:16.963Z",
+  "frozen_at": "2026-03-08T08:38:36.747Z",
   "total": 283
 }
