@@ -231,6 +231,89 @@ function getUniqueCategories(requirements) {
 }
 
 // ---------------------------------------------------------------------------
+// Requirement creation
+// ---------------------------------------------------------------------------
+
+/**
+ * Generate the next sequential requirement ID for a given prefix.
+ * Scans existing requirements for IDs matching `PREFIX-NN` and returns `PREFIX-(max+1)`.
+ * @param {string} prefix  e.g. 'SOLVE'
+ * @param {string} [basePath]  project root (defaults to cwd)
+ * @returns {string} e.g. 'SOLVE-16'
+ */
+function nextRequirementId(prefix, basePath) {
+  const { requirements } = readRequirementsJson(basePath);
+  const re = new RegExp('^' + prefix + '-(\\d+)$');
+  let max = 0;
+  for (const r of requirements) {
+    const m = (r.id || '').match(re);
+    if (m) {
+      const n = parseInt(m[1], 10);
+      if (n > max) max = n;
+    }
+  }
+  const next = max + 1;
+  return prefix + '-' + String(next).padStart(2, '0');
+}
+
+/**
+ * Append a requirement to requirements.json atomically.
+ * @param {Object} reqObj  Must have { id, text, category, status }
+ * @param {string} [basePath]  project root (defaults to cwd)
+ * @returns {{ ok: boolean, id?: string, reason?: string }}
+ */
+function addRequirement(reqObj, basePath) {
+  const base = basePath || process.cwd();
+  const reqPath = path.join(base, '.planning', 'formal', 'requirements.json');
+
+  // Validate required fields
+  if (!reqObj || !reqObj.id || !reqObj.text || !reqObj.category || !reqObj.status) {
+    return { ok: false, reason: 'missing required fields (id, text, category, status)' };
+  }
+
+  let raw;
+  try {
+    raw = JSON.parse(fs.readFileSync(reqPath, 'utf8'));
+  } catch (err) {
+    return { ok: false, reason: 'cannot read requirements.json: ' + err.message };
+  }
+
+  const requirements = raw.requirements || [];
+
+  // Check for duplicate ID
+  if (requirements.some(r => r.id === reqObj.id)) {
+    return { ok: false, reason: 'duplicate' };
+  }
+
+  // Append
+  requirements.push(reqObj);
+  raw.requirements = requirements;
+
+  // Update envelope metadata
+  raw.aggregated_at = new Date().toISOString();
+  delete raw.frozen_at;
+
+  // Recompute content_hash (first 16 hex chars of sha256 of JSON.stringify(requirements))
+  const crypto = require('crypto');
+  raw.content_hash = crypto.createHash('sha256')
+    .update(JSON.stringify(requirements))
+    .digest('hex')
+    .slice(0, 16);
+
+  // Atomic write: .tmp then rename
+  const tmpPath = reqPath + '.tmp';
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify(raw, null, 2) + '\n', 'utf8');
+    fs.renameSync(tmpPath, reqPath);
+  } catch (err) {
+    try { fs.unlinkSync(tmpPath); } catch (_) {}
+    return { ok: false, reason: 'write error: ' + err.message };
+  }
+
+  return { ok: true, id: reqObj.id };
+}
+
+// ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 
@@ -242,6 +325,8 @@ module.exports = {
   buildTraceability,
   filterRequirements,
   getUniqueCategories,
+  addRequirement,
+  nextRequirementId,
 };
 
 module.exports._pure = module.exports;

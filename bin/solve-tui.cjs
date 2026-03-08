@@ -926,6 +926,74 @@ function main() {
   render();
 }
 
+// ── Requirement & TODO creation ───────────────────────────────────────────
+
+/**
+ * Create a requirement from a solve item (C->R, T->R, or D->R).
+ * @param {Object} item  Normalized solve item
+ * @param {string} catKey  Category key: 'ctor', 'ttor', 'dtor'
+ * @returns {{ ok: boolean, id?: string, reason?: string }}
+ */
+function createRequirementFromItem(item, catKey) {
+  const rc = require(path.join(__dirname, 'requirements-core.cjs'));
+  const prefixMap = { ctor: 'Code module', ttor: 'Test file', dtor: 'Doc claim' };
+  const prefix = prefixMap[catKey] || 'Solve item';
+
+  const id = rc.nextRequirementId('SOLVE');
+  const reqObj = {
+    id,
+    text: prefix + ': ' + (item.file || item.claim_text || item.value || item.summary),
+    category: 'Solver-Discovered',
+    status: 'Proposed',
+    provenance: {
+      source_file: item.file || item.doc_file,
+      milestone: 'solver-tui',
+    },
+  };
+
+  return rc.addRequirement(reqObj);
+}
+
+/**
+ * Create a TODO item from a D->C broken claim.
+ * @param {Object} item  Normalized D->C solve item
+ * @returns {{ ok: boolean, id?: string }}
+ */
+function createTodoFromItem(item) {
+  const todoPath = path.join(ROOT, '.planning', 'todos.json');
+  let todoData;
+  try {
+    todoData = JSON.parse(fs.readFileSync(todoPath, 'utf8'));
+  } catch (_) {
+    todoData = { created_at: new Date().toISOString(), items: [] };
+  }
+  if (!Array.isArray(todoData.items)) todoData.items = [];
+
+  const now = new Date().toISOString();
+  const id = 'TODO-' + Date.now();
+  todoData.items.push({
+    id,
+    source: 'solver-dtoc',
+    file: item.doc_file,
+    value: item.value,
+    reason: item.reason,
+    line: item.line,
+    created_at: now,
+  });
+
+  // Atomic write
+  const tmpPath = todoPath + '.tmp';
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify(todoData, null, 2) + '\n', 'utf8');
+    fs.renameSync(tmpPath, todoPath);
+  } catch (err) {
+    try { fs.unlinkSync(tmpPath); } catch (_) {}
+    return { ok: false, reason: err.message };
+  }
+
+  return { ok: true, id };
+}
+
 // ── Exports ───────────────────────────────────────────────────────────────────
 
 if (require.main === module) {
@@ -939,5 +1007,7 @@ if (require.main === module) {
     addRegexPattern,
     readFileContext,
     CATEGORIES,
+    createRequirementFromItem,
+    createTodoFromItem,
   };
 }
