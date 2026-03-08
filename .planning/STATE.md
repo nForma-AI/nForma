@@ -40,6 +40,7 @@ Progress: [########..] 79%
 | Phase v0.30-05 P01 | 3min | 2 tasks | 5 files |
 | Phase v0.30-05 P02 | 4min | 2 tasks | 5 files |
 | Phase v0.30-06 P01 | 4min | 2 tasks | 5 files |
+| Phase v0.30-06 P02 | 5min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,9 @@ Recent decisions affecting current work:
 - [v0.30-06-01]: Keyword-based domain detection with PATH_CATEGORY_MAP for artifact path analysis
 - [v0.30-06-01]: Explicit formal subdirectories (tla/, alloy/, prism/) in DOMAIN_CONFIG.formal.searchDirs for non-recursive readdirSync
 - [v0.30-06-01]: Per-phase entry cap (MAX_ENTRIES_PER_PHASE=10) to prevent unbounded growth
+- [Phase v0.30-06]: Pre-dispatch enrichment architecture: slot workers lack tool access, context injected before dispatch
+- [Phase v0.30-06]: Hook-level injection cap 800 chars vs module-level 2000 chars due to additionalContext contention
+- [Phase v0.30-06]: Config kill switch context_retrieval_enabled default ON (fail-open)
 
 ### Pending Todos
 
