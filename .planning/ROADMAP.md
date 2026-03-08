@@ -69,6 +69,10 @@ Plans:
   3. Worktree cleanup occurs automatically after plan completion (success or failure) — no orphaned worktrees left behind
   4. Parallel execution produces the same final code state as sequential execution for the same set of plans
 **Research:** v0.30-07-RESEARCH.md (completed)
+**Plans:** 2 plans
+Plans:
+- [ ] v0.30-07-01-PLAN.md — Worktree executor agent, merge orchestration module, and tests
+- [ ] v0.30-07-02-PLAN.md — Pattern D parallel dispatch in execute-plan.md, parallel progress aggregation
 
 ---
 
