@@ -2889,6 +2889,25 @@ function solveBrowseFlow() {
         lines.push(`    {gray-fg}by type: ${typeStr}{/}`);
         lines.push(`    {gray-fg}by doc category: ${catStr}{/}`);
       }
+      // Show directory breakdown for C→R
+      if (key === 'ctor' && cat.items.length > 0) {
+        const byDir = {};
+        for (const it of cat.items) {
+          const dir = (it.file || '').split('/')[0] || 'unknown';
+          byDir[dir] = (byDir[dir] || 0) + 1;
+        }
+        const dirStr = Object.entries(byDir).map(([k, v]) => `${k}/: ${v}`).join(', ');
+        lines.push(`    {gray-fg}by directory: ${dirStr}{/}`);
+      }
+      // Show source module match stats for T→R
+      if (key === 'ttor' && cat.items.length > 0) {
+        let withSource = 0;
+        for (const it of cat.items) {
+          const base = (it.file || '').replace(/\.test\.(cjs|js|mjs)$/, '.$1');
+          try { if (fs.existsSync(path.join(__dirname, '..', base))) withSource++; } catch (_) {}
+        }
+        lines.push(`    {gray-fg}with matching source module: ${withSource}/${cat.items.length}{/}`);
+      }
     }
   }
 
@@ -2948,12 +2967,51 @@ async function solveCategoryFlow(catKey) {
         lines.push(`       {cyan-fg}${item.doc_file || 'N/A'}${item.line ? ':' + item.line : ''}{/}  {red-fg}${item.reason || ''}{/}`);
         lines.push(`       {gray-fg}category: ${item.category || 'N/A'}{/}`);
       } else if (catKey === 'ctor') {
-        lines.push(`  ${num} {cyan-fg}${item.file || item.summary || 'N/A'}{/}`);
+        const filePath = item.file || item.summary || 'N/A';
+        lines.push(`  ${num} {cyan-fg}${filePath}{/}`);
+        // Show first-line description from the module
+        try {
+          const absFile = path.join(__dirname, '..', filePath);
+          const head = fs.readFileSync(absFile, 'utf8').split('\n').slice(0, 10);
+          const desc = head.find(l => /^\s*\*\s+\S|^\/\/\s+\S|^\/\*\*/.test(l));
+          if (desc) lines.push(`       {gray-fg}${desc.replace(/^\s*[\/*]+\s*/, '').slice(0, 65)}{/}`);
+        } catch (_) {}
+        // Check for matching test file
+        const testFile = filePath.replace(/\.(cjs|js|mjs)$/, '.test.$1');
+        try {
+          if (fs.existsSync(path.join(__dirname, '..', testFile))) {
+            lines.push(`       {green-fg}has test: ${testFile}{/}`);
+          }
+        } catch (_) {}
       } else if (catKey === 'ttor') {
-        lines.push(`  ${num} {cyan-fg}${item.file || item.summary || 'N/A'}{/}`);
+        const filePath = item.file || item.summary || 'N/A';
+        lines.push(`  ${num} {cyan-fg}${filePath}{/}`);
+        // Show source module and whether it's requirement-traced
+        const sourceFile = filePath.replace(/\.test\.(cjs|js|mjs)$/, '.$1');
+        try {
+          if (fs.existsSync(path.join(__dirname, '..', sourceFile))) {
+            lines.push(`       {gray-fg}source: ${sourceFile}{/}`);
+          } else {
+            lines.push(`       {red-fg}no source module found{/}`);
+          }
+        } catch (_) {}
+        // Show first describe() or test title
+        try {
+          const absFile = path.join(__dirname, '..', filePath);
+          const head = fs.readFileSync(absFile, 'utf8').split('\n').slice(0, 30);
+          const descLine = head.find(l => /describe\(|test\(|it\(/.test(l));
+          if (descLine) {
+            const match = descLine.match(/(?:describe|test|it)\(\s*['"`]([^'"`]+)/);
+            if (match) lines.push(`       {gray-fg}tests: "${match[1].slice(0, 55)}"{/}`);
+          }
+        } catch (_) {}
       } else if (catKey === 'dtor') {
         lines.push(`  ${num} {yellow-fg}${(item.claim_text || item.summary || '').slice(0, 70)}{/}`);
         lines.push(`       {cyan-fg}${item.doc_file || 'N/A'}${item.line ? ':' + item.line : ''}{/}`);
+        // Show the action verb that triggered detection
+        const ACTION_VERBS_LIST = ['supports','enables','provides','ensures','guarantees','validates','enforces','detects','prevents','handles','automates','generates','monitors','verifies','dispatches'];
+        const verb = ACTION_VERBS_LIST.find(v => (item.claim_text || '').toLowerCase().includes(v));
+        if (verb) lines.push(`       {gray-fg}trigger: "${verb}"{/}`);
       }
     }
 
@@ -3002,13 +3060,77 @@ async function showItemDetail(catKey, item, catLabel) {
     lines.push(`  {bold}Reason:{/bold}    {yellow-fg}${item.reason || 'N/A'}{/}`);
     lines.push(`  {bold}Category:{/bold}  ${item.category || 'N/A'}`);
   } else if (catKey === 'ctor') {
-    lines.push(`  {bold}File:{/bold}      {cyan-fg}${item.file || 'N/A'}{/}`);
+    const filePath = item.file || 'N/A';
+    lines.push(`  {bold}File:{/bold}        {cyan-fg}${filePath}{/}`);
+    // Classify module type
+    const base = path.basename(filePath).replace(/\.\w+$/, '');
+    const isInfra = /^(install|build|bundle|aggregate|migrate|resolve|generate|check-|validate-|analyze|lint|scan-|trace-|write-check|review-|token-|promote-)/.test(base);
+    lines.push(`  {bold}Type:{/bold}        ${isInfra ? '{gray-fg}infrastructure/utility{/}' : '{yellow-fg}feature module{/}'}`);
+    // Show test file status
+    const testFile = filePath.replace(/\.(cjs|js|mjs)$/, '.test.$1');
+    try {
+      if (fs.existsSync(path.join(__dirname, '..', testFile))) {
+        lines.push(`  {bold}Test:{/bold}        {green-fg}${testFile}{/}`);
+      } else {
+        lines.push(`  {bold}Test:{/bold}        {gray-fg}none{/}`);
+      }
+    } catch (_) { lines.push(`  {bold}Test:{/bold}        {gray-fg}none{/}`); }
+    // Show first few comment lines as description
+    try {
+      const head = fs.readFileSync(path.join(__dirname, '..', filePath), 'utf8').split('\n').slice(0, 15);
+      const comments = head.filter(l => /^\s*[\/*]/.test(l) && !/^#!/.test(l)).slice(0, 3);
+      if (comments.length > 0) {
+        lines.push(`  {bold}Purpose:{/bold}`);
+        for (const c of comments) {
+          const cleaned = c.replace(/^\s*[\/*]+\s*/, '').slice(0, 70);
+          if (cleaned) lines.push(`    {gray-fg}${cleaned}{/}`);
+        }
+      }
+    } catch (_) {}
+    lines.push('');
+    lines.push(`  {bold}Action needed:{/bold} Either trace this module to a requirement,`);
+    lines.push(`  or acknowledge as infrastructure that doesn't need requirement tracing.`);
   } else if (catKey === 'ttor') {
-    lines.push(`  {bold}Test File:{/bold} {cyan-fg}${item.file || 'N/A'}{/}`);
+    const filePath = item.file || 'N/A';
+    lines.push(`  {bold}Test File:{/bold}   {cyan-fg}${filePath}{/}`);
+    // Show source module and its requirement tracing status
+    const sourceFile = filePath.replace(/\.test\.(cjs|js|mjs)$/, '.$1');
+    try {
+      if (fs.existsSync(path.join(__dirname, '..', sourceFile))) {
+        lines.push(`  {bold}Source:{/bold}      {cyan-fg}${sourceFile}{/}`);
+        lines.push(`  {bold}Source traced:{/bold} Check if source module is traced to a requirement`);
+      } else {
+        lines.push(`  {bold}Source:{/bold}      {red-fg}no matching source module{/}`);
+      }
+    } catch (_) {}
+    // Show test describe/title
+    try {
+      const content = fs.readFileSync(path.join(__dirname, '..', filePath), 'utf8').split('\n').slice(0, 40);
+      const describes = content.filter(l => /describe\(|test\(|it\(/.test(l)).slice(0, 3);
+      if (describes.length > 0) {
+        lines.push(`  {bold}Tests:{/bold}`);
+        for (const d of describes) {
+          const match = d.match(/(?:describe|test|it)\(\s*['"\`]([^'"\`]+)/);
+          if (match) lines.push(`    {gray-fg}"${match[1].slice(0, 60)}"{/}`);
+        }
+      }
+    } catch (_) {}
+    lines.push('');
+    lines.push(`  {bold}Action needed:{/bold} Add @req REQ-XX annotation to link this test`);
+    lines.push(`  to a requirement, or acknowledge as utility test.`);
   } else if (catKey === 'dtor') {
     lines.push(`  {bold}Claim:{/bold}     ${item.claim_text || 'N/A'}`);
     lines.push(`  {bold}File:{/bold}      {cyan-fg}${item.doc_file || 'N/A'}{/}`);
     lines.push(`  {bold}Line:{/bold}      ${item.line || 'N/A'}`);
+    // Highlight the action verb that triggered detection
+    const ACTION_VERBS = ['supports','enables','provides','ensures','guarantees','validates','enforces','detects','prevents','handles','automates','generates','monitors','verifies','dispatches'];
+    const foundVerb = ACTION_VERBS.find(v => (item.claim_text || '').toLowerCase().includes(v));
+    if (foundVerb) {
+      lines.push(`  {bold}Trigger:{/bold}   Action verb "{yellow-fg}${foundVerb}{/}" with no matching requirement`);
+    }
+    lines.push('');
+    lines.push(`  {bold}Action needed:{/bold} Either create a requirement backing this claim,`);
+    lines.push(`  or acknowledge as documentation that doesn't need requirement backing.`);
   }
 
   // Show file context around the item — the actual content you need to make decisions

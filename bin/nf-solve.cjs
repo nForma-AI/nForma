@@ -406,16 +406,15 @@ function extractStructuralClaims(docContent, filePath) {
       // Dependency: npm-style package name (lowercase, optional @scope/)
       // Must be scoped (@scope/name) or contain a hyphen to qualify.
       // Single bare words in docs are almost always concept references, not deps.
+      // Structural filters only — no prefix-based filters (would reject real pkgs like run-sequence).
+      // sweepDtoC cross-references against package.json for the actual broken check.
       else if (/^(@[a-z0-9-]+\/)?[a-z0-9][a-z0-9._-]*$/.test(value) && !value.includes('/')) {
         const isDep =
           !value.includes('.') &&                               // config keys (quorum.active), filenames (nf-solve.cjs)
           !value.includes('_') &&                               // snake_case identifiers (fail_mode, stop_hook_active)
           !value.startsWith('mcp__') &&                         // MCP tool references
           !['true','false','undefined','null','none','pass'].includes(value) && // JS/JSON keywords
-          (value.startsWith('@') || value.includes('-')) &&     // must be scoped or hyphenated (bare words are not deps)
-          !/^mcp-/.test(value) &&                               // nForma MCP commands (mcp-restart, mcp-status)
-          !/^(execute|plan|resume|run|new|export)-/.test(value) && // nForma skill/command names
-          !/-\d+$/.test(value);                                 // slot names (copilot-1, gemini-cli-1)
+          (value.startsWith('@') || value.includes('-'));        // must be scoped or hyphenated (bare words are not deps)
         if (isDep) type = 'dependency';
       }
 
@@ -1367,6 +1366,27 @@ function sweepDtoC() {
   // Severity weights: user-facing broken claims count more
   const CATEGORY_WEIGHT = { user: 2, examples: 1.5, developer: 1, unknown: 1 };
 
+  // Build a set of known project command/skill names from commands/ directory
+  // Values matching these are project terms, not npm dependencies
+  const projectCommands = new Set();
+  try {
+    const cmdDir = path.join(ROOT, 'commands', 'nf');
+    if (fs.existsSync(cmdDir)) {
+      for (const f of fs.readdirSync(cmdDir)) {
+        projectCommands.add(f.replace(/\.\w+$/, '')); // strip extension
+      }
+    }
+    // Also scan bin/ for script basenames (e.g., run-formal-verify.cjs -> run-formal-verify)
+    const binDir = path.join(ROOT, 'bin');
+    if (fs.existsSync(binDir)) {
+      for (const f of fs.readdirSync(binDir)) {
+        if (/\.(cjs|js|mjs)$/.test(f)) {
+          projectCommands.add(f.replace(/\.\w+$/, ''));
+        }
+      }
+    }
+  } catch (e) { /* best effort */ }
+
   const brokenClaims = [];
   let totalClaimsChecked = 0;
   let suppressedFpCount = 0;
@@ -1406,10 +1426,21 @@ function sweepDtoC() {
           }
         }
       } else if (claim.type === 'dependency') {
-        // Verify in package.json
+        // Verify in package.json — skip project-internal terms that look like deps
         if (!(claim.value in pkgDeps) && !(claim.value in pkgDevDeps)) {
-          isBroken = true;
-          reason = 'not in package.json';
+          // Heuristic: values not in package.json that match project-internal patterns
+          // are project terms, not missing dependencies. Safe here because real deps
+          // already passed the package.json check above.
+          const isProjectTerm =
+            /-\d+$/.test(claim.value) ||                          // slot names (copilot-1, gemini-cli-1)
+            /^mcp-/.test(claim.value) ||                          // nForma MCP commands
+            /-server$/.test(claim.value) ||                       // MCP server references
+            /qgsd/.test(claim.value) ||                           // old project name references
+            projectCommands.has(claim.value);                     // matches a known command/skill name
+          if (!isProjectTerm) {
+            isBroken = true;
+            reason = 'not in package.json';
+          }
         }
       }
 
