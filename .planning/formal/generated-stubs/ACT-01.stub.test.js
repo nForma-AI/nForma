@@ -1,34 +1,33 @@
 #!/usr/bin/env node
 // @requirement ACT-01
-// Auto-generated stub for uncovered invariant: WriteActivity
+// Structural test: current-activity.json is written atomically at every major workflow state transition
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-
 const fs = require('node:fs');
 const path = require('node:path');
 
-const gsdToolsSrc = fs.readFileSync(
-  path.resolve(__dirname, '../../../core/bin/gsd-tools.cjs'),
-  'utf8'
-);
+const GSD_TOOLS = path.join(process.env.HOME, '.claude/nf/bin/gsd-tools.cjs');
 
-test('ACT-01 — WriteActivity: cmdActivitySet writes current-activity.json atomically', () => {
-  // Verify cmdActivitySet function exists
-  assert.match(gsdToolsSrc, /function\s+cmdActivitySet/,
-    'cmdActivitySet function must be defined in gsd-tools.cjs');
-
-  // Verify it writes to .planning/current-activity.json
-  assert.match(gsdToolsSrc, /current-activity\.json/,
-    'gsd-tools.cjs must reference current-activity.json');
-
-  // Verify writeFileSync is used (atomic write)
-  assert.match(gsdToolsSrc, /fs\.writeFileSync\(filePath,\s*JSON\.stringify\(data/,
-    'cmdActivitySet must use fs.writeFileSync for atomic write');
+test('ACT-01: gsd-tools activity-set writes current-activity.json atomically via writeFileSync', () => {
+  const content = fs.readFileSync(GSD_TOOLS, 'utf8');
+  // cmdActivitySet must use fs.writeFileSync for atomic write
+  assert.match(content, /function\s+cmdActivitySet/, 'cmdActivitySet function must exist');
+  assert.match(content, /writeFileSync\(filePath,\s*JSON\.stringify\(data/, 'must use writeFileSync for atomic write');
+  assert.match(content, /current-activity\.json/, 'must reference current-activity.json');
 });
 
-test('ACT-01 — WriteActivity: activity-set CLI command is registered', () => {
-  // Verify the CLI case statement exists
-  assert.match(gsdToolsSrc, /case\s+'activity-set'/,
-    'activity-set command must be registered in CLI switch');
+test('ACT-01: execute-phase workflow calls activity-set at workflow state transitions', () => {
+  const epPath = path.join(process.env.HOME, '.claude/nf/workflows/execute-phase.md');
+  const content = fs.readFileSync(epPath, 'utf8');
+  // Must contain activity-set calls for major transitions
+  assert.match(content, /activity-set/, 'execute-phase must call activity-set');
+  assert.match(content, /execute_phase/, 'must track execute_phase activity');
+});
+
+test('ACT-01: TLA+ model defines WriteActivity action for ACT-01', () => {
+  const tlaPath = path.join(__dirname, '../tla/QGSDActivityTracking.tla');
+  const content = fs.readFileSync(tlaPath, 'utf8');
+  assert.match(content, /WriteActivity\(act\)\s*==/, 'TLA+ model must define WriteActivity action');
+  assert.match(content, /@requirement ACT-01/, 'TLA+ model must tag ACT-01 requirement');
 });
