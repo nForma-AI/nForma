@@ -22,6 +22,12 @@ const memoryStore = (() => {
   catch { return null; }
 })();
 
+// Fail-open require of context-stack module (ORCH-02)
+const contextStack = (() => {
+  try { return require(path.join(__dirname, '..', 'bin', 'context-stack.cjs')); }
+  catch { return null; }
+})();
+
 // Extract the "## Current Position" section from STATE.md content.
 // Returns the trimmed text between "## Current Position" and the next "## " header.
 // Returns null if the section is not found.
@@ -268,6 +274,22 @@ process.stdin.on('end', () => {
           }
         }
       } catch (_) {}
+
+      // Context stack injection (ORCH-02)
+      if (contextStack) {
+        try {
+          let currentPhase = null;
+          if (stateContent) {
+            const phaseMatch = stateContent.match(/Phase:\s*(v[\d.]+-\d+)/);
+            if (phaseMatch) currentPhase = phaseMatch[1];
+          }
+          const stackBlock = contextStack.formatInjection(cwd, currentPhase || 'unknown');
+          if (stackBlock) {
+            lines.push('');
+            lines.push(stackBlock);
+          }
+        } catch (_) { /* fail-open */ }
+      }
 
       additionalContext = lines.join('\n');
     }

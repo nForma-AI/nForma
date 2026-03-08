@@ -25,6 +25,7 @@ const { spawnSync } = require('child_process');
 const { loadConfig, slotToToolCall, shouldRunHook } = require('./config-loader');
 const { schema_version } = require('./conformance-schema.cjs');
 const taskClassifier = (() => { try { return require(path.join(__dirname, '..', 'bin', 'task-classifier.cjs')); } catch { return null; } })();
+const contextStack = (() => { try { return require(path.join(__dirname, '..', 'bin', 'context-stack.cjs')); } catch { return null; } })();
 
 const DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK = `QUORUM REQUIRED (structural enforcement — Stop hook will verify)
 
@@ -713,6 +714,24 @@ process.stdin.on('end', () => {
         `Use maximum ${rec.thinking_budget} thinking tokens. ` +
         `Model tier recommendation: ${rec.tier}.`;
       instructions += thinkingDirective;
+    }
+
+    // Context stack injection (ORCH-02)
+    // Hook-level cap is 800 chars, intentionally tighter than the module-level
+    // INJECTION_CAP_CHARS (2000 chars), because additionalContext in hooks
+    // contends with other injections (quorum instructions, circuit breaker
+    // recovery prompt, thinking budget). Keeping this small avoids crowding
+    // out higher-priority hook content.
+    if (contextStack) {
+      try {
+        let currentPhase = null;
+        const phaseMatch = prompt.match(/v[\d.]+-\d+/);
+        if (phaseMatch) currentPhase = phaseMatch[0];
+        const stackInjection = contextStack.formatInjection(cwd, currentPhase || 'unknown');
+        if (stackInjection && stackInjection.length <= 800) {
+          instructions += '\n\n' + stackInjection;
+        }
+      } catch (_) { /* fail-open */ }
     }
 
     // Anchored allowlist — requires /nf:, /gsd:, or /qgsd: prefix and word boundary after command name.

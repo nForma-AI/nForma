@@ -24,6 +24,8 @@ const os   = require('os');
 const { spawnSync } = require('child_process');
 const { loadConfig, slotToToolCall, shouldRunHook } = require('./config-loader');
 const { schema_version } = require('./conformance-schema.cjs');
+const taskClassifier = (() => { try { return require(path.join(__dirname, '..', 'bin', 'task-classifier.cjs')); } catch { return null; } })();
+const contextStack = (() => { try { return require(path.join(__dirname, '..', 'bin', 'context-stack.cjs')); } catch { return null; } })();
 
 const DEFAULT_QUORUM_INSTRUCTIONS_FALLBACK = `QUORUM REQUIRED (structural enforcement — Stop hook will verify)
 
@@ -467,6 +469,44 @@ process.stdin.on('end', () => {
       // DISP-03: Sort by descending success rate
       cappedSlots = sortBySuccessRate(cappedSlots, cwd);
 
+      // ── TASK CLASSIFICATION: Filter slots by recommended model tier ────────
+      if (taskClassifier && config.model_routing_enabled !== false) {
+        const envelope = taskClassifier.readTaskEnvelope(cwd);
+        const complexity = taskClassifier.classifyTask(envelope);
+        const recommendation = taskClassifier.getModelRecommendation(complexity, config);
+
+        // Concrete slot filtering: prefer slots matching the recommended tier.
+        // TIER_SLOT_MAP maps tier names to slot family prefixes that match that tier.
+        const TIER_SLOT_MAP = {
+          haiku:  ['gemini', 'copilot', 'opencode'],
+          sonnet: ['gemini', 'copilot', 'opencode', 'codex'],
+          opus:   ['claude', 'codex'],
+        };
+        const preferredFamilies = TIER_SLOT_MAP[recommendation.tier] || [];
+        if (preferredFamilies.length > 0 && cappedSlots.length > 0) {
+          const preferred = cappedSlots.filter(s => preferredFamilies.some(f => s.slot.startsWith(f)));
+          // Only filter if we'd still have at least 2 slots (need quorum diversity).
+          if (preferred.length >= 2) {
+            cappedSlots = preferred;
+          }
+        }
+
+        // Store classification for thinking budget injection (after instructions are built)
+        var _nfClassification = recommendation;
+
+        // Write classification to task-classification.json for downstream consumers
+        try {
+          const envPath = path.join(cwd, '.planning', 'task-classification.json');
+          fs.writeFileSync(envPath, JSON.stringify({
+            ts: new Date().toISOString(),
+            complexity: recommendation.complexity,
+            tier: recommendation.tier,
+            thinking_budget: recommendation.thinking_budget,
+            filtered_slots: cappedSlots.map(s => s.slot),
+          }, null, 2) + '\n', 'utf8');
+        } catch { /* fail-open */ }
+      }
+
       // ── CACHE CHECK: Short-circuit quorum dispatch on valid cache hit ──────
       try {
         const cacheModule = require(path.join(__dirname, '..', 'bin', 'quorum-cache.cjs'));
@@ -665,6 +705,33 @@ process.stdin.on('end', () => {
       instructions += '\n\nModel overrides (from nf.json model_preferences):\n' +
         'The following agents have preferred models configured. Pass the specified model parameter:\n' +
         lines;
+    }
+
+    // ── THINKING BUDGET: Inject classification directive into instructions ──
+    if (typeof _nfClassification !== 'undefined' && _nfClassification) {
+      const rec = _nfClassification;
+      const thinkingDirective = `\n\nTHINKING BUDGET: Task classified as "${rec.complexity}" (${rec.description}). ` +
+        `Use maximum ${rec.thinking_budget} thinking tokens. ` +
+        `Model tier recommendation: ${rec.tier}.`;
+      instructions += thinkingDirective;
+    }
+
+    // Context stack injection (ORCH-02)
+    // Hook-level cap is 800 chars, intentionally tighter than the module-level
+    // INJECTION_CAP_CHARS (2000 chars), because additionalContext in hooks
+    // contends with other injections (quorum instructions, circuit breaker
+    // recovery prompt, thinking budget). Keeping this small avoids crowding
+    // out higher-priority hook content.
+    if (contextStack) {
+      try {
+        let currentPhase = null;
+        const phaseMatch = prompt.match(/v[\d.]+-\d+/);
+        if (phaseMatch) currentPhase = phaseMatch[0];
+        const stackInjection = contextStack.formatInjection(cwd, currentPhase || 'unknown');
+        if (stackInjection && stackInjection.length <= 800) {
+          instructions += '\n\n' + stackInjection;
+        }
+      } catch (_) { /* fail-open */ }
     }
 
     // Anchored allowlist — requires /nf:, /gsd:, or /qgsd: prefix and word boundary after command name.
