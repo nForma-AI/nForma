@@ -26,9 +26,9 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Shipped: v0.30 — Advanced Agent Patterns (2026-03-08)
 
-**Goal:** Integrate six advanced Claude Code agent patterns — dynamic token optimization, cross-session memory persistence, continuous learning with skill extraction, file-based continuous verification, and iterative subagent orchestration — closing the gap between nForma's mature quorum infrastructure and community-proven agent harness techniques.
+**Goal:** Integrate advanced Claude Code agent patterns — dynamic token optimization, cross-session memory persistence, continuous learning with skill extraction, file-based continuous verification, iterative subagent orchestration, and worktree-isolated parallel execution.
 
-**Shipped:** 6/7 phases complete. Phase v0.30-07 (Worktree Parallelization) deferred — not blocking.
+**Shipped:** 20/20 requirements satisfied across 9 phases (including 3 gap-closure phases). Audit: PASSED (3 iterations: 14/20 → 17/18 → 20/20).
 
 **Key features shipped:**
 - Dynamic Model Selection — task classifier, TIER_SLOT_MAP slot filtering, thinking_budget_scaling, /nf:tokens dashboard, 65% smart compaction with quorum lockout
@@ -37,6 +37,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - Continuous Learning — learning-extractor for error patterns + corrections, SessionEnd hook, skill-extractor CLI, confidence scoring with decay
 - Continuous Verification — boundary-batched checks (max 3/phase, 5s timeout), done_conditions evaluator, advisory warnings
 - Subagent Orchestration — domain-specific context retrieval, phase context stack, pre-dispatch enrichment
+- Worktree Parallelization — nf-worktree-executor agent, worktree-merge.cjs, Pattern D parallel dispatch, SERIAL_FILES detection
 
 ## Shipped: v0.29 — Three-Layer Formal Verification Architecture (2026-03-06)
 
@@ -454,6 +455,13 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ Three-layer formal verification architecture (Evidence/Semantics/Reasoning) with inter-layer gates (Grounding 82.2%, Abstraction, Validation 1.0), FMEA hazard model, 32 model-driven test recipes, cross-layer dashboard, nf-solve layer sweeps, design impact analysis (EVID-01–05, SEM-01–04, RSN-01–05, GATE-01–04, INTG-01–06) — v0.29
 - ✓ Hook input validation — per-event-type JSON schema validation for all 14 hook stdin inputs with structured stderr diagnostics and fail-open behavior (VALID-01) — v0.31 (Phase v0.31-01)
 - ✓ Hook priority ordering — deterministic priority-based execution ordering in install.js with Critical/Normal/Low tiers, circuit-breaker always first, user-configurable via hook_priorities in nf.json (PRIO-01) — v0.31 (Phase v0.31-01)
+- ✓ Dynamic model selection — task-classifier.cjs with COMPLEXITY_MAP, TIER_SLOT_MAP slot filtering, thinking_budget_scaling, /nf:tokens dashboard (TOKN-01–04) — v0.30 (Phase v0.30-01)
+- ✓ File-based execution state — execution-progress.cjs with compaction injection, iteration cap, stuck detection (VERF-01) — v0.30 (Phase v0.30-02)
+- ✓ Memory persistence — memory-store.cjs with 6 JSONL categories, session reminders, compaction snapshots (MEMP-01–04) — v0.30 (Phase v0.30-03)
+- ✓ Continuous learning — learning-extractor, skill-extractor, SessionEnd hook pipeline, confidence scoring with weekly decay (LRNG-01–04) — v0.30 (Phases v0.30-04/08/09)
+- ✓ Continuous verification — boundary-batched checks, done_conditions evaluator, 3-run budget cap (VERF-02–03) — v0.30 (Phase v0.30-05)
+- ✓ Subagent orchestration — domain-specific context retrieval, phase context stack, pre-dispatch enrichment (ORCH-01–03) — v0.30 (Phase v0.30-06)
+- ✓ Worktree parallelization — nf-worktree-executor agent, worktree-merge.cjs, Pattern D parallel dispatch, SERIAL_FILES detection (PARA-01–02) — v0.30 (Phase v0.30-07)
 
 ### Active
 
@@ -470,7 +478,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Context
 
-nForma v0.30 shipped 2026-03-08. 30 milestones completed (v0.1–v0.30). v0.31 focuses on ruflo-inspired hardening — hook priority ordering, input validation, circuit-breaker learning, quorum latency budgets, and DX improvements. Phase v0.31-01 (Hook Infrastructure Hardening) shipped: validateHookInput schema validation for all 14 hooks + deterministic priority-based execution ordering. v0.2.0 npm publish still deferred by user decision.
+nForma v0.30 shipped 2026-03-08 (20/20 requirements, 9 phases including gap closure). 30 milestones completed (v0.1–v0.30). v0.31 (Ruflo-Inspired Hardening) also complete — hook priority ordering, input validation, circuit-breaker learning, quorum latency budgets, executor read-only mode, rule sharding, config adapter normalization, and structured debate templates (8/8 requirements, 3 phases). v0.2.0 npm publish still deferred by user decision.
 
 **Codebase:** ~100,000+ lines (JS + MD), 500+ files. 92+ formal models (TLA+, Alloy, PRISM), 35K+ conformance traces.
 **Tech stack:** Node.js, Claude Code hooks (UserPromptSubmit + Stop + PreToolUse + PostToolUse), npm package. Rebranded from QGSD to nForma (v0.28, skill prefix `/nf:`).
@@ -638,4 +646,4 @@ nForma v0.30 shipped 2026-03-08. 30 milestones completed (v0.1–v0.30). v0.31 f
 | Production source handlers are framework-ready stubs | No live endpoints required; handlers validate schema and return standard issue objects; real auth deferred to v0.28+ (WIRE-01..05) | Phase v0.27-04 — OBS-03/04/05 |
 
 ---
-*Last updated: 2026-03-08 after Phase v0.31-01*
+*Last updated: 2026-03-08 after v0.30 milestone*

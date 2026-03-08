@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.30-02",
+  "created_at": "2026-03-07T16:52:26.809Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Execution progress survives mid-task compaction",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.30-02-file-based-execution-state/v0.30-02-01-PLAN.md",
+    "key_decisions": []
+  }
+}

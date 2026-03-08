@@ -446,3 +446,29 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.30 — Advanced Agent Patterns (Shipped: 2026-03-08)
+
+**Phases:** v0.30-01..v0.30-09 (9 phases, 17 plans)
+**Requirements:** 20/20 (TOKN-01–04, VERF-01–03, MEMP-01–04, LRNG-01–04, ORCH-01–03, PARA-01–02)
+**Git range:** 2011f934..bd815c69 (1,096 files changed, +195,524/−21,231 lines)
+**Timeline:** 2025-12-14 → 2026-03-08 (84 days)
+
+**Delivered:** Built nForma's advanced agent infrastructure — dynamic model selection with task-complexity routing, file-based execution state that survives compaction, JSONL memory persistence across sessions, continuous learning with session-end extraction, continuous verification with boundary-detection triggers, domain-specific context retrieval for subagent orchestration, and worktree-isolated parallel plan execution with merge coordination.
+
+**Key accomplishments:**
+- Dynamic model selection: task-classifier.cjs with COMPLEXITY_MAP for T1/T2/T3 tier routing; thinking budget scaling per task type; TIER_SLOT_MAP slot filtering in quorum dispatch (TOKN-01–04, v0.30-01)
+- File-based execution state: execution-progress.cjs tracks plan/task completion to disk; nf-precompact.js injects state across compaction events; termination guards (iteration cap 5, stuck detection 3) prevent runaway execution (VERF-01, v0.30-02)
+- JSONL memory persistence: memory-store.cjs with 6 categories (decisions, errors, quorum, corrections, skills, failures); bidirectional substring dedup; character-capped injection formatting; session reminders via SessionStart hook (MEMP-01–04, v0.30-03)
+- Continuous learning pipeline: learning-extractor.cjs extracts error patterns and corrections from transcripts; skill-extractor.cjs generates skill candidates; confidence scoring with weekly decay and reconfirmation boost; nf-session-end.js wires the full pipeline at session close (LRNG-01–04, v0.30-04/08/09)
+- Continuous verification: continuous-verify.cjs with boundary-detection triggers, done_conditions evaluator, and 3-run budget cap per phase; gsd-context-monitor.js PostToolUse hook integration (VERF-02–03, v0.30-05)
+- Subagent orchestration: context-retriever.cjs with domain-specific retrieval (keyword-based domain detection, PATH_CATEGORY_MAP); context-stack.cjs for cross-phase JSONL accumulation and injection into quorum dispatch (ORCH-01–03, v0.30-06)
+- Worktree-isolated parallel execution: nf-worktree-executor agent with git worktree isolation; worktree-merge.cjs for merge orchestration with rollback; Pattern D in execute-plan.md for opt-in parallel dispatch; SERIAL_FILES detection prevents parallel on shared files (PARA-01–02, v0.30-07)
+
+**Gap closure:** 3 phases (v0.30-07, v0.30-08, v0.30-09) executed after initial audit (14/20) and re-audit (17/18); final audit 20/20
+
+**Audit:** PASSED — 20/20 requirements, 9/9 phases, 19/20 integration points, 7/7 E2E flows
+**Archive:** `.planning/milestones/v0.30-MILESTONE-AUDIT.md`
+
+---
+
