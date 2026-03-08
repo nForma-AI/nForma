@@ -1,0 +1,21 @@
+{
+  "requirement_id": "ORES-05",
+  "requirement_text": "If no consensus after 4 rounds, Claude hard-stops and escalates to the human with all model positions",
+  "formal_property": {
+    "name": "ConvergenceEventuallyResolves",
+    "model_file": ".planning/formal/tla/NFConvergence.tla",
+    "definition": "ConvergenceEventuallyResolves == <>(logWritten = TRUE)",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

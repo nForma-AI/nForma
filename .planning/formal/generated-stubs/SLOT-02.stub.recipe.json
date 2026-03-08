@@ -1,0 +1,23 @@
+{
+  "requirement_id": "SLOT-02",
+  "requirement_text": "Migration script renames existing `~/.claude.json` mcpServers entries from model-based names to slot names automatically (non-destructive, invertible)",
+  "formal_property": {
+    "name": "TypeOK",
+    "model_file": ".planning/formal/tla/NFRecruiting.tla",
+    "definition": "TypeOK ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/install.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

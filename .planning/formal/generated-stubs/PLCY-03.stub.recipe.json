@@ -1,0 +1,21 @@
+{
+  "requirement_id": "PLCY-03",
+  "requirement_text": "Auto-update policy check runs on manage-agents startup for slots configured as `auto`",
+  "formal_property": {
+    "name": "UpdatePolicy",
+    "model_file": ".planning/formal/alloy/quorum-policy.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/nForma.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nForma.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

@@ -1,0 +1,23 @@
+{
+  "requirement_id": "DISP-03",
+  "requirement_text": "Dispatch list ordered by recent success rate (from scoreboard slot stats) rather than static FALLBACK-01 tier sequence -- most reliable slots dispatched first",
+  "formal_property": {
+    "name": "SuccessRateSort",
+    "model_file": ".planning/formal/tla/QGSDDispatchPipeline.tla",
+    "definition": "SuccessRateSort ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "hooks/dist/nf-prompt.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

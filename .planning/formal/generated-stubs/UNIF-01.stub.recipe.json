@@ -1,0 +1,23 @@
+{
+  "requirement_id": "UNIF-01",
+  "requirement_text": "All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`",
+  "formal_property": {
+    "name": "FVTool",
+    "model_file": ".planning/formal/alloy/unified-check-results.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/nForma.cjs",
+    "bin/run-formal-check.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-formal-check.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nForma.cjs');",
+  "test_strategy": "behavioral",
+  "template": "import-and-call",
+  "template_boilerplate": "const mod = require(SOURCE);\nconst result = mod.FUNCTION(INPUT);\nassert.strictEqual(result, EXPECTED);"
+}

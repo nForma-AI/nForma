@@ -1,0 +1,33 @@
+{
+  "requirement_id": "UPS-03",
+  "requirement_text": "UserPromptSubmit hook injects quorum instructions via `hookSpecificOutput.additionalContext` (not systemMessage — goes into Claude's context window)",
+  "formal_property": {
+    "name": "InjectQuorum",
+    "model_file": ".planning/formal/tla/QGSDPromptHook.tla",
+    "definition": "InjectQuorum ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/run-prism.test.cjs",
+    "hooks/dist/nf-prompt.test.js",
+    "hooks/dist/nf-precompact.js",
+    "hooks/dist/gsd-context-monitor.js",
+    "hooks/nf-prompt.test.js",
+    "hooks/nf-precompact.js",
+    "hooks/gsd-context-monitor.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-precompact.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/gsd-context-monitor.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-precompact.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/gsd-context-monitor.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

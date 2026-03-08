@@ -1,0 +1,21 @@
+{
+  "requirement_id": "SENS-03",
+  "requirement_text": "`bin/sensitivity-report.cjs` generates `.planning/formal/sensitivity-report.md` — a human-readable ranked list of sensitive parameters by outcome-flip count, each annotated with (a) the code path or configuration variable that controls it, (b) recommended unit/integration test cases for boundary values, (c) recommended monitoring metrics to track in production.",
+  "formal_property": {
+    "name": "GenerateReport",
+    "model_file": ".planning/formal/tla/QGSDSensitivity.tla",
+    "definition": "GenerateReport ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/sensitivity-report.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/sensitivity-report.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/sensitivity-report.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/sensitivity-report.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

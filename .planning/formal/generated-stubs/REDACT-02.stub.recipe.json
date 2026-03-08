@@ -1,0 +1,37 @@
+{
+  "requirement_id": "REDACT-02",
+  "requirement_text": "Redaction check runs as CI step in `run-formal-verify.cjs`",
+  "formal_property": {
+    "name": "CompleteRedaction",
+    "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
+    "definition": "CompleteRedaction ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/manage-agents.test.cjs",
+    "bin/requirement-map.cjs",
+    "bin/run-formal-verify.cjs",
+    "bin/write-check-result.cjs",
+    "bin/check-trace-redaction.cjs",
+    "bin/requirement-map.test.cjs",
+    "bin/run-formal-verify.test.cjs",
+    "bin/check-trace-redaction.test.cjs",
+    "bin/build-layer-manifest.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-formal-verify.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/write-check-result.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/check-trace-redaction.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-formal-verify.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/check-trace-redaction.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/build-layer-manifest.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

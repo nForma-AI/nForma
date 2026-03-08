@@ -1,0 +1,21 @@
+{
+  "requirement_id": "ARCH-01",
+  "requirement_text": "All formal models declared in `.planning/formal/model-registry.json` as single source of truth with provenance tracking",
+  "formal_property": {
+    "name": "Requirement",
+    "model_file": ".planning/formal/alloy/architecture-registry.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/generate-formal-specs.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/generate-formal-specs.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/generate-formal-specs.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/generate-formal-specs.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

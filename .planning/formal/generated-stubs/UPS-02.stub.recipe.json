@@ -1,0 +1,27 @@
+{
+  "requirement_id": "UPS-02",
+  "requirement_text": "Allowlist contains exactly 6 commands: new-project, plan-phase, new-milestone, discuss-phase, verify-work, research-phase",
+  "formal_property": {
+    "name": "PlanningFromAllowlist",
+    "model_file": ".planning/formal/tla/QGSDPromptHook.tla",
+    "definition": "PlanningFromAllowlist ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "hooks/dist/config-loader.js",
+    "hooks/dist/nf-prompt.js",
+    "hooks/config-loader.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/hooks/dist/config-loader.js",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/config-loader.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/config-loader.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/hooks/dist/config-loader.js');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

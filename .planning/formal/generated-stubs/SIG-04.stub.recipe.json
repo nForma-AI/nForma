@@ -1,0 +1,21 @@
+{
+  "requirement_id": "SIG-04",
+  "requirement_text": "`quorum-consensus-gate.cjs` gates quorum rounds by Poisson binomial consensus probability threshold",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/signal-analysis-tools.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/quorum-consensus-gate.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/quorum-consensus-gate.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-consensus-gate.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/quorum-consensus-gate.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

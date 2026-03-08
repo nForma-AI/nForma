@@ -1,0 +1,21 @@
+{
+  "requirement_id": "GATE-01",
+  "requirement_text": "gate-a-grounding.cjs accepts a --base-ref <sha> flag that scopes grounding analysis to actions from files changed since the given commit, enforcing the 80% target independently on the scoped subset while reporting the global score as informational",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/gate-a-scoping.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/gate-a-grounding.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/gate-a-grounding.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/gate-a-grounding.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/gate-a-grounding.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

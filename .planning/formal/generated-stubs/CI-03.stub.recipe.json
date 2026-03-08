@@ -1,0 +1,53 @@
+{
+  "requirement_id": "CI-03",
+  "requirement_text": "Type checking (if applicable to the language) runs in CI and blocks merge on type errors",
+  "formal_property": {
+    "name": "GateStatus",
+    "model_file": ".planning/formal/alloy/ci-pipeline-gates.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/run-oscillation-tlc.cjs",
+    "bin/stall-detector.cjs",
+    "bin/run-tlc.test.cjs",
+    "bin/nForma.test.cjs",
+    "bin/run-protocol-tlc.cjs",
+    "bin/formal-test-sync.test.cjs",
+    "bin/run-phase-tlc.cjs",
+    "bin/git-history-evidence.cjs",
+    "bin/harness-diagnostic.cjs",
+    "bin/generate-tla-cfg.cjs",
+    "bin/install.js",
+    "bin/observe-handler-internal.cjs",
+    "bin/lint-formal-models.cjs",
+    "bin/unified-mcp-server.mjs",
+    "bin/quorum-slot-dispatch.cjs",
+    "bin/analyze-state-space.cjs",
+    "hooks/dist/unified-mcp-server.mjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/run-oscillation-tlc.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/run-oscillation-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/stall-detector.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-tlc.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-protocol-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/formal-test-sync.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-phase-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/git-history-evidence.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/harness-diagnostic.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-tla-cfg.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-internal.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/lint-formal-models.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/unified-mcp-server.mjs",
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-slot-dispatch.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/unified-mcp-server.mjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/run-oscillation-tlc.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

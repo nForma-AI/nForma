@@ -1,0 +1,21 @@
+{
+  "requirement_id": "ACT-02",
+  "requirement_text": "Activity schema: `{ activity, sub_activity, phase?, plan?, wave?, debug_round?, checkpoint?, quorum_round?, updated }` — all fields except `activity` and `updated` are optional; unknown fields are preserved",
+  "formal_property": {
+    "name": "TypeOK",
+    "model_file": ".planning/formal/tla/QGSDActivityTracking.tla",
+    "definition": "TypeOK ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/nf-solve.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

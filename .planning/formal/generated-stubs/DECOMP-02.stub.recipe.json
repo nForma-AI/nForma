@@ -1,0 +1,21 @@
+{
+  "requirement_id": "DECOMP-02",
+  "requirement_text": "The state-space analyzer flags models using unbounded domains (Nat, Int without constraints) as HIGH risk",
+  "formal_property": {
+    "name": "RiskLevel",
+    "model_file": ".planning/formal/alloy/state-space-analysis.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/analyze-state-space.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

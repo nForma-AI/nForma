@@ -1,0 +1,21 @@
+{
+  "requirement_id": "TRACE-05",
+  "requirement_text": "CI guard warns when formal coverage percentage drops below a configurable threshold (default 15%) compared to the previous traceability matrix",
+  "formal_property": {
+    "name": "ModelType",
+    "model_file": ".planning/formal/alloy/traceability-annotations.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/check-coverage-guard.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/check-coverage-guard.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/check-coverage-guard.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/check-coverage-guard.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

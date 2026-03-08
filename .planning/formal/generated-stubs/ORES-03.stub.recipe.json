@@ -1,0 +1,21 @@
+{
+  "requirement_id": "ORES-03",
+  "requirement_text": "Quorum deliberates (R3.3, up to 4 rounds) and may only approve unified solutions — partial/incremental fixes are rejected",
+  "formal_property": {
+    "name": "ResolvedAtWriteOnce",
+    "model_file": ".planning/formal/tla/NFConvergence.tla",
+    "definition": "ResolvedAtWriteOnce ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

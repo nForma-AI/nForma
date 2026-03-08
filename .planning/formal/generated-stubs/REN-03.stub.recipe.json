@@ -1,0 +1,21 @@
+{
+  "requirement_id": "REN-03",
+  "requirement_text": "All hardcoded `get-shit-done/` path strings removed from `bin/gsd-tools.cjs`, workflow files, agent files, and template files",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/codebase-arch-constraints.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/install.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/install.js",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/install.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/install.js');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

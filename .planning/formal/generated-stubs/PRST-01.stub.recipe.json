@@ -1,0 +1,41 @@
+{
+  "requirement_id": "PRST-01",
+  "requirement_text": "User can select a named provider preset (AkashML / Together.xyz / Fireworks.ai) in addAgent/editAgent flow instead of manually typing a URL",
+  "formal_property": {
+    "name": "AddAgent",
+    "model_file": ".planning/formal/tla/QGSDAgentProvisioning.tla",
+    "definition": "",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/run-quorum-composition-alloy.cjs",
+    "bin/nForma.cjs",
+    "bin/task-classifier.cjs",
+    "bin/manage-agents-core.cjs",
+    "bin/nForma.test.cjs",
+    "bin/verify-quorum-health.cjs",
+    "bin/run-prism.test.cjs",
+    "bin/observe-solve-pipe.cjs",
+    "bin/install.js",
+    "bin/run-prism.cjs",
+    "bin/update-agents.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/run-quorum-composition-alloy.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/run-quorum-composition-alloy.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/task-classifier.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/manage-agents-core.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/verify-quorum-health.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-solve-pipe.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/update-agents.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/run-quorum-composition-alloy.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

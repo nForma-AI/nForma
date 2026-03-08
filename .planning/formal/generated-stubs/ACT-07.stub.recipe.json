@@ -1,0 +1,39 @@
+{
+  "requirement_id": "ACT-07",
+  "requirement_text": "Activity file is cleared on successful completion of any top-level workflow; it persists across context resets when mid-workflow",
+  "formal_property": {
+    "name": "ClearActivity",
+    "model_file": ".planning/formal/tla/QGSDActivityTracking.tla",
+    "definition": "ClearActivity ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/nForma.cjs",
+    "bin/validate-invariant.cjs",
+    "bin/stall-detector.cjs",
+    "bin/nForma.test.cjs",
+    "hooks/dist/nf-session-start.test.js",
+    "hooks/dist/gsd-context-monitor.js",
+    "hooks/dist/nf-session-start.js",
+    "hooks/nf-session-start.test.js",
+    "hooks/gsd-context-monitor.js",
+    "hooks/nf-session-start.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/stall-detector.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-session-start.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/gsd-context-monitor.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-session-start.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-session-start.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/gsd-context-monitor.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-session-start.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nForma.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

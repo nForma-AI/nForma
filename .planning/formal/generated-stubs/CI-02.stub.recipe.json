@@ -1,0 +1,29 @@
+{
+  "requirement_id": "CI-02",
+  "requirement_text": "Linting and formatting checks run in CI and block merge on violations",
+  "formal_property": {
+    "name": "GateStatus",
+    "model_file": ".planning/formal/alloy/ci-pipeline-gates.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/aggregate-requirements.test.cjs",
+    "bin/task-classifier.cjs",
+    "bin/nForma.test.cjs",
+    "bin/install.js",
+    "bin/nf-solve.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/aggregate-requirements.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/aggregate-requirements.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/task-classifier.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/aggregate-requirements.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

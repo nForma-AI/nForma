@@ -1,0 +1,21 @@
+{
+  "requirement_id": "TRACE-01",
+  "requirement_text": "`bin/generate-traceability-matrix.cjs` reads model-registry, requirements.json, and check-results.ndjson to produce `.planning/formal/traceability-matrix.json` with property-level links between requirements and formal properties",
+  "formal_property": {
+    "name": "ModelType",
+    "model_file": ".planning/formal/alloy/traceability-annotations.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/generate-traceability-matrix.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs');",
+  "test_strategy": "behavioral",
+  "template": "import-and-call",
+  "template_boilerplate": "const mod = require(SOURCE);\nconst result = mod.FUNCTION(INPUT);\nassert.strictEqual(result, EXPECTED);"
+}

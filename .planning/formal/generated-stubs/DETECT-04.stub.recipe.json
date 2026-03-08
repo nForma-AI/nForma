@@ -1,0 +1,25 @@
+{
+  "requirement_id": "DETECT-04",
+  "requirement_text": "Read-only Bash commands (git log, git diff, grep, cat, ls, head, tail, find) pass through without detection or blocking",
+  "formal_property": {
+    "name": "TypeOK",
+    "model_file": ".planning/formal/tla/NFOscillation.tla",
+    "definition": "TypeOK ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "hooks/dist/nf-circuit-breaker.js",
+    "hooks/nf-circuit-breaker.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-circuit-breaker.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-circuit-breaker.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

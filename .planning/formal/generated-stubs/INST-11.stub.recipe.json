@@ -1,0 +1,37 @@
+{
+  "requirement_id": "INST-11",
+  "requirement_text": "Bin scripts resolve ROOT from process.cwd() (the invoking project directory) rather than __dirname (the script install location). __dirname resolves to ~/.claude/ when installed, breaking all .planning/formal/ and .planning/ path lookups. The --project-root= flag provides an explicit override but the default must be process.cwd().",
+  "formal_property": {
+    "name": "Dir",
+    "model_file": ".planning/formal/alloy/bin-path-resolution.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/run-formal-verify.cjs",
+    "bin/run-formal-verify.test.cjs",
+    "bin/harness-diagnostic.cjs",
+    "bin/install.js",
+    "bin/nf-solve.cjs",
+    "bin/cross-layer-dashboard.cjs",
+    "hooks/dist/gsd-context-monitor.js",
+    "hooks/gsd-context-monitor.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-formal-verify.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-formal-verify.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/harness-diagnostic.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/cross-layer-dashboard.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/gsd-context-monitor.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/gsd-context-monitor.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

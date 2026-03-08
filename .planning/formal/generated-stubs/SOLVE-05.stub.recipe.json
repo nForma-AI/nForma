@@ -1,0 +1,53 @@
+{
+  "requirement_id": "SOLVE-05",
+  "requirement_text": "When qgsd:solve runs in another project, run-formal-verify.cjs discovers and verifies that project's formal models (from ROOT/.planning/formal/{tla,alloy,prism,petri}/) rather than hardcoding QGSD-internal model names. All child runners (run-tlc.cjs, run-alloy.cjs, run-prism.cjs, and variants) must honor --project-root for spec file resolution, JAR/tool lookup, and NDJSON output. QGSD-specific checks (XState machine extraction, provider roster constants) are gracefully skipped when their prerequisites do not exist in the target project.",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/solver-portability.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/learning-extractor.test.cjs",
+    "bin/quorum-slot-dispatch.test.cjs",
+    "bin/gsd-quorum-slot-worker-improvements.test.cjs",
+    "bin/git-heatmap.test.cjs",
+    "bin/check-trace-redaction.test.cjs",
+    "bin/install.js",
+    "bin/debt-dedup.cjs",
+    "bin/self-healing.test.cjs",
+    "bin/learning-extractor.cjs",
+    "bin/secrets.test.cjs",
+    "bin/analyze-state-space.cjs",
+    "hooks/dist/nf-circuit-breaker.test.js",
+    "hooks/dist/nf-stop.test.js",
+    "hooks/dist/nf-prompt.js",
+    "hooks/nf-circuit-breaker.test.js",
+    "hooks/nf-stop.test.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/learning-extractor.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/learning-extractor.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-slot-dispatch.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/gsd-quorum-slot-worker-improvements.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/git-heatmap.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/check-trace-redaction.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/debt-dedup.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/self-healing.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/learning-extractor.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/secrets.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-circuit-breaker.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-circuit-breaker.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-stop.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/learning-extractor.test.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

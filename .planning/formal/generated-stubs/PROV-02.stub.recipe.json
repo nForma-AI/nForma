@@ -1,0 +1,25 @@
+{
+  "requirement_id": "PROV-02",
+  "requirement_text": "Wizard offers curated provider list (AkashML, Together.xyz, Fireworks) + custom entry",
+  "formal_property": {
+    "name": "AddAgent",
+    "model_file": ".planning/formal/tla/QGSDAgentProvisioning.tla",
+    "definition": "",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/formal-scope-scan.cjs",
+    "bin/invariant-catalog.test.cjs",
+    "bin/invariant-catalog.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/formal-scope-scan.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/formal-scope-scan.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/invariant-catalog.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/invariant-catalog.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/formal-scope-scan.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

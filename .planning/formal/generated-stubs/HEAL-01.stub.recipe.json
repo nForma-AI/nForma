@@ -1,0 +1,25 @@
+{
+  "requirement_id": "HEAL-01",
+  "requirement_text": "After each deliberation round, system computes P(consensus | remaining rounds); if P < threshold (default 10%), escalation fires early instead of exhausting maxDeliberation",
+  "formal_property": {
+    "name": "P=? [ F \"consensus\" ]",
+    "model_file": ".planning/formal/prism/deliberation-healing.props",
+    "definition": "",
+    "type": "property"
+  },
+  "source_files": [
+    "bin/quorum-consensus-gate.cjs",
+    "hooks/dist/nf-prompt.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/quorum-consensus-gate.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-consensus-gate.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/quorum-consensus-gate.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

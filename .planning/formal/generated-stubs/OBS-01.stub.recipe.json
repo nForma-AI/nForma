@@ -1,0 +1,21 @@
+{
+  "requirement_id": "OBS-01",
+  "requirement_text": "Each quorum round emits structured telemetry (slot, round, verdict, latency_ms, provider status) to a per-session log file",
+  "formal_property": {
+    "name": "S=? [ \"any_delivery\" ]",
+    "model_file": ".planning/formal/prism/observability-delivery.props",
+    "definition": "",
+    "type": "property"
+  },
+  "source_files": [
+    "bin/call-quorum-slot.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/call-quorum-slot.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/call-quorum-slot.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/call-quorum-slot.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

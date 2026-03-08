@@ -1,0 +1,23 @@
+{
+  "requirement_id": "MCPENV-04",
+  "requirement_text": "`readMCPAvailabilityRates` exported with composite-key filter; `module.exports` always reachable via require.main guard; prism:mcp-availability STEPS entry and CI step added",
+  "formal_property": {
+    "name": "S=? [ \"min_quorum_available\" ]",
+    "model_file": ".planning/formal/prism/mcp-availability.props",
+    "definition": "",
+    "type": "property"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/run-prism.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

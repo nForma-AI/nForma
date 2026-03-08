@@ -1,0 +1,21 @@
+{
+  "requirement_id": "EVID-03",
+  "requirement_text": "`bin/git-heatmap.cjs` mines git history for numerical adjustments, bugfix hotspots, and churn ranking, producing `.planning/formal/evidence/git-heatmap.json` with multiplicative priority scoring and formal-coverage cross-reference for uncovered hot zones",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/evidence-scope-scan.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/failure-taxonomy.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/failure-taxonomy.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/failure-taxonomy.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/failure-taxonomy.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

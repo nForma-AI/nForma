@@ -1,0 +1,23 @@
+{
+  "requirement_id": "QUORUM-04",
+  "requirement_text": "A quorum round reaches consensus when all voting members return the same verdict AND none propose further improvements; no additional iteration is required once consensus is achieved",
+  "formal_property": {
+    "name": "EventualConsensus",
+    "model_file": ".planning/formal/tla/QGSDQuorum.tla",
+    "definition": "EventualConsensus == <>(phase = \"DECIDED\")",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/generate-formal-specs.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-formal-specs.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

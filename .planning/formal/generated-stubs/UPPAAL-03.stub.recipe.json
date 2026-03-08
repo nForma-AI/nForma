@@ -1,0 +1,23 @@
+{
+  "requirement_id": "UPPAAL-03",
+  "requirement_text": "The model surfaces at least two critical measurement points as annotated properties: (a) the minimum inter-slot response gap that prevents a race condition, (b) the maximum timeout value for which the quorum can still reach consensus before the planning gate deadline.",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/uppaal-model-reqs.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/run-uppaal.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-uppaal.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

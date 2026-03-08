@@ -1,0 +1,23 @@
+{
+  "requirement_id": "TRACE-08",
+  "requirement_text": "mapToXStateEvent normalizes event identity via event.action || event.type fallback and handles quorum_fallback_t1_required, quorum_block_r3_2, and security_sweep actions — non-FSM actions in KNOWN_NON_FSM_ACTIONS are counted as valid (not divergent)",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/trace-event-normalization.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/validate-traces.test.cjs",
+    "bin/observe-handler-logstash.test.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/validate-traces.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/validate-traces.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-logstash.test.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/validate-traces.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

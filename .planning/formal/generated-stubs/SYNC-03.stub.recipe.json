@@ -1,0 +1,25 @@
+{
+  "requirement_id": "SYNC-03",
+  "requirement_text": "QGSD changelog explicitly tracks which GSD version it is compatible with",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/gsd-sync-invariants.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/validate-invariant.cjs",
+    "bin/install.js",
+    "bin/nf-solve.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

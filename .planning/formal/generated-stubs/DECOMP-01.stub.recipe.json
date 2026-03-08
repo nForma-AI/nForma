@@ -1,0 +1,21 @@
+{
+  "requirement_id": "DECOMP-01",
+  "requirement_text": "`bin/analyze-state-space.cjs` reads TLA+ .cfg files and model variables to estimate state-space size per model and classifies risk as MINIMAL/LOW/MODERATE/HIGH based on configurable thresholds",
+  "formal_property": {
+    "name": "RiskLevel",
+    "model_file": ".planning/formal/alloy/state-space-analysis.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/analyze-state-space.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

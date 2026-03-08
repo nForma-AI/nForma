@@ -1,0 +1,53 @@
+{
+  "requirement_id": "SYNC-02",
+  "requirement_text": "When GSD releases a new planning command, QGSD releases a patch update adding the command to the default `quorum_commands` list",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/gsd-sync-invariants.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/run-quorum-composition-alloy.cjs",
+    "bin/run-oscillation-tlc.cjs",
+    "bin/observe-handler-upstream.test.cjs",
+    "bin/run-stop-hook-tlc.cjs",
+    "bin/run-installer-alloy.cjs",
+    "bin/run-breaker-tlc.cjs",
+    "bin/run-account-manager-tlc.cjs",
+    "bin/run-protocol-tlc.cjs",
+    "bin/run-audit-alloy.cjs",
+    "bin/install-formal-tools.cjs",
+    "bin/run-tlc.cjs",
+    "bin/run-phase-tlc.cjs",
+    "bin/run-account-pool-alloy.cjs",
+    "bin/run-transcript-alloy.cjs",
+    "bin/observe-handler-upstream.cjs",
+    "bin/observe-handler-deps.cjs",
+    "bin/run-alloy.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/run-quorum-composition-alloy.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/run-quorum-composition-alloy.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-oscillation-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-stop-hook-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-installer-alloy.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-breaker-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-account-manager-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-protocol-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-audit-alloy.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install-formal-tools.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-phase-tlc.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-account-pool-alloy.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-transcript-alloy.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-deps.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-alloy.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/run-quorum-composition-alloy.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

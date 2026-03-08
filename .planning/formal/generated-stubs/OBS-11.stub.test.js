@@ -1,18 +1,40 @@
 #!/usr/bin/env node
 // @requirement OBS-11
-// Structural test for: Bool
-// Formal model: .planning/formal/alloy/observability-handlers.als
-// Requirement: Upstream changes surfaced by observe are evaluated against existing code before porting. The system compares overlapping areas and classifies each as SKIP (our implementation is equivalent or better),
+// Structural test: upstream changes are evaluated with SKIP/CANDIDATE/INCOMPATIBLE classification
+// before porting. The classifyUpstreamOverlap function enforces this.
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
-test('OBS-11 — Bool: structural verification', () => {
-  // Check source file exists
-  assert.ok(fs.existsSync('/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs'), 'Source file should exist: observe-handler-upstream.cjs');
-  const content_0 = fs.readFileSync('/Users/jonathanborduas/code/QGSD/bin/observe-handler-upstream.cjs', 'utf8');
-  // Structural check: source file contains requirement-related code
-  assert.ok(content_0.length > 0, 'Source file should not be empty');
+const ROOT = path.resolve(__dirname, '..', '..', '..');
+const UPSTREAM_PATH = path.join(ROOT, 'bin/observe-handler-upstream.cjs');
+
+test('OBS-11: observe-handler-upstream.cjs exports classifyUpstreamOverlap', () => {
+  const mod = require(UPSTREAM_PATH);
+  assert.ok(typeof mod.classifyUpstreamOverlap === 'function',
+    'classifyUpstreamOverlap must be exported');
+});
+
+test('OBS-11: classifyUpstreamOverlap returns SKIP, CANDIDATE, or INCOMPATIBLE', () => {
+  const content = fs.readFileSync(UPSTREAM_PATH, 'utf8');
+  assert.match(content, /SKIP/, 'must contain SKIP classification');
+  assert.match(content, /CANDIDATE/, 'must contain CANDIDATE classification');
+  assert.match(content, /INCOMPATIBLE/, 'must contain INCOMPATIBLE classification');
+});
+
+test('OBS-11: classification function is invoked for each upstream item before surfacing', () => {
+  const content = fs.readFileSync(UPSTREAM_PATH, 'utf8');
+  // The handler must call classifyUpstreamOverlap when processing releases and PRs
+  const classifyCallCount = (content.match(/classifyUpstreamOverlap\(/g) || []).length;
+  // At least 2 calls: one for releases, one for PRs
+  assert.ok(classifyCallCount >= 2,
+    `classifyUpstreamOverlap must be called at least twice (releases + PRs), found ${classifyCallCount}`);
+});
+
+test('OBS-11: upstream items include classification in _upstream metadata', () => {
+  const content = fs.readFileSync(UPSTREAM_PATH, 'utf8');
+  assert.match(content, /classification:\s*classifyUpstreamOverlap/,
+    'upstream items must include classification result in _upstream metadata');
 });

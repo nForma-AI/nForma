@@ -1,0 +1,27 @@
+{
+  "requirement_id": "AGT-01",
+  "requirement_text": "Subagents spawned by QGSD skills MUST loop autonomously until a terminal condition is reached. Valid terminal conditions: (1) success — the goal is verifiably met, (2) iteration cap exhausted (default max 5), (3) unrecoverable — all available paths are low-confidence or unavailable. Returning a message instructing the user to \"run again\" or \"re-invoke\" instead of looping is a violation.",
+  "formal_property": {
+    "name": "TypeOK",
+    "model_file": ".planning/formal/tla/QGSDAgentLoop.tla",
+    "definition": "TypeOK ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "hooks/nf-token-collector.js",
+    "hooks/dist/nf-token-collector.js",
+    "hooks/dist/nf-slot-correlator.js",
+    "hooks/nf-slot-correlator.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/hooks/nf-token-collector.js",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-token-collector.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-token-collector.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-slot-correlator.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-slot-correlator.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/hooks/nf-token-collector.js');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

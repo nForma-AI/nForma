@@ -1,0 +1,21 @@
+{
+  "requirement_id": "STATE-04",
+  "requirement_text": "State file created silently if absent; failure to write logs to stderr but never blocks execution",
+  "formal_property": {
+    "name": "CreateSilently",
+    "model_file": ".planning/formal/tla/QGSDBreakerState.tla",
+    "definition": "CreateSilently ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/validate-invariant.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

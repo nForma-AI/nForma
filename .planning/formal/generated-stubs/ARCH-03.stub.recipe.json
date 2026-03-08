@@ -1,0 +1,21 @@
+{
+  "requirement_id": "ARCH-03",
+  "requirement_text": "`accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance",
+  "formal_property": {
+    "name": "Requirement",
+    "model_file": ".planning/formal/alloy/architecture-registry.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/accept-debug-invariant.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/accept-debug-invariant.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/accept-debug-invariant.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/accept-debug-invariant.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

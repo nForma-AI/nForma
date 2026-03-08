@@ -1,0 +1,33 @@
+{
+  "requirement_id": "PLAT-01",
+  "requirement_text": "QGSD installs and operates correctly on macOS, Ubuntu, and Windows without platform-specific workarounds",
+  "formal_property": {
+    "name": "Platform",
+    "model_file": ".planning/formal/alloy/platform-install-compat.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/execute-phase-formal-gate.test.cjs",
+    "bin/roadmapper-formal-integration.test.cjs",
+    "bin/install-formal-tools.cjs",
+    "bin/verifier-formal-context.test.cjs",
+    "bin/install.js",
+    "hooks/dist/config-loader.js",
+    "hooks/config-loader.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/execute-phase-formal-gate.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/execute-phase-formal-gate.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/roadmapper-formal-integration.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install-formal-tools.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/verifier-formal-context.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/config-loader.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/config-loader.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/execute-phase-formal-gate.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

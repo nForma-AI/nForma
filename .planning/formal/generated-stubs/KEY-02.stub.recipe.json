@@ -1,0 +1,43 @@
+{
+  "requirement_id": "KEY-02",
+  "requirement_text": "Key is stored securely via keytar (bin/secrets.cjs)",
+  "formal_property": {
+    "name": "StoreInKeytar",
+    "model_file": ".planning/formal/tla/QGSDKeyManagement.tla",
+    "definition": "StoreInKeytar ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/telemetry-collector.cjs",
+    "bin/health-auto-adjust.test.cjs",
+    "bin/nForma.cjs",
+    "bin/secrets.cjs",
+    "bin/memory-store.test.cjs",
+    "bin/memory-store.cjs",
+    "bin/ccr-secure-config.cjs",
+    "bin/quorum-cache.cjs",
+    "bin/secrets.test.cjs",
+    "bin/ccr-secure-config.test.cjs",
+    "hooks/dist/nf-prompt.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/telemetry-collector.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/telemetry-collector.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/health-auto-adjust.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/secrets.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/memory-store.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/memory-store.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/ccr-secure-config.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-cache.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/secrets.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/ccr-secure-config.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/telemetry-collector.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

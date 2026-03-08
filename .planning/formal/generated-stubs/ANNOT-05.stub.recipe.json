@@ -1,0 +1,21 @@
+{
+  "requirement_id": "ANNOT-05",
+  "requirement_text": "The traceability matrix generator reads extracted annotations as a primary data source, with model-registry `requirements` arrays as fallback",
+  "formal_property": {
+    "name": "ModelType",
+    "model_file": ".planning/formal/alloy/traceability-annotations.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/generate-traceability-matrix.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

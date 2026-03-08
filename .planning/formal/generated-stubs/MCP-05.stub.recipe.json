@@ -1,0 +1,49 @@
+{
+  "requirement_id": "MCP-05",
+  "requirement_text": "User can manually edit `qgsd.json` to override detected names",
+  "formal_property": {
+    "name": "MCPServer",
+    "model_file": ".planning/formal/alloy/mcp-detection.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/nForma.cjs",
+    "bin/formal-ref-linker.cjs",
+    "bin/generate-phase-spec.cjs",
+    "bin/install-formal-tools.cjs",
+    "bin/verify-quorum-health.cjs",
+    "bin/account-manager.cjs",
+    "bin/install.js",
+    "bin/sync-baseline-requirements.cjs",
+    "bin/analyze-assumptions.test.cjs",
+    "hooks/dist/nf-circuit-breaker.test.js",
+    "hooks/dist/nf-circuit-breaker.js",
+    "hooks/dist/nf-spec-regen.js",
+    "hooks/nf-circuit-breaker.test.js",
+    "hooks/nf-circuit-breaker.js",
+    "hooks/nf-spec-regen.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/formal-ref-linker.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-phase-spec.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install-formal-tools.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/verify-quorum-health.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/account-manager.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/sync-baseline-requirements.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-assumptions.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-circuit-breaker.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-circuit-breaker.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-spec-regen.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-circuit-breaker.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-circuit-breaker.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-spec-regen.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nForma.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

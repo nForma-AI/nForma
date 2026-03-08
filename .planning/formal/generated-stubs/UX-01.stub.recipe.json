@@ -1,0 +1,21 @@
+{
+  "requirement_id": "UX-01",
+  "requirement_text": "Every user-initiated action produces immediate feedback (loading/disabled state) and completion feedback (result message, navigation change, or visible state update)",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/ux-feedback-safety.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/sync-baseline-requirements.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/sync-baseline-requirements.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/sync-baseline-requirements.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/sync-baseline-requirements.cjs');",
+  "test_strategy": "behavioral",
+  "template": "import-and-call",
+  "template_boilerplate": "const mod = require(SOURCE);\nconst result = mod.FUNCTION(INPUT);\nassert.strictEqual(result, EXPECTED);"
+}

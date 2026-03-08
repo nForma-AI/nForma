@@ -1,0 +1,23 @@
+{
+  "requirement_id": "CALIB-03",
+  "requirement_text": "`read-policy.cjs` exposes all policy fields with typed interface",
+  "formal_property": {
+    "name": "FallbackIsNull",
+    "model_file": ".planning/formal/alloy/availability-parsing.als",
+    "definition": "assert FallbackIsNull {\n  all result: ParseResult |\n    (no result.ts) => FallbackReasonValid[result]\n}",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/run-prism.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

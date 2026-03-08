@@ -1,0 +1,21 @@
+{
+  "requirement_id": "COMP-03",
+  "requirement_text": "`check-provider-health.chs` and scoreboard tooling derive agent list from `quorum.active` rather than hardcoded arrays",
+  "formal_property": {
+    "name": "UpdatePolicy",
+    "model_file": ".planning/formal/alloy/quorum-policy.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/generate-traceability-matrix.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

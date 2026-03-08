@@ -1,0 +1,35 @@
+{
+  "requirement_id": "KEY-04",
+  "requirement_text": "Wizard automatically restarts the agent after key changes take effect",
+  "formal_property": {
+    "name": "RestartAgent",
+    "model_file": ".planning/formal/tla/QGSDKeyManagement.tla",
+    "definition": "RestartAgent ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/auth-drivers/gh-cli.cjs",
+    "bin/verify-quorum-health.cjs",
+    "bin/secrets.test.cjs",
+    "bin/ccr-secure-config.test.cjs",
+    "hooks/dist/nf-spec-regen.js",
+    "hooks/dist/nf-prompt.js",
+    "hooks/nf-spec-regen.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/auth-drivers/gh-cli.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/auth-drivers/gh-cli.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/verify-quorum-health.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/secrets.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/ccr-secure-config.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-spec-regen.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-spec-regen.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/auth-drivers/gh-cli.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

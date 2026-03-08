@@ -1,0 +1,23 @@
+{
+  "requirement_id": "SCBD-03",
+  "requirement_text": "When a slot's model changes, a new scoreboard row is created for that slot",
+  "formal_property": {
+    "name": "NoDoubleCounting",
+    "model_file": ".planning/formal/alloy/scoreboard-recompute.als",
+    "definition": "assert NoDoubleCounting {\n  all m: Model, rs: set Round, r: rs |\n    some r.votes[m] implies\n    computeScore[m, rs] = plus[computeScore[m, rs - r], scoreDelta[r.votes[m]]]\n}",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/update-scoreboard.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/update-scoreboard.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

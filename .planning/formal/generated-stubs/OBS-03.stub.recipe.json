@@ -1,0 +1,27 @@
+{
+  "requirement_id": "OBS-03",
+  "requirement_text": "Each slot gets a flakiness score from recent UNAVAIL/timeout frequency; high-flakiness slots deprioritized in dispatch ordering",
+  "formal_property": {
+    "name": "S=? [ \"slot1_unavail\" ]",
+    "model_file": ".planning/formal/prism/observability-delivery.props",
+    "definition": "",
+    "type": "property"
+  },
+  "source_files": [
+    "bin/update-scoreboard.cjs",
+    "bin/scoreboard-observability.test.cjs",
+    "hooks/dist/nf-prompt.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/update-scoreboard.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/update-scoreboard.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/scoreboard-observability.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/update-scoreboard.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

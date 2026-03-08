@@ -1,0 +1,23 @@
+{
+  "requirement_id": "VIS-01",
+  "requirement_text": "`/nf:health` surfaces W008 warning when a quorum slot has ≥3 failures recorded in `quorum-failures.json`",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/health-validation.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/nForma.cjs",
+    "bin/plan-phase-fv-gate.test.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/plan-phase-fv-gate.test.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nForma.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

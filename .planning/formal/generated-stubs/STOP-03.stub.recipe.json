@@ -1,0 +1,27 @@
+{
+  "requirement_id": "STOP-03",
+  "requirement_text": "Stop hook checks `hook_event_name` — if `SubagentStop`, exits 0 immediately (subagent exclusion)",
+  "formal_property": {
+    "name": "SafetyInvariant2",
+    "model_file": ".planning/formal/tla/NFStopHook.tla",
+    "definition": "SafetyInvariant2 ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/nf-solve.cjs",
+    "hooks/dist/nf-stop.js",
+    "hooks/nf-stop.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-stop.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

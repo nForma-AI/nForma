@@ -1,0 +1,21 @@
+{
+  "requirement_id": "STOP-08",
+  "requirement_text": "Block reason message format: \"QUORUM REQUIRED: Before completing this /nf:[command] response, call [tool1], [tool2], [tool3] with your current plan. Present their responses, then deliver your final output.\"",
+  "formal_property": {
+    "name": "BoundaryCorrectCheck",
+    "model_file": ".planning/formal/alloy/transcript-scan.als",
+    "definition": "assert BoundaryCorrectCheck {\n  some HumanMessage => BoundaryCorrect\n}",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

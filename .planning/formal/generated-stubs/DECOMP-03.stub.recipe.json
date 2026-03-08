@@ -1,0 +1,21 @@
+{
+  "requirement_id": "DECOMP-03",
+  "requirement_text": "When a model is split into sub-models, the traceability matrix validates that no requirement loses coverage (pre-split coverage >= post-split coverage for every affected requirement)",
+  "formal_property": {
+    "name": "RiskLevel",
+    "model_file": ".planning/formal/alloy/state-space-analysis.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/generate-traceability-matrix.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

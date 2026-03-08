@@ -1,0 +1,25 @@
+{
+  "requirement_id": "RECV-01",
+  "requirement_text": "`npx qgsd --reset-breaker` CLI flag clears `.claude/circuit-breaker-state.json` and logs confirmation — enables manual recovery when circuit breaker deadlocks due to blocked git commit",
+  "formal_property": {
+    "name": "EventualConsensus",
+    "model_file": ".planning/formal/tla/QGSDQuorum.tla",
+    "definition": "EventualConsensus == <>(phase = \"DECIDED\")",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/install.js",
+    "bin/generate-formal-specs.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-formal-specs.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

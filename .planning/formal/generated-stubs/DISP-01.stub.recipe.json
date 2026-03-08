@@ -1,0 +1,25 @@
+{
+  "requirement_id": "DISP-01",
+  "requirement_text": "qgsd-prompt.js runs a fast health probe (<3s) per provider before building the dispatch list -- dead providers' slots excluded from DISPATCH_LIST",
+  "formal_property": {
+    "name": "HealthProbe",
+    "model_file": ".planning/formal/tla/QGSDDispatchPipeline.tla",
+    "definition": "HealthProbe ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/quorum-slot-dispatch.cjs",
+    "hooks/dist/nf-prompt.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/quorum-slot-dispatch.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-slot-dispatch.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/quorum-slot-dispatch.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

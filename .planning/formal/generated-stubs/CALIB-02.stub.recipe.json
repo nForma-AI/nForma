@@ -1,0 +1,23 @@
+{
+  "requirement_id": "CALIB-02",
+  "requirement_text": "`run-prism.cjs` reads `policy.yaml` and writes `writeCheckResult` with `observation_window` metadata",
+  "formal_property": {
+    "name": "YearRolloverHandled",
+    "model_file": ".planning/formal/alloy/availability-parsing.als",
+    "definition": "assert YearRolloverHandled {\n  all input: DateInput, result: ParseResult |\n    (monthIndex[input.month] < monthIndex[Now.currentMonth]) =>\n    (ParsedCorrectly[input, result] => (no result.ts or result.ts >= 0))\n}",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/run-prism.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "behavioral",
+  "template": "import-and-call",
+  "template_boilerplate": "const mod = require(SOURCE);\nconst result = mod.FUNCTION(INPUT);\nassert.strictEqual(result, EXPECTED);"
+}

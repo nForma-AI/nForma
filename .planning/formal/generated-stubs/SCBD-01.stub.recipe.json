@@ -1,0 +1,23 @@
+{
+  "requirement_id": "SCBD-01",
+  "requirement_text": "Scoreboard tracks performance by slot name (`claude-1`, `copilot-1`) — slot is the stable key",
+  "formal_property": {
+    "name": "VoteCode",
+    "model_file": ".planning/formal/alloy/scoreboard-recompute.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/update-scoreboard.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/update-scoreboard.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

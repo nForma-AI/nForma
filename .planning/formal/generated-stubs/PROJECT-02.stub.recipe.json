@@ -1,0 +1,33 @@
+{
+  "requirement_id": "PROJECT-02",
+  "requirement_text": "All skill shortcuts shall use the 'nf:' prefix (e.g., nf:solve, nf:quick)",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/project-identity.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/skill-extractor.cjs",
+    "bin/skill-extractor.test.cjs",
+    "bin/memory-store.test.cjs",
+    "bin/install.js",
+    "bin/memory-store.cjs",
+    "hooks/dist/nf-session-start.js",
+    "hooks/nf-session-start.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/skill-extractor.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/skill-extractor.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/skill-extractor.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/memory-store.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/memory-store.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-session-start.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-session-start.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/skill-extractor.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

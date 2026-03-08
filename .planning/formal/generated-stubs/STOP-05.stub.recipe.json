@@ -1,0 +1,21 @@
+{
+  "requirement_id": "STOP-05",
+  "requirement_text": "Stop hook reads transcript JSONL as the authoritative source of quorum evidence — no fast-path pre-check (design decision: last_assistant_message substring matching is not a reliable signal; JSONL parse is synchronous and correct for all transcript sizes)",
+  "formal_property": {
+    "name": "LivenessProperty1",
+    "model_file": ".planning/formal/tla/NFStopHook.tla",
+    "definition": "LivenessProperty1 == <>algorithmDone",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

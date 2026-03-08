@@ -1,0 +1,25 @@
+{
+  "requirement_id": "SAFE-01",
+  "requirement_text": "`--repair` cannot silently overwrite a rich STATE.md (>50 lines) without explicit `--force` flag; guard fires and repair is skipped with a message",
+  "formal_property": {
+    "name": "ThresholdPasses",
+    "model_file": ".planning/formal/alloy/quorum-votes.als",
+    "definition": "assert ThresholdPasses {\n    all r : VoteRound |\n        (ValidRound[r] and #r.approvals = r.polled) implies UnanimityReached[r]\n}",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/generate-formal-specs.cjs",
+    "bin/formal-query.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-formal-specs.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/formal-query.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

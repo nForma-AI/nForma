@@ -1,0 +1,21 @@
+{
+  "requirement_id": "CRED-12",
+  "requirement_text": "Account and credential management modules (account-manager, CCR secure config/start, GitHub account rotation) SHALL have @requirement annotations and test tracing.",
+  "formal_property": {
+    "name": "P=? [ F s=1 ]",
+    "model_file": ".planning/formal/prism/oauth-rotation.props",
+    "definition": "",
+    "type": "property"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

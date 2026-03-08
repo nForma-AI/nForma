@@ -1,0 +1,21 @@
+{
+  "requirement_id": "DEBT-01",
+  "requirement_text": "The debt/observability subsystem (debt ledger, dedup, retention, state machine, drift fingerprinting) SHALL maintain requirement traceability via @requirement annotations in source and @req annotations in tests.",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/traceability-obligations.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/task-classifier.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/task-classifier.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/task-classifier.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/task-classifier.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

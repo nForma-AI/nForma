@@ -1,0 +1,23 @@
+{
+  "requirement_id": "CALIB-01",
+  "requirement_text": "`.planning/formal/policy.yaml` is the single authoritative source for PRISM calibration parameters",
+  "formal_property": {
+    "name": "ParseCorrect",
+    "model_file": ".planning/formal/alloy/availability-parsing.als",
+    "definition": "assert ParseCorrect {\n  all input: DateInput, result: ParseResult |\n    ParsedCorrectly[input, result] =>\n    (no result.ts or result.ts >= 0)\n}",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/read-policy.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/read-policy.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

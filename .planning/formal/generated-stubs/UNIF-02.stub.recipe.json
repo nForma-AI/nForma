@@ -1,0 +1,21 @@
+{
+  "requirement_id": "UNIF-02",
+  "requirement_text": "`run-formal-verify.cjs` generates `check-results.ndjson` as canonical output artifact",
+  "formal_property": {
+    "name": "FVTool",
+    "model_file": ".planning/formal/alloy/unified-check-results.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/run-formal-verify.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/run-formal-verify.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/run-formal-verify.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/run-formal-verify.cjs');",
+  "test_strategy": "behavioral",
+  "template": "import-and-call",
+  "template_boilerplate": "const mod = require(SOURCE);\nconst result = mod.FUNCTION(INPUT);\nassert.strictEqual(result, EXPECTED);"
+}

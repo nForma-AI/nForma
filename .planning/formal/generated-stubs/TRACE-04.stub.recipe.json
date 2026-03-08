@@ -1,0 +1,21 @@
+{
+  "requirement_id": "TRACE-04",
+  "requirement_text": "Bidirectional validation detects asymmetric links (model claims requirement X but requirement X does not claim that model) and emits warnings",
+  "formal_property": {
+    "name": "ModelType",
+    "model_file": ".planning/formal/alloy/traceability-annotations.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/generate-traceability-matrix.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

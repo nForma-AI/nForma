@@ -1,0 +1,21 @@
+{
+  "requirement_id": "INST-03",
+  "requirement_text": "Installer writes hooks to `~/.claude/settings.json` directly (not plugin.json hooks — stdout is silently discarded per GitHub #10225)",
+  "formal_property": {
+    "name": "InstallIdempotent",
+    "model_file": ".planning/formal/alloy/install-scope.als",
+    "definition": "assert InstallIdempotent {\n    all pre, mid, post: InstallState, targets: set Runtime, sc: Scope |\n        (InstallOp[pre, mid, targets, sc] and InstallOp[mid, post, targets, sc])\n        implies SameState[mid, post]\n}",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

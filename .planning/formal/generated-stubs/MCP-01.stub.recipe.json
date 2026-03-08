@@ -1,0 +1,21 @@
+{
+  "requirement_id": "MCP-01",
+  "requirement_text": "Installer reads `~/.claude.json` to auto-detect MCP server names for Codex, Gemini, OpenCode",
+  "formal_property": {
+    "name": "MCPServer",
+    "model_file": ".planning/formal/alloy/mcp-detection.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/validate-invariant.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

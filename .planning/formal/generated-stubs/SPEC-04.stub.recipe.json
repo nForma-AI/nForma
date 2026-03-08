@@ -1,0 +1,21 @@
+{
+  "requirement_id": "SPEC-04",
+  "requirement_text": "`generate-phase-spec.cjs` translates PLAN.md `must_haves: truths:` to TLA+ PROPERTY stubs",
+  "formal_property": {
+    "name": "StartPhaseSpec",
+    "model_file": ".planning/formal/tla/QGSDSpecGeneration.tla",
+    "definition": "StartPhaseSpec ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/generate-phase-spec.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/generate-phase-spec.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/generate-phase-spec.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/generate-phase-spec.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

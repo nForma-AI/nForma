@@ -1,0 +1,21 @@
+{
+  "requirement_id": "SOLVE-12",
+  "requirement_text": "nf:solve autoClose phase upgrades generated TODO test stubs to implementation-aware tests using recipe metadata before convergence.",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/solve-result-schema.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/autoClosePtoF.test.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/autoClosePtoF.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/autoClosePtoF.test.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/autoClosePtoF.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

@@ -1,0 +1,25 @@
+{
+  "requirement_id": "PLAN-03",
+  "requirement_text": "`quorum-formal-context.cjs` generates formal evidence blocks for quorum slots",
+  "formal_property": {
+    "name": "TypeOK",
+    "model_file": ".planning/formal/tla/NFPreFilter.tla",
+    "definition": "TypeOK ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/verify-formal-results.cjs",
+    "bin/quorum-formal-context.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/verify-formal-results.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-formal-context.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

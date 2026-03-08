@@ -1,0 +1,35 @@
+{
+  "requirement_id": "SOLVE-06",
+  "requirement_text": "qgsd-solve diagnostic engine provides reverse traceability sweeps (C→R, T→R, D→R) that discover implementation artifacts without requirement backing, assembled via deduplication and acknowledged-not-required filtering, presented through a two-step candidate-then-approve pattern that prevents unbounded requirement expansion",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/solver-portability.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/nf-solve.test.cjs",
+    "bin/harness-diagnostic.cjs",
+    "bin/observe-handler-internal.test.cjs",
+    "bin/nf-solve.cjs",
+    "bin/observe-handler-internal.cjs",
+    "bin/harness-diagnostic.test.cjs",
+    "bin/secrets.test.cjs",
+    "bin/ccr-secure-config.test.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nf-solve.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/harness-diagnostic.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-internal.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-internal.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/harness-diagnostic.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/secrets.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/ccr-secure-config.test.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nf-solve.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

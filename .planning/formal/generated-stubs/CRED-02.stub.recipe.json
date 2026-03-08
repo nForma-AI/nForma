@@ -1,0 +1,21 @@
+{
+  "requirement_id": "CRED-02",
+  "requirement_text": "Key validity status persists to `qgsd.json` after each health probe (enables DISP-03 badge to survive across sessions without re-probing)",
+  "formal_property": {
+    "name": "ActiveIsPoolMember",
+    "model_file": ".planning/formal/tla/NFAccountManager.tla",
+    "definition": "ActiveIsPoolMember ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

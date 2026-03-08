@@ -1,0 +1,51 @@
+{
+  "requirement_id": "STATE-05",
+  "requirement_text": "execute-plan Route C (all phases complete) chains into /nf:audit-milestone with gap-closure detection instead of suggesting /nf:complete-milestone directly, matching transition.md Route B logic for both yolo (auto-invoke) and interactive (suggest) modes.",
+  "formal_property": {
+    "name": "TypeOK",
+    "model_file": ".planning/formal/tla/QGSDPlanningState.tla",
+    "definition": "TypeOK ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/nForma.cjs",
+    "bin/ccr-secure-start.cjs",
+    "bin/solve-debt-bridge.test.cjs",
+    "bin/manage-agents-core.cjs",
+    "bin/review-mcp-logs.cjs",
+    "bin/secrets.cjs",
+    "bin/observe-solve-pipe.cjs",
+    "bin/issue-classifier.cjs",
+    "bin/observe-handler-internal.test.cjs",
+    "bin/solve-debt-bridge.cjs",
+    "bin/observe-handler-internal.cjs",
+    "bin/ccr-secure-config.cjs",
+    "bin/secrets.test.cjs",
+    "bin/update-agents.cjs",
+    "bin/ccr-secure-config.test.cjs",
+    "bin/observe-solve-pipe.test.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/ccr-secure-start.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/solve-debt-bridge.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/manage-agents-core.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/review-mcp-logs.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/secrets.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-solve-pipe.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/issue-classifier.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-internal.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/solve-debt-bridge.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-internal.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/ccr-secure-config.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/secrets.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/update-agents.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/ccr-secure-config.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-solve-pipe.test.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nForma.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

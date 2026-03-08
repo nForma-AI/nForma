@@ -1,0 +1,37 @@
+{
+  "requirement_id": "CONF-10",
+  "requirement_text": "Configuration layer validates and gracefully degrades when providers.json contains zero providers, falling back to solo quorum mode with clear diagnostic messages",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/config-zero-providers.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/debt-dedup-integration.test.cjs",
+    "bin/health-auto-adjust.test.cjs",
+    "bin/observe-registry.cjs",
+    "bin/observe-debt-writer.test.cjs",
+    "bin/generate-tla-cfg.cjs",
+    "bin/install.js",
+    "bin/generate-petri-net.cjs",
+    "bin/analyze-assumptions.test.cjs",
+    "bin/observe-config.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/debt-dedup-integration.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/debt-dedup-integration.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/health-auto-adjust.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-registry.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-debt-writer.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-tla-cfg.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-petri-net.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-assumptions.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-config.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/debt-dedup-integration.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

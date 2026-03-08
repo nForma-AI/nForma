@@ -1,0 +1,23 @@
+{
+  "requirement_id": "META-03",
+  "requirement_text": "Auto-resolved questions are presented as a list of assumptions before escalated questions",
+  "formal_property": {
+    "name": "Requirement",
+    "model_file": ".planning/formal/alloy/architecture-registry.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "hooks/dist/nf-stop.test.js",
+    "hooks/nf-stop.test.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.test.js",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-stop.test.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.test.js');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

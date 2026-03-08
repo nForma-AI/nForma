@@ -1,0 +1,43 @@
+{
+  "requirement_id": "WIZ-11",
+  "requirement_text": "User can run /nf:settings to access a guided project manager hub with state-aware dashboard (milestone, progress, phase, config summary) and categorized main menu (Continue Working, Project Management, Configuration, Quick Task) with smart routing and profile/baselines management",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/settings-hub.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/learning-extractor.test.cjs",
+    "bin/call-quorum-slot.cjs",
+    "bin/verify-quorum-health.test.cjs",
+    "bin/nForma.test.cjs",
+    "bin/secrets.cjs",
+    "bin/validate-requirements-haiku.cjs",
+    "bin/run-prism.test.cjs",
+    "bin/check-trace-redaction.test.cjs",
+    "bin/install.js",
+    "bin/unified-mcp-server.mjs",
+    "bin/analyze-assumptions.test.cjs",
+    "bin/ccr-secure-config.test.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/learning-extractor.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/learning-extractor.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/call-quorum-slot.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/verify-quorum-health.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/secrets.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/validate-requirements-haiku.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/check-trace-redaction.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/unified-mcp-server.mjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-assumptions.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/ccr-secure-config.test.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/learning-extractor.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

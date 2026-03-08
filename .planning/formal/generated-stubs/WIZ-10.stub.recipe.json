@@ -1,0 +1,21 @@
+{
+  "requirement_id": "WIZ-10",
+  "requirement_text": "User can add a new slot for any family (claude, copilot, opencode, codex-cli, gemini-cli) from within the wizard, which writes the new entry to `~/.claude.json` and triggers restart",
+  "formal_property": {
+    "name": "AddSlot",
+    "model_file": ".planning/formal/tla/QGSDSetupWizard.tla",
+    "definition": "AddSlot ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "commands/nf/mcp-setup.md"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/commands/nf/mcp-setup.md",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/commands/nf/mcp-setup.md"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/commands/nf/mcp-setup.md');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

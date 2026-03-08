@@ -1,0 +1,21 @@
+{
+  "requirement_id": "SLOT-04",
+  "requirement_text": "`mcp-status`, `mcp-set-model`, `mcp-update`, `mcp-restart` accept and display slot names correctly",
+  "formal_property": {
+    "name": "SubslotsFirst",
+    "model_file": ".planning/formal/tla/NFRecruiting.tla",
+    "definition": "SubslotsFirst ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

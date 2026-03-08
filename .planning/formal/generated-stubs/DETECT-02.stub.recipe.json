@@ -1,0 +1,23 @@
+{
+  "requirement_id": "DETECT-02",
+  "requirement_text": "Hook retrieves last N commits' changed files via `git log --name-only` (N = commit_window config) when detection is needed",
+  "formal_property": {
+    "name": "DisabledExcludesActive",
+    "model_file": ".planning/formal/tla/NFCircuitBreaker.tla",
+    "definition": "DisabledExcludesActive ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/analyze-state-space.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

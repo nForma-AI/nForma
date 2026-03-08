@@ -1,0 +1,27 @@
+{
+  "requirement_id": "SENS-02",
+  "requirement_text": "`plan-phase.md` step 8.3 (FV gate) is extended to also run `run-sensitivity-sweep.cjs` (fail-open) and inject `SENSITIVITY_CONTEXT` into the quorum `review_context`, surfacing the top-3 highest-impact parameters as planning recommendations: which code paths control them, which boundary values to test, and which metrics to monitor.",
+  "formal_property": {
+    "name": "InjectContext",
+    "model_file": ".planning/formal/tla/QGSDSensitivity.tla",
+    "definition": "InjectContext ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/aggregate-requirements.test.cjs",
+    "bin/analyze-state-space.cjs",
+    "hooks/dist/nf-circuit-breaker.test.js",
+    "hooks/nf-circuit-breaker.test.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/aggregate-requirements.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/aggregate-requirements.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-circuit-breaker.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-circuit-breaker.test.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/aggregate-requirements.test.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

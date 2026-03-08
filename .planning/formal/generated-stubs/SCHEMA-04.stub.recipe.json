@@ -1,0 +1,21 @@
+{
+  "requirement_id": "SCHEMA-04",
+  "requirement_text": "`requirements.json` envelope gains an optional `formal_models` array (string[]) per requirement, listing model file paths that verify it",
+  "formal_property": {
+    "name": "Requirement",
+    "model_file": ".planning/formal/alloy/schema-extensions.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/requirements-core.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirements-core.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirements-core.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirements-core.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

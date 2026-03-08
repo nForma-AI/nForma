@@ -1,0 +1,21 @@
+{
+  "requirement_id": "DETECT-03",
+  "requirement_text": "Hook identifies oscillation when the exact same file set (strict set equality, not intersection) appears in ≥ oscillation_depth of the last commit_window commits — strict equality prevents false positives during TDD cycles where different files are touched per commit",
+  "formal_property": {
+    "name": "MonitoringReachable",
+    "model_file": ".planning/formal/tla/NFCircuitBreaker.tla",
+    "definition": "MonitoringReachable == <>(active = FALSE /\\ disabled = FALSE)",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

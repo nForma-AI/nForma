@@ -1,0 +1,23 @@
+{
+  "requirement_id": "FAIL-01",
+  "requirement_text": "call-quorum-slot.cjs retries a failed slot call up to 2 times with exponential backoff (1s, 3s) before recording UNAVAIL in quorum-failures.json",
+  "formal_property": {
+    "name": "S=? [ \"total_outage\" ]",
+    "model_file": ".planning/formal/prism/mcp-availability.props",
+    "definition": "",
+    "type": "property"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/call-quorum-slot.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/call-quorum-slot.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

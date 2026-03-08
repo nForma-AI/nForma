@@ -1,0 +1,21 @@
+{
+  "requirement_id": "LOOP-04",
+  "requirement_text": "`propose-debug-invariants.cjs` mines TLA+ invariant candidates from debug sessions",
+  "formal_property": {
+    "name": "StartDebugMine",
+    "model_file": ".planning/formal/tla/QGSDSpecGeneration.tla",
+    "definition": "StartDebugMine ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/propose-debug-invariants.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/propose-debug-invariants.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/propose-debug-invariants.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/propose-debug-invariants.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

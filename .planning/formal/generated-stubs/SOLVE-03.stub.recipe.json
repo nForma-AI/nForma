@@ -1,0 +1,33 @@
+{
+  "requirement_id": "SOLVE-03",
+  "requirement_text": "Solver discovers documentation files via config (docs_paths in .planning/config.json) with convention fallback (README.md, docs/**/*.md), checks R→D coverage by literal ID and keyword matching, and verifies D→C structural claims (file paths, CLI commands, dependencies) with false-positive filtering for template variables, example headings, home paths, and fenced code blocks",
+  "formal_property": {
+    "name": "Requirement",
+    "model_file": ".planning/formal/alloy/solver-doc-layers.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/sweep-reverse.test.cjs",
+    "bin/nf-solve.test.cjs",
+    "bin/verify-formal-results.test.cjs",
+    "bin/resolve-prism-bin.cjs",
+    "bin/planning-paths.cjs",
+    "bin/nf-solve.cjs",
+    "bin/quorum-telemetry.test.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/sweep-reverse.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/sweep-reverse.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/verify-formal-results.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/resolve-prism-bin.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/planning-paths.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-telemetry.test.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/sweep-reverse.test.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

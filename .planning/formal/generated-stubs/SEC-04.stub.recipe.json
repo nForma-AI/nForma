@@ -1,0 +1,53 @@
+{
+  "requirement_id": "SEC-04",
+  "requirement_text": "Dependencies are scanned for known vulnerabilities in CI (e.g., npm audit, Dependabot, Snyk) and critical/high findings block merge",
+  "formal_property": {
+    "name": "ScanResult",
+    "model_file": ".planning/formal/alloy/security-scanning.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/task-classifier.cjs",
+    "bin/detect-project-intent.cjs",
+    "bin/budget-tracker.cjs",
+    "bin/manage-agents-core.cjs",
+    "bin/stall-detector.cjs",
+    "bin/detect-project-intent.test.cjs",
+    "bin/claude-md-references.test.cjs",
+    "bin/token-dashboard.cjs",
+    "bin/conformance-schema.cjs",
+    "bin/install.js",
+    "bin/generate-petri-net.test.cjs",
+    "bin/generate-petri-net.cjs",
+    "bin/nf-solve.cjs",
+    "bin/update-agents.cjs",
+    "bin/build-phase-index.cjs",
+    "hooks/dist/conformance-schema.cjs",
+    "hooks/conformance-schema.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/task-classifier.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/task-classifier.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/detect-project-intent.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/budget-tracker.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/manage-agents-core.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/stall-detector.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/detect-project-intent.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/claude-md-references.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/token-dashboard.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/conformance-schema.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/install.js",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-petri-net.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-petri-net.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/update-agents.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/build-phase-index.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/conformance-schema.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/conformance-schema.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/task-classifier.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

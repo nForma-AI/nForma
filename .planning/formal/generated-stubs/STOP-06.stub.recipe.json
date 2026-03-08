@@ -1,0 +1,25 @@
+{
+  "requirement_id": "STOP-06",
+  "requirement_text": "Stop hook verifies quorum only when a configured planning command was issued in the current turn (scope filtering)",
+  "formal_property": {
+    "name": "LivenessProperty2",
+    "model_file": ".planning/formal/tla/NFStopHook.tla",
+    "definition": "LivenessProperty2 == hasQuorumEvidence => <>(decision = \"PASS\")",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "hooks/dist/nf-stop.js",
+    "hooks/nf-stop.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-stop.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

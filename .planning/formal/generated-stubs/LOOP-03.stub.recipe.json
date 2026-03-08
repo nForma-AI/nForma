@@ -1,0 +1,23 @@
+{
+  "requirement_id": "LOOP-03",
+  "requirement_text": "`sensitivity-sweep-feedback.cjs` detects threshold violations and triggers PRISM re-run",
+  "formal_property": {
+    "name": "FilterRoundsBounded",
+    "model_file": ".planning/formal/tla/NFPreFilter.tla",
+    "definition": "FilterRoundsBounded ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/sensitivity-sweep-feedback.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/sensitivity-sweep-feedback.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "constant",
+  "template": "config-validate",
+  "template_boilerplate": "const { DEFAULT_CONFIG } = require(CONFIG_PATH);\nassert.strictEqual(resolveConfigPath(PATH, DEFAULT_CONFIG), EXPECTED);"
+}

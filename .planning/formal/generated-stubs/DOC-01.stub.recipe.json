@@ -1,0 +1,21 @@
+{
+  "requirement_id": "DOC-01",
+  "requirement_text": "README.md capability claims (setup wizard, verification workflow, adaptive fan-out, model registry, branch config, CLI commands) SHALL be backed by traceable requirements in requirements.json.",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/doc-claims-backing.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/nf-solve.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

@@ -1,0 +1,21 @@
+{
+  "requirement_id": "CONF-05",
+  "requirement_text": "Config validates on read — malformed config falls back to hardcoded defaults with warning",
+  "formal_property": {
+    "name": "ConfigLayer",
+    "model_file": ".planning/formal/alloy/config-two-layer.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/validate-invariant.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/validate-invariant.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

@@ -1,0 +1,51 @@
+{
+  "requirement_id": "QUORUM-06",
+  "requirement_text": "checkpoint:human-verify in auto-mode triggers a quorum consensus gate requiring 100% APPROVE from all responding workers; any BLOCK vote or quorum unavailability escalates to the user instead of auto-approving.",
+  "formal_property": {
+    "name": "TypeOK",
+    "model_file": ".planning/formal/tla/QGSDCheckpointGate.tla",
+    "definition": "TypeOK ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/nForma.cjs",
+    "bin/execute-phase-formal-gate.test.cjs",
+    "bin/formal-proximity.cjs",
+    "bin/formal-scope-scan.cjs",
+    "bin/issue-classifier.cjs",
+    "bin/issue-classifier.test.cjs",
+    "bin/formal-proximity.test.cjs",
+    "hooks/dist/nf-session-start.test.js",
+    "hooks/dist/nf-prompt.test.js",
+    "hooks/dist/nf-circuit-breaker.test.js",
+    "hooks/dist/nf-stop.test.js",
+    "hooks/gsd-context-monitor.test.js",
+    "hooks/nf-session-start.test.js",
+    "hooks/nf-prompt.test.js",
+    "hooks/nf-circuit-breaker.test.js",
+    "hooks/nf-stop.test.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/execute-phase-formal-gate.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/formal-proximity.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/formal-scope-scan.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/issue-classifier.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/issue-classifier.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/formal-proximity.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-session-start.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-circuit-breaker.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/gsd-context-monitor.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-session-start.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-circuit-breaker.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-stop.test.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/nForma.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

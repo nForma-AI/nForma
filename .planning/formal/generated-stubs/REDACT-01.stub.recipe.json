@@ -1,0 +1,21 @@
+{
+  "requirement_id": "REDACT-01",
+  "requirement_text": "`check-trace-redaction.cjs` checks traces for PII/secret patterns and emits `check-results.ndjson`",
+  "formal_property": {
+    "name": "CompleteRedaction",
+    "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
+    "definition": "CompleteRedaction ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "behavioral",
+  "template": "import-and-call",
+  "template_boilerplate": "const mod = require(SOURCE);\nconst result = mod.FUNCTION(INPUT);\nassert.strictEqual(result, EXPECTED);"
+}

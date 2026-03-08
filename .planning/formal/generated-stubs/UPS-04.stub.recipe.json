@@ -1,0 +1,53 @@
+{
+  "requirement_id": "UPS-04",
+  "requirement_text": "Injected context names the exact MCP tools to call and instructs Claude to present model responses before delivering final output",
+  "formal_property": {
+    "name": "InjectQuorum",
+    "model_file": ".planning/formal/tla/QGSDPromptHook.tla",
+    "definition": "InjectQuorum ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/manage-agents.test.cjs",
+    "bin/check-spec-sync.test.cjs",
+    "bin/nForma.test.cjs",
+    "bin/run-prism.test.cjs",
+    "bin/generate-formal-specs.cjs",
+    "bin/memory-store.cjs",
+    "bin/quorum-slot-dispatch.cjs",
+    "bin/check-liveness-fairness.cjs",
+    "hooks/dist/nf-prompt.test.js",
+    "hooks/dist/nf-stop.js",
+    "hooks/dist/nf-precompact.js",
+    "hooks/dist/nf-stop.test.js",
+    "hooks/gsd-context-monitor.test.js",
+    "hooks/nf-prompt.test.js",
+    "hooks/nf-stop.js",
+    "hooks/nf-precompact.js",
+    "hooks/nf-stop.test.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/check-spec-sync.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-formal-specs.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/memory-store.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/quorum-slot-dispatch.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/check-liveness-fairness.cjs",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-precompact.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-stop.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/gsd-context-monitor.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.test.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-stop.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-precompact.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-stop.test.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

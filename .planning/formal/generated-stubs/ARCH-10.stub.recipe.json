@@ -1,0 +1,21 @@
+{
+  "requirement_id": "ARCH-10",
+  "requirement_text": "QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/codebase-arch-constraints.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/check-bundled-sdks.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/check-bundled-sdks.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/check-bundled-sdks.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/check-bundled-sdks.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

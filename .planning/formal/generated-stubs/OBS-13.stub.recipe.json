@@ -1,0 +1,25 @@
+{
+  "requirement_id": "OBS-13",
+  "requirement_text": "A machine-readable inventory classifies every non-test bin/ script as wired (reachable from a skill command, hook, or workflow) or lone (unreferenced), with purpose, classification, suggested integration point, and transitive dependency chains documented for each entry.",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/observability-handler-arch.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/formal-core.cjs",
+    "bin/generate-traceability-matrix.cjs",
+    "bin/analyze-state-space.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/formal-core.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/formal-core.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-traceability-matrix.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/formal-core.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

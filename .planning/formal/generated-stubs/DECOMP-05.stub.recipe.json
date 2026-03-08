@@ -1,0 +1,21 @@
+{
+  "requirement_id": "DECOMP-05",
+  "requirement_text": "`analyze-state-space.cjs` identifies model pairs sharing source files or requirement prefixes, estimates the merged state space, and recommends merge when combined TLC runtime < 5 minutes — or flags the interface contract needed when merge would exceed the time budget",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/decomp-cross-model.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/analyze-state-space.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

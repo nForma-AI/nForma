@@ -1,0 +1,27 @@
+{
+  "requirement_id": "SYNC-01",
+  "requirement_text": "QGSD ships as separate npm package (`qgsd` or `get-shit-done-quorum`) that wraps GSD",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/gsd-sync-invariants.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/build-layer-manifest.test.cjs",
+    "bin/observe-handler-deps.cjs",
+    "bin/analyze-state-space.cjs",
+    "bin/build-layer-manifest.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/build-layer-manifest.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/build-layer-manifest.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/observe-handler-deps.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-state-space.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/build-layer-manifest.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/build-layer-manifest.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

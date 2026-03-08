@@ -1,0 +1,21 @@
+{
+  "requirement_id": "ANNOT-04",
+  "requirement_text": "`bin/extract-annotations.cjs` parses `@requirement` comments from TLA+, Alloy, and PRISM files and returns a structured JSON map of `{ model_file: [{ property, requirement_ids }] }`",
+  "formal_property": {
+    "name": "ModelType",
+    "model_file": ".planning/formal/alloy/traceability-annotations.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/extract-annotations.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/extract-annotations.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/extract-annotations.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/extract-annotations.cjs');",
+  "test_strategy": "behavioral",
+  "template": "import-and-call",
+  "template_boilerplate": "const mod = require(SOURCE);\nconst result = mod.FUNCTION(INPUT);\nassert.strictEqual(result, EXPECTED);"
+}

@@ -1,0 +1,27 @@
+{
+  "requirement_id": "PRST-02",
+  "requirement_text": "User can clone an existing slot — copies provider URL and model config, prompts for new slot name",
+  "formal_property": {
+    "name": "CloneSlot",
+    "model_file": ".planning/formal/tla/QGSDAgentProvisioning.tla",
+    "definition": "",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/manage-agents.test.cjs",
+    "bin/nForma.cjs",
+    "bin/nForma.test.cjs",
+    "bin/xstate-trace-walker.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/nForma.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/xstate-trace-walker.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/manage-agents.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

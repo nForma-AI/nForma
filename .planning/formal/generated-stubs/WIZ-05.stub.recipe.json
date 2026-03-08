@@ -1,0 +1,29 @@
+{
+  "requirement_id": "WIZ-05",
+  "requirement_text": "User confirms before changes are applied; wizard restarts affected agents after apply",
+  "formal_property": {
+    "name": "ConfirmChanges",
+    "model_file": ".planning/formal/tla/QGSDSetupWizard.tla",
+    "definition": "ConfirmChanges ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/run-prism.test.cjs",
+    "bin/oscillation-audit.test.cjs",
+    "bin/generate-tla-cfg.test.cjs",
+    "bin/validate-requirements-haiku.test.cjs",
+    "bin/analyze-assumptions.test.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/oscillation-audit.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-tla-cfg.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/validate-requirements-haiku.test.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/analyze-assumptions.test.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/run-prism.test.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

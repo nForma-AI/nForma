@@ -1,0 +1,21 @@
+{
+  "requirement_id": "SIG-02",
+  "requirement_text": "`generate-petri-net.cjs --roadmap` models phase dependencies as Petri net with critical path analysis",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/signal-analysis-tools.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/generate-petri-net.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/generate-petri-net.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/generate-petri-net.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/generate-petri-net.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

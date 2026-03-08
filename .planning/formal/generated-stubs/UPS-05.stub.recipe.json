@@ -1,0 +1,23 @@
+{
+  "requirement_id": "UPS-05",
+  "requirement_text": "UserPromptSubmit hook never fires on execute-phase or other non-planning commands",
+  "formal_property": {
+    "name": "DetectNonPlanningCommand",
+    "model_file": ".planning/formal/tla/QGSDPromptHook.tla",
+    "definition": "",
+    "type": "invariant"
+  },
+  "source_files": [
+    "hooks/dist/nf-prompt.js",
+    "hooks/nf-prompt.js"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js",
+    "/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/hooks/dist/nf-prompt.js');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

@@ -1,0 +1,23 @@
+{
+  "requirement_id": "PLAN-01",
+  "requirement_text": "`generate-proposed-changes.cjs` auto-synthesizes TLA+ deltas from PLAN.md truths",
+  "formal_property": {
+    "name": "TypeOK",
+    "model_file": ".planning/formal/tla/NFDeliberation.tla",
+    "definition": "TypeOK ==",
+    "type": "invariant"
+  },
+  "source_files": [
+    "bin/requirement-map.cjs",
+    "bin/generate-proposed-changes.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs",
+    "/Users/jonathanborduas/code/QGSD/bin/generate-proposed-changes.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/requirement-map.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}

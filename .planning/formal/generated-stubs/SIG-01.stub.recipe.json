@@ -1,0 +1,21 @@
+{
+  "requirement_id": "SIG-01",
+  "requirement_text": "`detect-coverage-gaps.cjs` diffs TLC states vs conformance traces to produce `.planning/formal/coverage-gaps.md`",
+  "formal_property": {
+    "name": "Bool",
+    "model_file": ".planning/formal/alloy/signal-analysis-tools.als",
+    "definition": "",
+    "type": "assertion"
+  },
+  "source_files": [
+    "bin/detect-coverage-gaps.cjs"
+  ],
+  "source_file_absolute": "/Users/jonathanborduas/code/QGSD/bin/detect-coverage-gaps.cjs",
+  "source_files_absolute": [
+    "/Users/jonathanborduas/code/QGSD/bin/detect-coverage-gaps.cjs"
+  ],
+  "import_hint": "const mod = require('/Users/jonathanborduas/code/QGSD/bin/detect-coverage-gaps.cjs');",
+  "test_strategy": "structural",
+  "template": "source-grep",
+  "template_boilerplate": "const content = fs.readFileSync(SOURCE, 'utf8');\nassert.match(content, /PATTERN/);"
+}
