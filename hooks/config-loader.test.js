@@ -631,14 +631,14 @@ test('HPM-TC2: minimal profile has exactly 3 hooks', async (t) => {
   assert.equal(HOOK_PROFILE_MAP.minimal.size, 3, 'minimal must have 3 hooks');
 });
 
-// HPM-TC3: standard has 13 entries
-test('HPM-TC3: standard profile has 13 hooks', async (t) => {
-  assert.equal(HOOK_PROFILE_MAP.standard.size, 13, 'standard must have 13 hooks');
+// HPM-TC3: standard has 14 entries
+test('HPM-TC3: standard profile has 14 hooks', async (t) => {
+  assert.equal(HOOK_PROFILE_MAP.standard.size, 14, 'standard must have 14 hooks');
 });
 
-// HPM-TC4: strict has 13 entries (same as standard)
-test('HPM-TC4: strict profile has 13 hooks (same as standard)', async (t) => {
-  assert.equal(HOOK_PROFILE_MAP.strict.size, 13, 'strict must have 13 hooks');
+// HPM-TC4: strict has 14 entries (same as standard)
+test('HPM-TC4: strict profile has 14 hooks (same as standard)', async (t) => {
+  assert.equal(HOOK_PROFILE_MAP.strict.size, 14, 'strict must have 14 hooks');
 });
 
 // HPM-TC5: circuit-breaker in ALL profiles (MonitoringReachable invariant)

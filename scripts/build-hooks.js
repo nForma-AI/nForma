@@ -24,6 +24,7 @@ const HOOKS_TO_COPY = [
   'gsd-context-monitor.js', // nForma: PostToolUse context monitoring
   'nf-post-edit-format.js',  // nForma: PostToolUse edit formatting
   'nf-console-guard.js',     // nForma: Stop console guard
+  'nf-destructive-git-guard.js', // nForma: PreToolUse destructive git ops warning
   'nf-session-end.js',       // nForma: SessionEnd learning extraction
   'config-loader.js',       // shared config loader (required by multiple hooks)
   'conformance-schema.cjs', // shared conformance schema (required by nf-prompt, nf-stop, nf-circuit-breaker)

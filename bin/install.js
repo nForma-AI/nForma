@@ -2009,6 +2009,17 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Configured nForma circuit breaker hook (PreToolUse)`);
     }
 
+    // Register nForma destructive git guard hook (PreToolUse — warn on destructive git ops)
+    const hasDestructiveGitGuardHook = settings.hooks.PreToolUse.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-destructive-git-guard'))
+    );
+    if (!hasDestructiveGitGuardHook) {
+      settings.hooks.PreToolUse.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-destructive-git-guard.js'), timeout: 10 }]
+      });
+      console.log(`  ${green}✓${reset} Configured nForma destructive git guard hook (PreToolUse)`);
+    }
+
     // Register nForma context monitor hook (PostToolUse — context window warnings)
     if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = [];
     const hasContextMonitorHook = settings.hooks.PostToolUse.some(entry =>

@@ -54,6 +54,7 @@ const HOOK_PROFILE_MAP = {
     'nf-statusline',
     'nf-post-edit-format',
     'nf-console-guard',
+    'nf-destructive-git-guard',
     'nf-session-end',
   ]),
   strict: new Set([
@@ -69,6 +70,7 @@ const HOOK_PROFILE_MAP = {
     'nf-statusline',
     'nf-post-edit-format',
     'nf-console-guard',
+    'nf-destructive-git-guard',
     'nf-session-end',
   ]),
 };
@@ -92,6 +94,7 @@ const DEFAULT_HOOK_PRIORITIES = {
   'nf-statusline':        10,  // Low — status display
   'nf-token-collector':   10,  // Low — token tracking
   'nf-slot-correlator':   10,  // Low — slot correlation
+  'nf-destructive-git-guard': 50,  // Normal — destructive ops advisory
 };
 
 function shouldRunHook(hookBasename, profile) {
