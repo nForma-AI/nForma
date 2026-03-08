@@ -125,8 +125,8 @@ Plans:
   3. User benefits from specialized retrieval agents -- domain-specific agents (test-retriever, architecture-retriever, formal-model-retriever) with preloaded skills fetch targeted context more efficiently than generic retrieval
 **Plans**: 2 plans
 Plans:
-- [x] v0.30-03-01-PLAN.md — Memory store module (bin/memory-store.cjs) with append/query/prune and planning-paths registration
-- [ ] v0.30-03-02-PLAN.md — Hook extensions (nf-session-start.js, nf-precompact.js) for memory injection + install sync
+- [ ] v0.30-06-01-PLAN.md — Context retriever module + context stack module with domain-specific retrieval and phase accumulation
+- [ ] v0.30-06-02-PLAN.md — Quorum dispatch enrichment + hook injection extensions + install sync
 
 #### Phase v0.30-07: Worktree Parallelization
 **Goal**: Independent plan tasks execute simultaneously in isolated git worktrees instead of sequentially, with safe merge orchestration
@@ -153,5 +153,5 @@ v0.30-01 -> v0.30-02 -> v0.30-03 -> v0.30-04 -> v0.30-05 -> v0.30-06 -> v0.30-07
 | v0.30-03. Memory Persistence | 2/2 | Complete    | 2026-03-07 |
 | v0.30-04. Continuous Learning | 2/2 | Complete    | 2026-03-08 |
 | v0.30-05. Continuous Verification | 2/2 | Complete    | 2026-03-08 |
-| v0.30-06. Subagent Orchestration | 0/TBD | Not started | - |
+| v0.30-06. Subagent Orchestration | 0/2 | Not started | - |
 | v0.30-07. Worktree Parallelization | 0/TBD | Not started | - |
