@@ -2,6 +2,8 @@
 Surface Claude's assumptions about a phase before planning, enabling users to correct misconceptions early.
 
 Key difference from discuss-phase: This is ANALYSIS of what Claude thinks, not INTAKE of what user knows. No file output - purely conversational to prompt discussion.
+
+Assumptions are grounded in formal artifacts (requirements, specs, traceability, test coverage, formal models) before analysis — each assumption is tagged as **grounded** (backed by artifact evidence) or **inferred** (Claude's judgment).
 </purpose>
 
 <process>
@@ -45,45 +47,83 @@ Parse phase details from roadmap:
 - Phase name
 - Phase description/goal
 - Any scope details mentioned
+- **Requirement IDs** from the `Requirements:` line (e.g., `SHARD-01, ADAPT-01, ADR-01`)
+
+Continue to ground_in_artifacts.
+</step>
+
+<step name="ground_in_artifacts">
+Read formal artifacts to ground the assumption analysis in evidence. All reads use fail-open: if an artifact is missing or unreadable, note "not found" and continue — never block the workflow.
+
+**0. Handle missing requirement IDs:**
+If the phase has no `Requirements:` line in the roadmap (or the line is empty), set the requirement ID list to empty. Log "No requirement IDs found for this phase — grounding will use domain keywords only." All Tier 1-3 reads that depend on requirement IDs are skipped, but domain-keyword-based reads (spec directory scan, test coverage, model registry) still execute. The workflow must never block on a missing Requirements line.
+
+**1. Tier 1 — Requirements text and specs (always read):**
+
+- Read `.planning/REQUIREMENTS.md` and extract the **exact requirement text** for each phase requirement ID. Present verbatim — do not paraphrase.
+- List `.planning/formal/spec/` directory contents. Flag any spec directories that overlap with the phase's domain by matching keywords from the phase name, description, or requirement text against directory names.
+
+**2. Tier 2 — Traceability and test coverage (read if available):**
+
+- Read `.planning/formal/traceability-matrix.json`. For each phase requirement ID, check whether it has traces (code refs, test refs). Note which requirements have traces and which have **gaps** (no traces).
+- Read `.planning/formal/unit-test-coverage.json`. Extract test coverage data for files or modules that fall within the phase's domain (match by keyword from phase name/description/requirements).
+
+**3. Tier 3 — Formal requirements envelope and models (reference by ID):**
+
+- Parse `.planning/formal/requirements.json` using **JSON-aware lookup** (e.g., `node -e` with `JSON.parse` or `jq`). Do NOT use literal grep on JSON — it produces partial/malformed matches. For each phase requirement ID, extract: category, status, any linked invariants or background text.
+- Read `.planning/formal/model-registry.json`. Check if any Alloy, TLA+, or PRISM models reference the phase's requirement IDs or domain keywords.
+
+**4. Collect grounding data:**
+Assemble all results into a grounding summary to flow into analyze_phase:
+- Requirement texts (verbatim)
+- Matching spec directories
+- Traceability status per requirement (traced / gap)
+- Test coverage for domain modules
+- Formal models touching this domain
+- Any artifacts that were "not found"
 
 Continue to analyze_phase.
 </step>
 
 <step name="analyze_phase">
-Based on roadmap description and project context, identify assumptions across five areas:
+Using **both** the grounding data from ground_in_artifacts **and** the roadmap description/project context, identify assumptions across five areas.
+
+Each assumption must be tagged:
+- **Grounded** — backed by artifact evidence. Cite the artifact (e.g., "grounded: REQUIREMENTS.md states X", "grounded: traceability-matrix shows no traces for Y").
+- **Inferred** — Claude's judgment without direct artifact support. Explain reasoning (e.g., "inferred: based on similar patterns in hooks/config-loader.js").
 
 **1. Technical Approach:**
 What libraries, frameworks, patterns, or tools would Claude use?
-- "I'd use X library because..."
-- "I'd follow Y pattern because..."
-- "I'd structure this as Z because..."
+- "I'd use X library because..." [grounded/inferred]
+- "I'd follow Y pattern because..." [grounded/inferred]
+- "I'd structure this as Z because..." [grounded/inferred]
 
 **2. Implementation Order:**
 What would Claude build first, second, third?
-- "I'd start with X because it's foundational"
-- "Then Y because it depends on X"
-- "Finally Z because..."
+- "I'd start with X because it's foundational" [grounded/inferred]
+- "Then Y because it depends on X" [grounded/inferred]
+- "Finally Z because..." [grounded/inferred]
 
 **3. Scope Boundaries:**
 What's included vs excluded in Claude's interpretation?
-- "This phase includes: A, B, C"
-- "This phase does NOT include: D, E, F"
-- "Boundary ambiguities: G could go either way"
+- "This phase includes: A, B, C" [grounded/inferred]
+- "This phase does NOT include: D, E, F" [grounded/inferred]
+- "Boundary ambiguities: G could go either way" [grounded/inferred]
 
 **4. Risk Areas:**
 Where does Claude expect complexity or challenges?
-- "The tricky part is X because..."
-- "Potential issues: Y, Z"
-- "I'd watch out for..."
+- "The tricky part is X because..." [grounded/inferred]
+- "Potential issues: Y, Z" [grounded/inferred]
+- "I'd watch out for..." [grounded/inferred]
 
 **5. Dependencies:**
 What does Claude assume exists or needs to be in place?
-- "This assumes X from previous phases"
-- "External dependencies: Y, Z"
-- "This will be consumed by..."
+- "This assumes X from previous phases" [grounded/inferred]
+- "External dependencies: Y, Z" [grounded/inferred]
+- "This will be consumed by..." [grounded/inferred]
 
 Be honest about uncertainty. Mark assumptions with confidence levels:
-- "Fairly confident: ..." (clear from roadmap)
+- "Fairly confident: ..." (clear from roadmap or artifacts)
 - "Assuming: ..." (reasonable inference)
 - "Unclear: ..." (could go multiple ways)
 </step>
@@ -94,11 +134,35 @@ Present assumptions in a clear, scannable format:
 ```
 ## My Assumptions for Phase ${PHASE}: ${PHASE_NAME}
 
+### Formal Grounding
+
+**Requirements:**
+[For each phase requirement ID, show verbatim text from REQUIREMENTS.md]
+[If no requirement IDs found: "No requirement IDs specified for this phase — analysis below is inference-only."]
+
+**Existing Specs:**
+[List spec/ directories that overlap with this phase's domain, or "None found"]
+
+**Traceability:**
+[For each requirement: traced (with refs) or gap (no traces)]
+[If no requirement IDs: "N/A — no requirement IDs to trace"]
+
+**Test Coverage:**
+[Coverage data for relevant modules, or "No matching modules found"]
+
+**Formal Models:**
+[Any Alloy/TLA+/PRISM models touching this domain, or "None found"]
+
+**Artifacts Not Found:**
+[List any artifacts that were missing/unreadable, or "All artifacts read successfully"]
+
+---
+
 ### Technical Approach
-[List assumptions about how to implement]
+[List assumptions about how to implement — each tagged grounded/inferred]
 
 ### Implementation Order
-[List assumptions about sequencing]
+[List assumptions about sequencing — each tagged grounded/inferred]
 
 ### Scope Boundaries
 **In scope:** [what's included]
@@ -106,7 +170,7 @@ Present assumptions in a clear, scannable format:
 **Ambiguous:** [what could go either way]
 
 ### Risk Areas
-[List anticipated challenges]
+[List anticipated challenges — each tagged grounded/inferred]
 
 ### Dependencies
 **From prior phases:** [what's needed]
@@ -170,7 +234,17 @@ If "Re-examine": Return to analyze_phase with updated understanding
 
 <success_criteria>
 - Phase number validated against roadmap
+- Requirement IDs extracted from roadmap (or gracefully noted as empty)
+- All phase requirement IDs resolved to their full text from REQUIREMENTS.md
+- Existing specs in the domain identified from .planning/formal/spec/
+- Traceability gaps surfaced from traceability-matrix.json
+- Test coverage for domain modules extracted from unit-test-coverage.json
+- Formal models checked via model-registry.json
+- Tier 3 requirements.json parsed with JSON-aware lookup (not literal grep)
+- Phases with no Requirements: line degrade gracefully (inference-only analysis proceeds)
+- Formal Grounding section presented before the 5 assumption areas
 - Assumptions surfaced across five areas: technical approach, implementation order, scope, risks, dependencies
+- Each assumption tagged as grounded (with artifact citation) or inferred (with reasoning)
 - Confidence levels marked where appropriate
 - "What do you think?" prompt presented
 - User feedback acknowledged
