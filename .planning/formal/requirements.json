@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-08T20:52:51.210Z",
-  "content_hash": "28a819faa5ac4cd6",
+  "aggregated_at": "2026-03-08T21:48:52.183Z",
+  "content_hash": "9c92e8d0e831a2bd",
   "schema_version": "1",
   "requirements": [
     {
@@ -3134,6 +3134,18 @@
       }
     },
     {
+      "id": "SOLVE-17",
+      "text": "The solve TUI provides category-aware action menus in item detail view: 'Create Requirement' for C->R, T->R, and D->R items (writing to requirements.json via addRequirement with duplicate detection and atomic writes), 'Create TODO' for D->C items (writing to todos.json), and automatic suppression of D->C items matching known rebrand path patterns (qgsd-core/, qgsd-, /qgsd/).",
+      "category": "Solver Orchestration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The TUI Solve module could only acknowledge items as false positives or add regex suppressions, leaving no path to resolve flagged items by creating requirements or tracking work. These feedback loops complete the solver's human-gated workflow and reduce D->C noise from the completed rebrand.",
+      "provenance": {
+        "source_file": ".planning/quick/230-close-all-solver-feedback-loops-in-tui-s/230-PLAN.md",
+        "milestone": "quick-230"
+      }
+    },
+    {
       "id": "SOLVE-7",
       "text": "The solve F->T remediation pipeline SHALL provide pre-resolved context (requirement text, formal property definition, source file hints) alongside each test stub so executors can generate meaningful tests without codebase-wide search.",
       "category": "solve",
@@ -4098,6 +4110,6 @@
       ]
     }
   ],
-  "frozen_at": "2026-03-08T20:52:51.213Z",
-  "total": 283
+  "total": 283,
+  "frozen_at": "2026-03-08T21:48:52.185Z"
 }
