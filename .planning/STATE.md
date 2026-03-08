@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: 2 of 3 (Runtime Safety Boundaries)
-Plan: 2 of 3 in current phase
-Status: Executing v0.31-02 plans
-Last activity: 2026-03-08 - Completed v0.31-02-02 (per-slot latency budget)
+Plan: 3 of 3 in current phase
+Status: Phase v0.31-02 complete
+Last activity: 2026-03-08 - Completed v0.31-02-03 (review-only tool restriction)
 
-Progress: [######░░░░] 57%
+Progress: [########░░] 71%
 
 ## Performance Metrics
 
@@ -28,7 +28,7 @@ Progress: [######░░░░] 57%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | v0.31-01 | 2/2 | 38min | 19min |
-| v0.31-02 | 2/3 | 17min | 8.5min |
+| v0.31-02 | 3/3 | 21min | 7min |
 
 **Recent Trend:**
 - Last 5 plans: (from v0.30) 3min, 4min, 4min, 5min, 4min
@@ -37,6 +37,7 @@ Progress: [######░░░░] 57%
 *Updated after each plan completion*
 | Phase v0.30-07 P01 | 5min | 2 tasks | 5 files |
 | Phase v0.31-02 P02 | 7min | 2 tasks | 4 files |
+| Phase v0.31-02 P03 | 4min | 2 tasks | 6 files |
 | Phase v0.30-07 P02 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
@@ -58,6 +59,10 @@ Recent decisions affecting current work:
 - [v0.31-02-01]: Evidence cap at 50 entries sorted by last_seen descending, pruned on read
 - [v0.31-02-02]: latency_budget_ms takes priority over --timeout and quorum_timeout_ms when present
 - [v0.31-02-02]: latency_budget_ms=0 or negative treated as not set (backward compatible)
+- [v0.31-02-03]: ccr slots get structural --allowedTools restriction via CLI flag forwarding
+- [v0.31-02-03]: Non-ccr slots get prompt-level READ-ONLY restriction (best-effort)
+- [v0.31-02-03]: Review mode triggered by Mode B dispatch OR explicit --review-only flag
+- [v0.31-02-03]: Verification commands (/nf:verify-work, /nf:check) inject REVIEW MODE instruction
 - [Phase v0.30-07]: CONFLICT detection checks stdout+stderr+message (git outputs CONFLICT to stdout)
 - [Phase v0.30-07]: Worktree executors skip state_updates/final_commit -- orchestrator handles after merge
 - [Phase v0.30-07]: Executor completion uses structured JSON block for reliable orchestrator parsing
@@ -82,5 +87,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Completed v0.30-07-02-PLAN.md
+Stopped at: Completed v0.31-02-03-PLAN.md
 Resume file: None
