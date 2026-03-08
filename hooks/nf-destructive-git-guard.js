@@ -8,6 +8,8 @@
 
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const { spawnSync } = require('child_process');
 const { loadConfig, shouldRunHook, validateHookInput } = require('./config-loader');
 
@@ -110,12 +112,25 @@ function main() {
         process.exit(0); // clean tree, operation is safe
       }
 
-      // Emit warning to stderr (never stdout -- that is the decision channel)
+      // Emit warning — use additionalContext when nForma is active, stderr-only otherwise
       const label = getCommandLabel(command);
-      process.stderr.write(
-        `[nf] WARNING: Destructive git operation detected ('${label}') with uncommitted changes. ` +
-        `Consider committing first to avoid losing completed work.\n`
-      );
+      const warningText =
+        `[nf-safety] WARNING: Destructive git operation detected ('${label}') with uncommitted changes. ` +
+        `Consider committing first to avoid losing completed work.`;
+
+      const activityFile = path.join(gitRoot, '.planning', 'current-activity.json');
+      if (fs.existsSync(activityFile)) {
+        // nForma active: surface warning via additionalContext so Claude sees it
+        process.stdout.write(JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: 'PreToolUse',
+            additionalContext: warningText,
+          },
+        }));
+      } else {
+        // Non-nForma context: stderr-only (original behavior)
+        process.stderr.write(warningText + '\n');
+      }
 
       // Do NOT block -- always allow the tool call through (warn-only)
       process.exit(0);

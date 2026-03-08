@@ -55,6 +55,7 @@ const HOOK_PROFILE_MAP = {
     'nf-post-edit-format',
     'nf-console-guard',
     'nf-destructive-git-guard',
+    'nf-mcp-dispatch-guard',
     'nf-session-end',
   ]),
   strict: new Set([
@@ -71,6 +72,7 @@ const HOOK_PROFILE_MAP = {
     'nf-post-edit-format',
     'nf-console-guard',
     'nf-destructive-git-guard',
+    'nf-mcp-dispatch-guard',
     'nf-session-end',
   ]),
 };
@@ -95,6 +97,7 @@ const DEFAULT_HOOK_PRIORITIES = {
   'nf-token-collector':   10,  // Low — token tracking
   'nf-slot-correlator':   10,  // Low — slot correlation
   'nf-destructive-git-guard': 50,  // Normal — destructive ops advisory
+  'nf-mcp-dispatch-guard': 50,    // Normal — MCP dispatch advisory
 };
 
 function shouldRunHook(hookBasename, profile) {
@@ -184,6 +187,13 @@ const DEFAULT_CONFIG = {
   smart_compact_threshold_pct: 65,  // Proactive compaction at 65% context (midpoint of 60-70% range from research)
   continuous_verify_enabled: true,  // Master switch for continuous verification in PostToolUse hook
   context_retrieval_enabled: true,  // Master switch for context retrieval enrichment in quorum-slot-dispatch
+  // post_edit_verify: optional command run after Edit operations (disabled by default).
+  // When enabled, runs verify command after formatting and emits additionalContext on failure.
+  post_edit_verify_enabled: false,
+  post_edit_verify_command: '',
+  post_edit_verify_timeout_ms: 15000,
+  post_edit_verify_file_patterns: [],
+  post_edit_verify_fail_mode: 'warn',
 };
 
 // ─── Hook Input Schemas ──────────────────────────────────────────────────────
