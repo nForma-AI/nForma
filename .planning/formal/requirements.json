@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-08T17:39:02.416Z",
-  "content_hash": "f4bec13806c02e3b",
+  "aggregated_at": "2026-03-08T18:33:26.756Z",
+  "content_hash": "16b5b6c44dd81406",
   "schema_version": "1",
   "requirements": [
     {
@@ -2228,6 +2228,18 @@
       "category_raw": "Planning Integration"
     },
     {
+      "id": "PLAN-04",
+      "text": "The list-phase-assumptions workflow grounds assumption analysis in formal artifacts (requirements, specs, traceability matrix, test coverage, model registry) via a ground_in_artifacts step before surfacing assumptions, tagging each as grounded or inferred.",
+      "category": "Planning & Tracking",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Phase assumption analysis previously relied entirely on Claude inference with no cross-reference to existing formal artifacts. The grounding step reads 6 artifacts across 3 tiers with fail-open handling, making assumptions transparent about whether they are backed by evidence or judgment.",
+      "provenance": {
+        "source_file": ".planning/quick/224-add-formal-grounding-step-to-list-phase-/224-PLAN.md",
+        "milestone": "quick-224"
+      }
+    },
+    {
       "id": "PLAT-01",
       "text": "QGSD installs and operates correctly on macOS, Ubuntu, and Windows without platform-specific workarounds",
       "category": "Installation & Toolchain",
@@ -4050,6 +4062,6 @@
       ]
     }
   ],
-  "frozen_at": "2026-03-08T17:39:02.417Z",
+  "frozen_at": "2026-03-08T18:33:26.757Z",
   "total": 283
 }
