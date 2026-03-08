@@ -46,6 +46,15 @@
 - [ ] **VALID-01**: Hook stdin JSON is validated against lightweight schemas with structured error reporting; malformed input produces a diagnostic message on stderr before fail-open exit
 - [ ] **ADR-01**: Quorum debates in `.planning/quorum/debates/` follow a consistent template (Context, Question, Positions, Decision, Consequences) that downstream tools can parse
 
+## v0.30 Gap Closure Requirements
+
+*Reopened from v0.30 milestone audit (2026-03-08). Tracked here until v0.30-08 completes.*
+
+- [ ] **LRNG-01**: Auto error extraction at session end — install.js must register nf-session-end.js as SessionEnd hook so re-install does not silently drop it
+- [ ] **LRNG-02**: User correction capture — SessionEnd hook persists user corrections to memory store on session close
+- [ ] **LRNG-03**: Quorum-validated skill extraction — skill-extractor.cjs is invoked automatically by nf-session-end.js (not orphaned)
+- [ ] **LRNG-04**: Failure catalog with confidence — failure entries persist across sessions via SessionEnd hook pipeline
+
 ## Future Requirements
 
 ### v0.32+ Consideration
@@ -73,20 +82,25 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PRIO-01 | TBD | Pending |
-| BRKR-01 | TBD | Pending |
-| LTCY-01 | TBD | Pending |
-| EXEC-01 | TBD | Pending |
-| SHARD-01 | TBD | Pending |
-| ADAPT-01 | TBD | Pending |
-| VALID-01 | TBD | Pending |
-| ADR-01 | TBD | Pending |
+| LRNG-01 | Phase v0.30-08 (gap closure) | Pending |
+| LRNG-02 | Phase v0.30-08 (gap closure) | Pending |
+| LRNG-03 | Phase v0.30-08 (gap closure) | Pending |
+| LRNG-04 | Phase v0.30-08 (gap closure) | Pending |
+| PRIO-01 | Phase v0.31-01 | Pending |
+| VALID-01 | Phase v0.31-01 | Pending |
+| BRKR-01 | Phase v0.31-02 | Pending |
+| LTCY-01 | Phase v0.31-02 | Pending |
+| EXEC-01 | Phase v0.31-02 | Pending |
+| SHARD-01 | Phase v0.31-03 | Pending |
+| ADAPT-01 | Phase v0.31-03 | Pending |
+| ADR-01 | Phase v0.31-03 | Pending |
 
 **Coverage:**
 - v0.31 requirements: 8 total
-- Mapped to phases: 0
-- Unmapped: 8 ⚠️
+- v0.30 gap closure requirements: 4 total (LRNG-01..04)
+- Mapped to phases: 12
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-08 after initial definition*
+*Last updated: 2026-03-08 after roadmap creation*

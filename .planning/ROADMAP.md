@@ -2,10 +2,10 @@
 
 ## Milestones
 
-- ✅ **v0.2 — Gap Closure & Activity Resume Routing** — Phases 1–17 (shipped 2026-02-21)
-- ✅ **v0.3 — Test Suite Maintenance Tool** — Phases 18–22 (shipped 2026-02-22)
-- ✅ **v0.4 — MCP Ecosystem** — Phases 23–31 (shipped 2026-02-22)
-- ✅ **v0.5 — MCP Setup Wizard** — Phases 32–38 (shipped 2026-02-23)
+- ✅ **v0.2 — Gap Closure & Activity Resume Routing** — Phases 1-17 (shipped 2026-02-21)
+- ✅ **v0.3 — Test Suite Maintenance Tool** — Phases 18-22 (shipped 2026-02-22)
+- ✅ **v0.4 — MCP Ecosystem** — Phases 23-31 (shipped 2026-02-22)
+- ✅ **v0.5 — MCP Setup Wizard** — Phases 32-38 (shipped 2026-02-23)
 - ✅ **v0.6 — Agent Slots & Quorum Composition** — Phase 39 (shipped 2026-02-23)
 - ✅ **v0.7 — Composition Config & Multi-Slot** — Phases v0.7-01..v0.7-04 (shipped 2026-02-23)
 - ✅ **v0.8 — fix-tests ddmin Pipeline** — Phase v0.8-01 (shipped 2026-02-23)
@@ -25,133 +25,79 @@
 - ✅ **v0.27 — Production Feedback Loop** — Phases v0.27-01..v0.27-05 (shipped 2026-03-04)
 - ✅ **v0.28 — Agent Harness Optimization** — Phases v0.28-01..v0.28-04 (shipped 2026-03-06)
 - ✅ **v0.29 — Three-Layer Formal Verification Architecture** — Phases v0.29-01..v0.29-06 (shipped 2026-03-06)
+- ✅ **v0.30 — Advanced Agent Patterns** — Phases v0.30-01..v0.30-06 (shipped 2026-03-08), gap closure in progress
 
-> **v0.2 through v0.29 phase details archived to respective milestone ROADMAP files in** `.planning/milestones/`
+> **v0.2 through v0.30 phase details archived to respective milestone ROADMAP files in** `.planning/milestones/`
+
+### v0.30 Gap Closure
+
+#### Phase v0.30-08: Continuous Learning Integration Fix
+**Goal:** Close all LRNG-01..04 gaps identified by milestone audit — fix install.js SessionEnd hook registration, wire skill-extractor.cjs into automated pipeline, resolve config-loader convention tech debt, and produce missing VERIFICATION.md
+**Depends on:** Phase v0.30-04 (executed but unverified)
+**Requirements:** LRNG-01, LRNG-02, LRNG-03, LRNG-04
+**Gap Closure:** Closes gaps from v0.30-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `node bin/install.js --claude --global` registers nf-session-end.js as a SessionEnd hook in settings.json — re-install does not silently drop it
+  2. skill-extractor.cjs is invoked automatically by nf-session-end.js during session end processing (not orphaned)
+  3. context_retrieval_enabled config key uses config-loader two-layer merge (DEFAULT_CONFIG -> global -> project) instead of direct .claude/nf.json read
+  4. Phase v0.30-04 has a VERIFICATION.md that validates LRNG-01..04 satisfaction with evidence
+**Plans:** TBD
 
 ---
 
-## v0.30 — Advanced Agent Patterns
+## v0.31 — Ruflo-Inspired Hardening
 
 ### Overview
 
-v0.30 extends nForma's hook-driven pipeline with six advanced agent patterns: dynamic model selection for cost optimization, file-based state persistence across compaction, cross-session memory and learning, continuous verification during execution, iterative retrieval for quorum subagents, and git worktree parallelization. All patterns build on existing infrastructure with zero new npm dependencies, ordered by dependency depth and blast radius -- cost control and state management first, complex architectural changes last.
+v0.31 hardens nForma's hook and quorum infrastructure with three layers of improvement: deterministic hook execution ordering with input validation, runtime safety boundaries for circuit breaker persistence and quorum slot control, and developer experience improvements for config normalization, rule sharding, and debate templates. All changes are internal quality improvements -- no new user-facing commands, just more reliable, observable, and maintainable behavior from existing ones.
 
 ### Phases
 
-- [x] **Phase v0.30-01: Dynamic Model Selection** - Task-complexity-aware routing, thinking budget scaling, token dashboarding, and auto-compaction at workflow boundaries (completed 2026-03-07)
-- [x] **Phase v0.30-02: File-Based Execution State** - Sub-task progress tracked in files so compaction never loses execution position (completed 2026-03-07)
-- [x] **Phase v0.30-03: Memory Persistence** - Structured state, proactive session reminders, error resolution memory, and quorum decision memory survive compaction and sessions (completed 2026-03-07)
-- [x] **Phase v0.30-04: Continuous Learning** - Automatic pattern extraction, user correction capture, quorum-validated skills, and failure catalog with confidence scoring (completed 2026-03-08)
-- [x] **Phase v0.30-05: Continuous Verification** - Boundary-batched test/lint checks during execution and machine-verifiable completion conditions (completed 2026-03-08)
-- [x] **Phase v0.30-06: Subagent Orchestration** - Iterative retrieval for quorum slots, phase-based context accumulation, and specialized retrieval agents (completed 2026-03-08)
-- [ ] **Phase v0.30-07: Worktree Parallelization** - Worktree-isolated executor subagents and parallel plan execution with merge orchestration
+- [ ] **Phase v0.31-01: Hook Infrastructure Hardening** - Deterministic hook priority ordering and JSON schema validation for hook stdin
+- [ ] **Phase v0.31-02: Runtime Safety Boundaries** - Circuit breaker trigger persistence, per-slot latency budgets, and restricted tool access for review-only slots
+- [ ] **Phase v0.31-03: Config & Governance DX** - Rule relevance sharding, bidirectional config adapter, and structured debate templates
 
 ### Phase Details
 
-#### Phase v0.30-01: Dynamic Model Selection
-**Goal**: Users pay less for quorum by routing simple tasks to cheaper models and controlling thinking budgets per task type
+#### Phase v0.31-01: Hook Infrastructure Hardening
+**Goal**: Hooks execute in a deterministic, validated order so safety-critical hooks always run first and malformed input never causes silent failures
 **Depends on**: Nothing (first phase)
-**Requirements**: TOKN-01, TOKN-02, TOKN-03, TOKN-04
+**Requirements**: PRIO-01, VALID-01
 **Success Criteria** (what must be TRUE):
-  1. User sees automatic compaction triggered at 60-70% context usage when the workflow is at a clean boundary (phase-complete, verification-done, wave-barrier) instead of waiting for the 80%+ emergency threshold
-  2. User can set `thinking_budget_scaling` in nf.json to control extended thinking per task type (0 for exploration, reduced for reviews, full for architecture) and observe the configured budget applied in quorum dispatch
-  3. User can run a token dashboard command that shows cost breakdown per milestone, phase, and slot aggregated from token-usage.jsonl
-  4. User observes simple tasks (linting, file reads, config changes) routed to cheaper models while complex tasks (architecture decisions, multi-file refactors) route to Opus, with no downgrade oscillation (cooldown period prevents thrashing)
-**Plans**: 3 plans
-Plans:
-- [ ] v0.30-01-01-PLAN.md — Task complexity classifier + thinking budget scaling in quorum dispatch
-- [ ] v0.30-01-02-PLAN.md — Token usage dashboard CLI with /nf:tokens command
-- [ ] v0.30-01-03-PLAN.md — Enhanced compaction at clean boundaries + anti-oscillation cooldown
+  1. User can set `hook_priority` values in nf.json and observe that the circuit-breaker hook always executes before prompt-injection and other enhancement hooks, regardless of filesystem ordering
+  2. User sees a diagnostic message on stderr when a hook receives malformed JSON on stdin, followed by a clean fail-open exit (not a crash or silent swallow)
+  3. Hook stdin JSON is checked against a lightweight schema; fields with wrong types or missing required keys produce a structured error identifying the specific validation failure
+**Plans**: TBD
 
-#### Phase v0.30-02: File-Based Execution State
-**Goal**: Execution progress survives mid-task compaction so the agent loop always resumes at the correct sub-task
-**Depends on**: Phase v0.30-01
-**Requirements**: VERF-01
+#### Phase v0.31-02: Runtime Safety Boundaries
+**Goal**: Quorum dispatch and circuit breaker operate within explicit safety boundaries -- latency budgets cut off slow slots, review-only slots cannot write files, and oscillation signatures are remembered across sessions
+**Depends on**: Phase v0.31-01
+**Requirements**: BRKR-01, LTCY-01, EXEC-01
 **Success Criteria** (what must be TRUE):
-  1. User's sub-task progress within a plan is tracked in a file (not just conversation context) so that after compaction the agent resumes at the correct step rather than restarting from the beginning
-  2. The agent loop reaches a terminal state (success, cap exhausted, or unrecoverable) on every execution run -- file-based state tracking does not introduce infinite loops or stalls (formal: EventuallyTerminates)
-**Plans**: 1 plan
-Plans:
-- [ ] v0.30-02-01-PLAN.md — File-based execution progress tracking with compaction injection and termination guards
+  1. When circuit breaker fires, the oscillation trigger pattern (file set, alternation count, time window) is written to `.planning/formal/evidence/` as a JSON file that future sessions can read to preemptively detect the same signature -- the breaker eventually returns to monitoring state after resolution (formal: MonitoringReachable)
+  2. User can set per-slot latency budgets in providers.json (e.g., `"latency_budget_ms": 15000`); a slot exceeding its budget is terminated mid-dispatch and marked TIMEOUT in telemetry instead of blocking the entire quorum pipeline
+  3. Quorum slot workers performing review-only tasks (verification, code review) are dispatched with restricted tool access (Read/Grep/Glob only) -- no Bash, Write, or Edit tools available to review slots
+  4. Quorum reaches a DECIDED state on every run where at least one slot responds, even when latency-budget timeouts remove slots mid-dispatch (formal: EventualConsensus)
+**Plans**: TBD
 
-#### Phase v0.30-03: Memory Persistence
-**Goal**: Users retain accumulated knowledge (decisions, error fixes, quorum rationale) across compaction and sessions without manual re-entry
-**Depends on**: Phase v0.30-02
-**Requirements**: MEMP-01, MEMP-02, MEMP-03, MEMP-04
+#### Phase v0.31-03: Config & Governance DX
+**Goal**: Users experience cleaner configuration, lower per-turn token cost from rule sharding, and parseable debate records
+**Depends on**: Phase v0.31-01
+**Requirements**: SHARD-01, ADAPT-01, ADR-01
 **Success Criteria** (what must be TRUE):
-  1. User's accumulated decisions, rejected approaches, and partial findings persist in structured state files beyond STATE.md and survive compaction events
-  2. User receives a proactive session reminder at SessionStart showing the last 3 decisions made, any blockers discovered, and relevant learnings from previous sessions
-  3. User benefits from error resolution memory -- when a previously-solved error recurs, the symptom/root-cause/fix pattern is available as searchable context without re-diagnosis
-  4. User benefits from quorum decision memory -- debate rationale ("chose X over Y because Z") persists across compaction and is available in subsequent quorum rounds
-**Plans**: 2 plans
-Plans:
-- [x] v0.30-03-01-PLAN.md — Memory store module (bin/memory-store.cjs) with append/query/prune and planning-paths registration
-- [ ] v0.30-03-02-PLAN.md — Hook extensions (nf-session-start.js, nf-precompact.js) for memory injection + install sync
-
-#### Phase v0.30-04: Continuous Learning
-**Goal**: Users accumulate reusable knowledge automatically -- error patterns, correction habits, validated skills, and failure history prevent repeated mistakes
-**Depends on**: Phase v0.30-03
-**Requirements**: LRNG-01, LRNG-02, LRNG-03, LRNG-04
-**Success Criteria** (what must be TRUE):
-  1. User benefits from automatic error resolution extraction at session boundaries -- symptom-to-root-cause-to-fix patterns are extracted from the session transcript into a searchable catalog without manual action
-  2. User corrections to Claude's approach (e.g., "don't use that pattern, do this instead") are automatically recorded as learned patterns and applied in future sessions
-  3. User benefits from quorum-validated skill extraction -- only patterns that multiple models agree are valuable get persisted as reusable skills, filtering out noise
-  4. User benefits from a failure catalog with confidence scores that tracks failed approaches and prevents re-attempting dead ends in subsequent sessions
-**Plans**: 2 plans
-Plans:
-- [x] v0.30-04-01-PLAN.md — Memory store extension (corrections, skills, failures categories + confidence scoring) and learning-extractor module
-- [x] v0.30-04-02-PLAN.md — SessionEnd hook, skill-extractor CLI, injection hook extensions, and install registration
-
-#### Phase v0.30-05: Continuous Verification
-**Goal**: Users get immediate feedback on code quality during execution, not just at phase end, with machine-checkable definitions of "done"
-**Depends on**: Phase v0.30-02
-**Requirements**: VERF-02, VERF-03
-**Success Criteria** (what must be TRUE):
-  1. User benefits from continuous test verification during execution -- relevant tests run after each code change via PostToolUse boundary batching (max 3 per phase, 5s timeout), surfacing regressions immediately rather than at phase end
-  2. User benefits from machine-verifiable completion conditions -- "done" is defined as checkable conditions (tests pass, linter clean, type-check passes) that are evaluated programmatically, not by LLM judgment
-  3. Verification checks do not stall the agent loop -- checks that timeout or fail degrade gracefully to advisory warnings without blocking execution (formal: EventuallyTerminates)
-**Plans**: 2 plans
-Plans:
-- [ ] v0.30-05-01-PLAN.md — Verification engine module (bin/continuous-verify.cjs) + done_conditions evaluator + execution-progress extension
-- [ ] v0.30-05-02-PLAN.md — Hook wiring into gsd-context-monitor.js + execute-plan.md integration + install sync
-
-#### Phase v0.30-06: Subagent Orchestration
-**Goal**: Quorum slot workers retrieve context on demand instead of receiving fixed dumps, and architecture decisions accumulate across phases
-**Depends on**: Phase v0.30-01, Phase v0.30-03
-**Requirements**: ORCH-01, ORCH-02, ORCH-03
-**Success Criteria** (what must be TRUE):
-  1. User benefits from iterative retrieval for quorum slot workers -- workers can request additional context via Read/Grep/Glob as needed instead of receiving a fixed context dump, with per-slot token budget (8k max) and max 2 retrieval rounds
-  2. User benefits from phase-based context accumulation -- architecture decisions, test results, and API contracts from completed phases automatically inject into subsequent phase planning via a context stack
-  3. User benefits from specialized retrieval agents -- domain-specific agents (test-retriever, architecture-retriever, formal-model-retriever) with preloaded skills fetch targeted context more efficiently than generic retrieval
-**Plans**: 2 plans
-Plans:
-- [ ] v0.30-06-01-PLAN.md — Context retriever module + context stack module with domain-specific retrieval and phase accumulation
-- [ ] v0.30-06-02-PLAN.md — Quorum dispatch enrichment + hook injection extensions + install sync
-
-#### Phase v0.30-07: Worktree Parallelization
-**Goal**: Independent plan tasks execute simultaneously in isolated git worktrees instead of sequentially, with safe merge orchestration
-**Depends on**: Phase v0.30-01, Phase v0.30-02, Phase v0.30-05, Phase v0.30-06
-**Requirements**: PARA-01, PARA-02
-**Success Criteria** (what must be TRUE):
-  1. User benefits from worktree-isolated executor subagents -- parallel tasks run in git worktrees using native `isolation: worktree` without file conflicts, with all mutable state scoped to worktree-specific directories
-  2. User benefits from parallel plan execution -- independent plan tasks identified in the plan are dispatched simultaneously to isolated worktrees instead of running sequentially, with merge orchestration handling results
-  3. Each parallel executor reaches a terminal state (success, cap exhausted, or unrecoverable) independently -- no executor stalls or blocks other executors (formal: EventuallyTerminates)
-**Plans**: 2 plans
-Plans:
-- [x] v0.30-03-01-PLAN.md — Memory store module (bin/memory-store.cjs) with append/query/prune and planning-paths registration
-- [ ] v0.30-03-02-PLAN.md — Hook extensions (nf-session-start.js, nf-precompact.js) for memory injection + install sync
+  1. `.claude/rules/` files contain relevance tags (tool names, file globs, keywords) and only matching rules load per turn -- user can observe measurably fewer tokens consumed per turn when working in a narrow domain (e.g., only hook rules load during hook editing)
+  2. Config values written to nf.json are normalized through an adapter layer -- boolean strings ("true"/"false") are stored as booleans, nested vs flat key formats are bidirectionally converted, and profile names are case-normalized so internal types never leak to config files
+  3. Quorum debates in `.planning/quorum/debates/` follow a consistent template (Context, Question, Positions, Decision, Consequences) with frontmatter that downstream tools can parse programmatically
+**Plans**: TBD
 
 ### Progress
 
 **Execution Order:**
-v0.30-01 -> v0.30-02 -> v0.30-03 -> v0.30-04 -> v0.30-05 -> v0.30-06 -> v0.30-07
+v0.31-01 -> v0.31-02 -> v0.31-03
+(v0.31-03 can run after v0.31-01; v0.31-02 depends on v0.31-01)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| v0.30-01. Dynamic Model Selection | 3/3 | Complete    | 2026-03-07 |
-| v0.30-02. File-Based Execution State | 1/1 | Complete   | 2026-03-07 |
-| v0.30-03. Memory Persistence | 2/2 | Complete    | 2026-03-07 |
-| v0.30-04. Continuous Learning | 2/2 | Complete    | 2026-03-08 |
-| v0.30-05. Continuous Verification | 2/2 | Complete    | 2026-03-08 |
-| v0.30-06. Subagent Orchestration | 2/2 | Complete    | 2026-03-08 |
-| v0.30-07. Worktree Parallelization | 0/TBD | Not started | - |
+| v0.31-01. Hook Infrastructure Hardening | 0/TBD | Not started | - |
+| v0.31-02. Runtime Safety Boundaries | 0/TBD | Not started | - |
+| v0.31-03. Config & Governance DX | 0/TBD | Not started | - |
