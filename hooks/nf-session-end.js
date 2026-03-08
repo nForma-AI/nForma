@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { validateHookInput } = require('./config-loader');
 
 // Hard timeout: never block session exit longer than 5 seconds
 const HARD_TIMEOUT = setTimeout(() => process.exit(0), 5000);
@@ -42,6 +43,12 @@ process.stdin.on('data', chunk => { raw += chunk; });
 process.stdin.on('end', () => {
   try {
     const input = JSON.parse(raw);
+    const _eventType = input.hook_event_name || input.hookEventName || 'SessionEnd';
+    const _validation = validateHookInput(_eventType, input);
+    if (!_validation.valid) {
+      process.stderr.write('[nf] WARNING: nf-session-end: invalid input: ' + JSON.stringify(_validation.errors) + '\n');
+      process.exit(0); // Fail-open
+    }
     const cwd = input.cwd || process.cwd();
     const transcriptPath = input.transcript_path;
 
@@ -103,11 +110,52 @@ process.stdin.on('end', () => {
     }
 
     process.stderr.write('[nf-session-end] Extracted ' + errorCount + ' error patterns, ' + correctionCount + ' corrections\n');
+
+    // LRNG-03: Skill extraction via skill-extractor.cjs (uses existing memStore instance)
+    try {
+      const skillExtractor = findSkillExtractor();
+      if (skillExtractor && memStore) {
+        const entries = skillExtractor.readRecentEntries(memStore, cwd);
+        if (entries && entries.length > 0) {
+          const clusters = skillExtractor.clusterByTags(entries);
+          const candidates = skillExtractor.generateCandidates(clusters);
+          let candidateCount = 0;
+          for (const candidate of candidates) {
+            if (!memStore.isDuplicate(cwd, 'skill_candidates', 'skill', candidate.skill)) {
+              memStore.appendEntry(cwd, 'skill_candidates', { type: 'skill_candidate', ...candidate, status: 'pending_validation' });
+              candidateCount++;
+            }
+          }
+          process.stderr.write('[nf-session-end] Generated ' + candidateCount + ' skill candidates\n');
+        }
+      }
+    } catch (skillErr) {
+      // Fail-open: skill extraction failure must not block session end
+      process.stderr.write('[nf-session-end] Skill extraction error (non-fatal): ' + skillErr.message + '\n');
+    }
   } catch (e) {
-    process.stderr.write('[nf-session-end] Error: ' + e.message + '\n');
+    if (e instanceof SyntaxError) {
+      process.stderr.write('[nf] WARNING: nf-session-end: malformed JSON on stdin: ' + e.message + '\n');
+    } else {
+      process.stderr.write('[nf-session-end] Error: ' + e.message + '\n');
+    }
   }
   process.exit(0); // Always exit cleanly
 });
 
+/**
+ * Locate skill-extractor.cjs — try installed global path first, then local dev path.
+ */
+function findSkillExtractor() {
+  const candidates = [
+    path.join(os.homedir(), '.claude', 'nf-bin', 'skill-extractor.cjs'),
+    path.join(__dirname, '..', 'bin', 'skill-extractor.cjs'),
+  ];
+  for (const p of candidates) {
+    try { return require(p); } catch (_) {}
+  }
+  return null;
+}
+
 // Export for unit testing
-module.exports = { findLearningExtractor, findMemoryStore };
+module.exports = { findLearningExtractor, findMemoryStore, findSkillExtractor };

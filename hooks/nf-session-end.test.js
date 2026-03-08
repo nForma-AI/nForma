@@ -56,12 +56,32 @@ describe('nf-session-end', () => {
     });
   });
 
-  describe('fail-open behavior', () => {
-    it('should export both finder functions even if modules are not installed globally', () => {
+  describe('findSkillExtractor', () => {
+    it('should be exported as a function', () => {
       const m = loadMod();
-      // Both functions must exist regardless of environment
+      assert.strictEqual(typeof m.findSkillExtractor, 'function');
+    });
+
+    it('should return a module with clusterByTags, generateCandidates, and readRecentEntries', () => {
+      const m = loadMod();
+      const extractor = m.findSkillExtractor();
+      // In the dev environment, it should find skill-extractor.cjs via ../bin/
+      if (extractor) {
+        assert.strictEqual(typeof extractor.clusterByTags, 'function');
+        assert.strictEqual(typeof extractor.generateCandidates, 'function');
+        assert.strictEqual(typeof extractor.readRecentEntries, 'function');
+      }
+      // If not found (e.g., running outside dev env), that's also valid (fail-open)
+    });
+  });
+
+  describe('fail-open behavior', () => {
+    it('should export all finder functions even if modules are not installed globally', () => {
+      const m = loadMod();
+      // All functions must exist regardless of environment
       assert.ok(m.findLearningExtractor);
       assert.ok(m.findMemoryStore);
+      assert.ok(m.findSkillExtractor);
     });
   });
 });
