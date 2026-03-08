@@ -36,6 +36,7 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
+      "latency_budget_ms": null,
       "env": {},
       "display_type": "codex-cli"
     },
@@ -75,6 +76,7 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
+      "latency_budget_ms": null,
       "env": {}
     },
     {
@@ -102,6 +104,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
+      "latency_budget_ms": null,
       "env": {},
       "display_type": "gemini-cli"
     },
@@ -130,6 +133,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
+      "latency_budget_ms": null,
       "env": {}
     },
     {
@@ -165,6 +169,7 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
+      "latency_budget_ms": null,
       "env": {},
       "display_type": "opencode-cli"
     },
@@ -217,6 +222,7 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
+      "latency_budget_ms": null,
       "env": {},
       "display_type": "copilot-cli"
     },
@@ -245,6 +251,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 20000,
+      "latency_budget_ms": null,
       "env": {},
       "display_type": "claude-code-router"
     },
@@ -273,6 +280,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 20000,
+      "latency_budget_ms": null,
       "env": {},
       "display_type": "claude-code-router"
     },
@@ -301,6 +309,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
+      "latency_budget_ms": null,
       "env": {},
       "display_type": "claude-code-router"
     },
@@ -329,6 +338,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 30000,
+      "latency_budget_ms": null,
       "env": {},
       "display_type": "claude-code-router"
     },
@@ -357,6 +367,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 10000,
+      "latency_budget_ms": 15000,
       "env": {},
       "display_type": "claude-code-router"
     },
@@ -385,6 +396,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 8000,
+      "latency_budget_ms": 15000,
       "env": {},
       "display_type": "claude-code-router"
     }
