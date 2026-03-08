@@ -6,6 +6,7 @@ const path       = require('path');
 const os         = require('os');
 const crypto     = require('crypto');
 const { spawnSync } = require('child_process');
+const solveTui = require('./solve-tui.cjs');
 
 // ─── Circuit breaker CLI (non-interactive, exits before TUI loads) ───────────
 const cliArgs = process.argv.slice(2);
@@ -325,6 +326,21 @@ const MODULES = [
     key: 'f4',
     items: [
       { label: '  New Session',    action: 'session-new' },
+    ],
+  },
+  {
+    name: 'Solve',
+    icon: '\uD83D\uDD0D',
+    art: ['\u2580\u2588\u2580', ' \u2588 ', ' \u2588 '],
+    key: 'f5',
+    items: [
+      { label: '  Browse Items',           action: 'solve-browse' },
+      { label: '  D->C Broken Claims',     action: 'solve-dtoc' },
+      { label: '  C->R Untraced Modules',  action: 'solve-ctor' },
+      { label: '  T->R Orphan Tests',      action: 'solve-ttor' },
+      { label: '  D->R Unbacked Claims',   action: 'solve-dtor' },
+      { label: ' \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', action: 'sep' },
+      { label: '  Manage Suppressions',    action: 'solve-suppressions' },
     ],
   },
 ];
@@ -2839,6 +2855,7 @@ screen.key(['f1'], () => switchModule(0));
 screen.key(['f2'], () => switchModule(1));
 screen.key(['f3'], () => switchModule(2));
 screen.key(['f4'], () => switchModule(3));
+screen.key(['f5'], () => switchModule(4));
 screen.key(['C-\\'], () => {
   if (activeModuleIdx === 3 && activeSessionIdx >= 0) {
     menuList.focus();
