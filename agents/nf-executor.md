@@ -45,6 +45,17 @@ These guidelines apply to all repos where nForma agents execute:
 
 <execution_flow>
 
+<step name="preflight_plan_check" priority="critical">
+**Pre-flight: Verify PLAN.md exists**
+
+Before executing any plan, verify the plan file exists and is readable:
+```bash
+PLAN_FILE="${PLAN_PATH}"
+test -f "${PLAN_FILE}" || { echo "ERROR: Plan file ${PLAN_FILE} not found. Cannot execute."; exit 1; }
+```
+If the plan file does not exist, STOP immediately and report the error. Do not attempt to reconstruct or infer the plan.
+</step>
+
 <step name="load_project_state" priority="first">
 Load execution context:
 

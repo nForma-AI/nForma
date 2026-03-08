@@ -1245,6 +1245,18 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
       if (settings.hooks.PreToolUse.length === 0) delete settings.hooks.PreToolUse;
     }
+    // Remove nf-mcp-dispatch-guard hook (uninstall path)
+    if (settings.hooks && settings.hooks.PreToolUse) {
+      const before = settings.hooks.PreToolUse.length;
+      settings.hooks.PreToolUse = settings.hooks.PreToolUse.filter(entry =>
+        !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-mcp-dispatch-guard')))
+      );
+      if (settings.hooks.PreToolUse.length < before) {
+        settingsModified = true;
+        console.log(`  ${green}✓${reset} Removed nForma MCP dispatch guard hook`);
+      }
+      if (settings.hooks.PreToolUse.length === 0) delete settings.hooks.PreToolUse;
+    }
     if (settings.hooks && settings.hooks.PostToolUse) {
       const before = settings.hooks.PostToolUse.length;
       settings.hooks.PostToolUse = settings.hooks.PostToolUse.filter(entry =>
@@ -2018,6 +2030,17 @@ function install(isGlobal, runtime = 'claude') {
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-destructive-git-guard.js'), timeout: 10 }]
       });
       console.log(`  ${green}✓${reset} Configured nForma destructive git guard hook (PreToolUse)`);
+    }
+
+    // Register nForma MCP dispatch guard hook (PreToolUse — warn on direct MCP calls)
+    const hasMcpDispatchGuardHook = settings.hooks.PreToolUse.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-mcp-dispatch-guard'))
+    );
+    if (!hasMcpDispatchGuardHook) {
+      settings.hooks.PreToolUse.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-mcp-dispatch-guard.js'), timeout: 10 }]
+      });
+      console.log(`  ${green}+${reset} Configured nForma MCP dispatch guard hook (PreToolUse)`);
     }
 
     // Register nForma context monitor hook (PostToolUse — context window warnings)
