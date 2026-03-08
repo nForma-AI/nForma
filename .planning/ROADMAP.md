@@ -41,7 +41,10 @@
   2. skill-extractor.cjs is invoked automatically by nf-session-end.js during session end processing (not orphaned)
   3. context_retrieval_enabled config key uses config-loader two-layer merge (DEFAULT_CONFIG -> global -> project) instead of direct .claude/nf.json read
   4. Phase v0.30-04 has a VERIFICATION.md that validates LRNG-01..04 satisfaction with evidence
-**Plans:** TBD
+**Plans:** 2 plans
+Plans:
+- [ ] v0.30-08-01-PLAN.md — Fix install.js registration, wire skill-extractor, fix config-loader convention
+- [ ] v0.30-08-02-PLAN.md — Create VERIFICATION.md for v0.30-04 with LRNG-01..04 evidence
 
 ---
 
