@@ -465,10 +465,22 @@ async function main() {
   // timeoutMs is null when --timeout not passed → fall through to provider.quorum_timeout_ms.
   // provider.timeout_ms (300s) is intentionally last — it's the full session timeout, not quorum.
   // When both are set, take the minimum so provider.quorum_timeout_ms always acts as a hard cap.
+  // LTCY-01: latency_budget_ms is the user-configured hard ceiling and always wins when present.
+  const latencyBudget = provider.latency_budget_ms ?? null;
   const providerCap = provider.quorum_timeout_ms ?? null;
-  const effectiveTimeout = (timeoutMs !== null && providerCap !== null)
-    ? Math.min(timeoutMs, providerCap)
-    : (timeoutMs ?? providerCap ?? provider.timeout_ms ?? 30000);
+  let effectiveTimeout;
+  if (latencyBudget !== null && latencyBudget > 0) {
+    // LTCY-01: latency_budget_ms is the user-configured hard ceiling
+    effectiveTimeout = latencyBudget;
+  } else if (timeoutMs !== null && providerCap !== null) {
+    effectiveTimeout = Math.min(timeoutMs, providerCap);
+  } else {
+    effectiveTimeout = timeoutMs ?? providerCap ?? provider.timeout_ms ?? 30000;
+  }
+
+  if (latencyBudget !== null && latencyBudget > 0) {
+    process.stderr.write(`[call-quorum-slot] Using latency_budget_ms=${latencyBudget} for slot ${slot}\n`);
+  }
 
   const startMs = Date.now();
 
