@@ -1,6 +1,6 @@
 {
   "name": "@nforma.ai/nforma",
-  "version": "0.31.3",
+  "version": "0.31.4",
   "description": "nForma — Quorum Gets Shit Done. Multi-model quorum enforcement for GSD planning commands via Claude Code hooks.",
   "bin": {
     "nforma": "bin/nforma-cli.js",
