@@ -40,6 +40,37 @@ const SKIP_EVIDENCE   = process.argv.includes('--skip-evidence');
 const TAG = '[compute-per-model-gates]';
 
 const EVIDENCE_DIR = path.join(FORMAL, 'evidence');
+const CHANGELOG_PATH = path.join(FORMAL, 'promotion-changelog.json');
+const CHANGELOG_MAX_ENTRIES = 200;
+
+/**
+ * Appends a structured entry to promotion-changelog.json.
+ * Entry schema: { model, from_level, to_level, timestamp, evidence_readiness, trigger }
+ * Enforces retention cap of 200 entries.
+ * No-op during dry-run.
+ */
+function appendChangelog(entry) {
+  if (DRY_RUN_FLAG) return;
+  try {
+    let changelog = [];
+    if (fs.existsSync(CHANGELOG_PATH)) {
+      try {
+        changelog = JSON.parse(fs.readFileSync(CHANGELOG_PATH, 'utf8'));
+        if (!Array.isArray(changelog)) changelog = [];
+      } catch (_) {
+        changelog = [];
+      }
+    }
+    changelog.push(entry);
+    // Retention: trim from front to keep last 200 entries
+    if (changelog.length > CHANGELOG_MAX_ENTRIES) {
+      changelog = changelog.slice(changelog.length - CHANGELOG_MAX_ENTRIES);
+    }
+    fs.writeFileSync(CHANGELOG_PATH, JSON.stringify(changelog, null, 2) + '\n');
+  } catch (e) {
+    process.stderr.write(TAG + ' WARNING: changelog write failed: ' + e.message + '\n');
+  }
+}
 
 // ── Import from promote-gate-maturity.cjs ────────────────────────────────────
 
@@ -227,6 +258,7 @@ function main() {
 
   const perModel = {};
   const promotions = [];
+  const demotions = [];
   let gateACount = 0, gateBCount = 0, gateCCount = 0;
   let totalMaturity = 0;
 
@@ -264,6 +296,12 @@ function main() {
           if (!model.source_layer) model.source_layer = sourceLayer;
           model.last_updated = new Date().toISOString();
           promotions.push({ model: modelPath, from: 'ADVISORY', to: 'SOFT_GATE' });
+          appendChangelog({
+            model: modelPath, from_level: 'ADVISORY', to_level: 'SOFT_GATE',
+            timestamp: new Date().toISOString(),
+            evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
+            trigger: 'auto_promotion',
+          });
           promoted = true;
         }
       }
@@ -276,11 +314,51 @@ function main() {
         model.gate_maturity = 'HARD_GATE';
         model.last_updated = new Date().toISOString();
         const existingPromo = promotions.find(p => p.model === modelPath);
+        appendChangelog({
+          model: modelPath, from_level: 'SOFT_GATE', to_level: 'HARD_GATE',
+          timestamp: new Date().toISOString(),
+          evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
+          trigger: 'auto_promotion',
+        });
         if (existingPromo) {
           existingPromo.to = 'HARD_GATE';
         } else {
           promotions.push({ model: modelPath, from: 'SOFT_GATE', to: 'HARD_GATE' });
         }
+      }
+    }
+
+    // Demotion: SOFT_GATE models that no longer meet threshold
+    // Hysteresis: promote at score>=1 but demote at score<0.8 to prevent oscillation at boundaries
+    if (!promoted && model.gate_maturity === 'SOFT_GATE' && !evidenceReadiness.skipped) {
+      if (evidenceReadiness.score < 0.8 || maturity < 0.8) {
+        model.gate_maturity = 'ADVISORY';
+        model.last_updated = new Date().toISOString();
+        const demotionEntry = {
+          model: modelPath, from_level: 'SOFT_GATE', to_level: 'ADVISORY',
+          timestamp: new Date().toISOString(),
+          evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
+          trigger: 'evidence_regression',
+        };
+        appendChangelog(demotionEntry);
+        demotions.push({ model: modelPath, from: 'SOFT_GATE', to: 'ADVISORY' });
+      }
+    }
+
+    // Demotion: HARD_GATE models that no longer meet threshold
+    // Hysteresis: promote at score>=3 but demote at score<2.5 to prevent oscillation at boundaries
+    if (!promoted && model.gate_maturity === 'HARD_GATE' && !evidenceReadiness.skipped) {
+      if (evidenceReadiness.score < 2.5 || maturity < 2.5) {
+        model.gate_maturity = 'SOFT_GATE';
+        model.last_updated = new Date().toISOString();
+        const demotionEntry = {
+          model: modelPath, from_level: 'HARD_GATE', to_level: 'SOFT_GATE',
+          timestamp: new Date().toISOString(),
+          evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
+          trigger: 'evidence_regression',
+        };
+        appendChangelog(demotionEntry);
+        demotions.push({ model: modelPath, from: 'HARD_GATE', to: 'SOFT_GATE' });
       }
     }
 
@@ -313,6 +391,7 @@ function main() {
     },
     evidence_readiness: evidenceReadiness,
     promotions,
+    demotions,
     per_model: perModel,
   };
 

@@ -681,6 +681,26 @@ function main() {
         outcome:         'APPROVE',
         schema_version,
       });
+
+      // Always-on evidence refresh — runs at end of every session.
+      // Fail-open: if refresh fails, never block the stop hook.
+      try {
+        const { spawnSync } = require('child_process');
+        const refreshScript = path.join(__dirname, '..', 'bin', 'refresh-evidence.cjs');
+        if (fs.existsSync(refreshScript)) {
+          const result = spawnSync(process.execPath, [refreshScript, '--json'], {
+            cwd: process.cwd(),
+            timeout: 15000,
+            stdio: ['ignore', 'pipe', 'pipe'],
+          });
+          if (result.status !== 0) {
+            process.stderr.write('[nf] evidence refresh warning: exit ' + result.status + '\n');
+          }
+        }
+      } catch (evErr) {
+        process.stderr.write('[nf] evidence refresh failed (fail-open): ' + (evErr.message || evErr) + '\n');
+      }
+
       process.exit(0);
 
     } catch (e) {
