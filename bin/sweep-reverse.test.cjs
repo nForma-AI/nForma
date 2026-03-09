@@ -61,6 +61,86 @@ describe('sweepCtoR', () => {
       }
     }
   });
+
+  it('traces files with Requirements: header comment', () => {
+    const result = sweepCtoR();
+    if (!result.detail.skipped) {
+      const found = result.detail.untraced_modules.find(
+        m => m.file.includes('formalization-candidates')
+      );
+      assert.equal(found, undefined,
+        'formalization-candidates.cjs should be traced via header comment');
+    }
+  });
+
+  it('header-traced files contribute to traced count', () => {
+    const result = sweepCtoR();
+    if (!result.detail.skipped) {
+      assert.ok(result.detail.traced > 0, 'traced count should be > 0');
+      // Scan bin/*.cjs for files with Requirements: headers
+      const binDir = path.join(process.cwd(), 'bin');
+      const entries = fs.readdirSync(binDir).filter(f => f.endsWith('.cjs') && !f.includes('.test.'));
+      const headerFiles = [];
+      for (const f of entries) {
+        try {
+          const head = fs.readFileSync(path.join(binDir, f), 'utf8').split('\n').slice(0, 30).join('\n');
+          if (/(?:\/\/|\/?\*)\s*Requirements:\s*(.+)/.test(head)) {
+            headerFiles.push('bin/' + f);
+          }
+        } catch (e) { /* skip */ }
+      }
+      // None of the header-declaring files should be untraced
+      const untracedFiles = result.detail.untraced_modules.map(m => m.file);
+      for (const hf of headerFiles) {
+        assert.ok(!untracedFiles.includes(hf),
+          hf + ' has Requirements: header but is still untraced');
+      }
+    }
+  });
+
+  it('traced + untraced still equals total_modules after header parsing', () => {
+    const result = sweepCtoR();
+    if (!result.detail.skipped) {
+      assert.equal(
+        result.detail.total_modules,
+        result.detail.traced + result.detail.untraced_modules.length,
+        'traced + untraced must equal total_modules'
+      );
+    }
+  });
+
+  it('header parsing works on a known temp file', () => {
+    const os = require('os');
+    const tmpFile = path.join(os.tmpdir(), 'sweep-header-test-' + Date.now() + '.cjs');
+    try {
+      fs.writeFileSync(tmpFile, [
+        '#!/usr/bin/env node',
+        "'use strict';",
+        '// Requirements: GATE-01, GATE-02',
+        '',
+        'module.exports = {};',
+      ].join('\n'));
+
+      // Replicate the header-parsing logic from sweepCtoR
+      const head = fs.readFileSync(tmpFile, 'utf8').split('\n').slice(0, 30).join('\n');
+      const match = head.match(/(?:\/\/|\/?\*)\s*Requirements:\s*(.+)/);
+      assert.ok(match, 'Should match Requirements: header');
+      const declaredIds = match[1].split(/[,\s]+/).map(s => s.trim()).filter(Boolean);
+      assert.deepEqual(declaredIds, ['GATE-01', 'GATE-02']);
+
+      // Verify against a mock reqIdSet
+      const mockReqIdSet = new Set(['GATE-01', 'GATE-03']);
+      const traced = declaredIds.some(id => mockReqIdSet.has(id));
+      assert.ok(traced, 'Should be traced when at least one ID matches');
+
+      // Verify non-matching set
+      const emptySet = new Set(['NONEXISTENT-99']);
+      const notTraced = declaredIds.some(id => emptySet.has(id));
+      assert.ok(!notTraced, 'Should NOT be traced when no IDs match');
+    } finally {
+      try { fs.unlinkSync(tmpFile); } catch (e) { /* cleanup */ }
+    }
+  });
 });
 
 // ── sweepTtoR ────────────────────────────────────────────────────────────────
