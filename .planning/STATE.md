@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.30 + v0.31 milestones archived — planning next milestone
+**Current focus:** v0.32 — Documentation & README Overhaul
 
 ## Current Position
 
-Phase: Milestone boundary
-Plan: N/A
-Status: v0.30 and v0.31 milestones archived. Ready for /nf:new-milestone.
-Last activity: 2026-03-09 - Completed quick task 242: Add Gate Scoring page to TUI under Reqs (F2) + fix Solve ASCII art
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-09 — Milestone v0.32 started
 
-Progress: [##########] 100%
+Progress: [░░░░░░░░░░] 0%
 
 ## Accumulated Context
 

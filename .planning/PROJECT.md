@@ -652,5 +652,21 @@ nForma v0.31 shipped 2026-03-08 (8/8 requirements, 3 phases). 31 milestones comp
 | Fingerprint exact-match first, Levenshtein second | O(n) hash-map pass handles >90% of dedup; O(n^2) similarity only runs on unmatched remainder — keeps large ledgers fast | Phase v0.27-03 — FP-03 |
 | Production source handlers are framework-ready stubs | No live endpoints required; handlers validate schema and return standard issue objects; real auth deferred to v0.28+ (WIRE-01..05) | Phase v0.27-04 — OBS-03/04/05 |
 
+## Current Milestone: v0.32 — Documentation & README Overhaul
+
+**Goal:** Bring nForma's README and user documentation to the quality standard of top-tier Claude Code frameworks (Ruflo, Everything-Claude-Code, GSD) through systematic improvements to structure, visual impact, progressive disclosure, and content depth.
+
+**Target features:**
+- Promote TUI section with hero screenshot above the fold
+- Add "with vs. without" comparison table for instant value communication
+- Expand "Who This Is For" with concrete problem framing
+- Add quantified metrics section ("By the Numbers")
+- Add architecture/quorum flow diagram
+- Add "What's New" changelog section
+- Improve Getting Started progressive disclosure
+- Add community/contributing section
+- Expand User Guide with cross-references to TUI screenshots
+- Fix broken table formatting in Observability section
+
 ---
-*Last updated: 2026-03-08 after v0.31 milestone*
+*Last updated: 2026-03-09 after v0.32 milestone start*
