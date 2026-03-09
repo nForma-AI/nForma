@@ -15,12 +15,20 @@ const path = require('path');
 const HOOK_PATH = path.join(__dirname, 'nf-prompt.js');
 
 // Helper: run the hook with a given stdin payload, return { stdout, stderr, exitCode }
+// When the payload contains a `cwd` field, HOME is overridden to the cwd so that
+// the hook's loadConfig reads only the project-level nf.json (no global config leak).
 function runHook(stdinPayload, extraEnv) {
+  const payload = typeof stdinPayload === 'string' ? stdinPayload : JSON.stringify(stdinPayload);
+  const cwdFromPayload = typeof stdinPayload === 'object' && stdinPayload.cwd;
+  const env = { ...process.env, ...(extraEnv || {}) };
+  if (cwdFromPayload) {
+    env.HOME = cwdFromPayload; // isolate from ~/.claude/nf.json
+  }
   const result = spawnSync('node', [HOOK_PATH], {
-    input: typeof stdinPayload === 'string' ? stdinPayload : JSON.stringify(stdinPayload),
+    input: payload,
     encoding: 'utf8',
     timeout: 5000,
-    env: extraEnv ? { ...process.env, ...extraEnv } : process.env,
+    env,
   });
   return {
     stdout: result.stdout || '',
