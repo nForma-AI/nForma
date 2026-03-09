@@ -200,7 +200,7 @@ function buildSVG() {
 
 // ─── Write output ─────────────────────────────────────────────────────────────
 
-const outPath = path.join(__dirname, '../assets/terminal.svg');
+const outPath = path.join(__dirname, '../docs/assets/terminal.svg');
 const svg     = buildSVG();
 fs.writeFileSync(outPath, svg, 'utf8');
 console.log(`✓ Written to ${path.relative(process.cwd(), outPath)}  (v${version})`);

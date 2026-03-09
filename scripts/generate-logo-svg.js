@@ -3,8 +3,8 @@
  * generate-logo-svg.js
  *
  * Generates:
- *   assets/gsd-logo-2000.svg             (dark background #1a1b26)
- *   assets/gsd-logo-2000-transparent.svg (transparent background)
+ *   docs/assets/nf-logo-2000.svg             (dark background #1a1b26)
+ *   docs/assets/nf-logo-2000-transparent.svg (transparent background)
  *
  * Uses SVG primitives — no font dependency, pixel-perfect everywhere.
  * Same rendering technique as generate-terminal-svg.js.
@@ -19,8 +19,8 @@ const fs   = require('fs');
 const path = require('path');
 
 // ─── Colours ──────────────────────────────────────────────────────────────────
-const SALMON = '#f4956a';   // Q
-const CYAN   = '#7dcfff';   // GSD
+const SALMON = '#f4956a';   // n
+const CYAN   = '#7dcfff';   // F
 const BG     = '#1a1b26';
 
 // ─── Canvas ───────────────────────────────────────────────────────────────────
@@ -31,15 +31,16 @@ const CHAR_W   = 48;
 const LINE_H   = Math.round(CHAR_W * 22 / 8.4);   // 126px
 const STROKE_W = Math.round(CHAR_W * 1.5 / 8.4);  //   9px
 
-// ─── nForma ANSI Shadow art — Q in salmon, GSD in cyan ─────────────────────────
-// logoCol = first column index of the GSD portion (cyan starts here)
+// ─── nForma ANSI Shadow art — n in salmon, F in cyan ───────────────────────────
+// logoCol = first column index of the F portion (cyan starts here)
+// Matches the install.js banner layout
 const ROWS = [
-  { t: '  ██████╗  ██████╗ ███████╗██████╗ ', logoCol: 9  },
-  { t: ' ██╔═══██╗██╔════╝ ██╔════╝██╔══██╗', logoCol: 10 },
-  { t: ' ██║   ██║██║  ███╗███████╗██║  ██║',  logoCol: 10 },
-  { t: ' ██║▄▄ ██║██║   ██║╚════██║██║  ██║',  logoCol: 10 },
-  { t: ' ╚██████╔╝╚██████╔╝███████║██████╔╝',  logoCol: 10 },
-  { t: '  ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═════╝ ', logoCol: 10 },
+  { t: '          ███████╗', logoCol: 10 },
+  { t: '          ██╔════╝', logoCol: 10 },
+  { t: ' ██████╗  █████╗',   logoCol: 10 },
+  { t: ' ██╔══██╗ ██╔══╝',   logoCol: 10 },
+  { t: ' ██║  ██║ ██║',       logoCol: 10 },
+  { t: ' ╚═╝  ╚═╝ ╚═╝',      logoCol: 10 },
 ];
 
 // ─── Centering ────────────────────────────────────────────────────────────────
@@ -129,11 +130,11 @@ function buildTransparent() {
 // ─── Write ────────────────────────────────────────────────────────────────────
 const { execFileSync } = require('child_process');
 
-const assetsDir      = path.join(__dirname, '../assets');
-const darkSvg        = path.join(assetsDir, 'gsd-logo-2000.svg');
-const darkPng        = path.join(assetsDir, 'gsd-logo-2000.png');
-const transpSvg      = path.join(assetsDir, 'gsd-logo-2000-transparent.svg');
-const transpPng      = path.join(assetsDir, 'gsd-logo-2000-transparent.png');
+const assetsDir      = path.join(__dirname, '../docs/assets');
+const darkSvg        = path.join(assetsDir, 'nf-logo-2000.svg');
+const darkPng        = path.join(assetsDir, 'nf-logo-2000.png');
+const transpSvg      = path.join(assetsDir, 'nf-logo-2000-transparent.svg');
+const transpPng      = path.join(assetsDir, 'nf-logo-2000-transparent.png');
 
 fs.writeFileSync(darkSvg,   buildDark(),        'utf8');
 fs.writeFileSync(transpSvg, buildTransparent(), 'utf8');

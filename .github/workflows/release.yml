@@ -25,6 +25,9 @@ jobs:
       - name: Build artifacts
         run: npm run build:hooks && npm run build:machines
 
+      - name: Check assets not stale
+        run: npm run check:assets
+
       - name: Run CI tests
         run: npm run test:ci
 

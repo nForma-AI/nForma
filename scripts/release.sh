@@ -10,7 +10,8 @@ set -euo pipefail
 #   bash scripts/release.sh --dry-run --title "Feature"  # dry run with title
 #
 # What it does:
-#   1. Validates working tree is clean (no uncommitted changes)
+#   0. Regenerates assets (terminal SVG + logo SVG/PNG) — catches stale assets before release
+#   1. Validates working tree is clean (no uncommitted changes, no stale assets)
 #   2. Reads version from package.json
 #   3. Validates CHANGELOG.md has an entry for this version
 #   4. Validates the git tag doesn't already exist
@@ -40,11 +41,28 @@ if $DRY_RUN; then
   echo ""
 fi
 
-# --- 1. Check working tree ---
+# --- 0. Regenerate docs/assets (terminal SVG + logo SVG/PNG — VHS screenshots are manual) ---
+#        Requires rsvg-convert for PNG generation: brew install librsvg
+echo "=== Regenerating assets ==="
+npm run generate-terminal
+npm run generate-logo
+echo ""
+
+# --- 1. Check working tree (catches stale assets too) ---
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "ERROR: Working tree is not clean. Commit or stash changes first."
-  echo ""
-  git status --short
+  # Distinguish stale assets from other uncommitted changes
+  STALE_ASSETS=$(git status --porcelain -- docs/assets/ | head -20)
+  if [[ -n "$STALE_ASSETS" ]]; then
+    echo "ERROR: SVG assets are stale. Commit the regenerated files first:"
+    echo ""
+    echo "$STALE_ASSETS"
+    echo ""
+    echo "Run:  git add docs/assets/ && git commit -m 'chore: regenerate SVG assets'"
+  else
+    echo "ERROR: Working tree is not clean. Commit or stash changes first."
+    echo ""
+    git status --short
+  fi
   exit 1
 fi
 

@@ -76,6 +76,7 @@
     "generate-logo": "node scripts/generate-logo-svg.js",
     "assets:tui": "vhs scripts/tui-screenshot.tape",
     "generate-assets": "npm run generate-terminal && npm run generate-logo && npm run assets:tui",
+    "check:assets": "node bin/check-assets-stale.cjs",
     "publish:npm": "bash scripts/publish.sh",
     "release": "bash scripts/release.sh",
     "prepublishOnly": "npm run build:hooks",
