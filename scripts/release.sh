@@ -4,8 +4,10 @@ set -euo pipefail
 # release.sh — Atomic release: validate, tag, push, and trigger CI/CD pipeline.
 #
 # Usage:
-#   bash scripts/release.sh              # release current package.json version
-#   bash scripts/release.sh --dry-run    # show what would happen without doing it
+#   bash scripts/release.sh                              # release current package.json version
+#   bash scripts/release.sh --title "Feature Name"       # release with subtitle in title
+#   bash scripts/release.sh --dry-run                    # show what would happen without doing it
+#   bash scripts/release.sh --dry-run --title "Feature"  # dry run with title
 #
 # What it does:
 #   1. Validates working tree is clean (no uncommitted changes)
@@ -25,8 +27,15 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$ROOT_DIR"
 
 DRY_RUN=false
-if [[ "${1:-}" == "--dry-run" ]]; then
-  DRY_RUN=true
+RELEASE_TITLE=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY_RUN=true; shift ;;
+    --title)   RELEASE_TITLE="$2"; shift 2 ;;
+    *)         echo "Unknown argument: $1"; exit 1 ;;
+  esac
+done
+if $DRY_RUN; then
   echo "=== DRY RUN — no changes will be made ==="
   echo ""
 fi
@@ -90,16 +99,33 @@ if [[ -z "$CHANGELOG_BODY" ]]; then
   CHANGELOG_BODY="Release ${VERSION}"
 fi
 
+# --- 7b. Build tag title ---
+# Use --title "..." argument if provided, otherwise extract from changelog header
+# e.g. "## [0.31] — Ruflo-Inspired Hardening" → "v0.31 — Ruflo-Inspired Hardening"
+TAG_TITLE="${TAG}"
+if [[ -n "$RELEASE_TITLE" ]]; then
+  TAG_TITLE="${TAG} — ${RELEASE_TITLE}"
+else
+  # Try to extract subtitle from changelog line: ## [VERSION] - date — Subtitle
+  CHANGELOG_LINE=$(grep "^## \[${VERSION}\]" CHANGELOG.md | head -1)
+  SUBTITLE=$(echo "$CHANGELOG_LINE" | sed -n 's/.*— *//p')
+  if [[ -n "$SUBTITLE" ]]; then
+    TAG_TITLE="${TAG} — ${SUBTITLE}"
+  fi
+fi
+
+echo "Title:     ${TAG_TITLE}"
+echo ""
+
 # --- 8. Create annotated tag ---
 echo "=== Creating tag ${TAG} ==="
 if $DRY_RUN; then
   echo "[dry-run] Would create annotated tag: ${TAG}"
-  echo "[dry-run] Tag message:"
-  echo "  ${TAG}"
-  echo ""
+  echo "[dry-run] Tag title: ${TAG_TITLE}"
+  echo "[dry-run] Tag body:"
   echo "$CHANGELOG_BODY" | sed 's/^/  /'
 else
-  git tag -a "$TAG" -m "${TAG}
+  git tag -a "$TAG" -m "${TAG_TITLE}
 
 ${CHANGELOG_BODY}"
   echo "Created tag ${TAG}"
