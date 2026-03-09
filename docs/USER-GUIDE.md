@@ -6,12 +6,82 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 
 ## Table of Contents
 
+- [Getting Started](#getting-started)
 - [Workflow Diagrams](#workflow-diagrams)
 - [Command Reference](#command-reference)
 - [Configuration Reference](#configuration-reference)
 - [Usage Examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
 - [Recovery Quick Reference](#recovery-quick-reference)
+- [Project File Structure](#project-file-structure)
+
+---
+
+## Getting Started
+
+This section walks you through installing nForma and running your first command. By the end, you will have a working quorum of AI models cross-checking each other's output.
+
+### Step 1: Install nForma
+
+Run the installer:
+
+```bash
+npx @nforma.ai/nforma@latest
+```
+
+The installer displays the nForma banner and prompts you to choose a runtime (Claude Code, OpenCode, Gemini, or all) and an install location (global or local). For first-time setup, select **Claude Code** and **Global** -- this installs nForma's hooks and workflows system-wide so every project can use them.
+
+<img src="assets/terminal.svg" alt="nForma Install" width="600">
+
+*The nForma installer banner with runtime and location prompts.*
+
+### Step 2: Set Up Your Quorum
+
+nForma uses multiple AI models to cross-check each other's work -- this group is called a **quorum**. Each model runs independently and votes on whether a plan or verification passes, catching errors that a single model would miss.
+
+To configure your quorum's MCP (Model Context Protocol) servers, run:
+
+```
+/nf:mcp-setup
+```
+
+This opens a guided setup that connects nForma to your available AI providers. You will see a modal for adding each agent:
+
+<img src="assets/tui-modal-add-agent.png" alt="Add Agent Modal" width="600">
+
+*The Add Agent modal lets you configure each quorum slot with a provider, API key, and model.*
+
+Once your agents are configured, the Agent Manager shows all active quorum slots and their health status:
+
+<img src="assets/tui-agents.png" alt="Agent Manager" width="600">
+
+*The Agent Manager displays your configured quorum slots with connectivity status and model details.*
+
+### Step 3: Your First Command
+
+With nForma installed and your quorum configured, run your first real command:
+
+```
+/nf:new-project
+```
+
+nForma will ask you a series of questions about your project, then run parallel research agents, generate requirements, and produce a roadmap. For a smaller task, you can use `/nf:quick` instead.
+
+The Requirements view shows what nForma produces -- a structured set of requirements with IDs, categories, and coverage tracking:
+
+<img src="assets/tui-reqs.png" alt="Requirements View" width="600">
+
+*The Requirements module tracks which requirements exist, their categories, and coverage status.*
+
+### Step 4: Start a Project
+
+Once your project is set up, you will work through phases using the lifecycle commands: `/nf:discuss-phase`, `/nf:plan-phase`, `/nf:execute-phase`, and `/nf:verify-work`. See [Usage Examples](#usage-examples) below for the full project lifecycle.
+
+Here is what an active project session looks like, with project context and quorum status visible:
+
+<img src="assets/tui-session-claude.png" alt="Active Project Session" width="600">
+
+*An active Claude Code session managed by nForma, showing project context and quorum status.*
 
 ---
 
@@ -96,6 +166,10 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
          │                        └────────────┘
          └── Done
 ```
+
+<img src="assets/tui-reqs-coverage.png" alt="Requirements Coverage" width="600">
+
+*The Requirements Coverage view tracks which requirements are addressed by which plans.*
 
 ### Execution Wave Coordination
 
@@ -213,6 +287,12 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 
 ## Command Reference
 
+nForma provides commands for the full project lifecycle, from initialization through milestone completion. The commands below are organized by category.
+
+<img src="assets/tui-agents-scoreboard.png" alt="Agent Scoreboard" width="600">
+
+*The Agent Scoreboard shows quorum slot health, response times, and pass rates for each configured model.*
+
 ### Core Workflow
 
 | Command | Purpose | When to Use |
@@ -271,6 +351,10 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 ## Configuration Reference
 
 nForma stores project settings in `.planning/config.json`. Configure during `/nf:new-project` or update later with `/nf:settings`.
+
+<img src="assets/tui-config.png" alt="Configuration TUI" width="600">
+
+*The TUI Config module lets you edit provider keys, timeouts, and export/import settings without touching JSON files.*
 
 ### Full config.json Schema
 
@@ -414,6 +498,10 @@ claude --dangerously-skip-permissions
 /nf:resume-work            # Full context restoration from last session
 ```
 
+<img src="assets/tui-sessions.png" alt="Session Manager" width="600">
+
+*The Sessions module shows active and recent Claude Code sessions with context summaries.*
+
 ### Preparing for Release
 
 ```bash
@@ -443,6 +531,12 @@ claude --dangerously-skip-permissions
 ---
 
 ## Troubleshooting
+
+When something goes wrong, the Solve module provides a diagnostic overview that surfaces formal verification gaps, circuit breaker state, and actionable next steps:
+
+<img src="assets/tui-solve.png" alt="Solve Diagnostics" width="600">
+
+*The Solve module surfaces formal verification gaps, circuit breaker state, and actionable diagnostics.*
 
 ### "Project already initialized"
 
