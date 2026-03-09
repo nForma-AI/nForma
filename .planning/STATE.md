@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.32-02 — README Deep Sections
+**Current focus:** v0.32-03 — User Guide Overhaul
 
 ## Current Position
 
-Phase: v0.32-02 (README Deep Sections)
+Phase: v0.32-03 (User Guide Overhaul)
 Plan: 1 of 1 complete
 Status: Phase complete
-Last activity: 2026-03-09 — Completed v0.32-02-01 (README deep sections)
+Last activity: 2026-03-09 — Completed v0.32-03-01 (User Guide overhaul with screenshots and Getting Started)
 
 Progress: [██████████] 100%
 
@@ -23,6 +23,7 @@ Progress: [██████████] 100%
 Decisions logged in PROJECT.md Key Decisions table.
 - [Phase v0.32-01]: Used HTML img tag with width=720 for TUI hero screenshot; added manual anchor for configuration-reference details block
 - [Phase v0.32-02]: Used flowchart LR Mermaid for architecture diagram; extracted /nf:mcp-setup into visible subsection; moved solve screenshot after Observability table
+- [Phase v0.32-03]: 10 screenshots total (5 Getting Started, 5 feature sections) with width=600; ToC slug validation test; introductory paragraphs before screenshots in Command Reference and Troubleshooting
 
 ### Pending Todos
 
@@ -57,5 +58,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-09
-Stopped at: Completed v0.32-02-01-PLAN.md
+Stopped at: Completed v0.32-03-01-PLAN.md
 Resume file: None

@@ -22,8 +22,8 @@ Requirements for README & Documentation Overhaul. Each maps to roadmap phases.
 
 ### User Guide
 
-- [ ] **GUIDE-01**: User Guide updated with TUI screenshots cross-referenced to feature descriptions
-- [ ] **GUIDE-02**: User Guide "Getting Started" walkthrough improved with step-by-step flow and screenshots
+- [x] **GUIDE-01**: User Guide updated with TUI screenshots cross-referenced to feature descriptions
+- [x] **GUIDE-02**: User Guide "Getting Started" walkthrough improved with step-by-step flow and screenshots
 
 ### Visual Assets
 
@@ -53,8 +53,8 @@ Requirements for README & Documentation Overhaul. Each maps to roadmap phases.
 | RDME-08 | v0.32-02 | Complete |
 | RDME-09 | v0.32-02 | Complete |
 | RDME-10 | v0.32-02 | Complete |
-| GUIDE-01 | v0.32-03 | Pending |
-| GUIDE-02 | v0.32-03 | Pending |
+| GUIDE-01 | v0.32-03 | Complete |
+| GUIDE-02 | v0.32-03 | Complete |
 | VIS-01 | v0.32-04 | Pending |
 | VIS-02 | v0.32-04 | Pending |
 

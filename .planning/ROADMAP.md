@@ -40,7 +40,7 @@
 
 - [x] **Phase v0.32-01: README Above-the-Fold Restructure** - Promote TUI hero, add value props, metrics, changelog, and nav to the top of README (completed 2026-03-09)
 - [x] **Phase v0.32-02: README Deep Sections** - Add architecture diagram, community section, rebalance Getting Started, fix broken table (completed 2026-03-09)
-- [ ] **Phase v0.32-03: User Guide Overhaul** - Update User Guide with TUI screenshots and improved Getting Started walkthrough
+- [x] **Phase v0.32-03: User Guide Overhaul** - Update User Guide with TUI screenshots and improved Getting Started walkthrough (completed 2026-03-09)
 - [ ] **Phase v0.32-04: Visual Asset Regeneration** - Regenerate all TUI screenshots and harden VHS tape for CI
 
 ### Phase Details
@@ -79,7 +79,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Each major User Guide feature section includes at least one TUI screenshot cross-referenced to the feature description
   2. The Getting Started walkthrough proceeds step-by-step from install through first command with screenshots at each stage
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] v0.32-03-01-PLAN.md — Add Getting Started walkthrough with screenshots and embed TUI screenshots in feature sections
 
@@ -99,7 +99,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | v0.32-01. README Above-the-Fold Restructure | 1/1 | Complete    | 2026-03-09 |
 | v0.32-02. README Deep Sections | 1/1 | Complete    | 2026-03-09 |
-| v0.32-03. User Guide Overhaul | 0/1 | Not started | - |
+| v0.32-03. User Guide Overhaul | 1/1 | Complete   | 2026-03-09 |
 | v0.32-04. Visual Asset Regeneration | 0/? | Not started | - |
 
 ---
