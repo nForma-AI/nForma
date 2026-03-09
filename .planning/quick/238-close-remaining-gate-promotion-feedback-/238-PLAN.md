@@ -108,9 +108,7 @@ Output: Evidence refreshed every session, changelog tracking all gate transition
   <action>
 **Feature 1 — Wire refresh-evidence.cjs into nf-stop.js:**
 
-At the END of the `main()` function in hooks/nf-stop.js, AFTER the final `process.exit(0)` on the success path (line ~684, after the conformance event append), but BEFORE the outer catch block, add an evidence refresh call. The best insertion point is right before the final `process.exit(0)` at line 684, so evidence gets refreshed whether quorum passed, was skipped, or was not needed.
-
-Add a new block just before the final `process.exit(0)`:
+Add evidence refresh ONLY on the approve path (line ~683), right before `process.exit(0)`. This means evidence gets refreshed after every successful session completion.
 
 ```javascript
 // Always-on evidence refresh — runs at end of every session.
@@ -133,14 +131,6 @@ try {
 }
 ```
 
-IMPORTANT: This must be INSIDE the try block but placed so it runs on ALL exit paths (not just the quorum-check path). The cleanest approach: add it as a finally-like block before the outermost `process.exit(0)`. Since the hook has multiple `process.exit(0)` calls for different guard paths, the best approach is to create a helper function `refreshEvidence()` and call it from a single point. Alternatively, wrap the evidence refresh in a function and call it right before each `process.exit(0)` — but that is too many call sites. Instead: refactor the end of main() to have a single exit point. After all guard checks pass and the quorum logic runs, instead of calling `process.exit(0)` directly, fall through to a post-processing block.
-
-Actually, the simplest correct approach: Add the evidence refresh call ONCE, right before the LAST `process.exit(0)` at line 684 (the success/approve path). For the early-exit guard paths (lines 502-548), evidence refresh is NOT needed — those are fast-exit paths where no meaningful work happened. Evidence refresh should only run when the hook ran through the full quorum check (success or block), because that means a real session just completed.
-
-So: insert the evidence refresh block at line 683 (after the conformance event append, before the final `process.exit(0)` at line 684). This covers the approve path. Also add it at line 648 (after the block conformance event, before the block `process.exit(0)`) — but for the block path, skip it since the session is being blocked anyway.
-
-Final approach: Add evidence refresh ONLY on the approve path (line ~683), right before `process.exit(0)`. This means evidence gets refreshed after every successful session completion.
-
 **Feature 2 — Promotion changelog:**
 
 Create `.planning/formal/promotion-changelog.json` as an empty array: `[]`.
@@ -152,6 +142,8 @@ In `bin/compute-per-model-gates.cjs`, add a function `appendChangelog(entry)` th
 
 Entry schema: `{ model, from_level, to_level, timestamp, evidence_readiness: { score, total }, trigger }`.
 
+The `appendChangelog(entry)` function must also enforce a retention policy: after pushing the new entry, if the array length exceeds 200, trim from the front to keep only the last 200 entries. This prevents unbounded growth of the changelog file.
+
 Call `appendChangelog()` at two points:
 - After each promotion (~line 266 and ~line 278), with `trigger: "auto_promotion"`
 - After each demotion (new Feature 4 code), with `trigger: "evidence_regression"`
@@ -162,8 +154,9 @@ In `bin/compute-per-model-gates.cjs`, after the promotion logic block (after lin
 
 ```javascript
 // Demotion: SOFT_GATE models that no longer meet threshold
+// Hysteresis: promote at score>=1 but demote at score<0.8 to prevent oscillation at boundaries
 if (!promoted && model.gate_maturity === 'SOFT_GATE' && !evidenceReadiness.skipped) {
-  if (evidenceReadiness.score < 1 || maturity < 1) {
+  if (evidenceReadiness.score < 0.8 || maturity < 0.8) {
     model.gate_maturity = 'ADVISORY';
     model.last_updated = new Date().toISOString();
     const demotionEntry = {
@@ -178,8 +171,9 @@ if (!promoted && model.gate_maturity === 'SOFT_GATE' && !evidenceReadiness.skipp
 }
 
 // Demotion: HARD_GATE models that no longer meet threshold
+// Hysteresis: promote at score>=3 but demote at score<2.5 to prevent oscillation at boundaries
 if (!promoted && model.gate_maturity === 'HARD_GATE' && !evidenceReadiness.skipped) {
-  if (evidenceReadiness.score < 3 || maturity < 3) {
+  if (evidenceReadiness.score < 2.5 || maturity < 2.5) {
     model.gate_maturity = 'SOFT_GATE';
     model.last_updated = new Date().toISOString();
     const demotionEntry = {
@@ -207,9 +201,10 @@ After editing hooks/nf-stop.js: `cp hooks/nf-stop.js hooks/dist/ && node bin/ins
 4. `node bin/compute-per-model-gates.cjs --json --dry-run 2>/dev/null | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); console.log('has demotions:', 'demotions' in d)"` prints "has demotions: true"
 5. `test -f .planning/formal/promotion-changelog.json && echo "changelog exists"` prints "changelog exists"
 6. `diff hooks/nf-stop.js hooks/dist/nf-stop.js` returns no diff (install sync)
+7. `grep -c '200\|retention\|trim\|slice' bin/compute-per-model-gates.cjs` confirms retention cap is present in appendChangelog
   </verify>
   <done>
-Evidence files refresh at end of every successful session via Stop hook. Gate promotions and demotions both log structured entries to promotion-changelog.json. SOFT_GATE models demote to ADVISORY when evidence score drops below 1 or maturity below 1. HARD_GATE models demote to SOFT_GATE when evidence score drops below 3 or maturity below 3. Install sync completed.
+Evidence files refresh at end of every successful session via Stop hook. Gate promotions and demotions both log structured entries to promotion-changelog.json (capped at 200 entries). SOFT_GATE models demote to ADVISORY when evidence score drops below 0.8 (hysteresis buffer vs promote threshold of 1). HARD_GATE models demote to SOFT_GATE when evidence score drops below 2.5 (hysteresis buffer vs promote threshold of 3). Install sync completed.
   </done>
 </task>
 
@@ -231,7 +226,7 @@ Inputs (all fail-open — missing file means empty data):
 
 Algorithm:
 1. Build a map of file -> churn from git-heatmap.json `signals.churn_files` (if the structure uses `signals.numerical_adjustments`, adapt — use touch_count as churn proxy). If git-heatmap has `signals.bugfix_hotspots`, also factor those in (bugfix files get 2x weight).
-2. Build a map of file -> trace_density from trace-corpus-stats.json. Count how many sessions reference each file across all session action maps. Normalize to 0-1 range.
+2. Build a map of file -> trace_density from trace-corpus-stats.json. **IMPORTANT**: The sessions array contains per-session `actions` maps keyed by action type (e.g. `quorum_start`, `circuit_break`), NOT per-file action maps. There are no file-level references in trace-corpus-stats.json. Therefore, trace_density cannot be computed from this file as originally designed. Instead: set trace_density = 1.0 for all files (neutral multiplier) so the ranking degrades gracefully to churn-only. Add a TODO comment noting that per-file trace data would need to come from a future instrumentation source. Do NOT silently produce zeros.
 3. Build a set of covered_files from model-registry.json — any model path with `gate_maturity` !== 'ADVISORY' or `layer_maturity` >= 1.
 4. For each file in the churn map that is NOT in covered_files: `score = (churn * trace_density) / (1 + existing_model_coverage)`. Since these are uncovered, existing_model_coverage = 0, so score = churn * trace_density.
 5. Sort descending by score. Output top N (default 10, configurable via `--top=N`).
@@ -276,7 +271,7 @@ try {
 4. Pre-flight: `test -f .planning/formal/evidence/git-heatmap.json && test -f .planning/formal/model-registry.json && echo "inputs exist"` prints "inputs exist"
   </verify>
   <done>
-formalization-candidates.cjs ranks uncovered files by (churn x trace_density) / coverage and outputs top-N. nf-solve formatReport includes the top 5 candidates in its report output.
+formalization-candidates.cjs ranks uncovered files by churn (trace_density defaults to 1.0 since trace-corpus-stats.json lacks per-file data). nf-solve formatReport includes the top 5 candidates in its report output.
   </done>
 </task>
 
@@ -309,6 +304,11 @@ const CHANGELOG_PATH = path.join(ROOT, '.planning', 'formal', 'promotion-changel
 3. In `renderMainMenu()`, after the category list box (after line 484 `lines.push(BOX.bl + hr + BOX.br);`), add:
 
 ```javascript
+// Helper: compute visible (non-ANSI) length of a string
+function visLen(s) { return s.replace(/\x1b\[[0-9;]*m/g, '').length; }
+// Helper: pad string to visible width W, accounting for ANSI escapes
+function visPad(s, w) { return s + ' '.repeat(Math.max(0, w - visLen(s))); }
+
 // Recent Promotions section
 const recentPromos = loadRecentPromotions(7);
 if (recentPromos.length > 0) {
@@ -320,14 +320,17 @@ if (recentPromos.length > 0) {
     const arrow = p.trigger === 'evidence_regression' ? RED + ' DEMOTED ' + RESET : GREEN + ' PROMOTED' + RESET;
     const model = (p.model || '').length > 30 ? '...' + p.model.slice(-27) : p.model;
     const line = '  ' + arrow + ' ' + model.padEnd(32) + p.from_level + ' -> ' + p.to_level;
-    lines.push(BOX.v + line.padEnd(W + 20) + BOX.v);
+    lines.push(BOX.v + visPad(line, W) + BOX.v);
   }
   if (recentPromos.length > 5) {
-    lines.push(BOX.v + DIM + '  ... and ' + (recentPromos.length - 5) + ' more' + RESET + (' ').repeat(W - 16) + BOX.v);
+    const moreLine = DIM + '  ... and ' + (recentPromos.length - 5) + ' more' + RESET;
+    lines.push(BOX.v + visPad(moreLine, W) + BOX.v);
   }
   lines.push(BOX.bl + hr + BOX.br);
 }
 ```
+
+NOTE: Use `visLen`/`visPad` helpers instead of hardcoded `padEnd(W + 20)` or `(' ').repeat(W - 16)`. These helpers strip ANSI escapes before measuring length, following a clean pattern instead of fragile magic-number offsets. If the TUI already has a similar helper, reuse it; otherwise add these two functions near the top of the rendering section.
 
 This is purely display — no new navigation states, no depth changes, no key handlers. It reads the changelog file that Task 1 creates and shows recent entries with color-coded promotion/demotion status.
   </action>
@@ -336,6 +339,7 @@ This is purely display — no new navigation states, no depth changes, no key ha
 2. `grep 'loadRecentPromotions\|Recent Gate Changes' bin/solve-tui.cjs` returns matches
 3. `grep 'DEMOTED\|PROMOTED' bin/solve-tui.cjs` returns color-coded labels
 4. Verify no new depth states: `grep -c 'state.depth' bin/solve-tui.cjs` should not increase (display-only addition)
+5. `grep 'visLen\|visPad' bin/solve-tui.cjs` confirms ANSI-aware padding helpers are used (no hardcoded W+20 offsets)
   </verify>
   <done>
 TUI main menu shows recent gate promotions and demotions from the last 7 days, color-coded green for promotions and red for demotions. No new navigation states added (display-only), respecting tui-nav invariants.

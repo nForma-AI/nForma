@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 Phase: Milestone boundary
 Plan: N/A
 Status: v0.30 and v0.31 milestones archived. Ready for /nf:new-milestone.
-Last activity: 2026-03-09 - Completed quick task 237: Persist quorum debate traces with matched requirement IDs
+Last activity: 2026-03-09 - Completed quick task 238: Close remaining gate promotion feedback loops
 
 Progress: [##########] 100%
 
@@ -46,6 +46,7 @@ None.
 | 235 | Fix TLA+ model state space explosions and config bugs | 2026-03-09 | b5baea94 | Verified | [235-fix-tla-model-state-space-explosions-and](./quick/235-fix-tla-model-state-space-explosions-and/) |
 | 236 | Wire evidence files into gate promotion pipeline — fix all 5 gaps | 2026-03-09 | a770ac15 | Verified | [236-wire-evidence-files-into-gate-promotion-](./quick/236-wire-evidence-files-into-gate-promotion-/) |
 | 237 | Persist quorum debate traces with matched requirement IDs | 2026-03-09 | b8a98931 | Verified | [237-persist-quorum-debate-traces-with-matche](./quick/237-persist-quorum-debate-traces-with-matche/) |
+| 238 | Close remaining gate promotion feedback loops | 2026-03-09 | d909b75e | Pending | [238-close-remaining-gate-promotion-feedback-](./quick/238-close-remaining-gate-promotion-feedback-/) |
 
 ## Session Continuity
 
