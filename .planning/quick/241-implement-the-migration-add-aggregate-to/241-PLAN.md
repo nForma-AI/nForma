@@ -16,6 +16,7 @@ files_modified:
   - bin/gate-c-validation.cjs
   - bin/gate-c-validation.test.cjs
   - .planning/formal/gates/
+  - bin/compute-per-model-gates.test.cjs
 autonomous: true
 formal_artifacts: none
 requirements: [GATE-01, GATE-02, GATE-03, GATE-04]
@@ -31,6 +32,9 @@ must_haves:
     - path: "bin/compute-per-model-gates.cjs"
       provides: "--aggregate mode producing continuous gate scores"
       contains: "AGGREGATE_FLAG"
+    - path: "bin/compute-per-model-gates.test.cjs"
+      provides: "Fixture-based unit tests for aggregate score calculations"
+      contains: "computeAggregate"
     - path: "bin/nf-solve.cjs"
       provides: "Sweep functions using compute-per-model-gates --aggregate"
       contains: "compute-per-model-gates"
@@ -83,7 +87,7 @@ Output: Single gate scoring pipeline via compute-per-model-gates.cjs --aggregate
 
 <task type="auto">
   <name>Task 1: Add --aggregate mode to compute-per-model-gates.cjs</name>
-  <files>bin/compute-per-model-gates.cjs</files>
+  <files>bin/compute-per-model-gates.cjs, bin/compute-per-model-gates.test.cjs</files>
   <action>
 Add an `--aggregate` flag that, when combined with `--json`, outputs an aggregate section alongside per-model data. The aggregate section MUST produce continuous 0-1 scores and diagnostic breakdowns that exactly match what the global gate scripts output.
 
@@ -129,13 +133,28 @@ Add an `--aggregate` flag that, when combined with `--json`, outputs an aggregat
 5. Also write aggregate results to `.planning/formal/gates/` JSON files (gate-a-grounding.json, gate-b-abstraction.json, gate-c-validation.json) with `schema_version: "1"` and `generated` timestamp — matching the existing file format exactly. This preserves backward compatibility for the cached-mode dashboard reader during the transition. Skip file writes during --dry-run.
 
 IMPORTANT: The gate A `unexplained_counts` breakdown with `instrumentation_bug`, `model_gap`, `genuine_violation` is used by nf-solve.cjs sweepL1toL2 (lines 2141-2145). The per-model system does not have deep trace analysis like the global gate-a script, so map failing models to `model_gap` category (this is semantically accurate — a model failing gate A means its grounding has gaps).
+
+6. **Unit tests for --aggregate mode** (quorum improvement from opencode-1): Create `bin/compute-per-model-gates.test.cjs` with unit tests that verify aggregate score calculations against known fixtures BEFORE proceeding to consumer migration. The tests MUST:
+
+   - Import or extract the aggregate computation logic into a testable function (e.g., `computeAggregate(perModelResults)`)
+   - Create fixture data representing known per-model gate results (e.g., 3 models: 2 pass gate A, 3 pass gate B, 1 passes gate C)
+   - Assert that `grounding_score` = 2/3 ≈ 0.6667 for the fixture, `gate_b_score` = 1.0, `gate_c_score` = 1/3 ≈ 0.3333
+   - Assert `target_met` is false when score < target, true when score >= target
+   - Assert `unexplained_counts.model_gap` equals number of failing models for gate A
+   - Assert field names and structure match the existing global gate JSON files (gate-a-grounding.json, gate-b-abstraction.json, gate-c-validation.json)
+   - Include an edge case: 0 models (empty input) should produce scores of 0 or NaN-safe defaults
+   - Include an edge case: all models pass all gates (scores should be exactly 1.0)
+
+   This ensures aggregate logic matches global script outputs precisely across edge cases before any consumer migration begins.
   </action>
   <verify>
-Run: `node bin/compute-per-model-gates.cjs --aggregate --json --dry-run | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); const a=d.aggregate; console.log('gate_a:', typeof a.gate_a.grounding_score === 'number', 'gate_b:', typeof a.gate_b.gate_b_score === 'number', 'gate_c:', typeof a.gate_c.gate_c_score === 'number'); console.log('unexplained:', JSON.stringify(a.gate_a.unexplained_counts)); process.exit(a.gate_a && a.gate_b && a.gate_c ? 0 : 1)"`
+1. Run aggregate unit tests FIRST: `node bin/compute-per-model-gates.test.cjs` — all fixture-based assertions must pass (scores match expected values, field names match global gate JSON schemas, edge cases handled).
 
-Also verify non-aggregate mode still works: `node bin/compute-per-model-gates.cjs --json --dry-run | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); console.log('no aggregate key:', !d.aggregate); process.exit(!d.aggregate ? 0 : 1)"`
+2. Run: `node bin/compute-per-model-gates.cjs --aggregate --json --dry-run | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); const a=d.aggregate; console.log('gate_a:', typeof a.gate_a.grounding_score === 'number', 'gate_b:', typeof a.gate_b.gate_b_score === 'number', 'gate_c:', typeof a.gate_c.gate_c_score === 'number'); console.log('unexplained:', JSON.stringify(a.gate_a.unexplained_counts)); process.exit(a.gate_a && a.gate_b && a.gate_c ? 0 : 1)"`
+
+3. Verify non-aggregate mode still works: `node bin/compute-per-model-gates.cjs --json --dry-run | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); console.log('no aggregate key:', !d.aggregate); process.exit(!d.aggregate ? 0 : 1)"`
   </verify>
-  <done>compute-per-model-gates.cjs --aggregate --json outputs continuous 0-1 gate scores with diagnostic breakdowns matching the global gate JSON schemas. Non-aggregate mode unchanged.</done>
+  <done>compute-per-model-gates.cjs --aggregate --json outputs continuous 0-1 gate scores with diagnostic breakdowns matching the global gate JSON schemas. Unit tests in compute-per-model-gates.test.cjs verify score calculations against known fixtures including edge cases. Non-aggregate mode unchanged.</done>
 </task>
 
 <task type="auto">
@@ -288,15 +307,17 @@ This replaces all four entries (three global gates + one per-model) with one.
 </tasks>
 
 <verification>
-1. `node bin/compute-per-model-gates.cjs --aggregate --json --dry-run` produces valid JSON with aggregate.gate_a, aggregate.gate_b, aggregate.gate_c fields containing continuous 0-1 scores
-2. `node bin/cross-layer-dashboard.cjs --json` produces dashboard with gate_a, gate_b, gate_c data
-3. `grep -r "gate-a-grounding\|gate-b-abstraction\|gate-c-validation" bin/*.cjs` returns ONLY comments, no functional references
-4. `npm test` passes with 0 failures
-5. Global gate scripts no longer exist on disk
+1. `node bin/compute-per-model-gates.test.cjs` — all unit tests pass (fixture-based aggregate score verification including edge cases)
+2. `node bin/compute-per-model-gates.cjs --aggregate --json --dry-run` produces valid JSON with aggregate.gate_a, aggregate.gate_b, aggregate.gate_c fields containing continuous 0-1 scores
+3. `node bin/cross-layer-dashboard.cjs --json` produces dashboard with gate_a, gate_b, gate_c data
+4. `grep -r "gate-a-grounding\|gate-b-abstraction\|gate-c-validation" bin/*.cjs` returns ONLY comments, no functional references
+5. `npm test` passes with 0 failures
+6. Global gate scripts no longer exist on disk
 </verification>
 
 <success_criteria>
 - compute-per-model-gates.cjs --aggregate produces continuous scores matching old global gate JSON schemas
+- Unit tests verify aggregate scores against known fixtures (including edge cases: 0 models, all-pass) before consumer migration
 - All three consumers produce equivalent output using the new --aggregate path
 - Six deleted files (3 scripts + 3 tests), zero broken imports
 - npm test passes

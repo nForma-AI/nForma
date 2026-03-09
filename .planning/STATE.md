@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 Phase: Milestone boundary
 Plan: N/A
 Status: v0.30 and v0.31 milestones archived. Ready for /nf:new-milestone.
-Last activity: 2026-03-09 - Completed quick task 240: Teach sweepCtoR to read Requirements header comments
+Last activity: 2026-03-09 - Completed quick task 241: implement the migration (add --aggregate to compute-per-model-gates.cjs, migrate consumers, then delete global gates)
 
 Progress: [##########] 100%
 
@@ -49,6 +49,7 @@ None.
 | 238 | Close remaining gate promotion feedback loops | 2026-03-09 | d909b75e | Verified | [238-close-remaining-gate-promotion-feedback-](./quick/238-close-remaining-gate-promotion-feedback-/) |
 | 239 | Add install-time path validation | 2026-03-09 | 61104d6f | Verified | [239-add-install-time-path-validation-to-bin-](./quick/239-add-install-time-path-validation-to-bin-/) |
 | 240 | Teach sweepCtoR to read Requirements header comments | 2026-03-09 | 9d9e87b7 | Verified | [240-teach-sweepctor-to-read-requirements-hea](./quick/240-teach-sweepctor-to-read-requirements-hea/) |
+| 241 | implement the migration (add --aggregate to compute-per-model-gates.cjs, migrate consumers, then delete global gates) | 2026-03-09 | 10064bbb | Pending | [241-implement-the-migration-add-aggregate-to](./quick/241-implement-the-migration-add-aggregate-to/) |
 
 ## Session Continuity
 
