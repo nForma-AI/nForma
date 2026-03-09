@@ -102,7 +102,7 @@ Plans:
 | v0.32-01. README Above-the-Fold Restructure | 1/1 | Complete    | 2026-03-09 |
 | v0.32-02. README Deep Sections | 1/1 | Complete    | 2026-03-09 |
 | v0.32-03. User Guide Overhaul | 1/1 | Complete    | 2026-03-09 |
-| v0.32-04. Visual Asset Regeneration | 1/1 | Complete   | 2026-03-09 |
+| v0.32-04. Visual Asset Regeneration | 1/1 | Complete    | 2026-03-09 |
 
 ---
 *Roadmap created: 2026-03-09*
