@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-09T22:15:03.271Z",
+  "last_sync": "2026-03-09T22:17:15.539Z",
   "search_dirs": [],
   "models": {
     ".planning/formal/alloy/solve-session-persistence.als": {
@@ -85,8 +85,8 @@
       "layer_maturity": 3
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 5615,
-      "last_updated": "2026-03-09T22:15:04.113Z",
+      "version": 5616,
+      "last_updated": "2026-03-09T22:18:38.942Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -176,8 +176,8 @@
       "layer_maturity": 3
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 5613,
-      "last_updated": "2026-03-09T22:15:53.564Z",
+      "version": 5614,
+      "last_updated": "2026-03-09T22:18:38.943Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -1345,8 +1345,8 @@
       "layer_maturity": 2
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 4365,
-      "last_updated": "2026-03-09T22:15:53.568Z",
+      "version": 4366,
+      "last_updated": "2026-03-09T22:18:38.946Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
