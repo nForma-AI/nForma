@@ -10,17 +10,18 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: v0.32-01 (README Above-the-Fold Restructure)
-Plan: —
-Status: Roadmap created, awaiting plan-phase
-Last activity: 2026-03-09 — Roadmap created for v0.32
+Plan: 01 of 01 complete
+Status: Phase v0.32-01 complete
+Last activity: 2026-03-09 — Completed v0.32-01-01-PLAN.md
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions logged in PROJECT.md Key Decisions table.
+- [Phase v0.32-01]: Used HTML img tag with width=720 for TUI hero screenshot; added manual anchor for configuration-reference details block
 
 ### Pending Todos
 
@@ -55,5 +56,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-09
-Stopped at: Roadmap created for v0.32 — Documentation & README Overhaul
+Stopped at: Completed v0.32-01-01-PLAN.md
 Resume file: None
