@@ -1,301 +1,179 @@
 # Pitfalls Research
 
-**Domain:** Advanced Agent Patterns for Hook-Based Claude Code Extension (nForma v0.30)
-**Researched:** 2026-03-07
-**Confidence:** HIGH (patterns grounded in existing nForma architecture + verified community reports)
+**Domain:** Outer-loop convergence guarantees for nf:solve iterative refinement
+**Researched:** 2026-03-09
+**Confidence:** HIGH (based on direct codebase analysis + formal model inspection)
 
 ## Critical Pitfalls
 
-### Pitfall 1: Downgrade Loop Oscillation in Dynamic Model Selection
+### Pitfall 1: False Positive Oscillation Detection from Cascade-Induced Residual Increase
 
 **What goes wrong:**
-The existing budget tracker (`bin/budget-tracker.cjs`) uses a linear downgrade chain: `quality -> balanced -> budget -> null`. Adding dynamic model selection for quorum slots creates a second, parallel downgrade axis. When a slot is downgraded to a cheaper model, it produces lower-quality votes, which triggers more deliberation rounds (R3.3), which consumes more tokens, which triggers further downgrades. The system oscillates between "downgrade because of budget" and "upgrade because quality is too low for consensus." This is exactly the kind of oscillation nForma's circuit breaker was built to detect in git history -- but it cannot detect it in model selection because that state lives in `.planning/config.json`, not in git commits.
+The layer oscillation breaker (Option C) flags a layer as "oscillating" when its residual increases after remediation, but the increase is actually a cascade artifact. Fixing R->F gaps (residual 90) surfaces previously-hidden F->T gaps, causing that layer's residual to rise. Option C sees: iteration 1 residual=5, iteration 2 residual=12 (after R->F fix exposed hidden gaps), iteration 3 residual=8 (partially fixed). If the breaker compares iteration 1 vs iteration 3 and sees the "improvement then regression" pattern, it incorrectly triggers human escalation on a layer that is making real forward progress.
 
 **Why it happens:**
-The budget tracker's `triggerProfileDowngrade()` writes to `.planning/config.json` but has no feedback loop to measure whether the downgrade actually helped. The scoreboard tracks per-slot success rates but doesn't correlate them with the active model profile. Two independent control loops (budget control + quality control) fight each other without coordination.
+The existing TLA+ spec (`NFSolveOrchestrator.tla` line 204-214) already models cascade awareness with `layersChanged` as a non-deterministic boolean -- but the convergence check only compares total residuals and layer-level change flags. It does not track *why* a residual increased (cascade discovery vs. genuine regression). When Option C adds per-layer oscillation detection on top of this, the naive approach of "did residual go up then down then up" will produce false positives on any layer downstream of a remediated layer.
 
 **How to avoid:**
-- Implement a cooldown period after any downgrade (minimum 3 quorum rounds before reconsidering). The existing `DOWNGRADE_CHAIN` object in budget-tracker.cjs should gain a `cooldown_rounds` property.
-- Add a downgrade-quality gate: before downgrading, check scoreboard consensus rate for current profile. If consensus rate is already below 70%, do NOT downgrade further -- inject a compaction suggestion instead.
-- Unify the two control loops: budget status and quality status should be computed together in a single function, not independently in different hooks.
-- Add a `downgrade_history` array to the budget state with timestamps, so the system can detect oscillation patterns (3+ alternating upgrades/downgrades within 10 rounds = freeze at current level).
+- Define oscillation as: same layer's residual returns to a value within epsilon of a *previous iteration's value* after having changed -- not merely "increased then decreased." True oscillation is periodic; cascade is monotonic discovery.
+- Track per-layer residual vectors across iterations. Oscillation = the layer has been remediated 2+ times AND the residual delta sequence contains a sign reversal back toward a prior value. Cascade = residual increased on a layer that was NOT directly remediated in the preceding iteration.
+- Add a `cascade_source` field to each layer residual entry. When R->F remediation runs, mark F->T, F->C as potential cascade targets. Exempt cascade targets from oscillation detection for 1 iteration after the source layer changes.
+- The TLA+ spec should model cascade explicitly: introduce a `cascadePending` set that clears after one re-diagnose pass.
 
 **Warning signs:**
-- Scoreboard shows declining consensus rates correlating with profile changes
-- `conformance-events.jsonl` shows rapid alternation of `budget_downgrade` and `quality_warning` events
-- Quorum rounds consistently hitting `maxDeliberation` limit after a downgrade
+- Human escalation fires on the first or second solve run after introducing Option C
+- Layers that were never directly remediated get flagged as oscillating
+- Escalation rate > 30% of convergence loop iterations
 
 **Phase to address:**
-Phase 1 (Dynamic Model Selection). Must be designed into the routing logic from the start -- retrofitting a coordination layer between budget and quality is a rewrite.
+Phase 1 (Layer Oscillation Breaker) -- this must be designed correctly from the start. Retrofitting cascade awareness after deployment means changing the escalation logic that humans have already learned to trust.
 
 ---
 
-### Pitfall 2: Memory Bloat in Cross-Session Learning Hooks
+### Pitfall 2: Trend Tracker Unbounded Growth Corrupts Cross-Session State
 
 **What goes wrong:**
-Cross-session memory files grow unbounded. nForma already has `STATE.md`, `conformance-events.jsonl`, the scoreboard, and the debt ledger as persistent state. Adding a pattern extraction store (learned patterns from transcripts) creates a new unbounded growth vector. Within 20-30 sessions, the memory store exceeds what can be usefully injected into context via `additionalContext` in the UserPromptSubmit hook. The `nf-prompt.js` hook already injects quorum instructions, circuit breaker recovery, and pending tasks -- adding memory injection on top risks exceeding the additionalContext budget and diluting critical quorum instructions.
+The cross-session residual trend tracker appends time-series data to a persistent file on every `nf:solve` run. Currently, `solve-state.json` stores only the latest run (12 layers, ~60 lines). A naive trend tracker that appends full layer residuals per run will grow unboundedly. After 50 runs across a milestone with 19 layers, the file reaches ~5KB -- manageable. But the real problem is that trend analysis on stale data produces misleading conclusions. If the codebase undergoes a major refactor between milestones, old residual baselines become meaningless, and a "trending up" signal may just reflect the new baseline.
 
 **Why it happens:**
-Developers treat "learn and store" as the hard problem and "prune and forget" as a later optimization. But the additionalContext injection path in Claude Code hooks has a practical ceiling: beyond ~4000 tokens of injected context, the signal-to-noise ratio degrades and the agent starts ignoring parts of it. The existing quorum instructions alone are ~800 tokens. The PreCompact hook (`nf-precompact.js`) extracts STATE.md's Current Position section, adding another ~200-500 tokens. Every new injection source competes for the same limited budget.
+Time-series append is the obvious implementation. Developers add `history.push(currentRun)` and defer cleanup. The file grows slowly enough that no single run notices the problem. Meanwhile, the trend analysis code treats all historical entries as equally valid, even entries from before structural changes that invalidated the residual semantics.
 
 **How to avoid:**
-- Set a hard token budget for memory injection: maximum 1500 tokens total, enforced by truncation at the injection site in `nf-prompt.js`.
-- Implement a relevance scorer that selects the top-K patterns (K <= 5) based on the current command type, not a dump of all stored patterns.
-- Add a retention policy with automatic pruning: patterns not triggered in 10 sessions get archived; patterns triggered fewer than 2 times get deleted.
-- Store patterns in a separate file (`.claude/nf-memory.json`) distinct from STATE.md to keep concerns separated and allow independent pruning.
-- Never inject memory patterns during quorum dispatch -- they go only into the primary agent's context, not into slot workers.
+- Cap history at a rolling window (recommended: 20 runs). Prune on write, not lazily.
+- Add an `epoch` marker. When the user starts a new milestone or the layer set changes (layers added/removed), increment the epoch. Trend analysis only considers entries within the current epoch.
+- Store the trend file at `.planning/formal/solve-trend.jsonl` (append-only JSONL, one line per run). This avoids JSON parse-then-rewrite of the entire history -- just append a line and read the last N lines for analysis.
+- Include a `layer_set_hash` field (hash of sorted layer keys) per entry. If the hash changes, start a new epoch automatically.
+- Size guard: if file exceeds 100KB, truncate to last 20 entries on next write.
 
 **Warning signs:**
-- `.claude/nf-memory.json` exceeds 50KB
-- The `additionalContext` string in nf-prompt.js output exceeds 3000 tokens
-- Agent responses start ignoring quorum instructions (the memory injection is crowding them out)
-- Patterns in the store reference files or functions that no longer exist in the codebase
+- `solve-trend.jsonl` exceeds 50KB
+- Trend analysis reports "worsening" trend immediately after milestone boundary
+- Layer keys in old entries don't match current layer set
 
 **Phase to address:**
-Phase 2 (Cross-Session Learning). The storage format and pruning policy must be part of the initial design, not an afterthought.
+Phase 1 (Cross-Session Trend Tracker) -- the data format must include epoch markers from day one. Migrating a flat history to epoched format after accumulation requires manual intervention.
 
 ---
 
-### Pitfall 3: Stale Patterns Causing Wrong Behavior
+### Pitfall 3: Promotion Changelog Flip-Flop Already Happening Without Gates
 
 **What goes wrong:**
-Extracted patterns from past sessions become dangerous when the codebase changes. A pattern like "always run `npm test` after editing hooks/" is correct today but wrong if the test runner changes. Worse, patterns about file locations, API signatures, or configuration keys can actively mislead the agent into making incorrect edits. Unlike hallucinations (which are random), stale patterns are _confidently wrong_ because they were once correct.
+The promotion-changelog.json already contains 200 entries for only 2 models -- `quorum-votes.als` and `NFQuorum.tla` each have 100 identical `ADVISORY -> SOFT_GATE` auto_promotion entries. This means auto_promotion runs on every solve iteration without checking current level, re-promoting models that are already at SOFT_GATE. When stabilization gates are added, they will inherit this broken behavior: the gate sees "100 recent promotions" and either (a) treats them all as distinct promotions, concluding the model is highly unstable, or (b) the cooldown timer resets on every redundant promotion, creating an infinite cooldown.
 
 **Why it happens:**
-Pattern extraction captures a snapshot of "what worked" without anchoring it to the codebase state (git HEAD) at the time. There's no invalidation signal when the underlying code changes. The MEMORY.md auto-memory system has this same problem but is human-curated; automated extraction amplifies the risk because volume is higher and review is absent.
+`compute-per-model-gates.cjs` (called by nf-solve) promotes models based on evidence readiness without first checking the model's current gate level. The promotion is idempotent in effect (ADVISORY -> SOFT_GATE is a no-op if already SOFT_GATE) but still appends to the changelog. This is a pre-existing bug that becomes critical when the stabilization gate feature reads the changelog as its input signal.
 
 **How to avoid:**
-- Tag every extracted pattern with the git commit SHA at extraction time. On injection, check if files referenced by the pattern have changed since that SHA (using `git diff --name-only <sha> HEAD`).
-- Implement a "confidence decay" -- patterns lose 10% confidence per session, and are pruned at 0%. Patterns that are re-confirmed (agent follows pattern and succeeds) reset to 100%.
-- Separate patterns into "structural" (file paths, commands) which need git-based invalidation, and "behavioral" (workflow preferences) which decay more slowly.
-- Run a lightweight validation pass on SessionStart: for each top-K pattern about to be injected, verify that referenced files still exist. Drop any pattern referencing deleted files.
+- Before adding stabilization gates, fix the auto_promotion guard: skip promotion if `current_level >= target_level`. This is a prerequisite bug fix, not part of the stabilization feature itself.
+- Deduplicate the existing changelog: collapse consecutive identical entries for the same model into a single entry with a `count` field.
+- Stabilization gates should read *distinct level transitions* from the changelog, not raw entry count. Define a transition as: `from_level != to_level` AND `to_level != previous_to_level_for_this_model`.
+- Add a `promotion_hash` (model + from + to) and skip append if the last entry for that model has the same hash.
 
 **Warning signs:**
-- Agent edits files that don't exist (following a stale path pattern)
-- Agent uses deprecated command syntax from a stored pattern
-- `git diff` shows the pattern was extracted 20+ commits ago with no revalidation
+- promotion-changelog.json grows by 2+ entries per solve run
+- Any model has > 5 changelog entries per epoch
+- Stabilization gate cooldown never completes
 
 **Phase to address:**
-Phase 2 (Cross-Session Learning). Invalidation must be part of the storage schema from day one.
+Phase 0 (prerequisite fix before any stabilization logic). The existing 200-entry changelog must be cleaned up and the guard added before gate maturity stabilization can function correctly. Without this, Phase 3 (Stabilization Gates) will build on broken data.
 
 ---
 
-### Pitfall 4: Verification Performance Overhead Blocking Execution
+### Pitfall 4: TLA+ State Space Explosion in NFSolveConvergence Spec
 
 **What goes wrong:**
-nForma's formal verification pipeline (TLA+/Alloy/PRISM) already runs at plan-phase step 8.2 and in execute-phase gates. Adding continuous verification during execution (checking file changes, running lint passes, running subset tests after each edit) transforms verification from a gate into a tax on every tool call. The PostToolUse hook (`gsd-context-monitor.js`) already processes every tool call for context monitoring. Adding verification checks to this path means every `Write` or `Edit` tool call triggers verification, adding 2-30 seconds per call depending on the check type. A typical phase execution with 40-60 tool calls goes from 5 minutes to 15-25 minutes.
+The existing `NFSolveOrchestrator.tla` models residuals as integers in `0..MaxResidual` and has 12 phases, 9 automatable layers, and 5 info layers. With `MaxResidual=100` and `MaxIterations=5`, the state space is already large. The new `NFSolveConvergence` spec needs to model the *outer loop* -- multiple solve runs across sessions, each containing an inner convergence loop. If the outer spec embeds the inner spec's full state space, the product is combinatorially explosive: `(inner states) ^ (outer iterations)`. Even with MaxResidual=10 and MaxIterations=3, modeling 5 outer runs produces billions of states.
 
 **Why it happens:**
-The "shift left" instinct -- verify earlier to catch problems sooner -- is correct in principle but catastrophic when applied uniformly. Not every file edit needs immediate verification. The existing formal verification pipeline runs at well-defined gates (plan-phase, execute-phase end). Adding continuous verification without selectivity turns every tool call into a gate.
+The natural inclination is to compose the inner loop spec inside the outer loop spec. TLA+ does not have native "subroutine" abstraction -- every variable is global, every state is explored. Developers model the outer loop with the same granularity as the inner loop, leading to state space explosion that makes TLC model checking infeasible (hours or out-of-memory).
 
 **How to avoid:**
-- Verify only on _accumulation boundaries_, not individual tool calls. Define boundaries as: (a) after 5+ file writes, (b) after a test file is modified, (c) after a config file is modified, (d) on `phase-complete` (already done via `detectCleanBoundary` in gsd-context-monitor.js).
-- Use a verification queue, not inline checks. Buffer file changes and run verification in a single batch at the next boundary, not synchronously on each PostToolUse event.
-- Set a verification budget per phase: maximum 3 continuous verification runs per phase execution. Each run checks all accumulated changes since the last run.
-- Make continuous verification advisory-only (inject warnings via `additionalContext`), not blocking. Reserve hard blocks for the existing formal gates at phase end.
+- Abstract the inner loop. The outer convergence spec should NOT import NFSolveOrchestrator's full state machine. Instead, model each inner solve run as a single atomic action that takes `(layers, residuals) -> (layers', residuals', converged)` with non-deterministic residual outcomes bounded by monotonicity constraints.
+- Use refinement: prove that the abstracted inner-loop action refines NFSolveOrchestrator's behavior (separately), then use the abstraction in the outer spec.
+- Keep outer spec variables minimal: `outerIteration`, `residualHistory` (sequence of totals), `layerOscillationCount` (function from layer to count), `gateMaturity` (function from model to maturity level).
+- Set aggressive bounds: `MaxOuterRuns=5`, `MaxResidual=10` (abstract scale), `MaxLayers=4` (representative subset). Use symmetry reduction where possible.
+- Run TLC with `-workers 8` and breadth-first search. If state space exceeds 10M states, the abstraction is too fine-grained.
 
 **Warning signs:**
-- Phase execution time more than doubles after enabling continuous verification
-- The PostToolUse hook's execution time exceeds 5 seconds (measured via conformance events)
-- Agent starts avoiding file edits to reduce verification triggers (gaming the system)
+- TLC runs for > 5 minutes on the convergence spec
+- State count exceeds 1M during model checking
+- The spec has > 8 VARIABLES
+- Debugging requires `-dump` files larger than 100MB
 
 **Phase to address:**
-Phase 3 (Continuous Verification). Must implement the batching/boundary strategy before enabling any continuous checks.
+Phase 4 (TLA+ Convergence Spec) -- but the abstraction strategy must be designed in Phase 1 alongside the data model, because the TLA+ spec's variables mirror the implementation's data structures.
 
 ---
 
-### Pitfall 5: Git Worktree Shared State Corruption
+### Pitfall 5: Predictive Power Measurement Bias from Survivorship
 
 **What goes wrong:**
-Git worktrees share the `.git` directory, `hooks/`, and any files referenced by absolute path. nForma's hooks read from `~/.claude/nf.json` (global config), `~/.claude/hooks/` (installed hooks), and write to `.planning/` (project state). When multiple Claude Code agents run in parallel worktrees, they all write to the same `.planning/STATE.md`, the same `.planning/conformance-events.jsonl`, and the same scoreboard. Two agents updating STATE.md simultaneously produces corrupted JSON or lost state transitions. The circuit breaker state file (`.claude/circuit-breaker-state.json`) is per-worktree (relative path), but the scoreboard and conformance events are not.
+The predictive power feedback loop scores formal models by `bugs_predicted / total_bugs`. This metric is biased by survivorship: models that predict easily-caught bugs score high, while models that *should have* predicted subtle bugs but didn't are invisible in the denominator. A model with 3/3 prediction rate looks perfect, but if 10 bugs occurred in its domain and 7 were caught by tests before hitting formal verification, the model's true predictive power is 3/10. Worse, models covering well-tested areas will appear stronger than models covering poorly-tested areas, creating a perverse incentive to focus formal effort where it's least needed.
 
 **Why it happens:**
-nForma was designed for single-agent execution. Every hook assumes exclusive access to `.planning/` state files. `fs.writeFileSync` is atomic for the write itself but not for read-modify-write cycles. Two agents reading STATE.md, modifying it, and writing it back will lose one agent's changes. Claude Code's native worktree support (v2.1.49) creates isolated file trees but does NOT isolate nForma's shared state.
+The natural data source is the solve pipeline's own results: "this model flagged a residual, and that residual corresponded to a test failure." But this only counts bugs that both the model AND the test suite detected. Bugs caught only by tests (false negatives for the model) require cross-referencing test failure history with formal model coverage -- a join that doesn't currently exist.
 
 **How to avoid:**
-- Scope ALL mutable state files to the worktree. Each worktree should write to `.planning/worktree-<name>/` instead of `.planning/` directly.
-- Use file locking (advisory locks via `flock`) for any shared state that genuinely needs to be shared (e.g., the scoreboard). The scoreboard already uses `appendFileSync` for JSONL but does read-modify-write for JSON state.
-- Add a worktree detection guard at the top of every hook: `git rev-parse --git-common-dir` returns a different path from `git rev-parse --git-dir` when running in a worktree. Use this to namespace state file paths.
-- Merge worktree-scoped state back into main `.planning/` only on worktree removal, using a three-way merge strategy.
-- Do NOT share circuit breaker state across worktrees. Each worktree has independent oscillation patterns.
+- Define the denominator carefully: `total_bugs` = all test failures in files covered by the model's requirement traceability links (from traceability-matrix), not just bugs the model predicted.
+- Use the existing traceability matrix (63.8% coverage from v0.25) to map test failures to formal model coverage areas. If a test fails in a file linked to requirement R-07, and model M covers R-07, then M had an opportunity to predict that bug regardless of whether it did.
+- Track three metrics per model: (1) **precision** = predicted_and_failed / predicted, (2) **recall** = predicted_and_failed / total_failures_in_scope, (3) **F1** = harmonic mean. Use recall as the primary gate signal, not precision.
+- Bootstrap with historical data: mine git history for test failures that occurred after formal models were added. This provides initial calibration without waiting for new bugs.
 
 **Warning signs:**
-- STATE.md contains malformed JSON or duplicate section headers
-- Conformance events show interleaved timestamps from different agent sessions
-- Scoreboard data shows impossible state transitions (two phases "active" simultaneously)
-- Worktree cleanup fails because state files are locked by another process
+- Any model scores predictive power > 0.9 (likely survivorship bias)
+- Models covering untested areas score 0.0 (denominator problem)
+- Predictive power rankings don't change after 5+ solve runs (stale signal)
 
 **Phase to address:**
-Phase 4 (Git Worktree Parallelization). State isolation must be the first implementation step, before spawning any parallel agents.
+Phase 3 (Predictive Power Feedback Loop) -- the metric definition is a design decision, not an implementation detail. Getting it wrong means the feedback loop reinforces effort in the wrong places.
 
 ---
 
-### Pitfall 6: Worktree Cleanup Failures Leaking Disk Space
+### Pitfall 6: additionalContext Token Budget Contention Blocks Convergence Signals
 
 **What goes wrong:**
-`git worktree remove` fails silently when there are uncommitted changes, untracked files, or locked files in the worktree. Claude Code agents frequently leave temporary files, `.planning/` artifacts, and node_modules in worktrees. A single failed cleanup is invisible. Over many sessions, leaked worktrees accumulate, consuming disk at the rate of the full repo size per worktree. Community reports confirm 2GB codebases creating 10GB of leaked worktrees in 20-minute sessions.
+The hook system uses `additionalContext` for injecting convergence signals, but multiple sources already compete for this channel: quorum instructions, circuit breaker recovery prompts, thinking budget scaling, context stack injection (capped at 800 chars), session state reminders, and telemetry surfacing. The nf-prompt.js module-level cap is 2000 chars. Adding trend tracker warnings ("residual trending up on layer X"), oscillation alerts ("layer Y breaker triggered"), and predictive power summaries will either (a) exceed the cap and get silently truncated, or (b) crowd out higher-priority injections like quorum instructions, breaking the core enforcement loop.
 
 **Why it happens:**
-`git worktree remove` requires `--force` to remove worktrees with modifications, but force-removing loses uncommitted work. There's no "clean up but preserve work" operation. Claude Code's native WorktreeRemove hook fires but doesn't guarantee cleanup success. nForma's install sync pattern (copy to `hooks/dist/`, run `bin/install.js`) doesn't account for worktree-scoped installations.
+`additionalContext` is a shared channel with no priority-based allocation. Each feature adds its injection independently. The 800-char hook-level cap and 2000-char module-level cap were set before convergence features existed. No feature negotiates with others for budget -- they all write independently and hope the total fits.
 
 **How to avoid:**
-- Implement a pre-removal checklist in the WorktreeRemove hook: (1) commit or stash all changes, (2) merge state back to main `.planning/`, (3) remove node_modules and temp files, (4) then `git worktree remove --force`.
-- Add a periodic cleanup sweep: on SessionStart, run `git worktree list --porcelain` and remove any worktrees older than 24 hours or whose creating session no longer exists.
-- Set a maximum concurrent worktree limit (default: 3). Refuse to create new worktrees until old ones are cleaned.
-- Track worktree creation in a manifest file (`.claude/worktree-manifest.json`) with creation timestamps and session IDs.
+- Implement a priority-based injection budget allocator. Assign each injection source a priority tier: Tier 1 (quorum instructions, circuit breaker) gets guaranteed 1200 chars. Tier 2 (convergence signals) gets the remainder up to the 2000 cap. Tier 3 (informational: trends, predictive power) only injects if budget remains.
+- Convergence signals should use a separate channel when possible. For signals that need to reach the solve pipeline (not the LLM), write to `solve-state.json` or a dedicated `convergence-signals.json` file instead of additionalContext.
+- For signals that must reach the LLM (e.g., oscillation breaker human escalation), use the existing circuit breaker pattern: write a markdown file and inject its path, not its content.
+- Test the total injection size across a full solve run with all features active. Measure empirically, don't estimate.
 
 **Warning signs:**
-- `git worktree list` shows more than 3 entries
-- Disk usage increases by repo-size multiples between sessions
-- `git worktree prune` reports removed stale entries (indicates previous cleanup failures)
+- `additionalContext` output exceeds 1500 chars in any hook invocation
+- Quorum instructions get truncated (quorum fails to form)
+- Multiple hooks inject on the same prompt event
 
 **Phase to address:**
-Phase 4 (Git Worktree Parallelization). Cleanup must be part of the worktree lifecycle from the start.
+Phase 1 -- the budget allocator must exist before any new injection sources are added. Adding sources first and allocating budget later means the first feature works, the second silently breaks the first.
 
 ---
 
-### Pitfall 7: Iterative Retrieval Token Explosion in Slot Workers
+### Pitfall 7: Per-Model Gate Persistence Creates Stale Lock-In
 
 **What goes wrong:**
-The quorum slot worker is currently a "thin JavaScript passthrough" (11-12k tokens). Adding iterative retrieval (allow the slot worker to read files, search code, fetch context before voting) transforms it from a stateless function into a stateful agent with its own context window. Each retrieval round adds ~2-5k tokens of file content. With 3-4 slots each doing 2-3 retrieval rounds, a single quorum call balloons from ~36k total tokens (3 slots x 12k) to ~120k+ tokens (3 slots x 12k base + 3 slots x 3 rounds x 5k retrieved). This exceeds the budget for a single quorum call and can trigger the budget tracker's downgrade, creating a compounding problem (see Pitfall 1).
+Wiring `--write-per-model` with reasons into the solve pipeline makes gate levels persistent across sessions. But persistent gates create lock-in: if a model is promoted to HARD_GATE based on evidence that later becomes stale (e.g., the code it models is refactored), the gate blocks workflows on a model that no longer reflects reality. The current auto_promotion logic (which already fires 100 times redundantly) combined with persistent gates could lock a model at HARD_GATE permanently even after its grounding evidence degrades.
 
 **Why it happens:**
-Retrieval feels "free" -- reading a file doesn't cost API tokens. But the retrieved content enters the slot worker's context and must be processed by the backing model. Each retrieval round's output becomes input for the next round. Without a token budget per slot, retrieval expands to fill the available context window. The current `session_limit_tokens` budget in `budget-tracker.cjs` tracks the primary session, not individual slot workers.
+Gate persistence is designed to prevent flip-flop (good), but without a corresponding *demotion* mechanism based on evidence staleness, it creates one-way ratchets. The stabilization gate feature addresses promotion cooldowns but may not address the inverse: "this model hasn't been validated against current code in N days, demote it."
 
 **How to avoid:**
-- Set a per-slot retrieval token budget: maximum 8k tokens of retrieved content per slot per quorum call. Track this in the slot worker dispatch, not in the global budget tracker.
-- Limit retrieval rounds: maximum 2 rounds per slot. The first round retrieves, the second round can refine, then the slot must vote.
-- Implement a retrieval cache shared across slots: if slot-1 retrieves file X, slot-2 and slot-3 should reuse the cached content, not re-retrieve it. Store in a temp file (`.claude/quorum-retrieval-cache-<HEAD>.json`) keyed by file path + git HEAD.
-- Make retrieval opt-in per quorum call via a `retrieval_depth` parameter: `none` (current behavior), `shallow` (1 round, 4k budget), `deep` (2 rounds, 8k budget). Default to `none` for backward compatibility.
+- Implement bidirectional gate movement: promotion requires evidence readiness, demotion triggers when grounding score drops below threshold or the model's source files change significantly (git diff).
+- Add a `last_validated` timestamp to each model's gate record. If `now - last_validated > staleness_threshold` (recommended: 7 days or 10 solve runs), automatically demote one level.
+- Gate persistence should store the evidence snapshot (score, total, timestamp) that justified the level. On each solve run, compare current evidence to stored snapshot. If current score < stored score * 0.8, flag for review.
+- Never persist HARD_GATE without explicit human approval. Auto-promotion should cap at SOFT_GATE; HARD_GATE requires human escalation (consistent with Option C's philosophy).
 
 **Warning signs:**
-- Quorum calls taking >60 seconds (previously ~20 seconds)
-- Slot worker token consumption exceeding 20k per call (visible in JSONL telemetry)
-- Budget tracker triggering downgrades during quorum calls specifically
-- `check-mcp-health.cjs` showing increased latency on quorum-heavy workflows
+- Models at HARD_GATE whose source files were modified since last validation
+- Gate levels that only increase, never decrease across 20+ runs
+- Grounding score (Gate A, currently 82.2%) drops but no gate demotions occur
 
 **Phase to address:**
-Phase 5 (Iterative Retrieval). The token budget must be enforced before enabling any retrieval in slot workers.
-
----
-
-### Pitfall 8: Context Drift in Iterative Retrieval Loops
-
-**What goes wrong:**
-An iterative retrieval agent starts with a clear question ("Is this code safe?"), retrieves relevant files, then formulates a follow-up question based on what it found. Each round's question drifts further from the original intent. By round 3, the agent is investigating a tangentially related module and has forgotten the original question. This is particularly dangerous in quorum slot workers because the drifted vote doesn't address the actual quorum question, making consensus impossible.
-
-**Why it happens:**
-LLMs exhibit "attention dilution" as context grows -- the original question gets buried under retrieved content. Without explicit goal anchoring, the model's next retrieval query is generated from the most recent content (recency bias), not from the original question. Community reports confirm that after 30+ minutes, agents act as if the system prompt never existed.
-
-**How to avoid:**
-- Pin the original quorum question at the top of every retrieval round's prompt, not just the first round. Use a structured format: `ORIGINAL QUESTION: <question>\nRETRIEVAL ROUND: <N>\nPREVIOUS FINDINGS: <summary>\nNEXT RETRIEVAL: <what to look for>`.
-- Implement a relevance gate: after each retrieval, score the retrieved content's relevance to the ORIGINAL question (0-1). If relevance drops below 0.5, stop retrieval and vote with current knowledge.
-- Summarize previous findings between rounds instead of carrying raw retrieved content forward. This compresses the context and forces the model to distill what it learned.
-- Add a hard maximum of 2 retrieval rounds (see Pitfall 7) -- this is both a token budget control AND a drift prevention measure.
-
-**Warning signs:**
-- Slot workers returning votes that don't address the quorum question
-- Retrieval queries in round 3+ that share no keywords with the original question
-- Consensus rate dropping when retrieval is enabled vs. disabled
-
-**Phase to address:**
-Phase 5 (Iterative Retrieval). Goal anchoring must be built into the retrieval prompt template.
-
----
-
-### Pitfall 9: Compaction Storm from Aggressive Triggering
-
-**What goes wrong:**
-The existing compaction trigger fires at ~167k tokens (83.5% of 200k). Moving this threshold earlier (e.g., 60%) to "preserve more working memory" means compaction fires more frequently. Each compaction discards conversation history and forces the agent to re-read files it needs. The re-reading consumes tokens, pushing toward the next compaction threshold. This creates a "compaction storm" -- rapid repeated compactions that destroy session coherence. The PreCompact hook (`nf-precompact.js`) preserves STATE.md's Current Position, but everything else (file contents, reasoning chains, quorum deliberation context) is lost.
-
-**Why it happens:**
-The intuition "compact earlier = more room to work" is backwards. Earlier compaction means less accumulated context before each compaction, which means the summary is thinner, which means more re-reading is needed, which fills context faster. The optimal compaction threshold depends on the workflow phase: planning phases need more context (deliberation history), execution phases need less (they reference PLAN.md, not history).
-
-**How to avoid:**
-- Do NOT use a fixed lower threshold. Instead, use workflow-aware compaction timing. The `detectCleanBoundary()` function in `gsd-context-monitor.js` already identifies `phase_complete`, `verification_done`, and `commit` boundaries. Trigger compaction at these boundaries when above 70%, not at a fixed percentage.
-- Before compaction, checkpoint critical context to a file. Write the current quorum deliberation state, active file set, and key decisions to `.claude/pre-compact-checkpoint.json`. The SessionStart hook can re-inject this on the post-compaction resume.
-- Never trigger compaction mid-quorum. If a quorum deliberation is in progress (detectable by checking for open slot worker tasks), delay compaction until deliberation completes. Compacting during quorum loses the votes already collected.
-- Use `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` to set the threshold dynamically per workflow phase, not globally.
-
-**Warning signs:**
-- More than 2 compactions per phase execution (normal is 0-1)
-- Conformance events showing `compact` events less than 5 minutes apart
-- Agent repeatedly re-reading the same files after compaction
-- Plan execution regressing (re-doing completed steps) after compaction
-
-**Phase to address:**
-Phase 6 (Earlier Compaction). This should be the LAST phase because it requires understanding from all previous phases (what context each feature needs to preserve).
-
----
-
-### Pitfall 10: Premature Context Loss Destroying Quorum State
-
-**What goes wrong:**
-Earlier compaction discards quorum deliberation transcripts. If compaction fires between "slot workers dispatched" and "consensus synthesized," the primary agent loses the votes it collected. The Stop hook (`nf-stop.js`) scans the current-turn transcript for quorum evidence. After compaction, the transcript is gone. The Stop hook sees no quorum evidence and blocks the response. The agent is stuck: it ran quorum, lost the evidence to compaction, and can't deliver its output.
-
-**Why it happens:**
-The Stop hook's `getCurrentTurnLines()` function searches backward from the end of the transcript for the last human message, then checks for quorum tool calls in that window. Compaction replaces the transcript with a summary that does not contain the raw tool call entries the Stop hook searches for. The PreCompact hook preserves STATE.md but NOT quorum evidence.
-
-**How to avoid:**
-- Add quorum evidence to the PreCompact hook's preservation set. Before compaction, extract the quorum decision token (`<!-- GSD_DECISION -->`) and slot worker results and write them to `.claude/quorum-evidence-<timestamp>.json`. The Stop hook should check this file as a fallback when transcript scanning finds nothing.
-- Implement a compaction lockout during quorum: set a flag file (`.claude/quorum-in-progress`) when quorum dispatch starts, clear it when the decision is delivered. The context monitor's compaction suggestion logic should check for this flag and suppress suggestions.
-- The `nf-prompt.js` hook's quorum instructions should include a directive: "If you detect recent compaction (via SessionStart event or thin context), re-check `.claude/quorum-evidence-*.json` before re-running quorum."
-
-**Warning signs:**
-- Stop hook blocking responses immediately after compaction
-- Agent re-running quorum for a decision it already made
-- `quorum-in-progress` flag file persisting across sessions (cleanup failure)
-
-**Phase to address:**
-Phase 6 (Earlier Compaction). Must be solved before lowering the compaction threshold.
-
----
-
-### Pitfall 11: Hook Execution Order Conflicts with New Hooks
-
-**What goes wrong:**
-nForma currently has 4 hooks: `nf-prompt.js` (UserPromptSubmit), `nf-stop.js` (Stop), `nf-circuit-breaker.js` (PreToolUse), and `gsd-context-monitor.js` (PostToolUse). Adding new hooks for cross-session learning (SessionStart), continuous verification (PostToolUse), and compaction control (PreCompact) means multiple hooks on the same event type. Claude Code runs hooks on the same event sequentially but in filesystem-sort order. If `gsd-context-monitor.js` and a new `nf-continuous-verify.js` both run on PostToolUse, their `additionalContext` outputs may conflict or exceed the injection budget.
-
-**Why it happens:**
-Claude Code's hook system doesn't have a priority or composition model. Each hook on the same event type runs independently and returns its own output. If two hooks both set `additionalContext`, the later one may overwrite the earlier one (depending on Claude Code's merge behavior). The existing hooks avoid this because they're on different event types. Adding hooks to already-occupied event types creates the conflict.
-
-**How to avoid:**
-- Consolidate all PostToolUse logic into a single hook (`gsd-context-monitor.js`). Add continuous verification as a module imported by the existing hook, not as a separate hook. This maintains single-writer semantics for `additionalContext`.
-- If separate hooks are unavoidable, implement a shared output bus: each hook writes its contribution to `.claude/hook-output-<event>-<hook>.json`. A final "compositor" hook reads all contributions, merges them with budget enforcement, and produces the single `additionalContext` output.
-- Document the hook execution order explicitly in install.js. Use numeric prefixes if needed (`01-nf-prompt.js`, `02-nf-continuous-verify.js`) to guarantee order.
-- Test multi-hook scenarios in the hook test suite. The existing tests verify single-hook behavior; add integration tests for hook composition.
-
-**Warning signs:**
-- `additionalContext` in hook output is empty or missing expected content
-- Two hooks logging conflicting actions in conformance events for the same tool call
-- Budget tracker and continuous verifier both trying to inject warnings simultaneously
-
-**Phase to address:**
-Phase 1 or Phase 3 (whichever adds the first new hook to an existing event type). Must be addressed before any new hook is added.
-
----
-
-### Pitfall 12: Privacy Leakage in Cross-Session Pattern Store
-
-**What goes wrong:**
-Pattern extraction from transcripts captures code snippets, file paths, API keys (if they appeared in error messages), user names, and project-specific information. If the pattern store (`.claude/nf-memory.json`) is not gitignored, it leaks into version control. Even if gitignored, it persists on disk and could be read by other tools or agents. The existing security sweep (`nf-stop.js` security scanning) checks for secrets in code files but not in nForma's own state files.
-
-**Why it happens:**
-Pattern extraction is designed to capture "what worked" without filtering for sensitive content. Error messages often contain environment variables, file paths with usernames, and API endpoint URLs. The existing `.gitignore` covers `.claude/circuit-breaker-state.json` but may not cover new state files.
-
-**How to avoid:**
-- Run the existing security sweep regex patterns against every extracted pattern before storing it. Reject any pattern that matches secret/key/token patterns.
-- Gitignore ALL files in `.claude/nf-memory*` explicitly.
-- Never store raw code snippets in patterns. Store only structural descriptions: "when editing file X, also update file Y" not "change `const key = 'abc123'` to ...".
-- Add a `sanitize()` function that strips absolute paths (replace with relative), removes email addresses, and redacts anything matching `[A-Za-z0-9+/=]{32,}` (base64-encoded secrets).
-
-**Warning signs:**
-- `.claude/nf-memory.json` appears in `git status` as untracked
-- Pattern store contains absolute paths with `/Users/<username>/`
-- Pattern store entries contain strings matching the security sweep's regex patterns
-
-**Phase to address:**
-Phase 2 (Cross-Session Learning). Sanitization must be in the extraction pipeline, not a post-processing step.
+Phase 2 (Per-Model Gate Persistence) -- bidirectional movement must be part of the initial persistence design. Adding demotion after models are locked at high levels requires a migration.
 
 ---
 
@@ -303,124 +181,78 @@ Phase 2 (Cross-Session Learning). Sanitization must be in the extraction pipelin
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Global mutable state files for worktree agents | No architecture change needed | Race conditions, data corruption, lost state | Never -- worktree isolation is a prerequisite |
-| Injecting all learned patterns into context | Simple implementation | Token waste, attention dilution, quorum instruction crowding | During initial prototype only, must add selection within same milestone |
-| Synchronous verification on every tool call | Maximum coverage | 3-5x execution time increase | Never -- use batched boundary verification |
-| Hardcoded compaction threshold | Simple to configure | Wrong for different workflow phases | MVP only; must add workflow-aware thresholds before production use |
-| Unbounded retrieval in slot workers | Maximum context for voting | Token explosion, budget cascade, latency spike | Never -- per-slot budgets are mandatory |
-| Separate hooks per event type | Cleaner code organization | additionalContext conflicts, execution order bugs | Only if a compositor/merge layer is implemented first |
+| Storing trend data in solve-state.json instead of separate file | No new files | solve-state.json grows unboundedly; JSON reparse on every read | Never -- use separate JSONL file |
+| Skipping epoch markers in trend data | Simpler append logic | Stale cross-milestone data corrupts trend analysis | Never -- epoch is cheap to add |
+| Using total residual for oscillation detection instead of per-layer | Simpler comparison | False positives from cascade; false negatives when layers cancel out | Only in Phase 0 prototype, must replace by Phase 1 |
+| Relying on promotion-changelog.json as-is for stabilization gates | No migration needed | 200 redundant entries pollute gate maturity signals | Never -- fix the guard first |
+| Embedding inner loop in outer TLA+ spec | Single spec to maintain | State space explosion; TLC becomes infeasible | Never -- use abstraction refinement |
+| Measuring predictive power by precision only | Simple metric, quick to implement | Survivorship bias; effort allocated to already-well-tested areas | Only as Phase 2 intermediate metric, must add recall by Phase 3 |
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Budget tracker + dynamic model selection | Two independent control loops fighting each other | Unified decision function that considers both budget and quality |
-| PreCompact hook + quorum state | Compaction destroys quorum evidence the Stop hook needs | Checkpoint quorum evidence to file before compaction; Stop hook checks file as fallback |
-| Worktree hooks + nForma state | Assuming `.planning/` is worktree-scoped (it's not -- `.git` is shared) | Detect worktree via `git rev-parse --git-common-dir` and namespace state paths |
-| Continuous verification + context monitor | Two PostToolUse hooks with conflicting additionalContext | Consolidate into single hook or implement compositor pattern |
-| Cross-session memory + quorum injection | Memory injection crowding out quorum instructions in additionalContext | Hard token budget for memory (1500 tokens max); quorum instructions always take priority |
-| Iterative retrieval + slot worker token budget | Retrieval costs invisible to global budget tracker | Per-slot retrieval budget tracked at dispatch site, not in global tracker |
+| Trend tracker + solve-state.json | Overwriting solve-state.json with trend data or vice versa | Separate files: `solve-state.json` (latest snapshot), `solve-trend.jsonl` (append-only history) |
+| Oscillation breaker + existing circuit breaker | Confusing layer oscillation (formal model convergence) with git oscillation (code edit patterns) | Different detection algorithms, different state files, different escalation paths. Layer oscillation breaker operates at solve-pipeline level; circuit breaker operates at git-commit level |
+| Predictive power + traceability matrix | Assuming traceability coverage = predictive scope | Traceability matrix has 63.8% coverage -- models with no traceability links have undefined predictive power, not zero |
+| Stabilization gates + auto_promotion | Cooldown timer resets on every redundant promotion | Fix the idempotency guard in compute-per-model-gates.cjs before adding cooldowns |
+| TLA+ convergence spec + existing NFSolveOrchestrator | Importing NFSolveOrchestrator directly into convergence spec | Use refinement mapping; convergence spec references abstract inner-loop action only |
+| Per-model gates + 19-layer sweep | Gate checks run inside sweep, adding latency to each of 19 layers | Gate checks should run once per solve iteration (pre-sweep), not per-layer. Cache gate decisions for the iteration. |
 
 ## Performance Traps
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Continuous verification on every Write/Edit | Phase execution time 3-5x longer | Batch verification at accumulation boundaries (5+ writes) | Immediately -- even first use is too slow |
-| Unbounded cross-session memory injection | additionalContext exceeds useful size, quorum instructions ignored | Hard 1500-token cap with relevance-based selection | At ~20 stored patterns (~5 sessions) |
-| Per-slot iterative retrieval | Single quorum call exceeds 120k tokens, triggers budget downgrade | Per-slot 8k retrieval budget, max 2 rounds, shared cache | At 3+ slots with 3+ retrieval rounds |
-| Git worktree creation without cleanup | Disk space grows by repo-size per session | Manifest tracking, 24h cleanup sweep, max 3 concurrent limit | After 5-10 sessions without cleanup |
-| Compaction storm from low threshold | Rapid repeated compactions, coherence loss, re-reading loops | Workflow-aware thresholds, boundary-triggered compaction | When threshold is below 65% for planning-heavy workflows |
-
-## Security Mistakes
-
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| Storing raw transcript excerpts in pattern memory | API keys, secrets, PII in error messages captured and persisted | Sanitize before storage; run security sweep regex on every pattern |
-| Pattern store not gitignored | Sensitive learned patterns committed to repo | Explicitly gitignore `.claude/nf-memory*`; add to install.js cleanup |
-| Worktree agents sharing credential state | One agent's credential rotation invalidates another agent's session | Per-worktree credential isolation or read-only credential access for worktree agents |
-| Retrieval cache containing sensitive file content | Cached file content persists in `.claude/quorum-retrieval-cache-*.json` | Key cache by git HEAD (auto-invalidates), clean on session end |
-
-## UX Pitfalls
-
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| Silent model downgrade without notification | User doesn't know quality dropped; confused by worse results | Inject visible advisory: "Model profile downgraded from quality to balanced (budget at 87%)" |
-| Compaction destroying in-progress work | User loses context mid-task, must re-explain | Compaction lockout during quorum; checkpoint before compact |
-| Worktree agents producing conflicting changes | Merge conflicts on worktree close; user must manually resolve | Pre-merge conflict detection before worktree removal |
-| Learned patterns overriding user intent | Agent follows stored pattern instead of current instruction | User instructions always override stored patterns; add `/nf:forget` command |
-| Verification false positives blocking execution | Agent stuck on advisory warnings, can't proceed | Advisory-only continuous verification; hard blocks only at phase gates |
+| Trend file JSON parse on every solve | Solve startup latency increases with history length | Use JSONL (line-oriented); read last N lines with tail, not full parse | > 50 runs in history |
+| Per-model gate recomputation during sweep | Each of 19 layers re-calls compute-per-model-gates.cjs | Cache gate computation result; invalidate only on model file change | > 30 models in registry |
+| Oscillation detection scanning full history | O(n*m) where n=iterations, m=layers per iteration | Sliding window of last 3 iterations only; discard older per-layer data | > 10 iterations per solve run |
+| TLC model checking on convergence spec per solve run | Minutes of delay before remediation starts | Run convergence spec only on demand (`--verify-convergence`), not in standard sweep | State space > 100K states |
+| Predictive power score recomputation from full git history | Mining git log for test failures is O(commits * tests) | Pre-compute and cache; update incrementally on new test failures only | > 1000 commits in scope |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Dynamic model selection:** Often missing downgrade cooldown -- verify that 3+ consecutive downgrades are impossible without a cooldown gap
-- [ ] **Cross-session memory:** Often missing pruning -- verify that the pattern store has a retention policy and maximum size limit
-- [ ] **Cross-session memory:** Often missing sanitization -- verify that no stored pattern contains absolute paths, secrets, or PII
-- [ ] **Continuous verification:** Often missing batching -- verify that verification runs at boundaries, not on every tool call
-- [ ] **Continuous verification:** Often missing quorum lockout -- verify that verification doesn't trigger during active quorum deliberation
-- [ ] **Git worktrees:** Often missing state isolation -- verify that `.planning/` writes are worktree-scoped, not shared
-- [ ] **Git worktrees:** Often missing cleanup -- verify that `git worktree list` shows no stale entries after session end
-- [ ] **Iterative retrieval:** Often missing token budget -- verify that per-slot retrieval is capped at 8k tokens
-- [ ] **Iterative retrieval:** Often missing goal anchoring -- verify that the original question appears in every retrieval round's prompt
-- [ ] **Earlier compaction:** Often missing quorum evidence preservation -- verify that Stop hook still finds quorum evidence after compaction
-- [ ] **Earlier compaction:** Often missing workflow awareness -- verify that compaction threshold adapts to workflow phase
-- [ ] **Hook composition:** Often missing additionalContext merge testing -- verify that multiple hooks on the same event produce coherent combined output
+- [ ] **Trend tracker:** Often missing epoch boundaries -- verify that trend analysis ignores pre-epoch data by checking `layer_set_hash` matches
+- [ ] **Oscillation breaker:** Often missing cascade exemption -- verify that layers not directly remediated in the preceding iteration cannot trigger oscillation alerts
+- [ ] **Predictive power:** Often missing recall metric -- verify that the denominator includes all test failures in scope, not just model-predicted ones
+- [ ] **Stabilization gates:** Often missing the prerequisite promotion guard fix -- verify that promotion-changelog.json does not contain consecutive identical entries for the same model
+- [ ] **TLA+ convergence:** Often missing abstraction proof -- verify that the abstract inner-loop action is shown to refine NFSolveOrchestrator (separate TLC run), not just assumed
+- [ ] **Per-model persistence:** Often missing demotion path -- verify that models can move DOWN gate levels when evidence degrades, not just up
+- [ ] **Token budget:** Often missing empirical measurement -- verify total additionalContext size with ALL features active simultaneously, not tested in isolation
+- [ ] **solve-state.json:** Often missing backward compatibility -- verify that old format (no trend data) is handled gracefully by new code
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Downgrade loop oscillation | LOW | Freeze model profile at current level; add cooldown logic; re-run failed quorum |
-| Memory bloat | LOW | Truncate pattern store to top-K by recency; add size limit; re-test injection |
-| Stale patterns causing errors | MEDIUM | Clear pattern store (`rm .claude/nf-memory.json`); add git-SHA invalidation; re-extract from recent sessions only |
-| Verification performance overhead | LOW | Disable continuous verification via hook profile (`minimal`); restore boundary-only checking |
-| Worktree state corruption | HIGH | Manually merge corrupted `.planning/` state; remove all worktrees; re-create from clean state |
-| Worktree disk leak | LOW | `git worktree list` + manual remove; add cleanup sweep to SessionStart |
-| Token explosion in retrieval | MEDIUM | Kill active slot workers; reduce retrieval_depth to `none`; add per-slot budget enforcement |
-| Context drift in retrieval | LOW | Disable retrieval; fall back to current thin-passthrough slot workers |
-| Compaction storm | LOW | Reset `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` to default; remove custom threshold |
-| Quorum evidence lost to compaction | MEDIUM | Re-run quorum for the blocked decision; add evidence checkpointing to PreCompact hook |
-| Hook additionalContext conflict | MEDIUM | Consolidate conflicting hooks into single hook; test combined output |
-| Privacy leakage in patterns | HIGH | Delete pattern store; audit git history for committed patterns; add sanitization pipeline |
+| False positive oscillation detection | MEDIUM | Disable breaker, audit flagged layers, add cascade exemption, re-run solve |
+| Unbounded trend file | LOW | Truncate to last 20 entries, add epoch markers, re-run |
+| Promotion changelog pollution | LOW | Deduplicate changelog, add idempotency guard, re-run |
+| TLA+ state explosion | HIGH | Must redesign spec with abstraction refinement; no quick fix |
+| Predictive power survivorship bias | MEDIUM | Redefine metric, recompute from historical data, update all stored scores |
+| Token budget overflow | MEDIUM | Implement priority allocator, audit all injection sources, test combined size |
+| Stale gate lock-in | MEDIUM | Add staleness check, batch-demote models past threshold, add demotion to persistence logic |
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Downgrade loop oscillation | Phase 1: Dynamic Model Selection | Scoreboard shows no >3 consecutive downgrades; conformance events show cooldown gaps |
-| Memory bloat | Phase 2: Cross-Session Learning | Pattern store stays under 50KB; additionalContext under 3000 tokens total |
-| Stale patterns | Phase 2: Cross-Session Learning | Patterns tagged with git SHA; patterns referencing deleted files are auto-pruned |
-| Privacy leakage | Phase 2: Cross-Session Learning | Security sweep on pattern store finds 0 matches; no absolute paths in stored patterns |
-| Verification overhead | Phase 3: Continuous Verification | Phase execution time increases by <30% vs. baseline; verification runs <= 3 per phase |
-| Hook composition conflicts | Phase 3: Continuous Verification | Integration test with 2 PostToolUse hooks producing merged additionalContext |
-| Worktree state corruption | Phase 4: Git Worktree Parallelization | 2 parallel agents write to scoped paths; no data loss after 10 concurrent sessions |
-| Worktree cleanup failures | Phase 4: Git Worktree Parallelization | `git worktree list` returns only main + active worktrees after cleanup |
-| Token explosion in retrieval | Phase 5: Iterative Retrieval | Per-slot token consumption stays under 20k; quorum call under 60k total |
-| Context drift in retrieval | Phase 5: Iterative Retrieval | Slot worker votes address the original quorum question (verified by consensus rate) |
-| Compaction storm | Phase 6: Earlier Compaction | Maximum 2 compactions per phase; no compactions closer than 5 minutes apart |
-| Quorum evidence lost to compaction | Phase 6: Earlier Compaction | Stop hook finds quorum evidence after compaction via checkpoint file fallback |
+| False positive oscillation (cascade) | Phase 1: Layer Oscillation Breaker | Zero false escalations on a solve run where only R->F is remediated |
+| Trend tracker unbounded growth | Phase 1: Cross-Session Trend Tracker | `solve-trend.jsonl` stays under 50KB after 30 runs; epoch boundary on layer set change |
+| Promotion changelog flip-flop | Phase 0: Prerequisite fix | promotion-changelog.json grows by <= 2 entries per solve run after fix |
+| TLA+ state space explosion | Phase 4: NFSolveConvergence spec | TLC completes in < 60 seconds with 10M state cap |
+| Predictive power survivorship bias | Phase 3: Predictive Power Feedback | Recall metric computed and stored; no model scores > 0.9 precision without >= 0.5 recall |
+| Token budget contention | Phase 1: Budget allocator prerequisite | Total additionalContext < 2000 chars with all features active |
+| Per-model gate lock-in | Phase 2: Per-Model Gate Persistence | At least one model demoted in test scenario where source files change post-promotion |
 
 ## Sources
 
-- [Parallel Development with Claude Code and Git Worktrees](https://medium.com/@ooi_yee_fei/parallel-ai-development-with-git-worktrees-f2524afc3e33) -- worktree isolation issues, disk consumption
-- [Git worktrees for parallel AI coding agents (Upsun)](https://devcenter.upsun.com/posts/git-worktrees-for-parallel-ai-coding-agents/) -- worktree lifecycle management
-- [Claude Code Git Worktree Support (SuperGok)](https://supergok.com/claude-code-git-worktree-support/) -- native worktree support, unintended creation bugs
-- [Claude Code Worktrees: Run Parallel Sessions Without Conflicts](https://claudefa.st/blog/guide/development/worktree-guide) -- database isolation gaps
-- [Memory Management in LLM Agents (Martin Keywood)](https://medium.com/@martinkeywood/memory-management-in-llm-agents-how-i-stopped-my-agents-from-becoming-goldfish-00afc2c5d420) -- memory bloat, pruning strategies
-- [Cross-Session Agent Memory: Foundations and Challenges](https://mgx.dev/insights/cross-session-agent-memory-foundations-implementations-challenges-and-future-directions/d03dd30038514b75ad4cbbda2239c468) -- stale patterns, error propagation
-- [Agent Memory Architecture (DEV Community)](https://dev.to/mfs_corp/agent-memory-architecture-how-our-ai-remembers-across-sessions-j8l) -- transient vs persistent memory separation
-- [LLM Tool-Calling in Production: The Infinite Loop Failure Mode](https://medium.com/@komalbaparmar007/llm-tool-calling-in-production-rate-limits-retries-and-the-infinite-loop-failure-mode-you-must-2a1e2a1e84c8) -- loop guardrails, hard termination
-- [Solving agent system prompt drift in long sessions](https://community.openai.com/t/solving-agent-system-prompt-drift-in-long-sessions-a-300-token-fix/1375139) -- context drift, goal anchoring
-- [Claude Code Context Buffer: The 33K-45K Token Problem](https://claudefa.st/blog/guide/mechanics/context-buffer-management) -- compaction thresholds, reserved buffer
-- [Why Claude Loses Context After Compaction](https://docs.bswen.com/blog/2026-02-09-claude-context-loss-compaction/) -- compaction recovery strategies
-- [Compaction (Claude API Docs)](https://platform.claude.com/docs/en/build-with-claude/compaction) -- official compaction behavior
-- [Dynamic Model Routing and Cascading for Efficient LLM Inference: A Survey](https://arxiv.org/abs/2603.04445) -- routing paradigms, capability mismatch
-- [AgentSpec: Customizable Runtime Enforcement for Safe LLM Agents (ICSE 2026)](https://cposkitt.github.io/files/publications/agentspec_llm_enforcement_icse26.pdf) -- verification overhead measurements (~430ms per decision cycle)
-- nForma source: `bin/budget-tracker.cjs` -- existing downgrade chain logic
-- nForma source: `hooks/gsd-context-monitor.js` -- existing boundary detection
-- nForma source: `hooks/nf-precompact.js` -- existing compaction state preservation
-- nForma source: `hooks/nf-stop.js` -- existing transcript scanning for quorum evidence
-- nForma source: `hooks/nf-circuit-breaker.js` -- existing oscillation detection patterns
+- Direct analysis of `/Users/jonathanborduas/code/QGSD/.planning/formal/solve-state.json` -- current 12-layer residual snapshot with no history
+- Direct analysis of `/Users/jonathanborduas/code/QGSD/.planning/formal/promotion-changelog.json` -- 200 entries, 100 per model, all identical ADVISORY->SOFT_GATE (flip-flop evidence)
+- Direct analysis of `/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveOrchestrator.tla` -- existing inner-loop spec with cascade modeling via non-deterministic `layersChanged`
+- Direct analysis of `/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js` -- 800 char hook-level cap, 2000 char module-level cap for additionalContext
+- Direct analysis of `/Users/jonathanborduas/code/QGSD/bin/nf-solve.cjs` -- 19 layer keys in sweep, per-model gate computation, solve-state.json write logic
+- TLA+ state space analysis: training data knowledge on TLC performance characteristics (MEDIUM confidence -- verify with TLC profiling during Phase 4)
 
 ---
-*Pitfalls research for: Advanced Agent Patterns (nForma v0.30)*
-*Researched: 2026-03-07*
+*Pitfalls research for: Outer-loop convergence guarantees for nf:solve*
+*Researched: 2026-03-09*

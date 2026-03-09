@@ -1,189 +1,178 @@
 # Project Research Summary
 
-**Project:** nForma v0.30 -- Advanced Agent Patterns
-**Domain:** Claude Code plugin infrastructure -- agent harness patterns (token optimization, memory persistence, continuous verification, worktree parallelization, iterative retrieval, smart compaction)
-**Researched:** 2026-03-07
-**Confidence:** MEDIUM-HIGH
+**Project:** nForma v0.33 -- Outer-Loop Convergence Guarantees
+**Domain:** Iterative formal verification convergence tracking for nf:solve
+**Researched:** 2026-03-09
+**Confidence:** HIGH
 
 ## Executive Summary
 
-nForma v0.30 introduces six advanced agent patterns that extend the existing hook-driven pipeline: dynamic model selection, cross-session learning, continuous verification, git worktree parallelization, iterative retrieval for quorum context, and earlier compaction triggering. The core finding across all four research files is that **zero new npm dependencies are required**. All six patterns build on Node.js built-ins (fs, path, child_process, crypto), existing infrastructure (hooks, config-loader, budget-tracker, scoreboard, token-usage.jsonl), and Claude Code's native lifecycle events. The existing architecture -- 12 hooks across 7 event types, two-layer config merge, file-based state persistence -- provides all the integration points needed. This is an extension milestone, not a foundation-building one.
+The v0.33 milestone adds cross-session convergence guarantees to nForma's existing 19-layer solve pipeline. Today, each `nf:solve` run is stateless -- `solve-state.json` is overwritten, session summaries are pruned to 20, and no mechanism detects whether repeated runs are making progress or oscillating. The research confirms this is a well-scoped problem: the data sizes are tiny (12 layers, max 200 changelog entries, ~20 sessions), the required algorithms are elementary (linear regression, run-length encoding, ratio scoring), and the existing codebase already has proven patterns for every technique needed (NDJSON append files, cross-session signature persistence, Haiku-based classification). Zero new npm dependencies are required.
 
-The recommended approach is to build in dependency order starting with the two lowest-risk, highest-leverage patterns (dynamic model selection and earlier compaction), which extend well-understood existing hooks. Cross-session learning and continuous verification come next as the foundational infrastructure for memory and quality. Iterative retrieval and git worktree parallelization are the most complex and risky patterns and must come last, after the simpler patterns have stabilized. This ordering is strongly supported by the dependency graph: verification loops need compaction headroom, continuous learning needs memory persistence, parallelization needs orchestration, and the cascade method needs both parallelization and quorum review.
+The recommended approach is a layered build: first establish the time series infrastructure and fix pre-existing data quality issues (promotion changelog deduplication), then add oscillation detection and stabilization gates, then predictive power scoring, and finally the TLA+ meta-verification spec. This ordering is driven by strict data dependencies -- oscillation detection consumes time series data, stabilization gates consume the changelog, and the TLA+ spec must model the finalized algorithms. The architecture introduces 4 new `.cjs` scripts and 4 new JSON/NDJSON data files, all following the established zero-dependency pattern. Integration with existing code is minimal: ~10 lines added to `nf-solve.cjs`'s finalize block, ~7-line guard clauses in two promotion scripts, and template additions to the solve report.
 
-The dominant risks are: (1) downgrade loop oscillation between budget control and quality control when dynamic model selection fights the existing budget tracker, (2) memory bloat and stale patterns in cross-session learning crowding out quorum instructions in the limited additionalContext budget, (3) verification performance overhead turning every tool call into a gate, (4) git worktree shared state corruption when parallel agents write to the same `.planning/` files, and (5) token explosion in iterative retrieval ballooning quorum calls from ~36k to ~120k+ tokens. All five are preventable with upfront design decisions but expensive to retrofit.
+The primary risks are (1) false positive oscillation detection due to legitimate multi-layer cascades being misidentified as oscillation, (2) over-constrained convergence metrics that treat scope growth (adding requirements) as divergence, and (3) breaking the existing inner-loop convergence behavior by coupling outer-loop state into `solve-state.json`. All three are preventable with disciplined architecture: separate files for outer-loop state, per-layer granularity with grace periods, and scope-growth-aware metrics that store requirement counts alongside residuals.
 
 ## Key Findings
 
 ### Recommended Stack
 
-No new npm dependencies. Eight new bin/ scripts and two new hooks, all using CommonJS with Node.js built-ins. The existing `gsd-context-monitor.js` (PostToolUse) becomes the primary extension point for three of the six patterns. New config keys must be flat (not nested) due to the shallow merge in config-loader.js. Claude Code's native WorktreeCreate/WorktreeRemove hook events and subagent `isolation: worktree` field provide the parallelization foundation. See STACK.md for capability-by-capability analysis.
+Zero new npm dependencies. All new scripts are self-contained `.cjs` files using Node.js built-ins (`fs`, `path`, `crypto`). The formal pipeline currently has zero external dependencies, and the required algorithms (OLS regression in 5 lines, moving average in 1 line, run-length encoding in 10 lines, ratio computation in 1 line) do not justify adding any. Data sizes are too small for performance to matter.
 
-**Core technologies (no changes):**
-- Node.js >= 16.7.0, CommonJS modules, Claude Code Hooks API -- existing runtime, no version bump needed
-- File-based JSON/JSONL persistence -- proven pattern (debt-state-machine.cjs, token-usage.jsonl, conformance-events.jsonl)
-- spawnSync for subprocess calls -- proven in nf-circuit-breaker.js, budget-tracker.cjs
+**Core technologies:**
+- Node.js built-in `fs`: NDJSON append/read for time series -- same pattern as existing `check-results.ndjson`
+- Inline OLS linear regression: trend detection on residual series -- 15-line implementation, no library warranted
+- TLA+ (TLC model checker): NFSolveConvergence spec -- already in formal verify pipeline, new spec proves outer-loop convergence
 
-**New components (8 bin scripts, 2 hooks, 1 agent definition):**
-- `bin/model-selector.cjs` -- dynamic model scoring per task envelope
-- `bin/session-learner.cjs` + `bin/pattern-store.cjs` -- transcript pattern extraction and persistence
-- `bin/continuous-verify.cjs` -- incremental lint/typecheck after file writes
-- `bin/worktree-manager.cjs` + `hooks/nf-worktree-create.js` + `hooks/nf-worktree-remove.js` -- worktree lifecycle
-- `bin/context-stack.cjs` -- hierarchical context management for iterative retrieval
-- `bin/smart-compactor.cjs` -- curated compaction context
+**New files (not libraries):**
+- `bin/convergence-history.cjs` (~150 LOC): append time series, query trends, compute moving averages
+- `bin/detect-oscillation.cjs` (~200 LOC): per-layer oscillation detection with Option C enforcement
+- `bin/score-predictive-power.cjs` (~250 LOC): link test failures to formal properties, score per model
+- `bin/stabilization-gates.cjs` (~180 LOC): cooldown enforcement before re-promotion
 
 ### Expected Features
 
-**Must have (P1 -- v0.30 core):**
-- Earlier compaction at workflow boundaries -- LOW complexity, HIGH value, extends existing detectCleanBoundary()
-- Extended thinking budget scaling -- LOW complexity, config-loader + additionalContext injection
-- File-based execution state tracking -- MEDIUM complexity, critical foundation for verification and memory
-- Structured state persistence beyond STATE.md -- MEDIUM complexity, extends nf-precompact.js
-- Error resolution memory -- MEDIUM complexity, leverages native subagent `memory: project` field
-- Worktree-isolated quorum workers -- MEDIUM complexity, uses native `isolation: worktree`
-- Phase-based context accumulation -- MEDIUM complexity, new `.planning/context-stack/`
+**Must have (table stakes):**
+- Cross-session residual time series -- foundation for all convergence claims
+- Per-layer trend detection -- aggregate total hides layer-level regressions
+- Layer oscillation breaker (Option C) -- prevents unbounded fix-break-fix cycles
+- Stabilization gates for promotions -- stops the flip-flop already visible in changelog data
+- Promotion flip-flop detection -- diagnosis of historical alternating patterns
+- Solve session persistence in machine-readable JSONL format
 
-**Should have (P2 -- v0.30.x validation):**
-- Task-complexity-aware model routing -- when token data shows Opus waste on simple tasks
-- Continuous test verification during execution -- when file-based state tracking proves stable
-- Machine-verifiable completion conditions -- Ralph Loop pattern adapted to nForma
-- Quorum-validated skill extraction -- when memory persistence accumulates data
-- Iterative retrieval for quorum context -- when worktree isolation works for slot workers
-- Failure catalog with confidence scores -- when error resolution memory has entries
+**Should have (differentiators):**
+- Predictive power scoring -- invert coverage metric into effectiveness metric (bugs_predicted/total_bugs)
+- NFSolveConvergence TLA+ spec -- meta-verification: TLA+ proving the TLA+ verification tool converges
+- Convergence velocity estimation -- "when will we converge?" extrapolation for planning
+- Per-model gate persistence with reasons -- `--write-per-model` wired as default
+- Automatic escalation classification -- Haiku-based root cause when breaker fires
 
-**Defer (v0.31+):**
-- Cascade method (best-of-N parallel implementations) -- HIGH complexity, requires validated parallelization + orchestration
-- Dynamic model selection per subagent type -- requires task complexity classifier + provider reliability data
-- Context stack with relevance scoring -- requires accumulated context data
-- Formal model re-verification on code change -- requires stable three-layer FV pipeline from v0.29
+**Defer (v2+):**
+- Automatic oscillation resolution -- masks design conflicts, human judgment required
+- Global convergence threshold -- layers have vastly different scales
+- Real-time convergence dashboard -- over-engineering for a CLI tool
+- Weighted layer importance -- introduces subjective tuning that obscures convergence
+- MOOSE-style relaxation/dampening -- inapplicable to discrete mismatch counts
 
 ### Architecture Approach
 
-The architecture integrates six new patterns as extensions of the existing hook pipeline, not as parallel systems. Three patterns extend `gsd-context-monitor.js` (PostToolUse): dynamic model selection, continuous verification, and earlier compaction. Cross-session learning extends `nf-session-start.js` (SessionStart) and `nf-precompact.js` (PreCompact). Worktree parallelization adds two new hooks on WorktreeCreate/WorktreeRemove events. All new hooks follow the existing patterns: synchronous execution, fail-open, stdout-only for decisions, stderr for debug, CommonJS modules. See ARCHITECTURE.md for the full component inventory and data flow diagrams.
+The architecture adds a cross-session convergence layer on top of the existing single-run solve pipeline. New scripts read existing state files (`solve-state.json`, `promotion-changelog.json`, `check-results.ndjson`) but never write to them. Cross-session state lives in dedicated new files. Integration with existing code is through 3 call sites in `nf-solve.cjs`'s finalize block, 2 guard clauses in promotion scripts, and template additions to the solve report. All new calls are fail-open (try/catch) so a corrupt convergence file never blocks the inner loop.
 
-**Major components and their modification surface:**
-1. `gsd-context-monitor.js` (PostToolUse) -- modified by 3 patterns: budget feedback, file-write detection, auto-compact trigger
-2. `nf-prompt.js` (UserPromptSubmit) -- modified by 3 patterns: model selection dispatch, worktree instructions, retrieval dispatch
-3. `nf-precompact.js` (PreCompact) -- modified by 2 patterns: preserve learned patterns, rich compaction context
-4. `config-loader.js` -- modified by all patterns: 15+ new flat config keys with defaults
-
-**Key architectural constraint:** Multiple hooks on the same event type risk additionalContext conflicts. All PostToolUse logic MUST consolidate into gsd-context-monitor.js (not separate hooks) to maintain single-writer semantics.
+**Major components:**
+1. `convergence-history.cjs` -- append-only time series with FIFO pruning (100 entries), trend analysis via linear regression
+2. `detect-oscillation.cjs` -- per-layer oscillation detection using direction-reversal counting, verdict persistence in `oscillation-verdicts.json`
+3. `stabilization-gates.cjs` -- cooldown enforcement (time + session count) before auto re-promotion, flip-flop counting
+4. `score-predictive-power.cjs` -- test failure to formal property linkage, recall-first scoring per model
+5. `NFSolveConvergence.tla` -- TLA+ spec with safety (no layer oscillates >1x) and conditional liveness (convergence under fairness)
 
 ### Critical Pitfalls
 
-1. **Downgrade loop oscillation** -- Budget tracker and model selector create competing control loops. Prevent with cooldown period (min 3 rounds), downgrade-quality gate (no downgrade if consensus < 70%), and unified decision function. Must be designed into Phase 1.
+1. **False positive oscillation on legitimate cascades** -- Multi-layer solvers produce temporary per-variable regression during convergence (Gauss-Seidel effect). Use 5-session sliding windows with linear regression slopes, not consecutive-pair comparison. Add 2-3 session grace periods after promotion events.
 
-2. **Memory bloat crowding quorum instructions** -- additionalContext has a practical ceiling of ~4000 tokens; quorum instructions already use ~800. Hard cap memory injection at 1500 tokens, select top-5 patterns by relevance, implement retention policy with automatic pruning. Must be designed into Phase 2.
+2. **Over-constrained convergence blocking scope growth** -- Adding new requirements legitimately increases residuals. Store requirement counts in each time series entry; separate scope growth from regression in the convergence metric. Never hard-block on total residual increase without checking requirement count changes.
 
-3. **Stale patterns causing wrong behavior** -- Extracted patterns become dangerous when codebase changes. Tag patterns with git SHA, implement confidence decay (10% per session), validate referenced files exist on SessionStart. Must be designed into Phase 2.
+3. **Breaking existing inner-loop convergence** -- Outer-loop state must live in separate files. The outer loop reads `solve-state.json` but NEVER writes to it. Run existing TLC specs after every phase to verify no inner-loop invariant regression. Recovery cost is HIGH if this goes wrong.
 
-4. **Worktree shared state corruption** -- nForma assumes exclusive access to `.planning/` state files. Scope ALL mutable state to worktree-specific directories, use file locking for shared state, detect worktree context via `git rev-parse --git-common-dir`. Must be the first implementation step in Phase 5.
+4. **Promotion changelog deduplication failure (pre-existing)** -- Current changelog has 4+ identical promotions within 2 minutes for the same model. Fix deduplication BEFORE building any convergence analysis on this data. Building trend analysis on dirty data produces garbage results.
 
-5. **Token explosion in iterative retrieval** -- Without per-slot budgets, 3 slots doing 3 retrieval rounds balloons from ~36k to ~120k+ tokens. Hard cap at 8k retrieved tokens per slot, max 2 rounds, shared retrieval cache across slots. Must be enforced before enabling any retrieval in Phase 4.
+5. **TLA+ spec missing fairness declarations** -- Liveness properties are vacuously true without explicit fairness assumptions. The existing liveness fairness CI lint (v0.20) must pass on the new spec. Model Option C as safety (invariant), convergence as conditional liveness.
 
 ## Implications for Roadmap
 
-Based on combined research, suggested 6-phase structure:
+Based on research, suggested phase structure:
 
-### Phase 1: Dynamic Model Selection and Token Optimization
-**Rationale:** Smallest surface area, extends existing budget-tracker.cjs with proven patterns, delivers immediate cost savings. No hard dependencies on other patterns. Config-loader extension establishes the pattern for all subsequent phases.
-**Delivers:** bin/model-selector.cjs, config additions for dynamic model routing, nf-prompt.js dispatch changes, extended thinking budget scaling.
-**Addresses:** Token Optimization table stakes (task-complexity routing, thinking budget, token dashboarding).
-**Avoids:** Pitfall 1 (downgrade oscillation) by designing cooldown and quality gate from the start.
+### Phase 1: Time Series Foundation and Data Quality
+**Rationale:** Everything else depends on clean historical data. The convergence metric definition and storage format must be right from the start -- changing them later invalidates all accumulated time series data. Pre-existing changelog dedup bug must be fixed before any convergence tracker reads the changelog.
+**Delivers:** `convergence-history.cjs`, `convergence-history.json`, JSONL session persistence, changelog deduplication fix, `nf-solve.cjs` finalize integration (append call)
+**Addresses:** Solve session persistence (JSONL), cross-session residual time series, per-model gate persistence wiring
+**Avoids:** Pitfall 4 (unbounded time series), Pitfall 5 (inner-loop breakage), Pitfall 7 (changelog dedup)
 
-### Phase 2: Earlier Compaction and Smart Context Management
-**Rationale:** Extends existing smart_compact infrastructure in gsd-context-monitor.js. Benefits all subsequent patterns by preserving more context across compaction. Must precede cross-session learning (Phase 3) because pattern survival depends on rich compaction context.
-**Delivers:** bin/smart-compactor.cjs, workflow-aware compaction thresholds, enriched nf-precompact.js with curated continuation context, quorum evidence checkpointing.
-**Addresses:** Earlier compaction at boundaries, context window forecasting.
-**Avoids:** Pitfall 9 (compaction storm) by using boundary-triggered thresholds; Pitfall 10 (quorum evidence loss) by checkpointing evidence before compaction.
+### Phase 2: Oscillation Detection and Trend Analysis
+**Rationale:** Depends on Phase 1 time series data. Option C oscillation breaker is the core safety feature of v0.33 -- it prevents unbounded fix-break-fix cycles. Trend detection is a prerequisite for oscillation detection (distinguishing genuine oscillation from noise).
+**Delivers:** `detect-oscillation.cjs`, `oscillation-verdicts.json`, per-layer trend reporting, `solve.md` Phase 3c integration
+**Uses:** convergence-history.json (from Phase 1), inline OLS regression
+**Implements:** Layer oscillation breaker (Option C), per-layer trend detection
+**Avoids:** Pitfall 1 (false positive oscillation -- grace periods and window-based analysis built in from start)
 
-### Phase 3: Cross-Session Learning and Memory Persistence
-**Rationale:** Depends on Phase 2 (compaction context enrichment) for pattern survival across sessions. Foundation for continuous learning and failure catalogs.
-**Delivers:** bin/session-learner.cjs, bin/pattern-store.cjs, nf-session-start.js pattern injection, structured state persistence beyond STATE.md, error resolution memory.
-**Addresses:** Memory Persistence table stakes + differentiators (structured state, proactive reminders, error resolution memory).
-**Avoids:** Pitfall 2 (memory bloat) with 1500-token injection cap and retention policy; Pitfall 3 (stale patterns) with git-SHA tagging and confidence decay; Pitfall 12 (privacy leakage) with sanitization pipeline.
+### Phase 3: Gate Maturity Stabilization
+**Rationale:** Independent of oscillation detection (operates on promotion-changelog.json, not residual time series). Can be built in parallel with Phase 2, but sequencing after Phase 2 ensures the deduped changelog from Phase 1 is available.
+**Delivers:** `stabilization-gates.cjs`, `stabilization-gates.json`, guard clauses in `compute-per-model-gates.cjs` and `promote-gate-maturity.cjs`
+**Addresses:** Stabilization gates, promotion flip-flop detection
+**Avoids:** Pitfall 6 (wrong stabilization window -- use time + session count from day one)
 
-### Phase 4: Continuous Verification
-**Rationale:** Independent of Phases 1-3 but benefits from earlier compaction (headroom for verification overhead) and learned patterns (prioritize checks). Extends gsd-context-monitor.js PostToolUse path.
-**Delivers:** bin/continuous-verify.cjs, file-write detection in gsd-context-monitor.js, boundary-batched verification, machine-verifiable completion conditions.
-**Addresses:** Verification Loops table stakes (continuous checks, file-based state tracking, completion conditions).
-**Avoids:** Pitfall 4 (verification overhead) with boundary-batched checks (max 3 per phase), 5s hard timeout, advisory-only warnings; Pitfall 11 (hook composition conflicts) by consolidating into gsd-context-monitor.js.
+### Phase 4: Predictive Power Feedback
+**Rationale:** Needs a stable convergence loop (Phases 1-3) to produce meaningful data. Scoring models on an oscillating system gives noise. Keep predictive power as informational (not a gate input) for the first milestone to avoid Goodhart's Law metric gaming.
+**Delivers:** `score-predictive-power.cjs`, `predictive-power.json`, solve-report.md predictive power section
+**Addresses:** Predictive power scoring, automatic escalation classification
+**Avoids:** Pitfall 3 (metric gaming -- severity-weighted, informational-only initially)
 
-### Phase 5: Iterative Retrieval and Subagent Orchestration
-**Rationale:** Requires stable slot dispatch (Phase 1 model selection) and stable compaction (Phase 2). Changes call-quorum-slot.cjs from synchronous single-shot to multi-round, which is a high-risk architectural change. Must come after simpler patterns stabilize.
-**Delivers:** bin/context-stack.cjs, multi-round call-quorum-slot.cjs, nf-stop.js multi-round recognition, specialized retrieval agents, phase-based context accumulation.
-**Addresses:** Subagent Orchestration table stakes + differentiators (iterative retrieval, context stack, specialized agents).
-**Avoids:** Pitfall 7 (token explosion) with per-slot 8k budget and max 2 rounds; Pitfall 8 (context drift) with goal anchoring in every retrieval round prompt.
+### Phase 5: TLA+ Meta-Verification
+**Rationale:** Must be written last because the spec models the finalized algorithms from Phases 1-4. Writing the spec before the oscillation breaker design is stable means rewriting it when the design changes.
+**Delivers:** `NFSolveConvergence.tla`, `MCconvergenceOuter.cfg`, liveness fairness lint validation
+**Addresses:** NFSolveConvergence TLA+ spec, convergence velocity estimation
+**Avoids:** Pitfall 8 (missing fairness -- explicit declarations required, liveness fairness CI lint must pass)
 
-### Phase 6: Git Worktree Parallelization
-**Rationale:** Most complex integration. Worktrees interact with every hook (circuit breaker cwd, config-loader project root, state file paths). Requires all other patterns stable. State isolation is the critical prerequisite -- must be the first step within this phase.
-**Delivers:** bin/worktree-manager.cjs, hooks/nf-worktree-create.js, hooks/nf-worktree-remove.js, agents/nf-worktree-executor.md, circuit breaker worktree awareness, worktree-scoped state files.
-**Addresses:** Parallelization table stakes (worktree-isolated quorum workers, parallel plan execution, merge orchestration).
-**Avoids:** Pitfall 5 (shared state corruption) with worktree-scoped `.planning/worktree-<name>/`; Pitfall 6 (cleanup failures) with manifest tracking and 24h cleanup sweep.
+### Phase 6: Solve Report Integration
+**Rationale:** Consumes all outputs from Phases 1-5. Purely presentational -- template additions to solve-report.md for trend, oscillation, and predictive power sections.
+**Delivers:** Updated `solve-report.md` with cross-session trend, oscillation verdicts, and model predictive power sections
+**Addresses:** All reporting and UX concerns from pitfalls research
 
 ### Phase Ordering Rationale
 
-- Phases 1-2 are the foundation: cost control and context management improve every subsequent pattern.
-- Phase 3 depends on Phase 2 (compaction context for pattern survival).
-- Phase 4 is semi-independent but benefits from Phases 1-2.
-- Phase 5 depends on Phase 1 (model selection for retrieval agents) and changes the quorum slot architecture.
-- Phase 6 depends on ALL prior phases being stable because worktrees interact with every hook.
-- This ordering minimizes blast radius: early phases change 1-2 existing hooks each; later phases touch 3+ hooks.
+- **Data dependencies drive ordering:** convergence-history (Phase 1) feeds oscillation detection (Phase 2) and trend analysis. Stabilization gates (Phase 3) are independent of time series but need the deduped changelog from Phase 1. Predictive power (Phase 4) needs stable loop data. TLA+ spec (Phase 5) formalizes the finalized system.
+- **Safety-critical features come early:** Option C oscillation breaker (Phase 2) is the core guarantee. Stabilization gates (Phase 3) prevent the already-visible flip-flop pattern.
+- **Observation before enforcement:** Phase 1 establishes measurement. Phase 2-3 add enforcement. Phase 4 adds scoring (informational first). Phase 5 adds formal proof. This avoids the anti-pattern of enforcing constraints before understanding the data.
+- **Inner-loop isolation preserved throughout:** Every phase reads existing files, writes to new separate files. No phase modifies `solve-state.json` schema or `promotion-changelog.json` entry format.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 5 (Iterative Retrieval):** Changes call-quorum-slot.cjs from synchronous to multi-round. Slot timeout implications unclear. Need to validate whether Claude Code subagents support multi-turn interaction within a single slot invocation, or if this requires a fundamentally different dispatch model.
-- **Phase 6 (Git Worktrees):** Hook cwd resolution in worktrees, config-loader project root detection, and circuit breaker per-worktree isolation all need validation against actual Claude Code behavior. Community reports conflict on edge cases.
+- **Phase 2:** Oscillation detection threshold tuning requires real data analysis. The 5-session window and noise threshold (delta > 5% of baseline) are educated guesses that need validation against the actual residual history once Phase 1 is live.
+- **Phase 4:** Predictive power scoring requires defining what counts as a "bug predicted" vs "bug found by other means." The linkage between formal properties and test failures via traceability-matrix.json needs careful design.
+- **Phase 5:** TLA+ spec fairness assumptions need to be identified during Phase 1 metric design, even though the spec is written in Phase 5. Document fairness requirements early.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 1 (Dynamic Model Selection):** Extends existing budget-tracker.cjs DOWNGRADE_CHAIN. Well-understood extension pattern.
-- **Phase 2 (Earlier Compaction):** Extends existing smart_compact infrastructure in gsd-context-monitor.js. Pure threshold and context tuning.
-- **Phase 4 (Continuous Verification):** Follows established lint/test-on-save pattern. The 5s timeout constraint is the main design variable.
-
-Phase needing light research:
-- **Phase 3 (Cross-Session Learning):** Pattern extraction heuristics need empirical tuning. Start simple (tool sequences, error-resolution pairs), iterate based on data quality.
+- **Phase 1:** Well-documented NDJSON append pattern already used in the codebase. Changelog dedup is straightforward.
+- **Phase 3:** Stabilization gates follow the established guard-before-mutate pattern with clear precedent in Flagger/Argo Rollouts.
+- **Phase 6:** Report template additions with no new logic.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Zero new dependencies; all integration points verified against existing source code; Claude Code hook events confirmed in current docs |
-| Features | MEDIUM-HIGH | Table stakes well-defined from official docs + community patterns; differentiators (cascade method, quorum-gated verification) are novel combinations without external precedent |
-| Architecture | HIGH | Based on direct analysis of all 12 existing hooks; component inventory, modification surface, and data flow changes are specific and verified |
-| Pitfalls | HIGH | 12 pitfalls grounded in existing nForma architecture constraints, community reports, and published research; each has concrete prevention strategy and verification criteria |
+| Stack | HIGH | Zero new dependencies. All patterns verified against existing codebase. Data sizes confirmed trivial. |
+| Features | MEDIUM | Novel combination of techniques (formal verification + convergence tracking + defect prediction). Individual techniques well-documented, but integration is unprecedented. |
+| Architecture | HIGH | All integration points verified against source code line numbers. Existing inner-loop TLC spec provides regression safety net. |
+| Pitfalls | HIGH | Multiple pitfalls confirmed by direct evidence in existing data (changelog dedup, flip-flop patterns). Cascade false-positive risk validated by Gauss-Seidel convergence theory. |
 
-**Overall confidence:** MEDIUM-HIGH -- the individual patterns are well-understood (proven in existing codebase or community), but the six-pattern integration is novel. The main uncertainty is in Phases 5-6 where architectural changes interact with multiple existing hooks simultaneously.
+**Overall confidence:** HIGH -- The domain is novel but the implementation techniques are standard. The biggest risk is metric design (convergence definition, oscillation thresholds), not technology.
 
 ### Gaps to Address
 
-- **Multi-round slot interaction model:** call-quorum-slot.cjs currently uses spawnSync (single-shot). Iterative retrieval (Phase 5) needs multi-round interaction. Whether this requires event-driven subprocess management or repeated spawn calls needs validation during Phase 5 planning.
-- **additionalContext composition:** When multiple sources inject into additionalContext (quorum instructions + memory patterns + verification warnings + compaction advisories), the merge behavior is undefined. Phase 1 must establish a token-budgeted composition model before any new injection sources are added.
-- **Worktree hook cwd resolution:** Documentation says WorktreeCreate hooks REPLACE default behavior and must print the path. Actual behavior with nForma's installed hooks at `~/.claude/hooks/` needs empirical validation in Phase 6.
-- **Cross-session pattern quality:** No benchmark exists for "useful" vs "noise" patterns. Phase 3 must ship with instrumentation to measure pattern hit rate and relevance, not just extraction volume.
-- **Flat config key explosion:** Adding 15+ flat config keys to config-loader.js DEFAULT_CONFIG (required by shallow merge) may become unwieldy. Consider whether a config section merging strategy is needed before Phase 4 adds more keys.
+- **Oscillation threshold calibration:** The 5-session window and noise threshold are theoretical defaults. Need empirical validation against real residual data after Phase 1 ships. Plan for a tuning pass after 10+ sessions of data accumulate.
+- **Scope-growth detection mechanism:** The research identifies the need to store requirement counts alongside residuals, but the exact mechanism for detecting "new requirements added between sessions" vs "existing requirements regressed" needs design work during Phase 1 planning.
+- **Predictive power linkage definition:** How exactly does a formal property "predict" a bug? The traceability-matrix.json provides requirement-to-test links, but the temporal ordering (formal check failed BEFORE test caught it) needs a precise definition and data model.
+- **Stabilization window defaults:** The research recommends 3 sessions + 30 min (SOFT_GATE) and 5 sessions + 2 hours (HARD_GATE), but these are educated guesses. Plan for configurable values with empirical tuning.
+- **Mann-Kendall vs OLS for trend detection:** FEATURES.md recommends Mann-Kendall (non-parametric, resistant to outliers); STACK.md and ARCHITECTURE.md use OLS linear regression. Both work for this data size. Recommend OLS for simplicity (5 lines vs 30+ lines for Mann-Kendall) with the option to upgrade if outlier resistance becomes necessary.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Claude Code Hooks Reference (code.claude.com/docs/en/hooks) -- WorktreeCreate, WorktreeRemove, PostToolUse, SessionStart event schemas
-- Claude Code Subagents (code.claude.com/docs/en/sub-agents) -- isolation, memory, model, skills, maxTurns fields
-- Claude Code Skills (code.claude.com/docs/en/skills) -- skill format, auto-discovery, context: fork
-- Claude Code Memory (code.claude.com/docs/en/memory) -- CLAUDE.md, auto-memory, /remember
-- Existing nForma codebase -- all 12 hooks, config-loader.js, budget-tracker.cjs, debt-state-machine.cjs, gsd-context-monitor.js, nf-precompact.js, nf-stop.js, nf-token-collector.js
+- Existing codebase: `bin/nf-solve.cjs` (3623 lines), `bin/compute-per-model-gates.cjs`, `bin/promote-gate-maturity.cjs` -- verified integration points
+- Existing data: `solve-state.json` (12 layers, residuals 0-6245), `promotion-changelog.json` (67KB, dedup issues confirmed)
+- Existing patterns: `hooks/nf-circuit-breaker.js` (oscillation signatures), `check-results.ndjson` (NDJSON append)
+- Existing TLA+: `NFSolveOrchestrator.tla` (386 lines, inner-loop spec)
 
 ### Secondary (MEDIUM confidence)
-- Ralph Loop / continuous-claude (GitHub) -- Stop hook re-feed, file-based state persistence, machine-verifiable completion
-- Claudeception / continuous-learning-skill (GitHub) -- skill extraction from error resolutions
-- Git worktree community reports (Medium, SuperGok, claudefa.st) -- worktree isolation issues, disk consumption, lifecycle management
-- AgentSpec: Customizable Runtime Enforcement (ICSE 2026) -- verification overhead measurements (~430ms per decision cycle)
-- Dynamic Model Routing and Cascading survey (arXiv 2603.04445) -- routing paradigms, capability mismatch
+- [MOOSE Fixed-Point Iteration](https://mooseframework.inl.gov/syntax/Executioner/FixedPointAlgorithms/) -- relaxation and oscillation handling in coupled physics solvers
+- [Flagger/Argo Rollouts](https://docs.flagger.app/usage/how-it-works) -- canary promotion with sustained metric health gates
+- [The 4/delta Bound: LLM-Verifier convergence](https://arxiv.org/pdf/2512.02080) -- convergence bounds for iterative verification loops
+- [Effort-aware defect prediction metrics](https://link.springer.com/article/10.1007/s10664-022-10186-7) -- recall-prioritized evaluation
 
 ### Tertiary (LOW confidence)
-- Cross-session pattern extraction quality -- no established benchmarks; will require empirical tuning
-- Multi-round slot worker interaction model -- untested against Claude Code subagent lifecycle constraints
-- Worktree hook cwd behavior with globally-installed nForma hooks -- needs empirical validation
+- Mann-Kendall trend test applicability to discrete count data with < 20 data points -- needs validation against actual residual series
+- Convergence velocity estimation accuracy with < 10 data points -- may produce unreliable extrapolations
 
 ---
-*Research completed: 2026-03-07*
+*Research completed: 2026-03-09*
 *Ready for roadmap: yes*
