@@ -53,7 +53,7 @@ None.
 | 241 | implement the migration (add --aggregate to compute-per-model-gates.cjs, migrate consumers, then delete global gates) | 2026-03-09 | 10064bbb | Verified | [241-implement-the-migration-add-aggregate-to](./quick/241-implement-the-migration-add-aggregate-to/) |
 | 242 | Add Gate Scoring page to TUI under Reqs (F2) module + fix Solve (F5) ASCII art from T to S shape | 2026-03-09 | 54c92a3b | Pending | [242-add-gate-scoring-page-to-tui-under-reqs-](./quick/242-add-gate-scoring-page-to-tui-under-reqs-/) |
 | 249 | Fix TUI requirements view to show two levels: principles and specifications | 2026-03-09 | 6dfc394c | Verified | [249-fix-tui-requirements-view-to-show-two-le](./quick/249-fix-tui-requirements-view-to-show-two-le/) |
-| 250 | Review full README as team and propose improvement plan | 2026-03-09 | b183ff22 | Pending | [250-review-full-readme-as-team-and-propose-i](./quick/250-review-full-readme-as-team-and-propose-i/) |
+| 250 | Review full README as team and propose improvement plan | 2026-03-09 | b183ff22 | Verified | [250-review-full-readme-as-team-and-propose-i](./quick/250-review-full-readme-as-team-and-propose-i/) |
 
 ## Session Continuity
 
