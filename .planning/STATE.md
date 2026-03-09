@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 Phase: Milestone boundary
 Plan: N/A
 Status: v0.30 and v0.31 milestones archived. Ready for /nf:new-milestone.
-Last activity: 2026-03-08 - Completed quick task 233: Implement insights-driven nForma improvements
+Last activity: 2026-03-09 - Completed quick task 235: Fix TLA+ model state space explosions and config bugs
 
 Progress: [##########] 100%
 
@@ -43,6 +43,7 @@ None.
 | 231 | Fix health checker W007 false positives for archived milestone phase directories | 2026-03-08 | ddfa4108 | Pending | [231-fix-health-checker-w007-false-positives-](./quick/231-fix-health-checker-w007-false-positives-/) |
 | 232 | Fix token consumption display in nf:health | 2026-03-08 | pending | Pending | [232-fix-token-consumption-in-health-workflow](./quick/232-fix-token-consumption-in-health-workflow/) |
 | 233 | Implement insights-driven nForma improvements (git safety, MCP guard, verify, preflight) | 2026-03-08 | 31c5ba8e | Verified | [233-implement-insights-driven-nforma-improve](./quick/233-implement-insights-driven-nforma-improve/) |
+| 235 | Fix TLA+ model state space explosions and config bugs | 2026-03-09 | b5baea94 | Pending | [235-fix-tla-model-state-space-explosions-and](./quick/235-fix-tla-model-state-space-explosions-and/) |
 
 ## Session Continuity
 
