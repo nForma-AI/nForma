@@ -24,6 +24,8 @@ const { execFileSync } = require('child_process');
 
 const ROOT = process.cwd();
 const FP_PATH = path.join(ROOT, '.planning', 'formal', 'acknowledged-false-positives.json');
+const ARCHIVE_PATH = path.join(ROOT, '.planning', 'formal', 'archived-solve-items.json');
+const CHANGELOG_PATH = path.join(ROOT, '.planning', 'formal', 'promotion-changelog.json');
 const DEBUG_INVARIANTS = process.argv.includes('--debug-invariants');
 const PAGE_SIZE = 10;
 
@@ -61,7 +63,21 @@ const CATEGORIES = [
  * Load sweep data from nf-solve.cjs and normalize to uniform item format.
  * @returns {Object} Map of category key -> { label, items[], error? }
  */
+// Lazy-load classification cache (read once per loadSweepData call)
+let _classCacheSingleton = null;
+function _loadClassCacheLazy() {
+  if (_classCacheSingleton) return _classCacheSingleton;
+  try {
+    const cached = JSON.parse(fs.readFileSync(CLASSIFY_CACHE_PATH, 'utf8'));
+    _classCacheSingleton = cached.classifications || {};
+  } catch (_) {
+    _classCacheSingleton = {};
+  }
+  return _classCacheSingleton;
+}
+
 function loadSweepData() {
+  _classCacheSingleton = null; // reset per call
   let solve;
   try {
     solve = require(path.join(__dirname, 'nf-solve.cjs'));
@@ -118,7 +134,13 @@ function loadSweepData() {
         }));
       }
 
-      result[cat.key] = { label: cat.label, items: rawItems, residual: sweep.residual };
+      // Filter out Haiku-classified FPs so they never enter residual counts
+      const classCache = _loadClassCacheLazy();
+      const catVerdicts = classCache[cat.key] || {};
+      const filtered = rawItems.filter(item => catVerdicts[itemKey(cat.key, item)] !== 'fp');
+      const fpCount = rawItems.length - filtered.length;
+
+      result[cat.key] = { label: cat.label, items: filtered, residual: sweep.residual, haiku_fp: fpCount };
     } catch (err) {
       result[cat.key] = { label: cat.label, items: [], error: 'Error: ' + err.message };
     }
@@ -184,6 +206,68 @@ function addRegexPattern(item, regex, reason) {
     enabled: true,
   });
   return writeFPFile(fpData);
+}
+
+// ── Archive persistence (dismiss but resurfaceable) ──────────────────────────
+
+function readArchiveFile() {
+  try {
+    return JSON.parse(fs.readFileSync(ARCHIVE_PATH, 'utf8'));
+  } catch {
+    return { entries: [] };
+  }
+}
+
+function writeArchiveFile(data) {
+  const tmpPath = ARCHIVE_PATH + '.tmp';
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+    fs.renameSync(tmpPath, ARCHIVE_PATH);
+    return true;
+  } catch (err) {
+    try { fs.unlinkSync(tmpPath); } catch {}
+    return false;
+  }
+}
+
+function archiveItem(item) {
+  const archiveData = readArchiveFile();
+  const now = new Date().toISOString();
+  const key = item.type === 'dtoc' ? `${item.doc_file}:${item.value}`
+    : item.type === 'dtor' ? `${item.doc_file}:${item.line}`
+    : item.file || item.summary;
+
+  // Don't duplicate
+  if (archiveData.entries.some(e => e.key === key)) return true;
+
+  archiveData.entries.push({
+    key,
+    type: item.type,
+    summary: item.summary || item.value || item.claim_text || item.file,
+    doc_file: item.doc_file,
+    file: item.file,
+    value: item.value,
+    line: item.line,
+    archived_at: now,
+  });
+  return writeArchiveFile(archiveData);
+}
+
+function unarchiveItem(item) {
+  const archiveData = readArchiveFile();
+  const key = item.type === 'dtoc' ? `${item.doc_file}:${item.value}`
+    : item.type === 'dtor' ? `${item.doc_file}:${item.line}`
+    : item.file || item.summary;
+  archiveData.entries = archiveData.entries.filter(e => e.key !== key);
+  return writeArchiveFile(archiveData);
+}
+
+function isArchived(item) {
+  const archiveData = readArchiveFile();
+  const key = item.type === 'dtoc' ? `${item.doc_file}:${item.value}`
+    : item.type === 'dtor' ? `${item.doc_file}:${item.line}`
+    : item.file || item.summary;
+  return archiveData.entries.some(e => e.key === key);
 }
 
 // ── File context reader ───────────────────────────────────────────────────────
@@ -342,6 +426,30 @@ function getFooterHints() {
   return '';
 }
 
+// Helper: compute visible (non-ANSI) length of a string
+function visLen(s) { return s.replace(/\x1b\[[0-9;]*m/g, '').length; }
+// Helper: pad string to visible width W, accounting for ANSI escapes
+function visPad(s, w) { return s + ' '.repeat(Math.max(0, w - visLen(s))); }
+
+/**
+ * Loads recent promotion/demotion entries from promotion-changelog.json.
+ * Returns entries within the last `days` days, sorted by timestamp descending.
+ * Fail-open: returns [] on any error.
+ */
+function loadRecentPromotions(days) {
+  try {
+    if (!fs.existsSync(CHANGELOG_PATH)) return [];
+    const data = JSON.parse(fs.readFileSync(CHANGELOG_PATH, 'utf8'));
+    if (!Array.isArray(data)) return [];
+    const cutoff = Date.now() - (days * 24 * 60 * 60 * 1000);
+    return data
+      .filter(e => e.timestamp && new Date(e.timestamp).getTime() >= cutoff)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  } catch (_) {
+    return [];
+  }
+}
+
 function renderMainMenu(lines, W, hr) {
   if (!state.data) {
     lines.push('  Loading...');
@@ -399,6 +507,26 @@ function renderMainMenu(lines, W, hr) {
   }
 
   lines.push(BOX.bl + hr + BOX.br);
+
+  // Recent Promotions section (display-only — no new depth states)
+  const recentPromos = loadRecentPromotions(7);
+  if (recentPromos.length > 0) {
+    lines.push('');
+    lines.push(BOX.tl + hr + BOX.tr);
+    lines.push(BOX.v + BOLD + visPad('  Recent Gate Changes (7d)', W) + RESET + BOX.v);
+    lines.push(BOX.ml + hr + BOX.mr);
+    for (const p of recentPromos.slice(0, 5)) {
+      const arrow = p.trigger === 'evidence_regression' ? RED + ' DEMOTED ' + RESET : GREEN + ' PROMOTED' + RESET;
+      const model = (p.model || '').length > 30 ? '...' + p.model.slice(-27) : p.model;
+      const line = '  ' + arrow + ' ' + model.padEnd(32) + p.from_level + ' -> ' + p.to_level;
+      lines.push(BOX.v + visPad(line, W) + BOX.v);
+    }
+    if (recentPromos.length > 5) {
+      const moreLine = DIM + '  ... and ' + (recentPromos.length - 5) + ' more' + RESET;
+      lines.push(BOX.v + visPad(moreLine, W) + BOX.v);
+    }
+    lines.push(BOX.bl + hr + BOX.br);
+  }
 }
 
 function renderCategoryList(lines, W, hr) {
@@ -935,15 +1063,33 @@ function main() {
  * @param {string} catKey  Category key: 'ctor', 'ttor', 'dtor'
  * @returns {{ ok: boolean, id?: string, reason?: string }}
  */
-function createRequirementFromItem(item, catKey) {
-  const rc = require(path.join(__dirname, 'requirements-core.cjs'));
+/**
+ * Build the default requirement text for a solve item (without creating it).
+ * @param {Object} item  Normalized solve item
+ * @param {string} catKey  Category key (ctor, ttor, dtor, dtoc)
+ * @returns {string} Proposed requirement text
+ */
+function proposeRequirementText(item, catKey) {
   const prefixMap = { ctor: 'Code module', ttor: 'Test file', dtor: 'Doc claim' };
   const prefix = prefixMap[catKey] || 'Solve item';
+  return prefix + ': ' + (item.file || item.claim_text || item.value || item.summary);
+}
+
+/**
+ * Create a requirement from a solve item.
+ * @param {Object} item  Normalized solve item
+ * @param {string} catKey  Category key (ctor, ttor, dtor, dtoc)
+ * @param {string} [textOverride]  Optional custom text (replaces default)
+ * @returns {{ ok: boolean, id?: string, text?: string }}
+ */
+function createRequirementFromItem(item, catKey, textOverride) {
+  const rc = require(path.join(__dirname, 'requirements-core.cjs'));
+  const text = textOverride || proposeRequirementText(item, catKey);
 
   const id = rc.nextRequirementId('SOLVE');
   const reqObj = {
     id,
-    text: prefix + ': ' + (item.file || item.claim_text || item.value || item.summary),
+    text,
     category: 'Solver-Discovered',
     status: 'Proposed',
     provenance: {
@@ -1097,7 +1243,7 @@ No explanation, no markdown, just the JSON object.`;
       try {
         const result = execFileSync(
           'claude',
-          ['-p', prompt, '--model', 'claude-haiku-4-5-20251001', '--no-input'],
+          ['-p', prompt, '--model', 'claude-haiku-4-5-20251001'],
           { encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] }
         ).trim();
 
@@ -1131,6 +1277,47 @@ No explanation, no markdown, just the JSON object.`;
     fs.writeFileSync(CLASSIFY_CACHE_PATH, JSON.stringify(cacheData, null, 2));
   } catch (_) { /* best effort */ }
 
+  // Auto-archive FP items so they're pre-dismissed in the TUI
+  let autoArchived = 0;
+  try {
+    const archiveData = readArchiveFile();
+    const existingKeys = new Set(archiveData.entries.map(e => e.key));
+    const now = new Date().toISOString();
+
+    for (const catKey of ['dtoc', 'ctor', 'ttor', 'dtor']) {
+      const items = sweepData[catKey]?.items || [];
+      const catVerdicts = classifications[catKey] || {};
+
+      for (const item of items) {
+        const iKey = itemKey(catKey, item);
+        if (catVerdicts[iKey] !== 'fp') continue;
+
+        // Derive archive key (same logic as archiveItem)
+        const archKey = catKey === 'dtoc' ? `${item.doc_file}:${item.value}`
+          : catKey === 'dtor' ? `${item.doc_file}:${item.line}`
+          : item.file || item.summary;
+        if (existingKeys.has(archKey)) continue;
+
+        archiveData.entries.push({
+          key: archKey,
+          type: catKey,
+          summary: item.summary || item.value || item.claim_text || item.file,
+          doc_file: item.doc_file,
+          file: item.file,
+          value: item.value,
+          line: item.line,
+          archived_at: now,
+          auto_classified: 'fp',
+        });
+        existingKeys.add(archKey);
+        autoArchived++;
+      }
+    }
+
+    if (autoArchived > 0) writeArchiveFile(archiveData);
+  } catch (_) { /* best effort */ }
+
+  stats.auto_archived = autoArchived;
   classifications._stats = stats;
   return classifications;
 }
@@ -1165,10 +1352,15 @@ if (require.main === module) {
     addRegexPattern,
     readFileContext,
     CATEGORIES,
+    proposeRequirementText,
     createRequirementFromItem,
     createTodoFromItem,
     classifyWithHaiku,
     readClassificationCache,
     itemKey,
+    readArchiveFile,
+    archiveItem,
+    unarchiveItem,
+    isArchived,
   };
 }
