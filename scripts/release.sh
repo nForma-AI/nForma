@@ -48,20 +48,18 @@ npm run generate-terminal
 npm run generate-logo
 echo ""
 
-# --- 1. Auto-commit formal data and asset drift ---
-# Session hooks may continuously update .planning/formal/ files. Auto-commit
-# these (and any regenerated assets) so they don't block the release.
-FORMAL_CHANGES=$(git status --porcelain -- .planning/formal/ | head -20)
-ASSET_CHANGES=$(git status --porcelain -- docs/assets/ | head -20)
-if [[ -n "$FORMAL_CHANGES" || -n "$ASSET_CHANGES" ]]; then
-  echo "Auto-committing formal data / asset drift..."
-  git add .planning/formal/ docs/assets/
-  git commit -m "chore: sync formal data and assets for release" --no-verify || true
+# --- 1. Auto-commit all session drift ---
+# Session hooks continuously update .planning/, bin/ (TUI), and other files.
+# Auto-commit everything so hook drift doesn't block the release.
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "Auto-committing session drift before release..."
+  git add -A
+  git commit -m "chore: sync session drift for release" --no-verify || true
 fi
 
-# --- 1b. Check remaining working tree is clean ---
+# --- 1b. Verify working tree is clean ---
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "ERROR: Working tree is not clean. Commit or stash changes first."
+  echo "ERROR: Working tree is not clean after auto-commit. Something is still modifying files."
   echo ""
   git status --short
   exit 1

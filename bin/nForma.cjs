@@ -34,12 +34,14 @@ const SOLVE_WORKER_PATH = path.join(__dirname, 'solve-worker.cjs');
  */
 function sweepAsync(fnName) {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
     const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
     const timeout = setTimeout(() => {
       child.kill('SIGKILL');
-      reject(new Error(`Sweep "${fnName}" timed out after 5 minutes`));
+      settle(reject, new Error(`Sweep "${fnName}" timed out after 5 minutes`));
     }, 300000);
 
     child.on('message', (msg) => {
@@ -47,16 +49,13 @@ function sweepAsync(fnName) {
         child.send({ cmd: 'sweep', fnName, id: 1 });
       } else if (msg.id === 1) {
         clearTimeout(timeout);
-        child.kill();
-        if (msg.ok) resolve(msg.result);
-        else reject(new Error(msg.error));
+        child.disconnect();
+        if (msg.ok) settle(resolve, msg.result);
+        else settle(reject, new Error(msg.error));
       }
     });
-    child.on('error', (err) => { clearTimeout(timeout); reject(err); });
-    child.on('exit', (code) => {
-      clearTimeout(timeout);
-      if (code && code !== 0) reject(new Error(`Worker exited with code ${code}`));
-    });
+    child.on('error', (err) => { clearTimeout(timeout); settle(reject, err); });
+    child.on('exit', () => { clearTimeout(timeout); });
   });
 }
 
@@ -66,12 +65,14 @@ function sweepAsync(fnName) {
  */
 function loadSweepDataAsync() {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
     const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
     const timeout = setTimeout(() => {
       child.kill('SIGKILL');
-      reject(new Error('loadSweepData timed out after 5 minutes'));
+      settle(reject, new Error('loadSweepData timed out after 5 minutes'));
     }, 300000);
 
     child.on('message', (msg) => {
@@ -79,16 +80,13 @@ function loadSweepDataAsync() {
         child.send({ cmd: 'loadSweepData', id: 1 });
       } else if (msg.id === 1) {
         clearTimeout(timeout);
-        child.kill();
-        if (msg.ok) resolve(msg.result);
-        else reject(new Error(msg.error));
+        child.disconnect();
+        if (msg.ok) settle(resolve, msg.result);
+        else settle(reject, new Error(msg.error));
       }
     });
-    child.on('error', (err) => { clearTimeout(timeout); reject(err); });
-    child.on('exit', (code) => {
-      clearTimeout(timeout);
-      if (code && code !== 0) reject(new Error(`Worker exited with code ${code}`));
-    });
+    child.on('error', (err) => { clearTimeout(timeout); settle(reject, err); });
+    child.on('exit', () => { clearTimeout(timeout); });
   });
 }
 
@@ -100,12 +98,14 @@ function loadSweepDataAsync() {
  */
 function classifyAsync(sweepData, opts = {}) {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
     const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
     const timeout = setTimeout(() => {
       child.kill('SIGKILL');
-      reject(new Error('Classification timed out after 10 minutes'));
+      settle(reject, new Error('Classification timed out after 10 minutes'));
     }, 600000);
 
     child.on('message', (msg) => {
@@ -113,16 +113,13 @@ function classifyAsync(sweepData, opts = {}) {
         child.send({ cmd: 'classify', sweepData, opts, id: 1 });
       } else if (msg.id === 1) {
         clearTimeout(timeout);
-        child.kill();
-        if (msg.ok) resolve(msg.result);
-        else reject(new Error(msg.error));
+        child.disconnect();
+        if (msg.ok) settle(resolve, msg.result);
+        else settle(reject, new Error(msg.error));
       }
     });
-    child.on('error', (err) => { clearTimeout(timeout); reject(err); });
-    child.on('exit', (code) => {
-      clearTimeout(timeout);
-      if (code && code !== 0) reject(new Error(`Worker exited with code ${code}`));
-    });
+    child.on('error', (err) => { clearTimeout(timeout); settle(reject, err); });
+    child.on('exit', () => { clearTimeout(timeout); });
   });
 }
 
@@ -134,12 +131,14 @@ function classifyAsync(sweepData, opts = {}) {
  */
 function batchSweepAsync(fnNames, onResult) {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
     const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
     const timeout = setTimeout(() => {
       child.kill('SIGKILL');
-      reject(new Error('Batch sweep timed out after 10 minutes'));
+      settle(reject, new Error('Batch sweep timed out after 10 minutes'));
     }, 600000);
 
     child.on('message', (msg) => {
@@ -150,15 +149,12 @@ function batchSweepAsync(fnNames, onResult) {
         else onResult(msg.fnName, null, msg.error);
       } else if (msg.cmd === 'batchDone') {
         clearTimeout(timeout);
-        child.kill();
-        resolve();
+        child.disconnect();
+        settle(resolve);
       }
     });
-    child.on('error', (err) => { clearTimeout(timeout); reject(err); });
-    child.on('exit', (code) => {
-      clearTimeout(timeout);
-      if (code && code !== 0) reject(new Error(`Worker exited with code ${code}`));
-    });
+    child.on('error', (err) => { clearTimeout(timeout); settle(reject, err); });
+    child.on('exit', () => { clearTimeout(timeout); });
   });
 }
 
