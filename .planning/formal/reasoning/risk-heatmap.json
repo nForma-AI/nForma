@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-06T14:36:52.551Z",
+  "generated": "2026-03-09T13:52:46.369Z",
   "formula": "risk_score = RPN * (1 + coverage_gap_penalty); coverage_gap_penalty = 0.5 if missing_in_model, else 0.0",
   "risk_tiers": {
     "critical": "risk_score >= 200",
@@ -13,11 +13,11 @@
       "state": "COLLECTING_VOTES",
       "event": "CIRCUIT_BREAK",
       "to_state": "COLLECTING_VOTES",
-      "rpn": 120,
+      "rpn": 240,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 180,
-      "risk_tier": "high",
+      "risk_score": 360,
+      "risk_tier": "critical",
       "derived_from": [
         {
           "layer": "L3",
@@ -32,14 +32,36 @@
       ]
     },
     {
+      "state": "DELIBERATING",
+      "event": "DECIDE",
+      "to_state": "DECIDED",
+      "rpn": 256,
+      "coverage_gap": false,
+      "coverage_gap_penalty": 0,
+      "risk_score": 256,
+      "risk_tier": "critical",
+      "derived_from": [
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-DECIDE]"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.DECIDE"
+        }
+      ]
+    },
+    {
       "state": "IDLE",
       "event": "CIRCUIT_BREAK",
       "to_state": "IDLE",
-      "rpn": 120,
+      "rpn": 240,
       "coverage_gap": false,
       "coverage_gap_penalty": 0,
-      "risk_score": 120,
-      "risk_tier": "high",
+      "risk_score": 240,
+      "risk_tier": "critical",
       "derived_from": [
         {
           "layer": "L3",
@@ -57,11 +79,11 @@
       "state": "IDLE",
       "event": "DECIDE",
       "to_state": "IDLE",
-      "rpn": 80,
+      "rpn": 160,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 120,
-      "risk_tier": "high",
+      "risk_score": 240,
+      "risk_tier": "critical",
       "derived_from": [
         {
           "layer": "L3",
@@ -79,11 +101,11 @@
       "state": "IDLE",
       "event": "VOTES_COLLECTED",
       "to_state": "IDLE",
-      "rpn": 80,
+      "rpn": 160,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 120,
-      "risk_tier": "high",
+      "risk_score": 240,
+      "risk_tier": "critical",
       "derived_from": [
         {
           "layer": "L3",
@@ -101,11 +123,11 @@
       "state": "COLLECTING_VOTES",
       "event": "QUORUM_START",
       "to_state": "COLLECTING_VOTES",
-      "rpn": 80,
+      "rpn": 160,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 120,
-      "risk_tier": "high",
+      "risk_score": 240,
+      "risk_tier": "critical",
       "derived_from": [
         {
           "layer": "L3",
@@ -123,11 +145,11 @@
       "state": "COLLECTING_VOTES",
       "event": "DECIDE",
       "to_state": "COLLECTING_VOTES",
-      "rpn": 80,
+      "rpn": 160,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 120,
-      "risk_tier": "high",
+      "risk_score": 240,
+      "risk_tier": "critical",
       "derived_from": [
         {
           "layer": "L3",
@@ -142,13 +164,57 @@
       ]
     },
     {
+      "state": "COLLECTING_VOTES",
+      "event": "VOTES_COLLECTED",
+      "to_state": "DELIBERATING",
+      "rpn": 192,
+      "coverage_gap": false,
+      "coverage_gap_penalty": 0,
+      "risk_score": 192,
+      "risk_tier": "high",
+      "derived_from": [
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-VOTES_COLLECTED]"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.VOTES_COLLECTED"
+        }
+      ]
+    },
+    {
+      "state": "IDLE",
+      "event": "QUORUM_START",
+      "to_state": "COLLECTING_VOTES",
+      "rpn": 160,
+      "coverage_gap": false,
+      "coverage_gap_penalty": 0,
+      "risk_score": 160,
+      "risk_tier": "high",
+      "derived_from": [
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-IDLE-QUORUM_START]"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.IDLE.QUORUM_START"
+        }
+      ]
+    },
+    {
       "state": "DELIBERATING",
       "event": "CIRCUIT_BREAK",
       "to_state": "DELIBERATING",
-      "rpn": 72,
+      "rpn": 96,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 108,
+      "risk_score": 144,
       "risk_tier": "high",
       "derived_from": [
         {
@@ -164,102 +230,14 @@
       ]
     },
     {
-      "state": "DELIBERATING",
-      "event": "DECIDE",
-      "to_state": "DECIDED",
-      "rpn": 96,
-      "coverage_gap": false,
-      "coverage_gap_penalty": 0,
-      "risk_score": 96,
-      "risk_tier": "medium",
-      "derived_from": [
-        {
-          "layer": "L3",
-          "artifact": "reasoning/hazard-model.json",
-          "ref": "hazards[id=HAZARD-DELIBERATING-DECIDE]"
-        },
-        {
-          "layer": "L2",
-          "artifact": "semantics/observed-fsm.json",
-          "ref": "observed_transitions.DELIBERATING.DECIDE"
-        }
-      ]
-    },
-    {
-      "state": "IDLE",
-      "event": "QUORUM_START",
-      "to_state": "COLLECTING_VOTES",
-      "rpn": 80,
-      "coverage_gap": false,
-      "coverage_gap_penalty": 0,
-      "risk_score": 80,
-      "risk_tier": "medium",
-      "derived_from": [
-        {
-          "layer": "L3",
-          "artifact": "reasoning/hazard-model.json",
-          "ref": "hazards[id=HAZARD-IDLE-QUORUM_START]"
-        },
-        {
-          "layer": "L2",
-          "artifact": "semantics/observed-fsm.json",
-          "ref": "observed_transitions.IDLE.QUORUM_START"
-        }
-      ]
-    },
-    {
-      "state": "COLLECTING_VOTES",
-      "event": "VOTES_COLLECTED",
-      "to_state": "DELIBERATING",
-      "rpn": 72,
-      "coverage_gap": false,
-      "coverage_gap_penalty": 0,
-      "risk_score": 72,
-      "risk_tier": "medium",
-      "derived_from": [
-        {
-          "layer": "L3",
-          "artifact": "reasoning/hazard-model.json",
-          "ref": "hazards[id=HAZARD-COLLECTING_VOTES-VOTES_COLLECTED]"
-        },
-        {
-          "layer": "L2",
-          "artifact": "semantics/observed-fsm.json",
-          "ref": "observed_transitions.COLLECTING_VOTES.VOTES_COLLECTED"
-        }
-      ]
-    },
-    {
-      "state": "DELIBERATING",
-      "event": "QUORUM_START",
-      "to_state": "DELIBERATING",
-      "rpn": 48,
-      "coverage_gap": true,
-      "coverage_gap_penalty": 0.5,
-      "risk_score": 72,
-      "risk_tier": "medium",
-      "derived_from": [
-        {
-          "layer": "L3",
-          "artifact": "reasoning/hazard-model.json",
-          "ref": "hazards[id=HAZARD-DELIBERATING-QUORUM_START]"
-        },
-        {
-          "layer": "L2",
-          "artifact": "semantics/observed-fsm.json",
-          "ref": "observed_transitions.DELIBERATING.QUORUM_START"
-        }
-      ]
-    },
-    {
       "state": "DECIDED",
       "event": "DECIDE",
       "to_state": "DECIDED",
-      "rpn": 40,
+      "rpn": 80,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 60,
-      "risk_tier": "medium",
+      "risk_score": 120,
+      "risk_tier": "high",
       "derived_from": [
         {
           "layer": "L3",
@@ -277,11 +255,11 @@
       "state": "DECIDED",
       "event": "CIRCUIT_BREAK",
       "to_state": "DECIDED",
-      "rpn": 40,
+      "rpn": 80,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 60,
-      "risk_tier": "medium",
+      "risk_score": 120,
+      "risk_tier": "high",
       "derived_from": [
         {
           "layer": "L3",
@@ -299,11 +277,11 @@
       "state": "DECIDED",
       "event": "QUORUM_START",
       "to_state": "DECIDED",
-      "rpn": 40,
+      "rpn": 80,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 60,
-      "risk_tier": "medium",
+      "risk_score": 120,
+      "risk_tier": "high",
       "derived_from": [
         {
           "layer": "L3",
@@ -321,11 +299,11 @@
       "state": "DECIDED",
       "event": "VOTES_COLLECTED",
       "to_state": "DECIDED",
-      "rpn": 40,
+      "rpn": 80,
       "coverage_gap": true,
       "coverage_gap_penalty": 0.5,
-      "risk_score": 60,
-      "risk_tier": "medium",
+      "risk_score": 120,
+      "risk_tier": "high",
       "derived_from": [
         {
           "layer": "L3",
@@ -341,12 +319,34 @@
     },
     {
       "state": "DELIBERATING",
+      "event": "QUORUM_START",
+      "to_state": "DELIBERATING",
+      "rpn": 64,
+      "coverage_gap": true,
+      "coverage_gap_penalty": 0.5,
+      "risk_score": 96,
+      "risk_tier": "medium",
+      "derived_from": [
+        {
+          "layer": "L3",
+          "artifact": "reasoning/hazard-model.json",
+          "ref": "hazards[id=HAZARD-DELIBERATING-QUORUM_START]"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.QUORUM_START"
+        }
+      ]
+    },
+    {
+      "state": "DELIBERATING",
       "event": "VOTES_COLLECTED",
       "to_state": "DELIBERATING",
-      "rpn": 16,
+      "rpn": 32,
       "coverage_gap": false,
       "coverage_gap_penalty": 0,
-      "risk_score": 16,
+      "risk_score": 32,
       "risk_tier": "low",
       "derived_from": [
         {
@@ -365,9 +365,9 @@
   "summary": {
     "total": 16,
     "by_risk_tier": {
-      "critical": 0,
+      "critical": 7,
       "high": 7,
-      "medium": 8,
+      "medium": 1,
       "low": 1
     },
     "coverage_gap_count": 11
