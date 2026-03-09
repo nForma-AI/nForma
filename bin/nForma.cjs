@@ -54,6 +54,27 @@ if (cliArgs.includes('--reset-breaker')) {
   process.exit(0);
 }
 
+// ─── Target path (project root for TUI operations) ──────────────────────────
+// Settable via --target <path> CLI arg, startup modal, or [C-t] shortcut.
+// All project-data reads (config, requirements, scoreboard) use this instead
+// of process.cwd(). Existing sessions keep their own cwd.
+let targetPath = null; // set after TUI loads (or from CLI arg)
+const _targetIdx = cliArgs.indexOf('--target');
+if (_targetIdx !== -1 && cliArgs[_targetIdx + 1]) {
+  const candidate = path.resolve(cliArgs[_targetIdx + 1]);
+  if (fs.existsSync(candidate)) {
+    targetPath = candidate;
+  } else {
+    process.stderr.write(`--target path does not exist: ${candidate}\n`);
+    process.exit(1);
+  }
+}
+
+/** Returns the current target path, falling back to process.cwd(). */
+function getTargetPath() {
+  return targetPath || process.cwd();
+}
+
 // ─── Screenshot CLI (non-interactive, exits before TUI loads) ────────────────
 // Derives module data from the canonical MODULES array (defined below at line ~240)
 // to guarantee screenshots always match the live TUI.
@@ -188,7 +209,7 @@ if (cliArgs.includes('--screenshot')) {
       `  ${WHITE}workflow.research${RESET}           ${GREEN}true${RESET}`,
       `  ${WHITE}workflow.plan_check${RESET}         ${GREEN}true${RESET}`,
       `  ${WHITE}workflow.verifier${RESET}           ${GREEN}true${RESET}`,
-      `  ${WHITE}workflow.auto_advance${RESET}       ${DIM}false${RESET}`,
+      `  ${WHITE}workflow.auto_advance${RESET}       ${GREEN}true${RESET}`,
       `  ${WHITE}parallelization.enabled${RESET}     ${GREEN}true${RESET}`,
       `  ${WHITE}nyquist_validation${RESET}          ${GREEN}true${RESET}`,
       `  ${WHITE}git.branching_strategy${RESET}      ${TEAL}none${RESET}`,
@@ -221,9 +242,9 @@ if (cliArgs.includes('--screenshot')) {
   // Header
   const headerLine = `${SALMON}${BOLD}n${CYAN_NF}Forma${RESET} ${SALMON}AI${RESET} ${DIM}· agent manager${RESET}`;
   const keyHints = `${TEAL}[F1]${RESET} Agt  ${TEAL}[F2]${RESET} Req  ${TEAL}[F3]${RESET} Cfg  ${TEAL}[F4]${RESET} Ses  ${TEAL}[F5]${RESET} Sol  ${TEAL}[Tab]${RESET} cycle  ${TEAL}[q]${RESET} quit`;
-  process.stdout.write(`┌${'─'.repeat(118)}┐\n`);
-  process.stdout.write(`│ ${headerLine}  ${keyHints} │\n`);
-  process.stdout.write(`├${'─'.repeat(7)}┬${'─'.repeat(24)}┬${'─'.repeat(85)}┤\n`);
+  process.stdout.write(` ${'─'.repeat(118)} \n`);
+  process.stdout.write(`  ${headerLine}  ${keyHints}  \n`);
+  process.stdout.write(` ${'─'.repeat(7)} ${'─'.repeat(24)} ${'─'.repeat(85)} \n`);
 
   // Activity bar icons + menu + content area
   const artByModule = [
@@ -279,13 +300,13 @@ if (cliArgs.includes('--screenshot')) {
       contentCol = pad(line, CW);
     }
 
-    process.stdout.write(`│${actCol}│${menuCol}│${contentCol}│\n`);
+    process.stdout.write(` ${actCol} ${menuCol} ${contentCol} \n`);
   }
 
   // Status bar
-  process.stdout.write(`├${'─'.repeat(7)}┴${'─'.repeat(24)}┴${'─'.repeat(85)}┤\n`);
-  process.stdout.write(`│ ${DIM}nForma TUI${RESET}${' '.repeat(107)}│\n`);
-  process.stdout.write(`└${'─'.repeat(118)}┘\n`);
+  process.stdout.write(` ${'─'.repeat(7)} ${'─'.repeat(24)} ${'─'.repeat(85)} \n`);
+  process.stdout.write(`  ${DIM}nForma TUI${RESET}${' '.repeat(107)} \n`);
+  process.stdout.write(` ${'─'.repeat(118)} \n`);
 
   process.exit(0);
 }
@@ -633,11 +654,11 @@ function createSession(name, cwd, resumeSessionId) {
     toast('Sessions require blessed-xterm (native rebuild needed). Run: npm rebuild', true);
     return null;
   }
-  // Guard: fall back to process.cwd() if provided cwd no longer exists (e.g., resumed session)
-  let effectiveCwd = cwd || process.cwd();
+  // Guard: fall back to getTargetPath() if provided cwd no longer exists (e.g., resumed session)
+  let effectiveCwd = cwd || getTargetPath();
   if (!fs.existsSync(effectiveCwd)) {
-    logEvent('warn', `Session cwd "${effectiveCwd}" no longer exists, falling back to ${process.cwd()}`);
-    effectiveCwd = process.cwd();
+    logEvent('warn', `Session cwd "${effectiveCwd}" no longer exists, falling back to ${getTargetPath()}`);
+    effectiveCwd = getTargetPath();
   }
   const id = ++sessionIdCounter;
   const claudeSessionId = resumeSessionId || crypto.randomUUID();
@@ -652,7 +673,7 @@ function createSession(name, cwd, resumeSessionId) {
     cwd: effectiveCwd,
     cursorType: 'block',
     scrollback: 1000,
-    top: 3, left: 35, right: 0, bottom: 2,
+    top: 4, left: 35, right: 0, bottom: 2,
     border: { type: 'line' },
     style: {
       bg: S.mid,
@@ -727,8 +748,8 @@ function killSession(idx) {
 async function newSessionFlow() {
   const name = await promptInput({ title: 'New Session', prompt: 'Session name:' });
   if (!name) return;
-  const cwd = await promptInput({ title: 'New Session', prompt: 'Working directory:', default: process.cwd() });
-  createSession(name, cwd || process.cwd());
+  const cwd = await promptInput({ title: 'New Session', prompt: 'Working directory:', default: getTargetPath() });
+  createSession(name, cwd || getTargetPath());
 }
 
 async function killSessionFlow() {
@@ -904,7 +925,7 @@ function agentRows() {
       let failPath;
       try {
         const pp = require('./planning-paths.cjs');
-        failPath = pp.resolveWithFallback(process.cwd(), 'quorum-failures');
+        failPath = pp.resolveWithFallback(getTargetPath(), 'quorum-failures');
       } catch (_) {
         failPath = path.join(os.homedir(), '.claude', 'nf', 'quorum-failures.json');
       }
@@ -931,7 +952,7 @@ function buildHeaderInfo() {
 
   let profile = '—';
   try {
-    const cfgPath = path.join(process.cwd(), '.planning', 'config.json');
+    const cfgPath = path.join(getTargetPath(), '.planning', 'config.json');
     if (fs.existsSync(cfgPath))
       profile = JSON.parse(fs.readFileSync(cfgPath, 'utf8')).model_profile || '—';
   } catch (_) {}
@@ -989,13 +1010,13 @@ const screen = blessed.screen({ smartCSR: true, title: 'nForma' });
 // Auto-selected based on terminal background (OSC 11 probe).
 // Override with NF_THEME=dark or NF_THEME=light env var.
 const S = _detectedLightMode
-  ? { base: '#f0f0f0', mid: '#e8e8e8', top: '#f5f5f5', bdr: '#cccccc', sel: '#d0e8e8',
+  ? { base: '#f0f0f0', mid: '#e8e8e8', top: '#f5f5f5', bdr: '#e8e8e8', sel: '#d0e8e8',
       fg: '#333333', dim: '#888888', accent: '#0e7070', headerFg: '#222222' }
-  : { base: '#1a1a1a', mid: '#1e1e1e', top: '#222222', bdr: '#3a3a3a', sel: '#1e3a3a',
+  : { base: '#1a1a1a', mid: '#1e1e1e', top: '#222222', bdr: '#1e1e1e', sel: '#1e3a3a',
       fg: '#aaaaaa', dim: '#777777', accent: '#4a9090', headerFg: '#cccccc' };
 
 const header = blessed.box({
-  top: 0, left: 0, width: '100%', height: 3,
+  top: 0, left: 0, width: '100%', height: 4,
   tags: true,
   border: { type: 'line' },
   style: { bg: S.top, border: { fg: S.bdr } },
@@ -1007,19 +1028,31 @@ function renderHeader() {
   const keys = `{${A}-fg}[F1]{/} Agt  {${A}-fg}[F2]{/} Req  {${A}-fg}[F3]{/} Cfg  {${A}-fg}[F4]{/} Ses  {${A}-fg}[F5]{/} Sol  {${A}-fg}[Tab]{/} cycle  {${A}-fg}[C-\\]{/} menu  {${A}-fg}[q]{/} quit `;
   const w = screen.width || 120;
   const gap = Math.max(2, w - 25 - 74);
-  header.setContent(logo + ' '.repeat(gap) + keys);
+  const line1 = logo + ' '.repeat(gap) + keys;
+
+  // Line 2: target path with edit hint
+  const tp = getTargetPath();
+  const home = os.homedir();
+  const display = tp.startsWith(home) ? '~' + tp.slice(home.length) : tp;
+  const maxPathLen = Math.max(20, w - 22);
+  const truncated = display.length > maxPathLen
+    ? '…' + display.slice(display.length - maxPathLen + 1)
+    : display;
+  const line2 = ` {${S.dim}-fg}Target:{/} {${S.accent}-fg}${truncated}{/}  {${S.dim}-fg}[C-t] change{/}`;
+
+  header.setContent(line1 + '\n' + line2);
   screen.render();
 }
 
 const activityBar = blessed.box({
-  top: 3, left: 0, width: 9, bottom: 2,
+  top: 4, left: 0, width: 9, bottom: 2,
   tags: true,
   border: { type: 'line' },
   style: { bg: S.base, fg: S.dim, border: { fg: S.bdr } },
 });
 
 const menuList = blessed.list({
-  top: 3, left: 9, width: 26, bottom: 2,
+  top: 4, left: 9, width: 26, bottom: 2,
   label: ` {${S.dim}-fg}Agents{/} `, tags: true,
   border: { type: 'line' },
   style: {
@@ -1033,7 +1066,7 @@ const menuList = blessed.list({
 });
 
 const contentBox = blessed.box({
-  top: 3, left: 35, right: 0, bottom: 2,
+  top: 4, left: 35, right: 0, bottom: 2,
   label: ` {${S.dim}-fg}Content{/} `, tags: true,
   border: { type: 'line' },
   scrollable: true, alwaysScroll: true, mouse: true,
@@ -2272,9 +2305,9 @@ function renderScoreboard() {
     let sbPath;
     try {
       const pp = require('./planning-paths.cjs');
-      sbPath = pp.resolveWithFallback(process.cwd(), 'quorum-scoreboard');
+      sbPath = pp.resolveWithFallback(getTargetPath(), 'quorum-scoreboard');
     } catch (_) {
-      sbPath = path.resolve(process.cwd(), path.join('.planning', 'quorum-scoreboard.json'));
+      sbPath = path.resolve(getTargetPath(), path.join('.planning', 'quorum-scoreboard.json'));
     }
     if (!fs.existsSync(sbPath)) {
       setContent('Scoreboard', '{gray-fg}No scoreboard found{/}');
@@ -2417,11 +2450,11 @@ const AGENT_LABELS = {
 };
 
 function readProjectConfig() {
-  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), '.planning', 'config.json'), 'utf8')); }
+  try { return JSON.parse(fs.readFileSync(path.join(getTargetPath(), '.planning', 'config.json'), 'utf8')); }
   catch (_) { return {}; }
 }
 function writeProjectConfig(cfg) {
-  const p = path.join(process.cwd(), '.planning', 'config.json');
+  const p = path.join(getTargetPath(), '.planning', 'config.json');
   fs.mkdirSync(path.dirname(p), { recursive: true });
   fs.writeFileSync(p, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
 }
@@ -3762,6 +3795,32 @@ menuList.on('select', (_, idx) => {
   const item = MODULES[activeModuleIdx].items[idx];
   if (item) dispatch(item.action);
 });
+menuList.key(['space'], () => {
+  const idx = menuList.selected;
+  const item = MODULES[activeModuleIdx].items[idx];
+  if (item) dispatch(item.action);
+});
+
+// ─── Target path shortcut [C-t] ──────────────────────────────────────────────
+screen.key(['C-t'], async () => {
+  try {
+    const newPath = await promptInput({
+      title: 'Target Path',
+      prompt: 'Project working directory:',
+      default: getTargetPath(),
+    });
+    if (!newPath) return;
+    const resolved = path.resolve(newPath);
+    if (!fs.existsSync(resolved)) {
+      toast(`Path does not exist: ${resolved}`, true);
+      return;
+    }
+    targetPath = resolved;
+    renderHeader();
+    refreshStatusBar();
+    toast(`Target → ${resolved}`);
+  } catch (_) { /* cancelled */ }
+});
 
 // ─── Background update notice ─────────────────────────────────────────────────
 const UPDATE_AGENTS_IDX = MODULES[0].items.findIndex(m => m.action === 'update-agents');
@@ -3817,6 +3876,35 @@ if (!process.env.NF_TEST_MODE) {
   }
   renderList();
   screen.render();
+
+  // ─── Startup target-path modal (if not set via --target) ──────────────────
+  if (!targetPath) {
+    (async () => {
+      try {
+        const chosen = await promptInput({
+          title: 'Target Path',
+          prompt: 'Project working directory:',
+          default: process.cwd(),
+        });
+        if (chosen) {
+          const resolved = path.resolve(chosen);
+          if (fs.existsSync(resolved)) {
+            targetPath = resolved;
+          } else {
+            toast(`Path does not exist: ${resolved}`, true);
+            targetPath = process.cwd();
+          }
+        } else {
+          targetPath = process.cwd();
+        }
+      } catch (_) {
+        // User pressed Esc — default to cwd
+        targetPath = process.cwd();
+      }
+      renderHeader();
+      refreshStatusBar();
+    })();
+  }
 }
 
 // ─── Exports (pure functions for testing) ────────────────────────────────────
@@ -3837,4 +3925,11 @@ module.exports._pure = {
   savePersistedSessions,
   removePersistedSession,
   SESSIONS_FILE,
+  deriveProviderName,
+  buildHeaderInfo,
+  readProjectConfig,
+  writeProjectConfig,
+  getTargetPath,
+  get targetPath() { return targetPath; },
+  set targetPath(v) { targetPath = v; },
 };
