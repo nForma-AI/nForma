@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 618">
+  <!-- Window frame -->
+  <rect fill="#24283b" width="960" height="618" rx="12"/>
+  <rect fill="#1a1b26" x="1" y="1" width="958" height="616" rx="11"/>
+
+  <!-- Title bar -->
+  <rect fill="#1f2335" x="1" y="1" width="958" height="36" rx="11"/>
+  <rect fill="#1a1b26" x="1" y="26" width="958" height="12"/>
+
+  <!-- Traffic lights -->
+  <circle fill="#f7768e"    cx="24" cy="19" r="7"/>
+  <circle fill="#e0af68" cx="48" cy="19" r="7"/>
+  <circle fill="#9ece6a"  cx="72" cy="19" r="7"/>
+
+  <!-- Window title -->
+  <text x="480" y="24" text-anchor="middle"
+        font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="13" fill="#565f89">Terminal</text>
+
+  <!-- Content -->
+  <g transform="translate(32, 64)">
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="0" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">npx @nforma.ai/nforma@latest</tspan></text>
+    <rect x="84.0" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="92.4" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="100.8" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="109.2" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="117.6" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="126.0" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="134.4" y="22.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M142.8,33.0 H147.0 V44.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="84.0" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="92.4" y="44.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M109.2,55.0 H105.0 V66.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="109.2" y1="55.0" x2="117.6" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="117.6" y1="55.0" x2="126.0" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="126.0" y1="55.0" x2="134.4" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="134.4" y1="55.0" x2="142.8" y2="55.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M142.8,55.0 H147.0 V44.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="8.4" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="16.8" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="25.2" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="33.6" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="42.0" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="50.4" y="66.0" width="8.4" height="22" fill="#f4956a"/>
+    <path d="M58.8,77.0 H63.0 V88.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="84.0" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="92.4" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="100.8" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="109.2" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="117.6" y="66.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M126.0,77.0 H130.2 V88.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="8.4" y="88.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="16.8" y="88.0" width="8.4" height="22" fill="#f4956a"/>
+    <path d="M33.6,99.0 H29.4 V110.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="33.6" y1="99.0" x2="42.0" y2="99.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="42.0" y1="99.0" x2="50.4" y2="99.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="50.4" y="88.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="58.8" y="88.0" width="8.4" height="22" fill="#f4956a"/>
+    <path d="M67.2,99.0 H71.4 V110.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="84.0" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="92.4" y="88.0" width="8.4" height="22" fill="#7dcfff"/>
+    <path d="M109.2,99.0 H105.0 V110.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="109.2" y1="99.0" x2="117.6" y2="99.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="117.6" y1="99.0" x2="126.0" y2="99.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M126.0,99.0 H130.2 V88.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="8.4" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="16.8" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <line x1="29.4" y1="110.0" x2="29.4" y2="132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="50.4" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <rect x="58.8" y="110.0" width="8.4" height="22" fill="#f4956a"/>
+    <line x1="71.4" y1="110.0" x2="71.4" y2="132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <rect x="84.0" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <rect x="92.4" y="110.0" width="8.4" height="22" fill="#7dcfff"/>
+    <line x1="105.0" y1="110.0" x2="105.0" y2="132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M16.8,143.0 H12.6 V132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="16.8" y1="143.0" x2="25.2" y2="143.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M25.2,143.0 H29.4 V132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M58.8,143.0 H54.6 V132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="58.8" y1="143.0" x2="67.2" y2="143.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M67.2,143.0 H71.4 V132.0" stroke="#f4956a" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M92.4,143.0 H88.2 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <line x1="92.4" y1="143.0" x2="100.8" y2="143.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <path d="M100.8,143.0 H105.0 V132.0" stroke="#7dcfff" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="198" xml:space="preserve"><tspan fill="#c0caf5">  nForma — Consensus before code. Proof before production. </tspan><tspan fill="#565f89">v0.31.2</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="220" xml:space="preserve"><tspan fill="#565f89">  Built on GSD-CC by TÂCHES.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="242" xml:space="preserve"><tspan fill="#565f89">  A quorum of diverse coding agents + formal verification. By Jonathan Borduas.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="286" xml:space="preserve"><tspan fill="#7dcfff">  The task of leadership is to create an alignment of strengths</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="308" xml:space="preserve"><tspan fill="#7dcfff">   so strong that it makes the system’s weaknesses irrelevant.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="330" xml:space="preserve"><tspan fill="#565f89">  — Peter Drucker</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="374" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> 32 commands installed</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="396" xml:space="preserve"><tspan fill="#9ece6a">  ✓</tspan><tspan fill="#c0caf5"> Quorum hooks configured</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="440" xml:space="preserve"><tspan fill="#9ece6a">  Done! </tspan><tspan fill="#c0caf5">Run </tspan><tspan fill="#7dcfff">/nf:help</tspan><tspan fill="#c0caf5"> to get started.</tspan></text>
+    <text font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="14" y="484" xml:space="preserve"><tspan fill="#7aa2f7">~</tspan><tspan fill="#565f89"> $ </tspan><tspan fill="#c0caf5">▌</tspan></text>
+  </g>
+</svg>

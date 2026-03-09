@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 2000" width="2000" height="2000">
+  <rect fill="#1a1b26" width="2000" height="2000"/>
+  <g transform="translate(568, 622)">
+    <rect x="480" y="0" width="48" height="126" fill="#7dcfff"/>
+    <rect x="528" y="0" width="48" height="126" fill="#7dcfff"/>
+    <rect x="576" y="0" width="48" height="126" fill="#7dcfff"/>
+    <rect x="624" y="0" width="48" height="126" fill="#7dcfff"/>
+    <rect x="672" y="0" width="48" height="126" fill="#7dcfff"/>
+    <rect x="720" y="0" width="48" height="126" fill="#7dcfff"/>
+    <rect x="768" y="0" width="48" height="126" fill="#7dcfff"/>
+    <path d="M816,63 H840 V126" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="480" y="126" width="48" height="126" fill="#7dcfff"/>
+    <rect x="528" y="126" width="48" height="126" fill="#7dcfff"/>
+    <path d="M624,189 H600 V252" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="624" y1="189" x2="672" y2="189" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="672" y1="189" x2="720" y2="189" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="720" y1="189" x2="768" y2="189" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="768" y1="189" x2="816" y2="189" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <path d="M816,189 H840 V126" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="48" y="252" width="48" height="126" fill="#f4956a"/>
+    <rect x="96" y="252" width="48" height="126" fill="#f4956a"/>
+    <rect x="144" y="252" width="48" height="126" fill="#f4956a"/>
+    <rect x="192" y="252" width="48" height="126" fill="#f4956a"/>
+    <rect x="240" y="252" width="48" height="126" fill="#f4956a"/>
+    <rect x="288" y="252" width="48" height="126" fill="#f4956a"/>
+    <path d="M336,315 H360 V378" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="480" y="252" width="48" height="126" fill="#7dcfff"/>
+    <rect x="528" y="252" width="48" height="126" fill="#7dcfff"/>
+    <rect x="576" y="252" width="48" height="126" fill="#7dcfff"/>
+    <rect x="624" y="252" width="48" height="126" fill="#7dcfff"/>
+    <rect x="672" y="252" width="48" height="126" fill="#7dcfff"/>
+    <path d="M720,315 H744 V378" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="48" y="378" width="48" height="126" fill="#f4956a"/>
+    <rect x="96" y="378" width="48" height="126" fill="#f4956a"/>
+    <path d="M192,441 H168 V504" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="192" y1="441" x2="240" y2="441" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="240" y1="441" x2="288" y2="441" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="288" y="378" width="48" height="126" fill="#f4956a"/>
+    <rect x="336" y="378" width="48" height="126" fill="#f4956a"/>
+    <path d="M384,441 H408 V504" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="480" y="378" width="48" height="126" fill="#7dcfff"/>
+    <rect x="528" y="378" width="48" height="126" fill="#7dcfff"/>
+    <path d="M624,441 H600 V504" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="624" y1="441" x2="672" y2="441" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="672" y1="441" x2="720" y2="441" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <path d="M720,441 H744 V378" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="48" y="504" width="48" height="126" fill="#f4956a"/>
+    <rect x="96" y="504" width="48" height="126" fill="#f4956a"/>
+    <line x1="168" y1="504" x2="168" y2="630" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="288" y="504" width="48" height="126" fill="#f4956a"/>
+    <rect x="336" y="504" width="48" height="126" fill="#f4956a"/>
+    <line x1="408" y1="504" x2="408" y2="630" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <rect x="480" y="504" width="48" height="126" fill="#7dcfff"/>
+    <rect x="528" y="504" width="48" height="126" fill="#7dcfff"/>
+    <line x1="600" y1="504" x2="600" y2="630" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <path d="M96,693 H72 V630" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="96" y1="693" x2="144" y2="693" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <path d="M144,693 H168 V630" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <path d="M336,693 H312 V630" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="336" y1="693" x2="384" y2="693" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <path d="M384,693 H408 V630" stroke="#f4956a" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <path d="M528,693 H504 V630" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <line x1="528" y1="693" x2="576" y2="693" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+    <path d="M576,693 H600 V630" stroke="#7dcfff" stroke-width="9" stroke-linecap="square" fill="none"/>
+  </g>
+</svg>
