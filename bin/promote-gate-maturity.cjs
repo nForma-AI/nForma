@@ -58,7 +58,7 @@ function inferSourceLayer(modelPath) {
  * Validate that a model meets its current (or target) gate_maturity criteria.
  * Returns { valid: boolean, reason: string }
  */
-function validateCriteria(modelPath, model, targetLevel, checkResults) {
+function validateCriteria(modelPath, model, targetLevel, checkResults, evidenceReadiness) {
   const level = targetLevel || getModelLevel(model);
 
   if (level === 'ADVISORY') {
@@ -70,6 +70,16 @@ function validateCriteria(modelPath, model, targetLevel, checkResults) {
   if (level === 'SOFT_GATE' || level === 'HARD_GATE') {
     if (!sourceLayer) {
       return { valid: false, reason: 'SOFT_GATE requires source_layer assignment' };
+    }
+  }
+
+  // Evidence readiness check (when provided and not skipped)
+  if (evidenceReadiness && !evidenceReadiness.skipped) {
+    if (level === 'SOFT_GATE' && evidenceReadiness.score < 1) {
+      return { valid: false, reason: 'SOFT_GATE requires evidence_readiness score >= 1 (got ' + evidenceReadiness.score + ')' };
+    }
+    if (level === 'HARD_GATE' && evidenceReadiness.score < 3) {
+      return { valid: false, reason: 'HARD_GATE requires evidence_readiness score >= 3 (got ' + evidenceReadiness.score + ')' };
     }
   }
 

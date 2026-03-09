@@ -33,10 +33,13 @@ const HAZARD_MODEL_PATH   = path.join(FORMAL, 'reasoning', 'hazard-model.json');
 const FAILURE_CATALOG_PATH = path.join(FORMAL, 'reasoning', 'failure-mode-catalog.json');
 const TEST_RECIPES_PATH   = path.join(FORMAL, 'test-recipes', 'test-recipes.json');
 
-const JSON_FLAG    = process.argv.includes('--json');
-const DRY_RUN_FLAG = process.argv.includes('--dry-run');
+const JSON_FLAG       = process.argv.includes('--json');
+const DRY_RUN_FLAG    = process.argv.includes('--dry-run');
+const SKIP_EVIDENCE   = process.argv.includes('--skip-evidence');
 
 const TAG = '[compute-per-model-gates]';
+
+const EVIDENCE_DIR = path.join(FORMAL, 'evidence');
 
 // ── Import from promote-gate-maturity.cjs ────────────────────────────────────
 
@@ -157,6 +160,49 @@ function evaluateGateC(modelPath, model, failureCatalog, testRecipes, checkResul
   return false;
 }
 
+// ── Evidence readiness ────────────────────────────────────────────────────────
+
+/**
+ * Loads evidence files and scores readiness (0-5).
+ * Fail-open: missing or malformed files contribute 0.
+ */
+function computeEvidenceReadiness() {
+  if (SKIP_EVIDENCE) {
+    process.stderr.write(TAG + ' Evidence loading skipped (--skip-evidence)\n');
+    return { score: 0, total: 5, skipped: true, details: {} };
+  }
+
+  const checks = {
+    'instrumentation-map': (d) => Array.isArray(d.actions) && d.actions.length > 0,
+    'state-candidates': (d) => Array.isArray(d.candidates) && d.candidates.length > 0,
+    'failure-taxonomy': (d) =>
+      (Array.isArray(d.classifications) && d.classifications.length > 0) ||
+      (Array.isArray(d.categories) && d.categories.length > 0),
+    'trace-corpus-stats': (d) => Array.isArray(d.sessions) && d.sessions.length > 0,
+    'proposed-metrics': (d) => Array.isArray(d.metrics) && d.metrics.length > 0,
+  };
+
+  const details = {};
+  let score = 0;
+
+  for (const [name, validator] of Object.entries(checks)) {
+    const filePath = path.join(EVIDENCE_DIR, name + '.json');
+    let ready = false;
+    try {
+      if (fs.existsSync(filePath)) {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        ready = validator(data);
+      }
+    } catch (e) {
+      // fail-open: malformed file contributes 0
+    }
+    details[name] = ready;
+    if (ready) score++;
+  }
+
+  return { score, total: 5, skipped: false, details };
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -175,6 +221,9 @@ function main() {
   const failureCatalog = loadJSON(FAILURE_CATALOG_PATH, 'failure-mode-catalog.json');
   const testRecipes    = loadJSON(TEST_RECIPES_PATH, 'test-recipes.json');
   const checkResults   = loadCheckResults();
+
+  // Evidence readiness scoring
+  const evidenceReadiness = computeEvidenceReadiness();
 
   const perModel = {};
   const promotions = [];
@@ -206,10 +255,10 @@ function main() {
     const currentGate = model.gate_maturity || 'ADVISORY';
     let promoted = false;
 
-    if (maturity >= 1 && currentGate === 'ADVISORY') {
+    if (maturity >= 1 && currentGate === 'ADVISORY' && (evidenceReadiness.skipped || evidenceReadiness.score >= 1)) {
       const sourceLayer = model.source_layer || inferSourceLayer(modelPath);
       if (sourceLayer) {
-        const v = validateCriteria(modelPath, model, 'SOFT_GATE', checkResults);
+        const v = validateCriteria(modelPath, model, 'SOFT_GATE', checkResults, evidenceReadiness);
         if (v.valid) {
           model.gate_maturity = 'SOFT_GATE';
           if (!model.source_layer) model.source_layer = sourceLayer;
@@ -221,8 +270,8 @@ function main() {
     }
 
     // Auto-promotion: SOFT_GATE → HARD_GATE if maturity >= 3 and has passing check
-    if (maturity >= 3 && (model.gate_maturity === 'SOFT_GATE' || (promoted && model.gate_maturity === 'SOFT_GATE'))) {
-      const v = validateCriteria(modelPath, model, 'HARD_GATE', checkResults);
+    if (maturity >= 3 && (model.gate_maturity === 'SOFT_GATE' || (promoted && model.gate_maturity === 'SOFT_GATE')) && (evidenceReadiness.skipped || evidenceReadiness.score >= 3)) {
+      const v = validateCriteria(modelPath, model, 'HARD_GATE', checkResults, evidenceReadiness);
       if (v.valid) {
         model.gate_maturity = 'HARD_GATE';
         model.last_updated = new Date().toISOString();
@@ -242,6 +291,7 @@ function main() {
       layer_maturity: model.layer_maturity || maturity,
       gate_maturity: model.gate_maturity || 'ADVISORY',
       promoted,
+      evidence_readiness: evidenceReadiness,
     };
   }
 
@@ -261,6 +311,7 @@ function main() {
       gate_c_pass: gateCCount,
       avg_layer_maturity: avgMaturity,
     },
+    evidence_readiness: evidenceReadiness,
     promotions,
     per_model: perModel,
   };

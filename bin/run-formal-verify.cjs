@@ -415,6 +415,12 @@ const STATIC_STEPS = [
     type: 'node', script: 'gate-c-validation.cjs', args: [],
     nonCritical: true,
   },
+  {
+    tool: 'gates', id: 'gates:per-model',
+    label: 'Per-model gate maturity scoring',
+    type: 'node', script: 'compute-per-model-gates.cjs', args: ['--json'],
+    nonCritical: true,
+  },
 ];
 
 // Discover dynamic model steps from ROOT/.planning/formal/
