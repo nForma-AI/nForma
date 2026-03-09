@@ -14,20 +14,83 @@
 <br>
 
 ```bash
-npx nforma@latest
+npx @nforma.ai/nforma@latest
 ```
 
 **Works on Mac, Windows, and Linux.**
 
 <br>
 
-![nForma Install](assets/terminal.svg)
+![nForma Install](docs/assets/terminal.svg)
 
 <br>
 
-[Why I Built nForma](#why-i-built-nforma) · [How It Works](#how-it-works) · [Why It Works](#why-it-works) · [Formal Verification](#formal-verification) · [Commands](#commands) · [User Guide](docs/USER-GUIDE.md)
+[Why nForma](#why-i-built-nforma) · [TUI](#terminal-ui) · [How It Works](#how-it-works) · [Features](#features) · [Commands](#commands) · [Configuration](#configuration-reference) · [Star History](#star-history) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
+
+---
+
+## Terminal UI
+
+A full-featured keyboard-navigable terminal interface for managing your quorum agents -- add, edit, reorder, health-check, and rotate keys without touching config files.
+
+<img src="docs/assets/tui-agents.png" alt="Agent Manager TUI" width="720">
+
+| Module | What it does |
+|--------|--------------|
+| Agents | List, add, clone, edit, remove, reorder slots; health-check and auth |
+| Reqs | Browse requirements, check coverage, view traceability, gate scoring |
+| Config | Provider keys, batch rotate, timeouts, update policy, export/import |
+| Sessions | Spawn and manage embedded Claude Code sessions |
+| Solve | Diagnose and remediate planning directory issues |
+
+**Navigation:** arrow keys to move, Enter to select, F1--F5 to switch modules, Escape or `q` to go back.
+
+---
+
+## Who This Is For
+
+If you use Claude Code and have hit any of these walls:
+
+- **Single-model blind spots** -- One model misses edge cases another would catch
+- **Context rot** -- Quality degrades as your context window fills with accumulated garbage
+- **Oscillation loops** -- The agent ping-pongs between two files, fixing one and breaking the other
+- **Manual tracking** -- You're the one remembering what's done, what's next, and what broke
+
+nForma fixes these structurally, not with better prompts.
+
+---
+
+## With vs. Without
+
+| Capability | Claude Code Alone | With nForma |
+|------------|:-----------------:|:-----------:|
+| Planning reviewed before execution | Manual review | 5-model quorum consensus |
+| Ping-pong loop detection | None | Automatic circuit breaker |
+| Context window freshness | Degrades over session | Fresh 200k per task |
+| Requirements traceability | Ad-hoc notes | Formal, auditable, gate-scored |
+| Test coverage verification | Manual | Pre-execution test mapping |
+| Session memory across restarts | Lost | STATE.md + auto-resume |
+
+---
+
+## By the Numbers
+
+| | |
+|---|---|
+| **5+** quorum agents | **30+** slash commands |
+| **287** tracked requirements | **7** lifecycle hooks |
+| **15+** formal verification models | **31** milestones shipped |
+
+---
+
+## What's New in v0.32
+
+- **README overhaul** -- Restructured for immediate clarity; TUI, metrics, and comparisons above the fold
+- **Gate scoring TUI** -- Recently shipped: browse requirement gate scores directly in the TUI (F2 module)
+- **Solve feedback loops** -- Recently shipped: TUI Solve module now closes all diagnostic-to-remediation loops
+- **31 milestones shipped** -- From v0.1 through v0.31, covering quorum, formal verification, agent harness, and more
 
 ---
 
@@ -45,16 +108,10 @@ The deeper goal: the first truly autonomous coding agent that only escalates to 
 
 ---
 
-## Who This Is For
-
-People who want to describe what they want and have it built correctly — with a system that challenges its own assumptions before writing a single line of code.
-
----
-
 ## Getting Started
 
 ```bash
-npx nforma@latest
+npx @nforma.ai/nforma@latest
 ```
 
 The installer prompts you to choose:
@@ -63,9 +120,10 @@ The installer prompts you to choose:
 
 Verify with `/nf:help` inside your chosen runtime.
 
-### Setting Up Your Quorum
+<details>
+<summary><strong>Setting Up Your Quorum</strong></summary>
 
-The fastest path is the interactive wizard — it handles everything from installing CLI tools to registering MCP servers and configuring API keys:
+The fastest path is the interactive wizard:
 
 ```
 /nf:mcp-setup
@@ -76,20 +134,16 @@ The fastest path is the interactive wizard — it handles everything from instal
 **Re-run:** navigable agent menu — reconfigure any agent's key, provider, model, or toggle which agents participate in quorum (composition screen).
 
 <details>
-<summary><strong>Manual setup (advanced)</strong></summary>
+<summary>Manual setup (advanced)</summary>
 
 All quorum agents run through nForma's **unified MCP server** (`bin/unified-mcp-server.mjs`). There are two agent families:
 
 - **CLI agents** (codex, gemini, opencode, copilot) — wrap native CLI tools
 - **API agents** (claude-1..6) — route requests to third-party LLM providers via [Claude Code Router (CCR)](https://github.com/musistudio/claude-code-router)
 
-nForma uses a **slot-based naming scheme** (`<family>-<N>`) so you can run multiple instances of the same agent family. `claude-1` is the first Claude slot, `copilot-1` is the first Copilot slot, etc.
-
----
+nForma uses a **slot-based naming scheme** (`<family>-<N>`) so you can run multiple instances of the same agent family.
 
 #### CLI Agents — Prerequisites
-
-Each CLI agent needs its native tool installed and authenticated:
 
 ```bash
 # OpenAI Codex (v0.75.0+)
@@ -108,17 +162,13 @@ opencode  # follow the auth flow
 gh auth login
 ```
 
----
-
 #### API Agents — Claude Code Router (CCR)
 
 API-based slots (`claude-1` through `claude-6`) use [Claude Code Router](https://github.com/musistudio/claude-code-router) to route requests to providers like AkashML, Together.xyz, and Fireworks. See the [CCR README](https://github.com/musistudio/claude-code-router#-getting-started) for installation and configuration.
 
----
-
 #### Registration
 
-The `/nf:mcp-setup` wizard handles all registration automatically. If you prefer manual setup, slots are registered in `~/.claude.json` pointing to the unified server:
+The `/nf:mcp-setup` wizard handles all registration automatically. If you prefer manual setup:
 
 ```bash
 # All slots use the same entrypoint
@@ -128,96 +178,65 @@ claude mcp add <slot-name> -- node /path/to/nForma/bin/unified-mcp-server.mjs
 After adding or renaming any MCP server, re-run with `--redetect-mcps` to update the cache:
 
 ```bash
-npx nforma@latest --redetect-mcps
+npx @nforma.ai/nforma@latest --redetect-mcps
 ```
 
-This re-reads `~/.claude.json`, re-derives tool prefixes from your registered servers, and rewrites `~/.claude/qgsd.json`.
+This re-reads `~/.claude.json`, re-derives tool prefixes from your registered servers, and rewrites `~/.claude/nf.json`.
 
 </details>
 
-### Agent Manager TUI
+</details>
 
-A full-featured keyboard-navigable terminal interface for managing your quorum agents — add, edit, reorder, health-check, and rotate keys without touching `~/.claude.json` by hand.
+<details>
+<summary><strong>Agent Manager TUI</strong></summary>
+
+See [Terminal UI](#terminal-ui) above for the full TUI overview.
+
+To launch:
 
 ```bash
 # Requires a local clone
 git clone https://github.com/nForma-AI/nForma.git
 cd nForma && npm install
 
-node bin/qgsd.cjs
+node bin/nForma.cjs
 ```
 
-The TUI opens as a split-pane screen: left panel is the menu, right panel shows your agent roster or context for the selected action.
+**Project path resolution:** The TUI reads requirements, scoreboard, config, and session data from the current working directory. To manage a different repo without `cd`'ing, use the `--cwd` flag:
 
-![Agent Manager TUI](docs/assets/roster.png)
-
-**Capabilities:**
-
-| Action | What it does |
-|--------|--------------|
-| List Agents | Show all configured slots with provider, model, key status |
-| Add Agent | Add a new slot with provider preset, model, and API key |
-| Clone Slot | Duplicate an existing slot to a new name |
-| Edit Agent | Update provider, base URL, model, or key for a slot |
-| Remove Agent | Delete a slot from `~/.claude.json` |
-| Reorder Agents | Drag slots up/down to change quorum priority order |
-| Check Agent Health | Ping a single slot and show latency + model response |
-| Login / Auth | Open the auth flow for CLI-based agents (gh, gemini, codex) |
-| Provider Keys | View and update global API keys (AkashML, Together.xyz, Fireworks.ai) |
-| Batch Rotate Keys | Rotate API keys across multiple slots in one operation |
-| Live Health | Poll all configured slots simultaneously and display health table |
-| Scoreboard | Quorum performance dashboard — normalized scores, TP/TN/FP/FN breakdown per slot |
-| Update Agents | Pull the latest version of CLI tools and CCR |
-| Settings | View current quorum composition and configuration |
-| Tune Timeouts | Adjust per-slot timeout values |
-| Set Update Policy | Configure auto-update behavior per slot |
-| Export Roster | Save the full agent configuration to a portable JSON file |
-| Import Roster | Load agent configuration from a previously exported file |
-
-The TUI also includes a **requirements management** section — browse, filter, check coverage, and view traceability for all requirements in `.planning/formal/requirements.json`.
-
-![Requirements Management](docs/assets/requirements.png)
-
-**Navigation:** arrow keys to move, Enter to select, Escape or `q` to go back or exit.
+```bash
+node bin/nForma.cjs --cwd /path/to/your/project
+```
 
 > [!NOTE]
 > nForma works with as few as one quorum member — more models means stronger consensus. Claude is always the fifth voting member in every quorum round.
 
-### Staying Updated
-
-nForma evolves fast. Update periodically:
-
-```bash
-npx nforma@latest
-```
+</details>
 
 <details>
-<summary><strong>Non-interactive Install (Docker, CI, Scripts)</strong></summary>
+<summary><strong>Installation Options</strong></summary>
+
+#### Non-interactive Install (Docker, CI, Scripts)
 
 ```bash
 # Claude Code
-npx qgsd --claude --global   # Install to ~/.claude/
-npx qgsd --claude --local    # Install to ./.claude/
+npx @nforma.ai/nforma --claude --global   # Install to ~/.claude/
+npx @nforma.ai/nforma --claude --local    # Install to ./.claude/
 
 # OpenCode (open source, free models)
-npx qgsd --opencode --global # Install to ~/.config/opencode/
+npx @nforma.ai/nforma --opencode --global # Install to ~/.config/opencode/
 
 # Gemini CLI
-npx qgsd --gemini --global   # Install to ~/.gemini/
+npx @nforma.ai/nforma --gemini --global   # Install to ~/.gemini/
 
 # All runtimes
-npx qgsd --all --global      # Install to all directories
+npx @nforma.ai/nforma --all --global      # Install to all directories
 ```
 
 Use `--global` (`-g`) or `--local` (`-l`) to skip the location prompt.
 Use `--claude`, `--opencode`, `--gemini`, or `--all` to skip the runtime prompt.
 
-</details>
-
-<details>
-<summary><strong>Development Installation</strong></summary>
-
-Clone the repository and run the installer locally:
+#### Development Installation
 
 ```bash
 git clone https://github.com/nForma-AI/nForma.git
@@ -225,11 +244,16 @@ cd nForma
 node bin/install.js --claude --local
 ```
 
-Installs to `./.claude/` for testing modifications before contributing.
+#### Staying Updated
+
+```bash
+npx @nforma.ai/nforma@latest
+```
 
 </details>
 
-### Recommended: Skip Permissions Mode
+<details>
+<summary><strong>Recommended: Skip Permissions Mode</strong></summary>
 
 nForma is designed for frictionless automation. Run Claude Code with:
 
@@ -240,32 +264,17 @@ claude --dangerously-skip-permissions
 > [!TIP]
 > This is how nForma is intended to be used — stopping to approve `date` and `git commit` 50 times defeats the purpose.
 
-<details>
-<summary><strong>Alternative: Granular Permissions</strong></summary>
-
-If you prefer not to use that flag, add this to your project's `.claude/settings.json`:
+If you prefer granular permissions, add this to your project's `.claude/settings.json`:
 
 ```json
 {
   "permissions": {
     "allow": [
-      "Bash(date:*)",
-      "Bash(echo:*)",
-      "Bash(cat:*)",
-      "Bash(ls:*)",
-      "Bash(mkdir:*)",
-      "Bash(wc:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
-      "Bash(sort:*)",
-      "Bash(grep:*)",
-      "Bash(tr:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git status:*)",
-      "Bash(git log:*)",
-      "Bash(git diff:*)",
-      "Bash(git tag:*)"
+      "Bash(date:*)", "Bash(echo:*)", "Bash(cat:*)", "Bash(ls:*)",
+      "Bash(mkdir:*)", "Bash(wc:*)", "Bash(head:*)", "Bash(tail:*)",
+      "Bash(sort:*)", "Bash(grep:*)", "Bash(tr:*)",
+      "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+      "Bash(git log:*)", "Bash(git diff:*)", "Bash(git tag:*)"
     ]
   }
 }
@@ -315,12 +324,7 @@ The system analyzes the phase and identifies gray areas based on what's being bu
 - **Content systems** → Structure, tone, depth, flow
 - **Organization tasks** → Grouping criteria, naming, duplicates, exceptions
 
-For each area you select, it asks until you're satisfied. The output — `CONTEXT.md` — feeds directly into the next two steps:
-
-1. **Researcher reads it** — Knows what patterns to investigate ("user wants card layout" → research card component libraries)
-2. **Planner reads it** — Knows what decisions are locked ("infinite scroll decided" → plan includes scroll handling)
-
-The deeper you go here, the more the system builds what you actually want. Skip it and you get reasonable defaults. Use it and you get *your* vision.
+For each area you select, it asks until you're satisfied. The output — `CONTEXT.md` — feeds directly into the next two steps.
 
 **Creates:** `{phase_num}-CONTEXT.md`
 
@@ -359,7 +363,10 @@ The system:
 
 Walk away, come back to completed work with clean git history.
 
-**How Wave Execution Works:**
+**Creates:** `{phase_num}-{N}-SUMMARY.md`, `{phase_num}-VERIFICATION.md`
+
+<details>
+<summary>How wave execution works</summary>
 
 Plans are grouped into "waves" based on dependencies. Within each wave, plans run in parallel. Waves run sequentially.
 
@@ -389,9 +396,7 @@ Plans are grouped into "waves" based on dependencies. Within each wave, plans ru
 - Dependent plans → Later wave → Wait for dependencies
 - File conflicts → Sequential plans or same plan
 
-This is why "vertical slices" (Plan 01: User feature end-to-end) parallelize better than "horizontal layers" (Plan 01: All models, Plan 02: All APIs).
-
-**Creates:** `{phase_num}-{N}-SUMMARY.md`, `{phase_num}-VERIFICATION.md`
+</details>
 
 ---
 
@@ -403,16 +408,12 @@ This is why "vertical slices" (Plan 01: User feature end-to-end) parallelize bet
 
 **This is where you confirm it actually works.**
 
-Automated verification checks that code exists and tests pass. But does the feature *work* the way you expected? This is your chance to use it.
-
 The system:
 
 1. **Extracts testable deliverables** — What you should be able to do now
 2. **Walks you through one at a time** — "Can you log in with email?" Yes/no, or describe what's wrong
 3. **Diagnoses failures automatically** — Spawns debug agents to find root causes
 4. **Creates verified fix plans** — Ready for immediate re-execution
-
-If everything passes, you move on. If something's broken, you don't manually debug — you just run `/nf:execute-phase` again with the fix plans it created.
 
 **Creates:** `{phase_num}-UAT.md`, fix plans if issues found
 
@@ -421,82 +422,41 @@ If everything passes, you move on. If something's broken, you don't manually deb
 ### 6. Repeat → Complete → Next Milestone
 
 ```
-/nf:discuss-phase 2
-/nf:plan-phase 2
-/nf:execute-phase 2
-/nf:verify-work 2
+/nf:discuss-phase 2 → /nf:plan-phase 2 → /nf:execute-phase 2 → /nf:verify-work 2
 ...
-/nf:complete-milestone
-/nf:new-milestone
+/nf:complete-milestone → /nf:new-milestone
 ```
 
-Loop **discuss → plan → execute → verify** until milestone complete.
-
-Each phase gets your input (discuss), proper research (plan), clean execution (execute), and human verification (verify). Context stays fresh. Quality stays high.
-
-When all phases are done, `/nf:complete-milestone` archives the milestone and tags the release.
-
-Then `/nf:new-milestone` starts the next version — same flow as `new-project` but for your existing codebase. You describe what you want to build next, the system researches the domain, you scope requirements, and it creates a fresh roadmap. Each milestone is a clean cycle: define → build → ship.
+Loop **discuss → plan → execute → verify** until milestone complete. Each phase gets your input, proper research, clean execution, and human verification. Context stays fresh. Quality stays high.
 
 ---
 
-### Quick Mode
+## Features
 
-```
-/nf:quick
-```
+<details>
+<summary><strong>Multi-Agent Orchestration</strong> — Five models debate every decision before code runs</summary>
 
-**For ad-hoc tasks that don't need full planning.**
+Every stage uses the same pattern: a thin orchestrator spawns specialized agents, collects results, and routes to the next step.
 
-Quick mode gives you nForma guarantees (atomic commits, state tracking) with a faster path:
+| Stage | Orchestrator does | Agents do |
+|-------|------------------|-----------|
+| Research | Coordinates, presents findings | 4 parallel researchers investigate stack, features, architecture, pitfalls |
+| Planning | Validates, manages iteration | Planner creates plans, checker verifies, loop until pass |
+| Execution | Groups into waves, tracks progress | Executors implement in parallel, each with fresh 200k context |
+| Verification | Presents results, routes next | Verifier checks codebase against goals, debuggers diagnose failures |
 
-- **Same agents** — Planner + executor, same quality
-- **Skips optional steps** — No research, no plan checker, no verifier
-- **Separate tracking** — Lives in `.planning/quick/`, not phases
+The orchestrator never does heavy lifting. It spawns agents, waits, integrates results.
 
-Use for: bug fixes, small features, config changes, one-off tasks.
+**The result:** You can run an entire phase — deep research, multiple plans created and verified, thousands of lines of code written across parallel executors, automated verification against goals — and your main context window stays at 30-40%. The work happens in fresh subagent contexts. Your session stays fast and responsive.
 
-```
-/nf:quick
-> What do you want to do? "Add dark mode toggle to settings"
-```
+![Agent Health Dashboard](docs/assets/tui-agents-health.png)
 
-**Creates:** `.planning/quick/001-add-dark-mode-toggle/PLAN.md`, `SUMMARY.md`
+</details>
 
----
+<details>
+<summary><strong>Context Engineering</strong> — The right knowledge at the right time</summary>
 
-### Test Suite Maintenance
-
-```
-/nf:fix-tests
-```
-
-An autonomous command that discovers every test in your project, runs them, diagnoses failures, and dispatches fix tasks — looping until all tests are either passing or classified.
-
-**How it works:**
-
-1. **Discover** — Framework-native discovery (Jest, Playwright, pytest); never globs
-2. **Batch & run** — Random batch order with flakiness detection (runs each batch twice)
-3. **Categorize** — AI classifies each failure into one of 5 types:
-   - `valid-skip` — Test is intentionally skipped; no action needed
-   - `adapt` — Test broke because code changed; links to the causative commit via git pickaxe
-   - `isolate` — Test only fails alongside specific other tests (pollution); ddmin algorithm finds the minimal polluter set
-   - `real-bug` — Genuine regression; deferred to user report
-   - `fixture` — Missing test data or environment setup
-4. **Dispatch** — `adapt`, `fixture`, and `isolate` failures are dispatched as `/nf:quick` fix tasks automatically
-5. **Loop** — Repeats until all tests pass or no progress for 5 consecutive batches
-
-Interrupted runs resume to the exact batch step via `/nf:resume-work`.
-
----
-
-## Why It Works
-
-### Context Engineering
-
-Claude Code is incredibly powerful *if* you give it the context it needs. Most people don't.
-
-nForma handles it for you:
+Claude Code is incredibly powerful *if* you give it the context it needs. Most people don't. nForma handles it for you:
 
 | File | What it does |
 |------|--------------|
@@ -511,7 +471,10 @@ nForma handles it for you:
 
 Size limits based on where Claude's quality degrades. Stay under, get consistent excellence.
 
-### XML Prompt Formatting
+</details>
+
+<details>
+<summary><strong>XML Prompt Formatting</strong> — Structured instructions Claude follows precisely</summary>
 
 Every plan is structured XML optimized for Claude:
 
@@ -531,48 +494,41 @@ Every plan is structured XML optimized for Claude:
 
 Precise instructions. No guessing. Verification built in.
 
-### Multi-Agent Orchestration
+</details>
 
-Every stage uses the same pattern: a thin orchestrator spawns specialized agents, collects results, and routes to the next step.
+<details>
+<summary><strong>Token Efficiency</strong> — Automatic cost optimization across three mechanisms</summary>
 
-| Stage | Orchestrator does | Agents do |
-|-------|------------------|-----------|
-| Research | Coordinates, presents findings | 4 parallel researchers investigate stack, features, architecture, pitfalls |
-| Planning | Validates, manages iteration | Planner creates plans, checker verifies, loop until pass |
-| Execution | Groups into waves, tracks progress | Executors implement in parallel, each with fresh 200k context |
-| Verification | Presents results, routes next | Verifier checks codebase against goals, debuggers diagnose failures |
-
-The orchestrator never does heavy lifting. It spawns agents, waits, integrates results.
-
-**The result:** You can run an entire phase — deep research, multiple plans created and verified, thousands of lines of code written across parallel executors, automated verification against goals — and your main context window stays at 30-40%. The work happens in fresh subagent contexts. Your session stays fast and responsive.
-
-### Token Efficiency
-
-nForma manages token consumption automatically across three mechanisms:
-
-**Tiered model sizing** — Researcher and plan-checker sub-agents use a smaller model (haiku by default) for a 15–20x cost reduction vs. using sonnet everywhere. The primary planner and executor retain sonnet. Configure via `model_tier_planner` and `model_tier_worker` keys in qgsd.json, or switch via `/nf:set-profile`.
+**Tiered model sizing** — Researcher and plan-checker sub-agents use a smaller model (haiku by default) for a 15–20x cost reduction vs. using sonnet everywhere. The primary planner and executor retain sonnet. Configure via `model_tier_planner` and `model_tier_worker` keys in nf.json, or switch via `/nf:set-profile`.
 
 **Adaptive quorum fan-out** — Quorum dispatches fewer workers for routine tasks (2 workers) than for high-risk ones (max). The task envelope's `risk_level` field drives this automatically. Override with `--n N` in any quorum call.
 
-**Token observability** — The SubagentStop hook collects per-slot token usage and writes to `.planning/token-usage.jsonl`. Run `/nf:health` to see a ranked breakdown of token consumption by slot and stage — spot which agents are spending the most before it becomes a problem.
+**Token observability** — The SubagentStop hook collects per-slot token usage and writes to `.planning/token-usage.jsonl`. Run `/nf:tokens` to see a ranked breakdown of token consumption by slot and stage.
 
-### Autonomous Milestone Loop
+</details>
+
+<details>
+<summary><strong>Autonomous Milestone Loop</strong> — Full cycle without human interruption</summary>
 
 From `/nf:new-milestone` through `/nf:complete-milestone`, the execution chain runs without AskUserQuestion interruptions. When audit-milestone detects gaps, plan-milestone-gaps is spawned automatically. All confirmation gates (plan approval, gap resolution, gray-area discussion) route to quorum consensus instead of pausing for a human. The loop only escalates when the quorum cannot reach consensus — which is the signal that a human judgment call is actually needed.
 
 Enable auto-chaining via the `workflow.auto_advance` setting.
 
-### Pre-Execution Test Mapping (Nyquist)
+</details>
 
-Before producing plans, plan-phase generates a `VALIDATION.md` test map for the phase — listing which tests must pass before execution starts (Wave 0) and what to verify after each task. This surfaces test-to-task traceability early and catches missing test coverage before a single line of code runs. Controlled by `nyquist_validation_enabled` in qgsd.json (default: true). The generation logic lives in `commands/qgsd/plan-phase.md` (search for `nyquist` or `VALIDATION.md` in that file to trace from this description to the implementation).
+<details>
+<summary><strong>Pre-Execution Test Mapping (Nyquist)</strong> — Test coverage before code runs</summary>
 
-### Ping-Pong Commit Loop Breaker
+Before producing plans, plan-phase generates a `VALIDATION.md` test map for the phase — listing which tests must pass before execution starts (Wave 0) and what to verify after each task. This surfaces test-to-task traceability early and catches missing test coverage before a single line of code runs. Controlled by `nyquist_validation_enabled` in nf.json (default: true).
+
+</details>
+
+<details>
+<summary><strong>Ping-Pong Commit Loop Breaker</strong> — Detects and breaks structural coupling loops</summary>
 
 **The problem no one talks about:** AI agents get stuck in ping-pong commit loops.
 
-Not randomly. In a specific, predictable way. A bug exists at the boundary between two components — a contract mismatch, a shared assumption that's subtly wrong. The agent fixes the symptom in file A. That shifts the pressure to file B. The agent fixes file B. That breaks file A again. Repeat.
-
-Each individual fix is locally correct. The agent is reasoning well about the immediate problem. But it's applying a **local fix to a global problem** — and no amount of trying harder at the local level solves a structural coupling issue.
+A bug exists at the boundary between two components — a contract mismatch, a shared assumption that's subtly wrong. The agent fixes the symptom in file A. That shifts the pressure to file B. The agent fixes file B. That breaks file A again. Repeat.
 
 ```text
 Agent fixes file A  →  File B breaks  →  Agent fixes file B  →  File A breaks
@@ -581,66 +537,89 @@ Agent fixes file A  →  File B breaks  →  Agent fixes file B  →  File A bre
                         The loop runs indefinitely
 ```
 
-This isn't a hypothetical. It happens in production. It wastes hours. And it leaves your git history looking like:
+nForma's circuit breaker watches your git history for exactly this pattern. It collapses consecutive commits on the same file set into run-groups, then flags when the same file set alternates across 3+ run-groups.
 
-```text
-fix: correct auth token handling        ← file A
-fix: fix session expiry logic           ← file B
-fix: auth token was wrong               ← file A again
-fix: session expiry broke again         ← file B again
-```
+When the pattern is detected, a Haiku reviewer first checks whether this is genuine oscillation or normal iterative refinement. If it's genuine, the circuit breaker fires:
 
-**What nForma does about it:**
-
-nForma's circuit breaker watches your git history for exactly this pattern. It collapses consecutive commits on the same file set into run-groups, then flags when the same file set alternates across 3+ run-groups. That's the structural signal: not "these files changed a lot," but "these files are ping-ponging."
-
-When the pattern is detected, a Haiku reviewer first checks whether this is genuine oscillation or normal iterative refinement (polishing the same files toward a clear goal). If it's genuine, the circuit breaker fires.
-
-**When the breaker fires:**
-
-All write commands are blocked. Read-only commands (git log, diff, grep) remain available. The system doesn't just stop — it activates **Oscillation Resolution Mode**:
-
-1. **Build the commit graph** — Makes the A→B→A→B ping-pong visually obvious
-2. **Quorum diagnosis** — Every available model diagnoses the *structural coupling* causing both sides to oscillate — not the surface symptom
-3. **Unified solution required** — Partial or incremental fixes are explicitly rejected. The quorum must propose a single change that resolves both sides simultaneously
-4. **User approval gate** — No code runs until you approve the plan *and* run `npx qgsd --reset-breaker`
-
-The key constraint in the resolution prompt: *"Diagnose the structural coupling — not the surface symptoms. Propose a unified solution. Partial fixes are not acceptable."*
-
-This is the difference between a local fix and a global fix. A local fix patches the symptom. A global fix identifies why the two components are structurally coupled in a way that makes each fix shift the problem elsewhere — then eliminates the coupling.
+1. **All write commands blocked** — Read-only commands remain available
+2. **Build the commit graph** — Makes the A→B→A→B ping-pong visually obvious
+3. **Quorum diagnosis** — Every available model diagnoses the *structural coupling* causing oscillation
+4. **Unified solution required** — Partial or incremental fixes are explicitly rejected
+5. **User approval gate** — No code runs until you approve the plan and reset the breaker
 
 ```bash
-# After approving the unified fix and committing it:
-npx qgsd --reset-breaker
+# After approving the unified fix:
+npx @nforma.ai/nforma --reset-breaker
 
 # For deliberate iterative work (temporary):
-npx qgsd --disable-breaker
-npx qgsd --enable-breaker
+npx @nforma.ai/nforma --disable-breaker
+npx @nforma.ai/nforma --enable-breaker
 ```
 
----
+</details>
 
-### Hooks Ecosystem
+<details>
+<summary><strong>Quick Mode</strong> — Ad-hoc tasks with nForma guarantees</summary>
+
+```
+/nf:quick
+```
+
+Quick mode gives you nForma guarantees (atomic commits, state tracking) with a faster path:
+
+- **Same agents** — Planner + executor, same quality
+- **Skips optional steps** — No research, no plan checker, no verifier
+- **Separate tracking** — Lives in `.planning/quick/`, not phases
+
+Use for: bug fixes, small features, config changes, one-off tasks.
+
+```
+/nf:quick
+> What do you want to do? "Add dark mode toggle to settings"
+```
+
+**Creates:** `.planning/quick/001-add-dark-mode-toggle/PLAN.md`, `SUMMARY.md`
+
+</details>
+
+<details>
+<summary><strong>Autonomous Test Fixing</strong> — AI-categorized failure triage and dispatch</summary>
+
+```
+/nf:fix-tests
+```
+
+An autonomous command that discovers every test in your project, runs them, diagnoses failures, and dispatches fix tasks — looping until all tests pass or are classified.
+
+1. **Discover** — Framework-native discovery (Jest, Playwright, pytest); never globs
+2. **Batch & run** — Random batch order with flakiness detection (runs each batch twice)
+3. **Categorize** — AI classifies each failure into one of 5 types: `valid-skip`, `adapt`, `isolate`, `real-bug`, `fixture`
+4. **Dispatch** — `adapt`, `fixture`, and `isolate` failures are dispatched as `/nf:quick` fix tasks automatically
+5. **Loop** — Repeats until all tests pass or no progress for 5 consecutive batches
+
+</details>
+
+<details>
+<summary><strong>Hooks Ecosystem</strong> — Seven lifecycle hooks that enforce quality automatically</summary>
 
 nForma installs seven Claude Code hooks that fire at different lifecycle points:
 
 | Hook Type | File | When it fires | What it does |
 |-----------|------|---------------|--------------|
-| UserPromptSubmit | qgsd-prompt.js | Every user message | Injects quorum instructions at planning turns |
-| Stop | qgsd-stop.js | Before Claude delivers output | Verifies quorum actually happened by parsing the transcript; blocks non-compliant responses |
-| PreToolUse | qgsd-circuit-breaker.js | Before every tool execution | Detects ping-pong oscillation in git history; blocks Bash when breaker is active |
-| PostToolUse | gsd-context-monitor.js | After every tool execution | Monitors context usage; injects WARNING at 70%, CRITICAL at 90% |
-| SubagentStop | qgsd-token-collector.js | When a quorum slot finishes | Reads token usage from transcript and appends to token-usage.jsonl |
-| PreCompact | qgsd-precompact.js | Before context compaction | Injects current STATE.md position so context survives compaction without losing progress |
-| SessionStart | qgsd-session-start.js | Once per Claude Code session | Syncs keychain secrets into ~/.claude.json (zero prompts after bootstrap) |
+| UserPromptSubmit | nf-prompt.js | Every user message | Injects quorum instructions at planning turns |
+| Stop | nf-stop.js | Before Claude delivers output | Verifies quorum actually happened by parsing the transcript; blocks non-compliant responses |
+| PreToolUse | nf-circuit-breaker.js | Before every tool execution | Detects ping-pong oscillation in git history; blocks Bash when breaker is active |
+| PostToolUse | nf-context-monitor.js | After every tool execution | Monitors context usage; injects WARNING at 70%, CRITICAL at 90% |
+| SubagentStop | nf-token-collector.js | When a quorum slot finishes | Reads token usage from transcript and appends to token-usage.jsonl |
+| PreCompact | nf-precompact.js | Before context compaction | Injects current STATE.md position so context survives compaction without losing progress |
+| SessionStart | nf-session-start.js | Once per Claude Code session | Syncs keychain secrets into ~/.claude.json (zero prompts after bootstrap) |
 
 All hooks fail open — any hook error exits 0 and never blocks Claude.
 
----
+</details>
 
-### Atomic Git Commits
-
-Each task gets its own commit immediately after completion:
+<details>
+<summary><strong>Atomic Git Commits</strong> — Every task gets its own traceable commit</summary>
 
 ```bash
 abc123f docs(08-02): complete user registration plan
@@ -652,28 +631,18 @@ lmn012o feat(08-02): create registration endpoint
 > [!NOTE]
 > **Benefits:** Git bisect finds exact failing task. Each task independently revertable. Clear history for Claude in future sessions. Better observability in AI-automated workflow.
 
-Every commit is surgical, traceable, and meaningful.
+</details>
 
-### Modular by Design
+<details>
+<summary><strong>Formal Verification</strong> — Mathematical proof of protocol correctness (optional)</summary>
 
-- Add phases to current milestone
-- Insert urgent work between phases
-- Complete milestones and start fresh
-- Adjust plans without rebuilding everything
+> **Note:** Formal verification is entirely optional. You do not need Java, PRISM, or Alloy to use nForma normally.
 
-You're never locked in. The system adapts.
+nForma uses five formal methods tools — TLA+, Alloy, PRISM, Petri nets, and UPPAAL — to machine-check its own protocol correctness. Every core protocol (quorum consensus, circuit breaker, convergence, recruiting, account management, and others) has executable specifications that verify safety invariants, liveness properties, and probabilistic convergence bounds.
 
----
+#### Prerequisites
 
-## Formal Verification
-
-> **Note:** Formal verification is entirely optional. You do not need Java, PRISM, or Alloy to use nForma normally. This section is for anyone who wants to independently verify the correctness of nForma's protocol implementation.
-
-nForma uses five formal methods tools -- TLA+, Alloy, PRISM, Petri nets, and UPPAAL -- to machine-check its own protocol correctness. Every core protocol (quorum consensus, circuit breaker, convergence, recruiting, account management, and others) has executable specifications that verify safety invariants, liveness properties, and probabilistic convergence bounds. The result is that the protocols governing your planning decisions are mathematically verified, not just tested.
-
-### Prerequisites
-
-Java 17+ is required for TLA+, Alloy, and PRISM. Petri nets are bundled via npm and need no extra install.
+Java 17+ is required for TLA+, Alloy, and PRISM. Petri nets are bundled via npm.
 
 ```bash
 node bin/install-formal-tools.cjs
@@ -682,7 +651,7 @@ node bin/install-formal-tools.cjs
 
 For per-tool setup details, see **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)**.
 
-### Running Verification
+#### Running Verification
 
 ```bash
 # Full pipeline — all steps (generate → Petri → TLA+ → Alloy → PRISM)
@@ -696,9 +665,9 @@ node bin/run-formal-verify.cjs --only=petri    # Petri net renders
 node bin/run-formal-verify.cjs --only=generate # Regenerate specs from source only
 ```
 
-Exit code 0 = all checks pass. Exit code 1 = at least one violation or configuration error.
+Exit code 0 = all checks pass. Exit code 1 = at least one violation or configuration error. For the full model inventory, spec sources, and CI artifact documentation, see **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)**.
 
-For the full model inventory, spec sources, and CI artifact documentation, see **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)**.
+</details>
 
 ---
 
@@ -708,101 +677,136 @@ For the full model inventory, spec sources, and CI artifact documentation, see *
 
 | Command | What it does |
 |---------|--------------|
-| `/nf:new-project [--auto]` | Full initialization: questions → research → requirements → roadmap |
-| `/nf:discuss-phase [N] [--auto]` | Capture implementation decisions before planning |
-| `/nf:plan-phase [N] [--auto]` | Research + plan + verify for a phase |
+| `/nf:new-project [--auto]` | Initialize: questions → research → requirements → roadmap |
+| `/nf:discuss-phase [N]` | Capture implementation decisions before planning |
+| `/nf:plan-phase [N]` | Research + plan + verify for a phase |
 | `/nf:execute-phase <N>` | Execute all plans in parallel waves, verify when complete |
 | `/nf:verify-work [N]` | Manual user acceptance testing |
-| `/nf:audit-milestone` | Verify milestone achieved its definition of done |
 | `/nf:complete-milestone` | Archive milestone, tag release |
-| `/nf:new-milestone [name]` | Start next version: questions → research → requirements → roadmap |
+| `/nf:new-milestone [name]` | Start next version cycle |
 
-### Navigation
+### Quick & Utility
 
 | Command | What it does |
 |---------|--------------|
+| `/nf:quick [--full]` | Ad-hoc task with nForma guarantees (`--full` adds plan-checking and verification) |
+| `/nf:fix-tests` | AI-categorize and fix test failures across entire suite |
+| `/nf:debug [desc]` | Debug session with quorum diagnosis and persistent state |
 | `/nf:progress` | Where am I? What's next? |
 | `/nf:help` | Show all commands and usage guide |
-| `/nf:update` | Update nForma with changelog preview |
-| `/nf:join-discord` | Join the nForma Discord community |
 
-### Brownfield
+### Navigation & Session
 
 | Command | What it does |
 |---------|--------------|
-| `/nf:map-codebase` | Analyze existing codebase before new-project |
-| `/nf:map-requirements [--dry-run] [--skip-archive] [--skip-validate]` | Merge current + archived milestone requirements into `.planning/formal/requirements.json` |
-| `/nf:add-requirement [--id=PREFIX-NN] [--text="..."]` | Add a single requirement with duplicate/conflict checks |
-| `/nf:close-formal-gaps [--category="..."] [--ids=...] [--all]` | Generate formal models for uncovered requirements |
+| `/nf:pause-work` | Create handoff when stopping mid-phase |
+| `/nf:resume-work` | Restore from last session |
+| `/nf:add-todo [desc]` | Capture idea for later |
+| `/nf:check-todos` | List pending todos |
+| `/nf:queue <command>` | Queue command to auto-invoke after next /clear |
+| `/nf:update` | Update nForma with changelog preview |
 
-### Phase Management
+### MCP & Quorum Management
+
+| Command | What it does |
+|---------|--------------|
+| `/nf:mcp-setup` | Interactive wizard: onboarding or reconfigure agents |
+| `/nf:mcp-status` | Poll all quorum agents for identity and availability |
+| `/nf:mcp-set-model <agent> <model>` | Switch a quorum agent's model with live validation |
+| `/nf:mcp-update` | Update all quorum agent MCP servers |
+| `/nf:mcp-restart` | Restart all quorum agent processes |
+| `/nf:quorum [question]` | Ask a question with full five-model consensus |
+| `/nf:quorum-test` | Run test suite through quorum evaluation |
+| `/nf:tokens` | Token usage dashboard with cost breakdown per slot |
+
+<details>
+<summary><strong>Phase Management</strong></summary>
 
 | Command | What it does |
 |---------|--------------|
 | `/nf:add-phase` | Append phase to roadmap |
 | `/nf:insert-phase [N]` | Insert urgent work between phases |
 | `/nf:remove-phase [N]` | Remove future phase, renumber |
-| `/nf:research-phase [N]` | Deep ecosystem research only (usually prefer plan-phase) |
+| `/nf:research-phase [N]` | Deep ecosystem research only |
 | `/nf:list-phase-assumptions [N]` | See Claude's intended approach before planning |
-| `/nf:plan-milestone-gaps` | Create phases to close gaps from audit |
+| `/nf:plan-milestone-gaps` | Create phases to close audit gaps |
+| `/nf:audit-milestone` | Verify milestone against definition of done |
 | `/nf:cleanup` | Archive completed phase directories |
 
-### Session
+</details>
+
+<details>
+<summary><strong>Requirements & Formal Methods</strong></summary>
 
 | Command | What it does |
 |---------|--------------|
-| `/nf:pause-work` | Create handoff when stopping mid-phase |
-| `/nf:resume-work` | Restore from last session |
+| `/nf:map-codebase` | Analyze existing codebase before new-project |
+| `/nf:map-requirements` | Merge milestone requirements into `requirements.json` |
+| `/nf:add-requirement` | Add single requirement with duplicate/conflict checks |
+| `/nf:close-formal-gaps` | Generate formal models for uncovered requirements |
+| `/nf:review-requirements` | Flag quality issues in requirements |
+| `/nf:formal-test-sync` | Cross-reference formal invariants with test coverage |
 
-### MCP Management
+</details>
 
-| Command | What it does |
-|---------|--------------|
-| `/nf:mcp-setup` | Interactive wizard: first-run onboarding or reconfigure any agent (key, provider, model, composition) |
-| `/nf:mcp-status` | Poll all quorum agents for identity and availability; show scoreboard |
-| `/nf:mcp-set-model <agent> <model>` | Switch a quorum agent's model with live validation and preference persistence |
-| `/nf:mcp-update` | Update all quorum agent MCP servers (npm/npx/git install methods auto-detected) |
-| `/nf:mcp-restart` | Restart all quorum agent processes and verify reconnection via identity ping |
-
-### Test Maintenance
+<details>
+<summary><strong>Observability & Triage</strong></summary>
 
 | Command | What it does |
 |---------|--------------|
-| `/nf:fix-tests` | Discover all tests, AI-categorize failures into 5 types, dispatch fixes, loop until clean |
+| `/nf:health [--repair]` | Validate `.planning/` directory integrity |
+| `/nf:observe` | Fetch issues and drifts from configured sources |
+| `/nf:triage` | Fetch and prioritize issues from GitHub, Sentry, or custom sources |
+| `/nf:solve` | Orchestrated diagnostic → remediation → reporting pipeline |
+| `/nf:session-insights` | Analyze recent session transcripts for friction patterns |
 
-### Utilities
-
-| Command | What it does |
-|---------|--------------|
+![Solve Diagnostics](docs/assets/tui-solve.png)
 | `/nf:settings` | Configure model profile and workflow agents |
 | `/nf:set-profile <profile>` | Switch model profile (quality/balanced/budget) |
-| `/nf:add-todo [desc]` | Capture idea for later |
-| `/nf:check-todos` | List pending todos |
-| `/nf:debug [desc]` | Start a debugging session with persistent state: spawns quorum diagnosis on failure, tracks hypotheses across invocations, resumes where it left off |
-| `/nf:quorum-test` | Run multi-model quorum on a plan or verification artifact |
-| `/nf:quorum [question]` | Ask a question and get full five-model consensus answer |
-| `/nf:quick [--full]` | Execute ad-hoc task with nForma guarantees (`--full` adds plan-checking and verification) |
-| `/nf:triage [--source github\|sentry\|bash] [--since 24h\|7d] [--limit N]` | Fetch and prioritize issues from GitHub, Sentry, or custom sources; route selected issue to nForma workflow |
-| `/nf:queue <command>` | Queue a command to auto-invoke after the next /clear — survives context compaction |
-| `/nf:reapply-patches` | Restore local modifications after an update |
-| `/nf:health [--repair]` | Validate `.planning/` directory integrity, auto-repair with `--repair` |
+
+</details>
+
+<details>
+<summary><strong>GSD-Compatible Commands</strong></summary>
+
+All core GSD commands work with the `/gsd:` prefix for backward compatibility:
+
+| `/gsd:` command | Maps to |
+|-----------------|---------|
+| `/gsd:new-project` | `/nf:new-project` |
+| `/gsd:plan-phase` | `/nf:plan-phase` |
+| `/gsd:execute-phase` | `/nf:execute-phase` |
+| `/gsd:discuss-phase` | `/nf:discuss-phase` |
+| `/gsd:verify-work` | `/nf:verify-work` |
+| `/gsd:quick` | `/nf:quick` |
+| `/gsd:debug` | `/nf:debug` |
+| `/gsd:progress` | `/nf:progress` |
+| `/gsd:help` | `/nf:help` |
+| `/gsd:settings` | `/nf:settings` |
+| `/gsd:map-codebase` | `/nf:map-codebase` |
+| `/gsd:complete-milestone` | `/nf:complete-milestone` |
+| `/gsd:new-milestone` | `/nf:new-milestone` |
+| `/gsd:pause-work` | `/nf:pause-work` |
+| `/gsd:resume-work` | `/nf:resume-work` |
+
+</details>
 
 ---
 
-## Configuration
+<a id="configuration-reference"></a>
+<details>
+<summary><strong>Configuration Reference</strong></summary>
 
-nForma stores project settings in `.planning/config.json`. Configure during `/nf:new-project` or update later with `/nf:settings`. For the full config schema, workflow toggles, git branching options, and per-agent model breakdown, see the [User Guide](docs/USER-GUIDE.md#configuration-reference).
+nForma stores project settings in `.planning/config.json`. Configure during `/nf:new-project` or update later with `/nf:settings`. For the full config schema, see the [User Guide](docs/USER-GUIDE.md#configuration-reference).
 
-### Core Settings
+#### Core Settings
 
 | Setting | Options | Default | What it controls |
 |---------|---------|---------|------------------|
 | `mode` | `yolo`, `interactive` | `interactive` | Auto-approve vs confirm at each step |
 | `depth` | `quick`, `standard`, `comprehensive` | `standard` | Planning thoroughness (phases × plans) |
 
-### Model Profiles
-
-Control which Claude model each agent uses. Balance quality vs token spend.
+#### Model Profiles
 
 | Profile | Planning | Execution | Verification |
 |---------|----------|-----------|--------------|
@@ -810,16 +814,9 @@ Control which Claude model each agent uses. Balance quality vs token spend.
 | `balanced` (default) | Opus | Sonnet | Sonnet |
 | `budget` | Sonnet | Sonnet | Haiku |
 
-Switch profiles:
-```
-/nf:set-profile budget
-```
+Switch profiles: `/nf:set-profile budget`
 
-Or configure via `/nf:settings`.
-
-### Workflow Agents
-
-These spawn additional agents during planning/execution. They improve quality but add tokens and time.
+#### Workflow Agents
 
 | Setting | Default | What it does |
 |---------|---------|--------------|
@@ -828,37 +825,26 @@ These spawn additional agents during planning/execution. They improve quality bu
 | `workflow.verifier` | `true` | Confirms must-haves were delivered after execution |
 | `workflow.auto_advance` | `false` | Auto-chain discuss → plan → execute without stopping |
 
-Use `/nf:settings` to toggle these, or override per-invocation:
-- `/nf:plan-phase --skip-research`
-- `/nf:plan-phase --skip-verify`
+Override per-invocation: `/nf:plan-phase --skip-research` or `/nf:plan-phase --skip-verify`
 
-### Execution
+#### Execution
 
 | Setting | Default | What it controls |
 |---------|---------|------------------|
 | `parallelization.enabled` | `true` | Run independent plans simultaneously |
 | `planning.commit_docs` | `true` | Track `.planning/` in git |
 
-### Git Branching
+#### Git Branching
 
-Control how nForma handles branches during execution.
+| Setting | Options | Default |
+|---------|---------|---------|
+| `git.branching_strategy` | `none`, `phase`, `milestone` | `none` |
+| `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` |
+| `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` |
 
-| Setting | Options | Default | What it does |
-|---------|---------|---------|--------------|
-| `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | Branch creation strategy |
-| `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` | Template for phase branches |
-| `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | Template for milestone branches |
+#### Quorum Composition
 
-**Strategies:**
-- **`none`** — Commits to current branch (default nForma behavior)
-- **`phase`** — Creates a branch per phase, merges at phase completion
-- **`milestone`** — Creates one branch for entire milestone, merges at completion
-
-At milestone completion, nForma offers squash merge (recommended) or merge with history.
-
-### Quorum Composition
-
-Control which agent slots participate in quorum via `quorum_active` in your `qgsd.json`:
+Control which agent slots participate in quorum via `quorum_active` in `~/.claude/nf.json`:
 
 ```json
 {
@@ -866,81 +852,66 @@ Control which agent slots participate in quorum via `quorum_active` in your `qgs
 }
 ```
 
-This is auto-populated at install time based on your registered MCP servers. Toggle slots on/off via `/nf:mcp-setup` → "Edit Quorum Composition" without editing config files directly.
+Toggle slots on/off via `/nf:mcp-setup` → "Edit Quorum Composition".
 
-You can run multiple instances of the same agent family (multi-slot): `claude-1` and `claude-2` for two Claude agent slots, `copilot-1` and `copilot-2` for two Copilot slots, etc.
+</details>
 
----
+<details>
+<summary><strong>Security</strong></summary>
 
-## Security
+#### Protecting Sensitive Files
 
-### Protecting Sensitive Files
-
-nForma's codebase mapping and analysis commands read files to understand your project. **Protect files containing secrets** by adding them to Claude Code's deny list:
-
-1. Open Claude Code settings (`.claude/settings.json` or global)
-2. Add sensitive file patterns to the deny list:
+nForma's codebase mapping commands read files to understand your project. **Protect files containing secrets** by adding them to Claude Code's deny list:
 
 ```json
 {
   "permissions": {
     "deny": [
-      "Read(.env)",
-      "Read(.env.*)",
-      "Read(**/secrets/*)",
-      "Read(**/*credential*)",
-      "Read(**/*.pem)",
-      "Read(**/*.key)"
+      "Read(.env)", "Read(.env.*)", "Read(**/secrets/*)",
+      "Read(**/*credential*)", "Read(**/*.pem)", "Read(**/*.key)"
     ]
   }
 }
 ```
 
-This prevents Claude from reading these files entirely, regardless of what commands you run.
-
 > [!IMPORTANT]
-> nForma includes built-in protections against committing secrets, but defense-in-depth is best practice. Deny read access to sensitive files as a first line of defense.
+> nForma includes built-in protections against committing secrets, but defense-in-depth is best practice.
 
----
+</details>
 
-## Troubleshooting
+<details>
+<summary><strong>Troubleshooting</strong></summary>
 
 **Commands not found after install?**
 - Restart Claude Code to reload slash commands
-- Verify files exist in `~/.claude/commands/qgsd/` (global) or `./.claude/commands/qgsd/` (local)
+- Verify files exist in `~/.claude/commands/nf/` (global) or `./.claude/commands/nf/` (local)
 
 **Commands not working as expected?**
 - Run `/nf:help` to verify installation
-- Re-run `npx nforma@latest` to reinstall
-
-**Updating to the latest version?**
-```bash
-npx nforma@latest
-```
+- Re-run `npx @nforma.ai/nforma@latest` to reinstall
 
 **Using Docker or containerized environments?**
 
 If file reads fail with tilde paths (`~/.claude/...`), set `CLAUDE_CONFIG_DIR` before installing:
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx nforma@latest
+CLAUDE_CONFIG_DIR=/home/youruser/.claude npx @nforma.ai/nforma@latest
 ```
-This ensures absolute paths are used instead of `~` which may not expand correctly in containers.
 
-### Uninstalling
-
-To remove nForma completely:
+#### Uninstalling
 
 ```bash
 # Global installs
-npx qgsd --claude --global --uninstall
-npx qgsd --opencode --global --uninstall
+npx @nforma.ai/nforma --claude --global --uninstall
+npx @nforma.ai/nforma --opencode --global --uninstall
 
 # Local installs (current project)
-npx qgsd --claude --local --uninstall
-npx qgsd --opencode --local --uninstall
+npx @nforma.ai/nforma --claude --local --uninstall
+npx @nforma.ai/nforma --opencode --local --uninstall
 ```
 
 This removes all nForma commands, agents, hooks, and settings while preserving your other configurations.
+
+</details>
 
 ---
 
