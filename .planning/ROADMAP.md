@@ -91,7 +91,9 @@ Plans:
   1. All TUI screenshots embedded in README and User Guide are regenerated and match current TUI output
   2. VHS tape runs successfully with zsh shell, explicit PATH export, and CLAUDECODE unset
   3. Running the VHS tape twice produces identical screenshot output (deterministic)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] v0.32-04-01-PLAN.md — Harden VHS tape path resolution, regenerate all 11 TUI screenshots, verify determinism, clean up orphaned SVGs
 
 ### Progress
 
@@ -100,7 +102,7 @@ Plans:
 | v0.32-01. README Above-the-Fold Restructure | 1/1 | Complete    | 2026-03-09 |
 | v0.32-02. README Deep Sections | 1/1 | Complete    | 2026-03-09 |
 | v0.32-03. User Guide Overhaul | 1/1 | Complete    | 2026-03-09 |
-| v0.32-04. Visual Asset Regeneration | 0/? | Not started | - |
+| v0.32-04. Visual Asset Regeneration | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-09*
