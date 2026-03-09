@@ -14,6 +14,7 @@
 const fs   = require('fs');
 const path = require('path');
 const { getRequirementIds } = require('./requirement-map.cjs');
+const { PRINCIPLES, getCategoryPrinciple } = require('./principle-mapping.cjs');
 
 // ---------------------------------------------------------------------------
 // Data loaders
@@ -314,6 +315,31 @@ function addRequirement(reqObj, basePath) {
 }
 
 // ---------------------------------------------------------------------------
+// Grouping by principle
+// ---------------------------------------------------------------------------
+
+/**
+ * Group requirements by principle (8 high-level groups).
+ * @param {Array} requirements
+ * @returns {Object} { [principle]: { count, requirements: [...] } }
+ */
+function groupByPrinciple(requirements) {
+  // Initialize all 8 principles in order
+  const grouped = {};
+  for (const p of PRINCIPLES) {
+    grouped[p] = { count: 0, requirements: [] };
+  }
+
+  for (const r of requirements) {
+    const principle = getCategoryPrinciple(r.category);
+    grouped[principle].count++;
+    grouped[principle].requirements.push(r);
+  }
+
+  return grouped;
+}
+
+// ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 
@@ -327,6 +353,7 @@ module.exports = {
   getUniqueCategories,
   addRequirement,
   nextRequirementId,
+  groupByPrinciple,
 };
 
 module.exports._pure = module.exports;
