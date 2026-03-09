@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-08T08:42:14.096Z",
+  "generated": "2026-03-09T09:03:45.159Z",
   "emission_points": [
     {
       "file": "hooks/nf-prompt.js",
-      "line_number": 527,
+      "line_number": 539,
       "action": "cache_hit",
       "state_variables": [
         "verdict"
@@ -14,15 +14,15 @@
     },
     {
       "file": "hooks/nf-prompt.js",
-      "line_number": 619,
+      "line_number": 631,
       "action": "quorum_fallback_t1_required",
       "state_variables": [],
-      "vocabulary_match": false,
-      "xstate_event": null
+      "vocabulary_match": true,
+      "xstate_event": "QUORUM_START"
     },
     {
       "file": "hooks/nf-prompt.js",
-      "line_number": 768,
+      "line_number": 792,
       "action": "quorum_start",
       "state_variables": [],
       "vocabulary_match": true,
@@ -30,7 +30,7 @@
     },
     {
       "file": "hooks/nf-stop.js",
-      "line_number": 555,
+      "line_number": 561,
       "action": "quorum_complete",
       "state_variables": [
         "quorum_size"
@@ -40,7 +40,7 @@
     },
     {
       "file": "hooks/nf-stop.js",
-      "line_number": 571,
+      "line_number": 577,
       "action": "quorum_complete",
       "state_variables": [],
       "vocabulary_match": true,
@@ -48,7 +48,7 @@
     },
     {
       "file": "hooks/nf-stop.js",
-      "line_number": 632,
+      "line_number": 638,
       "action": "quorum_block",
       "state_variables": [
         "verdict"
@@ -58,7 +58,7 @@
     },
     {
       "file": "hooks/nf-stop.js",
-      "line_number": 671,
+      "line_number": 677,
       "action": "quorum_complete",
       "state_variables": [],
       "vocabulary_match": true,
@@ -66,7 +66,7 @@
     },
     {
       "file": "hooks/nf-circuit-breaker.js",
-      "line_number": 676,
+      "line_number": 834,
       "action": "circuit_break",
       "state_variables": [
         "breaker_state"
@@ -76,14 +76,15 @@
     }
   ],
   "coverage": {
-    "total_vocabulary_actions": 7,
-    "mapped_actions": 4,
-    "coverage_pct": 57.1
+    "total_vocabulary_actions": 9,
+    "mapped_actions": 5,
+    "coverage_pct": 55.6
   },
   "unmapped_actions": [
     "quorum_block_r3_2",
     "mcp_call",
+    "deliberation_round",
     "security_sweep"
   ],
-  "summary": "Found 8 emission points across 3 hooks and observe handlers. Coverage: 4/7 vocabulary actions mapped (57.1%). Unmapped: quorum_block_r3_2, mcp_call, security_sweep."
+  "summary": "Found 8 emission points across 3 hooks and observe handlers. Coverage: 5/9 vocabulary actions mapped (55.6%). Unmapped: quorum_block_r3_2, mcp_call, deliberation_round, security_sweep."
 }

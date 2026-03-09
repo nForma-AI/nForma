@@ -1,29 +1,20 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-08T08:45:38.751Z",
-  "grounding_score": 0.8690887757453852,
+  "generated": "2026-03-09T09:09:02.608Z",
+  "grounding_score": 1,
   "target": 0.8,
   "target_met": true,
-  "explained": 41479,
-  "total": 47727,
+  "explained": 61489,
+  "total": 61489,
   "unexplained_counts": {
-    "instrumentation_bug": 6248,
+    "instrumentation_bug": 0,
     "model_gap": 0,
     "genuine_violation": 0
   },
   "unexplained_summary": {
     "instrumentation_bug": {
-      "top_actions": [
-        {
-          "action": "undefined",
-          "count": 6233
-        },
-        {
-          "action": "security_sweep:no_xstate_map",
-          "count": 15
-        }
-      ],
-      "total": 6248
+      "top_actions": [],
+      "total": 0
     },
     "model_gap": {
       "top_mismatches": [],
@@ -35,10 +26,11 @@
     }
   },
   "methodology": {
-    "explains_definition": "vocabulary_mapped AND (xstate_valid OR methodology_skip)",
-    "h1_methodology_skips": 14791,
-    "xstate_validated": 26688,
-    "vocabulary_mapped": 41494
+    "explains_definition": "vocabulary_mapped AND (xstate_valid OR methodology_skip OR non_fsm_classification)",
+    "h1_methodology_skips": 18605,
+    "non_fsm_skips": 16,
+    "xstate_validated": 42868,
+    "vocabulary_mapped": 61489
   },
   "warnings": [],
   "scope": {

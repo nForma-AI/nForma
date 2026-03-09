@@ -1,6 +1,26 @@
 {
   "description": "Suppressed D->C false positives. Add entries to prevent known-stale claims from inflating residual.",
-  "entries": [],
+  "entries": [
+    {
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": ".nf.json",
+      "type": "file_path",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-09T09:20:00.321Z"
+    },
+    {
+      "source": "D->R",
+      "value": "**Implementation:** The unified MCP server (`bin/unified-mcp-server.mjs`) is the single entrypoint for all 11 MCP provid",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-09T09:33:54.347Z"
+    },
+    {
+      "source": "C->R",
+      "value": "bin/formalization-candidates.cjs",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-09T09:40:45.993Z"
+    }
+  ],
   "patterns": [
     {
       "type": "dependency",

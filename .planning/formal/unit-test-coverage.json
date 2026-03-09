@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-08T08:42:17.888Z",
+  "generated_at": "2026-03-09T09:03:48.893Z",
   "requirements": {
     "ACT-01": {
       "covered": true,
@@ -634,12 +634,39 @@
         }
       ]
     },
+    "DISP-07": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/DISP-07.stub.test.js",
+          "test_name": "DISP-07: quorum-slot-dispatch.cjs exists and contains debate trace persistence logic"
+        }
+      ]
+    },
     "DOC-01": {
       "covered": true,
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/DOC-01.stub.test.js",
           "test_name": "DOC-01: README mentions quorum/consensus and requirements.json covers it"
+        }
+      ]
+    },
+    "DOC-02": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/DOC-02.stub.test.js",
+          "test_name": "DOC-02: Formal Verification section exists in README"
+        }
+      ]
+    },
+    "DOC-03": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/DOC-03.stub.test.js",
+          "test_name": "DOC-03 — nForma.cjs contains --screenshot CLI mode"
         }
       ]
     },
@@ -715,6 +742,15 @@
         }
       ]
     },
+    "EVID-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/EVID-04.stub.test.js",
+          "test_name": "EVID-04: COMMIT_TYPES contains exactly 7 categories"
+        }
+      ]
+    },
     "FAIL-01": {
       "covered": true,
       "test_cases": [
@@ -742,6 +778,15 @@
         }
       ]
     },
+    "FVTOOL-02": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/FVTOOL-02.stub.test.js",
+          "test_name": "FVTOOL-02 — Bool: structural verification"
+        }
+      ]
+    },
     "GATE-01": {
       "covered": true,
       "test_cases": [
@@ -751,12 +796,48 @@
         }
       ]
     },
+    "GATE-02": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/GATE-02.stub.test.js",
+          "test_name": "GATE-02: nf-solve.cjs autoClose function does not write gate_maturity directly"
+        }
+      ]
+    },
+    "GATE-03": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/GATE-03.stub.test.js",
+          "test_name": "GATE-03: promote-gate-maturity.cjs exports promoteModel and validateCriteria"
+        }
+      ]
+    },
+    "GATE-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/GATE-04.stub.test.js",
+          "test_name": "GATE-04: compute-per-model-gates.cjs supports auto-demotion on evidence regression"
+        }
+      ]
+    },
     "GUARD-01": {
       "covered": true,
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/GUARD-01.stub.test.js",
           "test_name": "GUARD-01: nf-console-guard.js Stop hook exists and warns about console.log"
+        }
+      ]
+    },
+    "GUARD-02": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/GUARD-02.stub.test.js",
+          "test_name": "GUARD-02 — Bool: structural verification"
         }
       ]
     },
@@ -1318,6 +1399,15 @@
         }
       ]
     },
+    "OBS-16": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/OBS-16.stub.test.js",
+          "test_name": "OBS-16: observe-handler-internal.cjs gates health diagnostics via gsd-tools.cjs existence"
+        }
+      ]
+    },
     "ORES-01": {
       "covered": true,
       "test_cases": [
@@ -1390,6 +1480,15 @@
         }
       ]
     },
+    "PLAN-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/PLAN-04.stub.test.js",
+          "test_name": "PLAN-04: list-phase-assumptions workflow contains ground_in_artifacts step"
+        }
+      ]
+    },
     "PLAT-01": {
       "covered": true,
       "test_cases": [
@@ -1450,6 +1549,15 @@
         {
           "test_file": ".planning/formal/generated-stubs/PORT-03.stub.test.js",
           "test_name": "PORT-03: buildBackupPath exists as a function"
+        }
+      ]
+    },
+    "PORT-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/PORT-04.stub.test.js",
+          "test_name": "PORT-04 — Bool: structural verification"
         }
       ]
     },
@@ -1876,24 +1984,6 @@
         }
       ]
     },
-    "SOLVE-7": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/SOLVE-7.stub.test.js",
-          "test_name": "SOLVE-7: formal-test-sync.cjs generateStubs produces recipe sidecar with pre-resolved context"
-        }
-      ]
-    },
-    "SOLVE-8": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/SOLVE-8.stub.test.js",
-          "test_name": "SOLVE-8: Alloy model solve-legacy-merge.als exists and defines Bool sig"
-        }
-      ]
-    },
     "SOLVE-09": {
       "covered": true,
       "test_cases": [
@@ -1927,6 +2017,123 @@
         {
           "test_file": ".planning/formal/generated-stubs/SOLVE-12.stub.test.js",
           "test_name": "SOLVE-12: autoClosePtoF module exports autoClosePtoF function"
+        }
+      ]
+    },
+    "SOLVE-13": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-13.stub.test.js",
+          "test_name": "SOLVE-13: persistSessionSummary creates a timestamped .md file"
+        }
+      ]
+    },
+    "SOLVE-14": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-14.stub.test.js",
+          "test_name": "SOLVE-14 — Bool: structural verification"
+        }
+      ]
+    },
+    "SOLVE-15": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-15.stub.test.js",
+          "test_name": "SOLVE-15 — Bool: behavioral verification"
+        }
+      ]
+    },
+    "SOLVE-16": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-16.stub.test.js",
+          "test_name": "SOLVE-16: TUI source file exists"
+        }
+      ]
+    },
+    "SOLVE-17": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-17.stub.test.js",
+          "test_name": "SOLVE-17: TUI exports createRequirementFromItem (ReverseDiscoveryActions)"
+        }
+      ]
+    },
+    "SOLVE-18": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-18.stub.test.js",
+          "test_name": "SOLVE-18: aggregate-requirements exports parseRequirements function"
+        }
+      ]
+    },
+    "SOLVE-19": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-19.stub.test.js",
+          "test_name": "SOLVE-19: hooks/config-loader.js exists on disk"
+        }
+      ]
+    },
+    "SOLVE-20": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-20.stub.test.js",
+          "test_name": "SOLVE-20: hooks/nf-circuit-breaker.js exists on disk"
+        }
+      ]
+    },
+    "SOLVE-21": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-21.stub.test.js",
+          "test_name": "SOLVE-21: hooks/nf-prompt.js exists on disk"
+        }
+      ]
+    },
+    "SOLVE-22": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-22.stub.test.js",
+          "test_name": "SOLVE-22: hooks/nf-stop.js exists on disk"
+        }
+      ]
+    },
+    "SOLVE-23": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-23.stub.test.js",
+          "test_name": "SOLVE-23: hooks/nf-mcp-dispatch-guard.js exists on disk"
+        }
+      ]
+    },
+    "SOLVE-7": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-7.stub.test.js",
+          "test_name": "SOLVE-7: formal-test-sync.cjs generateStubs produces recipe sidecar with pre-resolved context"
+        }
+      ]
+    },
+    "SOLVE-8": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-8.stub.test.js",
+          "test_name": "SOLVE-8: Alloy model solve-legacy-merge.als exists and defines Bool sig"
         }
       ]
     },
@@ -1975,6 +2182,15 @@
         }
       ]
     },
+    "SPEC-07": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SPEC-07.stub.test.js",
+          "test_name": "SPEC-07: QGSDSessionPersistence.tla uses counter-based tracking (activeCount, persistedCount)"
+        }
+      ]
+    },
     "STATE-01": {
       "covered": true,
       "test_cases": [
@@ -2008,24 +2224,6 @@
         {
           "test_file": ".planning/formal/generated-stubs/STATE-04.stub.test.js",
           "test_name": "STATE-04: writeState creates directory silently with mkdirSync recursive"
-        }
-      ]
-    },
-    "STATE-05": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/STATE-05.stub.test.js",
-          "test_name": "STATE-05: Route C chains into audit-milestone, not complete-milestone directly"
-        }
-      ]
-    },
-    "STATE-06": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/STATE-06.stub.test.js",
-          "test_name": "STATE-06: phase-complete has segment-aware version comparison"
         }
       ]
     },
@@ -2523,10 +2721,6 @@
           "test_name": "WIZ-11: settings.md exists and is readable"
         }
       ]
-    },
-    "SOLVE-14": {
-      "covered": false,
-      "test_cases": []
     }
   }
 }

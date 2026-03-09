@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-09T00:03:55.726Z",
+  "last_sync": "2026-03-09T09:09:01.517Z",
   "search_dirs": [],
   "models": {
     ".planning/formal/alloy/solve-session-persistence.als": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.498Z",
+      "last_updated": "2026-03-09T08:26:56.866Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -14,12 +14,12 @@
         "SOLVE-13"
       ],
       "source_layer": "L2",
-      "gate_maturity": "SOFT_GATE",
+      "gate_maturity": "ADVISORY",
       "layer_maturity": 1
     },
     ".planning/formal/alloy/account-pool-structure.als": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.889Z",
+      "last_updated": "2026-03-09T08:26:56.868Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -32,12 +32,12 @@
         "CRED-11"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/alloy/availability-parsing.als": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.889Z",
+      "last_updated": "2026-03-09T08:26:56.868Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -48,12 +48,12 @@
         "CALIB-03"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/alloy/install-scope.als": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.869Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -66,12 +66,12 @@
         "INST-05"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/alloy/quorum-composition.als": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.869Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -81,23 +81,23 @@
         "COMP-01"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 4974,
-      "last_updated": "2026-03-09T00:05:15.421Z",
+      "version": 5223,
+      "last_updated": "2026-03-09T09:09:02.757Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 1,
       "gate_maturity": "SOFT_GATE",
       "source_layer": "L2"
     },
     ".planning/formal/alloy/scoreboard-recompute.als": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.869Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -109,12 +109,12 @@
         "SCBD-04"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/alloy/taxonomy-safety.als": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.869Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -125,12 +125,12 @@
         "SCBD-07"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/alloy/transcript-scan.als": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.869Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -142,12 +142,12 @@
         "STOP-11"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/prism/mcp-availability.pm": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.870Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -157,12 +157,12 @@
         "FAIL-01"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/prism/oauth-rotation.pm": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.870Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -172,17 +172,17 @@
         "CRED-12"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 4971,
-      "last_updated": "2026-03-09T00:05:15.421Z",
+      "version": 5220,
+      "last_updated": "2026-03-09T09:09:02.758Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2
+      "layer_maturity": 1
     },
     ".planning/formal/tla/NFAccountManager.tla": {
       "version": 1,
@@ -205,7 +205,7 @@
     },
     ".planning/formal/tla/NFCircuitBreaker.tla": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.870Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -216,7 +216,7 @@
         "DETECT-03"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/tla/NFConvergence.tla": {
@@ -273,7 +273,7 @@
     },
     ".planning/formal/tla/NFOscillation.tla": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.890Z",
+      "last_updated": "2026-03-09T08:26:56.870Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -284,12 +284,12 @@
         "DETECT-06"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/tla/NFPreFilter.tla": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.891Z",
+      "last_updated": "2026-03-09T08:26:56.870Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
@@ -302,18 +302,18 @@
         "LOOP-03"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/tla/QGSDQuorum.tla": {
       "version": 1246,
-      "last_updated": "2026-03-09T00:00:33.891Z",
+      "last_updated": "2026-03-09T08:26:56.870Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3,
       "requirements": [
         "LOOP-01",
@@ -330,7 +330,7 @@
     },
     ".planning/formal/tla/QGSDQuorum_xstate.tla": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.891Z",
+      "last_updated": "2026-03-09T08:26:56.870Z",
       "update_source": "generate",
       "source_id": "generate:tla-from-xstate",
       "session_id": null,
@@ -339,7 +339,7 @@
         "QUORUM-01"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/tla/NFRecruiting.tla": {
@@ -524,7 +524,7 @@
     },
     ".planning/formal/tla/QGSDBreakerState.tla": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.891Z",
+      "last_updated": "2026-03-09T08:26:56.871Z",
       "update_source": "close-formal-gaps",
       "source_id": null,
       "session_id": null,
@@ -536,7 +536,7 @@
         "STATE-04"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/tla/QGSDKeyManagement.tla": {
@@ -687,7 +687,7 @@
     },
     ".planning/formal/alloy/quorum-policy.als": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.892Z",
+      "last_updated": "2026-03-09T08:26:56.872Z",
       "update_source": "close-formal-gaps",
       "source_id": null,
       "session_id": null,
@@ -701,7 +701,7 @@
         "COMP-04"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/alloy/architecture-registry.als": {
@@ -748,7 +748,7 @@
     },
     ".planning/formal/prism/observability-delivery.pm": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.500Z",
+      "last_updated": "2026-03-09T08:26:56.872Z",
       "update_source": "close-formal-gaps",
       "source_id": null,
       "session_id": null,
@@ -760,12 +760,12 @@
         "OBS-04"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/prism/deliberation-healing.pm": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.892Z",
+      "last_updated": "2026-03-09T08:26:56.872Z",
       "update_source": "close-formal-gaps",
       "source_id": null,
       "session_id": null,
@@ -775,7 +775,7 @@
         "HEAL-02"
       ],
       "source_layer": "L3",
-      "gate_maturity": "HARD_GATE",
+      "gate_maturity": "SOFT_GATE",
       "layer_maturity": 3
     },
     ".planning/formal/tla/QGSDDashboard.tla": {
@@ -1357,13 +1357,13 @@
       "layer_maturity": 2
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 3726,
-      "last_updated": "2026-03-09T00:05:15.427Z",
+      "version": 3975,
+      "last_updated": "2026-03-09T09:09:02.760Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 1,
       "gate_maturity": "SOFT_GATE",
       "source_layer": "L2"
     },
@@ -1603,7 +1603,7 @@
     },
     ".planning/formal/alloy/spec-quality-guardrails.als": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.502Z",
+      "last_updated": "2026-03-09T08:26:56.875Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1613,11 +1613,11 @@
       ],
       "source_layer": "L2",
       "layer_maturity": 1,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "ADVISORY"
     },
     ".planning/formal/alloy/trace-event-normalization.als": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.502Z",
+      "last_updated": "2026-03-09T08:26:56.876Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1627,11 +1627,11 @@
       ],
       "source_layer": "L2",
       "layer_maturity": 1,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "ADVISORY"
     },
     ".planning/formal/prism/mcp-availability.props": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.895Z",
+      "last_updated": "2026-03-09T09:09:02.761Z",
       "update_source": "annotation-sync",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1641,12 +1641,12 @@
         "MCPENV-04"
       ],
       "layer_maturity": 2,
-      "gate_maturity": "SOFT_GATE",
+      "gate_maturity": "ADVISORY",
       "source_layer": "L2"
     },
     ".planning/formal/prism/oauth-rotation.props": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.895Z",
+      "last_updated": "2026-03-09T08:56:33.932Z",
       "update_source": "annotation-sync",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1656,7 +1656,7 @@
         "PRM-AM-01"
       ],
       "layer_maturity": 2,
-      "gate_maturity": "SOFT_GATE",
+      "gate_maturity": "ADVISORY",
       "source_layer": "L2"
     },
     ".planning/formal/prism/quorum.props": {
@@ -1677,7 +1677,7 @@
     },
     ".planning/formal/prism/observability-delivery.props": {
       "version": 1,
-      "last_updated": "2026-03-09T00:00:33.895Z",
+      "last_updated": "2026-03-09T08:55:02.395Z",
       "update_source": "annotation-sync",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1689,7 +1689,7 @@
         "OBS-04"
       ],
       "layer_maturity": 1,
-      "gate_maturity": "SOFT_GATE",
+      "gate_maturity": "ADVISORY",
       "source_layer": "L2"
     },
     ".planning/formal/prism/deliberation-healing.props": {
@@ -1709,7 +1709,7 @@
     },
     ".planning/formal/alloy/config-audit.als": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.503Z",
+      "last_updated": "2026-03-09T08:26:56.877Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1719,11 +1719,11 @@
       ],
       "source_layer": "L2",
       "layer_maturity": 1,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "ADVISORY"
     },
     ".planning/formal/alloy/solve-result-schema.als": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.503Z",
+      "last_updated": "2026-03-09T08:26:56.878Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1734,11 +1734,11 @@
       ],
       "source_layer": "L2",
       "layer_maturity": 1,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "ADVISORY"
     },
     ".planning/formal/alloy/proximity-index.als": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.503Z",
+      "last_updated": "2026-03-09T08:26:56.878Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1748,11 +1748,11 @@
       ],
       "source_layer": "L2",
       "layer_maturity": 1,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "ADVISORY"
     },
     ".planning/formal/alloy/wiring-awareness.als": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.503Z",
+      "last_updated": "2026-03-09T08:26:56.879Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1762,11 +1762,11 @@
       ],
       "source_layer": "L2",
       "layer_maturity": 1,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "ADVISORY"
     },
     ".planning/formal/tla/QGSDCheckpointGate.tla": {
       "version": 1,
-      "last_updated": "2026-03-09T02:33:28.503Z",
+      "last_updated": "2026-03-09T08:26:56.879Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -1776,7 +1776,198 @@
       ],
       "source_layer": "L2",
       "layer_maturity": 1,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "ADVISORY"
+    },
+    ".planning/formal/alloy/doc-presentation.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.879Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Documentation presentation: README formal verification section and TUI asset generation pipeline",
+      "requirements": [
+        "DOC-02",
+        "DOC-03"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/git-history-evidence.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.880Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Git history evidence commit classification and drift candidate detection",
+      "requirements": [
+        "EVID-04"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/health-diagnostic-routing.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.881Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Observe handler diagnostic code routing with severity mapping",
+      "requirements": [
+        "OBS-16"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/hook-portability-guard.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.881Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Destructive git guard hook and cross-project portability constraint",
+      "requirements": [
+        "GUARD-02",
+        "PORT-04"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/prism-delegation.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.882Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "PRISM model-checking delegation via run-prism.cjs subprocess spawn",
+      "requirements": [
+        "FVTOOL-02"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/requirements-aggregation.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.882Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Solver-discovered code module: unified MCP server",
+      "requirements": [
+        "SOLVE-18"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/solve-decomposition.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.882Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Solver sub-skill decomposition and model complexity profiling",
+      "requirements": [
+        "SOLVE-14",
+        "SOLVE-15"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/solve-tui-features.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.883Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Solve TUI interactive terminal interface and category-aware action menus",
+      "requirements": [
+        "SOLVE-16",
+        "SOLVE-17"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/hook-module-existence.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.884Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Structural existence of solver-discovered hook and config modules",
+      "requirements": [
+        "SOLVE-19",
+        "SOLVE-20",
+        "SOLVE-21",
+        "SOLVE-22",
+        "SOLVE-23"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/autoclose-signals.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:08:44.684Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "AutoClose remediation signal production constraint — no direct gate_maturity writes",
+      "requirements": [
+        "GATE-02"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "SOFT_GATE",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/session-counter-tracking.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:26:56.884Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Session persistence TLA+ model uses counter-based state tracking for practical TLC bounds",
+      "requirements": [
+        "SPEC-07"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/debate-trace-persistence.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T09:00:00.000Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Quorum debate trace persistence with fail-open I/O and required frontmatter fields",
+      "requirements": [
+        "DISP-07"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "ADVISORY",
+      "layer_maturity": 1
+    },
+    ".planning/formal/alloy/gate-promotion-lifecycle.als": {
+      "version": 1,
+      "last_updated": "2026-03-09T08:56:33.933Z",
+      "update_source": "generate",
+      "source_id": "close-formal-gaps",
+      "session_id": null,
+      "description": "Gate promotion pipeline with evidence readiness scoring, fail-open semantics, bypass, auto-demotion with hysteresis, and churn density ranking",
+      "requirements": [
+        "GATE-03",
+        "GATE-04"
+      ],
+      "source_layer": "L2",
+      "gate_maturity": "SOFT_GATE",
+      "layer_maturity": 1
     }
   }
 }

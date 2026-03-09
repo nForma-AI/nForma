@@ -1,0 +1,12 @@
+{
+  "gsd-build/get-shit-done": {
+    "last_checked": "2026-03-08T23:16:46.226Z",
+    "last_release_tag": null,
+    "coupling": "tight"
+  },
+  "affaan-m/everything-claude-code": {
+    "last_checked": "2026-03-08T23:16:47.485Z",
+    "last_release_tag": null,
+    "coupling": "loose"
+  }
+}

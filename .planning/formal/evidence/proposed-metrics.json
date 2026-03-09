@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-08T08:42:12.921Z",
-  "total_proposed": 65,
+  "generated": "2026-03-09T09:03:43.893Z",
+  "total_proposed": 64,
   "implemented": 0,
   "partial": 0,
-  "outstanding": 65,
+  "outstanding": 64,
   "metrics": [
     {
       "metric_name": "nf_maxdeliberationrounds__tla",
@@ -340,18 +340,6 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCMCPEnv.cfg:QuorumThreshold",
       "instrumentation_snippet": "// Prometheus gauge for QuorumThreshold (tla/constant)\n# HELP nf_quorumthreshold__tla Monitors QuorumThreshold from tla model\n# TYPE nf_quorumthreshold__tla gauge\nconst nf_quorumthreshold__tla = new Gauge({\n  name: 'nf_quorumthreshold__tla',\n  help: 'Monitors QuorumThreshold from tla model',\n  labelNames: ['model', 'file']\n});\nnf_quorumthreshold__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCMCPEnv.cfg' }, 1);",
-      "status": "proposed"
-    },
-    {
-      "metric_name": "nf_maxphases",
-      "metric_type": "gauge",
-      "tier": 1,
-      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCPlanningState.cfg",
-      "assumption_name": "MaxPhases",
-      "assumption_type": "constant",
-      "coverage": "uncovered",
-      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCPlanningState.cfg:MaxPhases",
-      "instrumentation_snippet": "// Prometheus gauge for MaxPhases (tla/constant)\n# HELP nf_maxphases Monitors MaxPhases from tla model\n# TYPE nf_maxphases gauge\nconst nf_maxphases = new Gauge({\n  name: 'nf_maxphases',\n  help: 'Monitors MaxPhases from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxphases.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCPlanningState.cfg' }, 4);",
       "status": "proposed"
     },
     {

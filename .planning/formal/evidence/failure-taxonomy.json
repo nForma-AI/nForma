@@ -1,14 +1,14 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-08T08:42:13.528Z",
-  "total_failures": 18,
+  "generated": "2026-03-09T09:03:44.481Z",
+  "total_failures": 5,
   "categories": {
     "crash": [
       {
         "tool": "run-prism",
         "formalism": "prism",
         "result": "error",
-        "timestamp": "2026-03-08T08:22:16.619Z",
+        "timestamp": "2026-03-09T08:58:26.662Z",
         "check_id": "prism:quorum",
         "surface": "prism",
         "property": "Quorum consensus probability under agent availability rates",
@@ -22,8 +22,8 @@
         ],
         "metadata": {},
         "observation_window": {
-          "window_start": "2026-03-08T08:22:16.618Z",
-          "window_end": "2026-03-08T08:22:16.618Z",
+          "window_start": "2026-03-09T08:58:26.661Z",
+          "window_end": "2026-03-09T08:58:26.662Z",
           "n_traces": 0,
           "n_events": 0,
           "window_days": 0
@@ -35,7 +35,7 @@
         "tool": "run-prism",
         "formalism": "prism",
         "result": "error",
-        "timestamp": "2026-03-08T08:22:16.668Z",
+        "timestamp": "2026-03-09T08:58:26.712Z",
         "check_id": "prism:quorum",
         "surface": "prism",
         "property": "Quorum consensus probability under agent availability rates",
@@ -49,8 +49,8 @@
         ],
         "metadata": {},
         "observation_window": {
-          "window_start": "2026-03-08T08:22:16.667Z",
-          "window_end": "2026-03-08T08:22:16.668Z",
+          "window_start": "2026-03-09T08:58:26.711Z",
+          "window_end": "2026-03-09T08:58:26.711Z",
           "n_traces": 0,
           "n_events": 0,
           "window_days": 0
@@ -62,7 +62,7 @@
         "tool": "run-oauth-rotation-prism",
         "formalism": "prism",
         "result": "error",
-        "timestamp": "2026-03-08T08:22:16.717Z",
+        "timestamp": "2026-03-09T08:58:26.760Z",
         "check_id": "prism:oauth-rotation",
         "surface": "prism",
         "property": "OAuth token rotation probability — successful rotation under expiry and concurrency",
@@ -75,8 +75,8 @@
         ],
         "metadata": {},
         "observation_window": {
-          "window_start": "2026-03-08T08:22:16.717Z",
-          "window_end": "2026-03-08T08:22:16.717Z",
+          "window_start": "2026-03-09T08:58:26.760Z",
+          "window_end": "2026-03-09T08:58:26.760Z",
           "n_traces": 0,
           "n_events": 0,
           "window_days": 0
@@ -88,7 +88,7 @@
         "tool": "run-prism",
         "formalism": "prism",
         "result": "error",
-        "timestamp": "2026-03-08T08:22:16.774Z",
+        "timestamp": "2026-03-09T08:58:26.808Z",
         "check_id": "prism:quorum",
         "surface": "prism",
         "property": "Quorum consensus probability under agent availability rates",
@@ -102,8 +102,8 @@
         ],
         "metadata": {},
         "observation_window": {
-          "window_start": "2026-03-08T08:22:16.773Z",
-          "window_end": "2026-03-08T08:22:16.773Z",
+          "window_start": "2026-03-09T08:58:26.808Z",
+          "window_end": "2026-03-09T08:58:26.808Z",
           "n_traces": 0,
           "n_events": 0,
           "window_days": 0
@@ -115,7 +115,7 @@
         "tool": "run-prism",
         "formalism": "prism",
         "result": "error",
-        "timestamp": "2026-03-08T08:22:16.824Z",
+        "timestamp": "2026-03-09T08:58:26.855Z",
         "check_id": "prism:quorum",
         "surface": "prism",
         "property": "Quorum consensus probability under agent availability rates",
@@ -129,8 +129,8 @@
         ],
         "metadata": {},
         "observation_window": {
-          "window_start": "2026-03-08T08:22:16.823Z",
-          "window_end": "2026-03-08T08:22:16.824Z",
+          "window_start": "2026-03-09T08:58:26.855Z",
+          "window_end": "2026-03-09T08:58:26.855Z",
           "n_traces": 0,
           "n_events": 0,
           "window_days": 0
@@ -141,382 +141,17 @@
     ],
     "timeout": [],
     "logic_violation": [],
-    "drift": [
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:23:43.638Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 25,
-        "summary": "fail: 1 divergence(s) in 1 traces (25ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:23:43.623Z",
-          "window_end": "2026-03-08T08:23:43.630Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:23:56.802Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 12,
-        "summary": "fail: 1 divergence(s) in 1 traces (12ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:23:56.793Z",
-          "window_end": "2026-03-08T08:23:56.796Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:24:09.251Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 23,
-        "summary": "fail: 1 divergence(s) in 1 traces (23ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:24:09.231Z",
-          "window_end": "2026-03-08T08:24:09.232Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:24:22.417Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 13,
-        "summary": "fail: 1 divergence(s) in 1 traces (13ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:24:22.407Z",
-          "window_end": "2026-03-08T08:24:22.411Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:24:34.623Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 18,
-        "summary": "fail: 1 divergence(s) in 1 traces (18ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:24:34.609Z",
-          "window_end": "2026-03-08T08:24:34.613Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:25:02.439Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 19,
-        "summary": "fail: 1 divergence(s) in 1 traces (19ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:25:02.423Z",
-          "window_end": "2026-03-08T08:25:02.426Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:31:38.251Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 17,
-        "summary": "fail: 1 divergence(s) in 1 traces (17ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:31:38.238Z",
-          "window_end": "2026-03-08T08:31:38.241Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:32:02.507Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 11,
-        "summary": "fail: 1 divergence(s) in 1 traces (11ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:32:02.499Z",
-          "window_end": "2026-03-08T08:32:02.500Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:34:37.304Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 8,
-        "summary": "fail: 1 divergence(s) in 1 traces (8ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:34:37.299Z",
-          "window_end": "2026-03-08T08:34:37.299Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:35:00.762Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 18,
-        "summary": "fail: 1 divergence(s) in 1 traces (18ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:35:00.748Z",
-          "window_end": "2026-03-08T08:35:00.750Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:35:25.120Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 12,
-        "summary": "fail: 1 divergence(s) in 1 traces (12ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:35:25.111Z",
-          "window_end": "2026-03-08T08:35:25.112Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:35:48.713Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 11,
-        "summary": "fail: 1 divergence(s) in 1 traces (11ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:35:48.707Z",
-          "window_end": "2026-03-08T08:35:48.708Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      },
-      {
-        "tool": "validate-traces",
-        "formalism": "trace",
-        "result": "fail",
-        "timestamp": "2026-03-08T08:36:13.191Z",
-        "check_id": "ci:conformance-traces",
-        "surface": "ci",
-        "property": "Conformance event replay through XState machine",
-        "runtime_ms": 15,
-        "summary": "fail: 1 divergence(s) in 1 traces (15ms)",
-        "triage_tags": [
-          "trace-divergence"
-        ],
-        "requirement_ids": [],
-        "metadata": {
-          "divergences": 1,
-          "total": 1
-        },
-        "observation_window": {
-          "window_start": "2026-03-08T08:36:13.179Z",
-          "window_end": "2026-03-08T08:36:13.181Z",
-          "n_traces": 0,
-          "n_events": 1,
-          "window_days": 0
-        },
-        "category": "drift",
-        "classification_reason": "Trace divergence: 1 divergence(s) detected"
-      }
-    ],
+    "drift": [],
     "degradation": []
   },
   "category_counts": {
     "crash": 5,
     "timeout": 0,
     "logic_violation": 0,
-    "drift": 13,
+    "drift": 0,
     "degradation": 0
   },
   "degradation_fallback_note": "When no baseline exists, potential degradation entries are classified as logic_violation",
   "unclassified": [],
-  "summary": "18 failures classified: crash=5, timeout=0, logic_violation=0, drift=13, degradation=0. 0 unclassified."
+  "summary": "5 failures classified: crash=5, timeout=0, logic_violation=0, drift=0, degradation=0. 0 unclassified."
 }

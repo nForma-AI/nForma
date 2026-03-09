@@ -1,0 +1,2685 @@
+{
+  "entries": [
+    {
+      "key": "docs/triage-sources.example.md:sentry-feedback",
+      "type": "dtoc",
+      "summary": "dependency: sentry-feedback",
+      "doc_file": "docs/triage-sources.example.md",
+      "value": "sentry-feedback",
+      "line": 76,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/triage-sources.example.md:sentry-cli",
+      "type": "dtoc",
+      "summary": "dependency: sentry-cli",
+      "doc_file": "docs/triage-sources.example.md",
+      "value": "sentry-cli",
+      "line": 77,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:.planning/quick/001-add-dark-mode-toggle/PLAN.md",
+      "type": "dtoc",
+      "summary": "file_path: .planning/quick/001-add-dark-mode-toggle/PLAN.md",
+      "doc_file": "README.md",
+      "value": ".planning/quick/001-add-dark-mode-toggle/PLAN.md",
+      "line": 464,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:valid-skip",
+      "type": "dtoc",
+      "summary": "dependency: valid-skip",
+      "doc_file": "README.md",
+      "value": "valid-skip",
+      "line": 481,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:real-bug",
+      "type": "dtoc",
+      "summary": "dependency: real-bug",
+      "doc_file": "README.md",
+      "value": "real-bug",
+      "line": 484,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:.planning/token-usage.jsonl",
+      "type": "dtoc",
+      "summary": "file_path: .planning/token-usage.jsonl",
+      "doc_file": "README.md",
+      "value": ".planning/token-usage.jsonl",
+      "line": 557,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:.claude/qgsd.json",
+      "type": "dtoc",
+      "summary": "file_path: .claude/qgsd.json",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": ".claude/qgsd.json",
+      "line": 102,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:.formal/sensitivity-report.ndjson",
+      "type": "dtoc",
+      "summary": "file_path: .formal/sensitivity-report.ndjson",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": ".formal/sensitivity-report.ndjson",
+      "line": 310,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:.formal/uppaal/quorum-races.xml",
+      "type": "dtoc",
+      "summary": "file_path: .formal/uppaal/quorum-races.xml",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": ".formal/uppaal/quorum-races.xml",
+      "line": 454,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:bin/gsd-tools.cjs",
+      "type": "dtoc",
+      "summary": "file_path: bin/gsd-tools.cjs",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": "bin/gsd-tools.cjs",
+      "line": 874,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:activity-clear",
+      "type": "dtoc",
+      "summary": "dependency: activity-clear",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": "activity-clear",
+      "line": 1290,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:circuit-breaker",
+      "type": "dtoc",
+      "summary": "dependency: circuit-breaker",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": "circuit-breaker",
+      "line": 1314,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:get-shit-done-quorum",
+      "type": "dtoc",
+      "summary": "dependency: get-shit-done-quorum",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": "get-shit-done-quorum",
+      "line": 1464,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:.formal/policy.yaml",
+      "type": "dtoc",
+      "summary": "file_path: .formal/policy.yaml",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": ".formal/policy.yaml",
+      "line": 1518,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/assumption-register.cjs",
+      "type": "ctor",
+      "summary": "bin/assumption-register.cjs",
+      "file": "bin/assumption-register.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/autoClosePtoF.cjs",
+      "type": "ctor",
+      "summary": "bin/autoClosePtoF.cjs",
+      "file": "bin/autoClosePtoF.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/blessed-terminal.cjs",
+      "type": "ctor",
+      "summary": "bin/blessed-terminal.cjs",
+      "file": "bin/blessed-terminal.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/budget-tracker.cjs",
+      "type": "ctor",
+      "summary": "bin/budget-tracker.cjs",
+      "file": "bin/budget-tracker.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/build-layer-manifest.cjs",
+      "type": "ctor",
+      "summary": "bin/build-layer-manifest.cjs",
+      "file": "bin/build-layer-manifest.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/build-phase-index.cjs",
+      "type": "ctor",
+      "summary": "bin/build-phase-index.cjs",
+      "file": "bin/build-phase-index.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/ccr-secure-config.cjs",
+      "type": "ctor",
+      "summary": "bin/ccr-secure-config.cjs",
+      "file": "bin/ccr-secure-config.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/ccr-secure-start.cjs",
+      "type": "ctor",
+      "summary": "bin/ccr-secure-start.cjs",
+      "file": "bin/ccr-secure-start.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-bundled-sdks.cjs",
+      "type": "ctor",
+      "summary": "bin/check-bundled-sdks.cjs",
+      "file": "bin/check-bundled-sdks.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-coverage-guard.cjs",
+      "type": "ctor",
+      "summary": "bin/check-coverage-guard.cjs",
+      "file": "bin/check-coverage-guard.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-mcp-health.cjs",
+      "type": "ctor",
+      "summary": "bin/check-mcp-health.cjs",
+      "file": "bin/check-mcp-health.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-results-exit.cjs",
+      "type": "ctor",
+      "summary": "bin/check-results-exit.cjs",
+      "file": "bin/check-results-exit.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-spec-sync.cjs",
+      "type": "ctor",
+      "summary": "bin/check-spec-sync.cjs",
+      "file": "bin/check-spec-sync.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-tui-assets-stale.cjs",
+      "type": "ctor",
+      "summary": "bin/check-tui-assets-stale.cjs",
+      "file": "bin/check-tui-assets-stale.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/compareDrift.cjs",
+      "type": "ctor",
+      "summary": "bin/compareDrift.cjs",
+      "file": "bin/compareDrift.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/context-retriever.cjs",
+      "type": "ctor",
+      "summary": "bin/context-retriever.cjs",
+      "file": "bin/context-retriever.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/context-stack.cjs",
+      "type": "ctor",
+      "summary": "bin/context-stack.cjs",
+      "file": "bin/context-stack.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/continuous-verify.cjs",
+      "type": "ctor",
+      "summary": "bin/continuous-verify.cjs",
+      "file": "bin/continuous-verify.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/count-scenarios.cjs",
+      "type": "ctor",
+      "summary": "bin/count-scenarios.cjs",
+      "file": "bin/count-scenarios.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/cross-layer-dashboard.cjs",
+      "type": "ctor",
+      "summary": "bin/cross-layer-dashboard.cjs",
+      "file": "bin/cross-layer-dashboard.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debate-formatter.cjs",
+      "type": "ctor",
+      "summary": "bin/debate-formatter.cjs",
+      "file": "bin/debate-formatter.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debt-dedup.cjs",
+      "type": "ctor",
+      "summary": "bin/debt-dedup.cjs",
+      "file": "bin/debt-dedup.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debt-ledger.cjs",
+      "type": "ctor",
+      "summary": "bin/debt-ledger.cjs",
+      "file": "bin/debt-ledger.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debt-retention.cjs",
+      "type": "ctor",
+      "summary": "bin/debt-retention.cjs",
+      "file": "bin/debt-retention.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debt-state-machine.cjs",
+      "type": "ctor",
+      "summary": "bin/debt-state-machine.cjs",
+      "file": "bin/debt-state-machine.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/design-impact.cjs",
+      "type": "ctor",
+      "summary": "bin/design-impact.cjs",
+      "file": "bin/design-impact.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/detect-project-intent.cjs",
+      "type": "ctor",
+      "summary": "bin/detect-project-intent.cjs",
+      "file": "bin/detect-project-intent.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/execution-progress.cjs",
+      "type": "ctor",
+      "summary": "bin/execution-progress.cjs",
+      "file": "bin/execution-progress.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/extractFormalExpected.cjs",
+      "type": "ctor",
+      "summary": "bin/extractFormalExpected.cjs",
+      "file": "bin/extractFormalExpected.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/failure-mode-catalog.cjs",
+      "type": "ctor",
+      "summary": "bin/failure-mode-catalog.cjs",
+      "file": "bin/failure-mode-catalog.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/failure-taxonomy.cjs",
+      "type": "ctor",
+      "summary": "bin/failure-taxonomy.cjs",
+      "file": "bin/failure-taxonomy.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/fingerprint-drift.cjs",
+      "type": "ctor",
+      "summary": "bin/fingerprint-drift.cjs",
+      "file": "bin/fingerprint-drift.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/fingerprint-issue.cjs",
+      "type": "ctor",
+      "summary": "bin/fingerprint-issue.cjs",
+      "file": "bin/fingerprint-issue.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/formal-query.cjs",
+      "type": "ctor",
+      "summary": "bin/formal-query.cjs",
+      "file": "bin/formal-query.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/formal-ref-linker.cjs",
+      "type": "ctor",
+      "summary": "bin/formal-ref-linker.cjs",
+      "file": "bin/formal-ref-linker.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/gate-b-abstraction.cjs",
+      "type": "ctor",
+      "summary": "bin/gate-b-abstraction.cjs",
+      "file": "bin/gate-b-abstraction.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/gate-c-validation.cjs",
+      "type": "ctor",
+      "summary": "bin/gate-c-validation.cjs",
+      "file": "bin/gate-c-validation.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/generate-tla-cfg.cjs",
+      "type": "ctor",
+      "summary": "bin/generate-tla-cfg.cjs",
+      "file": "bin/generate-tla-cfg.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/gh-account-rotate.cjs",
+      "type": "ctor",
+      "summary": "bin/gh-account-rotate.cjs",
+      "file": "bin/gh-account-rotate.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/harness-diagnostic.cjs",
+      "type": "ctor",
+      "summary": "bin/harness-diagnostic.cjs",
+      "file": "bin/harness-diagnostic.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/hazard-model.cjs",
+      "type": "ctor",
+      "summary": "bin/hazard-model.cjs",
+      "file": "bin/hazard-model.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/initialize-model-registry.cjs",
+      "type": "ctor",
+      "summary": "bin/initialize-model-registry.cjs",
+      "file": "bin/initialize-model-registry.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/install-formal-tools.cjs",
+      "type": "ctor",
+      "summary": "bin/install-formal-tools.cjs",
+      "file": "bin/install-formal-tools.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/instrumentation-map.cjs",
+      "type": "ctor",
+      "summary": "bin/instrumentation-map.cjs",
+      "file": "bin/instrumentation-map.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/invariant-catalog.cjs",
+      "type": "ctor",
+      "summary": "bin/invariant-catalog.cjs",
+      "file": "bin/invariant-catalog.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/isNumericThreshold.cjs",
+      "type": "ctor",
+      "summary": "bin/isNumericThreshold.cjs",
+      "file": "bin/isNumericThreshold.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/issue-classifier.cjs",
+      "type": "ctor",
+      "summary": "bin/issue-classifier.cjs",
+      "file": "bin/issue-classifier.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/learning-extractor.cjs",
+      "type": "ctor",
+      "summary": "bin/learning-extractor.cjs",
+      "file": "bin/learning-extractor.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/levenshtein.cjs",
+      "type": "ctor",
+      "summary": "bin/levenshtein.cjs",
+      "file": "bin/levenshtein.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/lint-formal-models.cjs",
+      "type": "ctor",
+      "summary": "bin/lint-formal-models.cjs",
+      "file": "bin/lint-formal-models.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/load-baseline-requirements.cjs",
+      "type": "ctor",
+      "summary": "bin/load-baseline-requirements.cjs",
+      "file": "bin/load-baseline-requirements.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/manage-agents-core.cjs",
+      "type": "ctor",
+      "summary": "bin/manage-agents-core.cjs",
+      "file": "bin/manage-agents-core.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/memory-store.cjs",
+      "type": "ctor",
+      "summary": "bin/memory-store.cjs",
+      "file": "bin/memory-store.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/migrate-formal-dir.cjs",
+      "type": "ctor",
+      "summary": "bin/migrate-formal-dir.cjs",
+      "file": "bin/migrate-formal-dir.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/migrate-planning.cjs",
+      "type": "ctor",
+      "summary": "bin/migrate-planning.cjs",
+      "file": "bin/migrate-planning.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/migrate-to-slots.cjs",
+      "type": "ctor",
+      "summary": "bin/migrate-to-slots.cjs",
+      "file": "bin/migrate-to-slots.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/mismatch-register.cjs",
+      "type": "ctor",
+      "summary": "bin/mismatch-register.cjs",
+      "file": "bin/mismatch-register.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-config.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-config.cjs",
+      "file": "bin/observe-config.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-debt-writer.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-debt-writer.cjs",
+      "file": "bin/observe-debt-writer.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-deps.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-handler-deps.cjs",
+      "file": "bin/observe-handler-deps.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-grafana.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-handler-grafana.cjs",
+      "file": "bin/observe-handler-grafana.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-internal.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-handler-internal.cjs",
+      "file": "bin/observe-handler-internal.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-logstash.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-handler-logstash.cjs",
+      "file": "bin/observe-handler-logstash.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-prometheus.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-handler-prometheus.cjs",
+      "file": "bin/observe-handler-prometheus.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-session-insights.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-handler-session-insights.cjs",
+      "file": "bin/observe-handler-session-insights.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-upstream.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-handler-upstream.cjs",
+      "file": "bin/observe-handler-upstream.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handlers.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-handlers.cjs",
+      "file": "bin/observe-handlers.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-registry.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-registry.cjs",
+      "file": "bin/observe-registry.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-render.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-render.cjs",
+      "file": "bin/observe-render.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-solve-pipe.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-solve-pipe.cjs",
+      "file": "bin/observe-solve-pipe.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-utils.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-utils.cjs",
+      "file": "bin/observe-utils.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observed-fsm.cjs",
+      "type": "ctor",
+      "summary": "bin/observed-fsm.cjs",
+      "file": "bin/observed-fsm.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/planning-paths.cjs",
+      "type": "ctor",
+      "summary": "bin/planning-paths.cjs",
+      "file": "bin/planning-paths.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/probe-quorum-slots.cjs",
+      "type": "ctor",
+      "summary": "bin/probe-quorum-slots.cjs",
+      "file": "bin/probe-quorum-slots.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/promote-gate-maturity.cjs",
+      "type": "ctor",
+      "summary": "bin/promote-gate-maturity.cjs",
+      "file": "bin/promote-gate-maturity.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-cache.cjs",
+      "type": "ctor",
+      "summary": "bin/quorum-cache.cjs",
+      "file": "bin/quorum-cache.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-preflight.cjs",
+      "type": "ctor",
+      "summary": "bin/quorum-preflight.cjs",
+      "file": "bin/quorum-preflight.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-slot-dispatch.cjs",
+      "type": "ctor",
+      "summary": "bin/quorum-slot-dispatch.cjs",
+      "file": "bin/quorum-slot-dispatch.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/requirement-map.cjs",
+      "type": "ctor",
+      "summary": "bin/requirement-map.cjs",
+      "file": "bin/requirement-map.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/requirements-core.cjs",
+      "type": "ctor",
+      "summary": "bin/requirements-core.cjs",
+      "file": "bin/requirements-core.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/resolve-cli.cjs",
+      "type": "ctor",
+      "summary": "bin/resolve-cli.cjs",
+      "file": "bin/resolve-cli.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/resolve-prism-bin.cjs",
+      "type": "ctor",
+      "summary": "bin/resolve-prism-bin.cjs",
+      "file": "bin/resolve-prism-bin.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/review-mcp-logs.cjs",
+      "type": "ctor",
+      "summary": "bin/review-mcp-logs.cjs",
+      "file": "bin/review-mcp-logs.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/risk-heatmap.cjs",
+      "type": "ctor",
+      "summary": "bin/risk-heatmap.cjs",
+      "file": "bin/risk-heatmap.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-account-manager-tlc.cjs",
+      "type": "ctor",
+      "summary": "bin/run-account-manager-tlc.cjs",
+      "file": "bin/run-account-manager-tlc.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-account-pool-alloy.cjs",
+      "type": "ctor",
+      "summary": "bin/run-account-pool-alloy.cjs",
+      "file": "bin/run-account-pool-alloy.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-audit-alloy.cjs",
+      "type": "ctor",
+      "summary": "bin/run-audit-alloy.cjs",
+      "file": "bin/run-audit-alloy.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-breaker-tlc.cjs",
+      "type": "ctor",
+      "summary": "bin/run-breaker-tlc.cjs",
+      "file": "bin/run-breaker-tlc.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-installer-alloy.cjs",
+      "type": "ctor",
+      "summary": "bin/run-installer-alloy.cjs",
+      "file": "bin/run-installer-alloy.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-oauth-rotation-prism.cjs",
+      "type": "ctor",
+      "summary": "bin/run-oauth-rotation-prism.cjs",
+      "file": "bin/run-oauth-rotation-prism.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-oscillation-tlc.cjs",
+      "type": "ctor",
+      "summary": "bin/run-oscillation-tlc.cjs",
+      "file": "bin/run-oscillation-tlc.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-protocol-tlc.cjs",
+      "type": "ctor",
+      "summary": "bin/run-protocol-tlc.cjs",
+      "file": "bin/run-protocol-tlc.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-quorum-composition-alloy.cjs",
+      "type": "ctor",
+      "summary": "bin/run-quorum-composition-alloy.cjs",
+      "file": "bin/run-quorum-composition-alloy.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-stop-hook-tlc.cjs",
+      "type": "ctor",
+      "summary": "bin/run-stop-hook-tlc.cjs",
+      "file": "bin/run-stop-hook-tlc.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-transcript-alloy.cjs",
+      "type": "ctor",
+      "summary": "bin/run-transcript-alloy.cjs",
+      "file": "bin/run-transcript-alloy.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/security-sweep.cjs",
+      "type": "ctor",
+      "summary": "bin/security-sweep.cjs",
+      "file": "bin/security-sweep.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/set-secret.cjs",
+      "type": "ctor",
+      "summary": "bin/set-secret.cjs",
+      "file": "bin/set-secret.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/skill-extractor.cjs",
+      "type": "ctor",
+      "summary": "bin/skill-extractor.cjs",
+      "file": "bin/skill-extractor.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/solve-debt-bridge.cjs",
+      "type": "ctor",
+      "summary": "bin/solve-debt-bridge.cjs",
+      "file": "bin/solve-debt-bridge.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/stall-detector.cjs",
+      "type": "ctor",
+      "summary": "bin/stall-detector.cjs",
+      "file": "bin/stall-detector.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/state-candidates.cjs",
+      "type": "ctor",
+      "summary": "bin/state-candidates.cjs",
+      "file": "bin/state-candidates.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/sweepPtoF.cjs",
+      "type": "ctor",
+      "summary": "bin/sweepPtoF.cjs",
+      "file": "bin/sweepPtoF.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/task-classifier.cjs",
+      "type": "ctor",
+      "summary": "bin/task-classifier.cjs",
+      "file": "bin/task-classifier.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/task-envelope.cjs",
+      "type": "ctor",
+      "summary": "bin/task-envelope.cjs",
+      "file": "bin/task-envelope.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/telemetry-collector.cjs",
+      "type": "ctor",
+      "summary": "bin/telemetry-collector.cjs",
+      "file": "bin/telemetry-collector.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/test-changed.cjs",
+      "type": "ctor",
+      "summary": "bin/test-changed.cjs",
+      "file": "bin/test-changed.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/token-dashboard.cjs",
+      "type": "ctor",
+      "summary": "bin/token-dashboard.cjs",
+      "file": "bin/token-dashboard.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/trace-corpus-stats.cjs",
+      "type": "ctor",
+      "summary": "bin/trace-corpus-stats.cjs",
+      "file": "bin/trace-corpus-stats.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/update-agents.cjs",
+      "type": "ctor",
+      "summary": "bin/update-agents.cjs",
+      "file": "bin/update-agents.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/update-scoreboard.cjs",
+      "type": "ctor",
+      "summary": "bin/update-scoreboard.cjs",
+      "file": "bin/update-scoreboard.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/validate-debt-entry.cjs",
+      "type": "ctor",
+      "summary": "bin/validate-debt-entry.cjs",
+      "file": "bin/validate-debt-entry.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/validate-invariant.cjs",
+      "type": "ctor",
+      "summary": "bin/validate-invariant.cjs",
+      "file": "bin/validate-invariant.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/validate-memory.cjs",
+      "type": "ctor",
+      "summary": "bin/validate-memory.cjs",
+      "file": "bin/validate-memory.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/validate-requirements-haiku.cjs",
+      "type": "ctor",
+      "summary": "bin/validate-requirements-haiku.cjs",
+      "file": "bin/validate-requirements-haiku.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/verify-formal-results.cjs",
+      "type": "ctor",
+      "summary": "bin/verify-formal-results.cjs",
+      "file": "bin/verify-formal-results.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/worktree-merge.cjs",
+      "type": "ctor",
+      "summary": "bin/worktree-merge.cjs",
+      "file": "bin/worktree-merge.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/write-check-result.cjs",
+      "type": "ctor",
+      "summary": "bin/write-check-result.cjs",
+      "file": "bin/write-check-result.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/xstate-to-tla.cjs",
+      "type": "ctor",
+      "summary": "bin/xstate-to-tla.cjs",
+      "file": "bin/xstate-to-tla.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/xstate-trace-walker.cjs",
+      "type": "ctor",
+      "summary": "bin/xstate-trace-walker.cjs",
+      "file": "bin/xstate-trace-walker.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/gsd-context-monitor.js",
+      "type": "ctor",
+      "summary": "hooks/gsd-context-monitor.js",
+      "file": "hooks/gsd-context-monitor.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-check-update.js",
+      "type": "ctor",
+      "summary": "hooks/nf-check-update.js",
+      "file": "hooks/nf-check-update.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-console-guard.js",
+      "type": "ctor",
+      "summary": "hooks/nf-console-guard.js",
+      "file": "hooks/nf-console-guard.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-post-edit-format.js",
+      "type": "ctor",
+      "summary": "hooks/nf-post-edit-format.js",
+      "file": "hooks/nf-post-edit-format.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-precompact.js",
+      "type": "ctor",
+      "summary": "hooks/nf-precompact.js",
+      "file": "hooks/nf-precompact.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-session-end.js",
+      "type": "ctor",
+      "summary": "hooks/nf-session-end.js",
+      "file": "hooks/nf-session-end.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-session-start.js",
+      "type": "ctor",
+      "summary": "hooks/nf-session-start.js",
+      "file": "hooks/nf-session-start.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-slot-correlator.js",
+      "type": "ctor",
+      "summary": "hooks/nf-slot-correlator.js",
+      "file": "hooks/nf-slot-correlator.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-spec-regen.js",
+      "type": "ctor",
+      "summary": "hooks/nf-spec-regen.js",
+      "file": "hooks/nf-spec-regen.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-statusline.js",
+      "type": "ctor",
+      "summary": "hooks/nf-statusline.js",
+      "file": "hooks/nf-statusline.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "hooks/nf-token-collector.js",
+      "type": "ctor",
+      "summary": "hooks/nf-token-collector.js",
+      "file": "hooks/nf-token-collector.js",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/accept-debug-invariant.test.cjs",
+      "type": "ttor",
+      "summary": "bin/accept-debug-invariant.test.cjs",
+      "file": "bin/accept-debug-invariant.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/aggregate-requirements.test.cjs",
+      "type": "ttor",
+      "summary": "bin/aggregate-requirements.test.cjs",
+      "file": "bin/aggregate-requirements.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/analyze-assumptions.test.cjs",
+      "type": "ttor",
+      "summary": "bin/analyze-assumptions.test.cjs",
+      "file": "bin/analyze-assumptions.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/assumption-register.test.cjs",
+      "type": "ttor",
+      "summary": "bin/assumption-register.test.cjs",
+      "file": "bin/assumption-register.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/attribute-trace-divergence.test.cjs",
+      "type": "ttor",
+      "summary": "bin/attribute-trace-divergence.test.cjs",
+      "file": "bin/attribute-trace-divergence.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/autoClosePtoF.test.cjs",
+      "type": "ttor",
+      "summary": "bin/autoClosePtoF.test.cjs",
+      "file": "bin/autoClosePtoF.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/budget-tracker.test.cjs",
+      "type": "ttor",
+      "summary": "bin/budget-tracker.test.cjs",
+      "file": "bin/budget-tracker.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/build-layer-manifest.test.cjs",
+      "type": "ttor",
+      "summary": "bin/build-layer-manifest.test.cjs",
+      "file": "bin/build-layer-manifest.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/build-phase-index.test.cjs",
+      "type": "ttor",
+      "summary": "bin/build-phase-index.test.cjs",
+      "file": "bin/build-phase-index.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/call-quorum-slot-latency.test.cjs",
+      "type": "ttor",
+      "summary": "bin/call-quorum-slot-latency.test.cjs",
+      "file": "bin/call-quorum-slot-latency.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/call-quorum-slot-retry.test.cjs",
+      "type": "ttor",
+      "summary": "bin/call-quorum-slot-retry.test.cjs",
+      "file": "bin/call-quorum-slot-retry.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/ccr-secure-config.test.cjs",
+      "type": "ttor",
+      "summary": "bin/ccr-secure-config.test.cjs",
+      "file": "bin/ccr-secure-config.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-bundled-sdks.test.cjs",
+      "type": "ttor",
+      "summary": "bin/check-bundled-sdks.test.cjs",
+      "file": "bin/check-bundled-sdks.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-liveness-fairness.test.cjs",
+      "type": "ttor",
+      "summary": "bin/check-liveness-fairness.test.cjs",
+      "file": "bin/check-liveness-fairness.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-results-exit.test.cjs",
+      "type": "ttor",
+      "summary": "bin/check-results-exit.test.cjs",
+      "file": "bin/check-results-exit.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-spec-sync.test.cjs",
+      "type": "ttor",
+      "summary": "bin/check-spec-sync.test.cjs",
+      "file": "bin/check-spec-sync.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-trace-redaction.test.cjs",
+      "type": "ttor",
+      "summary": "bin/check-trace-redaction.test.cjs",
+      "file": "bin/check-trace-redaction.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/check-trace-schema-drift.test.cjs",
+      "type": "ttor",
+      "summary": "bin/check-trace-schema-drift.test.cjs",
+      "file": "bin/check-trace-schema-drift.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/claude-md-references.test.cjs",
+      "type": "ttor",
+      "summary": "bin/claude-md-references.test.cjs",
+      "file": "bin/claude-md-references.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/compareDrift.test.cjs",
+      "type": "ttor",
+      "summary": "bin/compareDrift.test.cjs",
+      "file": "bin/compareDrift.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/config-audit.test.cjs",
+      "type": "ttor",
+      "summary": "bin/config-audit.test.cjs",
+      "file": "bin/config-audit.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/conformance-schema.test.cjs",
+      "type": "ttor",
+      "summary": "bin/conformance-schema.test.cjs",
+      "file": "bin/conformance-schema.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/context-retriever.test.cjs",
+      "type": "ttor",
+      "summary": "bin/context-retriever.test.cjs",
+      "file": "bin/context-retriever.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/context-stack.test.cjs",
+      "type": "ttor",
+      "summary": "bin/context-stack.test.cjs",
+      "file": "bin/context-stack.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/continuous-verify.test.cjs",
+      "type": "ttor",
+      "summary": "bin/continuous-verify.test.cjs",
+      "file": "bin/continuous-verify.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/cross-layer-dashboard.test.cjs",
+      "type": "ttor",
+      "summary": "bin/cross-layer-dashboard.test.cjs",
+      "file": "bin/cross-layer-dashboard.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debate-formatter.test.cjs",
+      "type": "ttor",
+      "summary": "bin/debate-formatter.test.cjs",
+      "file": "bin/debate-formatter.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debt-dedup-integration.test.cjs",
+      "type": "ttor",
+      "summary": "bin/debt-dedup-integration.test.cjs",
+      "file": "bin/debt-dedup-integration.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debt-dedup.test.cjs",
+      "type": "ttor",
+      "summary": "bin/debt-dedup.test.cjs",
+      "file": "bin/debt-dedup.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debt-ledger.test.cjs",
+      "type": "ttor",
+      "summary": "bin/debt-ledger.test.cjs",
+      "file": "bin/debt-ledger.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/debt-state-machine.test.cjs",
+      "type": "ttor",
+      "summary": "bin/debt-state-machine.test.cjs",
+      "file": "bin/debt-state-machine.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/design-impact.test.cjs",
+      "type": "ttor",
+      "summary": "bin/design-impact.test.cjs",
+      "file": "bin/design-impact.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/detect-coverage-gaps.test.cjs",
+      "type": "ttor",
+      "summary": "bin/detect-coverage-gaps.test.cjs",
+      "file": "bin/detect-coverage-gaps.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/detect-project-intent.test.cjs",
+      "type": "ttor",
+      "summary": "bin/detect-project-intent.test.cjs",
+      "file": "bin/detect-project-intent.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/dispatch-availability-window.test.cjs",
+      "type": "ttor",
+      "summary": "bin/dispatch-availability-window.test.cjs",
+      "file": "bin/dispatch-availability-window.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/dispatch-success-rate-ordering.test.cjs",
+      "type": "ttor",
+      "summary": "bin/dispatch-success-rate-ordering.test.cjs",
+      "file": "bin/dispatch-success-rate-ordering.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/execute-phase-formal-gate.test.cjs",
+      "type": "ttor",
+      "summary": "bin/execute-phase-formal-gate.test.cjs",
+      "file": "bin/execute-phase-formal-gate.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/execution-progress.test.cjs",
+      "type": "ttor",
+      "summary": "bin/execution-progress.test.cjs",
+      "file": "bin/execution-progress.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/export-prism-constants.test.cjs",
+      "type": "ttor",
+      "summary": "bin/export-prism-constants.test.cjs",
+      "file": "bin/export-prism-constants.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/extractFormalExpected.test.cjs",
+      "type": "ttor",
+      "summary": "bin/extractFormalExpected.test.cjs",
+      "file": "bin/extractFormalExpected.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/failure-mode-catalog.test.cjs",
+      "type": "ttor",
+      "summary": "bin/failure-mode-catalog.test.cjs",
+      "file": "bin/failure-mode-catalog.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/failure-taxonomy.test.cjs",
+      "type": "ttor",
+      "summary": "bin/failure-taxonomy.test.cjs",
+      "file": "bin/failure-taxonomy.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/fingerprint-drift.test.cjs",
+      "type": "ttor",
+      "summary": "bin/fingerprint-drift.test.cjs",
+      "file": "bin/fingerprint-drift.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/fingerprint-issue.test.cjs",
+      "type": "ttor",
+      "summary": "bin/fingerprint-issue.test.cjs",
+      "file": "bin/fingerprint-issue.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/formal-proximity.test.cjs",
+      "type": "ttor",
+      "summary": "bin/formal-proximity.test.cjs",
+      "file": "bin/formal-proximity.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/formal-query.test.cjs",
+      "type": "ttor",
+      "summary": "bin/formal-query.test.cjs",
+      "file": "bin/formal-query.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/formal-ref-linker.test.cjs",
+      "type": "ttor",
+      "summary": "bin/formal-ref-linker.test.cjs",
+      "file": "bin/formal-ref-linker.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/formal-test-sync.test.cjs",
+      "type": "ttor",
+      "summary": "bin/formal-test-sync.test.cjs",
+      "file": "bin/formal-test-sync.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/gate-a-grounding.test.cjs",
+      "type": "ttor",
+      "summary": "bin/gate-a-grounding.test.cjs",
+      "file": "bin/gate-a-grounding.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/gate-b-abstraction.test.cjs",
+      "type": "ttor",
+      "summary": "bin/gate-b-abstraction.test.cjs",
+      "file": "bin/gate-b-abstraction.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/gate-c-validation.test.cjs",
+      "type": "ttor",
+      "summary": "bin/gate-c-validation.test.cjs",
+      "file": "bin/gate-c-validation.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/generate-petri-net.test.cjs",
+      "type": "ttor",
+      "summary": "bin/generate-petri-net.test.cjs",
+      "file": "bin/generate-petri-net.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/generate-phase-spec.test.cjs",
+      "type": "ttor",
+      "summary": "bin/generate-phase-spec.test.cjs",
+      "file": "bin/generate-phase-spec.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/generate-proposed-changes.test.cjs",
+      "type": "ttor",
+      "summary": "bin/generate-proposed-changes.test.cjs",
+      "file": "bin/generate-proposed-changes.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/generate-tla-cfg.test.cjs",
+      "type": "ttor",
+      "summary": "bin/generate-tla-cfg.test.cjs",
+      "file": "bin/generate-tla-cfg.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/generate-triage-bundle.test.cjs",
+      "type": "ttor",
+      "summary": "bin/generate-triage-bundle.test.cjs",
+      "file": "bin/generate-triage-bundle.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/generate-tui-assets.test.cjs",
+      "type": "ttor",
+      "summary": "bin/generate-tui-assets.test.cjs",
+      "file": "bin/generate-tui-assets.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/git-heatmap.test.cjs",
+      "type": "ttor",
+      "summary": "bin/git-heatmap.test.cjs",
+      "file": "bin/git-heatmap.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/git-history-evidence.test.cjs",
+      "type": "ttor",
+      "summary": "bin/git-history-evidence.test.cjs",
+      "file": "bin/git-history-evidence.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/gsd-quorum-slot-worker-improvements.test.cjs",
+      "type": "ttor",
+      "summary": "bin/gsd-quorum-slot-worker-improvements.test.cjs",
+      "file": "bin/gsd-quorum-slot-worker-improvements.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/harness-diagnostic.test.cjs",
+      "type": "ttor",
+      "summary": "bin/harness-diagnostic.test.cjs",
+      "file": "bin/harness-diagnostic.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/hazard-model.test.cjs",
+      "type": "ttor",
+      "summary": "bin/hazard-model.test.cjs",
+      "file": "bin/hazard-model.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/health-auto-adjust.test.cjs",
+      "type": "ttor",
+      "summary": "bin/health-auto-adjust.test.cjs",
+      "file": "bin/health-auto-adjust.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/initialize-model-registry.test.cjs",
+      "type": "ttor",
+      "summary": "bin/initialize-model-registry.test.cjs",
+      "file": "bin/initialize-model-registry.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/instrumentation-map.test.cjs",
+      "type": "ttor",
+      "summary": "bin/instrumentation-map.test.cjs",
+      "file": "bin/instrumentation-map.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/invariant-catalog.test.cjs",
+      "type": "ttor",
+      "summary": "bin/invariant-catalog.test.cjs",
+      "file": "bin/invariant-catalog.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/isNumericThreshold.test.cjs",
+      "type": "ttor",
+      "summary": "bin/isNumericThreshold.test.cjs",
+      "file": "bin/isNumericThreshold.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/issue-classifier.test.cjs",
+      "type": "ttor",
+      "summary": "bin/issue-classifier.test.cjs",
+      "file": "bin/issue-classifier.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/learning-extractor.test.cjs",
+      "type": "ttor",
+      "summary": "bin/learning-extractor.test.cjs",
+      "file": "bin/learning-extractor.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/levenshtein.test.cjs",
+      "type": "ttor",
+      "summary": "bin/levenshtein.test.cjs",
+      "file": "bin/levenshtein.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/load-baseline-requirements.test.cjs",
+      "type": "ttor",
+      "summary": "bin/load-baseline-requirements.test.cjs",
+      "file": "bin/load-baseline-requirements.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/manage-agents.test.cjs",
+      "type": "ttor",
+      "summary": "bin/manage-agents.test.cjs",
+      "file": "bin/manage-agents.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/memory-store.test.cjs",
+      "type": "ttor",
+      "summary": "bin/memory-store.test.cjs",
+      "file": "bin/memory-store.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/migrate-to-slots.test.cjs",
+      "type": "ttor",
+      "summary": "bin/migrate-to-slots.test.cjs",
+      "file": "bin/migrate-to-slots.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/mismatch-register.test.cjs",
+      "type": "ttor",
+      "summary": "bin/mismatch-register.test.cjs",
+      "file": "bin/mismatch-register.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/model-complexity-profile.test.cjs",
+      "type": "ttor",
+      "summary": "bin/model-complexity-profile.test.cjs",
+      "file": "bin/model-complexity-profile.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/model-registry.test.cjs",
+      "type": "ttor",
+      "summary": "bin/model-registry.test.cjs",
+      "file": "bin/model-registry.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/nf-debt.test.cjs",
+      "type": "ttor",
+      "summary": "bin/nf-debt.test.cjs",
+      "file": "bin/nf-debt.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/nf-fan-out.test.cjs",
+      "type": "ttor",
+      "summary": "bin/nf-fan-out.test.cjs",
+      "file": "bin/nf-fan-out.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/nf-solve-ptoF-integration.test.cjs",
+      "type": "ttor",
+      "summary": "bin/nf-solve-ptoF-integration.test.cjs",
+      "file": "bin/nf-solve-ptoF-integration.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/nf-stop-hook.test.cjs",
+      "type": "ttor",
+      "summary": "bin/nf-stop-hook.test.cjs",
+      "file": "bin/nf-stop-hook.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-config.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-config.test.cjs",
+      "file": "bin/observe-config.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-debt-writer.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-debt-writer.test.cjs",
+      "file": "bin/observe-debt-writer.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-deps.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-handler-deps.test.cjs",
+      "file": "bin/observe-handler-deps.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-grafana.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-handler-grafana.test.cjs",
+      "file": "bin/observe-handler-grafana.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-internal.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-handler-internal.test.cjs",
+      "file": "bin/observe-handler-internal.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-logstash.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-handler-logstash.test.cjs",
+      "file": "bin/observe-handler-logstash.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-prometheus.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-handler-prometheus.test.cjs",
+      "file": "bin/observe-handler-prometheus.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-session-insights.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-handler-session-insights.test.cjs",
+      "file": "bin/observe-handler-session-insights.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handler-upstream.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-handler-upstream.test.cjs",
+      "file": "bin/observe-handler-upstream.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-handlers.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-handlers.test.cjs",
+      "file": "bin/observe-handlers.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-registry.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-registry.test.cjs",
+      "file": "bin/observe-registry.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-render.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-render.test.cjs",
+      "file": "bin/observe-render.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observe-solve-pipe.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-solve-pipe.test.cjs",
+      "file": "bin/observe-solve-pipe.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/observed-fsm.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observed-fsm.test.cjs",
+      "file": "bin/observed-fsm.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/oscillation-audit.test.cjs",
+      "type": "ttor",
+      "summary": "bin/oscillation-audit.test.cjs",
+      "file": "bin/oscillation-audit.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/plan-phase-fv-gate.test.cjs",
+      "type": "ttor",
+      "summary": "bin/plan-phase-fv-gate.test.cjs",
+      "file": "bin/plan-phase-fv-gate.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/polyrepo.test.cjs",
+      "type": "ttor",
+      "summary": "bin/polyrepo.test.cjs",
+      "file": "bin/polyrepo.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/prism-priority.test.cjs",
+      "type": "ttor",
+      "summary": "bin/prism-priority.test.cjs",
+      "file": "bin/prism-priority.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/promote-gate-maturity.test.cjs",
+      "type": "ttor",
+      "summary": "bin/promote-gate-maturity.test.cjs",
+      "file": "bin/promote-gate-maturity.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/promote-model.test.cjs",
+      "type": "ttor",
+      "summary": "bin/promote-model.test.cjs",
+      "file": "bin/promote-model.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/propose-debug-invariants.test.cjs",
+      "type": "ttor",
+      "summary": "bin/propose-debug-invariants.test.cjs",
+      "file": "bin/propose-debug-invariants.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/provider-mapping.test.cjs",
+      "type": "ttor",
+      "summary": "bin/provider-mapping.test.cjs",
+      "file": "bin/provider-mapping.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-cache.test.cjs",
+      "type": "ttor",
+      "summary": "bin/quorum-cache.test.cjs",
+      "file": "bin/quorum-cache.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-composition.test.cjs",
+      "type": "ttor",
+      "summary": "bin/quorum-composition.test.cjs",
+      "file": "bin/quorum-composition.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-consensus-gate.test.cjs",
+      "type": "ttor",
+      "summary": "bin/quorum-consensus-gate.test.cjs",
+      "file": "bin/quorum-consensus-gate.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-formal-context.test.cjs",
+      "type": "ttor",
+      "summary": "bin/quorum-formal-context.test.cjs",
+      "file": "bin/quorum-formal-context.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-improvements-signal.test.cjs",
+      "type": "ttor",
+      "summary": "bin/quorum-improvements-signal.test.cjs",
+      "file": "bin/quorum-improvements-signal.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-slot-dispatch.test.cjs",
+      "type": "ttor",
+      "summary": "bin/quorum-slot-dispatch.test.cjs",
+      "file": "bin/quorum-slot-dispatch.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/quorum-telemetry.test.cjs",
+      "type": "ttor",
+      "summary": "bin/quorum-telemetry.test.cjs",
+      "file": "bin/quorum-telemetry.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/read-policy.test.cjs",
+      "type": "ttor",
+      "summary": "bin/read-policy.test.cjs",
+      "file": "bin/read-policy.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/requirement-map.test.cjs",
+      "type": "ttor",
+      "summary": "bin/requirement-map.test.cjs",
+      "file": "bin/requirement-map.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/requirements-core.test.cjs",
+      "type": "ttor",
+      "summary": "bin/requirements-core.test.cjs",
+      "file": "bin/requirements-core.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/resolve-cli.test.cjs",
+      "type": "ttor",
+      "summary": "bin/resolve-cli.test.cjs",
+      "file": "bin/resolve-cli.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/review-mcp-logs.test.cjs",
+      "type": "ttor",
+      "summary": "bin/review-mcp-logs.test.cjs",
+      "file": "bin/review-mcp-logs.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/risk-heatmap.test.cjs",
+      "type": "ttor",
+      "summary": "bin/risk-heatmap.test.cjs",
+      "file": "bin/risk-heatmap.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/roadmapper-formal-integration.test.cjs",
+      "type": "ttor",
+      "summary": "bin/roadmapper-formal-integration.test.cjs",
+      "file": "bin/roadmapper-formal-integration.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-account-manager-tlc.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-account-manager-tlc.test.cjs",
+      "file": "bin/run-account-manager-tlc.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-account-pool-alloy.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-account-pool-alloy.test.cjs",
+      "file": "bin/run-account-pool-alloy.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-alloy.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-alloy.test.cjs",
+      "file": "bin/run-alloy.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-audit-alloy.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-audit-alloy.test.cjs",
+      "file": "bin/run-audit-alloy.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-breaker-tlc.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-breaker-tlc.test.cjs",
+      "file": "bin/run-breaker-tlc.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-formal-check.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-formal-check.test.cjs",
+      "file": "bin/run-formal-check.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-formal-verify.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-formal-verify.test.cjs",
+      "file": "bin/run-formal-verify.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-installer-alloy.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-installer-alloy.test.cjs",
+      "file": "bin/run-installer-alloy.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-oauth-rotation-prism.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-oauth-rotation-prism.test.cjs",
+      "file": "bin/run-oauth-rotation-prism.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-oscillation-tlc.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-oscillation-tlc.test.cjs",
+      "file": "bin/run-oscillation-tlc.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-phase-tlc.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-phase-tlc.test.cjs",
+      "file": "bin/run-phase-tlc.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-prism.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-prism.test.cjs",
+      "file": "bin/run-prism.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-protocol-tlc.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-protocol-tlc.test.cjs",
+      "file": "bin/run-protocol-tlc.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-sensitivity-sweep.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-sensitivity-sweep.test.cjs",
+      "file": "bin/run-sensitivity-sweep.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-tlc.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-tlc.test.cjs",
+      "file": "bin/run-tlc.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-transcript-alloy.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-transcript-alloy.test.cjs",
+      "file": "bin/run-transcript-alloy.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/run-uppaal.test.cjs",
+      "type": "ttor",
+      "summary": "bin/run-uppaal.test.cjs",
+      "file": "bin/run-uppaal.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/scoreboard-observability.test.cjs",
+      "type": "ttor",
+      "summary": "bin/scoreboard-observability.test.cjs",
+      "file": "bin/scoreboard-observability.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/secrets.test.cjs",
+      "type": "ttor",
+      "summary": "bin/secrets.test.cjs",
+      "file": "bin/secrets.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/security-sweep.test.cjs",
+      "type": "ttor",
+      "summary": "bin/security-sweep.test.cjs",
+      "file": "bin/security-sweep.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/self-healing.test.cjs",
+      "type": "ttor",
+      "summary": "bin/self-healing.test.cjs",
+      "file": "bin/self-healing.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/sensitivity-sweep-feedback.test.cjs",
+      "type": "ttor",
+      "summary": "bin/sensitivity-sweep-feedback.test.cjs",
+      "file": "bin/sensitivity-sweep-feedback.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/set-secret.test.cjs",
+      "type": "ttor",
+      "summary": "bin/set-secret.test.cjs",
+      "file": "bin/set-secret.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/skill-extractor.test.cjs",
+      "type": "ttor",
+      "summary": "bin/skill-extractor.test.cjs",
+      "file": "bin/skill-extractor.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/solve-debt-bridge.test.cjs",
+      "type": "ttor",
+      "summary": "bin/solve-debt-bridge.test.cjs",
+      "file": "bin/solve-debt-bridge.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/stall-detector.test.cjs",
+      "type": "ttor",
+      "summary": "bin/stall-detector.test.cjs",
+      "file": "bin/stall-detector.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/state-candidates.test.cjs",
+      "type": "ttor",
+      "summary": "bin/state-candidates.test.cjs",
+      "file": "bin/state-candidates.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/sweep-reverse.test.cjs",
+      "type": "ttor",
+      "summary": "bin/sweep-reverse.test.cjs",
+      "file": "bin/sweep-reverse.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/sweepPtoF.test.cjs",
+      "type": "ttor",
+      "summary": "bin/sweepPtoF.test.cjs",
+      "file": "bin/sweepPtoF.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/sync-baseline-requirements.test.cjs",
+      "type": "ttor",
+      "summary": "bin/sync-baseline-requirements.test.cjs",
+      "file": "bin/sync-baseline-requirements.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/task-classifier.test.cjs",
+      "type": "ttor",
+      "summary": "bin/task-classifier.test.cjs",
+      "file": "bin/task-classifier.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/task-envelope.test.cjs",
+      "type": "ttor",
+      "summary": "bin/task-envelope.test.cjs",
+      "file": "bin/task-envelope.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/test-formal-integration.test.cjs",
+      "type": "ttor",
+      "summary": "bin/test-formal-integration.test.cjs",
+      "file": "bin/test-formal-integration.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/test-recipe-gen.test.cjs",
+      "type": "ttor",
+      "summary": "bin/test-recipe-gen.test.cjs",
+      "file": "bin/test-recipe-gen.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/token-dashboard.test.cjs",
+      "type": "ttor",
+      "summary": "bin/token-dashboard.test.cjs",
+      "file": "bin/token-dashboard.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/trace-corpus-stats.test.cjs",
+      "type": "ttor",
+      "summary": "bin/trace-corpus-stats.test.cjs",
+      "file": "bin/trace-corpus-stats.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/update-scoreboard.test.cjs",
+      "type": "ttor",
+      "summary": "bin/update-scoreboard.test.cjs",
+      "file": "bin/update-scoreboard.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/validate-debt-entry.test.cjs",
+      "type": "ttor",
+      "summary": "bin/validate-debt-entry.test.cjs",
+      "file": "bin/validate-debt-entry.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/validate-requirements-haiku.test.cjs",
+      "type": "ttor",
+      "summary": "bin/validate-requirements-haiku.test.cjs",
+      "file": "bin/validate-requirements-haiku.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/validate-traces.test.cjs",
+      "type": "ttor",
+      "summary": "bin/validate-traces.test.cjs",
+      "file": "bin/validate-traces.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/verifier-formal-context.test.cjs",
+      "type": "ttor",
+      "summary": "bin/verifier-formal-context.test.cjs",
+      "file": "bin/verifier-formal-context.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/verify-formal-results.test.cjs",
+      "type": "ttor",
+      "summary": "bin/verify-formal-results.test.cjs",
+      "file": "bin/verify-formal-results.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/verify-quorum-health.test.cjs",
+      "type": "ttor",
+      "summary": "bin/verify-quorum-health.test.cjs",
+      "file": "bin/verify-quorum-health.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/worktree-merge.test.cjs",
+      "type": "ttor",
+      "summary": "bin/worktree-merge.test.cjs",
+      "file": "bin/worktree-merge.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/write-check-result.test.cjs",
+      "type": "ttor",
+      "summary": "bin/write-check-result.test.cjs",
+      "file": "bin/write-check-result.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/xstate-to-tla.test.cjs",
+      "type": "ttor",
+      "summary": "bin/xstate-to-tla.test.cjs",
+      "file": "bin/xstate-to-tla.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/xstate-trace-walker.test.cjs",
+      "type": "ttor",
+      "summary": "bin/xstate-trace-walker.test.cjs",
+      "file": "bin/xstate-trace-walker.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "test/alloy-headless.test.cjs",
+      "type": "ttor",
+      "summary": "test/alloy-headless.test.cjs",
+      "file": "test/alloy-headless.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "test/analyze-state-space.test.cjs",
+      "type": "ttor",
+      "summary": "test/analyze-state-space.test.cjs",
+      "file": "test/analyze-state-space.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "test/check-coverage-guard.test.cjs",
+      "type": "ttor",
+      "summary": "test/check-coverage-guard.test.cjs",
+      "file": "test/check-coverage-guard.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "test/extract-annotations.test.cjs",
+      "type": "ttor",
+      "summary": "test/extract-annotations.test.cjs",
+      "file": "test/extract-annotations.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "test/generate-traceability-matrix.test.cjs",
+      "type": "ttor",
+      "summary": "test/generate-traceability-matrix.test.cjs",
+      "file": "test/generate-traceability-matrix.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "test/install-virgin.test.cjs",
+      "type": "ttor",
+      "summary": "test/install-virgin.test.cjs",
+      "file": "test/install-virgin.test.cjs",
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:68",
+      "type": "dtor",
+      "summary": "The fastest path is the interactive wizard — it handles everything from installing CLI tools to registering MCP servers ",
+      "doc_file": "README.md",
+      "line": 68,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:121",
+      "type": "dtor",
+      "summary": "The `/nf:mcp-setup` wizard handles all registration automatically. If you prefer manual setup, slots are registered in `",
+      "doc_file": "README.md",
+      "line": 121,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:339",
+      "type": "dtor",
+      "summary": "3. **Verifies** — Checks plans against requirements, loops until they pass",
+      "doc_file": "README.md",
+      "line": 339,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:358",
+      "type": "dtor",
+      "summary": "4. **Verifies against goals** — Checks the codebase delivers what the phase promised",
+      "doc_file": "README.md",
+      "line": 358,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:499",
+      "type": "dtor",
+      "summary": "nForma handles it for you:",
+      "doc_file": "README.md",
+      "line": 499,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:784",
+      "type": "dtor",
+      "summary": "| `/nf:quick [--full]` | Execute ad-hoc task with nForma guarantees (`--full` adds plan-checking and verification) |",
+      "doc_file": "README.md",
+      "line": 784,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:827",
+      "type": "dtor",
+      "summary": "| `workflow.plan_check` | `true` | Verifies plans achieve phase goals before execution |",
+      "doc_file": "README.md",
+      "line": 827,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:844",
+      "type": "dtor",
+      "summary": "Control how nForma handles branches during execution.",
+      "doc_file": "README.md",
+      "line": 844,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:899",
+      "type": "dtor",
+      "summary": "This prevents Claude from reading these files entirely, regardless of what commands you run.",
+      "doc_file": "README.md",
+      "line": 899,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "README.md:927",
+      "type": "dtor",
+      "summary": "This ensures absolute paths are used instead of `~` which may not expand correctly in containers.",
+      "doc_file": "README.md",
+      "line": 927,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/quorum_interface.md:20",
+      "type": "dtor",
+      "summary": "│ Copilot     │ APPROVE      │ Supports with caveat on test coverage    │",
+      "doc_file": "docs/dev/quorum_interface.md",
+      "line": 20,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/quorum_interface.md:155",
+      "type": "dtor",
+      "summary": "ession test for the Map access bug guarantees the fix will be durable and prevents future regressions.",
+      "doc_file": "docs/dev/quorum_interface.md",
+      "line": 155,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/USER-GUIDE.md:257",
+      "type": "dtor",
+      "summary": "| `/nf:quick` | Ad-hoc task with nForma guarantees | Bug fixes, small features, config changes |",
+      "doc_file": "docs/USER-GUIDE.md",
+      "line": 257,
+      "archived_at": "2026-03-08T23:14:04.074Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:.planning/formal/sensitivity-report.md",
+      "type": "dtoc",
+      "summary": "sensitivity-report.md not yet generated",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": ".planning/formal/sensitivity-report.md",
+      "archived_at": "2026-03-08T23:55:37.279Z"
+    },
+    {
+      "key": "bin/compute-per-model-gates.cjs",
+      "type": "ctor",
+      "summary": "bin/compute-per-model-gates.cjs",
+      "file": "bin/compute-per-model-gates.cjs",
+      "archived_at": "2026-03-09T08:04:52.920Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "bin/refresh-evidence.cjs",
+      "type": "ctor",
+      "summary": "bin/refresh-evidence.cjs",
+      "file": "bin/refresh-evidence.cjs",
+      "archived_at": "2026-03-09T08:04:52.920Z",
+      "auto_classified": "fp"
+    }
+  ]
+}
