@@ -1,0 +1,12 @@
+{
+  "schema_version": "1",
+  "phase": "v0.32-03",
+  "created_at": "2026-03-09T15:17:15.290Z",
+  "risk_level": "low",
+  "research": {
+    "objective": "User Guide overhaul with screenshot anchors and Getting Started walkthrough",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  }
+}
