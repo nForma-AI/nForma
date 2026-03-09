@@ -32,3 +32,6 @@ jobs:
 
       - name: Run CI tests
         run: npm run test:ci
+
+      - name: Run TUI unit tests
+        run: npm run test:tui
