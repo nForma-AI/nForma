@@ -1955,6 +1955,19 @@ function install(isGlobal, runtime = 'claude') {
       }
     }
     console.log(`  ${green}✓${reset} Installed nf-bin scripts`);
+
+    // Copy dist/machines/ to nf-bin/dist/machines/ (XState bundle for gate scripts)
+    const machinesSrc = path.join(src, 'dist', 'machines');
+    if (fs.existsSync(machinesSrc)) {
+      const machinesDest = path.join(binDest, 'dist', 'machines');
+      fs.mkdirSync(machinesDest, { recursive: true });
+      for (const entry of fs.readdirSync(machinesSrc)) {
+        if (entry.endsWith('.js')) {
+          fs.copyFileSync(path.join(machinesSrc, entry), path.join(machinesDest, entry));
+        }
+      }
+      console.log(`  ${green}✓${reset} Installed XState machine bundle`);
+    }
   }
 
   // Validate hook path references point to real targets
