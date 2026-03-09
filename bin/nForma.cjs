@@ -82,6 +82,7 @@ if (cliArgs.includes('--screenshot')) {
         { label: '  Browse Reqs' },   { label: '  Coverage' },
         { label: '  Traceability' },   { label: '  Aggregate' },
         { label: '  Coverage Gaps' },
+        { label: '  Gate Scoring' },
       ],
     },
     {
@@ -121,12 +122,105 @@ if (cliArgs.includes('--screenshot')) {
   const WHITE = `${ESC}[37m`;
   const BOLD = `${ESC}[1m`;
   const RESET = `${ESC}[0m`;
-  const SALMON = `${ESC}[38;2;224;120;80m`;
+  const SALMON = `${ESC}[38;2;244;149;106m`;
+  const CYAN_NF = `${ESC}[38;2;125;207;255m`;
   const SELBG = `${ESC}[48;2;30;58;58m`;
 
+  const GREEN = `${ESC}[32m`;
+  const YELLOW = `${ESC}[33m`;
+  const RED = `${ESC}[31m`;
+  const BLUE = `${ESC}[34m`;
+  const MAGENTA = `${ESC}[35m`;
+
+  // ─── Sample content for each module ─────────────────────────────────────────
+  const CW = 85; // content column width
+  const pad = (s, len) => { const plain = s.replace(/\x1b\[[0-9;]*m/g, ''); return s + ' '.repeat(Math.max(0, len - plain.length)); };
+
+  const contentByModule = {
+    agents: [
+      `${WHITE}${BOLD} Agent Roster${RESET}`,
+      ` ${DIM}${'─'.repeat(CW - 3)}${RESET}`,
+      ``,
+      `  ${DIM}Slot            Provider        Model                   Status${RESET}`,
+      `  ${DIM}${'─'.repeat(CW - 5)}${RESET}`,
+      `  ${TEAL}codex-1${RESET}         OpenAI          ${WHITE}codex-mini-latest${RESET}       ${GREEN}● healthy${RESET}  ${DIM}142ms${RESET}`,
+      `  ${TEAL}gemini-1${RESET}        Google          ${WHITE}gemini-2.5-pro${RESET}          ${GREEN}● healthy${RESET}  ${DIM}89ms${RESET}`,
+      `  ${TEAL}copilot-1${RESET}       GitHub          ${WHITE}gpt-4.1${RESET}                 ${GREEN}● healthy${RESET}  ${DIM}203ms${RESET}`,
+      `  ${TEAL}opencode-1${RESET}      OpenCode        ${WHITE}claude-sonnet-4-5${RESET}       ${GREEN}● healthy${RESET}  ${DIM}167ms${RESET}`,
+      `  ${TEAL}claude-1${RESET}        AkashML         ${WHITE}DeepSeek-R1${RESET}             ${GREEN}● healthy${RESET}  ${DIM}312ms${RESET}`,
+      `  ${TEAL}claude-2${RESET}        Together.xyz    ${WHITE}Qwen3-Coder${RESET}             ${YELLOW}● slow${RESET}    ${DIM}1.2s${RESET}`,
+      `  ${TEAL}claude-3${RESET}        Fireworks       ${WHITE}kimi-k2${RESET}                 ${GREEN}● healthy${RESET}  ${DIM}198ms${RESET}`,
+      ``,
+      `  ${DIM}${'─'.repeat(CW - 5)}${RESET}`,
+      `  ${WHITE}7${RESET} ${DIM}agents configured${RESET}  ${GREEN}6${RESET} ${DIM}healthy${RESET}  ${YELLOW}1${RESET} ${DIM}slow${RESET}  ${RED}0${RESET} ${DIM}offline${RESET}`,
+      ``,
+      `  ${DIM}Quorum active:${RESET} ${TEAL}codex-1${RESET} ${TEAL}gemini-1${RESET} ${TEAL}copilot-1${RESET} ${TEAL}claude-1${RESET}`,
+      `  ${DIM}Claude is always the 5th voting member.${RESET}`,
+    ],
+    reqs: [
+      `${WHITE}${BOLD} Requirements${RESET}  ${DIM}287 total · 8 principles · 9 categories${RESET}`,
+      ` ${DIM}${'─'.repeat(CW - 3)}${RESET}`,
+      ``,
+      `  ${DIM}Category                Count    Covered   Formal${RESET}`,
+      `  ${DIM}${'─'.repeat(CW - 5)}${RESET}`,
+      `  ${WHITE}Core Protocol${RESET}            42      ${GREEN}42/42${RESET}     ${GREEN}38/42${RESET}`,
+      `  ${WHITE}Quorum Enforcement${RESET}       31      ${GREEN}31/31${RESET}     ${GREEN}29/31${RESET}`,
+      `  ${WHITE}Circuit Breaker${RESET}          28      ${GREEN}28/28${RESET}     ${GREEN}26/28${RESET}`,
+      `  ${WHITE}Context Engineering${RESET}      35      ${GREEN}35/35${RESET}     ${YELLOW}22/35${RESET}`,
+      `  ${WHITE}Formal Verification${RESET}      24      ${GREEN}24/24${RESET}     ${GREEN}24/24${RESET}`,
+      `  ${WHITE}Token Efficiency${RESET}         19      ${GREEN}19/19${RESET}     ${YELLOW}12/19${RESET}`,
+      `  ${WHITE}Agent Management${RESET}         38      ${GREEN}38/38${RESET}     ${YELLOW}18/38${RESET}`,
+      `  ${WHITE}Security${RESET}                 31      ${GREEN}31/31${RESET}     ${GREEN}28/31${RESET}`,
+      `  ${WHITE}Workflow Automation${RESET}      39      ${GREEN}39/39${RESET}     ${YELLOW}24/39${RESET}`,
+      ``,
+      `  ${DIM}${'─'.repeat(CW - 5)}${RESET}`,
+      `  ${GREEN}287/287${RESET} ${DIM}covered${RESET}  ${YELLOW}221/287${RESET} ${DIM}formally verified${RESET}  ${GREEN}77%${RESET} ${DIM}formal coverage${RESET}`,
+    ],
+    config: [
+      `${WHITE}${BOLD} Configuration${RESET}`,
+      ` ${DIM}${'─'.repeat(CW - 3)}${RESET}`,
+      ``,
+      `  ${DIM}Setting                     Value${RESET}`,
+      `  ${DIM}${'─'.repeat(CW - 5)}${RESET}`,
+      `  ${WHITE}mode${RESET}                        ${TEAL}interactive${RESET}`,
+      `  ${WHITE}depth${RESET}                       ${TEAL}standard${RESET}`,
+      `  ${WHITE}model_profile${RESET}               ${TEAL}balanced${RESET}`,
+      `  ${WHITE}workflow.research${RESET}           ${GREEN}true${RESET}`,
+      `  ${WHITE}workflow.plan_check${RESET}         ${GREEN}true${RESET}`,
+      `  ${WHITE}workflow.verifier${RESET}           ${GREEN}true${RESET}`,
+      `  ${WHITE}workflow.auto_advance${RESET}       ${DIM}false${RESET}`,
+      `  ${WHITE}parallelization.enabled${RESET}     ${GREEN}true${RESET}`,
+      `  ${WHITE}nyquist_validation${RESET}          ${GREEN}true${RESET}`,
+      `  ${WHITE}git.branching_strategy${RESET}      ${TEAL}none${RESET}`,
+      ``,
+      `  ${DIM}${'─'.repeat(CW - 5)}${RESET}`,
+      `  ${DIM}Config path: .planning/config.json${RESET}`,
+    ],
+    sessions: [
+      `${WHITE}${BOLD} Session History${RESET}`,
+      ` ${DIM}${'─'.repeat(CW - 3)}${RESET}`,
+      ``,
+      `  ${DIM}Session                Started        Duration    Tokens${RESET}`,
+      `  ${DIM}${'─'.repeat(CW - 5)}${RESET}`,
+      `  ${WHITE}quick-240${RESET}              ${DIM}09 Mar 10:42${RESET}   ${WHITE}12m${RESET}        ${DIM}48,200${RESET}`,
+      `  ${WHITE}quick-239${RESET}              ${DIM}09 Mar 09:15${RESET}   ${WHITE}8m${RESET}         ${DIM}31,400${RESET}`,
+      `  ${WHITE}quick-238${RESET}              ${DIM}08 Mar 22:30${RESET}   ${WHITE}15m${RESET}        ${DIM}52,800${RESET}`,
+      `  ${WHITE}quick-237${RESET}              ${DIM}08 Mar 19:45${RESET}   ${WHITE}6m${RESET}         ${DIM}24,100${RESET}`,
+      `  ${WHITE}quick-236${RESET}              ${DIM}08 Mar 16:20${RESET}   ${WHITE}22m${RESET}        ${DIM}89,600${RESET}`,
+      `  ${WHITE}quick-235${RESET}              ${DIM}07 Mar 21:10${RESET}   ${WHITE}11m${RESET}        ${DIM}41,500${RESET}`,
+      `  ${WHITE}quick-234${RESET}              ${DIM}07 Mar 18:55${RESET}   ${WHITE}9m${RESET}         ${DIM}35,200${RESET}`,
+      `  ${WHITE}quick-233${RESET}              ${DIM}07 Mar 14:30${RESET}   ${WHITE}18m${RESET}        ${DIM}67,900${RESET}`,
+      ``,
+      `  ${DIM}${'─'.repeat(CW - 5)}${RESET}`,
+      `  ${DIM}8 sessions · 101m total · 390,700 tokens${RESET}`,
+    ],
+  };
+
+  const contentLines = contentByModule[moduleName] || [];
+
   // Header
-  const headerLine = `${SALMON}${BOLD}nForma AI${RESET} ${DIM}· agent manager${RESET}`;
-  const keyHints = `${TEAL}[F1]${RESET} A  ${TEAL}[F2]${RESET} R  ${TEAL}[F3]${RESET} C  ${TEAL}[F4]${RESET} S   ${TEAL}[Tab]${RESET} cycle  ${TEAL}[q]${RESET} quit`;
+  const headerLine = `${SALMON}${BOLD}n${CYAN_NF}Forma${RESET} ${SALMON}AI${RESET} ${DIM}· agent manager${RESET}`;
+  const keyHints = `${TEAL}[F1]${RESET} Agt  ${TEAL}[F2]${RESET} Req  ${TEAL}[F3]${RESET} Cfg  ${TEAL}[F4]${RESET} Ses  ${TEAL}[F5]${RESET} Sol  ${TEAL}[Tab]${RESET} cycle  ${TEAL}[q]${RESET} quit`;
   process.stdout.write(`┌${'─'.repeat(118)}┐\n`);
   process.stdout.write(`│ ${headerLine}  ${keyHints} │\n`);
   process.stdout.write(`├${'─'.repeat(7)}┬${'─'.repeat(24)}┬${'─'.repeat(85)}┤\n`);
@@ -144,7 +238,7 @@ if (cliArgs.includes('--screenshot')) {
     const raw = (it.label || '').replace(/\{[^}]*\}/g, '').trim();
     return raw;
   });
-  const totalRows = Math.max(menuLabels.length + 2, 20);
+  const totalRows = Math.max(menuLabels.length + 2, contentLines.length, 20);
 
   for (let r = 0; r < totalRows; r++) {
     // Activity bar column (7 chars wide)
@@ -178,10 +272,12 @@ if (cliArgs.includes('--screenshot')) {
       }
     }
 
-    // Content column (placeholder)
-    let contentCol = ' '.repeat(85);
-    if (r === 0) contentCol = ` ${WHITE}${mod.name} Module${RESET}` + ' '.repeat(85 - mod.name.length - 8);
-    if (r === 1) contentCol = ` ${DIM}${'─'.repeat(40)}${RESET}` + ' '.repeat(44);
+    // Content column — rich sample data per module
+    let contentCol = ' '.repeat(CW);
+    if (r < contentLines.length && contentLines[r] !== undefined) {
+      const line = contentLines[r] || '';
+      contentCol = pad(line, CW);
+    }
 
     process.stdout.write(`│${actCol}│${menuCol}│${contentCol}│\n`);
   }
@@ -301,6 +397,7 @@ const MODULES = [
       { label: '  Traceability',            action: 'req-traceability' },
       { label: '  Aggregate',               action: 'req-aggregate'    },
       { label: '  Coverage Gaps',           action: 'req-gaps'         },
+      { label: '  Gate Scoring',            action: 'req-gate-scoring' },
     ],
   },
   {
@@ -331,7 +428,7 @@ const MODULES = [
   {
     name: 'Solve',
     icon: '\uD83D\uDD0D',
-    art: ['\u2580\u2588\u2580', ' \u2588 ', ' \u2588 '],
+    art: ['\u2584\u2580\u2580', ' \u2580\u2584', '\u2584\u2584\u2580'],
     key: 'f5',
     items: [
       { label: '  Browse Items',           action: 'solve-browse' },
@@ -403,11 +500,12 @@ function switchModule(idx) {
   }
   activeModuleIdx = idx;
   const mod = MODULES[idx];
+  refreshStatusBar();
 
   // Update activity bar icons — 3-line pixel art per module
   const blocks = MODULES.map((m, i) => {
     const active = (i === idx);
-    const C = active ? '{#4a9090-fg}' : '{#666666-fg}';
+    const C = active ? '{#7dcfff-fg}' : `{${S.dim}-fg}`;
     const E = '{/}';
     const fk = m.key.toUpperCase();
     const lines = [
@@ -415,7 +513,7 @@ function switchModule(idx) {
       ...m.art.map(row => ` ${C}${row}${E}`),
       `  ${C}${fk}${E}`,
     ];
-    if (i < MODULES.length - 1) lines.push(` {#444444-fg}─────{/}`);
+    if (i < MODULES.length - 1) lines.push(` {#333333-fg}─────{/}`);
     return lines.join('\n');
   });
   activityBar.setContent(blocks.join('\n'));
@@ -423,7 +521,7 @@ function switchModule(idx) {
   // Swap menu items
   menuList.clearItems();
   menuList.setItems(mod.items.map(m => m.label));
-  menuList.setLabel(` {#888888-fg}${mod.name}{/} `);
+  menuList.setLabel(` {${S.dim}-fg}${mod.name}{/} `);
   menuList.select(0);
   menuList.focus();
   screen.render();
@@ -435,7 +533,10 @@ function switchModule(idx) {
   }
 
   // Sessions module: don't auto-dispatch (avoids unwanted "New Session" modal)
-  if (idx === 3) return;
+  if (idx === 3) {
+    renderSessionsOverview();
+    return;
+  }
 
   // Auto-show first item's content (skip separators, use view-only for interactive actions)
   const first = mod.items[0];
@@ -443,6 +544,44 @@ function switchModule(idx) {
     const viewAction = first.action === 'settings' ? 'settings-view' : first.action;
     dispatch(viewAction);
   }
+}
+
+// ─── Sessions overview (content panel when no active terminal) ───────────────
+function renderSessionsOverview() {
+  const persisted = loadPersistedSessions();
+  const lines = [];
+  lines.push('{bold}Sessions{/bold}');
+  lines.push('─'.repeat(50));
+  lines.push('');
+
+  if (sessions.length > 0) {
+    lines.push('{bold}Active Sessions{/bold}');
+    for (const s of sessions) {
+      const status = s.alive ? '{green-fg}● running{/}' : '{red-fg}● stopped{/}';
+      lines.push(`  {#4a9090-fg}[${s.id}]{/} ${s.name}  ${status}  {#777777-fg}${s.cwd}{/}`);
+    }
+    lines.push('');
+  }
+
+  if (persisted.length > 0) {
+    lines.push('{bold}Previous Sessions{/bold}');
+    for (const p of persisted) {
+      lines.push(`  {#777777-fg}[${p.id}]{/} ${p.name}  {#555555-fg}${p.cwd || ''}{/}`);
+    }
+    lines.push('');
+  }
+
+  if (sessions.length === 0 && persisted.length === 0) {
+    lines.push('{#777777-fg}No sessions yet.{/}');
+    lines.push('');
+    lines.push('{#777777-fg}Select "New Session" to start a Claude session with nForma context.{/}');
+    lines.push('{#777777-fg}Sessions persist across TUI restarts — resume where you left off.{/}');
+  }
+
+  lines.push('');
+  lines.push('{#555555-fg}Tip: Select "New Session" from the menu, or press Enter on a previous session to resume.{/}');
+
+  setContent('Sessions', lines.join('\n'));
 }
 
 // ─── Session lifecycle ───────────────────────────────────────────────────────
@@ -826,17 +965,71 @@ function buildHeaderInfo() {
   return { version, profile, quorumN, failMode, models };
 }
 
+// ─── Terminal background detection (OSC 11) ──────────────────────────────────
+// Query the terminal's background color to auto-select dark or light palette.
+// Uses OSC 11 escape sequence — supported by iTerm2, WezTerm, Kitty, macOS
+// Terminal, Windows Terminal, Ghostty, and most modern terminal emulators.
+// Falls back to dark theme if the terminal doesn't respond within 150ms.
+
+let _detectedLightMode = false;
+
+if (process.env.NF_THEME === 'light') {
+  _detectedLightMode = true;
+} else if (process.env.NF_THEME === 'dark') {
+  _detectedLightMode = false;
+} else if (process.stdin.isTTY && process.stdout.isTTY) {
+  try {
+    // Send OSC 11 query and read response synchronously via raw mode
+    const fd = fs.openSync('/dev/tty', 'r+');
+    const tty = new (require('tty').ReadStream)(fd, { readable: true });
+    tty.setRawMode(true);
+
+    // Query: \e]11;?\a  — terminal responds with \e]11;rgb:RRRR/GGGG/BBBB\e\\
+    fs.writeSync(fd, '\x1b]11;?\x07');
+
+    const buf = Buffer.alloc(64);
+    let response = '';
+    const startMs = Date.now();
+    while (Date.now() - startMs < 150) {
+      try {
+        const n = fs.readSync(fd, buf, 0, buf.length);
+        if (n > 0) response += buf.toString('utf8', 0, n);
+        // Check if we got the full response (ends with BEL or ST)
+        if (response.includes('\x07') || response.includes('\x1b\\')) break;
+      } catch (_) { break; }
+    }
+
+    tty.setRawMode(false);
+    tty.destroy();
+    fs.closeSync(fd);
+
+    // Parse rgb:RRRR/GGGG/BBBB (16-bit per channel) or rgb:RR/GG/BB (8-bit)
+    const match = response.match(/rgb:([0-9a-fA-F]+)\/([0-9a-fA-F]+)\/([0-9a-fA-F]+)/);
+    if (match) {
+      const normalize = (hex) => hex.length <= 2 ? parseInt(hex, 16) : parseInt(hex.slice(0, 2), 16);
+      const r = normalize(match[1]);
+      const g = normalize(match[2]);
+      const b = normalize(match[3]);
+      // Relative luminance (ITU-R BT.709)
+      const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      _detectedLightMode = luminance > 128;
+    }
+  } catch (_) {
+    // Detection failed — default to dark
+  }
+}
+
 // ─── Screen setup ─────────────────────────────────────────────────────────────
 const screen = blessed.screen({ smartCSR: true, title: 'nForma' });
 
 // ─── Surface palette ─────────────────────────────────────────────────────────
-// Layered surfaces for depth (dark → light = recessed → raised):
-//   base  #1a1a1a  — screen fill, activity bar
-//   mid   #1e1e1e  — main panels (menu, content)
-//   top   #222222  — header, status bar (raised chrome)
-//   bdr   #3a3a3a  — borders
-//   sel   #1e3a3a  — selection highlight (teal tint)
-const S = { base: '#1a1a1a', mid: '#1e1e1e', top: '#222222', bdr: '#3a3a3a', sel: '#1e3a3a' };
+// Auto-selected based on terminal background (OSC 11 probe).
+// Override with NF_THEME=dark or NF_THEME=light env var.
+const S = _detectedLightMode
+  ? { base: '#f0f0f0', mid: '#e8e8e8', top: '#f5f5f5', bdr: '#cccccc', sel: '#d0e8e8',
+      fg: '#333333', dim: '#888888', accent: '#0e7070', headerFg: '#222222' }
+  : { base: '#1a1a1a', mid: '#1e1e1e', top: '#222222', bdr: '#3a3a3a', sel: '#1e3a3a',
+      fg: '#aaaaaa', dim: '#777777', accent: '#4a9090', headerFg: '#cccccc' };
 
 const header = blessed.box({
   top: 0, left: 0, width: '100%', height: 3,
@@ -846,8 +1039,9 @@ const header = blessed.box({
 });
 
 function renderHeader() {
-  const logo = ` {#e07850-fg}{bold}nForma AI{/bold}{/} {#777777-fg}· agent manager{/}`;
-  const keys = `{#4a9090-fg}[F1]{/} A  {#4a9090-fg}[F2]{/} R  {#4a9090-fg}[F3]{/} C  {#4a9090-fg}[F4]{/} S   {#4a9090-fg}[Tab]{/} cycle  {#4a9090-fg}[C-\\]{/} menu  {#4a9090-fg}[q]{/} quit `;
+  const logo = ` {#f4956a-fg}{bold}n{/bold}{/}{#7dcfff-fg}{bold}Forma{/bold}{/} {#f4956a-fg}AI{/} {${S.dim}-fg}· agent manager{/}`;
+  const A = S.accent;
+  const keys = `{${A}-fg}[F1]{/} Agt  {${A}-fg}[F2]{/} Req  {${A}-fg}[F3]{/} Cfg  {${A}-fg}[F4]{/} Ses  {${A}-fg}[F5]{/} Sol  {${A}-fg}[Tab]{/} cycle  {${A}-fg}[C-\\]{/} menu  {${A}-fg}[q]{/} quit `;
   const w = screen.width || 120;
   const gap = Math.max(2, w - 25 - 74);
   header.setContent(logo + ' '.repeat(gap) + keys);
@@ -858,18 +1052,18 @@ const activityBar = blessed.box({
   top: 3, left: 0, width: 9, bottom: 2,
   tags: true,
   border: { type: 'line' },
-  style: { bg: S.base, fg: '#888888', border: { fg: S.bdr } },
+  style: { bg: S.base, fg: S.dim, border: { fg: S.bdr } },
 });
 
 const menuList = blessed.list({
   top: 3, left: 9, width: 26, bottom: 2,
-  label: ' {#666666-fg}Agents{/} ', tags: true,
+  label: ` {${S.dim}-fg}Agents{/} `, tags: true,
   border: { type: 'line' },
   style: {
     bg: S.mid,
     border: { fg: S.bdr },
-    selected: { bg: S.sel, fg: '#cccccc', bold: true },
-    item: { fg: '#999999' },
+    selected: { bg: S.sel, fg: S.headerFg, bold: true },
+    item: { fg: S.fg },
   },
   keys: true, vi: true, mouse: true, tags: true,
   items: MODULES[0].items.map(m => m.label),
@@ -877,18 +1071,18 @@ const menuList = blessed.list({
 
 const contentBox = blessed.box({
   top: 3, left: 35, right: 0, bottom: 2,
-  label: ' {#666666-fg}Content{/} ', tags: true,
+  label: ` {${S.dim}-fg}Content{/} `, tags: true,
   border: { type: 'line' },
   scrollable: true, alwaysScroll: true, mouse: true,
-  scrollbar: { ch: ' ', style: { bg: '#444444' } },
-  style: { bg: S.mid, fg: '#aaaaaa', border: { fg: S.bdr } },
+  scrollbar: { ch: ' ', style: { bg: _detectedLightMode ? '#bbbbbb' : '#666666' } },
+  style: { bg: S.mid, fg: S.fg, border: { fg: S.bdr } },
 });
 
 const statusBar = blessed.box({
   bottom: 0, left: 0, width: '100%', height: 3,
   tags: true,
   border: { type: 'line' },
-  style: { fg: '#999999', bg: S.top, border: { fg: S.bdr } },
+  style: { fg: S.fg, bg: S.top, border: { fg: S.bdr } },
 });
 
 function refreshStatusBar(extra) {
@@ -908,6 +1102,17 @@ function refreshStatusBar(extra) {
                `  ${Y}${pending}${E}${D}…${E}` +
                `  ${D}(${V}${pct}%${E}${D})${E}` +
                `   ${D}Formal${E} ${V}${fmPct}%${E}`;
+
+    // Module-specific key hints
+    const hints = {
+      0: '{#555555-fg}[/] filter  [u] update{/}',
+      1: '{#555555-fg}[/] filter  [↑↓] scroll{/}',
+      2: '',
+      3: '{#555555-fg}[C-\\] disconnect{/}',
+      4: '',
+    };
+    const hint = hints[activeModuleIdx] || '';
+    if (hint) line += `   ${hint}`;
 
     if (extra) line += `   ${extra}`;
     statusBar.setContent(line);
@@ -939,9 +1144,9 @@ function buildSettingsPaneContent() {
     `{bold}Project Settings{/bold}`,
     `${'─'.repeat(40)}`,
     ``,
-    `  ${D}Profile   ${Z} ${V}${profile}${Z}`,
-    `  ${D}Quorum n  ${Z} ${V}${nStr}${Z}`,
-    `  ${D}Fail mode ${Z} ${V}${failStr}${Z}`,
+    `  ${D}Profile    ${Z} {bold}${V}${profile}${Z}{/bold}`,
+    `  ${D}Quorum n   ${Z} {bold}${V}${nStr}${Z}{/bold}`,
+    `  ${D}Fail mode  ${Z} {bold}${V}${failStr}${Z}{/bold}`,
     ``,
     `{bold}Model Tiers{/bold}  {#888888-fg}(${profile} profile)${Z}`,
     `${'─'.repeat(40)}`,
@@ -949,11 +1154,22 @@ function buildSettingsPaneContent() {
   ];
 
   for (let i = 0; i < agents.length; i++) {
-    lines.push(`  ${D}${pad(labels[i], 12)}${Z} ${mTag(agents[i])}`);
+    lines.push(`  ${D}${pad(labels[i], 12)}${Z} {bold}${mTag(agents[i])}{/bold}`);
   }
 
   lines.push('');
   lines.push(`{#888888-fg}  * = override active${Z}`);
+
+  // Workflow settings section
+  const wf = cfg.workflow || {};
+  lines.push('');
+  lines.push('{bold}Workflow{/bold}');
+  lines.push(`${'─'.repeat(40)}`);
+  lines.push('');
+  lines.push(`  ${D}Research      ${Z} ${wf.research !== false ? '{green-fg}enabled{/}' : '{red-fg}disabled{/}'}`);
+  lines.push(`  ${D}Plan check    ${Z} ${wf.plan_check !== false ? '{green-fg}enabled{/}' : '{red-fg}disabled{/}'}`);
+  lines.push(`  ${D}Verifier      ${Z} ${wf.verifier !== false ? '{green-fg}enabled{/}' : '{red-fg}disabled{/}'}`);
+  lines.push(`  ${D}Auto-advance  ${Z} ${wf.auto_advance ? '{green-fg}enabled{/}' : '{#777777-fg}disabled{/}'}`);
 
   return lines.join('\n');
 }
@@ -975,7 +1191,11 @@ screen.append(statusBar);
 
 // ─── Content helpers ─────────────────────────────────────────────────────────
 function setContent(label, text) {
-  contentBox.setLabel(` {#666666-fg}${label}{/} `);
+  const modName = MODULES[activeModuleIdx]?.name || '';
+  const breadcrumb = label === modName || label.startsWith(modName + ' ') || label.startsWith(modName + ' —')
+    ? label
+    : `${modName} — ${label}`;
+  contentBox.setLabel(` {${S.dim}-fg}${breadcrumb}{/} `);
   contentBox.setContent(text);
   contentBox.scrollTo(0);
   screen.render();
@@ -1215,27 +1435,29 @@ function renderList() {
   try {
     const rows = agentRows();
     const W    = { n: 3, name: 16, provider: 13, model: 38, key: 8, timeout: 9 };
-    const hdr  = `{bold}${pad('#', W.n)}  ${pad('Slot', W.name)}  ${pad('Provider', W.provider)}  ${pad('Model', W.model)}  ${pad('Key', W.key)}  Timeout{/bold}`;
-    const sep  = '─'.repeat(W.n + 2 + W.name + 2 + W.provider + 2 + W.model + 2 + W.key + 2 + W.timeout);
+    const hdr  = `{bold}{underline}${pad('#', W.n)}  ${pad('Slot', W.name)}  ${pad('Provider', W.provider)}  ${pad('Model', W.model)}  ${pad('Key', W.key)}  Timeout{/underline}{/bold}`;
 
-    const lines = [hdr, sep];
-    for (const r of rows) {
+    const lines = [hdr];
+    rows.forEach((r, i) => {
       // Key badge — pad to 8 visual chars after tag close
-      // No BASE_URL = subscription/CLI auth, no API key needed
       const isSubAuth = !r.baseUrl;
       const keyBadge = r.hasKey
-        ? '{green-fg}✓ set{/}   ' // 5 visible + 3 spaces = 8
+        ? '{green-fg}● set{/}   '
         : isSubAuth
-          ? '{#4a9090-fg}sub{/}     '  // 3 visible + 5 spaces = 8
-          : '{red-fg}✗ unset{/} '; // 7 visible + 1 space = 8
+          ? '{#4a9090-fg}● sub{/}   '
+          : '{red-fg}● unset{/} ';
+
+      // Zebra stripe background
+      const bg = i % 2 === 0 ? '' : '{#1e2228-bg}';
+      const bgEnd = i % 2 === 0 ? '' : '{/}';
 
       // Line 1: main info
       lines.push(
-        `${pad(r.n, W.n)}  {#4a9090-fg}${pad(r.name, W.name)}{/}  ` +
+        `${bg}${pad(r.n, W.n)}  {#4a9090-fg}${pad(r.name, W.name)}{/}  ` +
         `${pad(r.providerName, W.provider)}  ` +
         `${pad(r.model.slice(0, W.model), W.model)}  ` +
         `${keyBadge}` +
-        `${r.timeout}`
+        `${r.timeout}${bgEnd}`
       );
 
       // Line 2: secondary details
@@ -1248,9 +1470,9 @@ function renderList() {
         details.push(`{cyan-fg}◉ ${acct}{/}${poolSize}`);
       }
       if (r.lastFailure) details.push('{red-fg}⚠ ' + r.lastFailure.count + 'x ' + r.lastFailure.type + '{/}');
-      lines.push('{gray-fg}     ' + details.join('   ') + '{/}');
+      lines.push(`${bg}{gray-fg}     ${details.join('   ')}{/}${bgEnd}`);
       lines.push('');
-    }
+    });
 
     setContent(`Agents (${rows.length})`, lines.join('\n'));
   } catch (err) {
@@ -2579,6 +2801,7 @@ async function dispatch(action) {
     else if (action === 'req-traceability') await reqTraceabilityFlow();
     else if (action === 'req-aggregate')    await reqAggregateFlow();
     else if (action === 'req-gaps')         reqCoverageGapsFlow();
+    else if (action === 'req-gate-scoring') gateScoreFlow();
     else if (action === 'session-new')  await newSessionFlow();
     else if (action === 'session-kill') await killSessionFlow();
     else if (action.startsWith('session-resume-')) {
@@ -2705,18 +2928,29 @@ function renderReqList(reqs, filters) {
 
   lines.push(`{bold}Requirements (${reqs.length})${subtitle}{/bold}`);
   lines.push('─'.repeat(Math.max(70, innerW)));
-  // indent + ID + gap + Status + gap + Category + gap
   const fixed  = 2 + 12 + 2 + 3 + 2 + 16 + 2;
   const W = { id: 12, status: 3, cat: 16, text: Math.max(20, innerW - fixed - 1) };
-  lines.push(`  ${pad('ID', W.id)}  ${pad('St', W.status)}  ${pad('Category', W.cat)}  Text`);
-  lines.push('  ' + '─'.repeat(W.id + 2 + W.status + 2 + W.cat + 2 + W.text));
+  lines.push(`{bold}{underline}  ${pad('ID', W.id)}  ${pad('St', W.status)}  ${pad('Category', W.cat)}  Text{/underline}{/bold}`);
 
-  for (const r of reqs) {
-    const icon = r.status === 'Complete' ? '{green-fg}✓{/}' : '{yellow-fg}○{/}';
+  reqs.forEach((r, i) => {
+    // Status icon with color
+    const icon = r.status === 'Complete' ? '{green-fg}✓{/}'
+      : r.status === 'Blocked' ? '{red-fg}✗{/}'
+      : r.status === 'In Progress' ? '{#4a9090-fg}◐{/}'
+      : '{yellow-fg}○{/}';
+
+    // Truncate text with ellipsis
+    const rawText = r.text || '';
+    const truncText = rawText.length > W.text ? rawText.slice(0, W.text - 1) + '…' : rawText;
+
+    // Zebra stripe
+    const bg = i % 2 === 0 ? '' : '{#1e2228-bg}';
+    const bgEnd = i % 2 === 0 ? '' : '{/}';
+
     lines.push(
-      `  {#4a9090-fg}${pad(r.id, W.id)}{/}  ${icon}${' '.repeat(W.status - 1)}  ${pad(r.category || 'Uncategorized', W.cat)}  ${pad(r.text, W.text)}`
+      `${bg}  {#4a9090-fg}${pad(r.id, W.id)}{/}  ${icon}${' '.repeat(W.status - 1)}  ${pad(r.category || 'Uncategorized', W.cat)}  ${pad(truncText, W.text)}${bgEnd}`
     );
-  }
+  });
 
   setContent(`Browse Reqs (${reqs.length})`, lines.join('\n'));
 }
@@ -2867,6 +3101,83 @@ function reqCoverageGapsFlow() {
   }
 }
 
+// ─── Requirements: Gate Scoring --------------------------------------------------
+function gateScoreFlow() {
+  try {
+    const result = spawnSync('node', [
+      path.join(__dirname, 'compute-per-model-gates.cjs'), '--aggregate', '--json'
+    ], { encoding: 'utf8', timeout: 15000 });
+
+    if (result.status !== 0) {
+      setContent('Gate Scoring', `{red-fg}Error running gate computation: ${(result.stderr || '').slice(0, 200)}{/}`);
+      return;
+    }
+
+    const data = JSON.parse(result.stdout);
+    const lines = [];
+
+    // Header: aggregate scores
+    lines.push('{bold}Gate Scoring \u2014 Aggregate{/bold}');
+    lines.push('\u2500'.repeat(60));
+    const s = data.scores || {};
+    lines.push(`  Gate A pass: {bold}${s.gate_a_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
+    lines.push(`  Gate B pass: {bold}${s.gate_b_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
+    lines.push(`  Gate C pass: {bold}${s.gate_c_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
+    lines.push(`  Avg layer maturity: {bold}${(s.avg_layer_maturity ?? 0).toFixed(2)}{/bold}`);
+    lines.push('');
+
+    // Per-model table: group by maturity level
+    const pm = data.per_model || {};
+    const models = Object.keys(pm);
+    const byLevel = { HARD_GATE: [], SOFT_GATE: [], ADVISORY: [] };
+    for (const m of models) {
+      const level = pm[m].gate_maturity || 'ADVISORY';
+      if (!byLevel[level]) byLevel[level] = [];
+      byLevel[level].push(m);
+    }
+
+    const levelColors = { HARD_GATE: '{green-fg}', SOFT_GATE: '{yellow-fg}', ADVISORY: '{red-fg}' };
+    lines.push('{bold}Per-Model Maturity{/bold}');
+    lines.push('\u2500'.repeat(60));
+    for (const level of ['HARD_GATE', 'SOFT_GATE', 'ADVISORY']) {
+      const arr = byLevel[level] || [];
+      const clr = levelColors[level] || '';
+      lines.push(`  ${clr}${level}{/} (${arr.length})`);
+      // Show first 10 models per level, truncate rest
+      const show = arr.slice(0, 10);
+      for (const m of show) {
+        const short = m.replace(/^\.planning\/formal\//, '');
+        const info = pm[m];
+        const abc = `A:${info.gate_a ? 'Y' : 'N'} B:${info.gate_b ? 'Y' : 'N'} C:${info.gate_c ? 'Y' : 'N'}`;
+        lines.push(`    ${short}  ${abc}`);
+      }
+      if (arr.length > 10) lines.push(`    ... and ${arr.length - 10} more`);
+      lines.push('');
+    }
+
+    // Promotion changelog (last 10 entries)
+    const changelogPath = path.join(__dirname, '..', '.planning', 'formal', 'promotion-changelog.json');
+    if (fs.existsSync(changelogPath)) {
+      const changelog = JSON.parse(fs.readFileSync(changelogPath, 'utf8'));
+      const recent = changelog.slice(-10).reverse();
+      if (recent.length > 0) {
+        lines.push('{bold}Recent Promotions/Demotions{/bold}');
+        lines.push('\u2500'.repeat(60));
+        for (const entry of recent) {
+          const short = (entry.model || '').replace(/^\.planning\/formal\//, '');
+          const arrow = entry.to_level === 'ADVISORY' ? '{red-fg}v{/}' : '{green-fg}^{/}';
+          const ts = (entry.timestamp || '').slice(0, 16).replace('T', ' ');
+          lines.push(`  ${arrow} ${short}: ${entry.from_level} -> ${entry.to_level}  {gray-fg}${ts}{/}`);
+        }
+      }
+    }
+
+    setContent('Gate Scoring', lines.join('\n'));
+  } catch (err) {
+    setContent('Gate Scoring', `{red-fg}Error: ${err.message}{/}`);
+  }
+}
+
 // ─── Solve: Browse overview ──────────────────────────────────────────────────
 function solveBrowseFlow() {
   const data = solveTui.loadSweepData();
@@ -2877,10 +3188,12 @@ function solveBrowseFlow() {
   lines.push('');
 
   const catLabels = { dtoc: 'D->C Broken Claims', ctor: 'C->R Untraced Modules', ttor: 'T->R Orphan Tests', dtor: 'D->R Unbacked Claims' };
+  const catColors = { dtoc: '{#ff6b6b-fg}', ctor: '{#4a9090-fg}', ttor: '{#c49060-fg}', dtor: '{#b07de0-fg}' };
   let totalCount = 0;
 
   for (const key of ['dtoc', 'ctor', 'ttor', 'dtor']) {
     const cat = data[key];
+    const catClr = catColors[key] || '{yellow-fg}';
     if (!cat) { lines.push(`  {gray-fg}${catLabels[key]}: N/A{/}`); continue; }
     const count = cat.items ? cat.items.length : 0;
     totalCount += count;
@@ -2889,7 +3202,7 @@ function solveBrowseFlow() {
     } else if (count === 0) {
       lines.push(`  {green-fg}${catLabels[key]}: 0 items{/}`);
     } else {
-      lines.push(`  {yellow-fg}${catLabels[key]}: ${count} item(s){/}`);
+      lines.push(`  ${catClr}${catLabels[key]}: ${count} item(s){/}`);
       // Show type breakdown for D→C
       if (key === 'dtoc' && cat.items.length > 0) {
         const byType = {};
