@@ -498,3 +498,30 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.32 — Documentation & README Overhaul (Shipped: 2026-03-09)
+
+**Phases:** v0.32-01..v0.32-04 (4 phases, 4 plans)
+**Requirements:** 14/14 (RDME-01–10, GUIDE-01–02, VIS-01–02)
+**Git range:** 8bb02f74..ed9fd747 (35 commits, 55 files changed, +6,901/−390 lines)
+**Timeline:** 2026-03-09 (single day)
+
+**Delivered:** Complete documentation overhaul — README restructured with TUI hero, value props, comparison table, metrics, architecture diagram, and community section above-the-fold; User Guide rebuilt with step-by-step Getting Started walkthrough and 10 TUI screenshots; all 11 TUI screenshots regenerated via hardened VHS automation with determinism verification.
+
+**Key accomplishments:**
+- README above-the-fold restructure: TUI hero screenshot promoted from collapsible to visible section, "Who This Is For" with 4 problem-framing bullets, "With vs. Without" comparison table, "By the Numbers" 6-metric grid, "What's New in v0.32" changelog, expanded nav bar with 8 anchor links (RDME-01–04, RDME-06–07, v0.32-01)
+- README deep sections: Mermaid architecture diagram in How It Works (6-node flowchart), Community section with Discord CTA before Star History, Getting Started rebalanced with critical path visible by default, Observability table fixed with solve screenshot after table; 10-test structural suite (RDME-05, RDME-08–10, v0.32-02)
+- User Guide overhaul: 4-step Getting Started walkthrough (Install, Quorum Setup, First Command, Start a Project) with 5 screenshots; 5 feature sections each with TUI screenshot and caption; 9-test structural suite (GUIDE-01–02, v0.32-03)
+- Visual asset regeneration: 11 TUI screenshots regenerated via VHS tape with dynamic Claude Code path resolution (no hardcoded versions); 8/9 static screenshots byte-identical across runs; orphaned SVGs cleaned up (VIS-01–02, v0.32-04)
+
+**Tests:** 19 structural tests GREEN (10 readme + 9 user-guide), 0 regressions
+
+**Tech debt incurred:**
+- 1 orphaned screenshot (tui-modal-settings.png generated but unreferenced)
+- Pre-existing TUI runtime bug in tui-agents-health.png ("Error: nf is not defined")
+
+**Audit:** PASSED — 14/14 requirements, 4/4 phases, 14/14 integration points, 5/5 E2E flows
+**Archive:** `.planning/milestones/v0.32-MILESTONE-AUDIT.md`
+
+---
+

@@ -5,16 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.32-04 — Visual Asset Regeneration
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: v0.32-04 (Visual Asset Regeneration)
-Plan: 1 of 1 complete
-Status: Phase complete
-Last activity: 2026-03-09 — Completed v0.32-04-01 (VHS tape hardening + 11 TUI screenshots regenerated)
-
-Progress: [██████████] 100%
+Milestone: v0.32 — Documentation & README Overhaul (SHIPPED 2026-03-09)
+Status: Milestone complete — 14/14 requirements, 4/4 phases, audit PASSED
+Next: Run `/nf:new-milestone` to start next milestone
 
 ## Accumulated Context
 
@@ -59,5 +56,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-09
-Stopped at: Phase v0.32-03 complete, ready to plan Phase v0.32-04
+Stopped at: Milestone v0.32 complete — audit passed, archived, tagged
 Resume file: None

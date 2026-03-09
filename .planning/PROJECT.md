@@ -10,6 +10,18 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Shipped: v0.32 — Documentation & README Overhaul (2026-03-09)
+
+**Goal:** Complete documentation overhaul — README restructured for immediate value communication, User Guide rebuilt with visual walkthrough, all screenshots regenerated via automation.
+
+**Shipped:** 14/14 requirements satisfied across 4 phases, 4 plans. Audit: PASSED.
+
+**Key features shipped:**
+- README above-the-fold restructure — TUI hero, "Who This Is For" problem bullets, "With vs. Without" comparison, "By the Numbers" metrics, changelog, expanded 8-link nav bar
+- README deep sections — Mermaid architecture diagram, Community section with Discord CTA, Getting Started rebalanced, Observability table fixed
+- User Guide overhaul — 4-step Getting Started walkthrough with 5 screenshots, 5 feature sections each with TUI screenshot
+- Visual asset regeneration — 11 TUI screenshots via hardened VHS tape with dynamic path resolution and determinism verification
+
 ## Shipped: v0.31 — Ruflo-Inspired Hardening (2026-03-08)
 
 **Goal:** Harden nForma's hook and quorum infrastructure with ruflo-inspired patterns.
@@ -469,6 +481,10 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ Rule sharding — paths: frontmatter on all .claude/rules/ files for per-turn selective loading (SHARD-01) — v0.31 (Phase v0.31-03)
 - ✓ Config write adapter — bidirectional nested/flat key conversion, boolean/profile normalization (ADAPT-01) — v0.31 (Phase v0.31-03)
 - ✓ Structured debate templates — YAML frontmatter + debate-formatter.cjs for programmatic parsing (ADR-01) — v0.31 (Phase v0.31-03)
+- ✓ README above-the-fold restructure — TUI hero promoted from details, value props, comparison table, metrics grid, changelog, expanded nav bar (RDME-01–04, RDME-06–07) — v0.32 (Phase v0.32-01)
+- ✓ README deep sections — Mermaid architecture diagram, Community section with Discord CTA, Getting Started rebalanced, Observability table fixed (RDME-05, RDME-08–10) — v0.32 (Phase v0.32-02)
+- ✓ User Guide overhaul — Getting Started walkthrough with 5 screenshots, 5 feature sections with TUI screenshots, structural test suite (GUIDE-01–02) — v0.32 (Phase v0.32-03)
+- ✓ Visual asset regeneration — 11 TUI screenshots via hardened VHS tape, dynamic Claude Code path resolution, determinism verification (VIS-01–02) — v0.32 (Phase v0.32-04)
 
 ### Active
 
@@ -485,7 +501,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Context
 
-nForma v0.31 shipped 2026-03-08 (8/8 requirements, 3 phases). 31 milestones completed (v0.1–v0.31). Both v0.30 (Advanced Agent Patterns) and v0.31 (Ruflo-Inspired Hardening) archived same day. Next milestone TBD — run `/nf:new-milestone` to start. v0.2.0 npm publish still deferred by user decision.
+nForma v0.32 shipped 2026-03-09 (14/14 requirements, 4 phases). 32 milestones completed (v0.1–v0.32). Documentation & README Overhaul milestone restructured README for immediate value communication and rebuilt User Guide with visual walkthrough. Next milestone TBD — run `/nf:new-milestone` to start. v0.2.0 npm publish still deferred by user decision.
 
 **Codebase:** ~100,000+ lines (JS + MD), 500+ files. 92+ formal models (TLA+, Alloy, PRISM), 35K+ conformance traces.
 **Tech stack:** Node.js, Claude Code hooks (UserPromptSubmit + Stop + PreToolUse + PostToolUse), npm package. Rebranded from QGSD to nForma (v0.28, skill prefix `/nf:`).
@@ -651,22 +667,13 @@ nForma v0.31 shipped 2026-03-08 (8/8 requirements, 3 phases). 31 milestones comp
 | Freeze semantics via resolving status | Entries in resolving immune to concurrent observe overwrites; prevents race between observe and solve cycles | Phase v0.27-05 — PF-04 |
 | Fingerprint exact-match first, Levenshtein second | O(n) hash-map pass handles >90% of dedup; O(n^2) similarity only runs on unmatched remainder — keeps large ledgers fast | Phase v0.27-03 — FP-03 |
 | Production source handlers are framework-ready stubs | No live endpoints required; handlers validate schema and return standard issue objects; real auth deferred to v0.28+ (WIRE-01..05) | Phase v0.27-04 — OBS-03/04/05 |
+| HTML img tag with width=720 for hero screenshots | GitHub does not respect CSS width on images; explicit HTML width attr ensures consistent rendering across displays | v0.32-01 — RDME-01 |
+| Manual anchor `<a id>` before details/summary blocks | GitHub does not reliably generate anchors from `<summary>` text; manual anchor before `<details>` ensures nav bar links work | v0.32-01 — RDME-07 |
+| Dynamic VHS tape path resolution via ls + tail | Hardcoded Claude Code version paths break on updates; `$(ls -d ~/Library/Application\ Support/Claude/claude-code/*/ \| tail -1)` resolves current version automatically | v0.32-04 — VIS-02 |
 
-## Current Milestone: v0.32 — Documentation & README Overhaul
+## Current Status
 
-**Goal:** Bring nForma's README and user documentation to the quality standard of top-tier Claude Code frameworks (Ruflo, Everything-Claude-Code, GSD) through systematic improvements to structure, visual impact, progressive disclosure, and content depth.
-
-**Target features:**
-- Promote TUI section with hero screenshot above the fold
-- Add "with vs. without" comparison table for instant value communication
-- Expand "Who This Is For" with concrete problem framing
-- Add quantified metrics section ("By the Numbers")
-- Add architecture/quorum flow diagram
-- Add "What's New" changelog section
-- Improve Getting Started progressive disclosure
-- Add community/contributing section
-- Expand User Guide with cross-references to TUI screenshots
-- Fix broken table formatting in Observability section
+v0.32 shipped. 32 milestones completed (v0.1–v0.32). Next milestone TBD — run `/nf:new-milestone` to start.
 
 ---
-*Last updated: 2026-03-09 after Phase v0.32-03*
+*Last updated: 2026-03-09 after v0.32 milestone*
