@@ -7,6 +7,7 @@ const os         = require('os');
 const crypto     = require('crypto');
 const { spawnSync } = require('child_process');
 const solveTui = require('./solve-tui.cjs');
+const nfSolve  = require('./nf-solve.cjs');
 
 // ─── Circuit breaker CLI (non-interactive, exits before TUI loads) ───────────
 const cliArgs = process.argv.slice(2);
@@ -462,10 +463,29 @@ const MODULES = [
     key: 'f5',
     items: [
       { label: '  Browse Items',           action: 'solve-browse' },
+      { label: ' \u2500\u2500 Forward \u2500\u2500\u2500\u2500\u2500\u2500', action: 'sep' },
+      { label: '  R->F Req\u2192Formal',       action: 'solve-rtof' },
+      { label: '  F->T Formal\u2192Test',      action: 'solve-ftot' },
+      { label: '  C->F Code\u2192Formal',      action: 'solve-ctof' },
+      { label: '  T->C Test\u2192Code',        action: 'solve-ttoc' },
+      { label: '  F->C Formal\u2192Code',      action: 'solve-ftoc' },
+      { label: '  R->D Req\u2192Docs',         action: 'solve-rtod' },
       { label: '  D->C Broken Claims',     action: 'solve-dtoc' },
+      { label: '  P->F Prod\u2192Formal',      action: 'solve-ptof' },
+      { label: ' \u2500\u2500 Reverse \u2500\u2500\u2500\u2500\u2500\u2500', action: 'sep' },
       { label: '  C->R Untraced Modules',  action: 'solve-ctor' },
       { label: '  T->R Orphan Tests',      action: 'solve-ttor' },
       { label: '  D->R Unbacked Claims',   action: 'solve-dtor' },
+      { label: ' \u2500\u2500 Layer Align \u2500\u2500\u2500', action: 'sep' },
+      { label: '  L1->L2 Gate A',          action: 'solve-l1tol2' },
+      { label: '  L2->L3 Gate B',          action: 'solve-l2tol3' },
+      { label: '  L3->TC Gate C',          action: 'solve-l3totc' },
+      { label: ' \u2500\u2500 Evidence \u2500\u2500\u2500\u2500\u2500', action: 'sep' },
+      { label: '  F->G Model Maturity',    action: 'solve-ftog' },
+      { label: '  C->E Git Heatmap',       action: 'solve-ctoe' },
+      { label: '  G->F History Drift',     action: 'solve-gtof' },
+      { label: '  F->F Formal Lint',       action: 'solve-ftof' },
+      { label: '  F->H Hazard FMEA',       action: 'solve-ftoh' },
       { label: ' \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', action: 'sep' },
       { label: '  Manage Suppressions',    action: 'solve-suppressions' },
       { label: '  Classify All (Haiku)',   action: 'solve-classify' },
@@ -2822,6 +2842,21 @@ async function dispatch(action) {
     else if (action === 'solve-ctor')         await solveCategoryFlow('ctor');
     else if (action === 'solve-ttor')         await solveCategoryFlow('ttor');
     else if (action === 'solve-dtor')         await solveCategoryFlow('dtor');
+    else if (action === 'solve-rtof')         solveResidualView('R\u2192F Req\u2192Formal', 'sweepRtoF');
+    else if (action === 'solve-ftot')         solveResidualView('F\u2192T Formal\u2192Test', 'sweepFtoT');
+    else if (action === 'solve-ctof')         solveResidualView('C\u2192F Code\u2192Formal', 'sweepCtoF');
+    else if (action === 'solve-ttoc')         solveResidualView('T\u2192C Test\u2192Code', 'sweepTtoC');
+    else if (action === 'solve-ftoc')         solveResidualView('F\u2192C Formal\u2192Code', 'sweepFtoC');
+    else if (action === 'solve-rtod')         solveResidualView('R\u2192D Req\u2192Docs', 'sweepRtoD');
+    else if (action === 'solve-ptof')         solveResidualView('P\u2192F Prod\u2192Formal', 'sweepPtoF');
+    else if (action === 'solve-l1tol2')       solveResidualView('L1\u2192L2 Gate A Grounding', 'sweepL1toL2');
+    else if (action === 'solve-l2tol3')       solveResidualView('L2\u2192L3 Gate B Traceability', 'sweepL2toL3');
+    else if (action === 'solve-l3totc')       solveResidualView('L3\u2192TC Gate C Validation', 'sweepL3toTC');
+    else if (action === 'solve-ftog')         solveResidualView('F\u2192G Model Maturity', 'sweepPerModelGates');
+    else if (action === 'solve-ctoe')         solveResidualView('C\u2192E Git Heatmap', 'sweepGitHeatmap');
+    else if (action === 'solve-gtof')         solveResidualView('G\u2192F History Drift', 'sweepGitHistoryEvidence');
+    else if (action === 'solve-ftof')         solveResidualView('F\u2192F Formal Lint', 'sweepFormalLint');
+    else if (action === 'solve-ftoh')         solveResidualView('F\u2192H Hazard FMEA', 'sweepHazardModel');
     else if (action === 'solve-suppressions') solveSuppressionsFlow();
     else if (action === 'solve-classify')     await solveClassifyFlow();
   } catch (err) {
@@ -3072,16 +3107,23 @@ async function reqTraceabilityFlow() {
 // ─── Requirements: Aggregate ─────────────────────────────────────────────────
 async function reqAggregateFlow() {
   try {
+    // TUI = human present = authorized to unfreeze
+    const reqPath = path.join(getTargetPath(), '.planning', 'formal', 'requirements.json');
+    if (fs.existsSync(reqPath)) {
+      const envelope = JSON.parse(fs.readFileSync(reqPath, 'utf8'));
+      if (envelope.frozen_at !== null && envelope.frozen_at !== undefined) {
+        envelope.frozen_at = null;
+        fs.writeFileSync(reqPath, JSON.stringify(envelope, null, 2) + '\n');
+        toast('Envelope unfrozen (TUI authorized)');
+      }
+    }
     const { aggregateRequirements } = require('./aggregate-requirements.cjs');
     const result = aggregateRequirements();
     const count  = result && result.count != null ? result.count : '?';
     const output = result && result.outputPath ? result.outputPath : '.planning/formal/requirements.json';
     toast(`Aggregated ${count} requirements → ${output}`);
   } catch (err) {
-    const hint = err.message && err.message.includes('frozen')
-      ? '\n{gray-fg}Hint: the envelope may be frozen. Delete frozen_at to re-aggregate.{/}'
-      : '';
-    setContent('Aggregate', `{red-fg}Error: ${err.message}{/}${hint}`);
+    setContent('Aggregate', `{red-fg}Error: ${err.message}{/}`);
   }
 }
 
@@ -3138,8 +3180,9 @@ function reqCoverageGapsFlow() {
 function gateScoreFlow() {
   try {
     const result = spawnSync('node', [
-      path.join(__dirname, 'compute-per-model-gates.cjs'), '--aggregate', '--json'
-    ], { encoding: 'utf8', timeout: 15000 });
+      path.join(__dirname, 'compute-per-model-gates.cjs'), '--aggregate', '--json',
+      '--project-root=' + getTargetPath()
+    ], { encoding: 'utf8', timeout: 15000, cwd: getTargetPath() });
 
     if (result.status !== 0) {
       setContent('Gate Scoring', `{red-fg}Error running gate computation: ${(result.stderr || '').slice(0, 200)}{/}`);
@@ -3209,6 +3252,81 @@ function gateScoreFlow() {
   } catch (err) {
     setContent('Gate Scoring', `{red-fg}Error: ${err.message}{/}`);
   }
+}
+
+// ─── Solve: Residual view (read-only sweep result) ──────────────────────────
+function solveResidualView(title, fnName) {
+  const lines = [];
+  lines.push(`{bold}Solve \u2014 ${title}{/bold}`);
+  lines.push('\u2500'.repeat(60));
+  lines.push('');
+
+  let result;
+  try {
+    const fn = nfSolve[fnName];
+    if (!fn) {
+      lines.push(`{red-fg}Sweep function "${fnName}" not found in nf-solve.cjs{/}`);
+      setContent(`Solve - ${title}`, lines.join('\n'));
+      return;
+    }
+    lines.push('{gray-fg}Running sweep...{/}');
+    setContent(`Solve - ${title}`, lines.join('\n'));
+    result = fn();
+  } catch (err) {
+    lines.push(`{red-fg}Error running sweep: ${err.message}{/}`);
+    setContent(`Solve - ${title}`, lines.join('\n'));
+    return;
+  }
+
+  // Clear the "Running..." line
+  lines.length = 3;
+
+  const residual = result.residual;
+  const detail = result.detail || {};
+
+  // Residual badge
+  if (residual < 0) {
+    if (detail.skipped) {
+      lines.push(`{yellow-fg}\u26A0 Skipped{/}  ${detail.reason || ''}`);
+    } else if (detail.error) {
+      lines.push(`{red-fg}\u2717 Error{/}  ${detail.stderr || 'unknown error'}`);
+    } else {
+      lines.push('{gray-fg}N/A{/}');
+    }
+  } else if (residual === 0) {
+    lines.push('{green-fg}\u2714 Residual: 0 \u2014 All clear{/}');
+  } else {
+    lines.push(`{red-fg}\u2717 Residual: ${residual}{/}`);
+  }
+  lines.push('');
+
+  // Detail key-value pairs
+  lines.push('{bold}Detail{/bold}');
+  lines.push('\u2500'.repeat(40));
+  for (const [key, val] of Object.entries(detail)) {
+    if (key === 'skipped' || key === 'error' || key === 'stderr') continue;
+    if (Array.isArray(val)) {
+      lines.push(`  {cyan-fg}${key}{/}: ${val.length} item(s)`);
+      for (const item of val.slice(0, 10)) {
+        if (typeof item === 'object') {
+          const summary = Object.entries(item).map(([k, v]) => `${k}=${v}`).join(', ');
+          lines.push(`    {gray-fg}\u2022 ${summary}{/}`);
+        } else {
+          lines.push(`    {gray-fg}\u2022 ${item}{/}`);
+        }
+      }
+      if (val.length > 10) lines.push(`    {gray-fg}... and ${val.length - 10} more{/}`);
+    } else if (typeof val === 'object' && val !== null) {
+      lines.push(`  {cyan-fg}${key}{/}:`);
+      for (const [sk, sv] of Object.entries(val)) {
+        lines.push(`    ${sk}: ${sv}`);
+      }
+    } else {
+      lines.push(`  {cyan-fg}${key}{/}: ${val}`);
+    }
+  }
+
+  setContent(`Solve - ${title}`, lines.join('\n'));
 }
 
 // ─── Solve: Browse overview ──────────────────────────────────────────────────
@@ -3286,17 +3404,74 @@ function solveBrowseFlow() {
 
   lines.push('');
   lines.push('\u2500'.repeat(60));
-  lines.push(`{bold}Total: ${totalCount} item(s) across 4 categories{/bold}`);
+  lines.push(`{bold}Human-gated: ${totalCount} item(s) across 4 categories{/bold}`);
   // Show classification summary
   const hasAnyClassification = Object.values(classifications).some(c => Object.keys(c).length > 0);
   if (hasAnyClassification) {
     lines.push('{gray-fg}Haiku triage: per-item cache active. New items classified on demand.{/}');
   } else {
-    lines.push('{gray-fg}No Haiku triage yet — run Classify All (Haiku) from menu{/}');
+    lines.push('{gray-fg}No Haiku triage yet \u2014 run Classify All (Haiku) from menu{/}');
   }
   if (totalCount === 0) {
     lines.push('');
     lines.push('{green-fg}All clean! No human-gated items found.{/}');
+  }
+
+  // ── All 19 transitions overview ──
+  lines.push('');
+  lines.push('{bold}All Layer Transitions{/bold}');
+  lines.push('\u2500'.repeat(60));
+
+  const sweepSummary = [
+    { group: 'Forward', items: [
+      { label: 'R\u2192F Req\u2192Formal',  fn: 'sweepRtoF' },
+      { label: 'F\u2192T Formal\u2192Test', fn: 'sweepFtoT' },
+      { label: 'C\u2192F Code\u2192Formal', fn: 'sweepCtoF' },
+      { label: 'T\u2192C Test\u2192Code',   fn: 'sweepTtoC' },
+      { label: 'F\u2192C Formal\u2192Code', fn: 'sweepFtoC' },
+      { label: 'R\u2192D Req\u2192Docs',    fn: 'sweepRtoD' },
+      { label: 'D\u2192C Doc\u2192Code',    fn: 'sweepDtoC' },
+      { label: 'P\u2192F Prod\u2192Formal', fn: 'sweepPtoF' },
+    ]},
+    { group: 'Reverse', items: [
+      { label: 'C\u2192R Untraced',   fn: 'sweepCtoR' },
+      { label: 'T\u2192R Orphans',    fn: 'sweepTtoR' },
+      { label: 'D\u2192R Unbacked',   fn: 'sweepDtoR' },
+    ]},
+    { group: 'Layer Alignment', items: [
+      { label: 'L1\u2192L2 Gate A',   fn: 'sweepL1toL2' },
+      { label: 'L2\u2192L3 Gate B',   fn: 'sweepL2toL3' },
+      { label: 'L3\u2192TC Gate C',   fn: 'sweepL3toTC' },
+    ]},
+    { group: 'Evidence & Maturity', items: [
+      { label: 'F\u2192G Maturity',   fn: 'sweepPerModelGates' },
+      { label: 'C\u2192E Heatmap',    fn: 'sweepGitHeatmap' },
+      { label: 'G\u2192F Drift',      fn: 'sweepGitHistoryEvidence' },
+      { label: 'F\u2192F Lint',       fn: 'sweepFormalLint' },
+      { label: 'F\u2192H Hazard',     fn: 'sweepHazardModel' },
+    ]},
+  ];
+
+  for (const grp of sweepSummary) {
+    lines.push(`  {bold}${grp.group}{/bold}`);
+    for (const s of grp.items) {
+      try {
+        const fn = nfSolve[s.fn];
+        if (!fn) { lines.push(`    {gray-fg}${s.label}: N/A (no fn){/}`); continue; }
+        const r = fn();
+        const res = r.residual;
+        if (res < 0) {
+          const reason = (r.detail && r.detail.reason) || (r.detail && r.detail.stderr) || 'skipped';
+          lines.push(`    {yellow-fg}${s.label}: \u26A0 ${reason}{/}`);
+        } else if (res === 0) {
+          lines.push(`    {green-fg}${s.label}: \u2714 0{/}`);
+        } else {
+          lines.push(`    {red-fg}${s.label}: \u2717 ${res}{/}`);
+        }
+      } catch (err) {
+        lines.push(`    {red-fg}${s.label}: ERROR ${err.message}{/}`);
+      }
+    }
   }
 
   setContent('Solve - Browse', lines.join('\n'));
