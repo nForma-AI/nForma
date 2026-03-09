@@ -686,7 +686,7 @@ function main() {
       // Fail-open: if refresh fails, never block the stop hook.
       try {
         const { spawnSync } = require('child_process');
-        const refreshScript = path.join(__dirname, '..', 'bin', 'refresh-evidence.cjs');
+        const refreshScript = path.join(__dirname, '..', 'nf-bin', 'refresh-evidence.cjs');
         if (fs.existsSync(refreshScript)) {
           const result = spawnSync(process.execPath, [refreshScript, '--json'], {
             cwd: process.cwd(),
