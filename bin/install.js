@@ -2371,6 +2371,9 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
   console.log(`
   ${green}Done!${reset} Launch ${program} and run ${cyan}${command}${reset}.
 ${nudge}
+  ${dim}TUI dashboard:${reset} ${cyan}npx @nforma.ai/nforma tui${reset}
+  ${dim}Or install globally:${reset} ${cyan}npm install -g @nforma.ai/nforma${reset} → then run ${cyan}nforma${reset}
+
   ${cyan}Join the community:${reset} https://discord.gg/5JJgD5svVS
 `);
 
