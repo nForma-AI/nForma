@@ -33,9 +33,13 @@ let REAL_KEYTAR_EXPORTS = null;
 try {
   KEYTAR_PATH = require.resolve('keytar');
   require('keytar');                                      // populate cache
-  REAL_KEYTAR_EXPORTS = require.cache[KEYTAR_PATH].exports;
+  if (require.cache[KEYTAR_PATH]) {
+    REAL_KEYTAR_EXPORTS = require.cache[KEYTAR_PATH].exports;
+  } else {
+    KEYTAR_PATH = null; // resolve succeeded but load failed (CI: native addon missing)
+  }
 } catch (_) {
-  // keytar not installed — Module._load path used instead
+  KEYTAR_PATH = null; // keytar not installed — Module._load path used instead
 }
 
 // ─── Global keytar safety net ─────────────────────────────────────────────────
