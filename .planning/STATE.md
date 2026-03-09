@@ -47,7 +47,7 @@ None.
 | 236 | Wire evidence files into gate promotion pipeline — fix all 5 gaps | 2026-03-09 | a770ac15 | Verified | [236-wire-evidence-files-into-gate-promotion-](./quick/236-wire-evidence-files-into-gate-promotion-/) |
 | 237 | Persist quorum debate traces with matched requirement IDs | 2026-03-09 | b8a98931 | Verified | [237-persist-quorum-debate-traces-with-matche](./quick/237-persist-quorum-debate-traces-with-matche/) |
 | 238 | Close remaining gate promotion feedback loops | 2026-03-09 | d909b75e | Verified | [238-close-remaining-gate-promotion-feedback-](./quick/238-close-remaining-gate-promotion-feedback-/) |
-| 239 | Add install-time path validation | 2026-03-09 | 61104d6f | Pending | [239-add-install-time-path-validation-to-bin-](./quick/239-add-install-time-path-validation-to-bin-/) |
+| 239 | Add install-time path validation | 2026-03-09 | 61104d6f | Verified | [239-add-install-time-path-validation-to-bin-](./quick/239-add-install-time-path-validation-to-bin-/) |
 
 ## Session Continuity
 
