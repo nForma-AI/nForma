@@ -4,7 +4,7 @@
 // Consistency solver orchestrator: sweeps Requirements->Formal->Tests->Code->Docs,
 // computes a residual vector per layer transition, and auto-closes gaps.
 //
-// Layer transitions (8 forward + 3 reverse + 3 layer alignment):
+// Layer transitions (8 forward + 3 reverse + 3 layer alignment + 5 evidence/maturity):
 //   R->F: Requirements without formal model coverage
 //   F->T: Formal invariants without test backing
 //   C->F: Code constants diverging from formal specs
@@ -21,6 +21,12 @@
 //   L1->L2: Gate A grounding alignment score
 //   L2->L3: Gate B traceability alignment score
 //   L3->TC: Gate C validation alignment score
+// Evidence & maturity:
+//   F->G: Formal models at gate maturity 0 (not yet promoted through gates)
+//   C->E: High-churn code files (git heatmap) lacking formal coverage
+//   G->F: Failure scenarios in git history that formal models cannot explain (TLA+ drift)
+//   F->F: Formal model self-consistency lint (fat, unbounded, or overly complex models)
+//   F->H: Hazard model FMEA — state transitions with critical/high RPN scores
 //
 // Usage:
 //   node bin/nf-solve.cjs                  # full sync, up to 3 iterations
@@ -3585,9 +3591,14 @@ module.exports = {
   discoverDocFiles,
   extractKeywords,
   extractStructuralClaims,
+  sweepRtoF,
+  sweepFtoT,
+  sweepCtoF,
+  sweepTtoC,
+  sweepFtoC,
   sweepRtoD,
   sweepDtoC,
-  sweepTtoC,
+  sweepPtoF: function () { return sweepPtoF({ root: ROOT }); },
   sweepCtoR,
   sweepTtoR,
   sweepDtoR,
