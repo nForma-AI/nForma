@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.32.1] - 2026-03-09 — nForma Branding & README Polish
+
+### Changed
+- **Terminal SVG rebrand** — Replaced QGSD ASCII art with nF pixel logo (salmon n + cyan F), updated tagline and help command
+- **README improvements** — Quorum-reviewed (4/4 APPROVE): fixed milestone count (31→32), command count (30+→56), formal spec count (15+→18), git branch templates (gsd/→nf/), broadened audience framing, added prerequisites, removed redundant sections, added WSL2 note, linked formal CI workflow
+
+### Fixed
+- **Duplicate screenshot** — Removed duplicate `tui-solve.png` reference in Commands section
+- **Stale color comments** — Fixed "Q in the nForma logo" → "n in the nForma logo" in SVG generator
+
 ## [0.32.0] - 2026-03-09 — Documentation & README Overhaul
 
 ### Added
