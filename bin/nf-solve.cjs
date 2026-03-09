@@ -2978,6 +2978,23 @@ function formatReport(iterations, finalResidual, converged) {
     // fail-open: PRISM priority is informational
   }
 
+  // Formalization Candidates (top files to formalize next)
+  try {
+    const fcResult = spawnTool('bin/formalization-candidates.cjs', ['--json', '--top=5']);
+    if (fcResult.ok && fcResult.stdout && fcResult.stdout.trim()) {
+      const fcData = JSON.parse(fcResult.stdout);
+      if (fcData.candidates && fcData.candidates.length > 0) {
+        lines.push('\u2500 Formalization Candidates \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+        for (const c of fcData.candidates.slice(0, 5)) {
+          const fileLabel = c.file.length > 40 ? '...' + c.file.slice(-37) : c.file;
+          lines.push('  ' + fileLabel.padEnd(42) + 'score: ' + c.score.toFixed(1));
+        }
+      }
+    }
+  } catch (e) {
+    // fail-open: candidates are informational
+  }
+
   // Model Complexity profile (informational)
   try {
     const profilePath = path.join(ROOT, '.planning', 'formal', 'model-complexity-profile.json');
