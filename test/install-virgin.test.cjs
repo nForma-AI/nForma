@@ -8,6 +8,7 @@ const os = require('node:os');
 const { execFileSync } = require('node:child_process');
 
 const INSTALL_SCRIPT = path.join(__dirname, '..', 'bin', 'install.js');
+const CLI_SCRIPT = path.join(__dirname, '..', 'bin', 'nforma-cli.js');
 const PKG = require('../package.json');
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -397,5 +398,148 @@ describe('virgin install: gemini', () => {
 
     assert.equal(countBefore, countAfter, 'File count must be identical after re-install');
     assert.equal(versionBefore, versionAfter, 'VERSION must be identical after re-install');
+  });
+});
+
+// ── npm pack + global install simulation ────────────────────────────────────
+
+describe('virgin install: npm global simulation', () => {
+  let tmpDir;
+  let binDir;
+
+  before(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-npm-global-test-'));
+    binDir = path.join(tmpDir, 'bin');
+
+    // Pack the package to a tarball (simulates what npm registry serves)
+    const repoRoot = path.join(__dirname, '..');
+    const packOut = execFileSync('npm', ['pack', '--pack-destination', tmpDir], {
+      cwd: repoRoot,
+      stdio: 'pipe',
+      timeout: 30000,
+    }).toString().trim();
+    const tarball = path.join(tmpDir, packOut.split('\n').pop());
+
+    // Install globally into isolated prefix (like npm install -g on a virgin machine)
+    execFileSync('npm', [
+      'install', '-g', tarball,
+      '--prefix', tmpDir,
+      '--ignore-scripts',  // skip postinstall (no blessed/node-pty needed for routing test)
+    ], {
+      stdio: 'pipe',
+      timeout: 60000,
+      env: {
+        ...process.env,
+        npm_config_prefix: tmpDir,
+      },
+    });
+  });
+
+  after(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test('nforma symlink exists in bin/', () => {
+    const nformaBin = path.join(binDir, 'nforma');
+    assert.ok(fs.existsSync(nformaBin), 'nforma must exist in bin/ after npm install -g');
+  });
+
+  test('get-shit-done-cc symlink exists in bin/ (legacy)', () => {
+    const legacyBin = path.join(binDir, 'get-shit-done-cc');
+    assert.ok(fs.existsSync(legacyBin), 'get-shit-done-cc must exist in bin/ (legacy compat)');
+  });
+
+  test('nforma --version works from installed binary', () => {
+    const nformaBin = path.join(binDir, 'nforma');
+    const out = execFileSync(process.execPath, [nformaBin, '--version'], {
+      stdio: 'pipe',
+      timeout: 5000,
+    }).toString().trim();
+    assert.equal(out, PKG.version, 'installed nforma --version must match package version');
+  });
+
+  test('nforma --help works from installed binary', () => {
+    const nformaBin = path.join(binDir, 'nforma');
+    const out = execFileSync(process.execPath, [nformaBin, '--help'], {
+      stdio: 'pipe',
+      timeout: 5000,
+    }).toString().trim();
+    assert.ok(out.includes('Usage:'), 'installed nforma --help must show Usage');
+    assert.ok(out.includes('install'), 'must mention install subcommand');
+    assert.ok(out.includes('TUI'), 'must mention TUI');
+  });
+
+  test('nforma install --help works from installed binary', () => {
+    const nformaBin = path.join(binDir, 'nforma');
+    try {
+      const out = execFileSync(process.execPath, [nformaBin, 'install', '--help'], {
+        stdio: 'pipe',
+        timeout: 10000,
+      }).toString().trim();
+      assert.ok(out.length > 0, 'install --help must produce output');
+    } catch (e) {
+      // Some help implementations exit non-zero — still valid if output exists
+      const stdout = (e.stdout || '').toString();
+      const stderr = (e.stderr || '').toString();
+      assert.ok(
+        stdout.length > 0 || stderr.length > 0,
+        'install --help must produce output even on non-zero exit'
+      );
+    }
+  });
+
+  test('installed package includes bin/nforma-cli.js', () => {
+    const libPkg = path.join(tmpDir, 'lib', 'node_modules', '@nforma.ai', 'nforma', 'bin', 'nforma-cli.js');
+    assert.ok(fs.existsSync(libPkg), 'nforma-cli.js must be included in published package');
+  });
+
+  test('installed package includes bin/install.js', () => {
+    const libPkg = path.join(tmpDir, 'lib', 'node_modules', '@nforma.ai', 'nforma', 'bin', 'install.js');
+    assert.ok(fs.existsSync(libPkg), 'install.js must be included in published package');
+  });
+
+  test('installed package includes bin/nForma.cjs (TUI)', () => {
+    const libPkg = path.join(tmpDir, 'lib', 'node_modules', '@nforma.ai', 'nforma', 'bin', 'nForma.cjs');
+    assert.ok(fs.existsSync(libPkg), 'nForma.cjs must be included in published package');
+  });
+
+  // ── Source directories required by install.js ──────────────────────
+  // install.js copies from these source dirs — if any are missing from
+  // the npm tarball, install crashes with ENOENT on readdirSync.
+
+  test('installed package includes core/ directory (workflows, references, templates)', () => {
+    const coreDir = path.join(tmpDir, 'lib', 'node_modules', '@nforma.ai', 'nforma', 'core');
+    assert.ok(fs.existsSync(coreDir), 'core/ must be included in published package (install.js line 1840 reads from it)');
+    assert.ok(countFiles(coreDir, '.md') > 0, 'core/ must contain .md workflow files');
+  });
+
+  test('installed package includes commands/nf/ directory', () => {
+    const commandsDir = path.join(tmpDir, 'lib', 'node_modules', '@nforma.ai', 'nforma', 'commands', 'nf');
+    assert.ok(fs.existsSync(commandsDir), 'commands/nf/ must be included in published package');
+    assert.ok(countFiles(commandsDir, '.md') > 0, 'commands/nf/ must contain .md command files');
+  });
+
+  test('installed package includes agents/ directory', () => {
+    const agentsDir = path.join(tmpDir, 'lib', 'node_modules', '@nforma.ai', 'nforma', 'agents');
+    assert.ok(fs.existsSync(agentsDir), 'agents/ must be included in published package');
+    assert.ok(countFiles(agentsDir, '.md') > 0, 'agents/ must contain .md agent files');
+  });
+
+  test('installed package includes hooks/dist/ directory', () => {
+    const hooksDir = path.join(tmpDir, 'lib', 'node_modules', '@nforma.ai', 'nforma', 'hooks', 'dist');
+    assert.ok(fs.existsSync(hooksDir), 'hooks/dist/ must be included in published package');
+    assert.ok(countFiles(hooksDir, '.js') > 0, 'hooks/dist/ must contain .js hook files');
+  });
+
+  test('all install.js source directories exist in package', () => {
+    const pkgRoot = path.join(tmpDir, 'lib', 'node_modules', '@nforma.ai', 'nforma');
+    // These are the dirs install.js reads from via path.join(src, ...)
+    const requiredDirs = ['commands/nf', 'core', 'agents', 'hooks/dist', 'bin'];
+    for (const dir of requiredDirs) {
+      assert.ok(
+        fs.existsSync(path.join(pkgRoot, dir)),
+        `${dir}/ must be in published package — install.js reads from it`
+      );
+    }
   });
 });
