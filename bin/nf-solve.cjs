@@ -1565,6 +1565,9 @@ function sweepCtoR() {
     return parts.join(' ');
   }).join('\n');
 
+  // Build Set of valid requirement IDs for header-comment fallback (O(1) lookup)
+  const reqIdSet = new Set(requirements.filter(r => r.id).map(r => r.id));
+
   // Scan bin/ and hooks/ for source modules
   const scanDirs = ['bin', 'hooks'];
   const sourceFiles = [];
@@ -1617,7 +1620,24 @@ function sweepCtoR() {
     if (allReqText.includes(file) || allReqText.includes(fileName) || allReqText.includes(fileNoExt)) {
       traced++;
     } else {
-      untraced.push({ file });
+      // Fallback: check if file self-declares requirement IDs in header comment
+      let headerTraced = false;
+      try {
+        const absFile = path.join(ROOT, file);
+        const head = fs.readFileSync(absFile, 'utf8').split('\n').slice(0, 30).join('\n');
+        const match = head.match(/(?:\/\/|\/?\*)\s*Requirements:\s*(.+)/);
+        if (match) {
+          const declaredIds = match[1].split(/[,\s]+/).map(s => s.trim()).filter(Boolean);
+          headerTraced = declaredIds.some(id => reqIdSet.has(id));
+        }
+      } catch (e) {
+        // fail-open: file unreadable, treat as untraced
+      }
+      if (headerTraced) {
+        traced++;
+      } else {
+        untraced.push({ file });
+      }
     }
   }
 
