@@ -1,9 +1,9 @@
 {
-  "last_run": "2026-03-09T21:41:21.182Z",
+  "last_run": "2026-03-09T22:09:39.964Z",
   "converged": false,
   "iteration_count": 1,
   "final_residual_total": 122,
-  "reverse_discovery_total": 330,
+  "reverse_discovery_total": 331,
   "heatmap_total": 6239,
   "known_issues": [
     {
@@ -24,7 +24,7 @@
     },
     {
       "layer": "c_to_r",
-      "residual": 134
+      "residual": 135
     },
     {
       "layer": "t_to_r",

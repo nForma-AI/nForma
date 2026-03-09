@@ -23,6 +23,19 @@ const readline = require('readline');
 const { execFileSync } = require('child_process');
 
 const ROOT = process.cwd();
+
+// ── Global error handlers — prevent silent crashes ──────────────────────────
+process.on('uncaughtException', (err) => {
+  try { if (process.stdin.isTTY) process.stdin.setRawMode(false); } catch (_) {}
+  process.stderr.write(`\n\x1B[31m[solve-tui] Uncaught exception: ${err.message}\x1B[0m\n`);
+  process.stderr.write(err.stack + '\n');
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+  try { if (process.stdin.isTTY) process.stdin.setRawMode(false); } catch (_) {}
+  process.stderr.write(`\n\x1B[31m[solve-tui] Unhandled rejection: ${reason}\x1B[0m\n`);
+  process.exit(1);
+});
 const FP_PATH = path.join(ROOT, '.planning', 'formal', 'acknowledged-false-positives.json');
 const ARCHIVE_PATH = path.join(ROOT, '.planning', 'formal', 'archived-solve-items.json');
 const CHANGELOG_PATH = path.join(ROOT, '.planning', 'formal', 'promotion-changelog.json');

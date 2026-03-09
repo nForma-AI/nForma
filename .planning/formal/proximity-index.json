@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-09T21:38:59.911Z",
+  "generated": "2026-03-09T22:09:23.384Z",
   "node_key_format": "type::id",
   "sources": {
     "scope.json:account-manager": {
@@ -68,20 +68,20 @@
       "hash": "76910c97"
     },
     "model-registry.json": {
-      "mtime": "2026-03-09T21:38:59.339Z",
-      "hash": "35ff6c46"
+      "mtime": "2026-03-09T22:08:13.984Z",
+      "hash": "59b4b5a9"
     },
     "invariant-catalog.json": {
       "mtime": "2026-03-06T14:00:17.868Z",
       "hash": "e27072db"
     },
     "traceability-matrix.json": {
-      "mtime": "2026-03-09T21:35:25.094Z",
-      "hash": "a1d90c1c"
+      "mtime": "2026-03-09T22:09:22.575Z",
+      "hash": "a5634188"
     },
     "unit-test-coverage.json": {
-      "mtime": "2026-03-09T21:38:59.232Z",
-      "hash": "02982c0f"
+      "mtime": "2026-03-09T21:39:00.683Z",
+      "hash": "9f7bba8c"
     },
     "instrumentation-map.json": {
       "mtime": "2026-03-09T21:38:57.647Z",
@@ -100,8 +100,8 @@
       "hash": "2df5c0d7"
     },
     "git-heatmap.json": {
-      "mtime": "2026-03-09T21:35:35.456Z",
-      "hash": "87b340b7"
+      "mtime": "2026-03-09T21:39:41.998Z",
+      "hash": "a648dd40"
     },
     "debt.json": {
       "mtime": "2026-03-04T13:33:16.983Z",
@@ -2497,7 +2497,9 @@
     "formal_model::.planning/formal/alloy/quorum-votes.als": {
       "type": "formal_model",
       "id": ".planning/formal/alloy/quorum-votes.als",
-      "edges": []
+      "edges": [],
+      "source_layer": "L2",
+      "gate_maturity": "SOFT_GATE"
     },
     "formal_model::.planning/formal/alloy/scoreboard-recompute.als": {
       "type": "formal_model",
@@ -11521,7 +11523,9 @@
     "formal_model::.planning/formal/tla/NFQuorum.tla": {
       "type": "formal_model",
       "id": ".planning/formal/tla/NFQuorum.tla",
-      "edges": []
+      "edges": [],
+      "source_layer": "L2",
+      "gate_maturity": "SOFT_GATE"
     },
     "formal_model::.planning/formal/alloy/solve-automation-features.als": {
       "type": "formal_model",

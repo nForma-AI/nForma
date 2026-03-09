@@ -5,9 +5,162 @@ const fs         = require('fs');
 const path       = require('path');
 const os         = require('os');
 const crypto     = require('crypto');
-const { spawnSync } = require('child_process');
+const { spawnSync, fork } = require('child_process');
 const solveTui = require('./solve-tui.cjs');
 const nfSolve  = require('./nf-solve.cjs');
+
+// ─── Global error handlers — prevent silent TUI crashes ─────────────────────
+process.on('uncaughtException', (err) => {
+  try { if (typeof screen !== 'undefined') screen.destroy(); } catch (_) {}
+  process.stderr.write(`\n[nForma] Uncaught exception: ${err.message}\n${err.stack}\n`);
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+  try { if (typeof screen !== 'undefined') screen.destroy(); } catch (_) {}
+  process.stderr.write(`\n[nForma] Unhandled rejection: ${reason}\n`);
+  process.exit(1);
+});
+
+// ─── Non-blocking solve worker ──────────────────────────────────────────────
+// Forks sweep functions into a child process so the blessed event loop stays
+// responsive. Each call spawns a short-lived worker; results arrive via IPC.
+
+const SOLVE_WORKER_PATH = path.join(__dirname, 'solve-worker.cjs');
+
+/**
+ * Run a single nf-solve sweep function in a forked child process.
+ * @param {string} fnName - Name of the sweep function (e.g. 'sweepDtoC')
+ * @returns {Promise<{residual, detail}>}
+ */
+function sweepAsync(fnName) {
+  return new Promise((resolve, reject) => {
+    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+    });
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error(`Sweep "${fnName}" timed out after 5 minutes`));
+    }, 300000);
+
+    child.on('message', (msg) => {
+      if (msg.cmd === 'ready') {
+        child.send({ cmd: 'sweep', fnName, id: 1 });
+      } else if (msg.id === 1) {
+        clearTimeout(timeout);
+        child.kill();
+        if (msg.ok) resolve(msg.result);
+        else reject(new Error(msg.error));
+      }
+    });
+    child.on('error', (err) => { clearTimeout(timeout); reject(err); });
+    child.on('exit', (code) => {
+      clearTimeout(timeout);
+      if (code && code !== 0) reject(new Error(`Worker exited with code ${code}`));
+    });
+  });
+}
+
+/**
+ * Run solveTui.loadSweepData() in a forked child process.
+ * @returns {Promise<Object>}
+ */
+function loadSweepDataAsync() {
+  return new Promise((resolve, reject) => {
+    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+    });
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('loadSweepData timed out after 5 minutes'));
+    }, 300000);
+
+    child.on('message', (msg) => {
+      if (msg.cmd === 'ready') {
+        child.send({ cmd: 'loadSweepData', id: 1 });
+      } else if (msg.id === 1) {
+        clearTimeout(timeout);
+        child.kill();
+        if (msg.ok) resolve(msg.result);
+        else reject(new Error(msg.error));
+      }
+    });
+    child.on('error', (err) => { clearTimeout(timeout); reject(err); });
+    child.on('exit', (code) => {
+      clearTimeout(timeout);
+      if (code && code !== 0) reject(new Error(`Worker exited with code ${code}`));
+    });
+  });
+}
+
+/**
+ * Run classifyWithHaiku in a forked child process.
+ * @param {Object} sweepData
+ * @param {Object} opts
+ * @returns {Promise<Object>}
+ */
+function classifyAsync(sweepData, opts = {}) {
+  return new Promise((resolve, reject) => {
+    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+    });
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('Classification timed out after 10 minutes'));
+    }, 600000);
+
+    child.on('message', (msg) => {
+      if (msg.cmd === 'ready') {
+        child.send({ cmd: 'classify', sweepData, opts, id: 1 });
+      } else if (msg.id === 1) {
+        clearTimeout(timeout);
+        child.kill();
+        if (msg.ok) resolve(msg.result);
+        else reject(new Error(msg.error));
+      }
+    });
+    child.on('error', (err) => { clearTimeout(timeout); reject(err); });
+    child.on('exit', (code) => {
+      clearTimeout(timeout);
+      if (code && code !== 0) reject(new Error(`Worker exited with code ${code}`));
+    });
+  });
+}
+
+/**
+ * Run multiple sweep functions in a forked child, streaming results as they arrive.
+ * @param {string[]} fnNames - Array of sweep function names
+ * @param {Function} onResult - callback(fnName, result|null, error|null) per sweep
+ * @returns {Promise<void>} Resolves when all sweeps complete
+ */
+function batchSweepAsync(fnNames, onResult) {
+  return new Promise((resolve, reject) => {
+    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+    });
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('Batch sweep timed out after 10 minutes'));
+    }, 600000);
+
+    child.on('message', (msg) => {
+      if (msg.cmd === 'ready') {
+        child.send({ cmd: 'batchSweep', fnNames, id: 1 });
+      } else if (msg.cmd === 'sweepResult') {
+        if (msg.ok) onResult(msg.fnName, msg.result, null);
+        else onResult(msg.fnName, null, msg.error);
+      } else if (msg.cmd === 'batchDone') {
+        clearTimeout(timeout);
+        child.kill();
+        resolve();
+      }
+    });
+    child.on('error', (err) => { clearTimeout(timeout); reject(err); });
+    child.on('exit', (code) => {
+      clearTimeout(timeout);
+      if (code && code !== 0) reject(new Error(`Worker exited with code ${code}`));
+    });
+  });
+}
 
 // ─── Circuit breaker CLI (non-interactive, exits before TUI loads) ───────────
 const cliArgs = process.argv.slice(2);
@@ -2847,26 +3000,26 @@ async function dispatch(action) {
     else if (action.startsWith('session-connect-')) {
       connectSession(parseInt(action.replace('session-connect-', ''), 10));
     }
-    else if (action === 'solve-browse')       solveBrowseFlow();
+    else if (action === 'solve-browse')       await solveBrowseFlow();
     else if (action === 'solve-dtoc')         await solveCategoryFlow('dtoc');
     else if (action === 'solve-ctor')         await solveCategoryFlow('ctor');
     else if (action === 'solve-ttor')         await solveCategoryFlow('ttor');
     else if (action === 'solve-dtor')         await solveCategoryFlow('dtor');
-    else if (action === 'solve-rtof')         solveResidualView('R\u2192F Req\u2192Formal', 'sweepRtoF');
-    else if (action === 'solve-ftot')         solveResidualView('F\u2192T Formal\u2192Test', 'sweepFtoT');
-    else if (action === 'solve-ctof')         solveResidualView('C\u2192F Code\u2192Formal', 'sweepCtoF');
-    else if (action === 'solve-ttoc')         solveResidualView('T\u2192C Test\u2192Code', 'sweepTtoC');
-    else if (action === 'solve-ftoc')         solveResidualView('F\u2192C Formal\u2192Code', 'sweepFtoC');
-    else if (action === 'solve-rtod')         solveResidualView('R\u2192D Req\u2192Docs', 'sweepRtoD');
-    else if (action === 'solve-ptof')         solveResidualView('P\u2192F Prod\u2192Formal', 'sweepPtoF');
-    else if (action === 'solve-l1tol2')       solveResidualView('L1\u2192L2 Gate A Grounding', 'sweepL1toL2');
-    else if (action === 'solve-l2tol3')       solveResidualView('L2\u2192L3 Gate B Traceability', 'sweepL2toL3');
-    else if (action === 'solve-l3totc')       solveResidualView('L3\u2192TC Gate C Validation', 'sweepL3toTC');
-    else if (action === 'solve-ftog')         solveResidualView('F\u2192G Model Maturity', 'sweepPerModelGates');
-    else if (action === 'solve-ctoe')         solveResidualView('C\u2192E Git Heatmap', 'sweepGitHeatmap');
-    else if (action === 'solve-gtof')         solveResidualView('G\u2192F History Drift', 'sweepGitHistoryEvidence');
-    else if (action === 'solve-ftof')         solveResidualView('F\u2192F Formal Lint', 'sweepFormalLint');
-    else if (action === 'solve-ftoh')         solveResidualView('F\u2192H Hazard FMEA', 'sweepHazardModel');
+    else if (action === 'solve-rtof')         await solveResidualView('R\u2192F Req\u2192Formal', 'sweepRtoF');
+    else if (action === 'solve-ftot')         await solveResidualView('F\u2192T Formal\u2192Test', 'sweepFtoT');
+    else if (action === 'solve-ctof')         await solveResidualView('C\u2192F Code\u2192Formal', 'sweepCtoF');
+    else if (action === 'solve-ttoc')         await solveResidualView('T\u2192C Test\u2192Code', 'sweepTtoC');
+    else if (action === 'solve-ftoc')         await solveResidualView('F\u2192C Formal\u2192Code', 'sweepFtoC');
+    else if (action === 'solve-rtod')         await solveResidualView('R\u2192D Req\u2192Docs', 'sweepRtoD');
+    else if (action === 'solve-ptof')         await solveResidualView('P\u2192F Prod\u2192Formal', 'sweepPtoF');
+    else if (action === 'solve-l1tol2')       await solveResidualView('L1\u2192L2 Gate A Grounding', 'sweepL1toL2');
+    else if (action === 'solve-l2tol3')       await solveResidualView('L2\u2192L3 Gate B Traceability', 'sweepL2toL3');
+    else if (action === 'solve-l3totc')       await solveResidualView('L3\u2192TC Gate C Validation', 'sweepL3toTC');
+    else if (action === 'solve-ftog')         await solveResidualView('F\u2192G Model Maturity', 'sweepPerModelGates');
+    else if (action === 'solve-ctoe')         await solveResidualView('C\u2192E Git Heatmap', 'sweepGitHeatmap');
+    else if (action === 'solve-gtof')         await solveResidualView('G\u2192F History Drift', 'sweepGitHistoryEvidence');
+    else if (action === 'solve-ftof')         await solveResidualView('F\u2192F Formal Lint', 'sweepFormalLint');
+    else if (action === 'solve-ftoh')         await solveResidualView('F\u2192H Hazard FMEA', 'sweepHazardModel');
     else if (action === 'solve-suppressions') solveSuppressionsFlow();
     else if (action === 'solve-classify')     await solveClassifyFlow();
   } catch (err) {
@@ -3265,31 +3418,30 @@ function gateScoreFlow() {
 }
 
 // ─── Solve: Residual view (read-only sweep result) ──────────────────────────
-function solveResidualView(title, fnName) {
+async function solveResidualView(title, fnName) {
+  setContent(`Solve - ${title}`,
+    `{bold}Solve \u2014 ${title}{/bold}\n` +
+    '\u2500'.repeat(60) + '\n\n' +
+    '{yellow-fg}\u231B Running sweep in background...{/}'
+  );
+  screen.render();
+
+  let result;
+  try {
+    result = await sweepAsync(fnName);
+  } catch (err) {
+    setContent(`Solve - ${title}`,
+      `{bold}Solve \u2014 ${title}{/bold}\n` +
+      '\u2500'.repeat(60) + '\n\n' +
+      `{red-fg}Error running sweep: ${err.message}{/}`
+    );
+    return;
+  }
+
   const lines = [];
   lines.push(`{bold}Solve \u2014 ${title}{/bold}`);
   lines.push('\u2500'.repeat(60));
   lines.push('');
-
-  let result;
-  try {
-    const fn = nfSolve[fnName];
-    if (!fn) {
-      lines.push(`{red-fg}Sweep function "${fnName}" not found in nf-solve.cjs{/}`);
-      setContent(`Solve - ${title}`, lines.join('\n'));
-      return;
-    }
-    lines.push('{gray-fg}Running sweep...{/}');
-    setContent(`Solve - ${title}`, lines.join('\n'));
-    result = fn();
-  } catch (err) {
-    lines.push(`{red-fg}Error running sweep: ${err.message}{/}`);
-    setContent(`Solve - ${title}`, lines.join('\n'));
-    return;
-  }
-
-  // Clear the "Running..." line
-  lines.length = 3;
 
   const residual = result.residual;
   const detail = result.detail || {};
@@ -3340,8 +3492,26 @@ function solveResidualView(title, fnName) {
 }
 
 // ─── Solve: Browse overview ──────────────────────────────────────────────────
-function solveBrowseFlow() {
-  const data = solveTui.loadSweepData();
+async function solveBrowseFlow() {
+  setContent('Solve - Browse',
+    '{bold}Solve Items{/bold}\n' +
+    '\u2500'.repeat(60) + '\n\n' +
+    '{yellow-fg}\u231B Loading sweep data in background...{/}'
+  );
+  screen.render();
+
+  let data;
+  try {
+    data = await loadSweepDataAsync();
+  } catch (err) {
+    setContent('Solve - Browse',
+      '{bold}Solve Items{/bold}\n' +
+      '\u2500'.repeat(60) + '\n\n' +
+      `{red-fg}Error loading sweep data: ${err.message}{/}`
+    );
+    return;
+  }
+
   const classifications = solveTui.readClassificationCache();
   const lines = [];
   lines.push('{bold}Solve Items{/bold}');
@@ -3427,10 +3597,12 @@ function solveBrowseFlow() {
     lines.push('{green-fg}All clean! No human-gated items found.{/}');
   }
 
-  // ── All 19 transitions overview ──
+  // ── All 19 transitions overview (streamed from background worker) ──
   lines.push('');
   lines.push('{bold}All Layer Transitions{/bold}');
   lines.push('\u2500'.repeat(60));
+  lines.push('{yellow-fg}\u231B Running all 19 sweeps in background...{/}');
+  setContent('Solve - Browse', lines.join('\n'));
 
   const sweepSummary = [
     { group: 'Forward', items: [
@@ -3462,29 +3634,67 @@ function solveBrowseFlow() {
     ]},
   ];
 
+  // Build fn→label lookup and collect all fnNames
+  const fnLabelMap = {};
+  const allFnNames = [];
   for (const grp of sweepSummary) {
-    lines.push(`  {bold}${grp.group}{/bold}`);
     for (const s of grp.items) {
-      try {
-        const fn = nfSolve[s.fn];
-        if (!fn) { lines.push(`    {gray-fg}${s.label}: N/A (no fn){/}`); continue; }
-        const r = fn();
-        const res = r.residual;
-        if (res < 0) {
-          const reason = (r.detail && r.detail.reason) || (r.detail && r.detail.stderr) || 'skipped';
-          lines.push(`    {yellow-fg}${s.label}: \u26A0 ${reason}{/}`);
-        } else if (res === 0) {
-          lines.push(`    {green-fg}${s.label}: \u2714 0{/}`);
-        } else {
-          lines.push(`    {red-fg}${s.label}: \u2717 ${res}{/}`);
-        }
-      } catch (err) {
-        lines.push(`    {red-fg}${s.label}: ERROR ${err.message}{/}`);
-      }
+      fnLabelMap[s.fn] = { label: s.label, group: grp.group };
+      allFnNames.push(s.fn);
     }
   }
 
-  setContent('Solve - Browse', lines.join('\n'));
+  // Stream results from background worker
+  const sweepResults = {};
+  let completed = 0;
+  try {
+    await batchSweepAsync(allFnNames, (fnName, result, error) => {
+      completed++;
+      sweepResults[fnName] = error ? { error } : result;
+
+      // Update the "All Layer Transitions" section with live progress
+      const transLines = [];
+      transLines.push('');
+      transLines.push('{bold}All Layer Transitions{/bold}');
+      transLines.push('\u2500'.repeat(60));
+      transLines.push(`{gray-fg}Progress: ${completed}/${allFnNames.length}{/}`);
+      for (const grp of sweepSummary) {
+        transLines.push(`  {bold}${grp.group}{/bold}`);
+        for (const s of grp.items) {
+          const sr = sweepResults[s.fn];
+          if (!sr) {
+            transLines.push(`    {gray-fg}${s.label}: \u231B pending...{/}`);
+          } else if (sr.error) {
+            transLines.push(`    {red-fg}${s.label}: ERROR ${sr.error}{/}`);
+          } else {
+            const res = sr.residual;
+            if (res < 0) {
+              const reason = (sr.detail && sr.detail.reason) || (sr.detail && sr.detail.stderr) || 'skipped';
+              transLines.push(`    {yellow-fg}${s.label}: \u26A0 ${reason}{/}`);
+            } else if (res === 0) {
+              transLines.push(`    {green-fg}${s.label}: \u2714 0{/}`);
+            } else {
+              transLines.push(`    {red-fg}${s.label}: \u2717 ${res}{/}`);
+            }
+          }
+        }
+      }
+
+      // Replace the transitions section in the content
+      const cutIdx = lines.findIndex(l => l.includes('All Layer Transitions'));
+      if (cutIdx >= 0) lines.length = cutIdx;
+      lines.push(...transLines);
+      setContent('Solve - Browse', lines.join('\n'));
+    });
+  } catch (err) {
+    const cutIdx = lines.findIndex(l => l.includes('All Layer Transitions'));
+    if (cutIdx >= 0) lines.length = cutIdx;
+    lines.push('');
+    lines.push('{bold}All Layer Transitions{/bold}');
+    lines.push('\u2500'.repeat(60));
+    lines.push(`{red-fg}Error running batch sweep: ${err.message}{/}`);
+    setContent('Solve - Browse', lines.join('\n'));
+  }
 }
 
 // ─── Solve: Category drill-down ─────────────────────────────────────────────
@@ -3493,7 +3703,16 @@ async function solveCategoryFlow(catKey) {
   const catLabels = { dtoc: 'D->C Broken Claims', ctor: 'C->R Untraced Modules', ttor: 'T->R Orphan Tests', dtor: 'D->R Unbacked Claims' };
   const catLabel = catLabels[catKey] || catKey;
 
-  const data = solveTui.loadSweepData();
+  setContent(`Solve - ${catLabel}`, '{yellow-fg}\u231B Loading sweep data in background...{/}');
+  screen.render();
+
+  let data;
+  try {
+    data = await loadSweepDataAsync();
+  } catch (err) {
+    setContent(`Solve - ${catLabel}`, `{red-fg}Error loading data: ${err.message}{/}`);
+    return;
+  }
   const classifications = solveTui.readClassificationCache();
   const catClass = classifications[catKey] || {};
   const cat = data[catKey];
@@ -3848,10 +4067,22 @@ async function showItemDetail(catKey, item, catLabel) {
 
 // ─── Solve: Classify All (Haiku sub-agent) ──────────────────────────────────
 async function solveClassifyFlow() {
-  setContent('Solve - Classify', '{bold}Haiku Classification{/bold}\n\nLoading sweep data...');
+  setContent('Solve - Classify',
+    '{bold}Haiku Classification{/bold}\n\n' +
+    '{yellow-fg}\u231B Loading sweep data in background...{/}'
+  );
   screen.render();
 
-  const data = solveTui.loadSweepData();
+  let data;
+  try {
+    data = await loadSweepDataAsync();
+  } catch (err) {
+    setContent('Solve - Classify',
+      `{bold}Haiku Classification{/bold}\n\n{red-fg}Error loading data: ${err.message}{/}`
+    );
+    return;
+  }
+
   const totalItems = ['dtoc', 'ctor', 'ttor', 'dtor'].reduce((sum, k) => {
     const cat = data[k];
     return sum + ((cat && cat.items) ? cat.items.length : 0);
@@ -3877,13 +4108,15 @@ async function solveClassifyFlow() {
     `Already classified: ${alreadyCached} (cached forever per item)\n` +
     `New items to classify: ${newItems}\n\n` +
     (newItems > 0
-      ? `Sending ${newItems} new items to Claude Haiku sub-agent...\n{gray-fg}Batched (50 per call). Only unclassified items are sent.{/}`
+      ? `{yellow-fg}\u231B Classifying ${newItems} new items via Haiku in background...{/}\n{gray-fg}Batched (50 per call). Only unclassified items are sent.{/}`
       : `{green-fg}All items already classified! Nothing to do.{/}`)
   );
   screen.render();
 
+  if (newItems === 0) return;
+
   try {
-    const classifications = solveTui.classifyWithHaiku(data, { force: false });
+    const classifications = await classifyAsync(data, { force: false });
     const cStats = classifications._stats || { cached: 0, classified: 0, failed: 0 };
 
     // Count verdicts across all categories
