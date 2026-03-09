@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.32-04",
+  "created_at": "2026-03-09T15:48:11.443Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "This phase regenerates all TUI screenshots used in the README and User Guide after content changes from phases v0.32-01 through v0.32-03, and hardens the VHS tape for deterministic CI operation. The e",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.32-04-visual-asset-regeneration/v0.32-04-01-PLAN.md",
+    "key_decisions": []
+  }
+}
