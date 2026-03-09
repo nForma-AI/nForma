@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 ## Current Position
 
 Phase: v0.32-02 (README Deep Sections)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-09 — Phase v0.32-01 complete, transitioning to v0.32-02
+Plan: 1 of 1 complete
+Status: Phase complete
+Last activity: 2026-03-09 — Completed v0.32-02-01 (README deep sections)
 
 Progress: [██████████] 100%
 
@@ -22,6 +22,7 @@ Progress: [██████████] 100%
 
 Decisions logged in PROJECT.md Key Decisions table.
 - [Phase v0.32-01]: Used HTML img tag with width=720 for TUI hero screenshot; added manual anchor for configuration-reference details block
+- [Phase v0.32-02]: Used flowchart LR Mermaid for architecture diagram; extracted /nf:mcp-setup into visible subsection; moved solve screenshot after Observability table
 
 ### Pending Todos
 
@@ -56,5 +57,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-09
-Stopped at: Phase v0.32-01 complete, ready to plan Phase v0.32-02
+Stopped at: Completed v0.32-02-01-PLAN.md
 Resume file: None

@@ -39,7 +39,7 @@
 ### Phases
 
 - [x] **Phase v0.32-01: README Above-the-Fold Restructure** - Promote TUI hero, add value props, metrics, changelog, and nav to the top of README (completed 2026-03-09)
-- [ ] **Phase v0.32-02: README Deep Sections** - Add architecture diagram, community section, rebalance Getting Started, fix broken table
+- [x] **Phase v0.32-02: README Deep Sections** - Add architecture diagram, community section, rebalance Getting Started, fix broken table (completed 2026-03-09)
 - [ ] **Phase v0.32-03: User Guide Overhaul** - Update User Guide with TUI screenshots and improved Getting Started walkthrough
 - [ ] **Phase v0.32-04: Visual Asset Regeneration** - Regenerate all TUI screenshots and harden VHS tape for CI
 
@@ -68,7 +68,7 @@ Plans:
   2. A Community/Contributing section appears before Star History with Discord CTA and contribution guidelines
   3. Getting Started shows install, quorum setup, and first command visible by default; advanced options are collapsed
   4. The Observability section table renders correctly with no broken markdown (solve screenshot outside table rows)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] v0.32-02-01-PLAN.md — Add architecture diagram, community section, rebalance Getting Started, fix Observability table
 
@@ -96,7 +96,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | v0.32-01. README Above-the-Fold Restructure | 1/1 | Complete    | 2026-03-09 |
-| v0.32-02. README Deep Sections | 0/1 | Planning complete | - |
+| v0.32-02. README Deep Sections | 1/1 | Complete   | 2026-03-09 |
 | v0.32-03. User Guide Overhaul | 0/? | Not started | - |
 | v0.32-04. Visual Asset Regeneration | 0/? | Not started | - |
 
