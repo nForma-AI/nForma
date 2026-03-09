@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-09T22:31:39.217Z",
+  "last_sync": "2026-03-09T22:47:01.578Z",
   "search_dirs": [],
   "models": {
     ".planning/formal/alloy/solve-session-persistence.als": {
@@ -85,13 +85,13 @@
       "layer_maturity": 3
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 5630,
-      "last_updated": "2026-03-09T22:32:59.094Z",
+      "version": 5667,
+      "last_updated": "2026-03-09T22:47:01.876Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 1,
       "gate_maturity": "SOFT_GATE",
       "source_layer": "L2"
     },
@@ -176,13 +176,13 @@
       "layer_maturity": 3
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 5628,
-      "last_updated": "2026-03-09T22:32:59.095Z",
+      "version": 5665,
+      "last_updated": "2026-03-09T22:47:01.877Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2
+      "layer_maturity": 1
     },
     ".planning/formal/tla/NFAccountManager.tla": {
       "version": 1,
@@ -1345,13 +1345,13 @@
       "layer_maturity": 2
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 4380,
-      "last_updated": "2026-03-09T22:32:59.102Z",
+      "version": 4417,
+      "last_updated": "2026-03-09T22:47:01.879Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 1,
       "gate_maturity": "SOFT_GATE",
       "source_layer": "L2"
     },

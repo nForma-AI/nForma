@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-09T22:29:33.256Z",
+  "generated": "2026-03-09T22:45:03.895Z",
   "node_key_format": "type::id",
   "sources": {
     "scope.json:account-manager": {
@@ -68,24 +68,24 @@
       "hash": "76910c97"
     },
     "model-registry.json": {
-      "mtime": "2026-03-09T22:29:33.086Z",
-      "hash": "b5332c9d"
+      "mtime": "2026-03-09T22:45:02.983Z",
+      "hash": "8439eaf6"
     },
     "invariant-catalog.json": {
       "mtime": "2026-03-06T14:00:17.868Z",
       "hash": "e27072db"
     },
     "traceability-matrix.json": {
-      "mtime": "2026-03-09T22:18:38.667Z",
-      "hash": "bf6bfebc"
+      "mtime": "2026-03-09T22:33:17.501Z",
+      "hash": "fe7dcdbe"
     },
     "unit-test-coverage.json": {
-      "mtime": "2026-03-09T22:29:33.030Z",
-      "hash": "8d38ba89"
+      "mtime": "2026-03-09T22:45:03.356Z",
+      "hash": "1bc9d95d"
     },
     "instrumentation-map.json": {
-      "mtime": "2026-03-09T22:29:31.136Z",
-      "hash": "de7dd24f"
+      "mtime": "2026-03-09T22:44:55.837Z",
+      "hash": "ca342fcf"
     },
     "event-vocabulary.json": {
       "mtime": "2026-03-08T20:28:45.150Z",
@@ -100,8 +100,8 @@
       "hash": "2df5c0d7"
     },
     "git-heatmap.json": {
-      "mtime": "2026-03-09T22:19:09.677Z",
-      "hash": "f1b03d60"
+      "mtime": "2026-03-09T22:44:28.552Z",
+      "hash": "ba0e22eb"
     },
     "debt.json": {
       "mtime": "2026-03-04T13:33:16.983Z",
@@ -2497,9 +2497,7 @@
     "formal_model::.planning/formal/alloy/quorum-votes.als": {
       "type": "formal_model",
       "id": ".planning/formal/alloy/quorum-votes.als",
-      "edges": [],
-      "source_layer": "L2",
-      "gate_maturity": "SOFT_GATE"
+      "edges": []
     },
     "formal_model::.planning/formal/alloy/scoreboard-recompute.als": {
       "type": "formal_model",
@@ -11548,9 +11546,7 @@
     "formal_model::.planning/formal/tla/NFQuorum.tla": {
       "type": "formal_model",
       "id": ".planning/formal/tla/NFQuorum.tla",
-      "edges": [],
-      "source_layer": "L2",
-      "gate_maturity": "SOFT_GATE"
+      "edges": []
     },
     "formal_model::.planning/formal/alloy/solve-automation-features.als": {
       "type": "formal_model",
