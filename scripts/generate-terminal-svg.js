@@ -27,8 +27,8 @@ const COLORS = {
   btnRed:   '#f7768e',
   btnYellow:'#e0af68',
   btnGreen: '#9ece6a',
-  salmon:   '#f4956a',   // Q in the nForma logo
-  cyan:     '#7dcfff',   // GSD in the logo + highlights
+  salmon:   '#f4956a',   // n in the nForma logo
+  cyan:     '#7dcfff',   // F in the logo + highlights
   green:    '#9ece6a',   // ✓ checkmarks
   dim:      '#565f89',   // muted text
   white:    '#c0caf5',   // normal text
@@ -59,20 +59,19 @@ const LINES = [
   { parts: [{ t: '~', c: COLORS.prompt }, { t: ' $ ', c: COLORS.dim }, { t: 'npx nforma@latest', c: COLORS.white }] },
   { parts: [] },  // blank
 
-  // nForma ASCII art — original ANSI Shadow font.
+  // nForma nF logo — ANSI Shadow font, matching bin/install.js banner.
   // Rendered as SVG primitives (rects + paths) — no font dependency, pixel-perfect.
-  // Q in salmon (first logoCol cols), GSD in cyan (rest).
-  { parts: [{ t: '  ██████╗  ██████╗ ███████╗██████╗ ', c: COLORS.salmon }], logo: true, logoCol: 9 },
-  { parts: [{ t: ' ██╔═══██╗██╔════╝ ██╔════╝██╔══██╗', c: COLORS.salmon }], logo: true, logoCol: 10 },
-  { parts: [{ t: ' ██║   ██║██║  ███╗███████╗██║  ██║', c: COLORS.salmon }], logo: true, logoCol: 10 },
-  { parts: [{ t: ' ██║▄▄ ██║██║   ██║╚════██║██║  ██║', c: COLORS.salmon }], logo: true, logoCol: 10 },
-  { parts: [{ t: ' ╚██████╔╝╚██████╔╝███████║██████╔╝', c: COLORS.salmon }], logo: true, logoCol: 10 },
-  { parts: [{ t: '  ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═════╝ ', c: COLORS.salmon }], logo: true, logoCol: 10 },
+  // n in salmon (first logoCol cols), F in cyan (rest).
+  { parts: [{ t: '           ███████╗', c: COLORS.salmon }], logo: true, logoCol: 11 },
+  { parts: [{ t: '           ██╔════╝', c: COLORS.salmon }], logo: true, logoCol: 11 },
+  { parts: [{ t: '  ██████╗  █████╗  ', c: COLORS.salmon }], logo: true, logoCol: 11 },
+  { parts: [{ t: '  ██╔══██╗ ██╔══╝  ', c: COLORS.salmon }], logo: true, logoCol: 11 },
+  { parts: [{ t: '  ██║  ██║ ██║     ', c: COLORS.salmon }], logo: true, logoCol: 11 },
+  { parts: [{ t: '  ╚═╝  ╚═╝ ╚═╝     ', c: COLORS.salmon }], logo: true, logoCol: 11 },
 
   { parts: [] },  // blank
-  { parts: [{ t: `  Quorum Gets Shit Done `, c: COLORS.white }, { t: `v${version}`, c: COLORS.dim }] },
-  { parts: [{ t: '  Built on get-shit-done-cc by TÂCHES.', c: COLORS.dim }] },
-  { parts: [{ t: '  Full automation through quorum of coding agents. By Jonathan Borduas.', c: COLORS.dim }] },
+  { parts: [{ t: '  nForma ', c: COLORS.white }, { t: '— Consensus before code. Proof before production. ', c: COLORS.white }, { t: `v${version}`, c: COLORS.dim }] },
+  { parts: [{ t: '  Built on GSD-CC by TÂCHES.', c: COLORS.dim }] },
   { parts: [] },  // blank
   { parts: [{ t: '  The task of leadership is to create an alignment of strengths', c: COLORS.cyan }] },
   { parts: [{ t: '   so strong that it makes the system\u2019s weaknesses irrelevant.', c: COLORS.cyan }] },
@@ -85,7 +84,7 @@ const LINES = [
   { parts: [] },  // blank
 
   // Done message
-  { parts: [{ t: '  Done! ', c: COLORS.green }, { t: 'Run ', c: COLORS.white }, { t: '/qgsd:help', c: COLORS.cyan }, { t: ' to get started.', c: COLORS.white }] },
+  { parts: [{ t: '  Done! ', c: COLORS.green }, { t: 'Run ', c: COLORS.white }, { t: '/nf:help', c: COLORS.cyan }, { t: ' to get started.', c: COLORS.white }] },
   { parts: [] },  // blank
 
   // New prompt

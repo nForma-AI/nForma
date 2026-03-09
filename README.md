@@ -19,7 +19,7 @@
 npx @nforma.ai/nforma@latest
 ```
 
-**Works on macOS and Linux.**
+**Requires Node.js 18+. Works on macOS and Linux.**
 
 <br>
 
@@ -27,7 +27,7 @@ npx @nforma.ai/nforma@latest
 
 <br>
 
-[Why nForma](#why-i-built-nforma) · [TUI](#terminal-ui) · [How It Works](#how-it-works) · [Features](#features) · [Commands](#commands) · [Configuration](#configuration-reference) · [Community](#community) · [Star History](#star-history) · [User Guide](docs/USER-GUIDE.md)
+[Why nForma](#why-i-built-nforma) · [TUI](#terminal-ui) · [How It Works](#how-it-works) · [Formal Methods](#formal-methods--proof-before-production) · [Solve Loop](#the-solve-loop--diagnose-remediate-report) · [Features](#features) · [Commands](#commands) · [Configuration](#configuration-reference) · [Community](#community) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
 
@@ -47,13 +47,15 @@ A full-featured keyboard-navigable terminal interface for managing your quorum a
 | Sessions | Spawn and manage embedded Claude Code sessions |
 | Solve | Diagnose and remediate planning directory issues |
 
+**Launch:** `node bin/nForma.cjs` (requires a local clone). Use `--cwd /path/to/project` to target a different repo.
+
 **Navigation:** arrow keys to move, Enter to select, F1--F5 to switch modules, Escape or `q` to go back.
 
 ---
 
 ## Who This Is For
 
-If you use Claude Code and have hit any of these walls:
+If you use AI coding agents and have hit any of these walls:
 
 - **Single-model blind spots** -- One model misses edge cases another would catch
 - **Context rot** -- Quality degrades as your context window fills with accumulated garbage
@@ -66,7 +68,7 @@ nForma fixes these structurally, not with better prompts.
 
 ## With vs. Without
 
-| Capability | Claude Code Alone | With nForma |
+| Capability | Single Agent Alone | With nForma |
 |------------|:-----------------:|:-----------:|
 | Planning reviewed before execution | Manual review | 5-model quorum consensus |
 | Ping-pong loop detection | None | Automatic circuit breaker |
@@ -81,18 +83,19 @@ nForma fixes these structurally, not with better prompts.
 
 | | |
 |---|---|
-| **5+** quorum agents | **30+** slash commands |
-| **287** tracked requirements | **7** lifecycle hooks |
-| **15+** formal verification models | **31** milestones shipped |
+| **5+** quorum agents | **56** slash commands |
+| **287** tracked requirements | **7** lifecycle hook types |
+| **18** formal specifications across 5 tools | **32** milestones shipped |
 
 ---
 
 ## What's New in v0.32
 
-- **README overhaul** -- Restructured for immediate clarity; TUI, metrics, and comparisons above the fold
-- **Gate scoring TUI** -- Recently shipped: browse requirement gate scores directly in the TUI (F2 module)
-- **Solve feedback loops** -- Recently shipped: TUI Solve module now closes all diagnostic-to-remediation loops
-- **31 milestones shipped** -- From v0.1 through v0.31, covering quorum, formal verification, agent harness, and more
+- **README overhaul** -- Restructured for immediate clarity; formal methods and solve loop now front-and-center
+- **nForma branding** -- New nF logo, updated terminal SVG, and rebrand throughout
+- **Gate scoring TUI** -- Browse requirement gate scores directly in the TUI (F2 module)
+- **Solve feedback loops** -- TUI Solve module now closes all diagnostic-to-remediation loops
+- **32 milestones shipped** -- From v0.1 through v0.32, covering quorum, formal verification, agent harness, and more
 
 ---
 
@@ -120,7 +123,7 @@ The deeper goal: the first truly autonomous coding agent that only escalates to 
 | **Node 20.x** | Yes | Ubuntu + macOS |
 | **Node 18.x** | Yes | Ubuntu + macOS |
 | **Node < 18** | No | — |
-| **Windows** | No | — |
+| **Windows** | Via WSL2 | — |
 
 ```bash
 npx @nforma.ai/nforma@latest
@@ -298,6 +301,8 @@ If you prefer granular permissions, add this to your project's `.claude/settings
 Prompt → Orchestrator → Quorum (5 models) → Consensus → Execute → Atomic Commit
 ```
 
+Every stage follows this pattern. The six steps below detail how each stage works — from project initialization through milestone completion.
+
 > **Already have code?** Run `/nf:map-codebase` first. It spawns parallel agents to analyze your stack, architecture, conventions, and concerns. Then `/nf:new-project` knows your codebase — questions focus on what you're adding, and planning automatically loads your patterns.
 
 ### 1. Initialize Project
@@ -440,6 +445,59 @@ The system:
 ```
 
 Loop **discuss → plan → execute → verify** until milestone complete. Each phase gets your input, proper research, clean execution, and human verification. Context stays fresh. Quality stays high.
+
+---
+
+## Formal Methods — Proof Before Production
+
+nForma doesn't just build software — it *proves* correctness before code ships. Five formal methods tools verify protocol invariants mathematically:
+
+| Tool | What it checks |
+|------|---------------|
+| **TLA+** | Safety and liveness of quorum consensus, circuit breaker, convergence |
+| **Alloy** | Structural assertions on recruiting, account management, audit trails |
+| **PRISM** | Probabilistic convergence bounds and failure recovery rates |
+| **Petri nets** | Concurrent workflow reachability and deadlock freedom |
+| **UPPAAL** | Real-time timing constraints on quorum timeouts |
+
+```bash
+# Full pipeline — all steps (generate → Petri → TLA+ → Alloy → PRISM)
+node bin/run-formal-verify.cjs
+
+# Run specific tools
+node bin/run-formal-verify.cjs --only=tla
+node bin/run-formal-verify.cjs --only=alloy
+```
+
+Every core protocol has an executable specification. A dedicated [CI workflow](.github/workflows/formal-verify.yml) runs the full verification pipeline on changes to formal specs. Exit 0 = mathematically verified. See **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)** for setup and model inventory.
+
+> **Note:** Formal verification is entirely optional for using nForma. You don't need Java or any formal tools installed. But if you want mathematical guarantees about your protocol correctness, they're built in.
+
+---
+
+## The Solve Loop — Diagnose, Remediate, Report
+
+When something breaks — tests fail, planning state drifts, requirements go stale — the `/nf:solve` pipeline handles it end-to-end:
+
+```
+/nf:solve
+```
+
+The solve loop runs three phases:
+
+1. **Diagnose** (`/nf:solve-diagnose`) — Runs legacy migration checks, config audits, observation sweeps, and surfaces every issue with structured severity
+2. **Remediate** (`/nf:solve-remediate`) — Dispatches 13 remediation layers across 3 severity tiers (critical → warning → info), each with targeted fix logic
+3. **Report** (`/nf:solve-report`) — Generates before/after summary with full formal verification pass, so you can see exactly what changed
+
+The TUI's Solve module (F5) gives you an interactive view of all diagnostics and lets you drill into any issue:
+
+![Solve Diagnostics](docs/assets/tui-solve.png)
+
+Related commands:
+- `/nf:health [--repair]` — Quick planning directory integrity check
+- `/nf:observe` — Fetch issues and drifts from configured sources
+- `/nf:triage` — Prioritize issues from GitHub, Sentry, or custom sources
+- `/nf:resolve` — Guided triage wizard for walk-through resolution
 
 ---
 
@@ -645,42 +703,6 @@ lmn012o feat(08-02): create registration endpoint
 
 </details>
 
-<details>
-<summary><strong>Formal Verification</strong> — Mathematical proof of protocol correctness (optional)</summary>
-
-> **Note:** Formal verification is entirely optional. You do not need Java, PRISM, or Alloy to use nForma normally.
-
-nForma uses five formal methods tools — TLA+, Alloy, PRISM, Petri nets, and UPPAAL — to machine-check its own protocol correctness. Every core protocol (quorum consensus, circuit breaker, convergence, recruiting, account management, and others) has executable specifications that verify safety invariants, liveness properties, and probabilistic convergence bounds.
-
-#### Prerequisites
-
-Java 17+ is required for TLA+, Alloy, and PRISM. Petri nets are bundled via npm.
-
-```bash
-node bin/install-formal-tools.cjs
-# or: node bin/install.js --formal
-```
-
-For per-tool setup details, see **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)**.
-
-#### Running Verification
-
-```bash
-# Full pipeline — all steps (generate → Petri → TLA+ → Alloy → PRISM)
-node bin/run-formal-verify.cjs
-
-# Subsets
-node bin/run-formal-verify.cjs --only=tla      # TLA+ model checks
-node bin/run-formal-verify.cjs --only=alloy    # Alloy assertions
-node bin/run-formal-verify.cjs --only=prism    # PRISM probabilistic analyses
-node bin/run-formal-verify.cjs --only=petri    # Petri net renders
-node bin/run-formal-verify.cjs --only=generate # Regenerate specs from source only
-```
-
-Exit code 0 = all checks pass. Exit code 1 = at least one violation or configuration error. For the full model inventory, spec sources, and CI artifact documentation, see **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)**.
-
-</details>
-
 ---
 
 ## Commands
@@ -776,8 +798,6 @@ Exit code 0 = all checks pass. Exit code 1 = at least one violation or configura
 | `/nf:settings` | Configure model profile and workflow agents |
 | `/nf:set-profile <profile>` | Switch model profile (quality/balanced/budget) |
 
-![Solve Diagnostics](docs/assets/tui-solve.png)
-
 </details>
 
 <details>
@@ -855,8 +875,8 @@ Override per-invocation: `/nf:plan-phase --skip-research` or `/nf:plan-phase --s
 | Setting | Options | Default |
 |---------|---------|---------|
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` |
-| `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` |
-| `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` |
+| `git.phase_branch_template` | string | `nf/phase-{phase}-{slug}` |
+| `git.milestone_branch_template` | string | `nf/{milestone}-{slug}` |
 
 #### Quorum Composition
 
