@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.33 Phase v0.33-01: Time Series Foundation
+**Current focus:** v0.33 Phase v0.33-02: Oscillation Detection
 
 ## Current Position
 
@@ -43,6 +43,8 @@ Decisions logged in PROJECT.md Key Decisions table.
 - [v0.33 Roadmap]: 6-phase build order driven by data dependencies -- measurement (Phase 1) before enforcement (Phase 2-3) before scoring (Phase 4) before proof (Phase 5)
 - [v0.33 Roadmap]: Outer-loop state lives in separate files (solve-trend.jsonl, oscillation-verdicts.json) -- never modifies solve-state.json or promotion-changelog.json format
 - [v0.33 Roadmap]: Mann-Kendall for trend detection (non-parametric, outlier-resistant per REQUIREMENTS.md TRACK-02)
+- [v0.33-01]: Extracted solve-trend-helpers.cjs as separate module (Option A) for testability rather than inline exports
+- [v0.33-01]: Missing/skipped layers recorded as -1 (not 0) to distinguish from zero residual in JSONL entries
 
 ### Pending Todos
 
@@ -52,7 +54,7 @@ None.
 
 - additionalContext token budget contention (multiple injection sources share ~4000 token ceiling)
 - Token dashboard path mismatch: token-dashboard.cjs defaults to legacy path (Low severity)
-- Promotion-changelog.json has 4+ duplicate entries that must be fixed in Phase 1 before any convergence analysis
+- [RESOLVED Phase v0.33-01] Promotion-changelog.json duplicates cleaned (164 removed)
 
 ## Quick Tasks Completed
 
@@ -79,6 +81,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-09
-Stopped at: v0.33 roadmap created -- 6 phases, 17 requirements mapped
+Last session: 2026-03-10
+Stopped at: Phase v0.33-01 complete, ready to plan Phase v0.33-02
 Resume file: None
