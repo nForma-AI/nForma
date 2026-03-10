@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-10T16:46:12.428Z",
-  "content_hash": "355dbb73baf59f35",
+  "aggregated_at": "2026-03-10T21:27:30.224Z",
+  "content_hash": "791ff564472f245d",
   "schema_version": "1",
   "requirements": [
     {
@@ -1628,6 +1628,18 @@
         ".planning/formal/tla/QGSDInstallerIdempotency.tla"
       ],
       "category_raw": "Installer Extensions"
+    },
+    {
+      "id": "INST-11",
+      "text": "Quick workflow auto-detects protected branches and creates feature branches on protected branches, commits directly on feature branches, with configurable branch templates and --no-branch escape hatch.",
+      "category": "Installer & CLI",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Quick tasks running on protected branches risk accidental commits that require reverting. This ensures the quick workflow safely handles branch creation with config-driven protected branch lists and glob pattern support.",
+      "provenance": {
+        "source_file": ".planning/quick/266-add-smart-branch-management-to-quick-wor/266-PLAN.md",
+        "milestone": "quick-266"
+      }
     },
     {
       "id": "INTG-01",
@@ -4579,5 +4591,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-10T16:46:12.429Z"
+  "frozen_at": "2026-03-10T21:27:30.225Z"
 }
