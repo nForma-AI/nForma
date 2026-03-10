@@ -8,7 +8,7 @@
  * scores (0-3), auto-promotes eligible models, and optionally writes back to
  * model-registry.json.
  *
- * Requirements: GATE-01, GATE-02, GATE-03, GATE-04
+ * Requirements: GATE-01, GATE-02, GATE-03, GATE-04, STAB-01, STAB-02
  *
  * Usage:
  *   node bin/compute-per-model-gates.cjs              # human-readable summary
@@ -93,6 +93,10 @@ function appendChangelog(entry) {
     process.stderr.write(TAG + ' WARNING: changelog write failed: ' + e.message + '\n');
   }
 }
+
+// ── Import from gate-stability.cjs ───────────────────────────────────────────
+
+const { detectFlipFlops, isCooldownSatisfied, updateCooldownState, createUnstableEntry } = require('./gate-stability.cjs');
 
 // ── Import from promote-gate-maturity.cjs ────────────────────────────────────
 
@@ -374,10 +378,17 @@ function writePerModelGateFile(perModelResults, evidenceReadiness) {
     if (!fs.existsSync(GATES_DIR)) fs.mkdirSync(GATES_DIR, { recursive: true });
   } catch (_) { /* best effort */ }
 
+  // Count unstable models for header
+  let unstableCount = 0;
+  for (const m of Object.values(perModelResults)) {
+    if (m.stability_status === 'UNSTABLE') unstableCount++;
+  }
+
   const output = {
-    schema_version: '2',
+    schema_version: '3',
     generated: new Date().toISOString(),
     total_models: Object.keys(perModelResults).length,
+    unstable_models: unstableCount,
     evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
     models: perModelResults,
   };
@@ -410,6 +421,38 @@ function main() {
 
   // Evidence readiness scoring
   const evidenceReadiness = computeEvidenceReadiness();
+
+  // ── Flip-flop detection (STAB-01): run BEFORE promotion loop (Pitfall 2) ──
+  let changelog = [];
+  if (fs.existsSync(CHANGELOG_PATH)) {
+    try {
+      changelog = JSON.parse(fs.readFileSync(CHANGELOG_PATH, 'utf8'));
+      if (!Array.isArray(changelog)) changelog = [];
+    } catch (_) {
+      changelog = [];
+    }
+  }
+  const unstableModels = detectFlipFlops(changelog);
+
+  // Load previous per-model-gates.json for existing stability/cooldown state
+  let previousStability = {};
+  if (fs.existsSync(PER_MODEL_GATES_PATH)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(PER_MODEL_GATES_PATH, 'utf8'));
+      if (prev && prev.models) {
+        for (const [mp, md] of Object.entries(prev.models)) {
+          if (md.stability_status) {
+            previousStability[mp] = {
+              stability_status: md.stability_status,
+              direction_changes: md.direction_changes || 0,
+              flagged_at: md.flagged_at || null,
+              cooldown: md.cooldown || null,
+            };
+          }
+        }
+      }
+    } catch (_) { /* fail-open */ }
+  }
 
   const perModel = {};
   const promotions = [];
@@ -446,43 +489,98 @@ function main() {
     const currentGate = model.gate_maturity || 'ADVISORY';
     let promoted = false;
 
+    // Stability gate: check if model is flagged UNSTABLE or has unresolved cooldown
+    const modelUnstable = unstableModels[modelPath];
+    const prevStab = previousStability[modelPath];
+    const isUnstableOrCooling = modelUnstable || (prevStab && prevStab.stability_status === 'UNSTABLE');
+
     if (maturity >= 1 && currentGate === 'ADVISORY' && (evidenceReadiness.skipped || evidenceReadiness.score >= 1)) {
-      const sourceLayer = model.source_layer || inferSourceLayer(modelPath);
-      if (sourceLayer) {
-        const v = validateCriteria(modelPath, model, 'SOFT_GATE', checkResults, evidenceReadiness);
-        if (v.valid) {
-          model.gate_maturity = 'SOFT_GATE';
-          if (!model.source_layer) model.source_layer = sourceLayer;
-          model.last_updated = new Date().toISOString();
-          promotions.push({ model: modelPath, from: 'ADVISORY', to: 'SOFT_GATE' });
-          appendChangelog({
-            model: modelPath, from_level: 'ADVISORY', to_level: 'SOFT_GATE',
-            timestamp: new Date().toISOString(),
-            evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
-            trigger: 'auto_promotion',
-          });
-          promoted = true;
+      // STAB-01/STAB-02: gate promotion with stability check
+      if (isUnstableOrCooling) {
+        const stabInfo = prevStab || (modelUnstable ? createUnstableEntry(modelUnstable.direction_changes) : null);
+        if (!isCooldownSatisfied(stabInfo)) {
+          const sessions = stabInfo && stabInfo.cooldown ? stabInfo.cooldown.consecutive_stable_sessions : 0;
+          const reqSessions = stabInfo && stabInfo.cooldown ? stabInfo.cooldown.required_sessions : 3;
+          const elapsed = stabInfo && stabInfo.flagged_at ? (Date.now() - new Date(stabInfo.flagged_at).getTime()) : 0;
+          const reqWall = stabInfo && stabInfo.cooldown ? stabInfo.cooldown.required_wall_time_ms : 3600000;
+          process.stderr.write(TAG + ' Promotion blocked for ' + modelPath + ': UNSTABLE, cooldown not satisfied (' + sessions + '/' + reqSessions + ' sessions, wall time ' + elapsed + '/' + reqWall + 'ms)\n');
+          // Skip promotion — fall through to per-model output below
+        } else {
+          // Cooldown satisfied — allow promotion and reset stability
+          const sourceLayer = model.source_layer || inferSourceLayer(modelPath);
+          if (sourceLayer) {
+            const v = validateCriteria(modelPath, model, 'SOFT_GATE', checkResults, evidenceReadiness);
+            if (v.valid) {
+              model.gate_maturity = 'SOFT_GATE';
+              if (!model.source_layer) model.source_layer = sourceLayer;
+              model.last_updated = new Date().toISOString();
+              promotions.push({ model: modelPath, from: 'ADVISORY', to: 'SOFT_GATE' });
+              appendChangelog({
+                model: modelPath, from_level: 'ADVISORY', to_level: 'SOFT_GATE',
+                timestamp: new Date().toISOString(),
+                evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
+                trigger: 'auto_promotion',
+              });
+              promoted = true;
+              // Reset stability after successful re-promotion
+              previousStability[modelPath] = null;
+            }
+          }
+        }
+      } else {
+        // No stability concern — normal promotion path
+        const sourceLayer = model.source_layer || inferSourceLayer(modelPath);
+        if (sourceLayer) {
+          const v = validateCriteria(modelPath, model, 'SOFT_GATE', checkResults, evidenceReadiness);
+          if (v.valid) {
+            model.gate_maturity = 'SOFT_GATE';
+            if (!model.source_layer) model.source_layer = sourceLayer;
+            model.last_updated = new Date().toISOString();
+            promotions.push({ model: modelPath, from: 'ADVISORY', to: 'SOFT_GATE' });
+            appendChangelog({
+              model: modelPath, from_level: 'ADVISORY', to_level: 'SOFT_GATE',
+              timestamp: new Date().toISOString(),
+              evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
+              trigger: 'auto_promotion',
+            });
+            promoted = true;
+          }
         }
       }
     }
 
     // Auto-promotion: SOFT_GATE → HARD_GATE if maturity >= 3 and has passing check
     if (maturity >= 3 && (model.gate_maturity === 'SOFT_GATE' || (promoted && model.gate_maturity === 'SOFT_GATE')) && (evidenceReadiness.skipped || evidenceReadiness.score >= 3)) {
-      const v = validateCriteria(modelPath, model, 'HARD_GATE', checkResults, evidenceReadiness);
-      if (v.valid) {
-        model.gate_maturity = 'HARD_GATE';
-        model.last_updated = new Date().toISOString();
-        const existingPromo = promotions.find(p => p.model === modelPath);
-        appendChangelog({
-          model: modelPath, from_level: 'SOFT_GATE', to_level: 'HARD_GATE',
-          timestamp: new Date().toISOString(),
-          evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
-          trigger: 'auto_promotion',
-        });
-        if (existingPromo) {
-          existingPromo.to = 'HARD_GATE';
-        } else {
-          promotions.push({ model: modelPath, from: 'SOFT_GATE', to: 'HARD_GATE' });
+      // STAB-01/STAB-02: also gate HARD_GATE promotion with stability check
+      let allowHardPromo = true;
+      if (isUnstableOrCooling) {
+        const stabInfo = prevStab || (modelUnstable ? createUnstableEntry(modelUnstable.direction_changes) : null);
+        if (!isCooldownSatisfied(stabInfo)) {
+          const sessions = stabInfo && stabInfo.cooldown ? stabInfo.cooldown.consecutive_stable_sessions : 0;
+          const reqSessions = stabInfo && stabInfo.cooldown ? stabInfo.cooldown.required_sessions : 3;
+          const elapsed = stabInfo && stabInfo.flagged_at ? (Date.now() - new Date(stabInfo.flagged_at).getTime()) : 0;
+          const reqWall = stabInfo && stabInfo.cooldown ? stabInfo.cooldown.required_wall_time_ms : 3600000;
+          process.stderr.write(TAG + ' Promotion blocked for ' + modelPath + ': UNSTABLE, cooldown not satisfied (' + sessions + '/' + reqSessions + ' sessions, wall time ' + elapsed + '/' + reqWall + 'ms)\n');
+          allowHardPromo = false;
+        }
+      }
+      if (allowHardPromo) {
+        const v = validateCriteria(modelPath, model, 'HARD_GATE', checkResults, evidenceReadiness);
+        if (v.valid) {
+          model.gate_maturity = 'HARD_GATE';
+          model.last_updated = new Date().toISOString();
+          const existingPromo = promotions.find(p => p.model === modelPath);
+          appendChangelog({
+            model: modelPath, from_level: 'SOFT_GATE', to_level: 'HARD_GATE',
+            timestamp: new Date().toISOString(),
+            evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
+            trigger: 'auto_promotion',
+          });
+          if (existingPromo) {
+            existingPromo.to = 'HARD_GATE';
+          } else {
+            promotions.push({ model: modelPath, from: 'SOFT_GATE', to: 'HARD_GATE' });
+          }
         }
       }
     }
@@ -521,6 +619,38 @@ function main() {
       }
     }
 
+    // ── Stability fields (STAB-01/STAB-02) ──
+    let stabilityStatus = 'STABLE';
+    let directionChanges = 0;
+    let cooldownData = null;
+
+    if (modelUnstable) {
+      // Freshly detected as unstable this run
+      directionChanges = modelUnstable.direction_changes;
+      if (prevStab && prevStab.stability_status === 'UNSTABLE') {
+        // Update existing cooldown state
+        const updated = updateCooldownState(prevStab, maturity, 1);
+        stabilityStatus = updated.stability_status;
+        cooldownData = updated.cooldown;
+      } else {
+        // New unstable entry
+        const fresh = createUnstableEntry(directionChanges);
+        stabilityStatus = fresh.stability_status;
+        cooldownData = fresh.cooldown;
+      }
+    } else if (prevStab && prevStab.stability_status === 'UNSTABLE') {
+      // Previously unstable, not flagged this run — update cooldown
+      directionChanges = prevStab.direction_changes || 0;
+      const updated = updateCooldownState(prevStab, maturity, 1);
+      if (isCooldownSatisfied(updated)) {
+        stabilityStatus = 'STABLE';
+        cooldownData = null;
+      } else {
+        stabilityStatus = updated.stability_status;
+        cooldownData = updated.cooldown;
+      }
+    }
+
     perModel[modelPath] = {
       gate_a: { pass: gateA, reason: gateAResult.reason },
       gate_b: { pass: gateB, reason: gateBResult.reason },
@@ -528,7 +658,14 @@ function main() {
       layer_maturity: model.layer_maturity || maturity,
       gate_maturity: model.gate_maturity || 'ADVISORY',
       promoted,
+      stability_status: stabilityStatus,
+      direction_changes: directionChanges,
+      cooldown: cooldownData,
     };
+    // Preserve flagged_at for UNSTABLE models
+    if (stabilityStatus === 'UNSTABLE') {
+      perModel[modelPath].flagged_at = (prevStab && prevStab.flagged_at) || (modelUnstable && modelUnstable.flagged_at) || new Date().toISOString();
+    }
   }
 
   // Write back unless dry-run
