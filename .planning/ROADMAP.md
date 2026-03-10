@@ -37,7 +37,7 @@
 
 **Milestone Goal:** Provably guarantee that repeated nf:solve cycles make meaningful progress toward formal models that can pinpoint bugs -- cross-session tracking, Option C oscillation breaking, gate stabilization, predictive power scoring, and TLA+ meta-verification of the outer loop.
 
-- [ ] **Phase v0.33-01: Time Series Foundation** - Cross-session solve history persistence with data quality fixes
+- [x] **Phase v0.33-01: Time Series Foundation** - Cross-session solve history persistence with data quality fixes (completed 2026-03-10)
 - [ ] **Phase v0.33-02: Oscillation Detection** - Per-layer trend analysis and Option C oscillation breaker
 - [ ] **Phase v0.33-03: Gate Stabilization** - Flip-flop detection and cooldown enforcement for gate promotions
 - [ ] **Phase v0.33-04: Predictive Power** - Bug-to-property linking and per-model recall scoring
@@ -138,7 +138,7 @@ Note: v0.33-02 and v0.33-03 both depend only on v0.33-01 and could run in parall
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| v0.33-01. Time Series Foundation | 0/2 | Planning complete | - |
+| v0.33-01. Time Series Foundation | 0/2 | Complete    | 2026-03-10 |
 | v0.33-02. Oscillation Detection | 0/2 | Not started | - |
 | v0.33-03. Gate Stabilization | 0/2 | Not started | - |
 | v0.33-04. Predictive Power | 0/2 | Not started | - |
