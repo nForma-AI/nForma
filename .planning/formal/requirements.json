@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-10T14:56:23.090Z",
-  "content_hash": "2288571afd032f68",
+  "aggregated_at": "2026-03-10T16:09:44.871Z",
+  "content_hash": "b308dbb4040c5529",
   "schema_version": "1",
   "requirements": [
     {
@@ -2285,6 +2285,18 @@
       }
     },
     {
+      "id": "OBS-10",
+      "text": "Observe handler integrates Category 16 that reads quality-filtered accumulated error patterns from errors.jsonl and routes them as internal issues to the solve debt pipeline",
+      "category": "Observe Skill",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The errors.jsonl memory store accumulates error patterns automatically during transcript learning, but had no consumption path into the solve system. This requirement closes that feedback loop by surfacing validated error entries as observable issues, enabling automated debt tracking and resolution. Quality filtering at extraction time removes file dumps, JSON blobs, and noise.",
+      "provenance": {
+        "source_file": ".planning/quick/258-bridge-errors-jsonl-into-solve-debt-pipe/258-PLAN.md",
+        "milestone": "quick-258"
+      }
+    },
+    {
       "id": "ORCH-01",
       "text": "Domain-specific context retrieval — context-retriever.cjs analyzes task domain and fetches relevant context artifacts",
       "category": "Subagent Orchestration",
@@ -4554,5 +4566,6 @@
       ],
       "category_raw": "Wizard Composition Screen"
     }
-  ]
+  ],
+  "frozen_at": "2026-03-10T16:09:44.872Z"
 }
