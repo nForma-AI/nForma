@@ -41,7 +41,7 @@
 - [ ] **Phase v0.33-02: Oscillation Detection** - Per-layer trend analysis and Option C oscillation breaker
 - [x] **Phase v0.33-03: Gate Stabilization** - Flip-flop detection and cooldown enforcement for gate promotions (completed 2026-03-10)
 - [x] **Phase v0.33-04: Predictive Power** - Bug-to-property linking and per-model recall scoring (completed 2026-03-10)
-- [ ] **Phase v0.33-05: TLA+ Meta-Verification** - Formal model of outer solve loop with safety and liveness proofs
+- [x] **Phase v0.33-05: TLA+ Meta-Verification** - Formal model of outer solve loop with safety and liveness proofs (completed 2026-03-10)
 - [ ] **Phase v0.33-06: Solve Report Integration** - Convergence reporting and escalation classification in solve output
 
 ## Phase Details
@@ -142,7 +142,7 @@ Note: v0.33-02 and v0.33-03 both depend only on v0.33-01 and could run in parall
 | v0.33-02. Oscillation Detection | 0/2 | Not started | - |
 | v0.33-03. Gate Stabilization | 2/2 | Complete   | 2026-03-10 |
 | v0.33-04. Predictive Power | 2/2 | Complete    | 2026-03-10 |
-| v0.33-05. TLA+ Meta-Verification | 0/2 | Planning complete | - |
+| v0.33-05. TLA+ Meta-Verification | 0/2 | Complete    | 2026-03-10 |
 | v0.33-06. Solve Report Integration | 0/1 | Not started | - |
 
 ---
