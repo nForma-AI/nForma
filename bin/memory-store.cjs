@@ -560,9 +560,81 @@ if (require.main === module) {
         break;
       }
 
+      case 'revalidate-errors': {
+        // Quality indicators for filtering
+        const QUALITY_INDICATORS = ['Error:', 'ENOENT', 'EACCES', 'EPERM', 'TypeError', 'ReferenceError', 'SyntaxError'];
+        const STACK_TRACE_PATTERN = /at .+\(/;
+
+        const filePath = getMemoryPath(cwd, 'errors');
+        if (!fs.existsSync(filePath)) {
+          process.stdout.write(JSON.stringify({ kept: 0, removed: 0 }) + '\n');
+          break;
+        }
+
+        const content = fs.readFileSync(filePath, 'utf8').trim();
+        if (!content) {
+          process.stdout.write(JSON.stringify({ kept: 0, removed: 0 }) + '\n');
+          break;
+        }
+
+        const lines = content.split('\n').filter(Boolean);
+        const kept = [];
+        let removed = 0;
+
+        for (const line of lines) {
+          try {
+            const entry = JSON.parse(line);
+
+            // Filter criteria:
+            // (a) symptom length <= 500
+            const symptomLen = (entry.symptom || '').length;
+            if (symptomLen > 500) {
+              removed++;
+              continue;
+            }
+
+            // (b) symptom contains at least one QUALITY_INDICATOR or stack trace pattern
+            const symptom = entry.symptom || '';
+            let hasIndicator = false;
+            for (const indicator of QUALITY_INDICATORS) {
+              if (symptom.includes(indicator)) {
+                hasIndicator = true;
+                break;
+              }
+            }
+            if (!hasIndicator && !STACK_TRACE_PATTERN.test(symptom)) {
+              removed++;
+              continue;
+            }
+
+            // (c) fix is non-empty
+            if (!entry.fix || typeof entry.fix !== 'string' || entry.fix.trim().length === 0) {
+              removed++;
+              continue;
+            }
+
+            // Passed all filters, keep it
+            kept.push(line);
+          } catch {
+            // Malformed line: keep it (don't silently discard)
+            kept.push(line);
+          }
+        }
+
+        // Rewrite file with kept entries
+        if (kept.length > 0) {
+          fs.writeFileSync(filePath, kept.join('\n') + '\n', 'utf8');
+        } else {
+          fs.writeFileSync(filePath, '', 'utf8');
+        }
+
+        process.stdout.write(JSON.stringify({ kept: kept.length, removed }) + '\n');
+        break;
+      }
+
       default:
         process.stderr.write('Unknown command: ' + command + '\n');
-        process.stderr.write('Usage: memory-store.cjs <append-decision|append-error|append-quorum|append-correction|append-skill|append-failure|query-decisions|query-errors|query-quorum|query-corrections|query-skills|query-failures|boost-failure|decay-failures|session-reminder|prune>\n');
+        process.stderr.write('Usage: memory-store.cjs <append-decision|append-error|append-quorum|append-correction|append-skill|append-failure|query-decisions|query-errors|query-quorum|query-corrections|query-skills|query-failures|boost-failure|decay-failures|revalidate-errors|session-reminder|prune>\n');
         process.exit(0);
     }
   } catch (e) {

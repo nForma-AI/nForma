@@ -16,6 +16,7 @@
  * 13. Security findings (security-sweep.cjs)
  * 14. Issue classification from telemetry (issue-classifier.cjs)
  * 15. Health diagnostics (gsd-tools validate health) — QGSD repo only
+ * 16. Accumulated error patterns (errors.jsonl via memory-store.cjs)
  *
  * Returns standard observe schema: { source_label, source_type, status, issues[] }
  */
@@ -28,10 +29,10 @@ const { formatAgeFromMtime } = require('./observe-utils.cjs');
 
 /**
  * Internal work detection handler
- * Scans 15 categories: quick tasks, debug sessions, TODOs, unverified phases,
+ * Scans 16 categories: quick tasks, debug sessions, TODOs, unverified phases,
  * proposed metrics, quorum slots, XState calibration, MCP health, MCP logs,
  * telemetry, observed FSM, sensitivity sweep, security, issue classification,
- * health diagnostics
+ * health diagnostics, error patterns
  *
  * @param {object} sourceConfig - { label?, ...other config }
  * @param {object} options - { projectRoot?, limitOverride? }
@@ -806,6 +807,40 @@ function handleInternal(sourceConfig, options) {
       }
     } catch (err) {
       console.warn(`[observe-internal] Warning running health diagnostics: ${err.message}`);
+    }
+
+    // Category 16: Accumulated error patterns from errors.jsonl (nForma repo only)
+    try {
+      const memoryStorePath = path.join(projectRoot, 'bin', 'memory-store.cjs');
+      if (fs.existsSync(memoryStorePath)) {
+        const { readLastN } = require(memoryStorePath);
+        const limit = options.limitOverride || 20;
+        const recentErrors = readLastN(projectRoot, 'errors', limit);
+
+        for (let idx = 0; idx < recentErrors.length; idx++) {
+          const entry = recentErrors[idx];
+          // Filter: must have non-empty root_cause OR non-empty fix
+          if (!(entry.root_cause || entry.fix)) continue;
+
+          const severity = (entry.confidence === 'high') ? 'warning' : 'info';
+          const symptomPreview = (entry.symptom || '').slice(0, 80);
+
+          issues.push({
+            id: `internal-error-${idx}`,
+            title: `Error pattern: ${symptomPreview}`,
+            severity,
+            url: '',
+            age: entry.ts ? formatAgeFromMtime(new Date(entry.ts)) : '',
+            created_at: entry.ts || new Date().toISOString(),
+            meta: entry.fix ? `Fix: ${(entry.fix || '').slice(0, 100)}` : `Cause: ${(entry.root_cause || '').slice(0, 100)}`,
+            source_type: 'internal',
+            issue_type: 'issue',
+            _route: '/nf:solve'
+          });
+        }
+      }
+    } catch (err) {
+      console.warn(`[observe-internal] Warning scanning error patterns: ${err.message}`);
     }
 
     return {

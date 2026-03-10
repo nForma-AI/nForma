@@ -71,11 +71,30 @@ function isErrorBlock(block) {
 
 /**
  * Extracts the symptom text from an error block (first 200 chars).
+ * Returns null if content is too long (>500 chars) or lacks ERROR_INDICATORS or stack trace.
  */
 function extractSymptom(block) {
   const content = typeof block.content === 'string'
     ? block.content
     : JSON.stringify(block.content || '');
+
+  // Filter: reject if too long (likely file dump)
+  if (content.length > 500) {
+    return null;
+  }
+
+  // Filter: must contain at least one ERROR_INDICATOR keyword or stack trace pattern
+  let hasIndicator = false;
+  for (const indicator of ERROR_INDICATORS) {
+    if (content.includes(indicator)) {
+      hasIndicator = true;
+      break;
+    }
+  }
+  if (!hasIndicator && !STACK_TRACE_PATTERN.test(content)) {
+    return null;
+  }
+
   return content.slice(0, 200);
 }
 
@@ -83,9 +102,11 @@ function extractSymptom(block) {
  * Looks forward from position i to find a resolution within 20 lines.
  * Resolution: a non-error tool_result for the same tool, or an assistant
  * message containing fix-related keywords.
+ * Filters out file-read patterns, JSON blobs, and content > 500 chars.
  */
 function findResolution(entries, i) {
   const FIX_KEYWORDS = /\b(fixed|resolved|solution|the issue was)\b/i;
+  const FILE_READ_PATTERN = /^\s+\d+[→|]/; // line-number prefix pattern
   const limit = Math.min(entries.length, i + 21);
 
   for (let j = i + 1; j < limit; j++) {
@@ -99,6 +120,16 @@ function findResolution(entries, i) {
           const contentStr = typeof block.content === 'string'
             ? block.content
             : JSON.stringify(block.content || '');
+
+          // Filter: reject if too long
+          if (contentStr.length > 500) continue;
+
+          // Filter: reject if looks like file-read output
+          if (FILE_READ_PATTERN.test(contentStr)) continue;
+
+          // Filter: reject if looks like JSON array
+          if (contentStr.trim().startsWith('[{')) continue;
+
           // Make sure it's not another error
           let isErr = false;
           for (const indicator of ERROR_INDICATORS) {
@@ -114,6 +145,10 @@ function findResolution(entries, i) {
     // Check for assistant explanation containing fix keywords
     if (entry.type === 'assistant') {
       const text = extractTextFromEntry(entry);
+
+      // Filter: reject if text > 500 chars before fix keyword match
+      if (text.length > 500) continue;
+
       if (FIX_KEYWORDS.test(text)) {
         return text.slice(0, 200);
       }
@@ -151,7 +186,7 @@ function extractErrorPatterns(lines, maxPatterns = 10) {
       const symptom = extractSymptom(block);
       const fix = findResolution(entries, i);
 
-      if (symptom && fix) {
+      if (symptom !== null && fix) {
         patterns.push({
           type: 'error_resolution',
           symptom,
