@@ -97,11 +97,11 @@ Plans:
   1. A bug-to-property.json mapping exists linking observed bugs (from GitHub issues, test failures, observe skill) to formal properties that could have caught them
   2. Per-model recall score (bugs_predicted / total_relevant_bugs) is computed and reported as an informational metric in the solve report (not used as a gate input)
   3. After 10+ data points, convergence velocity estimation reports estimated sessions-to-convergence per layer via exponential decay fit
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] v0.33-04-01: TBD
-- [ ] v0.33-04-02: TBD
+- [ ] v0.33-04-01-PLAN.md — Bug-to-property linking module with recall computation
+- [ ] v0.33-04-02-PLAN.md — Convergence velocity estimation and nf-solve pipeline integration
 
 ### Phase v0.33-05: TLA+ Meta-Verification
 **Goal**: The outer solve loop is formally modeled in TLA+ with TLC-verified safety and liveness properties proving Option C prevents unbounded oscillation and the loop eventually converges
@@ -141,10 +141,10 @@ Note: v0.33-02 and v0.33-03 both depend only on v0.33-01 and could run in parall
 | v0.33-01. Time Series Foundation | 0/2 | Complete    | 2026-03-10 |
 | v0.33-02. Oscillation Detection | 0/2 | Not started | - |
 | v0.33-03. Gate Stabilization | 2/2 | Complete   | 2026-03-10 |
-| v0.33-04. Predictive Power | 0/2 | Not started | - |
+| v0.33-04. Predictive Power | 0/2 | Planned | - |
 | v0.33-05. TLA+ Meta-Verification | 0/2 | Not started | - |
 | v0.33-06. Solve Report Integration | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-20*
-*Last updated: 2026-03-10 after v0.33-03 phase planning*
+*Last updated: 2026-03-10 after v0.33-04 phase planning*
