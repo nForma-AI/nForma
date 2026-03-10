@@ -42,6 +42,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { spawnSync } = require('child_process');
+const { appendTrendEntry, readGateSummary } = require('./solve-trend-helpers.cjs');
 
 const TAG = '[nf-solve]';
 let ROOT = process.cwd();
@@ -3493,6 +3494,12 @@ function main() {
     process.stderr.write(TAG + ' WARNING: could not write solve-state.json: ' + e.message + '\n');
   }
 
+  // Append trend entry to JSONL (after solve-state.json, before session persistence)
+  appendTrendEntry(finalResidual, converged, iterations.length, {
+    root: ROOT,
+    fastMode: fastMode,
+  });
+
   // Pre-compute both outputs for session persistence (avoid redundant formatting)
   const reportText = formatReport(iterations, finalResidual, converged);
   const jsonText = JSON.stringify(formatJSON(iterations, finalResidual, converged), null, 2);
@@ -3614,6 +3621,8 @@ module.exports = {
   classifyCandidate,
   crossReferenceFormalCoverage,
   persistSessionSummary,
+  appendTrendEntry,
+  readGateSummary,
 };
 
 // ── Entry point ──────────────────────────────────────────────────────────────
