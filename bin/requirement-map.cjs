@@ -14,6 +14,7 @@ const CHECK_ID_TO_REQUIREMENTS = {
   'tla:breaker':             ['DETECT-01', 'DETECT-02', 'DETECT-03'],
   'tla:oscillation':         ['DETECT-04', 'DETECT-05', 'DETECT-06'],
   'tla:convergence':         ['ORES-01', 'ORES-02', 'ORES-03', 'ORES-04', 'ORES-05'],
+  'tla:solve-convergence':   ['FV-01', 'FV-02', 'FV-03'],
   'tla:deliberation':        ['PLAN-01', 'PLAN-02', 'SAFE-03', 'IMPR-01', 'LOOP-02'],
   'tla:prefilter':           ['PLAN-03', 'PLAN-04', 'PLAN-05', 'PLAN-06', 'LOOP-03'],
   'tla:account-manager':     ['CRED-01', 'CRED-02', 'CRED-03', 'CRED-04', 'CRED-05', 'CRED-06'],

@@ -30,11 +30,13 @@ for (const arg of process.argv) {
 const CHECK_ID_MAP = {
   'MCoscillation': 'tla:oscillation',
   'MCconvergence': 'tla:convergence',
+  'MCsolve-convergence': 'tla:solve-convergence',
 };
 
 const PROPERTY_MAP = {
   'MCoscillation': 'Run-collapse oscillation detection algorithm correctness',
   'MCconvergence': 'Haiku convergence — OscillationConvergence liveness property',
+  'MCsolve-convergence': 'Outer solve loop convergence under Option C',
 };
 
 // ── Parse --config argument ──────────────────────────────────────────────────
@@ -44,7 +46,7 @@ const configName = configArg
   ? configArg.split('=')[1]
   : (args.find(a => !a.startsWith('-')) || 'MCoscillation');
 
-const VALID_CONFIGS = ['MCoscillation', 'MCconvergence'];
+const VALID_CONFIGS = ['MCoscillation', 'MCconvergence', 'MCsolve-convergence'];
 if (!VALID_CONFIGS.includes(configName)) {
   process.stderr.write(
     '[run-oscillation-tlc] Unknown config: ' + configName +
@@ -128,9 +130,12 @@ if (!fs.existsSync(jarPath)) {
 }
 
 // ── 4. Resolve spec and config paths ─────────────────────────────────────────
-const specFileName = configName === 'MCoscillation'
-  ? 'NFOscillation.tla'
-  : 'NFConvergence.tla';
+const SPEC_FILE_MAP = {
+  'MCoscillation': 'NFOscillation.tla',
+  'MCconvergence': 'NFConvergence.tla',
+  'MCsolve-convergence': 'NFSolveConvergence.tla',
+};
+const specFileName = SPEC_FILE_MAP[configName];
 const specPath = path.join(ROOT, '.planning', 'formal', 'tla', specFileName);
 const cfgPath  = path.join(ROOT, '.planning', 'formal', 'tla', configName + '.cfg');
 

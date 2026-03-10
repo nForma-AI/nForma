@@ -103,3 +103,60 @@ test('run-oscillation-tlc.cjs has inconclusive writeCheckResult call in source',
   assert.match(src, /result\s*:\s*['"]inconclusive['"]/,
     'run-oscillation-tlc.cjs must have result=inconclusive in writeCheckResult call');
 });
+
+// ── MCsolve-convergence tests (v0.33-05-02) ──────────────────────────────────
+
+test('MCsolve-convergence is a valid config (no Unknown config error)', () => {
+  // Spawn with --config=MCsolve-convergence using bogus JAVA_HOME so it fails
+  // at Java check (not config validation). Assert stderr does NOT match /Unknown config/.
+  const result = spawnSync(process.execPath, [RUN_OSCILLATION_TLC, '--config=MCsolve-convergence'], {
+    encoding: 'utf8',
+    env: { ...process.env, JAVA_HOME: '/nonexistent/java/path' },
+  });
+  // It should fail (exit 1) because JAVA_HOME is bogus, but NOT because of unknown config
+  assert.strictEqual(result.status, 1);
+  assert.doesNotMatch(result.stderr, /Unknown config/i,
+    'MCsolve-convergence should be a valid config — not rejected as unknown');
+});
+
+test('MCsolve-convergence maps to NFSolveConvergence.tla spec file', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(RUN_OSCILLATION_TLC, 'utf8');
+  // SPEC_FILE_MAP must contain the mapping
+  assert.match(src, /['"]MCsolve-convergence['"]\s*:\s*['"]NFSolveConvergence\.tla['"]/,
+    'SPEC_FILE_MAP must map MCsolve-convergence to NFSolveConvergence.tla');
+});
+
+test('All VALID_CONFIGS have entries in SPEC_FILE_MAP and CHECK_ID_MAP', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(RUN_OSCILLATION_TLC, 'utf8');
+
+  // Extract VALID_CONFIGS entries
+  const validMatch = src.match(/VALID_CONFIGS\s*=\s*\[([^\]]+)\]/);
+  assert.ok(validMatch, 'VALID_CONFIGS array must exist in source');
+  const validConfigs = validMatch[1].match(/['"]([^'"]+)['"]/g).map(s => s.replace(/['"]/g, ''));
+
+  // Extract SPEC_FILE_MAP keys
+  const specMapMatch = src.match(/SPEC_FILE_MAP\s*=\s*\{([^}]+)\}/);
+  assert.ok(specMapMatch, 'SPEC_FILE_MAP must exist in source');
+  const specMapKeys = specMapMatch[1].match(/['"]([^'"]+)['"]\s*:/g).map(s => s.replace(/['":]/g, '').trim());
+
+  // Extract CHECK_ID_MAP keys
+  const checkMapMatch = src.match(/CHECK_ID_MAP\s*=\s*\{([^}]+)\}/);
+  assert.ok(checkMapMatch, 'CHECK_ID_MAP must exist in source');
+  const checkMapKeys = checkMapMatch[1].match(/['"]([^'"]+)['"]\s*:/g).map(s => s.replace(/['":]/g, '').trim());
+
+  for (const cfg of validConfigs) {
+    assert.ok(specMapKeys.includes(cfg),
+      `VALID_CONFIGS entry '${cfg}' missing from SPEC_FILE_MAP`);
+    assert.ok(checkMapKeys.includes(cfg),
+      `VALID_CONFIGS entry '${cfg}' missing from CHECK_ID_MAP`);
+  }
+});
+
+test('requirement-map.cjs has tla:solve-convergence entry with FV-01, FV-02, FV-03', () => {
+  const { getRequirementIds } = require('./requirement-map.cjs');
+  const ids = getRequirementIds('tla:solve-convergence');
+  assert.deepStrictEqual(ids, ['FV-01', 'FV-02', 'FV-03'],
+    'tla:solve-convergence must map to [FV-01, FV-02, FV-03]');
+});
