@@ -2263,7 +2263,7 @@ function sweepPerModelGates() {
     return { residual: -1, detail: { skipped: true, reason: 'fast mode' } };
   }
 
-  const args = ['--aggregate', '--json'];
+  const args = ['--aggregate', '--write-per-model', '--json'];
   if (reportOnly) args.push('--dry-run');
 
   const result = spawnTool('bin/compute-per-model-gates.cjs', args);
