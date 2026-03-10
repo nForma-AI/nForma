@@ -103,9 +103,10 @@ None.
 | 266 | Add smart branch management to quick workflow | 2026-03-10 | 30a5a72c | Verified | [266-add-smart-branch-management-to-quick-wor](./quick/266-add-smart-branch-management-to-quick-wor/) |
 
 | 267 | Fix 41 Gate A model gaps — add requirement_ids to requirement-map.cjs | 2026-03-10 | 2cbb8bad | Pending | [267-fix-41-xstate-model-gaps-identified-by-g](./quick/267-fix-41-xstate-model-gaps-identified-by-g/) |
+| 268 | Add /nf:mcp-repair skill — auto-diagnose and fix quorum slot connectivity | 2026-03-10 | pending | Pending | [268-add-nf-mcp-repair-skill-auto-diagnose-an](./quick/268-add-nf-mcp-repair-skill-auto-diagnose-an/) |
 
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: 2026-03-10 - Completed quick task 267: Fix 41 Gate A model gaps
+Stopped at: 2026-03-10 - Completed quick task 268: Add /nf:mcp-repair skill
 Resume file: None

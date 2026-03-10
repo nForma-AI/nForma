@@ -7,12 +7,12 @@ depends_on: []
 files_modified:
   - commands/nf/mcp-repair.md
 autonomous: true
-requirements: [QUORUM-HEALTH]
+requirements: [51, 74]
 formal_artifacts: none
 
 must_haves:
   truths:
-    - "Running /nf:mcp-repair diagnoses all 10 quorum slots (4 CLI + 6 claude-mcp)"
+    - "Running /nf:mcp-repair reads bin/providers.json and diagnoses all configured quorum slots"
     - "Auto-fixable issues (claude-mcp server down) are repaired automatically via pkill + reconnect"
     - "Non-auto-fixable issues (auth expired, quota) produce actionable user guidance"
     - "Before/after health summary shows what changed after repairs"
@@ -65,12 +65,12 @@ Create `commands/nf/mcp-repair.md` following the established mcp-* command patte
 **Frontmatter:**
 - name: nf:mcp-repair
 - description: Auto-diagnose and repair quorum slot connectivity — restarts MCP servers, checks CLI binaries, reports unfixable issues
-- allowed-tools: Bash, Read, Task, plus all identity and health_check MCP tools for all 10 slots (codex-1, gemini-1, opencode-1, copilot-1, claude-1..6) — copy the exact tool list from mcp-status.md
+- allowed-tools: Bash, Read, Task, plus all identity and health_check MCP tools for all configured slots (read slot names from bin/providers.json) — copy the exact tool list from mcp-status.md
 
 **Process steps:**
 
 **Step 1 — Initial diagnosis (before state).**
-Use the same Task() sub-agent pattern as mcp-status.md Step 3 to collect identity + health_check results for all 10 slots. Store as BEFORE_STATE. This prevents raw MCP tool output from cluttering the conversation.
+Use the same Task() sub-agent pattern as mcp-status.md Step 3 to collect identity + health_check results for all configured slots (read from bin/providers.json). Store as BEFORE_STATE. This prevents raw MCP tool output from cluttering the conversation.
 
 **Step 2 — Classify each slot's health.**
 For each slot, classify into one of these categories using a Bash node inline script:
@@ -82,20 +82,24 @@ For each slot, classify into one of these categories using a Bash node inline sc
 | cli-missing | `which <binary>` fails (CLI slots only) | NO — tell user to install |
 | auth-expired | identity OK but health_check fails with auth error (401/403) | NO — tell user to re-auth |
 | quota-exceeded | identity OK but health_check fails with 402/429 | NO — report wait time |
-| timeout | identity or health_check timed out | PARTIAL — retry once, then report |
+| timeout | identity or health_check timed out | NO — classify and suggest `/nf:mcp-restart <slot>` |
 | unknown | any other failure | NO — report raw error |
 
-For CLI agents, also run `which codex`, `which gemini`, `which opencode`, `which copilot` via Bash to check binary existence.
+For CLI agents, use a three-tier binary resolution check:
+1. First check the `cli` field from providers.json (exact absolute path) — `test -x <cli_path>`
+2. If no `cli` field or path not executable, fall back to `which <tool-name>`
+3. If both fail, classify as `cli-missing`
+This three-tier approach prevents false positives when a CLI is installed at a non-standard path.
 
 **Step 3 — Display diagnosis table.**
-Render a diagnosis table showing all 10 slots with columns: Slot | Type | Status | Issue | Action. Use box-drawing characters matching the mcp-status.md table style. Example:
+Render a diagnosis table showing all configured slots with columns: Slot | Type | Status | Issue | Action. Use box-drawing characters matching the mcp-status.md table style. Example:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  nForma ► MCP REPAIR
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Diagnosing 10 quorum slots...
+Diagnosing N quorum slots...    (where N = providers.json count)
 
 ┌─────────────┬──────────┬──────────┬─────────────────────┬──────────────────┐
 │ Slot        │ Type     │ Status   │ Issue               │ Action           │
@@ -109,8 +113,8 @@ Diagnosing 10 quorum slots...
 
 **Step 4 — Auto-repair: restart downed MCP servers.**
 For each slot classified as `mcp-down` (claude-1..6 only):
-1. Read ~/.claude.json to find the process path for that slot (same logic as mcp-restart.md Step 3)
-2. Run `pkill -f "<process_path>"` to kill the server
+1. Read ~/.claude.json to find the exact process command/path for that slot's MCP server entry (same logic as mcp-restart.md Step 3)
+2. Run `pkill -f "<exact_process_path>"` using the exact path from ~/.claude.json — do NOT use broad patterns like `pkill -f "claude"` which would over-match. The exact process path prevents killing unrelated processes (same pattern proven safe in mcp-restart.md)
 3. Wait 3 seconds for Claude Code to auto-restart it
 4. Call the identity tool to verify reconnection
 
@@ -132,7 +136,7 @@ For each non-auto-fixable slot, print specific guidance:
   - opencode-1: `opencode auth login`
   - copilot-1: `gh auth login`
 - quota-exceeded: `<slot>: Quota exceeded (429). Resets in ~30 minutes. Use --force-quorum to skip this slot.`
-- timeout: `<slot>: Timed out. Server may be overloaded — try /nf:mcp-restart <slot>`
+- timeout: `<slot>: Timed out (no auto-retry in v1). Run: /nf:mcp-restart <slot>`
 - unknown: `<slot>: Unknown error: <raw error message>`
 
 **Step 6 — Post-repair verification (after state).**
@@ -143,8 +147,8 @@ If repairs were attempted, show a before/after comparison:
 ```
 ━━━ REPAIR SUMMARY ━━━
 
-  Before: 7/10 healthy
-  After:  9/10 healthy
+  Before: 7/N healthy
+  After:  9/N healthy      (N = total configured slots)
 
   Repaired:
     claude-1: down → healthy
@@ -156,7 +160,7 @@ If repairs were attempted, show a before/after comparison:
 
 If no repairs were needed and all slots are healthy:
 ```
-All 10 quorum slots healthy. No repairs needed.
+All N quorum slots healthy. No repairs needed.   (N = total configured slots)
 ```
 
 If no repairs were needed but some slots are broken (all non-auto-fixable):
@@ -174,7 +178,7 @@ No auto-fixable issues found. Manual action needed for N slot(s) — see above.
 **Quorum invariant compliance:**
 - This command does NOT modify quorum voting, consensus, or dispatch logic
 - It only reads slot configuration and calls identity/health_check tools (observation only, except for the pkill restart action)
-- The pkill restart only affects claude-mcp servers (HTTP proxy slots), not the quorum orchestration itself
+- The pkill restart only affects claude-mcp servers (subprocess servers), not the quorum orchestration itself
   </action>
   <verify>
 1. File exists: `test -f commands/nf/mcp-repair.md && echo "EXISTS"`
@@ -188,7 +192,7 @@ No auto-fixable issues found. Manual action needed for N slot(s) — see above.
   <done>
 - commands/nf/mcp-repair.md exists with valid frontmatter (name, description, allowed-tools)
 - Command implements 7-step process: diagnose, classify, display, auto-repair, report manual, verify, summarize
-- All 10 slot types covered (4 CLI + 6 claude-mcp)
+- All configured slot types covered (dynamically read from bin/providers.json)
 - Auto-repair logic uses pkill pattern from mcp-restart.md for downed MCP servers
 - Manual action guidance provided for non-fixable issues (auth, quota, missing binary)
 - Before/after health summary rendered after repairs
@@ -208,7 +212,7 @@ No auto-fixable issues found. Manual action needed for N slot(s) — see above.
 
 <success_criteria>
 - /nf:mcp-repair command file exists at commands/nf/mcp-repair.md
-- Running `/nf:mcp-repair` would diagnose all 10 slots, auto-fix downed MCP servers, and report non-fixable issues with actionable guidance
+- Running `/nf:mcp-repair` would diagnose all configured slots (from bin/providers.json), auto-fix downed MCP servers, and report non-fixable issues with actionable guidance
 - Command follows established mcp-* command patterns (frontmatter, process steps, success_criteria)
 - No quorum invariants violated (command is observational + restart only)
 </success_criteria>
