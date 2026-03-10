@@ -554,7 +554,7 @@ describe('virgin install: npm global simulation', () => {
       timeout: 10000,
     }).toString();
     assert.ok(out.includes('nForma'), 'screenshot output must contain nForma branding');
-    assert.ok(out.includes('Agt'), 'screenshot output must contain Agt module hint');
+    assert.ok(out.includes('Agent'), 'screenshot output must contain Agent module hint');
   });
 
   test('TUI --screenshot reqs runs without crash from installed package', () => {
