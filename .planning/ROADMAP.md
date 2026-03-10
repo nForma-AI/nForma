@@ -112,11 +112,11 @@ Plans:
   2. TLC verifies the safety property: no layer oscillates more than once (oscillation_count[layer] <= 1 for all layers) with zero counterexamples
   3. TLC verifies the liveness property: solve loop eventually converges (converged = TRUE) under explicit fairness assumptions, passing the liveness fairness CI lint
   4. The convergence liveness property uses explicit fairness declarations -- consistent with the formal ConvergenceEventuallyResolves invariant pattern (weak fairness on enabling actions ensures the check eventually completes)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] v0.33-05-01: TBD
-- [ ] v0.33-05-02: TBD
+- [ ] v0.33-05-01-PLAN.md — TLA+ spec, TLC config, and fairness declarations for outer solve loop
+- [ ] v0.33-05-02-PLAN.md — Runner integration, TLC verification of safety + liveness properties
 
 ### Phase v0.33-06: Solve Report Integration
 **Goal**: Users see convergence status, trends, and actionable recommendations directly in nf:solve output without running separate tools
@@ -142,9 +142,9 @@ Note: v0.33-02 and v0.33-03 both depend only on v0.33-01 and could run in parall
 | v0.33-02. Oscillation Detection | 0/2 | Not started | - |
 | v0.33-03. Gate Stabilization | 2/2 | Complete   | 2026-03-10 |
 | v0.33-04. Predictive Power | 2/2 | Complete    | 2026-03-10 |
-| v0.33-05. TLA+ Meta-Verification | 0/2 | Not started | - |
+| v0.33-05. TLA+ Meta-Verification | 0/2 | Planning complete | - |
 | v0.33-06. Solve Report Integration | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-20*
-*Last updated: 2026-03-10 after v0.33-04 phase planning*
+*Last updated: 2026-03-10 after v0.33-05 phase planning*
