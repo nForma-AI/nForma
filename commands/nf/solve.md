@@ -1,7 +1,7 @@
 ---
 name: nf:solve
 description: Orchestrator skill that dispatches diagnostic, remediation, and reporting sub-skills via Agent tool, managing the convergence loop and report-only gate
-argument-hint: [--report-only] [--max-iterations=N] [--json] [--verbose] [--targets=<path>] [--skip-observe]
+argument-hint: [--report-only] [--max-iterations=N] [--json] [--verbose] [--targets=<path>] [--skip-observe] [--focus="<phrase>"]
 allowed-tools:
   - Read
   - Bash
@@ -22,13 +22,25 @@ RAM BUDGET: Never exceed 3 concurrent subagent Tasks at any point during
 execution. Sub-skill Agent calls are sequential (diagnose -> remediate -> report).
 
 Sub-skill files (do NOT @-include — they are loaded by Agent subprocesses):
-- commands/nf/solve-diagnose.md (Steps 0-1)
-- commands/nf/solve-classify.md (Haiku pre-classification)
-- commands/nf/solve-remediate.md (Steps 3a-3m)
-- commands/nf/solve-report.md (Steps 6-8)
+- ~/.claude/commands/nf/solve-diagnose.md (Steps 0-1)
+- ~/.claude/commands/nf/solve-classify.md (Haiku pre-classification)
+- ~/.claude/commands/nf/solve-remediate.md (Steps 3a-3m)
+- ~/.claude/commands/nf/solve-report.md (Steps 6-8)
+
+Path resolution: Always use $HOME/.claude/commands/nf/ paths in Agent prompts.
+Falls back to commands/nf/ (CWD-relative) only if the home path doesn't exist.
 </execution_context>
 
 <process>
+
+## Flag Extraction
+
+Parse all CLI flags from the user's invocation. Extract `--focus="<phrase>"` if present.
+Store as `focusPhrase` variable (string or null) for forwarding to sub-skills and bin/nf-solve.cjs.
+Initialize at the very start of the process block:
+  - If args contain `--focus="X"` or `--focus=X`, set `focusPhrase = X`
+  - Otherwise, set `focusPhrase = null`
+Use `focusPhrase` in Phase 3b bash command and Phase 4 Agent call.
 
 ## Phase 1: Diagnose
 
@@ -36,7 +48,7 @@ Sub-skill files (do NOT @-include — they are loaded by Agent subprocesses):
 Agent(
   subagent_type="general-purpose",
   description="solve: diagnostic sweep",
-  prompt="Read and follow commands/nf/solve-diagnose.md end-to-end.
+  prompt="First resolve the sub-skill path: try $HOME/.claude/commands/nf/solve-diagnose.md, fall back to commands/nf/solve-diagnose.md if not found. Read and follow it end-to-end.
 CLI flags from orchestrator: {flags}
 After completing all steps, output ONLY the JSON result object described in the output_contract section of solve-diagnose.md."
 )
@@ -57,7 +69,7 @@ have genuine/fp/review badges when viewed in the TUI.
 Agent(
   subagent_type="general-purpose",
   description="solve: Haiku classification",
-  prompt="Read and follow commands/nf/solve-classify.md end-to-end.
+  prompt="First resolve the sub-skill path: try $HOME/.claude/commands/nf/solve-classify.md, fall back to commands/nf/solve-classify.md if not found. Read and follow it end-to-end.
 CLI flags from orchestrator: {flags}
 After completing all steps, output ONLY the JSON result object described in the output_contract section."
 )
@@ -85,7 +97,7 @@ For `iteration = 1` to `max_iterations`:
 Agent(
   subagent_type="general-purpose",
   description="solve: remediation iteration {N}",
-  prompt="Read and follow commands/nf/solve-remediate.md end-to-end.
+  prompt="First resolve the sub-skill path: try $HOME/.claude/commands/nf/solve-remediate.md, fall back to commands/nf/solve-remediate.md if not found. Read and follow it end-to-end.
 Input context (JSON):
 {\"residual_vector\": ..., \"open_debt\": ..., \"heatmap\": ..., \"targets\": ..., \"iteration\": N}
 After completing all remediation steps, output ONLY the JSON result object described in the output_contract section."
@@ -96,7 +108,7 @@ If `status == "bail"` or `"error"`: break loop, proceed to Phase 4.
 
 **3b. Re-diagnostic sweep (Step 4):**
 ```bash
-POST=$(node ~/.claude/nf-bin/nf-solve.cjs --json --report-only --project-root=$(pwd))
+POST=$(node ~/.claude/nf-bin/nf-solve.cjs --json --report-only --project-root=$(pwd)${focusPhrase:+ --focus="$focusPhrase"})
 ```
 If `~/.claude/nf-bin/nf-solve.cjs` does not exist, fall back to `bin/nf-solve.cjs`.
 Parse `post_residual` from the JSON output.
@@ -129,9 +141,9 @@ If openDebt entries remain in 'resolving' status, treat as automatable work rema
 Agent(
   subagent_type="general-purpose",
   description="solve: final report",
-  prompt="Read and follow commands/nf/solve-report.md end-to-end.
+  prompt="First resolve the sub-skill path: try $HOME/.claude/commands/nf/solve-report.md, fall back to commands/nf/solve-report.md if not found. Read and follow it end-to-end.
 Input context (JSON):
-{\"baseline_residual\": ..., \"post_residual\": ..., \"iteration_count\": N, \"flags\": {\"verbose\": bool, \"json\": bool}}
+{\"baseline_residual\": ..., \"post_residual\": ..., \"iteration_count\": N, \"flags\": {\"verbose\": bool, \"json\": bool}, \"focus\": focusPhrase ? {\"phrase\": focusPhrase} : null}
 Display all tables and reports as described in the process section."
 )
 ```

@@ -15,6 +15,10 @@ This is an internal-only sub-skill dispatched by the nf:solve orchestrator via A
 </objective>
 
 <execution_context>
+PATH RESOLUTION: All `require('./bin/...')` paths must resolve portably: try `$HOME/.claude/nf-bin/` first, fall back to `./bin/`. Use this helper at the top of any node -e snippet:
+```javascript
+const _nfBin = (n) => { const p = require('path').join(require('os').homedir(), '.claude/nf-bin', n); return require('fs').existsSync(p) ? p : './bin/' + n; };
+```
 AUTONOMY REQUIREMENT: This skill runs FULLY AUTONOMOUSLY. Do NOT ask the user
 any questions. Do NOT stop for human input. If a sub-step fails, log the
 failure and continue to the next step. The only valid reason to stop is:
@@ -25,6 +29,7 @@ This sub-skill accepts the same CLI flags as the orchestrator:
 - `--skip-observe` — skip inline observe refresh
 - `--json` — JSON output mode
 - `--verbose` — verbose output
+- `--focus="<phrase>"` -- scope diagnostics to requirements matching the focus topic
 </execution_context>
 
 <input_contract>
@@ -93,7 +98,7 @@ If `--targets=<path>` flag was passed:
 
 1. Read the targets manifest:
    ```javascript
-   const { readTargetsManifest } = require('./bin/observe-solve-pipe.cjs');
+   const { readTargetsManifest } = require(_nfBin('observe-solve-pipe.cjs'));
    const targets = readTargetsManifest(targetsPath);
    ```
 
@@ -124,10 +129,10 @@ Log: `"Step 0d: Running inline observe to refresh debt ledger..."`
 Execute observe's core data-gathering steps programmatically (NOT by invoking the full `/nf:observe` skill which prompts the user). Instead, run the observe pipeline directly:
 
 ```javascript
-const { loadObserveConfig } = require('./bin/observe-config.cjs');
-const { registerHandler, dispatchAll } = require('./bin/observe-registry.cjs');
-const { handleGitHub, handleSentry, handleSentryFeedback, handleBash, handleInternal, handleUpstream, handleDeps } = require('./bin/observe-handlers.cjs');
-const { writeObservationsToDebt } = require('./bin/observe-debt-writer.cjs');
+const { loadObserveConfig } = require(_nfBin('observe-config.cjs'));
+const { registerHandler, dispatchAll } = require(_nfBin('observe-registry.cjs'));
+const { handleGitHub, handleSentry, handleSentryFeedback, handleBash, handleInternal, handleUpstream, handleDeps } = require(_nfBin('observe-handlers.cjs'));
+const { writeObservationsToDebt } = require(_nfBin('observe-debt-writer.cjs'));
 
 // Register all handlers
 registerHandler('github', handleGitHub);
@@ -158,7 +163,7 @@ Log: `"Step 0d: Observe refresh complete — {written} new, {updated} updated de
 Load open debt for the solve loop:
 
 ```javascript
-const { readOpenDebt, matchDebtToResidual } = require('./bin/solve-debt-bridge.cjs');
+const { readOpenDebt, matchDebtToResidual } = require(_nfBin('solve-debt-bridge.cjs'));
 const { entries: openDebt } = readOpenDebt('.planning/formal/debt.json');
 ```
 

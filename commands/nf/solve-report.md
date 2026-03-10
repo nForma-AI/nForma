@@ -34,7 +34,8 @@ The orchestrator passes a JSON object (as part of the Agent prompt):
   "baseline_residual": { /* from initial diagnostic */ },
   "post_residual": { /* from re-diagnostic */ },
   "iteration_count": N,
-  "flags": { "verbose": bool, "json": bool }
+  "flags": { "verbose": bool, "json": bool },
+  "focus": null | { "phrase": string }
 }
 ```
 </input_contract>
@@ -46,6 +47,11 @@ Formatted terminal output (no JSON return needed -- this is display-only).
 <process>
 
 ## Step 6: Before/After Summary
+
+If `input.focus` is non-null and `input.focus.phrase` is truthy, prepend the following line before the table:
+```
+**(focused: {focus.phrase})**
+```
 
 Display a comprehensive before/after comparison table:
 

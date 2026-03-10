@@ -44,6 +44,7 @@ const os = require('os');
 const { spawnSync } = require('child_process');
 const { appendTrendEntry, readGateSummary } = require('./solve-trend-helpers.cjs');
 const { updateVerdicts } = require('./oscillation-detector.cjs');
+const { filterRequirementsByFocus } = require('./solve-focus-filter.cjs');
 
 const TAG = '[nf-solve]';
 let ROOT = process.cwd();
@@ -73,6 +74,22 @@ for (const arg of args) {
       maxIterations = val;
     }
   }
+}
+
+// Parse --focus flag for topic-scoped diagnostic sweeps
+let focusPhrase = null;
+for (const arg of args) {
+  if (arg.startsWith('--focus=')) {
+    focusPhrase = arg.slice('--focus='.length).replace(/^["']|["']$/g, '');
+  }
+}
+
+const focusSet = focusPhrase
+  ? filterRequirementsByFocus(focusPhrase, { root: ROOT })
+  : null;
+
+if (focusSet) {
+  process.stderr.write(TAG + ' Focus filter active: ' + focusPhrase + ' (' + focusSet.size + ' requirements matched)\n');
 }
 
 // ── Helper: spawnTool ────────────────────────────────────────────────────────
@@ -613,6 +630,11 @@ function sweepRtoF() {
       uncoveredReqs = allReqs.filter(r => uncoveredSet.has(r.id || r.requirement_id || ''));
     } catch (e) {
       // Can't load requirements — skip triage
+    }
+
+    // Apply focus filter if active
+    if (focusSet) {
+      uncoveredReqs = uncoveredReqs.filter(r => focusSet.has(r.id || r.requirement_id || ''));
     }
 
     const triage = triageRequirements(uncoveredReqs);
@@ -1275,6 +1297,11 @@ function sweepRtoD() {
         for (const r of group.requirements) requirements.push(r);
       }
     }
+  }
+
+  // Apply focus filter if active
+  if (focusSet) {
+    requirements = requirements.filter(r => focusSet.has(r.id || r.requirement_id || ''));
   }
 
   const undocumented = [];
@@ -2554,6 +2581,7 @@ function computeResidual() {
     layer_total,
     reverse_discovery_total,
     heatmap_total,
+    focus: focusPhrase ? { phrase: focusPhrase, matched: focusSet ? focusSet.size : 0 } : null,
     timestamp: new Date().toISOString(),
   };
 }
@@ -3537,6 +3565,7 @@ function main() {
       covered: finalResidual.r_to_f.detail.covered || 0,
       percentage: finalResidual.r_to_f.detail.percentage || 0,
     },
+    focus: focusPhrase || null,
   };
   // Collect known issues from non-zero non-error layers
   for (const [key, val] of Object.entries(finalResidual)) {
