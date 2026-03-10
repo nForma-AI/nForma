@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.33 Phase v0.33-05: TLA+ Meta-Verification — ready to plan
+**Current focus:** v0.33 Phase v0.33-06: Solve Report Integration — ready to plan
 
 ## Current Position
 
-Phase: 5 of 6 (TLA+ Meta-Verification)
+Phase: 6 of 6 (Solve Report Integration)
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-03-10 - Completed quick task 253: Guard run-formal-verify.cjs static steps
+Last activity: 2026-03-10 - Completed Phase v0.33-05: TLA+ Meta-Verification
 
-Progress: [██████░░░░] 67%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -50,6 +50,9 @@ Decisions logged in PROJECT.md Key Decisions table.
 - [v0.33-04]: Requirement ID overlap (formal_refs JOIN model requirements) as bug-to-property matching mechanism
 - [v0.33-04]: Linearized OLS on log-transformed data for exponential decay fit -- no npm dependencies
 - [v0.33-04]: Predictive power is INFORMATIONAL ONLY -- not wired as gate input (PRED-03 deferred)
+- [v0.33-05]: Grace periods removed from TLA+ spec -- proving the stronger property (convergence without grace subsumes convergence with grace)
+- [v0.33-05]: RunSession split into ProgressSession (WF, fair) + RegressSession (no fairness) for correct liveness proof
+- [v0.33-05]: DownstreamOf defined as spec operator (not CONSTANT) -- TLC config parser cannot handle :> @@ expressions
 
 ### Pending Todos
 
@@ -89,5 +92,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Phase v0.33-04 complete, ready to plan Phase v0.33-05
+Stopped at: Phase v0.33-05 complete, ready to plan Phase v0.33-06
 Resume file: None
