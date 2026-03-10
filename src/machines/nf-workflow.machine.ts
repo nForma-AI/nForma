@@ -61,6 +61,12 @@ export const nfWorkflowMachine = setup({
         CIRCUIT_BREAK: {
           target: 'IDLE',
         },
+        DECIDE: {
+          target: 'IDLE',
+        },
+        VOTES_COLLECTED: {
+          target: 'IDLE',
+        },
       },
     },
     COLLECTING_VOTES: {
@@ -83,6 +89,15 @@ export const nfWorkflowMachine = setup({
             }),
           },
         ],
+        QUORUM_START: {
+          target: 'COLLECTING_VOTES',
+        },
+        CIRCUIT_BREAK: {
+          target: 'COLLECTING_VOTES',
+        },
+        DECIDE: {
+          target: 'COLLECTING_VOTES',
+        },
       },
     },
     DELIBERATING: {
@@ -111,10 +126,30 @@ export const nfWorkflowMachine = setup({
         DECIDE: {
           target: 'DECIDED',
         },
+        QUORUM_START: {
+          target: 'DELIBERATING',
+        },
+        CIRCUIT_BREAK: {
+          target: 'DELIBERATING',
+        },
       },
     },
     DECIDED: {
       type: 'final',
+      on: {
+        DECIDE: {
+          target: 'DECIDED',
+        },
+        CIRCUIT_BREAK: {
+          target: 'DECIDED',
+        },
+        QUORUM_START: {
+          target: 'DECIDED',
+        },
+        VOTES_COLLECTED: {
+          target: 'DECIDED',
+        },
+      },
     },
   },
 });
