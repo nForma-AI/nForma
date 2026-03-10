@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.33.1] - 2026-03-10 — Solve/Resolve Data Disconnect Fix
+
+### Fixed
+- **Solve/resolve data disconnect** (Quick-257) — `/nf:resolve` now reads from the same solve-state and trend data that `/nf:solve` writes, eliminating stale or missing item references during guided triage
+
+### Added
+- **SOLVE-07 requirement** — Formal requirement for solve-to-resolve data consistency
+
 ## [0.33.0] - 2026-03-10 — Outer-Loop Convergence Guarantees
 
 ### Added

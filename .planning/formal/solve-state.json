@@ -1,10 +1,10 @@
 {
-  "last_run": "2026-03-10T13:40:40.893Z",
+  "last_run": "2026-03-10T14:19:31.627Z",
   "converged": false,
   "iteration_count": 1,
   "final_residual_total": 33,
   "reverse_discovery_total": 349,
-  "heatmap_total": 570,
+  "heatmap_total": 6413,
   "known_issues": [
     {
       "layer": "d_to_c",
@@ -23,12 +23,32 @@
       "residual": 24
     },
     {
+      "layer": "l1_to_l2",
+      "residual": 7
+    },
+    {
+      "layer": "l2_to_l3",
+      "residual": 10
+    },
+    {
+      "layer": "l3_to_tc",
+      "residual": 1
+    },
+    {
+      "layer": "per_model_gates",
+      "residual": 7
+    },
+    {
       "layer": "git_heatmap",
-      "residual": 570
+      "residual": 6413
     },
     {
       "layer": "git_history",
       "residual": 42
+    },
+    {
+      "layer": "hazard_model",
+      "residual": 9
     }
   ],
   "r_to_f_progress": {

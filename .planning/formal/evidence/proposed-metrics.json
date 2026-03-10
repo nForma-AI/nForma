@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T13:34:34.708Z",
-  "total_proposed": 83,
+  "generated": "2026-03-10T14:15:35.542Z",
+  "total_proposed": 81,
   "implemented": 0,
   "partial": 0,
-  "outstanding": 83,
+  "outstanding": 81,
   "metrics": [
     {
       "metric_name": "nf_maxdeliberationrounds__tla",
@@ -571,18 +571,6 @@
       "status": "proposed"
     },
     {
-      "metric_name": "nf_maxsize__tla",
-      "metric_type": "gauge",
-      "tier": 1,
-      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCliveness.cfg",
-      "assumption_name": "MaxSize",
-      "assumption_type": "constant",
-      "coverage": "uncovered",
-      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCliveness.cfg:MaxSize",
-      "instrumentation_snippet": "// Prometheus gauge for MaxSize (tla/constant)\n# HELP nf_maxsize__tla Monitors MaxSize from tla model\n# TYPE nf_maxsize__tla gauge\nconst nf_maxsize__tla = new Gauge({\n  name: 'nf_maxsize__tla',\n  help: 'Monitors MaxSize from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxsize__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCliveness.cfg' }, 3);",
-      "status": "proposed"
-    },
-    {
       "metric_name": "nf_maxsteps__tla",
       "metric_type": "gauge",
       "tier": 1,
@@ -700,18 +688,6 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsafety.cfg:MaxDeliberation",
       "instrumentation_snippet": "// Prometheus gauge for MaxDeliberation (tla/constant)\n# HELP nf_maxdeliberation__tla Monitors MaxDeliberation from tla model\n# TYPE nf_maxdeliberation__tla gauge\nconst nf_maxdeliberation__tla = new Gauge({\n  name: 'nf_maxdeliberation__tla',\n  help: 'Monitors MaxDeliberation from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxdeliberation__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsafety.cfg' }, 9);",
-      "status": "proposed"
-    },
-    {
-      "metric_name": "nf_maxsize__tla",
-      "metric_type": "gauge",
-      "tier": 1,
-      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsafety.cfg",
-      "assumption_name": "MaxSize",
-      "assumption_type": "constant",
-      "coverage": "uncovered",
-      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsafety.cfg:MaxSize",
-      "instrumentation_snippet": "// Prometheus gauge for MaxSize (tla/constant)\n# HELP nf_maxsize__tla Monitors MaxSize from tla model\n# TYPE nf_maxsize__tla gauge\nconst nf_maxsize__tla = new Gauge({\n  name: 'nf_maxsize__tla',\n  help: 'Monitors MaxSize from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxsize__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsafety.cfg' }, 3);",
       "status": "proposed"
     },
     {

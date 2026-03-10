@@ -1,22 +1,214 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T13:34:35.677Z",
-  "total_failures": 0,
+  "generated": "2026-03-10T14:15:36.315Z",
+  "total_failures": 7,
   "categories": {
-    "crash": [],
+    "crash": [
+      {
+        "tool": "run-prism",
+        "formalism": "prism",
+        "result": "error",
+        "timestamp": "2026-03-10T13:45:02.364Z",
+        "check_id": "prism:quorum",
+        "surface": "prism",
+        "property": "Quorum consensus probability under agent availability rates",
+        "runtime_ms": 0,
+        "summary": "error: prism:quorum (model not found)",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PRM-01",
+          "QUORUM-04",
+          "LOOP-01"
+        ],
+        "metadata": {},
+        "observation_window": {
+          "window_start": "2026-03-10T13:45:02.363Z",
+          "window_end": "2026-03-10T13:45:02.364Z",
+          "n_traces": 0,
+          "n_events": 0,
+          "window_days": 0
+        },
+        "category": "crash",
+        "classification_reason": "Error pattern in summary: error: prism:quorum (model not found)"
+      },
+      {
+        "tool": "run-prism",
+        "formalism": "prism",
+        "result": "error",
+        "timestamp": "2026-03-10T13:45:02.415Z",
+        "check_id": "prism:quorum",
+        "surface": "prism",
+        "property": "Quorum consensus probability under agent availability rates",
+        "runtime_ms": 0,
+        "summary": "error: prism:quorum (model not found)",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PRM-01",
+          "QUORUM-04",
+          "LOOP-01"
+        ],
+        "metadata": {},
+        "observation_window": {
+          "window_start": "2026-03-10T13:45:02.414Z",
+          "window_end": "2026-03-10T13:45:02.415Z",
+          "n_traces": 0,
+          "n_events": 0,
+          "window_days": 0
+        },
+        "category": "crash",
+        "classification_reason": "Error pattern in summary: error: prism:quorum (model not found)"
+      },
+      {
+        "tool": "run-oauth-rotation-prism",
+        "formalism": "prism",
+        "result": "error",
+        "timestamp": "2026-03-10T13:45:02.467Z",
+        "check_id": "prism:oauth-rotation",
+        "surface": "prism",
+        "property": "OAuth token rotation probability — successful rotation under expiry and concurrency",
+        "runtime_ms": 0,
+        "summary": "error: prism:oauth-rotation (model not found)",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PRM-AM-01",
+          "CRED-12"
+        ],
+        "metadata": {},
+        "observation_window": {
+          "window_start": "2026-03-10T13:45:02.466Z",
+          "window_end": "2026-03-10T13:45:02.467Z",
+          "n_traces": 0,
+          "n_events": 0,
+          "window_days": 0
+        },
+        "category": "crash",
+        "classification_reason": "Error pattern in summary: error: prism:oauth-rotation (model not found)"
+      },
+      {
+        "tool": "run-prism",
+        "formalism": "prism",
+        "result": "error",
+        "timestamp": "2026-03-10T13:45:02.518Z",
+        "check_id": "prism:quorum",
+        "surface": "prism",
+        "property": "Quorum consensus probability under agent availability rates",
+        "runtime_ms": 0,
+        "summary": "error: prism:quorum (model not found)",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PRM-01",
+          "QUORUM-04",
+          "LOOP-01"
+        ],
+        "metadata": {},
+        "observation_window": {
+          "window_start": "2026-03-10T13:45:02.517Z",
+          "window_end": "2026-03-10T13:45:02.518Z",
+          "n_traces": 0,
+          "n_events": 0,
+          "window_days": 0
+        },
+        "category": "crash",
+        "classification_reason": "Error pattern in summary: error: prism:quorum (model not found)"
+      },
+      {
+        "tool": "run-prism",
+        "formalism": "prism",
+        "result": "error",
+        "timestamp": "2026-03-10T13:45:02.568Z",
+        "check_id": "prism:quorum",
+        "surface": "prism",
+        "property": "Quorum consensus probability under agent availability rates",
+        "runtime_ms": 0,
+        "summary": "error: prism:quorum (model not found)",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PRM-01",
+          "QUORUM-04",
+          "LOOP-01"
+        ],
+        "metadata": {},
+        "observation_window": {
+          "window_start": "2026-03-10T13:45:02.567Z",
+          "window_end": "2026-03-10T13:45:02.568Z",
+          "n_traces": 0,
+          "n_events": 0,
+          "window_days": 0
+        },
+        "category": "crash",
+        "classification_reason": "Error pattern in summary: error: prism:quorum (model not found)"
+      }
+    ],
     "timeout": [],
     "logic_violation": [],
-    "drift": [],
+    "drift": [
+      {
+        "tool": "validate-traces",
+        "formalism": "trace",
+        "result": "fail",
+        "timestamp": "2026-03-10T14:02:11.438Z",
+        "check_id": "ci:conformance-traces",
+        "surface": "ci",
+        "property": "Conformance event replay through XState machine",
+        "runtime_ms": 10,
+        "summary": "fail: 1 divergence(s) in 1 traces (10ms)",
+        "triage_tags": [
+          "trace-divergence"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "divergences": 1,
+          "total": 1
+        },
+        "observation_window": {
+          "window_start": "2026-03-10T14:02:11.431Z",
+          "window_end": "2026-03-10T14:02:11.433Z",
+          "n_traces": 0,
+          "n_events": 1,
+          "window_days": 0
+        },
+        "category": "drift",
+        "classification_reason": "Trace divergence: 1 divergence(s) detected"
+      },
+      {
+        "tool": "validate-traces",
+        "formalism": "trace",
+        "result": "fail",
+        "timestamp": "2026-03-10T14:03:27.467Z",
+        "check_id": "ci:conformance-traces",
+        "surface": "ci",
+        "property": "Conformance event replay through XState machine",
+        "runtime_ms": 42,
+        "summary": "fail: 1 divergence(s) in 1 traces (42ms)",
+        "triage_tags": [
+          "trace-divergence"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "divergences": 1,
+          "total": 1
+        },
+        "observation_window": {
+          "window_start": "2026-03-10T14:03:27.433Z",
+          "window_end": "2026-03-10T14:03:27.435Z",
+          "n_traces": 0,
+          "n_events": 1,
+          "window_days": 0
+        },
+        "category": "drift",
+        "classification_reason": "Trace divergence: 1 divergence(s) detected"
+      }
+    ],
     "degradation": []
   },
   "category_counts": {
-    "crash": 0,
+    "crash": 5,
     "timeout": 0,
     "logic_violation": 0,
-    "drift": 0,
+    "drift": 2,
     "degradation": 0
   },
   "degradation_fallback_note": "When no baseline exists, potential degradation entries are classified as logic_violation",
   "unclassified": [],
-  "summary": "0 failures classified: crash=0, timeout=0, logic_violation=0, drift=0, degradation=0. 0 unclassified."
+  "summary": "7 failures classified: crash=5, timeout=0, logic_violation=0, drift=2, degradation=0. 0 unclassified."
 }

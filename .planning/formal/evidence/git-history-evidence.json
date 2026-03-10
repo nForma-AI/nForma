@@ -1,26 +1,26 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T13:39:39.889Z",
+  "generated": "2026-03-10T14:21:28.408Z",
   "summary": {
-    "total_commits": 4857,
+    "total_commits": 4862,
     "by_type": {
-      "fix": 607,
-      "docs": 2286,
+      "docs": 2288,
+      "build": 203,
+      "fix": 608,
       "chore": 415,
-      "build": 201,
       "feat": 1100,
       "test": 146,
       "refactor": 102
     },
-    "tla_covered_commits": 363,
-    "files_analyzed": 6090
+    "tla_covered_commits": 365,
+    "files_analyzed": 6117
   },
   "file_breakdown": [
     {
       "file": ".planning/STATE.md",
-      "total_commits": 959,
+      "total_commits": 961,
       "by_type": {
-        "docs": 873,
+        "docs": 875,
         "build": 48,
         "fix": 11,
         "feat": 22,
@@ -48,11 +48,11 @@
     },
     {
       "file": "package.json",
-      "total_commits": 398,
+      "total_commits": 399,
       "by_type": {
+        "build": 36,
         "feat": 48,
         "test": 16,
-        "build": 35,
         "fix": 20,
         "chore": 277,
         "refactor": 1,
@@ -79,10 +79,10 @@
     },
     {
       "file": "CHANGELOG.md",
-      "total_commits": 192,
+      "total_commits": 193,
       "by_type": {
+        "build": 2,
         "docs": 160,
-        "build": 1,
         "chore": 12,
         "refactor": 3,
         "fix": 12,
@@ -111,10 +111,10 @@
     },
     {
       "file": "README.md",
-      "total_commits": 166,
+      "total_commits": 167,
       "by_type": {
+        "build": 7,
         "docs": 98,
-        "build": 6,
         "feat": 30,
         "chore": 16,
         "refactor": 10,
@@ -270,11 +270,11 @@
     },
     {
       "file": ".planning/formal/requirements.json",
-      "total_commits": 56,
+      "total_commits": 57,
       "by_type": {
+        "build": 2,
         "chore": 51,
         "docs": 2,
-        "build": 1,
         "feat": 1,
         "refactor": 1
       },
@@ -475,6 +475,21 @@
       "tla_specs": []
     },
     {
+      "file": ".planning/current-activity.json",
+      "total_commits": 34,
+      "by_type": {
+        "build": 13,
+        "chore": 9,
+        "test": 1,
+        "refactor": 1,
+        "feat": 4,
+        "docs": 6
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": "commands/qgsd/quorum.md",
       "total_commits": 34,
       "by_type": {
@@ -504,21 +519,6 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/current-activity.json",
-      "total_commits": 33,
-      "by_type": {
-        "build": 12,
-        "chore": 9,
-        "test": 1,
-        "refactor": 1,
-        "feat": 4,
-        "docs": 6
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
       "file": "agents/gsd-plan-checker.md",
       "total_commits": 32,
       "by_type": {
@@ -527,6 +527,21 @@
         "fix": 16
       },
       "dominant_type": "fix",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/model-registry.json",
+      "total_commits": 31,
+      "by_type": {
+        "build": 17,
+        "feat": 5,
+        "fix": 5,
+        "chore": 2,
+        "refactor": 1,
+        "docs": 1
+      },
+      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -559,6 +574,22 @@
       "dominant_type": "feat",
       "has_tla_coverage": false,
       "tla_specs": []
+    },
+    {
+      "file": "bin/nf-solve.cjs",
+      "total_commits": 30,
+      "by_type": {
+        "docs": 2,
+        "fix": 4,
+        "feat": 22,
+        "refactor": 1,
+        "build": 1
+      },
+      "dominant_type": "feat",
+      "has_tla_coverage": true,
+      "tla_specs": [
+        ".planning/formal/tla/NFSolveConvergence.tla"
+      ]
     },
     {
       "file": "get-shit-done/workflows/diagnose-issues.md",
@@ -600,43 +631,12 @@
       "tla_specs": []
     },
     {
-      "file": "bin/nf-solve.cjs",
-      "total_commits": 29,
-      "by_type": {
-        "fix": 4,
-        "feat": 22,
-        "refactor": 1,
-        "build": 1,
-        "docs": 1
-      },
-      "dominant_type": "feat",
-      "has_tla_coverage": true,
-      "tla_specs": [
-        ".planning/formal/tla/NFSolveConvergence.tla"
-      ]
-    },
-    {
       "file": ".planning/MILESTONES.md",
       "total_commits": 29,
       "by_type": {
         "build": 25,
         "refactor": 1,
         "docs": 3
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/model-registry.json",
-      "total_commits": 29,
-      "by_type": {
-        "feat": 5,
-        "build": 15,
-        "fix": 5,
-        "chore": 2,
-        "refactor": 1,
-        "docs": 1
       },
       "dominant_type": "build",
       "has_tla_coverage": false,
@@ -656,6 +656,33 @@
       "tla_specs": []
     },
     {
+      "file": ".planning/config.json",
+      "total_commits": 28,
+      "by_type": {
+        "build": 13,
+        "chore": 4,
+        "docs": 5,
+        "feat": 6
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "bin/nForma.cjs",
+      "total_commits": 28,
+      "by_type": {
+        "build": 3,
+        "feat": 11,
+        "fix": 9,
+        "refactor": 3,
+        "chore": 2
+      },
+      "dominant_type": "feat",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": "get-shit-done/workflows/quick.md",
       "total_commits": 28,
       "by_type": {
@@ -665,33 +692,6 @@
         "docs": 1
       },
       "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "bin/nForma.cjs",
-      "total_commits": 27,
-      "by_type": {
-        "feat": 11,
-        "fix": 9,
-        "build": 2,
-        "refactor": 3,
-        "chore": 2
-      },
-      "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/config.json",
-      "total_commits": 27,
-      "by_type": {
-        "build": 12,
-        "chore": 4,
-        "docs": 5,
-        "feat": 6
-      },
-      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -908,6 +908,20 @@
       "tla_specs": []
     },
     {
+      "file": ".planning/formal/traceability-matrix.json",
+      "total_commits": 22,
+      "by_type": {
+        "build": 17,
+        "fix": 2,
+        "chore": 1,
+        "refactor": 1,
+        "docs": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": "commands/gsd/quick.md",
       "total_commits": 22,
       "by_type": {
@@ -920,7 +934,21 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/traceability-matrix.json",
+      "file": ".planning/formal/diff-report.md",
+      "total_commits": 21,
+      "by_type": {
+        "build": 16,
+        "fix": 2,
+        "chore": 1,
+        "refactor": 1,
+        "docs": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/suspects.md",
       "total_commits": 21,
       "by_type": {
         "build": 16,
@@ -1017,28 +1045,49 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/diff-report.md",
+      "file": ".planning/formal/gates/gate-a-grounding.json",
       "total_commits": 20,
       "by_type": {
-        "build": 15,
+        "build": 17,
         "fix": 2,
-        "chore": 1,
-        "refactor": 1,
-        "docs": 1
+        "feat": 1
       },
       "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/suspects.md",
+      "file": ".planning/formal/gates/gate-b-abstraction.json",
       "total_commits": 20,
       "by_type": {
-        "build": 15,
+        "build": 17,
         "fix": 2,
-        "chore": 1,
-        "refactor": 1,
-        "docs": 1
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/gates/gate-c-validation.json",
+      "total_commits": 20,
+      "by_type": {
+        "build": 17,
+        "fix": 2,
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/reasoning/hazard-model.json",
+      "total_commits": 20,
+      "by_type": {
+        "build": 14,
+        "fix": 3,
+        "docs": 1,
+        "feat": 2
       },
       "dominant_type": "build",
       "has_tla_coverage": false,
@@ -1097,49 +1146,12 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/gates/gate-a-grounding.json",
+      "file": ".planning/formal/evidence/git-heatmap.json",
       "total_commits": 19,
       "by_type": {
         "build": 16,
         "fix": 2,
         "feat": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/gates/gate-b-abstraction.json",
-      "total_commits": 19,
-      "by_type": {
-        "build": 16,
-        "fix": 2,
-        "feat": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/gates/gate-c-validation.json",
-      "total_commits": 19,
-      "by_type": {
-        "build": 16,
-        "fix": 2,
-        "feat": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/reasoning/hazard-model.json",
-      "total_commits": 19,
-      "by_type": {
-        "build": 13,
-        "fix": 3,
-        "docs": 1,
-        "feat": 2
       },
       "dominant_type": "build",
       "has_tla_coverage": false,
@@ -1158,12 +1170,14 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/evidence/git-heatmap.json",
+      "file": ".planning/formal/unit-test-coverage.json",
       "total_commits": 18,
       "by_type": {
-        "build": 15,
+        "build": 12,
         "fix": 2,
-        "feat": 1
+        "chore": 2,
+        "refactor": 1,
+        "docs": 1
       },
       "dominant_type": "build",
       "has_tla_coverage": false,
@@ -1265,14 +1279,12 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/unit-test-coverage.json",
+      "file": ".planning/formal/promotion-changelog.json",
       "total_commits": 17,
       "by_type": {
-        "build": 11,
-        "fix": 2,
-        "chore": 2,
-        "refactor": 1,
-        "docs": 1
+        "build": 13,
+        "feat": 2,
+        "fix": 2
       },
       "dominant_type": "build",
       "has_tla_coverage": false,
@@ -1304,16 +1316,31 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/promotion-changelog.json",
+      "file": ".planning/formal/solve-state.json",
       "total_commits": 16,
       "by_type": {
-        "build": 12,
-        "feat": 2,
-        "fix": 2
+        "build": 15,
+        "fix": 1
       },
       "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
+    },
+    {
+      "file": "bin/run-tlc.cjs",
+      "total_commits": 16,
+      "by_type": {
+        "build": 1,
+        "fix": 2,
+        "feat": 10,
+        "chore": 1,
+        "refactor": 2
+      },
+      "dominant_type": "feat",
+      "has_tla_coverage": true,
+      "tla_specs": [
+        ".planning/formal/tla/TUINavigation.tla"
+      ]
     },
     {
       "file": "hooks/config-loader.test.js",
@@ -1369,11 +1396,24 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/solve-state.json",
+      "file": ".planning/formal/model-complexity-profile.json",
       "total_commits": 15,
       "by_type": {
-        "build": 14,
-        "fix": 1
+        "build": 13,
+        "fix": 2
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/test-recipes/test-recipes.json",
+      "total_commits": 15,
+      "by_type": {
+        "build": 12,
+        "fix": 1,
+        "docs": 1,
+        "feat": 1
       },
       "dominant_type": "build",
       "has_tla_coverage": false,
@@ -1403,21 +1443,6 @@
       "dominant_type": "feat",
       "has_tla_coverage": false,
       "tla_specs": []
-    },
-    {
-      "file": "bin/run-tlc.cjs",
-      "total_commits": 15,
-      "by_type": {
-        "fix": 2,
-        "feat": 10,
-        "chore": 1,
-        "refactor": 2
-      },
-      "dominant_type": "feat",
-      "has_tla_coverage": true,
-      "tla_specs": [
-        ".planning/formal/tla/TUINavigation.tla"
-      ]
     },
     {
       "file": "bin/validate-traces.cjs",
@@ -1562,6 +1587,17 @@
       "tla_specs": []
     },
     {
+      "file": ".planning/formal/layer-manifest.json",
+      "total_commits": 14,
+      "by_type": {
+        "build": 12,
+        "feat": 2
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": "bin/run-oscillation-tlc.cjs",
       "total_commits": 14,
       "by_type": {
@@ -1571,30 +1607,6 @@
         "refactor": 2
       },
       "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/model-complexity-profile.json",
-      "total_commits": 14,
-      "by_type": {
-        "build": 12,
-        "fix": 2
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/test-recipes/test-recipes.json",
-      "total_commits": 14,
-      "by_type": {
-        "build": 11,
-        "fix": 1,
-        "docs": 1,
-        "feat": 1
-      },
-      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -1857,13 +1869,72 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/layer-manifest.json",
+      "file": ".planning/formal/evidence/failure-taxonomy.json",
       "total_commits": 13,
       "by_type": {
-        "build": 11,
-        "feat": 2
+        "build": 12,
+        "feat": 1
       },
       "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/evidence/instrumentation-map.json",
+      "total_commits": 13,
+      "by_type": {
+        "build": 12,
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/evidence/state-candidates.json",
+      "total_commits": 13,
+      "by_type": {
+        "build": 12,
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/evidence/trace-corpus-stats.json",
+      "total_commits": 13,
+      "by_type": {
+        "build": 12,
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/proximity-index.json",
+      "total_commits": 13,
+      "by_type": {
+        "build": 12,
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "commands/nf/solve.md",
+      "total_commits": 13,
+      "by_type": {
+        "build": 1,
+        "feat": 7,
+        "fix": 1,
+        "refactor": 1,
+        "test": 1,
+        "chore": 2
+      },
+      "dominant_type": "feat",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -1974,75 +2045,6 @@
         "refactor": 2
       },
       "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "commands/nf/solve.md",
-      "total_commits": 12,
-      "by_type": {
-        "feat": 7,
-        "fix": 1,
-        "refactor": 1,
-        "test": 1,
-        "chore": 2
-      },
-      "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/evidence/failure-taxonomy.json",
-      "total_commits": 12,
-      "by_type": {
-        "build": 11,
-        "feat": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/evidence/instrumentation-map.json",
-      "total_commits": 12,
-      "by_type": {
-        "build": 11,
-        "feat": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/evidence/state-candidates.json",
-      "total_commits": 12,
-      "by_type": {
-        "build": 11,
-        "feat": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/evidence/trace-corpus-stats.json",
-      "total_commits": 12,
-      "by_type": {
-        "build": 11,
-        "feat": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/proximity-index.json",
-      "total_commits": 12,
-      "by_type": {
-        "build": 11,
-        "feat": 1
-      },
-      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -2289,6 +2291,27 @@
       "tla_specs": []
     },
     {
+      "file": ".planning/formal/evidence/git-history-evidence.json",
+      "total_commits": 11,
+      "by_type": {
+        "build": 9,
+        "fix": 2
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/evidence/proposed-metrics.json",
+      "total_commits": 11,
+      "by_type": {
+        "build": 11
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": "hooks/dist/qgsd-circuit-breaker.js",
       "total_commits": 11,
       "by_type": {
@@ -2410,27 +2433,6 @@
         ".planning/formal/tla/QGSDQuorum.tla",
         ".planning/formal/tla/NFQuorum.tla"
       ]
-    },
-    {
-      "file": ".planning/formal/evidence/git-history-evidence.json",
-      "total_commits": 10,
-      "by_type": {
-        "build": 8,
-        "fix": 2
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/evidence/proposed-metrics.json",
-      "total_commits": 10,
-      "by_type": {
-        "build": 10
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
     },
     {
       "file": "scripts/generate-terminal-svg.js",
@@ -2906,6 +2908,40 @@
       "tla_specs": []
     },
     {
+      "file": "bin/solve-tui.cjs",
+      "total_commits": 8,
+      "by_type": {
+        "docs": 1,
+        "build": 1,
+        "feat": 5,
+        "refactor": 1
+      },
+      "dominant_type": "feat",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/memory/errors.jsonl",
+      "total_commits": 8,
+      "by_type": {
+        "build": 8
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "test/golden/tui-agents.txt",
+      "total_commits": 8,
+      "by_type": {
+        "build": 7,
+        "test": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": "bin/check-spec-sync.cjs",
       "total_commits": 8,
       "by_type": {
@@ -3370,39 +3406,6 @@
       "total_commits": 7,
       "by_type": {
         "feat": 7
-      },
-      "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/memory/errors.jsonl",
-      "total_commits": 7,
-      "by_type": {
-        "build": 7
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "test/golden/tui-agents.txt",
-      "total_commits": 7,
-      "by_type": {
-        "build": 6,
-        "test": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "bin/solve-tui.cjs",
-      "total_commits": 7,
-      "by_type": {
-        "build": 1,
-        "feat": 5,
-        "refactor": 1
       },
       "dominant_type": "feat",
       "has_tla_coverage": false,
@@ -4601,6 +4604,53 @@
       "tla_specs": []
     },
     {
+      "file": "test/install-virgin.test.cjs",
+      "total_commits": 5,
+      "by_type": {
+        "fix": 2,
+        "build": 2,
+        "feat": 1
+      },
+      "dominant_type": "fix",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/semantics/observed-fsm.json",
+      "total_commits": 5,
+      "by_type": {
+        "build": 2,
+        "docs": 1,
+        "feat": 2
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "commands/nf/observe.md",
+      "total_commits": 5,
+      "by_type": {
+        "build": 1,
+        "feat": 2,
+        "chore": 2
+      },
+      "dominant_type": "feat",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "docs/assets/terminal.svg",
+      "total_commits": 5,
+      "by_type": {
+        "build": 4,
+        "docs": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": ".planning/formal/acknowledged-not-required.json",
       "total_commits": 5,
       "by_type": {
@@ -5726,14 +5776,45 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/semantics/observed-fsm.json",
+      "file": ".planning/formal/solve-classifications.json",
+      "total_commits": 4,
+      "by_type": {
+        "build": 4
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/upstream-state.json",
+      "total_commits": 4,
+      "by_type": {
+        "build": 4
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "scripts/lint-isolation.js",
       "total_commits": 4,
       "by_type": {
         "build": 1,
-        "docs": 1,
-        "feat": 2
+        "chore": 2,
+        "feat": 1
       },
-      "dominant_type": "feat",
+      "dominant_type": "chore",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "test/golden/tui-reqs.txt",
+      "total_commits": 4,
+      "by_type": {
+        "build": 3,
+        "test": 1
+      },
+      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -5759,17 +5840,6 @@
       "tla_specs": []
     },
     {
-      "file": "docs/assets/terminal.svg",
-      "total_commits": 4,
-      "by_type": {
-        "build": 3,
-        "docs": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
       "file": "hooks/nf-prompt.test.js",
       "total_commits": 4,
       "by_type": {
@@ -5779,18 +5849,6 @@
         "docs": 1
       },
       "dominant_type": "fix",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "test/install-virgin.test.cjs",
-      "total_commits": 4,
-      "by_type": {
-        "build": 2,
-        "fix": 1,
-        "feat": 1
-      },
-      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -6055,17 +6113,6 @@
         "docs": 2
       },
       "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "commands/nf/observe.md",
-      "total_commits": 4,
-      "by_type": {
-        "feat": 2,
-        "chore": 2
-      },
-      "dominant_type": "feat",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -9572,6 +9619,51 @@
       "tla_specs": []
     },
     {
+      "file": ".planning/formal/acknowledged-false-positives.json",
+      "total_commits": 3,
+      "by_type": {
+        "build": 2,
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "commands/nf/solve-diagnose.md",
+      "total_commits": 3,
+      "by_type": {
+        "build": 1,
+        "feat": 2
+      },
+      "dominant_type": "feat",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "commands/nf/solve-remediate.md",
+      "total_commits": 3,
+      "by_type": {
+        "build": 1,
+        "fix": 1,
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "test/golden/tui-config.txt",
+      "total_commits": 3,
+      "by_type": {
+        "build": 2,
+        "test": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": "core/workflows/close-formal-gaps.md",
       "total_commits": 3,
       "by_type": {
@@ -9601,37 +9693,6 @@
         "test": 1
       },
       "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/solve-classifications.json",
-      "total_commits": 3,
-      "by_type": {
-        "build": 3
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/upstream-state.json",
-      "total_commits": 3,
-      "by_type": {
-        "build": 3
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "test/golden/tui-reqs.txt",
-      "total_commits": 3,
-      "by_type": {
-        "build": 2,
-        "test": 1
-      },
-      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -11563,17 +11624,6 @@
         "chore": 1,
         "feat": 1,
         "test": 1
-      },
-      "dominant_type": "chore",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "scripts/lint-isolation.js",
-      "total_commits": 3,
-      "by_type": {
-        "chore": 2,
-        "feat": 1
       },
       "dominant_type": "chore",
       "has_tla_coverage": false,
@@ -15680,6 +15730,91 @@
       "tla_specs": []
     },
     {
+      "file": ".planning/formal/archived-solve-items.json",
+      "total_commits": 2,
+      "by_type": {
+        "build": 2
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/gates/per-model-gates.json",
+      "total_commits": 2,
+      "by_type": {
+        "build": 2
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/spec/convergence/invariants.md",
+      "total_commits": 2,
+      "by_type": {
+        "build": 1,
+        "docs": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/spec/deliberation/invariants.md",
+      "total_commits": 2,
+      "by_type": {
+        "build": 1,
+        "docs": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/phases/v0.33-06-solve-report-integration/task-envelope.json",
+      "total_commits": 2,
+      "by_type": {
+        "build": 1,
+        "docs": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "commands/nf/session-insights.md",
+      "total_commits": 2,
+      "by_type": {
+        "build": 2
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "commands/nf/solve-classify.md",
+      "total_commits": 2,
+      "by_type": {
+        "build": 1,
+        "feat": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "test/golden/tui-sessions.txt",
+      "total_commits": 2,
+      "by_type": {
+        "build": 1,
+        "test": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": ".planning/phases/v0.33-06-solve-report-integration/v0.33-06-VALIDATION.md",
       "total_commits": 2,
       "by_type": {
@@ -15782,16 +15917,6 @@
       "tla_specs": []
     },
     {
-      "file": "commands/nf/solve-diagnose.md",
-      "total_commits": 2,
-      "by_type": {
-        "feat": 2
-      },
-      "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
       "file": ".planning/phases/v0.33-04-predictive-power/v0.33-04-VALIDATION.md",
       "total_commits": 2,
       "by_type": {
@@ -15850,17 +15975,6 @@
         "docs": 2
       },
       "dominant_type": "docs",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "test/golden/tui-config.txt",
-      "total_commits": 2,
-      "by_type": {
-        "build": 1,
-        "test": 1
-      },
-      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -16382,17 +16496,6 @@
         "docs": 2
       },
       "dominant_type": "docs",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/acknowledged-false-positives.json",
-      "total_commits": 2,
-      "by_type": {
-        "build": 1,
-        "feat": 1
-      },
-      "dominant_type": "build",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -17802,17 +17905,6 @@
       "by_type": {
         "fix": 1,
         "docs": 1
-      },
-      "dominant_type": "fix",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "commands/nf/solve-remediate.md",
-      "total_commits": 2,
-      "by_type": {
-        "fix": 1,
-        "feat": 1
       },
       "dominant_type": "fix",
       "has_tla_coverage": false,
@@ -34765,6 +34857,276 @@
       "tla_specs": []
     },
     {
+      "file": ".planning/quick/257-fix-solve-resolve-data-disconnect-add-tr/257-VERIFICATION.md",
+      "total_commits": 1,
+      "by_type": {
+        "docs": 1
+      },
+      "dominant_type": "docs",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quick/257-fix-solve-resolve-data-disconnect-add-tr/257-SUMMARY.md",
+      "total_commits": 1,
+      "by_type": {
+        "docs": 1
+      },
+      "dominant_type": "docs",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/alloy/focus-topic-filter.als",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/formal/solve-trend.jsonl",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/phases/v0.33-03-gate-stabilization/task-envelope.json",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/phases/v0.33-04-predictive-power/task-envelope.json",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/phases/v0.33-05-tla-plus-meta-verification/task-envelope.json",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/phases/v0.33-06-solve-report-integration/v0.33-06-01-SUMMARY.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quick/251-fix-108-xstate-model-gaps-identified-by-/251-PLAN.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quick/251-fix-108-xstate-model-gaps-identified-by-/251-SUMMARY.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quick/254-review-observe-pipeline-extraction-and-r/254-VERIFICATION.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quick/solve-ft-batch-2-1/PLAN.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quick/solve-ft-batch-2-2/PLAN.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quick/solve-ft-batch-2-3/PLAN.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-claude-1-.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-claude-1-review-these-two-implementation-plans-for-phase-v0.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-claude-1-review-two-implementation-plans-for-phase-v0-33-03.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-claude-2-.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-claude-2-review-these-two-implementation-plans-for-phase-v0.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-claude-2-review-two-implementation-plans-for-phase-v0-33-03.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-claude-3-.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-claude-3-r3-6-verification-round-plans-were-revised-to-inco.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-codex-1-.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-copilot-1-.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": ".planning/quorum/debates/2026-03-10-copilot-1-review-two-implementation-plans-for-phase-v0-33-03.md",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "bin/observe-pipeline.cjs",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
+      "file": "bin/observe-pipeline.test.cjs",
+      "total_commits": 1,
+      "by_type": {
+        "build": 1
+      },
+      "dominant_type": "build",
+      "has_tla_coverage": false,
+      "tla_specs": []
+    },
+    {
       "file": ".planning/quick/256-fix-solve-subagent-cwd-path-bugs-that-cr/256-VERIFICATION.md",
       "total_commits": 1,
       "by_type": {
@@ -34931,16 +35293,6 @@
         "feat": 1
       },
       "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/phases/v0.33-06-solve-report-integration/task-envelope.json",
-      "total_commits": 1,
-      "by_type": {
-        "docs": 1
-      },
-      "dominant_type": "docs",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -35769,16 +36121,6 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/gates/per-model-gates.json",
-      "total_commits": 1,
-      "by_type": {
-        "build": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
       "file": ".planning/formal/tla/.planning/task-classification.json",
       "total_commits": 1,
       "by_type": {
@@ -36135,16 +36477,6 @@
         "feat": 1
       },
       "dominant_type": "feat",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "test/golden/tui-sessions.txt",
-      "total_commits": 1,
-      "by_type": {
-        "test": 1
-      },
-      "dominant_type": "test",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -36949,16 +37281,6 @@
       "tla_specs": []
     },
     {
-      "file": "commands/nf/session-insights.md",
-      "total_commits": 1,
-      "by_type": {
-        "build": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
       "file": ".planning/formal/alloy/autoclose-signals.als",
       "total_commits": 1,
       "by_type": {
@@ -37080,16 +37402,6 @@
     },
     {
       "file": ".planning/formal/alloy/solve-tui-features.als",
-      "total_commits": 1,
-      "by_type": {
-        "build": 1
-      },
-      "dominant_type": "build",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/archived-solve-items.json",
       "total_commits": 1,
       "by_type": {
         "build": 1
@@ -37405,16 +37717,6 @@
         "docs": 1
       },
       "dominant_type": "docs",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": "commands/nf/solve-classify.md",
-      "total_commits": 1,
-      "by_type": {
-        "feat": 1
-      },
-      "dominant_type": "feat",
       "has_tla_coverage": false,
       "tla_specs": []
     },
@@ -51511,27 +51813,7 @@
       "tla_specs": []
     },
     {
-      "file": ".planning/formal/spec/convergence/invariants.md",
-      "total_commits": 1,
-      "by_type": {
-        "docs": 1
-      },
-      "dominant_type": "docs",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
       "file": ".planning/formal/spec/deliberation-revision/invariants.md",
-      "total_commits": 1,
-      "by_type": {
-        "docs": 1
-      },
-      "dominant_type": "docs",
-      "has_tla_coverage": false,
-      "tla_specs": []
-    },
-    {
-      "file": ".planning/formal/spec/deliberation/invariants.md",
       "total_commits": 1,
       "by_type": {
         "docs": 1
@@ -64805,7 +65087,7 @@
     },
     {
       "file": "bin/nf-solve.cjs",
-      "recent_commits": 29,
+      "recent_commits": 30,
       "recent_feat_or_fix": 26,
       "tla_spec": ".planning/formal/tla/NFSolveConvergence.tla",
       "tla_last_updated": "2026-03-10T12:34:59.568Z"
@@ -64861,7 +65143,7 @@
     },
     {
       "file": "bin/run-tlc.cjs",
-      "recent_commits": 15,
+      "recent_commits": 16,
       "recent_feat_or_fix": 12,
       "tla_spec": ".planning/formal/tla/TUINavigation.tla",
       "tla_last_updated": "2026-03-10T09:12:22.700Z"
@@ -64927,7 +65209,7 @@
       "recent_commits": 10,
       "recent_feat_or_fix": 7,
       "tla_spec": ".planning/formal/tla/NFQuorum.tla",
-      "tla_last_updated": "2026-03-10T13:38:58.223Z"
+      "tla_last_updated": "2026-03-10T14:20:26.700Z"
     },
     {
       "file": "qgsd-core/workflows/execute-phase.md",

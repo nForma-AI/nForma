@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T13:42:56.706Z",
-  "gate_c_score": 0.7191011235955056,
+  "generated": "2026-03-10T14:20:50.566Z",
+  "gate_c_score": 0.949438202247191,
   "total_entries": 178,
-  "validated_entries": 128,
-  "unvalidated_entries": 50,
+  "validated_entries": 169,
+  "unvalidated_entries": 9,
   "target": 0.8,
-  "target_met": false
+  "target_met": true
 }

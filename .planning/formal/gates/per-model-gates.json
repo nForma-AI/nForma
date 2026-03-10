@@ -1,8 +1,8 @@
 {
   "schema_version": "3",
-  "generated": "2026-03-10T13:38:58.347Z",
+  "generated": "2026-03-10T14:20:50.567Z",
   "total_models": 178,
-  "unstable_models": 5,
+  "unstable_models": 6,
   "evidence_readiness": {
     "score": 2,
     "total": 5
@@ -330,8 +330,8 @@
     },
     ".planning/formal/tla/QGSDMCPEnv.tla": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [MCPENV-01, MCPENV-02, MCPENV-03]"
+        "pass": true,
+        "reason": "passing trace for req MCPENV-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -670,8 +670,8 @@
     },
     ".planning/formal/tla/QGSDAgentProvisioning.tla": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [AGENT-01, AGENT-02, AGENT-03, PROV-01, PROV-02, PROV-03, PRST-01, PRST-02]"
+        "pass": true,
+        "reason": "passing trace for req AGENT-03 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -750,8 +750,8 @@
     },
     ".planning/formal/alloy/schema-extensions.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04]"
+        "pass": true,
+        "reason": "passing trace for req SCHEMA-02 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -770,8 +770,8 @@
     },
     ".planning/formal/alloy/unified-check-results.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [UNIF-01, UNIF-02, UNIF-03, UNIF-04]"
+        "pass": true,
+        "reason": "passing trace for req UNIF-02 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -830,8 +830,8 @@
     },
     ".planning/formal/alloy/architecture-registry.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [ARCH-01, ARCH-02, ARCH-03, META-01, META-02, META-03]"
+        "pass": true,
+        "reason": "passing trace for req ARCH-03 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -990,8 +990,8 @@
     },
     ".planning/formal/alloy/state-space-analysis.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [DECOMP-01, DECOMP-02, DECOMP-03, DECOMP-04]"
+        "pass": true,
+        "reason": "passing trace for req DECOMP-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1010,8 +1010,8 @@
     },
     ".planning/formal/alloy/evidence-triage.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [EVID-01, EVID-02, TRIAGE-01, TRIAGE-02]"
+        "pass": true,
+        "reason": "passing trace for req TRIAGE-02 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1030,8 +1030,8 @@
     },
     ".planning/formal/alloy/uppaal-model-reqs.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [UPPAAL-01, UPPAAL-02, UPPAAL-03]"
+        "pass": true,
+        "reason": "passing trace for req UPPAAL-02 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1050,8 +1050,8 @@
     },
     ".planning/formal/alloy/signal-analysis-tools.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SIG-01, SIG-02, SIG-03, SIG-04]"
+        "pass": true,
+        "reason": "passing trace for req SIG-03 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1090,8 +1090,8 @@
     },
     ".planning/formal/alloy/health-validation.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [HLTH-01, HLTH-02, HLTH-03, VIS-01]"
+        "pass": true,
+        "reason": "passing trace for req HLTH-03 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2630,8 +2630,8 @@
     },
     ".planning/formal/alloy/governance-dx.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [ADAPT-01, ADR-01, LRNG-01, LRNG-02, LRNG-03, LRNG-04, SHARD-01, VALID-01]"
+        "pass": true,
+        "reason": "passing trace for req ADAPT-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2641,7 +2641,7 @@
         "pass": true,
         "reason": "passing check-result alloy:governance-dx"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -2710,8 +2710,8 @@
     },
     ".planning/formal/alloy/quality-hardening.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [BRKR-01, EXEC-01, LTCY-01, PRIO-01]"
+        "pass": true,
+        "reason": "passing trace for req BRKR-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2721,7 +2721,7 @@
         "pass": true,
         "reason": "passing check-result alloy:quality-hardening"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3122,15 +3122,15 @@
         "reason": "passing check-result alloy:focus-topic-filter"
       },
       "layer_maturity": 2,
-      "gate_maturity": "ADVISORY",
+      "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
       "direction_changes": 3,
       "cooldown": {
-        "consecutive_stable_sessions": 2,
+        "consecutive_stable_sessions": 4,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T13:38:58.340Z"
+        "last_session_timestamp": "2026-03-10T14:20:50.562Z"
       },
       "flagged_at": "2026-03-10T10:57:59.707Z"
     },
@@ -3290,9 +3290,15 @@
       "layer_maturity": 1,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
-      "stability_status": "STABLE",
-      "direction_changes": 0,
-      "cooldown": null
+      "stability_status": "UNSTABLE",
+      "direction_changes": 4,
+      "cooldown": {
+        "consecutive_stable_sessions": 1,
+        "required_sessions": 3,
+        "required_wall_time_ms": 3600000,
+        "last_session_timestamp": "2026-03-10T14:20:50.564Z"
+      },
+      "flagged_at": "2026-03-10T14:20:26.825Z"
     },
     ".planning/formal/tla/NFOrchestration.tla": {
       "gate_a": {
@@ -3368,15 +3374,15 @@
         "reason": "passing check-result alloy:fingerprinting"
       },
       "layer_maturity": 1,
-      "gate_maturity": "ADVISORY",
+      "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 3,
+      "direction_changes": 4,
       "cooldown": {
-        "consecutive_stable_sessions": 2,
+        "consecutive_stable_sessions": 4,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T13:38:58.343Z"
+        "last_session_timestamp": "2026-03-10T14:20:50.565Z"
       },
       "flagged_at": "2026-03-10T12:37:27.712Z"
     },
@@ -3414,15 +3420,15 @@
         "reason": "passing check-result alloy:semantics-layer"
       },
       "layer_maturity": 1,
-      "gate_maturity": "ADVISORY",
+      "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 3,
+      "direction_changes": 4,
       "cooldown": {
-        "consecutive_stable_sessions": 2,
+        "consecutive_stable_sessions": 4,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T13:38:58.344Z"
+        "last_session_timestamp": "2026-03-10T14:20:50.565Z"
       },
       "flagged_at": "2026-03-10T12:37:27.712Z"
     },
@@ -3460,15 +3466,15 @@
         "reason": "passing check-result alloy:diagnostics"
       },
       "layer_maturity": 1,
-      "gate_maturity": "ADVISORY",
+      "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 3,
+      "direction_changes": 4,
       "cooldown": {
-        "consecutive_stable_sessions": 2,
+        "consecutive_stable_sessions": 4,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T13:38:58.344Z"
+        "last_session_timestamp": "2026-03-10T14:20:50.565Z"
       },
       "flagged_at": "2026-03-10T12:37:27.712Z"
     },
@@ -3506,15 +3512,15 @@
         "reason": "passing check-result alloy:parallel-exec"
       },
       "layer_maturity": 1,
-      "gate_maturity": "ADVISORY",
+      "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 3,
+      "direction_changes": 4,
       "cooldown": {
-        "consecutive_stable_sessions": 2,
+        "consecutive_stable_sessions": 4,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T13:38:58.345Z"
+        "last_session_timestamp": "2026-03-10T14:20:50.565Z"
       },
       "flagged_at": "2026-03-10T12:34:59.661Z"
     },
@@ -3580,8 +3586,8 @@
     },
     ".planning/formal/alloy/misc-behavioral.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [ADAPT-01, AGENT-03, ARCH-03, BRKR-01, DECOMP-01, EXEC-01, HLTH-03, LTCY-01, MCPENV-02, PRIO-01, SCHEMA-02, SHARD-01, SIG-03, TRIAGE-02, UNIF-02, UPPAAL-02, VALID-01]"
+        "pass": true,
+        "reason": "passing trace for req ADAPT-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": false,
