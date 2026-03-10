@@ -3675,9 +3675,64 @@ function main() {
     focus: focusPhrase || null,
   };
   // Collect known issues from non-zero non-error layers
+  // -- Load classification cache and archive data for net_residual computation --
+  const LAYER_CAT_MAP = {
+    d_to_c: { catKey: 'dtoc', detailKey: 'broken_claims' },
+    c_to_r: { catKey: 'ctor', detailKey: 'untraced_modules' },
+    t_to_r: { catKey: 'ttor', detailKey: 'orphan_tests' },
+    d_to_r: { catKey: 'dtor', detailKey: 'unbacked_claims' },
+  };
+
+  let classificationsByCategory = {};
+  try {
+    const cached = JSON.parse(fs.readFileSync(path.join(ROOT, '.planning', 'formal', 'solve-classifications.json'), 'utf8'));
+    classificationsByCategory = cached.classifications || {};
+  } catch (_) { /* fail-open */ }
+
+  let archiveEntries = [];
+  try {
+    const archiveData = JSON.parse(fs.readFileSync(path.join(ROOT, '.planning', 'formal', 'archived-solve-items.json'), 'utf8'));
+    archiveEntries = archiveData.entries || [];
+  } catch (_) { /* fail-open */ }
+
+  function netResidualItemKey(catKey, item) {
+    if (catKey === 'dtoc') return `${item.doc_file}:${item.value}`;
+    if (catKey === 'ctor') return typeof item === 'string' ? item : item.file;
+    if (catKey === 'ttor') return typeof item === 'string' ? item : item.file;
+    if (catKey === 'dtor') return `${item.doc_file}:${item.line}`;
+    return JSON.stringify(item).slice(0, 100);
+  }
+
+  function netResidualArchiveKey(catKey, item) {
+    if (catKey === 'dtoc') return `${item.doc_file}:${item.value}`;
+    if (catKey === 'dtor') return `${item.doc_file}:${item.line}`;
+    return typeof item === 'string' ? item : (item.file || item.summary);
+  }
+
   for (const [key, val] of Object.entries(finalResidual)) {
     if (val && typeof val === 'object' && val.residual > 0) {
-      solveState.known_issues.push({ layer: key, residual: val.residual });
+      const mapping = LAYER_CAT_MAP[key];
+      if (mapping) {
+        const { catKey, detailKey } = mapping;
+        const detailItems = (val.detail && val.detail[detailKey]) || [];
+        const catClassifications = classificationsByCategory[catKey] || {};
+
+        // Filter out FP-classified items
+        const afterFP = detailItems.filter(item => {
+          const k = netResidualItemKey(catKey, item);
+          return catClassifications[k] !== 'fp';
+        });
+
+        // Filter out archived items
+        const afterArchive = afterFP.filter(item => {
+          const ak = netResidualArchiveKey(catKey, item);
+          return !archiveEntries.some(e => e.key === ak);
+        });
+
+        solveState.known_issues.push({ layer: key, residual: val.residual, net_residual: afterArchive.length });
+      } else {
+        solveState.known_issues.push({ layer: key, residual: val.residual });
+      }
     }
   }
   try {
