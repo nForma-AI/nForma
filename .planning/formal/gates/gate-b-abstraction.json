@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T14:20:50.566Z",
-  "gate_b_score": 0.8539325842696629,
-  "total_entries": 178,
-  "grounded_entries": 152,
-  "orphaned_entries": 26,
+  "generated": "2026-03-10T20:32:22.520Z",
+  "gate_b_score": 1,
+  "total_entries": 180,
+  "grounded_entries": 180,
+  "orphaned_entries": 0,
   "target": 1,
-  "target_met": false
+  "target_met": true
 }

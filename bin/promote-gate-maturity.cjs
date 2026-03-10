@@ -42,13 +42,17 @@ function getModelLevel(model) {
 
 /**
  * Infer source_layer from the model path.
+ * L1 = evidence/conformance traces, L2 = operational semantics (observed FSM, invariant catalog),
+ * L3 = reasoning artifacts (formal specs, hazard models, failure modes).
+ * TLA+/Alloy/PRISM models default to L3 (reasoning layer) since they encode system properties
+ * and design rationale, not operational behavior traces.
  */
 function inferSourceLayer(modelPath) {
   if (modelPath.includes('evidence/') || modelPath.includes('L1') || modelPath.includes('conformance')) return 'L1';
   if (modelPath.includes('semantics/') || modelPath.includes('L2')) return 'L2';
   if (modelPath.includes('reasoning/') || modelPath.includes('L3')) return 'L3';
-  // TLA+ and Alloy models are L2 by default (formal specs of the operational model)
-  if (modelPath.endsWith('.tla') || modelPath.endsWith('.als') || modelPath.endsWith('.props')) return 'L2';
+  // TLA+, Alloy, and PRISM models are L3 by default (formal reasoning about system properties)
+  if (modelPath.endsWith('.tla') || modelPath.endsWith('.als') || modelPath.endsWith('.props') || modelPath.endsWith('.pm')) return 'L3';
   return null;
 }
 

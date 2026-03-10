@@ -1,8 +1,8 @@
 {
   "schema_version": "3",
-  "generated": "2026-03-10T14:20:50.567Z",
-  "total_models": 178,
-  "unstable_models": 6,
+  "generated": "2026-03-10T20:32:10.307Z",
+  "total_models": 180,
+  "unstable_models": 7,
   "evidence_readiness": {
     "score": 2,
     "total": 5
@@ -114,14 +114,14 @@
         "reason": "semantic_declarations in layer-manifest (layer: L3)"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
       },
       "gate_c": {
         "pass": true,
-        "reason": "passing check-result alloy:quorum-votes"
+        "reason": "failure-mode FM-SPEC-OMISSION has test recipe (via req SPEC-03)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -234,16 +234,16 @@
         "reason": "semantic_declarations in layer-manifest (layer: L3)"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "no source_layer and could not infer from path"
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
       },
       "gate_c": {
         "pass": true,
-        "reason": "passing check-result prism:quorum"
+        "reason": "failure-mode FM-SPEC-OMISSION has test recipe (via req SPEC-03)"
       },
-      "layer_maturity": 2,
-      "gate_maturity": "ADVISORY",
-      "promoted": false,
+      "layer_maturity": 3,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
@@ -1674,14 +1674,14 @@
         "reason": "semantic_declarations in layer-manifest (layer: L3)"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
       },
       "gate_c": {
         "pass": true,
-        "reason": "passing check-result prism:quorum"
+        "reason": "failure-mode FM-SPEC-OMISSION has test recipe (via req SPEC-03)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3114,8 +3114,8 @@
         "reason": "no passing traces for reqs [DIAG-04]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
       },
       "gate_c": {
         "pass": true,
@@ -3125,12 +3125,12 @@
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 3,
+      "direction_changes": 10,
       "cooldown": {
-        "consecutive_stable_sessions": 4,
+        "consecutive_stable_sessions": 11,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T14:20:50.562Z"
+        "last_session_timestamp": "2026-03-10T20:32:10.302Z"
       },
       "flagged_at": "2026-03-10T10:57:59.707Z"
     },
@@ -3140,14 +3140,14 @@
         "reason": "no passing traces for reqs [DEBT-01, DEBT-02, DEBT-03, DEBT-04, DEBT-05, DEBT-06]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 6 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-DEBT-OMISSION has test recipe (via req DEBT-01)"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3160,14 +3160,14 @@
         "reason": "no passing traces for reqs [CONF-01, CONF-02, CONF-03, CONF-04, CONF-05, CONF-08]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 6 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-IDLE-QUORUM_START-OMISSION has test recipe (via req CONF-03)"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3180,16 +3180,16 @@
         "reason": "no passing traces for reqs [PF-01, PF-02, PF-03, PF-04, PF-05]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 5 requirement(s)"
       },
       "gate_c": {
         "pass": false,
         "reason": "no failure-mode with test recipe for reqs [PF-01, PF-02, PF-03, PF-04, PF-05], no matching check-results"
       },
-      "layer_maturity": 0,
-      "gate_maturity": "ADVISORY",
-      "promoted": false,
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
@@ -3200,16 +3200,16 @@
         "reason": "no passing traces for reqs [TOKN-01, TOKN-02, TOKN-03, TOKN-04]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
       },
       "gate_c": {
         "pass": false,
         "reason": "no failure-mode with test recipe for reqs [TOKN-01, TOKN-02, TOKN-03, TOKN-04], no matching check-results"
       },
-      "layer_maturity": 0,
-      "gate_maturity": "ADVISORY",
-      "promoted": false,
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
@@ -3220,16 +3220,16 @@
         "reason": "no passing traces for reqs [LRNG-01, LRNG-02, LRNG-03, LRNG-04]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
       },
       "gate_c": {
         "pass": false,
         "reason": "no failure-mode with test recipe for reqs [LRNG-01, LRNG-02, LRNG-03, LRNG-04], no matching check-results"
       },
-      "layer_maturity": 0,
-      "gate_maturity": "ADVISORY",
-      "promoted": false,
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
@@ -3240,16 +3240,16 @@
         "reason": "no passing traces for reqs [MEMP-01, MEMP-02, MEMP-03, MEMP-04]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
       },
       "gate_c": {
         "pass": false,
         "reason": "no failure-mode with test recipe for reqs [MEMP-01, MEMP-02, MEMP-03, MEMP-04], no matching check-results"
       },
-      "layer_maturity": 0,
-      "gate_maturity": "ADVISORY",
-      "promoted": false,
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
@@ -3260,16 +3260,16 @@
         "reason": "no passing traces for reqs [RSN-01, RSN-02, RSN-03, RSN-04, RSN-05]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 5 requirement(s)"
       },
       "gate_c": {
         "pass": false,
         "reason": "no failure-mode with test recipe for reqs [RSN-01, RSN-02, RSN-03, RSN-04, RSN-05], no matching check-results"
       },
-      "layer_maturity": 0,
-      "gate_maturity": "ADVISORY",
-      "promoted": false,
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
@@ -3280,23 +3280,23 @@
         "reason": "passing trace for req IMPR-01 (property: unnamed)"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
       },
       "gate_c": {
         "pass": false,
         "reason": "no failure-mode with test recipe for reqs [IMPR-01, IMPR-02, IMPR-03, IMPR-04], no matching check-results"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 4,
+      "direction_changes": 17,
       "cooldown": {
-        "consecutive_stable_sessions": 1,
+        "consecutive_stable_sessions": 10,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T14:20:50.564Z"
+        "last_session_timestamp": "2026-03-10T20:32:10.304Z"
       },
       "flagged_at": "2026-03-10T14:20:26.825Z"
     },
@@ -3306,16 +3306,16 @@
         "reason": "no passing traces for reqs [ORCH-01, ORCH-02, ORCH-03]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
       },
       "gate_c": {
         "pass": false,
         "reason": "no failure-mode with test recipe for reqs [ORCH-01, ORCH-02, ORCH-03], no matching check-results"
       },
-      "layer_maturity": 0,
-      "gate_maturity": "ADVISORY",
-      "promoted": false,
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
@@ -3326,14 +3326,14 @@
         "reason": "no passing traces for reqs [PLCY-01, PLCY-02, PLCY-03]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-PLCY-OMISSION has test recipe (via req PLCY-01)"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3346,16 +3346,16 @@
         "reason": "no passing traces for reqs [VERF-01, VERF-02, VERF-03]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
       },
       "gate_c": {
         "pass": false,
         "reason": "no failure-mode with test recipe for reqs [VERF-01, VERF-02, VERF-03], no matching check-results"
       },
-      "layer_maturity": 0,
-      "gate_maturity": "ADVISORY",
-      "promoted": false,
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
@@ -3366,23 +3366,23 @@
         "reason": "no passing traces for reqs [FP-01, FP-02, FP-03, FP-04]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "passing check-result alloy:fingerprinting"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 4,
+      "direction_changes": 19,
       "cooldown": {
-        "consecutive_stable_sessions": 4,
+        "consecutive_stable_sessions": 6,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T14:20:50.565Z"
+        "last_session_timestamp": "2026-03-10T20:32:10.305Z"
       },
       "flagged_at": "2026-03-10T12:37:27.712Z"
     },
@@ -3392,8 +3392,8 @@
         "reason": "no passing traces for reqs [GATE-01, GATE-03, GATE-04]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
       },
       "gate_c": {
         "pass": true,
@@ -3412,23 +3412,23 @@
         "reason": "no passing traces for reqs [SEM-01, SEM-02, SEM-03, SEM-04]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "passing check-result alloy:semantics-layer"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false,
+      "promoted": true,
       "stability_status": "UNSTABLE",
-      "direction_changes": 4,
+      "direction_changes": 13,
       "cooldown": {
         "consecutive_stable_sessions": 4,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T14:20:50.565Z"
+        "last_session_timestamp": "2026-03-10T20:32:10.305Z"
       },
       "flagged_at": "2026-03-10T12:37:27.712Z"
     },
@@ -3438,14 +3438,14 @@
         "reason": "no passing traces for reqs [EVID-02, EVID-03, EVID-05]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-EVID-OMISSION has test recipe (via req EVID-02)"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3458,23 +3458,23 @@
         "reason": "no passing traces for reqs [DIAG-01, DIAG-02, DIAG-03]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "passing check-result alloy:diagnostics"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 4,
+      "direction_changes": 16,
       "cooldown": {
-        "consecutive_stable_sessions": 4,
+        "consecutive_stable_sessions": 9,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T14:20:50.565Z"
+        "last_session_timestamp": "2026-03-10T20:32:10.305Z"
       },
       "flagged_at": "2026-03-10T12:37:27.712Z"
     },
@@ -3484,14 +3484,14 @@
         "reason": "no passing traces for reqs [TRACE-01, TRACE-03]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 2 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-TRACE-OMISSION has test recipe (via req TRACE-01)"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3504,23 +3504,23 @@
         "reason": "no passing traces for reqs [PARA-01, PARA-02]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 2 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "passing check-result alloy:parallel-exec"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "UNSTABLE",
-      "direction_changes": 4,
+      "direction_changes": 10,
       "cooldown": {
-        "consecutive_stable_sessions": 4,
+        "consecutive_stable_sessions": 5,
         "required_sessions": 3,
         "required_wall_time_ms": 3600000,
-        "last_session_timestamp": "2026-03-10T14:20:50.565Z"
+        "last_session_timestamp": "2026-03-10T20:32:10.305Z"
       },
       "flagged_at": "2026-03-10T12:34:59.661Z"
     },
@@ -3530,14 +3530,14 @@
         "reason": "no passing traces for reqs [PROV-02, PROV-03, PRST-01, PRST-02]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-PROV-OMISSION has test recipe (via req PROV-02)"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3550,14 +3550,14 @@
         "reason": "no passing traces for reqs [MULTI-01, MULTI-03]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 2 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-MULTI-OMISSION has test recipe (via req MULTI-01)"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3570,14 +3570,14 @@
         "reason": "no passing traces for reqs [META-01, META-03]"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 2 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-META-OMISSION has test recipe (via req META-01)"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
@@ -3590,19 +3590,65 @@
         "reason": "passing trace for req ADAPT-01 (property: unnamed)"
       },
       "gate_b": {
-        "pass": false,
-        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+        "pass": true,
+        "reason": "L3 model with 17 requirement(s)"
       },
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-AGENT-OMISSION has test recipe (via req AGENT-03)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
       "cooldown": null
+    },
+    ".planning/formal/alloy/solve-triage-display.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [SOLVE-07]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:solve-triage-display"
+      },
+      "layer_maturity": 3,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/solve-net-residual.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [SOLVE-08]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:solve-net-residual"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": true,
+      "stability_status": "UNSTABLE",
+      "direction_changes": 4,
+      "cooldown": {
+        "consecutive_stable_sessions": 4,
+        "required_sessions": 3,
+        "required_wall_time_ms": 3600000,
+        "last_session_timestamp": "2026-03-10T20:32:10.306Z"
+      },
+      "flagged_at": "2026-03-10T19:07:01.291Z"
     }
   }
 }
