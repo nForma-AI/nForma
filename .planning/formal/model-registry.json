@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-10T00:54:43.599Z",
+  "last_sync": "2026-03-10T09:01:14.925Z",
   "search_dirs": [],
   "models": {
     ".planning/formal/alloy/solve-session-persistence.als": {
@@ -85,12 +85,15 @@
       "layer_maturity": 3
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 5844,
-      "last_updated": "2026-03-10T00:54:43.599Z",
+      "version": 6005,
+      "last_updated": "2026-03-10T09:01:28.245Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": ""
+      "description": "",
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "source_layer": "L2"
     },
     ".planning/formal/alloy/scoreboard-recompute.als": {
       "version": 1,
@@ -173,12 +176,13 @@
       "layer_maturity": 3
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 5842,
-      "last_updated": "2026-03-10T00:54:43.599Z",
+      "version": 6003,
+      "last_updated": "2026-03-10T09:01:28.249Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": ""
+      "description": "",
+      "layer_maturity": 2
     },
     ".planning/formal/tla/NFAccountManager.tla": {
       "version": 1,
@@ -353,6 +357,22 @@
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
+      "layer_maturity": 3
+    },
+    ".planning/formal/tla/NFSolveConvergence.tla": {
+      "version": 1,
+      "last_updated": "2026-03-10T12:00:00.000Z",
+      "update_source": "manual",
+      "source_id": "v0.33-05-plan-01",
+      "session_id": null,
+      "description": "Outer nf:solve loop convergence under Option C — cross-session state, oscillation blocking, gate maturity",
+      "requirements": [
+        "FV-01",
+        "FV-02",
+        "FV-03"
+      ],
+      "source_layer": "L3",
+      "gate_maturity": "ADVISORY",
       "layer_maturity": 3
     },
     ".planning/formal/tla/NFStopHook.tla": {
@@ -1341,12 +1361,15 @@
       "layer_maturity": 2
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 4594,
-      "last_updated": "2026-03-10T00:54:43.597Z",
+      "version": 4755,
+      "last_updated": "2026-03-10T09:01:28.254Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": ""
+      "description": "",
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "source_layer": "L2"
     },
     ".planning/formal/alloy/solve-automation-features.als": {
       "version": 1,
