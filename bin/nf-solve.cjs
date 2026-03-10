@@ -45,6 +45,7 @@ const { spawnSync } = require('child_process');
 const { appendTrendEntry, readGateSummary } = require('./solve-trend-helpers.cjs');
 const { updateVerdicts } = require('./oscillation-detector.cjs');
 const { filterRequirementsByFocus } = require('./solve-focus-filter.cjs');
+const { updatePredictivePower, formatPredictivePowerSummary } = require('./predictive-power.cjs');
 
 const TAG = '[nf-solve]';
 let ROOT = process.cwd();
@@ -3599,8 +3600,21 @@ function main() {
     }
   }
 
+  // Update predictive power metrics (bug linking, recall, velocity)
+  let predictivePowerResults = null;
+  if (!reportOnly) {
+    try {
+      predictivePowerResults = updatePredictivePower({ root: ROOT });
+    } catch (e) {
+      process.stderr.write(TAG + ' WARNING: predictive power update failed: ' + e.message + '\n');
+    }
+  }
+
   // Pre-compute both outputs for session persistence (avoid redundant formatting)
-  const reportText = formatReport(iterations, finalResidual, converged);
+  let reportText = formatReport(iterations, finalResidual, converged);
+  if (predictivePowerResults) {
+    reportText += '\n' + formatPredictivePowerSummary(predictivePowerResults);
+  }
   const jsonText = JSON.stringify(formatJSON(iterations, finalResidual, converged), null, 2);
 
   // Persist session summary before stdout/exit
@@ -3723,6 +3737,7 @@ module.exports = {
   appendTrendEntry,
   readGateSummary,
   updateVerdicts,
+  updatePredictivePower,
 };
 
 // ── Entry point ──────────────────────────────────────────────────────────────
