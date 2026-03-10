@@ -94,7 +94,7 @@ None.
 | 257 | Fix solve/resolve data disconnect | 2026-03-10 | d5f6644f | Verified | [257-fix-solve-resolve-data-disconnect-add-tr](./quick/257-fix-solve-resolve-data-disconnect-add-tr/) |
 | 258 | Bridge errors.jsonl into solve debt pipeline and clean up error extraction quality | 2026-03-10 | e7275919 | Verified | [258-bridge-errors-jsonl-into-solve-debt-pipe](./quick/258-bridge-errors-jsonl-into-solve-debt-pipe/) |
 | 259 | Refresh solve-state residuals to subtract FP and archived items | 2026-03-10 | e48fb407 | Verified | [259-refresh-solve-state-residuals-to-subtrac](./quick/259-refresh-solve-state-residuals-to-subtrac/) |
-| 260 | Smart error clustering for Category 16 | 2026-03-10 | b5c4ce71 | Verified | [260-smart-error-clustering-for-category-16](./quick/260-smart-error-clustering-for-category-16/) |
+| 260 | Smart error clustering for Category 16 | 2026-03-10 | ab73d2fc | Verified | [260-smart-error-clustering-for-category-16](./quick/260-smart-error-clustering-for-category-16/) |
 
 ## Session Continuity
 
