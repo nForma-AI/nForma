@@ -19,6 +19,10 @@ This is an internal-only sub-skill dispatched by the nf:solve orchestrator via A
 </objective>
 
 <execution_context>
+PATH RESOLUTION: All bare `./bin/` require paths must resolve portably: try `$HOME/.claude/nf-bin/` first, fall back to `./bin/`. Use this helper at the top of any node -e snippet:
+```javascript
+const _nfBin = (n) => { const p = require('path').join(require('os').homedir(), '.claude/nf-bin', n); return require('fs').existsSync(p) ? p : './bin/' + n; };
+```
 AUTONOMY REQUIREMENT: This skill runs FULLY AUTONOMOUSLY. Do NOT ask the user
 any questions. Do NOT stop for human input. If a sub-skill fails, log the
 failure and continue to the next gap. The only valid reason to stop is:
@@ -77,7 +81,7 @@ Track dispatched, skipped, and failed lists for the output report.
 **Pre-dispatch:** Transition matched debt entries to 'resolving':
 
 ```javascript
-const { transitionDebtEntries } = require('./bin/solve-debt-bridge.cjs');
+const { transitionDebtEntries } = require(_nfBin('solve-debt-bridge.cjs'));
 const matched = matchDebtToResidual(openDebt, residualVector);
 const resolvingFPs = matched.matched.map(m => m.entry.fingerprint);
 transitionDebtEntries('.planning/formal/debt.json', resolvingFPs, 'open', 'resolving');

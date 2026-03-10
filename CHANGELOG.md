@@ -6,6 +6,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-03-10 — Outer-Loop Convergence Guarantees
+
+### Added
+- **Gate stability module** — Flip-flop detection and cooldown enforcement prevent gate oscillation during promotion pipeline
+- **Oscillation detector** — Mann-Kendall trend detector with credit enforcement, integrated into autoClose and solve reports
+- **JSONL trend tracking** — Append-only solve trend log with scope-growth detection
+- **Promotion changelog dedup guard** — Prevents duplicate entries in promotion changelog
+- **Predictive power module** — Bug-to-property linking and recall scoring for formal model coverage
+- **Convergence velocity estimation** — Predictive power wired into nf-solve pipeline after updateVerdicts
+- **Solve focus/topic filter** — `--focus` flag for nf:solve with 23 unit tests and Alloy spec
+- **TLA+ meta-verification** — NFSolveConvergence TLA+ spec with Option C blocking and convergence; TLC verifies safety + liveness with zero counterexamples
+- **Escalation classifier** — Haiku-based classification logic wired into nf-solve pipeline
+- **Convergence report** — Sparkline rendering and action items integrated into solve-report.md
+- **Observe pipeline** — Extracted observe pipeline as standalone `bin/observe-pipeline.cjs`
+- **Per-model gate integration** — `--write-per-model` default added to sweepPerModelGates (INTG-01)
+- **SAFE-03 and DIAG-04 requirements** — New formal requirements added
+
+### Fixed
+- **Solve subagent cwd/path bugs** — Project root validation prevents junk files in project root
+- **Model-registry traversal** — Corrected close-formal-gaps workflow traversal
+- **Cross-repo contamination guard** — Static steps in run-formal-verify.cjs guarded for safety
+- **Per-model gate enrichment** — Gate evaluation enriched with per-model detail and reasons
+- **XState machine bundle** — Install now copies machine bundle to nf-bin for gate scripts
+
 ## [0.32.1] - 2026-03-09 — nForma Branding & README Polish
 
 ### Changed

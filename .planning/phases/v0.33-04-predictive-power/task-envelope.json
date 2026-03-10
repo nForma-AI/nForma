@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.33-04",
+  "created_at": "2026-03-10T08:08:27.464Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Formal models are scored on their ability to predict real bugs, providing a feedback loop between observed failures and formal verification effectiveness",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.33-04-predictive-power/v0.33-04-01-PLAN.md",
+    "key_decisions": []
+  }
+}

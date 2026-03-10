@@ -8,6 +8,7 @@ const crypto     = require('crypto');
 const { spawnSync, fork } = require('child_process');
 const solveTui = require('./solve-tui.cjs');
 const nfSolve  = require('./nf-solve.cjs');
+const NF_VERSION = require('../package.json').version;
 
 // ─── Global error handlers — prevent silent TUI crashes ─────────────────────
 process.on('uncaughtException', (err) => {
@@ -36,7 +37,7 @@ function sweepAsync(fnName) {
   return new Promise((resolve, reject) => {
     let settled = false;
     const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
-    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
+    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + getTargetPath()], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
     const timeout = setTimeout(() => {
@@ -67,7 +68,7 @@ function loadSweepDataAsync() {
   return new Promise((resolve, reject) => {
     let settled = false;
     const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
-    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
+    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + getTargetPath()], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
     const timeout = setTimeout(() => {
@@ -100,7 +101,7 @@ function classifyAsync(sweepData, opts = {}) {
   return new Promise((resolve, reject) => {
     let settled = false;
     const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
-    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
+    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + getTargetPath()], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
     const timeout = setTimeout(() => {
@@ -133,7 +134,7 @@ function batchSweepAsync(fnNames, onResult) {
   return new Promise((resolve, reject) => {
     let settled = false;
     const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
-    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + process.cwd()], {
+    const child = fork(SOLVE_WORKER_PATH, ['--project-root=' + getTargetPath()], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
     const timeout = setTimeout(() => {
@@ -397,11 +398,14 @@ if (cliArgs.includes('--screenshot')) {
 
   const contentLines = contentByModule[moduleName] || [];
 
-  // Header
-  const headerLine = `${SALMON}${BOLD}n${CYAN_NF}Forma${RESET} ${SALMON}AI${RESET} ${DIM}· agent manager${RESET}`;
-  const keyHints = `${TEAL}[F1]${RESET} Agt  ${TEAL}[F2]${RESET} Req  ${TEAL}[F3]${RESET} Cfg  ${TEAL}[F4]${RESET} Ses  ${TEAL}[F5]${RESET} Sol  ${TEAL}[Tab]${RESET} cycle  ${TEAL}[q]${RESET} quit`;
-  process.stdout.write(` ${'─'.repeat(118)} \n`);
-  process.stdout.write(`  ${headerLine}  ${keyHints}  \n`);
+  // Header — left: logo + version, right: cwd
+  const W = 118;
+  const leftH  = `${SALMON}${BOLD}n${CYAN_NF}Forma${RESET} ${SALMON}AI${RESET} ${DIM}v${NF_VERSION}${RESET}`;
+  const rightH = `${DIM}cwd:${RESET} ${TEAL}${getTargetPath()}${RESET}`;
+  const ansiLen = (s) => s.replace(/\x1b\[[0-9;]*m/g, '').length;
+  const gapH = ' '.repeat(Math.max(1, W - ansiLen(leftH) - ansiLen(rightH)));
+  process.stdout.write(` ${'─'.repeat(W)} \n`);
+  process.stdout.write(`  ${leftH}${gapH}${rightH}  \n`);
   process.stdout.write(` ${'─'.repeat(7)} ${'─'.repeat(24)} ${'─'.repeat(85)} \n`);
 
   // Activity bar icons + menu + content area
@@ -725,6 +729,8 @@ function switchModule(idx) {
   menuList.setLabel(` {${S.dim}-fg}${mod.name}{/} `);
   menuList.select(0);
   menuList.focus();
+  // Force full redraw to clear any ghost artifacts from rapid content updates (e.g. solve streaming)
+  screen.alloc();
   screen.render();
 
   // If switching TO Sessions with an active session, reconnect terminal
@@ -1188,7 +1194,7 @@ if (process.env.NF_THEME === 'light') {
 }
 
 // ─── Screen setup ─────────────────────────────────────────────────────────────
-const screen = blessed.screen({ smartCSR: true, title: 'nForma' });
+const screen = blessed.screen({ smartCSR: true, fullUnicode: true, title: 'nForma' });
 
 // ─── Surface palette ─────────────────────────────────────────────────────────
 // Auto-selected based on terminal background (OSC 11 probe).
@@ -1208,18 +1214,16 @@ const header = blessed.box({
 
 function renderHeader() {
   const A = S.accent;
-  // Line 1: logo + module keys only (short — guarantees no wrap)
-  const line1 = ` {#f4956a-fg}{bold}n{/bold}{/}{#7dcfff-fg}{bold}Forma{/bold}{/} {#f4956a-fg}AI{/}  {${A}-fg}[F1]{/}Agt {${A}-fg}[F2]{/}Req {${A}-fg}[F3]{/}Cfg {${A}-fg}[F4]{/}Ses {${A}-fg}[F5]{/}Sol  {${A}-fg}[Tab]{/} {${A}-fg}[C-\\]{/} {${A}-fg}[q]{/}`;
-  // Line 2: target path
+
   const tp = getTargetPath();
   const home = os.homedir();
   const display = tp.startsWith(home) ? '~' + tp.slice(home.length) : tp;
-  const iw = header.iwidth || (screen.width ? screen.width - 2 : 118);
-  const maxPathLen = Math.max(20, iw - 20);
-  const truncated = display.length > maxPathLen
-    ? '…' + display.slice(display.length - maxPathLen + 1)
-    : display;
-  const line2 = ` {${S.dim}-fg}Target path:{/} {${A}-fg}${truncated}{/}  {${S.dim}-fg}[ctrl-t] change{/}`;
+
+  // Line 1: logo + version left, shortcuts right
+  const line1 = ` {#f4956a-fg}{bold}n{/bold}{/}{#7dcfff-fg}{bold}Forma{/bold}{/} {#f4956a-fg}AI{/} {${S.dim}-fg}v${NF_VERSION}{/}{|}{${S.dim}-fg}[Tab]{/} {${S.dim}-fg}cycle{/}  {${S.dim}-fg}[q]{/} {${S.dim}-fg}quit{/} `;
+  // Line 2: cwd centered
+  const line2 = `{center}{${S.dim}-fg}cwd:{/} {${A}-fg}${display}{/} {${S.dim}-fg}[ctrl-t]{/}{/center}`;
+
   header.setContent(line1 + '\n' + line2);
   screen.render();
 }
@@ -1374,6 +1378,7 @@ function setContent(label, text) {
   contentBox.setLabel(` {${S.dim}-fg}${breadcrumb}{/} `);
   contentBox.setContent(text);
   contentBox.scrollTo(0);
+  screen.alloc();
   screen.render();
 }
 
@@ -3338,6 +3343,13 @@ function reqCoverageGapsFlow() {
 // ─── Requirements: Gate Scoring --------------------------------------------------
 function gateScoreFlow() {
   try {
+    const registryPath = path.join(getTargetPath(), '.planning', 'formal', 'model-registry.json');
+    if (!fs.existsSync(registryPath)) {
+      setContent('Gate Scoring', '{yellow-fg}No model-registry.json found in target project.{/}\n\n' +
+        'Gate scoring requires a formal model registry at:\n  .planning/formal/model-registry.json\n\n' +
+        'Run {bold}node bin/initialize-model-registry.cjs{/bold} to create one.');
+      return;
+    }
     const result = spawnSync('node', [
       path.join(__dirname, 'compute-per-model-gates.cjs'), '--aggregate', '--json',
       '--project-root=' + getTargetPath()
@@ -3418,7 +3430,7 @@ async function solveResidualView(title, fnName) {
   setContent(`Solve - ${title}`,
     `{bold}Solve \u2014 ${title}{/bold}\n` +
     '\u2500'.repeat(60) + '\n\n' +
-    '{yellow-fg}\u231B Running sweep in background...{/}'
+    '{yellow-fg}* Running sweep in background...{/}'
   );
   screen.render();
 
@@ -3445,16 +3457,16 @@ async function solveResidualView(title, fnName) {
   // Residual badge
   if (residual < 0) {
     if (detail.skipped) {
-      lines.push(`{yellow-fg}\u26A0 Skipped{/}  ${detail.reason || ''}`);
+      lines.push(`{yellow-fg}! Skipped{/}  ${detail.reason || ''}`);
     } else if (detail.error) {
-      lines.push(`{red-fg}\u2717 Error{/}  ${detail.stderr || 'unknown error'}`);
+      lines.push(`{red-fg}x Error{/}  ${detail.stderr || 'unknown error'}`);
     } else {
       lines.push('{gray-fg}N/A{/}');
     }
   } else if (residual === 0) {
-    lines.push('{green-fg}\u2714 Residual: 0 \u2014 All clear{/}');
+    lines.push('{green-fg}ok Residual: 0 \u2014 All clear{/}');
   } else {
-    lines.push(`{red-fg}\u2717 Residual: ${residual}{/}`);
+    lines.push(`{red-fg}x Residual: ${residual}{/}`);
   }
   lines.push('');
 
@@ -3492,7 +3504,7 @@ async function solveBrowseFlow() {
   setContent('Solve - Browse',
     '{bold}Solve Items{/bold}\n' +
     '\u2500'.repeat(60) + '\n\n' +
-    '{yellow-fg}\u231B Loading sweep data in background...{/}'
+    '{yellow-fg}* Loading sweep data in background...{/}'
   );
   screen.render();
 
@@ -3597,7 +3609,7 @@ async function solveBrowseFlow() {
   lines.push('');
   lines.push('{bold}All Layer Transitions{/bold}');
   lines.push('\u2500'.repeat(60));
-  lines.push('{yellow-fg}\u231B Running all 19 sweeps in background...{/}');
+  lines.push('{yellow-fg}* Running all 19 sweeps in background...{/}');
   setContent('Solve - Browse', lines.join('\n'));
 
   const sweepSummary = [
@@ -3659,18 +3671,18 @@ async function solveBrowseFlow() {
         for (const s of grp.items) {
           const sr = sweepResults[s.fn];
           if (!sr) {
-            transLines.push(`    {gray-fg}${s.label}: \u231B pending...{/}`);
+            transLines.push(`    {gray-fg}${s.label}: * pending...{/}`);
           } else if (sr.error) {
             transLines.push(`    {red-fg}${s.label}: ERROR ${sr.error}{/}`);
           } else {
             const res = sr.residual;
             if (res < 0) {
               const reason = (sr.detail && sr.detail.reason) || (sr.detail && sr.detail.stderr) || 'skipped';
-              transLines.push(`    {yellow-fg}${s.label}: \u26A0 ${reason}{/}`);
+              transLines.push(`    {yellow-fg}${s.label}: ! ${reason}{/}`);
             } else if (res === 0) {
-              transLines.push(`    {green-fg}${s.label}: \u2714 0{/}`);
+              transLines.push(`    {green-fg}${s.label}: ok 0{/}`);
             } else {
-              transLines.push(`    {red-fg}${s.label}: \u2717 ${res}{/}`);
+              transLines.push(`    {red-fg}${s.label}: x ${res}{/}`);
             }
           }
         }
@@ -3682,6 +3694,9 @@ async function solveBrowseFlow() {
       lines.push(...transLines);
       setContent('Solve - Browse', lines.join('\n'));
     });
+    // Force full redraw after streaming to clear any diff-algorithm ghost artifacts
+    screen.alloc();
+    screen.render();
   } catch (err) {
     const cutIdx = lines.findIndex(l => l.includes('All Layer Transitions'));
     if (cutIdx >= 0) lines.length = cutIdx;
@@ -3699,7 +3714,7 @@ async function solveCategoryFlow(catKey) {
   const catLabels = { dtoc: 'D->C Broken Claims', ctor: 'C->R Untraced Modules', ttor: 'T->R Orphan Tests', dtor: 'D->R Unbacked Claims' };
   const catLabel = catLabels[catKey] || catKey;
 
-  setContent(`Solve - ${catLabel}`, '{yellow-fg}\u231B Loading sweep data in background...{/}');
+  setContent(`Solve - ${catLabel}`, '{yellow-fg}* Loading sweep data in background...{/}');
   screen.render();
 
   let data;
@@ -4065,7 +4080,7 @@ async function showItemDetail(catKey, item, catLabel) {
 async function solveClassifyFlow() {
   setContent('Solve - Classify',
     '{bold}Haiku Classification{/bold}\n\n' +
-    '{yellow-fg}\u231B Loading sweep data in background...{/}'
+    '{yellow-fg}* Loading sweep data in background...{/}'
   );
   screen.render();
 
@@ -4104,7 +4119,7 @@ async function solveClassifyFlow() {
     `Already classified: ${alreadyCached} (cached forever per item)\n` +
     `New items to classify: ${newItems}\n\n` +
     (newItems > 0
-      ? `{yellow-fg}\u231B Classifying ${newItems} new items via Haiku in background...{/}\n{gray-fg}Batched (50 per call). Only unclassified items are sent.{/}`
+      ? `{yellow-fg}* Classifying ${newItems} new items via Haiku in background...{/}\n{gray-fg}Batched (50 per call). Only unclassified items are sent.{/}`
       : `{green-fg}All items already classified! Nothing to do.{/}`)
   );
   screen.render();
@@ -4331,9 +4346,18 @@ if (!process.env.NF_TEST_MODE) {
   screen.on('resize', () => { renderHeader(); refreshStatusBar(); renderList(); });
   screen.render();
 
-  // Default target path to cwd if not set via --target
+  // Default target path: prefer repo root (one level up from bin/) over raw cwd.
+  // This ensures `node bin/nForma.cjs` resolves to the project root regardless
+  // of whether the user ran it from the repo root or the bin/ directory.
   if (!targetPath) {
-    targetPath = process.cwd();
+    const cwd = process.cwd();
+    const parentOfBin = path.dirname(__dirname);
+    // If cwd is the bin/ directory itself, use the parent (repo root)
+    if (path.basename(cwd) === 'bin' && cwd === __dirname) {
+      targetPath = parentOfBin;
+    } else {
+      targetPath = cwd;
+    }
     renderHeader();
   }
 }

@@ -1,7 +1,8 @@
 {
-  "schema_version": "2",
-  "generated": "2026-03-09T23:10:23.548Z",
-  "total_models": 127,
+  "schema_version": "3",
+  "generated": "2026-03-10T13:38:58.347Z",
+  "total_models": 178,
+  "unstable_models": 5,
   "evidence_readiness": {
     "score": 2,
     "total": 5
@@ -22,7 +23,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/account-pool-structure.als": {
       "gate_a": {
@@ -34,12 +38,15 @@
         "reason": "L3 model with 5 requirement(s)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [CRED-07, CRED-08, CRED-09, CRED-10, CRED-11], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result alloy:account-pool"
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/availability-parsing.als": {
       "gate_a": {
@@ -56,7 +63,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/install-scope.als": {
       "gate_a": {
@@ -73,7 +83,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/quorum-composition.als": {
       "gate_a": {
@@ -90,7 +103,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/quorum-votes.als": {
       "gate_a": {
@@ -102,12 +118,15 @@
         "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no requirements mapped"
+        "pass": true,
+        "reason": "passing check-result alloy:quorum-votes"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/scoreboard-recompute.als": {
       "gate_a": {
@@ -124,7 +143,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/taxonomy-safety.als": {
       "gate_a": {
@@ -136,12 +158,15 @@
         "reason": "L3 model with 3 requirement(s)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [SCBD-05, SCBD-06, SCBD-07], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result alloy:taxonomy-safety"
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/transcript-scan.als": {
       "gate_a": {
@@ -158,7 +183,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/mcp-availability.pm": {
       "gate_a": {
@@ -175,7 +203,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/oauth-rotation.pm": {
       "gate_a": {
@@ -192,7 +223,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/quorum.pm": {
       "gate_a": {
@@ -204,12 +238,15 @@
         "reason": "no source_layer and could not infer from path"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no requirements mapped"
+        "pass": true,
+        "reason": "passing check-result prism:quorum"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "ADVISORY",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFAccountManager.tla": {
       "gate_a": {
@@ -226,7 +263,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFCircuitBreaker.tla": {
       "gate_a": {
@@ -243,7 +283,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFConvergence.tla": {
       "gate_a": {
@@ -260,7 +303,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFDeliberation.tla": {
       "gate_a": {
@@ -277,12 +323,15 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDMCPEnv.tla": {
       "gate_a": {
-        "pass": true,
-        "reason": "passing trace for req MCPENV-01 (property: unnamed)"
+        "pass": false,
+        "reason": "no passing traces for reqs [MCPENV-01, MCPENV-02, MCPENV-03]"
       },
       "gate_b": {
         "pass": true,
@@ -294,7 +343,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFOscillation.tla": {
       "gate_a": {
@@ -311,7 +363,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFPreFilter.tla": {
       "gate_a": {
@@ -328,7 +383,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDQuorum.tla": {
       "gate_a": {
@@ -345,7 +403,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDQuorum_xstate.tla": {
       "gate_a": {
@@ -362,7 +423,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFRecruiting.tla": {
       "gate_a": {
@@ -379,7 +443,30 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFSolveConvergence.tla": {
+      "gate_a": {
+        "pass": true,
+        "reason": "semantic_declarations in layer-manifest (layer: L3)"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result tla:convergence"
+      },
+      "layer_maturity": 3,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFStopHook.tla": {
       "gate_a": {
@@ -396,7 +483,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/TUINavigation.tla": {
       "gate_a": {
@@ -413,7 +503,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDActivityTracking.tla": {
       "gate_a": {
@@ -430,7 +523,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDSetupWizard.tla": {
       "gate_a": {
@@ -447,7 +543,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDPromptHook.tla": {
       "gate_a": {
@@ -464,7 +563,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDDispatchPipeline.tla": {
       "gate_a": {
@@ -481,7 +583,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDEnforcement.tla": {
       "gate_a": {
@@ -498,7 +603,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDInstallerIdempotency.tla": {
       "gate_a": {
@@ -515,7 +623,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDBreakerState.tla": {
       "gate_a": {
@@ -532,7 +643,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDKeyManagement.tla": {
       "gate_a": {
@@ -549,7 +663,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDAgentProvisioning.tla": {
       "gate_a": {
@@ -564,9 +681,12 @@
         "pass": true,
         "reason": "failure-mode FM-AGENT-OMISSION has test recipe (via req AGENT-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDConfigPortability.tla": {
       "gate_a": {
@@ -583,7 +703,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/config-two-layer.als": {
       "gate_a": {
@@ -600,7 +723,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/mcp-detection.als": {
       "gate_a": {
@@ -617,7 +743,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/schema-extensions.als": {
       "gate_a": {
@@ -632,9 +761,12 @@
         "pass": true,
         "reason": "failure-mode FM-SCHEMA-OMISSION has test recipe (via req SCHEMA-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/unified-check-results.als": {
       "gate_a": {
@@ -649,9 +781,12 @@
         "pass": true,
         "reason": "failure-mode FM-UNIF-OMISSION has test recipe (via req UNIF-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/multi-slot-structure.als": {
       "gate_a": {
@@ -668,7 +803,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/quorum-policy.als": {
       "gate_a": {
@@ -685,7 +823,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/architecture-registry.als": {
       "gate_a": {
@@ -700,9 +841,12 @@
         "pass": true,
         "reason": "failure-mode FM-ARCH-OMISSION has test recipe (via req ARCH-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/traceability-annotations.als": {
       "gate_a": {
@@ -719,7 +863,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/observability-delivery.pm": {
       "gate_a": {
@@ -736,7 +883,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/deliberation-healing.pm": {
       "gate_a": {
@@ -753,7 +903,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDDashboard.tla": {
       "gate_a": {
@@ -770,7 +923,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDCIChecks.tla": {
       "gate_a": {
@@ -787,7 +943,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDSensitivity.tla": {
       "gate_a": {
@@ -804,7 +963,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDSpecGeneration.tla": {
       "gate_a": {
@@ -821,7 +983,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/state-space-analysis.als": {
       "gate_a": {
@@ -836,9 +1001,12 @@
         "pass": true,
         "reason": "failure-mode FM-DECOMP-OMISSION has test recipe (via req DECOMP-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/evidence-triage.als": {
       "gate_a": {
@@ -853,9 +1021,12 @@
         "pass": true,
         "reason": "failure-mode FM-EVID-OMISSION has test recipe (via req EVID-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/uppaal-model-reqs.als": {
       "gate_a": {
@@ -870,9 +1041,12 @@
         "pass": true,
         "reason": "failure-mode FM-UPPAAL-OMISSION has test recipe (via req UPPAAL-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/signal-analysis-tools.als": {
       "gate_a": {
@@ -887,9 +1061,12 @@
         "pass": true,
         "reason": "failure-mode FM-SIG-OMISSION has test recipe (via req SIG-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/gsd-sync-invariants.als": {
       "gate_a": {
@@ -906,7 +1083,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/health-validation.als": {
       "gate_a": {
@@ -921,9 +1101,12 @@
         "pass": true,
         "reason": "failure-mode FM-HLTH-OMISSION has test recipe (via req HLTH-01)"
       },
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/verification-integration.als": {
       "gate_a": {
@@ -940,7 +1123,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/provider-failure.als": {
       "gate_a": {
@@ -957,7 +1143,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/codebase-arch-constraints.als": {
       "gate_a": {
@@ -974,7 +1163,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-consistency.als": {
       "gate_a": {
@@ -991,7 +1183,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/config-zero-providers.als": {
       "gate_a": {
@@ -1003,12 +1198,15 @@
         "reason": "L3 model with 1 requirement(s)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [CONF-10], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result alloy:config-zero-providers"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/decomp-cross-model.als": {
       "gate_a": {
@@ -1025,7 +1223,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/formal-test-trace.als": {
       "gate_a": {
@@ -1042,7 +1243,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/ci-pipeline-gates.als": {
       "gate_a": {
@@ -1059,7 +1263,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/polyrepo-config.als": {
       "gate_a": {
@@ -1071,12 +1278,15 @@
         "reason": "L3 model with 2 requirement(s)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [CONF-11, CONF-12], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result alloy:polyrepo-config"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDAgentLoop.tla": {
       "gate_a": {
@@ -1093,7 +1303,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/security-scanning.als": {
       "gate_a": {
@@ -1110,7 +1323,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/reliability-patterns.als": {
       "gate_a": {
@@ -1127,7 +1343,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/ux-feedback-safety.als": {
       "gate_a": {
@@ -1144,7 +1363,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/platform-install-compat.als": {
       "gate_a": {
@@ -1161,7 +1383,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/cli-exit-conventions.als": {
       "gate_a": {
@@ -1178,7 +1403,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solver-doc-layers.als": {
       "gate_a": {
@@ -1195,7 +1423,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/bin-path-resolution.als": {
       "gate_a": {
@@ -1212,7 +1443,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/baseline-merge-idempotent.als": {
       "gate_a": {
@@ -1229,7 +1463,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/baseline-requirements-filter.als": {
       "gate_a": {
@@ -1246,7 +1483,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDTUIModules.tla": {
       "gate_a": {
@@ -1263,7 +1503,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDTUISessions.tla": {
       "gate_a": {
@@ -1280,7 +1523,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/terminal-emulation-purity.als": {
       "gate_a": {
@@ -1297,7 +1543,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDDeliberationRevision.tla": {
       "gate_a": {
@@ -1314,7 +1563,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/settings-hub.als": {
       "gate_a": {
@@ -1331,7 +1583,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/ci-test-fallback.als": {
       "gate_a": {
@@ -1348,7 +1603,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/dispatch-formal-context.als": {
       "gate_a": {
@@ -1365,7 +1623,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/observability-analysis.als": {
       "gate_a": {
@@ -1382,7 +1643,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solver-portability.als": {
       "gate_a": {
@@ -1399,7 +1663,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/NFQuorum.tla": {
       "gate_a": {
@@ -1411,12 +1678,15 @@
         "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no requirements mapped"
+        "pass": true,
+        "reason": "passing check-result prism:quorum"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-automation-features.als": {
       "gate_a": {
@@ -1433,7 +1703,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-legacy-merge.als": {
       "gate_a": {
@@ -1450,7 +1723,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-ft-recipe.als": {
       "gate_a": {
@@ -1467,7 +1743,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/headless-execution.als": {
       "gate_a": {
@@ -1484,7 +1763,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/jvm-heap-sequential.als": {
       "gate_a": {
@@ -1501,7 +1783,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/traceability-obligations.als": {
       "gate_a": {
@@ -1518,7 +1803,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/project-identity.als": {
       "gate_a": {
@@ -1535,7 +1823,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/doc-claims-backing.als": {
       "gate_a": {
@@ -1552,7 +1843,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-tc-coverage.als": {
       "gate_a": {
@@ -1569,7 +1863,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/observability-handlers.als": {
       "gate_a": {
@@ -1586,7 +1883,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/evidence-scope-scan.als": {
       "gate_a": {
@@ -1603,7 +1903,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/code-quality-guardrails.als": {
       "gate_a": {
@@ -1620,7 +1923,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDPlanningState.tla": {
       "gate_a": {
@@ -1637,7 +1943,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDSessionPersistence.tla": {
       "gate_a": {
@@ -1654,7 +1963,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/observability-handler-arch.als": {
       "gate_a": {
@@ -1671,7 +1983,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/gate-a-scoping.als": {
       "gate_a": {
@@ -1688,7 +2003,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/spec-quality-guardrails.als": {
       "gate_a": {
@@ -1705,7 +2023,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/trace-event-normalization.als": {
       "gate_a": {
@@ -1722,7 +2043,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/mcp-availability.props": {
       "gate_a": {
@@ -1739,7 +2063,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/oauth-rotation.props": {
       "gate_a": {
@@ -1756,7 +2083,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/quorum.props": {
       "gate_a": {
@@ -1773,7 +2103,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/observability-delivery.props": {
       "gate_a": {
@@ -1790,7 +2123,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/prism/deliberation-healing.props": {
       "gate_a": {
@@ -1807,7 +2143,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/config-audit.als": {
       "gate_a": {
@@ -1819,12 +2158,15 @@
         "reason": "L3 model with 1 requirement(s)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [CONF-13], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result alloy:config-audit"
       },
-      "layer_maturity": 1,
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-result-schema.als": {
       "gate_a": {
@@ -1841,7 +2183,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/proximity-index.als": {
       "gate_a": {
@@ -1858,7 +2203,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/wiring-awareness.als": {
       "gate_a": {
@@ -1875,7 +2223,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/tla/QGSDCheckpointGate.tla": {
       "gate_a": {
@@ -1892,7 +2243,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/doc-presentation.als": {
       "gate_a": {
@@ -1909,7 +2263,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/git-history-evidence.als": {
       "gate_a": {
@@ -1926,7 +2283,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/health-diagnostic-routing.als": {
       "gate_a": {
@@ -1943,7 +2303,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/hook-portability-guard.als": {
       "gate_a": {
@@ -1960,7 +2323,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/prism-delegation.als": {
       "gate_a": {
@@ -1977,7 +2343,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/requirements-aggregation.als": {
       "gate_a": {
@@ -1994,7 +2363,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-decomposition.als": {
       "gate_a": {
@@ -2011,7 +2383,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-tui-features.als": {
       "gate_a": {
@@ -2028,7 +2403,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/hook-module-existence.als": {
       "gate_a": {
@@ -2045,7 +2423,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/autoclose-signals.als": {
       "gate_a": {
@@ -2062,7 +2443,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/session-counter-tracking.als": {
       "gate_a": {
@@ -2079,7 +2463,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/debate-trace-persistence.als": {
       "gate_a": {
@@ -2096,7 +2483,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/gate-promotion-lifecycle.als": {
       "gate_a": {
@@ -2113,7 +2503,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/gate-scoring-traces.als": {
       "gate_a": {
@@ -2130,7 +2523,10 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/installer-path-validation.als": {
       "gate_a": {
@@ -2147,7 +2543,10 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     },
     ".planning/formal/alloy/solve-diagnostics-tui.als": {
       "gate_a": {
@@ -2164,7 +2563,1040 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "promoted": false
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/readme-structure.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [RDME-01, RDME-02, RDME-03, RDME-04, RDME-05, RDME-06, RDME-07, RDME-08, RDME-09, RDME-10]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 10 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:readme-structure"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/changelog-release.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [CL-01, CL-02, RLS-01, RLS-02, RLS-03, RLS-04]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 6 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:changelog-release"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/rename-migration.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [REN-01, REN-02, REN-04]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:rename-migration"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/governance-dx.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [ADAPT-01, ADR-01, LRNG-01, LRNG-02, LRNG-03, LRNG-04, SHARD-01, VALID-01]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 8 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:governance-dx"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/debt-lifecycle.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [DEBT-02, DEBT-03, DEBT-04, DEBT-05, DEBT-06]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 5 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:debt-lifecycle"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/solve-pf-layer.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [PF-01, PF-02, PF-03, PF-04, PF-05]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 5 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:solve-pf-layer"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/reasoning-fmea.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [RSN-01, RSN-02, RSN-03, RSN-04, RSN-05]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 5 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:reasoning-fmea"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/quality-hardening.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [BRKR-01, EXEC-01, LTCY-01, PRIO-01]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:quality-hardening"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/fingerprinting-dedup.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [FP-01, FP-02, FP-03, FP-04]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:fingerprinting-dedup"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/memory-persistence.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [MEMP-01, MEMP-02, MEMP-03, MEMP-04]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:memory-persistence"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/semantics-operational.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [SEM-01, SEM-02, SEM-03, SEM-04]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:semantics-operational"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/token-optimization.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [TOKN-01, TOKN-02, TOKN-03, TOKN-04]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:token-optimization"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/quorum-improvements.als": {
+      "gate_a": {
+        "pass": true,
+        "reason": "semantic_declarations in layer-manifest (layer: L3)"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:quorum-improvements"
+      },
+      "layer_maturity": 3,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/build-test-quality.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [BLD-01, BLD-02, STD-02]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:build-test-quality"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/subagent-orchestration.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [ORCH-01, ORCH-02, ORCH-03]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:subagent-orchestration"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/verification-execution.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [VERF-01, VERF-02, VERF-03]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:verification-execution"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/user-guide.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [GUIDE-01, GUIDE-02]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 2 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:user-guide"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/parallel-execution.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [PARA-01, PARA-02]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 2 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:parallel-exec"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/integration-layers.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [INTG-01, INTG-02, INTG-03, INTG-04, INTG-05, INTG-06]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 6 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:integration-layers"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/spec-audit.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [SPEC-02]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:spec-audit"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/event-vocabulary.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [EVID-05]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:event-vocabulary"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/vhs-ci-hardening.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [VIS-02]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 1 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:vhs-ci-hardening"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/diagnostics-verification.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [DIAG-01, DIAG-02, DIAG-03]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:diagnostics-verification"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/ci-quality-gates.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [CI-05, CI-06]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 2 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:ci-quality-gates"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/security-hardening.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [SEC-05, SEC-06, SEC-07, SEC-08]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 4 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:security-hardening"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/reliability-hardening.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [REL-03, REL-04]"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 2 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:reliability-hardening"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/ux-interaction-safety.als": {
+      "gate_a": {
+        "pass": true,
+        "reason": "semantic_declarations in layer-manifest (layer: L3)"
+      },
+      "gate_b": {
+        "pass": true,
+        "reason": "L3 model with 3 requirement(s)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:ux-interaction-safety"
+      },
+      "layer_maturity": 3,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/focus-topic-filter.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [DIAG-04]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:focus-topic-filter"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "UNSTABLE",
+      "direction_changes": 3,
+      "cooldown": {
+        "consecutive_stable_sessions": 2,
+        "required_sessions": 3,
+        "required_wall_time_ms": 3600000,
+        "last_session_timestamp": "2026-03-10T13:38:58.340Z"
+      },
+      "flagged_at": "2026-03-10T10:57:59.707Z"
+    },
+    ".planning/formal/tla/NFDebtLedger.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [DEBT-01, DEBT-02, DEBT-03, DEBT-04, DEBT-05, DEBT-06]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-DEBT-OMISSION has test recipe (via req DEBT-01)"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFConfigLoader.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [CONF-01, CONF-02, CONF-03, CONF-04, CONF-05, CONF-08]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-IDLE-QUORUM_START-OMISSION has test recipe (via req CONF-03)"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFSolveP2F.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [PF-01, PF-02, PF-03, PF-04, PF-05]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": false,
+        "reason": "no failure-mode with test recipe for reqs [PF-01, PF-02, PF-03, PF-04, PF-05], no matching check-results"
+      },
+      "layer_maturity": 0,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFTokenOpt.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [TOKN-01, TOKN-02, TOKN-03, TOKN-04]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": false,
+        "reason": "no failure-mode with test recipe for reqs [TOKN-01, TOKN-02, TOKN-03, TOKN-04], no matching check-results"
+      },
+      "layer_maturity": 0,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFLearning.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [LRNG-01, LRNG-02, LRNG-03, LRNG-04]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": false,
+        "reason": "no failure-mode with test recipe for reqs [LRNG-01, LRNG-02, LRNG-03, LRNG-04], no matching check-results"
+      },
+      "layer_maturity": 0,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFMemoryPersist.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [MEMP-01, MEMP-02, MEMP-03, MEMP-04]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": false,
+        "reason": "no failure-mode with test recipe for reqs [MEMP-01, MEMP-02, MEMP-03, MEMP-04], no matching check-results"
+      },
+      "layer_maturity": 0,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFReasoning.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [RSN-01, RSN-02, RSN-03, RSN-04, RSN-05]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": false,
+        "reason": "no failure-mode with test recipe for reqs [RSN-01, RSN-02, RSN-03, RSN-04, RSN-05], no matching check-results"
+      },
+      "layer_maturity": 0,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFImprovement.tla": {
+      "gate_a": {
+        "pass": true,
+        "reason": "passing trace for req IMPR-01 (property: unnamed)"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": false,
+        "reason": "no failure-mode with test recipe for reqs [IMPR-01, IMPR-02, IMPR-03, IMPR-04], no matching check-results"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFOrchestration.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [ORCH-01, ORCH-02, ORCH-03]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": false,
+        "reason": "no failure-mode with test recipe for reqs [ORCH-01, ORCH-02, ORCH-03], no matching check-results"
+      },
+      "layer_maturity": 0,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFPolicy.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [PLCY-01, PLCY-02, PLCY-03]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-PLCY-OMISSION has test recipe (via req PLCY-01)"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/tla/NFVerification.tla": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [VERF-01, VERF-02, VERF-03]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": false,
+        "reason": "no failure-mode with test recipe for reqs [VERF-01, VERF-02, VERF-03], no matching check-results"
+      },
+      "layer_maturity": 0,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/fingerprinting.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [FP-01, FP-02, FP-03, FP-04]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:fingerprinting"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "UNSTABLE",
+      "direction_changes": 3,
+      "cooldown": {
+        "consecutive_stable_sessions": 2,
+        "required_sessions": 3,
+        "required_wall_time_ms": 3600000,
+        "last_session_timestamp": "2026-03-10T13:38:58.343Z"
+      },
+      "flagged_at": "2026-03-10T12:37:27.712Z"
+    },
+    ".planning/formal/alloy/gate-architecture.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [GATE-01, GATE-03, GATE-04]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-GATE-OMISSION has test recipe (via req GATE-01)"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/semantics-layer.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [SEM-01, SEM-02, SEM-03, SEM-04]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:semantics-layer"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "UNSTABLE",
+      "direction_changes": 3,
+      "cooldown": {
+        "consecutive_stable_sessions": 2,
+        "required_sessions": 3,
+        "required_wall_time_ms": 3600000,
+        "last_session_timestamp": "2026-03-10T13:38:58.344Z"
+      },
+      "flagged_at": "2026-03-10T12:37:27.712Z"
+    },
+    ".planning/formal/alloy/evidence-layer.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [EVID-02, EVID-03, EVID-05]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-EVID-OMISSION has test recipe (via req EVID-02)"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/diagnostics.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [DIAG-01, DIAG-02, DIAG-03]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:diagnostics"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "UNSTABLE",
+      "direction_changes": 3,
+      "cooldown": {
+        "consecutive_stable_sessions": 2,
+        "required_sessions": 3,
+        "required_wall_time_ms": 3600000,
+        "last_session_timestamp": "2026-03-10T13:38:58.344Z"
+      },
+      "flagged_at": "2026-03-10T12:37:27.712Z"
+    },
+    ".planning/formal/alloy/traceability.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [TRACE-01, TRACE-03]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-TRACE-OMISSION has test recipe (via req TRACE-01)"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/parallel-exec.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [PARA-01, PARA-02]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "passing check-result alloy:parallel-exec"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "ADVISORY",
+      "promoted": false,
+      "stability_status": "UNSTABLE",
+      "direction_changes": 3,
+      "cooldown": {
+        "consecutive_stable_sessions": 2,
+        "required_sessions": 3,
+        "required_wall_time_ms": 3600000,
+        "last_session_timestamp": "2026-03-10T13:38:58.345Z"
+      },
+      "flagged_at": "2026-03-10T12:34:59.661Z"
+    },
+    ".planning/formal/alloy/provider-wizard.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [PROV-02, PROV-03, PRST-01, PRST-02]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-PROV-OMISSION has test recipe (via req PROV-02)"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/multi-slot.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [MULTI-01, MULTI-03]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-MULTI-OMISSION has test recipe (via req MULTI-01)"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/meta-resolve.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [META-01, META-03]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-META-OMISSION has test recipe (via req META-01)"
+      },
+      "layer_maturity": 1,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
+    },
+    ".planning/formal/alloy/misc-behavioral.als": {
+      "gate_a": {
+        "pass": false,
+        "reason": "no passing traces for reqs [ADAPT-01, AGENT-03, ARCH-03, BRKR-01, DECOMP-01, EXEC-01, HLTH-03, LTCY-01, MCPENV-02, PRIO-01, SCHEMA-02, SHARD-01, SIG-03, TRIAGE-02, UNIF-02, UPPAAL-02, VALID-01]"
+      },
+      "gate_b": {
+        "pass": false,
+        "reason": "source_layer is L2 (needs L3 or hazard-model reference)"
+      },
+      "gate_c": {
+        "pass": true,
+        "reason": "failure-mode FM-AGENT-OMISSION has test recipe (via req AGENT-03)"
+      },
+      "layer_maturity": 2,
+      "gate_maturity": "SOFT_GATE",
+      "promoted": false,
+      "stability_status": "STABLE",
+      "direction_changes": 0,
+      "cooldown": null
     }
   }
 }

@@ -1,28 +1,23 @@
 # Formal Verification Diff Report
 
-**Generated:** 2026-03-10T00:38:16.032Z
-**Current Run:** 3 pass, 0 fail, 1 warn/inconclusive
-**Previous Run:** 1 transitions, 1 new, 0 removed
-**Overall Status:** inconclusive
+**Generated:** 2026-03-10T13:42:56.635Z
+**Current Run:** 3 pass, 0 fail
+**Previous Run:** 0 transitions, 0 new, 4 removed
+**Overall Status:** pass
 
-## Transitioned Checks
+## Removed Checks
 
-| Check | Previous | Current | Summary |
-|-------|----------|---------|---------|
-| ci:liveness-fairness-lint | pass | inconclusive | inconclusive: fairness declarations missing — MCconvergence: |
-
-## New Checks
-
-| Check | Result | Summary |
-|-------|--------|---------|
-| ci:trace-redaction | pass | pass: ci:trace-redaction in 1ms |
+- alloy:config-zero-providers: no longer run
+- tla:oscillation: no longer run
+- alloy:build-test-quality: no longer run
+- tla:mcpolicy: no longer run
 
 ## Unchanged Checks
 
-2 check(s) unchanged from previous run — no action needed.
+3 check(s) unchanged from previous run — no action needed.
 
 ## Previous Run (for next comparison)
 
 ```json
-{"ci:trace-redaction":"pass","ci:trace-schema-drift":"pass","ci:liveness-fairness-lint":"inconclusive","ci:conformance-traces":"pass"}
+{"ci:trace-schema-drift":"pass","ci:liveness-fairness-lint":"pass","ci:conformance-traces":"pass"}
 ```

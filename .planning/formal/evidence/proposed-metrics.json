@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T00:31:33.842Z",
-  "total_proposed": 79,
+  "generated": "2026-03-10T13:34:34.708Z",
+  "total_proposed": 83,
   "implemented": 0,
   "partial": 0,
-  "outstanding": 79,
+  "outstanding": 83,
   "metrics": [
     {
       "metric_name": "nf_maxdeliberationrounds__tla",
@@ -100,6 +100,30 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFRecruiting.tla:Cardinality",
       "instrumentation_snippet": "// Prometheus gauge for Cardinality (tla/assume)\n# HELP nf_cardinality Monitors Cardinality from tla model\n# TYPE nf_cardinality gauge\nconst nf_cardinality = new Gauge({\n  name: 'nf_cardinality',\n  help: 'Monitors Cardinality from tla model',\n  labelNames: ['model', 'file']\n});\nnf_cardinality.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFRecruiting.tla' }, 0);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_maxsessions__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla",
+      "assumption_name": "MaxSessions",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla:MaxSessions",
+      "instrumentation_snippet": "// Prometheus gauge for MaxSessions (tla/assume)\n# HELP nf_maxsessions__tla Monitors MaxSessions from tla model\n# TYPE nf_maxsessions__tla gauge\nconst nf_maxsessions__tla = new Gauge({\n  name: 'nf_maxsessions__tla',\n  help: 'Monitors MaxSessions from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxsessions__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla' }, 0);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_maxresidual__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla",
+      "assumption_name": "MaxResidual",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla:MaxResidual",
+      "instrumentation_snippet": "// Prometheus gauge for MaxResidual (tla/assume)\n# HELP nf_maxresidual__tla Monitors MaxResidual from tla model\n# TYPE nf_maxresidual__tla gauge\nconst nf_maxresidual__tla = new Gauge({\n  name: 'nf_maxresidual__tla',\n  help: 'Monitors MaxResidual from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxresidual__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla' }, 0);",
       "status": "proposed"
     },
     {
@@ -688,6 +712,30 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsafety.cfg:MaxSize",
       "instrumentation_snippet": "// Prometheus gauge for MaxSize (tla/constant)\n# HELP nf_maxsize__tla Monitors MaxSize from tla model\n# TYPE nf_maxsize__tla gauge\nconst nf_maxsize__tla = new Gauge({\n  name: 'nf_maxsize__tla',\n  help: 'Monitors MaxSize from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxsize__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsafety.cfg' }, 3);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_maxsessions__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsolve-convergence.cfg",
+      "assumption_name": "MaxSessions",
+      "assumption_type": "constant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsolve-convergence.cfg:MaxSessions",
+      "instrumentation_snippet": "// Prometheus gauge for MaxSessions (tla/constant)\n# HELP nf_maxsessions__tla Monitors MaxSessions from tla model\n# TYPE nf_maxsessions__tla gauge\nconst nf_maxsessions__tla = new Gauge({\n  name: 'nf_maxsessions__tla',\n  help: 'Monitors MaxSessions from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxsessions__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsolve-convergence.cfg' }, 5);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_maxresidual__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsolve-convergence.cfg",
+      "assumption_name": "MaxResidual",
+      "assumption_type": "constant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsolve-convergence.cfg:MaxResidual",
+      "instrumentation_snippet": "// Prometheus gauge for MaxResidual (tla/constant)\n# HELP nf_maxresidual__tla Monitors MaxResidual from tla model\n# TYPE nf_maxresidual__tla gauge\nconst nf_maxresidual__tla = new Gauge({\n  name: 'nf_maxresidual__tla',\n  help: 'Monitors MaxResidual from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxresidual__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/MCsolve-convergence.cfg' }, 3);",
       "status": "proposed"
     },
     {

@@ -20,7 +20,7 @@ This sub-skill can be invoked directly (`/nf:solve-classify`) or dispatched by t
 AUTONOMY REQUIREMENT: This skill runs FULLY AUTONOMOUSLY. Do NOT ask the user
 any questions. Do NOT stop for human input.
 
-The classification uses `bin/solve-tui.cjs` exports:
+The classification uses `solve-tui.cjs` exports (resolved from `~/.claude/nf-bin/solve-tui.cjs` with CWD fallback to `./bin/solve-tui.cjs`):
 - `loadSweepData()` — loads all 4 sweep categories
 - `classifyWithHaiku(data, opts)` — classifies items via claude CLI subprocess
 - `readClassificationCache()` — reads existing per-item cache
@@ -37,7 +37,13 @@ until manually cleared with `--force`.
 
 ```bash
 node -e "
-const st = require('./bin/solve-tui.cjs');
+const fs = require('fs');
+const home = require('os').homedir();
+const installed = require('path').join(home, '.claude/nf-bin/solve-tui.cjs');
+const local = './bin/solve-tui.cjs';
+const stPath = fs.existsSync(installed) ? installed : local;
+if (!fs.existsSync(stPath)) { console.log(JSON.stringify({error:'solve-tui.cjs not found'})); process.exit(1); }
+const st = require(stPath);
 const data = st.loadSweepData();
 const cache = st.readClassificationCache();
 
@@ -68,7 +74,13 @@ If `new == 0` and `--force` was NOT passed:
 
 ```bash
 node -e "
-const st = require('./bin/solve-tui.cjs');
+const fs = require('fs');
+const home = require('os').homedir();
+const installed = require('path').join(home, '.claude/nf-bin/solve-tui.cjs');
+const local = './bin/solve-tui.cjs';
+const stPath = fs.existsSync(installed) ? installed : local;
+if (!fs.existsSync(stPath)) { console.log(JSON.stringify({error:'solve-tui.cjs not found'})); process.exit(1); }
+const st = require(stPath);
 const data = st.loadSweepData();
 const force = process.argv.includes('--force');
 const result = st.classifyWithHaiku(data, { force });

@@ -27,10 +27,16 @@ From `$ARGUMENTS`, extract:
 
 ## Step 2: Load source configuration
 
-Use `loadObserveConfig()` from `bin/observe-config.cjs` to load sources.
+Use `loadObserveConfig()` from `observe-config.cjs` to load sources.
+
+All bare `./bin/` require paths must resolve portably: try `$HOME/.claude/nf-bin/` first, fall back to `./bin/`. Use this helper at the top of any node -e snippet:
+```javascript
+const _nfBin = (n) => { const p = require('path').join(require('os').homedir(), '.claude/nf-bin', n); return require('fs').existsSync(p) ? p : './bin/' + n; };
+```
 
 ```javascript
-const { loadObserveConfig } = require('./bin/observe-config.cjs');
+const _nfBin = (n) => { const p = require('path').join(require('os').homedir(), '.claude/nf-bin', n); return require('fs').existsSync(p) ? p : './bin/' + n; };
+const { loadObserveConfig } = require(_nfBin('observe-config.cjs'));
 const config = loadObserveConfig();
 // config = { sources, configFile, observeConfig, error? }
 ```
@@ -76,19 +82,11 @@ This ensures internal work detection runs even if observe-sources.md doesn't exi
 
 ## Step 3: Register handlers
 
-Import handler functions and register them with the registry:
+Use the shared pipeline to register ALL handlers (core + production drift). This ensures handler registration stays in sync with `/nf:solve-diagnose` which uses the same pipeline.
 
 ```javascript
-const { registerHandler } = require('./bin/observe-registry.cjs');
-const { handleGitHub, handleSentry, handleSentryFeedback, handleBash, handleInternal, handleUpstream, handleDeps } = require('./bin/observe-handlers.cjs');
-
-registerHandler('github', handleGitHub);
-registerHandler('sentry', handleSentry);
-registerHandler('sentry-feedback', handleSentryFeedback);
-registerHandler('bash', handleBash);
-registerHandler('internal', handleInternal);
-registerHandler('upstream', handleUpstream);
-registerHandler('deps', handleDeps);
+const { registerAllHandlers } = require(_nfBin('observe-pipeline.cjs'));
+const registry = registerAllHandlers();
 ```
 
 Display dispatch header:
@@ -103,7 +101,7 @@ Display dispatch header:
 Call `dispatchAll()` from `bin/observe-registry.cjs` — this dispatches ALL sources uniformly through the registry with per-source timeout. No special-casing per source type at this stage.
 
 ```javascript
-const { dispatchAll } = require('./bin/observe-registry.cjs');
+const { dispatchAll } = require(_nfBin('observe-registry.cjs'));
 const results = await dispatchAll(config.sources, { sinceOverride: $SINCE_OVERRIDE, limitOverride: $LIMIT_OVERRIDE });
 ```
 
@@ -122,7 +120,7 @@ After `dispatchAll` returns, iterate over results. For any result with `status: 
 
 3. Import the mapper function from `bin/observe-handlers.cjs`:
    ```javascript
-   const handlers = require('./bin/observe-handlers.cjs');
+   const handlers = require(_nfBin('observe-handlers.cjs'));
    const mapperFn = handlers[mapper]; // e.g., mapSentryIssuesToSchema or mapSentryFeedbackToSchema
    ```
 
@@ -146,7 +144,7 @@ After `dispatchAll` returns, iterate over results. For any result with `status: 
 Call `renderObserveOutput()` from `bin/observe-render.cjs`:
 
 ```javascript
-const { renderObserveOutput } = require('./bin/observe-render.cjs');
+const { renderObserveOutput } = require(_nfBin('observe-render.cjs'));
 const output = renderObserveOutput(results);
 ```
 
@@ -198,7 +196,7 @@ Runs a standalone security scan across the codebase. If findings are returned, i
 Call `writeObservationsToDebt()` from `bin/observe-debt-writer.cjs`:
 
 ```javascript
-const { writeObservationsToDebt } = require('./bin/observe-debt-writer.cjs');
+const { writeObservationsToDebt } = require(_nfBin('observe-debt-writer.cjs'));
 
 // Collect all issues from all successful results
 const allObservations = results
@@ -220,7 +218,7 @@ This upserts all observations by fingerprint (using v0.27-01's `fingerprintIssue
 Read the debt ledger and display status counts:
 
 ```javascript
-const { readDebtLedger } = require('./bin/debt-ledger.cjs');
+const { readDebtLedger } = require(_nfBin('debt-ledger.cjs'));
 const ledger = readDebtLedger('.planning/formal/debt.json');
 const entries = ledger.debt_entries || [];
 
@@ -297,7 +295,7 @@ When the user selects an upstream item, do NOT blindly suggest porting it. Inste
 **If user enters "solve" followed by numbers (e.g., "solve 1,3,5" or "solve 1-3,7"):**
 - Import the pipe bridge:
   ```javascript
-  const { parseIssueSelection, buildTargetsManifest, writeTargetsManifest } = require('./bin/observe-solve-pipe.cjs');
+  const { parseIssueSelection, buildTargetsManifest, writeTargetsManifest } = require(_nfBin('observe-solve-pipe.cjs'));
   ```
 - Call `parseIssueSelection(userInput, allIssues.length)` to get selected zero-based indices
 - If no valid indices, display: `"No valid issue numbers in selection. Try again."` and re-prompt

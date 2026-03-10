@@ -2680,6 +2680,678 @@
       "file": "bin/refresh-evidence.cjs",
       "archived_at": "2026-03-09T08:04:52.920Z",
       "auto_classified": "fp"
+    },
+    {
+      "key": "bin/nForma.test.cjs",
+      "type": "ttor",
+      "summary": "bin/nForma.test.cjs",
+      "file": "bin/nForma.test.cjs",
+      "archived_at": "2026-03-10T11:22:42.358Z"
+    },
+    {
+      "key": "bin/nf-solve.test.cjs",
+      "type": "ttor",
+      "summary": "bin/nf-solve.test.cjs",
+      "file": "bin/nf-solve.test.cjs",
+      "archived_at": "2026-03-10T11:22:42.359Z"
+    },
+    {
+      "key": "README.md:184",
+      "type": "dtor",
+      "summary": "The `/nf:mcp-setup` wizard handles all registration automatically. If you prefer manual setup:",
+      "doc_file": "README.md",
+      "line": 184,
+      "archived_at": "2026-03-10T11:22:42.360Z"
+    },
+    {
+      "key": "README.md:379",
+      "type": "dtor",
+      "summary": "4. **Verifies against goals** — Checks the codebase delivers what the phase promised",
+      "doc_file": "README.md",
+      "line": 379,
+      "archived_at": "2026-03-10T11:22:42.361Z"
+    },
+    {
+      "key": "README.md:474",
+      "type": "dtor",
+      "summary": "> **Note:** Formal verification is entirely optional for using nForma. You don't need Java or any formal tools installed",
+      "doc_file": "README.md",
+      "line": 474,
+      "archived_at": "2026-03-10T11:22:42.362Z"
+    },
+    {
+      "key": "README.md:360",
+      "type": "dtor",
+      "summary": "3. **Verifies** — Checks plans against requirements, loops until they pass",
+      "doc_file": "README.md",
+      "line": 360,
+      "archived_at": "2026-03-10T11:22:50.588Z"
+    },
+    {
+      "key": "README.md:480",
+      "type": "dtor",
+      "summary": "When something breaks — tests fail, planning state drifts, requirements go stale — the `/nf:solve` pipeline handles it e",
+      "doc_file": "README.md",
+      "line": 480,
+      "archived_at": "2026-03-10T11:24:58.704Z"
+    },
+    {
+      "key": "README.md:489",
+      "type": "dtor",
+      "summary": "2. **Remediate** (`/nf:solve-remediate`) — Dispatches 13 remediation layers across 3 severity tiers (critical → warning ",
+      "doc_file": "README.md",
+      "line": 489,
+      "archived_at": "2026-03-10T11:24:58.706Z"
+    },
+    {
+      "key": "README.md:490",
+      "type": "dtor",
+      "summary": "3. **Report** (`/nf:solve-report`) — Generates before/after summary with full formal verification pass, so you can see e",
+      "doc_file": "README.md",
+      "line": 490,
+      "archived_at": "2026-03-10T11:24:58.707Z"
+    },
+    {
+      "key": "README.md:514",
+      "type": "dtor",
+      "summary": "| Planning | Validates, manages iteration | Planner creates plans, checker verifies, loop until pass |",
+      "doc_file": "README.md",
+      "line": 514,
+      "archived_at": "2026-03-10T11:24:58.707Z"
+    },
+    {
+      "key": "README.md:597",
+      "type": "dtor",
+      "summary": "<summary><strong>Ping-Pong Commit Loop Breaker</strong> — Detects and breaks structural coupling loops</summary>",
+      "doc_file": "README.md",
+      "line": 597,
+      "archived_at": "2026-03-10T11:24:58.708Z"
+    },
+    {
+      "key": "README.md:632",
+      "type": "dtor",
+      "summary": "<summary><strong>Quick Mode</strong> — Ad-hoc tasks with nForma guarantees</summary>",
+      "doc_file": "README.md",
+      "line": 632,
+      "archived_at": "2026-03-10T11:24:58.709Z"
+    },
+    {
+      "key": "README.md:638",
+      "type": "dtor",
+      "summary": "Quick mode gives you nForma guarantees (atomic commits, state tracking) with a faster path:",
+      "doc_file": "README.md",
+      "line": 638,
+      "archived_at": "2026-03-10T11:24:58.710Z"
+    },
+    {
+      "key": "README.md:682",
+      "type": "dtor",
+      "summary": "| PostToolUse | nf-context-monitor.js | After every tool execution | Monitors context usage; injects WARNING at 70%, CRI",
+      "doc_file": "README.md",
+      "line": 682,
+      "archived_at": "2026-03-10T11:24:58.711Z"
+    },
+    {
+      "key": "README.md:726",
+      "type": "dtor",
+      "summary": "| `/nf:quick [--full]` | Ad-hoc task with nForma guarantees (`--full` adds plan-checking and verification) |",
+      "doc_file": "README.md",
+      "line": 726,
+      "archived_at": "2026-03-10T11:24:58.711Z"
+    },
+    {
+      "key": "README.md:860",
+      "type": "dtor",
+      "summary": "| `workflow.plan_check` | `true` | Verifies plans achieve phase goals before execution |",
+      "doc_file": "README.md",
+      "line": 860,
+      "archived_at": "2026-03-10T11:24:58.712Z"
+    },
+    {
+      "key": "docs/dev/quorum_interface.md:91",
+      "type": "dtor",
+      "summary": "REASON: The proposed phases logically address the remaining gaps identified in the audit. Separating the retroactive ver",
+      "doc_file": "docs/dev/quorum_interface.md",
+      "line": 91,
+      "archived_at": "2026-03-10T11:26:18.871Z"
+    },
+    {
+      "key": "docs/dev/quorum_interface.md:95",
+      "type": "dtor",
+      "summary": "⏺ Gemini: APPROVE — \"Logically addresses remaining gaps; separating verification from bug fix ensures clear, focused obj",
+      "doc_file": "docs/dev/quorum_interface.md",
+      "line": 95,
+      "archived_at": "2026-03-10T11:26:18.872Z"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:172",
+      "type": "dtor",
+      "summary": "**Requirement:** Per-repo marker at .planning/polyrepo.json supports an optional `docs` field with merge-semantic key-va",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "line": 172,
+      "archived_at": "2026-03-10T11:26:18.873Z"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:1188",
+      "type": "dtor",
+      "summary": "**Requirement:** The analyze-assumptions CLI classifies each extracted assumption into priority tiers (Tier 1: directly ",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "line": 1188,
+      "archived_at": "2026-03-10T11:26:18.874Z"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:1826",
+      "type": "dtor",
+      "summary": "**Requirement:** qgsd-solve diagnostic engine provides reverse traceability sweeps (C→R, T→R, D→R) that discover impleme",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "line": 1826,
+      "archived_at": "2026-03-10T11:26:18.875Z"
+    },
+    {
+      "key": "docs/dev/requirements-coverage.md:1864",
+      "type": "dtor",
+      "summary": "**Implementation:** The unified MCP server (`bin/unified-mcp-server.mjs`) is the single entrypoint for all 11 MCP provid",
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "line": 1864,
+      "archived_at": "2026-03-10T11:26:18.875Z"
+    },
+    {
+      "key": "docs/USER-GUIDE.md:290",
+      "type": "dtor",
+      "summary": "nForma provides commands for the full project lifecycle, from initialization through milestone completion. The commands ",
+      "doc_file": "docs/USER-GUIDE.md",
+      "line": 290,
+      "archived_at": "2026-03-10T11:26:18.876Z"
+    },
+    {
+      "key": "docs/USER-GUIDE.md:337",
+      "type": "dtor",
+      "summary": "| `/nf:quick` | Ad-hoc task with nForma guarantees | Bug fixes, small features, config changes |",
+      "doc_file": "docs/USER-GUIDE.md",
+      "line": 337,
+      "archived_at": "2026-03-10T11:26:18.877Z"
+    },
+    {
+      "key": "bin/account-manager.cjs",
+      "type": "ctor",
+      "summary": "bin/account-manager.cjs",
+      "file": "bin/account-manager.cjs",
+      "archived_at": "2026-03-10T11:28:11.569Z"
+    },
+    {
+      "key": "bin/analyze-assumptions.cjs",
+      "type": "ctor",
+      "summary": "bin/analyze-assumptions.cjs",
+      "file": "bin/analyze-assumptions.cjs",
+      "archived_at": "2026-03-10T11:28:11.570Z"
+    },
+    {
+      "key": "bin/check-assets-stale.cjs",
+      "type": "ctor",
+      "summary": "bin/check-assets-stale.cjs",
+      "file": "bin/check-assets-stale.cjs",
+      "archived_at": "2026-03-10T11:28:11.571Z"
+    },
+    {
+      "key": "bin/config-audit.cjs",
+      "type": "ctor",
+      "summary": "bin/config-audit.cjs",
+      "file": "bin/config-audit.cjs",
+      "archived_at": "2026-03-10T11:28:11.572Z"
+    },
+    {
+      "key": "bin/conformance-schema.cjs",
+      "type": "ctor",
+      "summary": "bin/conformance-schema.cjs",
+      "file": "bin/conformance-schema.cjs",
+      "archived_at": "2026-03-10T11:28:11.573Z"
+    },
+    {
+      "key": "bin/dedup-changelog.cjs",
+      "type": "ctor",
+      "summary": "bin/dedup-changelog.cjs",
+      "file": "bin/dedup-changelog.cjs",
+      "archived_at": "2026-03-10T11:28:11.574Z"
+    },
+    {
+      "key": "bin/escalation-classifier.cjs",
+      "type": "ctor",
+      "summary": "bin/escalation-classifier.cjs",
+      "file": "bin/escalation-classifier.cjs",
+      "archived_at": "2026-03-10T11:28:11.575Z"
+    },
+    {
+      "key": "bin/formal-core.cjs",
+      "type": "ctor",
+      "summary": "bin/formal-core.cjs",
+      "file": "bin/formal-core.cjs",
+      "archived_at": "2026-03-10T11:28:11.576Z"
+    },
+    {
+      "key": "bin/formal-proximity.cjs",
+      "type": "ctor",
+      "summary": "bin/formal-proximity.cjs",
+      "file": "bin/formal-proximity.cjs",
+      "archived_at": "2026-03-10T11:28:11.576Z"
+    },
+    {
+      "key": "bin/formal-scope-scan.cjs",
+      "type": "ctor",
+      "summary": "bin/formal-scope-scan.cjs",
+      "file": "bin/formal-scope-scan.cjs",
+      "archived_at": "2026-03-10T11:28:11.577Z"
+    },
+    {
+      "key": "bin/formal-test-sync.cjs",
+      "type": "ctor",
+      "summary": "bin/formal-test-sync.cjs",
+      "file": "bin/formal-test-sync.cjs",
+      "archived_at": "2026-03-10T11:28:11.578Z"
+    },
+    {
+      "key": "bin/gate-stability.cjs",
+      "type": "ctor",
+      "summary": "bin/gate-stability.cjs",
+      "file": "bin/gate-stability.cjs",
+      "archived_at": "2026-03-10T11:28:11.579Z"
+    },
+    {
+      "key": "bin/generate-formal-specs.cjs",
+      "type": "ctor",
+      "summary": "bin/generate-formal-specs.cjs",
+      "file": "bin/generate-formal-specs.cjs",
+      "archived_at": "2026-03-10T11:28:11.580Z"
+    },
+    {
+      "key": "bin/git-heatmap.cjs",
+      "type": "ctor",
+      "summary": "bin/git-heatmap.cjs",
+      "file": "bin/git-heatmap.cjs",
+      "archived_at": "2026-03-10T11:28:11.581Z"
+    },
+    {
+      "key": "bin/git-history-evidence.cjs",
+      "type": "ctor",
+      "summary": "bin/git-history-evidence.cjs",
+      "file": "bin/git-history-evidence.cjs",
+      "archived_at": "2026-03-10T11:28:11.581Z"
+    },
+    {
+      "key": "bin/model-complexity-profile.cjs",
+      "type": "ctor",
+      "summary": "bin/model-complexity-profile.cjs",
+      "file": "bin/model-complexity-profile.cjs",
+      "archived_at": "2026-03-10T11:28:11.582Z"
+    },
+    {
+      "key": "bin/nforma-cli.js",
+      "type": "ctor",
+      "summary": "bin/nforma-cli.js",
+      "file": "bin/nforma-cli.js",
+      "archived_at": "2026-03-10T11:28:11.583Z"
+    },
+    {
+      "key": "bin/oscillation-detector.cjs",
+      "type": "ctor",
+      "summary": "bin/oscillation-detector.cjs",
+      "file": "bin/oscillation-detector.cjs",
+      "archived_at": "2026-03-10T11:28:11.584Z"
+    },
+    {
+      "key": "bin/polyrepo.cjs",
+      "type": "ctor",
+      "summary": "bin/polyrepo.cjs",
+      "file": "bin/polyrepo.cjs",
+      "archived_at": "2026-03-10T11:28:11.585Z"
+    },
+    {
+      "key": "bin/predictive-power.cjs",
+      "type": "ctor",
+      "summary": "bin/predictive-power.cjs",
+      "file": "bin/predictive-power.cjs",
+      "archived_at": "2026-03-10T11:28:11.585Z"
+    },
+    {
+      "key": "bin/principle-mapping.cjs",
+      "type": "ctor",
+      "summary": "bin/principle-mapping.cjs",
+      "file": "bin/principle-mapping.cjs",
+      "archived_at": "2026-03-10T11:28:11.586Z"
+    },
+    {
+      "key": "bin/run-formal-check.cjs",
+      "type": "ctor",
+      "summary": "bin/run-formal-check.cjs",
+      "file": "bin/run-formal-check.cjs",
+      "archived_at": "2026-03-10T11:28:11.587Z"
+    },
+    {
+      "key": "bin/solve-focus-filter.cjs",
+      "type": "ctor",
+      "summary": "bin/solve-focus-filter.cjs",
+      "file": "bin/solve-focus-filter.cjs",
+      "archived_at": "2026-03-10T11:28:11.588Z"
+    },
+    {
+      "key": "bin/solve-trend-helpers.cjs",
+      "type": "ctor",
+      "summary": "bin/solve-trend-helpers.cjs",
+      "file": "bin/solve-trend-helpers.cjs",
+      "archived_at": "2026-03-10T11:28:11.588Z"
+    },
+    {
+      "key": "bin/solve-tui.cjs",
+      "type": "ctor",
+      "summary": "bin/solve-tui.cjs",
+      "file": "bin/solve-tui.cjs",
+      "archived_at": "2026-03-10T11:28:11.589Z"
+    },
+    {
+      "key": "bin/solve-worker.cjs",
+      "type": "ctor",
+      "summary": "bin/solve-worker.cjs",
+      "file": "bin/solve-worker.cjs",
+      "archived_at": "2026-03-10T11:28:11.590Z"
+    },
+    {
+      "key": "bin/sync-baseline-requirements.cjs",
+      "type": "ctor",
+      "summary": "bin/sync-baseline-requirements.cjs",
+      "file": "bin/sync-baseline-requirements.cjs",
+      "archived_at": "2026-03-10T11:28:11.591Z"
+    },
+    {
+      "key": "bin/validate-traces.cjs",
+      "type": "ctor",
+      "summary": "bin/validate-traces.cjs",
+      "file": "bin/validate-traces.cjs",
+      "archived_at": "2026-03-10T11:28:11.592Z"
+    },
+    {
+      "key": "hooks/conformance-schema.cjs",
+      "type": "ctor",
+      "summary": "hooks/conformance-schema.cjs",
+      "file": "hooks/conformance-schema.cjs",
+      "archived_at": "2026-03-10T11:28:11.592Z"
+    },
+    {
+      "key": "hooks/nf-destructive-git-guard.js",
+      "type": "ctor",
+      "summary": "hooks/nf-destructive-git-guard.js",
+      "file": "hooks/nf-destructive-git-guard.js",
+      "archived_at": "2026-03-10T11:28:11.593Z"
+    },
+    {
+      "key": "hooks/nf-mcp-dispatch-guard.js",
+      "type": "ctor",
+      "summary": "hooks/nf-mcp-dispatch-guard.js",
+      "file": "hooks/nf-mcp-dispatch-guard.js",
+      "archived_at": "2026-03-10T11:28:11.594Z"
+    },
+    {
+      "key": "hooks/nf-resolve-bin.js",
+      "type": "ctor",
+      "summary": "hooks/nf-resolve-bin.js",
+      "file": "hooks/nf-resolve-bin.js",
+      "archived_at": "2026-03-10T11:28:11.595Z"
+    },
+    {
+      "key": "bin/compute-per-model-gates.test.cjs",
+      "type": "ttor",
+      "summary": "bin/compute-per-model-gates.test.cjs",
+      "file": "bin/compute-per-model-gates.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.611Z"
+    },
+    {
+      "key": "bin/convergence-report.test.cjs",
+      "type": "ttor",
+      "summary": "bin/convergence-report.test.cjs",
+      "file": "bin/convergence-report.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.613Z"
+    },
+    {
+      "key": "bin/dedup-changelog.test.cjs",
+      "type": "ttor",
+      "summary": "bin/dedup-changelog.test.cjs",
+      "file": "bin/dedup-changelog.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.614Z"
+    },
+    {
+      "key": "bin/escalation-classifier.test.cjs",
+      "type": "ttor",
+      "summary": "bin/escalation-classifier.test.cjs",
+      "file": "bin/escalation-classifier.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.615Z"
+    },
+    {
+      "key": "bin/gate-stability.test.cjs",
+      "type": "ttor",
+      "summary": "bin/gate-stability.test.cjs",
+      "file": "bin/gate-stability.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.616Z"
+    },
+    {
+      "key": "bin/nforma-cli.test.cjs",
+      "type": "ttor",
+      "summary": "bin/nforma-cli.test.cjs",
+      "file": "bin/nforma-cli.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.617Z"
+    },
+    {
+      "key": "bin/oscillation-detector.test.cjs",
+      "type": "ttor",
+      "summary": "bin/oscillation-detector.test.cjs",
+      "file": "bin/oscillation-detector.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.618Z"
+    },
+    {
+      "key": "bin/predictive-power.test.cjs",
+      "type": "ttor",
+      "summary": "bin/predictive-power.test.cjs",
+      "file": "bin/predictive-power.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.619Z"
+    },
+    {
+      "key": "bin/solve-focus-filter.test.cjs",
+      "type": "ttor",
+      "summary": "bin/solve-focus-filter.test.cjs",
+      "file": "bin/solve-focus-filter.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.620Z"
+    },
+    {
+      "key": "bin/solve-trend.test.cjs",
+      "type": "ttor",
+      "summary": "bin/solve-trend.test.cjs",
+      "file": "bin/solve-trend.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.620Z"
+    },
+    {
+      "key": "bin/solve-worker.test.cjs",
+      "type": "ttor",
+      "summary": "bin/solve-worker.test.cjs",
+      "file": "bin/solve-worker.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.621Z"
+    },
+    {
+      "key": "test/install-path-validation.test.cjs",
+      "type": "ttor",
+      "summary": "test/install-path-validation.test.cjs",
+      "file": "test/install-path-validation.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.622Z"
+    },
+    {
+      "key": "test/readme-deep-sections.test.cjs",
+      "type": "ttor",
+      "summary": "test/readme-deep-sections.test.cjs",
+      "file": "test/readme-deep-sections.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.623Z"
+    },
+    {
+      "key": "test/run-formal-verify-guard.test.cjs",
+      "type": "ttor",
+      "summary": "test/run-formal-verify-guard.test.cjs",
+      "file": "test/run-formal-verify-guard.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.624Z"
+    },
+    {
+      "key": "test/tui-regression.test.cjs",
+      "type": "ttor",
+      "summary": "test/tui-regression.test.cjs",
+      "file": "test/tui-regression.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.625Z"
+    },
+    {
+      "key": "test/tui-unit.test.cjs",
+      "type": "ttor",
+      "summary": "test/tui-unit.test.cjs",
+      "file": "test/tui-unit.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.625Z"
+    },
+    {
+      "key": "test/user-guide-overhaul.test.cjs",
+      "type": "ttor",
+      "summary": "test/user-guide-overhaul.test.cjs",
+      "file": "test/user-guide-overhaul.test.cjs",
+      "archived_at": "2026-03-10T11:29:32.626Z"
+    },
+    {
+      "key": "README.md:evidence/instrumentation-map.json",
+      "type": "dtoc",
+      "summary": "file_path: evidence/instrumentation-map.json",
+      "doc_file": "README.md",
+      "value": "evidence/instrumentation-map.json",
+      "line": 541,
+      "archived_at": "2026-03-10T12:09:14.373Z"
+    },
+    {
+      "key": "README.md:evidence/state-candidates.json",
+      "type": "dtoc",
+      "summary": "file_path: evidence/state-candidates.json",
+      "doc_file": "README.md",
+      "value": "evidence/state-candidates.json",
+      "line": 542,
+      "archived_at": "2026-03-10T12:09:14.376Z"
+    },
+    {
+      "key": "README.md:evidence/proposed-metrics.json",
+      "type": "dtoc",
+      "summary": "file_path: evidence/proposed-metrics.json",
+      "doc_file": "README.md",
+      "value": "evidence/proposed-metrics.json",
+      "line": 543,
+      "archived_at": "2026-03-10T12:09:14.377Z"
+    },
+    {
+      "key": "README.md:gates/per-model-gates.json",
+      "type": "dtoc",
+      "summary": "file_path: gates/per-model-gates.json",
+      "doc_file": "README.md",
+      "value": "gates/per-model-gates.json",
+      "line": 544,
+      "archived_at": "2026-03-10T12:09:14.378Z"
+    },
+    {
+      "key": "README.md:gates/gate-a-grounding.json",
+      "type": "dtoc",
+      "summary": "file_path: gates/gate-a-grounding.json",
+      "doc_file": "README.md",
+      "value": "gates/gate-a-grounding.json",
+      "line": 545,
+      "archived_at": "2026-03-10T12:09:14.379Z"
+    },
+    {
+      "key": "README.md:562",
+      "type": "dtor",
+      "summary": "When something breaks — tests fail, planning state drifts, requirements go stale — the `/nf:solve` pipeline handles it e",
+      "doc_file": "README.md",
+      "line": 562,
+      "archived_at": "2026-03-10T12:09:33.425Z"
+    },
+    {
+      "key": "README.md:571",
+      "type": "dtor",
+      "summary": "2. **Remediate** (`/nf:solve-remediate`) — Dispatches 13 remediation layers across 3 severity tiers (critical → warning ",
+      "doc_file": "README.md",
+      "line": 571,
+      "archived_at": "2026-03-10T12:09:33.428Z"
+    },
+    {
+      "key": "README.md:572",
+      "type": "dtor",
+      "summary": "3. **Report** (`/nf:solve-report`) — Generates before/after summary with full formal verification pass, so you can see e",
+      "doc_file": "README.md",
+      "line": 572,
+      "archived_at": "2026-03-10T12:09:33.429Z"
+    },
+    {
+      "key": "README.md:596",
+      "type": "dtor",
+      "summary": "| Planning | Validates, manages iteration | Planner creates plans, checker verifies, loop until pass |",
+      "doc_file": "README.md",
+      "line": 596,
+      "archived_at": "2026-03-10T12:09:33.430Z"
+    },
+    {
+      "key": "README.md:679",
+      "type": "dtor",
+      "summary": "<summary><strong>Ping-Pong Commit Loop Breaker</strong> — Detects and breaks structural coupling loops</summary>",
+      "doc_file": "README.md",
+      "line": 679,
+      "archived_at": "2026-03-10T12:09:33.431Z"
+    },
+    {
+      "key": "README.md:714",
+      "type": "dtor",
+      "summary": "<summary><strong>Quick Mode</strong> — Ad-hoc tasks with nForma guarantees</summary>",
+      "doc_file": "README.md",
+      "line": 714,
+      "archived_at": "2026-03-10T12:09:33.432Z"
+    },
+    {
+      "key": "README.md:720",
+      "type": "dtor",
+      "summary": "Quick mode gives you nForma guarantees (atomic commits, state tracking) with a faster path:",
+      "doc_file": "README.md",
+      "line": 720,
+      "archived_at": "2026-03-10T12:09:33.433Z"
+    },
+    {
+      "key": "README.md:764",
+      "type": "dtor",
+      "summary": "| PostToolUse | nf-context-monitor.js | After every tool execution | Monitors context usage; injects WARNING at 70%, CRI",
+      "doc_file": "README.md",
+      "line": 764,
+      "archived_at": "2026-03-10T12:09:33.434Z"
+    },
+    {
+      "key": "README.md:808",
+      "type": "dtor",
+      "summary": "| `/nf:quick [--full]` | Ad-hoc task with nForma guarantees (`--full` adds plan-checking and verification) |",
+      "doc_file": "README.md",
+      "line": 808,
+      "archived_at": "2026-03-10T12:09:33.435Z"
+    },
+    {
+      "key": "README.md:942",
+      "type": "dtor",
+      "summary": "| `workflow.plan_check` | `true` | Verifies plans achieve phase goals before execution |",
+      "doc_file": "README.md",
+      "line": 942,
+      "archived_at": "2026-03-10T12:09:33.436Z"
+    },
+    {
+      "key": "bin/observe-pipeline.cjs",
+      "type": "ctor",
+      "summary": "bin/observe-pipeline.cjs",
+      "file": "bin/observe-pipeline.cjs",
+      "archived_at": "2026-03-10T12:09:51.164Z"
+    },
+    {
+      "key": "bin/observe-pipeline.test.cjs",
+      "type": "ttor",
+      "summary": "bin/observe-pipeline.test.cjs",
+      "file": "bin/observe-pipeline.test.cjs",
+      "archived_at": "2026-03-10T12:09:51.172Z"
     }
   ]
 }

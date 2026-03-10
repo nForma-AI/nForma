@@ -123,7 +123,8 @@ Parse `post_residual` from the JSON output.
 
 **Debt resolution check:** After convergence check, resolve debt entries whose layers now show zero residual:
 ```javascript
-const { transitionDebtEntries, matchDebtToResidual, summarizeDebtProgress } = require('./bin/solve-debt-bridge.cjs');
+const _nfBin = (n) => { const p = require('path').join(require('os').homedir(), '.claude/nf-bin', n); return require('fs').existsSync(p) ? p : './bin/' + n; };
+const { transitionDebtEntries, matchDebtToResidual, summarizeDebtProgress } = require(_nfBin('solve-debt-bridge.cjs'));
 const postMatched = matchDebtToResidual(openDebt, post_residual);
 const resolvedFPs = postMatched.matched
   .filter(m => post_residual[m.layer]?.residual === 0)

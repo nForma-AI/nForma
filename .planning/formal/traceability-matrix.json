@@ -1,22 +1,22 @@
 {
   "metadata": {
-    "generated_at": "2026-03-10T00:40:09.814Z",
+    "generated_at": "2026-03-10T13:45:03.028Z",
     "generator_version": "1.1",
     "data_sources": {
       "annotations": {
-        "file_count": 148,
-        "property_count": 994
+        "file_count": 172,
+        "property_count": 1044
       },
       "model_registry": {
-        "file_count": 154,
+        "file_count": 178,
         "used_as_fallback": 5
       },
       "check_results": {
-        "entry_count": 182
+        "entry_count": 183
       },
       "unit_test_coverage": {
         "available": true,
-        "requirements_matched": 335
+        "requirements_matched": 343
       }
     }
   },
@@ -750,7 +750,7 @@
           "model_file": ".planning/formal/tla/NFConvergence.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "tla:convergence"
         }
       ],
@@ -771,7 +771,7 @@
           "model_file": ".planning/formal/tla/NFConvergence.tla",
           "property_name": "ResolvedAtWriteOnce",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "tla:convergence"
         }
       ],
@@ -792,7 +792,7 @@
           "model_file": ".planning/formal/tla/NFConvergence.tla",
           "property_name": "LogBeforeDelete",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "tla:convergence"
         }
       ],
@@ -813,7 +813,7 @@
           "model_file": ".planning/formal/tla/NFConvergence.tla",
           "property_name": "HaikuUnavailableNoCorruption",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "tla:convergence"
         }
       ],
@@ -834,7 +834,7 @@
           "model_file": ".planning/formal/tla/NFConvergence.tla",
           "property_name": "ConvergenceEventuallyResolves",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "tla:convergence"
         }
       ],
@@ -855,7 +855,7 @@
           "model_file": ".planning/formal/tla/NFDeliberation.tla",
           "property_name": "TypeOK",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "tla:deliberation"
         }
       ],
@@ -876,7 +876,7 @@
           "model_file": ".planning/formal/tla/NFDeliberation.tla",
           "property_name": "TotalRoundsBounded",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "tla:deliberation"
         }
       ],
@@ -914,7 +914,16 @@
           "latest_result": "pass",
           "check_id": "tla:quorum-safety"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SAFE-03.stub.test.js",
+            "test_name": "SAFE-03: run-formal-verify.cjs resolves models relative to --project-root only"
+          }
+        ]
+      }
     },
     "IMPR-01": {
       "id": "IMPR-01",
@@ -923,7 +932,14 @@
           "model_file": ".planning/formal/tla/NFDeliberation.tla",
           "property_name": "ImprovementMonotone",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
+          "check_id": "tla:deliberation"
+        },
+        {
+          "model_file": ".planning/formal/tla/NFImprovement.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": "pass",
           "check_id": "tla:deliberation"
         }
       ],
@@ -944,7 +960,7 @@
           "model_file": ".planning/formal/tla/NFDeliberation.tla",
           "property_name": "ProtocolTerminates",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "tla:deliberation"
         }
       ],
@@ -964,6 +980,13 @@
         {
           "model_file": ".planning/formal/tla/QGSDMCPEnv.tla",
           "property_name": "NoSpuriousConsensus",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
           "source": "annotation",
           "latest_result": "pass",
           "check_id": "tla:mcp-environment"
@@ -1308,21 +1331,21 @@
           "model_file": ".planning/formal/tla/QGSDQuorum.tla",
           "property_name": "DeliberationBounded",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         },
         {
           "model_file": ".planning/formal/tla/NFQuorum.tla",
           "property_name": "DeliberationBounded",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         },
         {
           "model_file": ".planning/formal/prism/quorum.props",
           "property_name": "P=? [ F<=9 s=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         }
       ],
@@ -1343,21 +1366,21 @@
           "model_file": ".planning/formal/tla/QGSDQuorum.tla",
           "property_name": "EventualConsensus",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         },
         {
           "model_file": ".planning/formal/tla/NFQuorum.tla",
           "property_name": "EventualConsensus",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         },
         {
           "model_file": ".planning/formal/prism/quorum.props",
           "property_name": "P=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         }
       ]
@@ -1369,14 +1392,14 @@
           "model_file": ".planning/formal/tla/QGSDQuorum.tla",
           "property_name": "EventualConsensus",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         },
         {
           "model_file": ".planning/formal/tla/NFQuorum.tla",
           "property_name": "EventualConsensus",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         }
       ],
@@ -1459,6 +1482,30 @@
         {
           "model_file": ".planning/formal/tla/NFRecruiting.tla",
           "property_name": "FullRecruitment",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        }
+      ]
+    },
+    "FV-02": {
+      "id": "FV-02",
+      "properties": [
+        {
+          "model_file": ".planning/formal/tla/NFSolveConvergence.tla",
+          "property_name": "OscillationBounded",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        }
+      ]
+    },
+    "FV-03": {
+      "id": "FV-03",
+      "properties": [
+        {
+          "model_file": ".planning/formal/tla/NFSolveConvergence.tla",
+          "property_name": "EventualConvergence",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -2743,6 +2790,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/provider-wizard.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/provider-wizard.als",
+          "property_name": "AllEntitiesHaveState",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -2761,6 +2822,20 @@
         {
           "model_file": ".planning/formal/tla/QGSDAgentProvisioning.tla",
           "property_name": "AddAgent",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/provider-wizard.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/provider-wizard.als",
+          "property_name": "AllEntitiesHaveState",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -2785,6 +2860,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -2862,6 +2944,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/provider-wizard.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/provider-wizard.als",
+          "property_name": "AllEntitiesHaveState",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -2880,6 +2976,20 @@
         {
           "model_file": ".planning/formal/tla/QGSDAgentProvisioning.tla",
           "property_name": "CloneSlot",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/provider-wizard.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/provider-wizard.als",
+          "property_name": "AllEntitiesHaveState",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -3016,6 +3126,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -3055,6 +3172,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -3080,6 +3204,13 @@
         {
           "model_file": ".planning/formal/alloy/config-two-layer.als",
           "property_name": "CommandsNonEmpty",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -3111,6 +3242,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -3136,6 +3274,13 @@
         {
           "model_file": ".planning/formal/alloy/config-two-layer.als",
           "property_name": "FallbackOnInvalid",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -3223,6 +3368,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -3293,6 +3445,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "AutoDetect",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -3346,6 +3505,13 @@
         {
           "model_file": ".planning/formal/alloy/mcp-detection.als",
           "property_name": "DetectedWritten",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "DetectedWrittenToConfig",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -3510,6 +3676,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -3650,6 +3823,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -3762,6 +3942,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/multi-slot.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/multi-slot.als",
+          "property_name": "AllEntitiesHaveState",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -3825,6 +4019,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/multi-slot.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/multi-slot.als",
+          "property_name": "AllEntitiesHaveState",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -3850,6 +4058,13 @@
         {
           "model_file": ".planning/formal/alloy/quorum-policy.als",
           "property_name": "TimeoutPerSlot",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFPolicy.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -3881,6 +4096,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFPolicy.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -3906,6 +4128,13 @@
         {
           "model_file": ".planning/formal/alloy/quorum-policy.als",
           "property_name": "AutoCheckable",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFPolicy.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -4119,6 +4348,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -4144,6 +4380,20 @@
         {
           "model_file": ".planning/formal/alloy/architecture-registry.als",
           "property_name": "QuorumFirst",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/meta-resolve.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/meta-resolve.als",
+          "property_name": "AllEntitiesHaveState",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -4210,6 +4460,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/meta-resolve.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/meta-resolve.als",
+          "property_name": "AllEntitiesHaveState",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -4235,6 +4499,20 @@
         {
           "model_file": ".planning/formal/alloy/traceability-annotations.als",
           "property_name": "MatrixLinkage",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/traceability.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/traceability.als",
+          "property_name": "AllEntitiesHaveState",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -4291,6 +4569,20 @@
         {
           "model_file": ".planning/formal/alloy/traceability-annotations.als",
           "property_name": "ModelType",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/traceability.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/traceability.als",
+          "property_name": "AllEntitiesHaveState",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -4607,7 +4899,7 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "AllChecksEventuallyRun",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "ci:liveness-fairness-lint"
         }
       ],
@@ -4628,8 +4920,8 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "ci:trace-redaction"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -4649,14 +4941,14 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "ci:trace-redaction"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "AllChecksEventuallyRun",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "ci:liveness-fairness-lint"
         }
       ],
@@ -4677,8 +4969,8 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "ci:trace-redaction"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
@@ -4705,14 +4997,14 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteLiveness",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "ci:liveness-fairness-lint"
         },
         {
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "LivenessNeverFail",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "ci:liveness-fairness-lint"
         }
       ],
@@ -4733,14 +5025,14 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteLiveness",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "ci:liveness-fairness-lint"
         },
         {
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "AllChecksEventuallyRun",
           "source": "annotation",
-          "latest_result": "inconclusive",
+          "latest_result": "pass",
           "check_id": "ci:liveness-fairness-lint"
         }
       ],
@@ -4945,6 +5237,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -5120,6 +5419,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/evidence-layer.als",
+          "property_name": "TraceEvent",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/evidence-layer.als",
+          "property_name": "TraceIndexed",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -5190,6 +5503,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -5267,6 +5587,13 @@
           "source": "annotation",
           "latest_result": "inconclusive",
           "check_id": "uppaal:quorum-races"
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -5407,6 +5734,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -5694,6 +6028,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -6045,7 +6386,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-01.stub.test.js",
+            "test_name": "SOLVE-01: nf-solve.cjs exists and is loadable"
+          }
+        ]
+      }
     },
     "SOLVE-02": {
       "id": "SOLVE-02",
@@ -6064,7 +6414,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-02.stub.test.js",
+            "test_name": "SOLVE-02: parseAlloyDefaults parses Alloy Defaults sig constraint block"
+          }
+        ]
+      }
     },
     "CONF-10": {
       "id": "CONF-10",
@@ -6890,7 +7249,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-03.stub.test.js",
+            "test_name": "SOLVE-03: discoverDocFiles is exported from nf-solve.cjs"
+          }
+        ]
+      }
     },
     "SOLVE-04": {
       "id": "SOLVE-04",
@@ -6944,7 +7312,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-04.stub.test.js",
+            "test_name": "SOLVE-04: solver-doc-layers.als defines Requirement sig"
+          }
+        ]
+      }
     },
     "INST-11": {
       "id": "INST-11",
@@ -7687,7 +8064,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-05.stub.test.js",
+            "test_name": "SOLVE-05: run-formal-verify.cjs parses --project-root argument"
+          }
+        ]
+      }
     },
     "SOLVE-06": {
       "id": "SOLVE-06",
@@ -7741,7 +8127,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-06.stub.test.js",
+            "test_name": "SOLVE-06: assembleReverseCandidates is exported from nf-solve.cjs"
+          }
+        ]
+      }
     },
     "SOLVE-09": {
       "id": "SOLVE-09",
@@ -7914,6 +8309,13 @@
         {
           "model_file": ".planning/formal/alloy/traceability-obligations.als",
           "property_name": "DebtSubsystemFullyTraced",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -8358,6 +8760,13 @@
         {
           "model_file": ".planning/formal/alloy/evidence-scope-scan.als",
           "property_name": "HeatmapAlwaysComplete",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/evidence-layer.als",
+          "property_name": "TraceEvent",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -8860,6 +9269,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/gate-architecture.als",
+          "property_name": "GateLevel",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/gate-architecture.als",
+          "property_name": "GroundingScoreExists",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -9036,29 +9459,29 @@
           "model_file": ".planning/formal/prism/mcp-availability.props",
           "property_name": "S=? [ \"min_quorum_available\" ]",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "prism:mcp-availability"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".planning/formal/prism/mcp-availability.props",
           "property_name": "S=? [ \"total_outage\" ]",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "prism:mcp-availability"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".planning/formal/prism/mcp-availability.props",
           "property_name": "S=? [ \"majority_available\" ]",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "prism:mcp-availability"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".planning/formal/prism/mcp-availability.pm",
           "property_name": "(model-level)",
           "source": "model-registry",
-          "latest_result": "pass",
-          "check_id": "prism:mcp-availability"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -9078,15 +9501,15 @@
           "model_file": ".planning/formal/prism/mcp-availability.props",
           "property_name": "S=? [ \"total_outage\" ]",
           "source": "annotation",
-          "latest_result": "pass",
-          "check_id": "prism:mcp-availability"
+          "latest_result": null,
+          "check_id": null
         },
         {
           "model_file": ".planning/formal/prism/mcp-availability.pm",
           "property_name": "(model-level)",
           "source": "model-registry",
-          "latest_result": "pass",
-          "check_id": "prism:mcp-availability"
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -9106,28 +9529,28 @@
           "model_file": ".planning/formal/prism/oauth-rotation.props",
           "property_name": "P=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:oauth-rotation"
         },
         {
           "model_file": ".planning/formal/prism/oauth-rotation.props",
           "property_name": "P=? [ F s=0 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:oauth-rotation"
         },
         {
           "model_file": ".planning/formal/prism/oauth-rotation.props",
           "property_name": "R{\"rotations\"}=? [ F s<=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:oauth-rotation"
         },
         {
           "model_file": ".planning/formal/prism/oauth-rotation.pm",
           "property_name": "(model-level)",
           "source": "model-registry",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:oauth-rotation"
         }
       ]
@@ -9139,14 +9562,14 @@
           "model_file": ".planning/formal/prism/oauth-rotation.props",
           "property_name": "P=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:oauth-rotation"
         },
         {
           "model_file": ".planning/formal/prism/oauth-rotation.pm",
           "property_name": "(model-level)",
           "source": "model-registry",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:oauth-rotation"
         }
       ]
@@ -9158,28 +9581,28 @@
           "model_file": ".planning/formal/prism/quorum.props",
           "property_name": "P=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         },
         {
           "model_file": ".planning/formal/prism/quorum.props",
           "property_name": "R{\"rounds\"}=? [ F s=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         },
         {
           "model_file": ".planning/formal/prism/quorum.props",
           "property_name": "P=? [ F<=9 s=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         },
         {
           "model_file": ".planning/formal/prism/quorum.props",
           "property_name": "P=? [ F<=10 s=1 ]",
           "source": "annotation",
-          "latest_result": "pass",
+          "latest_result": "error",
           "check_id": "prism:quorum"
         }
       ]
@@ -10741,6 +11164,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/gate-architecture.als",
+          "property_name": "GateLevel",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -10787,6 +11217,20 @@
         {
           "model_file": ".planning/formal/alloy/gate-promotion-lifecycle.als",
           "property_name": "ChangelogBounded",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/gate-architecture.als",
+          "property_name": "GateLevel",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/gate-architecture.als",
+          "property_name": "ProgressiveMaturity",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11445,6 +11889,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -11501,6 +11952,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFLearning.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -11526,6 +11984,13 @@
         {
           "model_file": ".planning/formal/alloy/governance-dx.als",
           "property_name": "LRNG_02_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFLearning.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11557,6 +12022,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFLearning.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -11582,6 +12054,13 @@
         {
           "model_file": ".planning/formal/alloy/governance-dx.als",
           "property_name": "LRNG_04_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFLearning.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11613,6 +12092,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -11641,6 +12127,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -11666,6 +12159,13 @@
         {
           "model_file": ".planning/formal/alloy/debt-lifecycle.als",
           "property_name": "DEBT_02_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11697,6 +12197,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -11722,6 +12229,13 @@
         {
           "model_file": ".planning/formal/alloy/debt-lifecycle.als",
           "property_name": "DEBT_04_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11753,6 +12267,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -11778,6 +12299,13 @@
         {
           "model_file": ".planning/formal/alloy/debt-lifecycle.als",
           "property_name": "DEBT_06_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11809,6 +12337,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -11834,6 +12369,13 @@
         {
           "model_file": ".planning/formal/alloy/solve-pf-layer.als",
           "property_name": "PF_02_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11865,6 +12407,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -11890,6 +12439,13 @@
         {
           "model_file": ".planning/formal/alloy/solve-pf-layer.als",
           "property_name": "PF_04_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11921,6 +12477,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -11946,6 +12509,13 @@
         {
           "model_file": ".planning/formal/alloy/reasoning-fmea.als",
           "property_name": "RSN_01_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFReasoning.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -11977,6 +12547,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFReasoning.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12002,6 +12579,13 @@
         {
           "model_file": ".planning/formal/alloy/reasoning-fmea.als",
           "property_name": "RSN_03_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFReasoning.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12033,6 +12617,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFReasoning.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12058,6 +12649,13 @@
         {
           "model_file": ".planning/formal/alloy/reasoning-fmea.als",
           "property_name": "RSN_05_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFReasoning.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12089,6 +12687,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -12117,6 +12722,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -12145,6 +12757,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -12173,6 +12792,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/misc-behavioral.als",
+          "property_name": "MCPServer",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:mcp-environment"
         }
       ],
       "unit_test_coverage": {
@@ -12198,6 +12824,20 @@
         {
           "model_file": ".planning/formal/alloy/fingerprinting-dedup.als",
           "property_name": "FP_01_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/fingerprinting.als",
+          "property_name": "FingerprintStrategy",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/fingerprinting.als",
+          "property_name": "HierarchicalStrategy",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12229,6 +12869,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/fingerprinting.als",
+          "property_name": "FingerprintStrategy",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12254,6 +12901,20 @@
         {
           "model_file": ".planning/formal/alloy/fingerprinting-dedup.als",
           "property_name": "FP_03_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/fingerprinting.als",
+          "property_name": "FingerprintStrategy",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/fingerprinting.als",
+          "property_name": "NoDuplicateFingerprints",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12285,6 +12946,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/fingerprinting.als",
+          "property_name": "FingerprintStrategy",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/fingerprinting.als",
+          "property_name": "MergePreservesSource",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12310,6 +12985,13 @@
         {
           "model_file": ".planning/formal/alloy/memory-persistence.als",
           "property_name": "MEMP_01_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12341,6 +13023,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12366,6 +13055,13 @@
         {
           "model_file": ".planning/formal/alloy/memory-persistence.als",
           "property_name": "MEMP_03_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12397,6 +13093,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12422,6 +13125,20 @@
         {
           "model_file": ".planning/formal/alloy/semantics-operational.als",
           "property_name": "SEM_01_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/semantics-layer.als",
+          "property_name": "Invariant",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/semantics-layer.als",
+          "property_name": "InvariantCatalog",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12453,6 +13170,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/semantics-layer.als",
+          "property_name": "Invariant",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/semantics-layer.als",
+          "property_name": "MismatchTracked",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12478,6 +13209,13 @@
         {
           "model_file": ".planning/formal/alloy/semantics-operational.als",
           "property_name": "SEM_03_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/semantics-layer.als",
+          "property_name": "Invariant",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12509,6 +13247,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/semantics-layer.als",
+          "property_name": "Invariant",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12534,6 +13279,13 @@
         {
           "model_file": ".planning/formal/alloy/token-optimization.als",
           "property_name": "TOKN_01_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12565,6 +13317,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12590,6 +13349,13 @@
         {
           "model_file": ".planning/formal/alloy/token-optimization.als",
           "property_name": "TOKN_03_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12621,6 +13387,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12649,6 +13422,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFImprovement.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:deliberation"
         }
       ],
       "unit_test_coverage": {
@@ -12677,6 +13457,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFImprovement.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:deliberation"
         }
       ],
       "unit_test_coverage": {
@@ -12705,6 +13492,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFImprovement.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": "pass",
+          "check_id": "tla:deliberation"
         }
       ],
       "unit_test_coverage": {
@@ -12817,6 +13611,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFOrchestration.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12842,6 +13643,13 @@
         {
           "model_file": ".planning/formal/alloy/subagent-orchestration.als",
           "property_name": "ORCH_02_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFOrchestration.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12873,6 +13681,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFOrchestration.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12898,6 +13713,13 @@
         {
           "model_file": ".planning/formal/alloy/verification-execution.als",
           "property_name": "VERF_01_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFVerification.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -12929,6 +13751,13 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFVerification.tla",
+          "property_name": "TypeOK",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -12954,6 +13783,13 @@
         {
           "model_file": ".planning/formal/alloy/verification-execution.als",
           "property_name": "VERF_03_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/tla/NFVerification.tla",
+          "property_name": "TypeOK",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -13041,6 +13877,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/parallel-exec.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/parallel-exec.als",
+          "property_name": "AllEntitiesHaveState",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -13066,6 +13916,20 @@
         {
           "model_file": ".planning/formal/alloy/parallel-execution.als",
           "property_name": "PARA_02_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/parallel-exec.als",
+          "property_name": "Entity",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/parallel-exec.als",
+          "property_name": "AllEntitiesHaveState",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -13265,6 +14129,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/evidence-layer.als",
+          "property_name": "TraceEvent",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/evidence-layer.als",
+          "property_name": "VocabComplete",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -13321,6 +14199,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/diagnostics.als",
+          "property_name": "Divergence",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/diagnostics.als",
+          "property_name": "DivergenceTracked",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -13349,6 +14241,20 @@
           "source": "annotation",
           "latest_result": null,
           "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/diagnostics.als",
+          "property_name": "Divergence",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/diagnostics.als",
+          "property_name": "AttributionComplete",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
         }
       ],
       "unit_test_coverage": {
@@ -13374,6 +14280,13 @@
         {
           "model_file": ".planning/formal/alloy/diagnostics-verification.als",
           "property_name": "DIAG_03_Covered",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/diagnostics.als",
+          "property_name": "Divergence",
           "source": "annotation",
           "latest_result": null,
           "check_id": null
@@ -13816,6 +14729,76 @@
         ]
       }
     },
+    "DIAG-04": {
+      "id": "DIAG-04",
+      "properties": [
+        {
+          "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+          "property_name": "Token",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+          "property_name": "TokenizationRequired",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+          "property_name": "ScoringRequiresTokenMatch",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+          "property_name": "ZeroIffNoMatch",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+          "property_name": "CategoryMatchIsSignificant",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+          "property_name": "filterActive",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+          "property_name": "NoFilterWhenNoTokens",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        },
+        {
+          "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+          "property_name": "UniqueIds",
+          "source": "annotation",
+          "latest_result": null,
+          "check_id": null
+        }
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/DIAG-04.stub.test.js",
+            "test_name": "DIAG-04: filterRequirementsByFocus returns null for empty/null phrase"
+          }
+        ]
+      }
+    },
     "STATE-05": {
       "id": "STATE-05",
       "properties": [
@@ -14252,7 +15235,7 @@
         "ORES-01"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:convergence"
     },
     ".planning/formal/tla/NFConvergence.tla::ResolvedAtWriteOnce": {
@@ -14262,7 +15245,7 @@
         "ORES-03"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:convergence"
     },
     ".planning/formal/tla/NFConvergence.tla::LogBeforeDelete": {
@@ -14272,7 +15255,7 @@
         "ORES-02"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:convergence"
     },
     ".planning/formal/tla/NFConvergence.tla::HaikuUnavailableNoCorruption": {
@@ -14282,7 +15265,7 @@
         "ORES-04"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:convergence"
     },
     ".planning/formal/tla/NFConvergence.tla::ConvergenceEventuallyResolves": {
@@ -14292,7 +15275,7 @@
         "ORES-05"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:convergence"
     },
     ".planning/formal/tla/NFDeliberation.tla::TypeOK": {
@@ -14302,7 +15285,7 @@
         "PLAN-01"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:deliberation"
     },
     ".planning/formal/tla/NFDeliberation.tla::TotalRoundsBounded": {
@@ -14312,7 +15295,7 @@
         "LOOP-02"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:deliberation"
     },
     ".planning/formal/tla/NFDeliberation.tla::DeliberationMonotone": {
@@ -14332,7 +15315,7 @@
         "IMPR-01"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:deliberation"
     },
     ".planning/formal/tla/NFDeliberation.tla::ProtocolTerminates": {
@@ -14342,7 +15325,7 @@
         "PLAN-02"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "tla:deliberation"
     },
     ".planning/formal/tla/QGSDMCPEnv.tla::NoSpuriousConsensus": {
@@ -14504,7 +15487,7 @@
         "LOOP-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:quorum"
     },
     ".planning/formal/tla/QGSDQuorum.tla::DeliberationMonotone": {
@@ -14525,7 +15508,7 @@
         "RECV-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:quorum"
     },
     ".planning/formal/tla/QGSDQuorum_xstate.tla::TypeOK": {
@@ -14573,6 +15556,26 @@
       "property_name": "FullRecruitment",
       "requirement_ids": [
         "SLOT-05"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFSolveConvergence.tla::OscillationBounded": {
+      "model_file": ".planning/formal/tla/NFSolveConvergence.tla",
+      "property_name": "OscillationBounded",
+      "requirement_ids": [
+        "FV-02"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFSolveConvergence.tla::EventualConvergence": {
+      "model_file": ".planning/formal/tla/NFSolveConvergence.tla",
+      "property_name": "EventualConvergence",
+      "requirement_ids": [
+        "FV-03"
       ],
       "source": "annotation",
       "latest_result": null,
@@ -16303,8 +17306,8 @@
         "REDACT-03"
       ],
       "source": "annotation",
-      "latest_result": "pass",
-      "check_id": "ci:trace-redaction"
+      "latest_result": null,
+      "check_id": null
     },
     ".planning/formal/tla/QGSDCIChecks.tla::CompleteLiveness": {
       "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
@@ -16314,7 +17317,7 @@
         "LIVE-02"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "ci:liveness-fairness-lint"
     },
     ".planning/formal/tla/QGSDCIChecks.tla::RedactionNeverInconclusive": {
@@ -16334,7 +17337,7 @@
         "LIVE-01"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "ci:liveness-fairness-lint"
     },
     ".planning/formal/tla/QGSDCIChecks.tla::AllChecksEventuallyRun": {
@@ -16346,7 +17349,7 @@
         "LIVE-02"
       ],
       "source": "annotation",
-      "latest_result": "inconclusive",
+      "latest_result": "pass",
       "check_id": "ci:liveness-fairness-lint"
     },
     ".planning/formal/tla/QGSDSensitivity.tla::StartSweep": {
@@ -19089,7 +20092,7 @@
         "LOOP-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:quorum"
     },
     ".planning/formal/tla/NFQuorum.tla::DeliberationMonotone": {
@@ -19110,7 +20113,7 @@
         "RECV-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:quorum"
     },
     ".planning/formal/alloy/solve-automation-features.als::Bool": {
@@ -20639,8 +21642,8 @@
         "MCPENV-04"
       ],
       "source": "annotation",
-      "latest_result": "pass",
-      "check_id": "prism:mcp-availability"
+      "latest_result": null,
+      "check_id": null
     },
     ".planning/formal/prism/mcp-availability.props::S=? [ \"total_outage\" ]": {
       "model_file": ".planning/formal/prism/mcp-availability.props",
@@ -20650,8 +21653,8 @@
         "FAIL-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
-      "check_id": "prism:mcp-availability"
+      "latest_result": null,
+      "check_id": null
     },
     ".planning/formal/prism/mcp-availability.props::S=? [ \"majority_available\" ]": {
       "model_file": ".planning/formal/prism/mcp-availability.props",
@@ -20660,8 +21663,8 @@
         "MCPENV-04"
       ],
       "source": "annotation",
-      "latest_result": "pass",
-      "check_id": "prism:mcp-availability"
+      "latest_result": null,
+      "check_id": null
     },
     ".planning/formal/prism/oauth-rotation.props::P=? [ F s=1 ]": {
       "model_file": ".planning/formal/prism/oauth-rotation.props",
@@ -20671,7 +21674,7 @@
         "CRED-12"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:oauth-rotation"
     },
     ".planning/formal/prism/oauth-rotation.props::P=? [ F s=0 ]": {
@@ -20681,7 +21684,7 @@
         "PRM-AM-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:oauth-rotation"
     },
     ".planning/formal/prism/oauth-rotation.props::R{\"rotations\"}=? [ F s<=1 ]": {
@@ -20691,7 +21694,7 @@
         "PRM-AM-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:oauth-rotation"
     },
     ".planning/formal/prism/quorum.props::P=? [ F s=1 ]": {
@@ -20702,7 +21705,7 @@
         "QUORUM-04"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:quorum"
     },
     ".planning/formal/prism/quorum.props::R{\"rounds\"}=? [ F s=1 ]": {
@@ -20712,7 +21715,7 @@
         "PRM-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:quorum"
     },
     ".planning/formal/prism/quorum.props::P=? [ F<=9 s=1 ]": {
@@ -20723,7 +21726,7 @@
         "LOOP-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:quorum"
     },
     ".planning/formal/prism/quorum.props::P=? [ F<=10 s=1 ]": {
@@ -20733,7 +21736,7 @@
         "PRM-01"
       ],
       "source": "annotation",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:quorum"
     },
     ".planning/formal/prism/observability-delivery.props::S=? [ \"full_delivery\" ]": {
@@ -24002,6 +25005,564 @@
       "latest_result": null,
       "check_id": null
     },
+    ".planning/formal/alloy/focus-topic-filter.als::Token": {
+      "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+      "property_name": "Token",
+      "requirement_ids": [
+        "DIAG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/focus-topic-filter.als::TokenizationRequired": {
+      "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+      "property_name": "TokenizationRequired",
+      "requirement_ids": [
+        "DIAG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/focus-topic-filter.als::ScoringRequiresTokenMatch": {
+      "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+      "property_name": "ScoringRequiresTokenMatch",
+      "requirement_ids": [
+        "DIAG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/focus-topic-filter.als::ZeroIffNoMatch": {
+      "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+      "property_name": "ZeroIffNoMatch",
+      "requirement_ids": [
+        "DIAG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/focus-topic-filter.als::CategoryMatchIsSignificant": {
+      "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+      "property_name": "CategoryMatchIsSignificant",
+      "requirement_ids": [
+        "DIAG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/focus-topic-filter.als::filterActive": {
+      "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+      "property_name": "filterActive",
+      "requirement_ids": [
+        "DIAG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/focus-topic-filter.als::NoFilterWhenNoTokens": {
+      "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+      "property_name": "NoFilterWhenNoTokens",
+      "requirement_ids": [
+        "DIAG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/focus-topic-filter.als::UniqueIds": {
+      "model_file": ".planning/formal/alloy/focus-topic-filter.als",
+      "property_name": "UniqueIds",
+      "requirement_ids": [
+        "DIAG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFDebtLedger.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "DEBT-01",
+        "DEBT-02",
+        "DEBT-03",
+        "DEBT-04",
+        "DEBT-05",
+        "DEBT-06"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFConfigLoader.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "CONF-01",
+        "CONF-02",
+        "CONF-03",
+        "CONF-04",
+        "CONF-05",
+        "CONF-08"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFSolveP2F.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "PF-01",
+        "PF-02",
+        "PF-03",
+        "PF-04",
+        "PF-05"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFTokenOpt.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "TOKN-01",
+        "TOKN-02",
+        "TOKN-03",
+        "TOKN-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFLearning.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFLearning.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "LRNG-01",
+        "LRNG-02",
+        "LRNG-03",
+        "LRNG-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFMemoryPersist.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "MEMP-01",
+        "MEMP-02",
+        "MEMP-03",
+        "MEMP-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFReasoning.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFReasoning.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "RSN-01",
+        "RSN-02",
+        "RSN-03",
+        "RSN-04",
+        "RSN-05"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFImprovement.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFImprovement.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "IMPR-01",
+        "IMPR-02",
+        "IMPR-03",
+        "IMPR-04"
+      ],
+      "source": "annotation",
+      "latest_result": "pass",
+      "check_id": "tla:deliberation"
+    },
+    ".planning/formal/tla/NFOrchestration.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFOrchestration.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "ORCH-01",
+        "ORCH-02",
+        "ORCH-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFPolicy.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFPolicy.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "PLCY-01",
+        "PLCY-02",
+        "PLCY-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/tla/NFVerification.tla::TypeOK": {
+      "model_file": ".planning/formal/tla/NFVerification.tla",
+      "property_name": "TypeOK",
+      "requirement_ids": [
+        "VERF-01",
+        "VERF-02",
+        "VERF-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/fingerprinting.als::FingerprintStrategy": {
+      "model_file": ".planning/formal/alloy/fingerprinting.als",
+      "property_name": "FingerprintStrategy",
+      "requirement_ids": [
+        "FP-01",
+        "FP-02",
+        "FP-03",
+        "FP-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/fingerprinting.als::HierarchicalStrategy": {
+      "model_file": ".planning/formal/alloy/fingerprinting.als",
+      "property_name": "HierarchicalStrategy",
+      "requirement_ids": [
+        "FP-01"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/fingerprinting.als::NoDuplicateFingerprints": {
+      "model_file": ".planning/formal/alloy/fingerprinting.als",
+      "property_name": "NoDuplicateFingerprints",
+      "requirement_ids": [
+        "FP-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/fingerprinting.als::MergePreservesSource": {
+      "model_file": ".planning/formal/alloy/fingerprinting.als",
+      "property_name": "MergePreservesSource",
+      "requirement_ids": [
+        "FP-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/gate-architecture.als::GateLevel": {
+      "model_file": ".planning/formal/alloy/gate-architecture.als",
+      "property_name": "GateLevel",
+      "requirement_ids": [
+        "GATE-01",
+        "GATE-03",
+        "GATE-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/gate-architecture.als::GroundingScoreExists": {
+      "model_file": ".planning/formal/alloy/gate-architecture.als",
+      "property_name": "GroundingScoreExists",
+      "requirement_ids": [
+        "GATE-01"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/gate-architecture.als::ProgressiveMaturity": {
+      "model_file": ".planning/formal/alloy/gate-architecture.als",
+      "property_name": "ProgressiveMaturity",
+      "requirement_ids": [
+        "GATE-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/semantics-layer.als::Invariant": {
+      "model_file": ".planning/formal/alloy/semantics-layer.als",
+      "property_name": "Invariant",
+      "requirement_ids": [
+        "SEM-01",
+        "SEM-02",
+        "SEM-03",
+        "SEM-04"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/semantics-layer.als::InvariantCatalog": {
+      "model_file": ".planning/formal/alloy/semantics-layer.als",
+      "property_name": "InvariantCatalog",
+      "requirement_ids": [
+        "SEM-01"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/semantics-layer.als::MismatchTracked": {
+      "model_file": ".planning/formal/alloy/semantics-layer.als",
+      "property_name": "MismatchTracked",
+      "requirement_ids": [
+        "SEM-02"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/evidence-layer.als::TraceEvent": {
+      "model_file": ".planning/formal/alloy/evidence-layer.als",
+      "property_name": "TraceEvent",
+      "requirement_ids": [
+        "EVID-02",
+        "EVID-03",
+        "EVID-05"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/evidence-layer.als::TraceIndexed": {
+      "model_file": ".planning/formal/alloy/evidence-layer.als",
+      "property_name": "TraceIndexed",
+      "requirement_ids": [
+        "EVID-02"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/evidence-layer.als::VocabComplete": {
+      "model_file": ".planning/formal/alloy/evidence-layer.als",
+      "property_name": "VocabComplete",
+      "requirement_ids": [
+        "EVID-05"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/diagnostics.als::Divergence": {
+      "model_file": ".planning/formal/alloy/diagnostics.als",
+      "property_name": "Divergence",
+      "requirement_ids": [
+        "DIAG-01",
+        "DIAG-02",
+        "DIAG-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/diagnostics.als::DivergenceTracked": {
+      "model_file": ".planning/formal/alloy/diagnostics.als",
+      "property_name": "DivergenceTracked",
+      "requirement_ids": [
+        "DIAG-01"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/diagnostics.als::AttributionComplete": {
+      "model_file": ".planning/formal/alloy/diagnostics.als",
+      "property_name": "AttributionComplete",
+      "requirement_ids": [
+        "DIAG-02"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/traceability.als::Entity": {
+      "model_file": ".planning/formal/alloy/traceability.als",
+      "property_name": "Entity",
+      "requirement_ids": [
+        "TRACE-01",
+        "TRACE-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/traceability.als::AllEntitiesHaveState": {
+      "model_file": ".planning/formal/alloy/traceability.als",
+      "property_name": "AllEntitiesHaveState",
+      "requirement_ids": [
+        "TRACE-01",
+        "TRACE-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/parallel-exec.als::Entity": {
+      "model_file": ".planning/formal/alloy/parallel-exec.als",
+      "property_name": "Entity",
+      "requirement_ids": [
+        "PARA-01",
+        "PARA-02"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/parallel-exec.als::AllEntitiesHaveState": {
+      "model_file": ".planning/formal/alloy/parallel-exec.als",
+      "property_name": "AllEntitiesHaveState",
+      "requirement_ids": [
+        "PARA-01",
+        "PARA-02"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/provider-wizard.als::Entity": {
+      "model_file": ".planning/formal/alloy/provider-wizard.als",
+      "property_name": "Entity",
+      "requirement_ids": [
+        "PROV-02",
+        "PROV-03",
+        "PRST-01",
+        "PRST-02"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/provider-wizard.als::AllEntitiesHaveState": {
+      "model_file": ".planning/formal/alloy/provider-wizard.als",
+      "property_name": "AllEntitiesHaveState",
+      "requirement_ids": [
+        "PROV-02",
+        "PROV-03",
+        "PRST-01",
+        "PRST-02"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/multi-slot.als::Entity": {
+      "model_file": ".planning/formal/alloy/multi-slot.als",
+      "property_name": "Entity",
+      "requirement_ids": [
+        "MULTI-01",
+        "MULTI-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/multi-slot.als::AllEntitiesHaveState": {
+      "model_file": ".planning/formal/alloy/multi-slot.als",
+      "property_name": "AllEntitiesHaveState",
+      "requirement_ids": [
+        "MULTI-01",
+        "MULTI-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/meta-resolve.als::Entity": {
+      "model_file": ".planning/formal/alloy/meta-resolve.als",
+      "property_name": "Entity",
+      "requirement_ids": [
+        "META-01",
+        "META-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/meta-resolve.als::AllEntitiesHaveState": {
+      "model_file": ".planning/formal/alloy/meta-resolve.als",
+      "property_name": "AllEntitiesHaveState",
+      "requirement_ids": [
+        "META-01",
+        "META-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/misc-behavioral.als::MCPServer": {
+      "model_file": ".planning/formal/alloy/misc-behavioral.als",
+      "property_name": "MCPServer",
+      "requirement_ids": [
+        "ADAPT-01",
+        "AGENT-03",
+        "ARCH-03",
+        "BRKR-01",
+        "DECOMP-01",
+        "EXEC-01",
+        "HLTH-03",
+        "LTCY-01",
+        "MCPENV-02",
+        "PRIO-01",
+        "SCHEMA-02",
+        "SHARD-01",
+        "SIG-03",
+        "TRIAGE-02",
+        "UNIF-02",
+        "UPPAAL-02",
+        "VALID-01"
+      ],
+      "source": "annotation",
+      "latest_result": "pass",
+      "check_id": "tla:mcp-environment"
+    },
+    ".planning/formal/alloy/misc-behavioral.als::AutoDetect": {
+      "model_file": ".planning/formal/alloy/misc-behavioral.als",
+      "property_name": "AutoDetect",
+      "requirement_ids": [
+        "MCP-01"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
+    ".planning/formal/alloy/misc-behavioral.als::DetectedWrittenToConfig": {
+      "model_file": ".planning/formal/alloy/misc-behavioral.als",
+      "property_name": "DetectedWrittenToConfig",
+      "requirement_ids": [
+        "MCP-03"
+      ],
+      "source": "annotation",
+      "latest_result": null,
+      "check_id": null
+    },
     ".planning/formal/prism/mcp-availability.pm::(model-level)": {
       "model_file": ".planning/formal/prism/mcp-availability.pm",
       "property_name": "(model-level)",
@@ -24010,8 +25571,8 @@
         "FAIL-01"
       ],
       "source": "model-registry",
-      "latest_result": "pass",
-      "check_id": "prism:mcp-availability"
+      "latest_result": null,
+      "check_id": null
     },
     ".planning/formal/prism/oauth-rotation.pm::(model-level)": {
       "model_file": ".planning/formal/prism/oauth-rotation.pm",
@@ -24021,7 +25582,7 @@
         "CRED-12"
       ],
       "source": "model-registry",
-      "latest_result": "pass",
+      "latest_result": "error",
       "check_id": "prism:oauth-rotation"
     },
     ".planning/formal/prism/observability-delivery.pm::(model-level)": {
@@ -24061,8 +25622,8 @@
     }
   },
   "coverage_summary": {
-    "total_requirements": 335,
-    "covered_count": 335,
+    "total_requirements": 343,
+    "covered_count": 343,
     "coverage_percentage": 100,
     "uncovered_requirements": [],
     "orphan_properties": []
@@ -24143,6 +25704,12 @@
       },
       {
         "model_file": ".planning/formal/tla/NFDeliberation.tla",
+        "requirement_id": "SAFE-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SAFE-03 for .planning/formal/tla/NFDeliberation.tla but requirements.json SAFE-03 does not list .planning/formal/tla/NFDeliberation.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFDeliberation.tla",
         "requirement_id": "IMPR-01",
         "direction": "model_claims_requirement",
         "detail": "model-registry lists IMPR-01 for .planning/formal/tla/NFDeliberation.tla but requirements.json IMPR-01 does not list .planning/formal/tla/NFDeliberation.tla in formal_models"
@@ -24188,6 +25755,12 @@
         "requirement_id": "SAFE-02",
         "direction": "model_claims_requirement",
         "detail": "model-registry lists SAFE-02 for .planning/formal/tla/QGSDQuorum.tla but requirements.json SAFE-02 does not list .planning/formal/tla/QGSDQuorum.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/QGSDQuorum.tla",
+        "requirement_id": "SAFE-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SAFE-03 for .planning/formal/tla/QGSDQuorum.tla but requirements.json SAFE-03 does not list .planning/formal/tla/QGSDQuorum.tla in formal_models"
       },
       {
         "model_file": ".planning/formal/tla/NFRecruiting.tla",
@@ -24526,10 +26099,46 @@
         "detail": "model-registry lists HLTH-03 for .planning/formal/alloy/health-validation.als but requirements.json HLTH-03 does not list .planning/formal/alloy/health-validation.als in formal_models"
       },
       {
+        "model_file": ".planning/formal/alloy/solve-consistency.als",
+        "requirement_id": "SOLVE-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-01 for .planning/formal/alloy/solve-consistency.als but requirements.json SOLVE-01 does not list .planning/formal/alloy/solve-consistency.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-consistency.als",
+        "requirement_id": "SOLVE-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-02 for .planning/formal/alloy/solve-consistency.als but requirements.json SOLVE-02 does not list .planning/formal/alloy/solve-consistency.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solver-doc-layers.als",
+        "requirement_id": "SOLVE-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-03 for .planning/formal/alloy/solver-doc-layers.als but requirements.json SOLVE-03 does not list .planning/formal/alloy/solver-doc-layers.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solver-doc-layers.als",
+        "requirement_id": "SOLVE-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-04 for .planning/formal/alloy/solver-doc-layers.als but requirements.json SOLVE-04 does not list .planning/formal/alloy/solver-doc-layers.als in formal_models"
+      },
+      {
         "model_file": ".planning/formal/alloy/ci-test-fallback.als",
         "requirement_id": "CI-04",
         "direction": "model_claims_requirement",
         "detail": "model-registry lists CI-04 for .planning/formal/alloy/ci-test-fallback.als but requirements.json CI-04 does not list .planning/formal/alloy/ci-test-fallback.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solver-portability.als",
+        "requirement_id": "SOLVE-05",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-05 for .planning/formal/alloy/solver-portability.als but requirements.json SOLVE-05 does not list .planning/formal/alloy/solver-portability.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solver-portability.als",
+        "requirement_id": "SOLVE-06",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-06 for .planning/formal/alloy/solver-portability.als but requirements.json SOLVE-06 does not list .planning/formal/alloy/solver-portability.als in formal_models"
       },
       {
         "model_file": ".planning/formal/alloy/traceability-obligations.als",
@@ -25174,6 +26783,564 @@
         "detail": "model-registry lists UX-06 for .planning/formal/alloy/ux-interaction-safety.als but requirements.json UX-06 does not list .planning/formal/alloy/ux-interaction-safety.als in formal_models"
       },
       {
+        "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+        "requirement_id": "DEBT-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DEBT-01 for .planning/formal/tla/NFDebtLedger.tla but requirements.json DEBT-01 does not list .planning/formal/tla/NFDebtLedger.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+        "requirement_id": "DEBT-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DEBT-02 for .planning/formal/tla/NFDebtLedger.tla but requirements.json DEBT-02 does not list .planning/formal/tla/NFDebtLedger.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+        "requirement_id": "DEBT-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DEBT-03 for .planning/formal/tla/NFDebtLedger.tla but requirements.json DEBT-03 does not list .planning/formal/tla/NFDebtLedger.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+        "requirement_id": "DEBT-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DEBT-04 for .planning/formal/tla/NFDebtLedger.tla but requirements.json DEBT-04 does not list .planning/formal/tla/NFDebtLedger.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+        "requirement_id": "DEBT-05",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DEBT-05 for .planning/formal/tla/NFDebtLedger.tla but requirements.json DEBT-05 does not list .planning/formal/tla/NFDebtLedger.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFDebtLedger.tla",
+        "requirement_id": "DEBT-06",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DEBT-06 for .planning/formal/tla/NFDebtLedger.tla but requirements.json DEBT-06 does not list .planning/formal/tla/NFDebtLedger.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+        "requirement_id": "CONF-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists CONF-01 for .planning/formal/tla/NFConfigLoader.tla but requirements.json CONF-01 does not list .planning/formal/tla/NFConfigLoader.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+        "requirement_id": "CONF-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists CONF-02 for .planning/formal/tla/NFConfigLoader.tla but requirements.json CONF-02 does not list .planning/formal/tla/NFConfigLoader.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+        "requirement_id": "CONF-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists CONF-03 for .planning/formal/tla/NFConfigLoader.tla but requirements.json CONF-03 does not list .planning/formal/tla/NFConfigLoader.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+        "requirement_id": "CONF-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists CONF-04 for .planning/formal/tla/NFConfigLoader.tla but requirements.json CONF-04 does not list .planning/formal/tla/NFConfigLoader.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+        "requirement_id": "CONF-05",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists CONF-05 for .planning/formal/tla/NFConfigLoader.tla but requirements.json CONF-05 does not list .planning/formal/tla/NFConfigLoader.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFConfigLoader.tla",
+        "requirement_id": "CONF-08",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists CONF-08 for .planning/formal/tla/NFConfigLoader.tla but requirements.json CONF-08 does not list .planning/formal/tla/NFConfigLoader.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+        "requirement_id": "PF-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PF-01 for .planning/formal/tla/NFSolveP2F.tla but requirements.json PF-01 does not list .planning/formal/tla/NFSolveP2F.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+        "requirement_id": "PF-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PF-02 for .planning/formal/tla/NFSolveP2F.tla but requirements.json PF-02 does not list .planning/formal/tla/NFSolveP2F.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+        "requirement_id": "PF-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PF-03 for .planning/formal/tla/NFSolveP2F.tla but requirements.json PF-03 does not list .planning/formal/tla/NFSolveP2F.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+        "requirement_id": "PF-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PF-04 for .planning/formal/tla/NFSolveP2F.tla but requirements.json PF-04 does not list .planning/formal/tla/NFSolveP2F.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveP2F.tla",
+        "requirement_id": "PF-05",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PF-05 for .planning/formal/tla/NFSolveP2F.tla but requirements.json PF-05 does not list .planning/formal/tla/NFSolveP2F.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+        "requirement_id": "TOKN-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists TOKN-01 for .planning/formal/tla/NFTokenOpt.tla but requirements.json TOKN-01 does not list .planning/formal/tla/NFTokenOpt.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+        "requirement_id": "TOKN-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists TOKN-02 for .planning/formal/tla/NFTokenOpt.tla but requirements.json TOKN-02 does not list .planning/formal/tla/NFTokenOpt.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+        "requirement_id": "TOKN-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists TOKN-03 for .planning/formal/tla/NFTokenOpt.tla but requirements.json TOKN-03 does not list .planning/formal/tla/NFTokenOpt.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFTokenOpt.tla",
+        "requirement_id": "TOKN-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists TOKN-04 for .planning/formal/tla/NFTokenOpt.tla but requirements.json TOKN-04 does not list .planning/formal/tla/NFTokenOpt.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFLearning.tla",
+        "requirement_id": "LRNG-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists LRNG-01 for .planning/formal/tla/NFLearning.tla but requirements.json LRNG-01 does not list .planning/formal/tla/NFLearning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFLearning.tla",
+        "requirement_id": "LRNG-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists LRNG-02 for .planning/formal/tla/NFLearning.tla but requirements.json LRNG-02 does not list .planning/formal/tla/NFLearning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFLearning.tla",
+        "requirement_id": "LRNG-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists LRNG-03 for .planning/formal/tla/NFLearning.tla but requirements.json LRNG-03 does not list .planning/formal/tla/NFLearning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFLearning.tla",
+        "requirement_id": "LRNG-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists LRNG-04 for .planning/formal/tla/NFLearning.tla but requirements.json LRNG-04 does not list .planning/formal/tla/NFLearning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+        "requirement_id": "MEMP-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists MEMP-01 for .planning/formal/tla/NFMemoryPersist.tla but requirements.json MEMP-01 does not list .planning/formal/tla/NFMemoryPersist.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+        "requirement_id": "MEMP-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists MEMP-02 for .planning/formal/tla/NFMemoryPersist.tla but requirements.json MEMP-02 does not list .planning/formal/tla/NFMemoryPersist.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+        "requirement_id": "MEMP-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists MEMP-03 for .planning/formal/tla/NFMemoryPersist.tla but requirements.json MEMP-03 does not list .planning/formal/tla/NFMemoryPersist.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFMemoryPersist.tla",
+        "requirement_id": "MEMP-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists MEMP-04 for .planning/formal/tla/NFMemoryPersist.tla but requirements.json MEMP-04 does not list .planning/formal/tla/NFMemoryPersist.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFReasoning.tla",
+        "requirement_id": "RSN-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists RSN-01 for .planning/formal/tla/NFReasoning.tla but requirements.json RSN-01 does not list .planning/formal/tla/NFReasoning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFReasoning.tla",
+        "requirement_id": "RSN-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists RSN-02 for .planning/formal/tla/NFReasoning.tla but requirements.json RSN-02 does not list .planning/formal/tla/NFReasoning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFReasoning.tla",
+        "requirement_id": "RSN-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists RSN-03 for .planning/formal/tla/NFReasoning.tla but requirements.json RSN-03 does not list .planning/formal/tla/NFReasoning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFReasoning.tla",
+        "requirement_id": "RSN-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists RSN-04 for .planning/formal/tla/NFReasoning.tla but requirements.json RSN-04 does not list .planning/formal/tla/NFReasoning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFReasoning.tla",
+        "requirement_id": "RSN-05",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists RSN-05 for .planning/formal/tla/NFReasoning.tla but requirements.json RSN-05 does not list .planning/formal/tla/NFReasoning.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFImprovement.tla",
+        "requirement_id": "IMPR-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists IMPR-01 for .planning/formal/tla/NFImprovement.tla but requirements.json IMPR-01 does not list .planning/formal/tla/NFImprovement.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFImprovement.tla",
+        "requirement_id": "IMPR-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists IMPR-02 for .planning/formal/tla/NFImprovement.tla but requirements.json IMPR-02 does not list .planning/formal/tla/NFImprovement.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFImprovement.tla",
+        "requirement_id": "IMPR-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists IMPR-03 for .planning/formal/tla/NFImprovement.tla but requirements.json IMPR-03 does not list .planning/formal/tla/NFImprovement.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFImprovement.tla",
+        "requirement_id": "IMPR-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists IMPR-04 for .planning/formal/tla/NFImprovement.tla but requirements.json IMPR-04 does not list .planning/formal/tla/NFImprovement.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFOrchestration.tla",
+        "requirement_id": "ORCH-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists ORCH-01 for .planning/formal/tla/NFOrchestration.tla but requirements.json ORCH-01 does not list .planning/formal/tla/NFOrchestration.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFOrchestration.tla",
+        "requirement_id": "ORCH-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists ORCH-02 for .planning/formal/tla/NFOrchestration.tla but requirements.json ORCH-02 does not list .planning/formal/tla/NFOrchestration.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFOrchestration.tla",
+        "requirement_id": "ORCH-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists ORCH-03 for .planning/formal/tla/NFOrchestration.tla but requirements.json ORCH-03 does not list .planning/formal/tla/NFOrchestration.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFPolicy.tla",
+        "requirement_id": "PLCY-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PLCY-01 for .planning/formal/tla/NFPolicy.tla but requirements.json PLCY-01 does not list .planning/formal/tla/NFPolicy.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFPolicy.tla",
+        "requirement_id": "PLCY-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PLCY-02 for .planning/formal/tla/NFPolicy.tla but requirements.json PLCY-02 does not list .planning/formal/tla/NFPolicy.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFPolicy.tla",
+        "requirement_id": "PLCY-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PLCY-03 for .planning/formal/tla/NFPolicy.tla but requirements.json PLCY-03 does not list .planning/formal/tla/NFPolicy.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFVerification.tla",
+        "requirement_id": "VERF-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists VERF-01 for .planning/formal/tla/NFVerification.tla but requirements.json VERF-01 does not list .planning/formal/tla/NFVerification.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFVerification.tla",
+        "requirement_id": "VERF-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists VERF-02 for .planning/formal/tla/NFVerification.tla but requirements.json VERF-02 does not list .planning/formal/tla/NFVerification.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFVerification.tla",
+        "requirement_id": "VERF-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists VERF-03 for .planning/formal/tla/NFVerification.tla but requirements.json VERF-03 does not list .planning/formal/tla/NFVerification.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/fingerprinting.als",
+        "requirement_id": "FP-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists FP-01 for .planning/formal/alloy/fingerprinting.als but requirements.json FP-01 does not list .planning/formal/alloy/fingerprinting.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/fingerprinting.als",
+        "requirement_id": "FP-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists FP-02 for .planning/formal/alloy/fingerprinting.als but requirements.json FP-02 does not list .planning/formal/alloy/fingerprinting.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/fingerprinting.als",
+        "requirement_id": "FP-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists FP-03 for .planning/formal/alloy/fingerprinting.als but requirements.json FP-03 does not list .planning/formal/alloy/fingerprinting.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/fingerprinting.als",
+        "requirement_id": "FP-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists FP-04 for .planning/formal/alloy/fingerprinting.als but requirements.json FP-04 does not list .planning/formal/alloy/fingerprinting.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/gate-architecture.als",
+        "requirement_id": "GATE-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists GATE-01 for .planning/formal/alloy/gate-architecture.als but requirements.json GATE-01 does not list .planning/formal/alloy/gate-architecture.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/gate-architecture.als",
+        "requirement_id": "GATE-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists GATE-03 for .planning/formal/alloy/gate-architecture.als but requirements.json GATE-03 does not list .planning/formal/alloy/gate-architecture.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/gate-architecture.als",
+        "requirement_id": "GATE-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists GATE-04 for .planning/formal/alloy/gate-architecture.als but requirements.json GATE-04 does not list .planning/formal/alloy/gate-architecture.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/semantics-layer.als",
+        "requirement_id": "SEM-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SEM-01 for .planning/formal/alloy/semantics-layer.als but requirements.json SEM-01 does not list .planning/formal/alloy/semantics-layer.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/semantics-layer.als",
+        "requirement_id": "SEM-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SEM-02 for .planning/formal/alloy/semantics-layer.als but requirements.json SEM-02 does not list .planning/formal/alloy/semantics-layer.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/semantics-layer.als",
+        "requirement_id": "SEM-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SEM-03 for .planning/formal/alloy/semantics-layer.als but requirements.json SEM-03 does not list .planning/formal/alloy/semantics-layer.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/semantics-layer.als",
+        "requirement_id": "SEM-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SEM-04 for .planning/formal/alloy/semantics-layer.als but requirements.json SEM-04 does not list .planning/formal/alloy/semantics-layer.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/evidence-layer.als",
+        "requirement_id": "EVID-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists EVID-02 for .planning/formal/alloy/evidence-layer.als but requirements.json EVID-02 does not list .planning/formal/alloy/evidence-layer.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/evidence-layer.als",
+        "requirement_id": "EVID-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists EVID-03 for .planning/formal/alloy/evidence-layer.als but requirements.json EVID-03 does not list .planning/formal/alloy/evidence-layer.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/evidence-layer.als",
+        "requirement_id": "EVID-05",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists EVID-05 for .planning/formal/alloy/evidence-layer.als but requirements.json EVID-05 does not list .planning/formal/alloy/evidence-layer.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/diagnostics.als",
+        "requirement_id": "DIAG-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DIAG-01 for .planning/formal/alloy/diagnostics.als but requirements.json DIAG-01 does not list .planning/formal/alloy/diagnostics.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/diagnostics.als",
+        "requirement_id": "DIAG-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DIAG-02 for .planning/formal/alloy/diagnostics.als but requirements.json DIAG-02 does not list .planning/formal/alloy/diagnostics.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/diagnostics.als",
+        "requirement_id": "DIAG-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DIAG-03 for .planning/formal/alloy/diagnostics.als but requirements.json DIAG-03 does not list .planning/formal/alloy/diagnostics.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/traceability.als",
+        "requirement_id": "TRACE-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists TRACE-01 for .planning/formal/alloy/traceability.als but requirements.json TRACE-01 does not list .planning/formal/alloy/traceability.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/traceability.als",
+        "requirement_id": "TRACE-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists TRACE-03 for .planning/formal/alloy/traceability.als but requirements.json TRACE-03 does not list .planning/formal/alloy/traceability.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/parallel-exec.als",
+        "requirement_id": "PARA-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PARA-01 for .planning/formal/alloy/parallel-exec.als but requirements.json PARA-01 does not list .planning/formal/alloy/parallel-exec.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/parallel-exec.als",
+        "requirement_id": "PARA-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PARA-02 for .planning/formal/alloy/parallel-exec.als but requirements.json PARA-02 does not list .planning/formal/alloy/parallel-exec.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/provider-wizard.als",
+        "requirement_id": "PROV-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PROV-02 for .planning/formal/alloy/provider-wizard.als but requirements.json PROV-02 does not list .planning/formal/alloy/provider-wizard.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/provider-wizard.als",
+        "requirement_id": "PROV-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PROV-03 for .planning/formal/alloy/provider-wizard.als but requirements.json PROV-03 does not list .planning/formal/alloy/provider-wizard.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/provider-wizard.als",
+        "requirement_id": "PRST-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PRST-01 for .planning/formal/alloy/provider-wizard.als but requirements.json PRST-01 does not list .planning/formal/alloy/provider-wizard.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/provider-wizard.als",
+        "requirement_id": "PRST-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PRST-02 for .planning/formal/alloy/provider-wizard.als but requirements.json PRST-02 does not list .planning/formal/alloy/provider-wizard.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/multi-slot.als",
+        "requirement_id": "MULTI-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists MULTI-01 for .planning/formal/alloy/multi-slot.als but requirements.json MULTI-01 does not list .planning/formal/alloy/multi-slot.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/multi-slot.als",
+        "requirement_id": "MULTI-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists MULTI-03 for .planning/formal/alloy/multi-slot.als but requirements.json MULTI-03 does not list .planning/formal/alloy/multi-slot.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/meta-resolve.als",
+        "requirement_id": "META-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists META-01 for .planning/formal/alloy/meta-resolve.als but requirements.json META-01 does not list .planning/formal/alloy/meta-resolve.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/meta-resolve.als",
+        "requirement_id": "META-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists META-03 for .planning/formal/alloy/meta-resolve.als but requirements.json META-03 does not list .planning/formal/alloy/meta-resolve.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "ADAPT-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists ADAPT-01 for .planning/formal/alloy/misc-behavioral.als but requirements.json ADAPT-01 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "AGENT-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists AGENT-03 for .planning/formal/alloy/misc-behavioral.als but requirements.json AGENT-03 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "ARCH-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists ARCH-03 for .planning/formal/alloy/misc-behavioral.als but requirements.json ARCH-03 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "BRKR-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists BRKR-01 for .planning/formal/alloy/misc-behavioral.als but requirements.json BRKR-01 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "DECOMP-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DECOMP-01 for .planning/formal/alloy/misc-behavioral.als but requirements.json DECOMP-01 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "EXEC-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists EXEC-01 for .planning/formal/alloy/misc-behavioral.als but requirements.json EXEC-01 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "HLTH-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists HLTH-03 for .planning/formal/alloy/misc-behavioral.als but requirements.json HLTH-03 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "LTCY-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists LTCY-01 for .planning/formal/alloy/misc-behavioral.als but requirements.json LTCY-01 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "MCPENV-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists MCPENV-02 for .planning/formal/alloy/misc-behavioral.als but requirements.json MCPENV-02 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "PRIO-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists PRIO-01 for .planning/formal/alloy/misc-behavioral.als but requirements.json PRIO-01 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "SCHEMA-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SCHEMA-02 for .planning/formal/alloy/misc-behavioral.als but requirements.json SCHEMA-02 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "SHARD-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SHARD-01 for .planning/formal/alloy/misc-behavioral.als but requirements.json SHARD-01 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "SIG-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SIG-03 for .planning/formal/alloy/misc-behavioral.als but requirements.json SIG-03 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "TRIAGE-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists TRIAGE-02 for .planning/formal/alloy/misc-behavioral.als but requirements.json TRIAGE-02 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "UNIF-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists UNIF-02 for .planning/formal/alloy/misc-behavioral.als but requirements.json UNIF-02 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "UPPAAL-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists UPPAAL-02 for .planning/formal/alloy/misc-behavioral.als but requirements.json UPPAAL-02 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/misc-behavioral.als",
+        "requirement_id": "VALID-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists VALID-01 for .planning/formal/alloy/misc-behavioral.als but requirements.json VALID-01 does not list .planning/formal/alloy/misc-behavioral.als in formal_models"
+      },
+      {
         "model_file": ".planning/formal/prism/quorum.pm",
         "requirement_id": "LOOP-01",
         "direction": "requirement_claims_model",
@@ -25285,11 +27452,6 @@
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "SAFE-03",
-        "referenced_by": "model-registry .planning/formal/tla/NFDeliberation.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
         "reference": "DETECT-06",
         "referenced_by": "model-registry .planning/formal/tla/NFOscillation.tla requirements"
       },
@@ -25315,13 +27477,23 @@
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "SAFE-03",
-        "referenced_by": "model-registry .planning/formal/tla/QGSDQuorum.tla requirements"
+        "reference": "SLOT-05",
+        "referenced_by": "model-registry .planning/formal/tla/NFRecruiting.tla requirements"
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "SLOT-05",
-        "referenced_by": "model-registry .planning/formal/tla/NFRecruiting.tla requirements"
+        "reference": "FV-01",
+        "referenced_by": "model-registry .planning/formal/tla/NFSolveConvergence.tla requirements"
+      },
+      {
+        "type": "unknown_requirement_id",
+        "reference": "FV-02",
+        "referenced_by": "model-registry .planning/formal/tla/NFSolveConvergence.tla requirements"
+      },
+      {
+        "type": "unknown_requirement_id",
+        "reference": "FV-03",
+        "referenced_by": "model-registry .planning/formal/tla/NFSolveConvergence.tla requirements"
       },
       {
         "type": "unknown_requirement_id",
@@ -25355,16 +27527,6 @@
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "SOLVE-01",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-consistency.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-02",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-consistency.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
         "reference": "CONF-10",
         "referenced_by": "model-registry .planning/formal/alloy/config-zero-providers.als requirements"
       },
@@ -25392,16 +27554,6 @@
         "type": "unknown_requirement_id",
         "reference": "PLAT-01",
         "referenced_by": "model-registry .planning/formal/alloy/platform-install-compat.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-03",
-        "referenced_by": "model-registry .planning/formal/alloy/solver-doc-layers.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-04",
-        "referenced_by": "model-registry .planning/formal/alloy/solver-doc-layers.als requirements"
       },
       {
         "type": "unknown_requirement_id",
@@ -25447,16 +27599,6 @@
         "type": "unknown_requirement_id",
         "reference": "DISP-06",
         "referenced_by": "model-registry .planning/formal/alloy/dispatch-formal-context.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-05",
-        "referenced_by": "model-registry .planning/formal/alloy/solver-portability.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-06",
-        "referenced_by": "model-registry .planning/formal/alloy/solver-portability.als requirements"
       },
       {
         "type": "unknown_requirement_id",
@@ -25880,9 +28022,9 @@
       }
     ],
     "summary": {
-      "total_checked": 486,
-      "asymmetric_count": 187,
-      "stale_count": 137,
+      "total_checked": 583,
+      "asymmetric_count": 288,
+      "stale_count": 132,
       "clean": false
     }
   },
@@ -26000,6 +28142,22 @@
       "risk_reason": "Unbounded domains: recruited: SUBSET AllSlots, tried: SUBSET AllSlots",
       "variable_count": 3,
       "constant_count": 4
+    },
+    ".planning/formal/tla/NFSolveConvergence.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "session: 0..MaxSessions",
+        "residual: [Layers -> 0..MaxResidual]",
+        "prevResidual: [Layers -> -1..MaxResidual]",
+        "oscillation_count: [Layers -> 0..MaxSessions]",
+        "blocked: [Layers -> BOOLEAN]",
+        "gate_maturity: [Layers -> GateLevel]"
+      ],
+      "risk_reason": "Unbounded domains: session: 0..MaxSessions, residual: [Layers -> 0..MaxResidual], prevResidual: [Layers -> -1..MaxResidual], oscillation_count: [Layers -> 0..MaxSessions], blocked: [Layers -> BOOLEAN], gate_maturity: [Layers -> GateLevel]",
+      "variable_count": 7,
+      "constant_count": 0
     },
     ".planning/formal/tla/NFStopHook.tla": {
       "risk_level": "MINIMAL",
@@ -26268,12 +28426,132 @@
       "risk_reason": "Estimated 3 states (<= 1000)",
       "variable_count": 1,
       "constant_count": 0
+    },
+    ".planning/formal/tla/NFDebtLedger.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "count: 0..MaxEntries",
+        "age: 0..MaxAge"
+      ],
+      "risk_reason": "Unbounded domains: count: 0..MaxEntries, age: 0..MaxAge",
+      "variable_count": 3,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFConfigLoader.tla": {
+      "risk_level": "MINIMAL",
+      "estimated_states": 24,
+      "has_unbounded": false,
+      "unbounded_domains": [],
+      "risk_reason": "Estimated 24 states (<= 1000)",
+      "variable_count": 4,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFSolveP2F.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFTokenOpt.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFLearning.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFMemoryPersist.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFReasoning.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFImprovement.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFOrchestration.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFPolicy.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
+    },
+    ".planning/formal/tla/NFVerification.tla": {
+      "risk_level": "HIGH",
+      "estimated_states": null,
+      "has_unbounded": true,
+      "unbounded_domains": [
+        "step: 0..MaxSteps"
+      ],
+      "risk_reason": "Unbounded domains: step: 0..MaxSteps",
+      "variable_count": 2,
+      "constant_count": 0
     }
   },
   "coverage_preservation": {
     "baseline_found": true,
-    "baseline_date": "2026-03-10T00:38:14.993Z",
-    "requirements_checked": 442,
+    "baseline_date": "2026-03-10T13:40:39.547Z",
+    "requirements_checked": 445,
     "regressions": [],
     "summary": {
       "total_regressions": 0,

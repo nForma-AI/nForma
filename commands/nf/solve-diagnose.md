@@ -15,7 +15,7 @@ This is an internal-only sub-skill dispatched by the nf:solve orchestrator via A
 </objective>
 
 <execution_context>
-PATH RESOLUTION: All `require('./bin/...')` paths must resolve portably: try `$HOME/.claude/nf-bin/` first, fall back to `./bin/`. Use this helper at the top of any node -e snippet:
+PATH RESOLUTION: All bare `./bin/` require paths must resolve portably: try `$HOME/.claude/nf-bin/` first, fall back to `./bin/`. Use this helper at the top of any node -e snippet:
 ```javascript
 const _nfBin = (n) => { const p = require('path').join(require('os').homedir(), '.claude/nf-bin', n); return require('fs').existsSync(p) ? p : './bin/' + n; };
 ```
@@ -126,37 +126,14 @@ If `--skip-observe` flag was passed, skip the inline observe refresh and go dire
 
 Log: `"Step 0d: Running inline observe to refresh debt ledger..."`
 
-Execute observe's core data-gathering steps programmatically (NOT by invoking the full `/nf:observe` skill which prompts the user). Instead, run the observe pipeline directly:
+Use the shared observe pipeline (`bin/observe-pipeline.cjs`) — the same pipeline that `/nf:observe` uses for its data-gathering steps. This ensures handler registration, internal source injection, and debt writing stay in sync between both consumers.
 
 ```javascript
-const { loadObserveConfig } = require(_nfBin('observe-config.cjs'));
-const { registerHandler, dispatchAll } = require(_nfBin('observe-registry.cjs'));
-const { handleGitHub, handleSentry, handleSentryFeedback, handleBash, handleInternal, handleUpstream, handleDeps } = require(_nfBin('observe-handlers.cjs'));
-const { writeObservationsToDebt } = require(_nfBin('observe-debt-writer.cjs'));
-
-// Register all handlers
-registerHandler('github', handleGitHub);
-registerHandler('sentry', handleSentry);
-registerHandler('sentry_feedback', handleSentryFeedback);
-registerHandler('bash', handleBash);
-registerHandler('internal', handleInternal);
-registerHandler('upstream', handleUpstream);
-registerHandler('deps', handleDeps);
-
-const config = loadObserveConfig();
-// Inject internal source unconditionally
-if (!config.sources.find(s => s.type === 'internal')) {
-  config.sources.push({ type: 'internal', label: 'Internal Work', issue_type: 'issue' });
-}
-
-const results = await dispatchAll(config.sources, {});
-// Handle pending_mcp results same as observe Step 4b
-
-const allObservations = results.filter(r => r.status === 'ok').flatMap(r => r.issues || []);
-const { written, updated } = writeObservationsToDebt(allObservations);
+const { refreshDebtLedger } = require(_nfBin('observe-pipeline.cjs'));
+const { written, updated, sourceCount } = await refreshDebtLedger();
 ```
 
-Log: `"Step 0d: Observe refresh complete — {written} new, {updated} updated debt entries"`
+Log: `"Step 0d: Observe refresh complete — {written} new, {updated} updated debt entries (from {sourceCount} sources)"`
 
 **Debt load** (always runs):
 

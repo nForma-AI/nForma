@@ -1,176 +1,22 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T00:31:34.423Z",
-  "total_failures": 6,
+  "generated": "2026-03-10T13:34:35.677Z",
+  "total_failures": 0,
   "categories": {
-    "crash": [
-      {
-        "tool": "run-prism",
-        "formalism": "prism",
-        "result": "error",
-        "timestamp": "2026-03-10T00:27:00.042Z",
-        "check_id": "prism:quorum",
-        "surface": "prism",
-        "property": "Quorum consensus probability under agent availability rates",
-        "runtime_ms": 0,
-        "summary": "error: prism:quorum (model not found)",
-        "triage_tags": [],
-        "requirement_ids": [
-          "PRM-01",
-          "QUORUM-04",
-          "LOOP-01"
-        ],
-        "metadata": {},
-        "observation_window": {
-          "window_start": "2026-03-10T00:27:00.041Z",
-          "window_end": "2026-03-10T00:27:00.042Z",
-          "n_traces": 0,
-          "n_events": 0,
-          "window_days": 0
-        },
-        "category": "crash",
-        "classification_reason": "Error pattern in summary: error: prism:quorum (model not found)"
-      },
-      {
-        "tool": "run-prism",
-        "formalism": "prism",
-        "result": "error",
-        "timestamp": "2026-03-10T00:27:00.090Z",
-        "check_id": "prism:quorum",
-        "surface": "prism",
-        "property": "Quorum consensus probability under agent availability rates",
-        "runtime_ms": 0,
-        "summary": "error: prism:quorum (model not found)",
-        "triage_tags": [],
-        "requirement_ids": [
-          "PRM-01",
-          "QUORUM-04",
-          "LOOP-01"
-        ],
-        "metadata": {},
-        "observation_window": {
-          "window_start": "2026-03-10T00:27:00.090Z",
-          "window_end": "2026-03-10T00:27:00.090Z",
-          "n_traces": 0,
-          "n_events": 0,
-          "window_days": 0
-        },
-        "category": "crash",
-        "classification_reason": "Error pattern in summary: error: prism:quorum (model not found)"
-      },
-      {
-        "tool": "run-oauth-rotation-prism",
-        "formalism": "prism",
-        "result": "error",
-        "timestamp": "2026-03-10T00:27:00.142Z",
-        "check_id": "prism:oauth-rotation",
-        "surface": "prism",
-        "property": "OAuth token rotation probability — successful rotation under expiry and concurrency",
-        "runtime_ms": 0,
-        "summary": "error: prism:oauth-rotation (model not found)",
-        "triage_tags": [],
-        "requirement_ids": [
-          "PRM-AM-01",
-          "CRED-12"
-        ],
-        "metadata": {},
-        "observation_window": {
-          "window_start": "2026-03-10T00:27:00.141Z",
-          "window_end": "2026-03-10T00:27:00.142Z",
-          "n_traces": 0,
-          "n_events": 0,
-          "window_days": 0
-        },
-        "category": "crash",
-        "classification_reason": "Error pattern in summary: error: prism:oauth-rotation (model not found)"
-      },
-      {
-        "tool": "run-prism",
-        "formalism": "prism",
-        "result": "error",
-        "timestamp": "2026-03-10T00:27:00.191Z",
-        "check_id": "prism:quorum",
-        "surface": "prism",
-        "property": "Quorum consensus probability under agent availability rates",
-        "runtime_ms": 0,
-        "summary": "error: prism:quorum (model not found)",
-        "triage_tags": [],
-        "requirement_ids": [
-          "PRM-01",
-          "QUORUM-04",
-          "LOOP-01"
-        ],
-        "metadata": {},
-        "observation_window": {
-          "window_start": "2026-03-10T00:27:00.191Z",
-          "window_end": "2026-03-10T00:27:00.191Z",
-          "n_traces": 0,
-          "n_events": 0,
-          "window_days": 0
-        },
-        "category": "crash",
-        "classification_reason": "Error pattern in summary: error: prism:quorum (model not found)"
-      },
-      {
-        "tool": "run-prism",
-        "formalism": "prism",
-        "result": "error",
-        "timestamp": "2026-03-10T00:27:00.239Z",
-        "check_id": "prism:quorum",
-        "surface": "prism",
-        "property": "Quorum consensus probability under agent availability rates",
-        "runtime_ms": 0,
-        "summary": "error: prism:quorum (model not found)",
-        "triage_tags": [],
-        "requirement_ids": [
-          "PRM-01",
-          "QUORUM-04",
-          "LOOP-01"
-        ],
-        "metadata": {},
-        "observation_window": {
-          "window_start": "2026-03-10T00:27:00.238Z",
-          "window_end": "2026-03-10T00:27:00.239Z",
-          "n_traces": 0,
-          "n_events": 0,
-          "window_days": 0
-        },
-        "category": "crash",
-        "classification_reason": "Error pattern in summary: error: prism:quorum (model not found)"
-      }
-    ],
+    "crash": [],
     "timeout": [],
-    "logic_violation": [
-      {
-        "tool": "run-tlc",
-        "formalism": "tla",
-        "result": "fail",
-        "timestamp": "2026-03-10T00:25:24.535Z",
-        "check_id": "tla:mcsolve-report-only",
-        "surface": "tla",
-        "property": "MCsolve-report-only",
-        "runtime_ms": 172,
-        "summary": "fail: MCsolve-report-only in 172ms",
-        "triage_tags": [],
-        "requirement_ids": [],
-        "metadata": {
-          "config": "MCsolve-report-only"
-        },
-        "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCsolve-report-only in 172ms"
-      }
-    ],
+    "logic_violation": [],
     "drift": [],
     "degradation": []
   },
   "category_counts": {
-    "crash": 5,
+    "crash": 0,
     "timeout": 0,
-    "logic_violation": 1,
+    "logic_violation": 0,
     "drift": 0,
     "degradation": 0
   },
   "degradation_fallback_note": "When no baseline exists, potential degradation entries are classified as logic_violation",
   "unclassified": [],
-  "summary": "6 failures classified: crash=5, timeout=0, logic_violation=1, drift=0, degradation=0. 0 unclassified."
+  "summary": "0 failures classified: crash=0, timeout=0, logic_violation=0, drift=0, degradation=0. 0 unclassified."
 }

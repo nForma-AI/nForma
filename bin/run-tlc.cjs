@@ -307,6 +307,7 @@ if (require.main === module) {
     'MCrecruiting-liveness': 'NFRecruiting.tla',
     'MCrecruiting-safety':   'NFRecruiting.tla',
     'MCTUINavigation':       'TUINavigation.tla',
+    'MCsolve-report-only':   'NFSolveOrchestrator.tla',
   };
 
   // Auto-discover spec file: (1) check SPEC_MAP, (2) scan cfg header for nForma*.tla ref,

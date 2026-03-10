@@ -8,5 +8,9 @@
     "constraints": "",
     "target_files": [],
     "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.33-06-solve-report-integration/v0.33-06-01-PLAN.md",
+    "key_decisions": []
   }
 }

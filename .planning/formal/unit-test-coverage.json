@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-10T00:31:38.538Z",
+  "generated_at": "2026-03-10T13:34:45.939Z",
   "requirements": {
     "ACT-01": {
       "covered": true,
@@ -277,6 +277,33 @@
         {
           "test_file": ".planning/formal/generated-stubs/CI-03.stub.test.js",
           "test_name": "CI-03: project has TypeScript configuration for type checking"
+        }
+      ]
+    },
+    "CI-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/CI-04.stub.test.js",
+          "test_name": "CI-04: test:ci enumerates test files explicitly, not via raw glob"
+        }
+      ]
+    },
+    "CI-05": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/CI-05.stub.test.js",
+          "test_name": "CI-05: Alloy model defines LintFormatGate with merge-blocking constraint"
+        }
+      ]
+    },
+    "CI-06": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/CI-06.stub.test.js",
+          "test_name": "CI-06: Alloy model defines TypeCheckGate with merge-blocking constraint"
         }
       ]
     },
@@ -640,6 +667,15 @@
         {
           "test_file": ".planning/formal/generated-stubs/DIAG-03.stub.test.js",
           "test_name": "DIAG-03 — Requirement: structural verification"
+        }
+      ]
+    },
+    "DIAG-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/DIAG-04.stub.test.js",
+          "test_name": "DIAG-04: filterRequirementsByFocus returns null for empty/null phrase"
         }
       ]
     },
@@ -1507,6 +1543,15 @@
         }
       ]
     },
+    "OBS-09": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/OBS-09.stub.test.js",
+          "test_name": "OBS-09: all handler files reference standard schema fields in return objects"
+        }
+      ]
+    },
     "ORCH-01": {
       "covered": true,
       "test_cases": [
@@ -1948,6 +1993,24 @@
         }
       ]
     },
+    "REL-03": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/REL-03.stub.test.js",
+          "test_name": "REL-03: Alloy model enforces ExternalFailuresHandled fact"
+        }
+      ]
+    },
+    "REL-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/REL-04.stub.test.js",
+          "test_name": "REL-04: Alloy model enforces LongOpsProgressAndCancel fact"
+        }
+      ]
+    },
     "REN-01": {
       "covered": true,
       "test_cases": [
@@ -2083,6 +2146,15 @@
         }
       ]
     },
+    "SAFE-03": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SAFE-03.stub.test.js",
+          "test_name": "SAFE-03: run-formal-verify.cjs resolves models relative to --project-root only"
+        }
+      ]
+    },
     "SCBD-01": {
       "covered": true,
       "test_cases": [
@@ -2179,6 +2251,42 @@
         {
           "test_file": ".planning/formal/generated-stubs/SEC-04.stub.test.js",
           "test_name": "SEC-04: package.json exists with dependencies that can be audited"
+        }
+      ]
+    },
+    "SEC-05": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SEC-05.stub.test.js",
+          "test_name": "SEC-05: Alloy model defines PreCommitSecretScan with blocking constraint"
+        }
+      ]
+    },
+    "SEC-06": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SEC-06.stub.test.js",
+          "test_name": "SEC-06: Alloy model defines CIHistoryScan with PR blocking constraint"
+        }
+      ]
+    },
+    "SEC-07": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SEC-07.stub.test.js",
+          "test_name": "SEC-07: Alloy model enforces InputValidatedAtBoundary fact"
+        }
+      ]
+    },
+    "SEC-08": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SEC-08.stub.test.js",
+          "test_name": "SEC-08: Alloy model defines DepVulnScan with severity-based blocking"
         }
       ]
     },
@@ -2767,6 +2875,33 @@
         }
       ]
     },
+    "UX-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/UX-04.stub.test.js",
+          "test_name": "UX-04: Alloy model enforces AllActionsProduceFeedback fact"
+        }
+      ]
+    },
+    "UX-05": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/UX-05.stub.test.js",
+          "test_name": "UX-05: Alloy model enforces DestructiveActionsRequireProtection fact"
+        }
+      ]
+    },
+    "UX-06": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/UX-06.stub.test.js",
+          "test_name": "UX-06: Alloy model enforces ErrorOutputsAreActionable fact"
+        }
+      ]
+    },
     "VALID-01": {
       "covered": true,
       "test_cases": [
@@ -2911,120 +3046,57 @@
         }
       ]
     },
-    "UX-04": {
+    "SOLVE-01": {
       "covered": true,
       "test_cases": [
         {
-          "test_file": ".planning/formal/generated-stubs/UX-04.stub.test.js",
-          "test_name": "UX-04: Alloy model enforces AllActionsProduceFeedback fact"
+          "test_file": ".planning/formal/generated-stubs/SOLVE-01.stub.test.js",
+          "test_name": "SOLVE-01: nf-solve.cjs exists and is loadable"
         }
       ]
     },
-    "UX-05": {
+    "SOLVE-02": {
       "covered": true,
       "test_cases": [
         {
-          "test_file": ".planning/formal/generated-stubs/UX-05.stub.test.js",
-          "test_name": "UX-05: Alloy model enforces DestructiveActionsRequireProtection fact"
+          "test_file": ".planning/formal/generated-stubs/SOLVE-02.stub.test.js",
+          "test_name": "SOLVE-02: parseAlloyDefaults parses Alloy Defaults sig constraint block"
         }
       ]
     },
-    "UX-06": {
+    "SOLVE-03": {
       "covered": true,
       "test_cases": [
         {
-          "test_file": ".planning/formal/generated-stubs/UX-06.stub.test.js",
-          "test_name": "UX-06: Alloy model enforces ErrorOutputsAreActionable fact"
+          "test_file": ".planning/formal/generated-stubs/SOLVE-03.stub.test.js",
+          "test_name": "SOLVE-03: discoverDocFiles is exported from nf-solve.cjs"
         }
       ]
     },
-    "SEC-05": {
+    "SOLVE-04": {
       "covered": true,
       "test_cases": [
         {
-          "test_file": ".planning/formal/generated-stubs/SEC-05.stub.test.js",
-          "test_name": "SEC-05: Alloy model defines PreCommitSecretScan with blocking constraint"
+          "test_file": ".planning/formal/generated-stubs/SOLVE-04.stub.test.js",
+          "test_name": "SOLVE-04: solver-doc-layers.als defines Requirement sig"
         }
       ]
     },
-    "SEC-06": {
+    "SOLVE-05": {
       "covered": true,
       "test_cases": [
         {
-          "test_file": ".planning/formal/generated-stubs/SEC-06.stub.test.js",
-          "test_name": "SEC-06: Alloy model defines CIHistoryScan with PR blocking constraint"
+          "test_file": ".planning/formal/generated-stubs/SOLVE-05.stub.test.js",
+          "test_name": "SOLVE-05: run-formal-verify.cjs parses --project-root argument"
         }
       ]
     },
-    "SEC-07": {
+    "SOLVE-06": {
       "covered": true,
       "test_cases": [
         {
-          "test_file": ".planning/formal/generated-stubs/SEC-07.stub.test.js",
-          "test_name": "SEC-07: Alloy model enforces InputValidatedAtBoundary fact"
-        }
-      ]
-    },
-    "SEC-08": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/SEC-08.stub.test.js",
-          "test_name": "SEC-08: Alloy model defines DepVulnScan with severity-based blocking"
-        }
-      ]
-    },
-    "REL-03": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/REL-03.stub.test.js",
-          "test_name": "REL-03: Alloy model enforces ExternalFailuresHandled fact"
-        }
-      ]
-    },
-    "REL-04": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/REL-04.stub.test.js",
-          "test_name": "REL-04: Alloy model enforces LongOpsProgressAndCancel fact"
-        }
-      ]
-    },
-    "OBS-09": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/OBS-09.stub.test.js",
-          "test_name": "OBS-09: all handler files reference standard schema fields in return objects"
-        }
-      ]
-    },
-    "CI-04": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/CI-04.stub.test.js",
-          "test_name": "CI-04: test:ci enumerates test files explicitly, not via raw glob"
-        }
-      ]
-    },
-    "CI-05": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/CI-05.stub.test.js",
-          "test_name": "CI-05: Alloy model defines LintFormatGate with merge-blocking constraint"
-        }
-      ]
-    },
-    "CI-06": {
-      "covered": true,
-      "test_cases": [
-        {
-          "test_file": ".planning/formal/generated-stubs/CI-06.stub.test.js",
-          "test_name": "CI-06: Alloy model defines TypeCheckGate with merge-blocking constraint"
+          "test_file": ".planning/formal/generated-stubs/SOLVE-06.stub.test.js",
+          "test_name": "SOLVE-06: assembleReverseCandidates is exported from nf-solve.cjs"
         }
       ]
     }

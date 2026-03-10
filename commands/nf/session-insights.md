@@ -22,7 +22,8 @@ From $ARGUMENTS, extract:
 ## Step 2: Run the handler
 
 ```javascript
-const { handleSessionInsights } = require('./bin/observe-handler-session-insights.cjs');
+const _nfBin = (n) => { const p = require('path').join(require('os').homedir(), '.claude/nf-bin', n); return require('fs').existsSync(p) ? p : './bin/' + n; };
+const { handleSessionInsights } = require(_nfBin('observe-handler-session-insights.cjs'));
 const result = handleSessionInsights(
   { label: 'Session Insights', max_sessions: sessionsArg || 20 },
   { projectRoot: process.cwd() }

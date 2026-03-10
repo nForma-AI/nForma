@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T00:31:33.727Z",
+  "generated": "2026-03-10T13:34:34.301Z",
   "layers": {
     "L1": [],
     "L2": [],
@@ -113,6 +113,11 @@
       {
         "path": ".planning/formal/tla/NFRecruiting.tla",
         "description": "",
+        "grounding_status": "has_semantic_declarations"
+      },
+      {
+        "path": ".planning/formal/tla/NFSolveConvergence.tla",
+        "description": "Outer nf:solve loop convergence under Option C — cross-session state, oscillation blocking, gate maturity",
         "grounding_status": "has_semantic_declarations"
       },
       {
@@ -774,6 +779,121 @@
         "path": ".planning/formal/alloy/ux-interaction-safety.als",
         "description": "UX interaction safety: immediate feedback, destructive action confirmation/undo, actionable error messages",
         "grounding_status": "has_semantic_declarations"
+      },
+      {
+        "path": ".planning/formal/alloy/focus-topic-filter.als",
+        "description": "Focus topic filter — tokenization, weighted multi-field scoring, requirement filtering for --focus flag",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFDebtLedger.tla",
+        "description": "Debt ledger state machine — lifecycle, dedup, retention",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFConfigLoader.tla",
+        "description": "Configuration loading — global/project merge, fail-open, validation",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFSolveP2F.tla",
+        "description": "P->F solve residual layer — observation freeze, debt remediation",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFTokenOpt.tla",
+        "description": "Token optimization — compaction, budget scaling, routing",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFLearning.tla",
+        "description": "Learning pipeline — error extraction, correction capture, skill extraction",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFMemoryPersist.tla",
+        "description": "Memory persistence — decisions, reminders, error patterns, quorum memory",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFReasoning.tla",
+        "description": "Reasoning layer — FMEA hazard model, failure modes, risk heatmap, test recipes",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFImprovement.tla",
+        "description": "Improvement pipeline — review, dispatch update, hardening, validation",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFOrchestration.tla",
+        "description": "Subagent orchestration — context retrieval, accumulation, specialized agents",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFPolicy.tla",
+        "description": "Policy configuration — timeout, update policy, auto-update check",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/tla/NFVerification.tla",
+        "description": "Verification & execution state — progress tracking, continuous verify, machine-verifiable",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/fingerprinting.als",
+        "description": "Issue fingerprinting — hierarchical strategy, drift detection, cross-source dedup",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/gate-architecture.als",
+        "description": "Gate architecture — grounding score, validation mapping, progressive maturity",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/semantics-layer.als",
+        "description": "Semantics layer — invariant catalog, mismatch register, assumption register, FSM derivation",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/evidence-layer.als",
+        "description": "Evidence layer — trace corpus, failure taxonomy, event vocabulary",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/diagnostics.als",
+        "description": "Diagnostics — divergence rate, attribution, pivot decision",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/traceability.als",
+        "description": "Traceability matrix generation and verify integration",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/parallel-exec.als",
+        "description": "Parallel execution — worktree isolation, merge orchestration",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/provider-wizard.als",
+        "description": "Provider wizard — curated list, config update, presets, cloning",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/multi-slot.als",
+        "description": "Multi-slot support — multiple claude slots, adding new slots",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/meta-resolve.als",
+        "description": "Meta resolution — auto-resolve planning commands, assumption presentation",
+        "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/misc-behavioral.als",
+        "description": "Miscellaneous behavioral requirements — adapter, agent wizard, debug invariants, etc.",
+        "grounding_status": "ungrounded"
       }
     ]
   },
@@ -795,14 +915,14 @@
     }
   },
   "summary": {
-    "total_models": 154,
+    "total_models": 178,
     "L1_count": 0,
     "L2_count": 0,
-    "L3_count": 154,
+    "L3_count": 178,
     "maturity_distribution": {
-      "0": 123,
-      "1": 31
+      "0": 146,
+      "1": 32
     },
-    "spec_modules_with_invariants": 17
+    "spec_modules_with_invariants": 18
   }
 }

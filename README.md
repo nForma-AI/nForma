@@ -27,7 +27,7 @@ npx @nforma.ai/nforma@latest
 
 <br>
 
-[Why nForma](#why-i-built-nforma) · [TUI](#terminal-ui) · [How It Works](#how-it-works) · [Formal Methods](#formal-methods--proof-before-production) · [Solve Loop](#the-solve-loop--diagnose-remediate-report) · [Features](#features) · [Commands](#commands) · [Configuration](#configuration-reference) · [Community](#community) · [User Guide](docs/USER-GUIDE.md)
+[Why nForma](#why-i-built-nforma) · [TUI](#terminal-ui) · [How It Works](#how-it-works) · [Formal Methods](#formal-methods--proof-before-production) · [Per-Model Gates](#per-model-gates--spec-driven-observability) · [Solve Loop](#the-solve-loop--diagnose-remediate-report) · [Features](#features) · [Commands](#commands) · [Configuration](#configuration-reference) · [Community](#community) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
 
@@ -47,7 +47,7 @@ A full-featured keyboard-navigable terminal interface for managing your quorum a
 | Sessions | Spawn and manage embedded Claude Code sessions |
 | Solve | Diagnose and remediate planning directory issues |
 
-**Launch:** `node bin/nForma.cjs` (requires a local clone). Use `--cwd /path/to/project` to target a different repo.
+**Launch:** `nforma` (after `npm install -g @nforma.ai/nforma`). Use `--cwd /path/to/project` to target a different repo.
 
 **Navigation:** arrow keys to move, Enter to select, F1--F5 to switch modules, Escape or `q` to go back.
 
@@ -472,6 +472,88 @@ node bin/run-formal-verify.cjs --only=alloy
 Every core protocol has an executable specification. A dedicated [CI workflow](.github/workflows/formal-verify.yml) runs the full verification pipeline on changes to formal specs. Exit 0 = mathematically verified. See **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)** for setup and model inventory.
 
 > **Note:** Formal verification is entirely optional for using nForma. You don't need Java or any formal tools installed. But if you want mathematical guarantees about your protocol correctness, they're built in.
+
+---
+
+## Per-Model Gates — Spec-Driven Observability
+
+Formal specs are useless if they can't observe the running system. nForma's per-model gate system bridges this gap: it reads your specs, identifies what the code *should* be emitting but isn't, and generates a concrete punch list of exactly where to add instrumentation.
+
+### How It Works
+
+Every formal model (156 across TLA+, Alloy, PRISM, UPPAAL) is scored against three gates:
+
+| Gate | Question | What it measures |
+|------|----------|-----------------|
+| **A — Grounding** | Can this model see the real code? | Whether emission points exist for the events this model needs to observe |
+| **B — Abstraction** | Is this model justified? | Whether the model traces back to at least one requirement |
+| **C — Validation** | Can we test violations? | Whether test recipes exist for the model's failure modes |
+
+Gate A is the observability gate — and the most actionable. When a model fails Gate A, it means the code isn't emitting the events that model needs to verify behavior. The system tells you exactly what's missing.
+
+### The Self-Improvement Loop
+
+Models earn enforcement authority through evidence, not time:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│  1. MODEL WRITTEN → starts at ADVISORY (informational only)             │
+│     /nf:close-formal-gaps auto-generates specs for uncovered reqs       │
+│                                                                         │
+│  2. OBSERVABILITY GAPS IDENTIFIED                                       │
+│     bin/instrumentation-map.cjs scans hooks for emission points         │
+│     bin/state-candidates.cjs finds missing XState transitions           │
+│     bin/analyze-assumptions.cjs proposes metrics from spec constants    │
+│     → Output: "Add gauge nf_maxdeliberationrounds__tla here"           │
+│     → Output: "4 vocabulary actions have no emission point"            │
+│                                                                         │
+│  3. YOU WIRE THE INSTRUMENTATION                                        │
+│     Add the proposed emission points to hook code                       │
+│     Next evidence refresh picks up the new coverage                     │
+│                                                                         │
+│  4. GATES PASS → AUTO-PROMOTION                                         │
+│     bin/compute-per-model-gates.cjs scores all three gates              │
+│     ADVISORY → SOFT_GATE (warnings) → HARD_GATE (blocks)              │
+│     Stability guard prevents flapping models from promoting             │
+│                                                                         │
+│  5. MODEL ENFORCES AT HIGHER LEVEL                                      │
+│     SOFT_GATE violations → warnings in /nf:solve output                │
+│     HARD_GATE violations → block phase execution                        │
+│                                                                         │
+│  6. VIOLATIONS → NEW EVIDENCE                                           │
+│     /nf:solve-classify categorizes violations                           │
+│     /nf:solve-remediate regenerates proposed metrics                    │
+│     New test recipes improve Gate C → more models fully gated          │
+│                                                                         │
+│  7. LOOP CONTINUES                                                      │
+│     More emission points → more traces → more grounding                │
+│     More grounding → more enforcement → more violations caught          │
+│     More violations → better specs → tighter guarantees                 │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### What the Pipeline Produces
+
+| File | What it tells you |
+|------|-------------------|
+| `evidence/instrumentation-map.json` | Which hook emission points exist, which vocabulary actions are unmapped |
+| `evidence/state-candidates.json` | XState transitions with undefined from/to states (blind spots) |
+| `evidence/proposed-metrics.json` | Concrete metric proposals with copy-paste Prometheus snippets |
+| `gates/per-model-gates.json` | Gate A/B/C pass/fail per model with reasons |
+| `gates/gate-a-grounding.json` | Aggregate grounding score (target: 80%) |
+| `model-complexity-profile.json` | Runtime cost per model (FAST/MODERATE/SLOW) for re-verification scheduling |
+
+Run the full evidence pipeline:
+
+```bash
+node bin/refresh-evidence.cjs
+```
+
+`/nf:observe` surfaces unimplemented metrics as drifts in its dual-table output. `/nf:solve` runs the observe data-gathering pipeline inline during its diagnostic phase (Step 0d), refreshing the debt ledger before remediation begins.
+
+> **The key insight:** Most projects add observability bottom-up ("what metrics seem useful?"). nForma inverts it — formal specs declare what they need to observe, and the pipeline generates a punch list of where to add instrumentation. The design is done by the specs. The gap is mechanical wiring.
 
 ---
 

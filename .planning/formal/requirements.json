@@ -1,7 +1,6 @@
 {
-  "aggregated_at": "2026-03-10T08:41:39.419Z",
-  "content_hash": "sha256:2b4b4e223938b1ab04a8a1b25259ae10270e26f69d4f28c4b9f8962e32cf1f56",
-  "frozen_at": null,
+  "aggregated_at": "2026-03-10T11:16:49.345Z",
+  "content_hash": "ab99102375a36901",
   "schema_version": "1",
   "requirements": [
     {
@@ -989,7 +988,9 @@
         "source_file": ".planning/quick/252-add-focus-topic-filter-to-nf-solve/252-PLAN.md",
         "milestone": "quick-252"
       },
-      "formal_models": [],
+      "formal_models": [
+        ".planning/formal/alloy/focus-topic-filter.als"
+      ],
       "category_raw": "Diagnostics"
     },
     {
@@ -4480,6 +4481,66 @@
         ".planning/formal/tla/QGSDSetupWizard.tla"
       ],
       "category_raw": "Wizard Composition Screen"
+    },
+    {
+      "id": "SOLVE-01",
+      "text": "The unified MCP server SHALL expose all configured providers as MCP tools over stdio JSON-RPC, driven by providers.json",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "bin/unified-mcp-server.mjs",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-02",
+      "text": "The circuit breaker hook SHALL detect commit oscillation patterns and trigger automatic resolution (injecting oscillation-resolution-mode context) instead of blocking tool use",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "hooks/nf-circuit-breaker.js",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-03",
+      "text": "The prompt hook SHALL inject quorum dispatch instructions into user prompts and provide automatic recovery context when the circuit breaker is active",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "hooks/nf-prompt.js",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-04",
+      "text": "The stop hook SHALL block planning responses that lack quorum verification, enforcing R3.1/R3.2 compliance",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "hooks/nf-stop.js",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-05",
+      "text": "The nForma TUI SHALL provide a terminal dashboard for project status, sessions, agents, and configuration management",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "bin/nForma.test.cjs",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-06",
+      "text": "The solve engine SHALL compute residual vectors across all traceability layers and report health, format, and JSON output",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "bin/nf-solve.test.cjs",
+        "milestone": "solver-tui"
+      }
     }
   ]
 }

@@ -1,55 +1,55 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-09T23:58:26.902Z",
+  "generated": "2026-03-10T13:35:22.122Z",
   "observed_transitions": {
     "IDLE": {
       "QUORUM_START": {
         "to_state": "COLLECTING_VOTES",
-        "count": 33305,
+        "count": 34332,
         "source": "both"
       },
       "CIRCUIT_BREAK": {
         "to_state": "IDLE",
-        "count": 12094,
+        "count": 12536,
         "source": "both"
       },
       "DECIDE": {
         "to_state": "IDLE",
-        "count": 15401,
+        "count": 15929,
         "source": "both"
       },
       "VOTES_COLLECTED": {
         "to_state": "IDLE",
-        "count": 4420,
+        "count": 4596,
         "source": "both"
       }
     },
     "COLLECTING_VOTES": {
       "QUORUM_START": {
         "to_state": "COLLECTING_VOTES",
-        "count": 6409,
+        "count": 6754,
         "source": "per_session"
       },
       "CIRCUIT_BREAK": {
         "to_state": "COLLECTING_VOTES",
-        "count": 1219,
+        "count": 1327,
         "source": "per_session"
       },
       "DECIDE": {
         "to_state": "COLLECTING_VOTES",
-        "count": 2007,
+        "count": 2135,
         "source": "per_session"
       },
       "VOTES_COLLECTED": {
         "to_state": "DELIBERATING",
-        "count": 249,
+        "count": 265,
         "source": "per_session"
       }
     },
     "DELIBERATING": {
       "DECIDE": {
         "to_state": "DECIDED",
-        "count": 249,
+        "count": 265,
         "source": "per_session"
       },
       "VOTES_COLLECTED": {
@@ -71,22 +71,22 @@
     "DECIDED": {
       "DECIDE": {
         "to_state": "DECIDED",
-        "count": 13003,
+        "count": 13399,
         "source": "per_session"
       },
       "CIRCUIT_BREAK": {
         "to_state": "DECIDED",
-        "count": 10601,
+        "count": 10911,
         "source": "per_session"
       },
       "QUORUM_START": {
         "to_state": "DECIDED",
-        "count": 26347,
+        "count": 27029,
         "source": "per_session"
       },
       "VOTES_COLLECTED": {
         "to_state": "DECIDED",
-        "count": 4131,
+        "count": 4295,
         "source": "per_session"
       }
     }
@@ -197,14 +197,14 @@
   },
   "coverage": {
     "model_coverage": 0.625,
-    "vocabulary_coverage": 0.9997394116835538,
-    "total_events": 65237,
-    "mapped_events": 65220,
-    "unmapped_events": 17
+    "vocabulary_coverage": 0.9995550479806594,
+    "total_events": 67423,
+    "mapped_events": 67393,
+    "unmapped_events": 30
   },
   "replay_modes": {
     "per_event_transitions": 4,
     "per_session_transitions": 16,
-    "sessions_replayed": 449
+    "sessions_replayed": 472
   }
 }

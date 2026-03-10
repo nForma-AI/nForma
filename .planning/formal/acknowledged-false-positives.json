@@ -19,6 +19,126 @@
       "value": "bin/formalization-candidates.cjs",
       "reason": "Acknowledged via TUI",
       "acknowledged_at": "2026-03-09T09:40:45.993Z"
+    },
+    {
+      "source": "D->R",
+      "value": "The `/nf:mcp-setup` wizard handles all registration automatically. If you prefer manual setup:",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:20:11.400Z"
+    },
+    {
+      "source": "D->R",
+      "value": "3. **Verifies** — Checks plans against requirements, loops until they pass",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:20:11.401Z"
+    },
+    {
+      "source": "D->R",
+      "value": "4. **Verifies against goals** — Checks the codebase delivers what the phase promised",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:20:11.402Z"
+    },
+    {
+      "source": "D->R",
+      "value": "> **Note:** Formal verification is entirely optional for using nForma. You don't need Java or any formal tools installed",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:20:11.402Z"
+    },
+    {
+      "source": "T->R",
+      "value": "bin/nForma.test.cjs",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:22:14.197Z"
+    },
+    {
+      "source": "T->R",
+      "value": "bin/nf-solve.test.cjs",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:22:14.198Z"
+    },
+    {
+      "source": "D->R",
+      "value": "The `/nf:mcp-setup` wizard handles all registration automatically. If you prefer manual setup:",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:22:14.198Z"
+    },
+    {
+      "source": "D->R",
+      "value": "3. **Verifies** — Checks plans against requirements, loops until they pass",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:22:14.199Z"
+    },
+    {
+      "source": "D->R",
+      "value": "4. **Verifies against goals** — Checks the codebase delivers what the phase promised",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:22:14.199Z"
+    },
+    {
+      "source": "D->R",
+      "value": "> **Note:** Formal verification is entirely optional for using nForma. You don't need Java or any formal tools installed",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:22:14.199Z"
+    },
+    {
+      "source": "D->R",
+      "value": "When something breaks — tests fail, planning state drifts, requirements go stale — the `/nf:solve` pipeline handles it e",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.203Z"
+    },
+    {
+      "source": "D->R",
+      "value": "2. **Remediate** (`/nf:solve-remediate`) — Dispatches 13 remediation layers across 3 severity tiers (critical → warning ",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.204Z"
+    },
+    {
+      "source": "D->R",
+      "value": "3. **Report** (`/nf:solve-report`) — Generates before/after summary with full formal verification pass, so you can see e",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.204Z"
+    },
+    {
+      "source": "D->R",
+      "value": "| Planning | Validates, manages iteration | Planner creates plans, checker verifies, loop until pass |",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.205Z"
+    },
+    {
+      "source": "D->R",
+      "value": "<summary><strong>Ping-Pong Commit Loop Breaker</strong> — Detects and breaks structural coupling loops</summary>",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.205Z"
+    },
+    {
+      "source": "D->R",
+      "value": "<summary><strong>Quick Mode</strong> — Ad-hoc tasks with nForma guarantees</summary>",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.206Z"
+    },
+    {
+      "source": "D->R",
+      "value": "Quick mode gives you nForma guarantees (atomic commits, state tracking) with a faster path:",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.206Z"
+    },
+    {
+      "source": "D->R",
+      "value": "| PostToolUse | nf-context-monitor.js | After every tool execution | Monitors context usage; injects WARNING at 70%, CRI",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.206Z"
+    },
+    {
+      "source": "D->R",
+      "value": "| `/nf:quick [--full]` | Ad-hoc task with nForma guarantees (`--full` adds plan-checking and verification) |",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.207Z"
+    },
+    {
+      "source": "D->R",
+      "value": "| `workflow.plan_check` | `true` | Verifies plans achieve phase goals before execution |",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-10T11:24:03.207Z"
     }
   ],
   "patterns": [
