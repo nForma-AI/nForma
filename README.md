@@ -85,17 +85,17 @@ nForma fixes these structurally, not with better prompts.
 |---|---|
 | **5+** quorum agents | **56** slash commands |
 | **287** tracked requirements | **7** lifecycle hook types |
-| **18** formal specifications across 5 tools | **32** milestones shipped |
+| **18** formal specifications across 5 tools | **33** milestones shipped |
 
 ---
 
-## What's New in v0.32
+## What's New in v0.33
 
-- **README overhaul** -- Restructured for immediate clarity; formal methods and solve loop now front-and-center
-- **nForma branding** -- New nF logo, updated terminal SVG, and rebrand throughout
-- **Gate scoring TUI** -- Browse requirement gate scores directly in the TUI (F2 module)
-- **Solve feedback loops** -- TUI Solve module now closes all diagnostic-to-remediation loops
-- **32 milestones shipped** -- From v0.1 through v0.32, covering quorum, formal verification, agent harness, and more
+- **Outer-loop convergence guarantees** -- TLA+ verified safety + liveness of the solve loop with zero counterexamples
+- **Gate stability** -- Flip-flop detection and cooldown enforcement prevent oscillating promotions
+- **Predictive power** -- Bug-to-property linking scores how well formal models catch real bugs
+- **Escalation classifier** -- Haiku-based triage routes stuck solve items to human review
+- **33 milestones shipped** -- From v0.1 through v0.33, covering quorum, formal verification, convergence proofs, and more
 
 ---
 
@@ -115,15 +115,7 @@ The deeper goal: the first truly autonomous coding agent that only escalates to 
 
 ## Getting Started
 
-**Node.js support:**
-
-| | Supported | CI tested |
-|---|---|---|
-| **Node 22.x** | Yes | Ubuntu + macOS |
-| **Node 20.x** | Yes | Ubuntu + macOS |
-| **Node 18.x** | Yes | Ubuntu + macOS |
-| **Node < 18** | No | — |
-| **Windows** | Via WSL2 | — |
+### 1. Install
 
 ```bash
 npx @nforma.ai/nforma@latest
@@ -133,21 +125,122 @@ The installer prompts you to choose:
 1. **Runtime** — Claude Code, OpenCode, Gemini, or all
 2. **Location** — Global (all projects) or local (current project only)
 
-Verify with `/nf:help` inside your chosen runtime.
+### 2. Use Skip-Permissions Mode
 
-### Set Up Your Quorum
+nForma is designed for frictionless automation. Run Claude Code with:
 
-The fastest path is the interactive wizard:
+```bash
+claude --dangerously-skip-permissions
+```
+
+> [!TIP]
+> This is how nForma is intended to be used — stopping to approve `date` and `git commit` 50 times defeats the purpose. GSD workflows spawn subagents, run tests, and make atomic commits automatically. Without this flag, you'll be clicking "Allow" hundreds of times.
+
+<details>
+<summary><strong>Alternative: Granular Permissions</strong></summary>
+
+If you prefer not to use that flag, add this to your project's `.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(date:*)", "Bash(echo:*)", "Bash(cat:*)", "Bash(ls:*)",
+      "Bash(mkdir:*)", "Bash(wc:*)", "Bash(head:*)", "Bash(tail:*)",
+      "Bash(sort:*)", "Bash(grep:*)", "Bash(tr:*)",
+      "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+      "Bash(git log:*)", "Bash(git diff:*)", "Bash(git tag:*)"
+    ]
+  }
+}
+```
+
+</details>
+
+### 3. Verify
+
+```
+/nf:help
+```
+
+You should see the full command list. If not, restart your runtime to reload commands.
+
+### 4. Set Up Your Quorum (Optional)
+
+nForma works standalone, but shines with multiple models reviewing every plan. Run the interactive wizard:
 
 ```
 /nf:mcp-setup
 ```
 
-**First run:** linear onboarding -- picks provider, configures API key, registers MCP server, verifies connectivity.
-**Re-run:** navigable agent menu -- reconfigure any agent's key, provider, model, or toggle quorum composition.
+It walks you through picking providers, configuring API keys, and verifying connectivity. You can always re-run it later to add or reconfigure agents.
+
+> [!NOTE]
+> nForma works with as few as one quorum member — more models means stronger consensus. Claude is always a voting member in every quorum round.
+
+### 5. Start Building
+
+```
+/nf:new-project
+```
+
+That's it. The system asks what you want to build, researches the domain, extracts requirements, and creates a phased roadmap. See [How It Works](#how-it-works) for the full lifecycle.
+
+### Staying Updated
+
+```bash
+npx @nforma.ai/nforma@latest
+```
 
 <details>
-<summary><strong>Manual Setup (Advanced)</strong></summary>
+<summary><strong>Node.js Compatibility</strong></summary>
+
+| | Supported | CI tested |
+|---|---|---|
+| **Node 22.x** | Yes | Ubuntu + macOS |
+| **Node 20.x** | Yes | Ubuntu + macOS |
+| **Node 18.x** | Yes | Ubuntu + macOS |
+| **Node < 18** | No | — |
+| **Windows** | Via WSL2 | — |
+
+</details>
+
+<details>
+<summary><strong>Non-interactive Install (Docker, CI, Scripts)</strong></summary>
+
+```bash
+# Claude Code
+npx @nforma.ai/nforma --claude --global   # Install to ~/.claude/
+npx @nforma.ai/nforma --claude --local    # Install to ./.claude/
+
+# OpenCode (open source, free models)
+npx @nforma.ai/nforma --opencode --global # Install to ~/.config/opencode/
+
+# Gemini CLI
+npx @nforma.ai/nforma --gemini --global   # Install to ~/.gemini/
+
+# All runtimes
+npx @nforma.ai/nforma --all --global      # Install to all directories
+```
+
+Use `--global` (`-g`) or `--local` (`-l`) to skip the location prompt.
+Use `--claude`, `--opencode`, `--gemini`, or `--all` to skip the runtime prompt.
+
+</details>
+
+<details>
+<summary><strong>Development Installation</strong></summary>
+
+```bash
+git clone https://github.com/nForma-AI/nForma.git
+cd nForma
+node bin/install.js --claude --local
+```
+
+</details>
+
+<details>
+<summary><strong>Manual Quorum Setup (Advanced)</strong></summary>
 
 All quorum agents run through nForma's **unified MCP server** (`bin/unified-mcp-server.mjs`). There are two agent families:
 
@@ -181,8 +274,6 @@ API-based slots (`claude-1` through `claude-6`) use [Claude Code Router](https:/
 
 #### Registration
 
-The `/nf:mcp-setup` wizard handles all registration automatically. If you prefer manual setup:
-
 ```bash
 # All slots use the same entrypoint
 claude mcp add <slot-name> -- node /path/to/nForma/bin/unified-mcp-server.mjs
@@ -194,8 +285,6 @@ After adding or renaming any MCP server, re-run with `--redetect-mcps` to update
 npx @nforma.ai/nforma@latest --redetect-mcps
 ```
 
-This re-reads `~/.claude.json`, re-derives tool prefixes from your registered servers, and rewrites `~/.claude/nf.json`.
-
 </details>
 
 <details>
@@ -203,93 +292,14 @@ This re-reads `~/.claude.json`, re-derives tool prefixes from your registered se
 
 See [Terminal UI](#terminal-ui) above for the full TUI overview.
 
-To launch:
-
 ```bash
 # Requires a local clone
 git clone https://github.com/nForma-AI/nForma.git
 cd nForma && npm install
-
 node bin/nForma.cjs
 ```
 
-**Project path resolution:** The TUI reads requirements, scoreboard, config, and session data from the current working directory. To manage a different repo without `cd`'ing, use the `--cwd` flag:
-
-```bash
-node bin/nForma.cjs --cwd /path/to/your/project
-```
-
-> [!NOTE]
-> nForma works with as few as one quorum member — more models means stronger consensus. Claude is always the fifth voting member in every quorum round.
-
-</details>
-
-<details>
-<summary><strong>Installation Options</strong></summary>
-
-#### Non-interactive Install (Docker, CI, Scripts)
-
-```bash
-# Claude Code
-npx @nforma.ai/nforma --claude --global   # Install to ~/.claude/
-npx @nforma.ai/nforma --claude --local    # Install to ./.claude/
-
-# OpenCode (open source, free models)
-npx @nforma.ai/nforma --opencode --global # Install to ~/.config/opencode/
-
-# Gemini CLI
-npx @nforma.ai/nforma --gemini --global   # Install to ~/.gemini/
-
-# All runtimes
-npx @nforma.ai/nforma --all --global      # Install to all directories
-```
-
-Use `--global` (`-g`) or `--local` (`-l`) to skip the location prompt.
-Use `--claude`, `--opencode`, `--gemini`, or `--all` to skip the runtime prompt.
-
-#### Development Installation
-
-```bash
-git clone https://github.com/nForma-AI/nForma.git
-cd nForma
-node bin/install.js --claude --local
-```
-
-#### Staying Updated
-
-```bash
-npx @nforma.ai/nforma@latest
-```
-
-</details>
-
-<details>
-<summary><strong>Recommended: Skip Permissions Mode</strong></summary>
-
-nForma is designed for frictionless automation. Run Claude Code with:
-
-```bash
-claude --dangerously-skip-permissions
-```
-
-> [!TIP]
-> This is how nForma is intended to be used — stopping to approve `date` and `git commit` 50 times defeats the purpose.
-
-If you prefer granular permissions, add this to your project's `.claude/settings.json`:
-
-```json
-{
-  "permissions": {
-    "allow": [
-      "Bash(date:*)", "Bash(echo:*)", "Bash(cat:*)", "Bash(ls:*)",
-      "Bash(mkdir:*)", "Bash(wc:*)", "Bash(head:*)", "Bash(tail:*)",
-      "Bash(sort:*)", "Bash(grep:*)", "Bash(tr:*)",
-      "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-      "Bash(git log:*)", "Bash(git diff:*)", "Bash(git tag:*)"
-    ]
-  }
-}
-```
+Use `--cwd /path/to/project` to manage a different repo without changing directories.
 
 </details>
 
@@ -297,11 +307,11 @@ If you prefer granular permissions, add this to your project's `.claude/settings
 
 ## How It Works
 
-```
-Prompt → Orchestrator → Quorum (5 models) → Consensus → Execute → Atomic Commit
-```
+You describe what you want to build. nForma breaks it into phases, has multiple AI models review each plan until they reach consensus, then executes with fresh context windows. You verify the results. Repeat until done.
 
-Every stage follows this pattern. The six steps below detail how each stage works — from project initialization through milestone completion.
+```
+Describe idea → Quorum reviews plan → Execute with fresh context → Verify → Repeat
+```
 
 > **Already have code?** Run `/nf:map-codebase` first. It spawns parallel agents to analyze your stack, architecture, conventions, and concerns. Then `/nf:new-project` knows your codebase — questions focus on what you're adding, and planning automatically loads your patterns.
 
