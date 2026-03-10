@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.33 Phase v0.33-02: Oscillation Detection
+**Current focus:** v0.33 Phase v0.33-02: Oscillation Detection — complete
 
 ## Current Position
 
-Phase: 1 of 6 (Time Series Foundation)
+Phase: 2 of 6 (Oscillation Detection)
 Plan: 2 of 2 in current phase
 Status: All plans complete — awaiting verification
-Last activity: 2026-03-10 — Phase v0.33-01 plans executed (JSONL trend append + changelog dedup)
+Last activity: 2026-03-10 — Phase v0.33-02 plans executed (Mann-Kendall detector + autoClose gating + report enrichment)
 
-Progress: [██░░░░░░░░] 17%
+Progress: [████░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -82,5 +82,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Phase v0.33-01 complete, ready to plan Phase v0.33-02
+Stopped at: Phase v0.33-02 complete, ready to verify and plan Phase v0.33-03
 Resume file: None
