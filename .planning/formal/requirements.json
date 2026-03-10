@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-09T23:49:19.057Z",
-  "content_hash": "sha256:e6c788b91de5fcdc779222672b02742f99cfdae15957acfc9c681779033952c8",
+  "aggregated_at": "2026-03-10T08:41:39.419Z",
+  "content_hash": "sha256:2b4b4e223938b1ab04a8a1b25259ae10270e26f69d4f28c4b9f8962e32cf1f56",
   "frozen_at": null,
   "schema_version": "1",
   "requirements": [
@@ -426,6 +426,39 @@
       "formal_models": [
         ".planning/formal/alloy/ci-pipeline-gates.als"
       ]
+    },
+    {
+      "id": "CI-04",
+      "text": "Automated test suite runs on every pull request and merge to main is blocked when tests fail",
+      "category": "CI/CD",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "CI-05",
+      "text": "Linting and formatting checks run in CI and block merge on violations",
+      "category": "CI/CD",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "CI-06",
+      "text": "Type checking (if applicable to the language) runs in CI and blocks merge on type errors",
+      "category": "CI/CD",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
     },
     {
       "id": "CL-01",
@@ -944,6 +977,19 @@
         "source_file": ".planning/milestones/v0.21-REQUIREMENTS.md",
         "milestone": "unknown"
       },
+      "category_raw": "Diagnostics"
+    },
+    {
+      "id": "DIAG-04",
+      "text": "Support --focus=\"<phrase>\" flag in nf:solve to filter diagnostics and reporting output to requirements matching the focus topic via tokenization and weighted multi-field scoring",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "provenance": {
+        "source_file": ".planning/quick/252-add-focus-topic-filter-to-nf-solve/252-PLAN.md",
+        "milestone": "quick-252"
+      },
+      "formal_models": [],
       "category_raw": "Diagnostics"
     },
     {
@@ -2227,6 +2273,17 @@
       ]
     },
     {
+      "id": "OBS-09",
+      "text": "CLI tools exit with appropriate codes (0 = success, non-zero = failure) and write errors to stderr, output to stdout",
+      "category": "Observability",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
       "id": "ORCH-01",
       "text": "Domain-specific context retrieval — context-retriever.cjs analyzes task domain and fetches relevant context artifacts",
       "category": "Subagent Orchestration",
@@ -2849,6 +2906,28 @@
       ]
     },
     {
+      "id": "REL-03",
+      "text": "Failures in external services (APIs, databases, third-party SDKs) are caught and handled gracefully — the application degrades functionality rather than crashing",
+      "category": "Reliability",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "REL-04",
+      "text": "Long-running operations (file uploads, data processing, API calls >2s) show progress indication and can be cancelled by the user",
+      "category": "Reliability",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
       "id": "REN-01",
       "text": "`git mv get-shit-done/ qgsd-core/` — directory renamed, git history preserved",
       "category": "Installer & CLI",
@@ -3186,6 +3265,50 @@
       "formal_models": [
         ".planning/formal/alloy/security-scanning.als"
       ]
+    },
+    {
+      "id": "SEC-05",
+      "text": "Pre-commit hook runs secret scanning (e.g., Gitleaks) to block commits containing API keys, tokens, passwords, or credentials",
+      "category": "Security",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "SEC-06",
+      "text": "CI pipeline runs deep secret scanning (e.g., TruffleHog) across full repo history on every PR",
+      "category": "Security",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "SEC-07",
+      "text": "All external input (user input, API request bodies, query parameters, file uploads) is validated and sanitized at system boundaries before processing",
+      "category": "Security",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "SEC-08",
+      "text": "Dependencies are scanned for known vulnerabilities in CI (e.g., npm audit, Dependabot, Snyk) and critical/high findings block merge",
+      "category": "Security",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
     },
     {
       "id": "SEM-01",
@@ -4095,6 +4218,39 @@
       ]
     },
     {
+      "id": "UX-04",
+      "text": "Every user-initiated action produces immediate feedback (loading/disabled state) and completion feedback (result message, navigation change, or visible state update)",
+      "category": "UX Heuristics",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "UX-05",
+      "text": "Destructive actions (delete, reset, remove, overwrite) require explicit confirmation or provide undo within a reasonable window",
+      "category": "UX Heuristics",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
+      "id": "UX-06",
+      "text": "Error messages are human-readable, explain what went wrong, and suggest a next step or recovery action",
+      "category": "UX Heuristics",
+      "phase": "baseline",
+      "status": "Pending",
+      "provenance": {
+        "source_file": "nf-baseline",
+        "milestone": "baseline"
+      }
+    },
+    {
       "id": "VALID-01",
       "text": "Hook stdin JSON is validated against lightweight schemas with structured error reporting; malformed input produces a diagnostic message on stderr before fail-open exit",
       "category": "Governance & DX",
@@ -4312,149 +4468,6 @@
         ".planning/formal/tla/QGSDSetupWizard.tla"
       ],
       "category_raw": "Wizard Composition Screen"
-    },
-    {
-      "id": "UX-04",
-      "text": "Every user-initiated action produces immediate feedback (loading/disabled state) and completion feedback (result message, navigation change, or visible state update)",
-      "category": "UX Heuristics",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "UX-05",
-      "text": "Destructive actions (delete, reset, remove, overwrite) require explicit confirmation or provide undo within a reasonable window",
-      "category": "UX Heuristics",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "UX-06",
-      "text": "Error messages are human-readable, explain what went wrong, and suggest a next step or recovery action",
-      "category": "UX Heuristics",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "SEC-05",
-      "text": "Pre-commit hook runs secret scanning (e.g., Gitleaks) to block commits containing API keys, tokens, passwords, or credentials",
-      "category": "Security",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "SEC-06",
-      "text": "CI pipeline runs deep secret scanning (e.g., TruffleHog) across full repo history on every PR",
-      "category": "Security",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "SEC-07",
-      "text": "All external input (user input, API request bodies, query parameters, file uploads) is validated and sanitized at system boundaries before processing",
-      "category": "Security",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "SEC-08",
-      "text": "Dependencies are scanned for known vulnerabilities in CI (e.g., npm audit, Dependabot, Snyk) and critical/high findings block merge",
-      "category": "Security",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "REL-03",
-      "text": "Failures in external services (APIs, databases, third-party SDKs) are caught and handled gracefully — the application degrades functionality rather than crashing",
-      "category": "Reliability",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "REL-04",
-      "text": "Long-running operations (file uploads, data processing, API calls >2s) show progress indication and can be cancelled by the user",
-      "category": "Reliability",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "OBS-09",
-      "text": "CLI tools exit with appropriate codes (0 = success, non-zero = failure) and write errors to stderr, output to stdout",
-      "category": "Observability",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "CI-04",
-      "text": "Automated test suite runs on every pull request and merge to main is blocked when tests fail",
-      "category": "CI/CD",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "CI-05",
-      "text": "Linting and formatting checks run in CI and block merge on violations",
-      "category": "CI/CD",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
-    },
-    {
-      "id": "CI-06",
-      "text": "Type checking (if applicable to the language) runs in CI and blocks merge on type errors",
-      "category": "CI/CD",
-      "phase": "baseline",
-      "status": "Pending",
-      "provenance": {
-        "source_file": "nf-baseline",
-        "milestone": "baseline"
-      }
     }
   ]
 }
