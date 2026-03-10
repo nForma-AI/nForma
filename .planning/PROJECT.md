@@ -10,17 +10,19 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.33 — Outer-Loop Convergence Guarantees
+## Shipped: v0.33 — Outer-Loop Convergence Guarantees (2026-03-10)
 
-**Goal:** Provably guarantee that repeated nf:solve → test → nf:solve cycles make meaningful progress toward formal models that can pinpoint bugs.
+**Goal:** Provably guarantee that repeated nf:solve cycles make meaningful progress toward formal models that can pinpoint bugs.
 
-**Target features:**
-- Cross-session residual trend tracker — append time series across solve runs, detect per-layer trending
-- Layer oscillation breaker (Option C) — no individual layer oscillates more than once; fix→break→fix blocked with human escalation
-- Predictive power feedback loop — link test failures back to formal properties; score bugs_predicted / total_bugs per model
-- Gate maturity stabilization gates — require stabilization period before re-promotion; detect flip-flop in promotion-changelog
-- NFSolveConvergence TLA+ spec — formal model of the outer loop proving convergence under Option C assumptions
-- Per-model gate persistence — wire --write-per-model with reasons into solve pipeline
+**Shipped:** 17/17 requirements satisfied across 6 phases, 12 plans. Audit: TECH_DEBT (remediated).
+
+**Key features shipped:**
+- Cross-session solve history — JSONL trend persistence with scope-growth detection and changelog deduplication
+- Oscillation detection — Mann-Kendall trend analysis with Option C credit-based blocking and cascade-aware grace periods
+- Gate stabilization — Flip-flop detection (3+ direction changes = UNSTABLE) and cooldown enforcement (3 sessions AND 1 hour)
+- Predictive power — Bug-to-property linking and per-model recall scoring; convergence velocity estimation via exponential decay fit
+- TLA+ meta-verification — NFSolveConvergence.tla with TLC-verified safety (OscillationBounded) and liveness (EventualConvergence), 259,794 states, zero counterexamples
+- Convergence reporting — ASCII sparklines, oscillation status, top-3 action items; Haiku-based escalation classification
 
 ## Shipped: v0.32 — Documentation & README Overhaul (2026-03-09)
 

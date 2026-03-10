@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.33 — All 6 phases complete, milestone ready for completion
+**Current focus:** v0.33 shipped — planning next milestone
 
 ## Current Position
 
-Phase: 6 of 6 (Solve Report Integration)
-Plan: 2/2 complete
-Status: Phase complete — milestone v0.33 ready for /nf:complete-milestone
-Last activity: 2026-03-10 - Completed Phase v0.33-06: Solve Report Integration
+Phase: -
+Plan: -
+Status: Milestone v0.33 completed and archived
+Last activity: 2026-03-10 - Completed milestone v0.33: Outer-Loop Convergence Guarantees
 
-Progress: [██████████] 100%
+Progress: Milestone complete
 
 ## Performance Metrics
 

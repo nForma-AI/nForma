@@ -525,3 +525,29 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.33 — Outer-Loop Convergence Guarantees (Shipped: 2026-03-10)
+
+**Phases:** v0.33-01..v0.33-06 (6 phases, 12 plans)
+**Requirements:** 17/17 (TRACK-01–04, OSC-01–03, PRED-01/02, STAB-01–03, FV-01–03, INTG-01/02)
+**Git range:** ~191 commits
+**Timeline:** 2026-03-09 → 2026-03-10 (2 days)
+
+**Delivered:** Provably guaranteed that repeated nf:solve cycles make meaningful progress — cross-session JSONL tracking with scope-growth detection, Mann-Kendall trend analysis with Option C oscillation breaking, gate promotion stabilization with cooldown enforcement, bug-to-property predictive power scoring, TLA+ formal verification of outer loop safety and liveness (259,794 states, zero counterexamples), and convergence sparkline reporting with Haiku-based escalation classification.
+
+**Key accomplishments:**
+- Cross-session solve history: solve-trend-helpers.cjs appends JSONL snapshots with per-layer residuals, scope_change tagging (SCOPE_GROWTH vs regression), and changelog deduplication guard removing 164 duplicates (TRACK-01, TRACK-04, STAB-03, v0.33-01)
+- Oscillation detection: oscillation-detector.cjs with Mann-Kendall non-parametric trend test, Option C credit-based blocking (1 credit per layer), cascade-aware grace periods via LAYER_DEPS upstream DAG; autoClose() gating in nf-solve.cjs skips blocked layers with human escalation (TRACK-02, OSC-01, OSC-02, v0.33-02)
+- Gate stabilization: gate-stability.cjs with flip-flop detection (3+ direction changes = UNSTABLE), cooldown enforcement (3 sessions AND 1 hour), --write-per-model default in sweepPerModelGates; schema bumped to v3 with stability fields (STAB-01, STAB-02, INTG-01, v0.33-03)
+- Predictive power: bug-to-property.cjs linking observed bugs to formal properties via requirement ID overlap; per-model recall scoring as informational metric; convergence-velocity.cjs with linearized OLS exponential decay fit (PRED-01, PRED-02, TRACK-03, v0.33-04)
+- TLA+ meta-verification: NFSolveConvergence.tla with cross-session state, Option C blocking rule (>= 1), gate maturity transitions; TLC verified OscillationBounded safety (259,794 states, 0 counterexamples) and EventualConvergence liveness under WF_vars fairness; ProgressSession/RegressSession split for correct fairness modeling (FV-01, FV-02, FV-03, v0.33-05)
+- Convergence reporting: convergence-report.cjs with ASCII sparklines, oscillation status badges, top-3 action items; escalation-classifier.cjs with Haiku classification (GENUINE_REGRESSION/MEASUREMENT_NOISE/INSUFFICIENT_EVIDENCE) and structured context (OSC-03, INTG-02, v0.33-06)
+
+**Tests:** 1,284+ tests GREEN, 0 regressions
+**Formal:** TLC safety + liveness verified, 259,794 states explored, zero counterexamples
+
+**Audit:** TECH_DEBT — 17/17 requirements satisfied; tech debt items (3 missing VERIFICATION.md, unchecked checkboxes) remediated before archival
+**Archive:** `.planning/milestones/v0.33-MILESTONE-AUDIT.md`
+
+---
+
