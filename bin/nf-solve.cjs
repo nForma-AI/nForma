@@ -3596,11 +3596,78 @@ function formatJSON(iterations, finalResidual, converged) {
   };
 }
 
+// ── Clean Session Check (PROMO-02) ──────────────────────────────────────────
+
+/**
+ * Checks whether the current solve session is "clean" — all gate wiring scores
+ * >= 1.0, all semantic scores >= 0.8, and no formal counterexamples.
+ *
+ * @returns {boolean} true if the session is clean
+ */
+function checkCleanSession() {
+  const GATE_FILES = {
+    A: { file: 'gate-a-grounding.json', wiringKey: 'wiring_evidence_score' },
+    B: { file: 'gate-b-abstraction.json', wiringKey: 'wiring_purpose_score' },
+    C: { file: 'gate-c-validation.json', wiringKey: 'wiring_coverage_score' },
+  };
+
+  const gatesDir = path.join(ROOT, '.planning', 'formal', 'gates');
+  const wiring = {};
+  const semantic = {};
+
+  for (const [label, cfg] of Object.entries(GATE_FILES)) {
+    try {
+      const gateData = JSON.parse(fs.readFileSync(path.join(gatesDir, cfg.file), 'utf8'));
+      wiring[label] = gateData[cfg.wiringKey] != null ? gateData[cfg.wiringKey] : 0;
+      semantic[label] = gateData.semantic_score != null ? gateData.semantic_score : 0;
+    } catch (_) {
+      wiring[label] = 0;
+      semantic[label] = 0;
+    }
+  }
+
+  // Check formal results — no counterexamples
+  let formalPass = true;
+  try {
+    const checkResultsPath = path.join(ROOT, '.planning', 'formal', 'check-results.ndjson');
+    if (fs.existsSync(checkResultsPath)) {
+      const lines = fs.readFileSync(checkResultsPath, 'utf8').trim().split('\n').filter(Boolean);
+      for (const line of lines) {
+        try {
+          const entry = JSON.parse(line);
+          if (entry.result === 'counterexample') {
+            formalPass = false;
+            break;
+          }
+        } catch (_) { /* skip malformed lines */ }
+      }
+    }
+  } catch (_) { /* fail-open */ }
+
+  const wiringClean = wiring.A >= 1.0 && wiring.B >= 1.0 && wiring.C >= 1.0;
+  const semanticClean = semantic.A >= 0.8 && semantic.B >= 0.8 && semantic.C >= 0.8;
+  const isClean = wiringClean && semanticClean && formalPass;
+
+  process.stderr.write(
+    TAG + ' Clean session check: wiring=[A:' + wiring.A + ',B:' + wiring.B + ',C:' + wiring.C +
+    '] semantic=[A:' + semantic.A + ',B:' + semantic.B + ',C:' + semantic.C +
+    '] formal=' + (formalPass ? 'pass' : 'fail') + ' -> ' + (isClean ? 'CLEAN' : 'NOT_CLEAN') + '\n'
+  );
+
+  return isClean;
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 function main() {
   // Step 0: Bootstrap formal infrastructure
   preflight();
+
+  // Read existing solve-state.json for consecutive_clean_sessions (PROMO-02)
+  let existingSolveState = {};
+  try {
+    existingSolveState = JSON.parse(fs.readFileSync(path.join(ROOT, '.planning', 'formal', 'solve-state.json'), 'utf8'));
+  } catch (_) { /* first run or corrupt file */ }
 
   const iterations = [];
   let converged = false;
@@ -3735,6 +3802,11 @@ function main() {
       }
     }
   }
+  // Step 8a: Track consecutive clean sessions for auto-promotion (PROMO-02)
+  const isCleanSession = checkCleanSession();
+  const prevClean = (existingSolveState && existingSolveState.consecutive_clean_sessions) || 0;
+  solveState.consecutive_clean_sessions = isCleanSession ? prevClean + 1 : 0;
+
   try {
     const stateDir = path.join(ROOT, '.planning', 'formal');
     fs.mkdirSync(stateDir, { recursive: true });
@@ -3744,6 +3816,31 @@ function main() {
     );
   } catch (e) {
     process.stderr.write(TAG + ' WARNING: could not write solve-state.json: ' + e.message + '\n');
+  }
+
+  // Step 8a: Auto-promote eligible models (PROMO-01)
+  if (!reportOnly && solveState.consecutive_clean_sessions >= 3) {
+    process.stderr.write(TAG + ' Step 8a: Checking auto-promotion eligibility (clean sessions: ' + solveState.consecutive_clean_sessions + ')\n');
+    const promoResult = spawnTool('bin/promote-gate-maturity.cjs', ['--auto-promote', '--json']);
+    if (promoResult.ok) {
+      try {
+        const promoData = JSON.parse(promoResult.stdout);
+        if (promoData.promoted && promoData.promoted.length > 0) {
+          process.stderr.write(TAG + ' Step 8a: Promoted ' + promoData.promoted.length + ' model(s) SOFT_GATE -> HARD_GATE\n');
+          for (const m of promoData.promoted) {
+            process.stderr.write(TAG + '   - ' + m + '\n');
+          }
+        } else {
+          process.stderr.write(TAG + ' Step 8a: No models eligible for promotion\n');
+        }
+      } catch (e) {
+        process.stderr.write(TAG + ' Step 8a: Could not parse promotion result: ' + e.message + '\n');
+      }
+    } else {
+      process.stderr.write(TAG + ' Step 8a: promote-gate-maturity.cjs failed: ' + (promoResult.stderr || 'unknown') + '\n');
+    }
+  } else if (!reportOnly) {
+    process.stderr.write(TAG + ' Step 8a: Skipped — consecutive_clean_sessions=' + (solveState.consecutive_clean_sessions || 0) + ' (need 3)\n');
   }
 
   // Append trend entry to JSONL (after solve-state.json, before session persistence)
@@ -3931,6 +4028,7 @@ module.exports = {
   readGateSummary,
   updateVerdicts,
   updatePredictivePower,
+  checkCleanSession,
 };
 
 // ── Entry point ──────────────────────────────────────────────────────────────
