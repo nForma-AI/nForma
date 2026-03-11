@@ -10,16 +10,20 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.34 — Semantic Gate Validation & Auto-Promotion
+## Shipped: v0.34 — Semantic Gate Validation & Auto-Promotion (2026-03-11)
 
 **Goal:** Evolve gate scoring from structural wiring checks to semantic correctness validation using graph-based proximity discovery and LLM-judged candidate pairing, then wire auto-promotion into the solve cycle.
 
-**Target features:**
-- Rename gates A/B/C to descriptive wiring names (Evidence/Purpose/Coverage)
-- Add graph-based semantic scoring using proximity-index BFS + Haiku candidate evaluation for N:N model-requirement pairing
-- Gate files carry both wiring_score and semantic_score
-- Auto-promotion in solve Step 8a: SOFT_GATE → HARD_GATE when wiring ≥ 1.0 + semantic ≥ 0.8 sustained across N consecutive clean sessions
-- Promotion logging to promotion-changelog.json with flip-flop detection
+**Shipped:** 18/18 requirements satisfied across 6 phases, 9 plans. Audit: PASSED.
+
+**Key features shipped:**
+- Gate renaming — A/B/C to Wiring:Evidence/Purpose/Coverage with schema v2, full backward compatibility (21 compat tests)
+- Semantic scoring — graph BFS proximity discovery (46 candidates) + Haiku LLM evaluation with yes/no/maybe verdicts
+- Gate enrichment — enrichGateFile() produces schema v3 with semantic_score alongside wiring_score, preserved across gate rewrites
+- Candidate pairing — N:N interactive resolution workflow, 46 pairings confirmed across 14 models in model-registry.json
+- Auto-promotion pipeline — SOFT_GATE -> HARD_GATE after 3 consecutive clean sessions (wiring >= 1.0, semantic >= 0.8, formal pass) with flip-flop protection
+- Promotion changelog — all promotions logged with 8 PROMO-04 fields including evidence_readiness
+- E2E integration test — 5 tests validating full semantic scoring -> auto-promotion pipeline
 
 ## Shipped: v0.33 — Outer-Loop Convergence Guarantees (2026-03-10)
 

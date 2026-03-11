@@ -5,16 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** v0.34 milestone complete (all 6 phases) — ready for milestone audit
+**Current focus:** v0.34 milestone SHIPPED — planning next milestone
 
 ## Current Position
 
-Phase: v0.34-06 (E2E Integration Test) — COMPLETE (last phase)
-Plan: 1 of 1 in v0.34-06 (COMPLETE)
-Status: Milestone v0.34 all phases complete — ready for audit
-Last activity: 2026-03-11 — Phase v0.34-06 verified and completed
+Milestone: v0.34 — Semantic Gate Validation & Auto-Promotion (SHIPPED 2026-03-11)
+Status: Milestone complete, archived. Ready for next milestone.
+Last activity: 2026-03-11 — v0.34 milestone completed and archived
 
-Progress: [██████████] 100%
+Progress: [██████████] 100% (milestone shipped)
 
 ## Performance Metrics
 

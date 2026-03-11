@@ -551,3 +551,25 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.34 — Semantic Gate Validation & Auto-Promotion (Shipped: 2026-03-11)
+
+**Phases:** v0.34-01..v0.34-06 (6 phases, 9 plans)
+**Requirements:** 18/18 satisfied (NAME-01..04, SEM-01..05, PAIR-01..04, PROMO-01..05)
+**Timeline:** ~9 hours (2026-03-11)
+
+**Delivered:** Evolved gate scoring from structural wiring checks to semantic correctness validation using graph-based proximity discovery and LLM-judged candidate pairing, with auto-promotion wired into the solve cycle.
+
+**Key accomplishments:**
+- Gate renaming from A/B/C to Wiring:Evidence/Purpose/Coverage with schema v2, backward compatibility (21 compat tests), and display label migration across TUI, solve report, and dashboard
+- Graph-based semantic scoring via BFS proximity discovery (46 candidates across 62K pair checks) and Haiku LLM evaluation with yes/no/maybe verdicts producing per-gate semantic_score (schema v3)
+- N:N candidate pairing workflow with interactive resolution and model-registry integration (46 pairings confirmed across 14 models), rejected-pairing caching for idempotency
+- Auto-promotion pipeline: SOFT_GATE -> HARD_GATE after 3 consecutive clean sessions (wiring >= 1.0, semantic >= 0.8, no counterexamples), with flip-flop detection and cooldown enforcement
+- Pipeline wiring: compute-semantic-scores.cjs integrated into nf-solve.cjs, compute-per-model-gates.cjs preserves semantic_score across gate rewrites
+- E2E integration test suite: 5 tests validating enrichment, idempotency, 3-cycle promotion, regression reset, and PROMO-04 changelog field compliance
+
+**Audit:** PASSED — 18/18 requirements, 3/3 integration checks, 2/2 E2E flows
+**Archive:** `.planning/milestones/v0.34-MILESTONE-AUDIT.md`
+
+---
+
