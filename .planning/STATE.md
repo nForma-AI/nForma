@@ -56,8 +56,14 @@ None.
 - additionalContext token budget contention (multiple injection sources share ~4000 token ceiling)
 - Token dashboard path mismatch: token-dashboard.cjs defaults to legacy path (Low severity)
 
+## Quick Tasks Completed
+
+| # | Description | Date | Commit | Status | Directory |
+|---|---|---|---|---|---|
+| 273 | Create /nf:proximity skill and extend /nf:resolve with auto-detected pairings source | 2026-03-11 | {pending} | Pending | [273-create-nf-proximity-skill-and-extend-nf-](./quick/273-create-nf-proximity-skill-and-extend-nf-/) |
+
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed v0.34-01-02 — Gate Display Label Renaming plan (Phase v0.34-01 complete)
+Stopped at: Completed quick task 273: Create /nf:proximity skill and extend /nf:resolve with auto-detected pairings source
 Resume file: None
