@@ -7,6 +7,7 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
+  - Write
 ---
 
 <objective>
@@ -60,10 +61,35 @@ If `--skip-eval` is set:
 - Report: "Skipped (--skip-eval)"
 - Continue to step 5
 
-Otherwise:
-- Run: `node bin/haiku-semantic-eval.cjs`
-- Display verdict distribution: "yes: X, no: Y, maybe: Z"
-- **On error:** Halt and display error message
+Otherwise, attempt the script first:
+
+**4a. Try script:**
+- Run: `node bin/haiku-semantic-eval.cjs` via Bash
+- If exit code is 0: display verdict distribution from stderr output ("Evaluation complete (via: script). yes: X, no: Y, maybe: Z") and continue to Step 5. Done.
+- If exit code is non-zero: log the error, then proceed to 4b (sub-agent fallback).
+
+**4b. Sub-agent fallback:**
+- Log: "Script failed (likely missing ANTHROPIC_API_KEY). Falling back to sub-agent evaluation."
+- Read `.planning/formal/candidates.json` and parse the candidates array.
+- Filter to candidates that do NOT already have a `verdict` field (respect cache, same as the script does).
+- If no candidates need evaluation, report "All candidates already evaluated (cached)" and continue.
+- For each unevaluated candidate, dispatch a Haiku sub-agent with this prompt (matching the script's prompt format):
+
+```
+You are evaluating whether a formal model semantically satisfies a requirement.
+Model path: {candidate.model}
+Requirement ID: {candidate.requirement}
+Does this model address the intent of this requirement? Consider both direct coverage and transitive coverage through related models.
+Respond ONLY with valid JSON: {"verdict":"yes"|"no"|"maybe","confidence":<decimal 0.0-1.0>,"reasoning":"..."}
+Note: confidence MUST be a decimal between 0.0 and 1.0 (NOT 0-100).
+```
+
+- Parse each sub-agent response as JSON. On any parse failure OR missing/invalid fields, fill defaults: `verdict="maybe"`, `confidence=0.0`, `reasoning=""`. Concretely: if JSON.parse throws, use all defaults; if JSON is valid but `verdict` is missing/invalid, default that field; if `confidence` is missing/non-numeric, default to `0.0`; if `reasoning` is missing, default to `""`.
+- Normalize verdict: only "yes", "no", or "maybe" are valid; anything else becomes "maybe".
+- Set on each candidate: `verdict`, `confidence`, `reasoning`, and `evaluation_timestamp` (ISO 8601).
+- If candidate count exceeds 10, batch into groups of 10 and process each batch sequentially. Process each batch, log progress for each batch completion.
+- After all candidates are evaluated, write the full candidates.json back to `.planning/formal/candidates.json` (preserving metadata, updating only the candidates array entries).
+- Display verdict distribution AND which eval path ran: "Evaluation complete (via: sub-agent fallback). yes: X, no: Y, maybe: Z"
 
 Progress line: `[3/6] Running semantic evaluation (Haiku)...`
 
@@ -125,6 +151,7 @@ Progress line: `[6/6] Generating summary...`
 - The `--resolve` flag is a convenience — it suggests the exact /nf:resolve command to triage results.
 - The `--top` flag defaults to 10 (enforced by this skill, not the script). The script itself defaults to no limit. Pass `--top 0` to bypass the skill default and see all candidates.
 - All pipeline scripts are expected to exist in bin/ and produce JSON output (when --json is passed).
+- Step 4 tries the haiku-semantic-eval.cjs script first (works with ANTHROPIC_API_KEY in the environment). If the script fails, it falls back to inline Haiku sub-agent evaluation via Task(model='haiku'). Both paths produce identical output in candidates.json (verdict, confidence, reasoning, evaluation_timestamp fields).
 </notes>
 
 </process>
