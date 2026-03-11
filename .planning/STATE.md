@@ -60,7 +60,7 @@ None.
 
 | # | Description | Date | Commit | Status | Directory |
 |---|---|---|---|---|---|
-| 273 | Create /nf:proximity skill and extend /nf:resolve with auto-detected pairings source | 2026-03-11 | {pending} | Pending | [273-create-nf-proximity-skill-and-extend-nf-](./quick/273-create-nf-proximity-skill-and-extend-nf-/) |
+| 273 | Create /nf:proximity skill and extend /nf:resolve with auto-detected pairings source | 2026-03-11 | e3613d7e | Verified | [273-create-nf-proximity-skill-and-extend-nf-](./quick/273-create-nf-proximity-skill-and-extend-nf-/) |
 
 ## Session Continuity
 
