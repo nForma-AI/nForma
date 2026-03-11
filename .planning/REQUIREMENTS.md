@@ -9,10 +9,10 @@ Requirements for Semantic Gate Validation & Auto-Promotion. Each maps to roadmap
 
 ### Gate Naming
 
-- [ ] **NAME-01**: Gate A/B/C renamed to Wiring:Evidence / Wiring:Purpose / Wiring:Coverage in all gate JSON files (gate-a-grounding.json, gate-b-abstraction.json, gate-c-validation.json)
-- [ ] **NAME-02**: All scripts that read/write gate scores updated to use new field names (wiring_score instead of grounding_score/gate_b_score/gate_c_score)
+- [x] **NAME-01**: Gate A/B/C renamed to Wiring:Evidence / Wiring:Purpose / Wiring:Coverage in all gate JSON files (gate-a-grounding.json, gate-b-abstraction.json, gate-c-validation.json)
+- [x] **NAME-02**: All scripts that read/write gate scores updated to use new field names (wiring_score instead of grounding_score/gate_b_score/gate_c_score)
 - [ ] **NAME-03**: Solve report, TUI, and cross-layer dashboard display new gate names
-- [ ] **NAME-04**: Backward-compatible migration — old field names still readable during transition, new fields written on next compute
+- [x] **NAME-04**: Backward-compatible migration — old field names still readable during transition, new fields written on next compute
 
 ### Semantic Scoring
 
@@ -58,10 +58,10 @@ Requirements for Semantic Gate Validation & Auto-Promotion. Each maps to roadmap
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAME-01 | v0.34-01 | Pending |
-| NAME-02 | v0.34-01 | Pending |
+| NAME-01 | v0.34-01 | Complete |
+| NAME-02 | v0.34-01 | Complete |
 | NAME-03 | v0.34-01 | Pending |
-| NAME-04 | v0.34-01 | Pending |
+| NAME-04 | v0.34-01 | Complete |
 | SEM-01 | v0.34-02 | Pending |
 | SEM-02 | v0.34-02 | Pending |
 | SEM-03 | v0.34-02 | Pending |
