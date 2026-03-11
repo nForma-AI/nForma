@@ -164,6 +164,17 @@ fi
 Display the output inline in the health report, after the token usage section.
 </step>
 
+<step name="run_payload_audit">
+**Run agent payload size audit:**
+
+```bash
+node bin/audit-agent-payloads.cjs 2>/dev/null || true
+```
+
+Display the output inline in the health report, after the harness diagnostic section.
+If the script is not found, skip silently (fail-open).
+</step>
+
 <step name="offer_repair">
 **If repairable issues exist and --repair was NOT used:**
 
