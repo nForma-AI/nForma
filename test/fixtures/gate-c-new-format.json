@@ -1,0 +1,1 @@
+{ "schema_version": "2", "generated": "2026-01-01T00:00:00.000Z", "wiring_coverage_score": 0.80, "total_entries": 100, "validated_entries": 80, "unvalidated_entries": 20, "target": 0.8, "target_met": true }

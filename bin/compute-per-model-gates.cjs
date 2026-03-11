@@ -319,7 +319,7 @@ function computeAggregate(perModelResults) {
 
   return {
     gate_a: {
-      grounding_score: groundingScore,
+      wiring_evidence_score: groundingScore,
       target: 0.8,
       target_met: groundingScore >= 0.8,
       explained: gateAPass,
@@ -331,7 +331,7 @@ function computeAggregate(perModelResults) {
       },
     },
     gate_b: {
-      gate_b_score: gateBScore,
+      wiring_purpose_score: gateBScore,
       total_entries: total,
       grounded_entries: gateBPass,
       orphaned_entries: total - gateBPass,
@@ -339,7 +339,7 @@ function computeAggregate(perModelResults) {
       target_met: gateBScore >= 1.0,
     },
     gate_c: {
-      gate_c_score: gateCScore,
+      wiring_coverage_score: gateCScore,
       total_entries: total,
       validated_entries: gateCPass,
       unvalidated_entries: total - gateCPass,
@@ -364,18 +364,18 @@ function writeAggregateGateFiles(aggregate) {
   const ts = new Date().toISOString();
 
   const gateAFile = {
-    schema_version: '1',
+    schema_version: '2',
     generated: ts,
     ...aggregate.gate_a,
     scope: { mode: 'per-model-aggregate' },
   };
   const gateBFile = {
-    schema_version: '1',
+    schema_version: '2',
     generated: ts,
     ...aggregate.gate_b,
   };
   const gateCFile = {
-    schema_version: '1',
+    schema_version: '2',
     generated: ts,
     ...aggregate.gate_c,
   };
@@ -743,9 +743,9 @@ function main() {
     if (AGGREGATE_FLAG && aggregate) {
       console.log('');
       console.log('  Aggregate Gate Scores:');
-      console.log('    Gate A grounding_score: ' + aggregate.gate_a.grounding_score.toFixed(4) + ' (target: 0.8, met: ' + aggregate.gate_a.target_met + ')');
-      console.log('    Gate B gate_b_score:    ' + aggregate.gate_b.gate_b_score.toFixed(4) + ' (target: 1.0, met: ' + aggregate.gate_b.target_met + ')');
-      console.log('    Gate C gate_c_score:    ' + aggregate.gate_c.gate_c_score.toFixed(4) + ' (target: 0.8, met: ' + aggregate.gate_c.target_met + ')');
+      console.log('    Gate A wiring_evidence_score: ' + aggregate.gate_a.wiring_evidence_score.toFixed(4) + ' (target: 0.8, met: ' + aggregate.gate_a.target_met + ')');
+      console.log('    Gate B wiring_purpose_score:  ' + aggregate.gate_b.wiring_purpose_score.toFixed(4) + ' (target: 1.0, met: ' + aggregate.gate_b.target_met + ')');
+      console.log('    Gate C wiring_coverage_score: ' + aggregate.gate_c.wiring_coverage_score.toFixed(4) + ' (target: 0.8, met: ' + aggregate.gate_c.target_met + ')');
     }
     if (DRY_RUN_FLAG) {
       console.log('  (dry-run: no changes written)');
