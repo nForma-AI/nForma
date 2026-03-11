@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-10T21:27:30.224Z",
-  "content_hash": "791ff564472f245d",
+  "aggregated_at": "2026-03-11T01:47:25.071Z",
+  "content_hash": "9c9bc1ddf2732761",
   "schema_version": "1",
   "requirements": [
     {
@@ -992,6 +992,18 @@
         ".planning/formal/alloy/focus-topic-filter.als"
       ],
       "category_raw": "Diagnostics"
+    },
+    {
+      "id": "DIAG-05",
+      "text": "Provide /nf:mcp-repair skill to auto-diagnose quorum slot connectivity issues and apply automatic repairs where possible (restart downed MCP servers, report non-fixable issues with actionable guidance).",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Users currently must manually diagnose and fix individual quorum slot failures (MCP servers down, CLI auth expired, quota exhausted). This skill automates the diagnosis-repair-verify cycle, improving user experience and reliability when quorum infrastructure encounters transient or fixable issues.",
+      "provenance": {
+        "source_file": ".planning/quick/268-add-nf-mcp-repair-skill-auto-diagnose-an/268-PLAN.md",
+        "milestone": "quick-268"
+      }
     },
     {
       "id": "DISP-01",
@@ -4591,5 +4603,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-10T21:27:30.225Z"
+  "frozen_at": "2026-03-11T01:47:25.072Z"
 }
