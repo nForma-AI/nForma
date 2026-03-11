@@ -6,6 +6,7 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
 **Current focus:** v0.34 milestone SHIPPED — planning next milestone
+**Last activity:** 2026-03-11 — Completed quick task 274: add a --top N flag to /nf:proximity
 
 ## Current Position
 
@@ -62,6 +63,7 @@ None.
 |---|---|---|---|---|---|
 | 272 | Implement OBS-11 agent payload size audit | 2026-03-11 | 2d8c1e35 | Verified | [272-implement-obs-11-agent-payload-size-audi](./quick/272-implement-obs-11-agent-payload-size-audi/) |
 | 273 | Create /nf:proximity skill and extend /nf:resolve with auto-detected pairings source | 2026-03-11 | e3613d7e | Verified | [273-create-nf-proximity-skill-and-extend-nf-](./quick/273-create-nf-proximity-skill-and-extend-nf-/) |
+| 274 | add a --top N flag to /nf:proximity | 2026-03-11 | pending | Pending | [274-add-a-top-n-flag-to-nf-proximity](./quick/274-add-a-top-n-flag-to-nf-proximity/) |
 
 ## Session Continuity
 

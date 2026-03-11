@@ -102,7 +102,7 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
 // ─────────────────────────────────────────────────────────────────────────────
 
 function parseArgs(argv) {
-  const args = { minScore: 0.6, maxHops: 3, json: false, help: false };
+  const args = { minScore: 0.6, maxHops: 3, top: null, json: false, help: false };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--json') args.json = true;
     else if (argv[i] === '--help' || argv[i] === '-h') args.help = true;
@@ -112,6 +112,9 @@ function parseArgs(argv) {
     } else if (argv[i].startsWith('--max-hops')) {
       const val = argv[i].includes('=') ? argv[i].split('=')[1] : argv[++i];
       args.maxHops = parseInt(val, 10);
+    } else if (argv[i].startsWith('--top')) {
+      const val = argv[i].includes('=') ? argv[i].split('=')[1] : argv[++i];
+      args.top = parseInt(val, 10);
     }
   }
   return args;
@@ -123,6 +126,7 @@ function printHelp() {
 Options:
   --min-score <n>  Minimum proximity score threshold (default: 0.6)
   --max-hops <n>   Maximum BFS hop count (default: 3)
+  --top <n>        Return only top N candidates by score (default: all)
   --json           Print summary to stdout as JSON (for piping)
   --help           Show this help message
 
@@ -168,7 +172,7 @@ function main() {
     maxHops: args.maxHops,
   });
 
-  // Log histogram of candidate scores to stderr
+  // Log histogram of candidate scores to stderr (BEFORE truncation)
   if (result.candidates.length > 0) {
     const buckets = { '0.6-0.7': 0, '0.7-0.8': 0, '0.8-0.9': 0, '0.9-1.0': 0 };
     for (const c of result.candidates) {
@@ -181,6 +185,16 @@ function main() {
     for (const [range, count] of Object.entries(buckets)) {
       if (count > 0) process.stderr.write(`  ${range}: ${count}\n`);
     }
+  }
+
+  // Apply --top N truncation if specified
+  if (args.top != null && args.top > 0 && args.top < result.candidates.length) {
+    const beforeCount = result.candidates.length;
+    result.candidates = result.candidates.slice(0, args.top);
+    result.metadata.candidates_before_top = beforeCount;
+    result.metadata.top = args.top;
+    result.metadata.candidates_found = result.candidates.length;
+    process.stderr.write(`[candidate-discovery] Showing top ${args.top} of ${beforeCount} candidates\n`);
   }
 
   process.stderr.write(`[candidate-discovery] Checked ${result.metadata.total_pairs_checked} pairs, found ${result.metadata.candidates_found} candidates (threshold=${result.metadata.threshold}, maxHops=${result.metadata.max_hops})\n`);
