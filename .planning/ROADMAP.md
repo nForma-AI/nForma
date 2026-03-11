@@ -46,7 +46,7 @@
 - [ ] **Phase v0.34-03: Pairing & Auto-Promotion** - N:N candidate pairing workflow + solve-cycle auto-promotion with flip-flop protection
 - [ ] **Phase v0.34-04: Semantic Scoring Pipeline Wiring** - Wire compute-semantic-scores.cjs into solve pipeline; fix gate schema v3 preservation (gap closure)
 - [x] **Phase v0.34-05: Auto-Promotion State Initialization** - Initialize consecutive_clean_sessions; fix checkCleanSession semantic_score dependency (gap closure) (completed 2026-03-11)
-- [ ] **Phase v0.34-06: E2E Integration Test** - Integration test validating full semantic -> promotion pipeline (gap closure)
+- [x] **Phase v0.34-06: E2E Integration Test** - Integration test validating full semantic -> promotion pipeline (gap closure) (completed 2026-03-11)
 
 ## Phase Details
 
@@ -133,7 +133,7 @@ Phases execute in sequence: v0.34-01 -> v0.34-02 -> v0.34-03 -> v0.34-04 -> v0.3
 | v0.34-03. Pairing & Auto-Promotion | 0/TBD | Not started | - |
 | v0.34-04. Semantic Scoring Pipeline Wiring | 0/1 | Not started | - |
 | v0.34-05. Auto-Promotion State Initialization | 0/TBD | Complete    | 2026-03-11 |
-| v0.34-06. E2E Integration Test | 0/TBD | Not started | - |
+| v0.34-06. E2E Integration Test | 0/TBD | Complete    | 2026-03-11 |
 
 ---
 
