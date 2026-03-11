@@ -29,10 +29,70 @@
 - ✅ **v0.31 — Ruflo-Inspired Hardening** — Phases v0.31-01..v0.31-03 (shipped 2026-03-08)
 - ✅ **v0.32 — Documentation & README Overhaul** — Phases v0.32-01..v0.32-04 (shipped 2026-03-09)
 - ✅ **v0.33 — Outer-Loop Convergence Guarantees** — Phases v0.33-01..v0.33-06 (shipped 2026-03-10)
+- [ ] **v0.34 — Semantic Gate Validation & Auto-Promotion** — Phases v0.34-01..v0.34-03 (in progress)
 
 > **v0.2 through v0.33 phase details archived to respective milestone ROADMAP files in** `.planning/milestones/`
 
 ---
 
+## v0.34 — Semantic Gate Validation & Auto-Promotion
+
+**Milestone Goal:** Evolve gate scoring from structural wiring checks to semantic correctness validation using graph-based proximity discovery and LLM-judged candidate pairing, then wire auto-promotion into the solve cycle.
+
+## Phases
+
+- [ ] **Phase v0.34-01: Gate Renaming** - Rename Gate A/B/C to Wiring:Evidence/Purpose/Coverage with backward-compatible migration
+- [ ] **Phase v0.34-02: Semantic Scoring** - Graph BFS candidate discovery + Haiku evaluation producing per-gate semantic_score
+- [ ] **Phase v0.34-03: Pairing & Auto-Promotion** - N:N candidate pairing workflow + solve-cycle auto-promotion with flip-flop protection
+
+## Phase Details
+
+### Phase v0.34-01: Gate Renaming
+**Goal**: Gate files, scripts, and displays use descriptive Wiring:Evidence/Purpose/Coverage names instead of opaque A/B/C labels
+**Depends on**: Nothing (first phase)
+**Requirements**: NAME-01, NAME-02, NAME-03, NAME-04
+**Success Criteria** (what must be TRUE):
+  1. Running compute-per-model-gates.cjs produces gate JSON files with wiring_score fields (not grounding_score/gate_b_score/gate_c_score)
+  2. The TUI gate scoring page and solve report display "Wiring:Evidence", "Wiring:Purpose", "Wiring:Coverage" labels
+  3. Old gate JSON files with legacy field names are still readable without errors — existing data is not lost during transition
+  4. All scripts that consume gate scores (run-formal-verify.cjs, nf-solve, cross-layer dashboard) work correctly with renamed fields
+**Plans**: TBD
+
+### Phase v0.34-02: Semantic Scoring
+**Goal**: Each gate carries a semantic_score derived from graph-based proximity discovery and LLM-judged candidate evaluation, measuring how well models actually cover their linked requirements
+**Depends on**: Phase v0.34-01
+**Requirements**: SEM-01, SEM-02, SEM-03, SEM-04, SEM-05
+**Success Criteria** (what must be TRUE):
+  1. Running the semantic scoring script discovers unlinked (model, requirement) pairs within 3 hops of the proximity graph with score > 0.6
+  2. Strong candidates are evaluated by Haiku and receive a yes/no/maybe verdict stored with the candidate record
+  3. Gate JSON files contain both wiring_score and semantic_score fields after a scoring run
+  4. Running semantic scoring twice on the same graph state and model text produces identical results (idempotent)
+**Plans**: TBD
+
+### Phase v0.34-03: Pairing & Auto-Promotion
+**Goal**: Graph-discovered candidate pairings flow through human confirmation into model-registry, and the solve cycle auto-promotes stable models from SOFT_GATE to HARD_GATE
+**Depends on**: Phase v0.34-02
+**Requirements**: PAIR-01, PAIR-02, PAIR-03, PAIR-04, PROMO-01, PROMO-02, PROMO-03, PROMO-04, PROMO-05
+**Success Criteria** (what must be TRUE):
+  1. candidate-pairings.json contains all discovered (model, requirement) candidates with proximity scores and Haiku verdicts
+  2. Running /nf:resolve loads candidate-pairings.json and presents graph-suggested links for human confirmation
+  3. Confirmed pairings are written to model-registry.json requirements arrays; rejected pairings are cached and not re-evaluated
+  4. After 3 consecutive clean solve sessions (wiring >= 1.0, semantic >= 0.8, all formal checks pass), eligible models auto-promote from SOFT_GATE to HARD_GATE
+  5. All promotions are logged to promotion-changelog.json and flip-flop detection prevents re-promotion of unstable models
+**Plans**: TBD
+
+## Progress
+
+**Execution Order:**
+Phases execute in sequence: v0.34-01 -> v0.34-02 -> v0.34-03
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| v0.34-01. Gate Renaming | 0/TBD | Not started | - |
+| v0.34-02. Semantic Scoring | 0/TBD | Not started | - |
+| v0.34-03. Pairing & Auto-Promotion | 0/TBD | Not started | - |
+
+---
+
 *Roadmap created: 2026-02-20*
-*Last updated: 2026-03-10 after v0.33 milestone completion*
+*Last updated: 2026-03-11 after v0.34 roadmap creation*

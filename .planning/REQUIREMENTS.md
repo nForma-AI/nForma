@@ -32,8 +32,8 @@ Requirements for Semantic Gate Validation & Auto-Promotion. Each maps to roadmap
 ### Auto-Promotion
 
 - [ ] **PROMO-01**: Solve Step 8a calls promote-gate-maturity.cjs --check after convergence to identify HARD_GATE-eligible models
-- [ ] **PROMO-02**: consecutive_clean_sessions counter tracked in solve-state.json — incremented when wiring ≥ 1.0 AND semantic ≥ 0.8 AND all formal checks pass; reset to 0 on regression
-- [ ] **PROMO-03**: Models auto-promoted SOFT_GATE → HARD_GATE when consecutive_clean_sessions ≥ 3 AND cooldown satisfied (gate-stability.cjs)
+- [ ] **PROMO-02**: consecutive_clean_sessions counter tracked in solve-state.json — incremented when wiring >= 1.0 AND semantic >= 0.8 AND all formal checks pass; reset to 0 on regression
+- [ ] **PROMO-03**: Models auto-promoted SOFT_GATE -> HARD_GATE when consecutive_clean_sessions >= 3 AND cooldown satisfied (gate-stability.cjs)
 - [ ] **PROMO-04**: All promotions logged to promotion-changelog.json with timestamp, session_id, from_level, to_level
 - [ ] **PROMO-05**: Flip-flop detection prevents re-promotion of unstable models (existing gate-stability.cjs enforced)
 
@@ -58,30 +58,30 @@ Requirements for Semantic Gate Validation & Auto-Promotion. Each maps to roadmap
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAME-01 | TBD | Pending |
-| NAME-02 | TBD | Pending |
-| NAME-03 | TBD | Pending |
-| NAME-04 | TBD | Pending |
-| SEM-01 | TBD | Pending |
-| SEM-02 | TBD | Pending |
-| SEM-03 | TBD | Pending |
-| SEM-04 | TBD | Pending |
-| SEM-05 | TBD | Pending |
-| PAIR-01 | TBD | Pending |
-| PAIR-02 | TBD | Pending |
-| PAIR-03 | TBD | Pending |
-| PAIR-04 | TBD | Pending |
-| PROMO-01 | TBD | Pending |
-| PROMO-02 | TBD | Pending |
-| PROMO-03 | TBD | Pending |
-| PROMO-04 | TBD | Pending |
-| PROMO-05 | TBD | Pending |
+| NAME-01 | v0.34-01 | Pending |
+| NAME-02 | v0.34-01 | Pending |
+| NAME-03 | v0.34-01 | Pending |
+| NAME-04 | v0.34-01 | Pending |
+| SEM-01 | v0.34-02 | Pending |
+| SEM-02 | v0.34-02 | Pending |
+| SEM-03 | v0.34-02 | Pending |
+| SEM-04 | v0.34-02 | Pending |
+| SEM-05 | v0.34-02 | Pending |
+| PAIR-01 | v0.34-03 | Pending |
+| PAIR-02 | v0.34-03 | Pending |
+| PAIR-03 | v0.34-03 | Pending |
+| PAIR-04 | v0.34-03 | Pending |
+| PROMO-01 | v0.34-03 | Pending |
+| PROMO-02 | v0.34-03 | Pending |
+| PROMO-03 | v0.34-03 | Pending |
+| PROMO-04 | v0.34-03 | Pending |
+| PROMO-05 | v0.34-03 | Pending |
 
 **Coverage:**
 - v0.34 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 ⚠️
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after initial definition*
+*Last updated: 2026-03-11 after roadmap phase assignment*
