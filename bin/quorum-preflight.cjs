@@ -11,8 +11,8 @@
  *   node quorum-preflight.cjs --quorum-active       # → JSON array of active slot names
  *   node quorum-preflight.cjs --max-quorum-size      # → integer (default 3)
  *   node quorum-preflight.cjs --team                  # → JSON { slotName: { model } }
- *   node quorum-preflight.cjs --all                   # → JSON { quorum_active, max_quorum_size, team }
- *   node quorum-preflight.cjs --all --probe           # → JSON with health, available_slots, unavailable_slots
+ *   node quorum-preflight.cjs --all                   # → JSON with health, available_slots, unavailable_slots (probe on by default)
+ *   node quorum-preflight.cjs --all --no-probe        # → JSON { quorum_active, max_quorum_size, team } (skip health probes)
  *
  * All modes read from ~/.claude/nf.json (global) merged with $CWD/.claude/nf.json (project).
  * --team and --all also read providers.json (same search logic as call-quorum-slot.cjs).
@@ -31,7 +31,9 @@ const { spawn }       = require('child_process');
 const https           = require('https');
 const http            = require('http');
 
-const PROBE = process.argv.includes('--probe');
+// Probe is ON by default for --all; --no-probe to skip, --probe still accepted for compat
+const NO_PROBE = process.argv.includes('--no-probe');
+const PROBE = !NO_PROBE;
 
 // ─── TTL cache constants (shared with check-provider-health.cjs) ────────────
 const CACHE_FILE  = path.join(os.homedir(), '.claude', 'nf-provider-cache.json');

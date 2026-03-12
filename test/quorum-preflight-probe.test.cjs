@@ -25,9 +25,9 @@ function runPreflight(args) {
 
 describe('quorum-preflight --probe', () => {
 
-  // ── Test 1: Backward compatibility ──────────────────────────────────────
-  it('--all without --probe returns standard keys only', () => {
-    const raw = runPreflight(['--all']);
+  // ── Test 1: --no-probe skips health probes ──────────────────────────────
+  it('--all --no-probe returns standard keys only', () => {
+    const raw = runPreflight(['--all', '--no-probe']);
     const data = JSON.parse(raw);
 
     assert.ok(Array.isArray(data.quorum_active), 'quorum_active should be an array');
@@ -40,9 +40,9 @@ describe('quorum-preflight --probe', () => {
     assert.strictEqual(data.unavailable_slots, undefined, 'unavailable_slots should be absent without --probe');
   });
 
-  // ── Test 2: Probe output shape ──────────────────────────────────────────
-  it('--all --probe returns health, available_slots, unavailable_slots', () => {
-    const raw = runPreflight(['--all', '--probe']);
+  // ── Test 2: Probe output shape (default with --all) ─────────────────────
+  it('--all returns health, available_slots, unavailable_slots by default', () => {
+    const raw = runPreflight(['--all']);
     const data = JSON.parse(raw);
 
     // Standard keys still present
