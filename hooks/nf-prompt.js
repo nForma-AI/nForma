@@ -314,6 +314,11 @@ function deduplicateByModel(orderedSlots, agentCfg) {
 
   for (const slot of orderedSlots) {
     const model = (agentCfg[slot.slot]?.model || 'unknown');
+    // Never deduplicate slots with unknown models — we can't assert they're duplicates
+    if (model === 'unknown') {
+      unique.push(slot);
+      continue;
+    }
     if (seenModels.has(model)) {
       // Duplicate model — demote to fallback tier
       duplicates.push(slot);
@@ -730,7 +735,9 @@ process.stdin.on('end', () => {
         `       If exit code 1 (shouldEscalate=true, P(consensus|remaining) below 10% threshold), stop deliberating and proceed to decision immediately.\n` +
         `       This prevents wasting rounds when consensus is mathematically unlikely.\n` +
         `  ${afterSteps + 3}. Include the token <!-- GSD_DECISION --> in your FINAL output\n\n` +
-        `Fail-open: ONLY after exhausting ALL fallback tiers in FALLBACK-01 above. Do NOT skip fallback dispatch.\n` +
+        (failoverRule.includes('FALLBACK-01')
+          ? `Fail-open: ONLY after exhausting ALL fallback tiers in FALLBACK-01 above. Do NOT skip fallback dispatch.\n`
+          : `Fail-open: if all dispatched slots return UNAVAIL, proceed without quorum.\n`) +
         `The Stop hook reads the transcript — skipping quorum will block your response.`;
       }
     } else {

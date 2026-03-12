@@ -706,10 +706,10 @@ test('TC-PROMPT-FALLBACK-T2-EXCLUDES-PRIMARIES: api slots dispatched as primary 
 });
 
 // TC-PROMPT-FALLBACK-EMPTY-AGENTCONFIG: when agent_config is {} (empty), all slots
-// default to auth_type='api'. This means t1Unused (sub-CLI slots) is always empty,
-// so the simple failover rule is used instead of FALLBACK-01 tiered sequence.
+// default to auth_type='api'. With maxSize high enough to fit all slots, t1Unused
+// is empty AND no T2 overflow → simple failover rule, no FALLBACK-01.
 // The test verifies: (a) no FALLBACK-01 label appears, (b) the simple failover rule
-// IS present, (c) T2 slot names are still enumerable in the output.
+// IS present, (c) dispatched slot names appear in Task() lines.
 test('TC-PROMPT-FALLBACK-EMPTY-AGENTCONFIG: empty agent_config → no T1, simple failover rule', () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prompt-emptyac-'));
   try {
@@ -717,11 +717,13 @@ test('TC-PROMPT-FALLBACK-EMPTY-AGENTCONFIG: empty agent_config → no T1, simple
     const claudeDir = path.join(tempDir, '.claude');
     fs.mkdirSync(claudeDir, { recursive: true });
     // quorum_active set with known slots but agent_config is empty {}
-    // All slots default to auth_type='api' — no sub slots → no T1 unused → simple rule
+    // All slots default to auth_type='api' — no sub slots → no T1 unused
+    // maxSize=5 ensures all 4 slots fit within the cap (no T2 overflow)
     fs.writeFileSync(
       path.join(claudeDir, 'nf.json'),
       JSON.stringify({
         quorum_active: ['codex-1', 'gemini-1', 'opencode-1', 'copilot-1'],
+        quorum: { maxSize: 5 },
         agent_config: {},
       }),
       'utf8'
@@ -732,11 +734,11 @@ test('TC-PROMPT-FALLBACK-EMPTY-AGENTCONFIG: empty agent_config → no T1, simple
 
     const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
 
-    // (a) No FALLBACK-01 — because all slots are api, t1Unused is empty
-    assert.ok(!ctx.includes('FALLBACK-01'), 'Must NOT use FALLBACK-01 when agent_config is empty (all slots are api)');
+    // (a) No FALLBACK-01 — all api slots fit within fan-out cap, no overflow
+    assert.ok(!ctx.includes('FALLBACK-01'), 'Must NOT use FALLBACK-01 when all slots fit (no T1/T2 overflow)');
 
     // (b) Simple failover rule must be present
-    assert.ok(ctx.includes('Failover rule'), 'Simple Failover rule must appear when no T1 slots exist');
+    assert.ok(ctx.includes('Failover rule'), 'Simple Failover rule must appear when no fallback tiers exist');
     assert.ok(ctx.includes('do not count toward'), 'Failover rule must state errors do not count');
 
     // (c) Dispatched slot names must appear in Task() lines
