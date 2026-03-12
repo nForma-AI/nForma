@@ -146,6 +146,13 @@ function buildSlotTools(provider) {
         inputSchema: NO_ARGS_SCHEMA,
       });
     }
+
+    // deep_health_check tool for subprocess providers
+    tools.push({
+      name: 'deep_health_check',
+      description: 'Deep inference probe: sends a trivial prompt through the full CLI pipeline and classifies the result. Returns { healthy, latencyMs, layer, error } where layer is BINARY_MISSING | SERVICE_DOWN | AUTH_EXPIRED | QUOTA_EXCEEDED | INFERENCE_TIMEOUT | INFERENCE_OK.',
+      inputSchema: NO_ARGS_SCHEMA,
+    });
   } else if (provider.type === 'ccr') {
     // CCR (Claude Code Router) — proxy binary, exposes same interface as subprocess
     tools.push({
@@ -165,6 +172,13 @@ function buildSlotTools(provider) {
         inputSchema: NO_ARGS_SCHEMA,
       });
     }
+
+    // deep_health_check tool for ccr providers
+    tools.push({
+      name: 'deep_health_check',
+      description: 'Deep inference probe: sends a trivial prompt through the full CLI pipeline and classifies the result. Returns { healthy, latencyMs, layer, error } where layer is BINARY_MISSING | SERVICE_DOWN | AUTH_EXPIRED | QUOTA_EXCEEDED | INFERENCE_TIMEOUT | INFERENCE_OK.',
+      inputSchema: NO_ARGS_SCHEMA,
+    });
   } else if (provider.type === 'http') {
     // claude tool
     tools.push({
@@ -184,6 +198,13 @@ function buildSlotTools(provider) {
     tools.push({
       name: 'health_check',
       description: 'Verify the upstream LLM endpoint is reachable by making a minimal API call. Returns { healthy, latencyMs, model } or { healthy: false, error }.',
+      inputSchema: NO_ARGS_SCHEMA,
+    });
+
+    // deep_health_check tool for http providers
+    tools.push({
+      name: 'deep_health_check',
+      description: 'Deep inference probe: sends a trivial prompt through the full CLI pipeline and classifies the result. Returns { healthy, latencyMs, layer, error } where layer is BINARY_MISSING | SERVICE_DOWN | AUTH_EXPIRED | QUOTA_EXCEEDED | INFERENCE_TIMEOUT | INFERENCE_OK.',
       inputSchema: NO_ARGS_SCHEMA,
     });
   }
@@ -539,6 +560,141 @@ async function runSubprocessHealthCheck(provider) {
   return JSON.stringify({ healthy, latencyMs, type: 'subprocess' });
 }
 
+async function runDeepHealthCheck(provider) {
+  const probe = provider.deep_probe;
+  if (!probe) {
+    return JSON.stringify({ healthy: false, latencyMs: 0, layer: 'BINARY_MISSING', error: 'No deep_probe config' });
+  }
+
+  const timeoutMs = probe.timeout_ms ?? 20000;
+
+  // Step 1: Check binary exists
+  try {
+    fs.accessSync(provider.cli, fs.constants.X_OK);
+  } catch (_) {
+    return JSON.stringify({ healthy: false, latencyMs: 0, layer: 'BINARY_MISSING', error: `CLI not found: ${provider.cli}` });
+  }
+
+  // Step 2: If service config exists, check service status (with 3s timeout to prevent hangs)
+  if (provider.service?.status) {
+    let statusOutput;
+    try {
+      statusOutput = await Promise.race([
+        runSubprocessWithArgs(
+          { cli: provider.service.status[0], env: provider.env ?? {} },
+          provider.service.status.slice(1),
+          5000
+        ),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('status check hung')), 3000))
+      ]);
+    } catch (_) {
+      // Status command itself hung — treat as SERVICE_DOWN
+      return JSON.stringify({ healthy: false, latencyMs: 0, layer: 'SERVICE_DOWN', error: 'Service status command timed out (3s)' });
+    }
+    // If status command indicates service is not running, report SERVICE_DOWN
+    const down = statusOutput.toLowerCase().includes('not running') ||
+                 statusOutput.toLowerCase().includes('stopped') ||
+                 statusOutput.startsWith('[spawn error');
+    if (down) {
+      return JSON.stringify({ healthy: false, latencyMs: 0, layer: 'SERVICE_DOWN', error: statusOutput.trim() });
+    }
+  }
+
+  // Step 3: Run the actual inference probe
+  const startTime = Date.now();
+  const probeArgs = provider.args_template.map(a => a === '{prompt}' ? probe.prompt : a);
+  const output = await runSubprocessWithArgs(provider, probeArgs, timeoutMs);
+  const latencyMs = Date.now() - startTime;
+
+  // Classify the result
+  if (output.startsWith('[spawn error')) {
+    return JSON.stringify({ healthy: false, latencyMs, layer: 'BINARY_MISSING', error: output });
+  }
+  if (output.includes('[TIMED OUT') || output.includes('TIMED OUT')) {
+    return JSON.stringify({ healthy: false, latencyMs, layer: 'INFERENCE_TIMEOUT', error: `Timed out after ${timeoutMs}ms` });
+  }
+
+  const lower = output.toLowerCase();
+  if (lower.includes('401') || lower.includes('unauthorized') || (lower.includes('auth') && lower.includes('expired'))) {
+    return JSON.stringify({ healthy: false, latencyMs, layer: 'AUTH_EXPIRED', error: output.slice(0, 300) });
+  }
+  if (lower.includes('429') || lower.includes('rate limit') || lower.includes('quota')) {
+    return JSON.stringify({ healthy: false, latencyMs, layer: 'QUOTA_EXCEEDED', error: output.slice(0, 300) });
+  }
+
+  // Check for expected probe response
+  if (output.includes(probe.expect)) {
+    return JSON.stringify({ healthy: true, latencyMs, layer: 'INFERENCE_OK', error: null });
+  }
+
+  // Fallback: got output but no expected string — re-check ALL error keywords before declaring OK
+  const ERROR_KEYWORDS = ['401', '429', 'unauthorized', 'quota', 'rate limit', 'auth', 'expired', 'forbidden', '403'];
+  const hasErrorSignal = ERROR_KEYWORDS.some(kw => lower.includes(kw));
+  if (hasErrorSignal) {
+    if (lower.includes('401') || lower.includes('unauthorized') || lower.includes('forbidden') || lower.includes('403')) {
+      return JSON.stringify({ healthy: false, latencyMs, layer: 'AUTH_EXPIRED', error: output.slice(0, 300) });
+    }
+    if (lower.includes('429') || lower.includes('rate limit') || lower.includes('quota')) {
+      return JSON.stringify({ healthy: false, latencyMs, layer: 'QUOTA_EXCEEDED', error: output.slice(0, 300) });
+    }
+    if (lower.includes('auth') && lower.includes('expired')) {
+      return JSON.stringify({ healthy: false, latencyMs, layer: 'AUTH_EXPIRED', error: output.slice(0, 300) });
+    }
+  }
+
+  // No error keywords AND we got substantial output — inference worked, model just didn't echo PROBE_OK exactly
+  if (output.length > 5 && !output.startsWith('[')) {
+    return JSON.stringify({ healthy: true, latencyMs, layer: 'INFERENCE_OK', error: null });
+  }
+
+  return JSON.stringify({ healthy: false, latencyMs, layer: 'INFERENCE_TIMEOUT', error: output.slice(0, 300) });
+}
+
+/** Deep health check for HTTP providers — sends probe prompt via HTTP API */
+async function runDeepHealthCheckHttp(provider) {
+  const probe = provider.deep_probe;
+  if (!probe) {
+    return JSON.stringify({ healthy: false, latencyMs: 0, layer: 'BINARY_MISSING', error: 'No deep_probe config' });
+  }
+
+  const timeoutMs = probe.timeout_ms ?? 20000;
+  const startTime = Date.now();
+
+  try {
+    const output = await runSlotHttpProvider(provider, { prompt: probe.prompt, timeout_ms: timeoutMs });
+    const latencyMs = Date.now() - startTime;
+
+    if (output.includes('[TIMED OUT')) {
+      return JSON.stringify({ healthy: false, latencyMs, layer: 'INFERENCE_TIMEOUT', error: `Timed out after ${timeoutMs}ms` });
+    }
+    if (output.includes('[HTTP request error') || output.includes('[HTTP error')) {
+      return JSON.stringify({ healthy: false, latencyMs, layer: 'BINARY_MISSING', error: output.slice(0, 300) });
+    }
+
+    const lower = output.toLowerCase();
+    if (lower.includes('401') || lower.includes('unauthorized') || lower.includes('forbidden') || lower.includes('403')) {
+      return JSON.stringify({ healthy: false, latencyMs, layer: 'AUTH_EXPIRED', error: output.slice(0, 300) });
+    }
+    if (lower.includes('429') || lower.includes('rate limit') || lower.includes('quota')) {
+      return JSON.stringify({ healthy: false, latencyMs, layer: 'QUOTA_EXCEEDED', error: output.slice(0, 300) });
+    }
+
+    if (output.includes(probe.expect)) {
+      return JSON.stringify({ healthy: true, latencyMs, layer: 'INFERENCE_OK', error: null });
+    }
+
+    // Got output without error signals — inference likely worked
+    if (output.length > 5 && !output.startsWith('[')) {
+      return JSON.stringify({ healthy: true, latencyMs, layer: 'INFERENCE_OK', error: null });
+    }
+
+    return JSON.stringify({ healthy: false, latencyMs, layer: 'INFERENCE_TIMEOUT', error: output.slice(0, 300) });
+  } catch (err) {
+    const latencyMs = Date.now() - startTime;
+    return JSON.stringify({ healthy: false, latencyMs, layer: 'INFERENCE_TIMEOUT', error: err.message });
+  }
+}
+
 // ─── Slot mode tool dispatcher ────────────────────────────────────────────────
 async function handleSlotToolCall(toolName, toolArgs) {
   if (toolName === 'ping') {
@@ -569,6 +725,10 @@ async function handleSlotToolCall(toolName, toolArgs) {
     if (toolName === 'health_check' && slotProvider.health_check_args) {
       return runSubprocessHealthCheck(slotProvider);
     }
+
+    if (toolName === 'deep_health_check') {
+      return runDeepHealthCheck(slotProvider);
+    }
   }
 
   if (slotProvider.type === 'ccr') {
@@ -586,6 +746,10 @@ async function handleSlotToolCall(toolName, toolArgs) {
         return JSON.stringify({ ...parsed, type: 'ccr' });
       } catch (_) { return result; }
     }
+
+    if (toolName === 'deep_health_check') {
+      return runDeepHealthCheck(slotProvider);
+    }
   }
 
   if (slotProvider.type === 'http') {
@@ -594,6 +758,10 @@ async function handleSlotToolCall(toolName, toolArgs) {
     }
     if (toolName === 'health_check') {
       return JSON.stringify(await runHealthCheck(slotProvider));
+    }
+
+    if (toolName === 'deep_health_check') {
+      return runDeepHealthCheckHttp(slotProvider);
     }
   }
 
