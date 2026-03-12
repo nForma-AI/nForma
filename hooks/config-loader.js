@@ -39,6 +39,7 @@ const HOOK_PROFILE_MAP = {
   minimal: new Set([
     'nf-circuit-breaker',
     'nf-precompact',
+    'nf-node-eval-guard',
     'nf-session-end',
   ]),
   standard: new Set([
@@ -56,6 +57,7 @@ const HOOK_PROFILE_MAP = {
     'nf-console-guard',
     'nf-destructive-git-guard',
     'nf-mcp-dispatch-guard',
+    'nf-node-eval-guard',
     'nf-session-end',
   ]),
   strict: new Set([
@@ -73,6 +75,7 @@ const HOOK_PROFILE_MAP = {
     'nf-console-guard',
     'nf-destructive-git-guard',
     'nf-mcp-dispatch-guard',
+    'nf-node-eval-guard',
     'nf-session-end',
   ]),
 };

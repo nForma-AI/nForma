@@ -1,0 +1,162 @@
+#!/usr/bin/env node
+// hooks/nf-node-eval-guard.js
+// PreToolUse hook — rewrites `node -e "..."` Bash commands to heredoc syntax
+// to prevent zsh history expansion from mangling `!` characters.
+//
+// zsh converts `!` to `\!` even inside quotes, and Node.js v25+ (TypeScript
+// eval mode) interprets `\!` as a unicode escape prefix, breaking any code
+// containing `!==`, `!var`, etc.
+//
+// The fix: `node << 'NF_EVAL'\n<code>\nNF_EVAL` — quoted heredoc delimiters
+// disable ALL shell interpolation in the body, passing code verbatim to Node.
+//
+// Strategy: deny the original `node -e` call and provide the corrected heredoc
+// command in the denial reason. Claude sees the denial and re-issues the command
+// using the safe heredoc form. This avoids reliance on `updatedInput` which may
+// not be supported in all Claude Code versions.
+//
+// Fail-open on any error.
+
+'use strict';
+
+const { loadConfig, shouldRunHook, validateHookInput } = require('./config-loader');
+
+// Detects `node -e` followed by a quoted argument
+const NODE_EVAL_RE = /node\s+-e\s+(['"])/g;
+
+/**
+ * Finds the index of the matching closing quote character.
+ * For single quotes: no escape handling (bash convention).
+ * For double quotes: skips backslash-escaped quotes.
+ * Returns null if no match found.
+ */
+function findClosingQuote(str, startIdx, quoteChar) {
+  if (quoteChar === "'") {
+    const idx = str.indexOf("'", startIdx);
+    return idx === -1 ? null : idx;
+  }
+  for (let i = startIdx; i < str.length; i++) {
+    if (str[i] === '\\') { i++; continue; }
+    if (str[i] === '"') return i;
+  }
+  return null;
+}
+
+/**
+ * Rewrites all `node -e "..."` / `node -e '...'` occurrences in a command
+ * string to heredoc syntax: `node << 'NF_EVAL'\n<code>\nNF_EVAL`
+ *
+ * Returns null if no rewrite needed, or the rewritten command string.
+ */
+function rewriteCommand(command) {
+  // Skip if already using our heredoc marker
+  if (/<<\s*'?NF_EVAL/.test(command)) return null;
+
+  // Skip if using heredoc piping already (cat << ... | node)
+  if (/<<\s*'?\w+.*\|\s*node/.test(command)) return null;
+
+  // Collect all matches with their positions and extracted JS code
+  const matches = [];
+  let m;
+  NODE_EVAL_RE.lastIndex = 0;
+
+  while ((m = NODE_EVAL_RE.exec(command)) !== null) {
+    const quoteChar = m[1];
+    const jsStart = m.index + m[0].length;
+    const closeIdx = findClosingQuote(command, jsStart, quoteChar);
+    if (closeIdx === null) continue;
+
+    matches.push({
+      start: m.index,
+      end: closeIdx + 1,
+      jsCode: command.substring(jsStart, closeIdx),
+    });
+  }
+
+  if (matches.length === 0) return null;
+
+  // Rewrite from end to start so earlier indices remain valid
+  let result = command;
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const { start, end, jsCode } = matches[i];
+    const delim = matches.length > 1 ? `NF_EVAL_${i}` : 'NF_EVAL';
+    const heredoc = `node << '${delim}'\n${jsCode}\n${delim}`;
+    result = result.substring(0, start) + heredoc + result.substring(end);
+  }
+
+  return result;
+}
+
+function main() {
+  let raw = '';
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', chunk => { raw += chunk; });
+  process.stdin.on('end', () => {
+    try {
+      if (!raw || raw.trim() === '') {
+        process.exit(0);
+      }
+
+      const input = JSON.parse(raw);
+
+      const eventType = input.hook_event_name || input.hookEventName || 'PreToolUse';
+      const validation = validateHookInput(eventType, input);
+      if (!validation.valid) {
+        process.stderr.write('[nf] WARNING: nf-node-eval-guard: invalid input: ' + JSON.stringify(validation.errors) + '\n');
+        process.exit(0);
+      }
+
+      const cwd = input.cwd || process.cwd();
+      const config = loadConfig(cwd);
+      const profile = config.hook_profile || 'standard';
+      if (!shouldRunHook('nf-node-eval-guard', profile)) {
+        process.exit(0);
+      }
+
+      const toolName = input.tool_name || input.toolName || '';
+      if (toolName.toLowerCase() !== 'bash') {
+        process.exit(0);
+      }
+
+      const command = (input.tool_input && input.tool_input.command) || '';
+      if (!command || !command.includes('node')) {
+        process.exit(0);
+      }
+
+      const rewritten = rewriteCommand(command);
+      if (!rewritten) {
+        process.exit(0);
+      }
+
+      process.stderr.write('[nf-node-eval-guard] Blocked node -e, providing heredoc rewrite\n');
+
+      // Deny the original command and provide the corrected heredoc version.
+      // Claude will see the denial reason and re-issue using the safe form.
+      const reason =
+        '[nf-node-eval-guard] BLOCKED: `node -e` is unsafe on zsh (history expansion mangles `!` to `\\!`). ' +
+        'Re-run using this exact heredoc command instead:\n\n' +
+        rewritten;
+
+      process.stdout.write(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'PreToolUse',
+          permissionDecision: 'deny',
+          permissionDecisionReason: reason,
+        },
+      }));
+
+      process.exit(0);
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        process.stderr.write('[nf] WARNING: nf-node-eval-guard: malformed JSON on stdin: ' + e.message + '\n');
+      } else {
+        process.stderr.write('[nf] WARNING: nf-node-eval-guard: ' + (e.message || 'unknown error') + '\n');
+      }
+      process.exit(0);
+    }
+  });
+}
+
+if (require.main === module) main();
+
+module.exports = { rewriteCommand, findClosingQuote };

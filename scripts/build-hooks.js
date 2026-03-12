@@ -26,6 +26,7 @@ const HOOKS_TO_COPY = [
   'nf-console-guard.js',     // nForma: Stop console guard
   'nf-destructive-git-guard.js', // nForma: PreToolUse destructive git ops warning
   'nf-mcp-dispatch-guard.js',    // nForma: PreToolUse MCP dispatch warning
+  'nf-node-eval-guard.js',       // nForma: PreToolUse node -e → heredoc rewriter (zsh safety)
   'nf-session-end.js',       // nForma: SessionEnd learning extraction
   'nf-resolve-bin.js',       // shared nf-bin path resolver (required by multiple hooks)
   'config-loader.js',       // shared config loader (required by multiple hooks)

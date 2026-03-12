@@ -2219,6 +2219,17 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}+${reset} Configured nForma MCP dispatch guard hook (PreToolUse)`);
     }
 
+    // Register nForma node-eval guard hook (PreToolUse — rewrite node -e to heredoc for zsh safety)
+    const hasNodeEvalGuardHook = settings.hooks.PreToolUse.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-node-eval-guard'))
+    );
+    if (!hasNodeEvalGuardHook) {
+      settings.hooks.PreToolUse.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-node-eval-guard.js'), timeout: 10 }]
+      });
+      console.log(`  ${green}+${reset} Configured nForma node-eval guard hook (PreToolUse)`);
+    }
+
     // Register nForma context monitor hook (PostToolUse — context window warnings)
     if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = [];
     const hasContextMonitorHook = settings.hooks.PostToolUse.some(entry =>
