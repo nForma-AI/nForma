@@ -56,7 +56,9 @@
   1. Running `node bin/install.js --claude --global` on a fresh clone (no hooks/dist/) succeeds without error
   2. If hooks/dist/ is missing or stale, install either auto-rebuilds it or prints a clear actionable message telling the user exactly what command to run
   3. After install completes, all hooks in `~/.claude/hooks/` are functional (not empty or stale copies)
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] v0.35-01-01-PLAN.md -- Auto-rebuild hooks/dist and add fresh-clone test
 
 #### Phase v0.35-02: MCP Setup slot classification
 **Goal**: `/nf:mcp-setup` correctly identifies all slot types including native CLI agents like codex-1
@@ -96,7 +98,7 @@ Phases execute in sequence: v0.35-01 -> v0.35-02 -> v0.35-03 -> v0.35-04
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| v0.35-01. Install hooks/dist rebuild | 0/? | Not started | - |
+| v0.35-01. Install hooks/dist rebuild | 0/1 | Planning complete | - |
 | v0.35-02. MCP Setup slot classification | 0/? | Not started | - |
 | v0.35-03. Cross-platform provider paths | 0/? | Not started | - |
 | v0.35-04. TUI CLI Agent MCP entry | 0/? | Not started | - |
@@ -104,4 +106,4 @@ Phases execute in sequence: v0.35-01 -> v0.35-02 -> v0.35-03 -> v0.35-04
 ---
 
 *Roadmap created: 2026-02-20*
-*Last updated: 2026-03-12 after v0.35 roadmap creation*
+*Last updated: 2026-03-12 after v0.35-01 planning*
