@@ -136,8 +136,10 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
       const reqKey = `requirement::${reqId}`;
 
       let score;
+      const req = requirements.find(r => r.id === reqId);
+      const reqText = req ? req.text : '';
       try {
-        score = proximity(proximityIndex, modelKey, reqKey, maxHops);
+        score = proximity(proximityIndex, modelKey, reqKey, maxHops, { reqsData: requirements, reqText });
       } catch {
         process.stderr.write(`[candidate-discovery] WARN: proximity() failed for ${modelPath} <-> ${reqId}, skipping\n`);
         continue;

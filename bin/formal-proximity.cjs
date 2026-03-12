@@ -9,7 +9,28 @@ const FORMAL_DIR = path.join(process.cwd(), '.planning', 'formal');
 const SPEC_DIR = path.join(FORMAL_DIR, 'spec');
 const OUTPUT_FILE = path.join(FORMAL_DIR, 'proximity-index.json');
 
-// Edge weights by relationship type (from DESIGN.md section 5.1)
+// ─────────────────────────────────────────────────────────────────────────────
+// Scoring method: "semantic" — weights edges by semantic coverage strength
+// ─────────────────────────────────────────────────────────────────────────────
+const SEMANTIC_WEIGHTS = {
+  verifies: 1.0, verified_by: 1.0,       // direct formal coverage
+  models: 1.0, modeled_by: 1.0,          // formal model link
+  tests: 0.8, tested_by: 0.8,            // test coverage implies understanding
+  declares: 0.7, declared_in: 0.7,       // annotation link
+  emits: 0.6, emitted_by: 0.6,           // instrumentation
+  maps_to: 0.6, mapped_from: 0.6,        // constant mapping
+  triggers: 0.5, triggered_by: 0.5,      // event trigger
+  transitions: 0.4, transitioned_by: 0.4, // FSM transition
+  constrains: 0.4, constrained_by: 0.4,  // constraint
+  from_state: 0.4, from_state_of: 0.4,   // FSM state
+  describes: 0.2, described_by: 0.2,     // conceptual, loose
+  scores: 0.2, scored_by: 0.2,           // risk scoring
+  affects: 0.2, affected_by: 0.2,        // debt linkage
+  owns: 0.1, owned_by: 0.1,             // structural containment
+  contains: 0.1, in_file: 0.1,          // structural containment
+};
+
+// Original edge weights (legacy default)
 const EDGE_WEIGHTS = {
   owns: 1.0,
   owned_by: 1.0,
@@ -42,6 +63,36 @@ const EDGE_WEIGHTS = {
   from_state: 0.6,
   from_state_of: 0.6,
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Scoring method: "typed" — only traverse semantically strong edge types
+// ─────────────────────────────────────────────────────────────────────────────
+const TYPED_ALLOWED_RELS = new Set([
+  'verifies', 'verified_by', 'models', 'modeled_by',
+  'tests', 'tested_by', 'declares', 'declared_in',
+  'emits', 'emitted_by', 'maps_to', 'mapped_from',
+  'triggers', 'triggered_by',
+]);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Scoring methods registry
+// ─────────────────────────────────────────────────────────────────────────────
+const SCORING_METHODS = {
+  legacy:   { weights: EDGE_WEIGHTS,    hubDampen: false, typeFilter: null,               tfidf: false, categoryBoost: false },
+  semantic: { weights: SEMANTIC_WEIGHTS, hubDampen: false, typeFilter: null,               tfidf: false, categoryBoost: false },
+  hub:      { weights: EDGE_WEIGHTS,    hubDampen: true,  typeFilter: null,               tfidf: false, categoryBoost: false },
+  typed:    { weights: SEMANTIC_WEIGHTS, hubDampen: false, typeFilter: TYPED_ALLOWED_RELS, tfidf: false, categoryBoost: false },
+  tfidf:    { weights: EDGE_WEIGHTS,    hubDampen: false, typeFilter: null,               tfidf: true,  categoryBoost: false },
+  category: { weights: EDGE_WEIGHTS,    hubDampen: false, typeFilter: null,               tfidf: false, categoryBoost: true  },
+  // Combos
+  'semantic+hub':       { weights: SEMANTIC_WEIGHTS, hubDampen: true,  typeFilter: null,               tfidf: false, categoryBoost: false },
+  'typed+hub':          { weights: SEMANTIC_WEIGHTS, hubDampen: true,  typeFilter: TYPED_ALLOWED_RELS, tfidf: false, categoryBoost: false },
+  'semantic+hub+tfidf': { weights: SEMANTIC_WEIGHTS, hubDampen: true,  typeFilter: null,               tfidf: true,  categoryBoost: false },
+  'semantic+hub+cat':   { weights: SEMANTIC_WEIGHTS, hubDampen: true,  typeFilter: null,               tfidf: false, categoryBoost: true  },
+  full:                 { weights: SEMANTIC_WEIGHTS, hubDampen: true,  typeFilter: TYPED_ALLOWED_RELS, tfidf: true,  categoryBoost: true  },
+};
+
+const DEFAULT_SCORING_METHOD = 'semantic+hub';
 
 // Forward -> reverse relationship mapping
 const REVERSE_RELS = {
@@ -492,32 +543,176 @@ function buildIndex() {
   return { index, totalNodes, totalEdges, orphanCount, orphans, warnings };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// TF-IDF keyword similarity (method #5)
+// ─────────────────────────────────────────────────────────────────────────────
+const _tfidfCache = new Map();
+
+function extractTerms(text) {
+  if (!text) return [];
+  const STOP_WORDS = new Set(['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'has', 'was', 'one', 'our', 'out', 'with', 'that', 'this', 'from', 'they', 'been', 'have', 'its', 'will', 'would', 'could', 'should', 'each', 'which', 'their', 'there', 'when', 'must', 'shall', 'into', 'also', 'than', 'only', 'such', 'other', 'more', 'some']);
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s_-]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length >= 3 && !STOP_WORDS.has(w));
+}
+
+function tfidfSimilarity(modelPath, reqText) {
+  if (!reqText) return 0;
+
+  // Read model file (cached)
+  let modelTerms;
+  if (_tfidfCache.has(modelPath)) {
+    modelTerms = _tfidfCache.get(modelPath);
+  } else {
+    try {
+      const fullPath = path.join(process.cwd(), modelPath);
+      const content = fs.readFileSync(fullPath, 'utf8');
+      modelTerms = extractTerms(content);
+    } catch {
+      modelTerms = [];
+    }
+    _tfidfCache.set(modelPath, modelTerms);
+  }
+  if (modelTerms.length === 0) return 0;
+
+  const reqTerms = extractTerms(reqText);
+  if (reqTerms.length === 0) return 0;
+
+  // Simple TF overlap: count shared unique terms / max unique terms
+  const modelSet = new Set(modelTerms);
+  const reqSet = new Set(reqTerms);
+  let overlap = 0;
+  for (const t of reqSet) {
+    if (modelSet.has(t)) overlap++;
+  }
+  // Jaccard similarity
+  const union = new Set([...modelSet, ...reqSet]).size;
+  return union > 0 ? overlap / union : 0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Category boost (method #4)
+// ─────────────────────────────────────────────────────────────────────────────
+let _categoryGroupsCache = null;
+let _modelCategoryCache = null;
+
+function loadCategoryGroups() {
+  if (_categoryGroupsCache !== null) return _categoryGroupsCache;
+  try {
+    _categoryGroupsCache = JSON.parse(fs.readFileSync(
+      path.join(process.cwd(), '.planning', 'formal', 'category-groups.json'), 'utf8'));
+  } catch {
+    _categoryGroupsCache = {};
+  }
+  return _categoryGroupsCache;
+}
+
+function getModelCategoryGroups(index, modelKey) {
+  if (!_modelCategoryCache) _modelCategoryCache = new Map();
+  if (_modelCategoryCache.has(modelKey)) return _modelCategoryCache.get(modelKey);
+
+  const cg = loadCategoryGroups();
+  const groups = new Set();
+  // Find requirements linked to this model via modeled_by edges
+  const node = index.nodes[modelKey];
+  if (node) {
+    for (const edge of node.edges) {
+      if (edge.rel === 'models' && edge.to.startsWith('requirement::')) {
+        const reqId = edge.to.replace('requirement::', '');
+        // Look up requirement category in the requirements data
+        // We rely on the requirement node existing; category comes from external data
+      }
+    }
+  }
+  _modelCategoryCache.set(modelKey, groups);
+  return groups;
+}
+
+function categoryBoostScore(index, modelKey, reqKey, reqsData) {
+  if (!reqsData) return 1.0; // no data, no boost/penalty
+  const cg = loadCategoryGroups();
+
+  // Get model's category groups from its declared requirements
+  const modelNode = index.nodes[modelKey];
+  const modelGroups = new Set();
+  if (modelNode) {
+    for (const edge of modelNode.edges) {
+      if (edge.rel === 'models' && edge.to.startsWith('requirement::')) {
+        const rId = edge.to.replace('requirement::', '');
+        const req = reqsData.find(r => r.id === rId);
+        if (req && req.category && cg[req.category]) {
+          modelGroups.add(cg[req.category]);
+        }
+      }
+    }
+  }
+
+  // Get requirement's category group
+  const reqId = reqKey.replace('requirement::', '');
+  const req = reqsData.find(r => r.id === reqId);
+  const reqGroup = req && req.category && cg[req.category] ? cg[req.category] : null;
+
+  if (modelGroups.size === 0 || !reqGroup) return 1.0;
+  return modelGroups.has(reqGroup) ? 1.3 : 0.5; // same domain boost / cross-domain penalty
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Precomputed node degree map for hub dampening
+// ─────────────────────────────────────────────────────────────────────────────
+let _degreeCache = null;
+
+function getNodeDegree(index, nodeKey) {
+  if (!_degreeCache) {
+    _degreeCache = new Map();
+    for (const [key, node] of Object.entries(index.nodes)) {
+      _degreeCache.set(key, (node.edges || []).length);
+    }
+  }
+  return _degreeCache.get(nodeKey) || 0;
+}
+
 /**
- * Compute proximity score between two nodes using BFS with edge weight decay.
- * proximity(A, B) = sum over all paths: min(edge_weight per edge in path) * decay^depth
+ * Compute proximity score between two nodes using BFS with configurable scoring method.
+ *
+ * @param {object} index      - The proximity-index.json object
+ * @param {string} nodeKeyA   - Source node key (e.g. "formal_model::path")
+ * @param {string} nodeKeyB   - Target node key (e.g. "requirement::REQ-01")
+ * @param {number} maxDepth   - Maximum BFS depth (default: 5)
+ * @param {object} opts       - { method: string, reqsData: Array, reqText: string }
+ *                               method defaults to DEFAULT_SCORING_METHOD
+ *                               reqsData needed for category boost
+ *                               reqText needed for tfidf
  */
-function proximity(index, nodeKeyA, nodeKeyB, maxDepth) {
+function proximity(index, nodeKeyA, nodeKeyB, maxDepth, opts) {
   if (typeof maxDepth === 'undefined') maxDepth = 5;
   if (nodeKeyA === nodeKeyB) return 1.0;
   if (!index.nodes[nodeKeyA] || !index.nodes[nodeKeyB]) return 0;
 
-  // BFS collecting all paths to B within maxDepth
+  const methodName = (opts && opts.method) || DEFAULT_SCORING_METHOD;
+  const config = SCORING_METHODS[methodName] || SCORING_METHODS[DEFAULT_SCORING_METHOD];
+  const weights = config.weights;
+  const useHubDampen = config.hubDampen;
+  const typeFilter = config.typeFilter;
+  const useTfidf = config.tfidf;
+  const useCategoryBoost = config.categoryBoost;
+
+  // BFS collecting paths to B within maxDepth
   let score = 0;
-  // Queue entries: [currentNode, depth, minWeight]
+  // Queue entries: [currentNode, depth, pathWeight]
   const queue = [[nodeKeyA, 0, 1.0]];
   const visited = new Map(); // node -> best depth seen
 
   while (queue.length > 0) {
-    const [current, depth, minWeight] = queue.shift();
+    const [current, depth, pathWeight] = queue.shift();
 
     if (depth > maxDepth) continue;
 
     if (current === nodeKeyB && depth > 0) {
-      score += minWeight * Math.pow(DECAY, depth);
-      continue; // Don't expand beyond target
+      score += pathWeight * Math.pow(DECAY, depth);
+      continue;
     }
 
-    // Skip if we've visited this node at a lower depth
     if (visited.has(current) && visited.get(current) <= depth) continue;
     visited.set(current, depth);
 
@@ -525,24 +720,43 @@ function proximity(index, nodeKeyA, nodeKeyB, maxDepth) {
     if (!node) continue;
 
     for (const edge of node.edges) {
-      const edgeWeight = EDGE_WEIGHTS[edge.rel] || 0.3;
-      let effectiveWeight = edgeWeight;
-      // Penalize structural hops through hub node types (formal_model via directory edges)
-      if (edge.to !== nodeKeyB) {
-        const targetNode = index.nodes[edge.to];
-        const isStructuralEdge = edge.rel === 'contains' || edge.rel === 'in_file' || edge.rel === 'owned_by' || edge.rel === 'owns';
-        if (targetNode && targetNode.type === 'formal_model' && isStructuralEdge) {
-          effectiveWeight *= 0.5;
+      // Type filter: skip disallowed edge types
+      if (typeFilter && !typeFilter.has(edge.rel)) continue;
+
+      let edgeWeight = weights[edge.rel] || 0.1;
+
+      // Hub dampening: penalize traversal through high-degree nodes
+      if (useHubDampen && edge.to !== nodeKeyB) {
+        const targetDegree = getNodeDegree(index, edge.to);
+        if (targetDegree > 10) {
+          edgeWeight *= 1 / Math.log2(targetDegree + 1);
         }
       }
-      const newMin = Math.min(minWeight, effectiveWeight);
+
+      const newPathWeight = Math.min(pathWeight, edgeWeight);
       if (depth + 1 <= maxDepth) {
-        queue.push([edge.to, depth + 1, newMin]);
+        queue.push([edge.to, depth + 1, newPathWeight]);
       }
     }
   }
 
-  return Math.min(score, 1.0);
+  let finalScore = Math.min(score, 1.0);
+
+  // TF-IDF blend: mix graph score with keyword similarity
+  if (useTfidf && nodeKeyA.startsWith('formal_model::')) {
+    const modelPath = nodeKeyA.replace('formal_model::', '');
+    const reqText = (opts && opts.reqText) || '';
+    const tfidf = tfidfSimilarity(modelPath, reqText);
+    finalScore = 0.6 * finalScore + 0.4 * tfidf;
+  }
+
+  // Category boost: multiply by same-domain boost or cross-domain penalty
+  if (useCategoryBoost && opts && opts.reqsData) {
+    const boost = categoryBoostScore(index, nodeKeyA, nodeKeyB, opts.reqsData);
+    finalScore *= boost;
+  }
+
+  return Math.min(finalScore, 1.0);
 }
 
 function main() {
@@ -603,4 +817,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { buildIndex, proximity, EDGE_WEIGHTS, REVERSE_RELS };
+module.exports = { buildIndex, proximity, EDGE_WEIGHTS, SEMANTIC_WEIGHTS, REVERSE_RELS, SCORING_METHODS, DEFAULT_SCORING_METHOD, tfidfSimilarity };
