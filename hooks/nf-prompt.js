@@ -360,9 +360,12 @@ function buildFalloverRule(cappedSlots, t1Unused, t2Slots, maxSize, modelDedupSl
     }
 
     return (
-      `SLOT DISPATCH SEQUENCE (FALLBACK-01) — when a primary returns UNAVAIL, dispatch the next tier:\n` +
+      `SLOT DISPATCH SEQUENCE (FALLBACK-01) — when one or more primaries return UNAVAIL:\n` +
       steps.join('\n') + '\n' +
-      `CRITICAL: Do NOT fail-open until ALL tiers are exhausted. Dispatch T${modelDedupSlots_arr.length > 0 ? 'MODEL-DEDUP then ' : ''}${t1Unused.length > 0 ? '1 then T2' : '2'} replacements for each UNAVAIL primary.\n` +
+      `CRITICAL: Do NOT fail-open until ALL tiers are exhausted. Dispatch T${modelDedupSlots_arr.length > 0 ? 'MODEL-DEDUP then ' : ''}${t1Unused.length > 0 ? '1 then T2' : '2'} replacements for UNAVAIL primaries.\n` +
+      `PARALLEL DISPATCH: Dispatch ALL needed fallback replacements as parallel sibling Tasks in ONE message turn — not one per UNAVAIL primary.\n` +
+      `DEDUP: Each fallback slot is dispatched AT MOST ONCE per round. Never dispatch the same slot twice even if multiple primaries are UNAVAIL.\n` +
+      `NO RESUME: slot-worker Task results are final. Never call resume on a completed slot-worker Task.\n` +
       `UNAVAIL slots do not count toward the ${maxSize} required quorum votes.`
     );
   }
