@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-12T11:05:46.694Z",
-  "content_hash": "e238d01b6713921a",
+  "aggregated_at": "2026-03-12T11:41:07.523Z",
+  "content_hash": "7f5b2c997db4c3ef",
   "schema_version": "1",
   "requirements": [
     {
@@ -1127,6 +1127,18 @@
         ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ],
       "category_raw": "Dispatch Reliability"
+    },
+    {
+      "id": "DISP-06",
+      "text": "Quorum preflight implements two-layer parallel health probe via --probe flag: Layer 1 spawns CLI binaries with health_check_args (3s timeout), Layer 2 hits GET /models on ANTHROPIC_BASE_URL for ccr slots (5s timeout, TTL-cached with URL normalization), filtering dead slots before dispatch.",
+      "category": "Dispatch Reliability",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Pre-dispatch slot filtering reduces wasted quorum invocations on unreachable providers. Layer 1 detects missing CLI binaries; Layer 2 validates upstream API connectivity. URL normalization and TTL caching prevent redundant probes across multiple preflight runs.",
+      "provenance": {
+        "source_file": ".planning/quick/281-add-two-layer-parallel-health-probe-to-q/281-PLAN.md",
+        "milestone": "quick-281"
+      }
     },
     {
       "id": "DISPATCH-01",
@@ -4711,5 +4723,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-12T11:05:46.695Z"
+  "frozen_at": "2026-03-12T11:41:07.523Z"
 }
