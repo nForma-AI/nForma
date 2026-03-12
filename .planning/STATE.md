@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: v0.35-01 of 4 (Install hooks/dist rebuild)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-12 — Roadmap created for v0.35
+Plan: 1 of 1 in current phase (COMPLETE)
+Status: Phase v0.35-01 complete, ready for v0.35-02
+Last activity: 2026-03-12 — Completed v0.35-01-01-PLAN.md
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 25%
 
 ## Performance Metrics
 
@@ -34,6 +34,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: decreasing
 
 *Updated after each plan completion*
+| Phase v0.35-01 P01 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -44,6 +45,7 @@ Recent decisions affecting current work:
 
 - [v0.35 scope]: 4 GitHub issues (#4-#7) mapped to 4 phases; Windows support (#3) explicitly out of scope
 - [v0.35 roadmap]: Phase v0.35-04 depends on v0.35-03 (TUI entries use resolved CLI paths)
+- [Phase v0.35-01]: Auto-rebuild hooks/dist via execFileSync to scripts/build-hooks.js (zero code duplication)
 
 ### Pending Todos
 
@@ -74,5 +76,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Roadmap created for v0.35, ready to plan Phase v0.35-01
+Stopped at: Completed v0.35-01-01-PLAN.md
 Resume file: None

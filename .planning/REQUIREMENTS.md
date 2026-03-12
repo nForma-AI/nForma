@@ -6,8 +6,8 @@
 ## Milestone v0.35 Requirements
 
 ### Install
-- [ ] **INST-01**: Source checkout install auto-rebuilds hooks/dist so hooks work without manual `npm run build:hooks`
-- [ ] **INST-02**: Install detects missing hooks/dist files and either rebuilds or warns with clear instructions
+- [x] **INST-01**: Source checkout install auto-rebuilds hooks/dist so hooks work without manual `npm run build:hooks`
+- [x] **INST-02**: Install detects missing hooks/dist files and either rebuilds or warns with clear instructions
 
 ### MCP Setup
 - [ ] **SETUP-01**: `/nf:mcp-setup` re-run correctly identifies codex-1 (and other native CLI slots) as subscription agents, not API/provider-backed slots
@@ -32,8 +32,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INST-01 | v0.35-01 | Pending |
-| INST-02 | v0.35-01 | Pending |
+| INST-01 | v0.35-01 | Complete |
+| INST-02 | v0.35-01 | Complete |
 | SETUP-01 | v0.35-02 | Pending |
 | SETUP-02 | v0.35-02 | Pending |
 | XPLAT-01 | v0.35-03 | Pending |
