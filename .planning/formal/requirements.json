@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-12T08:53:28.637Z",
-  "content_hash": "79e87c98674e896a7bd4bad5c4a7fac73cd58d412253bcdda0f6d2cc6fb4d260",
+  "aggregated_at": "2026-03-12T11:05:46.694Z",
+  "content_hash": "e238d01b6713921a",
   "schema_version": "1",
   "requirements": [
     {
@@ -1138,6 +1138,18 @@
       "provenance": {
         "source_file": "bin/call-quorum-slot.cjs",
         "milestone": "v0.34"
+      }
+    },
+    {
+      "id": "DISPATCH-02",
+      "text": "Deduplicate quorum slots that share the same underlying model; retain the first slot for each unique model in primary dispatch and demote duplicate-model slots to a MODEL-DEDUP fallback tier positioned between T1 and T2 to maximize LLM diversity within the fan-out budget.",
+      "category": "Quorum & Dispatch",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The quorum initially dispatched all available slots without considering model redundancy. When codex-1 and codex-2 both ran gpt-5.4, or gemini-1 and gemini-2 both ran gemini-3-pro, the quorum wasted a primary dispatch slot on a duplicate perspective. Model deduplication ensures diverse model viewpoints by demoting duplicate-model slots to fallback tier.",
+      "provenance": {
+        "source_file": ".planning/quick/280-deduplicate-quorum-slots-sharing-the-sam/280-PLAN.md",
+        "milestone": "quick-280"
       }
     },
     {
@@ -4699,5 +4711,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-12T08:53:28.637Z"
+  "frozen_at": "2026-03-12T11:05:46.695Z"
 }
