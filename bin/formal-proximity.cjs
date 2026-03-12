@@ -526,7 +526,16 @@ function proximity(index, nodeKeyA, nodeKeyB, maxDepth) {
 
     for (const edge of node.edges) {
       const edgeWeight = EDGE_WEIGHTS[edge.rel] || 0.3;
-      const newMin = Math.min(minWeight, edgeWeight);
+      let effectiveWeight = edgeWeight;
+      // Penalize structural hops through hub node types (formal_model via directory edges)
+      if (edge.to !== nodeKeyB) {
+        const targetNode = index.nodes[edge.to];
+        const isStructuralEdge = edge.rel === 'contains' || edge.rel === 'in_file' || edge.rel === 'owned_by' || edge.rel === 'owns';
+        if (targetNode && targetNode.type === 'formal_model' && isStructuralEdge) {
+          effectiveWeight *= 0.5;
+        }
+      }
+      const newMin = Math.min(minWeight, effectiveWeight);
       if (depth + 1 <= maxDepth) {
         queue.push([edge.to, depth + 1, newMin]);
       }

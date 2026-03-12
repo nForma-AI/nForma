@@ -16,6 +16,51 @@ const OUTPUT_PATH = path.join(FORMAL_DIR, 'candidates.json');
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
+ * Keyword pre-screen: extract key terms from requirement text and model file,
+ * compute overlap. Zero overlap = auto-reject.
+ * @param {string} modelPath - Path to formal model file
+ * @param {string} reqText - Requirement text
+ * @returns {boolean} true if there is meaningful keyword overlap
+ */
+function keywordOverlap(modelPath, reqText) {
+  // Extract terms from requirement (3+ char words, lowercased, deduplicated)
+  const STOP_WORDS = new Set(['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'has', 'her', 'was', 'one', 'our', 'out', 'with', 'that', 'this', 'from', 'they', 'been', 'have', 'its', 'will', 'would', 'could', 'should', 'each', 'which', 'their', 'there', 'when', 'must', 'shall']);
+  const extractTerms = (text) => {
+    if (!text) return new Set();
+    return new Set(
+      text.toLowerCase()
+        .replace(/[^a-z0-9\s-_]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length >= 3 && !STOP_WORDS.has(w))
+    );
+  };
+
+  const reqTerms = extractTerms(reqText);
+  if (reqTerms.size === 0) return true; // Can't filter if no terms
+
+  // Read model file content
+  let modelContent = '';
+  try {
+    const fullPath = path.join(process.cwd(), modelPath);
+    modelContent = fs.readFileSync(fullPath, 'utf8');
+  } catch {
+    return true; // Can't read file = don't filter
+  }
+
+  const modelTerms = extractTerms(modelContent);
+  if (modelTerms.size === 0) return true;
+
+  // Count overlapping terms
+  let overlap = 0;
+  for (const term of reqTerms) {
+    if (modelTerms.has(term)) overlap++;
+  }
+
+  // Zero overlap = reject
+  return overlap > 0;
+}
+
+/**
  * Discover unlinked (model, requirement) pairs within maxHops of the
  * proximity graph with score above threshold, plus top-N zero-path pairs
  * ranked by coverage-gap heuristic.
@@ -28,6 +73,39 @@ const OUTPUT_PATH = path.join(FORMAL_DIR, 'candidates.json');
  */
 function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = {}) {
   const { proximity } = require('./formal-proximity.cjs');
+
+  // Load category-groups for domain gating
+  const CATEGORY_GROUPS_PATH = path.join(process.cwd(), '.planning', 'formal', 'category-groups.json');
+  let categoryGroups = {};
+  try { categoryGroups = JSON.parse(fs.readFileSync(CATEGORY_GROUPS_PATH, 'utf8')); } catch { /* no category groups available */ }
+
+  // Build model -> category group lookup from model-registry requirements
+  // modelCategoryGroups: Map<modelPath, Set<categoryGroup>>
+  const modelCategoryGroups = new Map();
+  for (const [mp, mi] of Object.entries(modelRegistry.models || {})) {
+    const groups = new Set();
+    for (const rId of (mi.requirements || [])) {
+      const req = requirements.find(r => r.id === rId);
+      if (req && req.category && categoryGroups[req.category]) {
+        groups.add(categoryGroups[req.category]);
+      }
+    }
+    modelCategoryGroups.set(mp, groups);
+  }
+
+  // Build requirement -> category group lookup
+  const reqCategoryGroup = new Map();
+  for (const req of requirements) {
+    if (req.category && categoryGroups[req.category]) {
+      reqCategoryGroup.set(req.id, categoryGroups[req.category]);
+    }
+  }
+
+  // Build requirement -> already-covered flag (formal_models non-empty)
+  const reqAlreadyCovered = new Map();
+  for (const req of requirements) {
+    reqAlreadyCovered.set(req.id, Array.isArray(req.formal_models) && req.formal_models.length > 0);
+  }
 
   const threshold = opts.threshold != null ? opts.threshold : 0.6;
   const maxHops = opts.maxHops != null ? opts.maxHops : 3;
@@ -43,6 +121,7 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
   const candidates = [];
   const zeroPairs = []; // Pairs with score 0 (no graph path)
   let totalPairsChecked = 0;
+  let filteredCount = 0;
 
   for (const modelPath of modelPaths) {
     const modelInfo = modelRegistry.models[modelPath];
@@ -70,12 +149,50 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
       }
 
       if (score > threshold) {
-        candidates.push({
-          model: modelPath,
-          requirement: reqId,
-          proximity_score: Math.round(score * 10000) / 10000, // 4 decimal places
-          source: 'graph',
-        });
+        let dominated = false;
+        let filterReason = null;
+
+        // Pre-filter 1: Category-domain gating
+        // If model's declared requirements are ALL in one category group,
+        // and the candidate requirement is in a DIFFERENT category group,
+        // reject unless score > 0.95
+        const modelGroups = modelCategoryGroups.get(modelPath);
+        const reqGroup = reqCategoryGroup.get(reqId);
+        if (modelGroups && modelGroups.size === 1 && reqGroup) {
+          const modelGroup = [...modelGroups][0];
+          if (modelGroup !== reqGroup && score <= 0.95) {
+            dominated = true;
+            filterReason = 'cross_domain';
+          }
+        }
+
+        // Pre-filter 2: Already-covered requirement check
+        // If requirement already has formal_models, raise threshold to 0.95
+        if (!dominated && reqAlreadyCovered.get(reqId) && score <= 0.95) {
+          dominated = true;
+          filterReason = 'already_covered';
+        }
+
+        // Pre-filter 3: Keyword pre-screen
+        if (!dominated) {
+          const req = requirements.find(r => r.id === reqId);
+          const reqText = req ? req.text : '';
+          if (!keywordOverlap(modelPath, reqText)) {
+            dominated = true;
+            filterReason = 'no_keyword_overlap';
+          }
+        }
+
+        if (!dominated) {
+          candidates.push({
+            model: modelPath,
+            requirement: reqId,
+            proximity_score: Math.round(score * 10000) / 10000,
+            source: 'graph',
+          });
+        } else {
+          filteredCount++;
+        }
       } else if (score === 0) {
         // Track zero-path pairs for non-neighbor discovery
         zeroPairs.push({ model: modelPath, requirement: reqId });
@@ -154,6 +271,7 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
       max_hops: maxHops,
       total_pairs_checked: totalPairsChecked,
       candidates_found: candidates.length,
+      candidates_filtered: filteredCount,
       non_neighbor_count: nonNeighborCount,
       non_neighbor_top: nonNeighborTop,
     },
@@ -260,6 +378,11 @@ function main() {
   // Log non-neighbor discovery count
   if (result.metadata.non_neighbor_count > 0) {
     process.stderr.write(`[candidate-discovery] Added ${result.metadata.non_neighbor_count} non-neighbor candidates (top ${result.metadata.non_neighbor_top} by coverage gap)\n`);
+  }
+
+  // Log pre-filtered candidates
+  if (result.metadata.candidates_filtered > 0) {
+    process.stderr.write(`[candidate-discovery] Pre-filtered ${result.metadata.candidates_filtered} candidates (cross-domain, already-covered, or no keyword overlap)\n`);
   }
 
   // Apply --top N truncation if specified
