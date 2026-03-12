@@ -71,7 +71,7 @@ None.
 | 278 | Formalize orphan separation in proximity pipeline | 2026-03-12 | 757d4093 | Verified | [278-formalize-orphan-separation-in-proximity](./quick/278-formalize-orphan-separation-in-proximity/) |
 | 279 | Wire dual-subscription slots (codex-2, gemini-2) to MCP | 2026-03-12 | aa3b3a3b | Verified | [279-wire-dual-subscription-slots-add-codex-2](./quick/279-wire-dual-subscription-slots-add-codex-2/) |
 | 280 | Deduplicate quorum slots sharing the same model for LLM diversity | 2026-03-12 | cef38375 | Verified | [280-deduplicate-quorum-slots-sharing-the-sam](./quick/280-deduplicate-quorum-slots-sharing-the-sam/) |
-| 281 | Add two-layer parallel health probe to quorum-preflight.cjs | 2026-03-12 | c9427b7e | Pending | [281-add-two-layer-parallel-health-probe-to-q](./quick/281-add-two-layer-parallel-health-probe-to-q/) |
+| 281 | Add two-layer parallel health probe to quorum-preflight.cjs | 2026-03-12 | c9427b7e | Verified | [281-add-two-layer-parallel-health-probe-to-q](./quick/281-add-two-layer-parallel-health-probe-to-q/) |
 
 ## Session Continuity
 
