@@ -6,7 +6,7 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
 **Current focus:** v0.34 milestone SHIPPED — planning next milestone
-**Last activity:** 2026-03-12 — Completed quick task 276: Add top-N non-neighboring pair discovery to nf:proximity pipeline
+**Last activity:** 2026-03-12 — Completed quick task 277: Option C: Multi-layer false positive reduction for proximity pipeline
 
 ## Current Position
 
@@ -66,6 +66,7 @@ None.
 | 274 | add a --top N flag to /nf:proximity | 2026-03-11 | b34aa191 | Verified | [274-add-a-top-n-flag-to-nf-proximity](./quick/274-add-a-top-n-flag-to-nf-proximity/) |
 | 275 | Replace Haiku API eval with sub-agent in /nf:proximity | 2026-03-11 | 7ae0f57e | Verified | [275-replace-haiku-api-eval-with-sub-agent-in](./quick/275-replace-haiku-api-eval-with-sub-agent-in/) |
 | 276 | Add top-N non-neighboring pair discovery to nf:proximity pipeline | 2026-03-12 | ccac5a64 | Verified | [276-add-top-n-non-neighboring-pair-discovery](./quick/276-add-top-n-non-neighboring-pair-discovery/) |
+| 277 | Option C: Multi-layer false positive reduction for proximity pipeline | 2026-03-12 | f42636a3 | Pending | [277-option-c-multi-layer-false-positive-redu](./quick/277-option-c-multi-layer-false-positive-redu/) |
 
 ## Session Continuity
 
