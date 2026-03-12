@@ -69,7 +69,7 @@ None.
 | 276 | Add top-N non-neighboring pair discovery to nf:proximity pipeline | 2026-03-12 | ccac5a64 | Verified | [276-add-top-n-non-neighboring-pair-discovery](./quick/276-add-top-n-non-neighboring-pair-discovery/) |
 | 277 | Option C: Multi-layer false positive reduction for proximity pipeline | 2026-03-12 | f42636a3 | Verified | [277-option-c-multi-layer-false-positive-redu](./quick/277-option-c-multi-layer-false-positive-redu/) |
 | 278 | Formalize orphan separation in proximity pipeline | 2026-03-12 | 757d4093 | Verified | [278-formalize-orphan-separation-in-proximity](./quick/278-formalize-orphan-separation-in-proximity/) |
-| 279 | Wire dual-subscription slots (codex-2, gemini-2) to MCP | 2026-03-12 | aa3b3a3b | Pending | [279-wire-dual-subscription-slots-add-codex-2](./quick/279-wire-dual-subscription-slots-add-codex-2/) |
+| 279 | Wire dual-subscription slots (codex-2, gemini-2) to MCP | 2026-03-12 | aa3b3a3b | Verified | [279-wire-dual-subscription-slots-add-codex-2](./quick/279-wire-dual-subscription-slots-add-codex-2/) |
 
 ## Session Continuity
 
