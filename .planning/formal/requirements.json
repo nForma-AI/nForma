@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-12T07:53:35.231Z",
-  "content_hash": "32ce2c154b8a2792",
+  "aggregated_at": "2026-03-12T08:53:28.637Z",
+  "content_hash": "79e87c98674e896a7bd4bad5c4a7fac73cd58d412253bcdda0f6d2cc6fb4d260",
   "schema_version": "1",
   "requirements": [
     {
@@ -2255,6 +2255,18 @@
         "milestone": "unknown"
       },
       "category_raw": "Multiple Slots"
+    },
+    {
+      "id": "MULTI-04",
+      "text": "Installer auto-syncs all provider slots from `providers.json` to `~/.claude.json` MCP entries and `quorum_active`, creating missing slots without modifying existing entries",
+      "category": "MCP & Agents",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Provider slots (codex-2, gemini-2) are defined in providers.json with full configuration but lack corresponding ~/.claude.json MCP entries, preventing quorum dispatch to these subscription slots. Auto-syncing ensures every provider slot has a working MCP entry and is discoverable by the quorum orchestrator without manual user configuration.",
+      "provenance": {
+        "source_file": ".planning/quick/279-wire-dual-subscription-slots-add-codex-2/279-PLAN.md",
+        "milestone": "quick-279"
+      }
     },
     {
       "id": "OBS-01",
@@ -4687,5 +4699,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-12T07:53:35.231Z"
+  "frozen_at": "2026-03-12T08:53:28.637Z"
 }
