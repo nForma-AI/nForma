@@ -108,7 +108,7 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
   }
 
   const threshold = opts.threshold != null ? opts.threshold : 0.6;
-  const maxHops = opts.maxHops != null ? opts.maxHops : 3;
+  const maxHops = opts.maxHops != null ? opts.maxHops : 5;
   const nonNeighborTop = opts.nonNeighborTop != null ? opts.nonNeighborTop : 20;
 
   // Compute SHA256 hash of the proximity index for idempotency tracking
@@ -300,7 +300,7 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
 // ─────────────────────────────────────────────────────────────────────────────
 
 function parseArgs(argv) {
-  const args = { minScore: 0.6, maxHops: 3, nonNeighborTop: 20, top: null, json: false, help: false };
+  const args = { minScore: 0.6, maxHops: 5, nonNeighborTop: 20, top: null, json: false, help: false };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--json') args.json = true;
     else if (argv[i] === '--help' || argv[i] === '-h') args.help = true;
@@ -400,14 +400,46 @@ function main() {
     process.stderr.write(`[candidate-discovery] Pre-filtered ${result.metadata.candidates_filtered} candidates (cross-domain, already-covered, or no keyword overlap)\n`);
   }
 
-  // Apply --top N truncation if specified
+  // Apply --top N truncation with diversity-aware selection
+  // Round-robin across models so no single model monopolizes the top-N slots.
   if (args.top != null && args.top > 0 && args.top < result.candidates.length) {
     const beforeCount = result.candidates.length;
-    result.candidates = result.candidates.slice(0, args.top);
+
+    // Group candidates by model, preserving score order within each group
+    const byModel = new Map();
+    for (const c of result.candidates) {
+      if (!byModel.has(c.model)) byModel.set(c.model, []);
+      byModel.get(c.model).push(c);
+    }
+
+    // Sort model groups by their best candidate score (descending)
+    const modelGroups = [...byModel.entries()]
+      .sort((a, b) => b[1][0].proximity_score - a[1][0].proximity_score);
+
+    // Round-robin pick: cycle through models, taking one candidate per pass
+    const selected = [];
+    const cursors = new Map(modelGroups.map(([m]) => [m, 0]));
+    while (selected.length < args.top) {
+      let picked = false;
+      for (const [model, group] of modelGroups) {
+        if (selected.length >= args.top) break;
+        const idx = cursors.get(model);
+        if (idx < group.length) {
+          selected.push(group[idx]);
+          cursors.set(model, idx + 1);
+          picked = true;
+        }
+      }
+      if (!picked) break; // all groups exhausted
+    }
+
+    result.candidates = selected;
     result.metadata.candidates_before_top = beforeCount;
     result.metadata.top = args.top;
+    result.metadata.top_strategy = 'diversity_round_robin';
+    result.metadata.models_represented = byModel.size;
     result.metadata.candidates_found = result.candidates.length;
-    process.stderr.write(`[candidate-discovery] Showing top ${args.top} of ${beforeCount} candidates\n`);
+    process.stderr.write(`[candidate-discovery] Showing top ${args.top} of ${beforeCount} candidates (round-robin across ${byModel.size} models)\n`);
   }
 
   process.stderr.write(`[candidate-discovery] Checked ${result.metadata.total_pairs_checked} pairs, found ${result.metadata.candidates_found} candidates (threshold=${result.metadata.threshold}, maxHops=${result.metadata.max_hops})\n`);

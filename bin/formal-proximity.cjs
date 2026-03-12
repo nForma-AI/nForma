@@ -497,7 +497,7 @@ function buildIndex() {
  * proximity(A, B) = sum over all paths: min(edge_weight per edge in path) * decay^depth
  */
 function proximity(index, nodeKeyA, nodeKeyB, maxDepth) {
-  if (typeof maxDepth === 'undefined') maxDepth = 4;
+  if (typeof maxDepth === 'undefined') maxDepth = 5;
   if (nodeKeyA === nodeKeyB) return 1.0;
   if (!index.nodes[nodeKeyA] || !index.nodes[nodeKeyB]) return 0;
 
