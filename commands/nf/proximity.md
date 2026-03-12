@@ -51,8 +51,7 @@ Run: `node bin/candidate-discovery.cjs --min-score <val> --max-hops <val> --top 
 - Pass `--min-score` and `--max-hops` from parsed arguments
 - If `--top` not specified by user, pass `--top 10` as default
 - Pass `--non-neighbor-top` from parsed arguments (default: 20)
-- Display candidate count breakdown: Read metadata to extract `non_neighbor_count`. Show "Found N graph candidates + M non-neighbor candidates" when non-neighbor count > 0, otherwise "Found N candidates"
-- When non-neighbor count > 0, add a line: "Non-neighbor pairs ranked by coverage gap (top <non_neighbor_top>)"
+- Display candidate count: "Found N graph candidates. Orphans: X models, Y requirements" (read `orphan_models_count` and `orphan_requirements_count` from metadata, or count from `orphans.models` and `orphans.requirements` arrays)
 - Display score distribution histogram (5 buckets: <0.4, 0.4-0.6, 0.6-0.8, 0.8-0.95, >=0.95)
 - **On error:** Halt and display error message
 
@@ -73,7 +72,7 @@ Otherwise, attempt the script first:
 
 **4b. Sub-agent fallback:**
 - Log: "Script failed (likely missing ANTHROPIC_API_KEY). Falling back to sub-agent evaluation."
-- Read `.planning/formal/candidates.json` and parse the candidates array.
+- Read `.planning/formal/candidates.json` and parse the candidates array (orphans are excluded from evaluation).
 - Filter to candidates that do NOT already have a `verdict` field (respect cache, same as the script does).
 - If no candidates need evaluation, report "All candidates already evaluated (cached)" and continue.
 - For each unevaluated candidate, dispatch a Haiku sub-agent with this prompt (matching the script's prompt format):
@@ -129,7 +128,8 @@ Consolidate all metrics into a formatted summary table:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  Graph             │  N nodes, E edges, U orphans
- Candidates        │  C total (G graph + N non-neighbor)
+ Candidates        │  C candidates (graph-sourced)
+ Orphans           │  X models, Y requirements (no graph coverage)
  Evaluation        │  yes/no/maybe counts (or SKIPPED)
  Semantic Scores   │  Gate A/B/C ranges
  Pairings          │  P pending, Q confirmed, R rejected
@@ -153,7 +153,7 @@ Progress line: `[6/6] Generating summary...`
 - The `--skip-eval` flag is useful when Haiku quota is exhausted or you want to rebuild without re-evaluating.
 - The `--resolve` flag is a convenience — it suggests the exact /nf:resolve command to triage results.
 - The `--top` flag defaults to 10 (enforced by this skill, not the script). The script itself defaults to no limit. Pass `--top 0` to bypass the skill default and see all candidates.
-- The `--non-neighbor-top` flag controls how many zero-path pairs are included based on coverage-gap ranking (default: 20). Pass `--non-neighbor-top 0` to disable non-neighbor discovery.
+- The `--non-neighbor-top` flag controls how many orphan models and requirements are surfaced based on coverage-gap ranking (default: 20). Pass `--non-neighbor-top 0` to disable orphan discovery.
 - All pipeline scripts are expected to exist in bin/ and produce JSON output (when --json is passed).
 - Step 4 tries the haiku-semantic-eval.cjs script first (works with ANTHROPIC_API_KEY in the environment). If the script fails, it falls back to inline Haiku sub-agent evaluation via Task(model='haiku'). Both paths produce identical output in candidates.json (verdict, confidence, reasoning, evaluation_timestamp fields).
 </notes>

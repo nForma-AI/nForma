@@ -201,7 +201,8 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
   }
 
   // Non-neighbor discovery: rank zero-path pairs by coverage-gap heuristic
-  let nonNeighborCount = 0;
+  let orphanModels = [];
+  let orphanReqs = [];
   if (nonNeighborTop > 0 && zeroPairs.length > 0) {
     // Pre-compute reqModelCount: Map<reqId, count of models that have this req in their requirements>
     const reqModelCount = new Map();
@@ -238,21 +239,31 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
 
     // Sort by priority descending and take top N
     rankedPairs.sort((a, b) => b.priority - a.priority);
-    for (let i = 0; i < Math.min(nonNeighborTop, rankedPairs.length); i++) {
-      const pair = rankedPairs[i];
-      // Defensive check: verify pair doesn't already exist in candidates
-      const exists = candidates.some(c => c.model === pair.model && c.requirement === pair.requirement);
-      if (!exists) {
-        candidates.push({
-          model: pair.model,
-          requirement: pair.requirement,
-          proximity_score: 0.0,
-          source: 'non_neighbor',
-          priority: Math.round(pair.priority * 10000) / 10000,
-        });
-        nonNeighborCount++;
+
+    // Extract unique orphan models (models with 0 linked requirements)
+    const orphanModelMap = new Map();
+    for (const pair of rankedPairs) {
+      const modelInfo = modelRegistry.models[pair.model];
+      if ((modelInfo.requirements || []).length === 0) {
+        orphanModelMap.set(pair.model, (orphanModelMap.get(pair.model) || 0) + 1);
       }
     }
+    orphanModels = [...orphanModelMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, nonNeighborTop)
+      .map(([p, count]) => ({ path: p, zeroPairCount: count }));
+
+    // Extract unique orphan requirements (requirements with no formal_models coverage)
+    const orphanReqMap = new Map();
+    for (const pair of rankedPairs) {
+      if (!reqAlreadyCovered.get(pair.requirement)) {
+        orphanReqMap.set(pair.requirement, (orphanReqMap.get(pair.requirement) || 0) + 1);
+      }
+    }
+    orphanReqs = [...orphanReqMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, nonNeighborTop)
+      .map(([id, count]) => ({ id, zeroPairCount: count }));
   }
 
   // Sort by proximity_score descending, then model+requirement for ties (deterministic)
@@ -272,10 +283,15 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
       total_pairs_checked: totalPairsChecked,
       candidates_found: candidates.length,
       candidates_filtered: filteredCount,
-      non_neighbor_count: nonNeighborCount,
+      orphan_models_count: orphanModels.length,
+      orphan_requirements_count: orphanReqs.length,
       non_neighbor_top: nonNeighborTop,
     },
     candidates,
+    orphans: {
+      models: orphanModels,
+      requirements: orphanReqs,
+    },
   };
 }
 
@@ -361,10 +377,9 @@ function main() {
 
   // Log histogram of candidate scores to stderr (BEFORE truncation)
   if (result.candidates.length > 0) {
-    const buckets = { '0.6-0.7': 0, '0.7-0.8': 0, '0.8-0.9': 0, '0.9-1.0': 0, 'non_neighbor': 0 };
+    const buckets = { '0.6-0.7': 0, '0.7-0.8': 0, '0.8-0.9': 0, '0.9-1.0': 0 };
     for (const c of result.candidates) {
-      if (c.source === 'non_neighbor') buckets['non_neighbor']++;
-      else if (c.proximity_score < 0.7) buckets['0.6-0.7']++;
+      if (c.proximity_score < 0.7) buckets['0.6-0.7']++;
       else if (c.proximity_score < 0.8) buckets['0.7-0.8']++;
       else if (c.proximity_score < 0.9) buckets['0.8-0.9']++;
       else buckets['0.9-1.0']++;
@@ -375,9 +390,9 @@ function main() {
     }
   }
 
-  // Log non-neighbor discovery count
-  if (result.metadata.non_neighbor_count > 0) {
-    process.stderr.write(`[candidate-discovery] Added ${result.metadata.non_neighbor_count} non-neighbor candidates (top ${result.metadata.non_neighbor_top} by coverage gap)\n`);
+  // Log orphan discovery counts
+  if (result.orphans.models.length > 0 || result.orphans.requirements.length > 0) {
+    process.stderr.write(`[candidate-discovery] Found ${result.orphans.models.length} orphan models, ${result.orphans.requirements.length} orphan requirements (limit ${result.metadata.non_neighbor_top})\n`);
   }
 
   // Log pre-filtered candidates
