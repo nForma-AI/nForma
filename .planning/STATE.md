@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-03-13)
 
 Milestone: v0.35 — Install & Setup Bug Fixes — SHIPPED 2026-03-13
 Status: Complete, archived to `.planning/milestones/`
-Last activity: 2026-03-13 — Milestone v0.35 completed and archived
+Last activity: 2026-03-13 - Completed quick task 286: Add service auto-start to quorum-preflight.cjs
 Next: `/nf:new-milestone`
 
 Progress: Between milestones
@@ -80,9 +80,10 @@ None.
 | 283 | Fix GSD collisions: rename gsd-local-patches and gsd-context-monitor | 2026-03-12 | 7f03a5af | Pending | [283-fix-gsd-collisions-rename-gsd-local-patc](./quick/283-fix-gsd-collisions-rename-gsd-local-patc/) |
 | 284 | Guided installer: auto-detect external CLIs, prompt user, default to CCR | 2026-03-13 | d3462311 | Verified | [284-guided-installer-auto-detect-external-cl](./quick/284-guided-installer-auto-detect-external-cl/) |
 | 285 | Improve CI/CD testing: add staging triggers, npm pack, Node matrix, staging-publish | 2026-03-13 | b18e97d5 | Verified | [285-improve-ci-cd-testing-add-staging-trigge](./quick/285-improve-ci-cd-testing-add-staging-trigge/) |
+| 286 | Add service auto-start to quorum-preflight.cjs | 2026-03-13 | 877aa29c | Pending | [286-add-service-auto-start-to-quorum-preflig](./quick/286-add-service-auto-start-to-quorum-preflig/) |
 
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed quick task 285: Improve CI/CD testing
+Stopped at: Completed quick task 286: Add service auto-start to quorum-preflight.cjs
 Resume file: None
