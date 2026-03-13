@@ -9,6 +9,7 @@ const { spawnSync, fork } = require('child_process');
 const solveTui = require('./solve-tui.cjs');
 const nfSolve  = require('./nf-solve.cjs');
 const NF_VERSION = require('../package.json').version;
+const { resolveCli } = require('./resolve-cli.cjs');
 
 // ─── Global error handlers — prevent silent TUI crashes ─────────────────────
 process.on('uncaughtException', (err) => {
@@ -1693,7 +1694,18 @@ async function addAgentFlow() {
     const model    = await promptInput({ title: 'Add Agent — Model', prompt: 'Model name (optional):' });
     const timeout  = await promptInput({ title: 'Add Agent — Timeout', prompt: 'quorum_timeout_ms:', default: '30000' });
 
-    data.mcpServers = { ...servers, [slotName]: { type: 'stdio', command, args: [] } };
+    // Resolve CLI path (TUI-01: cross-platform path resolution)
+    const resolvedCommand = resolveCli(command);
+
+    // Validate the resolved path is executable (TUI-01: prevent broken entries)
+    try {
+      fs.accessSync(resolvedCommand, fs.constants.X_OK);
+    } catch (err) {
+      toast(`CLI not found or not executable: ${resolvedCommand}`, true);
+      return;
+    }
+
+    data.mcpServers = { ...servers, [slotName]: { type: 'stdio', command: resolvedCommand, args: [] } };
     writeClaudeJson(data);
 
     // Write providers.json metadata
@@ -1706,7 +1718,7 @@ async function addAgentFlow() {
     pdata.providers.push(entry);
     writeProvidersJson(pdata);
 
-    toast(`✓ Added CLI agent "${slotName}"`);
+    toast(`✓ Added CLI agent "${slotName}" at ${resolvedCommand}`);
     renderList();
     return;
   }
