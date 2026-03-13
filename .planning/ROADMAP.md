@@ -43,7 +43,7 @@
 
 - [x] **Phase v0.35-01: Install hooks/dist rebuild** - Auto-rebuild hooks/dist on source checkout so install works without manual build step (completed 2026-03-12)
 - [x] **Phase v0.35-02: MCP Setup slot classification** - Fix slot type detection to use auth_type from providers.json instead of name-prefix inference (completed 2026-03-12)
-- [ ] **Phase v0.35-03: Cross-platform provider paths** - Replace hardcoded /opt/homebrew/bin/ with runtime CLI resolution for macOS, Linux, and WSL
+- [x] **Phase v0.35-03: Cross-platform provider paths** - Replace hardcoded /opt/homebrew/bin/ with runtime CLI resolution for macOS, Linux, and WSL (completed 2026-03-13)
 - [ ] **Phase v0.35-04: TUI CLI Agent MCP entry** - Fix TUI "Add Agent" to generate correct MCP entries matching mcp-setup output
 
 ### Phase Details
@@ -76,13 +76,14 @@ Plans:
 **Goal**: Provider CLI binary paths resolve correctly on macOS, Linux, and WSL without manual user configuration
 **Depends on**: Nothing (independent)
 **Requirements**: XPLAT-01, XPLAT-02
+**Status**: COMPLETE
 **Success Criteria** (what must be TRUE):
-  1. Provider definitions no longer contain hardcoded `/opt/homebrew/bin/` paths anywhere in the codebase
-  2. CLI binary paths are resolved at runtime using `which`/`resolve-cli.cjs` or equivalent path discovery
-  3. A user on Linux (apt/snap installed CLIs) or WSL can run nForma without manually editing provider paths
-**Plans**: 1 plan
+  1. ✓ Provider definitions no longer contain hardcoded `/opt/homebrew/bin/` paths in runtime spawn code
+  2. ✓ CLI binary paths are resolved at runtime using `which`/`resolve-cli.cjs` multi-strategy discovery
+  3. ✓ A user on Linux (apt/snap installed CLIs) or WSL can run nForma without manually editing provider paths
+**Plans**: 1 plan (completed 2026-03-13)
 Plans:
-- [ ] v0.35-03-01-PLAN.md -- Wire resolveCli into unified-mcp-server and call-quorum-slot dispatch pipelines
+- [x] v0.35-03-01-PLAN.md -- Wire resolveCli into unified-mcp-server and call-quorum-slot dispatch pipelines (2 tasks, 3 files, 30 tests pass)
 
 #### Phase v0.35-04: TUI CLI Agent MCP entry
 **Goal**: TUI "Add Agent -> CLI Agent" produces working MCP configuration entries that match what mcp-setup generates

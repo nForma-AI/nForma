@@ -14,8 +14,8 @@
 - [x] **SETUP-02**: Slot type classification uses `auth_type` from providers.json rather than inferring from slot name prefix
 
 ### Cross-Platform
-- [ ] **XPLAT-01**: Provider definitions use runtime CLI path resolution (`resolve-cli.cjs` or `which`) instead of hardcoded `/opt/homebrew/bin/` paths
-- [ ] **XPLAT-02**: Provider binary paths work on macOS (Homebrew), Linux (apt/snap), and WSL without manual configuration
+- [x] **XPLAT-01**: Provider definitions use runtime CLI path resolution (`resolve-cli.cjs` or `which`) instead of hardcoded `/opt/homebrew/bin/` paths
+- [x] **XPLAT-02**: Provider binary paths work on macOS (Homebrew), Linux (apt/snap), and WSL without manual configuration
 
 ### TUI
 - [ ] **TUI-01**: TUI "Add Agent → CLI Agent" generates a working MCP entry that correctly specifies the CLI binary path and args for Codex/Gemini/OpenCode/Copilot slots
@@ -36,8 +36,8 @@
 | INST-02 | v0.35-01 | Complete |
 | SETUP-01 | v0.35-02 | Complete |
 | SETUP-02 | v0.35-02 | Complete |
-| XPLAT-01 | v0.35-03 | Pending |
-| XPLAT-02 | v0.35-03 | Pending |
+| XPLAT-01 | v0.35-03 | Complete |
+| XPLAT-02 | v0.35-03 | Complete |
 | TUI-01 | v0.35-04 | Pending |
 | TUI-02 | v0.35-04 | Pending |
 
@@ -48,4 +48,4 @@
 
 ---
 *Requirements defined: 2026-03-12*
-*Last updated: 2026-03-12 after v0.35 roadmap creation*
+*Last updated: 2026-03-13 after v0.35-03 completion*
