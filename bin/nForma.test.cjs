@@ -685,15 +685,18 @@ test('providers.json: all subprocess entries have has_file_access: true', () => 
   }
 });
 
-test('providers.json: has_file_access field is positioned after type field', () => {
+test('providers.json: has_file_access field is positioned after type and auth_type fields', () => {
   const src = path.join(__dirname, 'providers.json');
   const data = JSON.parse(fs.readFileSync(src, 'utf8'));
   for (const entry of data.providers) {
     const keys = Object.keys(entry);
     const typeIdx = keys.indexOf('type');
+    const authIdx = keys.indexOf('auth_type');
     const accessIdx = keys.indexOf('has_file_access');
     assert.ok(accessIdx !== -1, `${entry.name}: has_file_access field missing`);
-    assert.strictEqual(accessIdx, typeIdx + 1, `${entry.name}: has_file_access should immediately follow type`);
+    assert.ok(authIdx !== -1, `${entry.name}: auth_type field missing`);
+    assert.strictEqual(authIdx, typeIdx + 1, `${entry.name}: auth_type should immediately follow type`);
+    assert.strictEqual(accessIdx, authIdx + 1, `${entry.name}: has_file_access should immediately follow auth_type`);
   }
 });
 
