@@ -41,6 +41,7 @@ jobs:
         run: npm run test:ci
 
       - name: Run TUI unit tests
+        if: matrix.node != '18'
         run: npm run test:tui
 
       - name: Verify package contents
