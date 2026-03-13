@@ -11,12 +11,15 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { spawn } from 'child_process';
 import { createInterface } from 'readline';
+import { createRequire } from 'module';
 import fs from 'fs';
 import https from 'https';
 import http from 'http';
 import os from 'os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
+const { resolveCli } = require('./resolve-cli.cjs');
 
 // ─── Load providers config ─────────────────────────────────────────────────────
 const configPath = process.env.UNIFIED_PROVIDERS_CONFIG
@@ -33,6 +36,29 @@ try {
 if (!Array.isArray(providers) || providers.length === 0) {
   process.stderr.write('[unified-mcp-server] WARNING: No providers configured in providers.json — server will start with zero tools\n');
   providers = providers || [];
+}
+
+// Resolve CLI paths at startup (XPLAT-01: cross-platform path discovery)
+for (const provider of providers) {
+  if (provider.type === 'subprocess' && provider.cli) {
+    const bareName = provider.cli.split('/').pop();
+    provider.resolvedCli = resolveCli(bareName);
+    if (provider.cli !== provider.resolvedCli) {
+      process.stderr.write(`[mcp] Resolved ${bareName}: ${provider.cli} -> ${provider.resolvedCli}\n`);
+    }
+    // Also resolve service commands if present (e.g., ccr start/stop/status)
+    if (provider.service) {
+      for (const key of ['start', 'stop', 'status']) {
+        if (provider.service[key] && provider.service[key][0]) {
+          const svcBareName = provider.service[key][0];
+          const resolvedSvc = resolveCli(svcBareName);
+          if (resolvedSvc !== svcBareName) {
+            provider.service[key][0] = resolvedSvc;
+          }
+        }
+      }
+    }
+  }
 }
 
 // ─── PROVIDER_SLOT mode detection ─────────────────────────────────────────────
@@ -234,7 +260,7 @@ async function runProvider(provider, toolArgs) {
   return new Promise((resolve) => {
     let child;
     try {
-      child = spawn(provider.cli, args, {
+      child = spawn(provider.resolvedCli ?? provider.cli, args, {
         env,
         stdio: ['pipe', 'pipe', 'pipe'],
       });
@@ -298,7 +324,7 @@ async function runSubprocessWithArgs(provider, args, timeoutMs = 30000) {
   return new Promise((resolve) => {
     let child;
     try {
-      child = spawn(provider.cli, args, { env, stdio: ['pipe', 'pipe', 'pipe'] });
+      child = spawn(provider.resolvedCli ?? provider.cli, args, { env, stdio: ['pipe', 'pipe', 'pipe'] });
     } catch (err) {
       resolve(`[spawn error: ${err.message}]`);
       return;
@@ -569,10 +595,11 @@ async function runDeepHealthCheck(provider) {
   const timeoutMs = probe.timeout_ms ?? 20000;
 
   // Step 1: Check binary exists
+  const binaryPath = provider.resolvedCli ?? provider.cli;
   try {
-    fs.accessSync(provider.cli, fs.constants.X_OK);
+    fs.accessSync(binaryPath, fs.constants.X_OK);
   } catch (_) {
-    return JSON.stringify({ healthy: false, latencyMs: 0, layer: 'BINARY_MISSING', error: `CLI not found: ${provider.cli}` });
+    return JSON.stringify({ healthy: false, latencyMs: 0, layer: 'BINARY_MISSING', error: `CLI not found: ${binaryPath}` });
   }
 
   // Step 2: If service config exists, check service status (with 3s timeout to prevent hangs)
