@@ -27,6 +27,9 @@ jobs:
       - name: Check assets not stale
         run: npm run check:assets
 
+      - name: Lint (isolation check)
+        run: npm run lint:isolation
+
       - name: Run CI tests
         run: npm run test:ci
 
@@ -46,12 +49,13 @@ jobs:
           fi
           echo "OK: 0 test files in package"
 
-  publish-staging:
-    name: Publish @staging to npm
+  publish:
+    name: Publish to npm (staging)
     needs: test
     runs-on: ubuntu-latest
     environment: npm-publish
     timeout-minutes: 10
+
     permissions:
       contents: read
       id-token: write
@@ -76,7 +80,24 @@ jobs:
       - name: Build hooks
         run: npm run build:hooks
 
-      - name: Publish to npm
-        run: npm publish --access public --tag staging --provenance
+      - name: Set staging version
+        run: |
+          BASE_VERSION=$(node -p "require('./package.json').version.replace(/-.*/, '')")
+          TIMESTAMP=$(date +%s)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          STAGING_VERSION="${BASE_VERSION}-staging.${TIMESTAMP}.${SHORT_SHA}"
+          echo "Publishing staging version: ${STAGING_VERSION}"
+          npm version "$STAGING_VERSION" --no-git-tag-version
+
+      - name: Publish to npm with staging tag
+        run: npm publish --access public --provenance --tag staging
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Print install command
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo ""
+          echo "=== Published staging version ==="
+          echo "  npx @nforma.ai/nforma@staging"
+          echo "  npx @nforma.ai/nforma@${VERSION}"

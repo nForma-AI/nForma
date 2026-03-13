@@ -1,13 +1,80 @@
 name: Release & Publish
 
+# Fully automated: merge to main = release.
+# Also supports manual tag pushes (backward compat with release.sh).
 on:
   push:
+    branches: [main]
     tags:
       - 'v[0-9]+.[0-9]+*'
 
 jobs:
+  # ── Gate: skip if this version is already published ──
+  check:
+    name: Check if release needed
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      version: ${{ steps.check.outputs.version }}
+      tag_name: ${{ steps.check.outputs.tag_name }}
+      is_tag_push: ${{ steps.check.outputs.is_tag_push }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Determine release status
+        id: check
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG_NAME="v${VERSION}"
+          IS_TAG_PUSH="false"
+
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            IS_TAG_PUSH="true"
+            # For tag pushes, verify tag matches package.json
+            TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+            if [ "$TAG_VERSION" != "$VERSION" ]; then
+              echo "ERROR: Tag version ($TAG_VERSION) != package.json ($VERSION)"
+              exit 1
+            fi
+          fi
+
+          # Skip prerelease versions (staging versions on main)
+          if echo "$VERSION" | grep -qE '\-'; then
+            echo "Skipping: prerelease version $VERSION"
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+            echo "is_tag_push=$IS_TAG_PUSH" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Check if already published on npm
+          NPM_VERSION=$(npm view "@nforma.ai/nforma@${VERSION}" version 2>/dev/null || echo "")
+          if [[ -n "$NPM_VERSION" ]]; then
+            echo "Skipping: version $VERSION already on npm"
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Releasing version $VERSION"
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "is_tag_push=$IS_TAG_PUSH" >> "$GITHUB_OUTPUT"
+
+  # ── Tests ──
   test:
     name: Pre-release tests
+    needs: check
+    if: needs.check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -50,84 +117,76 @@ jobs:
           fi
           echo "OK: 0 test files in package"
 
-      - name: Verify tag matches package.json version
-        run: |
-          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
-            echo "ERROR: Tag version ($TAG_VERSION) does not match package.json ($PKG_VERSION)"
-            exit 1
-          fi
-          echo "OK: Tag v${TAG_VERSION} matches package.json ${PKG_VERSION}"
-
-  release:
-    name: Create GitHub Release
-    needs: test
+  # ── Create git tag (only for main-push, not tag-push) ──
+  tag:
+    name: Create git tag
+    needs: [check, test]
+    if: needs.check.outputs.should_release == 'true' && needs.check.outputs.is_tag_push == 'false'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Extract tag info
-        id: tag_info
-        run: |
-          TAG_NAME="${GITHUB_REF#refs/tags/}"
-          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
-
-      - name: Build release notes
+      - name: Create and push tag
         env:
-          TAG_NAME: ${{ steps.tag_info.outputs.tag_name }}
+          TAG_NAME: ${{ needs.check.outputs.tag_name }}
+          VERSION: ${{ needs.check.outputs.version }}
         run: |
-          TITLE=$(git tag -l --format='%(contents:subject)' "$TAG_NAME")
-          BODY=$(git tag -l --format='%(contents:body)' "$TAG_NAME")
-
-          if [ -z "$TITLE" ]; then
-            TITLE="$TAG_NAME"
+          if git tag -l "$TAG_NAME" | grep -q "$TAG_NAME"; then
+            echo "Tag $TAG_NAME already exists — skipping"
+            exit 0
           fi
-          if [ -z "$BODY" ]; then
-            BODY="Release $TAG_NAME"
-          fi
+          git tag -a "$TAG_NAME" -m "Release ${VERSION}"
+          git push origin "$TAG_NAME"
 
-          echo "$TITLE" > /tmp/release-title.txt
-
-          {
-            echo "$BODY"
-            echo ""
-            echo "---"
-            echo ""
-            echo "### Install"
-            echo ""
-            echo '```bash'
-            echo "npx @nforma.ai/nforma@latest"
-            echo '```'
-          } > /tmp/release-notes.md
+  # ── GitHub Release ──
+  release:
+    name: Create GitHub Release
+    needs: [check, test, tag]
+    if: |
+      always() &&
+      needs.check.outputs.should_release == 'true' &&
+      needs.test.result == 'success' &&
+      (needs.tag.result == 'success' || needs.tag.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: ${{ steps.tag_info.outputs.tag_name }}
+          TAG_NAME: ${{ needs.check.outputs.tag_name }}
         run: |
-          TITLE=$(cat /tmp/release-title.txt)
-          gh release create "$TAG_NAME" \
-            --title "$TITLE" \
-            --notes-file /tmp/release-notes.md
+          # Check if release already exists
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Release $TAG_NAME already exists — skipping"
+            exit 0
+          fi
 
+          gh release create "$TAG_NAME" \
+            --title "$TAG_NAME" \
+            --generate-notes
+
+  # ── Publish to npm ──
   publish:
     name: Publish to npm
-    needs: test
+    needs: [check, test]
+    if: needs.check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     environment: npm-publish
     timeout-minutes: 10
-
     permissions:
       contents: read
       id-token: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -152,3 +211,11 @@ jobs:
         run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Print result
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
+        run: |
+          echo ""
+          echo "=== Published @nforma.ai/nforma@${VERSION} ==="
+          echo "  npx @nforma.ai/nforma@latest"
