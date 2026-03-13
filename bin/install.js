@@ -346,6 +346,9 @@ function ensureMcpSlotsFromProviders() {
     let addedCount = 0;
     for (const provider of providers) {
       const providerName = provider.name;
+      if (selectedProviderSlots && !selectedProviderSlots.includes(providerName)) {
+        continue;
+      }
       if (!claudeConfig.mcpServers.hasOwnProperty(providerName)) {
         // Create entry for this provider
         claudeConfig.mcpServers[providerName] = {
@@ -2699,6 +2702,136 @@ function promptRuntime(callback) {
 }
 
 /**
+ * Interactive provider selection: detect CLIs, prompt user to enable external providers.
+ * Always includes CCR slots. Chains to callback when selection is complete.
+ */
+function promptProviders(callback) {
+  const provs = require('./providers.json').providers;
+  const classified = classifyProviders(provs);
+  const detected = detectExternalClis(classified.externalPrimary);
+
+  // CCR slots always included
+  const selected = classified.ccr.map(p => p.name);
+
+  console.log(`\n  ${yellow}Quorum agent setup:${reset}`);
+  console.log(`  Claude slots (claude-1..6) are installed by default.\n`);
+
+  // Print detection results
+  for (const d of detected) {
+    if (d.found) {
+      console.log(`  ${green}\u2713${reset} ${d.name} \u2014 ${d.resolvedPath}`);
+    } else {
+      const hint = CLI_INSTALL_HINTS[d.bareCli] || '';
+      console.log(`  ${yellow}\u2717${reset} ${d.name} \u2014 not found${hint ? ` (${hint})` : ''}`);
+    }
+  }
+  console.log('');
+
+  const foundClis = detected.filter(d => d.found);
+
+  if (foundClis.length === 0) {
+    console.log(`  No external CLIs detected. Installing Claude slots only.\n`);
+    selectedProviderSlots = selected;
+    callback();
+    return;
+  }
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  let answered = false;
+
+  rl.on('close', () => {
+    if (!answered) {
+      answered = true;
+      console.log(`\n  ${yellow}Installation cancelled${reset}\n`);
+      process.exit(0);
+    }
+  });
+
+  const foundNames = foundClis.map(d => d.name).join(', ');
+  console.log(`  ${yellow}Enable detected CLIs as quorum agents?${reset}\n`);
+  console.log(`  ${cyan}1${reset}) Yes, enable all detected (${foundNames})  ${dim}[default]${reset}`);
+  console.log(`  ${cyan}2${reset}) Let me choose`);
+  console.log(`  ${cyan}3${reset}) Skip -- Claude slots only\n`);
+
+  rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
+    const choice = answer.trim() || '1';
+
+    if (choice === '3') {
+      // Skip all external
+      answered = true;
+      rl.close();
+      selectedProviderSlots = selected;
+      callback();
+    } else if (choice === '2') {
+      // Per-CLI selection
+      let idx = 0;
+      function askNext() {
+        if (idx >= foundClis.length) {
+          // Done with primaries, now ask about dual-subscription
+          askDualSlots(rl, selected, classified.dualSubscription, () => {
+            answered = true;
+            rl.close();
+            selectedProviderSlots = selected;
+            callback();
+          });
+          return;
+        }
+        const cli = foundClis[idx];
+        rl.question(`  Enable ${cli.name}? [Y/n]: `, (ans) => {
+          const a = ans.trim().toLowerCase();
+          if (a === '' || a === 'y' || a === 'yes') {
+            selected.push(cli.name);
+          }
+          idx++;
+          askNext();
+        });
+      }
+      askNext();
+    } else {
+      // Choice 1: enable all detected
+      for (const cli of foundClis) {
+        selected.push(cli.name);
+      }
+      // Ask about dual-subscription slots
+      askDualSlots(rl, selected, classified.dualSubscription, () => {
+        answered = true;
+        rl.close();
+        selectedProviderSlots = selected;
+        callback();
+      });
+    }
+  });
+}
+
+/**
+ * For each dual-subscription slot whose parent is selected, prompt to enable it.
+ */
+function askDualSlots(rl, selected, dualSubscription, done) {
+  const eligible = dualSubscription.filter(d => selected.includes(d.parent));
+  let idx = 0;
+  function askNext() {
+    if (idx >= eligible.length) {
+      done();
+      return;
+    }
+    const ds = eligible[idx];
+    rl.question(`  Enable ${ds.name} (dual-subscription slot)? [y/N]: `, (ans) => {
+      const a = ans.trim().toLowerCase();
+      if (a === 'y' || a === 'yes') {
+        selected.push(ds.name);
+      }
+      idx++;
+      askNext();
+    });
+  }
+  askNext();
+}
+
+/**
  * Prompt for install location
  */
 function promptLocation(runtimes) {
@@ -2918,21 +3051,61 @@ if (hasGlobal && hasLocal) {
   }
 } else if (selectedRuntimes.length > 0) {
   if (!hasGlobal && !hasLocal) {
-    promptLocation(selectedRuntimes);
+    // Interactive with runtime flags — chain through provider selection
+    if (!hasAllProviders && selectedRuntimes.includes('claude')) {
+      promptProviders(() => { promptLocation(selectedRuntimes); });
+    } else {
+      promptLocation(selectedRuntimes);
+    }
   } else {
+    // Non-interactive flag-based path (e.g. --claude --global)
+    if (!hasAllProviders && selectedRuntimes.includes('claude')) {
+      const provs = require('./providers.json').providers;
+      const classified = classifyProviders(provs);
+      selectedProviderSlots = classified.ccr.map(p => p.name);
+      const detected = detectExternalClis(classified.externalPrimary);
+      const foundNames = detected.filter(d => d.found).map(d => d.name);
+      if (foundNames.length > 0) {
+        console.log(`  ${yellow}Detected CLIs not enabled: ${foundNames.join(', ')}. Use --all-providers to include them.${reset}`);
+      }
+    }
     installAllRuntimes(selectedRuntimes, hasGlobal, false);
   }
 } else if (hasGlobal || hasLocal) {
   // Default to Claude if no runtime specified but location is
+  if (!hasAllProviders) {
+    const provs = require('./providers.json').providers;
+    const classified = classifyProviders(provs);
+    selectedProviderSlots = classified.ccr.map(p => p.name);
+    const detected = detectExternalClis(classified.externalPrimary);
+    const foundNames = detected.filter(d => d.found).map(d => d.name);
+    if (foundNames.length > 0) {
+      console.log(`  ${yellow}Detected CLIs not enabled: ${foundNames.join(', ')}. Use --all-providers to include them.${reset}`);
+    }
+  }
   installAllRuntimes(['claude'], hasGlobal, false);
 } else {
   // Interactive
   if (!process.stdin.isTTY) {
     console.log(`  ${yellow}Non-interactive terminal detected, defaulting to Claude Code global install${reset}\n`);
+    if (!hasAllProviders) {
+      const provs = require('./providers.json').providers;
+      const classified = classifyProviders(provs);
+      selectedProviderSlots = classified.ccr.map(p => p.name);
+      const detected = detectExternalClis(classified.externalPrimary);
+      const foundNames = detected.filter(d => d.found).map(d => d.name);
+      if (foundNames.length > 0) {
+        console.log(`  Detected: ${foundNames.join(', ')}. Run with --all-providers to include.`);
+      }
+    }
     installAllRuntimes(['claude'], true, false);
   } else {
     promptRuntime((runtimes) => {
-      promptLocation(runtimes);
+      if (!hasAllProviders && runtimes.includes('claude')) {
+        promptProviders(() => { promptLocation(runtimes); });
+      } else {
+        promptLocation(runtimes);
+      }
     });
   }
 }
