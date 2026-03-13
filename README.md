@@ -21,6 +21,8 @@ npx @nforma.ai/nforma@latest
 
 **Requires Node.js 18+. Works on macOS and Linux.**
 
+Want to try unreleased features? Install from the staging channel instead: `npx @nforma.ai/nforma@staging`
+
 <br>
 
 ![nForma Install](docs/assets/terminal.svg)

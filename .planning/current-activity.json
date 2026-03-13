@@ -1,6 +1,0 @@
-{
-  "activity": "fix_tests",
-  "sub_activity": "ddmin_isolation",
-  "state_file": ".planning/maintain-tests-state.json",
-  "updated": "2026-03-13T08:14:34.239Z"
-}
