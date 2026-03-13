@@ -145,6 +145,8 @@ jobs:
             -o /tmp/prism-4.10-linux64-x86.tar.gz
           tar -xzf /tmp/prism-4.10-linux64-x86.tar.gz -C /tmp/prism --strip-components=1
           chmod +x /tmp/prism/bin/prism
+          # Fix hardcoded PRISM_DIR in launch script to point to actual install path
+          sed -i 's|^PRISM_DIR=.*|PRISM_DIR="/tmp/prism"|' /tmp/prism/bin/prism
 
       - name: PRISM — quorum convergence P=?[F DECIDED]
         env:
