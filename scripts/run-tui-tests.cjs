@@ -10,9 +10,8 @@ const major = parseInt(process.versions.node, 10);
 const args = ['--test'];
 if (major >= 20) {
   args.push('--test-force-exit');
-} else {
-  args.push('--test-timeout', '30000');
 }
+// Node 18: no extra flags — spawnSync timeout + forced process.exit handle the hang
 args.push('test/tui-unit.test.cjs');
 
 const result = spawnSync(process.execPath, args, {
