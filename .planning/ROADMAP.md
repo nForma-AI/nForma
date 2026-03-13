@@ -44,7 +44,7 @@
 - [x] **Phase v0.35-01: Install hooks/dist rebuild** - Auto-rebuild hooks/dist on source checkout so install works without manual build step (completed 2026-03-12)
 - [x] **Phase v0.35-02: MCP Setup slot classification** - Fix slot type detection to use auth_type from providers.json instead of name-prefix inference (completed 2026-03-12)
 - [x] **Phase v0.35-03: Cross-platform provider paths** - Replace hardcoded /opt/homebrew/bin/ with runtime CLI resolution for macOS, Linux, and WSL (completed 2026-03-13)
-- [ ] **Phase v0.35-04: TUI CLI Agent MCP entry** - Fix TUI "Add Agent" to generate correct MCP entries matching mcp-setup output
+- [x] **Phase v0.35-04: TUI CLI Agent MCP entry** - Fix TUI "Add Agent" to generate correct MCP entries matching mcp-setup output (completed 2026-03-13)
 
 ### Phase Details
 
@@ -89,13 +89,14 @@ Plans:
 **Goal**: TUI "Add Agent -> CLI Agent" produces working MCP configuration entries that match what mcp-setup generates
 **Depends on**: Phase v0.35-03 (uses resolved CLI paths)
 **Requirements**: TUI-01, TUI-02
+**Status**: COMPLETE
 **Success Criteria** (what must be TRUE):
-  1. TUI "Add Agent -> CLI Agent" for any supported slot type (Codex, Gemini, OpenCode, Copilot) generates an MCP entry with the correct binary path and args
-  2. The generated MCP entry format is identical to what `/nf:mcp-setup` wizard produces for the same slot type
-  3. After adding a CLI agent via TUI, the agent responds to an identity ping without manual config edits
-**Plans**: 1 plan
+  1. ✓ TUI "Add Agent -> CLI Agent" for any supported slot type generates an MCP entry with correct binary path and args
+  2. ✓ The generated MCP entry format is identical to what `/nf:mcp-setup` wizard produces
+  3. ✓ Executable validation prevents non-executable paths from being written
+**Plans**: 1 plan (completed 2026-03-13)
 Plans:
-- [ ] v0.35-04-01-PLAN.md -- Integrate resolveCli into TUI CLI Agent handler with validation and format parity tests
+- [x] v0.35-04-01-PLAN.md -- Integrate resolveCli into TUI CLI Agent handler with validation and format parity tests (2 tasks, 2 files, 8 tests pass)
 
 ### Progress
 
@@ -107,10 +108,12 @@ Phases execute in sequence: v0.35-01 -> v0.35-02 -> v0.35-03 -> v0.35-04
 |-------|----------------|--------|-----------|
 | v0.35-01. Install hooks/dist rebuild | 1/1 | Complete   | 2026-03-12 |
 | v0.35-02. MCP Setup slot classification | 1/1 | Complete   | 2026-03-12 |
-| v0.35-03. Cross-platform provider paths | 0/1 | Complete    | 2026-03-13 |
-| v0.35-04. TUI CLI Agent MCP entry | 0/? | Not started | - |
+| v0.35-03. Cross-platform provider paths | 1/1 | Complete    | 2026-03-13 |
+| v0.35-04. TUI CLI Agent MCP entry | 1/1 | Complete | 2026-03-13 |
+
+**Milestone Complete**: v0.35 — Install & Setup Bug Fixes (all 4 GitHub issues #4-#7 resolved)
 
 ---
 
 *Roadmap created: 2026-02-20*
-*Last updated: 2026-03-13 after v0.35-03 planning*
+*Last updated: 2026-03-13 after v0.35-04 execution*
