@@ -31,7 +31,7 @@ try {
     'nf-session-start': 50,
     'nf-session-end': 50,
     'nf-check-update': 10,
-    'gsd-context-monitor': 50,
+    'nf-context-monitor': 50,
     'nf-spec-regen': 10,
     'nf-post-edit-format': 10,
     'nf-console-guard': 10,
@@ -235,6 +235,93 @@ function buildActiveSlots() {
     console.warn(`  ${yellow}⚠${reset} Could not read ~/.claude.json for quorum_active: ${e.message}`);
   }
   return [];
+}
+
+// Ensures all provider slots from providers.json have corresponding MCP entries in ~/.claude.json.
+// Only adds missing entries (never modifies existing ones).
+// Fail-open: errors are logged but do not abort install.
+// MULTI-03 dependency: must run BEFORE buildActiveSlots() is called in install flow,
+// so that discovered MCP entries are available for quorum_active population.
+function ensureMcpSlotsFromProviders() {
+  const claudeJsonPath = path.join(os.homedir(), '.claude.json');
+  const providersJsonPath = path.join(__dirname, 'providers.json');
+  const unifiedMcpPath = path.join(__dirname, 'unified-mcp-server.mjs');
+
+  try {
+    // Step 1: Read providers.json
+    let providersData;
+    try {
+      providersData = JSON.parse(fs.readFileSync(providersJsonPath, 'utf8'));
+    } catch (e) {
+      console.warn(`  ${yellow}⚠${reset} Could not read providers.json: ${e.message}`);
+      return;
+    }
+
+    const providers = providersData.providers || [];
+    if (providers.length === 0) {
+      return; // No providers to sync
+    }
+
+    // Step 2: Read ~/.claude.json (or create minimal structure if missing)
+    let claudeConfig = { mcpServers: {} };
+    try {
+      if (fs.existsSync(claudeJsonPath)) {
+        const fileContent = fs.readFileSync(claudeJsonPath, 'utf8');
+        const parsed = JSON.parse(fileContent);
+        claudeConfig = parsed;
+        // Normalize: ensure mcpServers is an object
+        if (!claudeConfig.mcpServers || typeof claudeConfig.mcpServers !== 'object') {
+          claudeConfig.mcpServers = {};
+        }
+      }
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        console.warn(`  ${yellow}⚠${reset} Could not parse ~/.claude.json: ${e.message}. Consider manual edit.`);
+        return;
+      } else {
+        console.warn(`  ${yellow}⚠${reset} Could not read ~/.claude.json: ${e.message}`);
+        return;
+      }
+    }
+
+    // Step 3: Verify unified-mcp-server.mjs exists (hard fail if missing)
+    if (!fs.existsSync(unifiedMcpPath)) {
+      console.error(`  ${yellow}✗${reset} ERROR: unified-mcp-server.mjs not found at ${unifiedMcpPath}. MCP slots would be non-functional. Stopping.`);
+      return;
+    }
+
+    // Step 4: For each provider, add missing MCP entry
+    let addedCount = 0;
+    for (const provider of providers) {
+      const providerName = provider.name;
+      if (!claudeConfig.mcpServers.hasOwnProperty(providerName)) {
+        // Create entry for this provider
+        claudeConfig.mcpServers[providerName] = {
+          type: 'stdio',
+          command: 'node',
+          args: [unifiedMcpPath],
+          env: { PROVIDER_SLOT: providerName }
+        };
+        addedCount++;
+        console.log(`  ${green}✓${reset} Added MCP entry for ${providerName}`);
+      } else {
+        console.log(`  ${dim}↳ MCP entry for ${providerName} already exists (skipped)${reset}`);
+      }
+    }
+
+    // Step 5: Write back if any entries were added
+    if (addedCount > 0) {
+      try {
+        fs.writeFileSync(claudeJsonPath, JSON.stringify(claudeConfig, null, 2) + '\n', 'utf8');
+        console.log(`  ${green}✓${reset} Synced ${addedCount} provider slot(s) to ~/.claude.json`);
+      } catch (e) {
+        console.warn(`  ${yellow}⚠${reset} Could not write ~/.claude.json: ${e.message}. Consider backup and manual edit.`);
+      }
+    }
+  } catch (e) {
+    // Outer catch for any unexpected errors
+    console.warn(`  ${yellow}⚠${reset} Unexpected error in ensureMcpSlotsFromProviders: ${e.message}`);
+  }
 }
 
 // Generates quorum_instructions text from detected required_models.
@@ -1264,7 +1351,7 @@ function uninstall(isGlobal, runtime = 'claude') {
     if (settings.hooks && settings.hooks.PostToolUse) {
       const before = settings.hooks.PostToolUse.length;
       settings.hooks.PostToolUse = settings.hooks.PostToolUse.filter(entry =>
-        !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('gsd-context-monitor')))
+        !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-context-monitor')))
       );
       if (settings.hooks.PostToolUse.length < before) {
         settingsModified = true;
@@ -1533,6 +1620,39 @@ function configureOpencodePermissions(isGlobal = true) {
 }
 
 /**
+ * Auto-rebuild hooks/dist/ if missing by running scripts/build-hooks.js.
+ * Preserves idempotency: if dist/ already exists, returns immediately.
+ * @param {string} hooksDir - path to hooks/ source directory
+ * @param {string} distDir - path to hooks/dist/ output directory
+ * @returns {{ rebuilt: boolean, success: boolean, error?: string }}
+ */
+function buildHooksIfMissing(hooksDir, distDir) {
+  if (fs.existsSync(distDir)) {
+    return { rebuilt: false, success: true };
+  }
+
+  const buildScript = path.join(path.dirname(hooksDir), 'scripts', 'build-hooks.js');
+  if (!fs.existsSync(buildScript)) {
+    return { rebuilt: false, success: false, error: `build script not found: ${buildScript}` };
+  }
+
+  try {
+    const { execFileSync } = require('child_process');
+    execFileSync(process.execPath, [buildScript], {
+      stdio: 'pipe',
+      timeout: 30000,
+    });
+  } catch (err) {
+    return { rebuilt: false, success: false, error: `build-hooks.js failed: ${err.message}` };
+  }
+
+  if (fs.existsSync(distDir)) {
+    return { rebuilt: true, success: true };
+  }
+  return { rebuilt: false, success: false, error: 'build-hooks.js completed but hooks/dist/ still missing' };
+}
+
+/**
  * Verify a directory exists and contains files
  */
 function verifyInstalled(dirPath, description) {
@@ -1639,7 +1759,7 @@ function validateHookPaths(hooksDest, targetDir) {
 // Local Patch Persistence
 // ──────────────────────────────────────────────────────
 
-const PATCHES_DIR_NAME = 'gsd-local-patches';
+const PATCHES_DIR_NAME = 'nf-local-patches';
 const MANIFEST_NAME = 'nf-file-manifest.json';
 
 /**
@@ -1703,7 +1823,7 @@ function writeManifest(configDir) {
 
 /**
  * Detect user-modified GSD files by comparing against install manifest.
- * Backs up modified files to gsd-local-patches/ for reapply after update.
+ * Backs up modified files to nf-local-patches/ for reapply after update.
  */
 function saveLocalPatches(configDir) {
   const manifestPath = path.join(configDir, MANIFEST_NAME);
@@ -1914,6 +2034,22 @@ function install(isGlobal, runtime = 'claude') {
   fs.writeFileSync(pkgJsonDest, '{"type":"commonjs"}\n');
   console.log(`  ${green}✓${reset} Wrote package.json (CommonJS mode)`);
 
+  // Auto-rebuild hooks/dist/ if missing (fresh source clone support)
+  const hooksDir = path.join(src, 'hooks');
+  const distDir = path.join(src, 'hooks', 'dist');
+  const rebuildResult = buildHooksIfMissing(hooksDir, distDir);
+  if (!rebuildResult.success) {
+    const errMsg = rebuildResult.error || 'unknown error';
+    process.stderr.write(
+      `\nError: hooks/dist/ missing and rebuild failed:\n  ${errMsg}\n\n` +
+      `To fix, run from the nForma source directory:\n` +
+      `  npm run build:hooks\n\n` +
+      `Then try install again:\n` +
+      `  node bin/install.js --claude --global\n\n`
+    );
+    failures.push('hooks');
+  }
+
   // Copy hooks from dist/ (bundled with dependencies)
   // Template paths for the target runtime (replaces '.claude' with correct config dir)
   const hooksSrc = path.join(src, 'hooks', 'dist');
@@ -2054,7 +2190,7 @@ function install(isGlobal, runtime = 'claude') {
       UserPromptSubmit: 'qgsd-prompt',
       Stop: 'qgsd-stop',
       PreToolUse: 'qgsd-circuit-breaker',
-      PostToolUse: ['qgsd-spec-regen', 'qgsd-context-monitor'],
+      PostToolUse: ['qgsd-spec-regen', 'qgsd-context-monitor', 'gsd-context-monitor'],
       SessionStart: ['qgsd-check-update', 'qgsd-session-start'],
     };
     for (const [event, oldNames] of Object.entries(OLD_HOOK_MAP)) {
@@ -2132,14 +2268,25 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}+${reset} Configured nForma MCP dispatch guard hook (PreToolUse)`);
     }
 
+    // Register nForma node-eval guard hook (PreToolUse — rewrite node -e to heredoc for zsh safety)
+    const hasNodeEvalGuardHook = settings.hooks.PreToolUse.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-node-eval-guard'))
+    );
+    if (!hasNodeEvalGuardHook) {
+      settings.hooks.PreToolUse.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-node-eval-guard.js'), timeout: 10 }]
+      });
+      console.log(`  ${green}+${reset} Configured nForma node-eval guard hook (PreToolUse)`);
+    }
+
     // Register nForma context monitor hook (PostToolUse — context window warnings)
     if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = [];
     const hasContextMonitorHook = settings.hooks.PostToolUse.some(entry =>
-      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('gsd-context-monitor'))
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-context-monitor'))
     );
     if (!hasContextMonitorHook) {
       settings.hooks.PostToolUse.push({
-        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'gsd-context-monitor.js') }]
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-context-monitor.js') }]
       });
       console.log(`  ${green}✓${reset} Configured nForma context monitor hook (PostToolUse)`);
     }
@@ -2229,6 +2376,11 @@ function install(isGlobal, runtime = 'claude') {
       });
       console.log(`  ${green}✓${reset} Configured nForma session-end hook (SessionEnd)`);
     }
+
+    // MULTI-03: ensureMcpSlotsFromProviders() MUST run before buildActiveSlots() because
+    // buildActiveSlots() discovers slots from existing mcpServers keys in ~/.claude.json.
+    // This ensures codex-2, gemini-2, and all other provider slots have MCP entries before quorum_active discovery.
+    ensureMcpSlotsFromProviders();
 
     // Write nForma config — skip if exists unless --redetect-mcps flag set
     const nfConfigPath = path.join(targetDir, 'nf.json');
@@ -2735,5 +2887,5 @@ if (hasGlobal && hasLocal) {
 
 // Export for testing (only when required as a library, not when run directly)
 if (require.main !== module) {
-  module.exports = { validateHookPaths };
+  module.exports = { validateHookPaths, fileHash, generateManifest, saveLocalPatches, reportLocalPatches, PATCHES_DIR_NAME, MANIFEST_NAME };
 }

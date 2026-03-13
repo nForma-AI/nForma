@@ -32,22 +32,22 @@ function readGateSummary(root) {
   const gatesDir = path.join(root, '.planning', 'formal', 'gates');
   const result = { a: null, b: null, c: null };
 
-  // Gate A: uses grounding_score
+  // Gate A: prefers wiring_evidence_score (schema v2), falls back to grounding_score (schema v1)
   try {
     const raw = JSON.parse(fs.readFileSync(path.join(gatesDir, 'gate-a-grounding.json'), 'utf8'));
-    result.a = { score: raw.grounding_score, target_met: raw.target_met };
+    result.a = { score: raw.wiring_evidence_score || raw.grounding_score, target_met: raw.target_met };
   } catch (_) { /* fail-open */ }
 
-  // Gate B: uses gate_b_score
+  // Gate B: prefers wiring_purpose_score (schema v2), falls back to gate_b_score (schema v1)
   try {
     const raw = JSON.parse(fs.readFileSync(path.join(gatesDir, 'gate-b-abstraction.json'), 'utf8'));
-    result.b = { score: raw.gate_b_score, target_met: raw.target_met };
+    result.b = { score: raw.wiring_purpose_score || raw.gate_b_score, target_met: raw.target_met };
   } catch (_) { /* fail-open */ }
 
-  // Gate C: uses gate_c_score
+  // Gate C: prefers wiring_coverage_score (schema v2), falls back to gate_c_score (schema v1)
   try {
     const raw = JSON.parse(fs.readFileSync(path.join(gatesDir, 'gate-c-validation.json'), 'utf8'));
-    result.c = { score: raw.gate_c_score, target_met: raw.target_met };
+    result.c = { score: raw.wiring_coverage_score || raw.gate_c_score, target_met: raw.target_met };
   } catch (_) { /* fail-open */ }
 
   return result;

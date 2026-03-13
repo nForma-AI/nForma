@@ -29,10 +29,12 @@
 - ✅ **v0.31 — Ruflo-Inspired Hardening** — Phases v0.31-01..v0.31-03 (shipped 2026-03-08)
 - ✅ **v0.32 — Documentation & README Overhaul** — Phases v0.32-01..v0.32-04 (shipped 2026-03-09)
 - ✅ **v0.33 — Outer-Loop Convergence Guarantees** — Phases v0.33-01..v0.33-06 (shipped 2026-03-10)
+- ✅ **v0.34 — Semantic Gate Validation & Auto-Promotion** — Phases v0.34-01..v0.34-06 (shipped 2026-03-11)
+- ✅ **v0.35 — Install & Setup Bug Fixes** — Phases v0.35-01..v0.35-04 (shipped 2026-03-13)
 
-> **v0.2 through v0.33 phase details archived to respective milestone ROADMAP files in** `.planning/milestones/`
+> **v0.2 through v0.35 phase details archived to respective milestone ROADMAP files in** `.planning/milestones/`
 
 ---
 
 *Roadmap created: 2026-02-20*
-*Last updated: 2026-03-10 after v0.33 milestone completion*
+*Last updated: 2026-03-13 after v0.35 milestone*

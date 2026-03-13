@@ -26,6 +26,7 @@ const CHECK_RESULTS_PATH = path.join(FORMAL, 'check-results.ndjson');
 const JSON_FLAG = process.argv.includes('--json');
 const CHECK_FLAG = process.argv.includes('--check');
 const FIX_FLAG = process.argv.includes('--fix');
+const AUTO_PROMOTE_FLAG = process.argv.includes('--auto-promote');
 
 const LEVELS = ['ADVISORY', 'SOFT_GATE', 'HARD_GATE'];
 const LEVEL_RANK = { ADVISORY: 0, SOFT_GATE: 1, HARD_GATE: 2 };
@@ -207,6 +208,113 @@ function loadCheckResults() {
     .filter(Boolean);
 }
 
+// ── Auto-Promote (PROMO-01, PROMO-03, PROMO-05) ────────────────────────────
+
+/**
+ * Auto-promote eligible SOFT_GATE models to HARD_GATE.
+ *
+ * Eligibility: SOFT_GATE + all 3 gates pass + consecutive_clean_sessions >= 3
+ *              + cooldown satisfied + no flip-flop instability
+ *
+ * @param {object} solveState - solve-state.json contents
+ * @param {object} perModelGates - per-model-gates.json contents
+ * @param {object} registryFile - Full model-registry.json file (with .models)
+ * @param {Array} changelog - promotion-changelog.json array
+ * @param {object} [opts] - Options: { dryRun }
+ * @returns {{ promoted: string[], skipped_cooldown: string[], skipped_flipflop: string[], consecutive_clean_sessions: number, total_eligible: number }}
+ */
+function autoPromote(solveState, perModelGates, registryFile, changelog, opts) {
+  opts = opts || {};
+  const { countDirectionChanges, detectFlipFlops, isCooldownSatisfied, DEFAULT_FLIP_FLOP_THRESHOLD } = require('./gate-stability.cjs');
+
+  const cleanSessions = (solveState && solveState.consecutive_clean_sessions) || 0;
+
+  if (cleanSessions < 3) {
+    return { promoted: [], skipped_cooldown: [], skipped_flipflop: [], consecutive_clean_sessions: cleanSessions, total_eligible: 0 };
+  }
+
+  const registry = registryFile.models || registryFile;
+  const perModel = perModelGates.models || perModelGates;
+  const checkResults = opts.checkResults || loadCheckResults();
+
+  // Detect flip-flop models
+  const unstable = detectFlipFlops(changelog, DEFAULT_FLIP_FLOP_THRESHOLD);
+
+  const promoted = [];
+  const skippedCooldown = [];
+  const skippedFlipflop = [];
+  let totalEligible = 0;
+
+  const modelKeys = getModelKeys(registry);
+  for (const modelPath of modelKeys) {
+    const model = registry[modelPath];
+    const level = getModelLevel(model);
+
+    if (level !== 'SOFT_GATE') continue;
+
+    // Check all 3 gates pass
+    const modelGates = perModel[modelPath];
+    if (!modelGates) continue;
+    const gateA = modelGates.gate_a && modelGates.gate_a.pass;
+    const gateB = modelGates.gate_b && modelGates.gate_b.pass;
+    const gateC = modelGates.gate_c && modelGates.gate_c.pass;
+    if (!gateA || !gateB || !gateC) continue;
+
+    totalEligible++;
+
+    // PROMO-05: Flip-flop detection
+    if (unstable[modelPath]) {
+      skippedFlipflop.push(modelPath);
+      process.stderr.write('[promote-gate-maturity] SKIP flip-flop: ' + modelPath + ' (' + unstable[modelPath].direction_changes + ' direction changes)\n');
+      continue;
+    }
+
+    // PROMO-03: Cooldown check
+    const stability = modelGates.stability;
+    if (!isCooldownSatisfied(stability)) {
+      skippedCooldown.push(modelPath);
+      process.stderr.write('[promote-gate-maturity] SKIP cooldown: ' + modelPath + '\n');
+      continue;
+    }
+
+    // Validate HARD_GATE criteria
+    const validation = validateCriteria(modelPath, model, 'HARD_GATE', checkResults);
+    if (!validation.valid) {
+      process.stderr.write('[promote-gate-maturity] SKIP criteria: ' + modelPath + ' — ' + validation.reason + '\n');
+      continue;
+    }
+
+    if (!opts.dryRun) {
+      // Promote
+      model.gate_maturity = 'HARD_GATE';
+      model.last_updated = new Date().toISOString();
+
+      // PROMO-04: Log to changelog
+      changelog.push({
+        model: modelPath,
+        from_level: 'SOFT_GATE',
+        to_level: 'HARD_GATE',
+        timestamp: new Date().toISOString(),
+        session_id: null,
+        evidence_readiness: model.evidence_readiness || { score: 0, total: 5 },
+        trigger: 'auto_promotion',
+        consecutive_clean_sessions: cleanSessions,
+      });
+    }
+
+    promoted.push(modelPath);
+    process.stderr.write('[promote-gate-maturity] Promoted: ' + modelPath + ' SOFT_GATE -> HARD_GATE\n');
+  }
+
+  return {
+    promoted,
+    skipped_cooldown: skippedCooldown,
+    skipped_flipflop: skippedFlipflop,
+    consecutive_clean_sessions: cleanSessions,
+    total_eligible: totalEligible,
+  };
+}
+
 // ── Entry point ─────────────────────────────────────────────────────────────
 
 function main() {
@@ -218,6 +326,46 @@ function main() {
   const registryFile = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
   const registry = registryFile.models || registryFile;
   const checkResults = loadCheckResults();
+
+  // Auto-promote mode (PROMO-01)
+  if (AUTO_PROMOTE_FLAG) {
+    let solveState = {};
+    try {
+      solveState = JSON.parse(fs.readFileSync(path.join(FORMAL, 'solve-state.json'), 'utf8'));
+    } catch (_) { /* fail-open */ }
+
+    let perModelGates = {};
+    try {
+      perModelGates = JSON.parse(fs.readFileSync(path.join(FORMAL, 'gates', 'per-model-gates.json'), 'utf8'));
+    } catch (_) { /* fail-open */ }
+
+    let changelog = [];
+    const changelogPath = path.join(FORMAL, 'promotion-changelog.json');
+    try {
+      changelog = JSON.parse(fs.readFileSync(changelogPath, 'utf8'));
+      if (!Array.isArray(changelog)) changelog = [];
+    } catch (_) { /* fail-open */ }
+
+    const result = autoPromote(solveState, perModelGates, registryFile, changelog);
+
+    if (result.promoted.length > 0) {
+      fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registryFile, null, 2) + '\n');
+      fs.writeFileSync(changelogPath, JSON.stringify(changelog, null, 2) + '\n');
+    }
+
+    if (JSON_FLAG) {
+      process.stdout.write(JSON.stringify(result) + '\n');
+    } else {
+      if (result.consecutive_clean_sessions < 3) {
+        console.log('Not enough clean sessions (' + result.consecutive_clean_sessions + '/3), no promotions');
+      } else {
+        console.log('Promoted ' + result.promoted.length + ' model(s) SOFT_GATE -> HARD_GATE');
+        if (result.skipped_cooldown.length > 0) console.log('Skipped (cooldown): ' + result.skipped_cooldown.join(', '));
+        if (result.skipped_flipflop.length > 0) console.log('Skipped (flip-flop): ' + result.skipped_flipflop.join(', '));
+      }
+    }
+    process.exit(0);
+  }
 
   if (CHECK_FLAG) {
     const result = checkAllModels(registry, checkResults, FIX_FLAG);
@@ -286,4 +434,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { promoteModel, validateCriteria, checkAllModels, getModelKeys, inferSourceLayer, loadCheckResults };
+module.exports = { promoteModel, validateCriteria, checkAllModels, getModelKeys, inferSourceLayer, loadCheckResults, autoPromote };

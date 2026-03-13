@@ -626,19 +626,19 @@ test('HPM-TC1: HOOK_PROFILE_MAP has all three profiles', async (t) => {
   assert.ok(HOOK_PROFILE_MAP.strict, 'strict profile must exist');
 });
 
-// HPM-TC2: minimal has exactly 3 entries
-test('HPM-TC2: minimal profile has exactly 3 hooks', async (t) => {
-  assert.equal(HOOK_PROFILE_MAP.minimal.size, 3, 'minimal must have 3 hooks');
+// HPM-TC2: minimal has exactly 4 entries (added nf-node-eval-guard for zsh safety)
+test('HPM-TC2: minimal profile has exactly 4 hooks', async (t) => {
+  assert.equal(HOOK_PROFILE_MAP.minimal.size, 4, 'minimal must have 4 hooks');
 });
 
-// HPM-TC3: standard has 15 entries
-test('HPM-TC3: standard profile has 15 hooks', async (t) => {
-  assert.equal(HOOK_PROFILE_MAP.standard.size, 15, 'standard must have 15 hooks');
+// HPM-TC3: standard has 16 entries
+test('HPM-TC3: standard profile has 16 hooks', async (t) => {
+  assert.equal(HOOK_PROFILE_MAP.standard.size, 16, 'standard must have 16 hooks');
 });
 
-// HPM-TC4: strict has 15 entries (same as standard)
-test('HPM-TC4: strict profile has 15 hooks (same as standard)', async (t) => {
-  assert.equal(HOOK_PROFILE_MAP.strict.size, 15, 'strict must have 15 hooks');
+// HPM-TC4: strict has 16 entries (same as standard)
+test('HPM-TC4: strict profile has 16 hooks (same as standard)', async (t) => {
+  assert.equal(HOOK_PROFILE_MAP.strict.size, 16, 'strict must have 16 hooks');
 });
 
 // HPM-TC5: circuit-breaker in ALL profiles (MonitoringReachable invariant)
@@ -646,6 +646,13 @@ test('HPM-TC5: nf-circuit-breaker is in all three profiles', async (t) => {
   assert.ok(HOOK_PROFILE_MAP.minimal.has('nf-circuit-breaker'), 'minimal must include circuit-breaker');
   assert.ok(HOOK_PROFILE_MAP.standard.has('nf-circuit-breaker'), 'standard must include circuit-breaker');
   assert.ok(HOOK_PROFILE_MAP.strict.has('nf-circuit-breaker'), 'strict must include circuit-breaker');
+});
+
+// HPM-TC6: nf-node-eval-guard in ALL profiles (zsh safety — must be universal)
+test('HPM-TC6: nf-node-eval-guard is in all three profiles', async (t) => {
+  assert.ok(HOOK_PROFILE_MAP.minimal.has('nf-node-eval-guard'), 'minimal must include node-eval-guard');
+  assert.ok(HOOK_PROFILE_MAP.standard.has('nf-node-eval-guard'), 'standard must include node-eval-guard');
+  assert.ok(HOOK_PROFILE_MAP.strict.has('nf-node-eval-guard'), 'strict must include node-eval-guard');
 });
 
 // ============================================================================

@@ -47,7 +47,7 @@ const fixture1 = {
 const agg1 = computeAggregate(fixture1);
 
 // Gate A
-assertClose(agg1.gate_a.grounding_score, 2 / 3, 0.0001, 'Gate A grounding_score = 2/3');
+assertClose(agg1.gate_a.wiring_evidence_score, 2 / 3, 0.0001, 'Gate A wiring_evidence_score = 2/3');
 assert(agg1.gate_a.target === 0.8, 'Gate A target = 0.8');
 assert(agg1.gate_a.target_met === false, 'Gate A target_met = false (0.667 < 0.8)');
 assert(agg1.gate_a.explained === 2, 'Gate A explained = 2');
@@ -57,7 +57,7 @@ assert(agg1.gate_a.unexplained_counts.instrumentation_bug === 0, 'Gate A instrum
 assert(agg1.gate_a.unexplained_counts.genuine_violation === 0, 'Gate A genuine_violation = 0');
 
 // Gate B
-assertClose(agg1.gate_b.gate_b_score, 1.0, 0.0001, 'Gate B gate_b_score = 1.0');
+assertClose(agg1.gate_b.wiring_purpose_score, 1.0, 0.0001, 'Gate B wiring_purpose_score = 1.0');
 assert(agg1.gate_b.total_entries === 3, 'Gate B total_entries = 3');
 assert(agg1.gate_b.grounded_entries === 3, 'Gate B grounded_entries = 3');
 assert(agg1.gate_b.orphaned_entries === 0, 'Gate B orphaned_entries = 0');
@@ -65,7 +65,7 @@ assert(agg1.gate_b.target === 1.0, 'Gate B target = 1.0');
 assert(agg1.gate_b.target_met === true, 'Gate B target_met = true');
 
 // Gate C
-assertClose(agg1.gate_c.gate_c_score, 1 / 3, 0.0001, 'Gate C gate_c_score = 1/3');
+assertClose(agg1.gate_c.wiring_coverage_score, 1 / 3, 0.0001, 'Gate C wiring_coverage_score = 1/3');
 assert(agg1.gate_c.total_entries === 3, 'Gate C total_entries = 3');
 assert(agg1.gate_c.validated_entries === 1, 'Gate C validated_entries = 1');
 assert(agg1.gate_c.unvalidated_entries === 2, 'Gate C unvalidated_entries = 2');
@@ -78,13 +78,13 @@ console.log('\n=== Fixture 2: Edge case - 0 models ===');
 
 const agg2 = computeAggregate({});
 
-assert(agg2.gate_a.grounding_score === 0, 'Empty: Gate A grounding_score = 0');
+assert(agg2.gate_a.wiring_evidence_score === 0, 'Empty: Gate A wiring_evidence_score = 0');
 assert(agg2.gate_a.total === 0, 'Empty: Gate A total = 0');
 assert(agg2.gate_a.explained === 0, 'Empty: Gate A explained = 0');
 assert(agg2.gate_a.target_met === false, 'Empty: Gate A target_met = false');
-assert(agg2.gate_b.gate_b_score === 0, 'Empty: Gate B gate_b_score = 0');
+assert(agg2.gate_b.wiring_purpose_score === 0, 'Empty: Gate B wiring_purpose_score = 0');
 assert(agg2.gate_b.target_met === false, 'Empty: Gate B target_met = false');
-assert(agg2.gate_c.gate_c_score === 0, 'Empty: Gate C gate_c_score = 0');
+assert(agg2.gate_c.wiring_coverage_score === 0, 'Empty: Gate C wiring_coverage_score = 0');
 assert(agg2.gate_c.target_met === false, 'Empty: Gate C target_met = false');
 
 // ── Fixture 3: Edge case — all models pass all gates ────────────────────────
@@ -98,13 +98,13 @@ const fixture3 = {
 
 const agg3 = computeAggregate(fixture3);
 
-assert(agg3.gate_a.grounding_score === 1.0, 'All-pass: Gate A grounding_score = 1.0');
+assert(agg3.gate_a.wiring_evidence_score === 1.0, 'All-pass: Gate A wiring_evidence_score = 1.0');
 assert(agg3.gate_a.target_met === true, 'All-pass: Gate A target_met = true');
 assert(agg3.gate_a.unexplained_counts.model_gap === 0, 'All-pass: Gate A model_gap = 0');
-assert(agg3.gate_b.gate_b_score === 1.0, 'All-pass: Gate B gate_b_score = 1.0');
+assert(agg3.gate_b.wiring_purpose_score === 1.0, 'All-pass: Gate B wiring_purpose_score = 1.0');
 assert(agg3.gate_b.target_met === true, 'All-pass: Gate B target_met = true');
 assert(agg3.gate_b.orphaned_entries === 0, 'All-pass: Gate B orphaned_entries = 0');
-assert(agg3.gate_c.gate_c_score === 1.0, 'All-pass: Gate C gate_c_score = 1.0');
+assert(agg3.gate_c.wiring_coverage_score === 1.0, 'All-pass: Gate C wiring_coverage_score = 1.0');
 assert(agg3.gate_c.target_met === true, 'All-pass: Gate C target_met = true');
 
 // ── Fixture 4: Field name / structure validation ────────────────────────────
@@ -112,7 +112,7 @@ assert(agg3.gate_c.target_met === true, 'All-pass: Gate C target_met = true');
 console.log('\n=== Fixture 4: Structure validation ===');
 
 // Verify all required fields exist (matching global gate JSON schemas)
-const gateAFields = ['grounding_score', 'target', 'target_met', 'explained', 'total', 'unexplained_counts'];
+const gateAFields = ['wiring_evidence_score', 'target', 'target_met', 'explained', 'total', 'unexplained_counts'];
 for (const f of gateAFields) {
   assert(f in agg1.gate_a, 'Gate A has field: ' + f);
 }
@@ -120,12 +120,12 @@ assert('instrumentation_bug' in agg1.gate_a.unexplained_counts, 'Gate A unexplai
 assert('model_gap' in agg1.gate_a.unexplained_counts, 'Gate A unexplained_counts has model_gap');
 assert('genuine_violation' in agg1.gate_a.unexplained_counts, 'Gate A unexplained_counts has genuine_violation');
 
-const gateBFields = ['gate_b_score', 'total_entries', 'grounded_entries', 'orphaned_entries', 'target', 'target_met'];
+const gateBFields = ['wiring_purpose_score', 'total_entries', 'grounded_entries', 'orphaned_entries', 'target', 'target_met'];
 for (const f of gateBFields) {
   assert(f in agg1.gate_b, 'Gate B has field: ' + f);
 }
 
-const gateCFields = ['gate_c_score', 'total_entries', 'validated_entries', 'unvalidated_entries', 'target', 'target_met'];
+const gateCFields = ['wiring_coverage_score', 'total_entries', 'validated_entries', 'unvalidated_entries', 'target', 'target_met'];
 for (const f of gateCFields) {
   assert(f in agg1.gate_c, 'Gate C has field: ' + f);
 }

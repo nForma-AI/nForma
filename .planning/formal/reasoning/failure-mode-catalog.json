@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-10T20:35:17.324Z",
+  "generated": "2026-03-11T13:04:45.891Z",
   "failure_modes": [
     {
       "id": "FM-IDLE-QUORUM_START-OMISSION",
@@ -24,8 +24,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -51,8 +51,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -78,8 +78,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -105,8 +105,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -137,8 +137,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -164,8 +164,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -196,8 +196,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -223,8 +223,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -255,8 +255,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -282,8 +282,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -314,8 +314,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -341,8 +341,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -368,8 +368,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -400,8 +400,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -427,8 +427,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -454,8 +454,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -481,8 +481,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -508,8 +508,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -535,8 +535,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -562,8 +562,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -594,8 +594,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -621,8 +621,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -653,8 +653,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -680,8 +680,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -707,8 +707,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -739,8 +739,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -766,8 +766,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -798,8 +798,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -825,8 +825,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -857,8 +857,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -884,8 +884,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -916,8 +916,8 @@
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DISP-01,DISP-02,DISP-03,DISP-04,DISP-05,DISP-06,DISP-07,COMP-01,COMP-02,COMP-03,COMP-04,CONF-03,CONF-04,HEAL-01,HEAL-02,FAIL-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DISP-01]"
         }
       ]
     },
@@ -930,8 +930,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "ACT-01,ACT-02,ACT-03,ACT-04,ACT-05,ACT-06,ACT-07"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=ACT-01]"
         }
       ]
     },
@@ -944,8 +944,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "AGENT-01,AGENT-02,AGENT-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=AGENT-01]"
         }
       ]
     },
@@ -958,8 +958,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "AGT-01"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -972,8 +972,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "ANNOT-01,ANNOT-02,ANNOT-03,ANNOT-04,ANNOT-05"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=ANNOT-01]"
         }
       ]
     },
@@ -986,8 +986,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "ARCH-01,ARCH-02,ARCH-03,ARCH-10"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=ARCH-01]"
         }
       ]
     },
@@ -1000,8 +1000,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "CALIB-01,CALIB-02,CALIB-03,CALIB-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=CALIB-01]"
         }
       ]
     },
@@ -1014,8 +1014,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "CI-01,CI-02,CI-03,CI-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=CI-01]"
         }
       ]
     },
@@ -1028,8 +1028,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "CRED-01,CRED-02,CRED-12"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=CRED-01]"
         }
       ]
     },
@@ -1042,8 +1042,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DASH-01,DASH-02,DASH-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DASH-01]"
         }
       ]
     },
@@ -1056,8 +1056,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DEBT-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DEBT-01]"
         }
       ]
     },
@@ -1070,8 +1070,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DECOMP-01,DECOMP-02,DECOMP-03,DECOMP-04,DECOMP-05"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DECOMP-01]"
         }
       ]
     },
@@ -1084,8 +1084,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DETECT-01,DETECT-02,DETECT-03,DETECT-04,DETECT-05,DETECT-06"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DETECT-01]"
         }
       ]
     },
@@ -1098,8 +1098,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DOC-01,DOC-02,DOC-03"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -1112,8 +1112,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "DRIFT-01,DRIFT-02"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=DRIFT-01]"
         }
       ]
     },
@@ -1126,8 +1126,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "ENFC-01,ENFC-02,ENFC-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=ENFC-01]"
         }
       ]
     },
@@ -1140,8 +1140,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "EVID-01,EVID-02,EVID-03,EVID-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=EVID-01]"
         }
       ]
     },
@@ -1154,8 +1154,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "FVTOOL-01,FVTOOL-02"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -1168,8 +1168,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "GATE-01,GATE-02,GATE-03,GATE-04,GATE-05"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=GATE-01]"
         }
       ]
     },
@@ -1182,8 +1182,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "GUARD-01,GUARD-02"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -1196,8 +1196,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "HLTH-01,HLTH-02,HLTH-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=HLTH-01]"
         }
       ]
     },
@@ -1210,8 +1210,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "INIT-01"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -1224,8 +1224,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "INST-01,INST-02,INST-03,INST-04,INST-05,INST-06,INST-07,INST-08,INST-09,INST-10,INST-11,INST-12,INST-13"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=INST-01]"
         }
       ]
     },
@@ -1238,8 +1238,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "KEY-01,KEY-02,KEY-03,KEY-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=KEY-01]"
         }
       ]
     },
@@ -1252,8 +1252,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "LIVE-01,LIVE-02"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=LIVE-01]"
         }
       ]
     },
@@ -1266,8 +1266,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "LOOP-01,LOOP-02,LOOP-03,LOOP-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=LOOP-01]"
         }
       ]
     },
@@ -1280,8 +1280,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "MCP-01,MCP-02,MCP-03,MCP-04,MCP-05,MCP-06"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=MCP-01]"
         }
       ]
     },
@@ -1294,8 +1294,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "MCPENV-01,MCPENV-03,MCPENV-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=MCPENV-01]"
         }
       ]
     },
@@ -1308,8 +1308,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "META-01,META-02,META-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=META-01]"
         }
       ]
     },
@@ -1322,8 +1322,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "MULTI-01,MULTI-02,MULTI-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=MULTI-01]"
         }
       ]
     },
@@ -1336,8 +1336,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "NAV-01,NAV-02,NAV-03,NAV-04"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -1350,8 +1350,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "OBS-01,OBS-02,OBS-03,OBS-04,OBS-05,OBS-06,OBS-07,OBS-08,OBS-09,OBS-10,OBS-11,OBS-12,OBS-13,OBS-14,OBS-15,OBS-16"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=OBS-01]"
         }
       ]
     },
@@ -1364,8 +1364,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "ORES-01,ORES-02,ORES-03,ORES-04,ORES-05"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=ORES-01]"
         }
       ]
     },
@@ -1378,8 +1378,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "PLAN-01,PLAN-02,PLAN-03,PLAN-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=PLAN-01]"
         }
       ]
     },
@@ -1392,8 +1392,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "PLAT-01"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -1406,8 +1406,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "PLCY-01,PLCY-02,PLCY-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=PLCY-01]"
         }
       ]
     },
@@ -1420,8 +1420,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "PORT-01,PORT-02,PORT-03,PORT-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=PORT-01]"
         }
       ]
     },
@@ -1434,8 +1434,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "PROJECT-01,PROJECT-02"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -1448,8 +1448,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "PROV-01,PROV-02,PROV-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=PROV-01]"
         }
       ]
     },
@@ -1462,8 +1462,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "PRST-01,PRST-02"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=PRST-01]"
         }
       ]
     },
@@ -1476,8 +1476,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "QUORUM-01,QUORUM-02,QUORUM-03,QUORUM-04,QUORUM-05,QUORUM-06"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=QUORUM-01]"
         }
       ]
     },
@@ -1490,8 +1490,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "RECV-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=RECV-01]"
         }
       ]
     },
@@ -1504,8 +1504,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "REDACT-01,REDACT-02,REDACT-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=REDACT-01]"
         }
       ]
     },
@@ -1518,8 +1518,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "REL-01,REL-02"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=REL-01]"
         }
       ]
     },
@@ -1532,8 +1532,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "REN-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=REN-03]"
         }
       ]
     },
@@ -1546,8 +1546,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SAFE-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SAFE-01]"
         }
       ]
     },
@@ -1560,8 +1560,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SCBD-01,SCBD-02,SCBD-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SCBD-01]"
         }
       ]
     },
@@ -1574,8 +1574,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SCHEMA-01,SCHEMA-03,SCHEMA-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SCHEMA-01]"
         }
       ]
     },
@@ -1588,8 +1588,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SEC-01,SEC-02,SEC-03,SEC-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SEC-01]"
         }
       ]
     },
@@ -1602,8 +1602,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SENS-01,SENS-02,SENS-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SENS-01]"
         }
       ]
     },
@@ -1616,8 +1616,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SIG-01,SIG-02,SIG-03,SIG-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SIG-01]"
         }
       ]
     },
@@ -1630,8 +1630,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SLOT-01,SLOT-02,SLOT-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SLOT-01]"
         }
       ]
     },
@@ -1644,8 +1644,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SOLVE-01,SOLVE-02,SOLVE-03,SOLVE-04,SOLVE-05,SOLVE-06,SOLVE-7,SOLVE-8,SOLVE-09,SOLVE-10,SOLVE-11,SOLVE-12,SOLVE-13,SOLVE-14,SOLVE-15,SOLVE-16,SOLVE-17,SOLVE-18,SOLVE-19,SOLVE-20,SOLVE-21,SOLVE-22,SOLVE-23,SOLVE-24,SOLVE-25"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SOLVE-01]"
         }
       ]
     },
@@ -1658,8 +1658,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SPEC-01,SPEC-03,SPEC-04,SPEC-05,SPEC-06,SPEC-07"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SPEC-01]"
         }
       ]
     },
@@ -1672,8 +1672,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "STATE-01,STATE-02,STATE-03,STATE-04,STATE-05,STATE-06"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=STATE-01]"
         }
       ]
     },
@@ -1686,8 +1686,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "STD-10"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=STD-10]"
         }
       ]
     },
@@ -1700,8 +1700,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "STOP-01,STOP-02,STOP-03,STOP-04,STOP-05,STOP-06,STOP-07,STOP-08,STOP-09"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=STOP-01]"
         }
       ]
     },
@@ -1714,8 +1714,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "SYNC-01,SYNC-02,SYNC-03,SYNC-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=SYNC-01]"
         }
       ]
     },
@@ -1728,8 +1728,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "TRACE-01,TRACE-02,TRACE-03,TRACE-04,TRACE-05,TRACE-06,TRACE-07,TRACE-08,TRACE-09,TRACE-10"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=TRACE-01]"
         }
       ]
     },
@@ -1742,8 +1742,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "TRIAGE-01,TRIAGE-02"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=TRIAGE-01]"
         }
       ]
     },
@@ -1756,8 +1756,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "UNIF-01,UNIF-02,UNIF-03,UNIF-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=UNIF-01]"
         }
       ]
     },
@@ -1770,8 +1770,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "UPPAAL-01,UPPAAL-02,UPPAAL-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=UPPAAL-01]"
         }
       ]
     },
@@ -1784,8 +1784,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "UPS-01,UPS-02,UPS-03,UPS-04,UPS-05"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=UPS-01]"
         }
       ]
     },
@@ -1798,8 +1798,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "UX-01,UX-02,UX-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=UX-01]"
         }
       ]
     },
@@ -1812,8 +1812,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "VERIFY-01,VERIFY-02,VERIFY-03,VERIFY-04,VERIFY-05"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=VERIFY-01]"
         }
       ]
     },
@@ -1826,8 +1826,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "VIS-01"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=VIS-01]"
         }
       ]
     },
@@ -1840,8 +1840,8 @@
       "derived_from": [
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "WIZ-01,WIZ-02,WIZ-03,WIZ-04,WIZ-05,WIZ-08,WIZ-09,WIZ-10,WIZ-11"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=WIZ-01]"
         }
       ]
     },
@@ -1856,14 +1856,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/TUINavigation.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "TUI-01,TUI-02,TUI-03,TUI-04,TUI-05,TUI-06"
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         }
       ]
     },
@@ -1878,14 +1878,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/NFSolveP2F.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "PF-01,PF-02,PF-03,PF-04,PF-05"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=PF-01]"
         }
       ]
     },
@@ -1900,14 +1900,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/NFTokenOpt.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "TOKN-01,TOKN-02,TOKN-03,TOKN-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=TOKN-01]"
         }
       ]
     },
@@ -1922,14 +1922,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/NFLearning.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "LRNG-01,LRNG-02,LRNG-03,LRNG-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=LRNG-01]"
         }
       ]
     },
@@ -1944,14 +1944,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/NFMemoryPersist.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "MEMP-01,MEMP-02,MEMP-03,MEMP-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=MEMP-01]"
         }
       ]
     },
@@ -1966,14 +1966,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/NFReasoning.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "RSN-01,RSN-02,RSN-03,RSN-04,RSN-05"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=RSN-01]"
         }
       ]
     },
@@ -1988,14 +1988,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/NFImprovement.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "IMPR-01,IMPR-02,IMPR-03,IMPR-04"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=IMPR-01]"
         }
       ]
     },
@@ -2010,14 +2010,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/NFOrchestration.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "ORCH-01,ORCH-02,ORCH-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=ORCH-01]"
         }
       ]
     },
@@ -2032,14 +2032,14 @@
       "severity_class": "degraded",
       "derived_from": [
         {
-          "layer": "L3",
-          "artifact": "formal/tla/NFVerification.tla",
-          "ref": "model_spec"
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants"
         },
         {
           "layer": "L2",
-          "artifact": "formal/requirements.json",
-          "ref": "VERF-01,VERF-02,VERF-03"
+          "artifact": "requirements.json",
+          "ref": "requirements[id=VERF-01]"
         }
       ]
     }

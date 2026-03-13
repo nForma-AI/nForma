@@ -9,6 +9,7 @@ const { spawnSync, fork } = require('child_process');
 const solveTui = require('./solve-tui.cjs');
 const nfSolve  = require('./nf-solve.cjs');
 const NF_VERSION = require('../package.json').version;
+const { resolveCli } = require('./resolve-cli.cjs');
 
 // ─── Global error handlers — prevent silent TUI crashes ─────────────────────
 process.on('uncaughtException', (err) => {
@@ -630,9 +631,9 @@ const MODULES = [
       { label: '  T->R Orphan Tests',      action: 'solve-ttor' },
       { label: '  D->R Unbacked Claims',   action: 'solve-dtor' },
       { label: ' \u2500\u2500 Layer Align \u2500\u2500\u2500', action: 'sep' },
-      { label: '  L1->L2 Gate A',          action: 'solve-l1tol2' },
-      { label: '  L2->L3 Gate B',          action: 'solve-l2tol3' },
-      { label: '  L3->TC Gate C',          action: 'solve-l3totc' },
+      { label: '  L1->L2 Wiring:Evidence',  action: 'solve-l1tol2' },
+      { label: '  L2->L3 Wiring:Purpose',  action: 'solve-l2tol3' },
+      { label: '  L3->TC Wiring:Coverage', action: 'solve-l3totc' },
       { label: ' \u2500\u2500 Evidence \u2500\u2500\u2500\u2500\u2500', action: 'sep' },
       { label: '  F->G Model Maturity',    action: 'solve-ftog' },
       { label: '  C->E Git Heatmap',       action: 'solve-ctoe' },
@@ -1693,7 +1694,18 @@ async function addAgentFlow() {
     const model    = await promptInput({ title: 'Add Agent — Model', prompt: 'Model name (optional):' });
     const timeout  = await promptInput({ title: 'Add Agent — Timeout', prompt: 'quorum_timeout_ms:', default: '30000' });
 
-    data.mcpServers = { ...servers, [slotName]: { type: 'stdio', command, args: [] } };
+    // Resolve CLI path (TUI-01: cross-platform path resolution)
+    const resolvedCommand = resolveCli(command);
+
+    // Validate the resolved path is executable (TUI-01: prevent broken entries)
+    try {
+      fs.accessSync(resolvedCommand, fs.constants.X_OK);
+    } catch (err) {
+      toast(`CLI not found or not executable: ${resolvedCommand}`, true);
+      return;
+    }
+
+    data.mcpServers = { ...servers, [slotName]: { type: 'stdio', command: resolvedCommand, args: [] } };
     writeClaudeJson(data);
 
     // Write providers.json metadata
@@ -1706,7 +1718,7 @@ async function addAgentFlow() {
     pdata.providers.push(entry);
     writeProvidersJson(pdata);
 
-    toast(`✓ Added CLI agent "${slotName}"`);
+    toast(`✓ Added CLI agent "${slotName}" at ${resolvedCommand}`);
     renderList();
     return;
   }
@@ -3013,9 +3025,9 @@ async function dispatch(action) {
     else if (action === 'solve-ftoc')         await solveResidualView('F\u2192C Formal\u2192Code', 'sweepFtoC');
     else if (action === 'solve-rtod')         await solveResidualView('R\u2192D Req\u2192Docs', 'sweepRtoD');
     else if (action === 'solve-ptof')         await solveResidualView('P\u2192F Prod\u2192Formal', 'sweepPtoF');
-    else if (action === 'solve-l1tol2')       await solveResidualView('L1\u2192L2 Gate A Grounding', 'sweepL1toL2');
-    else if (action === 'solve-l2tol3')       await solveResidualView('L2\u2192L3 Gate B Traceability', 'sweepL2toL3');
-    else if (action === 'solve-l3totc')       await solveResidualView('L3\u2192TC Gate C Validation', 'sweepL3toTC');
+    else if (action === 'solve-l1tol2')       await solveResidualView('L1\u2192L2 Wiring:Evidence', 'sweepL1toL2');
+    else if (action === 'solve-l2tol3')       await solveResidualView('L2\u2192L3 Wiring:Purpose', 'sweepL2toL3');
+    else if (action === 'solve-l3totc')       await solveResidualView('L3\u2192TC Wiring:Coverage', 'sweepL3toTC');
     else if (action === 'solve-ftog')         await solveResidualView('F\u2192G Model Maturity', 'sweepPerModelGates');
     else if (action === 'solve-ctoe')         await solveResidualView('C\u2192E Git Heatmap', 'sweepGitHeatmap');
     else if (action === 'solve-gtof')         await solveResidualView('G\u2192F History Drift', 'sweepGitHistoryEvidence');
@@ -3367,9 +3379,9 @@ function gateScoreFlow() {
     lines.push('{bold}Gate Scoring \u2014 Aggregate{/bold}');
     lines.push('\u2500'.repeat(60));
     const s = data.scores || {};
-    lines.push(`  Gate A pass: {bold}${s.gate_a_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
-    lines.push(`  Gate B pass: {bold}${s.gate_b_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
-    lines.push(`  Gate C pass: {bold}${s.gate_c_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
+    lines.push(`  Wiring:Evidence pass: {bold}${s.gate_a_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
+    lines.push(`  Wiring:Purpose pass: {bold}${s.gate_b_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
+    lines.push(`  Wiring:Coverage pass: {bold}${s.gate_c_pass ?? '?'}{/bold} / ${data.total_models ?? '?'}`);
     lines.push(`  Avg layer maturity: {bold}${(s.avg_layer_maturity ?? 0).toFixed(2)}{/bold}`);
     lines.push('');
 
@@ -3629,9 +3641,9 @@ async function solveBrowseFlow() {
       { label: 'D\u2192R Unbacked',   fn: 'sweepDtoR' },
     ]},
     { group: 'Layer Alignment', items: [
-      { label: 'L1\u2192L2 Gate A',   fn: 'sweepL1toL2' },
-      { label: 'L2\u2192L3 Gate B',   fn: 'sweepL2toL3' },
-      { label: 'L3\u2192TC Gate C',   fn: 'sweepL3toTC' },
+      { label: 'L1\u2192L2 Wiring:Evidence', fn: 'sweepL1toL2' },
+      { label: 'L2\u2192L3 Wiring:Purpose',  fn: 'sweepL2toL3' },
+      { label: 'L3\u2192TC Wiring:Coverage', fn: 'sweepL3toTC' },
     ]},
     { group: 'Evidence & Maturity', items: [
       { label: 'F\u2192G Maturity',   fn: 'sweepPerModelGates' },

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// hooks/gsd-context-monitor.js
+// hooks/nf-context-monitor.js
 // PostToolUse hook — context window monitor with budget tracking and smart compact.
 //
 // Reads context_window metrics from the PostToolUse event payload.
@@ -85,14 +85,14 @@ process.stdin.on('end', () => {
     const _eventType = input.hook_event_name || input.hookEventName || 'PostToolUse';
     const _validation = validateHookInput(_eventType, input);
     if (!_validation.valid) {
-      process.stderr.write('[nf] WARNING: gsd-context-monitor: invalid input: ' + JSON.stringify(_validation.errors) + '\n');
+      process.stderr.write('[nf] WARNING: nf-context-monitor: invalid input: ' + JSON.stringify(_validation.errors) + '\n');
       process.exit(0); // Fail-open
     }
 
     // Profile guard — exit early if this hook is not active for the current profile
     const config = loadConfig(input.cwd || process.cwd());
     const profile = config.hook_profile || 'standard';
-    if (!shouldRunHook('gsd-context-monitor', profile)) {
+    if (!shouldRunHook('nf-context-monitor', profile)) {
       process.exit(0);
     }
 
@@ -260,7 +260,7 @@ process.stdin.on('end', () => {
 
   } catch (e) {
     if (e instanceof SyntaxError) {
-      process.stderr.write('[nf] WARNING: gsd-context-monitor: malformed JSON on stdin: ' + e.message + '\n');
+      process.stderr.write('[nf] WARNING: nf-context-monitor: malformed JSON on stdin: ' + e.message + '\n');
     }
     // Fail-open: never crash the user's session on any unexpected error
     process.exit(0);

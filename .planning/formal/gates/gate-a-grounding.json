@@ -1,17 +1,25 @@
 {
-  "schema_version": "1",
-  "generated": "2026-03-10T21:26:40.416Z",
-  "grounding_score": 0.9888888888888889,
+  "schema_version": "3",
+  "generated": "2026-03-11T03:48:25.339Z",
+  "wiring_evidence_score": 1,
   "target": 0.8,
   "target_met": true,
-  "explained": 178,
+  "explained": 180,
   "total": 180,
   "unexplained_counts": {
     "instrumentation_bug": 0,
-    "model_gap": 2,
+    "model_gap": 0,
     "genuine_violation": 0
   },
   "scope": {
     "mode": "per-model-aggregate"
+  },
+  "semantic_score": 1,
+  "semantic_metadata": {
+    "evaluated_candidates": 46,
+    "confirmed": 46,
+    "rejected": 0,
+    "maybe": 0,
+    "computed": "2026-03-11T08:11:00.985Z"
   }
 }

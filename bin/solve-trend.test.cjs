@@ -41,15 +41,15 @@ function setupFakeRoot(dir) {
   const gates = path.join(formal, 'gates');
   fs.mkdirSync(gates, { recursive: true });
 
-  // Gate files
+  // Gate files — use new field names (schema v2)
   fs.writeFileSync(path.join(gates, 'gate-a-grounding.json'), JSON.stringify({
-    grounding_score: 0.85, target_met: true
+    schema_version: '2', wiring_evidence_score: 0.85, target_met: true
   }));
   fs.writeFileSync(path.join(gates, 'gate-b-abstraction.json'), JSON.stringify({
-    gate_b_score: 0.5, target_met: false
+    schema_version: '2', wiring_purpose_score: 0.5, target_met: false
   }));
   fs.writeFileSync(path.join(gates, 'gate-c-validation.json'), JSON.stringify({
-    gate_c_score: 0.9, target_met: true
+    schema_version: '2', wiring_coverage_score: 0.9, target_met: true
   }));
 
   // Requirements file
@@ -80,6 +80,26 @@ describe('solve-trend-helpers', () => {
       assert.strictEqual(result.a, null);
       assert.strictEqual(result.b, null);
       assert.strictEqual(result.c, null);
+    });
+
+    it('backward compat: reads legacy field names (schema v1)', () => {
+      const formal = path.join(tmpDir, '.planning', 'formal');
+      const gates = path.join(formal, 'gates');
+      fs.mkdirSync(gates, { recursive: true });
+      // Write old-format gate files with legacy field names
+      fs.writeFileSync(path.join(gates, 'gate-a-grounding.json'), JSON.stringify({
+        schema_version: '1', grounding_score: 0.75, target_met: false
+      }));
+      fs.writeFileSync(path.join(gates, 'gate-b-abstraction.json'), JSON.stringify({
+        schema_version: '1', gate_b_score: 0.6, target_met: false
+      }));
+      fs.writeFileSync(path.join(gates, 'gate-c-validation.json'), JSON.stringify({
+        schema_version: '1', gate_c_score: 0.7, target_met: false
+      }));
+      const result = readGateSummary(tmpDir);
+      assert.deepStrictEqual(result.a, { score: 0.75, target_met: false });
+      assert.deepStrictEqual(result.b, { score: 0.6, target_met: false });
+      assert.deepStrictEqual(result.c, { score: 0.7, target_met: false });
     });
   });
 

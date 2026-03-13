@@ -39,6 +39,7 @@ const HOOK_PROFILE_MAP = {
   minimal: new Set([
     'nf-circuit-breaker',
     'nf-precompact',
+    'nf-node-eval-guard',
     'nf-session-end',
   ]),
   standard: new Set([
@@ -46,7 +47,7 @@ const HOOK_PROFILE_MAP = {
     'nf-precompact',
     'nf-prompt',
     'nf-stop',
-    'gsd-context-monitor',
+    'nf-context-monitor',
     'nf-spec-regen',
     'nf-token-collector',
     'nf-slot-correlator',
@@ -56,6 +57,7 @@ const HOOK_PROFILE_MAP = {
     'nf-console-guard',
     'nf-destructive-git-guard',
     'nf-mcp-dispatch-guard',
+    'nf-node-eval-guard',
     'nf-session-end',
   ]),
   strict: new Set([
@@ -63,7 +65,7 @@ const HOOK_PROFILE_MAP = {
     'nf-precompact',
     'nf-prompt',
     'nf-stop',
-    'gsd-context-monitor',
+    'nf-context-monitor',
     'nf-spec-regen',
     'nf-token-collector',
     'nf-slot-correlator',
@@ -73,6 +75,7 @@ const HOOK_PROFILE_MAP = {
     'nf-console-guard',
     'nf-destructive-git-guard',
     'nf-mcp-dispatch-guard',
+    'nf-node-eval-guard',
     'nf-session-end',
   ]),
 };
@@ -89,7 +92,7 @@ const DEFAULT_HOOK_PRIORITIES = {
   'nf-session-start':     50,  // Normal — secret sync
   'nf-session-end':       50,  // Normal — session cleanup
   'nf-check-update':      10,  // Low — update check
-  'gsd-context-monitor':  50,  // Normal — context warnings
+  'nf-context-monitor':  50,  // Normal — context warnings
   'nf-spec-regen':        10,  // Low — spec regeneration
   'nf-post-edit-format':  10,  // Low — formatting
   'nf-console-guard':     10,  // Low — console.log warning

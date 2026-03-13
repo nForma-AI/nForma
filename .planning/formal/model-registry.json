@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-10T21:28:53.829Z",
+  "last_sync": "2026-03-11T03:46:18.702Z",
   "search_dirs": [],
   "models": {
     ".planning/formal/alloy/solve-session-persistence.als": {
@@ -85,20 +85,15 @@
       "layer_maturity": 3
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 7015,
-      "last_updated": "2026-03-10T21:29:01.174Z",
+      "version": 7119,
+      "last_updated": "2026-03-11T03:48:25.329Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 3,
+      "description": "Quorum vote-counting model — unanimity predicate verification",
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3",
-      "requirements": [
-        "QUORUM-02",
-        "SAFE-01",
-        "SAFE-04"
-      ]
+      "source_layer": "L3"
     },
     ".planning/formal/alloy/scoreboard-recompute.als": {
       "version": 1,
@@ -181,20 +176,15 @@
       "layer_maturity": 3
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 7012,
-      "last_updated": "2026-03-10T21:29:01.174Z",
+      "version": 7116,
+      "last_updated": "2026-03-11T03:48:25.329Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 3,
+      "description": "Quorum convergence DTMC model — state transition probabilities",
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3",
-      "requirements": [
-        "PRM-01",
-        "QUORUM-04",
-        "LOOP-01"
-      ]
+      "source_layer": "L3"
     },
     ".planning/formal/tla/NFAccountManager.tla": {
       "version": 1,
@@ -661,7 +651,15 @@
         "SCHEMA-01",
         "SCHEMA-02",
         "SCHEMA-03",
-        "SCHEMA-04"
+        "SCHEMA-04",
+        "ADAPT-01",
+        "ARCH-03",
+        "BRKR-01",
+        "EXEC-01",
+        "LTCY-01",
+        "PRIO-01",
+        "SHARD-01",
+        "VALID-01"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -733,7 +731,17 @@
         "ARCH-03",
         "META-01",
         "META-02",
-        "META-03"
+        "META-03",
+        "ADAPT-01",
+        "BRKR-01",
+        "EXEC-01",
+        "LTCY-01",
+        "PARA-01",
+        "PARA-02",
+        "PRIO-01",
+        "SCHEMA-02",
+        "SHARD-01",
+        "VALID-01"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -905,7 +913,9 @@
       "requirements": [
         "UPPAAL-01",
         "UPPAAL-02",
-        "UPPAAL-03"
+        "UPPAAL-03",
+        "HLTH-03",
+        "SIG-03"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -922,7 +932,9 @@
         "SIG-01",
         "SIG-02",
         "SIG-03",
-        "SIG-04"
+        "SIG-04",
+        "HLTH-03",
+        "UPPAAL-02"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -956,7 +968,9 @@
         "HLTH-01",
         "HLTH-02",
         "HLTH-03",
-        "VIS-01"
+        "VIS-01",
+        "SIG-03",
+        "UPPAAL-02"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -1373,24 +1387,15 @@
       "layer_maturity": 3
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 5766,
-      "last_updated": "2026-03-10T21:29:01.177Z",
+      "version": 5870,
+      "last_updated": "2026-03-11T03:48:25.333Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 3,
+      "description": "Quorum workflow TLA+ model — state machine with unanimity and deliberation guards",
+      "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3",
-      "requirements": [
-        "QUORUM-01",
-        "QUORUM-02",
-        "QUORUM-03",
-        "SAFE-01",
-        "SAFE-02",
-        "SAFE-03",
-        "LOOP-01"
-      ]
+      "source_layer": "L3"
     },
     ".planning/formal/alloy/solve-automation-features.als": {
       "version": 1,
@@ -1620,7 +1625,9 @@
       "session_id": null,
       "description": "Models --base-ref scoping behavior of gate-a-grounding.cjs",
       "requirements": [
-        "GATE-01"
+        "GATE-01",
+        "GATE-03",
+        "GATE-04"
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
@@ -1988,7 +1995,8 @@
       "description": "Gate promotion pipeline with evidence readiness scoring, fail-open semantics, bypass, auto-demotion with hysteresis, and churn density ranking",
       "requirements": [
         "GATE-03",
-        "GATE-04"
+        "GATE-04",
+        "GATE-01"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -2111,7 +2119,13 @@
         "LRNG-03",
         "LRNG-04",
         "SHARD-01",
-        "VALID-01"
+        "VALID-01",
+        "ARCH-03",
+        "BRKR-01",
+        "EXEC-01",
+        "LTCY-01",
+        "PRIO-01",
+        "SCHEMA-02"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -2182,7 +2196,12 @@
         "BRKR-01",
         "EXEC-01",
         "LTCY-01",
-        "PRIO-01"
+        "PRIO-01",
+        "ADAPT-01",
+        "ARCH-03",
+        "SCHEMA-02",
+        "SHARD-01",
+        "VALID-01"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -2344,7 +2363,9 @@
       "description": "Parallel execution — worktree isolation, merge orchestration",
       "requirements": [
         "PARA-01",
-        "PARA-02"
+        "PARA-02",
+        "META-01",
+        "META-03"
       ],
       "source_layer": "L3",
       "gate_maturity": "SOFT_GATE",
@@ -2536,7 +2557,8 @@
         "CONF-03",
         "CONF-04",
         "CONF-05",
-        "CONF-08"
+        "CONF-08",
+        "CONF-09"
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
@@ -2800,7 +2822,9 @@
       "description": "Parallel execution — worktree isolation, merge orchestration",
       "requirements": [
         "PARA-01",
-        "PARA-02"
+        "PARA-02",
+        "META-01",
+        "META-03"
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
@@ -2847,7 +2871,9 @@
       "description": "Meta resolution — auto-resolve planning commands, assumption presentation",
       "requirements": [
         "META-01",
-        "META-03"
+        "META-03",
+        "PARA-01",
+        "PARA-02"
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
@@ -2877,7 +2903,8 @@
         "TRIAGE-02",
         "UNIF-02",
         "UPPAAL-02",
-        "VALID-01"
+        "VALID-01",
+        "SCHEMA-03"
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",

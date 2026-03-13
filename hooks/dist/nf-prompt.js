@@ -303,6 +303,78 @@ function getDownProviderSlots() {
   } catch (_) { return []; } // fail-open: any error → proceed with no provider skips
 }
 
+// Deduplicates slots that share the same underlying model.
+// Returns { unique: [...], duplicates: [...] }, where unique are kept in orderedSlots
+// and duplicates are candidates for the MODEL-DEDUP fallback tier.
+// Respects auth_type sort order: first unique model per auth_type wins (sub agents preferred).
+function deduplicateByModel(orderedSlots, agentCfg) {
+  const seenModels = new Map(); // model string -> first slot name that claimed it
+  const unique = [];
+  const duplicates = [];
+
+  for (const slot of orderedSlots) {
+    const model = (agentCfg[slot.slot]?.model || 'unknown');
+    // Never deduplicate slots with unknown models — we can't assert they're duplicates
+    if (model === 'unknown') {
+      unique.push(slot);
+      continue;
+    }
+    if (seenModels.has(model)) {
+      // Duplicate model — demote to fallback tier
+      duplicates.push(slot);
+      process.stderr.write(`[nf-dispatch] MODEL-DEDUP: ${slot.slot} (${model}) demoted to fallback — duplicate of ${seenModels.get(model)}\n`);
+    } else {
+      // New model — keep as primary
+      seenModels.set(model, slot.slot);
+      unique.push(slot);
+    }
+  }
+
+  return { unique, duplicates };
+}
+
+// Build the FALLBACK-01 dispatch sequence instruction string.
+// Extracted as a named function for unit testing — this logic determines what Claude
+// sees as the fallback slot list when primaries fail.
+function buildFalloverRule(cappedSlots, t1Unused, t2Slots, maxSize, modelDedupSlots) {
+  const modelDedupSlots_arr = modelDedupSlots || [];
+  if (t1Unused.length > 0 || t2Slots.length > 0 || modelDedupSlots_arr.length > 0) {
+    // Always emit the full FALLBACK-01 dispatch sequence when ANY fallback slots exist.
+    // Previous bug: when T1 was empty (no auth_type=sub slots), the entire fallback
+    // sequence was replaced with a weak "skip it" message, causing Claude to give up
+    // instead of trying remaining T2 slots.
+    const steps = [`  Step 1 PRIMARY:        [${cappedSlots.map(s => s.slot).join(', ')}]`];
+    let nextStep = 2;
+
+    if (modelDedupSlots_arr.length > 0) {
+      steps.push(`  Step ${nextStep} MODEL-DEDUP:    [${modelDedupSlots_arr.join(', ')}]  ← same model as a primary, try before T2`);
+      nextStep++;
+    }
+
+    if (t1Unused.length > 0) {
+      steps.push(`  Step ${nextStep} T1 sub-CLI:     [${t1Unused.join(', ')}]  ← try these BEFORE any T2 slot`);
+      nextStep++;
+      steps.push(`  Step ${nextStep} T2 ccr:         [${t2Slots.length > 0 ? t2Slots.join(', ') : 'none'}]`);
+    } else {
+      steps.push(`  Step ${nextStep} T2 fallback:    [${t2Slots.join(', ')}]  ← dispatch these when primaries return UNAVAIL`);
+    }
+
+    return (
+      `SLOT DISPATCH SEQUENCE (FALLBACK-01) — when one or more primaries return UNAVAIL:\n` +
+      steps.join('\n') + '\n' +
+      `CRITICAL: Do NOT fail-open until ALL tiers are exhausted. Dispatch T${modelDedupSlots_arr.length > 0 ? 'MODEL-DEDUP then ' : ''}${t1Unused.length > 0 ? '1 then T2' : '2'} replacements for UNAVAIL primaries.\n` +
+      `PARALLEL DISPATCH: Dispatch ALL needed fallback replacements as parallel sibling Tasks in ONE message turn — not one per UNAVAIL primary.\n` +
+      `DEDUP: Each fallback slot is dispatched AT MOST ONCE per round. Never dispatch the same slot twice even if multiple primaries are UNAVAIL.\n` +
+      `NO RESUME: slot-worker Task results are final. Never call resume on a completed slot-worker Task.\n` +
+      `UNAVAIL slots do not count toward the ${maxSize} required quorum votes.`
+    );
+  }
+  return (
+    `Failover rule: if a slot-worker returns UNAVAIL or error, skip it — ` +
+    `errors do not count toward the ${maxSize} required.`
+  );
+}
+
 // Check if the circuit breaker is active (and not disabled) for a given git root.
 function isBreakerActive(cwd) {
   const gitResult = spawnSync('git', ['rev-parse', '--show-toplevel'], {
@@ -567,12 +639,20 @@ process.stdin.on('end', () => {
         process.stderr.write(`[nf-dispatch] FALLBACK: all slots filtered, restored ${cappedSlots[0].slot}\n`);
       }
 
+      // ── MODEL DEDUPLICATION: Remove duplicate-model slots from primary dispatch ────
+      // Slots sharing the same underlying model are demoted to fallback tier for LLM diversity.
+      // This happens AFTER the externalSlotCap slice to ensure we maximize model diversity
+      // within the fan-out budget.
+      const dedupResult = deduplicateByModel(cappedSlots, agentCfg);
+      const uniqueSlots = dedupResult.unique;
+      const modelDedupSlots = dedupResult.duplicates;
+
       // Generate step list, with optional section headers when preferSub is on
       let stepLines = [];
       let stepNum = 1;
-      const hasMixed = preferSub && cappedSlots.some(s => s.authType === 'sub') && cappedSlots.some(s => s.authType !== 'sub');
+      const hasMixed = preferSub && uniqueSlots.some(s => s.authType === 'sub') && uniqueSlots.some(s => s.authType !== 'sub');
       let inApiSection = false;
-      for (const { slot, authType } of cappedSlots) {
+      for (const { slot, authType } of uniqueSlots) {
         if (hasMixed && authType !== 'sub' && !inApiSection) {
           stepLines.push('  [API agents — overflow if sub count insufficient]');
           inApiSection = true;
@@ -581,12 +661,12 @@ process.stdin.on('end', () => {
         stepNum++;
       }
       const dynamicSteps = stepLines.join('\n');
-      const afterSteps = cappedSlots.length + 1;
+      const afterSteps = uniqueSlots.length + 1;
 
       // Compute T1 unused sub-CLI slots: sub agents cut by the fan-out cap.
       // These are the preferred replacement tier when a dispatched slot returns UNAVAIL.
       // They must be tried before any T2 ccr/api slots (claude-1..6).
-      const cappedSlotNames = new Set(cappedSlots.map(s => s.slot));
+      const cappedSlotNames = new Set(uniqueSlots.map(s => s.slot));
       const t1Unused = orderedSlots
         .filter(s => s.authType === 'sub' && !cappedSlotNames.has(s.slot))
         .map(s => s.slot);
@@ -594,25 +674,12 @@ process.stdin.on('end', () => {
         .filter(s => s.authType !== 'sub' && !cappedSlotNames.has(s.slot))
         .map(s => s.slot);
 
-      // Build a structured dispatch sequence (enumerated steps, not prose rules).
-      // Structured sequences are less ambiguous than conditional prose for LLM execution.
-      let failoverRule;
-      if (t1Unused.length > 0) {
-        failoverRule =
-          `SLOT DISPATCH SEQUENCE (FALLBACK-01) — execute in order, skip UNAVAIL:\n` +
-          `  Step 1 PRIMARY:        [${cappedSlots.map(s => s.slot).join(', ')}]\n` +
-          `  Step 2 T1 sub-CLI:     [${t1Unused.join(', ')}]  ← try these BEFORE any T2 slot\n` +
-          `  Step 3 T2 ccr:         [${t2Slots.length > 0 ? t2Slots.join(', ') : 'none'}]\n` +
-          `UNAVAIL slots do not count toward the ${maxSize} required quorum votes.`;
-      } else {
-        failoverRule =
-          `Failover rule: if a slot-worker returns UNAVAIL or error, skip it — ` +
-          `errors do not count toward the ${maxSize} required.`;
-      }
+      const tModelDedup = modelDedupSlots.map(s => s.slot);
+      const failoverRule = buildFalloverRule(uniqueSlots, t1Unused, t2Slots, maxSize, tModelDedup);
 
       // Emit a conformance event when FALLBACK-01 is active so audit tooling can detect
       // cases where T2 was used without T1 being exhausted first.
-      if (t1Unused.length > 0) {
+      if (t1Unused.length > 0 || t2Slots.length > 0) {
         try {
           const pp = require(require('path').join(__dirname, '..', 'bin', 'planning-paths.cjs'));
           const logPath = pp.resolve(cwd, 'conformance-events');
@@ -620,7 +687,7 @@ process.stdin.on('end', () => {
             type: 'quorum_fallback_t1_required',
             t1Slots: t1Unused,
             t2Slots,
-            primarySlots: cappedSlots.map(s => s.slot),
+            primarySlots: uniqueSlots.map(s => s.slot),
             fanOutCount,
             ts: new Date().toISOString(),
           }) + '\n', 'utf8');
@@ -671,7 +738,9 @@ process.stdin.on('end', () => {
         `       If exit code 1 (shouldEscalate=true, P(consensus|remaining) below 10% threshold), stop deliberating and proceed to decision immediately.\n` +
         `       This prevents wasting rounds when consensus is mathematically unlikely.\n` +
         `  ${afterSteps + 3}. Include the token <!-- GSD_DECISION --> in your FINAL output\n\n` +
-        `Fail-open: if a model is UNAVAILABLE (quota/error), note it and proceed with available models.\n` +
+        (failoverRule.includes('FALLBACK-01')
+          ? `Fail-open: ONLY after exhausting ALL fallback tiers in FALLBACK-01 above. Do NOT skip fallback dispatch.\n`
+          : `Fail-open: if all dispatched slots return UNAVAIL, proceed without quorum.\n`) +
         `The Stop hook reads the transcript — skipping quorum will block your response.`;
       }
     } else {
@@ -810,4 +879,6 @@ if (typeof module !== 'undefined') {
   module.exports.parseQuorumSizeFlag = parseQuorumSizeFlag;
   module.exports.getAvailableSlots = getAvailableSlots;
   module.exports.sortBySuccessRate = sortBySuccessRate;
+  module.exports.deduplicateByModel = deduplicateByModel;
+  module.exports.buildFalloverRule = buildFalloverRule;
 }

@@ -1,0 +1,1 @@
+{ "schema_version": "1", "generated": "2026-01-01T00:00:00.000Z", "grounding_score": 0.95, "target": 0.8, "target_met": true, "explained": 19, "total": 20, "unexplained_counts": { "instrumentation_bug": 0, "model_gap": 1, "genuine_violation": 0 }, "scope": { "mode": "per-model-aggregate" } }

@@ -183,7 +183,8 @@ function checkJava() {
 
     try {
       if (platform === 'darwin') {
-        const tarUrl = 'https://www.prismmodelchecker.org/dl/prism-4.8.1-mac64.tar.gz';
+        const arch = process.arch === 'arm64' ? 'arm' : 'x86';
+        const tarUrl = `https://www.prismmodelchecker.org/dl/prism-4.10-mac64-${arch}.tar.gz`;
         const tarPath = path.join(tmpDir, 'prism-mac64.tar.gz');
         process.stdout.write('  Downloading PRISM for macOS…\n');
         await downloadFile(tarUrl, tarPath);
@@ -203,7 +204,8 @@ function checkJava() {
         info('Add the above line to your ~/.zshrc or ~/.bash_profile');
         results.push({ name: 'PRISM', status: 'ok' });
       } else if (platform === 'linux') {
-        const tarUrl = 'https://www.prismmodelchecker.org/dl/prism-4.8.1-linux64.tar.gz';
+        const arch = process.arch === 'arm64' ? 'arm' : 'x86';
+        const tarUrl = `https://www.prismmodelchecker.org/dl/prism-4.10-linux64-${arch}.tar.gz`;
         const tarPath = path.join(tmpDir, 'prism-linux64.tar.gz');
         process.stdout.write('  Downloading PRISM for Linux…\n');
         await downloadFile(tarUrl, tarPath);
@@ -222,7 +224,7 @@ function checkJava() {
         info(`  export PRISM_BIN="${extractedDir}/bin/prism"`);
         results.push({ name: 'PRISM', status: 'ok' });
       } else if (platform === 'win32') {
-        const exeUrl = 'https://www.prismmodelchecker.org/dl/prism-4.8.1-win-installer.exe';
+        const exeUrl = 'https://www.prismmodelchecker.org/dl/prism-4.10-win-installer.exe';
         const installerPath = path.join(tmpDir, 'prism-installer.exe');
         process.stdout.write('  Downloading PRISM installer for Windows…\n');
         await downloadFile(exeUrl, installerPath);

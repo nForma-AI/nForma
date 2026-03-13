@@ -1,0 +1,426 @@
+{
+  "metadata": {
+    "generated": "2026-03-11T08:06:32.163Z",
+    "proximity_index_hash": "a899e70d",
+    "threshold": 0.6,
+    "max_hops": 3,
+    "total_pairs_checked": 62188,
+    "candidates_found": 46
+  },
+  "candidates": [
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "ADAPT-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "BRKR-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "EXEC-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "LTCY-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "PARA-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "PARA-02",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "PRIO-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "SCHEMA-02",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "SHARD-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/architecture-registry.als",
+      "requirement": "VALID-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/gate-a-scoping.als",
+      "requirement": "GATE-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/gate-a-scoping.als",
+      "requirement": "GATE-04",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/gate-promotion-lifecycle.als",
+      "requirement": "GATE-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/governance-dx.als",
+      "requirement": "ARCH-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/governance-dx.als",
+      "requirement": "BRKR-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/governance-dx.als",
+      "requirement": "EXEC-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/governance-dx.als",
+      "requirement": "LTCY-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/governance-dx.als",
+      "requirement": "PRIO-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/governance-dx.als",
+      "requirement": "SCHEMA-02",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/health-validation.als",
+      "requirement": "SIG-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/health-validation.als",
+      "requirement": "UPPAAL-02",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/meta-resolve.als",
+      "requirement": "PARA-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/meta-resolve.als",
+      "requirement": "PARA-02",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/misc-behavioral.als",
+      "requirement": "SCHEMA-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/parallel-exec.als",
+      "requirement": "META-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/parallel-exec.als",
+      "requirement": "META-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/parallel-execution.als",
+      "requirement": "META-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/parallel-execution.als",
+      "requirement": "META-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/quality-hardening.als",
+      "requirement": "ADAPT-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/quality-hardening.als",
+      "requirement": "ARCH-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/quality-hardening.als",
+      "requirement": "SCHEMA-02",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/quality-hardening.als",
+      "requirement": "SHARD-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/quality-hardening.als",
+      "requirement": "VALID-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/schema-extensions.als",
+      "requirement": "ADAPT-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/schema-extensions.als",
+      "requirement": "ARCH-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/schema-extensions.als",
+      "requirement": "BRKR-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/schema-extensions.als",
+      "requirement": "EXEC-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/schema-extensions.als",
+      "requirement": "LTCY-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/schema-extensions.als",
+      "requirement": "PRIO-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/schema-extensions.als",
+      "requirement": "SHARD-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/schema-extensions.als",
+      "requirement": "VALID-01",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/signal-analysis-tools.als",
+      "requirement": "HLTH-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/signal-analysis-tools.als",
+      "requirement": "UPPAAL-02",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/uppaal-model-reqs.als",
+      "requirement": "HLTH-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/alloy/uppaal-model-reqs.als",
+      "requirement": "SIG-03",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    },
+    {
+      "model": ".planning/formal/tla/NFConfigLoader.tla",
+      "requirement": "CONF-09",
+      "proximity_score": 0.8232,
+      "verdict": "yes",
+      "confidence": 0.8232,
+      "reasoning": "pre-populated (API key unavailable at build time)",
+      "evaluation_timestamp": "2026-03-11T08:10:57.812Z"
+    }
+  ]
+}

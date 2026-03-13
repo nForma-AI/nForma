@@ -4,7 +4,7 @@
 /**
  * cross-layer-dashboard.cjs — Cross-Layer Alignment Dashboard.
  *
- * Aggregates L1 coverage, Gate A, Gate B, and Gate C scores into a single
+ * Aggregates L1 coverage, Wiring:Evidence, Wiring:Purpose, and Wiring:Coverage scores into a single
  * terminal view. Re-runs gate scripts by default for freshness.
  *
  * Requirements: INTG-04
@@ -162,21 +162,21 @@ function buildResult(data) {
     generated: new Date().toISOString(),
     l1_coverage_pct: l1Pct != null ? l1Pct : null,
     gate_a: gateA ? {
-      score: gateA.grounding_score,
+      score: gateA.wiring_evidence_score || gateA.grounding_score,
       target: gateA.target,
       target_met: gateA.target_met,
       explained: gateA.explained,
       total: gateA.total,
     } : null,
     gate_b: gateB ? {
-      score: gateB.gate_b_score,
+      score: gateB.wiring_purpose_score || gateB.gate_b_score,
       target: gateB.target,
       target_met: gateB.target_met,
       grounded_entries: gateB.grounded_entries,
       total_entries: gateB.total_entries,
     } : null,
     gate_c: gateC ? {
-      score: gateC.gate_c_score,
+      score: gateC.wiring_coverage_score || gateC.gate_c_score,
       target: gateC.target,
       target_met: gateC.target_met,
       validated_entries: gateC.validated_entries,
@@ -228,38 +228,38 @@ function renderTerminal(result) {
   lines.push('├' + hr + '┤');
   lines.push('│' + `  L1 Coverage:  ${l1Val != null ? l1Val.toFixed(1) + '%' : 'N/A'}`.padEnd(W - 8) + l1Health.padStart(8) + '│');
 
-  // Gate A
+  // Wiring:Evidence
   const gaScore = result.gate_a?.score;
   const gaTarget = result.gate_a?.target ?? 0.8;
   const gaHealth = gaScore != null ? healthIndicator(gaScore, gaTarget) : '[N/A]';
   const gaDetail = result.gate_a
     ? `${result.gate_a.explained}/${result.gate_a.total} traces explained`
     : '';
-  lines.push('│' + `  Gate A:       ${pct(gaScore)}`.padEnd(W - 8) + gaHealth.padStart(8) + '│');
+  lines.push('│' + `  Wiring:Evidence: ${pct(gaScore)}`.padEnd(W - 8) + gaHealth.padStart(8) + '│');
   if (gaDetail) {
     lines.push('│' + `                ${gaDetail}`.padEnd(W) + '│');
   }
 
-  // Gate B
+  // Wiring:Purpose
   const gbScore = result.gate_b?.score;
   const gbTarget = result.gate_b?.target ?? 1.0;
   const gbHealth = gbScore != null ? healthIndicator(gbScore, gbTarget) : '[N/A]';
   const gbDetail = result.gate_b
     ? `${result.gate_b.grounded_entries}/${result.gate_b.total_entries} entries grounded`
     : '';
-  lines.push('│' + `  Gate B:       ${pct(gbScore)}`.padEnd(W - 8) + gbHealth.padStart(8) + '│');
+  lines.push('│' + `  Wiring:Purpose:  ${pct(gbScore)}`.padEnd(W - 8) + gbHealth.padStart(8) + '│');
   if (gbDetail) {
     lines.push('│' + `                ${gbDetail}`.padEnd(W) + '│');
   }
 
-  // Gate C
+  // Wiring:Coverage
   const gcScore = result.gate_c?.score;
   const gcTarget = result.gate_c?.target ?? 0.8;
   const gcHealth = gcScore != null ? healthIndicator(gcScore, gcTarget) : '[N/A]';
   const gcDetail = result.gate_c
     ? `${result.gate_c.validated_entries}/${result.gate_c.total_entries} entries validated`
     : '';
-  lines.push('│' + `  Gate C:       ${pct(gcScore)}`.padEnd(W - 8) + gcHealth.padStart(8) + '│');
+  lines.push('│' + `  Wiring:Coverage: ${pct(gcScore)}`.padEnd(W - 8) + gcHealth.padStart(8) + '│');
   if (gcDetail) {
     lines.push('│' + `                ${gcDetail}`.padEnd(W) + '│');
   }

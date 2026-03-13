@@ -12,6 +12,7 @@ const {
   checkAllModels,
   getModelKeys,
   inferSourceLayer,
+  autoPromote,
 } = require('./promote-gate-maturity.cjs');
 
 // ── Test fixtures ───────────────────────────────────────────────────────────
@@ -204,5 +205,176 @@ describe('integration: real model-registry.json', () => {
     assert.strictEqual(result.success, true);
     assert.strictEqual(registry[tlaModel].gate_maturity, 'SOFT_GATE');
     assert.ok(registry[tlaModel].source_layer, 'source_layer should be set');
+  });
+});
+
+// ── Unit tests: autoPromote (PROMO-01..05) ──────────────────────────────────
+
+describe('autoPromote', () => {
+  function makeSolveState(cleanSessions) {
+    return { consecutive_clean_sessions: cleanSessions };
+  }
+
+  function makePerModelGates(models) {
+    return { models };
+  }
+
+  function makeRegistryFile(models) {
+    return { models };
+  }
+
+  function makeGatePassing() {
+    return {
+      gate_a: { pass: true },
+      gate_b: { pass: true },
+      gate_c: { pass: true },
+    };
+  }
+
+  function makeSoftGateModel() {
+    return {
+      gate_maturity: 'SOFT_GATE',
+      source_layer: 'L3',
+      evidence_readiness: { score: 3, total: 5 },
+    };
+  }
+
+  const mockCheckResults = [
+    { tool: 'run-alloy', result: 'pass', check_id: 'alloy:test' },
+  ];
+
+  it('should promote SOFT_GATE models to HARD_GATE when all conditions met', () => {
+    const solveState = makeSolveState(3);
+    const perModelGates = makePerModelGates({
+      '.planning/formal/alloy/test.als': makeGatePassing(),
+    });
+    const registryFile = makeRegistryFile({
+      '.planning/formal/alloy/test.als': makeSoftGateModel(),
+    });
+    const changelog = [];
+
+    const result = autoPromote(solveState, perModelGates, registryFile, changelog, { checkResults: mockCheckResults });
+
+    assert.strictEqual(result.promoted.length, 1);
+    assert.strictEqual(result.promoted[0], '.planning/formal/alloy/test.als');
+    assert.strictEqual(registryFile.models['.planning/formal/alloy/test.als'].gate_maturity, 'HARD_GATE');
+    assert.strictEqual(changelog.length, 1);
+    assert.strictEqual(changelog[0].from_level, 'SOFT_GATE');
+    assert.strictEqual(changelog[0].to_level, 'HARD_GATE');
+    assert.strictEqual(changelog[0].trigger, 'auto_promotion');
+  });
+
+  it('should NOT promote when consecutive_clean_sessions < 3 (PROMO-02)', () => {
+    const solveState = makeSolveState(2);
+    const perModelGates = makePerModelGates({
+      '.planning/formal/alloy/test.als': makeGatePassing(),
+    });
+    const registryFile = makeRegistryFile({
+      '.planning/formal/alloy/test.als': makeSoftGateModel(),
+    });
+
+    const result = autoPromote(solveState, perModelGates, registryFile, []);
+
+    assert.strictEqual(result.promoted.length, 0);
+    assert.strictEqual(result.consecutive_clean_sessions, 2);
+  });
+
+  it('should NOT promote models with cooldown active (PROMO-03)', () => {
+    const solveState = makeSolveState(5);
+    const perModelGates = makePerModelGates({
+      '.planning/formal/alloy/test.als': {
+        ...makeGatePassing(),
+        stability: {
+          stability_status: 'UNSTABLE',
+          flagged_at: new Date().toISOString(),
+          cooldown: {
+            consecutive_stable_sessions: 0,
+            required_sessions: 3,
+            required_wall_time_ms: 3600000,
+            last_session_timestamp: null,
+          },
+        },
+      },
+    });
+    const registryFile = makeRegistryFile({
+      '.planning/formal/alloy/test.als': makeSoftGateModel(),
+    });
+
+    const result = autoPromote(solveState, perModelGates, registryFile, []);
+
+    assert.strictEqual(result.promoted.length, 0);
+    assert.strictEqual(result.skipped_cooldown.length, 1);
+  });
+
+  it('should NOT promote flip-flop unstable models (PROMO-05)', () => {
+    const solveState = makeSolveState(5);
+    const perModelGates = makePerModelGates({
+      '.planning/formal/alloy/test.als': makeGatePassing(),
+    });
+    const registryFile = makeRegistryFile({
+      '.planning/formal/alloy/test.als': makeSoftGateModel(),
+    });
+    const changelog = [
+      { model: '.planning/formal/alloy/test.als', from_level: 'ADVISORY', to_level: 'SOFT_GATE' },
+      { model: '.planning/formal/alloy/test.als', from_level: 'SOFT_GATE', to_level: 'ADVISORY' },
+      { model: '.planning/formal/alloy/test.als', from_level: 'ADVISORY', to_level: 'SOFT_GATE' },
+      { model: '.planning/formal/alloy/test.als', from_level: 'SOFT_GATE', to_level: 'ADVISORY' },
+      { model: '.planning/formal/alloy/test.als', from_level: 'ADVISORY', to_level: 'SOFT_GATE' },
+    ];
+
+    const result = autoPromote(solveState, perModelGates, registryFile, changelog);
+
+    assert.strictEqual(result.promoted.length, 0);
+    assert.strictEqual(result.skipped_flipflop.length, 1);
+  });
+
+  it('should log promotion to changelog with correct fields (PROMO-04)', () => {
+    const solveState = makeSolveState(4);
+    const perModelGates = makePerModelGates({
+      '.planning/formal/alloy/test.als': makeGatePassing(),
+    });
+    const registryFile = makeRegistryFile({
+      '.planning/formal/alloy/test.als': makeSoftGateModel(),
+    });
+    const changelog = [];
+
+    autoPromote(solveState, perModelGates, registryFile, changelog, { checkResults: mockCheckResults });
+
+    assert.strictEqual(changelog.length, 1);
+    const entry = changelog[0];
+    assert.strictEqual(entry.model, '.planning/formal/alloy/test.als');
+    assert.strictEqual(entry.from_level, 'SOFT_GATE');
+    assert.strictEqual(entry.to_level, 'HARD_GATE');
+    assert.ok(entry.timestamp);
+    assert.strictEqual(entry.trigger, 'auto_promotion');
+    assert.strictEqual(entry.consecutive_clean_sessions, 4);
+  });
+
+  it('should preserve ADVISORY models unchanged', () => {
+    const solveState = makeSolveState(5);
+    const perModelGates = makePerModelGates({
+      '.planning/formal/alloy/test.als': makeGatePassing(),
+    });
+    const registryFile = makeRegistryFile({
+      '.planning/formal/alloy/test.als': { gate_maturity: 'ADVISORY', source_layer: 'L3' },
+    });
+
+    const result = autoPromote(solveState, perModelGates, registryFile, []);
+
+    assert.strictEqual(result.promoted.length, 0);
+    assert.strictEqual(registryFile.models['.planning/formal/alloy/test.als'].gate_maturity, 'ADVISORY');
+  });
+
+  it('should handle missing gate data gracefully', () => {
+    const solveState = makeSolveState(5);
+    const perModelGates = makePerModelGates({});
+    const registryFile = makeRegistryFile({
+      '.planning/formal/alloy/test.als': makeSoftGateModel(),
+    });
+
+    const result = autoPromote(solveState, perModelGates, registryFile, []);
+
+    assert.strictEqual(result.promoted.length, 0);
+    assert.strictEqual(result.total_eligible, 0);
   });
 });

@@ -294,7 +294,46 @@ process.stdout.write(JSON.stringify({ written: true, count: pendingAgents.length
 " PENDING_AGENTS_JSON='...' CLAUDE_MCP_PATH="$CLAUDE_MCP_PATH"
 ```
 
-### Step 3d: Sync secrets store secrets to env blocks
+### Step 3d: Write auth_type to nf.json for all pending agents
+
+After writing mcpServers entries, synchronize `auth_type` from `providers.json` to `~/.claude/nf.json` `agent_config` for each pending agent. This ensures correct T1/T2 tiered dispatch (FALLBACK-01) by classifying each slot as `sub` (subscription CLI) or `api` (ccr-routed API).
+
+```bash
+node -e "
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+// Resolve nForma install dir from this script's installed location
+const nfBinDir = path.join(os.homedir(), '.claude', 'nf-bin');
+const providersPath = path.join(path.dirname(nfBinDir), 'nf', 'bin', 'providers.json');
+const providersData = JSON.parse(fs.readFileSync(providersPath, 'utf8'));
+const providerMap = {};
+for (const p of (providersData.providers || [])) {
+  providerMap[p.name] = p;
+}
+
+const nfPath = path.join(os.homedir(), '.claude', 'nf.json');
+let nfCfg = {};
+try { nfCfg = JSON.parse(fs.readFileSync(nfPath, 'utf8')); } catch(e) {}
+const agentConfig = nfCfg.agent_config || {};
+
+const selectedSlots = JSON.parse(process.env.SELECTED_SLOTS_JSON || '[]');
+for (const slot of selectedSlots) {
+  const provider = providerMap[slot];
+  if (!agentConfig[slot]) agentConfig[slot] = {};
+  agentConfig[slot].auth_type = provider ? provider.auth_type : 'api';
+}
+
+nfCfg.agent_config = agentConfig;
+fs.writeFileSync(nfPath, JSON.stringify(nfCfg, null, 2) + '\n');
+console.log('auth_type written for: ' + selectedSlots.join(', '));
+" SELECTED_SLOTS_JSON='[list of pending agent names as JSON array]'
+```
+
+The `SELECTED_SLOTS_JSON` value comes from the pending batch built in Steps 2a-2c. Pass all agent names that were configured (not skipped) as a JSON array string.
+
+### Step 3e: Sync secrets store secrets to env blocks
 
 ```bash
 node -e "
@@ -305,7 +344,7 @@ syncToClaudeJson(SERVICE)
 "
 ```
 
-### Step 3e: Restart each configured agent (sequential — one at a time)
+### Step 3f: Restart each configured agent (sequential — one at a time)
 
 For each agent in the pending batch:
 
@@ -318,7 +357,7 @@ If restart fails or times out, leave config in written state and display:
   Manual retry: /nf:mcp-restart {agent-name}
 ```
 
-### Step 3f: Closing summary
+### Step 3g: Closing summary
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -343,6 +382,61 @@ Run /nf:mcp-status to verify agent health.
 ---
 
 ## Re-run Agent Menu
+
+### Sync auth_type from providers.json
+
+Before displaying the agent roster, synchronize `auth_type` from `providers.json` to `~/.claude/nf.json` for all currently configured agents. This ensures correct `[sub]` vs `[key]` badge display and fixes T1/T2 tiering for existing installations that were set up before `auth_type` was added to `providers.json`.
+
+```bash
+node -e "
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+// Read providers.json for auth_type lookup
+const providersPath = path.join(os.homedir(), '.claude', 'nf', 'bin', 'providers.json');
+const providersData = JSON.parse(fs.readFileSync(providersPath, 'utf8'));
+const providerMap = {};
+for (const p of (providersData.providers || [])) {
+  providerMap[p.name] = p;
+}
+
+// Read ~/.claude.json to find all configured agents
+let claudeJson = {};
+try {
+  claudeJson = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude.json'), 'utf8'));
+} catch(e) {}
+const configuredSlots = Object.keys(claudeJson.mcpServers || {});
+
+// Read existing nf.json
+const nfPath = path.join(os.homedir(), '.claude', 'nf.json');
+let nfCfg = {};
+try { nfCfg = JSON.parse(fs.readFileSync(nfPath, 'utf8')); } catch(e) {}
+const agentConfig = nfCfg.agent_config || {};
+
+let updated = 0;
+for (const slot of configuredSlots) {
+  const provider = providerMap[slot];
+  if (provider && provider.auth_type) {
+    if (!agentConfig[slot]) agentConfig[slot] = {};
+    if (agentConfig[slot].auth_type !== provider.auth_type) {
+      agentConfig[slot].auth_type = provider.auth_type;
+      updated++;
+    }
+  }
+}
+
+if (updated > 0) {
+  nfCfg.agent_config = agentConfig;
+  fs.writeFileSync(nfPath, JSON.stringify(nfCfg, null, 2) + '\n');
+  console.log('auth_type synced for ' + updated + ' slot(s) from providers.json');
+} else {
+  console.log('auth_type already up-to-date for all configured slots');
+}
+"
+```
+
+### Read agent roster
 
 Read the current agent roster from `~/.claude.json`:
 

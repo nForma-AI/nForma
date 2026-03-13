@@ -551,3 +551,45 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.34 — Semantic Gate Validation & Auto-Promotion (Shipped: 2026-03-11)
+
+**Phases:** v0.34-01..v0.34-06 (6 phases, 9 plans)
+**Requirements:** 18/18 satisfied (NAME-01..04, SEM-01..05, PAIR-01..04, PROMO-01..05)
+**Timeline:** ~9 hours (2026-03-11)
+
+**Delivered:** Evolved gate scoring from structural wiring checks to semantic correctness validation using graph-based proximity discovery and LLM-judged candidate pairing, with auto-promotion wired into the solve cycle.
+
+**Key accomplishments:**
+- Gate renaming from A/B/C to Wiring:Evidence/Purpose/Coverage with schema v2, backward compatibility (21 compat tests), and display label migration across TUI, solve report, and dashboard
+- Graph-based semantic scoring via BFS proximity discovery (46 candidates across 62K pair checks) and Haiku LLM evaluation with yes/no/maybe verdicts producing per-gate semantic_score (schema v3)
+- N:N candidate pairing workflow with interactive resolution and model-registry integration (46 pairings confirmed across 14 models), rejected-pairing caching for idempotency
+- Auto-promotion pipeline: SOFT_GATE -> HARD_GATE after 3 consecutive clean sessions (wiring >= 1.0, semantic >= 0.8, no counterexamples), with flip-flop detection and cooldown enforcement
+- Pipeline wiring: compute-semantic-scores.cjs integrated into nf-solve.cjs, compute-per-model-gates.cjs preserves semantic_score across gate rewrites
+- E2E integration test suite: 5 tests validating enrichment, idempotency, 3-cycle promotion, regression reset, and PROMO-04 changelog field compliance
+
+**Audit:** PASSED — 18/18 requirements, 3/3 integration checks, 2/2 E2E flows
+**Archive:** `.planning/milestones/v0.34-MILESTONE-AUDIT.md`
+
+---
+
+
+## v0.35 Install & Setup Bug Fixes (Shipped: 2026-03-13)
+
+**Phases:** v0.35-01..v0.35-04 (4 phases, 4 plans, 8 tasks)
+**Requirements:** 8/8 satisfied (INST-01/02, SETUP-01/02, XPLAT-01/02, TUI-01/02)
+**Timeline:** ~2 days (2026-03-12 → 2026-03-13)
+
+**Delivered:** Fixed four user-facing bugs (GitHub #4-#7) affecting install, setup, cross-platform paths, and TUI agent configuration.
+
+**Key accomplishments:**
+- Auto-rebuild hooks/dist on fresh clone install — buildHooksIfMissing() delegates to scripts/build-hooks.js with actionable error messages on failure
+- Declarative auth_type slot classification in providers.json — replaces name-prefix inference for T1/T2 tiered dispatch; wired into mcp-setup first-run and re-run flows
+- Cross-platform CLI path resolution via resolveCli() — multi-strategy discovery (which, Homebrew, npm global, system paths) replaces hardcoded /opt/homebrew/bin/ paths in unified-mcp-server.mjs and call-quorum-slot.cjs
+- TUI CLI Agent MCP entry parity — "Add Agent → CLI Agent" resolves paths via resolveCli(), validates executability via fs.accessSync, and writes MCP entries matching mcp-setup format
+
+**Audit:** PASSED — 8/8 requirements, 37/37 tests, integration clean
+**Archive:** `.planning/milestones/v0.35-MILESTONE-AUDIT.md`
+
+---
+

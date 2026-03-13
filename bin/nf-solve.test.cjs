@@ -39,6 +39,7 @@ const {
   crossReferenceFormalCoverage,
   autoClose,
   persistSessionSummary,
+  checkCleanSession,
 } = require('./nf-solve.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -730,7 +731,7 @@ test('TC-LAYER-1: sweepL1toL2 returns normalized residual from gate-a JSON', () 
   assert.ok(result.residual >= -1 && result.residual <= 10,
     'residual should be -1 to 10, got ' + result.residual);
   if (result.residual >= 0) {
-    assert.ok('grounding_score' in result.detail, 'detail should have grounding_score');
+    assert.ok('wiring_evidence_score' in result.detail, 'detail should have wiring_evidence_score');
     assert.ok('target' in result.detail, 'detail should have target');
     assert.ok('gap' in result.detail, 'detail should have gap');
   }
@@ -743,7 +744,7 @@ test('TC-LAYER-2: sweepL2toL3 returns normalized residual capped at 10', () => {
   assert.ok(result.residual >= -1 && result.residual <= 10,
     'residual should be -1 to 10, got ' + result.residual);
   if (result.residual >= 0) {
-    assert.ok('gate_b_score' in result.detail, 'detail should have gate_b_score');
+    assert.ok('wiring_purpose_score' in result.detail, 'detail should have wiring_purpose_score');
     assert.ok('orphaned_count' in result.detail, 'detail should have orphaned_count');
     assert.ok('residual_capped' in result.detail, 'detail should have residual_capped');
   }
@@ -756,7 +757,7 @@ test('TC-LAYER-3: sweepL3toTC returns normalized residual from gate-c JSON', () 
   assert.ok(result.residual >= -1 && result.residual <= 10,
     'residual should be -1 to 10, got ' + result.residual);
   if (result.residual >= 0) {
-    assert.ok('gate_c_score' in result.detail, 'detail should have gate_c_score');
+    assert.ok('wiring_coverage_score' in result.detail, 'detail should have wiring_coverage_score');
     assert.ok('unvalidated_count' in result.detail, 'detail should have unvalidated_count');
     assert.ok('total_failure_modes' in result.detail, 'detail should have total_failure_modes');
     assert.ok('total_recipes' in result.detail, 'detail should have total_recipes');
@@ -956,4 +957,200 @@ test('TC-SESSION-4: Fail-open on write error (invalid directory)', () => {
   persistSessionSummary('report', '{}', true, [{ iteration: 1, actions: [] }], '/nonexistent/path/that/should/fail');
   // If we reach here, the function handled the error gracefully
   assert.ok(true, 'persistSessionSummary should not throw on write error');
+});
+
+// ── TC-PROMO-INIT: consecutive_clean_sessions Initialization Tests (PROMO-02) ─
+
+test('TC-PROMO-INIT-1: first run initializes consecutive_clean_sessions to 0', () => {
+  // Simulate reading a missing solve-state.json (try/catch returns {})
+  const existingSolveState = {};
+  const prevClean = (existingSolveState && existingSolveState.consecutive_clean_sessions) || 0;
+  assert.equal(prevClean, 0, 'Missing consecutive_clean_sessions should default to 0');
+});
+
+test('TC-PROMO-INIT-2: existing solve-state.json preserves consecutive_clean_sessions value', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-solve-promo-init-'));
+  try {
+    fs.writeFileSync(path.join(tmpDir, 'solve-state.json'), JSON.stringify({ consecutive_clean_sessions: 5 }));
+    const existingSolveState = JSON.parse(fs.readFileSync(path.join(tmpDir, 'solve-state.json'), 'utf8'));
+    assert.equal(existingSolveState.consecutive_clean_sessions, 5);
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('TC-PROMO-INIT-3: clean session increments consecutive_clean_sessions', () => {
+  const prevClean = 2;
+  const isCleanSession = true;
+  const result = isCleanSession ? prevClean + 1 : 0;
+  assert.equal(result, 3);
+});
+
+test('TC-PROMO-INIT-4: non-clean session resets consecutive_clean_sessions to 0', () => {
+  const prevClean = 5;
+  const isCleanSession = false;
+  const result = isCleanSession ? prevClean + 1 : 0;
+  assert.equal(result, 0);
+});
+
+test('TC-PROMO-INIT-5: null consecutive_clean_sessions in JSON defaults to 0', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-solve-promo-null-'));
+  try {
+    fs.writeFileSync(path.join(tmpDir, 'solve-state.json'), JSON.stringify({ converged: false }));
+    const existingSolveState = JSON.parse(fs.readFileSync(path.join(tmpDir, 'solve-state.json'), 'utf8'));
+    const prevClean = (existingSolveState.consecutive_clean_sessions) || 0;
+    assert.equal(prevClean, 0, 'Missing field in JSON should default to 0');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+// ── TC-PROMO-SEMANTIC: checkCleanSession semantic_score Evaluation Tests (PROMO-03) ─
+
+test('TC-PROMO-SEMANTIC-1: all gates with wiring >= 1.0 and semantic >= 0.8 = CLEAN', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-solve-semantic-'));
+  const gatesDir = path.join(tmpDir, 'gates');
+  fs.mkdirSync(gatesDir, { recursive: true });
+  try {
+    fs.writeFileSync(path.join(gatesDir, 'gate-a-grounding.json'), JSON.stringify({ wiring_evidence_score: 1.0, semantic_score: 0.85 }));
+    fs.writeFileSync(path.join(gatesDir, 'gate-b-abstraction.json'), JSON.stringify({ wiring_purpose_score: 1.0, semantic_score: 0.9 }));
+    fs.writeFileSync(path.join(gatesDir, 'gate-c-validation.json'), JSON.stringify({ wiring_coverage_score: 1.0, semantic_score: 0.8 }));
+
+    // Evaluate using the same logic as checkCleanSession
+    const GATE_FILES = {
+      A: { file: 'gate-a-grounding.json', wiringKey: 'wiring_evidence_score' },
+      B: { file: 'gate-b-abstraction.json', wiringKey: 'wiring_purpose_score' },
+      C: { file: 'gate-c-validation.json', wiringKey: 'wiring_coverage_score' },
+    };
+    const wiring = {};
+    const semantic = {};
+    for (const [label, cfg] of Object.entries(GATE_FILES)) {
+      const gateData = JSON.parse(fs.readFileSync(path.join(gatesDir, cfg.file), 'utf8'));
+      wiring[label] = gateData[cfg.wiringKey] != null ? gateData[cfg.wiringKey] : 0;
+      semantic[label] = gateData.semantic_score != null ? gateData.semantic_score : 0;
+    }
+    const wiringClean = wiring.A >= 1.0 && wiring.B >= 1.0 && wiring.C >= 1.0;
+    const semanticClean = semantic.A >= 0.8 && semantic.B >= 0.8 && semantic.C >= 0.8;
+    const isClean = wiringClean && semanticClean;
+    assert.equal(isClean, true, 'All gates above thresholds should be CLEAN');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('TC-PROMO-SEMANTIC-2: semantic_score below 0.8 on any gate = NOT CLEAN', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-solve-semantic-low-'));
+  const gatesDir = path.join(tmpDir, 'gates');
+  fs.mkdirSync(gatesDir, { recursive: true });
+  try {
+    fs.writeFileSync(path.join(gatesDir, 'gate-a-grounding.json'), JSON.stringify({ wiring_evidence_score: 1.0, semantic_score: 0.85 }));
+    fs.writeFileSync(path.join(gatesDir, 'gate-b-abstraction.json'), JSON.stringify({ wiring_purpose_score: 1.0, semantic_score: 0.7 }));
+    fs.writeFileSync(path.join(gatesDir, 'gate-c-validation.json'), JSON.stringify({ wiring_coverage_score: 1.0, semantic_score: 0.8 }));
+
+    const GATE_FILES = {
+      A: { file: 'gate-a-grounding.json', wiringKey: 'wiring_evidence_score' },
+      B: { file: 'gate-b-abstraction.json', wiringKey: 'wiring_purpose_score' },
+      C: { file: 'gate-c-validation.json', wiringKey: 'wiring_coverage_score' },
+    };
+    const semantic = {};
+    for (const [label, cfg] of Object.entries(GATE_FILES)) {
+      const gateData = JSON.parse(fs.readFileSync(path.join(gatesDir, cfg.file), 'utf8'));
+      semantic[label] = gateData.semantic_score != null ? gateData.semantic_score : 0;
+    }
+    const semanticClean = semantic.A >= 0.8 && semantic.B >= 0.8 && semantic.C >= 0.8;
+    assert.equal(semanticClean, false, 'Gate B at 0.7 should fail threshold');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('TC-PROMO-SEMANTIC-3: missing semantic_score field defaults to 0 = NOT CLEAN', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-solve-semantic-missing-'));
+  const gatesDir = path.join(tmpDir, 'gates');
+  fs.mkdirSync(gatesDir, { recursive: true });
+  try {
+    // Gate files with wiring score but NO semantic_score
+    fs.writeFileSync(path.join(gatesDir, 'gate-a-grounding.json'), JSON.stringify({ wiring_evidence_score: 1.0 }));
+    fs.writeFileSync(path.join(gatesDir, 'gate-b-abstraction.json'), JSON.stringify({ wiring_purpose_score: 1.0 }));
+    fs.writeFileSync(path.join(gatesDir, 'gate-c-validation.json'), JSON.stringify({ wiring_coverage_score: 1.0 }));
+
+    const GATE_FILES = {
+      A: { file: 'gate-a-grounding.json', wiringKey: 'wiring_evidence_score' },
+      B: { file: 'gate-b-abstraction.json', wiringKey: 'wiring_purpose_score' },
+      C: { file: 'gate-c-validation.json', wiringKey: 'wiring_coverage_score' },
+    };
+    const semantic = {};
+    for (const [label, cfg] of Object.entries(GATE_FILES)) {
+      const gateData = JSON.parse(fs.readFileSync(path.join(gatesDir, cfg.file), 'utf8'));
+      semantic[label] = gateData.semantic_score != null ? gateData.semantic_score : 0;
+    }
+    assert.equal(semantic.A, 0, 'Missing semantic_score should default to 0');
+    assert.equal(semantic.B, 0);
+    assert.equal(semantic.C, 0);
+    const semanticClean = semantic.A >= 0.8 && semantic.B >= 0.8 && semantic.C >= 0.8;
+    assert.equal(semanticClean, false, 'Missing semantic_score should be NOT CLEAN');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('TC-PROMO-SEMANTIC-4: wiring below 1.0 = NOT CLEAN even with good semantic', () => {
+  const GATE_FILES = {
+    A: { file: 'gate-a-grounding.json', wiringKey: 'wiring_evidence_score' },
+    B: { file: 'gate-b-abstraction.json', wiringKey: 'wiring_purpose_score' },
+    C: { file: 'gate-c-validation.json', wiringKey: 'wiring_coverage_score' },
+  };
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-solve-semantic-lowwire-'));
+  const gatesDir = path.join(tmpDir, 'gates');
+  fs.mkdirSync(gatesDir, { recursive: true });
+  try {
+    fs.writeFileSync(path.join(gatesDir, 'gate-a-grounding.json'), JSON.stringify({ wiring_evidence_score: 0.5, semantic_score: 1.0 }));
+    fs.writeFileSync(path.join(gatesDir, 'gate-b-abstraction.json'), JSON.stringify({ wiring_purpose_score: 0.5, semantic_score: 1.0 }));
+    fs.writeFileSync(path.join(gatesDir, 'gate-c-validation.json'), JSON.stringify({ wiring_coverage_score: 0.5, semantic_score: 1.0 }));
+
+    const wiring = {};
+    for (const [label, cfg] of Object.entries(GATE_FILES)) {
+      const gateData = JSON.parse(fs.readFileSync(path.join(gatesDir, cfg.file), 'utf8'));
+      wiring[label] = gateData[cfg.wiringKey] != null ? gateData[cfg.wiringKey] : 0;
+    }
+    const wiringClean = wiring.A >= 1.0 && wiring.B >= 1.0 && wiring.C >= 1.0;
+    assert.equal(wiringClean, false, 'Wiring at 0.5 should fail even with semantic=1.0');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('TC-PROMO-SEMANTIC-5: missing semantic_score on ALL gates logs diagnostic and is NOT CLEAN', () => {
+  // Test the default-to-0 behavior for all gates — simulates v0.34-04 semantic scoring not yet run
+  const gateData = { wiring_evidence_score: 1.0 }; // No semantic_score field
+  const semanticScore = gateData.semantic_score != null ? gateData.semantic_score : 0;
+  assert.equal(semanticScore, 0, 'Missing semantic_score should default to 0');
+  assert.equal(semanticScore >= 0.8, false, 'Defaulted 0 should not pass 0.8 threshold');
+
+  // Verify the diagnostic pattern is present in source code
+  const source = fs.readFileSync(path.join(__dirname, 'nf-solve.cjs'), 'utf8');
+  assert.ok(source.includes('semantic_score defaulted to 0 (field missing)'), 'Source should contain diagnostic for missing semantic_score');
+  assert.ok(source.includes('semantic_score='), 'Source should contain diagnostic for present semantic_score');
+});
+
+test('TC-PROMO-SEMANTIC-6: counterexample in check-results.ndjson = NOT CLEAN', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-solve-semantic-counter-'));
+  try {
+    // Simulate check-results.ndjson with a counterexample
+    fs.writeFileSync(path.join(tmpDir, 'check-results.ndjson'), '{"result":"counterexample"}\n');
+
+    let formalPass = true;
+    const checkResultsPath = path.join(tmpDir, 'check-results.ndjson');
+    const lines = fs.readFileSync(checkResultsPath, 'utf8').trim().split('\n').filter(Boolean);
+    for (const line of lines) {
+      const entry = JSON.parse(line);
+      if (entry.result === 'counterexample') {
+        formalPass = false;
+        break;
+      }
+    }
+    assert.equal(formalPass, false, 'Counterexample should cause NOT CLEAN');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
 });

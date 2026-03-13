@@ -40,6 +40,30 @@ Using conversation context as question (Priority N - [type]):
 ```
 </dispatch_pattern>
 
+## Consensus Enforcement Rules
+
+These three rules govern ALL consensus determination in both Mode A and Mode B. They are non-negotiable and mechanistic — no interpretation, rationalization, or override is permitted.
+
+**RULE CE-1: Orchestrator Is Facilitator Only**
+- Claude's position (`$CLAUDE_POSITION`) is ADVISORY context provided to external voters to help them form informed positions.
+- Claude's position MUST NOT be counted as a vote in any consensus tally.
+- The consensus tally counts ONLY external slot-worker votes (from `$DISPATCH_LIST`).
+- When displaying the positions table, Claude's row MUST be labeled `Claude (ADVISORY — not a vote)`.
+
+**RULE CE-2: BLOCK Is Absolute**
+- A BLOCK (or REJECT in Mode B) vote from ANY single valid (non-UNAVAIL) external voter prevents consensus from being reached.
+- The orchestrator MUST NOT override, rationalize away, dismiss, or reinterpret a BLOCK vote. The BLOCK stands as-is.
+- When a BLOCK occurs: the system MUST enter deliberation (provide the BLOCK rationale to all voters for the next round) or escalate after max rounds.
+- Prohibited phrases in orchestrator reasoning: "despite the BLOCK", "overriding the BLOCK because", "the BLOCK analysis was inaccurate", "majority overrides the BLOCK".
+
+**RULE CE-3: Unanimity Required**
+- Consensus means 100% of valid (non-UNAVAIL) external voters agree on the same verdict.
+- There is NO majority-based approval. 2-out-of-3 APPROVE with 1 BLOCK is NOT consensus — it is a disagreement requiring deliberation.
+- UNAVAIL voters are excluded from the denominator (they are not valid voters for this round).
+- If only 1 external voter is valid and they APPROVE, that is consensus (1/1 = 100%).
+
+---
+
 <mode_detection>
 **Default: Mode A.**
 
@@ -91,7 +115,7 @@ A server in `$QUORUM_ACTIVE` but absent from `$CLAUDE_MCP_SERVERS` = skip silent
 ```bash
 node "$HOME/.claude/nf-bin/quorum-preflight.cjs" --max-quorum-size
 ```
-Count available slots (those not marked UNAVAIL and passing $QUORUM_ACTIVE filter). Include Claude itself as +1.
+Count available slots (those not marked UNAVAIL and passing $QUORUM_ACTIVE filter). Claude is the facilitator and does NOT count toward max_quorum_size. Count only external slots.
 If `availableCount < max_quorum_size`:
   - If $ARGUMENTS contains `--force-quorum`: log warning `[WARN] Quorum below max_quorum_size (N available, min M) — proceeding due to --force-quorum` and continue.
   - Otherwise: stop with:
@@ -235,14 +259,16 @@ Question: [question]
 ```
 (The Active line lists the actual active slots resolved at runtime, not hardcoded names. The example above is illustrative — the executor renders it dynamically using the resolved slot list from provider pre-flight.)
 
-### Claude's position (Round 1)
+### Claude's advisory position (Round 1)
 
-Before querying any model, state Claude's own answer and reasoning:
+Before querying any model, state Claude's own analysis and reasoning:
 ```
-Claude (Round 1): [answer + reasoning — 2–4 sentences]
+Claude (ADVISORY — Round 1): [analysis + reasoning — 2–4 sentences]
 ```
 
 Store as `$CLAUDE_POSITION`.
+
+This position is ADVISORY per CE-1. It is shared with external voters as context but is NOT counted in the consensus tally.
 
 ### Query models (parallel — one Task per slot)
 
@@ -277,16 +303,22 @@ Example dispatch (all Tasks in one message turn):
 
 The slot-worker reads repo context, builds its own prompt from the YAML arguments, calls the slot via `call-quorum-slot.cjs`, and returns a structured result block.
 
+**Slot-worker result blocks are final.** When a slot-worker Task completes, parse its output for the `verdict:` field. `verdict: UNAVAIL` means the slot is unavailable — treat the Task result as definitive. **Never call `resume` on a completed slot-worker Task to extract more information.** The structured result block is the complete output.
+
 Handle UNAVAILABLE per R6: note unavailability, then apply the **tiered fallback rule** below before continuing.
 
 #### Tiered fallback rule (FALLBACK-01)
 
-When a dispatched slot returns UNAVAIL, dispatch a replacement in this priority order:
+When one or more dispatched slots return UNAVAIL, collect ALL UNAVAIL results first (wait for all parallel Tasks to complete), then dispatch ALL needed fallback replacements together as **parallel sibling Tasks in ONE message turn**.
 
 Classification is based on runtime `auth_type` from `providers.json` / config — **not** hardcoded slot names. Any slot can be `sub` or `api` depending on how it is configured.
 
 1. **T1 — unused sub-CLI slots**: slots in the working list where `auth_type=sub` AND not in `$DISPATCH_LIST`. Build `$T1_UNUSED` = `[working-list slots with auth_type=sub] − $DISPATCH_LIST`. Dispatch `$T1_UNUSED` first — same subscription tier as the primaries, no extra cost.
 2. **T2 — final fallback slots**: slots in the working list where `auth_type≠sub` AND not in `$DISPATCH_LIST`. Dispatch T2 only if `$T1_UNUSED` is empty or fully exhausted/UNAVAIL. Slots already dispatched as primary are excluded from both T1 and T2.
+
+**Deduplication rule:** Each fallback slot is dispatched AT MOST ONCE per round, regardless of how many primaries returned UNAVAIL. If two primaries both return UNAVAIL and `$T1_UNUSED = [opencode-1, copilot-1]`, dispatch both `opencode-1` AND `copilot-1` as **parallel sibling Tasks in one message turn** — not one per UNAVAIL primary. Never dispatch the same slot twice in one round.
+
+**Parallel dispatch requirement:** All T1 fallback Tasks (and separately, all T2 fallback Tasks if T1 is exhausted) MUST be dispatched as parallel sibling Task calls in ONE message turn — the same way primary slots are dispatched. Do NOT dispatch fallbacks sequentially (one per message turn). This is required to avoid multiplying fallback latency.
 
 **Why this matters:** With `FAN_OUT_COUNT=3`, only 2 external slots are in `$DISPATCH_LIST`. If both primaries are UNAVAIL, any remaining `auth_type=sub` slots should be tried before falling to `auth_type=api` (ccr) slots. The exact slot names in each tier depend on `--n` and the runtime config — they are not fixed.
 
@@ -313,7 +345,9 @@ Display all positions as a table with one row per team member (native agents fir
 
 Actual slot names in each tier are resolved at runtime from `providers.json` based on `auth_type`. T1 = `auth_type=sub` slots not in `$DISPATCH_LIST`; T2 = `auth_type≠sub` slots. With `--n 5` all sub-CLI slots may be primary, leaving T1 empty. Fallback rows (├─ / └─) are only rendered when the corresponding primary returned UNAVAIL and a fallback was dispatched. A T1 row is omitted if that slot was already dispatched as a primary.
 
-If all available models agree → skip to **Consensus output**.
+**Important: fallback slots appear at most once in this table.** If multiple primaries return UNAVAIL and share the same T1 replacement pool, each T1 slot appears in the table only once (under the first UNAVAIL primary that needed it). The table is for display only — the actual dispatch is `$T1_UNUSED` dispatched all at once in parallel, not one per UNAVAIL primary row.
+
+If all valid (non-UNAVAIL) external voters agree (CE-3 unanimity) → skip to **Consensus output**. Claude's advisory position is NOT counted in this check (CE-1). If ANY external voter voted BLOCK, consensus is NOT reached regardless of other votes (CE-2).
 
 ### Deliberation rounds (R3.3)
 
@@ -347,7 +381,7 @@ Populate `citations:` from the `citations:` field in each model's slot-worker re
 
 Workers are dispatched as **parallel sibling Tasks** per round. Between rounds (Bash scoreboard calls, set-availability) remain sequential.
 
-Stop deliberation **immediately** upon CONSENSUS (all available models agree).
+Stop deliberation **immediately** upon CONSENSUS (all valid external voters agree per CE-3). Claude's advisory position is NOT counted in this check. A single BLOCK from any external voter means consensus has NOT been reached (CE-2) — continue deliberation.
 
 After 10 total rounds with no consensus → **Escalate**.
 
@@ -365,12 +399,14 @@ CONSENSUS ANSWER:
 [Full consensus answer — detailed and actionable]
 
 Supporting positions:
-• Claude:    [brief]
+• Claude (ADVISORY):  [brief]
 • Codex:     [brief or UNAVAIL]
 • Gemini:    [brief or UNAVAIL]
 • OpenCode:  [brief or UNAVAIL]
 • Copilot:   [brief or UNAVAIL]
 [one line per claude-mcp server: • <display-name>: [brief or UNAVAIL]]
+
+External voter tally: {N} APPROVE / {N} BLOCK / {N} UNAVAIL (Claude's position excluded per CE-1)
 ```
 
 Update the scoreboard: for each model that voted this round, run:
@@ -606,6 +642,8 @@ The slot-worker reads repo context, builds the Mode B prompt (with execution tra
 
 Parse each worker response for `verdict:` and `reasoning:` lines. Mark non-parseable as `UNAVAIL`.
 
+Apply CE-1, CE-2, CE-3. Claude's verdict is ADVISORY — excluded from the tally below. Only external voter verdicts are counted:
+
 Determine consensus:
 - All available APPROVE → `APPROVE`
 - Any REJECT → `REJECT`
@@ -638,6 +676,8 @@ If split: run deliberation (up to 9 deliberation rounds, max 10 total rounds inc
 └────────────────────────────────┴──────────────┴──────────────────────────────────────────┘
 
 Slot names in each tier are resolved at runtime from `auth_type` in `providers.json`. T1 = `auth_type=sub` slots not in `$DISPATCH_LIST`; T2 = `auth_type≠sub` slots. Fallback rows are only rendered when the primary returned UNAVAIL and a replacement was dispatched. A T1 row is omitted if that slot was already dispatched as primary.
+
+**Important: fallback slots appear at most once in this table.** Each T1/T2 slot is dispatched at most once per round (deduplication rule — see FALLBACK-01 in Mode A section). The table is for display only.
 
 [rationale — what the traces showed]
 ```

@@ -10,6 +10,33 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Shipped: v0.35 — Install & Setup Bug Fixes (2026-03-13)
+
+**Goal:** Fix 4 GitHub-reported bugs (GitHub #4-#7) in installer, MCP setup, provider paths, and TUI agent creation.
+
+**Shipped:** 8/8 requirements satisfied across 4 phases, 4 plans. Audit: PASSED.
+
+**Key features shipped:**
+- Auto-rebuild hooks/dist on fresh clone install via buildHooksIfMissing() with actionable error messages
+- Declarative auth_type slot classification in providers.json replacing name-prefix inference for T1/T2 dispatch
+- Cross-platform CLI path resolution via resolveCli() multi-strategy discovery (which, Homebrew, npm, system paths)
+- TUI CLI Agent MCP entry parity — resolves paths, validates executability, matches mcp-setup format
+
+## Shipped: v0.34 — Semantic Gate Validation & Auto-Promotion (2026-03-11)
+
+**Goal:** Evolve gate scoring from structural wiring checks to semantic correctness validation using graph-based proximity discovery and LLM-judged candidate pairing, then wire auto-promotion into the solve cycle.
+
+**Shipped:** 18/18 requirements satisfied across 6 phases, 9 plans. Audit: PASSED.
+
+**Key features shipped:**
+- Gate renaming — A/B/C to Wiring:Evidence/Purpose/Coverage with schema v2, full backward compatibility (21 compat tests)
+- Semantic scoring — graph BFS proximity discovery (46 candidates) + Haiku LLM evaluation with yes/no/maybe verdicts
+- Gate enrichment — enrichGateFile() produces schema v3 with semantic_score alongside wiring_score, preserved across gate rewrites
+- Candidate pairing — N:N interactive resolution workflow, 46 pairings confirmed across 14 models in model-registry.json
+- Auto-promotion pipeline — SOFT_GATE -> HARD_GATE after 3 consecutive clean sessions (wiring >= 1.0, semantic >= 0.8, formal pass) with flip-flop protection
+- Promotion changelog — all promotions logged with 8 PROMO-04 fields including evidence_readiness
+- E2E integration test — 5 tests validating full semantic scoring -> auto-promotion pipeline
+
 ## Shipped: v0.33 — Outer-Loop Convergence Guarantees (2026-03-10)
 
 **Goal:** Provably guarantee that repeated nf:solve cycles make meaningful progress toward formal models that can pinpoint bugs.
@@ -690,4 +717,4 @@ nForma v0.32 shipped 2026-03-09 (14/14 requirements, 4 phases). 32 milestones co
 v0.32 shipped. 32 milestones completed (v0.1–v0.32). Next milestone TBD — run `/nf:new-milestone` to start.
 
 ---
-*Last updated: 2026-03-09 after v0.32 milestone*
+*Last updated: 2026-03-13 after v0.35 milestone*

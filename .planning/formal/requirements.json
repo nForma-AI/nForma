@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-10T21:27:30.224Z",
-  "content_hash": "791ff564472f245d",
+  "aggregated_at": "2026-03-12T11:41:07.523Z",
+  "content_hash": "7f5b2c997db4c3ef",
   "schema_version": "1",
   "requirements": [
     {
@@ -994,6 +994,66 @@
       "category_raw": "Diagnostics"
     },
     {
+      "id": "DIAG-05",
+      "text": "Provide /nf:mcp-repair skill to auto-diagnose quorum slot connectivity issues and apply automatic repairs where possible (restart downed MCP servers, report non-fixable issues with actionable guidance).",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Users currently must manually diagnose and fix individual quorum slot failures (MCP servers down, CLI auth expired, quota exhausted). This skill automates the diagnosis-repair-verify cycle, improving user experience and reliability when quorum infrastructure encounters transient or fixable issues.",
+      "provenance": {
+        "source_file": ".planning/quick/268-add-nf-mcp-repair-skill-auto-diagnose-an/268-PLAN.md",
+        "milestone": "quick-268"
+      }
+    },
+    {
+      "id": "DIAG-06",
+      "text": "Proximity graph orchestration skills — /nf:proximity runs the 5-step proximity pipeline (graph build, candidate discovery, Haiku evaluation, semantic scoring, pairing generation) with progress reporting and summary dashboard; /nf:resolve auto-detects and triages proximity pairings alongside solve items with confirm/reject/skip actions and batch-confirmation mode (--auto-confirm-yes/--auto-reject-no).",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The v0.34 proximity graph pipeline scripts existed in bin/ but lacked a user-facing skill to invoke them. This requirement unifies proximity graph analysis with the existing solve item triage workflow by providing two complementary skills.",
+      "provenance": {
+        "source_file": ".planning/quick/273-create-nf-proximity-skill-and-extend-nf-/273-PLAN.md",
+        "milestone": "quick-273"
+      }
+    },
+    {
+      "id": "DIAG-07",
+      "text": "Proximity skill Step 4 attempts semantic evaluation via haiku-semantic-eval.cjs script first, then falls back to inline Haiku sub-agent evaluation on script failure, producing identical verdict/confidence/reasoning output schema in both paths.",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Inside Claude Code, the subprocess environment lacks ANTHROPIC_API_KEY, causing haiku-semantic-eval.cjs to fail. The sub-agent fallback uses Task(model='haiku') which works via the user's Claude subscription, ensuring /nf:proximity completes evaluation steps even when direct API access is unavailable.",
+      "provenance": {
+        "source_file": ".planning/quick/275-replace-haiku-api-eval-with-sub-agent-in/275-PLAN.md",
+        "milestone": "quick-275"
+      }
+    },
+    {
+      "id": "DIAG-08",
+      "text": "Proximity pipeline pre-filters false positive candidates using category-domain gating, coverage checks, keyword overlap, and type-aware scoring penalties before Haiku evaluation.",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The proximity graph produces high false positive rates because weak paths accumulate into inflated scores. This reduces FPs at multiple layers before expensive Haiku evaluation.",
+      "provenance": {
+        "source_file": ".planning/quick/277-option-c-multi-layer-false-positive-redu/277-PLAN.md",
+        "milestone": "quick-277"
+      }
+    },
+    {
+      "id": "DIAG-09",
+      "text": "Non-neighbor pair discovery surfaces zero-path (model, requirement) pairs ranked by coverage-gap heuristic, identifying under-covered blind spots via top-N selection with configurable limit.",
+      "category": "Observability & Diagnostics",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The proximity pipeline previously discovered only graph-reachable pairs via BFS. Coverage-gap ranking exposes candidates ranked by how under-covered each model and requirement are, surfacing diagnostically relevant blind spots.",
+      "provenance": {
+        "source_file": ".planning/quick/276-add-top-n-non-neighboring-pair-discovery/276-PLAN.md",
+        "milestone": "quick-276"
+      }
+    },
+    {
       "id": "DISP-01",
       "text": "qgsd-prompt.js runs a fast health probe (<3s) per provider before building the dispatch list -- dead providers' slots excluded from DISPATCH_LIST",
       "category": "Quorum & Dispatch",
@@ -1067,6 +1127,42 @@
         ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ],
       "category_raw": "Dispatch Reliability"
+    },
+    {
+      "id": "DISP-06",
+      "text": "Quorum preflight implements two-layer parallel health probe via --probe flag: Layer 1 spawns CLI binaries with health_check_args (3s timeout), Layer 2 hits GET /models on ANTHROPIC_BASE_URL for ccr slots (5s timeout, TTL-cached with URL normalization), filtering dead slots before dispatch.",
+      "category": "Dispatch Reliability",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Pre-dispatch slot filtering reduces wasted quorum invocations on unreachable providers. Layer 1 detects missing CLI binaries; Layer 2 validates upstream API connectivity. URL normalization and TTL caching prevent redundant probes across multiple preflight runs.",
+      "provenance": {
+        "source_file": ".planning/quick/281-add-two-layer-parallel-health-probe-to-q/281-PLAN.md",
+        "milestone": "quick-281"
+      }
+    },
+    {
+      "id": "DISPATCH-01",
+      "text": "Quorum prompts MUST be delivered to slot CLIs without shell interpretation, character escaping, or content modification. The dispatched prompt must be byte-identical to the composed prompt.",
+      "category": "Quorum & Dispatch",
+      "phase": "v0.34-quick",
+      "status": "Complete",
+      "background": "Fix for SHELL-ESCAPE-01 bug where ccr slots using shell:true internally caused backticks and $ in prompts to be interpreted by /bin/sh. Fixed by piping prompts via stdin for ccr-based slots.",
+      "provenance": {
+        "source_file": "bin/call-quorum-slot.cjs",
+        "milestone": "v0.34"
+      }
+    },
+    {
+      "id": "DISPATCH-02",
+      "text": "Deduplicate quorum slots that share the same underlying model; retain the first slot for each unique model in primary dispatch and demote duplicate-model slots to a MODEL-DEDUP fallback tier positioned between T1 and T2 to maximize LLM diversity within the fan-out budget.",
+      "category": "Quorum & Dispatch",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The quorum initially dispatched all available slots without considering model redundancy. When codex-1 and codex-2 both ran gpt-5.4, or gemini-1 and gemini-2 both ran gemini-3-pro, the quorum wasted a primary dispatch slot on a duplicate perspective. Model deduplication ensures diverse model viewpoints by demoting duplicate-model slots to fallback tier.",
+      "provenance": {
+        "source_file": ".planning/quick/280-deduplicate-quorum-slots-sharing-the-sam/280-PLAN.md",
+        "milestone": "quick-280"
+      }
     },
     {
       "id": "DRIFT-01",
@@ -1335,6 +1431,18 @@
       "provenance": {
         "source_file": ".planning/milestones/v0.29-REQUIREMENTS.md",
         "milestone": "v0.29"
+      }
+    },
+    {
+      "id": "GUARD-01",
+      "text": "Context payload size guardrail — All data passed through LLM agent context (Bash output, inter-agent JSON, skill output contracts) MUST stay under 128KB. Scripts producing large outputs MUST write to disk and pass only summaries or file-path references through the agent chain. Violations cause silent freezes with no error signal.",
+      "category": "Reliability",
+      "phase": "unassigned",
+      "status": "Draft",
+      "background": "Discovered when git-heatmap.cjs --json produced 2.9MB of output that froze the solve-diagnose agent.",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.35"
       }
     },
     {
@@ -2173,6 +2281,18 @@
       "category_raw": "Multiple Slots"
     },
     {
+      "id": "MULTI-04",
+      "text": "Installer auto-syncs all provider slots from `providers.json` to `~/.claude.json` MCP entries and `quorum_active`, creating missing slots without modifying existing entries",
+      "category": "MCP & Agents",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Provider slots (codex-2, gemini-2) are defined in providers.json with full configuration but lack corresponding ~/.claude.json MCP entries, preventing quorum dispatch to these subscription slots. Auto-syncing ensures every provider slot has a working MCP entry and is discoverable by the quorum orchestrator without manual user configuration.",
+      "provenance": {
+        "source_file": ".planning/quick/279-wire-dual-subscription-slots-add-codex-2/279-PLAN.md",
+        "milestone": "quick-279"
+      }
+    },
+    {
       "id": "OBS-01",
       "text": "Key operations produce structured log output on stderr",
       "category": "Observability & Diagnostics",
@@ -2306,6 +2426,18 @@
       "provenance": {
         "source_file": ".planning/quick/258-bridge-errors-jsonl-into-solve-debt-pipe/258-PLAN.md",
         "milestone": "quick-258"
+      }
+    },
+    {
+      "id": "OBS-11",
+      "text": "Agent payload size monitoring — All scripts invoked by LLM-facing skills that produce machine-readable output (--json mode) MUST be auditable for output size. A pre-flight check or CI validation SHOULD flag any script whose stdout output exceeds 128KB when invoked from an agent context. Complements GUARD-01 (context payload size guardrail) with automated detection.",
+      "category": "Observability & Diagnostics",
+      "phase": "unassigned",
+      "status": "Draft",
+      "background": "Without monitoring, GUARD-01 violations are only discovered when an agent freezes. This requirement ensures violations are caught proactively.",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.35"
       }
     },
     {
@@ -4591,5 +4723,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-10T21:27:30.225Z"
+  "frozen_at": "2026-03-12T11:41:07.523Z"
 }

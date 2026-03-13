@@ -27,6 +27,7 @@ const http      = require('http');
 const fs        = require('fs');
 const path      = require('path');
 const os        = require('os');
+const { resolveCli } = require('./resolve-cli.cjs');
 
 // ─── Utilities ──────────────────────────────────────────────────────────────
 function sleep(ms) {
@@ -195,7 +196,7 @@ const roundNum  = getArg('--round');
 const spawnCwd  = getArg('--cwd') ?? process.cwd();
 const allowedTools = getArg('--allowed-tools'); // EXEC-01: e.g. "Read,Grep,Glob" for review-only slots
 
-if (!slot) {
+if (!slot && require.main === module) {
   process.stderr.write('Usage: echo "<prompt>" | node call-quorum-slot.cjs --slot <name> [--timeout <ms>] [--cwd <dir>]\n');
   process.exit(1);
 }
@@ -239,18 +240,47 @@ function readStdin() {
   });
 }
 
-// ─── Subprocess dispatch ───────────────────────────────────────────────────────
-function runSubprocess(provider, prompt, timeoutMs, allowedToolsFlag) {
-  const args = provider.args_template.map(a => (a === '{prompt}' ? prompt : a));
+// ─── SHELL-ESCAPE-01: Args builder (extracted for testability) ────────────────
+function buildSpawnArgs(provider, prompt, allowedToolsFlag) {
+  const isCcr = provider.display_type === 'claude-code-router' ||
+    ((provider.resolvedCli ?? provider.cli) && (provider.resolvedCli ?? provider.cli).includes('ccr'));
+
+  let args;
+  let useStdinPrompt = false;
+  if (isCcr) {
+    // Strip -p and {prompt} from args — prompt will be piped via stdin
+    // to avoid shell interpretation of backticks/$ by ccr's internal shell:true
+    args = provider.args_template.filter((a, i, arr) => {
+      if (a === '{prompt}') return false;
+      if (a === '-p' && arr[i + 1] === '{prompt}') return false;
+      return true;
+    });
+    useStdinPrompt = true;
+  } else {
+    args = provider.args_template.map(a => (a === '{prompt}' ? prompt : a));
+  }
 
   // EXEC-01: Inject --allowedTools for ccr-based slots when review-only
-  const isCcr = provider.display_type === 'claude-code-router' || (provider.cli && provider.cli.includes('ccr'));
   if (allowedToolsFlag && isCcr) {
-    // Insert before the prompt argument (last arg after template substitution)
-    const promptIdx = args.findIndex(a => a === prompt);
-    if (promptIdx !== -1) {
-      args.splice(promptIdx, 0, '--allowedTools', allowedToolsFlag);
+    const dspIdx = args.indexOf('--dangerously-skip-permissions');
+    if (dspIdx !== -1) {
+      args.splice(dspIdx, 0, '--allowedTools', allowedToolsFlag);
+    } else {
+      args.push('--allowedTools', allowedToolsFlag);
     }
+  }
+
+  return { args, useStdinPrompt, isCcr };
+}
+
+// ─── Subprocess dispatch ───────────────────────────────────────────────────────
+function runSubprocess(provider, prompt, timeoutMs, allowedToolsFlag) {
+  const { args, useStdinPrompt, isCcr } = buildSpawnArgs(provider, prompt, allowedToolsFlag);
+
+  // XPLAT-01: resolve CLI path at dispatch time (once per invocation)
+  if (provider.type === 'subprocess' && provider.cli) {
+    const bareName = provider.cli.split('/').pop();
+    provider.resolvedCli = resolveCli(bareName);
   }
 
   const env  = { ...process.env, ...(provider.env ?? {}) };
@@ -260,13 +290,20 @@ function runSubprocess(provider, prompt, timeoutMs, allowedToolsFlag) {
     try {
       // detached: true creates a new process group — required to kill all descendants
       // (ccr → Claude Code → node, opencode → LLM subprocess, etc.)
-      child = spawn(provider.cli, args, { env, cwd: spawnCwd, stdio: ['pipe', 'pipe', 'pipe'], detached: true });
+      child = spawn(provider.resolvedCli ?? provider.cli, args, { env, cwd: spawnCwd, stdio: ['pipe', 'pipe', 'pipe'], detached: true });
     } catch (err) {
       reject(new Error(`[spawn error: ${err.message}]`));
       return;
     }
 
-    child.stdin.end(); // non-interactive
+    // SHELL-ESCAPE-01: For ccr slots, pipe prompt via stdin to avoid shell interpretation.
+    // For all other slots, close stdin immediately (non-interactive).
+    if (useStdinPrompt) {
+      child.stdin.write(prompt);
+      child.stdin.end();
+    } else {
+      child.stdin.end(); // non-interactive
+    }
 
     let stdout    = '';
     let stderr    = '';
@@ -543,7 +580,13 @@ async function main() {
   }
 }
 
-main().catch(err => {
-  process.stderr.write(`[call-quorum-slot] Fatal: ${err.message}\n`);
-  process.exit(1);
-});
+// Guard main() so require() from tests doesn't trigger process.exit()
+if (require.main === module) {
+  main().catch(err => {
+    process.stderr.write(`[call-quorum-slot] Fatal: ${err.message}\n`);
+    process.exit(1);
+  });
+}
+
+// ─── Test exports (SHELL-ESCAPE-01) ──────────────────────────────────────────
+module.exports = { buildSpawnArgs };

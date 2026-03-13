@@ -18,9 +18,9 @@
 //   T->R: Test files with no @req annotation or formal-test-sync mapping
 //   D->R: Doc capability claims without requirement backing
 // Layer alignment (cross-layer gate checks):
-//   L1->L2: Gate A grounding alignment score
-//   L2->L3: Gate B traceability alignment score
-//   L3->TC: Gate C validation alignment score
+//   L1->L2: Wiring:Evidence alignment score
+//   L2->L3: Wiring:Purpose alignment score
+//   L3->TC: Wiring:Coverage alignment score
 // Evidence & maturity:
 //   F->G: Formal models at gate maturity 0 (not yet promoted through gates)
 //   C->E: High-churn code files (git heatmap) lacking formal coverage
@@ -2181,7 +2181,7 @@ function getAggregateGates() {
 }
 
 /**
- * L1->L2: Gate A grounding alignment score.
+ * L1->L2: Wiring:Evidence alignment score.
  * Uses compute-per-model-gates.cjs --aggregate and computes normalized 0-10 residual.
  * Returns { residual: N, detail: {...} }
  */
@@ -2196,12 +2196,12 @@ function sweepL1toL2() {
   }
 
   const gateA = agg.gate_a;
-  const score = gateA.grounding_score || 0;
+  const score = gateA.wiring_evidence_score || gateA.grounding_score || 0;
   const residual = Math.ceil((1 - score) * 10);
   return {
     residual: residual,
     detail: {
-      grounding_score: score,
+      wiring_evidence_score: score,
       target: 0.8,
       gap: 0.8 - score,
       unexplained_breakdown: {
@@ -2214,7 +2214,7 @@ function sweepL1toL2() {
 }
 
 /**
- * L2->L3: Gate B traceability alignment score.
+ * L2->L3: Wiring:Purpose alignment score.
  * Uses compute-per-model-gates.cjs --aggregate and computes normalized 0-10 residual.
  * Returns { residual: N, detail: {...} }
  */
@@ -2229,14 +2229,14 @@ function sweepL2toL3() {
   }
 
   const gateB = agg.gate_b;
-  const score = gateB.gate_b_score || 0;
+  const score = gateB.wiring_purpose_score || gateB.gate_b_score || 0;
   const orphanedCount = gateB.orphaned_entries || 0;
   const rawResidual = Math.ceil((1 - score) * 10) + orphanedCount;
   const residual = Math.min(rawResidual, 10);
   return {
     residual: residual,
     detail: {
-      gate_b_score: score,
+      wiring_purpose_score: score,
       orphaned_count: orphanedCount,
       residual_capped: rawResidual > 10,
     },
@@ -2244,7 +2244,7 @@ function sweepL2toL3() {
 }
 
 /**
- * L3->TC: Gate C validation alignment score.
+ * L3->TC: Wiring:Coverage alignment score.
  * Uses compute-per-model-gates.cjs --aggregate and computes normalized 0-10 residual.
  * Checks test-recipes.json staleness before scoring.
  * Returns { residual: N, detail: {...} }
@@ -2280,12 +2280,12 @@ function sweepL3toTC() {
   }
 
   const gateC = agg.gate_c;
-  const score = gateC.gate_c_score || 0;
+  const score = gateC.wiring_coverage_score || gateC.gate_c_score || 0;
   const residual = Math.ceil((1 - score) * 10);
   return {
     residual: residual,
     detail: {
-      gate_c_score: score,
+      wiring_coverage_score: score,
       unvalidated_count: gateC.unvalidated_entries || 0,
       total_failure_modes: gateC.total_entries || 0,
       total_recipes: gateC.validated_entries || 0,
@@ -2559,6 +2559,15 @@ function computeResidual() {
 
   // Per-model gate maturity (informational — not added to layer_total)
   const per_model_gates = fastMode ? skipLayer : sweepPerModelGates();
+
+  // Enrich gate files with semantic scores (SEM-03, SEM-04)
+  if (!fastMode && !reportOnly) {
+    process.stderr.write(TAG + ' Enriching gates with semantic scores\n');
+    const semResult = spawnTool('bin/compute-semantic-scores.cjs', ['--json']);
+    if (!semResult.ok) {
+      process.stderr.write(TAG + ' WARNING: semantic scoring failed; gates lack semantic_score (continue)\n');
+    }
+  }
 
   const layer_total =
     (l1_to_l2.residual >= 0 ? l1_to_l2.residual : 0) +
@@ -3060,9 +3069,9 @@ function formatReport(iterations, finalResidual, converged) {
   lines.push('\u2500 Layer Alignment (cross-layer gates) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
 
   const layerRows = [
-    { label: 'L1 -> L2 (Gate A)', residual: finalResidual.l1_to_l2 ? finalResidual.l1_to_l2.residual : -1 },
-    { label: 'L2 -> L3 (Gate B)', residual: finalResidual.l2_to_l3 ? finalResidual.l2_to_l3.residual : -1 },
-    { label: 'L3 -> TC (Gate C)', residual: finalResidual.l3_to_tc ? finalResidual.l3_to_tc.residual : -1 },
+    { label: 'L1 -> L2 (Wiring:Evidence)', residual: finalResidual.l1_to_l2 ? finalResidual.l1_to_l2.residual : -1 },
+    { label: 'L2 -> L3 (Wiring:Purpose)', residual: finalResidual.l2_to_l3 ? finalResidual.l2_to_l3.residual : -1 },
+    { label: 'L3 -> TC (Wiring:Coverage)', residual: finalResidual.l3_to_tc ? finalResidual.l3_to_tc.residual : -1 },
   ];
 
   for (const row of layerRows) {
@@ -3082,9 +3091,9 @@ function formatReport(iterations, finalResidual, converged) {
     const pmgd = finalResidual.per_model_gates.detail;
     lines.push('  Models: ' + (pmgd.total_models || 0) +
       ', Avg maturity: ' + (pmgd.avg_layer_maturity || 0) +
-      ', Gate A: ' + (pmgd.gate_a_pass || 0) +
-      ', B: ' + (pmgd.gate_b_pass || 0) +
-      ', C: ' + (pmgd.gate_c_pass || 0));
+      ', Wiring:Evidence: ' + (pmgd.gate_a_pass || 0) +
+      ', Wiring:Purpose: ' + (pmgd.gate_b_pass || 0) +
+      ', Wiring:Coverage: ' + (pmgd.gate_c_pass || 0));
     if (pmgd.promotions > 0) {
       lines.push('  Promotions: ' + pmgd.promotions);
     }
@@ -3596,11 +3605,93 @@ function formatJSON(iterations, finalResidual, converged) {
   };
 }
 
+// ── Clean Session Check (PROMO-02) ──────────────────────────────────────────
+
+/**
+ * Checks whether the current solve session is "clean" — all gate wiring scores
+ * >= 1.0, all semantic scores >= 0.8, and no formal counterexamples.
+ *
+ * @returns {boolean} true if the session is clean
+ */
+function checkCleanSession() {
+  const GATE_FILES = {
+    A: { file: 'gate-a-grounding.json', wiringKey: 'wiring_evidence_score' },
+    B: { file: 'gate-b-abstraction.json', wiringKey: 'wiring_purpose_score' },
+    C: { file: 'gate-c-validation.json', wiringKey: 'wiring_coverage_score' },
+  };
+
+  const gatesDir = path.join(ROOT, '.planning', 'formal', 'gates');
+  const wiring = {};
+  const semantic = {};
+
+  for (const [label, cfg] of Object.entries(GATE_FILES)) {
+    try {
+      const gateData = JSON.parse(fs.readFileSync(path.join(gatesDir, cfg.file), 'utf8'));
+      wiring[label] = gateData[cfg.wiringKey] != null ? gateData[cfg.wiringKey] : 0;
+      semantic[label] = gateData.semantic_score != null ? gateData.semantic_score : 0;
+      // PROMO-03 diagnostic: log whether semantic_score was loaded or defaulted
+      if (gateData.semantic_score == null) {
+        process.stderr.write(TAG + ' checkCleanSession: gate ' + label + ' semantic_score defaulted to 0 (field missing)\n');
+      } else {
+        process.stderr.write(TAG + ' checkCleanSession: gate ' + label + ' semantic_score=' + gateData.semantic_score + ' (from file)\n');
+      }
+    } catch (_) {
+      wiring[label] = 0;
+      semantic[label] = 0;
+    }
+  }
+
+  // Check formal results — no counterexamples
+  let formalPass = true;
+  try {
+    const checkResultsPath = path.join(ROOT, '.planning', 'formal', 'check-results.ndjson');
+    if (fs.existsSync(checkResultsPath)) {
+      const lines = fs.readFileSync(checkResultsPath, 'utf8').trim().split('\n').filter(Boolean);
+      for (const line of lines) {
+        try {
+          const entry = JSON.parse(line);
+          if (entry.result === 'counterexample') {
+            formalPass = false;
+            break;
+          }
+        } catch (_) { /* skip malformed lines */ }
+      }
+    }
+  } catch (_) { /* fail-open */ }
+
+  const wiringClean = wiring.A >= 1.0 && wiring.B >= 1.0 && wiring.C >= 1.0;
+  const semanticClean = semantic.A >= 0.8 && semantic.B >= 0.8 && semantic.C >= 0.8;
+  const isClean = wiringClean && semanticClean && formalPass;
+
+  process.stderr.write(
+    TAG + ' Clean session check: wiring=[A:' + wiring.A + ',B:' + wiring.B + ',C:' + wiring.C +
+    '] semantic=[A:' + semantic.A + ',B:' + semantic.B + ',C:' + semantic.C +
+    '] formal=' + (formalPass ? 'pass' : 'fail') + ' -> ' + (isClean ? 'CLEAN' : 'NOT_CLEAN') + '\n'
+  );
+
+  return isClean;
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 function main() {
   // Step 0: Bootstrap formal infrastructure
   preflight();
+
+  // Read existing solve-state.json for consecutive_clean_sessions (PROMO-02)
+  let existingSolveState = {};
+  try {
+    existingSolveState = JSON.parse(fs.readFileSync(path.join(ROOT, '.planning', 'formal', 'solve-state.json'), 'utf8'));
+  } catch (_) { /* first run or corrupt file */ }
+
+  // Ensure consecutive_clean_sessions is initialized (PROMO-02)
+  // The || 0 fallback at line ~3816 already handles missing field safely.
+  // This explicit guard makes the initialization contract visible at preflight time
+  // and prevents edge cases where other code reads existingSolveState.consecutive_clean_sessions
+  // before the persistence block.
+  if (existingSolveState.consecutive_clean_sessions == null) {
+    existingSolveState.consecutive_clean_sessions = 0;
+  }
 
   const iterations = [];
   let converged = false;
@@ -3735,6 +3826,11 @@ function main() {
       }
     }
   }
+  // Step 8a: Track consecutive clean sessions for auto-promotion (PROMO-02)
+  const isCleanSession = checkCleanSession();
+  const prevClean = (existingSolveState && existingSolveState.consecutive_clean_sessions) || 0;
+  solveState.consecutive_clean_sessions = isCleanSession ? prevClean + 1 : 0;
+
   try {
     const stateDir = path.join(ROOT, '.planning', 'formal');
     fs.mkdirSync(stateDir, { recursive: true });
@@ -3744,6 +3840,31 @@ function main() {
     );
   } catch (e) {
     process.stderr.write(TAG + ' WARNING: could not write solve-state.json: ' + e.message + '\n');
+  }
+
+  // Step 8a: Auto-promote eligible models (PROMO-01)
+  if (!reportOnly && solveState.consecutive_clean_sessions >= 3) {
+    process.stderr.write(TAG + ' Step 8a: Checking auto-promotion eligibility (clean sessions: ' + solveState.consecutive_clean_sessions + ')\n');
+    const promoResult = spawnTool('bin/promote-gate-maturity.cjs', ['--auto-promote', '--json']);
+    if (promoResult.ok) {
+      try {
+        const promoData = JSON.parse(promoResult.stdout);
+        if (promoData.promoted && promoData.promoted.length > 0) {
+          process.stderr.write(TAG + ' Step 8a: Promoted ' + promoData.promoted.length + ' model(s) SOFT_GATE -> HARD_GATE\n');
+          for (const m of promoData.promoted) {
+            process.stderr.write(TAG + '   - ' + m + '\n');
+          }
+        } else {
+          process.stderr.write(TAG + ' Step 8a: No models eligible for promotion\n');
+        }
+      } catch (e) {
+        process.stderr.write(TAG + ' Step 8a: Could not parse promotion result: ' + e.message + '\n');
+      }
+    } else {
+      process.stderr.write(TAG + ' Step 8a: promote-gate-maturity.cjs failed: ' + (promoResult.stderr || 'unknown') + '\n');
+    }
+  } else if (!reportOnly) {
+    process.stderr.write(TAG + ' Step 8a: Skipped — consecutive_clean_sessions=' + (solveState.consecutive_clean_sessions || 0) + ' (need 3)\n');
   }
 
   // Append trend entry to JSONL (after solve-state.json, before session persistence)
@@ -3931,6 +4052,7 @@ module.exports = {
   readGateSummary,
   updateVerdicts,
   updatePredictivePower,
+  checkCleanSession,
 };
 
 // ── Entry point ──────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Test suite for hooks/gsd-context-monitor.js
-// Uses Node.js built-in test runner: node --test hooks/gsd-context-monitor.test.js
+// Test suite for hooks/nf-context-monitor.js
+// Uses Node.js built-in test runner: node --test hooks/nf-context-monitor.test.js
 //
 // Spawns the hook as a child process with mock stdin JSON payloads.
 // Verifies threshold logic, additionalContext injection, and fail-open behavior.
@@ -14,7 +14,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const HOOK_PATH = path.join(__dirname, 'gsd-context-monitor.js');
+const HOOK_PATH = path.join(__dirname, 'nf-context-monitor.js');
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

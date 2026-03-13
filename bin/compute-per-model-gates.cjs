@@ -123,7 +123,7 @@ function loadJSON(filePath, label) {
   }
 }
 
-// ── Gate A: Grounding (L1 → L2) ─────────────────────────────────────────────
+// ── Wiring:Evidence (Grounding L1 → L2) ─────────────────────────────────────
 
 function evaluateGateA(modelPath, model, layerManifest, traceMatrix, checkResults, unitTestCoverage) {
   // Path 1: layer-manifest shows has_semantic_declarations
@@ -177,7 +177,7 @@ function evaluateGateA(modelPath, model, layerManifest, traceMatrix, checkResult
   return { pass: false, reason: 'no passing traces for reqs [' + reqs.join(', ') + ']' };
 }
 
-// ── Gate B: Abstraction (L2 → L3) ───────────────────────────────────────────
+// ── Wiring:Purpose (Abstraction L2 → L3) ────────────────────────────────────
 
 function evaluateGateB(modelPath, model, hazardModel) {
   const sourceLayer = model.source_layer || inferSourceLayer(modelPath);
@@ -205,7 +205,7 @@ function evaluateGateB(modelPath, model, hazardModel) {
   return { pass: false, reason: 'L3 but no requirements mapped' };
 }
 
-// ── Gate C: Validation (L3 → TC) ────────────────────────────────────────────
+// ── Wiring:Coverage (Validation L3 → TC) ────────────────────────────────────
 
 function evaluateGateC(modelPath, model, failureCatalog, testRecipes, checkResults) {
   const reqs = model.requirements || [];
@@ -319,7 +319,7 @@ function computeAggregate(perModelResults) {
 
   return {
     gate_a: {
-      grounding_score: groundingScore,
+      wiring_evidence_score: groundingScore,
       target: 0.8,
       target_met: groundingScore >= 0.8,
       explained: gateAPass,
@@ -331,7 +331,7 @@ function computeAggregate(perModelResults) {
       },
     },
     gate_b: {
-      gate_b_score: gateBScore,
+      wiring_purpose_score: gateBScore,
       total_entries: total,
       grounded_entries: gateBPass,
       orphaned_entries: total - gateBPass,
@@ -339,7 +339,7 @@ function computeAggregate(perModelResults) {
       target_met: gateBScore >= 1.0,
     },
     gate_c: {
-      gate_c_score: gateCScore,
+      wiring_coverage_score: gateCScore,
       total_entries: total,
       validated_entries: gateCPass,
       unvalidated_entries: total - gateCPass,
@@ -363,26 +363,59 @@ function writeAggregateGateFiles(aggregate) {
 
   const ts = new Date().toISOString();
 
+  // Read-preserve-write helper: preserve semantic_score fields from prior enrichment
+  function readExistingSemanticFields(gatePath) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(gatePath, 'utf8'));
+      if (existing.semantic_score != null) {
+        return { semantic_score: existing.semantic_score, semantic_metadata: existing.semantic_metadata || null };
+      }
+    } catch (_) { /* no existing file or parse error */ }
+    return null;
+  }
+
+  const gateAPath = path.join(GATES_DIR, 'gate-a-grounding.json');
+  const gateBPath = path.join(GATES_DIR, 'gate-b-abstraction.json');
+  const gateCPath = path.join(GATES_DIR, 'gate-c-validation.json');
+
+  const gateASemantic = readExistingSemanticFields(gateAPath);
+  const gateBSemantic = readExistingSemanticFields(gateBPath);
+  const gateCSemantic = readExistingSemanticFields(gateCPath);
+
   const gateAFile = {
-    schema_version: '1',
+    schema_version: gateASemantic ? '3' : '2',
     generated: ts,
     ...aggregate.gate_a,
     scope: { mode: 'per-model-aggregate' },
   };
+  if (gateASemantic) {
+    gateAFile.semantic_score = gateASemantic.semantic_score;
+    gateAFile.semantic_metadata = gateASemantic.semantic_metadata;
+  }
+
   const gateBFile = {
-    schema_version: '1',
+    schema_version: gateBSemantic ? '3' : '2',
     generated: ts,
     ...aggregate.gate_b,
   };
+  if (gateBSemantic) {
+    gateBFile.semantic_score = gateBSemantic.semantic_score;
+    gateBFile.semantic_metadata = gateBSemantic.semantic_metadata;
+  }
+
   const gateCFile = {
-    schema_version: '1',
+    schema_version: gateCSemantic ? '3' : '2',
     generated: ts,
     ...aggregate.gate_c,
   };
+  if (gateCSemantic) {
+    gateCFile.semantic_score = gateCSemantic.semantic_score;
+    gateCFile.semantic_metadata = gateCSemantic.semantic_metadata;
+  }
 
-  try { fs.writeFileSync(path.join(GATES_DIR, 'gate-a-grounding.json'), JSON.stringify(gateAFile, null, 2) + '\n'); } catch (_) {}
-  try { fs.writeFileSync(path.join(GATES_DIR, 'gate-b-abstraction.json'), JSON.stringify(gateBFile, null, 2) + '\n'); } catch (_) {}
-  try { fs.writeFileSync(path.join(GATES_DIR, 'gate-c-validation.json'), JSON.stringify(gateCFile, null, 2) + '\n'); } catch (_) {}
+  try { fs.writeFileSync(gateAPath, JSON.stringify(gateAFile, null, 2) + '\n'); } catch (_) {}
+  try { fs.writeFileSync(gateBPath, JSON.stringify(gateBFile, null, 2) + '\n'); } catch (_) {}
+  try { fs.writeFileSync(gateCPath, JSON.stringify(gateCFile, null, 2) + '\n'); } catch (_) {}
 }
 
 /**
@@ -730,9 +763,9 @@ function main() {
   } else {
     console.log('Per-Model Gate Maturity Scoring');
     console.log('  Total models: ' + modelKeys.length);
-    console.log('  Gate A (grounding) pass: ' + gateACount);
-    console.log('  Gate B (abstraction) pass: ' + gateBCount);
-    console.log('  Gate C (validation) pass: ' + gateCCount);
+    console.log('  Wiring:Evidence pass: ' + gateACount);
+    console.log('  Wiring:Purpose pass: ' + gateBCount);
+    console.log('  Wiring:Coverage pass: ' + gateCCount);
     console.log('  Avg layer_maturity: ' + avgMaturity);
     if (promotions.length > 0) {
       console.log('  Promotions:');
@@ -743,9 +776,9 @@ function main() {
     if (AGGREGATE_FLAG && aggregate) {
       console.log('');
       console.log('  Aggregate Gate Scores:');
-      console.log('    Gate A grounding_score: ' + aggregate.gate_a.grounding_score.toFixed(4) + ' (target: 0.8, met: ' + aggregate.gate_a.target_met + ')');
-      console.log('    Gate B gate_b_score:    ' + aggregate.gate_b.gate_b_score.toFixed(4) + ' (target: 1.0, met: ' + aggregate.gate_b.target_met + ')');
-      console.log('    Gate C gate_c_score:    ' + aggregate.gate_c.gate_c_score.toFixed(4) + ' (target: 0.8, met: ' + aggregate.gate_c.target_met + ')');
+      console.log('    Wiring:Evidence score: ' + aggregate.gate_a.wiring_evidence_score.toFixed(4) + ' (target: 0.8, met: ' + aggregate.gate_a.target_met + ')');
+      console.log('    Wiring:Purpose score:  ' + aggregate.gate_b.wiring_purpose_score.toFixed(4) + ' (target: 1.0, met: ' + aggregate.gate_b.target_met + ')');
+      console.log('    Wiring:Coverage score: ' + aggregate.gate_c.wiring_coverage_score.toFixed(4) + ' (target: 0.8, met: ' + aggregate.gate_c.target_met + ')');
     }
     if (DRY_RUN_FLAG) {
       console.log('  (dry-run: no changes written)');

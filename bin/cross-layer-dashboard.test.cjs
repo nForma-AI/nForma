@@ -85,9 +85,9 @@ describe('cross-layer-dashboard CLI', () => {
       const result = run('--cached');
       const out = result.stdout;
       assert.ok(out.includes('L1 Coverage'), 'contains L1 Coverage');
-      assert.ok(out.includes('Gate A'), 'contains Gate A');
-      assert.ok(out.includes('Gate B'), 'contains Gate B');
-      assert.ok(out.includes('Gate C'), 'contains Gate C');
+      assert.ok(out.includes('Wiring:Evidence'), 'contains Wiring:Evidence');
+      assert.ok(out.includes('Wiring:Purpose'), 'contains Wiring:Purpose');
+      assert.ok(out.includes('Wiring:Coverage'), 'contains Wiring:Coverage');
     });
 
     it('contains at least one health indicator', () => {
