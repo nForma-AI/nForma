@@ -1028,16 +1028,19 @@ CLAUDE_CONFIG_DIR=/home/youruser/.claude npx @nforma.ai/nforma@latest
 #### Uninstalling
 
 ```bash
-# Global installs
+# Global installs (also removes formal verification tools)
 npx @nforma.ai/nforma --claude --global --uninstall
 npx @nforma.ai/nforma --opencode --global --uninstall
 
-# Local installs (current project)
+# Local installs (current project only, keeps formal tools)
 npx @nforma.ai/nforma --claude --local --uninstall
 npx @nforma.ai/nforma --opencode --local --uninstall
+
+# Formal verification tools only (TLA+, Alloy, UPPAAL)
+npx @nforma.ai/nforma --uninstall-formal
 ```
 
-This removes all nForma commands, agents, hooks, and settings while preserving your other configurations.
+Global uninstall removes all nForma commands, agents, hooks, settings, and formal verification tools (`~/.local/share/nf-formal/`). Local uninstall removes only project-scoped files. Use `--uninstall-formal` to remove just the formal tools.
 
 </details>
 

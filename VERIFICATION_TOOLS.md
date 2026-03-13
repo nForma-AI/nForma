@@ -14,12 +14,21 @@ node bin/install.js --formal
 
 This script:
 - Checks for Java 17+ (required by TLA+, Alloy, PRISM) and warns if missing
-- Downloads `tla2tools.jar` into `.planning/formal/tla/`
-- Downloads `org.alloytools.alloy.dist.jar` into `.planning/formal/alloy/`
+- Downloads `tla2tools.jar` into `~/.local/share/nf-formal/tla/`
+- Downloads `org.alloytools.alloy.dist.jar` into `~/.local/share/nf-formal/alloy/`
+- Downloads and installs UPPAAL verifyta into `~/.local/share/nf-formal/uppaal/` with a symlink at `~/.local/bin/verifyta`
 - Downloads and installs PRISM for your platform, prints `PRISM_BIN` export
 - Notes that Petri nets require no install (bundled via npm)
+- Offers to add `~/.local/bin` to your PATH if not already configured
 
-Idempotent — safe to run multiple times. PRISM install is non-blocking.
+Idempotent — safe to run multiple times. Tools are installed system-wide so they persist across projects.
+
+**Uninstall:**
+
+```bash
+node bin/install.js --uninstall-formal    # formal tools only
+node bin/install.js --uninstall --global  # full nForma uninstall (includes formal tools)
+```
 
 If you prefer manual installation, download Java 17 from https://adoptium.net/
 and follow the per-tool instructions below.
@@ -31,8 +40,9 @@ and follow the per-tool instructions below.
 **Download tla2tools.jar** (one-time, gitignored):
 
 ```bash
+mkdir -p ~/.local/share/nf-formal/tla
 curl -L https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar \
-     -o .planning/formal/tla/tla2tools.jar
+     -o ~/.local/share/nf-formal/tla/tla2tools.jar
 ```
 
 **Run:**
@@ -51,8 +61,9 @@ Exit code 0 = no violations. Exit code 1 = violation or configuration error.
 **Download org.alloytools.alloy.dist.jar** (one-time, gitignored):
 
 ```bash
+mkdir -p ~/.local/share/nf-formal/alloy
 curl -L https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar \
-     -o .planning/formal/alloy/org.alloytools.alloy.dist.jar
+     -o ~/.local/share/nf-formal/alloy/org.alloytools.alloy.dist.jar
 ```
 
 **Run:**

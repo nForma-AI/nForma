@@ -1536,8 +1536,10 @@ function uninstall(isGlobal, runtime = 'claude') {
     console.log(`  ${yellow}⚠${reset} No GSD files found to remove.`);
   }
 
-  // Also clean up system-wide formal verification tools
-  uninstallFormalTools();
+  // Also clean up system-wide formal verification tools (only for global uninstall)
+  if (isGlobal) {
+    uninstallFormalTools();
+  }
 
   console.log(`
   ${green}Done!${reset} GSD has been uninstalled from ${runtimeLabel}.
