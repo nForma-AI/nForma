@@ -479,14 +479,19 @@ function runNodeStep(step) {
   if (!childArgs.some(a => a.startsWith('--project-root='))) {
     childArgs.push('--project-root=' + ROOT);
   }
+  const stepTimeout = step.timeoutMs || 120_000; // 2 min default per step
   const result = spawnSync(process.execPath, [scriptPath, ...childArgs], {
     stdio: 'inherit',
     encoding: 'utf8',
     cwd: ROOT,
     env: { ...process.env, CHECK_RESULTS_ROOT: ROOT },
+    timeout: stepTimeout,
   });
   if (result.error) {
-    process.stderr.write(TAG + ' Launch error: ' + result.error.message + '\n');
+    const msg = result.signal === 'SIGTERM'
+      ? 'Step timed out after ' + (stepTimeout / 1000) + 's'
+      : result.error.message;
+    process.stderr.write(TAG + ' Launch error: ' + msg + '\n');
     return false;
   }
   return result.status === 0;
