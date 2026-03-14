@@ -32,7 +32,7 @@ function createTempFormalDir(files = {}) {
 
 // Helper to run initialize-model-registry.cjs in a temp directory
 function runInitializeTool(cwd) {
-  return spawnSync(process.execPath, [TOOL_PATH], {
+  return spawnSync(process.execPath, [TOOL_PATH, '--project-root=' + cwd], {
     cwd,
     encoding: 'utf8',
     timeout: 10000,
@@ -105,4 +105,54 @@ test('all registry keys are relative paths (no ./ prefix, no absolute prefix)', 
   // When implemented: tool should exit successfully (0)
   // Currently fails because tool doesn't exist - this is the expected RED state
   assert.strictEqual(result.status, 0, 'initialize-model-registry.cjs must exit 0: ' + result.stderr);
+});
+
+test('scans uppaal directory for .xml files', async () => {
+  const tmpDir = createTempFormalDir({
+    uppaal: {
+      'test-model.xml': '<nta></nta>'
+    }
+  });
+
+  // Run the tool
+  const result = runInitializeTool(tmpDir);
+
+  assert.strictEqual(result.status, 0, 'initialize-model-registry.cjs must exit 0: ' + result.stderr);
+
+  // Check the generated registry
+  const registryPath = path.join(tmpDir, '.planning', 'formal', 'model-registry.json');
+  assert.ok(fs.existsSync(registryPath), 'model-registry.json should be created');
+
+  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  const uppaalKeys = Object.keys(registry.models).filter(k => k.includes('uppaal'));
+  assert.ok(uppaalKeys.length > 0, 'registry should contain uppaal entry: ' + Object.keys(registry.models).join(', '));
+  assert.ok(uppaalKeys.some(k => k.includes('test-model.xml')), 'should contain test-model.xml');
+
+  const entry = registry.models[uppaalKeys[0]];
+  assert.strictEqual(entry.update_source, 'manual', 'uppaal entry should have update_source: manual');
+});
+
+test('scans petri directory for .dot files', async () => {
+  const tmpDir = createTempFormalDir({
+    petri: {
+      'test-net.dot': 'digraph { a -> b }'
+    }
+  });
+
+  // Run the tool
+  const result = runInitializeTool(tmpDir);
+
+  assert.strictEqual(result.status, 0, 'initialize-model-registry.cjs must exit 0: ' + result.stderr);
+
+  // Check the generated registry
+  const registryPath = path.join(tmpDir, '.planning', 'formal', 'model-registry.json');
+  assert.ok(fs.existsSync(registryPath), 'model-registry.json should be created');
+
+  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  const petriKeys = Object.keys(registry.models).filter(k => k.includes('petri'));
+  assert.ok(petriKeys.length > 0, 'registry should contain petri entry: ' + Object.keys(registry.models).join(', '));
+  assert.ok(petriKeys.some(k => k.includes('test-net.dot')), 'should contain test-net.dot');
+
+  const entry = registry.models[petriKeys[0]];
+  assert.strictEqual(entry.update_source, 'manual', 'petri entry should have update_source: manual');
 });

@@ -15,7 +15,15 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT = path.join(__dirname, '..');
+let ROOT = path.join(__dirname, '..');
+
+// Parse --project-root (overrides __dirname-based ROOT for testing)
+for (const arg of process.argv.slice(2)) {
+  if (arg.startsWith('--project-root=')) {
+    ROOT = path.resolve(arg.slice('--project-root='.length));
+  }
+}
+
 const REGISTRY_PATH = path.join(ROOT, '.planning', 'formal', 'model-registry.json');
 
 // ── Idempotent guard ──────────────────────────────────────────────────────────
@@ -25,9 +33,11 @@ if (fs.existsSync(REGISTRY_PATH)) {
 
 // ── Scan .planning/formal/ subdirectories ───────────────────────────────────────────────
 const SCAN_DIRS = [
-  { dir: path.join(ROOT, '.planning', 'formal', 'tla'),   exts: ['.tla'] },
-  { dir: path.join(ROOT, '.planning', 'formal', 'alloy'), exts: ['.als'] },
-  { dir: path.join(ROOT, '.planning', 'formal', 'prism'), exts: ['.pm']  },
+  { dir: path.join(ROOT, '.planning', 'formal', 'tla'),    exts: ['.tla'] },
+  { dir: path.join(ROOT, '.planning', 'formal', 'alloy'),  exts: ['.als'] },
+  { dir: path.join(ROOT, '.planning', 'formal', 'prism'),  exts: ['.pm']  },
+  { dir: path.join(ROOT, '.planning', 'formal', 'uppaal'), exts: ['.xml'] },
+  { dir: path.join(ROOT, '.planning', 'formal', 'petri'),  exts: ['.dot'] },
 ];
 
 // Files to skip — not canonical specs
