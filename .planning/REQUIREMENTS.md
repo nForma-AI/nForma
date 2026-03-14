@@ -14,7 +14,7 @@ Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roa
 
 ### Classification
 
-- [ ] **CLASS-01**: D→C classification cache uses content-hash keys (SHA-256 of claim text) instead of line-number keys — cached verdicts invalidate when doc content changes at the same line
+- [x] **CLASS-01**: D→C classification cache uses content-hash keys (SHA-256 of claim text) instead of line-number keys — cached verdicts invalidate when doc content changes at the same line
 
 ### Convergence
 
@@ -66,7 +66,7 @@ Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roa
 |-------------|-------|--------|
 | DIAG-01 | v0.36-02 | Pending |
 | DIAG-02 | v0.36-02 | Pending |
-| CLASS-01 | v0.36-02 | Pending |
+| CLASS-01 | v0.36-02 | Complete |
 | CONV-01 | v0.36-03 | Pending |
 | CONV-02 | v0.36-03 | Pending |
 | CONV-03 | v0.36-03 | Pending |
