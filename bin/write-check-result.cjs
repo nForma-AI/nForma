@@ -4,7 +4,7 @@ const fs   = require('fs');
 const path = require('path');
 
 const VALID_RESULTS    = ['pass', 'fail', 'error', 'warn', 'inconclusive'];
-const VALID_FORMALISMS = ['tla', 'alloy', 'prism', 'trace', 'redaction', 'uppaal'];
+const VALID_FORMALISMS = ['tla', 'alloy', 'prism', 'trace', 'redaction', 'uppaal', 'petri'];
 
 /**
  * Path to the NDJSON output file.

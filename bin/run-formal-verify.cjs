@@ -354,6 +354,12 @@ const STATIC_STEPS = [
     type: 'node', script: 'generate-petri-net.cjs', args: [],
     nformaOnly: true,
   },
+  {
+    tool: 'petri', id: 'petri:verify',
+    label: 'Petri net verification — structure validation + model analysis (run-petri)',
+    type: 'node', script: 'run-petri.cjs', args: [],
+    nonCritical: true,
+  },
 
   // ─ CI enforcement — redaction + schema drift ──────────────────────────────
   {
