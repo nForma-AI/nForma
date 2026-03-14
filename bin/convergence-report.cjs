@@ -14,7 +14,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readTrendWindow, LAYER_KEYS } = require('./oscillation-detector.cjs');
+const { readTrendWindow } = require('./oscillation-detector.cjs');
+const { LAYER_KEYS } = require('./layer-constants.cjs');
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

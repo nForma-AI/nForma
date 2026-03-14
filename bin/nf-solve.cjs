@@ -35,6 +35,7 @@
 //   node bin/nf-solve.cjs --json           # machine-readable output
 //   node bin/nf-solve.cjs --verbose        # pipe child stderr to parent stderr
 //   node bin/nf-solve.cjs --fast           # skip F->C and T->C layers for sub-second iteration
+//   node bin/nf-solve.cjs --skip-proximity  # skip proximity index rebuild (faster re-diagnostic)
 //
 // Requirements: QUICK-140
 
@@ -43,6 +44,7 @@ const path = require('path');
 const os = require('os');
 const { spawnSync } = require('child_process');
 const { appendTrendEntry, readGateSummary } = require('./solve-trend-helpers.cjs');
+const { LAYER_KEYS } = require('./layer-constants.cjs');
 const { updateVerdicts } = require('./oscillation-detector.cjs');
 const { filterRequirementsByFocus } = require('./solve-focus-filter.cjs');
 const { updatePredictivePower, formatPredictivePowerSummary } = require('./predictive-power.cjs');
@@ -60,6 +62,7 @@ const reportOnly = args.includes('--report-only');
 const jsonMode = args.includes('--json');
 const verboseMode = args.includes('--verbose');
 const fastMode = args.includes('--fast');
+const skipProximity = args.includes('--skip-proximity');
 
 // Parse --project-root (overrides CWD-based ROOT for cross-repo usage)
 for (const arg of args) {
@@ -537,17 +540,21 @@ function preflight() {
   }
 
   // Rebuild proximity index (formal-proximity.cjs)
-  try {
-    const specDir = path.join(ROOT, '.planning', 'formal', 'spec');
-    if (fs.existsSync(specDir)) {
-      process.stderr.write(TAG + ' Rebuilding proximity index\n');
-      const proxResult = spawnTool('bin/formal-proximity.cjs', []);
-      if (!proxResult.ok) {
-        process.stderr.write(TAG + ' WARNING: formal-proximity.cjs failed; proximity index may be stale\n');
+  if (skipProximity) {
+    process.stderr.write(TAG + ' Skipping proximity index rebuild (--skip-proximity)\n');
+  } else {
+    try {
+      const specDir = path.join(ROOT, '.planning', 'formal', 'spec');
+      if (fs.existsSync(specDir)) {
+        process.stderr.write(TAG + ' Rebuilding proximity index\n');
+        const proxResult = spawnTool('bin/formal-proximity.cjs', []);
+        if (!proxResult.ok) {
+          process.stderr.write(TAG + ' WARNING: formal-proximity.cjs failed; proximity index may be stale\n');
+        }
       }
+    } catch (e) {
+      // fail-open: proximity index rebuild is best-effort
     }
-  } catch (e) {
-    // fail-open: proximity index rebuild is best-effort
   }
 }
 
@@ -1556,6 +1563,28 @@ function sweepDtoC() {
     const w = bc.weight !== undefined ? bc.weight : (CATEGORY_WEIGHT[bc.category] || 1);
     weightedResidual += w;
     categoryBreakdown[bc.category] = (categoryBreakdown[bc.category] || 0) + 1;
+  }
+
+  // Persist D→C broken claims for manual review
+  try {
+    const evidenceDir = path.join(ROOT, '.planning', 'formal', 'evidence');
+    if (fs.existsSync(evidenceDir)) {
+      fs.writeFileSync(
+        path.join(evidenceDir, 'doc-claims.json'),
+        JSON.stringify({
+          generated: new Date().toISOString(),
+          total_claims_checked: totalClaimsChecked,
+          doc_files_scanned: docFiles.length,
+          raw_broken_count: brokenClaims.length,
+          weighted_residual: Math.ceil(weightedResidual),
+          suppressed_fp_count: suppressedFpCount,
+          category_breakdown: categoryBreakdown,
+          broken_claims: brokenClaims,
+        }, null, 2) + '\n'
+      );
+    }
+  } catch (e) {
+    // fail-open: persistence is best-effort
   }
 
   return {
@@ -3551,7 +3580,7 @@ function truncateResidualDetail(residual) {
  */
 function formatJSON(iterations, finalResidual, converged) {
   const health = {};
-  for (const key of ['r_to_f', 'f_to_t', 'c_to_f', 't_to_c', 'f_to_c', 'r_to_d', 'd_to_c', 'p_to_f', 'c_to_r', 't_to_r', 'd_to_r', 'l1_to_l2', 'l2_to_l3', 'l3_to_tc', 'per_model_gates', 'git_heatmap', 'git_history', 'formal_lint', 'hazard_model']) {
+  for (const key of LAYER_KEYS) {
     const res = finalResidual[key] ? finalResidual[key].residual : -1;
     health[key] = healthIndicator(res).split(/\s+/)[1]; // Extract GREEN/YELLOW/RED/UNKNOWN
   }

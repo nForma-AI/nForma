@@ -14,7 +14,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const { LAYER_KEYS } = require('./solve-trend-helpers.cjs');
+const { LAYER_KEYS } = require('./layer-constants.cjs');
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

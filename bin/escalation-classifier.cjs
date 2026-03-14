@@ -15,7 +15,8 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const { spawnSync } = require('child_process');
-const { readTrendWindow, LAYER_KEYS } = require('./oscillation-detector.cjs');
+const { readTrendWindow } = require('./oscillation-detector.cjs');
+const { LAYER_KEYS } = require('./layer-constants.cjs');
 
 const TAG = '[escalation-classifier]';
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
