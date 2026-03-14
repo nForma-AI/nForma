@@ -17,8 +17,9 @@ must_haves:
     - "close-formal-gaps selects Petri net for requirements involving concurrency, pipelines, resource contention, or token-based workflows"
     - "close-formal-gaps generates UPPAAL .xml + .q files following the quorum-races.xml convention when UPPAAL formalism is selected"
     - "close-formal-gaps generates Petri .dot files following the quorum-petri-net.dot convention when Petri formalism is selected"
-    - "The --formalism flag accepts uppaal as a valid override option"
+    - "The --formalism flag accepts uppaal as a valid override option and is verified in both workflow and skill command"
     - "run-formal-verify.cjs already discovers and runs UPPAAL and Petri models from .planning/formal/{uppaal,petri}/ with no code changes needed"
+    - "run-uppaal.cjs gracefully degrades when verifyta is missing: writes warning to stderr, exits 0 with result=inconclusive, never crashes the verification suite"
   artifacts:
     - path: "core/workflows/close-formal-gaps.md"
       provides: "Extended workflow with UPPAAL and Petri generation instructions"
@@ -130,6 +131,7 @@ Add a new `### UPPAAL timed automata` subsection:
   - Timing constants should be declared as `const int` in `<declaration>` with sensible defaults
   - Use `broadcast chan` for one-to-many signaling, regular `chan` for handshake
   - XML entities: use `&lt;` for `<`, `&gt;` for `>`, `&amp;` for `&` in guard/invariant labels
+  - **Concrete escaping example**: A guard like `x < 500` in a `<label kind="guard">` MUST be written as `<label kind="guard">x &lt; 500</label>`. Likewise an invariant `x <= TIMEOUT` becomes `<label kind="invariant">x &lt;= TIMEOUT</label>`. Failing to escape produces malformed XML that verifyta silently rejects.
 - Create a corresponding `.q` query file with:
   - Safety queries: `A[] not deadlock`, `A[] (condition)`
   - Reachability queries: `E<> location.State`
@@ -162,7 +164,7 @@ Enhance the existing `### Petri net models` subsection to be more explicit:
 
 Add after the Petri bullet:
 ```
-- **UPPAAL**: `verifyta <model.xml> <model.q>` — all queries must report "satisfied". If verifyta is not installed (no VERIFYTA_BIN env var), warn user and proceed with registration as pending. The verification runner (run-formal-verify.cjs) will discover and attempt to run any `.xml` files in `.planning/formal/uppaal/` automatically.
+- **UPPAAL**: `verifyta <model.xml> <model.q>` — all queries must report "satisfied". If verifyta is not installed (no VERIFYTA_BIN env var), `run-uppaal.cjs` writes a warning to **stderr** (not stdout), sets result to `inconclusive` with triage tag `no-verifyta`, and exits 0 (no crash). The workflow should register the model as pending verification. The verification runner (run-formal-verify.cjs) will discover and attempt to run any `.xml` files in `.planning/formal/uppaal/` automatically; `run-uppaal.cjs` is marked `nonCritical: true` in the step registry so a missing verifyta never fails the overall suite.
 ```
   </action>
   <verify>
@@ -196,9 +198,10 @@ The close-formal-gaps workflow includes: (1) UPPAAL in the formalism selection h
 1. `grep 'uppaal' commands/nf/close-formal-gaps.md` — should show uppaal in argument-hint and formalism flag
 2. `grep 'UPPAAL' commands/nf/close-formal-gaps.md` — should show UPPAAL in description
 3. `diff core/workflows/close-formal-gaps.md ~/.claude/nf/workflows/close-formal-gaps.md` — should show no differences (sync confirmed)
+4. **Flag parsing round-trip**: Confirm the workflow's `--formalism=` line lists `uppaal` as a valid pipe-delimited option by running `grep 'formalism=tla|alloy|prism|petri|uppaal' core/workflows/close-formal-gaps.md` — must match. Also confirm `commands/nf/close-formal-gaps.md` has the same pipe set in both `argument-hint` and `<process>` flag docs (two separate grep hits).
   </verify>
   <done>
-The skill command accepts `--formalism=uppaal` as a valid option, the description mentions all 5 formalisms, and the installed workflow at ~/.claude/nf/workflows/ is in sync with the repo source.
+The skill command accepts `--formalism=uppaal` as a valid option, the description mentions all 5 formalisms, the flag parsing is verified in both the workflow and skill command, and the installed workflow at ~/.claude/nf/workflows/ is in sync with the repo source.
   </done>
 </task>
 
@@ -206,17 +209,21 @@ The skill command accepts `--formalism=uppaal` as a valid option, the descriptio
 
 <verification>
 - `grep -c 'uppaal\|UPPAAL' core/workflows/close-formal-gaps.md` returns 10+ (comprehensive coverage)
-- `grep 'formalism=tla|alloy|prism|petri|uppaal' commands/nf/close-formal-gaps.md` finds the updated flag
+- `grep 'formalism=tla|alloy|prism|petri|uppaal' commands/nf/close-formal-gaps.md` finds the updated flag in both argument-hint and process flag docs
+- `grep 'formalism=tla|alloy|prism|petri|uppaal' core/workflows/close-formal-gaps.md` finds the updated flag in the workflow
 - `diff core/workflows/close-formal-gaps.md ~/.claude/nf/workflows/close-formal-gaps.md` returns empty (in sync)
 - The run-formal-verify.cjs already has dynamic UPPAAL and Petri discovery (no code changes needed — verified by reading lines 196-211 and 179-194)
+- The UPPAAL template section includes a concrete XML entity escaping example (`x &lt; 500`) to prevent malformed XML generation
+- The UPPAAL checker step documents that run-uppaal.cjs exits 0 with inconclusive when verifyta is missing (stderr warning, no crash)
 </verification>
 
 <success_criteria>
 - close-formal-gaps workflow has UPPAAL in formalism selection table with disambiguation heuristics
 - close-formal-gaps workflow has UPPAAL .xml + .q generation template with full XML DTD structure reference
 - close-formal-gaps workflow has enhanced Petri .dot generation template with bipartite constraint and optional .json
-- close-formal-gaps workflow references verifyta for UPPAAL checking
-- Skill command accepts --formalism=uppaal
+- close-formal-gaps workflow references verifyta for UPPAAL checking with graceful degradation details
+- close-formal-gaps workflow UPPAAL template includes concrete XML entity escaping example
+- Skill command accepts --formalism=uppaal (verified in both argument-hint and process flag docs)
 - Installed workflow is synced to ~/.claude/nf/workflows/
 </success_criteria>
 

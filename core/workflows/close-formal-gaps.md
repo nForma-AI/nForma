@@ -89,9 +89,18 @@ For each approved cluster, select the most appropriate formalism based on these 
 | Sequential state transitions, protocols, lifecycle | **TLA+** | State machines, multi-step workflows, liveness/safety |
 | Structural constraints, relationships, configurations | **Alloy** | Data models, configuration validity, structural invariants |
 | Probabilistic behavior, availability, reliability | **PRISM** | Timeout probabilities, availability models, SLAs |
-| Concurrent workflows, resource contention | **Petri net** | Pipeline stages, token-based concurrency |
+| Real-time constraints, timed deadlines, heartbeats | **UPPAAL** | Timeout enforcement, race conditions, timed protocol phases, SLA deadlines |
+| Concurrent workflows, resource contention, pipelines | **Petri net** | Pipeline stages, token-based concurrency, producer-consumer, resource pools |
 
-If the user overrides the heuristic via `--formalism=tla|alloy|prism|petri`, use that instead.
+### Formalism Selection Disambiguation
+
+When multiple formalisms could apply, prefer:
+- **UPPAAL over TLA+** when the requirement explicitly mentions clock-based timing (ms/s deadlines, timeout enforcement, heartbeat intervals, SLA response times). TLA+ models logical ordering; UPPAAL models real-time clocks.
+- **UPPAAL over PRISM** when the requirement asks "will X complete within Y ms?" (reachability under timing) rather than "what is the probability X completes?" (stochastic).
+- **Petri net over TLA+** when the requirement focuses on concurrent resource flow (tokens, pipeline stages, pool allocation) rather than protocol state transitions.
+- **Petri net over Alloy** when the requirement is about dynamic flow/reachability rather than static structural constraints.
+
+If the user overrides the heuristic via `--formalism=tla|alloy|prism|petri|uppaal`, use that instead.
 
 For each cluster, also determine:
 - **File name**: following existing conventions (e.g., `NFDispatch.tla`, `dispatch-pipeline.als`)
@@ -107,6 +116,7 @@ Before generating, read 1–2 existing models of the same formalism to learn the
 - **TLA+**: Read a `.tla` file from `.planning/formal/tla/` and its corresponding `MC*.cfg`
 - **Alloy**: Read a `.als` file from `.planning/formal/alloy/`
 - **PRISM**: Read a `.pm` + `.props` pair from `.planning/formal/prism/`
+- **UPPAAL**: Read `.planning/formal/uppaal/quorum-races.xml` and its `.q` query file. Note the XML structure with `<nta>`, `<declaration>` (global constants), `<template>` (timed automata), `<system>` (process instantiation), and the `.q` query syntax (`A[] not deadlock`, `E<> location`, etc.).
 - **Petri**: Read a `.dot` file from `.planning/formal/petri/`
 
 Note the header format, variable naming, comment style, and property naming conventions.
@@ -143,13 +153,47 @@ For each cluster, generate the formal specification:
 - Use DTMC or CTMC as appropriate
 - Include probability annotations from requirement text or reasonable defaults
 
+### UPPAAL timed automata
+- Create a `.xml` file in UPPAAL flat system DTD format:
+  - `<nta>` root with `<declaration>` for global constants and channels
+  - One `<template>` per concurrent actor/process with:
+    - `<declaration>` for local clocks (e.g., `clock x;`)
+    - `<location>` elements with `id`, `name`, and optional `<label kind="invariant">` for clock bounds
+    - `<init ref="..."/>` pointing to initial location
+    - `<transition>` elements with `<source>`, `<target>`, and optional:
+      - `<label kind="guard">` for clock guards (e.g., `x >= MIN_MS`)
+      - `<label kind="synchronisation">` for channel sync (e.g., `chan!` or `chan?`)
+      - `<label kind="assignment">` for variable/clock updates (e.g., `x = 0, count++`)
+  - `<system>` block instantiating templates (e.g., `system Worker, Orchestrator;`)
+  - Timing constants should be declared as `const int` in `<declaration>` with sensible defaults
+  - Use `broadcast chan` for one-to-many signaling, regular `chan` for handshake
+  - XML entities: use `&lt;` for `<`, `&gt;` for `>`, `&amp;` for `&` in guard/invariant labels
+  - **Concrete escaping example**: A guard like `x < 500` in a `<label kind="guard">` MUST be written as `<label kind="guard">x &lt; 500</label>`. Likewise an invariant `x <= TIMEOUT` becomes `<label kind="invariant">x &lt;= TIMEOUT</label>`. Failing to escape produces malformed XML that verifyta silently rejects.
+- Create a corresponding `.q` query file with:
+  - Safety queries: `A[] not deadlock`, `A[] (condition)`
+  - Reachability queries: `E<> location.State`
+  - Bounded liveness: `E<> location.State and clock < BOUND`
+  - Each query on its own line, preceded by a `//` comment with `@requirement` annotation
+- File naming convention: `<descriptive-name>.xml` and `<descriptive-name>.q` in `.planning/formal/uppaal/`
+- Use requirement IDs in XML comments and query file comments: `// @requirement REQ-ID`
+
 ### Petri net models
-- Create `.dot` file in Graphviz DOT format
-- Places represent states, transitions represent actions
-- Use the `@hpcc-js/wasm-graphviz` renderer convention
+- Create `.dot` file in Graphviz DOT format following bipartite graph convention:
+  - Places (circles): represent states/buffers/resource pools — `node [shape=circle]`
+  - Transitions (rectangles): represent actions/events — `node [shape=rect, style=filled, fillcolor=black, fontcolor=white]`
+  - Arcs: ONLY place->transition or transition->place (bipartite constraint)
+  - Use `rankdir=LR` for left-to-right flow
+  - Label places with state names, transitions with action descriptions
+  - Include token annotations in labels where initial marking matters (e.g., `label="pool\n(3 tokens)"`)
+- Optionally create a `.json` companion file with:
+  - `places`: array of `{ id, name, initial_tokens }`
+  - `transitions`: array of `{ id, name, input_places, output_places }`
+  - This enables programmatic reachability analysis beyond visual rendering
+- Include `@requirement` annotations in DOT comments: `// @requirement REQ-ID`
+- The `@hpcc-js/wasm-graphviz` renderer will auto-render DOT to SVG via run-formal-verify.cjs discovery
 
 **IMPORTANT**: Every generated model MUST include `@requirement` annotations in comments
-linking back to the requirement IDs it covers. Format: `\* @requirement REQ-ID`
+linking back to the requirement IDs it covers. Format: `\* @requirement REQ-ID` (TLA+/Alloy), `// @requirement REQ-ID` (UPPAAL/Petri/PRISM)
 </step>
 
 <step name="run_checker">
@@ -160,6 +204,7 @@ Run the appropriate verification tool:
 - **TLA+**: `node bin/run-tlc.cjs MC<ModelName>` — must report `Model checking completed. No error has been found.`
 - **Alloy**: `java -jar .planning/formal/alloy/org.alloytools.alloy.dist.jar -c <file.als>` — all assertions must hold
 - **PRISM**: `prism .planning/formal/prism/<file.pm> .planning/formal/prism/<file.props>` — all properties verified
+- **UPPAAL**: `verifyta <model.xml> <model.q>` — all queries must report "satisfied". If verifyta is not installed (no VERIFYTA_BIN env var), `run-uppaal.cjs` writes a warning to **stderr** (not stdout), sets result to `inconclusive` with triage tag `no-verifyta`, and exits 0 (no crash). The workflow should register the model as pending verification. The verification runner (run-formal-verify.cjs) will discover and attempt to run any `.xml` files in `.planning/formal/uppaal/` automatically; `run-uppaal.cjs` is marked `nonCritical: true` in the step registry so a missing verifyta never fails the overall suite.
 - **Petri**: Validate DOT syntax via `dot -Tsvg` (structural check only)
 
 If verification fails:
