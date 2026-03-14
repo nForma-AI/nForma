@@ -11,6 +11,7 @@
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/M8SevJEuZG)
 [![X (Twitter)](https://img.shields.io/badge/X-@JonathanBorduas-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/JonathanBorduas)
 [![GitHub stars](https://img.shields.io/github/stars/nForma-AI/nForma?style=for-the-badge&logo=github&color=181717)](https://github.com/nForma-AI/nForma)
+[![Formal Verification](https://img.shields.io/github/actions/workflow/status/nForma-AI/nForma/formal-verify.yml?style=for-the-badge&logo=github&label=formal%20verification)](https://github.com/nForma-AI/nForma/actions/workflows/formal-verify.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
@@ -32,6 +33,10 @@ Want to try unreleased features? Install from the staging channel instead: `npx 
 [Why nForma](#why-i-built-nforma) · [TUI](#terminal-ui) · [How It Works](#how-it-works) · [Formal Methods](#formal-methods--proof-before-production) · [Per-Model Gates](#per-model-gates--spec-driven-observability) · [Solve Loop](#the-solve-loop--diagnose-remediate-report) · [Features](#features) · [Commands](#commands) · [Configuration](#configuration-reference) · [Community](#community) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
+
+---
+
+> **TL;DR** — Install with `npx @nforma.ai/nforma@latest`, start Claude Code with `claude --dangerously-skip-permissions`, run `/nf:new-project`. Multiple AI models will cross-check every plan before code runs. [Full quickstart &rarr;](#getting-started) · [User Guide &rarr;](docs/USER-GUIDE.md)
 
 ---
 
@@ -66,6 +71,8 @@ If you use AI coding agents and have hit any of these walls:
 
 nForma fixes these structurally, not with better prompts.
 
+> **Not a magic button.** nForma is an engineering system, not a one-click code generator. It rewards users who engage with the workflow — shaping requirements, reviewing plans, verifying outputs. If you want "generate my app," this is the wrong tool. If you want leverage on serious software projects, read on.
+
 ---
 
 ## With vs. Without
@@ -78,6 +85,10 @@ nForma fixes these structurally, not with better prompts.
 | Requirements traceability | Ad-hoc notes | Formal, auditable, gate-scored |
 | Test coverage verification | Manual | Pre-execution test mapping |
 | Session memory across restarts | Lost | STATE.md + auto-resume |
+
+### How This Differs from Other AI Coding Tools
+
+Unlike single-model coding assistants (GitHub Copilot Chat, Cursor, Cline) or autonomous agents (Devin, Codex), nForma is a **multi-agent orchestration framework** — it coordinates multiple AI models to cross-check each other's work through structured quorum consensus. It adds formal verification (TLA+, Alloy, PRISM) to prove protocol correctness mathematically, not just test it empirically. And it manages context engineering so each task gets a fresh 200K-token window instead of degrading over a long session.
 
 ---
 
@@ -138,6 +149,9 @@ claude --dangerously-skip-permissions
 > [!TIP]
 > This is how nForma is intended to be used — stopping to approve `date` and `git commit` 50 times defeats the purpose. GSD workflows spawn subagents, run tests, and make atomic commits automatically. Without this flag, you'll be clicking "Allow" hundreds of times.
 
+> [!CAUTION]
+> **Security considerations when using skip-permissions:** Run in isolated workspaces or repos you trust. Review `git log` and diffs after execution. Avoid repos containing secrets in plaintext (.env files, API keys). nForma includes built-in protections against committing secrets, but defense-in-depth is best practice — see the [Security](#security) section below.
+
 <details>
 <summary><strong>Alternative: Granular Permissions</strong></summary>
 
@@ -187,6 +201,22 @@ It walks you through picking providers, configuring API keys, and verifying conn
 ```
 
 That's it. The system asks what you want to build, researches the domain, extracts requirements, and creates a phased roadmap. See [How It Works](#how-it-works) for the full lifecycle.
+
+### First 60 Minutes Checklist
+
+After install, confirm each step produces the expected artifact:
+
+- [ ] `npx @nforma.ai/nforma@latest` — installer completes, banner displays
+- [ ] `/nf:help` — full command list appears (restart runtime if not)
+- [ ] `/nf:mcp-setup` — at least one quorum agent connected (optional but recommended)
+- [ ] `/nf:new-project` — answer questions, approve roadmap
+- [ ] Verify: `.planning/PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, `STATE.md` exist
+- [ ] `/nf:discuss-phase 1` — lock in your preferences, produces `CONTEXT.md`
+- [ ] `/nf:plan-phase 1` — research + plan + verify loop, produces `PLAN.md`
+- [ ] `/nf:execute-phase 1` — parallel execution, atomic commits in `git log`
+- [ ] `/nf:verify-work 1` — walk through deliverables, confirm they work
+
+If any step fails, see [Troubleshooting](docs/USER-GUIDE.md#troubleshooting) in the User Guide.
 
 ### Staying Updated
 
@@ -484,6 +514,18 @@ node bin/run-formal-verify.cjs --only=alloy
 Every core protocol has an executable specification. A dedicated [CI workflow](.github/workflows/formal-verify.yml) runs the full verification pipeline on changes to formal specs. Exit 0 = mathematically verified. See **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)** for setup and model inventory.
 
 > **Note:** Formal verification is entirely optional for using nForma. You don't need Java or any formal tools installed. But if you want mathematical guarantees about your protocol correctness, they're built in.
+
+### Trust Guarantees — What Is and Isn't Proven
+
+| Proven (formal specs) | Not proven |
+|---|---|
+| Quorum consensus protocol reaches agreement or escalates | Your application's business logic correctness |
+| Circuit breaker detects and halts oscillation loops | That generated code is bug-free |
+| Solve loop converges (no infinite remediation cycles) | That AI-generated tests cover all edge cases |
+| Phase execution has no deadlocks or livelocks | That requirements are complete for your domain |
+| Gate promotions are stable (no flip-flop) | That formal specs cover every possible failure mode |
+
+nForma proves properties of the **orchestration protocol** — the system that coordinates AI agents, manages state, and enforces quality gates. It does not prove properties of the **code your agents write**. Think of it as proving your assembly line works correctly, not that every product it builds is perfect.
 
 ---
 
