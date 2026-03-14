@@ -37,8 +37,8 @@ Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roa
 
 ### Testing
 
-- [ ] **TEST-01**: End-to-end convergence integration test runs 3 solve iterations against fixture data and asserts convergence (residual decreases monotonically on automatable layers or stabilizes)
-- [ ] **TEST-02**: Cascade effect unit tests verify that R→F remediation creating new formal models increases F→T residual, and the convergence check correctly identifies this as progress (not regression)
+- [x] **TEST-01**: End-to-end convergence integration test runs 3 solve iterations against fixture data and asserts convergence (residual decreases monotonically on automatable layers or stabilizes)
+- [x] **TEST-02**: Cascade effect unit tests verify that R→F remediation creating new formal models increases F→T residual, and the convergence check correctly identifies this as progress (not regression)
 - [ ] **TEST-03**: Focus filter completeness tests assert all 19 layers either filter by focusSet or mark results with `scoped: false` flag
 - [ ] **TEST-04**: Classification accuracy golden set of 100 pre-labeled items (25 per category: dtoc, ctor, ttor, dtor) with ground truth, measuring Haiku precision/recall per category
 
@@ -77,8 +77,8 @@ Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roa
 | STRUCT-02 | v0.36-01 | Complete |
 | STRUCT-03 | v0.36-01 | Complete |
 | STRUCT-04 | v0.36-01 | Complete |
-| TEST-01 | v0.36-05 | Pending |
-| TEST-02 | v0.36-05 | Pending |
+| TEST-01 | v0.36-05 | Complete |
+| TEST-02 | v0.36-05 | Complete |
 | TEST-03 | v0.36-05 | Pending |
 | TEST-04 | v0.36-05 | Pending |
 

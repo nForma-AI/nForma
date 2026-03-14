@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** Phase v0.36-04 complete (architecture parallelism); both plans done, v0.36-05 next
+**Current focus:** Phase v0.36-05 in progress (test harness); plan 01 complete, plan 02 next
 
 ## Current Position
 
-Phase: 4 of 5 (Architecture & Parallelism)
-Plan: v0.36-04-02-PLAN.md (2/2 plans complete)
-Status: Complete
-Last activity: 2026-03-14 — Phase v0.36-04-01 executed (L2 layer collapse to 2-layer architecture)
+Phase: 5 of 5 (Test Harness)
+Plan: v0.36-05-01-PLAN.md (1/2 plans complete)
+Status: In Progress
+Last activity: 2026-03-14 — Plan v0.36-05-01 executed (convergence e2e + cascade effect tests)
 
-Progress: [########░░] 90%
+Progress: [#########░] 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 9min
-- Total execution time: 65min
+- Total plans completed: 8
+- Average duration: 8min
+- Total execution time: 67min
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [########░░] 90%
 | v0.36-02 | 2/2 | 17min | 9min |
 | v0.36-03 | 2/2 | 20min | 10min |
 | v0.36-04 | 2/2 | 16min | 8min |
+| v0.36-05 | 1/2 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: v0.36-02-01 (11min), v0.36-03-01 (16min), v0.36-03-02 (4min), v0.36-04-01 (12min), v0.36-04-02 (4min)
+- Last 5 plans: v0.36-03-01 (16min), v0.36-03-02 (4min), v0.36-04-01 (12min), v0.36-04-02 (4min), v0.36-05-01 (2min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -44,6 +45,7 @@ Progress: [########░░] 90%
 | Phase v0.36-03 P02 | 4min | 3 tasks | 6 files |
 | Phase v0.36-04 P01 | 12min | 7 tasks | 12 files |
 | Phase v0.36-04 P02 | 4min | 3 tasks | 2 files |
+| Phase v0.36-05 P01 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -75,6 +77,8 @@ Recent decisions affecting current work:
 - [v0.36-04-01]: Gate B simplified to pure purpose check: any model with non-empty requirements passes (L2 collapsed)
 - [v0.36-04-01]: L2 classification rules retained in build-layer-manifest for forward compatibility
 - [v0.36-04-01]: layer-manifest.json schema_version 2 with collapsed_layers metadata
+- [v0.36-05-01]: Fixture data models real cascade scenario: r_to_f=5 -> r_to_f=0+f_to_t=7 -> f_to_t=2
+- [v0.36-05-01]: detectsProgressNotRegression helper validates that any residual increase has upstream decrease explanation
 
 ### Pending Todos
 
@@ -94,5 +98,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-14
-Stopped at: Completed v0.36-04-01-PLAN.md (L2 layer collapse); v0.36-04 phase complete, v0.36-05 next
+Stopped at: Completed v0.36-05-01-PLAN.md (convergence e2e + cascade effect tests); plan 02 next
 Resume file: None

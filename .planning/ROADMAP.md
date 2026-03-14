@@ -113,7 +113,7 @@ v0.36-01 -> v0.36-02 / v0.36-03 (parallel after 01) -> v0.36-04 (after 01 + 02) 
 | v0.36-02. Diagnostic Correctness | 2/2 | Complete    | 2026-03-14 |
 | v0.36-03. Convergence Intelligence | 2/2 | Complete    | 2026-03-14 |
 | v0.36-04. Architecture & Parallelism | 1/2 | Complete    | 2026-03-14 |
-| v0.36-05. Test Harness | 0/TBD | Not started | - |
+| v0.36-05. Test Harness | 1/2 | In progress | - |
 
 ---
 
