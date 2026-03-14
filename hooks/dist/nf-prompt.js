@@ -133,9 +133,11 @@ function mapRiskLevelToCount(riskLevel, maxSize) {
   return n;
 }
 
-// Returns slot names that have timed out within the last ttlMinutes.
+// Returns slot names that have failed within the last ttlMinutes.
 // Reads quorum-failures.json written by call-quorum-slot.cjs on every failure.
-function getRecentlyTimedOutSlots(cwd, ttlMinutes = 30) {
+// Covers ALL error types (TIMEOUT, AUTH, QUOTA, SPAWN_ERROR, CLI_SYNTAX, UNKNOWN).
+// The 30-minute TTL ensures transient failures self-heal without operator intervention.
+function getRecentlyFailedSlots(cwd, ttlMinutes = 30) {
   try {
     const pp = require(resolveBin('planning-paths.cjs'));
     const logPath = pp.resolveWithFallback(cwd, 'quorum-failures');
@@ -144,8 +146,8 @@ function getRecentlyTimedOutSlots(cwd, ttlMinutes = 30) {
     if (!Array.isArray(records)) return [];
     const cutoff = Date.now() - ttlMinutes * 60 * 1000;
     return records
-      .filter(r => r.error_type === 'TIMEOUT' && new Date(r.last_seen).getTime() > cutoff)
-      .map(r => r.slot);
+      .filter(r => new Date(r.last_seen).getTime() > cutoff)
+      .map(r => ({ slot: r.slot, error_type: r.error_type, pattern: r.pattern }));
   } catch (_) { return []; }
 }
 
@@ -527,9 +529,9 @@ process.stdin.on('end', () => {
         process.exit(0);
       }
 
-      // Filter out recent timeouts before building dynamic steps.
-      const recentTimeouts = getRecentlyTimedOutSlots(cwd);
-      const skipSet = new Set(recentTimeouts);
+      // Filter out recently failed slots (all error types, not just TIMEOUT).
+      const recentFailures = getRecentlyFailedSlots(cwd);
+      const skipSet = new Set(recentFailures.map(f => f.slot));
       cappedSlots = cappedSlots.filter(s => !skipSet.has(s.slot));
 
       // DISP-02: Filter by availability window (exclude cooling-down slots)
@@ -664,12 +666,14 @@ process.stdin.on('end', () => {
       // Compute T1 unused sub-CLI slots: sub agents cut by the fan-out cap.
       // These are the preferred replacement tier when a dispatched slot returns UNAVAIL.
       // They must be tried before any T2 ccr/api slots (claude-1..6).
+      // IMPORTANT: Apply skipSet to fallback tiers too — a slot that failed recently
+      // should not be dispatched as a fallback either (prevents cascading UNAVAIL waste).
       const cappedSlotNames = new Set(uniqueSlots.map(s => s.slot));
       const t1Unused = orderedSlots
-        .filter(s => s.authType === 'sub' && !cappedSlotNames.has(s.slot))
+        .filter(s => s.authType === 'sub' && !cappedSlotNames.has(s.slot) && !skipSet.has(s.slot))
         .map(s => s.slot);
       const t2Slots = orderedSlots
-        .filter(s => s.authType !== 'sub' && !cappedSlotNames.has(s.slot))
+        .filter(s => s.authType !== 'sub' && !cappedSlotNames.has(s.slot) && !skipSet.has(s.slot))
         .map(s => s.slot);
 
       const tModelDedup = modelDedupSlots.map(s => s.slot);
@@ -708,19 +712,40 @@ process.stdin.on('end', () => {
         minNote = ` (--n ${fanOutCount})`;
       }
 
+      // Build health dashboard and skip notes for Claude's context
+      let healthDashboard = '';
+      const totalSlots = orderedSlots.length;
+      const dispatchCount = uniqueSlots.length;
+      const skippedSlots = [];
+
       let skipNote = '';
-      if (recentTimeouts.length > 0) {
-        skipNote += `SKIP (TIMEOUT < 30min ago): [${recentTimeouts.join(', ')}] — do NOT dispatch these slots.\n`;
+      if (recentFailures.length > 0) {
+        const failureDetail = recentFailures.map(f => `${f.slot} (${f.error_type}: ${(f.pattern || '').slice(0, 40)})`).join('; ');
+        skipNote += `SKIP (FAILED < 30min ago): [${failureDetail}] — do NOT dispatch these slots in ANY tier.\n`;
+        skippedSlots.push(...recentFailures.map(f => ({ slot: f.slot, reason: f.error_type })));
       }
       if (preflightResult.unavailableSlots && preflightResult.unavailableSlots.length > 0) {
-        const preflightDown = preflightResult.unavailableSlots.map(u => u.name + ': ' + u.reason).join(', ');
+        const preflightDown = preflightResult.unavailableSlots.map(u => u.name + ': ' + u.reason).join('; ');
         skipNote += `SKIP (PREFLIGHT DOWN): [${preflightDown}] — preflight probe confirmed unavailable.\n`;
+        for (const u of preflightResult.unavailableSlots) {
+          if (!skippedSlots.some(s => s.slot === u.name)) {
+            skippedSlots.push({ slot: u.name, reason: u.reason });
+          }
+        }
       }
       if (availabilitySkips.length > 0) {
         skipNote += `SKIP (COOLING DOWN): [${availabilitySkips.join(', ')}] — available_at in future, skipping.\n`;
+        skippedSlots.push(...availabilitySkips.map(s => ({ slot: s, reason: 'cooling down' })));
+      }
+
+      // Build compact health dashboard when there are skipped slots
+      if (skippedSlots.length > 0) {
+        healthDashboard = `SLOT HEALTH: ${dispatchCount} dispatching, ${skippedSlots.length} skipped of ${totalSlots} total\n` +
+          skippedSlots.map(s => `  ✗ ${s.slot}: ${s.reason}`).join('\n') + '\n\n';
       }
 
       instructions = `QUORUM REQUIRED${minNote} (structural enforcement — Stop hook will verify)\n\n` +
+        healthDashboard +
         `Run the full R3 quorum protocol inline (dispatch_pattern from commands/nf/quorum.md):\n` +
         `Dispatch ALL active slots as parallel sibling nf-quorum-slot-worker Tasks in ONE message turn.\n` +
         `NEVER call mcp__*__* tools directly — use Task(subagent_type="nf-quorum-slot-worker") ONLY:\n` +

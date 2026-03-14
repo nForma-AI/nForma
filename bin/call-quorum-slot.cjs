@@ -94,7 +94,9 @@ function findProjectRoot() {
 function classifyErrorType(msg) {
   if (/usage:|unknown flag|unknown option|invalid flag|unrecognized/i.test(msg)) return 'CLI_SYNTAX';
   if (/TIMEOUT/i.test(msg)) return 'TIMEOUT';
+  if (/402|quota|rate.?limit|resource.?exhausted/i.test(msg)) return 'QUOTA';
   if (/401|403|unauthorized|forbidden/i.test(msg)) return 'AUTH';
+  if (/service not running|service.?down|not.?started/i.test(msg)) return 'SERVICE_DOWN';
   if (/spawn error/i.test(msg)) return 'SPAWN_ERROR';
   return 'UNKNOWN';
 }
@@ -119,6 +121,10 @@ function writeFailureLog(slotName, errorMsg, stderrText) {
       } catch (_) { records = []; }
     }
 
+    // Garbage-collect stale records (older than 60 minutes) to prevent unbounded growth
+    const gcCutoff = Date.now() - 60 * 60 * 1000;
+    records = records.filter(r => new Date(r.last_seen).getTime() > gcCutoff);
+
     // Update or insert record
     const existing = records.find(r => r.slot === slotName && r.error_type === error_type);
     if (existing) {
@@ -130,6 +136,25 @@ function writeFailureLog(slotName, errorMsg, stderrText) {
 
     fs.writeFileSync(logPath, JSON.stringify(records, null, 2), 'utf8');
   } catch (_) { /* failure logging must never interrupt the primary flow */ }
+}
+
+// ─── Success recovery: clear failure records when a slot succeeds ────────────
+// When a slot successfully completes inference, remove its failure records so
+// the next quorum run doesn't skip it. This gives immediate recovery instead
+// of waiting for the 30-minute TTL to expire.
+function clearFailureOnSuccess(slotName) {
+  try {
+    const pp = require('./planning-paths.cjs');
+    const logPath = pp.resolve(findProjectRoot(), 'quorum-failures');
+    if (!fs.existsSync(logPath)) return;
+    let records = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+    if (!Array.isArray(records)) return;
+    const before = records.length;
+    records = records.filter(r => r.slot !== slotName);
+    if (records.length < before) {
+      fs.writeFileSync(logPath, JSON.stringify(records, null, 2), 'utf8');
+    }
+  } catch (_) { /* recovery logging must never interrupt the primary flow */ }
 }
 
 // ─── Retry with exponential backoff (FAIL-01) ───────────────────────────────
@@ -554,12 +579,31 @@ async function main() {
       process.exit(1);
     }
 
+    // Detect non-zero exit code in resolved output (subprocess failures that didn't throw).
+    // Pattern: "...\n[exit code N]" appended by runSubprocess on non-zero exit.
+    const exitCodeMatch = result.match(/\[exit code (\d+)\]\s*$/);
+    if (exitCodeMatch && exitCodeMatch[1] !== '0') {
+      const latencyMs = Date.now() - startMs;
+      const providerName = provider.provider || provider.name;
+      const errorType = classifyErrorType(result);
+      recordTelemetry(slot, roundNum, 'FLAG', latencyMs, providerName, 'unavailable', retryCount, errorType);
+      writeFailureLog(slot, result, '');
+      // Still output the result so quorum-slot-dispatch can parse it
+      process.stdout.write(result);
+      if (!result.endsWith('\n')) process.stdout.write('\n');
+      appendTokenSentinel(slot);
+      process.exit(1);
+    }
+
     // Extract verdict from result using regex
     const verdict = (/APPROVE|BLOCK|FLAG/.exec(result) || [])[0] || 'UNKNOWN';
     const latencyMs = Date.now() - startMs;
     const providerName = provider.provider || provider.name;
 
     recordTelemetry(slot, roundNum, verdict, latencyMs, providerName, 'available', retryCount, null);
+
+    // Slot succeeded — clear any failure records so next quorum run doesn't skip it
+    clearFailureOnSuccess(slot);
 
     process.stdout.write(result);
     if (!result.endsWith('\n')) process.stdout.write('\n');

@@ -60,8 +60,9 @@ function loadNfConfig(cwd) {
 function classifyDispatchError(output) {
   const s = String(output || '');
   if (/TIMEOUT/i.test(s)) return 'TIMEOUT';
+  if (/402|quota|rate.?limit|resource.?exhausted/i.test(s)) return 'QUOTA';
   if (/401|403|unauthorized|forbidden/i.test(s)) return 'AUTH';
-  if (/402|quota|rate.?limit/i.test(s)) return 'QUOTA';
+  if (/service not running|service.?down|not.?started/i.test(s)) return 'SERVICE_DOWN';
   if (/spawn error/i.test(s)) return 'SPAWN_ERROR';
   if (/usage:|unknown flag|unknown option|invalid flag|unrecognized/i.test(s)) return 'CLI_SYNTAX';
   return 'UNKNOWN';

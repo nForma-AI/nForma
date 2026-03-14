@@ -228,6 +228,43 @@ function probeUpstreamApi(baseUrl, apiKey) {
   });
 }
 
+// ─── Layer 3: Inference history probe ────────────────────────────────────────
+// Reads quorum-failures.json to detect slots that failed inference recently.
+// This catches quota exhaustion, rate limits, and other soft failures that
+// Layer 1 (binary probe) and Layer 2 (upstream API probe) cannot detect.
+// TTL: 30 minutes (matches getRecentlyFailedSlots in nf-prompt.js).
+function probeInferenceHistory(ttlMinutes = 30) {
+  try {
+    const planningPaths = require('./planning-paths.cjs');
+    // Use findProjectRoot-like logic to find .planning directory
+    let root = process.cwd();
+    for (let i = 0; i < 8; i++) {
+      if (fs.existsSync(path.join(root, '.planning'))) break;
+      const parent = path.dirname(root);
+      if (parent === root) break;
+      root = parent;
+    }
+    const logPath = planningPaths.resolveWithFallback(root, 'quorum-failures');
+    if (!fs.existsSync(logPath)) return {};
+    const records = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+    if (!Array.isArray(records)) return {};
+    const cutoff = Date.now() - ttlMinutes * 60 * 1000;
+    const result = {};
+    for (const r of records) {
+      if (new Date(r.last_seen).getTime() > cutoff) {
+        result[r.slot] = {
+          ok: false,
+          reason: `${r.error_type}: ${(r.pattern || '').slice(0, 100)}`,
+          error_type: r.error_type,
+          count: r.count,
+          last_seen: r.last_seen,
+        };
+      }
+    }
+    return result;
+  } catch (_) { return {}; } // fail-open
+}
+
 // ─── Two-layer parallel health probe ────────────────────────────────────────
 async function probeHealth(providers) {
   // Load ~/.claude.json for MCP server env (ccr slots need ANTHROPIC_BASE_URL)
@@ -410,6 +447,20 @@ async function main() {
       ensureServices(activeProviders);
       const health = await probeHealth(activeProviders);
 
+      // Layer 3: inference history — check if slots failed inference recently
+      const inferenceHistory = probeInferenceHistory();
+
+      // Merge Layer 3 into health results
+      for (const [name, h] of Object.entries(health)) {
+        if (inferenceHistory[name]) {
+          h.layer3 = inferenceHistory[name];
+          // A slot is unhealthy if Layer 1 OR 2 OR 3 fails
+          h.healthy = h.healthy && inferenceHistory[name].ok;
+        } else {
+          h.layer3 = { ok: true, reason: 'no recent failures' };
+        }
+      }
+
       output.health = health;
       output.available_slots = [];
       output.unavailable_slots = [];
@@ -420,7 +471,11 @@ async function main() {
         } else {
           const reason = !h.layer1.ok
             ? `layer1: ${h.layer1.reason}`
-            : `layer2: ${h.layer2.reason}`;
+            : !h.layer2.ok
+            ? `layer2: ${h.layer2.reason}`
+            : h.layer3 && !h.layer3.ok
+            ? `layer3: ${h.layer3.reason}`
+            : 'unknown';
           output.unavailable_slots.push({ name, reason });
         }
       }

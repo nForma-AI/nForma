@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-14T17:47:52.493Z",
-  "content_hash": "892bd04e3f89e338af7d894f4b5ec406a414a2a56662a7b7525d3e0771074de1",
+  "aggregated_at": "2026-03-14T18:18:59.077Z",
+  "content_hash": "efa72b6beba31764",
   "schema_version": "1",
   "requirements": [
     {
@@ -3860,6 +3860,18 @@
       "category_raw": "Spec Completeness"
     },
     {
+      "id": "SPEC-05",
+      "text": "Multi-adapter FSM-to-TLA+ transpiler supports 10 state machine frameworks (XState v5/v4, javascript-state-machine, Robot, AWS Step Functions, Stately, Python transitions, sismic, looplab/fsm, qmuntal/stateless) through a plugin architecture with shared MachineIR intermediate representation.",
+      "category": "Formal Verification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Quick task 292 generalized the monolithic xstate-to-tla.cjs into a plugin-based transpiler to enable formal verification of state machines from any framework, not just XState.",
+      "provenance": {
+        "source_file": ".planning/quick/292-multi-adapter-fsm-to-tla-transpiler-gene/292-PLAN.md",
+        "milestone": "quick-292"
+      }
+    },
+    {
       "id": "STATE-01",
       "text": "audit-milestone updates STATE.md \"Stopped at\" and \"Current Position\" fields with the audit result (passed / gaps_found / tech_debt) after writing the MILESTONE-AUDIT.md artifact",
       "category": "Planning & Tracking",
@@ -4771,5 +4783,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-14T17:47:52.493Z"
+  "frozen_at": "2026-03-14T18:18:59.077Z"
 }
