@@ -160,15 +160,50 @@ function findProviders() {
   return null;
 }
 
-// Triggers a fresh health probe before reading the cache.
-// Runs check-provider-health.cjs with a 3s timeout via spawnSync.
-// Fail-open: if spawn fails or times out, dispatch continues with stale/missing cache.
-function triggerHealthProbe() {
+// Runs quorum-preflight.cjs --all to probe CLI-backed slots (Layer 1 + Layer 2).
+// Returns { filteredSlots, allDown, unavailableSlots } based on probe results.
+// Fail-open on any error: returns { filteredSlots: slots, allDown: false, unavailableSlots: [] }.
+// CLI-backed slots (e.g., codex-1, gemini-1, opencode-1, copilot-1) are filtered by
+// the probe results. Unprobed slots (e.g., claude-*) pass through unconditionally.
+// Set NF_SKIP_PREFLIGHT=1 to bypass probes (used in tests to avoid real CLI invocations).
+function runPreflightFilter(slots) {
+  const failOpen = { filteredSlots: slots, allDown: false, unavailableSlots: [] };
+  // NF_SKIP_PREFLIGHT=1 disables probing entirely (test isolation, fast-path CI)
+  if (process.env.NF_SKIP_PREFLIGHT === '1') return failOpen;
   try {
-    const checkPath = resolveBin('check-provider-health.cjs');
-    if (!fs.existsSync(checkPath)) return; // no probe script found — fail-open
-    spawnSync('node', [checkPath, '--json'], { timeout: 3000, stdio: 'ignore' });
-  } catch (_) { /* fail-open: probe failure does not block dispatch */ }
+    const preflightPath = resolveBin('quorum-preflight.cjs');
+    if (!preflightPath || !fs.existsSync(preflightPath)) return failOpen;
+    const result = spawnSync('node', [preflightPath, '--all'], {
+      timeout: 6000,
+      encoding: 'utf8',
+    });
+    if (result.status !== 0 || !result.stdout) return failOpen;
+    let preflight;
+    try { preflight = JSON.parse(result.stdout); } catch (_) { return failOpen; }
+    if (!preflight || !Array.isArray(preflight.available_slots) || !Array.isArray(preflight.unavailable_slots)) {
+      return failOpen;
+    }
+
+    const availableSet = new Set(preflight.available_slots);
+    const unavailableSet = new Set(preflight.unavailable_slots.map(u => u.name));
+
+    // Keep a slot if it is in available_slots, OR if preflight did not probe it at all.
+    const filteredSlots = slots.filter(s => {
+      if (availableSet.has(s.slot)) return true;    // explicitly probed and UP
+      if (unavailableSet.has(s.slot)) return false; // explicitly probed and DOWN
+      return true;  // unknown to preflight (e.g., claude-* slots) — pass through
+    });
+
+    // allDown only if at least one slot was in the input AND none survived filtering.
+    const allDown = slots.length > 0 && filteredSlots.length === 0;
+
+    process.stderr.write(
+      `[nf-dispatch] PREFLIGHT: available=[${preflight.available_slots.join(', ')}], ` +
+      `unavailable=[${preflight.unavailable_slots.map(u => u.name).join(', ')}]\n`
+    );
+
+    return { filteredSlots, allDown, unavailableSlots: preflight.unavailable_slots };
+  } catch (_) { return failOpen; }
 }
 
 // Filters slots by availability window from scoreboard.
@@ -249,58 +284,6 @@ function sortBySuccessRate(slots, cwd) {
       sorted.map(s => `${s.slot}(f=${getFlakiness(s.slot).toFixed(2)},r=${getRate(s.slot).toFixed(3)})`).join(', ') + ']\n');
     return sorted;
   } catch (_) { return [...slots]; } // fail-open: any error → return original order
-}
-
-// Returns slot names whose backing provider is DOWN (probed unhealthy).
-// Reads ~/.claude/nf-provider-cache.json and matches providers from providers.json.
-// When a provider's endpoint is DOWN, ALL slots backed by that provider are skipped.
-function getDownProviderSlots() {
-  try {
-    const cachePath = path.join(os.homedir(), '.claude', 'nf-provider-cache.json');
-    if (!fs.existsSync(cachePath)) return [];
-    const cache = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
-    if (!cache || !cache.entries) return [];
-
-    const providers = findProviders();
-    if (!providers) return [];
-
-    // Extract hostnames from DOWN cache entries.
-    // Cache keys are baseUrls like "https://api.akashml.com/v1".
-    // Extract hostname and strip common domain suffixes to get a match key (e.g., "akashml").
-    const downHostnames = [];
-    const now = Date.now();
-    for (const [baseUrl, entry] of Object.entries(cache.entries)) {
-      // Match TTL used by check-provider-health.cjs: 180s healthy, 300s unhealthy
-      const ttl = entry.healthy ? 180000 : 300000;
-      if (now - entry.cachedAt >= ttl) continue; // expired cache entry — ignore
-      if (entry.healthy) continue; // provider is UP — not skipping
-
-      try {
-        // Extract hostname and normalize to match provider field values in providers.json
-        const hostname = new URL(baseUrl).hostname; // e.g., "api.akashml.com"
-        let normalized = hostname.replace(/^api\./, ''); // remove "api." prefix
-        normalized = normalized.replace(/\.(com|ai|xyz|io)$/, ''); // remove TLD
-        downHostnames.push(normalized);
-      } catch (_) { /* malformed URL — skip this entry */ }
-    }
-
-    if (downHostnames.length === 0) return [];
-
-    // Find all slots backed by DOWN providers.
-    // Match provider field against each down hostname.
-    const skipSlots = [];
-    for (const provider of providers) {
-      if (!provider.provider) continue;
-      for (const downHostname of downHostnames) {
-        // Match: provider field contains or is contained by downHostname (e.g., "akashml" == "akashml")
-        if (provider.provider.includes(downHostname) || downHostname.includes(provider.provider)) {
-          skipSlots.push(provider.name);
-          break;
-        }
-      }
-    }
-    return skipSlots;
-  } catch (_) { return []; } // fail-open: any error → proceed with no provider skips
 }
 
 // Deduplicates slots that share the same underlying model.
@@ -524,14 +507,29 @@ process.stdin.on('end', () => {
         const externalSlotCap = fanOutCount - 1;
         let cappedSlots = orderedSlots.slice(0, externalSlotCap);
 
-      // DISP-01: Trigger fresh health probe before reading cache
-      triggerHealthProbe();
+      // DISP-01: Preflight filter — probe CLI-backed slots using quorum-preflight.cjs --all.
+      // Covers Layer 1 (binary probe) + Layer 2 (upstream API probe).
+      // Fail-open: preflight failures never block dispatch.
+      const preflightResult = runPreflightFilter(cappedSlots);
+      cappedSlots = preflightResult.filteredSlots;
 
-      // Filter out slots backed by DOWN providers before building dynamic steps.
+      // SHORT-CIRCUIT: If preflight reports all slots down, skip full dispatch and inject a
+      // minimal "all slots unavailable" message so Claude can proceed without quorum overhead.
+      if (preflightResult.allDown && orderedSlots.length > 0) {
+        const unavailList = preflightResult.unavailableSlots.map(u => u.name + ': ' + u.reason).join('; ');
+        const allDownInstructions = `<!-- NF_ALL_SLOTS_DOWN -->\nAll quorum slots are currently unavailable (preflight probe failed for: ${unavailList}). Proceeding without quorum — Claude's vote is the quorum. Write <!-- GSD_DECISION --> in your final output.`;
+        process.stdout.write(JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: 'UserPromptSubmit',
+            additionalContext: allDownInstructions,
+          }
+        }));
+        process.exit(0);
+      }
+
+      // Filter out recent timeouts before building dynamic steps.
       const recentTimeouts = getRecentlyTimedOutSlots(cwd);
-      const providerSkips = getDownProviderSlots();
-      const allSkipSlots = [...new Set([...recentTimeouts, ...providerSkips])];
-      const skipSet = new Set(allSkipSlots);
+      const skipSet = new Set(recentTimeouts);
       cappedSlots = cappedSlots.filter(s => !skipSet.has(s.slot));
 
       // DISP-02: Filter by availability window (exclude cooling-down slots)
@@ -714,8 +712,9 @@ process.stdin.on('end', () => {
       if (recentTimeouts.length > 0) {
         skipNote += `SKIP (TIMEOUT < 30min ago): [${recentTimeouts.join(', ')}] — do NOT dispatch these slots.\n`;
       }
-      if (providerSkips.length > 0) {
-        skipNote += `SKIP (PROVIDER DOWN): [${providerSkips.join(', ')}] — entire provider unreachable, skip all backed slots.\n`;
+      if (preflightResult.unavailableSlots && preflightResult.unavailableSlots.length > 0) {
+        const preflightDown = preflightResult.unavailableSlots.map(u => u.name + ': ' + u.reason).join(', ');
+        skipNote += `SKIP (PREFLIGHT DOWN): [${preflightDown}] — preflight probe confirmed unavailable.\n`;
       }
       if (availabilitySkips.length > 0) {
         skipNote += `SKIP (COOLING DOWN): [${availabilitySkips.join(', ')}] — available_at in future, skipping.\n`;

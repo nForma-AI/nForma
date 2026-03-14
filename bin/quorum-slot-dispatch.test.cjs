@@ -530,3 +530,95 @@ test('enrichPromptWithRetrieval — respects token budget', () => {
   assert.ok(addedLength <= budget + 200,
     'Added context (' + addedLength + ' chars) must be within TOKEN_BUDGET_CHARS (' + budget + ')');
 });
+
+// ── classifyDispatchError unit tests ─────────────────────────────────────────
+
+test('classifyDispatchError export: classifyDispatchError is exported as a function', () => {
+  assert.ok(mod, 'Module not available yet');
+  assert.strictEqual(typeof mod.classifyDispatchError, 'function',
+    'classifyDispatchError must be exported from bin/quorum-slot-dispatch.cjs');
+});
+
+test('TC-DISPATCH-UNAVAIL-1: classifyDispatchError returns TIMEOUT when output contains TIMEOUT', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.classifyDispatchError('Process TIMEOUT after 60000ms — slot did not respond');
+  assert.strictEqual(result, 'TIMEOUT', 'Must classify TIMEOUT string as TIMEOUT');
+});
+
+test('TC-DISPATCH-UNAVAIL-2: classifyDispatchError returns AUTH when output contains 401', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.classifyDispatchError('Error: 401 Unauthorized — invalid API key');
+  assert.strictEqual(result, 'AUTH', 'Must classify 401 string as AUTH');
+});
+
+test('TC-DISPATCH-UNAVAIL-2b: classifyDispatchError returns AUTH when output contains 403', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.classifyDispatchError('403 Forbidden access denied');
+  assert.strictEqual(result, 'AUTH', 'Must classify 403 string as AUTH');
+});
+
+test('TC-DISPATCH-UNAVAIL-3: classifyDispatchError returns QUOTA when output contains quota', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.classifyDispatchError('Error: quota exceeded for this model');
+  assert.strictEqual(result, 'QUOTA', 'Must classify quota string as QUOTA');
+});
+
+test('TC-DISPATCH-UNAVAIL-4: classifyDispatchError returns SPAWN_ERROR when output contains spawn error', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.classifyDispatchError('[spawn error: ENOENT]');
+  assert.strictEqual(result, 'SPAWN_ERROR', 'Must classify spawn error as SPAWN_ERROR');
+});
+
+test('TC-DISPATCH-UNAVAIL-5: classifyDispatchError returns CLI_SYNTAX when output contains unknown flag', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.classifyDispatchError('Usage: gemini [options]\nunknown flag --foo');
+  assert.strictEqual(result, 'CLI_SYNTAX', 'Must classify unknown flag as CLI_SYNTAX');
+});
+
+test('TC-DISPATCH-UNAVAIL-6: classifyDispatchError returns UNKNOWN for unrecognized output', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.classifyDispatchError('Something went wrong');
+  assert.strictEqual(result, 'UNKNOWN', 'Must classify unrecognized output as UNKNOWN');
+});
+
+test('TC-DISPATCH-UNAVAIL-7: emitResultBlock includes error_type when provided', () => {
+  assert.ok(mod, 'Module not available yet');
+  const block = mod.emitResultBlock({
+    slot: 'codex-1',
+    round: 1,
+    verdict: 'UNAVAIL',
+    reasoning: 'UNAVAIL (TIMEOUT): process timed out after 60000ms',
+    rawOutput: 'TIMEOUT after 60000ms',
+    isUnavail: true,
+    error_type: 'TIMEOUT',
+    unavailMessage: 'TIMEOUT after 60000ms',
+  });
+  assert.ok(block.includes('error_type: TIMEOUT'), 'emitResultBlock must include error_type: TIMEOUT in output');
+  assert.ok(block.includes('verdict: UNAVAIL'), 'emitResultBlock must include verdict: UNAVAIL');
+});
+
+test('TC-DISPATCH-UNAVAIL-8: emitResultBlock omits error_type when not provided', () => {
+  assert.ok(mod, 'Module not available yet');
+  const block = mod.emitResultBlock({
+    slot: 'codex-1',
+    round: 1,
+    verdict: 'APPROVE',
+    reasoning: 'Looks good',
+    rawOutput: 'APPROVE',
+  });
+  assert.ok(!block.includes('error_type:'), 'emitResultBlock must NOT include error_type for non-UNAVAIL results');
+});
+
+test('TC-DISPATCH-UNAVAIL-9: UNAVAIL reasoning includes first 200 chars of output', () => {
+  assert.ok(mod, 'Module not available yet');
+  const longOutput = 'TIMEOUT occurred during processing. ' + 'x'.repeat(300);
+  const errorType = mod.classifyDispatchError(longOutput);
+  const reasoning = 'UNAVAIL (' + errorType + '): ' + longOutput.slice(0, 200).replace(/\n/g, ' ');
+  assert.ok(reasoning.startsWith('UNAVAIL (TIMEOUT):'), 'reasoning must start with UNAVAIL (TIMEOUT):');
+  const prefix = 'UNAVAIL (TIMEOUT): ';
+  assert.strictEqual(
+    reasoning.length,
+    prefix.length + 200,
+    'reasoning must contain exactly 200 chars of output excerpt'
+  );
+});

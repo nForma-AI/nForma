@@ -814,3 +814,70 @@ test('TC-STRICT-QUORUM-ON-NON-QUORUM-CMD: strict mode injects quorum for non-quo
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+// TC-PREFLIGHT-1: runPreflightFilter fail-open when preflight is bypassed (NF_SKIP_PREFLIGHT=1)
+// Verifies that when NF_SKIP_PREFLIGHT=1 (the default in runHook), the hook proceeds
+// to normal dispatch without probing or short-circuiting.
+test('TC-PREFLIGHT-1: runPreflightFilter fail-open — hook dispatches normally when preflight bypassed', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prompt-pf1-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.clone');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1', 'gemini-1'], quorum_commands: ['/nf:plan-phase'] }),
+      'utf8'
+    );
+    // runHook defaults to NF_SKIP_PREFLIGHT=1 — verifies fail-open path dispatches normally
+    const { stdout, exitCode } = runHook({ prompt: '/nf:plan-phase test', cwd: tempDir });
+    assert.strictEqual(exitCode, 0, 'exit code must be 0 — fail-open path proceeds normally');
+    assert.ok(stdout.length > 0, 'stdout must contain dispatch instructions (fail-open dispatches normally)');
+    assert.ok(!stdout.includes('NF_ALL_SLOTS_DOWN'), 'fail-open must not produce NF_ALL_SLOTS_DOWN marker');
+    const pf1Parsed = JSON.parse(stdout);
+    assert.ok(pf1Parsed.hookSpecificOutput, 'output must have hookSpecificOutput');
+    assert.ok(
+      pf1Parsed.hookSpecificOutput.additionalContext.includes('QUORUM REQUIRED'),
+      'fail-open must still inject QUORUM REQUIRED dispatch instructions'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// TC-PREFLIGHT-2: NF_SKIP_PREFLIGHT=0 with real preflight present does not crash
+// Ensures that when NF_SKIP_PREFLIGHT is disabled and quorum-preflight.cjs is available,
+// the hook completes without crashing (fail-open behavior on probe results).
+test('TC-PREFLIGHT-2: NF_SKIP_PREFLIGHT=0 with real preflight present does not crash', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prompt-pf2-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1', 'gemini-1'] }),
+      'utf8'
+    );
+    // Run with NF_SKIP_PREFLIGHT=0 and extended timeout to allow real probe to complete.
+    // HOME overridden to tempDir so no global ~/.claude/nf.json is loaded.
+    // With an isolated HOME, preflight binary probes will fail (no real CLIs configured),
+    // and the hook must fail-open and still emit valid dispatch instructions.
+    const payload = JSON.stringify({ prompt: '/nf:plan-phase test', cwd: tempDir });
+    const pf2Env = { ...process.env, NF_SKIP_PREFLIGHT: '0', HOME: tempDir };
+    const pf2Result = spawnSync('node', [HOOK_PATH], {
+      input: payload,
+      encoding: 'utf8',
+      timeout: 12000, // longer timeout to allow up to 6s preflight probe
+      env: pf2Env,
+    });
+    assert.strictEqual(pf2Result.status, 0, 'exit code must be 0 — fail-open on probe failure or unavail result');
+    assert.ok(typeof pf2Result.stdout === 'string', 'stdout must be a string');
+    assert.ok(pf2Result.stdout.length > 0, 'stdout must be non-empty (dispatch or all-down message)');
+    // Either normal dispatch or NF_ALL_SLOTS_DOWN — both are valid outcomes
+    const hasDispatch = pf2Result.stdout.includes('QUORUM REQUIRED') || pf2Result.stdout.includes('NF_ALL_SLOTS_DOWN');
+    assert.ok(hasDispatch, 'must emit either QUORUM REQUIRED dispatch or NF_ALL_SLOTS_DOWN message');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
