@@ -40,39 +40,10 @@ if (!fs.existsSync(MACHINE_PATH)) {
 }
 
 // ── Model registry update helper ──────────────────────────────────────────────
-// Updates .planning/formal/model-registry.json after each spec write (ARCH-01 wiring).
-// Fail-open: if registry does not exist (not yet initialized), warns and skips.
+// Uses shared module extracted to bin/adapters/registry-update.cjs (ARCH-01 wiring).
+const { updateModelRegistry: _updateModelRegistryShared } = require('./adapters/registry-update.cjs');
 function updateModelRegistry(absPath) {
-  if (DRY) return; // dry-run: skip registry update
-  const registryPath = path.join(ROOT, '.planning', 'formal', 'model-registry.json');
-  if (!fs.existsSync(registryPath)) {
-    process.stderr.write('[update-model-registry] Skipping registry update: .planning/formal/model-registry.json not yet initialized\n');
-    return;
-  }
-  let registry;
-  try {
-    registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-  } catch (err) {
-    process.stderr.write('[update-model-registry] Cannot parse registry: ' + err.message + '\n');
-    return;
-  }
-  if (!registry.models) registry.models = {}; // guard: handles corrupted registry
-  const key = path.relative(ROOT, absPath).replace(/\\/g, '/');
-  const now = new Date().toISOString();
-  const existing = registry.models[key] || {};
-  registry.models[key] = {
-    version: (existing.version || 0) + 1,
-    last_updated: now,
-    update_source: 'generate',
-    source_id: 'generate:formal-specs',
-    session_id: null,
-    description: existing.description || ''
-  };
-  registry.last_sync = now;
-  // Atomic write: tmp file + rename
-  const tmpPath = registryPath + '.tmp.' + Date.now() + '.' + Math.random().toString(36).slice(2);
-  fs.writeFileSync(tmpPath, JSON.stringify(registry, null, 2), 'utf8');
-  fs.renameSync(tmpPath, registryPath);
+  _updateModelRegistryShared(absPath, { dry: DRY, projectRoot: ROOT });
 }
 
 // ── Parse XState machine ──────────────────────────────────────────────────────
