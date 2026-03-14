@@ -30,7 +30,7 @@ Want to try unreleased features? Install from the staging channel instead: `npx 
 
 <br>
 
-[Why nForma](#why-i-built-nforma) · [TUI](#terminal-ui) · [How It Works](#how-it-works) · [Formal Methods](#formal-methods--proof-before-production) · [Per-Model Gates](#per-model-gates--spec-driven-observability) · [Solve Loop](#the-solve-loop--diagnose-remediate-report) · [Features](#features) · [Commands](#commands) · [Configuration](#configuration-reference) · [Community](#community) · [User Guide](docs/USER-GUIDE.md)
+[Why nForma](#why-i-built-nforma) · [TUI](#terminal-ui) · [How It Works](#how-it-works) · [Formal Methods](#formal-methods--proof-before-production) · [State Machine Transpiler](#state-machine-transpiler) · [Per-Model Gates](#per-model-gates--spec-driven-observability) · [Solve Loop](#the-solve-loop--diagnose-remediate-report) · [Features](#features) · [Commands](#commands) · [Configuration](#configuration-reference) · [Community](#community) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
 
@@ -98,12 +98,13 @@ Unlike single-model coding assistants (GitHub Copilot Chat, Cursor, Cline) or au
 |---|---|
 | **5+** quorum agents | **56** slash commands |
 | **5** formal methods tools (TLA+, Alloy, PRISM, UPPAAL, Petri) | **7** lifecycle hook types |
-| **Auto-generated specs** from your requirements | **33** milestones shipped |
+| **10** state machine frameworks transpiled to TLA+ | **33** milestones shipped |
 
 ---
 
 ## What's New
 
+- **State machine to TLA+ transpiler** -- Point `fsm-to-tla` at any state machine in your codebase and get a formal TLA+ spec. Supports 10 frameworks across 4 languages — [details below](#state-machine-transpiler)
 - **Cross-repo support** -- `--repo` flag lets you run nForma commands against any project in your workspace
 - **Formal spec generation** -- `/nf:close-formal-gaps` auto-generates TLA+, Alloy, or PRISM specs from your project requirements
 - **Pre-quorum auth checks** -- Detects unauthenticated agents before dispatch, no more 30s timeouts
@@ -532,6 +533,39 @@ nForma selects the right formalism per requirement — you don't need to know TL
 
 Formal specs prove properties of your **design** — the protocol, the state machine, the data model. They don't prove the implementation is correct, but they catch entire *classes* of bugs that testing can't: race conditions, liveness violations, and invariant breaks across all possible executions.
 
+### State Machine Transpiler
+
+Already have a state machine in your codebase? nForma can transpile it directly to a TLA+ spec — no manual translation needed.
+
+```bash
+# Auto-detects the framework and generates a TLA+ spec + TLC config
+node bin/fsm-to-tla.cjs src/machines/checkout.machine.ts
+
+# Explicit framework selection
+node bin/fsm-to-tla.cjs workflow.json --framework=asl
+
+# Generate a starter config for guard/variable annotations
+node bin/fsm-to-tla.cjs src/fsm.py --scaffold-config > guards.json
+```
+
+**10 frameworks supported across 4 languages:**
+
+| Language | Framework | How it works |
+|----------|-----------|--------------|
+| **JS/TS** | XState v5, XState v4 | Compiles via esbuild, introspects machine config |
+| **JS/TS** | javascript-state-machine | Compiles via esbuild, extracts `transitions` array |
+| **JS/TS** | Robot | Regex extraction of functional `state()`/`transition()` API |
+| **JSON** | AWS Step Functions (ASL) | Parses `States` directly — Choice branches become guarded transitions |
+| **JSON** | Stately (SCXML-JSON) | Parses Stately.ai editor exports |
+| **Python** | transitions | Regex extraction of `Machine(states=[], transitions=[])` |
+| **Python** | sismic | YAML statechart parsing |
+| **Go** | looplab/fsm | Regex extraction of `fsm.NewFSM()` + `fsm.Events{}` |
+| **Go** | qmuntal/stateless | Regex extraction of `.Configure().Permit()` chains |
+
+Every adapter produces a shared **MachineIR** (states, transitions, guards, context variables), then a single TLA+ emitter generates the spec. The `--scaffold-config` flag generates a starter JSON file where you annotate guards with TLA+ predicates and variables with update expressions — bridging the semantic gap between your code and the formal model.
+
+Auto-detection picks the right adapter based on file content, so you don't need to specify `--framework` for most files.
+
 ---
 
 ## Per-Model Gates — Spec-Driven Observability
@@ -783,6 +817,21 @@ Use for: bug fixes, small features, config changes, one-off tasks.
 ```
 
 **Creates:** `.planning/quick/001-add-dark-mode-toggle/PLAN.md`, `SUMMARY.md`
+
+</details>
+
+<details>
+<summary><strong>State Machine to Spec</strong> — Transpile any FSM framework to TLA+ for formal verification</summary>
+
+Point `fsm-to-tla` at a state machine definition in your codebase and get a TLA+ spec with model-checker config — ready to run through TLC.
+
+```bash
+node bin/fsm-to-tla.cjs src/machines/order.machine.ts --dry
+```
+
+Works with **10 frameworks** across JavaScript, TypeScript, JSON, Python, and Go. Auto-detects the framework from file content. For JS/TS frameworks, compiles via esbuild and introspects the machine object. For Python and Go, uses regex extraction — no runtime needed.
+
+The transpiler generates VARIABLES, Init, type invariants, action definitions with guard mappings, Next (with fairness), and a TLC config. Use `--scaffold-config` to generate a starter guard/variable annotation file for your machine.
 
 </details>
 

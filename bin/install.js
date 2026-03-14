@@ -2153,6 +2153,19 @@ function install(isGlobal, runtime = 'claude') {
     }
     console.log(`  ${green}✓${reset} Installed nf-bin scripts`);
 
+    // Copy bin/adapters/ to nf-bin/adapters/ (FSM-to-TLA+ transpiler adapters)
+    const adaptersSrc = path.join(binSrc, 'adapters');
+    if (fs.existsSync(adaptersSrc)) {
+      const adaptersDest = path.join(binDest, 'adapters');
+      fs.mkdirSync(adaptersDest, { recursive: true });
+      for (const entry of fs.readdirSync(adaptersSrc)) {
+        if (entry.endsWith('.cjs')) {
+          fs.copyFileSync(path.join(adaptersSrc, entry), path.join(adaptersDest, entry));
+        }
+      }
+      console.log(`  ${green}✓${reset} Installed FSM-to-TLA+ adapters`);
+    }
+
     // Copy dist/machines/ to nf-bin/dist/machines/ (XState bundle for gate scripts)
     const machinesSrc = path.join(src, 'dist', 'machines');
     if (fs.existsSync(machinesSrc)) {
