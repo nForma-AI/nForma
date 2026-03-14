@@ -22,6 +22,7 @@ const { extractFormalExpected } = require('./extractFormalExpected.cjs');
  */
 function sweepPtoF(options = {}) {
   const ROOT = options.root || process.cwd();
+  const focusSet = options.focusSet || null;
   const ledgerPath = options.ledgerPath || path.join(ROOT, '.planning/formal/debt.json');
   const specDir = options.specDir || path.join(ROOT, '.planning/formal/spec');
 
@@ -56,6 +57,7 @@ function sweepPtoF(options = {}) {
       divergent_entries: divergent,
       skipped_unlinked: unlinked.length,
       skipped_unlinked_ids: unlinked.map(e => e.id),
+      scoped: focusSet ? false : undefined,
     },
   };
 }

@@ -820,6 +820,7 @@ function sweepCtoF() {
     residual: mismatches.length,
     detail: {
       mismatches: enrichedMismatches,
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -882,6 +883,7 @@ function sweepTtoC() {
             skipped: 0,
             todo: 0,
             runner: 'jest',
+            scoped: focusSet ? false : undefined,
           },
         };
       }
@@ -981,6 +983,7 @@ function sweepTtoC() {
           runner_mismatch: true,
           warning: 'All ' + failLines.length + ' failures are outside generated-stubs scope — likely runner mismatch',
           v8_coverage: coverageData,
+          scoped: focusSet ? false : undefined,
         },
       };
     }
@@ -995,6 +998,7 @@ function sweepTtoC() {
       skipped: skipCount,
       todo: todoCount,
       v8_coverage: coverageData,
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -1186,6 +1190,7 @@ function sweepFtoC() {
       failures: failures,
       errors: errors,
       inconclusive_checks: inconclusiveChecks,
+      scoped: focusSet ? false : undefined,
     };
 
     // Conformance trace self-healing: detect schema mismatch
@@ -1467,11 +1472,17 @@ function sweepDtoC() {
       let reason = '';
 
       if (claim.type === 'file_path') {
-        // Verify file exists
+        // Verify file exists — try ROOT first, then common parent directories
+        // (docs often reference files relative to .planning/formal/ in tables)
         const claimAbsPath = path.join(ROOT, claim.value);
-        if (!fs.existsSync(claimAbsPath)) {
-          isBroken = true;
-          reason = 'file not found';
+        const formalFallback = path.join(ROOT, '.planning', 'formal', claim.value);
+        if (!fs.existsSync(claimAbsPath) && !fs.existsSync(formalFallback)) {
+          // Skip runtime output files that get created on first use
+          const isRuntimeOutput = /\.(jsonl|ndjson)$/.test(claim.value);
+          if (!isRuntimeOutput) {
+            isBroken = true;
+            reason = 'file not found';
+          }
         }
       } else if (claim.type === 'cli_command') {
         // Extract script path from command (e.g., "node bin/foo.cjs" -> "bin/foo.cjs")
@@ -1495,7 +1506,18 @@ function sweepDtoC() {
             /-server$/.test(claim.value) ||                       // MCP server references
             /qgsd/.test(claim.value) ||                           // old project name references
             projectCommands.has(claim.value);                     // matches a known command/skill name
-          if (!isProjectTerm) {
+
+          // Context-aware: skip deps in requirement spec text (describes behavior, not claims deps)
+          const lineContent = content.split('\n')[claim.line - 1] || '';
+          const isInRequirementText = /^\*\*Requirement:\*\*/.test(lineContent.trim());
+
+          // Context-aware: skip deps in example/template files
+          const isExampleFile = /\.example\.(md|yml|yaml)$/.test(relativePath);
+
+          // Context-aware: skip deps that appear in enumeration lists (e.g., "one of 5 types: `a`, `b`")
+          const isEnumContext = /\b(?:types?|categories|values?|one of|classify|classified)\b/i.test(lineContent);
+
+          if (!isProjectTerm && !isInRequirementText && !isExampleFile && !isEnumContext) {
             isBroken = true;
             reason = 'not in package.json';
           }
@@ -1518,6 +1540,19 @@ function sweepDtoC() {
         if (claim.type === 'file_path') {
           const isRebrandArtifact = REBRAND_PATTERNS.some(rx => rx.test(claim.value));
           if (isRebrandArtifact) {
+            suppressedFpCount++;
+            continue;
+          }
+        }
+
+        // Auto-suppress illustrative/example paths in documentation
+        // (e.g., "Creates: `.planning/quick/001-add-dark-mode-toggle/PLAN.md`")
+        if (claim.type === 'file_path') {
+          const lineContent = content.split('\n')[claim.line - 1] || '';
+          const isIllustrative =
+            /\b(?:creates?|produces?|generates?|outputs?|e\.g\.|for example|such as)\b.*`/i.test(lineContent) ||
+            /^\*\*Creates:\*\*/.test(lineContent.trim());
+          if (isIllustrative) {
             suppressedFpCount++;
             continue;
           }
@@ -1598,6 +1633,7 @@ function sweepDtoC() {
       weighted_residual: weightedResidual,
       category_breakdown: categoryBreakdown,
       suppressed_fp_count: suppressedFpCount,
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -1727,6 +1763,7 @@ function sweepCtoR() {
       untraced_modules: untraced,
       total_modules: sourceFiles.length,
       traced: traced,
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -1815,6 +1852,7 @@ function sweepTtoR() {
       orphan_tests: orphans,
       total_tests: testFiles.length,
       mapped: mapped,
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -1943,6 +1981,7 @@ function sweepDtoR() {
       unbacked_claims: unbacked,
       total_claims: totalClaims,
       backed: backed,
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -2238,6 +2277,7 @@ function sweepL1toL2() {
         model_gap: (gateA.unexplained_counts && gateA.unexplained_counts.model_gap) || 0,
         genuine_violation: (gateA.unexplained_counts && gateA.unexplained_counts.genuine_violation) || 0,
       },
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -2268,6 +2308,7 @@ function sweepL2toL3() {
       wiring_purpose_score: score,
       orphaned_count: orphanedCount,
       residual_capped: rawResidual > 10,
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -2318,6 +2359,7 @@ function sweepL3toTC() {
       unvalidated_count: gateC.unvalidated_entries || 0,
       total_failure_modes: gateC.total_entries || 0,
       total_recipes: gateC.validated_entries || 0,
+      scoped: focusSet ? false : undefined,
     },
   };
 }
@@ -2365,6 +2407,7 @@ function sweepPerModelGates() {
         gate_b_pass: (data.scores && data.scores.gate_b_pass) || 0,
         gate_c_pass: (data.scores && data.scores.gate_c_pass) || 0,
         promotions: (data.promotions || []).length,
+        scoped: focusSet ? false : undefined,
       },
     };
   } catch (err) {
@@ -2408,6 +2451,7 @@ function sweepGitHeatmap() {
         bugfix_hotspots_count: (signals.bugfix_hotspots || []).length,
         churn_files_count: (signals.churn_ranking || []).length,
         generated: data.generated || null,
+        scoped: focusSet ? false : undefined,
       },
     };
   } catch (err) {
@@ -2448,6 +2492,7 @@ function sweepGitHistoryEvidence() {
         total_commits: (data.summary || {}).total_commits || 0,
         top_drift_candidates: driftCandidates.slice(0, 5),
         generated: data.generated || null,
+        scoped: focusSet ? false : undefined,
       },
     };
   } catch (err) {
@@ -2485,6 +2530,7 @@ function sweepFormalLint() {
           return { model: v.model || v.file, rule: v.rule || v.type, message: v.message || '' };
         }),
         summary: data.summary || null,
+        scoped: focusSet ? false : undefined,
       },
     };
   } catch (err) {
@@ -2524,6 +2570,7 @@ function sweepHazardModel() {
         top_hazards: hazards.slice(0, 10).map(function (h) {
           return { from: h.from_state || h.fromState, event: h.event, rpn: h.rpn || 0 };
         }),
+        scoped: focusSet ? false : undefined,
       },
     };
   } catch (err) {
@@ -2555,7 +2602,7 @@ function computeResidual() {
     : sweepFtoC();
   const r_to_d = sweepRtoD();
   const d_to_c = sweepDtoC();
-  const p_to_f = sweepPtoF({ root: ROOT });
+  const p_to_f = sweepPtoF({ root: ROOT, focusSet });
 
   // Reverse traceability discovery (do NOT add to automatable total)
   const c_to_r = sweepCtoR();
@@ -4064,7 +4111,7 @@ module.exports = {
   sweepFtoC,
   sweepRtoD,
   sweepDtoC,
-  sweepPtoF: function () { return sweepPtoF({ root: ROOT }); },
+  sweepPtoF: function () { return sweepPtoF({ root: ROOT, focusSet }); },
   sweepCtoR,
   sweepTtoR,
   sweepDtoR,
