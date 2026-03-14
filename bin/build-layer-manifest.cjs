@@ -132,13 +132,19 @@ function main() {
 
   // Generate layer-manifest.json
   const manifest = {
-    schema_version: '1',
+    schema_version: '2',
     generated: new Date().toISOString(),
     layers,
     gate_relationships: {
-      A: { from: 'L1', to: 'L2', description: 'Evidence grounds semantic declarations' },
-      B: { from: 'L2', to: 'L3', description: 'Semantic declarations trace to reasoning models' },
+      A: { from: 'L1', to: 'L3', description: 'Evidence grounds reasoning models (L2 collapsed)' },
+      B: { from: 'L3', to: 'purpose', description: 'Reasoning models have requirement backing' },
       C: { from: 'L3', to: 'TC', description: 'Reasoning models prove traceability completeness' }
+    },
+    collapsed_layers: {
+      L2: {
+        reason: 'Empty layer — zero entries permanently blocked Gate B (STRUCT-01)',
+        collapsed_at: new Date().toISOString()
+      }
     },
     summary: {
       total_models: modelPaths.length,
