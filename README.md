@@ -88,7 +88,7 @@ nForma fixes these structurally, not with better prompts.
 
 ### How This Differs from Other AI Coding Tools
 
-Unlike single-model coding assistants (GitHub Copilot Chat, Cursor, Cline) or autonomous agents (Devin, Codex), nForma is a **multi-agent orchestration framework** — it coordinates multiple AI models to cross-check each other's work through structured quorum consensus. It adds formal verification (TLA+, Alloy, PRISM) to prove protocol correctness mathematically, not just test it empirically. And it manages context engineering so each task gets a fresh 200K-token window instead of degrading over a long session.
+Unlike single-model coding assistants (GitHub Copilot Chat, Cursor, Cline) or autonomous agents (Devin, Codex), nForma is a **multi-agent orchestration framework** — it coordinates multiple AI models to cross-check each other's work through structured quorum consensus. It adds formal verification (TLA+, Alloy, PRISM) to prove your system's correctness mathematically, not just test it empirically. And it manages context engineering so each task gets a fresh 200K-token window instead of degrading over a long session.
 
 ---
 
@@ -557,22 +557,20 @@ Models earn enforcement authority through evidence, not time:
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                                                                         │
-│  1. MODEL WRITTEN → starts at ADVISORY (informational only)             │
-│     /nf:close-formal-gaps auto-generates specs for uncovered reqs       │
+│  1. SPEC GENERATED → starts at ADVISORY (informational only)            │
+│     /nf:close-formal-gaps auto-generates specs from your requirements   │
 │                                                                         │
 │  2. OBSERVABILITY GAPS IDENTIFIED                                       │
-│     bin/instrumentation-map.cjs scans hooks for emission points         │
-│     bin/state-candidates.cjs finds missing XState transitions           │
-│     bin/analyze-assumptions.cjs proposes metrics from spec constants    │
-│     → Output: "Add gauge nf_maxdeliberationrounds__tla here"           │
-│     → Output: "4 vocabulary actions have no emission point"            │
+│     Pipeline scans your code for emission points                        │
+│     Finds missing state transitions and unobserved variables            │
+│     Proposes concrete metrics: "Add gauge X at line Y in file Z"       │
 │                                                                         │
 │  3. YOU WIRE THE INSTRUMENTATION                                        │
-│     Add the proposed emission points to hook code                       │
+│     Add the proposed emission points to your code                       │
 │     Next evidence refresh picks up the new coverage                     │
 │                                                                         │
 │  4. GATES PASS → AUTO-PROMOTION                                         │
-│     bin/compute-per-model-gates.cjs scores all three gates              │
+│     Gate scoring promotes models as they gain evidence                   │
 │     ADVISORY → SOFT_GATE (warnings) → HARD_GATE (blocks)              │
 │     Stability guard prevents flapping models from promoting             │
 │                                                                         │
@@ -580,12 +578,7 @@ Models earn enforcement authority through evidence, not time:
 │     SOFT_GATE violations → warnings in /nf:solve output                │
 │     HARD_GATE violations → block phase execution                        │
 │                                                                         │
-│  6. VIOLATIONS → NEW EVIDENCE                                           │
-│     /nf:solve-classify categorizes violations                           │
-│     /nf:solve-remediate regenerates proposed metrics                    │
-│     New test recipes improve Gate C → more models fully gated          │
-│                                                                         │
-│  7. LOOP CONTINUES                                                      │
+│  6. LOOP CONTINUES                                                      │
 │     More emission points → more traces → more grounding                │
 │     More grounding → more enforcement → more violations caught          │
 │     More violations → better specs → tighter guarantees                 │
@@ -597,9 +590,9 @@ Models earn enforcement authority through evidence, not time:
 
 | File | What it tells you |
 |------|-------------------|
-| `evidence/instrumentation-map.json` | Which hook emission points exist, which vocabulary actions are unmapped |
-| `evidence/state-candidates.json` | XState transitions with undefined from/to states (blind spots) |
-| `evidence/proposed-metrics.json` | Concrete metric proposals with copy-paste Prometheus snippets |
+| `evidence/instrumentation-map.json` | Which emission points exist in your code, which spec variables are unobserved |
+| `evidence/state-candidates.json` | State transitions with undefined from/to states (blind spots in your workflows) |
+| `evidence/proposed-metrics.json` | Concrete metric proposals — where to add instrumentation in your code |
 | `gates/per-model-gates.json` | Gate A/B/C pass/fail per model with reasons |
 | `gates/gate-a-grounding.json` | Aggregate grounding score (target: 80%) |
 | `model-complexity-profile.json` | Runtime cost per model (FAST/MODERATE/SLOW) for re-verification scheduling |
