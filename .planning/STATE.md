@@ -84,7 +84,7 @@ None.
 | 287 | Add MAX_RESPONSE truncation safety net in unified-mcp-server.mjs runProvider() | 2026-03-13 | 42b6839e | Verified | [287-add-max-response-truncation-safety-net-i](./quick/287-add-max-response-truncation-safety-net-i/) |
 | 288 | Fix statusline 0K token count | 2026-03-14 | 6408e839 | Verified | [288-fix-statusline-0k-token-count-derive-tok](./quick/288-fix-statusline-0k-token-count-derive-tok/) |
 | 289 | Wire UPPAAL and Petri net support into close-formal-gaps | 2026-03-14 | 34c7bbcc | Verified | [289-wire-uppaal-and-petri-net-support-into-c](./quick/289-wire-uppaal-and-petri-net-support-into-c/) |
-| 290 | Bring UPPAAL and Petri nets to full parity with TLA+/Alloy/PRISM | 2026-03-14 | 87280e0e | Pending | [290-bring-uppaal-and-petri-nets-to-full-pari](./quick/290-bring-uppaal-and-petri-nets-to-full-pari/) |
+| 290 | Bring UPPAAL and Petri nets to full parity with TLA+/Alloy/PRISM | 2026-03-14 | eb5cbcf4 | Verified | [290-bring-uppaal-and-petri-nets-to-full-pari](./quick/290-bring-uppaal-and-petri-nets-to-full-pari/) |
 
 ## Session Continuity
 
