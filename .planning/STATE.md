@@ -9,12 +9,10 @@ See: .planning/PROJECT.md (updated 2026-03-13)
 
 ## Current Position
 
-Milestone: v0.35 — Install & Setup Bug Fixes — SHIPPED 2026-03-13
-Status: Complete, archived to `.planning/milestones/`
-Last activity: 2026-03-14 - Completed quick task 292: Multi-adapter FSM-to-TLA+ transpiler
-Next: `/nf:new-milestone`
-
-Progress: Between milestones
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-14 — Milestone v0.36 started
 
 ## Performance Metrics
 
