@@ -735,8 +735,14 @@ function sweepFtoT() {
 
   const gaps = syncData.coverage_gaps || {};
   const stats = gaps.stats || {};
-  const gapCount = stats.gap_count || 0;
-  const gapsList = gaps.gaps || [];
+  let gapCount = stats.gap_count || 0;
+  let gapsList = gaps.gaps || [];
+
+  // Apply focus filter if active
+  if (focusSet) {
+    gapsList = gapsList.filter(g => focusSet.has(g.requirement_id || g));
+    gapCount = gapsList.length;
+  }
 
   return {
     residual: gapCount,
