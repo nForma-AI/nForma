@@ -33,7 +33,7 @@ process.stdin.on('end', () => {
     const session = data.session_id || '';
     const remaining = data.context_window?.remaining_percentage;
 
-    // Context window display — raw usage against full 1M context
+    // Context window display
     let ctx = '';
     if (remaining != null) {
       const rem = Math.round(remaining);
@@ -45,11 +45,16 @@ process.stdin.on('end', () => {
 
       // Token-based color thresholds (quality degrades well before 1M limit)
       // 0-100K green | 100-200K yellow | 200-350K orange | 350K+ red blink
-      const rawTokens = data.context_window?.current_usage?.input_tokens;
-      // Use actual token count if available and non-zero, otherwise estimate from percentage
-      const inputTokens = (rawTokens && rawTokens > 0)
-        ? rawTokens
-        : Math.round((used / 100) * 1_000_000);
+      // Total context usage = input + cache_read + cache_creation (all contribute to context window)
+      const usage = data.context_window?.current_usage || {};
+      const totalTokens = (usage.input_tokens || 0)
+        + (usage.cache_read_input_tokens || 0)
+        + (usage.cache_creation_input_tokens || 0);
+      // Use total if non-zero, otherwise estimate from percentage and context_window_size
+      const ctxSize = data.context_window?.context_window_size || 1_000_000;
+      const inputTokens = totalTokens > 0
+        ? totalTokens
+        : Math.round((used / 100) * ctxSize);
       const tokensK = Math.round(inputTokens / 1000);
       const tokenLabel = tokensK >= 1000 ? `${(tokensK / 1000).toFixed(1)}M` : `${tokensK}K`;
 
