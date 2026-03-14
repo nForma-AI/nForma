@@ -66,22 +66,22 @@ test('TC2: context at 100% remaining shows all-empty bar at 0%', () => {
   assert.ok(stdout.includes('0%'), 'stdout must include 0%');
 });
 
-// TC2b: 85% remaining (15% used) with no current_usage → estimated 150K, yellow
-test('TC2b: 15% used without current_usage shows estimated 150K in yellow', () => {
+// TC2b: 85% remaining (15% used) with no current_usage and unknown tier → percentage-only display (no token label)
+test('TC2b: 15% used without tier shows percentage-only (no token label)', () => {
   const { stdout, exitCode } = runHook({
     model: { display_name: 'M' },
     context_window: { remaining_percentage: 85 },
   });
   assert.strictEqual(exitCode, 0, 'exit code must be 0');
   assert.ok(stdout.includes('15%'), 'stdout must include 15%');
-  assert.ok(stdout.includes('150K'), 'stdout must include estimated token count 150K');
-  assert.ok(stdout.includes('\x1b[33m'), 'stdout must include yellow ANSI code for 150K tokens');
+  assert.ok(!stdout.match(/\d+K\)/), 'stdout must NOT include token labels like 150K)');
+  assert.ok(stdout.includes('\x1b[32m'), 'stdout must include green ANSI code (15% used < 30%)');
 });
 
-// TC3: 80% used (20% remaining) with 400K tokens → blinking red (>350K)
+// TC3: 80% used (20% remaining) with 400K tokens → blinking red (>350K) for 1M context
 test('TC3: 80% used with 400K tokens shows blinking red', () => {
   const { stdout, exitCode } = runHook({
-    model: { display_name: 'M' },
+    model: { display_name: 'M (with 1M context)' },
     context_window: { remaining_percentage: 20, current_usage: { input_tokens: 400000 } },
   });
   assert.strictEqual(exitCode, 0, 'exit code must be 0');
@@ -90,10 +90,10 @@ test('TC3: 80% used with 400K tokens shows blinking red', () => {
   assert.ok(stdout.includes('\x1b[5;31m'), 'stdout must include blinking red ANSI code');
 });
 
-// TC4: 49% used (51% remaining) with 50K tokens → green (<100K)
+// TC4: 49% used (51% remaining) with 50K tokens → green (<100K) for 1M context
 test('TC4: 49% used with 50K tokens shows green', () => {
   const { stdout, exitCode } = runHook({
-    model: { display_name: 'M' },
+    model: { display_name: 'M (with 1M context)' },
     context_window: { remaining_percentage: 51, current_usage: { input_tokens: 50000 } },
   });
   assert.strictEqual(exitCode, 0, 'exit code must be 0');
@@ -102,10 +102,10 @@ test('TC4: 49% used with 50K tokens shows green', () => {
   assert.ok(stdout.includes('\x1b[32m'), 'stdout must include green ANSI code \\x1b[32m');
 });
 
-// TC5: 64% used (36% remaining) with 150K tokens → yellow (100K-200K)
+// TC5: 64% used (36% remaining) with 150K tokens → yellow (100K-200K) for 1M context
 test('TC5: 64% used with 150K tokens shows yellow', () => {
   const { stdout, exitCode } = runHook({
-    model: { display_name: 'M' },
+    model: { display_name: 'M (with 1M context)' },
     context_window: { remaining_percentage: 36, current_usage: { input_tokens: 150000 } },
   });
   assert.strictEqual(exitCode, 0, 'exit code must be 0');
@@ -165,4 +165,80 @@ test('TC8: in-progress task is shown in statusline output', () => {
   } finally {
     fs.rmSync(tempHome, { recursive: true, force: true });
   }
+});
+
+// TC9: "200K context detected from display_name scales thresholds correctly"
+test('TC9: 200K context detected from display_name scales thresholds correctly', () => {
+  const { stdout, exitCode } = runHook({
+    model: { display_name: 'Opus 4.6 (200K context)' },
+    context_window: { remaining_percentage: 85 },
+  });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  // 15% used of 200K = 30K estimated tokens
+  // 30K is above t1 (20K) but below t2 (40K) → YELLOW
+  assert.ok(stdout.includes('15%'), 'stdout must include 15%');
+  assert.ok(stdout.includes('30K'), 'stdout must include estimated 30K tokens');
+  assert.ok(stdout.includes('\x1b[33m'), 'stdout must include yellow ANSI code');
+});
+
+// TC10: "1M context detected from display_name preserves existing thresholds"
+test('TC10: 1M context detected from display_name preserves existing thresholds', () => {
+  const { stdout, exitCode } = runHook({
+    model: { display_name: 'Opus 4.6 (with 1M context)' },
+    context_window: { remaining_percentage: 85 },
+  });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  // 15% used of 1M = 150K estimated tokens → YELLOW (same as old TC2b)
+  assert.ok(stdout.includes('15%'), 'stdout must include 15%');
+  assert.ok(stdout.includes('150K'), 'stdout must include estimated 150K tokens');
+  assert.ok(stdout.includes('\x1b[33m'), 'stdout must include yellow ANSI code');
+});
+
+// TC11: "explicit context_window_size takes priority over display_name"
+test('TC11: explicit context_window_size takes priority over display_name', () => {
+  const { stdout, exitCode } = runHook({
+    model: { display_name: 'Opus 4.6 (with 1M context)' },
+    context_window: { remaining_percentage: 85, context_window_size: 200000 },
+  });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  // 15% used of 200K = 30K → YELLOW
+  assert.ok(stdout.includes('15%'), 'stdout must include 15%');
+  assert.ok(stdout.includes('30K'), 'stdout must include 30K (NOT 150K — proving explicit size wins)');
+  assert.ok(stdout.includes('\x1b[33m'), 'stdout must include yellow ANSI code');
+});
+
+// TC12: "unknown context tier with no current_usage shows percentage-only (no token label)"
+test('TC12: unknown context tier with no current_usage shows percentage-only (no token label)', () => {
+  const { stdout, exitCode } = runHook({
+    model: { display_name: 'SomeModel' },
+    context_window: { remaining_percentage: 85 },
+  });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  // No context_window_size, no tier in display_name, no current_usage → tokenLabel is null
+  assert.ok(stdout.includes('15%'), 'stdout must include 15%');
+  assert.ok(!stdout.match(/\d+K\)/), 'stdout must NOT include token labels like 150K)');
+});
+
+// TC13: "200K session with actual token usage uses real tokens for color"
+test('TC13: 200K session with actual token usage uses real tokens for color', () => {
+  const { stdout, exitCode } = runHook({
+    model: { display_name: 'Opus 4.6 (200K context)' },
+    context_window: { remaining_percentage: 50, context_window_size: 200000, current_usage: { input_tokens: 80000 } },
+  });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  // 80K tokens with 200K context → above t3 (70K) → BLINKING RED
+  assert.ok(stdout.includes('80K'), 'stdout must include 80K tokens');
+  assert.ok(stdout.includes('\x1b[5;31m'), 'stdout must include blinking red ANSI code');
+});
+
+// TC14: "200K session with 15K tokens shows green (below 20K threshold)"
+test('TC14: 200K session with 15K tokens shows green (below 20K threshold)', () => {
+  const { stdout, exitCode } = runHook({
+    model: { display_name: 'Opus 4.6 (200K context)' },
+    context_window: { remaining_percentage: 90, current_usage: { input_tokens: 15000 } },
+  });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  // 15K tokens with 200K context → below t1 (20K) → GREEN
+  assert.ok(stdout.includes('15K'), 'stdout must include 15K tokens');
+  assert.ok(stdout.includes('\x1b[32m'), 'stdout must include green ANSI code');
 });

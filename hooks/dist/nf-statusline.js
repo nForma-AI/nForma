@@ -7,6 +7,28 @@ const path = require('path');
 const os = require('os');
 const { loadConfig, shouldRunHook, validateHookInput } = require('./config-loader');
 
+// Detect context window size from data
+// Tier 1: explicit context_window_size from API
+// Tier 2: parse display_name for context tier hint
+// Tier 3: unknown (return null)
+function detectContextSize(data) {
+  // Tier 1: explicit context_window_size from API
+  const explicit = data.context_window?.context_window_size;
+  if (explicit && explicit > 0) return explicit;
+
+  // Tier 2: parse display_name for context tier hint
+  const displayName = data.model?.display_name || '';
+  const match = displayName.match(/\((?:with\s+)?(\d+)([KM])\s*context/i);
+  if (match) {
+    const num = parseInt(match[1], 10);
+    const unit = match[2].toUpperCase();
+    return unit === 'M' ? num * 1_000_000 : num * 1_000;
+  }
+
+  // Tier 3: unknown — return null (fail-open)
+  return null;
+}
+
 // Read JSON from stdin
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -33,7 +55,7 @@ process.stdin.on('end', () => {
     const session = data.session_id || '';
     const remaining = data.context_window?.remaining_percentage;
 
-    // Context window display — raw usage against full 1M context
+    // Context window display
     let ctx = '';
     if (remaining != null) {
       const rem = Math.round(remaining);
@@ -43,25 +65,77 @@ process.stdin.on('end', () => {
       const filled = Math.floor(used / 10);
       const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
 
-      // Token-based color thresholds (quality degrades well before 1M limit)
-      // 0-100K green | 100-200K yellow | 200-350K orange | 350K+ red blink
-      const inputTokens = data.context_window?.current_usage?.input_tokens
-        ?? Math.round((used / 100) * 1_000_000);
-      const tokensK = Math.round(inputTokens / 1000);
-      const tokenLabel = tokensK >= 1000 ? `${(tokensK / 1000).toFixed(1)}M` : `${tokensK}K`;
+      // Token-based color thresholds (quality degrades well before context limit)
+      // Total context usage = input + cache_read + cache_creation (all contribute to context window)
+      const usage = data.context_window?.current_usage || {};
+      const totalTokens = (usage.input_tokens || 0)
+        + (usage.cache_read_input_tokens || 0)
+        + (usage.cache_creation_input_tokens || 0);
 
-      let color;
-      if (inputTokens < 100_000) {
-        color = '\x1b[32m';           // green
-      } else if (inputTokens < 200_000) {
-        color = '\x1b[33m';           // yellow
-      } else if (inputTokens < 350_000) {
-        color = '\x1b[38;5;208m';     // orange
+      // Use total if non-zero, otherwise estimate from percentage and context_window_size
+      const ctxSize = detectContextSize(data);
+
+      let inputTokens, tokensK, tokenLabel;
+      if (totalTokens > 0) {
+        inputTokens = totalTokens;
+        tokensK = Math.round(inputTokens / 1000);
+        tokenLabel = tokensK >= 1000 ? `${(tokensK / 1000).toFixed(1)}M` : `${tokensK}K`;
+      } else if (ctxSize) {
+        inputTokens = Math.round((used / 100) * ctxSize);
+        tokensK = Math.round(inputTokens / 1000);
+        tokenLabel = tokensK >= 1000 ? `${(tokensK / 1000).toFixed(1)}M` : `${tokensK}K`;
       } else {
-        color = '\x1b[5;31m';         // blinking red
+        inputTokens = null;
+        tokenLabel = null;
       }
 
-      ctx = ` ${color}${bar} ${used}% (${tokenLabel})\x1b[0m`;
+      // Named threshold constants for maintainability
+      const TIER1_PCT = 0.10;  // green ceiling
+      const TIER2_PCT = 0.20;  // yellow ceiling
+      const TIER3_PCT = 0.35;  // orange ceiling (>= this → red)
+
+      let color;
+      if (inputTokens != null && ctxSize) {
+        // Scale thresholds proportionally: green < 10%, yellow < 20%, orange < 35%, red >= 35%
+        const t1 = ctxSize * TIER1_PCT;  // 1M: 100K, 200K: 20K
+        const t2 = ctxSize * TIER2_PCT;  // 1M: 200K, 200K: 40K
+        const t3 = ctxSize * TIER3_PCT;  // 1M: 350K, 200K: 70K
+        if (inputTokens < t1) {
+          color = '\x1b[32m';           // green
+        } else if (inputTokens < t2) {
+          color = '\x1b[33m';           // yellow
+        } else if (inputTokens < t3) {
+          color = '\x1b[38;5;208m';     // orange
+        } else {
+          color = '\x1b[5;31m';         // blinking red
+        }
+      } else if (inputTokens != null) {
+        // Have tokens but no ctxSize — use original fixed thresholds as fallback
+        if (inputTokens < 100_000) {
+          color = '\x1b[32m';
+        } else if (inputTokens < 200_000) {
+          color = '\x1b[33m';
+        } else if (inputTokens < 350_000) {
+          color = '\x1b[38;5;208m';
+        } else {
+          color = '\x1b[5;31m';
+        }
+      } else {
+        // No token info at all — use percentage-based color
+        if (used < 30) {
+          color = '\x1b[32m';           // green
+        } else if (used < 50) {
+          color = '\x1b[33m';           // yellow
+        } else if (used < 70) {
+          color = '\x1b[38;5;208m';     // orange
+        } else {
+          color = '\x1b[5;31m';         // blinking red
+        }
+      }
+
+      ctx = tokenLabel
+        ? ` ${color}${bar} ${used}% (${tokenLabel})\x1b[0m`
+        : ` ${color}${bar} ${used}%\x1b[0m`;
     }
 
     // Current task from todos
