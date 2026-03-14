@@ -71,7 +71,7 @@ function detectContextSize(data) {
 
   // Tier 2: parse display_name for context tier hint
   const displayName = data.model?.display_name || '';
-  const match = displayName.match(/\((?:with\s+)?(\d+)([KM])\s*context\)/i);
+  const match = displayName.match(/\((?:with\s+)?(\d+)([KM])\s*context/i);
   if (match) {
     const num = parseInt(match[1], 10);
     const unit = match[2].toUpperCase();
@@ -111,12 +111,17 @@ if (totalTokens > 0) {
 
 4. REPLACE the fixed color threshold block (lines 61-70) with proportional thresholds:
 ```javascript
+// Named threshold constants for maintainability
+const TIER1_PCT = 0.10;  // green ceiling
+const TIER2_PCT = 0.20;  // yellow ceiling
+const TIER3_PCT = 0.35;  // orange ceiling (>= this → red)
+
 let color;
 if (inputTokens != null && ctxSize) {
   // Scale thresholds proportionally: green < 10%, yellow < 20%, orange < 35%, red >= 35%
-  const t1 = ctxSize * 0.10;  // 1M: 100K, 200K: 20K
-  const t2 = ctxSize * 0.20;  // 1M: 200K, 200K: 40K
-  const t3 = ctxSize * 0.35;  // 1M: 350K, 200K: 70K
+  const t1 = ctxSize * TIER1_PCT;  // 1M: 100K, 200K: 20K
+  const t2 = ctxSize * TIER2_PCT;  // 1M: 200K, 200K: 40K
+  const t3 = ctxSize * TIER3_PCT;  // 1M: 350K, 200K: 70K
   if (inputTokens < t1) {
     color = '\x1b[32m';           // green
   } else if (inputTokens < t2) {
@@ -162,10 +167,10 @@ IMPORTANT: The proportional thresholds at 10%/20%/35% produce identical absolute
   </action>
   <verify>
 node -c hooks/nf-statusline.js
-grep -n 'detectContextSize\|ctxSize.*0\.10\|0\.20\|0\.35' hooks/nf-statusline.js
+grep -n 'detectContextSize\|TIER1_PCT\|TIER2_PCT\|TIER3_PCT' hooks/nf-statusline.js
   </verify>
   <done>
-`detectContextSize` function present with 3-tier cascade (explicit > display_name > null). Color thresholds scale proportionally to detected context size. 1M sessions produce identical thresholds to before. 200K sessions get correctly scaled thresholds. Unknown context size falls back to percentage-based coloring.
+`detectContextSize` function present with 3-tier cascade (explicit > display_name > null). Regex omits trailing paren to handle variant display_name formats (e.g., "context window"). Threshold multipliers extracted as named constants (TIER1_PCT, TIER2_PCT, TIER3_PCT). Color thresholds scale proportionally to detected context size. 1M sessions produce identical thresholds to before. 200K sessions get correctly scaled thresholds. Unknown context size falls back to percentage-based coloring.
   </done>
 </task>
 
