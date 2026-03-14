@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-03-13)
 
 Milestone: v0.35 — Install & Setup Bug Fixes — SHIPPED 2026-03-13
 Status: Complete, archived to `.planning/milestones/`
-Last activity: 2026-03-14 - Completed quick task 293: Implement context window size detection (200K vs 1M)
+Last activity: 2026-03-14 - Completed quick task 292: Multi-adapter FSM-to-TLA+ transpiler
 Next: `/nf:new-milestone`
 
 Progress: Between milestones
@@ -86,10 +86,11 @@ None.
 | 289 | Wire UPPAAL and Petri net support into close-formal-gaps | 2026-03-14 | 34c7bbcc | Verified | [289-wire-uppaal-and-petri-net-support-into-c](./quick/289-wire-uppaal-and-petri-net-support-into-c/) |
 | 290 | Bring UPPAAL and Petri nets to full parity with TLA+/Alloy/PRISM | 2026-03-14 | eb5cbcf4 | Verified | [290-bring-uppaal-and-petri-nets-to-full-pari](./quick/290-bring-uppaal-and-petri-nets-to-full-pari/) |
 | 291 | Improve quorum dispatch observability and eliminate wasteful fallback cascades | 2026-03-14 | 57a82371 | Pending | [291-improve-quorum-dispatch-observability-an](./quick/291-improve-quorum-dispatch-observability-an/) |
+| 292 | Multi-adapter FSM-to-TLA+ transpiler | 2026-03-14 | 18cab301 | Pending | [292-multi-adapter-fsm-to-tla-transpiler-gene](./quick/292-multi-adapter-fsm-to-tla-transpiler-gene/) |
 | 293 | Implement context window size detection (200K vs 1M) based on quorum consensus findings | 2026-03-14 | 199af48a | Verified | [293-implement-context-window-size-detection-](./quick/293-implement-context-window-size-detection-/) |
 
 ## Session Continuity
 
 Last session: 2026-03-14
-Stopped at: Completed quick task 293: Implement context window size detection (200K vs 1M)
+Stopped at: Completed quick task 292: Multi-adapter FSM-to-TLA+ transpiler
 Resume file: None
