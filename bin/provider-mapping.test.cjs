@@ -169,16 +169,19 @@ try {
   nfPromptContent = '';
 }
 
-test('hooks/nf-prompt.js: provider-skip logic is present (PROVIDER DOWN or provider-cache reference)', () => {
+test('hooks/nf-prompt.js: provider-skip logic is present (preflight, failure filter, or provider-cache reference)', () => {
   const hasProviderSkip =
     nfPromptContent.includes('PROVIDER DOWN') ||
+    nfPromptContent.includes('PREFLIGHT DOWN') ||
     nfPromptContent.includes('provider-cache') ||
     nfPromptContent.includes('provider-skip') ||
     nfPromptContent.includes('skipDownProviders') ||
-    nfPromptContent.match(/downProviders|provider.*down|skip.*provider/i);
+    nfPromptContent.includes('runPreflightFilter') ||
+    nfPromptContent.includes('getRecentlyFailedSlots') ||
+    nfPromptContent.match(/downProviders|provider.*down|skip.*provider|preflight.*filter/i);
   assert.ok(
     hasProviderSkip,
-    'Provider-skip logic not found: no PROVIDER DOWN, provider-cache, or skipDownProviders reference in nf-prompt.js — Plan 03 must add it'
+    'Provider-skip logic not found: no preflight filter, failure filter, or provider-cache reference in nf-prompt.js'
   );
 });
 
