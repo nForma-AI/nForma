@@ -21,6 +21,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const readline = require('readline');
+const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 
 const ROOT = process.cwd();
@@ -1389,12 +1390,21 @@ No explanation, no markdown, just the JSON object.`;
   return classifications;
 }
 
-/** Generate a stable key for an item to use in classification cache */
+// NOTE: Keys changed from path:value to SHA-256 content hashes in v0.36-02 (CLASS-01).
+// Old-format keys (containing ':' or '/') are treated as cache misses and cleaned up
+// during the next classifyWithHaiku() run.
+/** Generate a stable content-hash key for an item to use in classification cache */
 function itemKey(catKey, item) {
-  if (catKey === 'dtoc') return `${item.doc_file}:${item.value}`;
+  if (catKey === 'dtoc') {
+    const content = item.reason || item.value || '';
+    return crypto.createHash('sha256').update(content).digest('hex').slice(0, 16);
+  }
   if (catKey === 'ctor') return item.file;
   if (catKey === 'ttor') return item.file;
-  if (catKey === 'dtor') return `${item.doc_file}:${item.line}`;
+  if (catKey === 'dtor') {
+    const content = item.claim_text || item.reason || item.value || '';
+    return crypto.createHash('sha256').update(content).digest('hex').slice(0, 16);
+  }
   return JSON.stringify(item).slice(0, 100);
 }
 
