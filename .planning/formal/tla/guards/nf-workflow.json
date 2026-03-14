@@ -2,7 +2,7 @@
   "guards": {
     "minQuorumMet":            "successCount * 2 >= N",
     "unanimityMet":            "successCount = polledCount",
-    "noInfiniteDeliberation":  "deliberationRounds < MaxDeliberation",
+    "noInfiniteDeliberation":  "deliberationRounds < maxDeliberation",
     "phaseMonotonicallyAdvances": "TRUE"
   },
   "vars": {

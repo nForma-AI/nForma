@@ -213,6 +213,8 @@ for (const t of allTransitions) {
   eventStateSet[t.event].add(t.fromState);
 }
 
+// Bug #2 fix: track seen names to disambiguate when multiple branches target the same state
+const seenActionNames = {};
 for (const t of allTransitions) {
   const cc          = toCamel(t.event);
   const multiState  = eventStateSet[t.event].size > 1;
@@ -221,9 +223,21 @@ for (const t of allTransitions) {
   const multiBranch = branchCount[k] > 1;
 
   if (multiBranch) {
-    t.actionName = statePrefix + cc + 'To' + (t.target || 'Unknown');
+    let name = statePrefix + cc + 'To' + (t.target || 'Unknown');
+    // If this name was already used (same event, same target, different guard),
+    // append 'Fallback' or guard name to disambiguate
+    if (seenActionNames[name]) {
+      if (t.guard) {
+        name = name + toCamel(t.guard);
+      } else {
+        name = name.replace(/To(\w+)$/, 'FallbackTo$1');
+      }
+    }
+    seenActionNames[name] = true;
+    t.actionName = name;
   } else {
     t.actionName = statePrefix + cc;
+    seenActionNames[t.actionName] = true;
   }
 }
 
@@ -253,6 +267,19 @@ function genAssignLine(varName, isParam) {
   return "    /\\ " + varName + "' = " + varName + '  \\* FIXME: XState assign for ' + varName;
 }
 
+// Bug #1 fix: short aliases for event params to avoid shadowing module-level VARIABLES
+const paramAliasMap = {};
+let aliasCounter = 0;
+function getParamAlias(varName) {
+  if (!paramAliasMap[varName]) {
+    // Use initials (sa, sc, dr, pc...) then fall back to p0, p1, ...
+    const initials = varName.replace(/[a-z]/g, '').toLowerCase() ||
+                     varName.slice(0, 2);
+    paramAliasMap[varName] = initials || ('p' + aliasCounter++);
+  }
+  return paramAliasMap[varName];
+}
+
 // Generate one TLA+ action block
 function genAction(t) {
   const lines = [];
@@ -262,16 +289,23 @@ function genAction(t) {
   const params = t.assignedKeys.filter(k => userVars[k] === 'event');
   const nonParamAssigned = t.assignedKeys.filter(k => userVars[k] !== 'event' && userVars[k] !== 'skip');
 
-  const paramStr = params.length > 0 ? '(' + params.join(', ') + ')' : '';
+  // Bug #1: use aliases for params to avoid shadowing VARIABLES
+  const aliases = params.map(p => getParamAlias(p));
+  const paramStr = aliases.length > 0 ? '(' + aliases.join(', ') + ')' : '';
 
   lines.push('\\* ' + t.fromState + ' -[' + t.event + (t.guard ? ' / ' + t.guard : '') + ']-> ' + (t.target || '?'));
   lines.push(cc + paramStr + ' ==');
   lines.push('    /\\ state = "' + t.fromState + '"');
 
-  // Guard
+  // Guard — substitute param aliases for variable names used in guard expressions
   if (t.guard) {
-    const tlaGuard = userGuards[t.guard];
+    let tlaGuard = userGuards[t.guard];
     if (tlaGuard) {
+      // Replace param names with their aliases in the guard expression
+      for (let i = 0; i < params.length; i++) {
+        // Use word-boundary replacement to avoid partial matches
+        tlaGuard = tlaGuard.replace(new RegExp('\\b' + params[i] + '\\b', 'g'), aliases[i]);
+      }
       lines.push('    /\\ ' + tlaGuard);
     } else {
       lines.push('    /\\ TRUE  \\* FIXME: guard ' + t.guard + ' — add to config guards');
@@ -285,9 +319,9 @@ function genAction(t) {
     lines.push("    /\\ state' = state  \\* FIXME: unknown target");
   }
 
-  // Variable assignments
-  for (const v of params) {
-    lines.push(genAssignLine(v, true));
+  // Variable assignments — use aliases for event params
+  for (let i = 0; i < params.length; i++) {
+    lines.push("    /\\ " + params[i] + "' = " + aliases[i] + '  \\* param from event');
   }
   for (const v of nonParamAssigned) {
     lines.push(genAssignLine(v, false));
@@ -300,18 +334,47 @@ function genAction(t) {
   return lines.join('\n');
 }
 
-// Self-loop for final (absorbing) states
-function genFinalSelfLoop(stateName) {
-  const lines = [
+// Bug #3 fix: generate per-event self-loop operators for final states
+// plus a catch-all StayX operator
+function genFinalStateOps(stateName) {
+  const result = [];
+  const stateDef = cfg.states[stateName];
+  const unchangedStr = ctxVars.length > 0
+    ? '    /\\ UNCHANGED <<' + ctxVars.join(', ') + '>>'
+    : null;
+
+  // Generate per-event self-loops if the state has event handlers
+  if (stateDef && stateDef.on) {
+    for (const eventName of Object.keys(stateDef.on)) {
+      const opName = toCamel(stateName) + toCamel(eventName);
+      const lines = [
+        '\\* ' + stateName + ' -[' + eventName + ']-> ' + stateName + ' (self-loop in final state)',
+        opName + ' ==',
+        '    /\\ state = "' + stateName + '"',
+        "    /\\ state' = \"" + stateName + '"',
+      ];
+      if (unchangedStr) lines.push(unchangedStr);
+      result.push({ name: opName, tla: lines.join('\n') });
+    }
+  }
+
+  // Catch-all self-loop
+  const catchAll = [
     '\\* ' + stateName + ' is a final (absorbing) state',
     'Stay' + stateName + ' ==',
     '    /\\ state = "' + stateName + '"',
     "    /\\ state' = \"" + stateName + '"',
   ];
-  if (ctxVars.length > 0) {
-    lines.push('    /\\ UNCHANGED <<' + ctxVars.join(', ') + '>>');
-  }
-  return lines.join('\n');
+  if (unchangedStr) catchAll.push(unchangedStr);
+  result.push({ name: 'Stay' + stateName, tla: catchAll.join('\n') });
+
+  return result;
+}
+
+// Bug #3: collect final state operators (per-event + catch-all)
+const finalStateOps = {};  // stateName → [{ name, tla }]
+for (const s of finalStates) {
+  finalStateOps[s] = genFinalStateOps(s);
 }
 
 // All unique action names (for Next and WF)
@@ -320,8 +383,9 @@ for (const t of allTransitions) {
   if (!actionNames.includes(t.actionName)) actionNames.push(t.actionName);
 }
 for (const s of finalStates) {
-  const aName = 'Stay' + s;
-  if (!actionNames.includes(aName)) actionNames.push(aName);
+  for (const op of finalStateOps[s]) {
+    if (!actionNames.includes(op.name)) actionNames.push(op.name);
+  }
 }
 
 // ── Assemble TLA+ file ────────────────────────────────────────────────────────
@@ -346,6 +410,9 @@ const lines = [
   ' * Final states:      ' + (finalStates.length ? finalStates.join(', ') : '(none)'),
   '*)',
   'EXTENDS Naturals, FiniteSets, TLC',
+  '',
+  '\\* ── Constants (model-checking bounds) ────────────────────────────────────────',
+  'CONSTANTS MaxBound  \\* upper bound for event parameter quantifiers',
   '',
   '\\* ── Variables ────────────────────────────────────────────────────────────────',
   'VARIABLES',
@@ -396,37 +463,41 @@ for (const stateName of stateNames) {
   }
 }
 
-// Final state self-loops
+// Final state self-loops (per-event + catch-all)
 for (const stateName of finalStates) {
-  lines.push('');
-  lines.push(genFinalSelfLoop(stateName));
+  for (const op of finalStateOps[stateName]) {
+    lines.push('');
+    lines.push(op.tla);
+  }
 }
 
 // Next
 lines.push('');
 lines.push('\\* ── Next ──────────────────────────────────────────────────────────────────────');
 lines.push('Next ==');
+// Bug #1: use aliases in \E quantifiers to avoid shadowing VARIABLES
+// Bug #5: use bounded ranges (0..MaxBound) instead of infinite Nat
+// Skip final state transitions — they're handled by finalStateOps below
 for (const t of allTransitions) {
+  if (finalStates.includes(t.fromState)) continue;
   const params = t.assignedKeys.filter(k => userVars[k] === 'event');
-  const paramStr = params.length > 0 ? '(\\E ' + params.map(p => p + ' \\in Nat').join(', ') + ' : ' : '';
-  const closeParen = params.length > 0 ? ')' : '';
   if (params.length > 0) {
-    lines.push('    \\/ \\E ' + params.map(p => p + ' \\in Nat').join(', ') + ' : ' + t.actionName + '(' + params.join(', ') + ')');
+    const aliases = params.map(p => getParamAlias(p));
+    lines.push('    \\/ \\E ' + aliases.map(a => a + ' \\in 0..MaxBound').join(', ') + ' : ' + t.actionName + '(' + aliases.join(', ') + ')');
   } else {
     lines.push('    \\/ ' + t.actionName);
   }
 }
 for (const s of finalStates) {
-  lines.push('    \\/ Stay' + s);
+  for (const op of finalStateOps[s]) {
+    lines.push('    \\/ ' + op.name);
+  }
 }
 
-// Spec
+// Spec — no WF_vars for parameterized actions (TLC can't apply fairness to them)
 lines.push('');
 lines.push('\\* ── Specification ─────────────────────────────────────────────────────────────');
 lines.push('Spec == Init /\\ [][Next]_vars');
-for (const a of actionNames) {
-  lines.push('        /\\ WF_vars(' + a + ')');
-}
 
 // Invariant/liveness placeholders
 lines.push('');
@@ -446,6 +517,8 @@ const cfgContent = [
   '\\* Regenerate: node bin/xstate-to-tla.cjs ' + path.relative(path.join(__dirname, '..'), absInput) +
       (configArg ? ' --config=' + configArg : '') + ' --module=' + moduleName,
   '\\* Generated: ' + ts_date,
+  '',
+  'CONSTANT MaxBound = 4',
   '',
   'SPECIFICATION Spec',
   'INVARIANT TypeOK',
