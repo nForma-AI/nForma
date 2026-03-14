@@ -1,7 +1,7 @@
 'use strict';
 // hooks/nf-spec-regen.js
-// PostToolUse hook: when Claude writes to nf-workflow.machine.ts,
-// automatically trigger generate-formal-specs.cjs to regenerate TLA+/Alloy specs.
+// PostToolUse hook: when Claude writes to a state machine file matching
+// configurable patterns, automatically trigger fsm-to-tla.cjs to regenerate specs.
 //
 // LOOP-02 (v0.21-03): Self-Calibrating Feedback Loops
 //
@@ -41,58 +41,84 @@ process.stdin.on('end', () => {
     const toolName = input.tool_name || '';
     const filePath = (input.tool_input && input.tool_input.file_path) || '';
 
-    // Only act on Write calls to nf-workflow.machine.ts
-    if (toolName !== 'Write' || !filePath.includes('nf-workflow.machine.ts')) {
-      process.exit(0); // No-op — not a machine file write
+    // Only act on Write calls
+    if (toolName !== 'Write') {
+      process.exit(0); // No-op — not a Write tool call
     }
 
-    // Resolve generate-formal-specs.cjs relative to cwd (the project root)
-    const cwd = input.cwd || process.cwd();
-    const genScript = path.join(cwd, 'bin', 'generate-formal-specs.cjs');
-
-    const result = spawnSync(process.execPath, [genScript], {
-      encoding: 'utf8',
-      cwd: cwd,
-      timeout: 60000, // 60s: spec generation can take a moment
+    // Check against configurable patterns (default: ['*.machine.ts'] preserves old behavior)
+    const patterns = config.spec_regen_patterns || ['*.machine.ts'];
+    const basename = path.basename(filePath);
+    const matchesPattern = patterns.some(function(pat) {
+      // Simple glob: *.ext matches any file ending with .ext
+      if (pat.startsWith('*')) return basename.endsWith(pat.slice(1));
+      // Exact filename match
+      return basename === pat || filePath.includes(pat);
     });
-
-    let msg;
-    if (result.status === 0 && !result.error) {
-      msg = '[spec-regen] Formal specs regenerated (generate-formal-specs.cjs + xstate-to-tla.cjs) from XState machine.';
-    } else {
-      msg = '[spec-regen] WARNING: generate-formal-specs.cjs failed after machine file write. Run manually to regenerate specs.\n' +
-            (result.stderr ? result.stderr.slice(0, 500) : '') +
-            (result.error ? String(result.error) : '');
+    if (!matchesPattern) {
+      process.exit(0); // No-op — file does not match any pattern
     }
 
-    // Also regenerate NFQuorum_xstate.tla (xstate-to-tla.cjs)
-    const xstateScript = path.join(cwd, 'bin', 'xstate-to-tla.cjs');
-    const machineFile = path.join(cwd, 'src', 'machines', 'nf-workflow.machine.ts');
-    const guardsConfig = path.join(cwd, '.planning', 'formal', 'tla', 'guards', 'nf-workflow.json');
+    const cwd = input.cwd || process.cwd();
+    let msg = '';
 
-    if (fs.existsSync(xstateScript) && fs.existsSync(guardsConfig)) {
-      const xstateResult = spawnSync(process.execPath, [
-        xstateScript, machineFile,
-        '--config=' + guardsConfig,
-        '--module=NFQuorum'
-      ], {
+    // For nf-workflow.machine.ts specifically, also run generate-formal-specs.cjs
+    // (that script generates TLA+/Alloy/PRISM, not just xstate TLA+)
+    if (filePath.includes('nf-workflow.machine.ts')) {
+      const genScript = path.join(cwd, 'bin', 'generate-formal-specs.cjs');
+      if (fs.existsSync(genScript)) {
+        const result = spawnSync(process.execPath, [genScript], {
+          encoding: 'utf8',
+          cwd: cwd,
+          timeout: 60000,
+        });
+
+        if (result.status === 0 && !result.error) {
+          msg = '[spec-regen] Formal specs regenerated (generate-formal-specs.cjs) from XState machine.';
+        } else {
+          msg = '[spec-regen] WARNING: generate-formal-specs.cjs failed after machine file write. Run manually to regenerate specs.\n' +
+                (result.stderr ? result.stderr.slice(0, 500) : '') +
+                (result.error ? String(result.error) : '');
+        }
+      }
+    }
+
+    // Run fsm-to-tla.cjs for the matched file (auto-detect framework)
+    const fsmToTla = path.join(cwd, 'bin', 'fsm-to-tla.cjs');
+    if (fs.existsSync(fsmToTla)) {
+      // For nf-workflow.machine.ts, pass --config and --module for backward compat
+      const fsmArgs = [fsmToTla, filePath];
+      if (filePath.includes('nf-workflow.machine.ts')) {
+        const guardsConfig = path.join(cwd, '.planning', 'formal', 'tla', 'guards', 'nf-workflow.json');
+        if (fs.existsSync(guardsConfig)) {
+          fsmArgs.push('--config=' + guardsConfig);
+          fsmArgs.push('--module=NFQuorum');
+        }
+      }
+
+      const fsmResult = spawnSync(process.execPath, fsmArgs, {
         encoding: 'utf8',
         cwd: cwd,
         timeout: 60000,
       });
 
-      if (xstateResult.status !== 0 || xstateResult.error) {
-        msg += '\n[spec-regen] WARNING: xstate-to-tla.cjs failed. Run manually.';
-        if (xstateResult.stderr) msg += '\n' + xstateResult.stderr.slice(0, 300);
+      if (fsmResult.status !== 0 || fsmResult.error) {
+        msg += '\n[spec-regen] WARNING: fsm-to-tla.cjs failed. Run manually.';
+        if (fsmResult.stderr) msg += '\n' + fsmResult.stderr.slice(0, 300);
+      } else {
+        if (msg) msg += '\n';
+        msg += '[spec-regen] TLA+ spec regenerated via fsm-to-tla.cjs for ' + path.basename(filePath) + '.';
       }
     }
 
-    process.stdout.write(JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: 'PostToolUse',
-        additionalContext: msg,
-      },
-    }));
+    if (msg) {
+      process.stdout.write(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'PostToolUse',
+          additionalContext: msg,
+        },
+      }));
+    }
     process.exit(0); // Always exit 0 — fail-open
   } catch (e) {
     if (e instanceof SyntaxError) {
