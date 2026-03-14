@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-13T16:26:48.920Z",
-  "content_hash": "8beb346693524100",
+  "aggregated_at": "2026-03-14T13:59:59.983Z",
+  "content_hash": "9d0be4c5913f6ebd",
   "schema_version": "1",
   "requirements": [
     {
@@ -4366,6 +4366,18 @@
       "category_raw": "UPPAAL Timed Race Modeling"
     },
     {
+      "id": "UPPAAL-04",
+      "text": "The close-formal-gaps workflow generates UPPAAL timed automata specs when requirements specify real-time constraints, and selects Petri net models for concurrent workflows, with detailed formalism selection heuristics and generation templates integrated into steps 3–6.",
+      "category": "Formal Verification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "The close-formal-gaps workflow previously referenced UPPAAL and Petri formalisms in its table but lacked generation templates, selection heuristics, and detailed instructions. This requirement captures the extension that enables Claude to generate formal specs in these formalisms for user project requirements, completing the closed-loop gap between formalism selection and model generation.",
+      "provenance": {
+        "source_file": ".planning/quick/289-wire-uppaal-and-petri-net-support-into-c/289-PLAN.md",
+        "milestone": "quick-289"
+      }
+    },
+    {
       "id": "UPS-01",
       "text": "UserPromptSubmit hook detects GSD planning commands via explicit allowlist regex match against prompt field",
       "category": "Hooks & Enforcement",
@@ -4735,5 +4747,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-13T16:26:48.921Z"
+  "frozen_at": "2026-03-14T13:59:59.983Z"
 }
