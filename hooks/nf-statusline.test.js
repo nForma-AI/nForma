@@ -66,40 +66,39 @@ test('TC2: context at 100% remaining shows all-empty bar at 0%', () => {
   assert.ok(stdout.includes('0%'), 'stdout must include 0%');
 });
 
-// TC3: Context at 20% remaining (80% used → scaled 100%) → full bar, 100%
-// rawUsed = 80; scaled = round(80/80 * 100) = 100; filled = 10 → full blocks
-// At 100% scaled, the hook uses the skull emoji and blink+red ANSI code
-test('TC3: context at 20% remaining shows full bar at 100% (skull zone)', () => {
+// TC3: 80% used (20% remaining) with 400K tokens → blinking red (>350K)
+test('TC3: 80% used with 400K tokens shows blinking red', () => {
   const { stdout, exitCode } = runHook({
     model: { display_name: 'M' },
-    context_window: { remaining_percentage: 20 },
-  });
-  assert.strictEqual(exitCode, 0, 'exit code must be 0');
-  assert.ok(stdout.includes('100%'), 'stdout must include 100%');
-  assert.ok(stdout.includes('██████████'), 'stdout must include full bar (10 filled segments)');
-});
-
-// TC4: Context at 51% remaining (49% used → scaled 61%) → green zone (scaled < 63)
-// rawUsed = 49; scaled = round(49/80 * 100) = round(61.25) = 61; 61 < 63 → green
-test('TC4: context at 51% remaining shows 61% in green (below 63% yellow threshold)', () => {
-  const { stdout, exitCode } = runHook({
-    model: { display_name: 'M' },
-    context_window: { remaining_percentage: 51 },
-  });
-  assert.strictEqual(exitCode, 0, 'exit code must be 0');
-  assert.ok(stdout.includes('61%'), 'stdout must include 61%');
-  assert.ok(stdout.includes('\x1b[32m'), 'stdout must include green ANSI code \\x1b[32m');
-});
-
-// TC5: Context at 36% remaining (64% used → scaled 80%) → yellow zone (63 <= scaled < 81)
-// rawUsed = 64; scaled = round(64/80 * 100) = round(80) = 80; 63 <= 80 < 81 → yellow
-test('TC5: context at 36% remaining shows 80% in yellow (63–80% yellow zone)', () => {
-  const { stdout, exitCode } = runHook({
-    model: { display_name: 'M' },
-    context_window: { remaining_percentage: 36 },
+    context_window: { remaining_percentage: 20, current_usage: { input_tokens: 400000 } },
   });
   assert.strictEqual(exitCode, 0, 'exit code must be 0');
   assert.ok(stdout.includes('80%'), 'stdout must include 80%');
+  assert.ok(stdout.includes('400K'), 'stdout must include token count 400K');
+  assert.ok(stdout.includes('\x1b[5;31m'), 'stdout must include blinking red ANSI code');
+});
+
+// TC4: 49% used (51% remaining) with 50K tokens → green (<100K)
+test('TC4: 49% used with 50K tokens shows green', () => {
+  const { stdout, exitCode } = runHook({
+    model: { display_name: 'M' },
+    context_window: { remaining_percentage: 51, current_usage: { input_tokens: 50000 } },
+  });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  assert.ok(stdout.includes('49%'), 'stdout must include 49%');
+  assert.ok(stdout.includes('50K'), 'stdout must include token count 50K');
+  assert.ok(stdout.includes('\x1b[32m'), 'stdout must include green ANSI code \\x1b[32m');
+});
+
+// TC5: 64% used (36% remaining) with 150K tokens → yellow (100K-200K)
+test('TC5: 64% used with 150K tokens shows yellow', () => {
+  const { stdout, exitCode } = runHook({
+    model: { display_name: 'M' },
+    context_window: { remaining_percentage: 36, current_usage: { input_tokens: 150000 } },
+  });
+  assert.strictEqual(exitCode, 0, 'exit code must be 0');
+  assert.ok(stdout.includes('64%'), 'stdout must include 64%');
+  assert.ok(stdout.includes('150K'), 'stdout must include token count 150K');
   assert.ok(stdout.includes('\x1b[33m'), 'stdout must include yellow ANSI code \\x1b[33m');
 });
 
