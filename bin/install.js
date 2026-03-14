@@ -2853,11 +2853,11 @@ function promptProviders(callback) {
   const classified = classifyProviders(provs);
   const detected = detectExternalClis(classified.externalPrimary);
 
-  // CCR slots always included
-  const selected = classified.ccr.map(p => p.name);
+  // CCR slots not included by default — users enable via /nf:mcp-setup
+  const selected = [];
 
   console.log(`\n  ${yellow}Quorum agent setup:${reset}`);
-  console.log(`  Claude slots (claude-1..6) are installed by default.\n`);
+  console.log(`  Run /nf:mcp-setup after install to configure Claude slots (claude-1..6).\n`);
 
   // Print detection results
   for (const d of detected) {
@@ -2873,7 +2873,7 @@ function promptProviders(callback) {
   const foundClis = detected.filter(d => d.found);
 
   if (foundClis.length === 0) {
-    console.log(`  No external CLIs detected. Installing Claude slots only.\n`);
+    console.log(`  No external CLIs detected. Run /nf:mcp-setup to configure quorum agents.\n`);
     selectedProviderSlots = selected;
     callback();
     return;
@@ -3206,7 +3206,7 @@ if (hasGlobal && hasLocal) {
     if (!hasAllProviders && selectedRuntimes.includes('claude')) {
       const provs = require('./providers.json').providers;
       const classified = classifyProviders(provs);
-      selectedProviderSlots = classified.ccr.map(p => p.name);
+      selectedProviderSlots = [];
       const detected = detectExternalClis(classified.externalPrimary);
       const foundNames = detected.filter(d => d.found).map(d => d.name);
       if (foundNames.length > 0) {
@@ -3235,7 +3235,7 @@ if (hasGlobal && hasLocal) {
     if (!hasAllProviders) {
       const provs = require('./providers.json').providers;
       const classified = classifyProviders(provs);
-      selectedProviderSlots = classified.ccr.map(p => p.name);
+      selectedProviderSlots = [];
       const detected = detectExternalClis(classified.externalPrimary);
       const foundNames = detected.filter(d => d.found).map(d => d.name);
       if (foundNames.length > 0) {

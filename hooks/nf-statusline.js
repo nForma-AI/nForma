@@ -33,29 +33,34 @@ process.stdin.on('end', () => {
     const session = data.session_id || '';
     const remaining = data.context_window?.remaining_percentage;
 
-    // Context window display (shows USED percentage scaled to 80% limit)
-    // Claude Code enforces an 80% context limit, so we scale to show 100% at that point
+    // Context window display — raw usage against full 1M context
     let ctx = '';
     if (remaining != null) {
       const rem = Math.round(remaining);
-      const rawUsed = Math.max(0, Math.min(100, 100 - rem));
-      // Scale: 80% real usage = 100% displayed
-      const used = Math.min(100, Math.round((rawUsed / 80) * 100));
+      const used = Math.max(0, Math.min(100, 100 - rem));
 
       // Build progress bar (10 segments)
       const filled = Math.floor(used / 10);
       const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
 
-      // Color based on scaled usage (thresholds adjusted for new scale)
-      if (used < 63) {        // ~50% real
-        ctx = ` \x1b[32m${bar} ${used}%\x1b[0m`;
-      } else if (used < 81) { // ~65% real
-        ctx = ` \x1b[33m${bar} ${used}%\x1b[0m`;
-      } else if (used < 95) { // ~76% real
-        ctx = ` \x1b[38;5;208m${bar} ${used}%\x1b[0m`;
+      // Token-based color thresholds (quality degrades well before 1M limit)
+      // 0-100K green | 100-200K yellow | 200-350K orange | 350K+ red blink
+      const inputTokens = data.context_window?.current_usage?.input_tokens ?? 0;
+      const tokensK = Math.round(inputTokens / 1000);
+      const tokenLabel = tokensK >= 1000 ? `${(tokensK / 1000).toFixed(1)}M` : `${tokensK}K`;
+
+      let color;
+      if (inputTokens < 100_000) {
+        color = '\x1b[32m';           // green
+      } else if (inputTokens < 200_000) {
+        color = '\x1b[33m';           // yellow
+      } else if (inputTokens < 350_000) {
+        color = '\x1b[38;5;208m';     // orange
       } else {
-        ctx = ` \x1b[5;31m💀 ${bar} ${used}%\x1b[0m`;
+        color = '\x1b[5;31m';         // blinking red
       }
+
+      ctx = ` ${color}${bar} ${used}% (${tokenLabel})\x1b[0m`;
     }
 
     // Current task from todos
