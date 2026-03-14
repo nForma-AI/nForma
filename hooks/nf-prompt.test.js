@@ -17,10 +17,12 @@ const HOOK_PATH = path.join(__dirname, 'nf-prompt.js');
 // Helper: run the hook with a given stdin payload, return { stdout, stderr, exitCode }
 // When the payload contains a `cwd` field, HOME is overridden to the cwd so that
 // the hook's loadConfig reads only the project-level nf.json (no global config leak).
+// NF_SKIP_PREFLIGHT=1 is set by default to bypass quorum-preflight.cjs CLI probes and
+// keep tests fast. Pass { NF_SKIP_PREFLIGHT: '0' } in extraEnv to test the preflight path.
 function runHook(stdinPayload, extraEnv) {
   const payload = typeof stdinPayload === 'string' ? stdinPayload : JSON.stringify(stdinPayload);
   const cwdFromPayload = typeof stdinPayload === 'object' && stdinPayload.cwd;
-  const env = { ...process.env, ...(extraEnv || {}) };
+  const env = { ...process.env, NF_SKIP_PREFLIGHT: '1', ...(extraEnv || {}) };
   if (cwdFromPayload) {
     env.HOME = cwdFromPayload; // isolate from ~/.claude/nf.json
   }
