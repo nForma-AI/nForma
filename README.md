@@ -97,18 +97,17 @@ Unlike single-model coding assistants (GitHub Copilot Chat, Cursor, Cline) or au
 | | |
 |---|---|
 | **5+** quorum agents | **56** slash commands |
-| **287** tracked requirements | **7** lifecycle hook types |
-| **18** formal specifications across 5 tools | **33** milestones shipped |
+| **5** formal methods tools (TLA+, Alloy, PRISM, UPPAAL, Petri) | **7** lifecycle hook types |
+| **Auto-generated specs** from your requirements | **33** milestones shipped |
 
 ---
 
-## What's New in v0.33
+## What's New
 
-- **Outer-loop convergence guarantees** -- TLA+ verified safety + liveness of the solve loop with zero counterexamples
-- **Gate stability** -- Flip-flop detection and cooldown enforcement prevent oscillating promotions
-- **Predictive power** -- Bug-to-property linking scores how well formal models catch real bugs
-- **Escalation classifier** -- Haiku-based triage routes stuck solve items to human review
-- **33 milestones shipped** -- From v0.1 through v0.33, covering quorum, formal verification, convergence proofs, and more
+- **Cross-repo support** -- `--repo` flag lets you run nForma commands against any project in your workspace
+- **Formal spec generation** -- `/nf:close-formal-gaps` auto-generates TLA+, Alloy, or PRISM specs from your project requirements
+- **Pre-quorum auth checks** -- Detects unauthenticated agents before dispatch, no more 30s timeouts
+- **Staging channel** -- Follow pre-release updates with `npx @nforma.ai/nforma@staging`
 
 ---
 
@@ -492,40 +491,46 @@ Loop **discuss → plan → execute → verify** until milestone complete. Each 
 
 ## Formal Methods — Proof Before Production
 
-nForma doesn't just build software — it *proves* correctness before code ships. Five formal methods tools verify protocol invariants mathematically:
+nForma generates formal specifications from your project's requirements and runs model checkers to find bugs before code ships. Five tools are supported:
 
-| Tool | What it checks |
-|------|---------------|
-| **TLA+** | Safety and liveness of quorum consensus, circuit breaker, convergence |
-| **Alloy** | Structural assertions on recruiting, account management, audit trails |
-| **PRISM** | Probabilistic convergence bounds and failure recovery rates |
-| **Petri nets** | Concurrent workflow reachability and deadlock freedom |
-| **UPPAAL** | Real-time timing constraints on quorum timeouts |
+| Tool | Best for | Example |
+|------|----------|---------|
+| **TLA+** | Safety & liveness — "does this protocol always terminate?" | Consensus, state machines, distributed workflows |
+| **Alloy** | Structural constraints — "can these entities violate referential integrity?" | Data models, access control, audit trails |
+| **PRISM** | Probabilistic properties — "what's the failure probability under load?" | Retry policies, SLA guarantees, fault tolerance |
+| **Petri nets** | Concurrency — "can this workflow deadlock?" | Pipeline stages, parallel processing, resource contention |
+| **UPPAAL** | Real-time — "does this always complete within the timeout?" | Heartbeats, polling intervals, SLA timing |
+
+### How to use it in your project
 
 ```bash
-# Full pipeline — all steps (generate → Petri → TLA+ → Alloy → PRISM)
+# 1. Track requirements (auto-discovers from your planning docs)
+/nf:sync-baselines
+
+# 2. Generate specs for uncovered requirements (picks the right tool per requirement)
+/nf:close-formal-gaps
+
+# 3. Run the verification pipeline
 node bin/run-formal-verify.cjs
 
-# Run specific tools
-node bin/run-formal-verify.cjs --only=tla
-node bin/run-formal-verify.cjs --only=alloy
+# 4. Cross-reference specs with your test suite
+/nf:formal-test-sync
 ```
 
-Every core protocol has an executable specification. A dedicated [CI workflow](.github/workflows/formal-verify.yml) runs the full verification pipeline on changes to formal specs. Exit 0 = mathematically verified. See **[VERIFICATION_TOOLS.md](VERIFICATION_TOOLS.md)** for setup and model inventory.
+nForma selects the right formalism per requirement — you don't need to know TLA+ vs Alloy. The specs live in `.planning/formal/spec/` and run in CI via the [formal verification workflow](.github/workflows/formal-verify.yml).
 
-> **Note:** Formal verification is entirely optional for using nForma. You don't need Java or any formal tools installed. But if you want mathematical guarantees about your protocol correctness, they're built in.
+> **Note:** Formal verification is entirely optional. You don't need Java or any formal tools installed to use nForma. But when you want mathematical guarantees about your system's correctness, the pipeline is one command away.
 
-### Trust Guarantees — What Is and Isn't Proven
+### What formal verification can and can't do
 
-| Proven (formal specs) | Not proven |
+| What it proves | What it doesn't prove |
 |---|---|
-| Quorum consensus protocol reaches agreement or escalates | Your application's business logic correctness |
-| Circuit breaker detects and halts oscillation loops | That generated code is bug-free |
-| Solve loop converges (no infinite remediation cycles) | That AI-generated tests cover all edge cases |
-| Phase execution has no deadlocks or livelocks | That requirements are complete for your domain |
-| Gate promotions are stable (no flip-flop) | That formal specs cover every possible failure mode |
+| Your protocol has no deadlocks or livelocks | That your requirements are complete |
+| State machines always reach a terminal state | That generated code is bug-free |
+| Concurrent workflows can't corrupt shared state | That tests cover every edge case |
+| Retry policies converge within bounded time | That the spec itself models reality perfectly |
 
-nForma proves properties of the **orchestration protocol** — the system that coordinates AI agents, manages state, and enforces quality gates. It does not prove properties of the **code your agents write**. Think of it as proving your assembly line works correctly, not that every product it builds is perfect.
+Formal specs prove properties of your **design** — the protocol, the state machine, the data model. They don't prove the implementation is correct, but they catch entire *classes* of bugs that testing can't: race conditions, liveness violations, and invariant breaks across all possible executions.
 
 ---
 
@@ -535,7 +540,7 @@ Formal specs are useless if they can't observe the running system. nForma's per-
 
 ### How It Works
 
-Every formal model (156 across TLA+, Alloy, PRISM, UPPAAL) is scored against three gates:
+Every formal model in your project is scored against three gates:
 
 | Gate | Question | What it measures |
 |------|----------|-----------------|
