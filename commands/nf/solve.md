@@ -104,6 +104,7 @@ After completing all remediation steps, output ONLY the JSON result object descr
 )
 ```
 Parse remediation output JSON.
+Extract `capped_layers` from `remediation_report.capped_layers` (default `[]`). Store for inclusion in the final solve output — this array lets users distinguish "residual remains because capped" from "residual remains because stuck" (CONV-03).
 If `status == "bail"` or `"error"`: break loop, proceed to Phase 4.
 
 **3b. Re-diagnostic sweep (Step 4):**

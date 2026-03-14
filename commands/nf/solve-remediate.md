@@ -58,7 +58,11 @@ At the end of execution, emit a compact JSON result:
   "remediation_report": {
     "dispatched": [ /* list of { layer, skill, status } */ ],
     "skipped": [ /* layers with 0 residual */ ],
-    "failed": [ /* dispatches that errored */ ]
+    "failed": [ /* dispatches that errored */ ],
+    "capped_layers": [
+      {"layer": "l1_to_l2", "dispatched": 3, "max": 3},
+      {"layer": "l2_to_l3", "dispatched": 2, "max": 3}
+    ]
   }
 }
 ```
@@ -526,7 +530,7 @@ If hazard-model.cjs is not found or fails, skip silently and continue to gate re
 
 Gate A measures grounding alignment between L1 evidence (conformance traces) and L2 semantics. The diagnostic engine already computed the residual via gate-a-grounding.cjs.
 
-**Max dispatches: 3 per solve cycle.** Track a counter for Gate A dispatches. If the counter reaches 3, log `"Gate A: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip to Step 3l.
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate A dispatches. If the counter reaches 3, log `"Gate A: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"`, append `{ "layer": "l1_to_l2", "dispatched": 3, "max": 3 }` to the `capped_layers` array, and skip to Step 3l.
 
 Extract detail from `residual_vector.l1_to_l2.detail`:
 - `unexplained_breakdown.instrumentation_bug` — actions not in event-vocabulary.json
@@ -549,7 +553,7 @@ Log: `"Gate A: grounding_score={score}, {inst_bug} instrumentation bugs, {model_
 
 Gate B verifies every L3 reasoning artifact has valid derived_from links to L2 semantics sources. Orphaned hazards (L3 entries with broken/missing derived_from) inflate the residual.
 
-**Max dispatches: 3 per solve cycle.** Track a counter for Gate B dispatches. If the counter reaches 3, log `"Gate B: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip to Step 3m.
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate B dispatches. If the counter reaches 3, log `"Gate B: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"`, append `{ "layer": "l2_to_l3", "dispatched": 3, "max": 3 }` to the `capped_layers` array, and skip to Step 3m.
 
 Extract detail from `residual_vector.l2_to_l3.detail`:
 - `orphaned_count` — L3 entries with no valid L2 back-link (mapped from gate-b-abstraction.cjs `orphaned_entries`)
@@ -572,7 +576,7 @@ Log: `"Gate B: gate_b_score={score}, {orphaned_count} orphaned entries"`
 
 Gate C verifies every L3 failure mode maps to at least one test recipe. Unvalidated failure modes lack test coverage.
 
-**Max dispatches: 3 per solve cycle.** Track a counter for Gate C dispatches. If the counter reaches 3, log `"Gate C: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"` and skip.
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate C dispatches. If the counter reaches 3, log `"Gate C: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"`, append `{ "layer": "l3_to_tc", "dispatched": 3, "max": 3 }` to the `capped_layers` array, and skip.
 
 Extract detail from `residual_vector.l3_to_tc.detail`:
 - `unvalidated_count` — failure modes with no test recipe (mapped from gate-c-validation.cjs `unvalidated_entries`)
@@ -600,6 +604,10 @@ If the re-check confirms unvalidated failures remain, dispatch:
 All `/nf:quick` dispatches use default mode (no `--full` flag). Each dispatch increments the Gate C counter.
 
 Log: `"Gate C: gate_c_score={score}, {unvalidated_count}/{total_failure_modes} failure modes lack test recipes"`
+
+## Collation: capped_layers
+
+Before emitting the output JSON, collate all `capped_layers` entries accumulated during Gate A (3k), Gate B (3l), and Gate C (3m) into the `remediation_report.capped_layers` array. If no gate hit its cap, emit an empty array. Initialize `capped_layers = []` at the start of remediation dispatch, and each gate section appends to it when the max-3 cap is reached.
 
 ## Important Constraints
 
