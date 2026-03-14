@@ -551,15 +551,15 @@ node bin/hazard-model.cjs --json
 
 Parse the JSON output. Log: `"Hazard model: {total_hazards} hazards scored, {high_rpn_count} high-RPN (>100)"`
 
-If hazard-model.cjs is not found or fails, skip silently and continue to gate remediation (fail-open). The hazard model is an input to Gate B (L2->L3 traceability) — stale hazard data produces false gate failures.
+If hazard-model.cjs is not found or fails, skip silently and continue to gate remediation (fail-open). The hazard model is an input to gate evaluation — stale hazard data produces false gate failures.
 
-### 3k. Gate A Remediation (residual_vector.l1_to_l2.residual > 0)
+### 3k. Gate A Remediation (residual_vector.l1_to_l3.residual > 0)
 
-Gate A measures grounding alignment between L1 evidence (conformance traces) and L2 semantics. The diagnostic engine already computed the residual via gate-a-grounding.cjs.
+Gate A measures grounding alignment between L1 evidence and L3 reasoning models (L2 collapsed — STRUCT-01). The diagnostic engine already computed the residual via gate-a-grounding.cjs.
 
-**Max dispatches: 3 per solve cycle.** Track a counter for Gate A dispatches. If the counter reaches 3, log `"Gate A: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"`, append `{ "layer": "l1_to_l2", "dispatched": 3, "max": 3 }` to the `capped_layers` array, and skip to Step 3l.
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate A dispatches. If the counter reaches 3, log `"Gate A: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"`, append `{ "layer": "l1_to_l3", "dispatched": 3, "max": 3 }` to the `capped_layers` array, and skip to Step 3l.
 
-Extract detail from `residual_vector.l1_to_l2.detail`:
+Extract detail from `residual_vector.l1_to_l3.detail`:
 - `unexplained_breakdown.instrumentation_bug` — actions not in event-vocabulary.json
 - `unexplained_breakdown.model_gap` — actions in vocabulary but XState replay fails
 - `unexplained_breakdown.genuine_violation` — model_gap events violating declared invariants
@@ -576,28 +576,21 @@ All `/nf:quick` dispatches use default mode (no `--full` flag) to avoid unnecess
 
 Log: `"Gate A: grounding_score={score}, {inst_bug} instrumentation bugs, {model_gap} model gaps, {genuine} genuine violations"`
 
-### 3l. Gate B Remediation (residual_vector.l2_to_l3.residual > 0)
+### 3l. Gate B Remediation (residual_vector.l1_to_l3 purpose check)
 
-Gate B verifies every L3 reasoning artifact has valid derived_from links to L2 semantics sources. Orphaned hazards (L3 entries with broken/missing derived_from) inflate the residual.
+Gate B verifies every model has requirement backing (purpose check — L2 collapsed, STRUCT-01). Models without requirements lack purpose backing and inflate the residual.
 
-**Max dispatches: 3 per solve cycle.** Track a counter for Gate B dispatches. If the counter reaches 3, log `"Gate B: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"`, append `{ "layer": "l2_to_l3", "dispatched": 3, "max": 3 }` to the `capped_layers` array, and skip to Step 3m.
+**Max dispatches: 3 per solve cycle.** Track a counter for Gate B dispatches. If the counter reaches 3, log `"Gate B: max remediation dispatches (3) reached this cycle — skipping further auto-fixes"`, append `{ "layer": "l1_to_l3", "dispatched": 3, "max": 3 }` to the `capped_layers` array, and skip to Step 3m.
 
-Extract detail from `residual_vector.l2_to_l3.detail`:
-- `orphaned_count` — L3 entries with no valid L2 back-link (mapped from gate-b-abstraction.cjs `orphaned_entries`)
+Gate B score is derived from the aggregate gate computation. If `gate_b_score < 1.0`, models without requirements need requirements added:
 
-If `orphaned_count > 0`:
 ```
-/nf:quick Fix {N} orphaned L3 reasoning entries identified by Gate B — add or repair derived_from links in .planning/formal/reasoning/ files to reference valid L2 semantics sources
-```
-
-If `gate_b_score < 1.0` but `orphaned_count == 0`, the gap is due to low coverage rather than broken links. Dispatch:
-```
-/nf:quick Improve Gate B L2->L3 traceability coverage — generate derived_from annotations for L3 entries missing semantic back-links (gate_b_score={score})
+/nf:quick Add requirement mappings for {N} models without requirement backing identified by Gate B — update model-registry.json requirements arrays (gate_b_score={score})
 ```
 
 All `/nf:quick` dispatches use default mode (no `--full` flag). Each dispatch increments the Gate B counter.
 
-Log: `"Gate B: gate_b_score={score}, {orphaned_count} orphaned entries"`
+Log: `"Gate B: gate_b_score={score}, {orphaned_count} models without requirement backing"`
 
 ### 3m. Gate C Remediation (residual_vector.l3_to_tc.residual > 0)
 
@@ -678,6 +671,6 @@ Each wave records: the wave number, layer keys dispatched, start offset from rem
    - **quick** for constant mismatches (C->F), syntax/scope errors, conformance divergences (F->C)
    - **direct executor dispatch** for R->D documentation generation
 
-9. **Layer alignment remediation** — Gate A/B/C failures are remediated via `/nf:quick` dispatch (default mode, no `--full` flag) after the hazard model is refreshed (Step 3j). The full dependency chain is: hazard-model refresh (3j) -> Gate A (3k) -> Gate B (3l) -> test-recipe-gen (in 3m) -> Gate C (3m). This ordering ensures: (a) L3 artifacts are fresh before gates evaluate them, (b) Gate A (L1->L2) fixes propagate before Gate B (L2->L3) checks traceability, (c) test recipes are regenerated before Gate C (L3->TC) evaluates coverage. Each gate is capped at 3 remediation dispatches per solve cycle to prevent runaway loops if residuals never converge.
+9. **Layer alignment remediation** — Gate A/B/C failures are remediated via `/nf:quick` dispatch (default mode, no `--full` flag) after the hazard model is refreshed (Step 3j). The full dependency chain is: hazard-model refresh (3j) -> Gate A (3k, L1->L3) -> Gate B (3l, purpose) -> test-recipe-gen (in 3m) -> Gate C (3m, L3->TC). This ordering ensures: (a) L3 artifacts are fresh before gates evaluate them, (b) Gate A (L1->L3) fixes propagate before Gate B (purpose) checks requirement backing, (c) test recipes are regenerated before Gate C (L3->TC) evaluates coverage. Each gate is capped at 3 remediation dispatches per solve cycle to prevent runaway loops if residuals never converge.
 
 </process>
