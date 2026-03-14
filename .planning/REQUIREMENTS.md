@@ -9,8 +9,8 @@ Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roa
 
 ### Diagnostics
 
-- [ ] **DIAG-01**: Solve diagnostic engine propagates `--focus` filter to all 19 layers, not just R→F and R→D — reverse discovery, alignment, and informational layers must filter or clearly mark results as unscoped
-- [ ] **DIAG-02**: Solve diagnostic engine returns residual=-1 (unknown) instead of 0 when formal artifact files are missing (check-results.ndjson, requirements.json) — preventing false convergence when files are absent
+- [x] **DIAG-01**: Solve diagnostic engine propagates `--focus` filter to all 19 layers, not just R→F and R→D — reverse discovery, alignment, and informational layers must filter or clearly mark results as unscoped
+- [x] **DIAG-02**: Solve diagnostic engine returns residual=-1 (unknown) instead of 0 when formal artifact files are missing (check-results.ndjson, requirements.json) — preventing false convergence when files are absent
 
 ### Classification
 
@@ -64,8 +64,8 @@ Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roa
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DIAG-01 | v0.36-02 | Pending |
-| DIAG-02 | v0.36-02 | Pending |
+| DIAG-01 | v0.36-02 | Complete |
+| DIAG-02 | v0.36-02 | Complete |
 | CLASS-01 | v0.36-02 | Complete |
 | CONV-01 | v0.36-03 | Pending |
 | CONV-02 | v0.36-03 | Pending |

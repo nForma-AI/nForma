@@ -43,7 +43,7 @@
 ## Phases
 
 - [x] **Phase v0.36-01: Shared Infrastructure** - Extract shared constants, gate utility, configurable Haiku model, and fix aggregate cache invalidation (completed 2026-03-14)
-- [ ] **Phase v0.36-02: Diagnostic Correctness** - Fix focus filter propagation, missing-file false pass, and classification cache keying
+- [x] **Phase v0.36-02: Diagnostic Correctness** - Fix focus filter propagation, missing-file false pass, and classification cache keying (completed 2026-03-14)
 - [ ] **Phase v0.36-03: Convergence Intelligence** - Add cycle detection, split residual buckets, capped-layer reporting, and baseline drift detection
 - [ ] **Phase v0.36-04: Architecture & Parallelism** - Resolve L2 layer structural decision and implement wave-parallel remediation dispatch
 - [ ] **Phase v0.36-05: Test Harness** - End-to-end convergence tests, cascade effect tests, focus filter tests, and classification golden set
@@ -110,7 +110,7 @@ v0.36-01 -> v0.36-02 / v0.36-03 (parallel after 01) -> v0.36-04 (after 01 + 02) 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | v0.36-01. Shared Infrastructure | 1/1 | Complete    | 2026-03-14 |
-| v0.36-02. Diagnostic Correctness | 1/2 | In Progress|  |
+| v0.36-02. Diagnostic Correctness | 2/2 | Complete | 2026-03-14 |
 | v0.36-03. Convergence Intelligence | 0/TBD | Not started | - |
 | v0.36-04. Architecture & Parallelism | 0/TBD | Not started | - |
 | v0.36-05. Test Harness | 0/TBD | Not started | - |
@@ -118,4 +118,4 @@ v0.36-01 -> v0.36-02 / v0.36-03 (parallel after 01) -> v0.36-04 (after 01 + 02) 
 ---
 
 *Roadmap created: 2026-02-20*
-*Last updated: 2026-03-14 after v0.36 milestone roadmap*
+*Last updated: 2026-03-14 after v0.36-02 phase completion*
