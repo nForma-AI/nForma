@@ -20,8 +20,8 @@ Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roa
 
 - [x] **CONV-01**: Solve loop tracks per-layer residual history across iterations and detects oscillation cycles (A-B-A-B pattern across 4+ iterations) — oscillating layers are reported and excluded from further dispatch
 - [x] **CONV-02**: Solve output reports residual in three distinct buckets: `automatable` (forward + gates), `manual` (d_to_c + reverse discovery), `informational` (git_heatmap + lint + hazard) — never mixed into a single total
-- [ ] **CONV-03**: Solve output JSON includes `capped_layers` array when any gate dispatch hits the max-3-per-cycle limit — users can distinguish "residual remains because capped" from "residual remains because unfixable"
-- [ ] **CONV-04**: Solve report re-snapshots baseline at report time and flags drift >10% from session-start baseline — preventing misleading before/after deltas caused by mid-session external edits
+- [x] **CONV-03**: Solve output JSON includes `capped_layers` array when any gate dispatch hits the max-3-per-cycle limit — users can distinguish "residual remains because capped" from "residual remains because unfixable"
+- [x] **CONV-04**: Solve report re-snapshots baseline at report time and flags drift >10% from session-start baseline — preventing misleading before/after deltas caused by mid-session external edits
 
 ### Performance
 
@@ -69,8 +69,8 @@ Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roa
 | CLASS-01 | v0.36-02 | Complete |
 | CONV-01 | v0.36-03 | Complete |
 | CONV-02 | v0.36-03 | Complete |
-| CONV-03 | v0.36-03 | Pending |
-| CONV-04 | v0.36-03 | Pending |
+| CONV-03 | v0.36-03 | Complete |
+| CONV-04 | v0.36-03 | Complete |
 | PERF-01 | v0.36-04 | Pending |
 | PERF-02 | v0.36-01 | Complete |
 | STRUCT-01 | v0.36-04 | Pending |

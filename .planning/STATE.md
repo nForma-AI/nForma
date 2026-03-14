@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
-**Current focus:** Phase v0.36-03 plan 01 complete (cycle detection + residual buckets); plan 02 next
+**Current focus:** Phase v0.36-03 complete (all 4 CONV requirements); v0.36-04 next
 
 ## Current Position
 
 Phase: 3 of 5 (Convergence Intelligence)
-Plan: v0.36-03-01-PLAN.md (1/2 plans complete)
-Status: In Progress
-Last activity: 2026-03-14 — Phase v0.36-03-01 executed (cycle detection + residual buckets)
+Plan: v0.36-03-02-PLAN.md (2/2 plans complete)
+Status: Complete
+Last activity: 2026-03-14 — Phase v0.36-03-02 executed (gate cap reporting + baseline drift detection)
 
-Progress: [######░░░░] 60%
+Progress: [########░░] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 11min
-- Total execution time: 45min
+- Total plans completed: 5
+- Average duration: 10min
+- Total execution time: 49min
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: [######░░░░] 60%
 |-------|-------|-------|----------|
 | v0.36-01 | 1/1 | 12min | 12min |
 | v0.36-02 | 2/2 | 17min | 9min |
-| v0.36-03 | 1/2 | 16min | 16min |
+| v0.36-03 | 2/2 | 20min | 10min |
 
 **Recent Trend:**
-- Last 5 plans: v0.36-01-01 (12min), v0.36-02-02 (6min), v0.36-02-01 (11min), v0.36-03-01 (16min)
+- Last 5 plans: v0.36-01-01 (12min), v0.36-02-02 (6min), v0.36-02-01 (11min), v0.36-03-01 (16min), v0.36-03-02 (4min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -40,6 +40,7 @@ Progress: [######░░░░] 60%
 | Phase v0.36-02 P02 | 6min | 3 tasks | 2 files |
 | Phase v0.36-02 P01 | 11min | 4 tasks | 3 files |
 | Phase v0.36-03 P01 | 16min | 4 tasks | 7 files |
+| Phase v0.36-03 P02 | 4min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,9 @@ Recent decisions affecting current work:
 - [v0.36-03-01]: CycleDetector uses sliding 4-point window for A-B-A-B detection (values[i]===values[i-2] for 2 consecutive pairs)
 - [v0.36-03-01]: Bucket assignments: 9 automatable, 4 manual, 6 informational — all 19 LAYER_KEYS covered with no overlap
 - [v0.36-03-01]: Convergence report backward-compatible: pre-CONV-02 trend data shows graceful fallback message
+- [v0.36-03-02]: Drift threshold uses 10% relative change for non-zero baselines, absolute >2 for zero baselines
+- [v0.36-03-02]: capped_layers populated only when gate dispatch counter reaches max-3, not for partial dispatches
+- [v0.36-03-02]: baseline_drift defaults to {detected:false} in nf-solve.cjs; overwritten by report sub-skill
 
 ### Pending Todos
 
@@ -81,5 +85,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-14
-Stopped at: Completed v0.36-03-01-PLAN.md (cycle detection + residual buckets); v0.36-03-02 next
+Stopped at: Completed v0.36-03-02-PLAN.md (gate cap reporting + baseline drift detection); v0.36-03 phase complete, v0.36-04 next
 Resume file: None
