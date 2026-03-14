@@ -29,14 +29,14 @@ const LAYER_LABELS = {
   r_to_f: 'R->F',  f_to_t: 'F->T',  c_to_f: 'C->F',  t_to_c: 'T->C',
   f_to_c: 'F->C',  r_to_d: 'R->D',  d_to_c: 'D->C',  p_to_f: 'P->F',
   c_to_r: 'C->R',  t_to_r: 'T->R',  d_to_r: 'D->R',
-  l1_to_l2: 'L1->L2', l2_to_l3: 'L2->L3', l3_to_tc: 'L3->TC',
+  l1_to_l3: 'L1->L3', l3_to_tc: 'L3->TC',
   per_model_gates: 'Gates', git_heatmap: 'Heatmap', git_history: 'GitHist',
   formal_lint: 'FLint', hazard_model: 'Hazard',
 };
 
 // CONV-02: Bucket classification per layer
 const BUCKET_MAP = {};
-['r_to_f', 'f_to_t', 'c_to_f', 't_to_c', 'f_to_c', 'r_to_d', 'l1_to_l2', 'l2_to_l3', 'l3_to_tc'].forEach(k => { BUCKET_MAP[k] = 'automatable'; });
+['r_to_f', 'f_to_t', 'c_to_f', 't_to_c', 'f_to_c', 'r_to_d', 'l1_to_l3', 'l3_to_tc'].forEach(k => { BUCKET_MAP[k] = 'automatable'; });
 ['d_to_c', 'c_to_r', 't_to_r', 'd_to_r'].forEach(k => { BUCKET_MAP[k] = 'manual'; });
 ['git_heatmap', 'git_history', 'formal_lint', 'hazard_model', 'per_model_gates', 'p_to_f'].forEach(k => { BUCKET_MAP[k] = 'informational'; });
 

@@ -9,7 +9,7 @@ const { LAYER_KEYS } = require('../bin/layer-constants.cjs');
 // Define the bucket assignments matching the CONV-02 design spec
 const AUTOMATABLE_LAYERS = [
   'r_to_f', 'f_to_t', 'c_to_f', 't_to_c', 'f_to_c',
-  'r_to_d', 'l1_to_l2', 'l2_to_l3', 'l3_to_tc',
+  'r_to_d', 'l1_to_l3', 'l3_to_tc',
 ];
 
 const MANUAL_LAYERS = [
@@ -22,8 +22,8 @@ const INFORMATIONAL_LAYERS = [
 ];
 
 describe('residual buckets design spec', () => {
-  it('automatable bucket has 9 layers', () => {
-    assert.equal(AUTOMATABLE_LAYERS.length, 9);
+  it('automatable bucket has 8 layers', () => {
+    assert.equal(AUTOMATABLE_LAYERS.length, 8);
   });
 
   it('manual bucket has 4 layers', () => {
@@ -34,7 +34,7 @@ describe('residual buckets design spec', () => {
     assert.equal(INFORMATIONAL_LAYERS.length, 6);
   });
 
-  it('all 19 layers are accounted for in the three buckets', () => {
+  it('all 18 layers are accounted for in the three buckets', () => {
     const allBucketLayers = [
       ...AUTOMATABLE_LAYERS,
       ...MANUAL_LAYERS,

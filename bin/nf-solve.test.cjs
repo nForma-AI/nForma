@@ -192,8 +192,7 @@ test('TC-FORMAT-5: formatReport renders all three sections in unified table', ()
         t_to_r: { residual: 1, detail: { orphan_tests: [], total_tests: 5 } },
         d_to_r: { residual: 0, detail: { unbacked_claims: [], total_claims: 3 } },
         reverse_discovery_total: 4,
-        l1_to_l2: { residual: 1, detail: {} },
-        l2_to_l3: { residual: 0, detail: {} },
+        l1_to_l3: { residual: 1, detail: {} },
         l3_to_tc: { residual: 2, detail: {} },
         layer_total: 3,
         timestamp: '2026-03-03T00:00:00Z',
@@ -207,8 +206,7 @@ test('TC-FORMAT-5: formatReport renders all three sections in unified table', ()
   // All three section types present in a single output
   assert.ok(result.includes('R -> F'), 'Forward row present');
   assert.ok(result.includes('C -> R'), 'Reverse row present');
-  assert.ok(result.includes('L1 -> L2'), 'Layer alignment row present');
-  assert.ok(result.includes('L2 -> L3'), 'Gate B row present');
+  assert.ok(result.includes('L1 -> L3'), 'Layer alignment row present');
   assert.ok(result.includes('L3 -> TC'), 'Gate C row present');
   // No separate "Reverse Traceability Discovery:" header (old format)
   assert.ok(!result.includes('Reverse Traceability Discovery:'), 'Old reverse header should not exist');
@@ -237,8 +235,7 @@ test('TC-FORMAT-6: formatReport includes subtotals for all three sections', () =
         t_to_r: { residual: 0, detail: {} },
         d_to_r: { residual: 0, detail: {} },
         reverse_discovery_total: 0,
-        l1_to_l2: { residual: 0, detail: {} },
-        l2_to_l3: { residual: 0, detail: {} },
+        l1_to_l3: { residual: 0, detail: {} },
         l3_to_tc: { residual: 0, detail: {} },
         layer_total: 0,
         timestamp: '2026-03-03T00:00:00Z',
@@ -831,14 +828,12 @@ test('TC-LAYER-5: layer sweeps do NOT inflate existing total field', () => {
   assert.equal(result.total, forwardTotal, 'total should only sum forward sweeps, not layer sweeps');
 });
 
-test('TC-LAYER-6: computeResidual includes l1_to_l2, l2_to_l3, l3_to_tc in output', () => {
+test('TC-LAYER-6: computeResidual includes l1_to_l3, l3_to_tc in output (L2 collapsed)', () => {
   const result = computeResidual();
-  assert.ok('l1_to_l2' in result, 'should have l1_to_l2');
-  assert.ok('l2_to_l3' in result, 'should have l2_to_l3');
+  assert.ok('l1_to_l3' in result, 'should have l1_to_l3');
   assert.ok('l3_to_tc' in result, 'should have l3_to_tc');
   assert.ok('layer_total' in result, 'should have layer_total');
-  assert.ok(typeof result.l1_to_l2.residual === 'number');
-  assert.ok(typeof result.l2_to_l3.residual === 'number');
+  assert.ok(typeof result.l1_to_l3.residual === 'number');
   assert.ok(typeof result.l3_to_tc.residual === 'number');
 });
 
