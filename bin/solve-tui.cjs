@@ -1335,6 +1335,17 @@ No explanation, no markdown, just the JSON object.`;
     classifications[catKey] = catClassifications;
   }
 
+  // Clean up old-format keys that are no longer valid (cache migration)
+  for (const catKey of ['dtoc', 'dtor']) {
+    const catCache = existingCache[catKey] || {};
+    for (const key of Object.keys(catCache)) {
+      // New keys are 16-char hex strings; old keys contain ':' or '/'
+      if (key.includes(':') || key.includes('/')) {
+        delete catCache[key];
+      }
+    }
+  }
+
   // Persist merged cache (keeps old items that may no longer appear in sweeps)
   try {
     const mergedCache = {};
