@@ -132,12 +132,18 @@ function appendTrendEntry(finalResidual, converged, iterations, options = {}) {
     // Total residual
     const totalResidual = typeof finalResidual.total === 'number' ? finalResidual.total : 0;
 
+    // CONV-02: Extract bucket breakdown from finalResidual
+    const bucketAutomatable = typeof finalResidual.automatable === 'number' ? finalResidual.automatable : -1;
+    const bucketManual = typeof finalResidual.manual === 'number' ? finalResidual.manual : -1;
+    const bucketInformational = typeof finalResidual.informational === 'number' ? finalResidual.informational : -1;
+
     // Build entry
     const entry = {
       timestamp: new Date().toISOString(),
       iteration_count: iterations,
       converged: converged,
       total_residual: totalResidual,
+      buckets: { automatable: bucketAutomatable, manual: bucketManual, informational: bucketInformational },
       per_layer: perLayer,
       gate_summary: gateSummary,
       requirement_count: requirementCount,

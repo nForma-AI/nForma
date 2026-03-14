@@ -34,6 +34,12 @@ const LAYER_LABELS = {
   formal_lint: 'FLint', hazard_model: 'Hazard',
 };
 
+// CONV-02: Bucket classification per layer
+const BUCKET_MAP = {};
+['r_to_f', 'f_to_t', 'c_to_f', 't_to_c', 'f_to_c', 'r_to_d', 'l1_to_l2', 'l2_to_l3', 'l3_to_tc'].forEach(k => { BUCKET_MAP[k] = 'automatable'; });
+['d_to_c', 'c_to_r', 't_to_r', 'd_to_r'].forEach(k => { BUCKET_MAP[k] = 'manual'; });
+['git_heatmap', 'git_history', 'formal_lint', 'hazard_model', 'per_model_gates', 'p_to_f'].forEach(k => { BUCKET_MAP[k] = 'informational'; });
+
 // ── Sparkline Generation ─────────────────────────────────────────────────────
 
 /**
@@ -202,6 +208,18 @@ function formatConvergenceSection(options = {}) {
 
   lines.push('');
 
+  // Section 1b: Residual Buckets (CONV-02)
+  lines.push('─ Residual Buckets ─────────────────────────────────────');
+  if (latestEntry.buckets && typeof latestEntry.buckets === 'object') {
+    const b = latestEntry.buckets;
+    const fmtVal = (v) => typeof v === 'number' && v >= 0 ? String(v) : '?';
+    lines.push('Automatable: ' + fmtVal(b.automatable) + '  |  Manual: ' + fmtVal(b.manual) + '  |  Informational: ' + fmtVal(b.informational));
+  } else {
+    lines.push('Residual buckets: not yet tracked (data from pre-CONV-02 sessions)');
+  }
+
+  lines.push('');
+
   // Section 2: Oscillation Status
   lines.push('─ Oscillation Status ───────────────────────────────────');
 
@@ -243,7 +261,8 @@ function formatConvergenceSection(options = {}) {
   } else {
     for (let i = 0; i < actionItems.length; i++) {
       const item = actionItems[i];
-      lines.push((i + 1) + '. [' + item.label + '] ' + item.action);
+      const bucket = BUCKET_MAP[item.layer] || 'unknown';
+      lines.push((i + 1) + '. [' + item.label + '] ' + item.action + ' [' + bucket + ']');
     }
   }
 
@@ -309,11 +328,14 @@ if (require.main === module) {
       }
     }
 
+    const latestBuckets = entries.length > 0 ? (entries[entries.length - 1].buckets || null) : null;
+
     process.stdout.write(JSON.stringify({
       entry_count: entries.length,
       sparklines,
       verdicts,
       action_items: actionItems,
+      buckets: latestBuckets,
     }, null, 2) + '\n');
   } else {
     process.stdout.write(formatConvergenceSection({ root, maxItems }));
