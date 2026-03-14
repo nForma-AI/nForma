@@ -60,9 +60,15 @@ At the end of execution, emit a compact JSON result:
     "skipped": [ /* layers with 0 residual */ ],
     "failed": [ /* dispatches that errored */ ],
     "capped_layers": [
-      {"layer": "l1_to_l2", "dispatched": 3, "max": 3},
-      {"layer": "l2_to_l3", "dispatched": 2, "max": 3}
-    ]
+      {"layer": "l1_to_l3", "dispatched": 3, "max": 3},
+      {"layer": "l3_to_tc", "dispatched": 2, "max": 3}
+    ],
+    "wave_timing": [
+      { "wave": 1, "layers": ["r_to_f", "r_to_d", "t_to_c"], "start_ms": 0, "duration_ms": 12000 },
+      { "wave": 2, "layers": ["f_to_t", "c_to_f"], "start_ms": 12000, "duration_ms": 8000 }
+    ],
+    "total_wall_ms": 45000,
+    "sequential_estimate_ms": 120000
   }
 }
 ```
@@ -78,9 +84,9 @@ Each layer is dispatched as its own **Agent call** to prevent context accumulati
 
 Track dispatched, skipped, and failed lists for the output report.
 
-## Step 3: Remediation Dispatch (Ordered by Dependency)
+## Step 3: Wave-Parallel Remediation Dispatch
 
-**Important:** Dispatch remediation in this strict order because R->F coverage is a prerequisite for F->T test stubs. New formal specs create new invariants needing test backing.
+**Important:** Dispatch remediation in dependency-ordered waves because R->F coverage is a prerequisite for F->T test stubs. New formal specs create new invariants needing test backing. Remediation order is enforced by the dependency DAG in `bin/solve-wave-dag.cjs`. Within each wave, layers run in parallel. Cross-wave dependencies are respected.
 
 **Pre-dispatch:** Transition matched debt entries to 'resolving':
 
@@ -94,7 +100,16 @@ transitionDebtEntries('.planning/formal/debt.json', resolvingFPs, 'acknowledged'
 
 Log: `"Debt: {resolvingFPs.length} entries transitioned to 'resolving'"`
 
-**Per-layer Agent dispatch:** For each layer in the strict order below, if residual > 0, dispatch:
+**Wave computation:** Load the dependency DAG and compute wave groupings:
+
+```javascript
+const { computeWaves } = require(_nfBin('solve-wave-dag.cjs'));
+const waves = computeWaves(residualVector);
+```
+
+This produces an array of wave objects: `[{ wave: 1, layers: ['r_to_f', 'r_to_d', 't_to_c'] }, ...]`. Layers within a wave have no cross-dependencies and can execute in parallel. Waves with `sequential: true` (the gate chain) execute their layers one at a time within the wave.
+
+**Per-layer Agent dispatch template:** For each layer in a wave, if residual > 0, dispatch:
 
 ```
 Agent(
@@ -109,31 +124,43 @@ After completing the section, return ONLY this JSON:
 )
 ```
 
-Parse the compact JSON result. Append to dispatched/skipped/failed lists. Continue to next layer.
+Parse the compact JSON result. Append to dispatched/skipped/failed lists.
 
-**Dispatch order** (skip layers with residual == 0):
+**Wave-parallel dispatch loop:**
 
-| Order | Layer Key | Section | Agent? |
-|-------|-----------|---------|--------|
-| 1 | r_to_f | 3a. R->F Gaps | Yes — dispatches /nf:close-formal-gaps |
-| 2 | f_to_t | 3b. F->T Gaps | Yes — spawns nf-executor agents |
-| 3 | t_to_c | 3c. T->C Gaps | Yes — dispatches /nf:fix-tests |
-| 4 | c_to_f | 3d. C->F Gaps | Yes — dispatches /nf:quick |
-| 5 | f_to_c | 3e. F->C Gaps | Yes — runs verification + dispatches fixes |
-| 6 | r_to_d | 3f. R->D Gaps | Yes — spawns nf-executor agent |
-| 7 | d_to_c | 3g. D->C Gaps | **No** — display-only, keep inline |
-| 8 | git_heatmap | 3h. Git Heatmap | Yes — dispatches /nf:close-formal-gaps |
-| 9 | c_to_r + t_to_r + d_to_r | 3i. Reverse Discovery | Yes — interactive human approval |
-| 10 | (pre-gate) | 3j. Hazard Model Refresh | **No** — single bash command, keep inline |
-| 11 | l1_to_l2 | 3k. Gate A | Yes — dispatches /nf:quick |
-| 12 | l2_to_l3 | 3l. Gate B | Yes — dispatches /nf:quick |
-| 13 | l3_to_tc | 3m. Gate C | Yes — dispatches /nf:quick |
+For each wave from `computeWaves(residualVector)`:
 
-For **inline layers** (3g, 3j): execute the section directly without Agent dispatch (they produce minimal output).
+1. Display wave banner: `"Wave {N}/{total}: dispatching {layers} in parallel"`
+2. Record wave start time: `const waveStart = Date.now()`
+3. For **inline layers** (d_to_c, hazard_model): execute the section directly at the start of the wave before dispatching parallel agents (they produce minimal output)
+4. For **sequential waves** (`wave.sequential === true`): dispatch layers one at a time within the wave (the gate chain: hazard_model -> l1_to_l3 -> l3_to_tc -> per_model_gates)
+5. For **parallel waves**: dispatch all Agent layers in the wave simultaneously (up to 3 concurrent per RAM budget)
+6. Wait for ALL agents in the wave to complete
+7. Record wave end time: `const waveDuration = Date.now() - waveStart`
+8. Log: `"Wave {N} complete: {waveDuration}ms"`
+9. Track layer-level timing for each dispatched agent
+10. Move to next wave
 
-For **Agent layers**: dispatch using the template above. Each sub-agent reads this file, finds its section, and executes only that section. The sub-agent has access to all tools (Read, Write, Edit, Bash, Glob, Grep, Agent, Skill).
+**RAM constraint:** Waves respect the 3-agent limit. Waves with >3 layers are automatically split into sub-waves of 3 by `computeWaves()`. Never exceed 3 concurrent Agent calls at any point.
 
-**RAM constraint:** Never exceed 3 concurrent Agent calls. Layers are dispatched **sequentially** (one at a time), except F->T batch executors which use waves of 3 internally per section 3b.
+**Layer reference table** (layers are dispatched by wave grouping, not this table order):
+
+| Layer Key | Section | Agent? |
+|-----------|---------|--------|
+| r_to_f | 3a. R->F Gaps | Yes — dispatches /nf:close-formal-gaps |
+| r_to_d | 3f. R->D Gaps | Yes — spawns nf-executor agent |
+| t_to_c | 3c. T->C Gaps | Yes — dispatches /nf:fix-tests |
+| p_to_f | 3h-extra. P->F Gaps | Yes — dispatches /nf:close-formal-gaps |
+| f_to_t | 3b. F->T Gaps | Yes — spawns nf-executor agents |
+| c_to_f | 3d. C->F Gaps | Yes — dispatches /nf:quick |
+| f_to_c | 3e. F->C Gaps | Yes — runs verification + dispatches fixes |
+| d_to_c | 3g. D->C Gaps | **No** — display-only, keep inline |
+| git_heatmap | 3h. Git Heatmap | Yes — dispatches /nf:close-formal-gaps |
+| c_to_r + t_to_r + d_to_r | 3i. Reverse Discovery | Yes — interactive human approval |
+| hazard_model | 3j. Hazard Model Refresh | **No** — single bash command, keep inline |
+| l1_to_l3 | 3k. Gate A (collapsed L1->L3) | Yes — dispatches /nf:quick |
+| l3_to_tc | 3m. Gate C | Yes — dispatches /nf:quick |
+| per_model_gates | 3m-extra. Per-Model Gates | Yes — dispatches /nf:quick |
 
 ---
 
@@ -611,7 +638,7 @@ Before emitting the output JSON, collate all `capped_layers` entries accumulated
 
 ## Important Constraints
 
-4. **Ordering** — remediation order is strict because R->F must precede F->T (new formal specs create new invariants needing test backing). T->C fixes must happen before F->C verification (tests must pass before checking formal properties against code).
+4. **Ordering** — Remediation order is enforced by the dependency DAG in `bin/solve-wave-dag.cjs`. Within each wave, layers run in parallel. Cross-wave dependencies are respected. R->F must precede F->T (new formal specs create new invariants needing test backing). T->C fixes must happen before F->C verification (tests must pass before checking formal properties against code).
 
 5. **State machine bias** — when implementing or fixing logic that manages distinct states and conditional transitions (3+ states), prefer a state machine library from the supported registry (28 frameworks across 13 languages). State machines defined this way are automatically transpiled to TLA+ by `bin/fsm-to-tla.cjs`, closing the formal verification loop. Match complexity to the problem: flat FSMs get lightweight libraries (e.g., `javascript-state-machine`, `transitions`, `looplab/fsm`), while complex workflows get statechart libraries (e.g., XState, `sismic`, Spring Statemachine). See `.claude/rules/state-machine-bias.md` for the full framework selection table.
 
