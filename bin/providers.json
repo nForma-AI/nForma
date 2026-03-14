@@ -40,6 +40,13 @@
       "latency_budget_ms": null,
       "env": {},
       "display_type": "codex-cli",
+      "auth_check": {
+        "args": ["login", "status"],
+        "success_pattern": "Logged in",
+        "login_args": ["login"],
+        "login_hint": "Opens browser for OpenAI authentication",
+        "timeout_ms": 5000
+      },
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
@@ -120,6 +127,13 @@
       "latency_budget_ms": null,
       "env": {},
       "display_type": "gemini-cli",
+      "auth_check": {
+        "args": ["auth", "print-access-token"],
+        "success_pattern": "Loaded cached credentials|ya29\\.",
+        "login_args": ["auth", "login"],
+        "login_hint": "Opens browser for Google authentication",
+        "timeout_ms": 5000
+      },
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
@@ -197,6 +211,13 @@
       "latency_budget_ms": null,
       "env": {},
       "display_type": "opencode-cli",
+      "auth_check": {
+        "args": ["auth", "list"],
+        "success_pattern": "api|oauth",
+        "login_args": ["auth", "login"],
+        "login_hint": "Configure provider credentials for OpenCode",
+        "timeout_ms": 5000
+      },
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
@@ -256,6 +277,13 @@
       "latency_budget_ms": null,
       "env": {},
       "display_type": "copilot-cli",
+      "auth_check": {
+        "args": ["--version"],
+        "success_pattern": "\\d+\\.\\d+",
+        "login_args": null,
+        "login_hint": "Copilot authenticates via GitHub CLI (gh auth login). No separate login command.",
+        "timeout_ms": 5000
+      },
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
@@ -291,6 +319,13 @@
       "latency_budget_ms": null,
       "env": {},
       "display_type": "claude-code-router",
+      "auth_check": {
+        "args": ["status"],
+        "success_pattern": "running|Running|Status: Running",
+        "login_args": ["start"],
+        "login_hint": "Start the Claude Code Router service",
+        "timeout_ms": 5000
+      },
       "service": {
         "start": ["ccr", "start"],
         "stop": ["ccr", "stop"],
