@@ -152,6 +152,25 @@ Display all tables and reports as described in the process section."
 )
 ```
 
+## Phase 5: Auto-Commit Artifacts
+
+After reporting completes, stage and commit all solve artifacts so they don't accumulate as unstaged changes.
+
+```bash
+# Stage all solve-touched paths (modified + untracked)
+git add .planning/formal/ .planning/upstream-state.json docs/dev/requirements-coverage.md 2>/dev/null
+
+# Check if there's anything to commit
+if ! git diff --cached --quiet 2>/dev/null; then
+  git commit -m "chore(solve): update formal verification artifacts
+
+Automated commit from /nf:solve — includes layer manifests, gate results,
+evidence snapshots, model registry, and requirements coverage updates."
+fi
+```
+
+This commit is non-blocking — if staging or committing fails (e.g., no changes, hook rejection), log and continue. The solve report has already been displayed.
+
 ## Important Constraints
 
 1. **bin/nf-solve.cjs is NOT modified** -- it remains the diagnostic engine. This skill orchestrates remediation at the skill/script level.
