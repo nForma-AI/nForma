@@ -6725,7 +6725,7 @@ async function cmdMaintainTestsDdmin(cwd, options, raw) {
       : path.join(cwd, candidatesFile);
     const raw2 = fs.readFileSync(resolvedCandidates, 'utf-8');
     const parsed = JSON.parse(raw2);
-    candidates = Array.isArray(parsed.test_files) ? parsed.test_files : [];
+    candidates = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.test_files) ? parsed.test_files : []);
   } catch (e) {
     error(`maintain-tests ddmin: failed to read --candidates-file "${candidatesFile}" — ${e.message}`);
   }
