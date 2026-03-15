@@ -10,27 +10,18 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.36 — Solve Loop Convergence & Correctness
+## Shipped: v0.36 — Solve Loop Convergence & Correctness (2026-03-15)
 
-**Goal:** Fix active bugs in the solve loop diagnostic engine, add convergence correctness guarantees (cycle detection, split residual metrics), parallelize remediation dispatch, resolve structural blockers (L2 layer, shared constants), and build comprehensive test coverage for convergence, cascade effects, and classification accuracy.
+**Goal:** Fix active bugs in the solve loop diagnostic engine, add convergence correctness guarantees, parallelize remediation dispatch, resolve structural blockers, and build comprehensive test coverage.
 
-**Target features:**
-- Fix `--focus` filter leak (only 2/19 layers respect focus)
-- Fix missing-file false pass (F→C, R→F report 0 instead of -1)
-- Fix D→C classification cache using line-number keys (switch to content-hash)
-- Internal cycle detection in convergence loop (per-layer history tracking)
-- Split residual into automatable / manual / informational buckets
-- Report silent gate dispatch caps in output JSON
-- Before/after baseline drift detection at report time
-- Wave-parallel remediation dispatch (6 waves instead of 13 sequential)
-- Aggregate cache invalidation after per_model_gates writes
-- L2 layer structural decision (populate or collapse to 2-layer)
-- Shared LAYER_KEYS constant module
-- Gate schema field resolution utility
-- Configurable Haiku model version
-- End-to-end convergence integration tests
-- Cascade effect unit tests
-- Classification accuracy golden set
+**Shipped:** 17/17 requirements satisfied across 5 phases, 9 plans. Audit: PASSED.
+
+**Key features shipped:**
+- Shared infrastructure: `layer-constants.cjs` (18-key LAYER_KEYS), `gate-score-utils.cjs` (v1/v2 resolution), configurable Haiku model, aggregate cache invalidation
+- Diagnostic correctness: `--focus` filter propagated to all 18 layers, missing-file residual changed from 0 to -1, SHA-256 content-hash classification cache keys
+- Convergence intelligence: `solve-cycle-detector.cjs` (A-B-A-B oscillation detection with layer exclusion), 3-bucket residual reporting (automatable/manual/informational), gate cap reporting in output JSON, `baseline-drift.cjs` for session drift detection
+- Architecture: L2 layer collapsed to 2-layer model (Gate B: 0→0.97), `solve-wave-dag.cjs` (6-wave parallel dispatch replacing 13 sequential steps)
+- Test harness: 32 new tests (E2E convergence, cascade effects, focus completeness, 100-item classification golden set)
 
 ## Shipped: v0.35 — Install & Setup Bug Fixes (2026-03-13)
 

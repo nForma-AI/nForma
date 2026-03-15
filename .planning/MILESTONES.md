@@ -593,3 +593,13 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.36 Solve Loop Convergence & Correctness (Shipped: 2026-03-15)
+
+**Phases completed:** 33 phases, 57 plans, 15 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
