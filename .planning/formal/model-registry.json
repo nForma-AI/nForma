@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-15T08:50:07.594Z",
+  "last_sync": "2026-03-15T09:16:40.408Z",
   "models": {
     ".planning/formal/alloy/account-pool-structure.als": {
       "version": 1,
@@ -1257,15 +1257,12 @@
       ]
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 470,
-      "last_updated": "2026-03-15T08:55:56.624Z",
+      "version": 513,
+      "last_updated": "2026-03-15T09:16:40.407Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 2,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "description": ""
     },
     ".planning/formal/alloy/readme-structure.als": {
       "version": 1,
@@ -2101,25 +2098,33 @@
     },
     ".planning/formal/petri/account-manager-petri-net.dot": {
       "version": 1,
-      "last_updated": "2026-03-14T23:19:55.620Z",
+      "last_updated": "2026-03-15T09:16:26.453Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "source_layer": "L1",
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "requirements": [
+        "CRED-01",
+        "CRED-02"
+      ]
     },
     ".planning/formal/petri/quorum-petri-net.dot": {
       "version": 1,
-      "last_updated": "2026-03-14T23:19:55.620Z",
+      "last_updated": "2026-03-15T09:16:26.453Z",
       "update_source": "manual",
       "source_id": null,
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "source_layer": "L1",
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "requirements": [
+        "QUORUM-01",
+        "QUORUM-02"
+      ]
     },
     ".planning/formal/prism/deliberation-healing.pm": {
       "version": 1,
@@ -2183,20 +2188,12 @@
       ]
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 470,
-      "last_updated": "2026-03-15T09:02:15.908Z",
+      "version": 513,
+      "last_updated": "2026-03-15T09:16:40.408Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3",
-      "requirements": [
-        "QUORUM-01",
-        "QUORUM-02",
-        "QUORUM-03"
-      ]
+      "description": ""
     },
     ".planning/formal/tla/NFAccountManager.tla": {
       "version": 1,
@@ -2440,36 +2437,20 @@
       ]
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 470,
-      "last_updated": "2026-03-15T09:02:15.910Z",
+      "version": 513,
+      "last_updated": "2026-03-15T09:16:40.402Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3",
-      "requirements": [
-        "QUORUM-01",
-        "QUORUM-02",
-        "QUORUM-03"
-      ]
+      "description": ""
     },
     ".planning/formal/tla/NFQuorum_xstate.tla": {
-      "version": 341,
-      "last_updated": "2026-03-15T09:02:15.910Z",
+      "version": 367,
+      "last_updated": "2026-03-15T09:16:39.952Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3",
-      "requirements": [
-        "QUORUM-01",
-        "QUORUM-02",
-        "QUORUM-03"
-      ]
+      "description": ""
     },
     ".planning/formal/tla/NFReasoning.tla": {
       "version": 1,
