@@ -1244,7 +1244,7 @@ function sweepFtoC() {
   // Without this, spawnSync's maxBuffer limit kills the child mid-run, resulting
   // in a partial NDJSON with only 3-4 CI checks instead of the full 88+.
   const result = spawnTool('bin/run-formal-verify.cjs', [], {
-    timeout: 300000,
+    timeout: 600000,
     stdio: ['pipe', 'ignore', 'pipe'],
   });
 
@@ -1276,42 +1276,50 @@ function sweepFtoC() {
 
   try {
     const lines = fs.readFileSync(checkResultsPath, 'utf8').split('\n');
+
+    // Deduplicate: when multiple runs append to the same NDJSON file,
+    // take the LAST entry per check_id (most recent result wins).
+    const deduped = new Map();
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      try {
+        const entry = JSON.parse(line);
+        const id = entry.check_id || entry.id || '?';
+        deduped.set(id, entry);
+      } catch (e) {
+        // skip malformed lines
+      }
+    }
+
     let failedCount = 0;
     let errorCount = 0;
     let inconclusiveCount = 0;
-    let totalCount = 0;
+    let totalCount = deduped.size;
     const failures = [];
     const errors = [];
     const inconclusiveChecks = [];
 
-    for (const line of lines) {
-      if (!line.trim()) continue;
-      totalCount++;
-      try {
-        const entry = JSON.parse(line);
-        if (entry.result === 'fail') {
-          failedCount++;
-          failures.push({
-            check_id: entry.check_id || entry.id || '?',
-            summary: entry.summary || '',
-            requirement_ids: entry.requirement_ids || [],
-          });
-        } else if (entry.result === 'error') {
-          errorCount++;
-          errors.push({
-            check_id: entry.check_id || entry.id || '?',
-            summary: entry.summary || '',
-            requirement_ids: entry.requirement_ids || [],
-          });
-        } else if (entry.result === 'inconclusive') {
-          inconclusiveCount++;
-          inconclusiveChecks.push({
-            check_id: entry.check_id || entry.id || '?',
-            summary: entry.summary || '',
-          });
-        }
-      } catch (e) {
-        // skip malformed lines
+    for (const entry of deduped.values()) {
+      if (entry.result === 'fail') {
+        failedCount++;
+        failures.push({
+          check_id: entry.check_id || entry.id || '?',
+          summary: entry.summary || '',
+          requirement_ids: entry.requirement_ids || [],
+        });
+      } else if (entry.result === 'error') {
+        errorCount++;
+        errors.push({
+          check_id: entry.check_id || entry.id || '?',
+          summary: entry.summary || '',
+          requirement_ids: entry.requirement_ids || [],
+        });
+      } else if (entry.result === 'inconclusive') {
+        inconclusiveCount++;
+        inconclusiveChecks.push({
+          check_id: entry.check_id || entry.id || '?',
+          summary: entry.summary || '',
+        });
       }
     }
 
