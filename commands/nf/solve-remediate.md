@@ -1,6 +1,6 @@
 ---
 name: nf:solve-remediate
-description: Remediation phase sub-skill for nf:solve — dispatches all 13 layer remediation steps (3a-3m) in strict dependency order with Agent-per-layer isolation
+description: Remediation phase sub-skill for nf:solve — dispatches all 14 layer remediation steps (3a-3n) in strict dependency order with Agent-per-layer isolation
 allowed-tools:
   - Read
   - Write
@@ -13,7 +13,7 @@ allowed-tools:
 ---
 
 <objective>
-Run the remediation phase of the nForma consistency solver. This sub-skill handles Steps 3a-3m: all 13 layer remediation dispatches in strict dependency order. Each gap type with residual > 0 is dispatched as its own Agent call to prevent context accumulation across remediation steps.
+Run the remediation phase of the nForma consistency solver. This sub-skill handles Steps 3a-3n: all 14 layer remediation dispatches in strict dependency order. Each gap type with residual > 0 is dispatched as its own Agent call to prevent context accumulation across remediation steps.
 
 This is an internal-only sub-skill dispatched by the nf:solve orchestrator via Agent tool prompts. It is NOT user-invocable.
 </objective>
@@ -161,6 +161,7 @@ For each wave from `computeWaves(residualVector)`:
 | l1_to_l3 | 3k. Gate A (collapsed L1->L3) | Yes — dispatches /nf:quick |
 | l3_to_tc | 3m. Gate C | Yes — dispatches /nf:quick |
 | per_model_gates | 3m-extra. Per-Model Gates | Yes — dispatches /nf:quick |
+| h_to_m | 3n. H->M Gaps | Yes -- dispatches /nf:quick |
 
 ---
 
@@ -625,9 +626,31 @@ All `/nf:quick` dispatches use default mode (no `--full` flag). Each dispatch in
 
 Log: `"Gate C: gate_c_score={score}, {unvalidated_count}/{total_failure_modes} failure modes lack test recipes"`
 
+### 3n. H->M Gaps (residual_vector.h_to_m.residual > 0)
+
+Hypothesis violations -- formal model assumptions that diverge from observed reality. Each violated assumption represents a model constant that needs updating.
+
+Extract detail from `residual_vector.h_to_m.detail`:
+- `violated` -- count of VIOLATED assumptions
+- `measurements_path` -- path to full measurement data
+
+Read `.planning/formal/evidence/hypothesis-measurements.json` and filter to entries with `verdict: "VIOLATED"`.
+
+For each violated measurement:
+1. If `actual_source` is "scoreboard" and assumption relates to TP/UNAVAIL rates: dispatch `/nf:quick` to update the PRISM model constants (same flow as C->F constant alignment)
+2. If `actual_source` is "conformance-events" and assumption relates to max rounds/iterations: dispatch `/nf:quick` to update the TLA+ CONSTANT definition
+3. If `actual_source` is "telemetry" and assumption relates to timeouts/latencies: dispatch `/nf:quick` to update the relevant formal spec bound
+4. Otherwise: log as informational -- `"H->M: {assumption_name} violated but no auto-fix strategy -- manual review required"`
+
+**Max dispatches: 3 per solve cycle.** Track a counter for H->M dispatches. If the counter reaches 3, log `"H->M: max remediation dispatches (3) reached this cycle"`, append `{ "layer": "h_to_m", "dispatched": 3, "max": 3 }` to the `capped_layers` array, and skip further auto-fixes.
+
+All `/nf:quick` dispatches use default mode (no `--full` flag).
+
+Log: `"H->M: {violated} violated assumptions, {dispatched} auto-fix dispatches, {skipped} manual-only"`
+
 ## Collation: capped_layers
 
-Before emitting the output JSON, collate all `capped_layers` entries accumulated during Gate A (3k), Gate B (3l), and Gate C (3m) into the `remediation_report.capped_layers` array. If no gate hit its cap, emit an empty array. Initialize `capped_layers = []` at the start of remediation dispatch, and each gate section appends to it when the max-3 cap is reached.
+Before emitting the output JSON, collate all `capped_layers` entries accumulated during Gate A (3k), Gate B (3l), Gate C (3m), and H->M (3n) into the `remediation_report.capped_layers` array. If no gate hit its cap, emit an empty array. Initialize `capped_layers = []` at the start of remediation dispatch, and each gate section appends to it when the max-3 cap is reached.
 
 ## Wave Timing and Performance Comparison
 
@@ -671,6 +694,6 @@ Each wave records: the wave number, layer keys dispatched, start offset from rem
    - **quick** for constant mismatches (C->F), syntax/scope errors, conformance divergences (F->C)
    - **direct executor dispatch** for R->D documentation generation
 
-9. **Layer alignment remediation** — Gate A/B/C failures are remediated via `/nf:quick` dispatch (default mode, no `--full` flag) after the hazard model is refreshed (Step 3j). The full dependency chain is: hazard-model refresh (3j) -> Gate A (3k, L1->L3) -> Gate B (3l, purpose) -> test-recipe-gen (in 3m) -> Gate C (3m, L3->TC). This ordering ensures: (a) L3 artifacts are fresh before gates evaluate them, (b) Gate A (L1->L3) fixes propagate before Gate B (purpose) checks requirement backing, (c) test recipes are regenerated before Gate C (L3->TC) evaluates coverage. Each gate is capped at 3 remediation dispatches per solve cycle to prevent runaway loops if residuals never converge.
+9. **Layer alignment remediation** — Gate A/B/C failures and H->M violations are remediated via `/nf:quick` dispatch (default mode, no `--full` flag) after the hazard model is refreshed (Step 3j). The full dependency chain is: hazard-model refresh (3j) -> Gate A (3k, L1->L3) -> Gate B (3l, purpose) -> test-recipe-gen (in 3m) -> Gate C (3m, L3->TC). H->M (3n) runs independently (no dependencies). This ordering ensures: (a) L3 artifacts are fresh before gates evaluate them, (b) Gate A (L1->L3) fixes propagate before Gate B (purpose) checks requirement backing, (c) test recipes are regenerated before Gate C (L3->TC) evaluates coverage. Each gate and H->M remediation is capped at 3 dispatches per solve cycle to prevent runaway loops if residuals never converge.
 
 </process>

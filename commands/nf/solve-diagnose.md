@@ -9,7 +9,7 @@ allowed-tools:
 ---
 
 <objective>
-Run the diagnostic phase of the nForma consistency solver. This sub-skill handles Steps 0-1: legacy migration, config audit, observe target loading, inline observe refresh, debt load, initial diagnostic sweep, git churn heatmap analysis, and issue classification. Returns a compact JSON result for the orchestrator to use in remediation and convergence decisions.
+Run the diagnostic phase of the nForma consistency solver. This sub-skill handles Steps 0-1: legacy migration, config audit, observe target loading, inline observe refresh, debt load, hypothesis measurement, initial diagnostic sweep, git churn heatmap analysis, and issue classification. Returns a compact JSON result for the orchestrator to use in remediation and convergence decisions.
 
 This is an internal-only sub-skill dispatched by the nf:solve orchestrator via Agent tool prompts. It is NOT user-invocable.
 </objective>
@@ -47,7 +47,8 @@ At the end of execution, emit a compact JSON result to stdout:
   "open_debt": [ /* array from readOpenDebt */ ],
   "heatmap": { "top_files": [ /* top 20 from summary output */ ], "full_path": ".planning/formal/evidence/git-heatmap.json" },
   "issues": { /* from issue-classifier.cjs */ },
-  "targets": null | { /* from observe-solve-pipe.cjs */ }
+  "targets": null | { /* from observe-solve-pipe.cjs */ },
+  "hypothesis_measurements": null | { /* from hypothesis-measure.cjs — tier-1 assumption verdicts */ }
 }
 ```
 
@@ -151,6 +152,27 @@ Store `openDebt` in solve context for use in remediation and convergence checks.
 If `--targets=<path>` was provided in Step 0c AND targets loaded successfully, filter `openDebt` to only entries whose fingerprint matches a target's fingerprint. This scopes debt-driven remediation to the user's selection.
 
 **Important:** This step is fail-open. If observe config is missing, handlers fail, or debt read fails, log the issue and proceed to Step 1 with an empty openDebt array.
+
+### Step 0e: Hypothesis Measurement Collection
+
+Measure formal model assumptions against actual observed data to detect violated hypotheses.
+
+Run the hypothesis measurement collector:
+
+```bash
+node ~/.claude/nf-bin/hypothesis-measure.cjs --json --project-root=$(pwd) 2>/dev/null
+```
+
+If `~/.claude/nf-bin/hypothesis-measure.cjs` does not exist, fall back to `bin/hypothesis-measure.cjs` (CWD-relative).
+If neither exists, skip this step silently.
+
+Parse the JSON output:
+- If `verdicts.VIOLATED > 0`: log `"Step 0e: {VIOLATED} hypothesis violation(s) detected out of {total_measured} tier-1 assumptions -- flagged for remediation"`
+- If `verdicts.VIOLATED === 0`: log `"Step 0e: All {total_measured} tier-1 assumptions confirmed or unmeasurable"`
+
+Store the measurement result in solve context. The h_to_m residual layer in nf-solve.cjs will pick up `hypothesis-measurements.json` during the diagnostic sweep.
+
+**Important:** This step is fail-open. If the measurement script errors or is not found, log the issue and proceed to Step 1. Hypothesis measurement failure must never block the diagnostic sweep.
 
 ## Step 1: Initial Diagnostic Sweep
 
