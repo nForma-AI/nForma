@@ -106,7 +106,7 @@ None.
 | 300 | Fix nf-solve.cjs NDJSON dedup bug and increase verification pipeline timeout | 2026-03-15 | 54438a42 | Verified | [300-fix-nf-solve-cjs-ndjson-dedup-bug-and-in](./quick/300-fix-nf-solve-cjs-ndjson-dedup-bug-and-in/) |
 | 301 | Isolate TLC metadir per-config to fix 31 in-pipeline F→C failures | 2026-03-15 | fc0141ff | Verified | [301-isolate-tlc-metadir-per-config-to-fix-31](./quick/301-isolate-tlc-metadir-per-config-to-fix-31/) |
 | 302 | Create canonical quorum dispatch snippet and wire into all 8 workflows | 2026-03-15 | a1f7ccda | Verified | [302-create-canonical-quorum-dispatch-snippet](./quick/302-create-canonical-quorum-dispatch-snippet/) |
-| 303 | Add hypothesis measurement collection step to solve-diagnose (Step 0e) | 2026-03-15 | ed9a347f | Pending | [303-add-hypothesis-measurement-collection-st](./quick/303-add-hypothesis-measurement-collection-st/) |
+| 303 | Add hypothesis measurement collection step to solve-diagnose (Step 0e) | 2026-03-15 | ed9a347f | Verified | [303-add-hypothesis-measurement-collection-st](./quick/303-add-hypothesis-measurement-collection-st/) |
 
 ## Session Continuity
 
