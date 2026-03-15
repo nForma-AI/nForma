@@ -336,6 +336,27 @@
       "value": "test/e2e-semantic-promotion-pipeline.test.cjs",
       "reason": "Acknowledged via TUI",
       "acknowledged_at": "2026-03-12T15:51:44.845Z"
+    },
+    {
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": ".claude/nf.json",
+      "type": "file_path",
+      "reason": "Per-project override file — only exists when user creates one, not in repo",
+      "acknowledged_at": "2026-03-14T21:50:00.000Z"
+    },
+    {
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": "bin/gsd-tools.cjs",
+      "type": "file_path",
+      "reason": "REN-03 requirement describes removing this file — reference is to the removed subject, not a claim it exists",
+      "acknowledged_at": "2026-03-14T21:50:00.000Z"
+    },
+    {
+      "doc_file": "docs/dev/requirements-coverage.md",
+      "value": ".planning/current-activity.json",
+      "type": "file_path",
+      "reason": "Ephemeral file created by activity-set, removed by activity-clear. Absence is correct when no activity in progress.",
+      "acknowledged_at": "2026-03-15T13:21:28.405Z"
     }
   ],
   "patterns": [
@@ -349,6 +370,24 @@
       "type": "dependency",
       "regex": "^(date|mode|time|name|type|state|status|level|path|port)$",
       "reason": "Common English words matching npm package name regex",
+      "enabled": true
+    },
+    {
+      "type": "dependency",
+      "regex": "^(valid-skip|real-bug|adapt|isolate|fixture)$",
+      "reason": "Failure classification enum labels in /nf:fix-tests docs",
+      "enabled": true
+    },
+    {
+      "type": "dependency",
+      "regex": "^(activity-clear|circuit-breaker|get-shit-done-quorum)$",
+      "reason": "Project feature names / CLI subcommands / historical package names in requirement specs",
+      "enabled": true
+    },
+    {
+      "type": "dependency",
+      "regex": "^sentry-(cli|feedback)$",
+      "reason": "Sentry source type names in triage docs, not npm dependencies",
       "enabled": true
     }
   ]
