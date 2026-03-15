@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-15T13:19:51.287Z",
-  "content_hash": "57a0b10fdff7dedc",
+  "aggregated_at": "2026-03-15T21:39:15.480Z",
+  "content_hash": "da0a3863ab15a23b",
   "schema_version": "1",
   "requirements": [
     {
@@ -1489,6 +1489,18 @@
       "provenance": {
         "source_file": ".planning/milestones/v0.32-REQUIREMENTS.md",
         "milestone": "unknown"
+      }
+    },
+    {
+      "id": "H2M-01",
+      "text": "The solve engine SHALL include an H->M (Hypothesis-to-Measurement) residual layer that measures formal model tier-1 assumptions against observed trace, scoreboard, and telemetry data, recording CONFIRMED, VIOLATED, and UNMEASURABLE verdicts to hypothesis-measurements.json",
+      "category": "Solve H->M Integration",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Formal models embed tier-1 assumptions as constant values (e.g., MaxDeliberationRounds, TP rate priors) that may drift from production reality. The H->M layer closes the feedback loop by automatically comparing these assumptions against observed data, enabling detection of violated hypotheses for remediation.",
+      "provenance": {
+        "source_file": ".planning/quick/303-add-hypothesis-measurement-collection-st/303-PLAN.md",
+        "milestone": "quick-303"
       }
     },
     {
@@ -4795,5 +4807,5 @@
       "category_raw": "Wizard Composition Screen"
     }
   ],
-  "frozen_at": "2026-03-15T13:19:51.288Z"
+  "frozen_at": "2026-03-15T21:39:15.482Z"
 }
