@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 Phase: 5 of 5 (Test Harness)
 Plan: v0.36-05-02-PLAN.md (2/2 plans complete)
 Status: Complete
-Last activity: 2026-03-15 - Completed quick task 298: Digest V8 coverage at collection time in sweepTtoC
+Last activity: 2026-03-15 - Completed quick task 303: Add hypothesis measurement H->M layer
 
 Progress: [##########] 100%
 
@@ -106,9 +106,10 @@ None.
 | 300 | Fix nf-solve.cjs NDJSON dedup bug and increase verification pipeline timeout | 2026-03-15 | 54438a42 | Verified | [300-fix-nf-solve-cjs-ndjson-dedup-bug-and-in](./quick/300-fix-nf-solve-cjs-ndjson-dedup-bug-and-in/) |
 | 301 | Isolate TLC metadir per-config to fix 31 in-pipeline F→C failures | 2026-03-15 | fc0141ff | Verified | [301-isolate-tlc-metadir-per-config-to-fix-31](./quick/301-isolate-tlc-metadir-per-config-to-fix-31/) |
 | 302 | Create canonical quorum dispatch snippet and wire into all 8 workflows | 2026-03-15 | a1f7ccda | Verified | [302-create-canonical-quorum-dispatch-snippet](./quick/302-create-canonical-quorum-dispatch-snippet/) |
+| 303 | Add hypothesis measurement collection step to solve-diagnose (Step 0e) | 2026-03-15 | ed9a347f | Pending | [303-add-hypothesis-measurement-collection-st](./quick/303-add-hypothesis-measurement-collection-st/) |
 
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed quick task 302: Create canonical quorum dispatch snippet and wire into all 8 workflows
+Stopped at: Completed quick task 303: Add hypothesis measurement H->M layer
 Resume file: None
