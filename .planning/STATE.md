@@ -103,9 +103,10 @@ None.
 | 296 | Fix 1 XState model gap identified by Gate A grounding check | 2026-03-15 | ab4c635d | Pending | [296-fix-1-xstate-model-gap-identified-by-gat](./quick/296-fix-1-xstate-model-gap-identified-by-gat/) |
 | 297 | Generate test recipes for 9 uncovered L3 failure modes (Gate C) | 2026-03-15 | 0747c695 | Pending | [297-generate-test-recipes-for-9-uncovered-l3](./quick/297-generate-test-recipes-for-9-uncovered-l3/) |
 | 298 | Digest V8 coverage at collection time in sweepTtoC | 2026-03-15 | 804a96e0 | Verified | [298-digest-v8-coverage-at-collection-time-in](./quick/298-digest-v8-coverage-at-collection-time-in/) |
+| 300 | Fix nf-solve.cjs NDJSON dedup bug and increase verification pipeline timeout | 2026-03-15 | 54438a42 | Verified | [300-fix-nf-solve-cjs-ndjson-dedup-bug-and-in](./quick/300-fix-nf-solve-cjs-ndjson-dedup-bug-and-in/) |
 
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed quick task 298: Digest V8 coverage at collection time in sweepTtoC
+Stopped at: Completed quick task 300: Fix nf-solve.cjs NDJSON dedup bug and increase verification pipeline timeout
 Resume file: None
