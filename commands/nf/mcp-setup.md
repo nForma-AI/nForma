@@ -992,6 +992,10 @@ Display "No changes made." Return to roster display.
 
 ## Agent Sub-Menu
 
+**Determine agent type** before displaying the menu. Read `~/.claude/nf.json` → `agent_config[{agent-name}].auth_type`. If not found, check `providers.json` for the slot's `auth_type` field. Classify:
+- `auth_type === "sub"` → **CLI agent** (codex, gemini, opencode, copilot)
+- `auth_type === "api"` or missing → **API agent** (claude-mcp-server instances)
+
 Display agent detail banner:
 
 ```
@@ -999,12 +1003,23 @@ Display agent detail banner:
  nForma ► {agent-name}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+  Type:     {CLI agent | API agent}
   Model:    {model}
   Provider: {provider}
-  Key:      {keyStatus}
+  Key:      {keyStatus}   ← omit for CLI agents
 ```
 
-Use AskUserQuestion:
+**If CLI agent** (`auth_type === "sub"`), use AskUserQuestion:
+- header: "Actions — {agent-name}"
+- question: "Choose an action:"
+- options:
+  - "1 — Re-authenticate (login)"
+  - "2 — Restart agent"
+  - "3 — Edit model / timeout"
+  - "4 — Remove agent"
+  - "Back — return to agent list"
+
+**If API agent** (`auth_type === "api"` or missing), use AskUserQuestion:
 - header: "Actions — {agent-name}"
 - question: "Choose an action:"
 - options:
@@ -1012,6 +1027,52 @@ Use AskUserQuestion:
   - "2 — Swap provider"
   - "3 — Remove agent"
   - "Back — return to agent list"
+
+### CLI Agent Actions
+
+**CLI Option 1 — Re-authenticate (login):**
+
+Determine the CLI binary name from `providers.json` for this slot (e.g., `codex`, `gemini`, `opencode`, `copilot`).
+
+Display:
+```
+Running {cli} login...
+```
+
+```bash
+{cli} login 2>&1 || echo "Login command failed or not supported for {cli}"
+```
+
+Display the command output. Return to Agent Sub-Menu.
+
+**CLI Option 2 — Restart agent:**
+
+Use `/nf:mcp-restart {agent-name}` to restart the MCP server process for this slot.
+
+Display: `"✓ Restarted {agent-name}"`
+
+Return to Agent Sub-Menu.
+
+**CLI Option 3 — Edit model / timeout:**
+
+Read current values from `~/.claude/nf.json` → `agent_config[{agent-name}]` and `providers.json`.
+
+Use AskUserQuestion:
+- header: "Edit — {agent-name}"
+- question: "Which field?"
+- options:
+  - "Model — current: {model or '(not set)'}"
+  - "Timeout — current: {timeout or '30000'}ms"
+  - "Back — return to agent menu"
+
+If "Model": prompt for new model name, update `providers.json` entry's `model` field.
+If "Timeout": prompt for new timeout value, update `providers.json` entry's `quorum_timeout_ms` field.
+
+Return to Agent Sub-Menu after each edit.
+
+**CLI Option 4 — Remove agent:** Same as API Option 3 below.
+
+### API Agent Actions
 
 **Option 1 — Set / update API key:**
 
