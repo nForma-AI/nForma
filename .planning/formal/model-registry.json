@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-15T21:44:12.435Z",
+  "last_sync": "2026-03-15T22:18:13.613Z",
   "models": {
     ".planning/formal/alloy/account-pool-structure.als": {
       "version": 1,
@@ -1257,8 +1257,8 @@
       ]
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 951,
-      "last_updated": "2026-03-15T21:44:14.192Z",
+      "version": 1000,
+      "last_updated": "2026-03-15T22:18:15.203Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -1977,22 +1977,6 @@
         "UNIF-04"
       ]
     },
-    ".planning/formal/alloy/uppaal-model-reqs.als": {
-      "version": 1,
-      "last_updated": "2026-03-14T23:19:55.618Z",
-      "update_source": "manual",
-      "source_id": null,
-      "session_id": null,
-      "description": "",
-      "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3",
-      "requirements": [
-        "UPPAAL-01",
-        "UPPAAL-02",
-        "UPPAAL-03"
-      ]
-    },
     ".planning/formal/alloy/user-guide.als": {
       "version": 1,
       "last_updated": "2026-03-14T23:19:55.618Z",
@@ -2191,8 +2175,8 @@
       ]
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 951,
-      "last_updated": "2026-03-15T21:44:14.204Z",
+      "version": 1000,
+      "last_updated": "2026-03-15T22:18:15.216Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -2443,8 +2427,8 @@
       ]
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 951,
-      "last_updated": "2026-03-15T21:44:14.205Z",
+      "version": 1000,
+      "last_updated": "2026-03-15T22:18:15.218Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -2454,8 +2438,8 @@
       "source_layer": "L3"
     },
     ".planning/formal/tla/NFQuorum_xstate.tla": {
-      "version": 662,
-      "last_updated": "2026-03-15T21:44:14.205Z",
+      "version": 688,
+      "last_updated": "2026-03-15T22:17:43.189Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
@@ -3011,22 +2995,6 @@
         "TUI-06"
       ]
     },
-    ".planning/formal/uppaal/quorum-races.xml": {
-      "version": 1,
-      "last_updated": "2026-03-14T23:19:55.637Z",
-      "update_source": "manual",
-      "source_id": null,
-      "session_id": null,
-      "description": "",
-      "layer_maturity": 3,
-      "requirements": [
-        "UPPAAL-01",
-        "UPPAAL-02",
-        "UPPAAL-03"
-      ],
-      "source_layer": "L1",
-      "gate_maturity": "SOFT_GATE"
-    },
     ".planning/formal/alloy/statusline-context-tiers.als": {
       "version": 1,
       "last_updated": "2026-03-14T23:19:55.637Z",
@@ -3081,6 +3049,20 @@
       "source_layer": "L3",
       "requirements": [
         "TC-01"
+      ]
+    },
+    ".planning/formal/alloy/hypothesis-measurement.als": {
+      "version": 1,
+      "last_updated": "2026-03-15T22:13:03.847Z",
+      "update_source": "solve-remediate",
+      "source_id": "solve-iteration-1",
+      "session_id": null,
+      "description": "H->M residual layer: hypothesis measurement verdicts (CONFIRMED/VIOLATED/UNMEASURABLE)",
+      "layer_maturity": 3,
+      "gate_maturity": "SOFT_GATE",
+      "source_layer": "L3",
+      "requirements": [
+        "H2M-01"
       ]
     }
   }

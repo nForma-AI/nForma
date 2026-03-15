@@ -2508,26 +2508,6 @@
       "direction_changes": 0,
       "cooldown": null
     },
-    ".planning/formal/alloy/uppaal-model-reqs.als": {
-      "gate_a": {
-        "pass": true,
-        "reason": "all 3 requirement(s) grounded by unit test coverage"
-      },
-      "gate_b": {
-        "pass": true,
-        "reason": "model has 3 requirement(s) (purpose check)"
-      },
-      "gate_c": {
-        "pass": true,
-        "reason": "failure-mode FM-UPPAAL-OMISSION has test recipe (via req UPPAAL-01)"
-      },
-      "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE",
-      "promoted": false,
-      "stability_status": "STABLE",
-      "direction_changes": 0,
-      "cooldown": null
-    },
     ".planning/formal/alloy/user-guide.als": {
       "gate_a": {
         "pass": true,
@@ -3760,26 +3740,6 @@
       "gate_c": {
         "pass": true,
         "reason": "failure-mode FM-TUI-01-OMISSION has test recipe (via req TUI-01)"
-      },
-      "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE",
-      "promoted": false,
-      "stability_status": "STABLE",
-      "direction_changes": 0,
-      "cooldown": null
-    },
-    ".planning/formal/uppaal/quorum-races.xml": {
-      "gate_a": {
-        "pass": true,
-        "reason": "semantic_declarations in layer-manifest (layer: L1)"
-      },
-      "gate_b": {
-        "pass": true,
-        "reason": "model has 3 requirement(s) (purpose check)"
-      },
-      "gate_c": {
-        "pass": true,
-        "reason": "failure-mode FM-UPPAAL-OMISSION has test recipe (via req UPPAAL-01)"
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",

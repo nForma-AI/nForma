@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-15T21:43:41.039Z",
+  "generated": "2026-03-15T22:17:39.517Z",
   "node_key_format": "type::id",
   "sources": {
     "scope.json:account-manager": {
@@ -84,40 +84,40 @@
       "hash": "76910c97"
     },
     "model-registry.json": {
-      "mtime": "2026-03-15T21:43:40.413Z",
-      "hash": "244cfeb5"
+      "mtime": "2026-03-15T22:17:33.767Z",
+      "hash": "83cfdb46"
     },
     "invariant-catalog.json": {
       "mtime": "2026-03-06T14:00:17.868Z",
       "hash": "e27072db"
     },
     "traceability-matrix.json": {
-      "mtime": "2026-03-15T21:43:40.366Z",
-      "hash": "89bd2fa2"
+      "mtime": "2026-03-15T22:17:39.348Z",
+      "hash": "aa07c266"
     },
     "unit-test-coverage.json": {
-      "mtime": "2026-03-15T21:42:06.588Z",
-      "hash": "69d14bd8"
+      "mtime": "2026-03-15T22:16:06.578Z",
+      "hash": "f61fe6a0"
     },
     "instrumentation-map.json": {
-      "mtime": "2026-03-15T21:43:04.557Z",
-      "hash": "59374ec6"
+      "mtime": "2026-03-15T22:17:06.064Z",
+      "hash": "f675ceb4"
     },
     "event-vocabulary.json": {
       "mtime": "2026-03-08T20:28:45.150Z",
       "hash": "fa1b7cf9"
     },
     "observed-fsm.json": {
-      "mtime": "2026-03-15T19:34:55.976Z",
-      "hash": "b687449c"
+      "mtime": "2026-03-15T22:01:28.197Z",
+      "hash": "d13f77df"
     },
     "risk-heatmap.json": {
       "mtime": "2026-03-09T13:52:46.371Z",
       "hash": "2df5c0d7"
     },
     "git-heatmap.json": {
-      "mtime": "2026-03-15T21:43:31.711Z",
-      "hash": "4101f05d"
+      "mtime": "2026-03-15T22:17:27.812Z",
+      "hash": "f499fd20"
     },
     "debt.json": {
       "mtime": "2026-03-04T13:33:16.983Z",
@@ -15853,29 +15853,6 @@
         }
       ]
     },
-    "formal_model::.planning/formal/alloy/uppaal-model-reqs.als": {
-      "type": "formal_model",
-      "id": ".planning/formal/alloy/uppaal-model-reqs.als",
-      "edges": [
-        {
-          "to": "requirement::UPPAAL-02",
-          "rel": "models",
-          "source": "model-registry"
-        },
-        {
-          "to": "requirement::UPPAAL-01",
-          "rel": "models",
-          "source": "model-registry"
-        },
-        {
-          "to": "requirement::UPPAAL-03",
-          "rel": "models",
-          "source": "model-registry"
-        }
-      ],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
-    },
     "requirement::UPPAAL-01": {
       "type": "requirement",
       "id": "UPPAAL-01",
@@ -21261,29 +21238,6 @@
         }
       ]
     },
-    "formal_model::.planning/formal/uppaal/quorum-races.xml": {
-      "type": "formal_model",
-      "id": ".planning/formal/uppaal/quorum-races.xml",
-      "edges": [
-        {
-          "to": "requirement::UPPAAL-02",
-          "rel": "models",
-          "source": "model-registry"
-        },
-        {
-          "to": "requirement::UPPAAL-01",
-          "rel": "models",
-          "source": "model-registry"
-        },
-        {
-          "to": "requirement::UPPAAL-03",
-          "rel": "models",
-          "source": "model-registry"
-        }
-      ],
-      "source_layer": "L1",
-      "gate_maturity": "SOFT_GATE"
-    },
     "formal_model::.planning/formal/alloy/statusline-context-tiers.als": {
       "type": "formal_model",
       "id": ".planning/formal/alloy/statusline-context-tiers.als",
@@ -21440,6 +21394,35 @@
       "edges": [
         {
           "to": "formal_model::.planning/formal/alloy/v8-coverage-digest.als",
+          "rel": "modeled_by",
+          "source": "model-registry"
+        },
+        {
+          "to": "invariant::(model-level)",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
+    "formal_model::.planning/formal/alloy/hypothesis-measurement.als": {
+      "type": "formal_model",
+      "id": ".planning/formal/alloy/hypothesis-measurement.als",
+      "edges": [
+        {
+          "to": "requirement::H2M-01",
+          "rel": "models",
+          "source": "model-registry"
+        }
+      ],
+      "source_layer": "L3",
+      "gate_maturity": "SOFT_GATE"
+    },
+    "requirement::H2M-01": {
+      "type": "requirement",
+      "id": "H2M-01",
+      "edges": [
+        {
+          "to": "formal_model::.planning/formal/alloy/hypothesis-measurement.als",
           "rel": "modeled_by",
           "source": "model-registry"
         },
@@ -30150,6 +30133,11 @@
         },
         {
           "to": "requirement::TC-01",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        },
+        {
+          "to": "requirement::H2M-01",
           "rel": "verifies",
           "source": "traceability-matrix"
         }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-15T21:42:06.585Z",
+  "generated_at": "2026-03-15T22:16:06.568Z",
   "requirements": {
     "ACT-01": {
       "covered": true,
@@ -3235,31 +3235,11 @@
         }
       ]
     },
-    "UPPAAL-02": {
-      "covered": false,
-      "test_cases": []
-    },
     "H2M-01": {
       "covered": false,
       "test_cases": []
     },
     "TC-01": {
-      "covered": false,
-      "test_cases": []
-    },
-    "UPPAAL-01": {
-      "covered": false,
-      "test_cases": []
-    },
-    "UPPAAL-03": {
-      "covered": false,
-      "test_cases": []
-    },
-    "UPPAAL-04": {
-      "covered": false,
-      "test_cases": []
-    },
-    "UPPAAL-05": {
       "covered": false,
       "test_cases": []
     }

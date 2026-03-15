@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-15T21:42:46.339Z",
-  "total_proposed": 1339,
+  "generated": "2026-03-15T22:16:48.299Z",
+  "total_proposed": 1348,
   "implemented": 0,
   "partial": 0,
-  "outstanding": 1339,
+  "outstanding": 1348,
   "metrics": [
     {
       "metric_name": "nf_maxdeliberationrounds__tla",
@@ -9028,6 +9028,114 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hook-portability-guard.als:PortableToAnyProject",
       "instrumentation_snippet": "// Observe handler for PortableToAnyProject (alloy/assert)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_portabletoanyproject\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_portabletoanyproject\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hook-portability-guard.als:PortableToAnyProject\",\n    \"description\": \"Counts violations of PortableToAnyProject\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_completeness",
+      "metric_type": "gauge",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "Completeness",
+      "assumption_type": "fact",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:Completeness",
+      "instrumentation_snippet": "// Observe handler for Completeness (alloy/fact)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_completeness\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_completeness\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:Completeness\",\n    \"threshold\": null,\n    \"description\": \"Monitors Completeness from alloy model\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_onetoone",
+      "metric_type": "gauge",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "OneToOne",
+      "assumption_type": "fact",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:OneToOne",
+      "instrumentation_snippet": "// Observe handler for OneToOne (alloy/fact)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_onetoone\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_onetoone\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:OneToOne\",\n    \"threshold\": null,\n    \"description\": \"Monitors OneToOne from alloy model\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_verdictrules",
+      "metric_type": "gauge",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "VerdictRules",
+      "assumption_type": "fact",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:VerdictRules",
+      "instrumentation_snippet": "// Observe handler for VerdictRules (alloy/fact)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_verdictrules\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_verdictrules\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:VerdictRules\",\n    \"threshold\": null,\n    \"description\": \"Monitors VerdictRules from alloy model\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_allrecorded",
+      "metric_type": "gauge",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "AllRecorded",
+      "assumption_type": "fact",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:AllRecorded",
+      "instrumentation_snippet": "// Observe handler for AllRecorded (alloy/fact)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_allrecorded\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_allrecorded\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:AllRecorded\",\n    \"threshold\": null,\n    \"description\": \"Monitors AllRecorded from alloy model\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_completeverdicts",
+      "metric_type": "counter",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "CompleteVerdicts",
+      "assumption_type": "assert",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:CompleteVerdicts",
+      "instrumentation_snippet": "// Observe handler for CompleteVerdicts (alloy/assert)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_completeverdicts\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_completeverdicts\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:CompleteVerdicts\",\n    \"description\": \"Counts violations of CompleteVerdicts\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_verdicttrichotomy",
+      "metric_type": "counter",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "VerdictTrichotomy",
+      "assumption_type": "assert",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:VerdictTrichotomy",
+      "instrumentation_snippet": "// Observe handler for VerdictTrichotomy (alloy/assert)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_verdicttrichotomy\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_verdicttrichotomy\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:VerdictTrichotomy\",\n    \"description\": \"Counts violations of VerdictTrichotomy\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_violateddetection",
+      "metric_type": "counter",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "ViolatedDetection",
+      "assumption_type": "assert",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:ViolatedDetection",
+      "instrumentation_snippet": "// Observe handler for ViolatedDetection (alloy/assert)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_violateddetection\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_violateddetection\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:ViolatedDetection\",\n    \"description\": \"Counts violations of ViolatedDetection\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_unmeasurablesafety",
+      "metric_type": "counter",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "UnmeasurableSafety",
+      "assumption_type": "assert",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:UnmeasurableSafety",
+      "instrumentation_snippet": "// Observe handler for UnmeasurableSafety (alloy/assert)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_unmeasurablesafety\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_unmeasurablesafety\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:UnmeasurableSafety\",\n    \"description\": \"Counts violations of UnmeasurableSafety\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_allpersisted",
+      "metric_type": "counter",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als",
+      "assumption_name": "AllPersisted",
+      "assumption_type": "assert",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:AllPersisted",
+      "instrumentation_snippet": "// Observe handler for AllPersisted (alloy/assert)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_allpersisted\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_allpersisted\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/alloy/hypothesis-measurement.als:AllPersisted\",\n    \"description\": \"Counts violations of AllPersisted\"\n  }\n}",
       "status": "proposed"
     },
     {

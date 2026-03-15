@@ -1,36 +1,32 @@
 # Formal Verification Diff Report
 
-**Generated:** 2026-03-15T21:44:14.061Z
-**Current Run:** 13 pass, 0 fail
-**Previous Run:** 0 transitions, 12 new, 7 removed
+**Generated:** 2026-03-15T22:18:15.087Z
+**Current Run:** 12 pass, 0 fail
+**Previous Run:** 0 transitions, 11 new, 4 removed
 **Overall Status:** pass
 
 ## New Checks
 
 | Check | Result | Summary |
 |-------|--------|---------|
-| alloy:baseline-requirements-filter | pass | pass: alloy:baseline-requirements-filter in 1179ms |
-| petri:account-manager-petri-net | pass | pass: account-manager-petri-net Petri net validation in 0ms  |
+| alloy:architecture-registry | pass | pass: alloy:architecture-registry in 1236ms |
+| petri:account-manager-petri-net | pass | pass: account-manager-petri-net Petri net validation in 1ms  |
 | petri:quorum-petri-net | pass | pass: quorum-petri-net Petri net validation in 0ms (places=1 |
-| ci:trace-redaction | pass | pass: ci:trace-redaction in 1ms |
-| tla:mcmemorypersist | pass | pass: MCmemorypersist in 629ms |
-| tla:mcbreaker-state | pass | pass: MCbreaker-state in 688ms |
-| ci:trace-schema-drift | pass | pass: ci:trace-schema-drift in 42ms |
-| alloy:baseline-requirements-filter | pass | pass: alloy:baseline-requirements-filter in 1186ms |
-| ci:liveness-fairness-lint | pass | pass: all liveness properties have fairness declarations (50 |
-| tla:mcorchestration | pass | pass: MCorchestration in 589ms |
-| tla:breaker | pass | pass: MCbreaker in 561ms |
-| alloy:bin-path-resolution | pass | pass: alloy:bin-path-resolution in 1005ms |
+| alloy:ci-quality-gates | pass | pass: alloy:ci-quality-gates in 1494ms |
+| ci:trace-schema-drift | pass | pass: ci:trace-schema-drift in 40ms |
+| tla:mclearning | pass | pass: MClearning in 731ms |
+| ci:liveness-fairness-lint | pass | pass: all liveness properties have fairness declarations (2  |
+| tla:mccheckpointgate | pass | pass: MCcheckpointgate in 765ms |
+| alloy:autoclose-signals | pass | pass: alloy:autoclose-signals in 1040ms |
+| tla:quorum-liveness | pass | pass: MCliveness in 677ms |
+| tla:mcci-checks | pass | pass: MCci-checks in 608ms |
 
 ## Removed Checks
 
-- tla:mcsensitivity: no longer run
-- prism:quorum: no longer run
-- tla:mcsolve-convergence: no longer run
-- tla:mcactivity: no longer run
-- tla:mcsolve-orchestrator: no longer run
-- tla:mcagent-prov: no longer run
+- tla:mcwizard: no longer run
+- tla:mctuimodules: no longer run
 - tla:mcsolve-report-only: no longer run
+- tla:mctuinavigation: no longer run
 
 ## Unchanged Checks
 
@@ -39,5 +35,5 @@
 ## Previous Run (for next comparison)
 
 ```json
-{"alloy:baseline-requirements-filter":"pass","petri:account-manager-petri-net":"pass","petri:quorum-petri-net":"pass","ci:trace-redaction":"pass","tla:mcmemorypersist":"pass","tla:mcbreaker-state":"pass","ci:trace-schema-drift":"pass","ci:liveness-fairness-lint":"pass","tla:mcorchestration":"pass","tla:breaker":"pass","alloy:bin-path-resolution":"pass","ci:conformance-traces":"pass"}
+{"alloy:architecture-registry":"pass","petri:account-manager-petri-net":"pass","petri:quorum-petri-net":"pass","alloy:ci-quality-gates":"pass","ci:trace-schema-drift":"pass","tla:mclearning":"pass","ci:liveness-fairness-lint":"pass","tla:mccheckpointgate":"pass","alloy:autoclose-signals":"pass","tla:quorum-liveness":"pass","tla:mcci-checks":"pass","ci:conformance-traces":"pass"}
 ```

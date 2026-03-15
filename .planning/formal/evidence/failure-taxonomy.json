@@ -1,14 +1,14 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-15T21:43:04.466Z",
-  "total_failures": 9,
+  "generated": "2026-03-15T22:17:05.949Z",
+  "total_failures": 14,
   "categories": {
     "crash": [
       {
         "tool": "run-prism",
         "formalism": "prism",
         "result": "error",
-        "timestamp": "2026-03-15T21:42:42.412Z",
+        "timestamp": "2026-03-15T22:16:39.347Z",
         "check_id": "prism:quorum",
         "surface": "prism",
         "property": "Quorum consensus probability under agent availability rates",
@@ -22,8 +22,8 @@
         ],
         "metadata": {},
         "observation_window": {
-          "window_start": "2026-03-15T21:42:42.394Z",
-          "window_end": "2026-03-15T21:42:42.412Z",
+          "window_start": "2026-03-15T22:16:39.346Z",
+          "window_end": "2026-03-15T22:16:39.347Z",
           "n_traces": 0,
           "n_events": 0,
           "window_days": 0
@@ -35,15 +35,61 @@
     "timeout": [],
     "logic_violation": [
       {
+        "tool": "run-account-manager-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-15T22:16:31.401Z",
+        "check_id": "tla:account-manager",
+        "surface": "tla",
+        "property": "Account manager quorum state machine — MCAM correctness",
+        "runtime_ms": 976,
+        "summary": "fail: MCaccount-manager in 976ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "CRED-01",
+          "CRED-02",
+          "CRED-03",
+          "CRED-04",
+          "CRED-05",
+          "CRED-06"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCaccount-manager in 976ms"
+      },
+      {
+        "tool": "run-account-manager-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-15T22:16:34.963Z",
+        "check_id": "tla:account-manager",
+        "surface": "tla",
+        "property": "Account manager quorum state machine — MCAM correctness",
+        "runtime_ms": 977,
+        "summary": "fail: MCaccount-manager in 977ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "CRED-01",
+          "CRED-02",
+          "CRED-03",
+          "CRED-04",
+          "CRED-05",
+          "CRED-06"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCaccount-manager in 977ms"
+      },
+      {
         "tool": "run-stop-hook-tlc",
         "formalism": "tla",
         "result": "fail",
-        "timestamp": "2026-03-15T21:42:32.918Z",
+        "timestamp": "2026-03-15T22:16:36.998Z",
         "check_id": "tla:stop-hook",
         "surface": "tla",
         "property": "Stop hook safety (BLOCK => hasCommand) + liveness (hasQuorumEvidence => <>PASS)",
-        "runtime_ms": 935,
-        "summary": "fail: MCStopHook in 935ms",
+        "runtime_ms": 1496,
+        "summary": "fail: MCStopHook in 1496ms",
         "triage_tags": [],
         "requirement_ids": [
           "STOP-01",
@@ -59,91 +105,18 @@
           "config": "MCStopHook"
         },
         "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCStopHook in 935ms"
-      },
-      {
-        "tool": "run-stop-hook-tlc",
-        "formalism": "tla",
-        "result": "fail",
-        "timestamp": "2026-03-15T21:42:39.359Z",
-        "check_id": "tla:stop-hook",
-        "surface": "tla",
-        "property": "Stop hook safety (BLOCK => hasCommand) + liveness (hasQuorumEvidence => <>PASS)",
-        "runtime_ms": 1240,
-        "summary": "fail: MCStopHook in 1240ms",
-        "triage_tags": [],
-        "requirement_ids": [
-          "STOP-01",
-          "STOP-02",
-          "STOP-03",
-          "STOP-04",
-          "STOP-05",
-          "STOP-06",
-          "STOP-07",
-          "SPEC-01"
-        ],
-        "metadata": {
-          "config": "MCStopHook"
-        },
-        "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCStopHook in 1240ms"
-      },
-      {
-        "tool": "run-account-manager-tlc",
-        "formalism": "tla",
-        "result": "fail",
-        "timestamp": "2026-03-15T21:42:39.738Z",
-        "check_id": "tla:account-manager",
-        "surface": "tla",
-        "property": "Account manager quorum state machine — MCAM correctness",
-        "runtime_ms": 1410,
-        "summary": "fail: MCaccount-manager in 1410ms",
-        "triage_tags": [],
-        "requirement_ids": [
-          "CRED-01",
-          "CRED-02",
-          "CRED-03",
-          "CRED-04",
-          "CRED-05",
-          "CRED-06"
-        ],
-        "metadata": {},
-        "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCaccount-manager in 1410ms"
-      },
-      {
-        "tool": "run-account-manager-tlc",
-        "formalism": "tla",
-        "result": "fail",
-        "timestamp": "2026-03-15T21:42:45.646Z",
-        "check_id": "tla:account-manager",
-        "surface": "tla",
-        "property": "Account manager quorum state machine — MCAM correctness",
-        "runtime_ms": 925,
-        "summary": "fail: MCaccount-manager in 925ms",
-        "triage_tags": [],
-        "requirement_ids": [
-          "CRED-01",
-          "CRED-02",
-          "CRED-03",
-          "CRED-04",
-          "CRED-05",
-          "CRED-06"
-        ],
-        "metadata": {},
-        "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCaccount-manager in 925ms"
+        "classification_reason": "Logic violation: fail: MCStopHook in 1496ms"
       },
       {
         "tool": "run-breaker-tlc",
         "formalism": "tla",
         "result": "fail",
-        "timestamp": "2026-03-15T21:42:53.525Z",
+        "timestamp": "2026-03-15T22:16:37.866Z",
         "check_id": "tla:breaker",
         "surface": "tla",
         "property": "Circuit breaker state persistence and oscillation detection algorithm",
-        "runtime_ms": 1006,
-        "summary": "fail: MCbreaker in 1006ms",
+        "runtime_ms": 1044,
+        "summary": "fail: MCbreaker in 1044ms",
         "triage_tags": [],
         "requirement_ids": [
           "DETECT-01",
@@ -152,18 +125,41 @@
         ],
         "metadata": {},
         "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCbreaker in 1006ms"
+        "classification_reason": "Logic violation: fail: MCbreaker in 1044ms"
+      },
+      {
+        "tool": "run-account-manager-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-15T22:16:43.057Z",
+        "check_id": "tla:account-manager",
+        "surface": "tla",
+        "property": "Account manager quorum state machine — MCAM correctness",
+        "runtime_ms": 905,
+        "summary": "fail: MCaccount-manager in 905ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "CRED-01",
+          "CRED-02",
+          "CRED-03",
+          "CRED-04",
+          "CRED-05",
+          "CRED-06"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCaccount-manager in 905ms"
       },
       {
         "tool": "run-oscillation-tlc",
         "formalism": "tla",
         "result": "fail",
-        "timestamp": "2026-03-15T21:42:54.094Z",
+        "timestamp": "2026-03-15T22:16:48.313Z",
         "check_id": "tla:convergence",
         "surface": "tla",
         "property": "Haiku convergence — OscillationConvergence liveness property",
-        "runtime_ms": 945,
-        "summary": "fail: MCconvergence in 945ms",
+        "runtime_ms": 1412,
+        "summary": "fail: MCconvergence in 1412ms",
         "triage_tags": [],
         "requirement_ids": [
           "ORES-01",
@@ -176,18 +172,18 @@
           "config": "MCconvergence"
         },
         "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCconvergence in 945ms"
+        "classification_reason": "Logic violation: fail: MCconvergence in 1412ms"
       },
       {
         "tool": "run-protocol-tlc",
         "formalism": "tla",
         "result": "fail",
-        "timestamp": "2026-03-15T21:42:58.299Z",
+        "timestamp": "2026-03-15T22:16:48.360Z",
         "check_id": "tla:deliberation",
         "surface": "tla",
         "property": "R3 deliberation loop — max 10 rounds + 10 improvement iterations",
-        "runtime_ms": 1292,
-        "summary": "fail: MCdeliberation in 1292ms",
+        "runtime_ms": 1476,
+        "summary": "fail: MCdeliberation in 1476ms",
         "triage_tags": [],
         "requirement_ids": [
           "PLAN-01",
@@ -200,7 +196,119 @@
           "config": "MCdeliberation"
         },
         "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCdeliberation in 1292ms"
+        "classification_reason": "Logic violation: fail: MCdeliberation in 1476ms"
+      },
+      {
+        "tool": "run-breaker-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-15T22:16:49.946Z",
+        "check_id": "tla:breaker",
+        "surface": "tla",
+        "property": "Circuit breaker state persistence and oscillation detection algorithm",
+        "runtime_ms": 1265,
+        "summary": "fail: MCbreaker in 1265ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-01",
+          "DETECT-02",
+          "DETECT-03"
+        ],
+        "metadata": {},
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCbreaker in 1265ms"
+      },
+      {
+        "tool": "run-protocol-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-15T22:16:52.244Z",
+        "check_id": "tla:deliberation",
+        "surface": "tla",
+        "property": "R3 deliberation loop — max 10 rounds + 10 improvement iterations",
+        "runtime_ms": 920,
+        "summary": "fail: MCdeliberation in 920ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PLAN-01",
+          "PLAN-02",
+          "SAFE-03",
+          "IMPR-01",
+          "LOOP-02"
+        ],
+        "metadata": {
+          "config": "MCdeliberation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCdeliberation in 920ms"
+      },
+      {
+        "tool": "run-protocol-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-15T22:16:59.817Z",
+        "check_id": "tla:deliberation",
+        "surface": "tla",
+        "property": "R3 deliberation loop — max 10 rounds + 10 improvement iterations",
+        "runtime_ms": 979,
+        "summary": "fail: MCdeliberation in 979ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "PLAN-01",
+          "PLAN-02",
+          "SAFE-03",
+          "IMPR-01",
+          "LOOP-02"
+        ],
+        "metadata": {
+          "config": "MCdeliberation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCdeliberation in 979ms"
+      },
+      {
+        "tool": "run-oscillation-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-15T22:17:02.656Z",
+        "check_id": "tla:oscillation",
+        "surface": "tla",
+        "property": "Run-collapse oscillation detection algorithm correctness",
+        "runtime_ms": 901,
+        "summary": "fail: MCoscillation in 901ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-04",
+          "DETECT-05",
+          "DETECT-06"
+        ],
+        "metadata": {
+          "config": "MCoscillation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCoscillation in 901ms"
+      },
+      {
+        "tool": "run-oscillation-tlc",
+        "formalism": "tla",
+        "result": "fail",
+        "timestamp": "2026-03-15T22:17:05.728Z",
+        "check_id": "tla:oscillation",
+        "surface": "tla",
+        "property": "Run-collapse oscillation detection algorithm correctness",
+        "runtime_ms": 1041,
+        "summary": "fail: MCoscillation in 1041ms",
+        "triage_tags": [],
+        "requirement_ids": [
+          "DETECT-04",
+          "DETECT-05",
+          "DETECT-06"
+        ],
+        "metadata": {
+          "config": "MCoscillation"
+        },
+        "category": "logic_violation",
+        "classification_reason": "Logic violation: fail: MCoscillation in 1041ms"
       }
     ],
     "drift": [
@@ -208,12 +316,12 @@
         "tool": "validate-traces",
         "formalism": "trace",
         "result": "fail",
-        "timestamp": "2026-03-15T21:42:34.562Z",
+        "timestamp": "2026-03-15T22:16:32.232Z",
         "check_id": "ci:conformance-traces",
         "surface": "ci",
         "property": "Conformance event replay through XState machine",
-        "runtime_ms": 14,
-        "summary": "fail: 1 divergence(s) in 1 traces (14ms)",
+        "runtime_ms": 13,
+        "summary": "fail: 1 divergence(s) in 1 traces (13ms)",
         "triage_tags": [
           "trace-divergence"
         ],
@@ -223,8 +331,8 @@
           "total": 1
         },
         "observation_window": {
-          "window_start": "2026-03-15T21:42:34.552Z",
-          "window_end": "2026-03-15T21:42:34.555Z",
+          "window_start": "2026-03-15T22:16:32.221Z",
+          "window_end": "2026-03-15T22:16:32.222Z",
           "n_traces": 0,
           "n_events": 1,
           "window_days": 0
@@ -238,11 +346,11 @@
   "category_counts": {
     "crash": 1,
     "timeout": 0,
-    "logic_violation": 7,
+    "logic_violation": 12,
     "drift": 1,
     "degradation": 0
   },
   "degradation_fallback_note": "When no baseline exists, potential degradation entries are classified as logic_violation",
   "unclassified": [],
-  "summary": "9 failures classified: crash=1, timeout=0, logic_violation=7, drift=1, degradation=0. 0 unclassified."
+  "summary": "14 failures classified: crash=1, timeout=0, logic_violation=12, drift=1, degradation=0. 0 unclassified."
 }

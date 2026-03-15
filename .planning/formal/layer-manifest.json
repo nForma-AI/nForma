@@ -1,6 +1,6 @@
 {
   "schema_version": "2",
-  "generated": "2026-03-15T21:41:56.974Z",
+  "generated": "2026-03-15T22:15:57.719Z",
   "layers": {
     "L1": [
       {
@@ -970,6 +970,11 @@
         "path": ".planning/formal/alloy/v8-coverage-digest.als",
         "description": "V8 coverage digest structural invariants: disjointness, compression, URL filtering, positive line numbers",
         "grounding_status": "ungrounded"
+      },
+      {
+        "path": ".planning/formal/alloy/hypothesis-measurement.als",
+        "description": "H->M residual layer: hypothesis measurement verdicts (CONFIRMED/VIOLATED/UNMEASURABLE)",
+        "grounding_status": "ungrounded"
       }
     ]
   },
@@ -993,16 +998,16 @@
   "collapsed_layers": {
     "L2": {
       "reason": "Empty layer — zero entries permanently blocked Gate B (STRUCT-01)",
-      "collapsed_at": "2026-03-15T21:41:56.974Z"
+      "collapsed_at": "2026-03-15T22:15:57.719Z"
     }
   },
   "summary": {
-    "total_models": 193,
+    "total_models": 194,
     "L1_count": 3,
     "L2_count": 0,
-    "L3_count": 190,
+    "L3_count": 191,
     "maturity_distribution": {
-      "0": 159,
+      "0": 160,
       "1": 34
     },
     "spec_modules_with_invariants": 18

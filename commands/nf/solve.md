@@ -157,8 +157,12 @@ Display all tables and reports as described in the process section."
 After reporting completes, stage and commit all solve artifacts so they don't accumulate as unstaged changes.
 
 ```bash
-# Stage all solve-touched paths (modified + untracked)
-git add .planning/formal/ .planning/upstream-state.json docs/dev/requirements-coverage.md 2>/dev/null
+# Stage ALL solve-touched paths — modified, deleted, AND untracked
+# Use git add -A with pathspecs to catch new files the solve created
+git add -A .planning/formal/ 2>/dev/null
+git add .planning/upstream-state.json docs/dev/requirements-coverage.md 2>/dev/null
+# Also catch any bin/ or test/ files that solve sub-skills may have created/modified
+git add -A bin/ test/ 2>/dev/null
 
 # Check if there's anything to commit
 if ! git diff --cached --quiet 2>/dev/null; then
@@ -170,6 +174,8 @@ fi
 ```
 
 This commit is non-blocking — if staging or committing fails (e.g., no changes, hook rejection), log and continue. The solve report has already been displayed.
+
+**IMPORTANT:** The `git add -A` with pathspecs stages new (untracked), modified, AND deleted files within those directories. This ensures files created by remediation sub-skills (new Alloy models, test stubs, etc.) and files deleted during cleanup are all captured.
 
 ## Important Constraints
 
