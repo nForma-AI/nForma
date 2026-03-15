@@ -449,28 +449,6 @@
 
 **Status:** Complete
 
-### UPPAAL-01: A UPPAAL timed automaton model (`.planning/formal/uppaal/quorum-races.xml`) captures the 
-
-**Requirement:** A UPPAAL timed automaton model (`.planning/formal/uppaal/quorum-races.xml`) captures the concurrency structure of the quorum protocol — specifically when concurrent slot responses and timeout expirations fire relative to each other. The model uses `runtime_ms` bounds from `check-results.ndjson` as empirical timing constraints (clock guards and invariants), not hardcoded constants.
-
-**Formal models:** .planning/formal/alloy/uppaal-model-reqs.als
-
-**Status:** Complete
-
-### UPPAAL-02: `bin/run-uppaal.cjs` executes the UPPAAL model checker (verifyta CLI) against `q
-
-**Requirement:** `bin/run-uppaal.cjs` executes the UPPAAL model checker (verifyta CLI) against `quorum-races.xml` and writes a check result to `check-results.ndjson` using the v2.1 schema (SCHEMA-01 prerequisite). The STEPS entry `uppaal:quorum-races` is added to `run-formal-verify.cjs`.
-
-**Status:** Complete
-
-### UPPAAL-03: The model surfaces at least two critical measurement points as annotated propert
-
-**Requirement:** The model surfaces at least two critical measurement points as annotated properties: (a) the minimum inter-slot response gap that prevents a race condition, (b) the maximum timeout value for which the quorum can still reach consensus before the planning gate deadline.
-
-**Formal models:** .planning/formal/alloy/uppaal-model-reqs.als
-
-**Status:** Complete
-
 ## Hooks & Enforcement
 
 ### DETECT-01: PreToolUse hook intercepts Bash tool calls and checks whether the current contex
