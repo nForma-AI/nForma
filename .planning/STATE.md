@@ -105,9 +105,10 @@ None.
 | 298 | Digest V8 coverage at collection time in sweepTtoC | 2026-03-15 | 804a96e0 | Verified | [298-digest-v8-coverage-at-collection-time-in](./quick/298-digest-v8-coverage-at-collection-time-in/) |
 | 300 | Fix nf-solve.cjs NDJSON dedup bug and increase verification pipeline timeout | 2026-03-15 | 54438a42 | Verified | [300-fix-nf-solve-cjs-ndjson-dedup-bug-and-in](./quick/300-fix-nf-solve-cjs-ndjson-dedup-bug-and-in/) |
 | 301 | Isolate TLC metadir per-config to fix 31 in-pipeline F→C failures | 2026-03-15 | fc0141ff | Verified | [301-isolate-tlc-metadir-per-config-to-fix-31](./quick/301-isolate-tlc-metadir-per-config-to-fix-31/) |
+| 302 | Create canonical quorum dispatch snippet and wire into all 8 workflows | 2026-03-15 | a1f7ccda | Verified | [302-create-canonical-quorum-dispatch-snippet](./quick/302-create-canonical-quorum-dispatch-snippet/) |
 
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed quick task 301: Isolate TLC metadir per-config to fix 31 in-pipeline F→C failures
+Stopped at: Completed quick task 302: Create canonical quorum dispatch snippet and wire into all 8 workflows
 Resume file: None
