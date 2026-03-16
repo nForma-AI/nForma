@@ -108,9 +108,10 @@ None.
 | 302 | Create canonical quorum dispatch snippet and wire into all 8 workflows | 2026-03-15 | a1f7ccda | Verified | [302-create-canonical-quorum-dispatch-snippet](./quick/302-create-canonical-quorum-dispatch-snippet/) |
 | 303 | Add hypothesis measurement collection step to solve-diagnose (Step 0e) | 2026-03-15 | ed9a347f | Verified | [303-add-hypothesis-measurement-collection-st](./quick/303-add-hypothesis-measurement-collection-st/) |
 | 304 | Eliminate sweep false positives via code-trace-index | 2026-03-16 | 1b499527 | Verified | [304-eliminate-sweep-false-positives-via-code](./quick/304-eliminate-sweep-false-positives-via-code/) |
+| 305 | Solve loop hygiene: prune stale cache/archive, fix D→R key stability, extend test/ inheritance | 2026-03-16 | b2c312f7 | Verified | [305-solve-loop-hygiene-prune-stale-cache-arc](./quick/305-solve-loop-hygiene-prune-stale-cache-arc/) |
 
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed quick task 304: Eliminate sweep false positives via code-trace-index
+Stopped at: Completed quick task 305: Solve loop hygiene
 Resume file: None
