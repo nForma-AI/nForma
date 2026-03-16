@@ -7,7 +7,7 @@ See: .planning/PROJECT.md
 ## Position
 
 **Milestone:** v0.37 — Close the Loop: Cross-Layer Feedback Integration
-**Current phase:** v0.37-04 — Quorum Precedents
+**Current phase:** v0.37-05 — Hypothesis Targeting
 **Status:** Ready to plan
 
 ## Quick Tasks Completed
@@ -18,6 +18,7 @@ See: .planning/PROJECT.md
 
 ## Session Log
 
+- 2026-03-16: Phase v0.37-04 (Quorum Precedents) complete — 2/2 plans, all 3 SCs verified, formal check 3/3, auto-advancing
 - 2026-03-16: Completed quick task 318: Replace fixed wall-clock quorum timeout with idle-based timeout
 - 2026-03-16: Phase v0.37-03 (Scanner FP Tuning) complete — 1/1 plans, all 3 SCs verified, auto-advancing
 - 2026-03-16: Phase v0.37-02 (Gate Auto-Promotion) complete — 1/1 plans, all 3 SCs verified, auto-advancing
