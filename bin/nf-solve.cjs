@@ -722,6 +722,48 @@ function loadFormalTestSync() {
 }
 
 /**
+ * Cache for code-trace-index.json result.
+ */
+let codeTraceIndexCache = null;
+
+/**
+ * Helper to load and cache code-trace index.
+ * Returns null on missing or parse error (graceful degradation).
+ */
+function loadCodeTraceIndex() {
+  if (codeTraceIndexCache) return codeTraceIndexCache;
+
+  const indexPath = path.join(ROOT, '.planning', 'formal', 'code-trace-index.json');
+  if (!fs.existsSync(indexPath)) {
+    return null;
+  }
+
+  try {
+    codeTraceIndexCache = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+    return codeTraceIndexCache;
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Rebuild code-trace index from recipes and scopes.
+ * Called before each computeResidual to ensure fresh data.
+ */
+function rebuildCodeTraceIndex() {
+  codeTraceIndexCache = null;  // Clear cache
+
+  try {
+    const { buildIndex } = require('./build-code-trace.cjs');
+    const index = buildIndex(ROOT);
+    codeTraceIndexCache = index;
+    return index;
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
  * F->T: Formal to Tests coverage.
  * Returns { residual: N, detail: {...} }
  */
@@ -1871,9 +1913,18 @@ function sweepCtoR() {
   const untraced = [];
   let traced = 0;
 
+  // Load code-trace index for fast lookup
+  const index = loadCodeTraceIndex();
+
   for (const file of sourceFiles) {
     const fileName = path.basename(file);
     const fileNoExt = fileName.replace(/\.(cjs|js|mjs)$/, '');
+
+    // First check: code-trace index lookup (if available)
+    if (index && (index.traced_files[file] || index.scope_only.includes(file))) {
+      traced++;
+      continue;
+    }
 
     // Check if any requirement references this file
     if (allReqText.includes(file) || allReqText.includes(fileName) || allReqText.includes(fileNoExt)) {
@@ -1965,8 +2016,17 @@ function sweepTtoR() {
   const orphans = [];
   let mapped = 0;
 
+  // Load code-trace index for fast lookup
+  const index = loadCodeTraceIndex();
+
   for (const testFile of testFiles) {
     const absPath = path.join(ROOT, testFile);
+
+    // First check: code-trace index lookup (if available)
+    if (index && index.traced_files[testFile]) {
+      mapped++;
+      continue;
+    }
 
     // Check for @req annotation in file content
     let hasReqAnnotation = false;
@@ -2750,6 +2810,9 @@ function computeResidual() {
   const r_to_d = sweepRtoD();
   const d_to_c = sweepDtoC();
   const p_to_f = sweepPtoF({ root: ROOT, focusSet });
+
+  // Rebuild code-trace index for reverse sweeps
+  rebuildCodeTraceIndex();
 
   // Reverse traceability discovery (do NOT add to automatable total)
   const c_to_r = sweepCtoR();

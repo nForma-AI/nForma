@@ -1436,3 +1436,105 @@ test('TC-MISSING-4: integration - solve in empty dir returns -1 residuals for mi
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 });
+
+// ── TC-CODE-TRACE: Code-trace index tests ───────────────────────────────────
+
+test('TC-CODE-TRACE-1: build-code-trace.cjs generates valid index with expected schema', () => {
+  const { buildIndex } = require('./build-code-trace.cjs');
+  const ROOT = process.cwd();
+
+  const index = buildIndex(ROOT);
+
+  // Verify schema
+  assert.strictEqual(index.version, 1, 'Index version should be 1');
+  assert.ok(typeof index.generated_at === 'string', 'generated_at should be a string');
+  assert.ok(index.sources && typeof index.sources.recipes === 'number', 'sources.recipes should be a number');
+  assert.ok(index.sources && typeof index.sources.scopes === 'number', 'sources.scopes should be a number');
+  assert.ok(typeof index.traced_files === 'object', 'traced_files should be an object');
+  assert.ok(Array.isArray(index.scope_only), 'scope_only should be an array');
+
+  // Verify content
+  assert.ok(Object.keys(index.traced_files).length > 0, 'traced_files should have entries');
+  assert.ok(index.sources.recipes > 0, 'sources.recipes should be > 0');
+});
+
+test('TC-CODE-TRACE-2: code-trace-index.json file exists and is valid JSON', () => {
+  const indexPath = path.join(process.cwd(), '.planning', 'formal', 'code-trace-index.json');
+  assert.ok(fs.existsSync(indexPath), 'code-trace-index.json should exist');
+
+  const content = fs.readFileSync(indexPath, 'utf8');
+  const index = JSON.parse(content);  // Should not throw
+
+  assert.strictEqual(index.version, 1, 'Index version should be 1');
+  assert.ok(Object.keys(index.traced_files).length > 200, 'Should have 200+ traced files');
+});
+
+test('TC-CODE-TRACE-3: Source-module inheritance - test files inherit source req IDs', () => {
+  const { buildIndex } = require('./build-code-trace.cjs');
+  const ROOT = process.cwd();
+
+  const index = buildIndex(ROOT);
+
+  // Check that bin/nf-solve.test.cjs has the same or inherited req IDs from bin/nf-solve.cjs
+  const sourceReqs = index.traced_files['bin/nf-solve.cjs'];
+  const testReqs = index.traced_files['bin/nf-solve.test.cjs'];
+
+  if (sourceReqs && sourceReqs.length > 0) {
+    assert.ok(testReqs && testReqs.length > 0, 'Test file should have inherited req IDs from source');
+    // At least some overlap
+    const overlap = sourceReqs.filter(r => testReqs.includes(r));
+    assert.ok(overlap.length > 0, 'Test file should share at least one req ID with source file');
+  }
+});
+
+test('TC-CODE-TRACE-4: buildIndex gracefully handles missing directories', () => {
+  const { buildIndex } = require('./build-code-trace.cjs');
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-trace-test-'));
+
+  try {
+    const index = buildIndex(tmpDir);
+
+    // Should return valid structure even with no recipes/scopes
+    assert.strictEqual(index.version, 1, 'Should return valid index');
+    assert.strictEqual(index.sources.recipes, 0, 'recipes count should be 0');
+    assert.strictEqual(index.sources.scopes, 0, 'scopes count should be 0');
+    assert.ok(typeof index.traced_files === 'object', 'traced_files should exist');
+    assert.ok(Array.isArray(index.scope_only), 'scope_only should exist');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('TC-CODE-TRACE-5: sweepCtoR uses code-trace index to reduce false positives', () => {
+  const src = fs.readFileSync(path.join(__dirname, 'nf-solve.cjs'), 'utf8');
+
+  // Verify sweepCtoR has the index check
+  assert.ok(src.includes('loadCodeTraceIndex()'), 'sweepCtoR should call loadCodeTraceIndex');
+  assert.ok(src.includes('index.traced_files[file]'), 'sweepCtoR should check index.traced_files');
+  assert.ok(src.includes('index.scope_only.includes(file)'), 'sweepCtoR should check index.scope_only');
+});
+
+test('TC-CODE-TRACE-6: sweepTtoR uses code-trace index to reduce false positives', () => {
+  const src = fs.readFileSync(path.join(__dirname, 'nf-solve.cjs'), 'utf8');
+
+  // Extract sweepTtoR function
+  const ftoTMatch = src.match(/function sweepTtoR\(\)[\s\S]*?^function /m);
+  assert.ok(ftoTMatch, 'sweepTtoR function should exist');
+  const ftoT = ftoTMatch[0];
+
+  // Verify index check
+  assert.ok(ftoT.includes('loadCodeTraceIndex()'), 'sweepTtoR should call loadCodeTraceIndex');
+  assert.ok(ftoT.includes('index.traced_files[testFile]'), 'sweepTtoR should check index.traced_files');
+});
+
+test('TC-CODE-TRACE-7: computeResidual rebuilds code-trace index before sweeps', () => {
+  const src = fs.readFileSync(path.join(__dirname, 'nf-solve.cjs'), 'utf8');
+
+  // Find computeResidual and verify rebuildCodeTraceIndex is called before c_to_r
+  const computeMatch = src.match(/function computeResidual\(\)[\s\S]*?const c_to_r = sweepCtoR/);
+  assert.ok(computeMatch, 'computeResidual should call sweepCtoR');
+
+  const computeFn = computeMatch[0];
+  assert.ok(computeFn.includes('rebuildCodeTraceIndex()'),
+    'computeResidual should call rebuildCodeTraceIndex before sweeps');
+});
