@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 Phase: 5 of 5 (Test Harness)
 Plan: v0.36-05-02-PLAN.md (2/2 plans complete)
 Status: Complete
-Last activity: 2026-03-16 - Completed quick task 314: Fix proximity pipeline
+Last activity: 2026-03-16 - Completed quick task 317: Add proximity pre-filter to nf-solve.cjs reverse scanners
 
 Progress: [##########] 100%
 
@@ -115,9 +115,10 @@ None.
 | 312 | Make nf-prompt.js fall back to providers.json when agent_config is empty for model dedup | 2026-03-16 | 5ce50f57 | Verified | [312-make-nf-prompt-js-fall-back-to-providers](./quick/312-make-nf-prompt-js-fall-back-to-providers/) |
 | 313 | Add tier field to requirements — tier: user|technical, default existing to user, update C→R and T→R scanners to propose technical requirements instead of FP'ing infra | 2026-03-16 | 1337b827 | Pending | [313-add-tier-field-to-requirements-tier-user](./quick/313-add-tier-field-to-requirements-tier-user/) |
 | 314 | Fix proximity pipeline: stats reader, orphan definition, threshold, uncovered surfacing, TLA+/PRISM extraction | 2026-03-16 | 88166e63 | Verified | [314-fix-proximity-pipeline-stats-reader-orph](./quick/314-fix-proximity-pipeline-stats-reader-orph/) |
+| 317 | Add proximity pre-filter to nf-solve.cjs reverse scanners | 2026-03-16 | 18d5fb32 | Pending | [317-add-proximity-pre-filter-to-nf-solve-cjs](./quick/317-add-proximity-pre-filter-to-nf-solve-cjs/) |
 
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed quick task 314: Fix proximity pipeline
+Stopped at: Completed quick task 317: Add proximity pre-filter to nf-solve.cjs reverse scanners
 Resume file: None
