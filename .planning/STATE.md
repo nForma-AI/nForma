@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 
 ## Current Position
 
-Phase: 5 of 5 (Test Harness)
-Plan: v0.36-05-02-PLAN.md (2/2 plans complete)
-Status: Complete
-Last activity: 2026-03-16 - Completed quick task 317: Add proximity pre-filter to nf-solve.cjs reverse scanners
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-16 — Milestone v0.37 started
 
 Progress: [##########] 100%
 

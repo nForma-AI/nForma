@@ -10,6 +10,18 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
+## Current Milestone: v0.37 — Close the Loop: Cross-Layer Feedback Integration
+
+**Goal:** Close six information gaps between nForma subsystems so that knowledge flows bidirectionally — tests link back to requirements, scanners learn from FP feedback, gates self-promote, and quorum debates produce reusable precedents.
+
+**Target features:**
+- Test→Requirement back-linking via `@requirement` annotations in test files
+- Code→Requirement transitive linking via proximity graph extension
+- Gate auto-promotion with consecutive pass tracking (SOFT_GATE→HARD_GATE lifecycle)
+- Scanner FP feedback loop with per-scanner rate tracking and threshold auto-tuning
+- Quorum precedent extraction from debate archives into compact knowledge base
+- Hypothesis measurement→solve targeting priority integration
+
 ## Shipped: v0.36 — Solve Loop Convergence & Correctness (2026-03-15)
 
 **Goal:** Fix active bugs in the solve loop diagnostic engine, add convergence correctness guarantees, parallelize remediation dispatch, resolve structural blockers, and build comprehensive test coverage.
