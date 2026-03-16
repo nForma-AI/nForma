@@ -14,7 +14,7 @@ See: .planning/PROJECT.md
 
 | Task ID | Description | Date | Commit | Status | Link |
 |---------|-------------|------|--------|--------|------|
-| 318 | Replace fixed wall-clock quorum timeout with idle-based timeout | 2026-03-16 | a7bf282c | Complete | [318-replace-fixed-wall-clock-quorum-timeout-](./quick/318-replace-fixed-wall-clock-quorum-timeout-/) |
+| 318 | Replace fixed wall-clock quorum timeout with idle-based timeout | 2026-03-16 | a7bf282c | Verified | [318-replace-fixed-wall-clock-quorum-timeout-](./quick/318-replace-fixed-wall-clock-quorum-timeout-/) |
 
 ## Session Log
 
