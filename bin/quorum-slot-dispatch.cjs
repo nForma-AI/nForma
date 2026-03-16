@@ -79,6 +79,117 @@ const getArg = (f) => {
 const hasFlag = (f) => argv.includes(f);
 const reviewOnly = hasFlag('--review-only'); // EXEC-01: review-only tool restriction
 
+// ─── Precedent loading, matching, and formatting functions ───────────────────
+
+/**
+ * Cache for loaded precedents, keyed by projectRoot.
+ * @type {Map<string, Array>}
+ */
+const precedentsCache = new Map();
+
+/**
+ * loadPrecedents — reads `.planning/quorum/precedents.json` from projectRoot.
+ * Fail-open: returns [] if file missing, malformed, or any error occurs.
+ *
+ * @param {string} projectRoot
+ * @returns {Array} — array of precedent objects, or [] if load failed
+ */
+function loadPrecedents(projectRoot) {
+  if (precedentsCache.has(projectRoot)) {
+    return precedentsCache.get(projectRoot);
+  }
+  try {
+    const precPath = path.join(projectRoot, '.planning', 'quorum', 'precedents.json');
+    const raw = fs.readFileSync(precPath, 'utf8');
+    const parsed = JSON.parse(raw);
+    const precedents = Array.isArray(parsed.precedents) ? parsed.precedents : [];
+    precedentsCache.set(projectRoot, precedents);
+    return precedents;
+  } catch (e) {
+    process.stderr.write(`[quorum-slot-dispatch] precedents load failed (fail-open): ${e.message}\n`);
+    precedentsCache.set(projectRoot, []);
+    return [];
+  }
+}
+
+/**
+ * matchPrecedentsByKeywords — scores and selects relevant precedents for a question.
+ * Reuses extractKeywords() for tokenization. Filters stale entries (>90 days).
+ *
+ * @param {Array} precedents — array of precedent objects
+ * @param {string} question — the current quorum question
+ * @param {number} [maxMatches=3] — max precedents to return
+ * @returns {Array} — matched precedent objects sorted by relevance
+ */
+function matchPrecedentsByKeywords(precedents, question, maxMatches = 3) {
+  if (!precedents || precedents.length === 0 || !question) return [];
+
+  const MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+  const questionKw = extractKeywords(question);
+  if (questionKw.size === 0) return [];
+
+  const scored = [];
+  for (const prec of precedents) {
+    // TTL check — inline to avoid cross-module dependency
+    try {
+      const precTime = new Date(prec.date).getTime();
+      if (isNaN(precTime) || (Date.now() - precTime) >= MAX_AGE_MS) continue;
+    } catch {
+      continue;
+    }
+
+    const precQuestionKw = extractKeywords(prec.question);
+    const precOutcomeKw = extractKeywords(prec.outcome);
+
+    // Score: question overlap * 1 + outcome overlap * 2
+    let score = 0;
+    for (const kw of questionKw) {
+      if (precQuestionKw.has(kw)) score += 1;
+      if (precOutcomeKw.has(kw)) score += 2;
+    }
+
+    if (score > 0) {
+      scored.push({ prec, score });
+    }
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, maxMatches).map(s => s.prec);
+}
+
+/**
+ * formatPrecedentsSection — formats matched precedents into a text block for prompt injection.
+ * Returns null if input is empty/null.
+ *
+ * @param {Array} precedents — array of matched precedent objects
+ * @returns {string|null} — formatted section or null
+ */
+function formatPrecedentsSection(precedents) {
+  if (!precedents || precedents.length === 0) return null;
+
+  const lines = [];
+  lines.push('=== PAST QUORUM PRECEDENTS ===');
+  lines.push('The following past quorum decisions are relevant to this question.');
+  lines.push('Consider whether they apply or should be revisited:');
+  lines.push('');
+
+  for (const prec of precedents) {
+    const q = prec.question && prec.question.length > 120
+      ? prec.question.slice(0, 120) + '...'
+      : (prec.question || '');
+    const o = prec.outcome && prec.outcome.length > 150
+      ? prec.outcome.slice(0, 150) + '...'
+      : (prec.outcome || '');
+    lines.push(`- **${prec.consensus}** (${prec.date}): ${q}`);
+    lines.push(`  Outcome: ${o}`);
+  }
+
+  lines.push('');
+  lines.push('================================');
+
+  return lines.join('\n');
+}
+
 // ─── Requirements loading and matching functions ──────────────────────────────
 
 /**
@@ -333,7 +444,7 @@ function formatRequirementsSection(requirements) {
  * @param {Array}  [opts.requirements]     - array of requirement objects to inject
  * @returns {string}
  */
-function buildModeAPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, requestImprovements, requirements }) {
+function buildModeAPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, requestImprovements, requirements, precedents }) {
   const lines = [];
 
   // Header
@@ -365,6 +476,15 @@ function buildModeAPrompt({ round, repoDir, question, artifactPath, artifactCont
     if (reqSection) {
       lines.push('');
       lines.push(reqSection);
+    }
+  }
+
+  // Precedents section (conditional — injected after requirements, before review context)
+  if (precedents && precedents.length > 0) {
+    const precSection = formatPrecedentsSection(precedents);
+    if (precSection) {
+      lines.push('');
+      lines.push(precSection);
     }
   }
 
@@ -482,7 +602,7 @@ function buildModeAPrompt({ round, repoDir, question, artifactPath, artifactCont
  * @param {boolean}[opts.reviewOnly]       - EXEC-01: inject read-only tool restriction
  * @returns {string}
  */
-function buildModeBPrompt({ round, repoDir, question, traces, artifactPath, artifactContent, reviewContext, priorPositions, requirements, reviewOnly }) {
+function buildModeBPrompt({ round, repoDir, question, traces, artifactPath, artifactContent, reviewContext, priorPositions, requirements, precedents, reviewOnly }) {
   const lines = [];
 
   // Header
@@ -520,6 +640,15 @@ function buildModeBPrompt({ round, repoDir, question, traces, artifactPath, arti
     if (reqSection) {
       lines.push('');
       lines.push(reqSection);
+    }
+  }
+
+  // Precedents section (conditional — injected after requirements, before review context)
+  if (precedents && precedents.length > 0) {
+    const precSection = formatPrecedentsSection(precedents);
+    if (precSection) {
+      lines.push('');
+      lines.push(precSection);
     }
   }
 
@@ -975,14 +1104,18 @@ async function main() {
   const allRequirements = loadRequirements(repoDir);
   const matchedRequirements = matchRequirementsByKeywords(allRequirements, question, artifactPath);
 
+  // Load and match precedents (fail-open: if loading fails, precedents will be empty)
+  const allPrecedents = loadPrecedents(repoDir);
+  const matchedPrecedents = matchPrecedentsByKeywords(allPrecedents, question);
+
   // EXEC-01: Determine review mode — Mode B or explicit --review-only flag
   const isReviewMode = mode === 'B' || reviewOnly;
 
   let prompt;
   if (mode === 'B') {
-    prompt = buildModeBPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, traces: traces || '', requirements: matchedRequirements, reviewOnly: isReviewMode });
+    prompt = buildModeBPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, traces: traces || '', requirements: matchedRequirements, precedents: matchedPrecedents, reviewOnly: isReviewMode });
   } else {
-    prompt = buildModeAPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, requestImprovements, requirements: matchedRequirements });
+    prompt = buildModeAPrompt({ round, repoDir, question, artifactPath, artifactContent, reviewContext, priorPositions, requestImprovements, requirements: matchedRequirements, precedents: matchedPrecedents });
   }
 
   // ── Context retrieval enrichment (ORCH-01) ──────────────────────────────────
@@ -1149,6 +1282,9 @@ module.exports = {
     loadRequirements,
     matchRequirementsByKeywords,
     formatRequirementsSection,
+    loadPrecedents,
+    matchPrecedentsByKeywords,
+    formatPrecedentsSection,
     enrichPromptWithRetrieval,
     classifyDispatchError,
   };

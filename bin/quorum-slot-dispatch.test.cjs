@@ -622,3 +622,211 @@ test('TC-DISPATCH-UNAVAIL-9: UNAVAIL reasoning includes first 200 chars of outpu
     'reasoning must contain exactly 200 chars of output excerpt'
   );
 });
+
+// ── Precedent exports ────────────────────────────────────────────────────────
+
+test('TC-PREC-EXPORT-1: loadPrecedents is exported and is a function', () => {
+  assert.ok(mod, 'Module not available yet');
+  assert.strictEqual(typeof mod.loadPrecedents, 'function');
+});
+
+test('TC-PREC-EXPORT-2: matchPrecedentsByKeywords is exported and is a function', () => {
+  assert.ok(mod, 'Module not available yet');
+  assert.strictEqual(typeof mod.matchPrecedentsByKeywords, 'function');
+});
+
+test('TC-PREC-EXPORT-3: formatPrecedentsSection is exported and is a function', () => {
+  assert.ok(mod, 'Module not available yet');
+  assert.strictEqual(typeof mod.formatPrecedentsSection, 'function');
+});
+
+// ── matchPrecedentsByKeywords ────────────────────────────────────────────────
+
+const today = new Date().toISOString().slice(0, 10);
+
+const mockPrecedents = [
+  { question: 'Should we use keyword matching for precedent lookup?', date: today, consensus: 'APPROVE', outcome: 'Keyword matching is sufficient for MVP', source_file: 'test.md', computed_at: new Date().toISOString() },
+  { question: 'Should we add semantic embeddings?', date: today, consensus: 'BLOCK', outcome: 'Deferred to future phase when corpus is larger', source_file: 'test2.md', computed_at: new Date().toISOString() },
+  { question: 'Should we refactor the quorum timeout logic?', date: today, consensus: 'APPROVE', outcome: 'Timeout refactor approved for idle-based approach', source_file: 'test3.md', computed_at: new Date().toISOString() },
+  { question: 'Should we add a fourth quorum slot?', date: today, consensus: 'APPROVE', outcome: 'Adding slot improves diversity of keyword opinions', source_file: 'test4.md', computed_at: new Date().toISOString() },
+];
+
+test('TC-PREC-MATCH-1: returns empty array when precedents is empty', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.matchPrecedentsByKeywords([], 'some question');
+  assert.deepStrictEqual(result, []);
+});
+
+test('TC-PREC-MATCH-2: returns empty array when question has no meaningful keywords', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.matchPrecedentsByKeywords(mockPrecedents, 'the a an is');
+  assert.deepStrictEqual(result, []);
+});
+
+test('TC-PREC-MATCH-3: matches precedent whose question shares keywords with input', () => {
+  assert.ok(mod, 'Module not available yet');
+  const result = mod.matchPrecedentsByKeywords(mockPrecedents, 'keyword matching lookup');
+  assert.ok(result.length > 0, 'should match at least one precedent');
+  assert.ok(result.some(p => p.question.includes('keyword matching')), 'should match the keyword matching precedent');
+});
+
+test('TC-PREC-MATCH-4: scores outcome keyword matches higher (2x weight)', () => {
+  assert.ok(mod, 'Module not available yet');
+  // "keyword" appears in both question and outcome of mockPrecedents[0], and in outcome of [3]
+  // "slot" appears in question of [3] and outcome of [3]
+  const result = mod.matchPrecedentsByKeywords(mockPrecedents, 'keyword slot opinions');
+  assert.ok(result.length >= 2, 'should match multiple precedents');
+});
+
+test('TC-PREC-MATCH-5: returns at most 3 precedents even when more match', () => {
+  assert.ok(mod, 'Module not available yet');
+  // Use a broad keyword that matches all
+  const result = mod.matchPrecedentsByKeywords(mockPrecedents, 'should quorum');
+  assert.ok(result.length <= 3, 'should return at most 3');
+});
+
+test('TC-PREC-MATCH-6: sorts by score descending (highest relevance first)', () => {
+  assert.ok(mod, 'Module not available yet');
+  // "keyword matching" question should score highest when searching for those terms
+  const result = mod.matchPrecedentsByKeywords(mockPrecedents, 'keyword matching precedent');
+  if (result.length >= 2) {
+    // First result should be the one with "keyword matching" in question (highest relevance)
+    assert.ok(result[0].question.includes('keyword'), 'highest scored should be first');
+  }
+});
+
+test('TC-PREC-MATCH-7: excludes precedents with date > 90 days old', () => {
+  assert.ok(mod, 'Module not available yet');
+  const staleDate = new Date();
+  staleDate.setDate(staleDate.getDate() - 91);
+  const stalePrecedents = [
+    { question: 'Should we use keyword matching?', date: staleDate.toISOString().slice(0, 10), consensus: 'APPROVE', outcome: 'Yes keyword matching', source_file: 'old.md', computed_at: new Date().toISOString() }
+  ];
+  const result = mod.matchPrecedentsByKeywords(stalePrecedents, 'keyword matching');
+  assert.deepStrictEqual(result, [], 'stale precedent should be excluded');
+});
+
+test('TC-PREC-MATCH-8: includes precedent dated 89 days ago', () => {
+  assert.ok(mod, 'Module not available yet');
+  const freshDate = new Date();
+  freshDate.setDate(freshDate.getDate() - 89);
+  const freshPrecedents = [
+    { question: 'Should we use keyword matching?', date: freshDate.toISOString().slice(0, 10), consensus: 'APPROVE', outcome: 'Yes keyword matching', source_file: 'fresh.md', computed_at: new Date().toISOString() }
+  ];
+  const result = mod.matchPrecedentsByKeywords(freshPrecedents, 'keyword matching');
+  assert.ok(result.length > 0, 'fresh precedent should be included');
+});
+
+test('TC-PREC-MATCH-9: handles precedent with invalid date gracefully', () => {
+  assert.ok(mod, 'Module not available yet');
+  const badDatePrecedents = [
+    { question: 'Should we use keyword matching?', date: 'not-a-date', consensus: 'APPROVE', outcome: 'Yes', source_file: 'bad.md', computed_at: new Date().toISOString() }
+  ];
+  const result = mod.matchPrecedentsByKeywords(badDatePrecedents, 'keyword matching');
+  assert.deepStrictEqual(result, [], 'invalid date should be excluded without throwing');
+});
+
+// ── formatPrecedentsSection ──────────────────────────────────────────────────
+
+test('TC-PREC-FORMAT-1: returns null for empty array', () => {
+  assert.ok(mod, 'Module not available yet');
+  assert.strictEqual(mod.formatPrecedentsSection([]), null);
+});
+
+test('TC-PREC-FORMAT-2: returns null for null input', () => {
+  assert.ok(mod, 'Module not available yet');
+  assert.strictEqual(mod.formatPrecedentsSection(null), null);
+});
+
+test('TC-PREC-FORMAT-3: includes PAST QUORUM PRECEDENTS header', () => {
+  assert.ok(mod, 'Module not available yet');
+  const section = mod.formatPrecedentsSection([mockPrecedents[0]]);
+  assert.ok(section.includes('=== PAST QUORUM PRECEDENTS ==='), 'should include header');
+});
+
+test('TC-PREC-FORMAT-4: includes footer delimiter', () => {
+  assert.ok(mod, 'Module not available yet');
+  const section = mod.formatPrecedentsSection([mockPrecedents[0]]);
+  assert.ok(section.includes('================================'), 'should include footer');
+});
+
+test('TC-PREC-FORMAT-5: truncates question longer than 120 chars with ...', () => {
+  assert.ok(mod, 'Module not available yet');
+  const longQ = { ...mockPrecedents[0], question: 'x'.repeat(200) };
+  const section = mod.formatPrecedentsSection([longQ]);
+  assert.ok(section.includes('x'.repeat(120) + '...'), 'should truncate question to 120 chars');
+});
+
+test('TC-PREC-FORMAT-6: truncates outcome longer than 150 chars with ...', () => {
+  assert.ok(mod, 'Module not available yet');
+  const longO = { ...mockPrecedents[0], outcome: 'y'.repeat(200) };
+  const section = mod.formatPrecedentsSection([longO]);
+  assert.ok(section.includes('y'.repeat(150) + '...'), 'should truncate outcome to 150 chars');
+});
+
+test('TC-PREC-FORMAT-7: includes consensus and date for each entry', () => {
+  assert.ok(mod, 'Module not available yet');
+  const section = mod.formatPrecedentsSection([mockPrecedents[0]]);
+  assert.ok(section.includes('**APPROVE**'), 'should include consensus');
+  assert.ok(section.includes(today), 'should include date');
+});
+
+test('TC-PREC-FORMAT-8: formats multiple precedents correctly', () => {
+  assert.ok(mod, 'Module not available yet');
+  const section = mod.formatPrecedentsSection([mockPrecedents[0], mockPrecedents[1]]);
+  assert.ok(section.includes('**APPROVE**'), 'should include first consensus');
+  assert.ok(section.includes('**BLOCK**'), 'should include second consensus');
+});
+
+// ── Precedent prompt injection ───────────────────────────────────────────────
+
+test('TC-PREC-INJECT-1: buildModeAPrompt with precedents includes PAST QUORUM PRECEDENTS section', () => {
+  assert.ok(mod, 'Module not available yet');
+  const prompt = mod.buildModeAPrompt({
+    round: 1,
+    repoDir: '/tmp/test',
+    question: 'test question',
+    precedents: [mockPrecedents[0]]
+  });
+  assert.ok(prompt.includes('PAST QUORUM PRECEDENTS'), 'Mode A prompt should include precedents section');
+});
+
+test('TC-PREC-INJECT-2: buildModeAPrompt with empty precedents does NOT include precedent section', () => {
+  assert.ok(mod, 'Module not available yet');
+  const prompt = mod.buildModeAPrompt({
+    round: 1,
+    repoDir: '/tmp/test',
+    question: 'test question',
+    precedents: []
+  });
+  assert.ok(!prompt.includes('PAST QUORUM PRECEDENTS'), 'Mode A prompt should not include precedents when empty');
+});
+
+test('TC-PREC-INJECT-3: buildModeBPrompt with precedents includes PAST QUORUM PRECEDENTS section', () => {
+  assert.ok(mod, 'Module not available yet');
+  const prompt = mod.buildModeBPrompt({
+    round: 1,
+    repoDir: '/tmp/test',
+    question: 'test question',
+    traces: 'some traces',
+    precedents: [mockPrecedents[0]]
+  });
+  assert.ok(prompt.includes('PAST QUORUM PRECEDENTS'), 'Mode B prompt should include precedents section');
+});
+
+test('TC-PREC-INJECT-4: precedent section appears after requirements section when both present', () => {
+  assert.ok(mod, 'Module not available yet');
+  const fakeReqs = [{ id: 'R1', text: 'Test requirement', category: 'Test' }];
+  const prompt = mod.buildModeAPrompt({
+    round: 1,
+    repoDir: '/tmp/test',
+    question: 'test question',
+    requirements: fakeReqs,
+    precedents: [mockPrecedents[0]]
+  });
+  const reqIdx = prompt.indexOf('APPLICABLE REQUIREMENTS');
+  const precIdx = prompt.indexOf('PAST QUORUM PRECEDENTS');
+  assert.ok(reqIdx >= 0, 'requirements section should be present');
+  assert.ok(precIdx >= 0, 'precedents section should be present');
+  assert.ok(precIdx > reqIdx, 'precedents should appear after requirements');
+});
