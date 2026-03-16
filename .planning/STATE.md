@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 Phase: 5 of 5 (Test Harness)
 Plan: v0.36-05-02-PLAN.md (2/2 plans complete)
 Status: Complete
-Last activity: 2026-03-16 - Completed quick task 310: Make nf-mcp-dispatch-guard read slot names dynamically from providers.json
+Last activity: 2026-03-16 - Completed quick task 312: providers.json fallback for model dedup
 
 Progress: [##########] 100%
 
@@ -112,6 +112,7 @@ None.
 | 309 | Fix 2 XState model gaps identified by Gate A grounding check | 2026-03-16 | caed0e2d | Pending | [309-fix-2-xstate-model-gaps-identified-by-ga](./quick/309-fix-2-xstate-model-gaps-identified-by-ga/) |
 | 311 | Generate test recipes for uncovered L3 failure modes (Gate C) | 2026-03-16 | da37b56d | Pending | [311-generate-test-recipes-for-uncovered-l3-f](./quick/311-generate-test-recipes-for-uncovered-l3-f/) |
 | 310 | Make nf-mcp-dispatch-guard read slot names dynamically from providers.json and ~/.claude.json mcpServers instead of hardcoded SLOT_TOOL_SUFFIX families | 2026-03-16 | dcf72af7 | Pending | [310-make-nf-mcp-dispatch-guard-read-slot-nam](./quick/310-make-nf-mcp-dispatch-guard-read-slot-nam/) |
+| 312 | Make nf-prompt.js fall back to providers.json when agent_config is empty for model dedup | 2026-03-16 | 5ce50f57 | Verified | [312-make-nf-prompt-js-fall-back-to-providers](./quick/312-make-nf-prompt-js-fall-back-to-providers/) |
 
 ## Session Continuity
 
