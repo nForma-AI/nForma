@@ -1,7 +1,7 @@
 {
-  "aggregated_at": "2026-03-16T14:25:02.886Z",
-  "content_hash": "4e4e7388b103860c",
-  "frozen_at": "2026-03-16T14:25:02.887Z",
+  "aggregated_at": "2026-03-16T23:09:09.670Z",
+  "content_hash": "6dd82d51c55109ffc3faf339ad738ba042cb730bc16772b181f9bf88b8c57f2d",
+  "frozen_at": "2026-03-16T23:09:09.671Z",
   "requirements": [
     {
       "id": "ACT-01",
@@ -1154,6 +1154,18 @@
         ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ],
       "category_raw": "Dispatch Reliability"
+    },
+    {
+      "id": "DISP-08",
+      "text": "Quorum subprocess dispatch uses dual-timer timeout: an idle timer (default 20s) that resets on stdout/stderr activity, and a hard wall-clock cap (default 5min) that never resets, replacing the previous fixed wall-clock timeout",
+      "category": "Quorum & Dispatch",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Prevents premature kills of actively-working CLI agents while catching truly stuck processes faster. The idle timeout resets on every stdout/stderr data event; the hard cap is an absolute safety net.",
+      "provenance": {
+        "source_file": ".planning/quick/318-replace-fixed-wall-clock-quorum-timeout-/318-PLAN.md",
+        "milestone": "quick-318"
+      }
     },
     {
       "id": "DRIFT-01",
