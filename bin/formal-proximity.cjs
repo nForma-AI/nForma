@@ -69,17 +69,22 @@ const EDGE_WEIGHTS = {
 // Scoring methods registry
 // ─────────────────────────────────────────────────────────────────────────────
 const SCORING_METHODS = {
-  legacy:   { weights: EDGE_WEIGHTS,    hubDampen: false, tfidf: false, categoryBoost: false },
-  semantic: { weights: SEMANTIC_WEIGHTS, hubDampen: false, tfidf: false, categoryBoost: false },
-  hub:      { weights: EDGE_WEIGHTS,    hubDampen: true,  tfidf: false, categoryBoost: false },
-  tfidf:    { weights: EDGE_WEIGHTS,    hubDampen: false, tfidf: true,  categoryBoost: false },
-  category: { weights: EDGE_WEIGHTS,    hubDampen: false, tfidf: false, categoryBoost: true  },
-  // Combos
-  'semantic+tfidf':     { weights: SEMANTIC_WEIGHTS, hubDampen: false, tfidf: true,  categoryBoost: false },
-  'semantic+hub':       { weights: SEMANTIC_WEIGHTS, hubDampen: true,  tfidf: false, categoryBoost: false },
-  'semantic+hub+tfidf': { weights: SEMANTIC_WEIGHTS, hubDampen: true, tfidf: true,  categoryBoost: false },
-  'semantic+hub+cat':   { weights: SEMANTIC_WEIGHTS, hubDampen: true, tfidf: false, categoryBoost: true  },
-  full:                 { weights: SEMANTIC_WEIGHTS, hubDampen: true, tfidf: true,  categoryBoost: true  },
+  legacy:   { weights: EDGE_WEIGHTS,    hubDampen: false, tfidf: false, categoryBoost: false, embedding: false },
+  semantic: { weights: SEMANTIC_WEIGHTS, hubDampen: false, tfidf: false, categoryBoost: false, embedding: false },
+  hub:      { weights: EDGE_WEIGHTS,    hubDampen: true,  tfidf: false, categoryBoost: false, embedding: false },
+  tfidf:    { weights: EDGE_WEIGHTS,    hubDampen: false, tfidf: true,  categoryBoost: false, embedding: false },
+  category: { weights: EDGE_WEIGHTS,    hubDampen: false, tfidf: false, categoryBoost: true,  embedding: false },
+  // Combos (graph-only)
+  'semantic+tfidf':     { weights: SEMANTIC_WEIGHTS, hubDampen: false, tfidf: true,  categoryBoost: false, embedding: false },
+  'semantic+hub':       { weights: SEMANTIC_WEIGHTS, hubDampen: true,  tfidf: false, categoryBoost: false, embedding: false },
+  'semantic+hub+tfidf': { weights: SEMANTIC_WEIGHTS, hubDampen: true,  tfidf: true,  categoryBoost: false, embedding: false },
+  'semantic+hub+cat':   { weights: SEMANTIC_WEIGHTS, hubDampen: true,  tfidf: false, categoryBoost: true,  embedding: false },
+  full:                 { weights: SEMANTIC_WEIGHTS, hubDampen: true,  tfidf: true,  categoryBoost: true,  embedding: false },
+  // Embedding-amplified combos — blend neural cosine similarity with graph traversal
+  'semantic+embed':           { weights: SEMANTIC_WEIGHTS, hubDampen: false, tfidf: false, categoryBoost: false, embedding: true },
+  'semantic+hub+embed':       { weights: SEMANTIC_WEIGHTS, hubDampen: true,  tfidf: false, categoryBoost: false, embedding: true },
+  'semantic+hub+tfidf+embed': { weights: SEMANTIC_WEIGHTS, hubDampen: true,  tfidf: true,  categoryBoost: false, embedding: true },
+  'full+embed':               { weights: SEMANTIC_WEIGHTS, hubDampen: true,  tfidf: true,  categoryBoost: true,  embedding: true },
 };
 
 const DEFAULT_SCORING_METHOD = 'semantic+hub+tfidf';
@@ -90,6 +95,10 @@ const DEFAULT_SCORING_METHOD = 'semantic+hub+tfidf';
 //   sem+tfidf     → TRACE-01, LTCY-01 (keyword similarity catches pairs hub dampening penalizes)
 // Legacy (no hub dampening) was dropped: finds same TPs as sem+tfidf but with 85% false positive rate.
 const ENSEMBLE_METHODS = ['semantic+hub+tfidf', 'semantic+tfidf'];
+
+// Amplified ensemble: adds embedding method to surface pairs the graph can't reach.
+// The embedding method finds high-cosine pairs with zero graph path — graph-only methods miss these entirely.
+const AMPLIFIED_ENSEMBLE_METHODS = ['semantic+hub+tfidf', 'semantic+tfidf', 'semantic+hub+embed'];
 
 // Forward -> reverse relationship mapping
 const REVERSE_RELS = {
@@ -541,7 +550,72 @@ function buildIndex() {
   if (latestAnnotationMtime) {
     sources['source-annotations'] = { mtime: latestAnnotationMtime };
   }
-  process.stderr.write('[proximity] Extracted ' + annotationEdgeCount + ' requirement annotations from ' + annotationFileCount + ' source files\n');
+  process.stderr.write('[proximity] Extracted ' + annotationEdgeCount + ' requirement annotations from ' + annotationFileCount + ' formal model files\n');
+
+  // Step 12c: Parse @requirement annotations from JavaScript source files (bin/, hooks/)
+  const SOURCE_CODE_DIRS = [
+    { dir: path.join(process.cwd(), 'bin'), ext: '.cjs' },
+    { dir: path.join(process.cwd(), 'bin'), ext: '.mjs' },
+    { dir: path.join(process.cwd(), 'hooks'), ext: '.js' },
+  ];
+  const codeAnnotationRegex = /@requirement\s+([A-Z][A-Z0-9_-]+)/g;
+  const codeReqHeaderRegex = /\/\/\s*Requirements:\s*(.+)/;
+  let codeAnnotationEdgeCount = 0;
+  let codeAnnotationFileCount = 0;
+  let latestCodeAnnotationMtime = null;
+
+  for (const { dir, ext } of SOURCE_CODE_DIRS) {
+    if (!fs.existsSync(dir)) continue;
+    let dirFiles;
+    try { dirFiles = fs.readdirSync(dir); } catch { continue; }
+    const filtered = dirFiles.filter(f => f.endsWith(ext) && !f.endsWith('.test.cjs') && !f.endsWith('.test.js'));
+    for (const file of filtered) {
+      const fullPath = path.join(dir, file);
+      let content;
+      try { content = fs.readFileSync(fullPath, 'utf8'); } catch { continue; }
+
+      const mtime = fileMtime(fullPath);
+      if (mtime && (!latestCodeAnnotationMtime || mtime > latestCodeAnnotationMtime)) {
+        latestCodeAnnotationMtime = mtime;
+      }
+
+      // Only parse first 30 lines — annotations belong in file headers only
+      const headerLines = content.split('\n').slice(0, 30).join('\n');
+      const reqIds = new Set();
+
+      // Pattern 1: // @requirement REQ-ID
+      let codeMatch;
+      while ((codeMatch = codeAnnotationRegex.exec(headerLines)) !== null) {
+        reqIds.add(codeMatch[1]);
+      }
+
+      // Pattern 2: // Requirements: REQ-01, REQ-02
+      const headerMatch = headerLines.match(codeReqHeaderRegex);
+      if (headerMatch) {
+        const ids = headerMatch[1].split(/[,\s]+/).map(s => s.trim()).filter(s => /^[A-Z][A-Z0-9_-]+/.test(s));
+        for (const id of ids) reqIds.add(id);
+      }
+
+      if (reqIds.size === 0) continue;
+      codeAnnotationFileCount++;
+
+      const relativePath = path.relative(process.cwd(), fullPath);
+      const cfKey = `code_file::${relativePath}`;
+      ensureNode(nodes, cfKey, 'code_file', relativePath);
+
+      for (const reqId of reqIds) {
+        const reqKey = `requirement::${reqId}`;
+        ensureNode(nodes, reqKey, 'requirement', reqId);
+        addEdge(nodes[cfKey], reqKey, 'declares', 'source-annotation');
+        codeAnnotationEdgeCount++;
+      }
+    }
+  }
+
+  if (latestCodeAnnotationMtime) {
+    sources['code-source-annotations'] = { mtime: latestCodeAnnotationMtime };
+  }
+  process.stderr.write('[proximity] Extracted ' + codeAnnotationEdgeCount + ' code-requirement annotations from ' + codeAnnotationFileCount + ' source files\n');
 
   // Step 13: REVERSE PASS
   const reverseEdges = [];
@@ -640,6 +714,52 @@ function tfidfSimilarity(modelPath, reqText) {
   // Jaccard similarity
   const union = new Set([...modelSet, ...reqSet]).size;
   return union > 0 ? overlap / union : 0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Embedding similarity (amplified scoring via sentence-transformer cache)
+// Cache is built by `node bin/proximity-embed.mjs` and stored at
+// .planning/formal/embedding-cache.json. Loaded lazily on first use.
+// ─────────────────────────────────────────────────────────────────────────────
+let _embeddingCache = null;
+let _embeddingCacheLoaded = false;
+
+function loadEmbeddingCache() {
+  if (_embeddingCacheLoaded) return _embeddingCache;
+  _embeddingCacheLoaded = true;
+  const cachePath = path.join(process.cwd(), '.planning', 'formal', 'embedding-cache.json');
+  try {
+    const data = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+    if (data && data.vectors && data.schema_version === '1') {
+      _embeddingCache = data;
+      process.stderr.write('[proximity] Loaded embedding cache: ' + data.count + ' vectors × ' + data.dim + 'd\n');
+    }
+  } catch {
+    // fail-open: embedding cache is optional
+    if (!fs.existsSync(cachePath)) {
+      process.stderr.write('[proximity] No embedding cache found. Embedding methods will degrade to graph-only.\n');
+      process.stderr.write('[proximity] To build: node bin/proximity-embed.mjs --cache-only\n');
+    }
+  }
+  return _embeddingCache;
+}
+
+/**
+ * Compute cosine similarity between two nodes using pre-computed embeddings.
+ * Returns 0 if either node has no embedding vector.
+ * Vectors are pre-normalized, so dot product = cosine similarity.
+ */
+function embeddingSimilarity(nodeKeyA, nodeKeyB) {
+  const cache = loadEmbeddingCache();
+  if (!cache) return 0;
+
+  const vecA = cache.vectors[nodeKeyA];
+  const vecB = cache.vectors[nodeKeyB];
+  if (!vecA || !vecB) return 0;
+
+  let dot = 0;
+  for (let i = 0; i < vecA.length; i++) dot += vecA[i] * vecB[i];
+  return dot;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -747,6 +867,7 @@ function proximity(index, nodeKeyA, nodeKeyB, maxDepth, opts) {
   const useHubDampen = config.hubDampen;
   const useTfidf = config.tfidf;
   const useCategoryBoost = config.categoryBoost;
+  const useEmbedding = config.embedding;
 
   // BFS collecting paths to B within maxDepth
   let score = 0;
@@ -796,6 +917,22 @@ function proximity(index, nodeKeyA, nodeKeyB, maxDepth, opts) {
     const reqText = (opts && opts.reqText) || '';
     const tfidf = tfidfSimilarity(modelPath, reqText);
     finalScore = 0.6 * finalScore + 0.4 * tfidf;
+  }
+
+  // Embedding blend: mix graph score with neural cosine similarity.
+  // When graph score is 0 (no path exists), embedding provides the only signal.
+  // When graph score > 0, embedding amplifies or dampens based on semantic alignment.
+  if (useEmbedding) {
+    const embedSim = embeddingSimilarity(nodeKeyA, nodeKeyB);
+    if (embedSim > 0) {
+      if (finalScore === 0) {
+        // No graph path — embedding is the sole signal (scaled to proximity range)
+        finalScore = embedSim * 0.5;
+      } else {
+        // Graph path exists — blend: 60% graph, 40% embedding
+        finalScore = 0.6 * finalScore + 0.4 * embedSim;
+      }
+    }
   }
 
   // Category boost: multiply by same-domain boost or cross-domain penalty
@@ -882,4 +1019,26 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { buildIndex, proximity, countEmbeddedEdges, EDGE_WEIGHTS, SEMANTIC_WEIGHTS, REVERSE_RELS, SCORING_METHODS, DEFAULT_SCORING_METHOD, ENSEMBLE_METHODS, tfidfSimilarity };
+/**
+ * Parse @requirement annotations from JavaScript source file header (first 30 lines).
+ * Returns Set of requirement IDs found.
+ * @param {string} content - Full file content
+ * @returns {Set<string>} requirement IDs
+ */
+function parseSourceAnnotations(content) {
+  const headerLines = content.split('\n').slice(0, 30).join('\n');
+  const reqIds = new Set();
+  const annotationRe = /@requirement\s+([A-Z][A-Z0-9_-]+)/g;
+  let m;
+  while ((m = annotationRe.exec(headerLines)) !== null) {
+    reqIds.add(m[1]);
+  }
+  const headerMatch = headerLines.match(/\/\/\s*Requirements:\s*(.+)/);
+  if (headerMatch) {
+    const ids = headerMatch[1].split(/[,\s]+/).map(s => s.trim()).filter(s => /^[A-Z][A-Z0-9_-]+/.test(s));
+    for (const id of ids) reqIds.add(id);
+  }
+  return reqIds;
+}
+
+module.exports = { buildIndex, proximity, countEmbeddedEdges, parseSourceAnnotations, EDGE_WEIGHTS, SEMANTIC_WEIGHTS, REVERSE_RELS, SCORING_METHODS, DEFAULT_SCORING_METHOD, ENSEMBLE_METHODS, AMPLIFIED_ENSEMBLE_METHODS, embeddingSimilarity, tfidfSimilarity };
