@@ -436,6 +436,55 @@ function writePerModelGateFile(perModelResults, evidenceReadiness) {
   }
 }
 
+// ── GPROMO: Consecutive pass tracking & promotion gating ─────────────────────
+
+/**
+ * Evaluates whether a model passes the current session and computes new
+ * consecutive_pass_count. A model passes when:
+ *   - maturity >= 1
+ *   - Evidence is not regressing (skipped, or score >= threshold for current gate)
+ *   - Model is NOT in UNSTABLE or cooling-down state
+ *
+ * @param {Object} model - The model entry (must have gate_maturity, consecutive_pass_count)
+ * @param {number} maturity - Gate maturity score (0-3) for this session
+ * @param {Object} evidenceReadiness - { score, total, skipped }
+ * @param {boolean} isUnstableOrCooling - Whether model is flagged UNSTABLE or cooling
+ * @returns {{ passes: boolean, newCount: number }}
+ */
+function evaluateConsecutivePass(model, maturity, evidenceReadiness, isUnstableOrCooling) {
+  const currentGate = model.gate_maturity || 'ADVISORY';
+  const thresholds = { ADVISORY: 0, SOFT_GATE: 0.8, HARD_GATE: 2.5 };
+  const threshold = thresholds[currentGate] || 0;
+
+  const evidenceOk = evidenceReadiness.skipped || evidenceReadiness.score >= threshold;
+  const passes = maturity >= 1 && evidenceOk && !isUnstableOrCooling;
+
+  const prevCount = model.consecutive_pass_count || 0;
+  const newCount = passes ? prevCount + 1 : 0;
+
+  return { passes, newCount };
+}
+
+/**
+ * Determines if a SOFT_GATE model is eligible for HARD_GATE promotion.
+ * Requires maturity >= 3, evidence >= 3 (or skipped), consecutive_pass_count >= 3,
+ * and not in UNSTABLE/cooling state.
+ *
+ * @param {Object} model - The model entry
+ * @param {number} maturity - Gate maturity score (0-3)
+ * @param {Object} evidenceReadiness - { score, total, skipped }
+ * @param {boolean} isUnstableOrCooling - Whether model is flagged UNSTABLE or cooling
+ * @returns {boolean}
+ */
+function shouldPromoteToHardGate(model, maturity, evidenceReadiness, isUnstableOrCooling) {
+  if ((model.gate_maturity || 'ADVISORY') !== 'SOFT_GATE') return false;
+  if (maturity < 3) return false;
+  if (!evidenceReadiness.skipped && evidenceReadiness.score < 3) return false;
+  if ((model.consecutive_pass_count || 0) < 3) return false;
+  if (isUnstableOrCooling) return false;
+  return true;
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -531,6 +580,10 @@ function main() {
     const prevStab = previousStability[modelPath];
     const isUnstableOrCooling = modelUnstable || (prevStab && prevStab.stability_status === 'UNSTABLE');
 
+    // GPROMO-01: consecutive_pass_count tracking (increment on pass, reset on fail)
+    const passEval = evaluateConsecutivePass(model, maturity, evidenceReadiness, isUnstableOrCooling);
+    model.consecutive_pass_count = passEval.newCount;
+
     if (maturity >= 1 && currentGate === 'ADVISORY' && (evidenceReadiness.skipped || evidenceReadiness.score >= 1)) {
       // STAB-01/STAB-02: gate promotion with stability check
       if (isUnstableOrCooling) {
@@ -601,7 +654,8 @@ function main() {
           allowHardPromo = false;
         }
       }
-      if (allowHardPromo) {
+      // GPROMO-02: require consecutive_pass_count >= 3 for HARD_GATE promotion
+      if (allowHardPromo && (model.consecutive_pass_count || 0) >= 3) {
         const v = validateCriteria(modelPath, model, 'HARD_GATE', checkResults, evidenceReadiness);
         if (v.valid) {
           model.gate_maturity = 'HARD_GATE';
@@ -611,6 +665,7 @@ function main() {
             model: modelPath, from_level: 'SOFT_GATE', to_level: 'HARD_GATE',
             timestamp: new Date().toISOString(),
             evidence_readiness: { score: evidenceReadiness.score, total: evidenceReadiness.total },
+            consecutive_pass_count: model.consecutive_pass_count,
             trigger: 'auto_promotion',
           });
           if (existingPromo) {
@@ -627,6 +682,7 @@ function main() {
     if (!promoted && model.gate_maturity === 'SOFT_GATE' && !evidenceReadiness.skipped) {
       if (evidenceReadiness.score < 0.8 || maturity < 0.8) {
         model.gate_maturity = 'ADVISORY';
+        model.consecutive_pass_count = 0;
         model.last_updated = new Date().toISOString();
         const demotionEntry = {
           model: modelPath, from_level: 'SOFT_GATE', to_level: 'ADVISORY',
@@ -644,6 +700,7 @@ function main() {
     if (!promoted && model.gate_maturity === 'HARD_GATE' && !evidenceReadiness.skipped) {
       if (evidenceReadiness.score < 2.5 || maturity < 2.5) {
         model.gate_maturity = 'SOFT_GATE';
+        model.consecutive_pass_count = 0;
         model.last_updated = new Date().toISOString();
         const demotionEntry = {
           model: modelPath, from_level: 'HARD_GATE', to_level: 'SOFT_GATE',
@@ -694,6 +751,7 @@ function main() {
       gate_c: { pass: gateC, reason: gateCResult.reason },
       layer_maturity: model.layer_maturity || maturity,
       gate_maturity: model.gate_maturity || 'ADVISORY',
+      consecutive_pass_count: model.consecutive_pass_count || 0,
       promoted,
       stability_status: stabilityStatus,
       direction_changes: directionChanges,
@@ -776,4 +834,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { computeAggregate, writePerModelGateFile };
+module.exports = { computeAggregate, writePerModelGateFile, evaluateConsecutivePass, shouldPromoteToHardGate };
