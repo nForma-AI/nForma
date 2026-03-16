@@ -8,7 +8,7 @@ See: .planning/PROJECT.md
 
 **Milestone:** v0.37 — Close the Loop: Cross-Layer Feedback Integration
 **Current phase:** v0.37-05 — Hypothesis Targeting
-**Status:** Ready to plan
+**Status:** Milestone complete
 
 ## Quick Tasks Completed
 

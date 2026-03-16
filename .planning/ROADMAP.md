@@ -47,7 +47,7 @@
 - [x] **Phase v0.37-02: Gate Auto-Promotion** - Models with consecutive clean passes auto-promote from SOFT_GATE to HARD_GATE with logged evidence (completed 2026-03-16)
 - [x] **Phase v0.37-03: Scanner FP Tuning** - Scanners track per-category false-positive rates and auto-adjust suppression thresholds (completed 2026-03-16)
 - [x] **Phase v0.37-04: Quorum Precedents** - Debate archives are mined for reusable decisions that enrich future quorum dispatch (completed 2026-03-16)
-- [ ] **Phase v0.37-05: Hypothesis Targeting** - Hypothesis measurement transitions influence solve remediation wave ordering
+- [x] **Phase v0.37-05: Hypothesis Targeting** - Hypothesis measurement transitions influence solve remediation wave ordering (completed 2026-03-16)
 
 ## Phase Details
 
@@ -123,7 +123,7 @@ Phases execute in sequence: v0.37-01 -> v0.37-02 -> v0.37-03 -> v0.37-04 -> v0.3
 | v0.37-02. Gate Auto-Promotion | 0/1 | Complete    | 2026-03-16 |
 | v0.37-03. Scanner FP Tuning | 0/TBD | Complete    | 2026-03-16 |
 | v0.37-04. Quorum Precedents | 0/2 | Complete    | 2026-03-16 |
-| v0.37-05. Hypothesis Targeting | 0/TBD | Not started | - |
+| v0.37-05. Hypothesis Targeting | 0/TBD | Complete    | 2026-03-16 |
 
 ---
 *Last updated: 2026-03-16 after v0.37-04 phase planning*
