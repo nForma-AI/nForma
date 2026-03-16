@@ -1,21 +1,58 @@
 #!/usr/bin/env node
 // hooks/nf-mcp-dispatch-guard.js
-// PreToolUse hook -- detects direct mcp__<slot>__<tool> calls and warns via
-// additionalContext that R3.2 requires Task(subagent_type) dispatch instead.
-// Allowlisted exceptions: ping, health_check (diagnostic tools).
+// PreToolUse hook -- BLOCKS direct mcp__<slot>__<tool> calls for quorum slots.
+// R3.2 requires Task(subagent_type="nf-quorum-slot-worker") dispatch instead.
+// Allowlisted exceptions: ping, health_check, deep_health_check, identity, help
+// (diagnostic/admin tools used by /nf:mcp-status, /nf:mcp-set-model, /nf:mcp-restart).
 //
 // Follows fail-open pattern: try/catch wrapping entire main, exit(0) on any error.
 // Hook stdout is the decision channel -- debug output goes to stderr only.
 
 'use strict';
 
-const { loadConfig, shouldRunHook, validateHookInput, SLOT_TOOL_SUFFIX } = require('./config-loader');
+const fs = require('fs');
+const path = require('path');
+const { loadConfig, shouldRunHook, validateHookInput } = require('./config-loader');
 
-// Build set of known MCP slot family prefixes from SLOT_TOOL_SUFFIX keys
-const KNOWN_FAMILIES = new Set(Object.keys(SLOT_TOOL_SUFFIX));
+// Dynamically discover quorum slot families from bin/providers.json
+function loadKnownFamilies() {
+  try {
+    const providersPath = path.resolve(__dirname, '..', 'bin', 'providers.json');
+    const providersJson = JSON.parse(fs.readFileSync(providersPath, 'utf8'));
 
-// Allowlisted MCP tool suffixes that bypass the guard (diagnostic tools)
-const ALLOWLISTED_SUFFIXES = new Set(['ping', 'health_check']);
+    if (!Array.isArray(providersJson.providers)) {
+      process.stderr.write('[nf] WARNING: nf-mcp-dispatch-guard: providers.json missing .providers array, fail-open\n');
+      return new Set();
+    }
+
+    const families = new Set();
+    for (const provider of providersJson.providers) {
+      if (typeof provider.name === 'string') {
+        // Strip trailing -N to derive family (e.g. "codex-1" -> "codex")
+        const family = provider.name.replace(/-\d+$/, '');
+        families.add(family);
+      }
+    }
+
+    return families;
+  } catch (e) {
+    const providersPath = path.resolve(__dirname, '..', 'bin', 'providers.json');
+    process.stderr.write('[nf] WARNING: nf-mcp-dispatch-guard: failed to load providers.json from ' + providersPath + ', fail-open\n');
+    return new Set();
+  }
+}
+
+// Build set of known MCP slot family prefixes from bin/providers.json
+const KNOWN_FAMILIES = loadKnownFamilies();
+
+// Allowlisted MCP tool suffixes that bypass the guard (diagnostic/admin tools)
+const ALLOWLISTED_SUFFIXES = new Set([
+  'ping',
+  'health_check',
+  'deep_health_check',
+  'identity',
+  'help',
+]);
 
 // Regex to parse mcp__<slot>__<suffix> tool names
 const MCP_TOOL_RE = /^mcp__([a-z][\w-]*)__(.+)$/;
@@ -68,24 +105,22 @@ function main() {
       // Derive family name (strip trailing -N for numbered slots)
       const family = slotName.replace(/-\d+$/, '');
 
-      // Only warn for known quorum slot families
+      // Only block known quorum slot families
       if (!KNOWN_FAMILIES.has(family)) {
         process.exit(0); // Unknown MCP server -- not a quorum slot
       }
 
-      // Emit additionalContext warning about R3.2 dispatch requirement
+      // Hard-block: R3.2 violation -- direct MCP call to quorum slot
       process.stdout.write(JSON.stringify({
-        hookSpecificOutput: {
-          hookEventName: 'PreToolUse',
-          additionalContext:
-            '[nf-dispatch] WARNING: Direct MCP tool call detected (' + toolName + '). ' +
-            "Per R3.2, use Task(subagent_type='nf-quorum-slot-worker') for quorum dispatch. " +
-            'Direct mcp__ calls bypass quorum enforcement and slot correlation. ' +
-            'Allowlisted exceptions: ping, health_check.',
-        },
+        decision: 'block',
+        reason:
+          'R3.2 VIOLATION: Direct MCP call to ' + toolName + ' is prohibited. ' +
+          "Use Task(subagent_type='nf-quorum-slot-worker') for quorum dispatch. " +
+          'Direct mcp__ calls bypass YAML protocol, scoreboard tracking, timeout handling, and error classification. ' +
+          'Allowlisted admin tools: ping, health_check, deep_health_check, identity, help.',
       }));
 
-      process.exit(0); // warn-only, never block
+      process.exit(0);
     } catch (e) {
       if (e instanceof SyntaxError) {
         process.stderr.write('[nf] WARNING: nf-mcp-dispatch-guard: malformed JSON on stdin: ' + e.message + '\n');
@@ -96,3 +131,5 @@ function main() {
 }
 
 if (require.main === module) main();
+
+module.exports = { ALLOWLISTED_SUFFIXES, KNOWN_FAMILIES, MCP_TOOL_RE, loadKnownFamilies };
