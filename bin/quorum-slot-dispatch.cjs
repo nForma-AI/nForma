@@ -55,11 +55,13 @@ function loadNfConfig(cwd) {
  * Mirrors the classifyErrorType logic from call-quorum-slot.cjs.
  *
  * @param {string} output — combined stdout/stderr from the failed child process
- * @returns {'TIMEOUT'|'AUTH'|'QUOTA'|'SPAWN_ERROR'|'CLI_SYNTAX'|'UNKNOWN'}
+ * @returns {'IDLE_TIMEOUT'|'HARD_TIMEOUT'|'TIMEOUT'|'AUTH'|'QUOTA'|'SPAWN_ERROR'|'CLI_SYNTAX'|'UNKNOWN'}
  */
 function classifyDispatchError(output) {
   const s = String(output || '');
-  if (/TIMEOUT/i.test(s)) return 'TIMEOUT';
+  if (/IDLE_TIMEOUT/i.test(s)) return 'IDLE_TIMEOUT';
+  if (/HARD_TIMEOUT/i.test(s)) return 'HARD_TIMEOUT';
+  if (/TIMEOUT/i.test(s)) return 'TIMEOUT'; // backward compat
   if (/402|quota|rate.?limit|resource.?exhausted/i.test(s)) return 'QUOTA';
   if (/401|403|unauthorized|forbidden/i.test(s)) return 'AUTH';
   if (/service not running|service.?down|not.?started/i.test(s)) return 'SERVICE_DOWN';
@@ -760,7 +762,7 @@ function parseImprovements(rawOutput) {
  * @param {Array}  [opts.improvements]
  * @param {string} [opts.rawOutput]
  * @param {boolean}[opts.isUnavail]
- * @param {string} [opts.error_type] — classified error type for UNAVAIL results (TIMEOUT/AUTH/QUOTA/SPAWN_ERROR/CLI_SYNTAX/UNKNOWN)
+ * @param {string} [opts.error_type] — classified error type for UNAVAIL results (IDLE_TIMEOUT/HARD_TIMEOUT/TIMEOUT/AUTH/QUOTA/SPAWN_ERROR/CLI_SYNTAX/UNKNOWN)
  * @param {string} [opts.unavailMessage]
  * @returns {string}
  */

@@ -93,7 +93,9 @@ function findProjectRoot() {
 
 function classifyErrorType(msg) {
   if (/usage:|unknown flag|unknown option|invalid flag|unrecognized/i.test(msg)) return 'CLI_SYNTAX';
-  if (/TIMEOUT/i.test(msg)) return 'TIMEOUT';
+  if (/IDLE_TIMEOUT/i.test(msg)) return 'IDLE_TIMEOUT';
+  if (/HARD_TIMEOUT/i.test(msg)) return 'HARD_TIMEOUT';
+  if (/TIMEOUT/i.test(msg)) return 'TIMEOUT'; // backward compat for old log entries
   if (/402|quota|rate.?limit|resource.?exhausted/i.test(msg)) return 'QUOTA';
   if (/401|403|unauthorized|forbidden/i.test(msg)) return 'AUTH';
   if (/service not running|service.?down|not.?started/i.test(msg)) return 'SERVICE_DOWN';
@@ -299,7 +301,7 @@ function buildSpawnArgs(provider, prompt, allowedToolsFlag) {
 }
 
 // ─── Subprocess dispatch ───────────────────────────────────────────────────────
-function runSubprocess(provider, prompt, timeoutMs, allowedToolsFlag) {
+function runSubprocess(provider, prompt, idleTimeoutMs, hardTimeoutMs, allowedToolsFlag) {
   const { args, useStdinPrompt, isCcr } = buildSpawnArgs(provider, prompt, allowedToolsFlag);
 
   // XPLAT-01: resolve CLI path at dispatch time (once per invocation)
@@ -333,6 +335,7 @@ function runSubprocess(provider, prompt, timeoutMs, allowedToolsFlag) {
     let stdout    = '';
     let stderr    = '';
     let timedOut  = false;
+    let timeoutType = ''; // 'IDLE' or 'HARD'
     const MAX_BUF = 10 * 1024 * 1024;
 
     // Kill entire process group, then destroy streams to force 'close' even if
@@ -346,20 +349,41 @@ function runSubprocess(provider, prompt, timeoutMs, allowedToolsFlag) {
       }, 2000);
     };
 
-    const timer = setTimeout(() => {
+    // Idle timer — resets on every stdout/stderr data event
+    let idleTimer = setTimeout(() => {
       timedOut = true;
+      timeoutType = 'IDLE';
       killGroup();
-    }, timeoutMs);
+    }, idleTimeoutMs);
+
+    // Hard wall-clock cap — never resets, absolute safety net
+    const hardTimer = setTimeout(() => {
+      if (!timedOut) {
+        timedOut = true;
+        timeoutType = 'HARD';
+        killGroup();
+      }
+    }, hardTimeoutMs);
 
     child.stdout.on('data', d => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => { timedOut = true; timeoutType = 'IDLE'; killGroup(); }, idleTimeoutMs);
       if (stdout.length < MAX_BUF) stdout += d.toString().slice(0, MAX_BUF - stdout.length);
     });
-    child.stderr.on('data', d => { stderr += d.toString().slice(0, 4096); });
+    child.stderr.on('data', d => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => { timedOut = true; timeoutType = 'IDLE'; killGroup(); }, idleTimeoutMs);
+      stderr += d.toString().slice(0, 4096);
+    });
 
     child.on('close', (code) => {
-      clearTimeout(timer);
+      clearTimeout(idleTimer);
+      clearTimeout(hardTimer);
       if (timedOut) {
-        reject(new Error(`TIMEOUT after ${timeoutMs}ms`));
+        const label = timeoutType === 'HARD'
+          ? `HARD_TIMEOUT after ${hardTimeoutMs}ms total`
+          : `IDLE_TIMEOUT after ${idleTimeoutMs}ms of inactivity`;
+        reject(new Error(label));
         return;
       }
       const output = stdout || stderr || '(no output)';
@@ -367,7 +391,8 @@ function runSubprocess(provider, prompt, timeoutMs, allowedToolsFlag) {
     });
 
     child.on('error', (err) => {
-      clearTimeout(timer);
+      clearTimeout(idleTimer);
+      clearTimeout(hardTimer);
       reject(new Error(`[spawn error: ${err.message}]`));
     });
   });
@@ -394,7 +419,7 @@ function spawnRotateCmd(cmdArray) {
   });
 }
 
-async function runSubprocessWithRotation(provider, prompt, timeoutMs, allowedToolsFlag) {
+async function runSubprocessWithRotation(provider, prompt, idleTimeoutMs, hardTimeoutMs, allowedToolsFlag) {
   const rot      = provider.oauth_rotation;
   const max      = rot.max_retries ?? 3;
   const patterns = rot.retry_on_patterns ?? ['quota', 'resource_exhausted', 'unauthorized', '401', '403'];
@@ -408,7 +433,7 @@ async function runSubprocessWithRotation(provider, prompt, timeoutMs, allowedToo
     }
     try {
       // Wrap inner call with retry-with-backoff (each oauth attempt gets retry protection)
-      const retryResult = await retryWithBackoff(() => runSubprocess(provider, prompt, timeoutMs, allowedToolsFlag), provider.name);
+      const retryResult = await retryWithBackoff(() => runSubprocess(provider, prompt, idleTimeoutMs, hardTimeoutMs, allowedToolsFlag), provider.name);
       const out = retryResult.result;
       totalRetryCount = attempt + retryResult.retryCount;
       if (matchesRotationPattern(out, patterns) && attempt < max) {
@@ -533,22 +558,36 @@ async function main() {
     process.exit(1);
   }
 
-  // timeoutMs is null when --timeout not passed → fall through to provider.quorum_timeout_ms.
-  // provider.timeout_ms (300s) is intentionally last — it's the full session timeout, not quorum.
-  // When both are set, take the minimum so provider.quorum_timeout_ms always acts as a hard cap.
-  // LTCY-01: latency_budget_ms is the user-configured hard ceiling and always wins when present.
+  // Dual timeout resolution:
+  // - idle_timeout_ms: inactivity timer that resets on stdout/stderr, defaults to 20s
+  // - hard_timeout_ms: absolute wall-clock cap that never resets, defaults to 5min (300s)
+  // - --timeout CLI arg maps to idle timeout (backward compat)
+  // - latency_budget_ms (LTCY-01) is the ultimate ceiling for both
+  // - quorum_timeout_ms caps the hard timeout
   const latencyBudget = provider.latency_budget_ms ?? null;
+  const providerIdle = provider.idle_timeout_ms ?? 20000;
+  const providerHard = provider.hard_timeout_ms ?? 300000;
   const providerCap = provider.quorum_timeout_ms ?? null;
-  let effectiveTimeout;
-  if (latencyBudget !== null && latencyBudget > 0) {
-    // LTCY-01: latency_budget_ms is the user-configured hard ceiling
-    effectiveTimeout = latencyBudget;
-    process.stderr.write(`[call-quorum-slot] Using latency_budget_ms=${latencyBudget} for slot ${slot}\n`);
-  } else if (timeoutMs !== null && providerCap !== null) {
-    effectiveTimeout = Math.min(timeoutMs, providerCap);
-  } else {
-    effectiveTimeout = timeoutMs ?? providerCap ?? provider.timeout_ms ?? 30000;
+
+  let effectiveIdleTimeout = timeoutMs ?? providerIdle;
+  let effectiveHardTimeout = providerHard;
+
+  // quorum_timeout_ms caps the hard timeout
+  if (providerCap !== null) {
+    effectiveHardTimeout = Math.min(effectiveHardTimeout, providerCap);
   }
+
+  // LTCY-01: latency_budget_ms is the ultimate ceiling for both
+  if (latencyBudget !== null && latencyBudget > 0) {
+    effectiveIdleTimeout = Math.min(effectiveIdleTimeout, latencyBudget);
+    effectiveHardTimeout = Math.min(effectiveHardTimeout, latencyBudget);
+    process.stderr.write(`[call-quorum-slot] Using latency_budget_ms=${latencyBudget} for slot ${slot}\n`);
+  }
+
+  // Hard cap must be >= idle timeout (otherwise idle never fires)
+  effectiveHardTimeout = Math.max(effectiveHardTimeout, effectiveIdleTimeout);
+
+  process.stderr.write(`[call-quorum-slot] Timeouts: idle=${effectiveIdleTimeout}ms hard=${effectiveHardTimeout}ms for slot ${slot}\n`);
 
   const startMs = Date.now();
 
@@ -558,16 +597,16 @@ async function main() {
 
     if (provider.type === 'subprocess') {
       if (provider.oauth_rotation?.enabled) {
-        const retryResult = await runSubprocessWithRotation(provider, prompt, effectiveTimeout, allowedTools);
+        const retryResult = await runSubprocessWithRotation(provider, prompt, effectiveIdleTimeout, effectiveHardTimeout, allowedTools);
         result = retryResult.result;
         retryCount = retryResult.retryCount;
       } else {
-        const retryResult = await retryWithBackoff(() => runSubprocess(provider, prompt, effectiveTimeout, allowedTools), slot);
+        const retryResult = await retryWithBackoff(() => runSubprocess(provider, prompt, effectiveIdleTimeout, effectiveHardTimeout, allowedTools), slot);
         result = retryResult.result;
         retryCount = retryResult.retryCount;
       }
     } else if (provider.type === 'http') {
-      const retryResult = await retryWithBackoff(() => runHttp(provider, prompt, effectiveTimeout), slot);
+      const retryResult = await retryWithBackoff(() => runHttp(provider, prompt, effectiveIdleTimeout), slot);
       result = retryResult.result;
       retryCount = retryResult.retryCount;
     } else {
