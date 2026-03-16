@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 Phase: 5 of 5 (Test Harness)
 Plan: v0.36-05-02-PLAN.md (2/2 plans complete)
 Status: Complete
-Last activity: 2026-03-16 - Completed quick task 313: Add tier field to requirements
+Last activity: 2026-03-16 - Completed quick task 314: Fix proximity pipeline
 
 Progress: [##########] 100%
 
@@ -114,9 +114,10 @@ None.
 | 310 | Make nf-mcp-dispatch-guard read slot names dynamically from providers.json and ~/.claude.json mcpServers instead of hardcoded SLOT_TOOL_SUFFIX families | 2026-03-16 | 5ee08053 | Verified | [310-make-nf-mcp-dispatch-guard-read-slot-nam](./quick/310-make-nf-mcp-dispatch-guard-read-slot-nam/) |
 | 312 | Make nf-prompt.js fall back to providers.json when agent_config is empty for model dedup | 2026-03-16 | 5ce50f57 | Verified | [312-make-nf-prompt-js-fall-back-to-providers](./quick/312-make-nf-prompt-js-fall-back-to-providers/) |
 | 313 | Add tier field to requirements — tier: user|technical, default existing to user, update C→R and T→R scanners to propose technical requirements instead of FP'ing infra | 2026-03-16 | 1337b827 | Pending | [313-add-tier-field-to-requirements-tier-user](./quick/313-add-tier-field-to-requirements-tier-user/) |
+| 314 | Fix proximity pipeline: stats reader, orphan definition, threshold, uncovered surfacing, TLA+/PRISM extraction | 2026-03-16 | 88166e63 | Pending | [314-fix-proximity-pipeline-stats-reader-orph](./quick/314-fix-proximity-pipeline-stats-reader-orph/) |
 
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed quick task 313: Add tier field to requirements
+Stopped at: Completed quick task 314: Fix proximity pipeline
 Resume file: None

@@ -18,6 +18,7 @@ must_haves:
     - "countEmbeddedEdges() returns accurate edge count by summing node.edges.length across all nodes"
     - "Orphan requirements in candidate-discovery are determined by 0 edges in proximity graph, not zero-scoring pairs"
     - "Default threshold is 0.7, eliminating the 0.60-0.62 noise floor false positives"
+    - "Fast-path skips ensemble when coverage >= 95%, directly surfacing uncovered requirements via grep"
     - "Truly uncovered requirements (no mention in any .als/.tla/.pm file) are surfaced prominently in CLI output"
     - "Graph builder extracts @requirement annotations from .tla and .pm files in addition to existing JSON sources"
   artifacts:
@@ -25,7 +26,7 @@ must_haves:
       provides: "countEmbeddedEdges function, TLA+/PRISM @requirement extraction in buildIndex"
       exports: ["buildIndex", "proximity", "countEmbeddedEdges"]
     - path: "bin/candidate-discovery.cjs"
-      provides: "Graph-connectivity orphan detection, 0.7 threshold, uncovered requirements section"
+      provides: "Graph-connectivity orphan detection, 0.7 threshold, fast-path for high coverage, uncovered requirements section"
       exports: ["discoverCandidates"]
   key_links:
     - from: "bin/candidate-discovery.cjs"
@@ -123,7 +124,17 @@ Output: Updated bin/formal-proximity.cjs and bin/candidate-discovery.cjs with ac
   - Update the histogram buckets to start at 0.7: `{ '0.7-0.8': 0, '0.8-0.9': 0, '0.9-1.0': 0 }`
   - Update the ensemble floor: `const ensembleFloor = Math.max(threshold, 0.7);`
 
-  **3. Surface truly uncovered requirements prominently:**
+  **3. Add fast-path for high-coverage codebases:**
+  Before running the expensive ensemble scoring (70K+ pair checks), compute a quick coverage ratio:
+  - Count requirement IDs mentioned in any formal model file (.als/.tla/.pm) using grep
+  - If coverage >= 95% (i.e., uncovered/total < 0.05), emit a `[candidate-discovery] Fast path: {covered}/{total} requirements covered ({pct}%) — skipping ensemble, surfacing gaps directly` log line
+  - Skip the full ensemble loop entirely
+  - Instead, directly populate `uncovered_requirements` (see item 4 below) and set `candidates: []` with metadata `fast_path: true`
+  - Still compute orphans using graph connectivity (item 1)
+  - The ensemble is most valuable when coverage is sparse; at 99%+ it's hunting for needles that aren't there
+  - Add `--no-fast-path` CLI flag to force the full ensemble even when coverage is high (for debugging/benchmarking)
+
+  **4. Surface truly uncovered requirements prominently:**
   After candidate discovery completes, add a new section that:
   - Reads all requirement IDs from the requirements array
   - Scans all files in `.planning/formal/alloy/*.als`, `.planning/formal/tla/*.tla`, `.planning/formal/prism/*.pm`
@@ -169,6 +180,7 @@ Output: Updated bin/formal-proximity.cjs and bin/candidate-discovery.cjs with ac
 - buildIndex() extracts @requirement from .als, .tla, .pm source files creating modeled_by edges
 - Orphan models/requirements determined by 0-edge graph connectivity, not zero-scoring pairs
 - Default threshold is 0.7 (previously 0.6)
+- Fast-path skips ensemble when coverage >= 95%, surfacing gaps directly via grep (--no-fast-path to override)
 - Truly uncovered requirements (not mentioned in any formal model file) surfaced in output
 - All existing and new tests pass
 </success_criteria>
