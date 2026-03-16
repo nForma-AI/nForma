@@ -881,3 +881,104 @@ test('TC-PREFLIGHT-2: NF_SKIP_PREFLIGHT=0 with real preflight present does not c
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+// TC-PROMPT-ALLDOWN-PROMOTES-T2: T2 slots promoted when sub-type primaries fail preflight
+// Tests that when externalSlotCap only caps sub-type slots and they all fail preflight,
+// remaining api-type slots from orderedSlots are promoted and used if they survive preflight.
+test('TC-PROMPT-ALLDOWN-PROMOTES-T2: allDown triggers promotion of remaining T2 slots', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-prompt-alldown-t2-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+
+    // Set up bin directory with mock quorum-preflight that reports sub-slots as unavailable
+    const binDir = path.join(tempDir, 'mock-bin');
+    fs.mkdirSync(binDir, { recursive: true });
+
+    // Create a mock quorum-preflight.cjs that simulates:
+    // - codex-1 and gemini-1 are DOWN (sub-type slots that failed)
+    // - claude-1 is UP (api-type slot that survived)
+    // This simulates the scenario where sub-type primaries fail but T2 can be promoted
+    const mockPreflight = `#!/usr/bin/env node
+const args = process.argv.slice(2);
+if (args.includes('--all')) {
+  console.log(JSON.stringify({
+    "quorum_active": ["codex-1", "gemini-1", "claude-1"],
+    "max_quorum_size": 3,
+    "team": {},
+    "available_slots": ["claude-1"],
+    "unavailable_slots": [
+      { "name": "codex-1", "reason": "layer1: binary not found: codex" },
+      { "name": "gemini-1", "reason": "layer1: binary not found: gemini" }
+    ]
+  }));
+  process.exit(0);
+}
+process.exit(1);
+`;
+    const mockPreflightPath = path.join(binDir, 'quorum-preflight.cjs');
+    fs.writeFileSync(mockPreflightPath, mockPreflight, 'utf8');
+    fs.chmodSync(mockPreflightPath, 0o755);
+
+    // nf.json: 3 slots with maxSize=3 means externalSlotCap=2
+    // With preferSub=true: cappedSlots=[codex-1, gemini-1], remaining=[claude-1]
+    const nfConfig = {
+      quorum_active: ['codex-1', 'gemini-1', 'claude-1'],
+      quorum: { minSize: 1, maxSize: 3 },
+      agent_config: {
+        'codex-1': { auth_type: 'sub' },
+        'gemini-1': { auth_type: 'sub' },
+        'claude-1': { auth_type: 'api' }
+      }
+    };
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify(nfConfig),
+      'utf8'
+    );
+
+    // Override bin/quorum-preflight.cjs temporarily with our mock
+    const realPreflight = path.join(__dirname, '..', 'bin', 'quorum-preflight.cjs');
+    const backupPath = realPreflight + '.backup';
+    fs.copyFileSync(realPreflight, backupPath);
+    fs.writeFileSync(realPreflight, mockPreflight, 'utf8');
+
+    try {
+      // Run hook with NF_SKIP_PREFLIGHT=0 to actually run preflight
+      const payload = JSON.stringify({ prompt: '/nf:plan-phase test', cwd: tempDir });
+      const promoteEnv = { ...process.env, NF_SKIP_PREFLIGHT: '0' };
+      const promoteResult = spawnSync('node', [HOOK_PATH], {
+        input: payload,
+        encoding: 'utf8',
+        timeout: 12000,
+        env: promoteEnv,
+      });
+
+      assert.strictEqual(promoteResult.status, 0, 'exit code must be 0');
+      assert.ok(typeof promoteResult.stdout === 'string', 'stdout must be a string');
+      assert.ok(promoteResult.stdout.length > 0, 'stdout must be non-empty');
+
+      // Check for promotion log in stderr
+      const stderr = promoteResult.stderr || '';
+      const hasPromoteLog = stderr.includes('ALLDOWN-PROMOTE');
+      assert.ok(hasPromoteLog, `stderr must contain ALLDOWN-PROMOTE; got: ${stderr}`);
+
+      // Output should contain QUORUM REQUIRED (dispatch proceeded), not NF_ALL_SLOTS_DOWN
+      assert.ok(
+        !promoteResult.stdout.includes('NF_ALL_SLOTS_DOWN'),
+        'output must not contain NF_ALL_SLOTS_DOWN (promoted slots survived)'
+      );
+      assert.ok(
+        promoteResult.stdout.includes('QUORUM REQUIRED'),
+        'output must contain QUORUM REQUIRED (dispatch proceeded with promoted slots)'
+      );
+    } finally {
+      // Restore real preflight
+      fs.copyFileSync(backupPath, realPreflight);
+      fs.unlinkSync(backupPath);
+    }
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});

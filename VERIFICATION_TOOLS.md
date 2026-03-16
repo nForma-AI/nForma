@@ -16,7 +16,6 @@ This script:
 - Checks for Java 17+ (required by TLA+, Alloy, PRISM) and warns if missing
 - Downloads `tla2tools.jar` into `~/.local/share/nf-formal/tla/`
 - Downloads `org.alloytools.alloy.dist.jar` into `~/.local/share/nf-formal/alloy/`
-- Downloads and installs UPPAAL verifyta into `~/.local/share/nf-formal/uppaal/` with a symlink at `~/.local/bin/verifyta`
 - Downloads and installs PRISM for your platform, prints `PRISM_BIN` export
 - Notes that Petri nets require no install (bundled via npm)
 - Offers to add `~/.local/bin` to your PATH if not already configured

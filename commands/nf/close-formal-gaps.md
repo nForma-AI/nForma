@@ -1,7 +1,7 @@
 ---
 name: close-formal-gaps
-description: Analyze and close formal model coverage gaps — clusters uncovered requirements, selects formalism (TLA+/Alloy/PRISM/Petri/UPPAAL), generates specs, runs checkers, and updates the model registry
-argument-hint: [--batch] [--category="Category Name"] [--ids=REQ-01,REQ-02] [--all] [--formalism=tla|alloy|prism|petri|uppaal] [--dry-run]
+description: Analyze and close formal model coverage gaps — clusters uncovered requirements, selects formalism (TLA+/Alloy/PRISM/Petri), generates specs, runs checkers, and updates the model registry
+argument-hint: [--batch] [--category="Category Name"] [--ids=REQ-01,REQ-02] [--all] [--formalism=tla|alloy|prism|petri] [--dry-run]
 allowed_tools:
   - Read
   - Write
@@ -28,6 +28,6 @@ Pass through all --flags from arguments:
   --category="Category Name"  Focus on a specific category
   --ids=REQ-01,REQ-02         Focus on specific requirement IDs
   --all                       Process all uncovered requirements
-  --formalism=tla|alloy|prism|petri|uppaal  Override formalism selection
+  --formalism=tla|alloy|prism|petri  Override formalism selection
   --dry-run                   Show what would be generated without writing
 </process>

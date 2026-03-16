@@ -524,18 +524,52 @@ process.stdin.on('end', () => {
       const preflightResult = runPreflightFilter(cappedSlots);
       cappedSlots = preflightResult.filteredSlots;
 
-      // SHORT-CIRCUIT: If preflight reports all slots down, skip full dispatch and inject a
-      // minimal "all slots unavailable" message so Claude can proceed without quorum overhead.
+      // SHORT-CIRCUIT: If preflight reports all capped slots down, try promoting remaining slots.
+      // If promoted slots also fail, emit all-down message and exit.
       if (preflightResult.allDown && orderedSlots.length > 0) {
-        const unavailList = preflightResult.unavailableSlots.map(u => u.name + ': ' + u.reason).join('; ');
-        const allDownInstructions = `<!-- NF_ALL_SLOTS_DOWN -->\nAll quorum slots are currently unavailable (preflight probe failed for: ${unavailList}). Proceeding without quorum — Claude's vote is the quorum. Write <!-- GSD_DECISION --> in your final output.`;
-        process.stdout.write(JSON.stringify({
-          hookSpecificOutput: {
-            hookEventName: 'UserPromptSubmit',
-            additionalContext: allDownInstructions,
+        // Compute remainingSlots: slots from orderedSlots that are NOT in cappedSlots.
+        // cappedSlots is orderedSlots.slice(0, externalSlotCap), so remaining are those beyond that slice.
+        const cappedSlotNames = new Set(cappedSlots.map(s => s.slot));
+        const remainingSlots = orderedSlots.filter(s => !cappedSlotNames.has(s.slot));
+
+        if (remainingSlots.length > 0) {
+          // Promote remaining slots up to externalSlotCap
+          const promotedSlots = remainingSlots.slice(0, externalSlotCap);
+          const promotedPreflightResult = runPreflightFilter(promotedSlots);
+          const promotedFiltered = promotedPreflightResult.filteredSlots;
+
+          if (promotedFiltered.length > 0) {
+            // Promoted slots have survivors — use them instead of exiting
+            process.stderr.write(`[nf-dispatch] ALLDOWN-PROMOTE: promoted ${promotedSlots.length} T2 slots after sub-type primaries failed preflight\n`);
+            cappedSlots = promotedFiltered;
+            // Continue to normal dispatch flow instead of exiting
+          } else {
+            // Promoted slots also all failed — emit all-down and exit
+            const allFailedSlots = cappedSlots.concat(promotedSlots);
+            const allFailedNames = new Set(allFailedSlots.map(s => s.slot));
+            const combinedUnavail = preflightResult.unavailableSlots.filter(u => allFailedNames.has(u.name));
+            const unavailList = combinedUnavail.map(u => u.name + ': ' + u.reason).join('; ');
+            const allDownInstructions = `<!-- NF_ALL_SLOTS_DOWN -->\nAll quorum slots are currently unavailable (preflight probe failed for: ${unavailList}). Proceeding without quorum — Claude's vote is the quorum. Write <!-- GSD_DECISION --> in your final output.`;
+            process.stdout.write(JSON.stringify({
+              hookSpecificOutput: {
+                hookEventName: 'UserPromptSubmit',
+                additionalContext: allDownInstructions,
+              }
+            }));
+            process.exit(0);
           }
-        }));
-        process.exit(0);
+        } else {
+          // No remaining slots to promote — emit all-down and exit (original behavior)
+          const unavailList = preflightResult.unavailableSlots.map(u => u.name + ': ' + u.reason).join('; ');
+          const allDownInstructions = `<!-- NF_ALL_SLOTS_DOWN -->\nAll quorum slots are currently unavailable (preflight probe failed for: ${unavailList}). Proceeding without quorum — Claude's vote is the quorum. Write <!-- GSD_DECISION --> in your final output.`;
+          process.stdout.write(JSON.stringify({
+            hookSpecificOutput: {
+              hookEventName: 'UserPromptSubmit',
+              additionalContext: allDownInstructions,
+            }
+          }));
+          process.exit(0);
+        }
       }
 
       // Filter out recently failed slots (all error types, not just TIMEOUT).

@@ -97,7 +97,7 @@ Unlike single-model coding assistants (GitHub Copilot Chat, Cursor, Cline) or au
 | | |
 |---|---|
 | **5+** quorum agents | **56** slash commands |
-| **5** formal methods tools (TLA+, Alloy, PRISM, UPPAAL, Petri) | **7** lifecycle hook types |
+| **4** formal methods tools (TLA+, Alloy, PRISM, Petri) | **7** lifecycle hook types |
 | **28** state machine frameworks transpiled to TLA+ | **33** milestones shipped |
 
 ---
@@ -500,7 +500,6 @@ nForma generates formal specifications from your project's requirements and runs
 | **Alloy** | Structural constraints — "can these entities violate referential integrity?" | Data models, access control, audit trails |
 | **PRISM** | Probabilistic properties — "what's the failure probability under load?" | Retry policies, SLA guarantees, fault tolerance |
 | **Petri nets** | Concurrency — "can this workflow deadlock?" | Pipeline stages, parallel processing, resource contention |
-| **UPPAAL** | Real-time — "does this always complete within the timeout?" | Heartbeats, polling intervals, SLA timing |
 
 ### How to use it in your project
 
@@ -1146,7 +1145,7 @@ npx @nforma.ai/nforma --opencode --global --uninstall
 npx @nforma.ai/nforma --claude --local --uninstall
 npx @nforma.ai/nforma --opencode --local --uninstall
 
-# Formal verification tools only (TLA+, Alloy, UPPAAL)
+# Formal verification tools only (TLA+, Alloy, PRISM)
 npx @nforma.ai/nforma --uninstall-formal
 ```
 
