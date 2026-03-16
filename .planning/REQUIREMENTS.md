@@ -1,92 +1,87 @@
 # Requirements: nForma
 
-**Defined:** 2026-03-14
+**Defined:** 2026-03-16
 **Core Value:** Planning decisions are multi-model verified by structural enforcement, not instruction-following
 
-## Milestone v0.36 Requirements
+## Milestone v0.37 Requirements
 
-Requirements for Solve Loop Convergence & Correctness overhaul. Each maps to roadmap phases.
+Requirements for Close the Loop: Cross-Layer Feedback Integration. Each maps to roadmap phases.
 
-### Diagnostics
+### Test Back-Linking
 
-- [x] **DIAG-01**: Solve diagnostic engine propagates `--focus` filter to all 19 layers, not just R→F and R→D — reverse discovery, alignment, and informational layers must filter or clearly mark results as unscoped
-- [x] **DIAG-02**: Solve diagnostic engine returns residual=-1 (unknown) instead of 0 when formal artifact files are missing (check-results.ndjson, requirements.json) — preventing false convergence when files are absent
+- [ ] **TLINK-01**: Test files containing `@requirement REQ-ID` annotations are excluded from T→R scanner flagging for those requirement IDs
+- [ ] **TLINK-02**: `bin/annotate-tests.cjs` scans test files, uses proximity graph to suggest `@requirement` annotations, and writes them as comments
+- [ ] **TLINK-03**: T→R scanner reports annotation coverage percentage alongside orphan test count
 
-### Classification
+### Code Back-Linking
 
-- [x] **CLASS-01**: D→C classification cache uses content-hash keys (SHA-256 of claim text) instead of line-number keys — cached verdicts invalidate when doc content changes at the same line
+- [ ] **CLINK-01**: C→R scanner queries proximity-index.json for code file→requirement edges before flagging; score >= 0.6 auto-suppresses
+- [ ] **CLINK-02**: `@requirement` annotations in source files (bin/*.cjs) are parsed by the proximity graph builder and create direct edges
 
-### Convergence
+### Gate Auto-Promotion
 
-- [x] **CONV-01**: Solve loop tracks per-layer residual history across iterations and detects oscillation cycles (A-B-A-B pattern across 4+ iterations) — oscillating layers are reported and excluded from further dispatch
-- [x] **CONV-02**: Solve output reports residual in three distinct buckets: `automatable` (forward + gates), `manual` (d_to_c + reverse discovery), `informational` (git_heatmap + lint + hazard) — never mixed into a single total
-- [x] **CONV-03**: Solve output JSON includes `capped_layers` array when any gate dispatch hits the max-3-per-cycle limit — users can distinguish "residual remains because capped" from "residual remains because unfixable"
-- [x] **CONV-04**: Solve report re-snapshots baseline at report time and flags drift >10% from session-start baseline — preventing misleading before/after deltas caused by mid-session external edits
+- [ ] **GPROMO-01**: model-registry.json entries track `consecutive_pass_count` (incremented on pass, reset to 0 on fail) per solve session
+- [ ] **GPROMO-02**: Models with consecutive_pass_count >= 3 AND wiring >= 1.0 AND semantic >= 0.8 auto-promote from SOFT_GATE to HARD_GATE
+- [ ] **GPROMO-03**: Auto-promotion fires during solve Phase 4 (report) and logs to promotion-changelog.json with evidence snapshot
 
-### Performance
+### Scanner FP Tuning
 
-- [x] **PERF-01**: Solve remediation dispatches layers in dependency-ordered waves (max 6 waves) instead of 13 sequential steps — independent layers (R→F, R→D, T→C) run in parallel within the same wave
-- [x] **PERF-02**: Diagnostic engine clears `_aggregateCache` after `per_model_gates` writes per-model gate files — preventing stale aggregate data in subsequent alignment layer reads
+- [ ] **FPTUNE-01**: solve-classifications.json tracks per-scanner per-category FP rates across sessions (rolling window of last 10 sessions)
+- [ ] **FPTUNE-02**: Scanners with FP rate > 60% over 5+ sessions auto-raise their suppression threshold by 0.1 (capped at 0.9)
+- [ ] **FPTUNE-03**: `/nf:solve --report-only` displays per-scanner FP rate table in the diagnostics output
 
-### Structure
+### Quorum Precedents
 
-- [x] **STRUCT-01**: L2 (Semantics) layer is either populated with at least 3 semantic models OR collapsed to a 2-layer architecture with Gate A evaluating L1→L3 directly — unblocking Gate B from permanent zero score
-- [x] **STRUCT-02**: LAYER_KEYS extracted to a shared `bin/layer-constants.cjs` module imported by solve-trend-helpers, oscillation-detector, and convergence-report — single source of truth for the 19-layer key set
-- [x] **STRUCT-03**: Gate score field resolution extracted to shared `resolveGateScore(gateData)` utility used by nf-solve.cjs, solve-trend-helpers.cjs, and cross-layer-dashboard.cjs — eliminating duplicated v1/v2 fallback chains
-- [x] **STRUCT-04**: Haiku model version for classification reads from `nf.json` config with fallback to `claude-haiku-4-5-20251001` — no more hardcoded model ID in solve-tui.cjs
+- [ ] **QPREC-01**: `bin/extract-precedents.cjs` mines quorum debate archives for key decisions (BLOCK/APPROVE with reasoning) and writes `.planning/quorum/precedents.json`
+- [ ] **QPREC-02**: Quorum dispatch prompts include up to 3 relevant precedents (matched by keyword overlap with current question)
+- [ ] **QPREC-03**: Precedents have TTL (90 days default) and are auto-pruned
 
-### Testing
+### Hypothesis Targeting
 
-- [x] **TEST-01**: End-to-end convergence integration test runs 3 solve iterations against fixture data and asserts convergence (residual decreases monotonically on automatable layers or stabilizes)
-- [x] **TEST-02**: Cascade effect unit tests verify that R→F remediation creating new formal models increases F→T residual, and the convergence check correctly identifies this as progress (not regression)
-- [x] **TEST-03**: Focus filter completeness tests assert all 19 layers either filter by focusSet or mark results with `scoped: false` flag
-- [x] **TEST-04**: Classification accuracy golden set of 100 pre-labeled items (25 per category: dtoc, ctor, ttor, dtor) with ground truth, measuring Haiku precision/recall per category
+- [ ] **HTARGET-01**: When a hypothesis transitions from UNMEASURABLE to CONFIRMED/VIOLATED, the layer it belongs to gets +1 priority weight in the next solve remediation wave ordering
+- [ ] **HTARGET-02**: solve-wave-dag.cjs reads hypothesis measurements and adjusts wave ordering to prioritize layers with recent transitions
 
 ## Future Requirements
 
-### Deferred to v0.37+
+Deferred to v0.38+:
 
-- **PERF-03**: Worklist algorithm — only re-check layers whose upstream inputs changed since last iteration
-- **CONV-05**: Formal monotonicity proof — prove per-layer remediation functions are monotone on finite residual lattice
-- **CLASS-02**: Cross-batch classification consistency — few-shot examples in Haiku prompt calibrated against golden set
-- **STRUCT-05**: Atomic file write pattern across all solve scripts (write-to-tmp, rename)
+- Semantic D→R matching (full embedding-based doc↔requirement similarity)
+- Cross-repo feedback loops (polyrepo precedent sharing)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Concurrent multi-user solve | Single-user sequential workflow; file locking adds complexity for no current use case |
-| Windows path handling in solve | Windows support deferred per v0.35 decision |
-| Replacing Haiku classifier entirely | Calibration first (TEST-04), replacement only if accuracy proves inadequate |
-| Real-time TUI during solve | Solve is batch-oriented; TUI is post-hoc via /nf:resolve |
+| Real-time annotation IDE integration | Annotations are written as file comments, not IDE plugin territory |
+| External precedent import | Precedents are project-local; cross-project sharing deferred |
+| ML-based FP classification | Haiku classification is sufficient; ML training overhead not justified |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DIAG-01 | v0.36-02 | Complete |
-| DIAG-02 | v0.36-02 | Complete |
-| CLASS-01 | v0.36-02 | Complete |
-| CONV-01 | v0.36-03 | Complete |
-| CONV-02 | v0.36-03 | Complete |
-| CONV-03 | v0.36-03 | Complete |
-| CONV-04 | v0.36-03 | Complete |
-| PERF-01 | v0.36-04 | Complete |
-| PERF-02 | v0.36-01 | Complete |
-| STRUCT-01 | v0.36-04 | Complete |
-| STRUCT-02 | v0.36-01 | Complete |
-| STRUCT-03 | v0.36-01 | Complete |
-| STRUCT-04 | v0.36-01 | Complete |
-| TEST-01 | v0.36-05 | Complete |
-| TEST-02 | v0.36-05 | Complete |
-| TEST-03 | v0.36-05 | Complete |
-| TEST-04 | v0.36-05 | Complete |
+| TLINK-01 | TBD | Pending |
+| TLINK-02 | TBD | Pending |
+| TLINK-03 | TBD | Pending |
+| CLINK-01 | TBD | Pending |
+| CLINK-02 | TBD | Pending |
+| GPROMO-01 | TBD | Pending |
+| GPROMO-02 | TBD | Pending |
+| GPROMO-03 | TBD | Pending |
+| FPTUNE-01 | TBD | Pending |
+| FPTUNE-02 | TBD | Pending |
+| FPTUNE-03 | TBD | Pending |
+| QPREC-01 | TBD | Pending |
+| QPREC-02 | TBD | Pending |
+| QPREC-03 | TBD | Pending |
+| HTARGET-01 | TBD | Pending |
+| HTARGET-02 | TBD | Pending |
 
 **Coverage:**
-- v0.36 requirements: 17 total
-- Mapped to phases: 17
-- Unmapped: 0
+- v0.37 requirements: 16 total
+- Mapped to phases: 0
+- Unmapped: 16 ⚠️
 
 ---
-*Requirements defined: 2026-03-14*
-*Last updated: 2026-03-14 after roadmap creation — traceability populated*
+*Requirements defined: 2026-03-16*
+*Last updated: 2026-03-16 after milestone v0.37 definition*
