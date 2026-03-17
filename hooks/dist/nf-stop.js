@@ -58,16 +58,20 @@ function autoCommitFormalArtifacts() {
       return;
     }
 
-    // 2. Detect dirty (modified/staged) formal files
-    const diffResult = spawnSync('git', ['diff', '--name-only', 'HEAD', '--', '.planning/formal/'], SPAWN_OPTS);
-    const dirtyFiles = (diffResult.stdout || '').toString().trim().split('\n').filter(Boolean);
+    // 2. Detect unstaged modified formal files
+    const diffResult = spawnSync('git', ['diff', '--name-only', '--', '.planning/formal/'], SPAWN_OPTS);
+    const unstagedFiles = (diffResult.stdout || '').toString().trim().split('\n').filter(Boolean);
 
-    // 3. Detect untracked formal files
+    // 3. Detect staged-only formal files
+    const stagedResult = spawnSync('git', ['diff', '--cached', '--name-only', '--', '.planning/formal/'], SPAWN_OPTS);
+    const stagedFiles = (stagedResult.stdout || '').toString().trim().split('\n').filter(Boolean);
+
+    // 4. Detect untracked formal files
     const untrackedResult = spawnSync('git', ['ls-files', '--others', '--exclude-standard', '.planning/formal/'], SPAWN_OPTS);
     const untrackedFiles = (untrackedResult.stdout || '').toString().trim().split('\n').filter(Boolean);
 
-    // Combine and deduplicate
-    const allFiles = [...new Set([...dirtyFiles, ...untrackedFiles])];
+    // Combine and deduplicate (unstaged + staged + untracked)
+    const allFiles = [...new Set([...unstagedFiles, ...stagedFiles, ...untrackedFiles])];
     if (allFiles.length === 0) return; // Nothing to commit — exit silently
 
     // 4. Stage and commit via gsd-tools.cjs
