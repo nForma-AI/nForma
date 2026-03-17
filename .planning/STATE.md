@@ -15,8 +15,11 @@ See: .planning/PROJECT.md
 | Task ID | Description | Date | Commit | Status | Link |
 |---------|-------------|------|--------|--------|------|
 | 318 | Replace fixed wall-clock quorum timeout with idle-based timeout | 2026-03-16 | a7bf282c | Verified | [318-replace-fixed-wall-clock-quorum-timeout-](./quick/318-replace-fixed-wall-clock-quorum-timeout-/) |
+| 319 | Wire hypothesis-layer-map.cjs and solve-wave-dag.cjs into nf-solve.cjs remediation wave ordering | 2026-03-16 | bcea6899 | Pending | [319-wire-hypothesis-layer-map-cjs-and-solve-](./quick/319-wire-hypothesis-layer-map-cjs-and-solve-/) |
 
 ## Session Log
+
+- 2026-03-16: Completed quick task 319: Wire hypothesis-layer-map.cjs and solve-wave-dag.cjs into nf-solve.cjs remediation wave ordering
 
 - 2026-03-16: Phase v0.37-05 (Hypothesis Targeting) complete — 1/1 plans, all 2 SCs verified, milestone v0.37 complete
 - 2026-03-16: Phase v0.37-04 (Quorum Precedents) complete — 2/2 plans, all 3 SCs verified, formal check 3/3, auto-advancing
