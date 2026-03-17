@@ -201,11 +201,12 @@ function evaluateGateC(modelPath, model, failureCatalog, testRecipes, checkResul
       (testRecipes.recipes || []).map(r => r.failure_mode_id)
     );
     for (const fm of (failureCatalog.failure_modes || [])) {
-      const fmReqOverlap = (fm.derived_from || []).some(df =>
+      const derivedFrom = Array.isArray(fm.derived_from) ? fm.derived_from : (fm.derived_from ? [fm.derived_from] : []);
+      const fmReqOverlap = derivedFrom.some(df =>
         df.ref && reqs.some(r => df.ref.includes(r))
       );
       if (fmReqOverlap && recipeFailureModeIds.has(fm.id)) {
-        const matchedReq = reqs.find(r => (fm.derived_from || []).some(df => df.ref && df.ref.includes(r)));
+        const matchedReq = reqs.find(r => derivedFrom.some(df => df.ref && df.ref.includes(r)));
         return { pass: true, reason: 'failure-mode ' + fm.id + ' has test recipe (via req ' + (matchedReq || '?') + ')' };
       }
     }

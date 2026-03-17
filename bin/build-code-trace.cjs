@@ -262,8 +262,26 @@ function buildIndex(rootDir) {
     }
   }
 
-  // ---- STEP 4: Write to disk ----
+  // ---- STEP 4: Merge user overrides and write to disk ----
   const indexPath = path.join(rootDir, '.planning', 'formal', 'code-trace-index.json');
+
+  // Preserve user-added traced_files entries (those with traced_to or reason fields,
+  // indicating manual annotation rather than auto-discovery from recipes/scopes)
+  try {
+    if (fs.existsSync(indexPath)) {
+      const existing = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+      const existingTraced = existing.traced_files || {};
+      for (const [filePath, entry] of Object.entries(existingTraced)) {
+        // User entries are objects with traced_to/reason; auto entries are arrays of req IDs
+        if (entry && typeof entry === 'object' && !Array.isArray(entry) && (entry.traced_to || entry.reason)) {
+          index.traced_files[filePath] = entry;
+        }
+      }
+    }
+  } catch (e) {
+    // Fail-open: if existing file can't be read, proceed with fresh index
+  }
+
   try {
     fs.writeFileSync(indexPath, JSON.stringify(index, null, 2), 'utf8');
   } catch (e) {

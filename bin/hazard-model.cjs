@@ -243,6 +243,42 @@ function main() {
 
   const output = generateHazardModel(observedFsm, traceStats, failureTaxonomy, unitTestCoverage);
 
+  // Preserve user overrides from existing hazard-model.json
+  // Fields marked with user_override: true (or detection_justification present) are user-owned
+  try {
+    if (fs.existsSync(OUT_FILE)) {
+      const existing = JSON.parse(fs.readFileSync(OUT_FILE, 'utf8'));
+      const overrideMap = {};
+      for (const h of (existing.hazards || [])) {
+        if (h.user_override || h.detection_justification) {
+          overrideMap[h.id] = {
+            detection: h.detection,
+            detection_justification: h.detection_justification,
+            user_override: true,
+          };
+        }
+      }
+      if (Object.keys(overrideMap).length > 0) {
+        for (const h of output.hazards) {
+          const override = overrideMap[h.id];
+          if (override) {
+            h.detection = override.detection;
+            h.detection_justification = override.detection_justification;
+            h.user_override = true;
+            h.rpn = h.severity * h.occurrence * h.detection;
+          }
+        }
+        // Re-sort and recompute summary after overrides
+        output.hazards.sort((a, b) => b.rpn - a.rpn);
+        output.summary.max_rpn = output.hazards.length > 0 ? output.hazards[0].rpn : 0;
+        output.summary.critical_count = output.hazards.filter(h => h.rpn >= 200).length;
+        output.summary.high_count = output.hazards.filter(h => h.rpn >= 100 && h.rpn < 200).length;
+      }
+    }
+  } catch (e) {
+    // Fail-open: if existing file can't be read, proceed with fresh generation
+  }
+
   // Write output
   fs.mkdirSync(REASONING_DIR, { recursive: true });
   fs.writeFileSync(OUT_FILE, JSON.stringify(output, null, 2) + '\n');

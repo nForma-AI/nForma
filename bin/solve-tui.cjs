@@ -1310,29 +1310,52 @@ ${itemLines}
 Respond with ONLY a JSON object mapping index to verdict. Example: {"0":"fp","1":"genuine","2":"review"}
 No explanation, no markdown, just the JSON object.`;
 
-      try {
-        const cleanEnv = { ...process.env };
-        delete cleanEnv.CLAUDECODE; // Prevent "cannot launch inside another session" block
-        const result = execFileSync(
-          resolveClaudeCLI(),
-          ['-p', prompt, '--model', getHaikuModel()],
-          { env: cleanEnv, encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] }
-        ).trim();
+      // Retry loop with backoff (#26: retry failed classifications)
+      const MAX_RETRIES = 2;
+      let batchSuccess = false;
+      for (let attempt = 0; attempt < MAX_RETRIES && !batchSuccess; attempt++) {
+        try {
+          if (attempt > 0) {
+            // Backoff: 2s for retry
+            const { execSync: sleepExec } = require('child_process');
+            try { sleepExec('sleep 2', { stdio: 'ignore' }); } catch (_) {}
+          }
+          const cleanEnv = { ...process.env };
+          delete cleanEnv.CLAUDECODE; // Prevent "cannot launch inside another session" block
+          const result = execFileSync(
+            resolveClaudeCLI(),
+            ['-p', prompt, '--model', getHaikuModel()],
+            { env: cleanEnv, encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] }
+          ).trim();
 
-        const jsonMatch = result.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const verdicts = JSON.parse(jsonMatch[0]);
-          for (const [idxStr, verdict] of Object.entries(verdicts)) {
-            const batchIdx = parseInt(idxStr, 10);
-            if (!isNaN(batchIdx) && batchIdx < batch.length && ['genuine', 'fp', 'review'].includes(verdict)) {
-              catClassifications[batch[batchIdx].key] = verdict;
-              stats.classified++;
+          const jsonMatch = result.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const verdicts = JSON.parse(jsonMatch[0]);
+            for (const [idxStr, verdict] of Object.entries(verdicts)) {
+              const batchIdx = parseInt(idxStr, 10);
+              if (!isNaN(batchIdx) && batchIdx < batch.length && ['genuine', 'fp', 'review'].includes(verdict)) {
+                catClassifications[batch[batchIdx].key] = verdict;
+                stats.classified++;
+              }
+            }
+            batchSuccess = true;
+          } else {
+            if (!stats.error_types) stats.error_types = {};
+            stats.error_types['parse_error'] = (stats.error_types['parse_error'] || 0) + 1;
+          }
+        } catch (e) {
+          if (attempt === MAX_RETRIES - 1) {
+            // Final attempt failed — track error details (#26)
+            stats.failed += batch.length;
+            if (!stats.error_types) stats.error_types = {};
+            const errType = e.killed ? 'timeout' : (e.code === 'ENOENT' ? 'cli_not_found' : 'api_error');
+            stats.error_types[errType] = (stats.error_types[errType] || 0) + batch.length;
+            if (!stats.failed_items) stats.failed_items = [];
+            for (const entry of batch) {
+              stats.failed_items.push(entry.key);
             }
           }
         }
-      } catch (e) {
-        // Sub-agent failed — items stay unclassified
-        stats.failed += batch.length;
       }
     }
 

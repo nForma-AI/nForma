@@ -271,19 +271,37 @@ function discoverModels(root) {
   }
 
   // Registry check.command entries → type:shell steps
+  // Normalize legacy formal-spec/ paths → .planning/formal/ (fixes #24)
   if (registry && registry.models && typeof registry.models === 'object') {
     for (const [modelPath, entry] of Object.entries(registry.models)) {
       if (entry && entry.check && typeof entry.check.command === 'string') {
+        const normalizedCmd = entry.check.command.replace(
+          /\bformal-spec\//g,
+          '.planning/formal/specs/'
+        );
         discovered.push({
           tool: 'registry',
           id: 'registry:' + modelPath,
           label: 'Registry check — ' + modelPath,
           type: 'shell',
-          command: entry.check.command,
+          command: normalizedCmd,
           config: entry.check.config || null,
           cwd: root,
           nonCritical: entry.check.nonCritical || false,
         });
+      }
+    }
+  }
+
+  // Also normalize model keys that reference formal-spec/ (legacy paths)
+  if (registry && registry.models && typeof registry.models === 'object') {
+    for (const key of Object.keys(registry.models)) {
+      if (key.startsWith('formal-spec/')) {
+        const newKey = key.replace('formal-spec/', '.planning/formal/');
+        if (!registry.models[newKey]) {
+          registry.models[newKey] = registry.models[key];
+        }
+        delete registry.models[key];
       }
     }
   }

@@ -714,6 +714,10 @@ function sweepRtoF() {
       }
       const uncoveredSet = new Set(uncovered);
       uncoveredReqs = allReqs.filter(r => uncoveredSet.has(r.id || r.requirement_id || ''));
+
+      // Filter out Pending/Future requirements — they don't need formal coverage yet (#27)
+      const EXCLUDED_STATUSES = new Set(['Pending', 'Future']);
+      uncoveredReqs = uncoveredReqs.filter(r => !EXCLUDED_STATUSES.has(r.status));
     } catch (e) {
       // Can't load requirements — skip triage
     }
@@ -728,13 +732,19 @@ function sweepRtoF() {
     const mediumIds = triage.medium;
     const priority_batch = highIds.concat(mediumIds).slice(0, 15);
 
+    // Residual uses filtered count (excludes Pending/Future) — not raw uncovered.length
+    const activeUncoveredIds = new Set(uncoveredReqs.map(r => r.id || r.requirement_id || ''));
+    const activeUncovered = uncovered.filter(id => activeUncoveredIds.has(id));
+    const pendingExcluded = uncovered.length - activeUncovered.length;
+
     return {
-      residual: uncovered.length,
+      residual: activeUncovered.length,
       detail: {
-        uncovered_requirements: uncovered,
+        uncovered_requirements: activeUncovered,
         total: total,
         covered: covered,
         percentage: percentage,
+        pending_excluded: pendingExcluded,
         triage: {
           high: triage.high.length,
           medium: triage.medium.length,
@@ -1029,15 +1039,29 @@ function sweepTtoC() {
     spawnOpts.env = Object.assign({}, process.env, { NF_SOLVE_SWEEPTOC_ACTIVE: '1' });
   }
 
+  // Build test glob args from include_paths/exclude_paths config (#23)
+  const testArgs = ['--test'];
+  if (tToCConfig.include_paths && Array.isArray(tToCConfig.include_paths)) {
+    // When include_paths is set, pass explicit globs instead of relying on auto-discovery
+    for (const p of tToCConfig.include_paths) {
+      testArgs.push(p.endsWith('/') ? p + '**/*.test.{js,cjs,mjs}' : p);
+    }
+  }
+
   let result;
   try {
-    result = spawnSync(process.execPath, ['--test'], spawnOpts);
+    result = spawnSync(process.execPath, testArgs, spawnOpts);
   } catch (err) {
     return {
       residual: -1,
       detail: { error: 'Failed to spawn node --test: ' + err.message },
     };
   }
+
+  // Filter out results from excluded paths (#23)
+  const excludePaths = (tToCConfig.exclude_paths && Array.isArray(tToCConfig.exclude_paths))
+    ? tToCConfig.exclude_paths
+    : [];
 
   const output = (result.stdout || '') + (result.stderr || '');
 
@@ -1068,6 +1092,21 @@ function sweepTtoC() {
     totalTests = notOkMatches.length + okMatches.length;
     skipCount = 0;
     todoCount = 0;
+  }
+
+  // Subtract failures from excluded paths (#23)
+  if (excludePaths.length > 0 && failCount > 0) {
+    const failLines = output.match(/^not ok\s+\d+\s+.*/gm) || [];
+    let excludedFails = 0;
+    for (const line of failLines) {
+      if (excludePaths.some(ep => line.includes(ep.replace(/\/$/, '')))) {
+        excludedFails++;
+      }
+    }
+    if (excludedFails > 0) {
+      failCount = Math.max(0, failCount - excludedFails);
+      totalTests = Math.max(0, totalTests - excludedFails);
+    }
   }
 
   // Collect V8 coverage data from temp directory (fail-open)
@@ -1649,15 +1688,67 @@ function sweepDtoC() {
     };
   }
 
-  // Load package.json for dependency verification
+  // Load dependency manifests for verification (#22: multi-ecosystem support)
   let pkgDeps = {};
   let pkgDevDeps = {};
+  const allKnownDeps = new Set();
+
+  // Load D→C config for custom dependency_sources
+  const dtocConfigPath = path.join(ROOT, '.planning', 'config.json');
+  let dtocConfig = {};
+  try {
+    const cfg = JSON.parse(fs.readFileSync(dtocConfigPath, 'utf8'));
+    dtocConfig = (cfg.solve && cfg.solve.d_to_c) || {};
+  } catch (e) { /* use defaults */ }
+
+  // npm: package.json
   try {
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
     pkgDeps = pkg.dependencies || {};
     pkgDevDeps = pkg.devDependencies || {};
+    for (const d of Object.keys(pkgDeps)) allKnownDeps.add(d);
+    for (const d of Object.keys(pkgDevDeps)) allKnownDeps.add(d);
   } catch (e) {
-    // No package.json — skip dependency checks
+    // No package.json
+  }
+
+  // Python: requirements.txt, pyproject.toml
+  const pythonManifests = (dtocConfig.dependency_sources || [])
+    .concat(['requirements.txt', 'pyproject.toml', 'setup.py', 'Pipfile']);
+  for (const manifest of pythonManifests) {
+    try {
+      const content = fs.readFileSync(path.join(ROOT, manifest), 'utf8');
+      // Extract package names from requirements.txt style (name==version, name>=version, name)
+      const lines = content.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-')) continue;
+        const match = trimmed.match(/^([a-zA-Z0-9_-]+)/);
+        if (match) allKnownDeps.add(match[1].toLowerCase());
+      }
+    } catch (e) { /* manifest not found */ }
+  }
+
+  // Go: go.mod
+  try {
+    const gomod = fs.readFileSync(path.join(ROOT, 'go.mod'), 'utf8');
+    const reqMatches = gomod.matchAll(/^\s+([^\s]+)\s/gm);
+    for (const m of reqMatches) allKnownDeps.add(m[1]);
+  } catch (e) { /* no go.mod */ }
+
+  // Rust: Cargo.toml
+  try {
+    const cargo = fs.readFileSync(path.join(ROOT, 'Cargo.toml'), 'utf8');
+    const depMatches = cargo.matchAll(/^\s*([a-zA-Z0-9_-]+)\s*=/gm);
+    for (const m of depMatches) allKnownDeps.add(m[1]);
+  } catch (e) { /* no Cargo.toml */ }
+
+  // Infrastructure ignore patterns (#22: K8s, IAM, Docker references)
+  let infraIgnorePatterns = [];
+  if (dtocConfig.ignore_patterns && Array.isArray(dtocConfig.ignore_patterns)) {
+    for (const pat of dtocConfig.ignore_patterns) {
+      try { infraIgnorePatterns.push(new RegExp(pat)); } catch (e) { /* skip bad pattern */ }
+    }
   }
 
   // Load acknowledged false positives
@@ -1754,8 +1845,12 @@ function sweepDtoC() {
           }
         }
       } else if (claim.type === 'dependency') {
-        // Verify in package.json — skip project-internal terms that look like deps
-        if (!(claim.value in pkgDeps) && !(claim.value in pkgDevDeps)) {
+        // Verify against all known dependency manifests (#22: multi-ecosystem)
+        if (!(claim.value in pkgDeps) && !(claim.value in pkgDevDeps) && !allKnownDeps.has(claim.value.toLowerCase())) {
+          // Check infrastructure ignore patterns (#22)
+          if (infraIgnorePatterns.some(rx => rx.test(claim.value))) {
+            continue; // Skip infrastructure references
+          }
           // Heuristic: values not in package.json that match project-internal patterns
           // are project terms, not missing dependencies. Safe here because real deps
           // already passed the package.json check above.
@@ -1778,7 +1873,7 @@ function sweepDtoC() {
 
           if (!isProjectTerm && !isInRequirementText && !isExampleFile && !isEnumContext) {
             isBroken = true;
-            reason = 'not in package.json';
+            reason = 'not in any dependency manifest';
           }
         }
       }

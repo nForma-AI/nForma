@@ -1,5 +1,5 @@
 {
-  "aggregated_at": "2026-03-16T23:09:09.670Z",
+  "aggregated_at": "2026-03-17T18:19:37.044Z",
   "content_hash": "6dd82d51c55109ffc3faf339ad738ba042cb730bc16772b181f9bf88b8c57f2d",
   "frozen_at": "2026-03-16T23:09:09.671Z",
   "requirements": [
@@ -5222,6 +5222,118 @@
         "source_file": ".planning/milestones/v0.35-REQUIREMENTS.md",
         "milestone": "unknown"
       }
+    },
+    {
+      "id": "GATE-05",
+      "text": "compute-per-model-gates.cjs normalizes `derived_from` to array before iteration — handles single-object, array, and missing cases without crashing (fixes TypeError on `.some()`)",
+      "category": "Formal Verification",
+      "tier": "system",
+      "phase": "v0.37",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "github-issues",
+        "milestone": "v0.37"
+      },
+      "formal_models": [],
+      "category_raw": "Gates"
+    },
+    {
+      "id": "RSN-06",
+      "text": "hazard-model.cjs preserves user overrides (detection score, detection_justification, user_override flag) across regeneration — loads existing data, merges user-owned fields, recomputes RPN and summary after merge",
+      "category": "Formal Verification",
+      "tier": "system",
+      "phase": "v0.37",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "github-issues",
+        "milestone": "v0.37"
+      },
+      "formal_models": [],
+      "category_raw": "Reasoning"
+    },
+    {
+      "id": "TRACE-06",
+      "text": "build-code-trace.cjs preserves user-added traced_files entries (objects with traced_to/reason fields) across index regeneration — merges with auto-discovered array entries",
+      "category": "Formal Verification",
+      "tier": "system",
+      "phase": "v0.37",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "github-issues",
+        "milestone": "v0.37"
+      },
+      "formal_models": [],
+      "category_raw": "Traceability"
+    },
+    {
+      "id": "DIAG-04",
+      "text": "sweepRtoF filters requirements by status — Pending and Future requirements are excluded from R→F residual count; `pending_excluded` count reported in detail",
+      "category": "Diagnostics & Remediation",
+      "tier": "system",
+      "phase": "v0.37",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "github-issues",
+        "milestone": "v0.37"
+      },
+      "formal_models": [],
+      "category_raw": "Diagnostics"
+    },
+    {
+      "id": "CLASS-02",
+      "text": "classifyWithHaiku retries failed batches once with 2s backoff; tracks error_types breakdown (timeout, parse_error, api_error, cli_not_found) and failed_items keys in stats",
+      "category": "Diagnostics & Remediation",
+      "tier": "system",
+      "phase": "v0.37",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "github-issues",
+        "milestone": "v0.37"
+      },
+      "formal_models": [],
+      "category_raw": "Classification"
+    },
+    {
+      "id": "DIAG-05",
+      "text": "sweepTtoC supports `exclude_paths` and `include_paths` arrays in config.solve.t_to_c — filters test discovery to specified directories, subtracts failures from excluded paths",
+      "category": "Diagnostics & Remediation",
+      "tier": "system",
+      "phase": "v0.37",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "github-issues",
+        "milestone": "v0.37"
+      },
+      "formal_models": [],
+      "category_raw": "Diagnostics"
+    },
+    {
+      "id": "DIAG-06",
+      "text": "sweepDtoC detects project ecosystem beyond npm — scans requirements.txt, pyproject.toml, go.mod, Cargo.toml for known dependencies; supports `dependency_sources` and `ignore_patterns` in config.solve.d_to_c",
+      "category": "Diagnostics & Remediation",
+      "tier": "system",
+      "phase": "v0.37",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "github-issues",
+        "milestone": "v0.37"
+      },
+      "formal_models": [],
+      "category_raw": "Diagnostics"
+    },
+    {
+      "id": "VERF-04",
+      "text": "run-formal-verify.cjs normalizes legacy `formal-spec/` paths to `.planning/formal/` in registry check commands and model keys — no manual symlink required",
+      "category": "Verification & Execution State",
+      "tier": "system",
+      "phase": "v0.37",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "github-issues",
+        "milestone": "v0.37"
+      },
+      "formal_models": [],
+      "category_raw": "Verification"
     }
   ],
   "schema_version": "1",
