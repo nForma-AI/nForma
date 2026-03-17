@@ -136,8 +136,8 @@ function mapRiskLevelToCount(riskLevel, maxSize) {
 // Returns slot names that have failed within the last ttlMinutes.
 // Reads quorum-failures.json written by call-quorum-slot.cjs on every failure.
 // Covers ALL error types (TIMEOUT, AUTH, QUOTA, SPAWN_ERROR, CLI_SYNTAX, UNKNOWN).
-// The 30-minute TTL ensures transient failures self-heal without operator intervention.
-function getRecentlyFailedSlots(cwd, ttlMinutes = 30) {
+// The 5-minute TTL ensures transient failures self-heal quickly without operator intervention.
+function getRecentlyFailedSlots(cwd, ttlMinutes = 5) {
   try {
     const pp = require(resolveBin('planning-paths.cjs'));
     const logPath = pp.resolveWithFallback(cwd, 'quorum-failures');
@@ -766,7 +766,7 @@ process.stdin.on('end', () => {
       let skipNote = '';
       if (recentFailures.length > 0) {
         const failureDetail = recentFailures.map(f => `${f.slot} (${f.error_type}: ${(f.pattern || '').slice(0, 40)})`).join('; ');
-        skipNote += `SKIP (FAILED < 30min ago): [${failureDetail}] — do NOT dispatch these slots in ANY tier.\n`;
+        skipNote += `SKIP (FAILED < 5min ago): [${failureDetail}] — do NOT dispatch these slots in ANY tier.\n`;
         skippedSlots.push(...recentFailures.map(f => ({ slot: f.slot, reason: f.error_type })));
       }
       if (preflightResult.unavailableSlots && preflightResult.unavailableSlots.length > 0) {
