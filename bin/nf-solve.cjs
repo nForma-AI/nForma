@@ -946,7 +946,7 @@ function sweepTtoC() {
   // that calls sweepTtoC() (or computeResidual()) would trigger an infinite chain
   // of recursive `node --test` subprocesses that never terminate.
   if (process.env.NF_SOLVE_SWEEPTOC_ACTIVE) {
-    return { residual: 0, detail: { skipped: true, reason: 'recursive-guard: already running inside node --test' } };
+    return { residual: -1, detail: { skipped: true, reason: 'recursive-guard: already running inside node --test' } };
   }
 
   // Load configurable test runner settings
