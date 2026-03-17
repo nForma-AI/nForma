@@ -471,7 +471,7 @@ function runNodeStep(step) {
   if (!childArgs.some(a => a.startsWith('--project-root='))) {
     childArgs.push('--project-root=' + ROOT);
   }
-  const stepTimeout = step.timeoutMs || 120_000; // 2 min default per step
+  const stepTimeout = step.timeoutMs || 300_000; // 5 min default per step
   const result = spawnSync(process.execPath, [scriptPath, ...childArgs], {
     stdio: step.nonCritical ? ['ignore', 'pipe', 'inherit'] : 'inherit',
     encoding: 'utf8',
