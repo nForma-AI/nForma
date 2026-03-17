@@ -22,8 +22,6 @@ npx @nforma.ai/nforma@latest
 
 **Requires Node.js 18+. Works on macOS and Linux.**
 
-Want to try unreleased features? Install from the staging channel instead: `npx @nforma.ai/nforma@staging`
-
 <br>
 
 ![nForma Install](docs/assets/terminal.svg)
@@ -133,6 +131,20 @@ The deeper goal: the first truly autonomous coding agent that only escalates to 
 ```bash
 npx @nforma.ai/nforma@latest
 ```
+
+Want to try unreleased features? Install from the staging channel instead:
+
+```bash
+npx @nforma.ai/nforma@staging
+```
+
+**Optional** — install the embedding dependency for ML-powered proximity scoring (auto-detected, no configuration needed):
+
+```bash
+npm install @huggingface/transformers
+```
+
+> Runs a local [all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2) model on CPU (~23MB). No API keys or cloud calls. The `/nf:proximity` pipeline automatically uses embeddings when this dependency is present.
 
 The installer prompts you to choose:
 1. **Runtime** — Claude Code, OpenCode, Gemini, or all
