@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "phase": "v0.37-04",
+  "created_at": "2026-03-16T22:51:24.825Z",
+  "risk_level": "medium",
+  "research": {
+    "objective": "Quorum precedent extraction, matching, and TTL pruning",
+    "constraints": "",
+    "target_files": [],
+    "confidence": "HIGH"
+  },
+  "plan": {
+    "plan_path": ".planning/phases/v0.37-04-quorum-precedents/v0.37-04-01-PLAN.md",
+    "key_decisions": []
+  }
+}
