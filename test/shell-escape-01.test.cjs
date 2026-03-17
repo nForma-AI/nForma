@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+/** @requirement DISP-04 — validates shell escape safety: prompts piped via stdin not CLI args */
 
 /**
  * SHELL-ESCAPE-01 regression tests — ccr slots must pipe prompts via stdin,

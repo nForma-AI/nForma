@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+/** @requirement SEM-03 — validates semantic scoring to gate enrichment to auto-promotion E2E pipeline */
 
 /**
  * test/e2e-semantic-promotion-pipeline.test.cjs

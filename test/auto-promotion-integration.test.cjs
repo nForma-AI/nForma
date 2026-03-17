@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+/** @requirement PROMO-03 — validates auto-promotion pipeline (PROMO-02/03/04) across session cycles */
 
 /**
  * test/auto-promotion-integration.test.cjs

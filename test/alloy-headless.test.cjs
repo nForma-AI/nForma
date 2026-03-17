@@ -1,4 +1,5 @@
 'use strict';
+/** @requirement ANNOT-02 — validates Alloy model checker scripts run in headless mode */
 
 const { test, describe } = require('node:test');
 const assert = require('node:assert');

@@ -1,4 +1,5 @@
 'use strict';
+/** @requirement CONV-02 — validates residual bucketing into automatable/manual/informational */
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');

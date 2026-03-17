@@ -1,4 +1,5 @@
 'use strict';
+/** @requirement CLASS-01 — validates Haiku classifier golden set infrastructure and key generation */
 
 // Classification accuracy golden set -- validates item format and key generation.
 // Actual Haiku accuracy measurement is a MANUAL step:

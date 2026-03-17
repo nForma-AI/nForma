@@ -1,3 +1,5 @@
+/** @requirement DIAG-01 — error clustering for solve diagnostic pipeline */
+
 /**
  * Error clustering engine for observe pipeline Category 16.
  * Groups error entries by type + Levenshtein similarity to reduce

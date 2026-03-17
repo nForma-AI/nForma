@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+/** @requirement FP-03 — validates model deduplication logic for quorum dispatch */
 
 /**
  * Unit tests for model deduplication logic.

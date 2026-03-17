@@ -780,6 +780,7 @@ Before producing plans, plan-phase generates a `VALIDATION.md` test map for the 
 </details>
 
 <details>
+<!-- @traces OSC-01 -->
 <summary><strong>Ping-Pong Commit Loop Breaker</strong> — Detects and breaks structural coupling loops</summary>
 
 **The problem no one talks about:** AI agents get stuck in ping-pong commit loops.
@@ -849,6 +850,7 @@ node bin/fsm-to-tla.cjs src/machines/order.machine.ts --dry
 
 Works with **28 frameworks** across JavaScript, TypeScript, Python, Go, Java, Kotlin, C#, Ruby, Rust, Erlang, Elixir, Swift, JSON, and YAML. Auto-detects the framework from file content. For JS/TS frameworks, compiles via esbuild and introspects the machine object. For all other languages, uses regex or brace-depth parsing — no runtime needed.
 
+<!-- @traces FV-01 -->
 The transpiler generates VARIABLES, Init, type invariants, action definitions with guard mappings, Next (with fairness), and a TLC config. Use `--scaffold-config` to generate a starter guard/variable annotation file for your machine.
 
 </details>
@@ -1058,6 +1060,7 @@ Switch profiles: `/nf:set-profile budget`
 | Setting | Default | What it does |
 |---------|---------|--------------|
 | `workflow.research` | `true` | Researches domain before planning each phase |
+<!-- @traces PLAN-02 -->
 | `workflow.plan_check` | `true` | Verifies plans achieve phase goals before execution |
 | `workflow.verifier` | `true` | Confirms must-haves were delivered after execution |
 | `workflow.auto_advance` | `true` | Auto-chain discuss → plan → execute without stopping |

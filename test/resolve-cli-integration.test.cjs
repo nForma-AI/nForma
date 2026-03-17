@@ -1,4 +1,5 @@
 'use strict';
+/** @requirement XPLAT-01 — validates CLI path resolution across platforms */
 
 /**
  * resolve-cli-integration.test.cjs

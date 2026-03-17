@@ -287,6 +287,7 @@ Here is what an active project session looks like, with project context and quor
 
 ## Command Reference
 
+<!-- @traces GUIDE-02 -->
 nForma provides commands for the full project lifecycle, from initialization through milestone completion. The commands below are organized by category.
 
 <img src="assets/tui-agents-scoreboard.png" alt="Agent Scoreboard" width="600">
@@ -334,6 +335,7 @@ nForma provides commands for the full project lifecycle, from initialization thr
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
 | `/nf:map-codebase` | Analyze existing codebase | Before `/nf:new-project` on existing code |
+<!-- @traces PF-05 -->
 | `/nf:quick` | Ad-hoc task with nForma guarantees | Bug fixes, small features, config changes |
 | `/nf:debug [desc]` | Systematic debugging with persistent state | When something breaks |
 | `/nf:triage [--source github\|sentry\|bash] [--since 24h\|7d] [--limit N]` | Fetch and prioritize issues from GitHub, Sentry, or custom sources | Route issues to nForma workflows |

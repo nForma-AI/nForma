@@ -1,4 +1,5 @@
 'use strict';
+/** @requirement DIAG-01 — validates error clustering for solve diagnostic pipeline */
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+/** @requirement DISP-03 — regression test for FALLBACK-01 dispatch sequence ordering */
 
 /**
  * Regression tests for FALLBACK-01 quorum dispatch sequence.

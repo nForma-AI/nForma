@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @requirement SEM-01 — embedding-amplified proximity scoring for unlinked candidate discovery */
 // proximity-embed.mjs — Local embedding cache builder + unlinked candidate discovery
 //
 // Two outputs:

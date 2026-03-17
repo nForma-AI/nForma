@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+/** @requirement DETECT-03 — validates FP tuning functions that reduce false positives in solve classifier */
 
 /**
  * nf-solve-fp-tuning.test.cjs -- Unit tests for FPTUNE-01/02/03 functions.
