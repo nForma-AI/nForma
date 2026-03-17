@@ -18,6 +18,7 @@
 // Fail-open on any error.
 
 'use strict';
+/** @requirement DETECT-04 — PreToolUse safety hook rewrites node -e to heredoc syntax */
 
 const { loadConfig, shouldRunHook, validateHookInput } = require('./config-loader');
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T13:27:00.517Z",
+  "generated": "2026-03-17T17:27:14.954Z",
   "node_key_format": "type::id",
   "sources": {
     "scope.json:account-manager": {
@@ -28,7 +28,7 @@
       "hash": "b5e414df"
     },
     "scope.json:formal-proximity-index": {
-      "mtime": "2026-03-13T20:37:42.088Z",
+      "mtime": "2026-03-17T16:36:24.865Z",
       "hash": "1d85bde2"
     },
     "scope.json:installer": {
@@ -44,7 +44,7 @@
       "hash": "6318c2f9"
     },
     "scope.json:planningstate": {
-      "mtime": "2026-03-13T20:37:42.088Z",
+      "mtime": "2026-03-17T16:36:24.865Z",
       "hash": "7c1fdd87"
     },
     "scope.json:prefilter": {
@@ -64,11 +64,11 @@
       "hash": "a9b92676"
     },
     "scope.json:sessionpersistence": {
-      "mtime": "2026-03-13T20:37:42.088Z",
+      "mtime": "2026-03-17T16:36:24.866Z",
       "hash": "716f9017"
     },
     "scope.json:solve-convergence": {
-      "mtime": "2026-03-13T20:37:42.088Z",
+      "mtime": "2026-03-17T16:36:24.866Z",
       "hash": "56697a1b"
     },
     "scope.json:stop-hook": {
@@ -84,23 +84,23 @@
       "hash": "76910c97"
     },
     "model-registry.json": {
-      "mtime": "2026-03-17T13:22:27.116Z",
-      "hash": "bfe0cbac"
+      "mtime": "2026-03-17T16:36:24.860Z",
+      "hash": "463c7919"
     },
     "invariant-catalog.json": {
       "mtime": "2026-03-06T14:00:17.868Z",
       "hash": "e27072db"
     },
     "traceability-matrix.json": {
-      "mtime": "2026-03-17T13:10:12.468Z",
-      "hash": "1707f599"
+      "mtime": "2026-03-17T16:36:24.871Z",
+      "hash": "231dec0d"
     },
     "unit-test-coverage.json": {
-      "mtime": "2026-03-17T13:17:25.766Z",
+      "mtime": "2026-03-17T16:36:24.871Z",
       "hash": "4965cade"
     },
     "instrumentation-map.json": {
-      "mtime": "2026-03-17T12:55:16.257Z",
+      "mtime": "2026-03-17T16:36:24.857Z",
       "hash": "c55dfc1e"
     },
     "event-vocabulary.json": {
@@ -108,7 +108,7 @@
       "hash": "fa1b7cf9"
     },
     "observed-fsm.json": {
-      "mtime": "2026-03-17T12:39:27.123Z",
+      "mtime": "2026-03-17T16:36:24.864Z",
       "hash": "279cd805"
     },
     "risk-heatmap.json": {
@@ -116,18 +116,18 @@
       "hash": "2df5c0d7"
     },
     "git-heatmap.json": {
-      "mtime": "2026-03-17T12:57:02.162Z",
-      "hash": "d654a0a0"
+      "mtime": "2026-03-17T16:36:24.854Z",
+      "hash": "fab1598a"
     },
     "debt.json": {
       "mtime": "2026-03-04T13:33:16.983Z",
       "hash": "4f085cf2"
     },
     "source-annotations": {
-      "mtime": "2026-03-17T13:22:26.260Z"
+      "mtime": "2026-03-17T16:36:24.869Z"
     },
     "code-source-annotations": {
-      "mtime": "2026-03-17T12:54:03.973Z"
+      "mtime": "2026-03-17T17:26:18.917Z"
     }
   },
   "nodes": {
@@ -6000,6 +6000,11 @@
           "to": "formal_model::.planning/formal/alloy/diagnostics.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/error-clusterer.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -10793,6 +10798,11 @@
           "source": "source-annotation"
         },
         {
+          "to": "formal_model::.planning/formal/tla/NFMCPEnv.tla",
+          "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
           "to": "formal_model::.planning/formal/tla/QGSDMCPEnv.tla",
           "rel": "modeled_by",
           "source": "source-annotation"
@@ -15577,6 +15587,11 @@
         },
         {
           "to": "code_file::bin/invariant-catalog.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/proximity-embed.mjs",
           "rel": "declared_in",
           "source": "source-annotation"
         }
@@ -22147,6 +22162,11 @@
           "to": "formal_model::.planning/formal/tla/NFOscillation.tla",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::hooks/nf-node-eval-guard.js",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -25488,6 +25508,11 @@
           "source": "unit-test-coverage"
         },
         {
+          "to": "formal_model::.planning/formal/tla/NFMCPEnv.tla",
+          "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
           "to": "formal_model::.planning/formal/tla/QGSDMCPEnv.tla",
           "rel": "modeled_by",
           "source": "source-annotation"
@@ -25512,6 +25537,11 @@
           "to": "test_file::.planning/formal/generated-stubs/MCPENV-03.stub.test.js",
           "rel": "tested_by",
           "source": "unit-test-coverage"
+        },
+        {
+          "to": "formal_model::.planning/formal/tla/NFMCPEnv.tla",
+          "rel": "modeled_by",
+          "source": "source-annotation"
         },
         {
           "to": "formal_model::.planning/formal/tla/QGSDMCPEnv.tla",
@@ -51332,6 +51362,27 @@
       "risk_score": 32,
       "risk_tier": "low"
     },
+    "formal_model::.planning/formal/tla/NFMCPEnv.tla": {
+      "type": "formal_model",
+      "id": ".planning/formal/tla/NFMCPEnv.tla",
+      "edges": [
+        {
+          "to": "requirement::MCPENV-02",
+          "rel": "models",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::MCPENV-01",
+          "rel": "models",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::MCPENV-03",
+          "rel": "models",
+          "source": "source-annotation"
+        }
+      ]
+    },
     "formal_model::.planning/formal/prism/deliberation-healing.props": {
       "type": "formal_model",
       "id": ".planning/formal/prism/deliberation-healing.props",
@@ -51514,6 +51565,17 @@
       "edges": [
         {
           "to": "requirement::SIG-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/error-clusterer.cjs": {
+      "type": "code_file",
+      "id": "bin/error-clusterer.cjs",
+      "edges": [
+        {
+          "to": "requirement::DIAG-01",
           "rel": "declares",
           "source": "source-annotation"
         }
@@ -52190,6 +52252,28 @@
         },
         {
           "to": "requirement::VERIFY-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/proximity-embed.mjs": {
+      "type": "code_file",
+      "id": "bin/proximity-embed.mjs",
+      "edges": [
+        {
+          "to": "requirement::SEM-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::hooks/nf-node-eval-guard.js": {
+      "type": "code_file",
+      "id": "hooks/nf-node-eval-guard.js",
+      "edges": [
+        {
+          "to": "requirement::DETECT-04",
           "rel": "declares",
           "source": "source-annotation"
         }

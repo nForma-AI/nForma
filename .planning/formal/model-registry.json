@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-17T16:16:23.792Z",
+  "last_sync": "2026-03-17T17:27:58.128Z",
   "models": {
     ".planning/formal/alloy/account-pool-structure.als": {
       "version": 1,
@@ -1335,16 +1335,12 @@
       "consecutive_pass_count": 222
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 1572,
-      "last_updated": "2026-03-17T16:18:18.639Z",
+      "version": 1573,
+      "last_updated": "2026-03-17T17:27:57.928Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 2,
-      "consecutive_pass_count": 7,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "description": ""
     },
     ".planning/formal/alloy/readme-structure.als": {
       "version": 1,
@@ -2312,16 +2308,12 @@
       "consecutive_pass_count": 222
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 1572,
-      "last_updated": "2026-03-17T16:18:18.646Z",
+      "version": 1573,
+      "last_updated": "2026-03-17T17:27:57.929Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 2,
-      "consecutive_pass_count": 7,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "description": ""
     },
     ".planning/formal/tla/NFAccountManager.tla": {
       "version": 1,
@@ -2579,28 +2571,20 @@
       "consecutive_pass_count": 222
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 1572,
-      "last_updated": "2026-03-17T16:18:18.648Z",
+      "version": 1573,
+      "last_updated": "2026-03-17T17:27:57.926Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 2,
-      "consecutive_pass_count": 7,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "description": ""
     },
     ".planning/formal/tla/NFQuorum_xstate.tla": {
-      "version": 1096,
-      "last_updated": "2026-03-17T16:18:18.648Z",
+      "version": 1097,
+      "last_updated": "2026-03-17T17:27:58.128Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
-      "description": "",
-      "layer_maturity": 2,
-      "consecutive_pass_count": 7,
-      "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "description": ""
     },
     ".planning/formal/tla/NFReasoning.tla": {
       "version": 1,
