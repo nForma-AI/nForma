@@ -1041,4 +1041,4 @@ function parseSourceAnnotations(content) {
   return reqIds;
 }
 
-module.exports = { buildIndex, proximity, countEmbeddedEdges, parseSourceAnnotations, EDGE_WEIGHTS, SEMANTIC_WEIGHTS, REVERSE_RELS, SCORING_METHODS, DEFAULT_SCORING_METHOD, ENSEMBLE_METHODS, AMPLIFIED_ENSEMBLE_METHODS, embeddingSimilarity, tfidfSimilarity };
+module.exports = { buildIndex, proximity, countEmbeddedEdges, parseSourceAnnotations, loadEmbeddingCache, EDGE_WEIGHTS, SEMANTIC_WEIGHTS, REVERSE_RELS, SCORING_METHODS, DEFAULT_SCORING_METHOD, ENSEMBLE_METHODS, AMPLIFIED_ENSEMBLE_METHODS, embeddingSimilarity, tfidfSimilarity };

@@ -146,7 +146,7 @@ function quickCoverageCheck(requirements) {
  * @returns {{ metadata: object, candidates: Array }}
  */
 function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = {}) {
-  const { proximity, ENSEMBLE_METHODS } = require('./formal-proximity.cjs');
+  const { proximity, ENSEMBLE_METHODS, AMPLIFIED_ENSEMBLE_METHODS, loadEmbeddingCache } = require('./formal-proximity.cjs');
 
   // Load category-groups for domain gating
   const CATEGORY_GROUPS_PATH = path.join(process.cwd(), '.planning', 'formal', 'category-groups.json');
@@ -243,7 +243,9 @@ function discoverCandidates(proximityIndex, modelRegistry, requirements, opts = 
     }
   }
 
-  const methods = ENSEMBLE_METHODS;
+  // Auto-detect: use amplified ensemble (with embeddings) when cache is available
+  const embeddingCache = loadEmbeddingCache();
+  const methods = embeddingCache ? AMPLIFIED_ENSEMBLE_METHODS : ENSEMBLE_METHODS;
   const candidates = [];
   const zeroPairs = []; // Pairs with score 0 (no graph path)
   let totalPairsChecked = 0;

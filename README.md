@@ -272,6 +272,27 @@ node bin/install.js --claude --local
 </details>
 
 <details>
+<summary><strong>Embedding-Amplified Proximity (Optional)</strong></summary>
+
+The `/nf:proximity` command discovers unlinked relationships between formal models and requirements. By default it uses graph traversal and text heuristics. For higher-quality results, install one optional dependency:
+
+```bash
+npm install @huggingface/transformers
+```
+
+That's it. No flags, no configuration. The next time you run `/nf:proximity`, it will:
+1. Auto-detect the dependency
+2. Build a local embedding cache (~30s, runs on CPU)
+3. Switch to the amplified ensemble that combines graph + text + ML similarity
+
+The [all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2) ONNX model (~23MB) is downloaded on first run. Everything runs **locally** — no API keys or cloud calls.
+
+> [!TIP]
+> Without this dependency, `/nf:proximity` works fine — it just uses text-based heuristics. Install it when you want to catch semantically related but textually dissimilar model-requirement pairs.
+
+</details>
+
+<details>
 <summary><strong>Manual Quorum Setup (Advanced)</strong></summary>
 
 All quorum agents run through nForma's **unified MCP server** (`bin/unified-mcp-server.mjs`). There are two agent families:

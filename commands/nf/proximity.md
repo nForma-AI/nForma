@@ -44,6 +44,25 @@ Run: `node bin/formal-proximity.cjs`
 
 Progress line: `[1/6] Building proximity graph...`
 
+## Step 2.5: Build embedding cache (auto-detected)
+
+Check if `@huggingface/transformers` is installed and embedding cache is missing or stale:
+
+```bash
+node -e "require('@huggingface/transformers')" 2>/dev/null
+```
+
+- **If dependency is NOT installed:** Skip silently (embeddings are optional).
+- **If dependency IS installed but `.planning/formal/embedding-cache.json` is missing or `--rebuild` is set:**
+  - Run: `node bin/proximity-embed.mjs --cache-only`
+  - Display: "Building embedding cache (local CPU, ~30s)..."
+  - On completion: report vector count from output
+- **If cache exists and `--rebuild` NOT set:** Skip, report: "Embedding cache loaded (N vectors)"
+
+Progress line: `[1.5/6] Checking embeddings...`
+
+> The candidate discovery step automatically uses the amplified ensemble (with embedding similarity) when the cache is present. No flags needed.
+
 ## Step 3: Discover candidates
 
 Run: `node bin/candidate-discovery.cjs --min-score <val> --max-hops <val> --top <val> --non-neighbor-top <val> --json`

@@ -38,6 +38,8 @@ require.cache[formalProximityPath] = {
     EDGE_WEIGHTS: {},
     REVERSE_RELS: {},
     ENSEMBLE_METHODS: ['semantic+hub+tfidf'],
+    AMPLIFIED_ENSEMBLE_METHODS: ['semantic+hub+tfidf', 'semantic+hub+embed'],
+    loadEmbeddingCache: () => null,
   },
 };
 
