@@ -10,7 +10,17 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: (none — run /nf:new-milestone to start v0.38)
+## Current Milestone: v0.38 — Model-Driven Debugging
+
+**Goal:** Evolve formal models from descriptive (CI validation gate) to prescriptive (models explain bugs, constrain the solution space, and verify fixes before they're written). The debugging loop becomes: bug → model reproduction → constraint extraction → constrained fix → formal pre-verification → ship.
+
+**Target features:**
+- Bug-to-model lookup: extend formal-scope-scan.cjs to find and run models matching affected code files
+- Constraint extraction: parse TLA+/Alloy specs to extract fix constraints in plain English
+- Debug command model consultation: inject formal model intelligence into /nf:debug before quorum dispatch
+- Model refinement loop: when no model explains a bug, create/refine one that captures the failure mode
+- B→F solve layer: new 20th layer tracking bugs that formal models should explain but don't
+- Cross-model regression prevention: pre-verify fixes against proximity-neighbor models
 
 ## Shipped: v0.37 — Close the Loop: Cross-Layer Feedback Integration (2026-03-17)
 
