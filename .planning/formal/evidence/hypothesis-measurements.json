@@ -1,11 +1,11 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T16:20:20.790Z",
-  "total_measured": 104,
+  "generated": "2026-03-17T18:32:35.515Z",
+  "total_measured": 107,
   "verdicts": {
     "CONFIRMED": 0,
     "VIOLATED": 0,
-    "UNMEASURABLE": 104
+    "UNMEASURABLE": 107
   },
   "measurements": [
     {
@@ -47,6 +47,33 @@
     {
       "assumption_name": "FlipFlopLimit",
       "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFGatePromotion.tla",
+      "formal_value": null,
+      "actual_value": null,
+      "actual_source": null,
+      "verdict": "UNMEASURABLE",
+      "reason": "formal value not extractable from source model"
+    },
+    {
+      "assumption_name": "NumSlots",
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla",
+      "formal_value": null,
+      "actual_value": null,
+      "actual_source": null,
+      "verdict": "UNMEASURABLE",
+      "reason": "formal value not extractable from source model"
+    },
+    {
+      "assumption_name": "MaxRetries",
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla",
+      "formal_value": null,
+      "actual_value": null,
+      "actual_source": null,
+      "verdict": "UNMEASURABLE",
+      "reason": "formal value not extractable from source model"
+    },
+    {
+      "assumption_name": "QuorumThreshold",
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla",
       "formal_value": null,
       "actual_value": null,
       "actual_source": null,

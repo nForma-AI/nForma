@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T17:27:14.954Z",
+  "generated": "2026-03-17T17:50:58.331Z",
   "node_key_format": "type::id",
   "sources": {
     "scope.json:account-manager": {
@@ -84,24 +84,24 @@
       "hash": "76910c97"
     },
     "model-registry.json": {
-      "mtime": "2026-03-17T16:36:24.860Z",
-      "hash": "463c7919"
+      "mtime": "2026-03-17T17:50:56.882Z",
+      "hash": "802841f3"
     },
     "invariant-catalog.json": {
       "mtime": "2026-03-06T14:00:17.868Z",
       "hash": "e27072db"
     },
     "traceability-matrix.json": {
-      "mtime": "2026-03-17T16:36:24.871Z",
-      "hash": "231dec0d"
+      "mtime": "2026-03-17T17:50:57.861Z",
+      "hash": "f9b5955a"
     },
     "unit-test-coverage.json": {
-      "mtime": "2026-03-17T16:36:24.871Z",
-      "hash": "4965cade"
+      "mtime": "2026-03-17T17:50:30.112Z",
+      "hash": "bc2df804"
     },
     "instrumentation-map.json": {
-      "mtime": "2026-03-17T16:36:24.857Z",
-      "hash": "c55dfc1e"
+      "mtime": "2026-03-17T17:50:37.146Z",
+      "hash": "1fb160bd"
     },
     "event-vocabulary.json": {
       "mtime": "2026-03-08T20:28:45.150Z",
@@ -116,18 +116,18 @@
       "hash": "2df5c0d7"
     },
     "git-heatmap.json": {
-      "mtime": "2026-03-17T16:36:24.854Z",
-      "hash": "fab1598a"
+      "mtime": "2026-03-17T17:50:21.346Z",
+      "hash": "7b9fd487"
     },
     "debt.json": {
       "mtime": "2026-03-04T13:33:16.983Z",
       "hash": "4f085cf2"
     },
     "source-annotations": {
-      "mtime": "2026-03-17T16:36:24.869Z"
+      "mtime": "2026-03-17T17:50:56.882Z"
     },
     "code-source-annotations": {
-      "mtime": "2026-03-17T17:26:18.917Z"
+      "mtime": "2026-03-17T17:50:45.016Z"
     }
   },
   "nodes": {
@@ -13597,9 +13597,7 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
+      ]
     },
     "formal_model::.planning/formal/alloy/readme-structure.als": {
       "type": "formal_model",
@@ -21030,9 +21028,7 @@
     "formal_model::.planning/formal/prism/quorum.pm": {
       "type": "formal_model",
       "id": ".planning/formal/prism/quorum.pm",
-      "edges": [],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
+      "edges": []
     },
     "formal_model::.planning/formal/tla/NFAccountManager.tla": {
       "type": "formal_model",
@@ -22492,9 +22488,7 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
+      ]
     },
     "formal_model::.planning/formal/tla/NFQuorum_xstate.tla": {
       "type": "formal_model",
@@ -22505,9 +22499,7 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
+      ]
     },
     "formal_model::.planning/formal/tla/NFReasoning.tla": {
       "type": "formal_model",
@@ -22765,6 +22757,11 @@
           "to": "invariant::SessionBounded",
           "rel": "verified_by",
           "source": "traceability-matrix"
+        },
+        {
+          "to": "test_file::.planning/formal/generated-stubs/FV-01.stub.test.js",
+          "rel": "tested_by",
+          "source": "unit-test-coverage"
         },
         {
           "to": "formal_model::.planning/formal/tla/NFSolveConvergence.tla",
@@ -24951,6 +24948,11 @@
           "to": "invariant::TimeoutTerminates",
           "rel": "verified_by",
           "source": "traceability-matrix"
+        },
+        {
+          "to": "test_file::.planning/formal/generated-stubs/DISP-08.stub.test.js",
+          "rel": "tested_by",
+          "source": "unit-test-coverage"
         },
         {
           "to": "formal_model::.planning/formal/tla/QGSDDispatchPipeline.tla",
@@ -27386,6 +27388,11 @@
           "source": "traceability-matrix"
         },
         {
+          "to": "test_file::.planning/formal/generated-stubs/PROMO-04.stub.test.js",
+          "rel": "tested_by",
+          "source": "unit-test-coverage"
+        },
+        {
           "to": "formal_model::.planning/formal/tla/NFGatePromotion.tla",
           "rel": "modeled_by",
           "source": "source-annotation"
@@ -27826,6 +27833,11 @@
           "to": "invariant::CappedLayerReported",
           "rel": "verified_by",
           "source": "traceability-matrix"
+        },
+        {
+          "to": "test_file::.planning/formal/generated-stubs/CONV-03.stub.test.js",
+          "rel": "tested_by",
+          "source": "unit-test-coverage"
         },
         {
           "to": "formal_model::.planning/formal/tla/NFSolveConvergenceV2.tla",
@@ -46884,6 +46896,17 @@
         }
       ]
     },
+    "test_file::.planning/formal/generated-stubs/CONV-03.stub.test.js": {
+      "type": "test_file",
+      "id": ".planning/formal/generated-stubs/CONV-03.stub.test.js",
+      "edges": [
+        {
+          "to": "requirement::CONV-03",
+          "rel": "tests",
+          "source": "unit-test-coverage"
+        }
+      ]
+    },
     "test_file::.planning/formal/generated-stubs/CONV-04.stub.test.js": {
       "type": "test_file",
       "id": ".planning/formal/generated-stubs/CONV-04.stub.test.js",
@@ -47236,6 +47259,17 @@
         }
       ]
     },
+    "test_file::.planning/formal/generated-stubs/DISP-08.stub.test.js": {
+      "type": "test_file",
+      "id": ".planning/formal/generated-stubs/DISP-08.stub.test.js",
+      "edges": [
+        {
+          "to": "requirement::DISP-08",
+          "rel": "tests",
+          "source": "unit-test-coverage"
+        }
+      ]
+    },
     "test_file::.planning/formal/generated-stubs/DRIFT-01.stub.test.js": {
       "type": "test_file",
       "id": ".planning/formal/generated-stubs/DRIFT-01.stub.test.js",
@@ -47418,6 +47452,17 @@
       "edges": [
         {
           "to": "requirement::FP-04",
+          "rel": "tests",
+          "source": "unit-test-coverage"
+        }
+      ]
+    },
+    "test_file::.planning/formal/generated-stubs/FV-01.stub.test.js": {
+      "type": "test_file",
+      "id": ".planning/formal/generated-stubs/FV-01.stub.test.js",
+      "edges": [
+        {
+          "to": "requirement::FV-01",
           "rel": "tests",
           "source": "unit-test-coverage"
         }
@@ -48727,6 +48772,17 @@
       "edges": [
         {
           "to": "requirement::PROMO-03",
+          "rel": "tests",
+          "source": "unit-test-coverage"
+        }
+      ]
+    },
+    "test_file::.planning/formal/generated-stubs/PROMO-04.stub.test.js": {
+      "type": "test_file",
+      "id": ".planning/formal/generated-stubs/PROMO-04.stub.test.js",
+      "edges": [
+        {
+          "to": "requirement::PROMO-04",
           "rel": "tests",
           "source": "unit-test-coverage"
         }

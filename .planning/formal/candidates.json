@@ -1,15 +1,15 @@
 {
   "metadata": {
-    "generated": "2026-03-17T12:55:06.658Z",
-    "proximity_index_hash": "bdff0d33",
+    "generated": "2026-03-17T17:50:34.083Z",
+    "proximity_index_hash": "238aeed1",
     "threshold": 0.7,
     "max_hops": 5,
     "total_pairs_checked": 0,
     "candidates_found": 0,
     "candidates_filtered": 0,
     "orphan_models_count": 1,
-    "orphan_requirements_count": 1,
-    "uncovered_requirements_count": 1,
+    "orphan_requirements_count": 0,
+    "uncovered_requirements_count": 0,
     "non_neighbor_top": 20,
     "fast_path": true
   },
@@ -21,17 +21,7 @@
         "edges": 0
       }
     ],
-    "requirements": [
-      {
-        "id": "DISP-08",
-        "edges": 0
-      }
-    ]
+    "requirements": []
   },
-  "uncovered_requirements": [
-    {
-      "id": "DISP-08",
-      "text": "Quorum subprocess dispatch uses dual-timer timeout: an idle timer (default 20s) that resets on stdout/stderr activity, and a hard wall-clock cap (default 5min) that never resets, replacing the previous fixed wall-clock timeout"
-    }
-  ]
+  "uncovered_requirements": []
 }

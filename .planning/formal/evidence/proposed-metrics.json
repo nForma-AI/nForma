@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T13:19:23.302Z",
-  "total_proposed": 1493,
+  "generated": "2026-03-17T17:50:33.591Z",
+  "total_proposed": 1498,
   "implemented": 0,
   "partial": 0,
-  "outstanding": 1493,
+  "outstanding": 1498,
   "metrics": [
     {
       "metric_name": "nf_maxdeliberationrounds__tla",
@@ -64,6 +64,42 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFGatePromotion.tla:FlipFlopLimit",
       "instrumentation_snippet": "// Prometheus gauge for FlipFlopLimit (tla/assume)\n# HELP nf_flipfloplimit__tla Monitors FlipFlopLimit from tla model\n# TYPE nf_flipfloplimit__tla gauge\nconst nf_flipfloplimit__tla = new Gauge({\n  name: 'nf_flipfloplimit__tla',\n  help: 'Monitors FlipFlopLimit from tla model',\n  labelNames: ['model', 'file']\n});\nnf_flipfloplimit__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFGatePromotion.tla' }, 0);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_numslots__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla",
+      "assumption_name": "NumSlots",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla:NumSlots",
+      "instrumentation_snippet": "// Prometheus gauge for NumSlots (tla/assume)\n# HELP nf_numslots__tla Monitors NumSlots from tla model\n# TYPE nf_numslots__tla gauge\nconst nf_numslots__tla = new Gauge({\n  name: 'nf_numslots__tla',\n  help: 'Monitors NumSlots from tla model',\n  labelNames: ['model', 'file']\n});\nnf_numslots__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla' }, 0);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_maxretries__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla",
+      "assumption_name": "MaxRetries",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla:MaxRetries",
+      "instrumentation_snippet": "// Prometheus gauge for MaxRetries (tla/assume)\n# HELP nf_maxretries__tla Monitors MaxRetries from tla model\n# TYPE nf_maxretries__tla gauge\nconst nf_maxretries__tla = new Gauge({\n  name: 'nf_maxretries__tla',\n  help: 'Monitors MaxRetries from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxretries__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla' }, 0);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_quorumthreshold__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla",
+      "assumption_name": "QuorumThreshold",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla:QuorumThreshold",
+      "instrumentation_snippet": "// Prometheus gauge for QuorumThreshold (tla/assume)\n# HELP nf_quorumthreshold__tla Monitors QuorumThreshold from tla model\n# TYPE nf_quorumthreshold__tla gauge\nconst nf_quorumthreshold__tla = new Gauge({\n  name: 'nf_quorumthreshold__tla',\n  help: 'Monitors QuorumThreshold from tla model',\n  labelNames: ['model', 'file']\n});\nnf_quorumthreshold__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla' }, 0);",
       "status": "proposed"
     },
     {
@@ -1519,6 +1555,30 @@
       "status": "proposed"
     },
     {
+      "metric_name": "nf_typeinvariant__tla",
+      "metric_type": "counter",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla",
+      "assumption_name": "TypeInvariant",
+      "assumption_type": "invariant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla:TypeInvariant",
+      "instrumentation_snippet": "// Observe handler for TypeInvariant (tla/invariant)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_typeinvariant__tla\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_typeinvariant__tla\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla:TypeInvariant\",\n    \"description\": \"Counts violations of TypeInvariant\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_typeinvariantholds__tla",
+      "metric_type": "counter",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla",
+      "assumption_name": "TypeInvariantHolds",
+      "assumption_type": "invariant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla:TypeInvariantHolds",
+      "instrumentation_snippet": "// Observe handler for TypeInvariantHolds (tla/invariant)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_typeinvariantholds__tla\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_typeinvariantholds__tla\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFMCPEnv.tla:TypeInvariantHolds\",\n    \"description\": \"Counts violations of TypeInvariantHolds\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
       "metric_name": "nf_typeok__tla",
       "metric_type": "counter",
       "tier": 2,
@@ -2299,7 +2359,7 @@
       "status": "proposed"
     },
     {
-      "metric_name": "nf_typeinvariant",
+      "metric_name": "nf_typeinvariant__tla",
       "metric_type": "counter",
       "tier": 2,
       "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDMCPEnv.tla",
@@ -2307,7 +2367,7 @@
       "assumption_type": "invariant",
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDMCPEnv.tla:TypeInvariant",
-      "instrumentation_snippet": "// Observe handler for TypeInvariant (tla/invariant)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_typeinvariant\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_typeinvariant\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDMCPEnv.tla:TypeInvariant\",\n    \"description\": \"Counts violations of TypeInvariant\"\n  }\n}",
+      "instrumentation_snippet": "// Observe handler for TypeInvariant (tla/invariant)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_typeinvariant__tla\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_typeinvariant__tla\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDMCPEnv.tla:TypeInvariant\",\n    \"description\": \"Counts violations of TypeInvariant\"\n  }\n}",
       "status": "proposed"
     },
     {

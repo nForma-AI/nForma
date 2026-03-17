@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-17T13:17:25.764Z",
+  "generated_at": "2026-03-17T17:50:30.110Z",
   "requirements": {
     "ACT-01": {
       "covered": true,
@@ -446,6 +446,15 @@
         }
       ]
     },
+    "CONV-03": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/CONV-03.stub.test.js",
+          "test_name": "CONV-03: solve output JSON schema includes capped_layers array"
+        }
+      ]
+    },
     "CONV-04": {
       "covered": true,
       "test_cases": [
@@ -724,6 +733,15 @@
         }
       ]
     },
+    "DISP-08": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/DISP-08.stub.test.js",
+          "test_name": "DISP-08: call-quorum-slot.cjs implements idle timer with reset on stdout/stderr"
+        }
+      ]
+    },
     "DRIFT-01": {
       "covered": true,
       "test_cases": [
@@ -874,6 +892,15 @@
         {
           "test_file": ".planning/formal/generated-stubs/FP-04.stub.test.js",
           "test_name": "FP-04 — Requirement: structural verification"
+        }
+      ]
+    },
+    "FV-01": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/FV-01.stub.test.js",
+          "test_name": "FV-01: NFSolveConvergence.tla defines SessionBounded invariant"
         }
       ]
     },
@@ -1945,6 +1972,15 @@
         {
           "test_file": ".planning/formal/generated-stubs/PROMO-03.stub.test.js",
           "test_name": "PROMO-03 — Promote: structural verification"
+        }
+      ]
+    },
+    "PROMO-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/PROMO-04.stub.test.js",
+          "test_name": "PROMO-04: promote-gate-maturity.cjs pushes to changelog with required fields"
         }
       ]
     },
@@ -3315,22 +3351,6 @@
           "test_name": "XPLAT-02 — Bool: structural verification"
         }
       ]
-    },
-    "CONV-03": {
-      "covered": false,
-      "test_cases": []
-    },
-    "DISP-08": {
-      "covered": false,
-      "test_cases": []
-    },
-    "FV-01": {
-      "covered": false,
-      "test_cases": []
-    },
-    "PROMO-04": {
-      "covered": false,
-      "test_cases": []
     }
   }
 }
