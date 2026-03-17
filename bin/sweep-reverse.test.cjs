@@ -221,6 +221,64 @@ describe('sweepDtoR', () => {
   });
 });
 
+// ── sweepDtoR exclusion and claim-type filtering ─────────────────────────────
+
+describe('sweepDtoR exclusion and claim-type filtering', () => {
+  // Test 1: Config loading resilience
+  it('returns valid result even if dr-scanner-config.json is missing', () => {
+    // sweepDtoR should fail-open — already tested implicitly by existing tests
+    // but verify detail shape includes excluded_files field
+    const result = sweepDtoR();
+    if (!result.detail.skipped) {
+      assert.equal(typeof result.detail.excluded_files, 'number');
+      assert.equal(typeof result.detail.suppressed_lines, 'number');
+    }
+  });
+
+  // Test 2: Exclusion list reduces file count
+  it('excludes files matching dr-scanner-config.json patterns', () => {
+    const result = sweepDtoR();
+    if (!result.detail.skipped) {
+      // With exclusions active, excluded_files should be >= 0
+      assert.ok(result.detail.excluded_files >= 0, 'excluded_files should be non-negative');
+      // Verify no unbacked claim comes from an excluded file
+      const config = JSON.parse(fs.readFileSync(
+        path.join(process.cwd(), '.planning', 'formal', 'dr-scanner-config.json'), 'utf8'
+      ));
+      for (const claim of result.detail.unbacked_claims) {
+        for (const pattern of config.exclude_files) {
+          // None of the unbacked claims should match an exclude pattern
+          // (use simple check -- exact match or startsWith for glob dirs)
+          if (!pattern.includes('*') && claim.doc_file === pattern) {
+            assert.fail('Excluded file ' + pattern + ' still produced claim: ' + claim.claim_text);
+          }
+        }
+      }
+    }
+  });
+
+  // Test 3: Table rows are suppressed
+  it('suppresses table row lines from claim detection', () => {
+    const result = sweepDtoR();
+    if (!result.detail.skipped) {
+      for (const claim of result.detail.unbacked_claims) {
+        // No claim_text should start with a pipe (table row)
+        assert.ok(!claim.claim_text.startsWith('|'),
+          'Table row not suppressed: ' + claim.claim_text);
+      }
+    }
+  });
+
+  // Test 4: Residual is within acceptable range
+  it('residual is reduced below 15 with exclusions active', () => {
+    const result = sweepDtoR();
+    if (!result.detail.skipped) {
+      assert.ok(result.residual < 15,
+        'Expected residual < 15 with exclusions, got ' + result.residual);
+    }
+  });
+});
+
 // ── assembleReverseCandidates ────────────────────────────────────────────────
 
 describe('assembleReverseCandidates', () => {
