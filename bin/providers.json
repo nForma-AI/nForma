@@ -37,7 +37,7 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
@@ -52,7 +52,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -92,14 +92,14 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -128,7 +128,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
@@ -143,7 +143,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -172,14 +172,14 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -216,7 +216,7 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
@@ -231,7 +231,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -284,7 +284,7 @@
       ],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
@@ -299,7 +299,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -328,7 +328,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
@@ -348,7 +348,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -377,7 +377,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
@@ -390,7 +390,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -419,7 +419,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
@@ -432,7 +432,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -461,7 +461,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": null,
       "env": {},
@@ -474,7 +474,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -503,7 +503,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": 15000,
       "env": {},
@@ -516,7 +516,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     },
     {
@@ -545,7 +545,7 @@
       "extraTools": [],
       "timeout_ms": 300000,
       "quorum_timeout_ms": 180000,
-      "idle_timeout_ms": 20000,
+      "idle_timeout_ms": 90000,
       "hard_timeout_ms": 300000,
       "latency_budget_ms": 15000,
       "env": {},
@@ -558,7 +558,7 @@
       "deep_probe": {
         "prompt": "respond with: PROBE_OK",
         "expect": "PROBE_OK",
-        "timeout_ms": 20000
+        "timeout_ms": 45000
       }
     }
   ]

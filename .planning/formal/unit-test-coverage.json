@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-16T16:19:34.873Z",
+  "generated_at": "2026-03-17T10:04:23.358Z",
   "requirements": {
     "ACT-01": {
       "covered": true,
@@ -303,7 +303,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/CLASS-01.stub.test.js",
-          "test_name": "TODO: implement test for CLASS-01 — Bool"
+          "test_name": "CLASS-01 — Bool: structural verification"
         }
       ]
     },
@@ -433,7 +433,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/CONV-01.stub.test.js",
-          "test_name": "TODO: implement test for CONV-01 — DetectOscillation"
+          "test_name": "CONV-01 — DetectOscillation: structural verification"
         }
       ]
     },
@@ -442,7 +442,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/CONV-02.stub.test.js",
-          "test_name": "TODO: implement test for CONV-02 — RunIteration"
+          "test_name": "CONV-02 — RunIteration: structural verification"
         }
       ]
     },
@@ -451,7 +451,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/CONV-04.stub.test.js",
-          "test_name": "TODO: implement test for CONV-04 — TakeBaselineSnapshot"
+          "test_name": "CONV-04 — TakeBaselineSnapshot: structural verification"
         }
       ]
     },
@@ -882,7 +882,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/FV-02.stub.test.js",
-          "test_name": "TODO: implement test for FV-02 — OscillationBounded"
+          "test_name": "FV-02 — OscillationBounded: structural verification"
         }
       ]
     },
@@ -891,7 +891,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/FV-03.stub.test.js",
-          "test_name": "TODO: implement test for FV-03 — EventualConvergence"
+          "test_name": "FV-03 — EventualConvergence: structural verification"
         }
       ]
     },
@@ -1494,7 +1494,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/NAME-01.stub.test.js",
-          "test_name": "TODO: implement test for NAME-01 — Bool"
+          "test_name": "NAME-01 — Bool: structural verification"
         }
       ]
     },
@@ -1503,7 +1503,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/NAME-02.stub.test.js",
-          "test_name": "TODO: implement test for NAME-02 — Bool"
+          "test_name": "NAME-02 — Bool: structural verification"
         }
       ]
     },
@@ -1512,7 +1512,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/NAME-03.stub.test.js",
-          "test_name": "TODO: implement test for NAME-03 — Bool"
+          "test_name": "NAME-03 — Bool: structural verification"
         }
       ]
     },
@@ -1521,7 +1521,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/NAME-04.stub.test.js",
-          "test_name": "TODO: implement test for NAME-04 — Bool"
+          "test_name": "NAME-04 — Bool: structural verification"
         }
       ]
     },
@@ -1674,7 +1674,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/OSC-01.stub.test.js",
-          "test_name": "TODO: implement test for OSC-01 — ConsumeOscillationCredit"
+          "test_name": "OSC-01 — ConsumeOscillationCredit: structural verification"
         }
       ]
     },
@@ -1683,7 +1683,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/OSC-02.stub.test.js",
-          "test_name": "TODO: implement test for OSC-02 — AllowCascadeGrace"
+          "test_name": "OSC-02 — AllowCascadeGrace: structural verification"
         }
       ]
     },
@@ -1692,7 +1692,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/OSC-03.stub.test.js",
-          "test_name": "TODO: implement test for OSC-03 — ClassifyEscalation"
+          "test_name": "OSC-03 — ClassifyEscalation: structural verification"
         }
       ]
     },
@@ -1701,7 +1701,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PAIR-01.stub.test.js",
-          "test_name": "TODO: implement test for PAIR-01 — Bool"
+          "test_name": "PAIR-01 — Bool: structural verification"
         }
       ]
     },
@@ -1710,7 +1710,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PAIR-02.stub.test.js",
-          "test_name": "TODO: implement test for PAIR-02 — Bool"
+          "test_name": "PAIR-02 — Bool: structural verification"
         }
       ]
     },
@@ -1719,7 +1719,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PAIR-03.stub.test.js",
-          "test_name": "TODO: implement test for PAIR-03 — Bool"
+          "test_name": "PAIR-03 — Bool: structural verification"
         }
       ]
     },
@@ -1728,7 +1728,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PAIR-04.stub.test.js",
-          "test_name": "TODO: implement test for PAIR-04 — Bool"
+          "test_name": "PAIR-04 — Bool: structural verification"
         }
       ]
     },
@@ -1755,7 +1755,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PERF-01.stub.test.js",
-          "test_name": "TODO: implement test for PERF-01 — Bool"
+          "test_name": "PERF-01 — Bool: structural verification"
         }
       ]
     },
@@ -1764,7 +1764,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PERF-02.stub.test.js",
-          "test_name": "TODO: implement test for PERF-02 — Bool"
+          "test_name": "PERF-02 — Bool: structural verification"
         }
       ]
     },
@@ -1899,7 +1899,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PRED-01.stub.test.js",
-          "test_name": "TODO: implement test for PRED-01 — Bool"
+          "test_name": "PRED-01 — Bool: structural verification"
         }
       ]
     },
@@ -1908,7 +1908,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PRED-02.stub.test.js",
-          "test_name": "TODO: implement test for PRED-02 — Bool"
+          "test_name": "PRED-02 — Bool: structural verification"
         }
       ]
     },
@@ -1926,7 +1926,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PROMO-01.stub.test.js",
-          "test_name": "TODO: implement test for PROMO-01 — Eligible"
+          "test_name": "PROMO-01 — Eligible: structural verification"
         }
       ]
     },
@@ -1935,7 +1935,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PROMO-02.stub.test.js",
-          "test_name": "TODO: implement test for PROMO-02 — IncrementCleanSession"
+          "test_name": "PROMO-02 — IncrementCleanSession: structural verification"
         }
       ]
     },
@@ -1944,7 +1944,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PROMO-03.stub.test.js",
-          "test_name": "TODO: implement test for PROMO-03 — Promote"
+          "test_name": "PROMO-03 — Promote: structural verification"
         }
       ]
     },
@@ -1953,7 +1953,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/PROMO-05.stub.test.js",
-          "test_name": "TODO: implement test for PROMO-05 — DetectFlipFlop"
+          "test_name": "PROMO-05 — DetectFlipFlop: structural verification"
         }
       ]
     },
@@ -2376,7 +2376,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/SCHEMA-05.stub.test.js",
-          "test_name": "TODO: implement test for SCHEMA-05 — Bool"
+          "test_name": "SCHEMA-05 — Bool: structural verification"
         }
       ]
     },
@@ -2457,7 +2457,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/SEM-05.stub.test.js",
-          "test_name": "TODO: implement test for SEM-05 — Bool"
+          "test_name": "SEM-05 — Bool: behavioral verification"
         }
       ]
     },
@@ -2493,7 +2493,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/SETUP-01.stub.test.js",
-          "test_name": "TODO: implement test for SETUP-01 — Bool"
+          "test_name": "SETUP-01 — Bool: structural verification"
         }
       ]
     },
@@ -2502,7 +2502,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/SETUP-02.stub.test.js",
-          "test_name": "TODO: implement test for SETUP-02 — Bool"
+          "test_name": "SETUP-02 — Bool: structural verification"
         }
       ]
     },
@@ -2628,7 +2628,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/STAB-01.stub.test.js",
-          "test_name": "TODO: implement test for STAB-01 — DetectFlipFlop"
+          "test_name": "STAB-01 — DetectFlipFlop: structural verification"
         }
       ]
     },
@@ -2637,7 +2637,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/STAB-02.stub.test.js",
-          "test_name": "TODO: implement test for STAB-02 — CooldownEnforced"
+          "test_name": "STAB-02 — CooldownEnforced: structural verification"
         }
       ]
     },
@@ -2646,7 +2646,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/STAB-03.stub.test.js",
-          "test_name": "TODO: implement test for STAB-03 — LogContains"
+          "test_name": "STAB-03 — LogContains: structural verification"
         }
       ]
     },
@@ -2790,7 +2790,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/STRUCT-01.stub.test.js",
-          "test_name": "TODO: implement test for STRUCT-01 — Bool"
+          "test_name": "STRUCT-01 — Bool: structural verification"
         }
       ]
     },
@@ -2799,7 +2799,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/STRUCT-02.stub.test.js",
-          "test_name": "TODO: implement test for STRUCT-02 — Bool"
+          "test_name": "STRUCT-02 — Bool: constant verification"
         }
       ]
     },
@@ -2808,7 +2808,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/STRUCT-03.stub.test.js",
-          "test_name": "TODO: implement test for STRUCT-03 — Bool"
+          "test_name": "STRUCT-03 — Bool: structural verification"
         }
       ]
     },
@@ -2817,7 +2817,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/STRUCT-04.stub.test.js",
-          "test_name": "TODO: implement test for STRUCT-04 — Bool"
+          "test_name": "STRUCT-04 — Bool: structural verification"
         }
       ]
     },
@@ -2862,7 +2862,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TEST-01.stub.test.js",
-          "test_name": "TODO: implement test for TEST-01 — TypeOK"
+          "test_name": "TEST-01 — TypeOK: structural verification"
         }
       ]
     },
@@ -2871,7 +2871,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TEST-02.stub.test.js",
-          "test_name": "TODO: implement test for TEST-02 — CascadeEffect"
+          "test_name": "TEST-02 — CascadeEffect: structural verification"
         }
       ]
     },
@@ -2880,7 +2880,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TEST-03.stub.test.js",
-          "test_name": "TODO: implement test for TEST-03 — Layer"
+          "test_name": "TEST-03 — Layer: behavioral verification"
         }
       ]
     },
@@ -2889,7 +2889,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TEST-04.stub.test.js",
-          "test_name": "TODO: implement test for TEST-04 — Layer"
+          "test_name": "TEST-04 — Layer: structural verification"
         }
       ]
     },
@@ -2979,7 +2979,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TRACK-01.stub.test.js",
-          "test_name": "TODO: implement test for TRACK-01 — AppendSnapshot"
+          "test_name": "TRACK-01 — AppendSnapshot: structural verification"
         }
       ]
     },
@@ -2988,7 +2988,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TRACK-02.stub.test.js",
-          "test_name": "TODO: implement test for TRACK-02 — DetectTrend"
+          "test_name": "TRACK-02 — DetectTrend: structural verification"
         }
       ]
     },
@@ -2997,7 +2997,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TRACK-03.stub.test.js",
-          "test_name": "TODO: implement test for TRACK-03 — EstimateVelocity"
+          "test_name": "TRACK-03 — EstimateVelocity: structural verification"
         }
       ]
     },
@@ -3006,7 +3006,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TRACK-04.stub.test.js",
-          "test_name": "TODO: implement test for TRACK-04 — DetectScopeGrowth"
+          "test_name": "TRACK-04 — DetectScopeGrowth: structural verification"
         }
       ]
     },
@@ -3033,7 +3033,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TUI-01.stub.test.js",
-          "test_name": "TODO: implement test for TUI-01 — TypeOK"
+          "test_name": "TUI-01 — TypeOK: structural verification"
         }
       ]
     },
@@ -3042,7 +3042,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/TUI-02.stub.test.js",
-          "test_name": "TODO: implement test for TUI-02 — NoDeadlock"
+          "test_name": "TUI-02 — NoDeadlock: constant verification"
         }
       ]
     },
@@ -3303,7 +3303,7 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/XPLAT-01.stub.test.js",
-          "test_name": "TODO: implement test for XPLAT-01 — Bool"
+          "test_name": "XPLAT-01 — Bool: structural verification"
         }
       ]
     },
@@ -3312,11 +3312,15 @@
       "test_cases": [
         {
           "test_file": ".planning/formal/generated-stubs/XPLAT-02.stub.test.js",
-          "test_name": "TODO: implement test for XPLAT-02 — Bool"
+          "test_name": "XPLAT-02 — Bool: structural verification"
         }
       ]
     },
     "CONV-03": {
+      "covered": false,
+      "test_cases": []
+    },
+    "DISP-08": {
       "covered": false,
       "test_cases": []
     },

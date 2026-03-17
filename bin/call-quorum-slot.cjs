@@ -559,13 +559,13 @@ async function main() {
   }
 
   // Dual timeout resolution:
-  // - idle_timeout_ms: inactivity timer that resets on stdout/stderr, defaults to 20s
+  // - idle_timeout_ms: inactivity timer that resets on stdout/stderr, defaults to 90s
   // - hard_timeout_ms: absolute wall-clock cap that never resets, defaults to 5min (300s)
   // - --timeout CLI arg maps to idle timeout (backward compat)
   // - latency_budget_ms (LTCY-01) is the ultimate ceiling for both
   // - quorum_timeout_ms caps the hard timeout
   const latencyBudget = provider.latency_budget_ms ?? null;
-  const providerIdle = provider.idle_timeout_ms ?? 20000;
+  const providerIdle = provider.idle_timeout_ms ?? 90000;
   const providerHard = provider.hard_timeout_ms ?? 300000;
   const providerCap = provider.quorum_timeout_ms ?? null;
 

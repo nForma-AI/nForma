@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_sync": "2026-03-16T16:25:27.076Z",
+  "last_sync": "2026-03-17T09:58:29.238Z",
   "models": {
     ".planning/formal/alloy/account-pool-structure.als": {
       "version": 1,
@@ -18,7 +18,8 @@
         "CRED-09",
         "CRED-10",
         "CRED-11"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/agent-context-payload.als": {
       "version": 1,
@@ -33,7 +34,8 @@
       "requirements": [
         "GUARD-01",
         "OBS-11"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/annotation-extraction.als": {
       "version": 1,
@@ -51,7 +53,8 @@
         "ANNOT-03",
         "ANNOT-04",
         "ANNOT-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/architecture-registry.als": {
       "version": 1,
@@ -70,7 +73,8 @@
         "META-01",
         "META-02",
         "META-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/autoclose-signals.als": {
       "version": 1,
@@ -84,7 +88,8 @@
       "source_layer": "L3",
       "requirements": [
         "GATE-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/availability-parsing.als": {
       "version": 1,
@@ -100,7 +105,8 @@
         "CALIB-01",
         "CALIB-02",
         "CALIB-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/baseline-merge-idempotent.als": {
       "version": 1,
@@ -114,7 +120,8 @@
       "source_layer": "L3",
       "requirements": [
         "INST-12"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/baseline-requirements-filter.als": {
       "version": 1,
@@ -128,7 +135,8 @@
       "source_layer": "L3",
       "requirements": [
         "INIT-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/bin-path-resolution.als": {
       "version": 1,
@@ -142,7 +150,8 @@
       "source_layer": "L3",
       "requirements": [
         "INST-11"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/build-test-quality.als": {
       "version": 1,
@@ -158,7 +167,8 @@
         "BLD-01",
         "BLD-02",
         "STD-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/changelog-release.als": {
       "version": 1,
@@ -177,7 +187,8 @@
         "RLS-02",
         "RLS-03",
         "RLS-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/ci-matrix.als": {
       "version": 1,
@@ -191,7 +202,8 @@
       "source_layer": "L3",
       "requirements": [
         "CI-07"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/ci-pipeline-gates.als": {
       "version": 1,
@@ -207,7 +219,8 @@
         "CI-01",
         "CI-02",
         "CI-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/ci-quality-gates.als": {
       "version": 1,
@@ -222,7 +235,8 @@
       "requirements": [
         "CI-05",
         "CI-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/ci-test-fallback.als": {
       "version": 1,
@@ -236,7 +250,8 @@
       "source_layer": "L3",
       "requirements": [
         "CI-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/cli-exit-conventions.als": {
       "version": 1,
@@ -250,7 +265,8 @@
       "source_layer": "L3",
       "requirements": [
         "OBS-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/code-quality-guardrails.als": {
       "version": 1,
@@ -264,7 +280,8 @@
       "source_layer": "L3",
       "requirements": [
         "GUARD-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/codebase-arch-constraints.als": {
       "version": 1,
@@ -280,7 +297,8 @@
         "ARCH-10",
         "REN-03",
         "STD-10"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/config-audit.als": {
       "version": 1,
@@ -294,7 +312,8 @@
       "source_layer": "L3",
       "requirements": [
         "CONF-13"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/config-two-layer.als": {
       "version": 1,
@@ -316,7 +335,8 @@
         "CONF-07",
         "CONF-08",
         "CONF-09"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/config-zero-providers.als": {
       "version": 1,
@@ -330,7 +350,8 @@
       "source_layer": "L3",
       "requirements": [
         "CONF-10"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/debate-trace-persistence.als": {
       "version": 1,
@@ -344,7 +365,8 @@
       "source_layer": "L3",
       "requirements": [
         "DISP-07"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/debt-lifecycle.als": {
       "version": 1,
@@ -362,7 +384,8 @@
         "DEBT-04",
         "DEBT-05",
         "DEBT-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/decomp-cross-model.als": {
       "version": 1,
@@ -376,7 +399,8 @@
       "source_layer": "L3",
       "requirements": [
         "DECOMP-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/diagnostics-verification.als": {
       "version": 1,
@@ -392,7 +416,8 @@
         "DIAG-01",
         "DIAG-02",
         "DIAG-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/diagnostics.als": {
       "version": 1,
@@ -408,7 +433,8 @@
         "DIAG-01",
         "DIAG-02",
         "DIAG-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/dispatch-formal-context.als": {
       "version": 1,
@@ -422,7 +448,8 @@
       "source_layer": "L3",
       "requirements": [
         "DISP-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/doc-claims-backing.als": {
       "version": 1,
@@ -436,7 +463,8 @@
       "source_layer": "L3",
       "requirements": [
         "DOC-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/doc-presentation.als": {
       "version": 1,
@@ -451,7 +479,8 @@
       "requirements": [
         "DOC-02",
         "DOC-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/doc-public-boundary.als": {
       "version": 1,
@@ -465,7 +494,8 @@
       "source_layer": "L3",
       "requirements": [
         "DOC-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/event-vocabulary.als": {
       "version": 1,
@@ -479,7 +509,8 @@
       "source_layer": "L3",
       "requirements": [
         "EVID-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/evidence-layer.als": {
       "version": 1,
@@ -495,7 +526,8 @@
         "EVID-02",
         "EVID-03",
         "EVID-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/evidence-scope-scan.als": {
       "version": 1,
@@ -510,7 +542,8 @@
       "requirements": [
         "EVID-03",
         "SPEC-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/evidence-triage.als": {
       "version": 1,
@@ -527,7 +560,8 @@
         "EVID-02",
         "TRIAGE-01",
         "TRIAGE-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/fingerprinting-dedup.als": {
       "version": 1,
@@ -544,7 +578,8 @@
         "FP-02",
         "FP-03",
         "FP-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/fingerprinting.als": {
       "version": 1,
@@ -561,7 +596,8 @@
         "FP-02",
         "FP-03",
         "FP-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/focus-topic-filter.als": {
       "version": 1,
@@ -575,7 +611,8 @@
       "source_layer": "L3",
       "requirements": [
         "DIAG-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/formal-test-trace.als": {
       "version": 1,
@@ -589,7 +626,8 @@
       "source_layer": "L3",
       "requirements": [
         "TRACE-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/gate-a-scoping.als": {
       "version": 1,
@@ -603,7 +641,8 @@
       "source_layer": "L3",
       "requirements": [
         "GATE-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/gate-architecture.als": {
       "version": 1,
@@ -619,7 +658,8 @@
         "GATE-01",
         "GATE-03",
         "GATE-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/gate-promotion-lifecycle.als": {
       "version": 1,
@@ -634,7 +674,8 @@
       "requirements": [
         "GATE-03",
         "GATE-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/gate-scoring-traces.als": {
       "version": 1,
@@ -649,7 +690,8 @@
       "requirements": [
         "GATE-05",
         "TRACE-10"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/git-history-evidence.als": {
       "version": 1,
@@ -663,7 +705,8 @@
       "source_layer": "L3",
       "requirements": [
         "EVID-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/governance-dx.als": {
       "version": 1,
@@ -684,7 +727,8 @@
         "LRNG-04",
         "SHARD-01",
         "VALID-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/gsd-sync-invariants.als": {
       "version": 1,
@@ -701,7 +745,8 @@
         "SYNC-02",
         "SYNC-03",
         "SYNC-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/headless-execution.als": {
       "version": 1,
@@ -715,7 +760,8 @@
       "source_layer": "L3",
       "requirements": [
         "VERIFY-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/health-diagnostic-routing.als": {
       "version": 1,
@@ -729,7 +775,8 @@
       "source_layer": "L3",
       "requirements": [
         "OBS-16"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/health-validation.als": {
       "version": 1,
@@ -746,7 +793,8 @@
         "HLTH-02",
         "HLTH-03",
         "VIS-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/hook-module-existence.als": {
       "version": 1,
@@ -764,7 +812,8 @@
         "SOLVE-21",
         "SOLVE-22",
         "SOLVE-23"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/hook-portability-guard.als": {
       "version": 1,
@@ -779,7 +828,8 @@
       "requirements": [
         "GUARD-02",
         "PORT-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/install-scope.als": {
       "version": 1,
@@ -797,7 +847,8 @@
         "INST-03",
         "INST-04",
         "INST-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/installer-path-validation.als": {
       "version": 1,
@@ -811,7 +862,8 @@
       "source_layer": "L3",
       "requirements": [
         "INST-13"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/installer-sync.als": {
       "version": 1,
@@ -825,7 +877,8 @@
       "source_layer": "L3",
       "requirements": [
         "MULTI-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/integration-layers.als": {
       "version": 1,
@@ -844,7 +897,8 @@
         "INTG-04",
         "INTG-05",
         "INTG-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/jvm-heap-sequential.als": {
       "version": 1,
@@ -858,7 +912,8 @@
       "source_layer": "L3",
       "requirements": [
         "VERIFY-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/mcp-detection.als": {
       "version": 1,
@@ -877,7 +932,8 @@
         "MCP-04",
         "MCP-05",
         "MCP-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/mcp-repair-lifecycle.als": {
       "version": 1,
@@ -891,7 +947,8 @@
       "source_layer": "L3",
       "requirements": [
         "DIAG-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/memory-persistence.als": {
       "version": 1,
@@ -908,7 +965,8 @@
         "MEMP-02",
         "MEMP-03",
         "MEMP-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/meta-resolve.als": {
       "version": 1,
@@ -923,7 +981,8 @@
       "requirements": [
         "META-01",
         "META-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/misc-behavioral.als": {
       "version": 1,
@@ -954,7 +1013,8 @@
         "VALID-01",
         "MCP-01",
         "MCP-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/multi-slot-structure.als": {
       "version": 1,
@@ -971,7 +1031,8 @@
         "MULTI-02",
         "MULTI-03",
         "SLOT-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/multi-slot.als": {
       "version": 1,
@@ -986,7 +1047,8 @@
       "requirements": [
         "MULTI-01",
         "MULTI-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/observability-analysis.als": {
       "version": 1,
@@ -1002,7 +1064,8 @@
         "OBS-06",
         "OBS-07",
         "OBS-08"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/observability-handler-arch.als": {
       "version": 1,
@@ -1018,7 +1081,8 @@
         "OBS-13",
         "OBS-14",
         "OBS-15"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/observability-handlers.als": {
       "version": 1,
@@ -1035,7 +1099,8 @@
         "OBS-10",
         "OBS-11",
         "OBS-12"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/parallel-exec.als": {
       "version": 1,
@@ -1050,7 +1115,8 @@
       "requirements": [
         "PARA-01",
         "PARA-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/parallel-execution.als": {
       "version": 1,
@@ -1065,7 +1131,8 @@
       "requirements": [
         "PARA-01",
         "PARA-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/platform-install-compat.als": {
       "version": 1,
@@ -1079,7 +1146,8 @@
       "source_layer": "L3",
       "requirements": [
         "PLAT-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/polyrepo-config.als": {
       "version": 1,
@@ -1094,7 +1162,8 @@
       "requirements": [
         "CONF-11",
         "CONF-12"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/prism-delegation.als": {
       "version": 1,
@@ -1108,7 +1177,8 @@
       "source_layer": "L3",
       "requirements": [
         "FVTOOL-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/project-identity.als": {
       "version": 1,
@@ -1123,7 +1193,8 @@
       "requirements": [
         "PROJECT-01",
         "PROJECT-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/provider-failure.als": {
       "version": 1,
@@ -1138,7 +1209,8 @@
       "requirements": [
         "FAIL-02",
         "CALIB-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/provider-wizard.als": {
       "version": 1,
@@ -1155,7 +1227,8 @@
         "PROV-03",
         "PRST-01",
         "PRST-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/proximity-index.als": {
       "version": 1,
@@ -1169,7 +1242,8 @@
       "source_layer": "L3",
       "requirements": [
         "TRACE-09"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/proximity-pipeline.als": {
       "version": 1,
@@ -1186,7 +1260,8 @@
         "DIAG-07",
         "DIAG-08",
         "DIAG-09"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/quality-hardening.als": {
       "version": 1,
@@ -1203,7 +1278,8 @@
         "EXEC-01",
         "LTCY-01",
         "PRIO-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/quorum-composition.als": {
       "version": 1,
@@ -1218,7 +1294,8 @@
       "requirements": [
         "SPEC-03",
         "COMP-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/quorum-improvements.als": {
       "version": 1,
@@ -1234,7 +1311,8 @@
         "IMPR-02",
         "IMPR-03",
         "IMPR-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/quorum-policy.als": {
       "version": 1,
@@ -1253,16 +1331,18 @@
         "COMP-02",
         "COMP-03",
         "COMP-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/quorum-votes.als": {
-      "version": 1354,
-      "last_updated": "2026-03-16T16:27:33.307Z",
+      "version": 1452,
+      "last_updated": "2026-03-17T10:01:30.639Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 1,
+      "consecutive_pass_count": 1,
       "gate_maturity": "SOFT_GATE",
       "source_layer": "L3"
     },
@@ -1287,7 +1367,8 @@
         "RDME-08",
         "RDME-09",
         "RDME-10"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/reasoning-fmea.als": {
       "version": 1,
@@ -1305,7 +1386,8 @@
         "RSN-03",
         "RSN-04",
         "RSN-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/reliability-hardening.als": {
       "version": 1,
@@ -1320,7 +1402,8 @@
       "requirements": [
         "REL-03",
         "REL-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/reliability-patterns.als": {
       "version": 1,
@@ -1335,7 +1418,8 @@
       "requirements": [
         "REL-01",
         "REL-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/rename-migration.als": {
       "version": 1,
@@ -1351,7 +1435,8 @@
         "REN-01",
         "REN-02",
         "REN-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/requirements-aggregation.als": {
       "version": 1,
@@ -1365,7 +1450,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-18"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/result-classification.als": {
       "version": 1,
@@ -1379,7 +1465,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-11"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/schema-extensions.als": {
       "version": 1,
@@ -1396,7 +1483,8 @@
         "SCHEMA-02",
         "SCHEMA-03",
         "SCHEMA-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/scoreboard-recompute.als": {
       "version": 1,
@@ -1413,7 +1501,8 @@
         "SCBD-02",
         "SCBD-03",
         "SCBD-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/security-hardening.als": {
       "version": 1,
@@ -1430,7 +1519,8 @@
         "SEC-06",
         "SEC-07",
         "SEC-08"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/security-scanning.als": {
       "version": 1,
@@ -1447,7 +1537,8 @@
         "SEC-02",
         "SEC-03",
         "SEC-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/semantics-layer.als": {
       "version": 1,
@@ -1464,7 +1555,8 @@
         "SEM-02",
         "SEM-03",
         "SEM-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/semantics-operational.als": {
       "version": 1,
@@ -1481,7 +1573,8 @@
         "SEM-02",
         "SEM-03",
         "SEM-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/session-counter-tracking.als": {
       "version": 1,
@@ -1495,7 +1588,8 @@
       "source_layer": "L3",
       "requirements": [
         "SPEC-07"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/settings-hub.als": {
       "version": 1,
@@ -1509,7 +1603,8 @@
       "source_layer": "L3",
       "requirements": [
         "WIZ-11"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/signal-analysis-tools.als": {
       "version": 1,
@@ -1526,7 +1621,8 @@
         "SIG-02",
         "SIG-03",
         "SIG-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-automation-features.als": {
       "version": 1,
@@ -1540,7 +1636,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-09"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-consistency.als": {
       "version": 1,
@@ -1555,7 +1652,8 @@
       "requirements": [
         "SOLVE-01",
         "SOLVE-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-decomposition.als": {
       "version": 1,
@@ -1570,7 +1668,8 @@
       "requirements": [
         "SOLVE-14",
         "SOLVE-15"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-diagnostics-tui.als": {
       "version": 1,
@@ -1585,7 +1684,8 @@
       "requirements": [
         "SOLVE-24",
         "SOLVE-25"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-ft-recipe.als": {
       "version": 1,
@@ -1599,7 +1699,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-7"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-legacy-merge.als": {
       "version": 1,
@@ -1613,7 +1714,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-8"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-net-residual.als": {
       "version": 1,
@@ -1627,7 +1729,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-08"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-pf-layer.als": {
       "version": 1,
@@ -1645,7 +1748,8 @@
         "PF-03",
         "PF-04",
         "PF-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-result-schema.als": {
       "version": 1,
@@ -1660,7 +1764,8 @@
       "requirements": [
         "SOLVE-11",
         "SOLVE-12"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-session-persistence.als": {
       "version": 1,
@@ -1674,7 +1779,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-13"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-tc-coverage.als": {
       "version": 1,
@@ -1688,7 +1794,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-10"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-triage-display.als": {
       "version": 1,
@@ -1702,7 +1809,8 @@
       "source_layer": "L3",
       "requirements": [
         "SOLVE-07"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-tui-features.als": {
       "version": 1,
@@ -1717,7 +1825,8 @@
       "requirements": [
         "SOLVE-16",
         "SOLVE-17"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solver-doc-layers.als": {
       "version": 1,
@@ -1732,7 +1841,8 @@
       "requirements": [
         "SOLVE-03",
         "SOLVE-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solver-portability.als": {
       "version": 1,
@@ -1747,7 +1857,8 @@
       "requirements": [
         "SOLVE-05",
         "SOLVE-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/spec-audit.als": {
       "version": 1,
@@ -1761,7 +1872,8 @@
       "source_layer": "L3",
       "requirements": [
         "SPEC-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/spec-quality-guardrails.als": {
       "version": 1,
@@ -1775,7 +1887,8 @@
       "source_layer": "L3",
       "requirements": [
         "SPEC-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/state-space-analysis.als": {
       "version": 1,
@@ -1792,7 +1905,8 @@
         "DECOMP-02",
         "DECOMP-03",
         "DECOMP-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/subagent-orchestration.als": {
       "version": 1,
@@ -1808,7 +1922,8 @@
         "ORCH-01",
         "ORCH-02",
         "ORCH-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/taxonomy-safety.als": {
       "version": 1,
@@ -1824,7 +1939,8 @@
         "SCBD-05",
         "SCBD-06",
         "SCBD-07"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/terminal-emulation-purity.als": {
       "version": 1,
@@ -1838,7 +1954,8 @@
       "source_layer": "L3",
       "requirements": [
         "NAV-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/token-optimization.als": {
       "version": 1,
@@ -1855,7 +1972,8 @@
         "TOKN-02",
         "TOKN-03",
         "TOKN-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/trace-coverage-matrix.als": {
       "version": 1,
@@ -1872,7 +1990,8 @@
         "TRACE-02",
         "TRACE-04",
         "TRACE-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/trace-event-normalization.als": {
       "version": 1,
@@ -1886,7 +2005,8 @@
       "source_layer": "L3",
       "requirements": [
         "TRACE-08"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/traceability-annotations.als": {
       "version": 1,
@@ -1909,7 +2029,8 @@
         "ANNOT-03",
         "ANNOT-04",
         "ANNOT-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/traceability-obligations.als": {
       "version": 1,
@@ -1925,7 +2046,8 @@
         "DEBT-01",
         "FVTOOL-01",
         "TRACE-07"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/traceability.als": {
       "version": 1,
@@ -1940,7 +2062,8 @@
       "requirements": [
         "TRACE-01",
         "TRACE-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/transcript-scan.als": {
       "version": 1,
@@ -1957,7 +2080,8 @@
         "STOP-09",
         "STOP-10",
         "STOP-11"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/unified-check-results.als": {
       "version": 1,
@@ -1974,7 +2098,8 @@
         "UNIF-02",
         "UNIF-03",
         "UNIF-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/user-guide.als": {
       "version": 1,
@@ -1989,7 +2114,8 @@
       "requirements": [
         "GUIDE-01",
         "GUIDE-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/ux-feedback-safety.als": {
       "version": 1,
@@ -2005,7 +2131,8 @@
         "UX-01",
         "UX-02",
         "UX-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/ux-interaction-safety.als": {
       "version": 1,
@@ -2021,7 +2148,8 @@
         "UX-04",
         "UX-05",
         "UX-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/verification-execution.als": {
       "version": 1,
@@ -2037,7 +2165,8 @@
         "VERF-01",
         "VERF-02",
         "VERF-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/verification-integration.als": {
       "version": 1,
@@ -2052,7 +2181,8 @@
       "requirements": [
         "VERIFY-01",
         "VERIFY-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/vhs-ci-hardening.als": {
       "version": 1,
@@ -2066,7 +2196,8 @@
       "source_layer": "L3",
       "requirements": [
         "VIS-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/wiring-awareness.als": {
       "version": 1,
@@ -2080,7 +2211,8 @@
       "source_layer": "L3",
       "requirements": [
         "VERIFY-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/petri/account-manager-petri-net.dot": {
       "version": 1,
@@ -2095,7 +2227,8 @@
       "requirements": [
         "CRED-01",
         "CRED-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/petri/quorum-petri-net.dot": {
       "version": 1,
@@ -2110,7 +2243,8 @@
       "requirements": [
         "QUORUM-01",
         "QUORUM-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/prism/deliberation-healing.pm": {
       "version": 1,
@@ -2125,7 +2259,8 @@
       "requirements": [
         "HEAL-01",
         "HEAL-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/prism/mcp-availability.pm": {
       "version": 1,
@@ -2140,7 +2275,8 @@
       "requirements": [
         "MCPENV-04",
         "FAIL-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/prism/oauth-rotation.pm": {
       "version": 1,
@@ -2154,7 +2290,8 @@
       "source_layer": "L3",
       "requirements": [
         "CRED-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/prism/observability-delivery.pm": {
       "version": 1,
@@ -2171,16 +2308,18 @@
         "OBS-02",
         "OBS-03",
         "OBS-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/prism/quorum.pm": {
-      "version": 1354,
-      "last_updated": "2026-03-16T16:27:33.313Z",
+      "version": 1452,
+      "last_updated": "2026-03-17T10:01:30.641Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 1,
+      "consecutive_pass_count": 1,
       "gate_maturity": "SOFT_GATE",
       "source_layer": "L3"
     },
@@ -2201,7 +2340,8 @@
         "CRED-04",
         "CRED-05",
         "CRED-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFCircuitBreaker.tla": {
       "version": 1,
@@ -2217,7 +2357,8 @@
         "DETECT-01",
         "DETECT-02",
         "DETECT-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFConfigLoader.tla": {
       "version": 1,
@@ -2236,7 +2377,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFConvergence.tla": {
       "version": 1,
@@ -2254,7 +2396,8 @@
         "ORES-02",
         "ORES-04",
         "ORES-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFDebtLedger.tla": {
       "version": 1,
@@ -2273,7 +2416,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFDeliberation.tla": {
       "version": 1,
@@ -2291,7 +2435,8 @@
         "SAFE-03",
         "IMPR-01",
         "PLAN-02"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFDispatch.tla": {
       "version": 1,
@@ -2306,7 +2451,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFImprovement.tla": {
       "version": 1,
@@ -2323,7 +2469,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFLearning.tla": {
       "version": 1,
@@ -2340,7 +2487,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFMemoryPersist.tla": {
       "version": 1,
@@ -2357,7 +2505,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFOrchestration.tla": {
       "version": 1,
@@ -2373,7 +2522,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFOscillation.tla": {
       "version": 1,
@@ -2389,7 +2539,8 @@
         "DETECT-04",
         "DETECT-05",
         "DETECT-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFPolicy.tla": {
       "version": 1,
@@ -2405,7 +2556,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFPreFilter.tla": {
       "version": 1,
@@ -2423,27 +2575,30 @@
         "LOOP-03",
         "PLAN-05",
         "PLAN-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFQuorum.tla": {
-      "version": 1354,
-      "last_updated": "2026-03-16T16:27:33.314Z",
+      "version": 1452,
+      "last_updated": "2026-03-17T10:01:30.642Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 1,
+      "consecutive_pass_count": 1,
       "gate_maturity": "SOFT_GATE",
       "source_layer": "L3"
     },
     ".planning/formal/tla/NFQuorum_xstate.tla": {
-      "version": 927,
-      "last_updated": "2026-03-16T16:27:33.314Z",
+      "version": 1005,
+      "last_updated": "2026-03-17T10:01:30.642Z",
       "update_source": "generate",
       "source_id": "generate:formal-specs",
       "session_id": null,
       "description": "",
-      "layer_maturity": 2,
+      "layer_maturity": 1,
+      "consecutive_pass_count": 1,
       "gate_maturity": "SOFT_GATE",
       "source_layer": "L3"
     },
@@ -2463,7 +2618,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFRecruiting.tla": {
       "version": 1,
@@ -2480,7 +2636,8 @@
         "SLOT-03",
         "SLOT-04",
         "SLOT-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFSolveConvergence.tla": {
       "version": 1,
@@ -2496,7 +2653,8 @@
         "FV-01",
         "FV-02",
         "FV-03"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFSolveOrchestrator.tla": {
       "version": 1,
@@ -2515,7 +2673,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFSolveP2F.tla": {
       "version": 1,
@@ -2533,7 +2692,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFStopHook.tla": {
       "version": 1,
@@ -2554,7 +2714,8 @@
         "STOP-05",
         "STOP-06",
         "STOP-07"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFTokenOpt.tla": {
       "version": 1,
@@ -2571,7 +2732,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFVerification.tla": {
       "version": 1,
@@ -2587,7 +2749,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDActivityTracking.tla": {
       "version": 1,
@@ -2607,7 +2770,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDAgentLoop.tla": {
       "version": 1,
@@ -2621,7 +2785,8 @@
       "source_layer": "L3",
       "requirements": [
         "AGT-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDAgentProvisioning.tla": {
       "version": 1,
@@ -2642,7 +2807,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDBreakerState.tla": {
       "version": 1,
@@ -2659,7 +2825,8 @@
         "STATE-02",
         "STATE-03",
         "STATE-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDCIChecks.tla": {
       "version": 1,
@@ -2679,7 +2846,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDCheckpointGate.tla": {
       "version": 1,
@@ -2693,7 +2861,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDConfigPortability.tla": {
       "version": 1,
@@ -2709,7 +2878,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDDashboard.tla": {
       "version": 1,
@@ -2725,7 +2895,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDDeliberationRevision.tla": {
       "version": 1,
@@ -2739,7 +2910,8 @@
       "source_layer": "L3",
       "requirements": [
         "QUORUM-05"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDDispatchPipeline.tla": {
       "version": 1,
@@ -2757,7 +2929,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDEnforcement.tla": {
       "version": 1,
@@ -2773,7 +2946,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDInstallerIdempotency.tla": {
       "version": 1,
@@ -2791,7 +2965,8 @@
         "INST-08",
         "INST-09",
         "INST-10"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDKeyManagement.tla": {
       "version": 1,
@@ -2808,7 +2983,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDMCPEnv.tla": {
       "version": 1,
@@ -2824,7 +3000,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDPromptHook.tla": {
       "version": 1,
@@ -2842,7 +3019,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDQuorum.tla": {
       "version": 1,
@@ -2865,7 +3043,8 @@
         "SAFE-03",
         "QUORUM-04",
         "RECV-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDQuorum_xstate.tla": {
       "version": 1,
@@ -2879,7 +3058,8 @@
       "source_layer": "L3",
       "requirements": [
         "QUORUM-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDSensitivity.tla": {
       "version": 1,
@@ -2895,7 +3075,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDSessionPersistence.tla": {
       "version": 1,
@@ -2909,7 +3090,8 @@
       "source_layer": "L3",
       "requirements": [
         "NAV-04"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDSetupWizard.tla": {
       "version": 1,
@@ -2930,7 +3112,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDSpecGeneration.tla": {
       "version": 1,
@@ -2945,7 +3128,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDTUIModules.tla": {
       "version": 1,
@@ -2959,7 +3143,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/QGSDTUISessions.tla": {
       "version": 1,
@@ -2973,7 +3158,8 @@
       ],
       "source_layer": "L3",
       "layer_maturity": 3,
-      "gate_maturity": "SOFT_GATE"
+      "gate_maturity": "SOFT_GATE",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/TUINavigation.tla": {
       "version": 1,
@@ -2992,7 +3178,8 @@
         "TUI-04",
         "TUI-05",
         "TUI-06"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/statusline-context-tiers.als": {
       "version": 1,
@@ -3006,7 +3193,8 @@
       "source_layer": "L3",
       "requirements": [
         "DIAG-10"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/v8-coverage-digest.als": {
       "version": 1,
@@ -3020,7 +3208,8 @@
       "source_layer": "L3",
       "requirements": [
         "TC-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/hypothesis-measurement.als": {
       "version": 1,
@@ -3034,7 +3223,8 @@
       "source_layer": "L3",
       "requirements": [
         "H2M-01"
-      ]
+      ],
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFGatePromotion.tla": {
       "version": 1,
@@ -3055,7 +3245,8 @@
       ],
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFSessionTracking.tla": {
       "version": 1,
@@ -3072,11 +3263,12 @@
       ],
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFSolveConvergenceV2.tla": {
       "version": 1,
-      "last_updated": "2026-03-16T16:19:36.251Z",
+      "last_updated": "2026-03-16T23:43:25.218Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -3090,13 +3282,14 @@
         "OSC-02",
         "OSC-03"
       ],
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/classification-schema.als": {
       "version": 1,
-      "last_updated": "2026-03-16T16:19:36.251Z",
+      "last_updated": "2026-03-16T23:43:25.218Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -3105,9 +3298,10 @@
         "CLASS-01",
         "SCHEMA-05"
       ],
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/gate-naming-migration.als": {
       "version": 1,
@@ -3124,7 +3318,8 @@
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/nn-pairing-lifecycle.als": {
       "version": 1,
@@ -3142,7 +3337,8 @@
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/solve-performance-structure.als": {
       "version": 1,
@@ -3161,7 +3357,8 @@
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/predictive-power.als": {
       "version": 1,
@@ -3176,7 +3373,8 @@
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/provider-configuration.als": {
       "version": 1,
@@ -3193,7 +3391,8 @@
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/alloy/test-infrastructure.als": {
       "version": 1,
@@ -3208,11 +3407,12 @@
       ],
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     },
     ".planning/formal/tla/NFConvergenceTest.tla": {
       "version": 1,
-      "last_updated": "2026-03-16T16:19:36.251Z",
+      "last_updated": "2026-03-16T23:43:25.220Z",
       "update_source": "generate",
       "source_id": "close-formal-gaps",
       "session_id": null,
@@ -3221,9 +3421,10 @@
         "TEST-01",
         "TEST-02"
       ],
-      "layer_maturity": 2,
+      "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "source_layer": "L3"
+      "source_layer": "L3",
+      "consecutive_pass_count": 118
     }
   }
 }

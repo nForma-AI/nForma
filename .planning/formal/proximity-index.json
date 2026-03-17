@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-16T16:27:39.482Z",
+  "generated": "2026-03-17T08:00:05.470Z",
   "node_key_format": "type::id",
   "sources": {
     "scope.json:account-manager": {
@@ -84,47 +84,50 @@
       "hash": "76910c97"
     },
     "model-registry.json": {
-      "mtime": "2026-03-16T16:27:33.413Z",
-      "hash": "63deaf9f"
+      "mtime": "2026-03-17T08:00:05.348Z",
+      "hash": "8d5a13d2"
     },
     "invariant-catalog.json": {
       "mtime": "2026-03-06T14:00:17.868Z",
       "hash": "e27072db"
     },
     "traceability-matrix.json": {
-      "mtime": "2026-03-16T16:27:32.939Z",
-      "hash": "24c6fd2b"
+      "mtime": "2026-03-17T08:00:05.314Z",
+      "hash": "968a20ab"
     },
     "unit-test-coverage.json": {
-      "mtime": "2026-03-16T16:19:34.877Z",
-      "hash": "9998e51e"
+      "mtime": "2026-03-17T07:59:40.781Z",
+      "hash": "775404d2"
     },
     "instrumentation-map.json": {
-      "mtime": "2026-03-16T16:20:05.719Z",
-      "hash": "b03bf60c"
+      "mtime": "2026-03-17T07:59:51.010Z",
+      "hash": "7e4528de"
     },
     "event-vocabulary.json": {
       "mtime": "2026-03-08T20:28:45.150Z",
       "hash": "fa1b7cf9"
     },
     "observed-fsm.json": {
-      "mtime": "2026-03-16T16:20:00.746Z",
-      "hash": "ed98c3d6"
+      "mtime": "2026-03-17T07:59:48.357Z",
+      "hash": "6f162fca"
     },
     "risk-heatmap.json": {
       "mtime": "2026-03-09T13:52:46.371Z",
       "hash": "2df5c0d7"
     },
     "git-heatmap.json": {
-      "mtime": "2026-03-16T16:27:36.033Z",
-      "hash": "61f185f0"
+      "mtime": "2026-03-17T07:59:33.738Z",
+      "hash": "7be7f5a6"
     },
     "debt.json": {
       "mtime": "2026-03-04T13:33:16.983Z",
       "hash": "4f085cf2"
     },
     "source-annotations": {
-      "mtime": "2026-03-16T16:25:27.077Z"
+      "mtime": "2026-03-17T08:00:05.348Z"
+    },
+    "code-source-annotations": {
+      "mtime": "2026-03-17T07:59:58.418Z"
     }
   },
   "nodes": {
@@ -3166,6 +3169,11 @@
           "to": "formal_model::.planning/formal/alloy/traceability-annotations.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/extract-annotations.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -3216,6 +3224,11 @@
         {
           "to": "formal_model::.planning/formal/alloy/traceability-annotations.als",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/generate-traceability-matrix.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -3698,6 +3711,11 @@
         {
           "to": "formal_model::.planning/formal/alloy/availability-parsing.als",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/read-policy.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -6816,6 +6834,11 @@
           "to": "formal_model::.planning/formal/alloy/evidence-triage.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/generate-triage-bundle.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -9502,6 +9525,11 @@
           "to": "formal_model::.planning/formal/alloy/integration-layers.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/build-layer-manifest.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -9611,6 +9639,11 @@
           "to": "formal_model::.planning/formal/alloy/integration-layers.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/build-layer-manifest.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -9636,6 +9669,11 @@
         {
           "to": "formal_model::.planning/formal/alloy/integration-layers.als",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/build-layer-manifest.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -10620,6 +10658,11 @@
           "to": "formal_model::.planning/formal/alloy/state-space-analysis.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/analyze-state-space.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -10890,6 +10933,11 @@
         {
           "to": "formal_model::.planning/formal/alloy/signal-analysis-tools.als",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/prism-priority.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -12426,6 +12474,11 @@
           "to": "formal_model::.planning/formal/alloy/provider-failure.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/read-policy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -12991,6 +13044,11 @@
           "to": "formal_model::.planning/formal/alloy/quorum-composition.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/run-quorum-composition-alloy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -13529,9 +13587,7 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
+      ]
     },
     "formal_model::.planning/formal/alloy/readme-structure.als": {
       "type": "formal_model",
@@ -15516,6 +15572,11 @@
           "to": "formal_model::.planning/formal/alloy/semantics-operational.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/invariant-catalog.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -15566,6 +15627,11 @@
         {
           "to": "formal_model::.planning/formal/alloy/semantics-operational.als",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/mismatch-register.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -15924,6 +15990,11 @@
           "to": "formal_model::.planning/formal/alloy/signal-analysis-tools.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/detect-coverage-gaps.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -15995,6 +16066,11 @@
         {
           "to": "formal_model::.planning/formal/alloy/signal-analysis-tools.als",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/quorum-consensus-gate.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -17803,6 +17879,11 @@
           "to": "formal_model::.planning/formal/alloy/state-space-analysis.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/analyze-state-space.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -18572,6 +18653,11 @@
           "to": "formal_model::.planning/formal/alloy/traceability.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/generate-traceability-matrix.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -18628,6 +18714,11 @@
           "to": "formal_model::.planning/formal/alloy/traceability-annotations.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/generate-traceability-matrix.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -18679,6 +18770,11 @@
           "to": "formal_model::.planning/formal/alloy/traceability-annotations.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/generate-traceability-matrix.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -18729,6 +18825,11 @@
         {
           "to": "formal_model::.planning/formal/alloy/traceability-annotations.als",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/check-coverage-guard.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -20082,6 +20183,11 @@
           "to": "formal_model::.planning/formal/alloy/verification-integration.als",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/verify-formal-results.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -20122,6 +20228,11 @@
         {
           "to": "formal_model::.planning/formal/alloy/verification-integration.als",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/verify-formal-results.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -20309,6 +20420,11 @@
         {
           "to": "formal_model::.planning/formal/prism/oauth-rotation.props",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/run-oauth-rotation-prism.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -20897,9 +21013,7 @@
     "formal_model::.planning/formal/prism/quorum.pm": {
       "type": "formal_model",
       "id": ".planning/formal/prism/quorum.pm",
-      "edges": [],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
+      "edges": []
     },
     "formal_model::.planning/formal/tla/NFAccountManager.tla": {
       "type": "formal_model",
@@ -22354,9 +22468,7 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
+      ]
     },
     "formal_model::.planning/formal/tla/NFQuorum_xstate.tla": {
       "type": "formal_model",
@@ -22367,9 +22479,7 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ],
-      "source_layer": "L3",
-      "gate_maturity": "SOFT_GATE"
+      ]
     },
     "formal_model::.planning/formal/tla/NFReasoning.tla": {
       "type": "formal_model",
@@ -22970,6 +23080,11 @@
         {
           "to": "formal_model::.planning/formal/tla/NFStopHook.tla",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/run-stop-hook-tlc.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -24133,6 +24248,11 @@
           "to": "formal_model::.planning/formal/tla/QGSDCIChecks.tla",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/check-liveness-fairness.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -24163,6 +24283,11 @@
         {
           "to": "formal_model::.planning/formal/tla/QGSDCIChecks.tla",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/check-liveness-fairness.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -25952,6 +26077,11 @@
           "to": "formal_model::.planning/formal/tla/QGSDSensitivity.tla",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/run-sensitivity-sweep.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -26013,6 +26143,11 @@
         {
           "to": "formal_model::.planning/formal/tla/QGSDSensitivity.tla",
           "rel": "modeled_by",
+          "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/sensitivity-report.cjs",
+          "rel": "declared_in",
           "source": "source-annotation"
         }
       ]
@@ -45977,6 +46112,11 @@
           "to": "formal_model::.planning/formal/prism/quorum.props",
           "rel": "modeled_by",
           "source": "source-annotation"
+        },
+        {
+          "to": "code_file::bin/run-prism.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
         }
       ]
     },
@@ -51116,6 +51256,779 @@
         {
           "to": "requirement::PRM-01",
           "rel": "models",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/analyze-state-space.cjs": {
+      "type": "code_file",
+      "id": "bin/analyze-state-space.cjs",
+      "edges": [
+        {
+          "to": "requirement::DECOMP-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::DECOMP-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/annotate-tests.cjs": {
+      "type": "code_file",
+      "id": "bin/annotate-tests.cjs",
+      "edges": [
+        {
+          "to": "requirement::TLINK-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::TLINK-02": {
+      "type": "requirement",
+      "id": "TLINK-02",
+      "edges": [
+        {
+          "to": "code_file::bin/annotate-tests.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/build-layer-manifest.cjs": {
+      "type": "code_file",
+      "id": "bin/build-layer-manifest.cjs",
+      "edges": [
+        {
+          "to": "requirement::INTG-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::INTG-05",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::INTG-06",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/check-coverage-guard.cjs": {
+      "type": "code_file",
+      "id": "bin/check-coverage-guard.cjs",
+      "edges": [
+        {
+          "to": "requirement::TRACE-05",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/check-liveness-fairness.cjs": {
+      "type": "code_file",
+      "id": "bin/check-liveness-fairness.cjs",
+      "edges": [
+        {
+          "to": "requirement::LIVE-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::LIVE-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/detect-coverage-gaps.cjs": {
+      "type": "code_file",
+      "id": "bin/detect-coverage-gaps.cjs",
+      "edges": [
+        {
+          "to": "requirement::SIG-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/export-prism-constants.cjs": {
+      "type": "code_file",
+      "id": "bin/export-prism-constants.cjs",
+      "edges": [
+        {
+          "to": "requirement::PRM-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::PRM-03",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::PRM-02": {
+      "type": "requirement",
+      "id": "PRM-02",
+      "edges": [
+        {
+          "to": "code_file::bin/export-prism-constants.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::PRM-03": {
+      "type": "requirement",
+      "id": "PRM-03",
+      "edges": [
+        {
+          "to": "code_file::bin/export-prism-constants.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/extract-annotations.cjs": {
+      "type": "code_file",
+      "id": "bin/extract-annotations.cjs",
+      "edges": [
+        {
+          "to": "requirement::ANNOT-04",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/extract-precedents.cjs": {
+      "type": "code_file",
+      "id": "bin/extract-precedents.cjs",
+      "edges": [
+        {
+          "to": "requirement::QPREC-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::QPREC-01": {
+      "type": "requirement",
+      "id": "QPREC-01",
+      "edges": [
+        {
+          "to": "code_file::bin/extract-precedents.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/formal-test-sync.cjs": {
+      "type": "code_file",
+      "id": "bin/formal-test-sync.cjs",
+      "edges": [
+        {
+          "to": "requirement::QUICK-139",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::QUICK-139": {
+      "type": "requirement",
+      "id": "QUICK-139",
+      "edges": [
+        {
+          "to": "code_file::bin/formal-test-sync.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/generate-petri-net.cjs": {
+      "type": "code_file",
+      "id": "bin/generate-petri-net.cjs",
+      "edges": [
+        {
+          "to": "requirement::PET-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::PET-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::PET-03",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::PET-01": {
+      "type": "requirement",
+      "id": "PET-01",
+      "edges": [
+        {
+          "to": "code_file::bin/generate-petri-net.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::PET-02": {
+      "type": "requirement",
+      "id": "PET-02",
+      "edges": [
+        {
+          "to": "code_file::bin/generate-petri-net.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::PET-03": {
+      "type": "requirement",
+      "id": "PET-03",
+      "edges": [
+        {
+          "to": "code_file::bin/generate-petri-net.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/generate-traceability-matrix.cjs": {
+      "type": "code_file",
+      "id": "bin/generate-traceability-matrix.cjs",
+      "edges": [
+        {
+          "to": "requirement::TRACE-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::TRACE-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::TRACE-04",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::ANNOT-05",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/generate-triage-bundle.cjs": {
+      "type": "code_file",
+      "id": "bin/generate-triage-bundle.cjs",
+      "edges": [
+        {
+          "to": "requirement::TRIAGE-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/hypothesis-layer-map.cjs": {
+      "type": "code_file",
+      "id": "bin/hypothesis-layer-map.cjs",
+      "edges": [
+        {
+          "to": "requirement::HTARGET-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::HTARGET-01": {
+      "type": "requirement",
+      "id": "HTARGET-01",
+      "edges": [
+        {
+          "to": "code_file::bin/hypothesis-layer-map.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/hypothesis-measure.cjs": {
+      "type": "code_file",
+      "id": "bin/hypothesis-measure.cjs",
+      "edges": [
+        {
+          "to": "requirement::QUICK-303",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::QUICK-303": {
+      "type": "requirement",
+      "id": "QUICK-303",
+      "edges": [
+        {
+          "to": "code_file::bin/hypothesis-measure.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/invariant-catalog.cjs": {
+      "type": "code_file",
+      "id": "bin/invariant-catalog.cjs",
+      "edges": [
+        {
+          "to": "requirement::SEM-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/mismatch-register.cjs": {
+      "type": "code_file",
+      "id": "bin/mismatch-register.cjs",
+      "edges": [
+        {
+          "to": "requirement::SEM-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/model-complexity-profile.cjs": {
+      "type": "code_file",
+      "id": "bin/model-complexity-profile.cjs",
+      "edges": [
+        {
+          "to": "requirement::QUICK-226",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::QUICK-226": {
+      "type": "requirement",
+      "id": "QUICK-226",
+      "edges": [
+        {
+          "to": "code_file::bin/model-complexity-profile.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/prism-priority.cjs": {
+      "type": "code_file",
+      "id": "bin/prism-priority.cjs",
+      "edges": [
+        {
+          "to": "requirement::SIG-03",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/quorum-consensus-gate.cjs": {
+      "type": "code_file",
+      "id": "bin/quorum-consensus-gate.cjs",
+      "edges": [
+        {
+          "to": "requirement::SIG-04",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/read-policy.cjs": {
+      "type": "code_file",
+      "id": "bin/read-policy.cjs",
+      "edges": [
+        {
+          "to": "requirement::CALIB-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::CALIB-04",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-account-pool-alloy.cjs": {
+      "type": "code_file",
+      "id": "bin/run-account-pool-alloy.cjs",
+      "edges": [
+        {
+          "to": "requirement::ALY-AM-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::ALY-AM-01": {
+      "type": "requirement",
+      "id": "ALY-AM-01",
+      "edges": [
+        {
+          "to": "code_file::bin/run-account-pool-alloy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-alloy.cjs": {
+      "type": "code_file",
+      "id": "bin/run-alloy.cjs",
+      "edges": [
+        {
+          "to": "requirement::ALY-02",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::ALY-02": {
+      "type": "requirement",
+      "id": "ALY-02",
+      "edges": [
+        {
+          "to": "code_file::bin/run-alloy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-audit-alloy.cjs": {
+      "type": "code_file",
+      "id": "bin/run-audit-alloy.cjs",
+      "edges": [
+        {
+          "to": "requirement::GAP-3",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::GAP-9",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-3": {
+      "type": "requirement",
+      "id": "GAP-3",
+      "edges": [
+        {
+          "to": "code_file::bin/run-audit-alloy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-9": {
+      "type": "requirement",
+      "id": "GAP-9",
+      "edges": [
+        {
+          "to": "code_file::bin/run-audit-alloy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-breaker-tlc.cjs": {
+      "type": "code_file",
+      "id": "bin/run-breaker-tlc.cjs",
+      "edges": [
+        {
+          "to": "requirement::QT-105",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::QT-105": {
+      "type": "requirement",
+      "id": "QT-105",
+      "edges": [
+        {
+          "to": "code_file::bin/run-breaker-tlc.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-installer-alloy.cjs": {
+      "type": "code_file",
+      "id": "bin/run-installer-alloy.cjs",
+      "edges": [
+        {
+          "to": "requirement::GAP-7",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::GAP-8",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-7": {
+      "type": "requirement",
+      "id": "GAP-7",
+      "edges": [
+        {
+          "to": "code_file::bin/run-installer-alloy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-8": {
+      "type": "requirement",
+      "id": "GAP-8",
+      "edges": [
+        {
+          "to": "code_file::bin/run-installer-alloy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-oauth-rotation-prism.cjs": {
+      "type": "code_file",
+      "id": "bin/run-oauth-rotation-prism.cjs",
+      "edges": [
+        {
+          "to": "requirement::CRED-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-oscillation-tlc.cjs": {
+      "type": "code_file",
+      "id": "bin/run-oscillation-tlc.cjs",
+      "edges": [
+        {
+          "to": "requirement::GAP-1",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::GAP-5",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-1": {
+      "type": "requirement",
+      "id": "GAP-1",
+      "edges": [
+        {
+          "to": "code_file::bin/run-oscillation-tlc.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-5": {
+      "type": "requirement",
+      "id": "GAP-5",
+      "edges": [
+        {
+          "to": "code_file::bin/run-oscillation-tlc.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-prism.cjs": {
+      "type": "code_file",
+      "id": "bin/run-prism.cjs",
+      "edges": [
+        {
+          "to": "requirement::PRM-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-protocol-tlc.cjs": {
+      "type": "code_file",
+      "id": "bin/run-protocol-tlc.cjs",
+      "edges": [
+        {
+          "to": "requirement::GAP-2",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::GAP-6",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-2": {
+      "type": "requirement",
+      "id": "GAP-2",
+      "edges": [
+        {
+          "to": "code_file::bin/run-protocol-tlc.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-6": {
+      "type": "requirement",
+      "id": "GAP-6",
+      "edges": [
+        {
+          "to": "code_file::bin/run-protocol-tlc.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-quorum-composition-alloy.cjs": {
+      "type": "code_file",
+      "id": "bin/run-quorum-composition-alloy.cjs",
+      "edges": [
+        {
+          "to": "requirement::SPEC-03",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-sensitivity-sweep.cjs": {
+      "type": "code_file",
+      "id": "bin/run-sensitivity-sweep.cjs",
+      "edges": [
+        {
+          "to": "requirement::SENS-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-stop-hook-tlc.cjs": {
+      "type": "code_file",
+      "id": "bin/run-stop-hook-tlc.cjs",
+      "edges": [
+        {
+          "to": "requirement::SPEC-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-tlc.cjs": {
+      "type": "code_file",
+      "id": "bin/run-tlc.cjs",
+      "edges": [
+        {
+          "to": "requirement::TLA-04",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::TLA-04": {
+      "type": "requirement",
+      "id": "TLA-04",
+      "edges": [
+        {
+          "to": "code_file::bin/run-tlc.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/run-transcript-alloy.cjs": {
+      "type": "code_file",
+      "id": "bin/run-transcript-alloy.cjs",
+      "edges": [
+        {
+          "to": "requirement::GAP-4",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::GAP-4": {
+      "type": "requirement",
+      "id": "GAP-4",
+      "edges": [
+        {
+          "to": "code_file::bin/run-transcript-alloy.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/sensitivity-report.cjs": {
+      "type": "code_file",
+      "id": "bin/sensitivity-report.cjs",
+      "edges": [
+        {
+          "to": "requirement::SENS-03",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/solve-focus-filter.cjs": {
+      "type": "code_file",
+      "id": "bin/solve-focus-filter.cjs",
+      "edges": [
+        {
+          "to": "requirement::QUICK-252",
+          "rel": "declares",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::QUICK-252": {
+      "type": "requirement",
+      "id": "QUICK-252",
+      "edges": [
+        {
+          "to": "code_file::bin/solve-focus-filter.cjs",
+          "rel": "declared_in",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "code_file::bin/verify-formal-results.cjs": {
+      "type": "code_file",
+      "id": "bin/verify-formal-results.cjs",
+      "edges": [
+        {
+          "to": "requirement::VERIFY-01",
+          "rel": "declares",
+          "source": "source-annotation"
+        },
+        {
+          "to": "requirement::VERIFY-02",
+          "rel": "declares",
           "source": "source-annotation"
         }
       ]
