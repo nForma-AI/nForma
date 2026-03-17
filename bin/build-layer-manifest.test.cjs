@@ -95,7 +95,7 @@ describe('build-layer-manifest integration', () => {
 
   it('manifest has required structure', () => {
     const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
-    assert.strictEqual(manifest.schema_version, '1');
+    assert.strictEqual(manifest.schema_version, '2');
     assert.ok(manifest.generated);
     assert.ok(manifest.layers);
     assert.ok(manifest.gate_relationships);
@@ -105,9 +105,9 @@ describe('build-layer-manifest integration', () => {
   it('manifest has correct gate_relationships', () => {
     const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
     assert.strictEqual(manifest.gate_relationships.A.from, 'L1');
-    assert.strictEqual(manifest.gate_relationships.A.to, 'L2');
-    assert.strictEqual(manifest.gate_relationships.B.from, 'L2');
-    assert.strictEqual(manifest.gate_relationships.B.to, 'L3');
+    assert.strictEqual(manifest.gate_relationships.A.to, 'L3');
+    assert.strictEqual(manifest.gate_relationships.B.from, 'L3');
+    assert.strictEqual(manifest.gate_relationships.B.to, 'purpose');
     assert.strictEqual(manifest.gate_relationships.C.from, 'L3');
     assert.strictEqual(manifest.gate_relationships.C.to, 'TC');
   });

@@ -869,354 +869,19 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
-> cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-────────────────────────────────────────────────────────────────────────────────
-%
-> cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-────────────────────────────────────────────────────────────────────────────────
-%
-> cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-────────────────────────────────────────────────────────────────────────────────
-%
-> cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-────────────────────────────────────────────────────────────────────────────────
-%
-> cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
 │                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-┌───────┐┌─ Config ───────────────┐┌─ Config — Browse Reqs (27) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│       ││  Settings              ││Requirements (27) (Quorum Governance)                                                                                                                                        │
-│ ▄█▄   ││  Tune Timeouts         ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
-│ █ █   ││  Set Update Policy     ││─                                                                                                                                                                            │
-│ █▀█   ││ ─────────────────      ││  ID            St   Category          Text                                                                                                                                  │
-│  F1   ││  Export Roster         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
-│ ───── ││  Import Roster         ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
-│       ││ ─────────────────      ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
-│ █▀█   ││  Exit                  ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
+┌───────┐┌─ Reqs ─────────────────┐┌─ Reqs — Browse Reqs (28) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Browse Reqs           ││Requirements (28) (Quorum Governance)                                                                                                                                        │
+│ ▄█▄   ││  Coverage              ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
+│ █ █   ││  Traceability          ││─                                                                                                                                                                            │
+│ █▀█   ││  Aggregate             ││  ID            St   Category          Text                                                                                                                                  │
+│  F1   ││  Coverage Gaps         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
+│ ───── ││  Gate Scoring          ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
+│       ││                        ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
+│ █▀█   ││                        ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
 │ ██▀   ││                        ││  CALIB-01      ✓    Quorum & Dispatc  `.formal/policy.yaml` is the single authoritative source for PRISM calibration parameters                                             │
 │ █ █   ││                        ││  CALIB-02      ✓    Quorum & Dispatc  `run-prism.cjs` reads `policy.yaml` and writes `writeCheckResult` with `observation_window` metadata                                  │
 │  F2   ││                        ││  CALIB-03      ✓    Quorum & Dispatc  `read-policy.cjs` exposes all policy fields with typed interface                                                                      │
@@ -1227,20 +892,23 @@
 │ ▀▄▄   ││                        ││  DISP-04       ✓    Quorum & Dispatc  Prompt construction (Mode A/B, Round 1/2+, artifact injection, prior_positions, review_context, improvements request) happens         │
 │  F3   ││                        ││determ…                                                                                                                                                                      │
 │ ───── ││                        ││  DISP-05       ✓    Quorum & Dispatc  Output parsing (verdict, reasoning, citations, improvements extraction from raw CLI output) happens in JavaScript with structured YA… │
-│       ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
-│ ▄▀▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
-│ █▀▀   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
-│ ▀▄▄   ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
-│  F4   ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
-│ ───── ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
-│       ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
-│ ▄▀▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces AskUs… │
-│  ▀▄   ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
-│ ▄▄▀   ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for gra… │
-│  F5   ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
+│       ││                        ││  DISP-08       ✓    Quorum & Dispatc  Quorum subprocess dispatch uses dual-timer timeout: an idle timer (default 20s) that resets on stdout/stderr activity, and a hard     │
+│ ▄▀▄   ││                        ││wa…                                                                                                                                                                          │
+│ █▀▀   ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
+│ ▀▄▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
+│  F4   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
+│ ───── ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
+│       ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
+│ ▄▀▀   ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
+│  ▀▄   ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
+│ ▄▄▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces        │
+│  F5   ││                        ││AskUs…                                                                                                                                                                       │
+│       ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
+│       ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for      │
+│       ││                        ││gra…                                                                                                                                                                         │
+│       ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
 │       ││                        ││  UNIF-02       ✓    Quorum & Dispatc  `run-formal-verify.cjs` generates `check-results.ndjson` as canonical output artifact                                                 │
-│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read    │
-│       ││                        ││(…                                                                                                                                                                           │
+│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read (… │
 │       ││                        ││  UNIF-04       ✓    Quorum & Dispatc  CI step exits non-zero when any `result=fail` entry exists in `check-results.ndjson`                                                  │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
@@ -1264,26 +932,23 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [/] filter  [↑↓] scroll                                                                                                                                             │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
 │                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-┌───────┐┌─ Config ───────────────┐┌─ Config — Browse Reqs (27) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│       ││  Settings              ││Requirements (27) (Quorum Governance)                                                                                                                                        │
-│ ▄█▄   ││  Tune Timeouts         ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
-│ █ █   ││  Set Update Policy     ││─                                                                                                                                                                            │
-│ █▀█   ││ ─────────────────      ││  ID            St   Category          Text                                                                                                                                  │
-│  F1   ││  Export Roster         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
-│ ───── ││  Import Roster         ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
-│       ││ ─────────────────      ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
-│ █▀█   ││  Exit                  ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
+┌───────┐┌─ Reqs ─────────────────┐┌─ Reqs — Browse Reqs (28) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Browse Reqs           ││Requirements (28) (Quorum Governance)                                                                                                                                        │
+│ ▄█▄   ││  Coverage              ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
+│ █ █   ││  Traceability          ││─                                                                                                                                                                            │
+│ █▀█   ││  Aggregate             ││  ID            St   Category          Text                                                                                                                                  │
+│  F1   ││  Coverage Gaps         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
+│ ───── ││  Gate Scoring          ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
+│       ││                        ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
+│ █▀█   ││                        ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
 │ ██▀   ││                        ││  CALIB-01      ✓    Quorum & Dispatc  `.formal/policy.yaml` is the single authoritative source for PRISM calibration parameters                                             │
 │ █ █   ││                        ││  CALIB-02      ✓    Quorum & Dispatc  `run-prism.cjs` reads `policy.yaml` and writes `writeCheckResult` with `observation_window` metadata                                  │
 │  F2   ││                        ││  CALIB-03      ✓    Quorum & Dispatc  `read-policy.cjs` exposes all policy fields with typed interface                                                                      │
@@ -1294,20 +959,23 @@
 │ ▀▄▄   ││                        ││  DISP-04       ✓    Quorum & Dispatc  Prompt construction (Mode A/B, Round 1/2+, artifact injection, prior_positions, review_context, improvements request) happens         │
 │  F3   ││                        ││determ…                                                                                                                                                                      │
 │ ───── ││                        ││  DISP-05       ✓    Quorum & Dispatc  Output parsing (verdict, reasoning, citations, improvements extraction from raw CLI output) happens in JavaScript with structured YA… │
-│       ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
-│ ▄▀▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
-│ █▀▀   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
-│ ▀▄▄   ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
-│  F4   ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
-│ ───── ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
-│       ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
-│ ▄▀▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces AskUs… │
-│  ▀▄   ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
-│ ▄▄▀   ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for gra… │
-│  F5   ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
+│       ││                        ││  DISP-08       ✓    Quorum & Dispatc  Quorum subprocess dispatch uses dual-timer timeout: an idle timer (default 20s) that resets on stdout/stderr activity, and a hard     │
+│ ▄▀▄   ││                        ││wa…                                                                                                                                                                          │
+│ █▀▀   ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
+│ ▀▄▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
+│  F4   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
+│ ───── ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
+│       ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
+│ ▄▀▀   ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
+│  ▀▄   ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
+│ ▄▄▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces        │
+│  F5   ││                        ││AskUs…                                                                                                                                                                       │
+│       ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
+│       ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for      │
+│       ││                        ││gra…                                                                                                                                                                         │
+│       ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
 │       ││                        ││  UNIF-02       ✓    Quorum & Dispatc  `run-formal-verify.cjs` generates `check-results.ndjson` as canonical output artifact                                                 │
-│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read    │
-│       ││                        ││(…                                                                                                                                                                           │
+│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read (… │
 │       ││                        ││  UNIF-04       ✓    Quorum & Dispatc  CI step exits non-zero when any `result=fail` entry exists in `check-results.ndjson`                                                  │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
@@ -1331,26 +999,23 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [/] filter  [↑↓] scroll                                                                                                                                             │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
 │                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-┌───────┐┌─ Config ───────────────┐┌─ Config — Browse Reqs (27) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│       ││  Settings              ││Requirements (27) (Quorum Governance)                                                                                                                                        │
-│ ▄█▄   ││  Tune Timeouts         ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
-│ █ █   ││  Set Update Policy     ││─                                                                                                                                                                            │
-│ █▀█   ││ ─────────────────      ││  ID            St   Category          Text                                                                                                                                  │
-│  F1   ││  Export Roster         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
-│ ───── ││  Import Roster         ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
-│       ││ ─────────────────      ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
-│ █▀█   ││  Exit                  ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
+┌───────┐┌─ Reqs ─────────────────┐┌─ Reqs — Browse Reqs (28) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Browse Reqs           ││Requirements (28) (Quorum Governance)                                                                                                                                        │
+│ ▄█▄   ││  Coverage              ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
+│ █ █   ││  Traceability          ││─                                                                                                                                                                            │
+│ █▀█   ││  Aggregate             ││  ID            St   Category          Text                                                                                                                                  │
+│  F1   ││  Coverage Gaps         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
+│ ───── ││  Gate Scoring          ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
+│       ││                        ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
+│ █▀█   ││                        ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
 │ ██▀   ││                        ││  CALIB-01      ✓    Quorum & Dispatc  `.formal/policy.yaml` is the single authoritative source for PRISM calibration parameters                                             │
 │ █ █   ││                        ││  CALIB-02      ✓    Quorum & Dispatc  `run-prism.cjs` reads `policy.yaml` and writes `writeCheckResult` with `observation_window` metadata                                  │
 │  F2   ││                        ││  CALIB-03      ✓    Quorum & Dispatc  `read-policy.cjs` exposes all policy fields with typed interface                                                                      │
@@ -1361,20 +1026,23 @@
 │ ▀▄▄   ││                        ││  DISP-04       ✓    Quorum & Dispatc  Prompt construction (Mode A/B, Round 1/2+, artifact injection, prior_positions, review_context, improvements request) happens         │
 │  F3   ││                        ││determ…                                                                                                                                                                      │
 │ ───── ││                        ││  DISP-05       ✓    Quorum & Dispatc  Output parsing (verdict, reasoning, citations, improvements extraction from raw CLI output) happens in JavaScript with structured YA… │
-│       ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
-│ ▄▀▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
-│ █▀▀   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
-│ ▀▄▄   ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
-│  F4   ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
-│ ───── ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
-│       ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
-│ ▄▀▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces AskUs… │
-│  ▀▄   ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
-│ ▄▄▀   ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for gra… │
-│  F5   ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
+│       ││                        ││  DISP-08       ✓    Quorum & Dispatc  Quorum subprocess dispatch uses dual-timer timeout: an idle timer (default 20s) that resets on stdout/stderr activity, and a hard     │
+│ ▄▀▄   ││                        ││wa…                                                                                                                                                                          │
+│ █▀▀   ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
+│ ▀▄▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
+│  F4   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
+│ ───── ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
+│       ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
+│ ▄▀▀   ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
+│  ▀▄   ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
+│ ▄▄▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces        │
+│  F5   ││                        ││AskUs…                                                                                                                                                                       │
+│       ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
+│       ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for      │
+│       ││                        ││gra…                                                                                                                                                                         │
+│       ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
 │       ││                        ││  UNIF-02       ✓    Quorum & Dispatc  `run-formal-verify.cjs` generates `check-results.ndjson` as canonical output artifact                                                 │
-│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read    │
-│       ││                        ││(…                                                                                                                                                                           │
+│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read (… │
 │       ││                        ││  UNIF-04       ✓    Quorum & Dispatc  CI step exits non-zero when any `result=fail` entry exists in `check-results.ndjson`                                                  │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
@@ -1398,26 +1066,23 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [/] filter  [↑↓] scroll                                                                                                                                             │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
 │                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-┌───────┐┌─ Config ───────────────┐┌─ Config — Browse Reqs (27) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│       ││  Settings              ││Requirements (27) (Quorum Governance)                                                                                                                                        │
-│ ▄█▄   ││  Tune Timeouts         ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
-│ █ █   ││  Set Update Policy     ││─                                                                                                                                                                            │
-│ █▀█   ││ ─────────────────      ││  ID            St   Category          Text                                                                                                                                  │
-│  F1   ││  Export Roster         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
-│ ───── ││  Import Roster         ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
-│       ││ ─────────────────      ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
-│ █▀█   ││  Exit                  ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
+┌───────┐┌─ Reqs ─────────────────┐┌─ Reqs — Browse Reqs (28) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Browse Reqs           ││Requirements (28) (Quorum Governance)                                                                                                                                        │
+│ ▄█▄   ││  Coverage              ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
+│ █ █   ││  Traceability          ││─                                                                                                                                                                            │
+│ █▀█   ││  Aggregate             ││  ID            St   Category          Text                                                                                                                                  │
+│  F1   ││  Coverage Gaps         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
+│ ───── ││  Gate Scoring          ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
+│       ││                        ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
+│ █▀█   ││                        ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
 │ ██▀   ││                        ││  CALIB-01      ✓    Quorum & Dispatc  `.formal/policy.yaml` is the single authoritative source for PRISM calibration parameters                                             │
 │ █ █   ││                        ││  CALIB-02      ✓    Quorum & Dispatc  `run-prism.cjs` reads `policy.yaml` and writes `writeCheckResult` with `observation_window` metadata                                  │
 │  F2   ││                        ││  CALIB-03      ✓    Quorum & Dispatc  `read-policy.cjs` exposes all policy fields with typed interface                                                                      │
@@ -1428,20 +1093,23 @@
 │ ▀▄▄   ││                        ││  DISP-04       ✓    Quorum & Dispatc  Prompt construction (Mode A/B, Round 1/2+, artifact injection, prior_positions, review_context, improvements request) happens         │
 │  F3   ││                        ││determ…                                                                                                                                                                      │
 │ ───── ││                        ││  DISP-05       ✓    Quorum & Dispatc  Output parsing (verdict, reasoning, citations, improvements extraction from raw CLI output) happens in JavaScript with structured YA… │
-│       ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
-│ ▄▀▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
-│ █▀▀   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
-│ ▀▄▄   ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
-│  F4   ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
-│ ───── ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
-│       ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
-│ ▄▀▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces AskUs… │
-│  ▀▄   ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
-│ ▄▄▀   ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for gra… │
-│  F5   ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
+│       ││                        ││  DISP-08       ✓    Quorum & Dispatc  Quorum subprocess dispatch uses dual-timer timeout: an idle timer (default 20s) that resets on stdout/stderr activity, and a hard     │
+│ ▄▀▄   ││                        ││wa…                                                                                                                                                                          │
+│ █▀▀   ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
+│ ▀▄▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
+│  F4   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
+│ ───── ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
+│       ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
+│ ▄▀▀   ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
+│  ▀▄   ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
+│ ▄▄▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces        │
+│  F5   ││                        ││AskUs…                                                                                                                                                                       │
+│       ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
+│       ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for      │
+│       ││                        ││gra…                                                                                                                                                                         │
+│       ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
 │       ││                        ││  UNIF-02       ✓    Quorum & Dispatc  `run-formal-verify.cjs` generates `check-results.ndjson` as canonical output artifact                                                 │
-│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read    │
-│       ││                        ││(…                                                                                                                                                                           │
+│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read (… │
 │       ││                        ││  UNIF-04       ✓    Quorum & Dispatc  CI step exits non-zero when any `result=fail` entry exists in `check-results.ndjson`                                                  │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
@@ -1465,26 +1133,23 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
-│       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [/] filter  [↑↓] scroll                                                                                                                                             │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
 │                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-┌───────┐┌─ Config ───────────────┐┌─ Config — Browse Reqs (27) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│       ││  Settings              ││Requirements (27) (Quorum Governance)                                                                                                                                        │
-│ ▄█▄   ││  Tune Timeouts         ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
-│ █ █   ││  Set Update Policy     ││─                                                                                                                                                                            │
-│ █▀█   ││ ─────────────────      ││  ID            St   Category          Text                                                                                                                                  │
-│  F1   ││  Export Roster         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
-│ ───── ││  Import Roster         ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
-│       ││ ─────────────────      ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
-│ █▀█   ││  Exit                  ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
+┌───────┐┌─ Reqs ─────────────────┐┌─ Reqs — Browse Reqs (28) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Browse Reqs           ││Requirements (28) (Quorum Governance)                                                                                                                                        │
+│ ▄█▄   ││  Coverage              ││──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
+│ █ █   ││  Traceability          ││─                                                                                                                                                                            │
+│ █▀█   ││  Aggregate             ││  ID            St   Category          Text                                                                                                                                  │
+│  F1   ││  Coverage Gaps         ││  ARCH-01       ✓    Quorum & Dispatc  All formal models declared in `.formal/model-registry.json` as single source of truth with provenance tracking                        │
+│ ───── ││  Gate Scoring          ││  ARCH-02       ✓    Quorum & Dispatc  `promote-model.cjs` provides atomic promotion from per-phase specs to canonical specs with duplicate detection                        │
+│       ││                        ││  ARCH-03       ✓    Quorum & Dispatc  `accept-debug-invariant.cjs` writes debug-discovered invariants directly to canonical specs with session provenance                   │
+│ █▀█   ││                        ││  ARCH-10       ✓    Quorum & Dispatc  QGSD, as a Claude Code plugin, MUST NOT bundle LLM SDKs; Haiku/Sonnet/Opus calls MUST use the Agent tool's model parameter            │
 │ ██▀   ││                        ││  CALIB-01      ✓    Quorum & Dispatc  `.formal/policy.yaml` is the single authoritative source for PRISM calibration parameters                                             │
 │ █ █   ││                        ││  CALIB-02      ✓    Quorum & Dispatc  `run-prism.cjs` reads `policy.yaml` and writes `writeCheckResult` with `observation_window` metadata                                  │
 │  F2   ││                        ││  CALIB-03      ✓    Quorum & Dispatc  `read-policy.cjs` exposes all policy fields with typed interface                                                                      │
@@ -1495,20 +1160,23 @@
 │ ▀▄▄   ││                        ││  DISP-04       ✓    Quorum & Dispatc  Prompt construction (Mode A/B, Round 1/2+, artifact injection, prior_positions, review_context, improvements request) happens         │
 │  F3   ││                        ││determ…                                                                                                                                                                      │
 │ ───── ││                        ││  DISP-05       ✓    Quorum & Dispatc  Output parsing (verdict, reasoning, citations, improvements extraction from raw CLI output) happens in JavaScript with structured YA… │
-│       ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
-│ ▄▀▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
-│ █▀▀   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
-│ ▀▄▄   ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
-│  F4   ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
-│ ───── ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
-│       ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
-│ ▄▀▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces AskUs… │
-│  ▀▄   ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
-│ ▄▄▀   ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for gra… │
-│  F5   ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
+│       ││                        ││  DISP-08       ✓    Quorum & Dispatc  Quorum subprocess dispatch uses dual-timer timeout: an idle timer (default 20s) that resets on stdout/stderr activity, and a hard     │
+│ ▄▀▄   ││                        ││wa…                                                                                                                                                                          │
+│ █▀▀   ││                        ││  IMPR-01       ✓    Quorum & Dispatc  R3.6 quorum enforcement reviewed and improvement areas identified                                                                     │
+│ ▀▄▄   ││                        ││  IMPR-02       ✓    Quorum & Dispatc  Quorum slot dispatch updated to parallel sibling Task calls (R3.2 requirement)                                                        │
+│  F4   ││                        ││  IMPR-03       ✓    Quorum & Dispatc  Slot worker protocol hardened against missing/malformed responses                                                                     │
+│ ───── ││                        ││  IMPR-04       ✓    Quorum & Dispatc  Improvement validated with quorum test runs                                                                                           │
+│       ││                        ││  META-01       ✓    Quorum & Dispatc  GSD planning commands within this repo (new-project, plan-phase, etc.) auto-resolve questions via quorum before escalating to user    │
+│ ▄▀▀   ││                        ││  META-02       ✓    Quorum & Dispatc  Only questions where quorum fails to reach consensus are presented to the user                                                        │
+│  ▀▄   ││                        ││  META-03       ✓    Quorum & Dispatc  Auto-resolved questions are presented as a list of assumptions before escalated questions                                             │
+│ ▄▄▀   ││                        ││  QUORUM-01     ✓    Quorum & Dispatc  plan-milestone-gaps proposed gap closure phases are submitted to R3 quorum for approval before ROADMAP.md is updated (replaces        │
+│  F5   ││                        ││AskUs…                                                                                                                                                                       │
+│       ││                        ││  QUORUM-02     ✓    Quorum & Dispatc  execute-phase gaps_found triggers quorum diagnosis and auto-resolution (replaces chain halt + manual suggestion)                      │
+│       ││                        ││  QUORUM-03     ✓    Quorum & Dispatc  discuss-phase remaining user_questions (surviving R4 pre-filter) are routed to quorum in auto mode (replaces AskUserQuestion for      │
+│       ││                        ││gra…                                                                                                                                                                         │
+│       ││                        ││  UNIF-01       ✓    Quorum & Dispatc  All FV checkers append normalized JSON to `check-results.ndjson` — `{ tool, check_id, result, detail, ts }`                           │
 │       ││                        ││  UNIF-02       ✓    Quorum & Dispatc  `run-formal-verify.cjs` generates `check-results.ndjson` as canonical output artifact                                                 │
-│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read    │
-│       ││                        ││(…                                                                                                                                                                           │
+│       ││                        ││  UNIF-03       ✓    Quorum & Dispatc  Triage bundle reads from `check-results.ndjson`, not tool stdout; CI enforcement steps run inside orchestrator before summary read (… │
 │       ││                        ││  UNIF-04       ✓    Quorum & Dispatc  CI step exits non-zero when any `result=fail` entry exists in `check-results.ndjson`                                                  │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
@@ -1532,11 +1200,343 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [/] filter  [↑↓] scroll                                                                                                                                             │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+────────────────────────────────────────────────────────────────────────────────
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
+│                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌───────┐┌─ Config ───────────────┐┌─ Config — Settings ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Settings              ││Project Settings                                                                                                                                                             │
+│ ▄█▄   ││  Tune Timeouts         ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││  Set Update Policy     ││                                                                                                                                                                             │
+│ █▀█   ││ ─────────────────      ││  Profile     balanced                                                                                                                                                       │
+│  F1   ││  Export Roster         ││  Quorum n    3                                                                                                                                                              │
+│ ───── ││  Import Roster         ││  Fail mode   open                                                                                                                                                           │
+│       ││ ─────────────────      ││                                                                                                                                                                             │
+│ █▀█   ││  Exit                  ││Model Tiers  (balanced profile)                                                                                                                                              │
+│ ██▀   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││                        ││                                                                                                                                                                             │
+│  F2   ││                        ││  Planner      opus                                                                                                                                                          │
+│ ───── ││                        ││  Executor     sonnet                                                                                                                                                        │
+│       ││                        ││  Researcher   sonnet                                                                                                                                                        │
+│ ▄▀▀   ││                        ││  Verifier     sonnet                                                                                                                                                        │
+│ █     ││                        ││  Mapper       haiku                                                                                                                                                         │
+│ ▀▄▄   ││                        ││                                                                                                                                                                             │
+│  F3   ││                        ││  * = override active                                                                                                                                                        │
+│ ───── ││                        ││                                                                                                                                                                             │
+│       ││                        ││Workflow                                                                                                                                                                     │
+│ ▄▀▄   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █▀▀   ││                        ││                                                                                                                                                                             │
+│ ▀▄▄   ││                        ││  Research       disabled                                                                                                                                                    │
+│  F4   ││                        ││  Plan check     enabled                                                                                                                                                     │
+│ ───── ││                        ││  Verifier       enabled                                                                                                                                                     │
+│       ││                        ││  Auto-advance   enabled                                                                                                                                                     │
+│ ▄▀▀   ││                        ││                                                                                                                                                                             │
+│  ▀▄   ││                        ││                                                                                                                                                                             │
+│ ▄▄▀   ││                        ││                                                                                                                                                                             │
+│  F5   ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+────────────────────────────────────────────────────────────────────────────────
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
+│                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌───────┐┌─ Config ───────────────┐┌─ Config — Settings ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Settings              ││Project Settings                                                                                                                                                             │
+│ ▄█▄   ││  Tune Timeouts         ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││  Set Update Policy     ││                                                                                                                                                                             │
+│ █▀█   ││ ─────────────────      ││  Profile     balanced                                                                                                                                                       │
+│  F1   ││  Export Roster         ││  Quorum n    3                                                                                                                                                              │
+│ ───── ││  Import Roster         ││  Fail mode   open                                                                                                                                                           │
+│       ││ ─────────────────      ││                                                                                                                                                                             │
+│ █▀█   ││  Exit                  ││Model Tiers  (balanced profile)                                                                                                                                              │
+│ ██▀   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││                        ││                                                                                                                                                                             │
+│  F2   ││                        ││  Planner      opus                                                                                                                                                          │
+│ ───── ││                        ││  Executor     sonnet                                                                                                                                                        │
+│       ││                        ││  Researcher   sonnet                                                                                                                                                        │
+│ ▄▀▀   ││                        ││  Verifier     sonnet                                                                                                                                                        │
+│ █     ││                        ││  Mapper       haiku                                                                                                                                                         │
+│ ▀▄▄   ││                        ││                                                                                                                                                                             │
+│  F3   ││                        ││  * = override active                                                                                                                                                        │
+│ ───── ││                        ││                                                                                                                                                                             │
+│       ││                        ││Workflow                                                                                                                                                                     │
+│ ▄▀▄   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █▀▀   ││                        ││                                                                                                                                                                             │
+│ ▀▄▄   ││                        ││  Research       disabled                                                                                                                                                    │
+│  F4   ││                        ││  Plan check     enabled                                                                                                                                                     │
+│ ───── ││                        ││  Verifier       enabled                                                                                                                                                     │
+│       ││                        ││  Auto-advance   enabled                                                                                                                                                     │
+│ ▄▀▀   ││                        ││                                                                                                                                                                             │
+│  ▀▄   ││                        ││                                                                                                                                                                             │
+│ ▄▄▀   ││                        ││                                                                                                                                                                             │
+│  F5   ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+────────────────────────────────────────────────────────────────────────────────
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
+│                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌───────┐┌─ Config ───────────────┐┌─ Config — Settings ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Settings              ││Project Settings                                                                                                                                                             │
+│ ▄█▄   ││  Tune Timeouts         ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││  Set Update Policy     ││                                                                                                                                                                             │
+│ █▀█   ││ ─────────────────      ││  Profile     balanced                                                                                                                                                       │
+│  F1   ││  Export Roster         ││  Quorum n    3                                                                                                                                                              │
+│ ───── ││  Import Roster         ││  Fail mode   open                                                                                                                                                           │
+│       ││ ─────────────────      ││                                                                                                                                                                             │
+│ █▀█   ││  Exit                  ││Model Tiers  (balanced profile)                                                                                                                                              │
+│ ██▀   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││                        ││                                                                                                                                                                             │
+│  F2   ││                        ││  Planner      opus                                                                                                                                                          │
+│ ───── ││                        ││  Executor     sonnet                                                                                                                                                        │
+│       ││                        ││  Researcher   sonnet                                                                                                                                                        │
+│ ▄▀▀   ││                        ││  Verifier     sonnet                                                                                                                                                        │
+│ █     ││                        ││  Mapper       haiku                                                                                                                                                         │
+│ ▀▄▄   ││                        ││                                                                                                                                                                             │
+│  F3   ││                        ││  * = override active                                                                                                                                                        │
+│ ───── ││                        ││                                                                                                                                                                             │
+│       ││                        ││Workflow                                                                                                                                                                     │
+│ ▄▀▄   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █▀▀   ││                        ││                                                                                                                                                                             │
+│ ▀▄▄   ││                        ││  Research       disabled                                                                                                                                                    │
+│  F4   ││                        ││  Plan check     enabled                                                                                                                                                     │
+│ ───── ││                        ││  Verifier       enabled                                                                                                                                                     │
+│       ││                        ││  Auto-advance   enabled                                                                                                                                                     │
+│ ▄▀▀   ││                        ││                                                                                                                                                                             │
+│  ▀▄   ││                        ││                                                                                                                                                                             │
+│ ▄▄▀   ││                        ││                                                                                                                                                                             │
+│  F5   ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+────────────────────────────────────────────────────────────────────────────────
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
+│                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌───────┐┌─ Config ───────────────┐┌─ Config — Settings ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Settings              ││Project Settings                                                                                                                                                             │
+│ ▄█▄   ││  Tune Timeouts         ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││  Set Update Policy     ││                                                                                                                                                                             │
+│ █▀█   ││ ─────────────────      ││  Profile     balanced                                                                                                                                                       │
+│  F1   ││  Export Roster         ││  Quorum n    3                                                                                                                                                              │
+│ ───── ││  Import Roster         ││  Fail mode   open                                                                                                                                                           │
+│       ││ ─────────────────      ││                                                                                                                                                                             │
+│ █▀█   ││  Exit                  ││Model Tiers  (balanced profile)                                                                                                                                              │
+│ ██▀   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││                        ││                                                                                                                                                                             │
+│  F2   ││                        ││  Planner      opus                                                                                                                                                          │
+│ ───── ││                        ││  Executor     sonnet                                                                                                                                                        │
+│       ││                        ││  Researcher   sonnet                                                                                                                                                        │
+│ ▄▀▀   ││                        ││  Verifier     sonnet                                                                                                                                                        │
+│ █     ││                        ││  Mapper       haiku                                                                                                                                                         │
+│ ▀▄▄   ││                        ││                                                                                                                                                                             │
+│  F3   ││                        ││  * = override active                                                                                                                                                        │
+│ ───── ││                        ││                                                                                                                                                                             │
+│       ││                        ││Workflow                                                                                                                                                                     │
+│ ▄▀▄   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █▀▀   ││                        ││                                                                                                                                                                             │
+│ ▀▄▄   ││                        ││  Research       disabled                                                                                                                                                    │
+│  F4   ││                        ││  Plan check     enabled                                                                                                                                                     │
+│ ───── ││                        ││  Verifier       enabled                                                                                                                                                     │
+│       ││                        ││  Auto-advance   enabled                                                                                                                                                     │
+│ ▄▀▀   ││                        ││                                                                                                                                                                             │
+│  ▀▄   ││                        ││                                                                                                                                                                             │
+│ ▄▄▀   ││                        ││                                                                                                                                                                             │
+│  F5   ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+────────────────────────────────────────────────────────────────────────────────
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ nForma AI v0.33.1                                                                                                                                                                        [Tab] cycle  [q] quit │
+│                                                                                           cwd: ~/code/QGSD [ctrl-t]                                                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌───────┐┌─ Config ───────────────┐┌─ Config — Settings ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       ││  Settings              ││Project Settings                                                                                                                                                             │
+│ ▄█▄   ││  Tune Timeouts         ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││  Set Update Policy     ││                                                                                                                                                                             │
+│ █▀█   ││ ─────────────────      ││  Profile     balanced                                                                                                                                                       │
+│  F1   ││  Export Roster         ││  Quorum n    3                                                                                                                                                              │
+│ ───── ││  Import Roster         ││  Fail mode   open                                                                                                                                                           │
+│       ││ ─────────────────      ││                                                                                                                                                                             │
+│ █▀█   ││  Exit                  ││Model Tiers  (balanced profile)                                                                                                                                              │
+│ ██▀   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █ █   ││                        ││                                                                                                                                                                             │
+│  F2   ││                        ││  Planner      opus                                                                                                                                                          │
+│ ───── ││                        ││  Executor     sonnet                                                                                                                                                        │
+│       ││                        ││  Researcher   sonnet                                                                                                                                                        │
+│ ▄▀▀   ││                        ││  Verifier     sonnet                                                                                                                                                        │
+│ █     ││                        ││  Mapper       haiku                                                                                                                                                         │
+│ ▀▄▄   ││                        ││                                                                                                                                                                             │
+│  F3   ││                        ││  * = override active                                                                                                                                                        │
+│ ───── ││                        ││                                                                                                                                                                             │
+│       ││                        ││Workflow                                                                                                                                                                     │
+│ ▄▀▄   ││                        ││────────────────────────────────────────                                                                                                                                     │
+│ █▀▀   ││                        ││                                                                                                                                                                             │
+│ ▀▄▄   ││                        ││  Research       disabled                                                                                                                                                    │
+│  F4   ││                        ││  Plan check     enabled                                                                                                                                                     │
+│ ───── ││                        ││  Verifier       enabled                                                                                                                                                     │
+│       ││                        ││  Auto-advance   enabled                                                                                                                                                     │
+│ ▄▀▀   ││                        ││                                                                                                                                                                             │
+│  ▀▄   ││                        ││                                                                                                                                                                             │
+│ ▄▄▀   ││                        ││                                                                                                                                                                             │
+│  F5   ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+│       ││                        ││                                                                                                                                                                             │
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -1603,7 +1603,7 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%   [C-\] disconnect                                                                                                                                                    │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [C-\] disconnect                                                                                                                                                    │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -1670,7 +1670,7 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%   [C-\] disconnect                                                                                                                                                    │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [C-\] disconnect                                                                                                                                                    │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -1737,7 +1737,7 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%   [C-\] disconnect                                                                                                                                                    │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [C-\] disconnect                                                                                                                                                    │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -1804,7 +1804,7 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%   [C-\] disconnect                                                                                                                                                    │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%   [C-\] disconnect                                                                                                                                                    │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -1816,17 +1816,17 @@
 │ ▄█▄   ││ ── Forward ──────      ││────────────────────────────────────────────────────────────                                                                                                                 │
 │ █ █   ││  R->F Req→Formal       ││                                                                                                                                                                             │
 │ █▀█   ││  F->T Formal→Test      ││  D->C Broken Claims: 0 items                                                                                                                                                │
-│  F1   ││  C->F Code→Formal      ││  C->R Untraced Modules: 2 item(s)                                                                                                                                           │
-│ ───── ││  T->C Test→Code        ││    by directory: bin/: 1, hooks/: 1                                                                                                                                         │
-│       ││  F->C Formal→Code      ││    haiku triage: 0 genuine | 0 fp | 2 review                                                                                                                                │
-│ █▀█   ││  R->D Req→Docs         ││  T->R Orphan Tests: 9 item(s)                                                                                                                                               │
-│ ██▀   ││  D->C Broken Claims    ││    with matching source module: 0/9                                                                                                                                         │
-│ █ █   ││  P->F Prod→Formal      ││    haiku triage: 9 genuine | 0 fp | 0 review                                                                                                                                │
+│  F1   ││  C->F Code→Formal      ││  C->R Untraced Modules: 3 item(s)                                                                                                                                           │
+│ ───── ││  T->C Test→Code        ││    by directory: bin/: 2, hooks/: 1                                                                                                                                         │
+│       ││  F->C Formal→Code      ││    haiku triage: 0 genuine | 0 fp | 3 review                                                                                                                                │
+│ █▀█   ││  R->D Req→Docs         ││  T->R Orphan Tests: 11 item(s)                                                                                                                                              │
+│ ██▀   ││  D->C Broken Claims    ││    with matching source module: 1/11                                                                                                                                        │
+│ █ █   ││  P->F Prod→Formal      ││    haiku triage: 9 genuine | 0 fp | 2 review                                                                                                                                │
 │  F2   ││ ── Reverse ──────      ││  D->R Unbacked Claims: 22 item(s)                                                                                                                                           │
 │ ───── ││  C->R Untraced Modules ││    haiku triage: 12 genuine | 0 fp | 10 review                                                                                                                              │
 │       ││  T->R Orphan Tests     ││                                                                                                                                                                             │
 │ ▄▀▀   ││  D->R Unbacked Claims  ││────────────────────────────────────────────────────────────                                                                                                                 │
-│ █     ││ ── Layer Align ───     ││Human-gated: 33 item(s) across 4 categories                                                                                                                                  │
+│ █     ││ ── Layer Align ───     ││Human-gated: 36 item(s) across 4 categories                                                                                                                                  │
 │ ▀▄▄   ││  L1->L2 Wiring:Evidence││Haiku triage: per-item cache active. New items classified on demand.                                                                                                         │
 │  F3   ││  L2->L3 Wiring:Purpose ││                                                                                                                                                                             │
 │ ───── ││  L3->TC Wiring:Coverage││                                                                                                                                                                             │
@@ -1837,7 +1837,7 @@
 │  F4   ││  F->F Formal Lint      ││────────────────────────────────────────────────────────────                                                                                                                 │
 │ ───── ││  F->H Hazard FMEA      ││Progress: 4/19                                                                                                                                                               │
 │       ││ ─────────────────      ││  Forward                                                                                                                                                                    │
-│ ▄▀▀   ││  Manage Suppressions   ││    R→F Req→Formal: x 3                                                                                                                                                      │
+│ ▄▀▀   ││  Manage Suppressions   ││    R→F Req→Formal: x 4                                                                                                                                                      │
 │  ▀▄   ││  Classify All (Haiku)  ││    F→T Formal→Test: ok 0                                                                                                                                                    │
 │ ▄▄▀   ││                        ││    C→F Code→Formal: ok 0                                                                                                                                                    │
 │  F5   ││                        ││    T→C Test→Code: ok 0                                                                                                                                                      │
@@ -1871,7 +1871,7 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -1883,17 +1883,17 @@
 │ ▄█▄   ││ ── Forward ──────      ││────────────────────────────────────────────────────────────                                                                                                                 │
 │ █ █   ││  R->F Req→Formal       ││                                                                                                                                                                             │
 │ █▀█   ││  F->T Formal→Test      ││  D->C Broken Claims: 0 items                                                                                                                                                │
-│  F1   ││  C->F Code→Formal      ││  C->R Untraced Modules: 2 item(s)                                                                                                                                           │
-│ ───── ││  T->C Test→Code        ││    by directory: bin/: 1, hooks/: 1                                                                                                                                         │
-│       ││  F->C Formal→Code      ││    haiku triage: 0 genuine | 0 fp | 2 review                                                                                                                                │
-│ █▀█   ││  R->D Req→Docs         ││  T->R Orphan Tests: 9 item(s)                                                                                                                                               │
-│ ██▀   ││  D->C Broken Claims    ││    with matching source module: 0/9                                                                                                                                         │
-│ █ █   ││  P->F Prod→Formal      ││    haiku triage: 9 genuine | 0 fp | 0 review                                                                                                                                │
+│  F1   ││  C->F Code→Formal      ││  C->R Untraced Modules: 3 item(s)                                                                                                                                           │
+│ ───── ││  T->C Test→Code        ││    by directory: bin/: 2, hooks/: 1                                                                                                                                         │
+│       ││  F->C Formal→Code      ││    haiku triage: 0 genuine | 0 fp | 3 review                                                                                                                                │
+│ █▀█   ││  R->D Req→Docs         ││  T->R Orphan Tests: 11 item(s)                                                                                                                                              │
+│ ██▀   ││  D->C Broken Claims    ││    with matching source module: 1/11                                                                                                                                        │
+│ █ █   ││  P->F Prod→Formal      ││    haiku triage: 9 genuine | 0 fp | 2 review                                                                                                                                │
 │  F2   ││ ── Reverse ──────      ││  D->R Unbacked Claims: 22 item(s)                                                                                                                                           │
 │ ───── ││  C->R Untraced Modules ││    haiku triage: 12 genuine | 0 fp | 10 review                                                                                                                              │
 │       ││  T->R Orphan Tests     ││                                                                                                                                                                             │
 │ ▄▀▀   ││  D->R Unbacked Claims  ││────────────────────────────────────────────────────────────                                                                                                                 │
-│ █     ││ ── Layer Align ───     ││Human-gated: 33 item(s) across 4 categories                                                                                                                                  │
+│ █     ││ ── Layer Align ───     ││Human-gated: 36 item(s) across 4 categories                                                                                                                                  │
 │ ▀▄▄   ││  L1->L2 Wiring:Evidence││Haiku triage: per-item cache active. New items classified on demand.                                                                                                         │
 │  F3   ││  L2->L3 Wiring:Purpose ││                                                                                                                                                                             │
 │ ───── ││  L3->TC Wiring:Coverage││                                                                                                                                                                             │
@@ -1904,7 +1904,7 @@
 │  F4   ││  F->F Formal Lint      ││────────────────────────────────────────────────────────────                                                                                                                 │
 │ ───── ││  F->H Hazard FMEA      ││Progress: 4/19                                                                                                                                                               │
 │       ││ ─────────────────      ││  Forward                                                                                                                                                                    │
-│ ▄▀▀   ││  Manage Suppressions   ││    R→F Req→Formal: x 3                                                                                                                                                      │
+│ ▄▀▀   ││  Manage Suppressions   ││    R→F Req→Formal: x 4                                                                                                                                                      │
 │  ▀▄   ││  Classify All (Haiku)  ││    F→T Formal→Test: ok 0                                                                                                                                                    │
 │ ▄▄▀   ││                        ││    C→F Code→Formal: ok 0                                                                                                                                                    │
 │  F5   ││                        ││    T→C Test→Code: ok 0                                                                                                                                                      │
@@ -1938,7 +1938,7 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -1950,17 +1950,17 @@
 │ ▄█▄   ││ ── Forward ──────      ││────────────────────────────────────────────────────────────                                                                                                                 │
 │ █ █   ││  R->F Req→Formal       ││                                                                                                                                                                             │
 │ █▀█   ││  F->T Formal→Test      ││  D->C Broken Claims: 0 items                                                                                                                                                │
-│  F1   ││  C->F Code→Formal      ││  C->R Untraced Modules: 2 item(s)                                                                                                                                           │
-│ ───── ││  T->C Test→Code        ││    by directory: bin/: 1, hooks/: 1                                                                                                                                         │
-│       ││  F->C Formal→Code      ││    haiku triage: 0 genuine | 0 fp | 2 review                                                                                                                                │
-│ █▀█   ││  R->D Req→Docs         ││  T->R Orphan Tests: 9 item(s)                                                                                                                                               │
-│ ██▀   ││  D->C Broken Claims    ││    with matching source module: 0/9                                                                                                                                         │
-│ █ █   ││  P->F Prod→Formal      ││    haiku triage: 9 genuine | 0 fp | 0 review                                                                                                                                │
+│  F1   ││  C->F Code→Formal      ││  C->R Untraced Modules: 3 item(s)                                                                                                                                           │
+│ ───── ││  T->C Test→Code        ││    by directory: bin/: 2, hooks/: 1                                                                                                                                         │
+│       ││  F->C Formal→Code      ││    haiku triage: 0 genuine | 0 fp | 3 review                                                                                                                                │
+│ █▀█   ││  R->D Req→Docs         ││  T->R Orphan Tests: 11 item(s)                                                                                                                                              │
+│ ██▀   ││  D->C Broken Claims    ││    with matching source module: 1/11                                                                                                                                        │
+│ █ █   ││  P->F Prod→Formal      ││    haiku triage: 9 genuine | 0 fp | 2 review                                                                                                                                │
 │  F2   ││ ── Reverse ──────      ││  D->R Unbacked Claims: 22 item(s)                                                                                                                                           │
 │ ───── ││  C->R Untraced Modules ││    haiku triage: 12 genuine | 0 fp | 10 review                                                                                                                              │
 │       ││  T->R Orphan Tests     ││                                                                                                                                                                             │
 │ ▄▀▀   ││  D->R Unbacked Claims  ││────────────────────────────────────────────────────────────                                                                                                                 │
-│ █     ││ ── Layer Align ───     ││Human-gated: 33 item(s) across 4 categories                                                                                                                                  │
+│ █     ││ ── Layer Align ───     ││Human-gated: 36 item(s) across 4 categories                                                                                                                                  │
 │ ▀▄▄   ││  L1->L2 Wiring:Evidence││Haiku triage: per-item cache active. New items classified on demand.                                                                                                         │
 │  F3   ││  L2->L3 Wiring:Purpose ││                                                                                                                                                                             │
 │ ───── ││  L3->TC Wiring:Coverage││                                                                                                                                                                             │
@@ -1971,7 +1971,7 @@
 │  F4   ││  F->F Formal Lint      ││────────────────────────────────────────────────────────────                                                                                                                 │
 │ ───── ││  F->H Hazard FMEA      ││Progress: 4/19                                                                                                                                                               │
 │       ││ ─────────────────      ││  Forward                                                                                                                                                                    │
-│ ▄▀▀   ││  Manage Suppressions   ││    R→F Req→Formal: x 3                                                                                                                                                      │
+│ ▄▀▀   ││  Manage Suppressions   ││    R→F Req→Formal: x 4                                                                                                                                                      │
 │  ▀▄   ││  Classify All (Haiku)  ││    F→T Formal→Test: ok 0                                                                                                                                                    │
 │ ▄▄▀   ││                        ││    C→F Code→Formal: ok 0                                                                                                                                                    │
 │  F5   ││                        ││    T→C Test→Code: ok 0                                                                                                                                                      │
@@ -2005,7 +2005,7 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -2017,17 +2017,17 @@
 │ ▄█▄   ││ ── Forward ──────      ││────────────────────────────────────────────────────────────                                                                                                                 │
 │ █ █   ││  R->F Req→Formal       ││                                                                                                                                                                             │
 │ █▀█   ││  F->T Formal→Test      ││  D->C Broken Claims: 0 items                                                                                                                                                │
-│  F1   ││  C->F Code→Formal      ││  C->R Untraced Modules: 2 item(s)                                                                                                                                           │
-│ ───── ││  T->C Test→Code        ││    by directory: bin/: 1, hooks/: 1                                                                                                                                         │
-│       ││  F->C Formal→Code      ││    haiku triage: 0 genuine | 0 fp | 2 review                                                                                                                                │
-│ █▀█   ││  R->D Req→Docs         ││  T->R Orphan Tests: 9 item(s)                                                                                                                                               │
-│ ██▀   ││  D->C Broken Claims    ││    with matching source module: 0/9                                                                                                                                         │
-│ █ █   ││  P->F Prod→Formal      ││    haiku triage: 9 genuine | 0 fp | 0 review                                                                                                                                │
+│  F1   ││  C->F Code→Formal      ││  C->R Untraced Modules: 3 item(s)                                                                                                                                           │
+│ ───── ││  T->C Test→Code        ││    by directory: bin/: 2, hooks/: 1                                                                                                                                         │
+│       ││  F->C Formal→Code      ││    haiku triage: 0 genuine | 0 fp | 3 review                                                                                                                                │
+│ █▀█   ││  R->D Req→Docs         ││  T->R Orphan Tests: 11 item(s)                                                                                                                                              │
+│ ██▀   ││  D->C Broken Claims    ││    with matching source module: 1/11                                                                                                                                        │
+│ █ █   ││  P->F Prod→Formal      ││    haiku triage: 9 genuine | 0 fp | 2 review                                                                                                                                │
 │  F2   ││ ── Reverse ──────      ││  D->R Unbacked Claims: 22 item(s)                                                                                                                                           │
 │ ───── ││  C->R Untraced Modules ││    haiku triage: 12 genuine | 0 fp | 10 review                                                                                                                              │
 │       ││  T->R Orphan Tests     ││                                                                                                                                                                             │
 │ ▄▀▀   ││  D->R Unbacked Claims  ││────────────────────────────────────────────────────────────                                                                                                                 │
-│ █     ││ ── Layer Align ───     ││Human-gated: 33 item(s) across 4 categories                                                                                                                                  │
+│ █     ││ ── Layer Align ───     ││Human-gated: 36 item(s) across 4 categories                                                                                                                                  │
 │ ▀▄▄   ││  L1->L2 Wiring:Evidence││Haiku triage: per-item cache active. New items classified on demand.                                                                                                         │
 │  F3   ││  L2->L3 Wiring:Purpose ││                                                                                                                                                                             │
 │ ───── ││  L3->TC Wiring:Coverage││                                                                                                                                                                             │
@@ -2038,7 +2038,7 @@
 │  F4   ││  F->F Formal Lint      ││────────────────────────────────────────────────────────────                                                                                                                 │
 │ ───── ││  F->H Hazard FMEA      ││Progress: 4/19                                                                                                                                                               │
 │       ││ ─────────────────      ││  Forward                                                                                                                                                                    │
-│ ▄▀▀   ││  Manage Suppressions   ││    R→F Req→Formal: x 3                                                                                                                                                      │
+│ ▄▀▀   ││  Manage Suppressions   ││    R→F Req→Formal: x 4                                                                                                                                                      │
 │  ▀▄   ││  Classify All (Haiku)  ││    F→T Formal→Test: ok 0                                                                                                                                                    │
 │ ▄▄▀   ││                        ││    C→F Code→Formal: ok 0                                                                                                                                                    │
 │  F5   ││                        ││    T→C Test→Code: ok 0                                                                                                                                                      │
@@ -2072,7 +2072,7 @@
 │       ││                        ││                                                                                                                                                                             │
 │       ││                        ││                                                                                                                                                                             │
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Reqs 370  315✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
+│ Reqs 371  316✓  55…  (85%)   Formal 100%                                                                                                                                                                       │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ────────────────────────────────────────────────────────────────────────────────
 %

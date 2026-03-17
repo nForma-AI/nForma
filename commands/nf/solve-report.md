@@ -142,19 +142,22 @@ DRIFT_SNAPSHOT=$(node ~/.claude/nf-bin/nf-solve.cjs --json --report-only --fast 
 ```
 If nf-bin path doesn't exist, fall back to `bin/nf-solve.cjs`.
 
-Then run baseline drift detection:
+Then run baseline drift detection using the portable path:
 ```bash
-node -e "
-  const { detectBaselineDrift } = require('./bin/baseline-drift.cjs');
-  const baseline = JSON.parse(process.env.BASELINE_JSON);
-  const snapshot = JSON.parse(process.env.SNAPSHOT_JSON);
-  const result = detectBaselineDrift(
-    baseline.residual_vector || baseline,
-    snapshot.residual_vector || snapshot,
-    { threshold: 0.10, requirementsPath: '.planning/formal/requirements.json' }
-  );
-  console.log(JSON.stringify(result));
-"
+BASELINE_DRIFT_SCRIPT="${HOME}/.claude/nf-bin/baseline-drift.cjs"
+if [ ! -f "$BASELINE_DRIFT_SCRIPT" ]; then BASELINE_DRIFT_SCRIPT="bin/baseline-drift.cjs"; fi
+
+# Parse environment variables and run detection
+export BASELINE_JSON SNAPSHOT_JSON
+$BASELINE_DRIFT_SCRIPT --project-root=$(pwd) 2>/dev/null
+```
+Or, if the script supports stdin:
+```bash
+BASELINE_DRIFT_SCRIPT="${HOME}/.claude/nf-bin/baseline-drift.cjs"
+if [ ! -f "$BASELINE_DRIFT_SCRIPT" ]; then BASELINE_DRIFT_SCRIPT="bin/baseline-drift.cjs"; fi
+
+# Run baseline drift detection
+node "$BASELINE_DRIFT_SCRIPT" --project-root=$(pwd) 2>/dev/null || true
 ```
 
 If `result.detected` is true:

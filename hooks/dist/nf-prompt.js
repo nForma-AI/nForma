@@ -384,6 +384,7 @@ function isBreakerActive(cwd) {
   } catch { return false; }
 }
 
+if (require.main === module) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => raw += chunk);
@@ -937,10 +938,11 @@ process.stdin.on('end', () => {
     process.exit(0); // Fail-open on any error
   }
 });
+} // end require.main === module guard
 
 // Export helpers for unit testing (tree-shaken at runtime — no cost)
 // The file is a script and exits via process.exit() before reaching this line in normal operation.
-// When require()d by tests, the stdin handler is registered but never fires, so module.exports is set.
+// When require()d by tests, stdin handlers are not registered (guarded by require.main check).
 if (typeof module !== 'undefined') {
   module.exports = module.exports || {};
   module.exports.mapRiskLevelToCount = mapRiskLevelToCount;

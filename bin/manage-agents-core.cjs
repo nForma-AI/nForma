@@ -189,9 +189,9 @@ function classifyProbeResult(probeResult) {
  */
 function writeKeyStatus(slotName, status, filePath) {
   const nfCfg = readNfJson(filePath);
-  if (!nf.agent_config) nf.agent_config = {};
-  if (!nf.agent_config[slotName]) nf.agent_config[slotName] = {};
-  nf.agent_config[slotName].key_status = {
+  if (!nfCfg.agent_config) nfCfg.agent_config = {};
+  if (!nfCfg.agent_config[slotName]) nfCfg.agent_config[slotName] = {};
+  nfCfg.agent_config[slotName].key_status = {
     status,
     checkedAt: new Date().toISOString(),
   };
@@ -652,11 +652,11 @@ async function probeAllSlots(mcpServers, slots, secretsLib) {
   return Object.fromEntries(results);
 }
 
-async function runAutoUpdateCheck(getStatusesFn = getUpdateStatuses) {
+async function runAutoUpdateCheck(getStatusesFn = getUpdateStatuses, nfJsonPath = null) {
   const check = async () => {
     let nfCfg;
-    try { nfCfg = readNfJson(); } catch { return; }
-    const agentConfig = nf.agent_config || {};
+    try { nfCfg = readNfJson(nfJsonPath); } catch { return; }
+    const agentConfig = nfCfg.agent_config || {};
     const autoSlots = Object.keys(agentConfig).filter(
       (s) => agentConfig[s] && agentConfig[s].update_policy === 'auto'
     );

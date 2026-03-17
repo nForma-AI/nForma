@@ -1361,7 +1361,7 @@ test('PLCY-03 Integration: runAutoUpdateCheck with auto-policy slot logs UPDATE_
     };
 
     try {
-      await runAutoUpdateCheck(mockGetStatuses);
+      await runAutoUpdateCheck(mockGetStatuses, tmpNfJsonPath);
     } finally {
       fs.appendFileSync = originalAppendFileSync;
     }

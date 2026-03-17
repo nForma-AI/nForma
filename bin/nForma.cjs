@@ -1195,7 +1195,18 @@ if (process.env.NF_THEME === 'light') {
 }
 
 // ─── Screen setup ─────────────────────────────────────────────────────────────
-const screen = blessed.screen({ smartCSR: true, fullUnicode: true, title: 'nForma' });
+// NF_TEST_MODE: use PassThrough streams to avoid holding the TTY open.
+// This initializes blessed's global screen state (required for widget creation)
+// without claiming the real terminal or keeping the event loop alive.
+const screen = process.env.NF_TEST_MODE
+  ? (() => {
+      const { PassThrough } = require('stream');
+      return blessed.screen({
+        dumb: true, terminal: 'dumb', smartCSR: false, fullUnicode: false,
+        input: new PassThrough(), output: new PassThrough(),
+      });
+    })()
+  : blessed.screen({ smartCSR: true, fullUnicode: true, title: 'nForma' });
 
 // ─── Surface palette ─────────────────────────────────────────────────────────
 // Auto-selected based on terminal background (OSC 11 probe).

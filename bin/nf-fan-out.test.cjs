@@ -32,16 +32,20 @@ function guardTest(fn) {
   };
 }
 
-// FAN-TC1: routine risk_level → fan_out_count = 2
-test('FAN-TC1: routine risk_level → fan_out_count = 2', guardTest(() => {
+// FAN-TC1: routine risk_level → fan_out_count = ceil(n/3), min 1
+// Formula: low/routine = ceil(maxSize/3)
+test('FAN-TC1: routine risk_level → fan_out_count = ceil(maxSize/3)', guardTest(() => {
   const result = mapRiskLevelToCount('routine', 3);
-  assert.strictEqual(result, 2, 'routine risk_level with maxSize=3 should return 2');
+  // ceil(3/3) = 1
+  assert.strictEqual(result, 1, 'routine risk_level with maxSize=3 should return ceil(3/3)=1');
 }));
 
-// FAN-TC2: medium risk_level → fan_out_count = 3
-test('FAN-TC2: medium risk_level → fan_out_count = 3', guardTest(() => {
+// FAN-TC2: medium risk_level → fan_out_count = ceil(2n/3)
+// Formula: medium = ceil(2*maxSize/3)
+test('FAN-TC2: medium risk_level → fan_out_count = ceil(2*maxSize/3)', guardTest(() => {
   const result = mapRiskLevelToCount('medium', 5);
-  assert.strictEqual(result, 3, 'medium risk_level with maxSize=5 should return 3');
+  // ceil(2*5/3) = ceil(3.33) = 4
+  assert.strictEqual(result, 4, 'medium risk_level with maxSize=5 should return ceil(2*5/3)=4');
 }));
 
 // FAN-TC3: high risk_level → fan_out_count = maxSize

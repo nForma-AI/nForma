@@ -10,15 +10,15 @@ const FIXTURE_ITERATIONS = [
   // Iteration 1: r_to_f has 5 gaps, everything else is 0
   { r_to_f: 5, f_to_t: 0, c_to_f: 0, t_to_c: 0, f_to_c: 0, r_to_d: 0, d_to_c: 0, p_to_f: 0,
     c_to_r: 0, t_to_r: 0, d_to_r: 0, l1_to_l3: 0, l3_to_tc: 0,
-    per_model_gates: 0, git_heatmap: 0, git_history: 0, formal_lint: 0, hazard_model: 0 },
+    per_model_gates: 0, git_heatmap: 0, git_history: 0, formal_lint: 0, hazard_model: 0, h_to_m: 0 },
   // Iteration 2: r_to_f remediated to 0, but cascade creates f_to_t=7
   { r_to_f: 0, f_to_t: 7, c_to_f: 0, t_to_c: 0, f_to_c: 0, r_to_d: 0, d_to_c: 0, p_to_f: 0,
     c_to_r: 0, t_to_r: 0, d_to_r: 0, l1_to_l3: 0, l3_to_tc: 0,
-    per_model_gates: 0, git_heatmap: 0, git_history: 0, formal_lint: 0, hazard_model: 0 },
+    per_model_gates: 0, git_heatmap: 0, git_history: 0, formal_lint: 0, hazard_model: 0, h_to_m: 0 },
   // Iteration 3: f_to_t partially remediated to 2
   { r_to_f: 0, f_to_t: 2, c_to_f: 0, t_to_c: 0, f_to_c: 0, r_to_d: 0, d_to_c: 0, p_to_f: 0,
     c_to_r: 0, t_to_r: 0, d_to_r: 0, l1_to_l3: 0, l3_to_tc: 0,
-    per_model_gates: 0, git_heatmap: 0, git_history: 0, formal_lint: 0, hazard_model: 0 },
+    per_model_gates: 0, git_heatmap: 0, git_history: 0, formal_lint: 0, hazard_model: 0, h_to_m: 0 },
 ];
 
 // Bucket constants matching CONV-02 bucket assignments
@@ -95,7 +95,7 @@ describe('e2e convergence integration', () => {
     }
   });
 
-  it('all 18 LAYER_KEYS are present in each fixture iteration', () => {
+  it('all 19 LAYER_KEYS are present in each fixture iteration', () => {
     for (const iter of FIXTURE_ITERATIONS) {
       for (const key of LAYER_KEYS) {
         assert.ok(key in iter, `Missing layer key: ${key}`);
