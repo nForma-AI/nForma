@@ -10,17 +10,20 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.37 — Close the Loop: Cross-Layer Feedback Integration
+## Current Milestone: (none — run /nf:new-milestone to start v0.38)
+
+## Shipped: v0.37 — Close the Loop: Cross-Layer Feedback Integration (2026-03-17)
 
 **Goal:** Close six information gaps between nForma subsystems so that knowledge flows bidirectionally — tests link back to requirements, scanners learn from FP feedback, gates self-promote, and quorum debates produce reusable precedents.
 
-**Target features:**
-- Test→Requirement back-linking via `@requirement` annotations in test files
-- Code→Requirement transitive linking via proximity graph extension
-- Gate auto-promotion with consecutive pass tracking (SOFT_GATE→HARD_GATE lifecycle)
-- Scanner FP feedback loop with per-scanner rate tracking and threshold auto-tuning
-- Quorum precedent extraction from debate archives into compact knowledge base
-- Hypothesis measurement→solve targeting priority integration
+**Shipped:** 16/16 requirements satisfied across 5 phases, 8 plans. Audit: PASSED.
+
+**Key features shipped:**
+- @requirement annotation back-linking: bidirectional links between code/tests and requirements via proximity graph edges, C→R/T→R scanner suppression
+- Gate auto-promotion: models with 3+ consecutive clean solve passes auto-promote SOFT_GATE→HARD_GATE with evidence logging
+- Scanner FP self-tuning: per-scanner per-category false-positive rate tracking with auto-threshold raising for chronic offenders
+- Quorum precedent memory: debate archive mining extracts reusable BLOCK/APPROVE decisions, keyword-matched injection into dispatch prompts with 90-day TTL
+- Hypothesis-driven solve wave ordering: layer remediation prioritizes layers with recent hypothesis transitions via LAYER_HANDLERS dispatch map
 
 ## Shipped: v0.36 — Solve Loop Convergence & Correctness (2026-03-15)
 

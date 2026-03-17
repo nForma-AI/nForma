@@ -603,3 +603,13 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.37 Close the Loop: Cross-Layer Feedback Integration (Shipped: 2026-03-17)
+
+**Phases completed:** 38 phases, 64 plans, 15 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
