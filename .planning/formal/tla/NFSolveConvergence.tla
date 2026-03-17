@@ -144,6 +144,11 @@ Next ==
     \/ CheckConvergence
 
 \* ---- Safety invariant ------------------------------------------------------
+\* @requirement FV-01 (solve loop model: session counter bounded by MaxSessions)
+\* The outer solve loop is bounded — it never exceeds the configured maximum
+\* session count, ensuring termination.
+SessionBounded == session <= MaxSessions
+
 \* No layer oscillates more than once -- Option C blocks at first detection.
 \* @requirement FV-02
 OscillationBounded == \A l \in Layers : oscillation_count[l] <= 1

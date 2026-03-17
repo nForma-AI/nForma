@@ -719,7 +719,10 @@
       "provenance": {
         "source_file": ".planning/REQUIREMENTS.md",
         "milestone": "unknown"
-      }
+      },
+      "formal_models": [
+        ".planning/formal/tla/NFSolveConvergenceV2.tla"
+      ]
     },
     {
       "id": "CONV-04",
@@ -1165,7 +1168,10 @@
       "provenance": {
         "source_file": ".planning/quick/318-replace-fixed-wall-clock-quorum-timeout-/318-PLAN.md",
         "milestone": "quick-318"
-      }
+      },
+      "formal_models": [
+        ".planning/formal/tla/QGSDDispatchPipeline.tla"
+      ]
     },
     {
       "id": "DRIFT-01",
@@ -1416,7 +1422,10 @@
       "provenance": {
         "source_file": ".planning/milestones/v0.33-REQUIREMENTS.md",
         "milestone": "v0.33"
-      }
+      },
+      "formal_models": [
+        ".planning/formal/tla/NFSolveConvergence.tla"
+      ]
     },
     {
       "id": "FV-02",
@@ -3064,7 +3073,10 @@
       "provenance": {
         "source_file": ".planning/milestones/v0.34-REQUIREMENTS.md",
         "milestone": "v0.34"
-      }
+      },
+      "formal_models": [
+        ".planning/formal/tla/NFGatePromotion.tla"
+      ]
     },
     {
       "id": "PROMO-05",

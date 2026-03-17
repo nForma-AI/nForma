@@ -1,21 +1,15 @@
 {
-  "updated_at": "2026-03-16T15:50:33.672Z",
+  "updated_at": "2026-03-17T13:00:28.296Z",
   "classifications": {
     "dtoc": {},
     "ctor": {
       "hooks/nf-node-eval-guard.js": "review",
-      "bin/build-code-trace.cjs": "fp",
-      "bin/fsm-to-tla.cjs": "fp",
-      "bin/hypothesis-measure.cjs": "fp"
+      "bin/error-clusterer.cjs": "fp",
+      "bin/proximity-embed.mjs": "fp"
     },
     "ttor": {
-      "bin/fsm-to-tla.test.cjs": "genuine",
-      "bin/gate-field-compatibility.test.cjs": "genuine",
-      "bin/gate-score-utils.test.cjs": "genuine",
-      "bin/run-petri.test.cjs": "genuine",
       "test/alloy-headless.test.cjs": "genuine",
       "test/auto-promotion-integration.test.cjs": "genuine",
-      "test/baseline-drift.test.cjs": "genuine",
       "test/classification-golden-set.test.cjs": "genuine",
       "test/e2e-semantic-promotion-pipeline.test.cjs": "genuine",
       "test/error-clusterer.test.cjs": "genuine",
@@ -23,11 +17,8 @@
       "test/model-dedup.test.cjs": "genuine",
       "test/residual-buckets.test.cjs": "genuine",
       "test/resolve-cli-integration.test.cjs": "genuine",
-      "bin/hypothesis-measure.test.cjs": "fp",
-      "bin/layer-constants.test.cjs": "fp",
-      "test/readme-deep-sections.test.cjs": "fp",
-      "test/shell-escape-01.test.cjs": "fp",
-      "test/user-guide-overhaul.test.cjs": "fp"
+      "bin/extract-precedents.test.cjs": "fp",
+      "bin/nf-solve-fp-tuning.test.cjs": "fp"
     },
     "dtor": {
       "5d7ff7cc8312db4f": "genuine",
@@ -41,15 +32,17 @@
       "ed0c79780491f602": "genuine",
       "111b9ef63d874fb7": "review",
       "8d5eac608b043139": "genuine",
-      "2966d2b60a61a8c9": "fp",
       "c2867b71d5a9ba54": "genuine",
       "263362fa66cfa03f": "review",
-      "1e87ef8638400298": "fp",
       "3a25d26471d2efe1": "genuine",
       "129fcdb3ca594ea0": "review",
       "8a611fec452b664f": "genuine",
-      "a7656cf5239ef2e9": "fp",
-      "92be3bfe98ab7f50": "fp"
+      "7ab1ed566fb26e59": "fp",
+      "a9608a0dee182f4a": "fp",
+      "b90a725c04197b98": "fp",
+      "1e4aafa33803d981": "fp",
+      "1d5ca16df1952000": "review",
+      "d88544c5f0f6dd5c": "fp"
     }
   }
 }

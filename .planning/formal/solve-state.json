@@ -1,24 +1,20 @@
 {
-  "last_run": "2026-03-17T12:50:48.948Z",
-  "converged": false,
+  "last_run": "2026-03-17T13:22:24.941Z",
+  "converged": true,
   "iteration_count": 1,
-  "final_residual_total": 4,
-  "reverse_discovery_total": 43,
-  "heatmap_total": 508,
+  "final_residual_total": 0,
+  "reverse_discovery_total": 42,
+  "heatmap_total": 6994,
   "known_issues": [
-    {
-      "layer": "r_to_f",
-      "residual": 4
-    },
     {
       "layer": "c_to_r",
       "residual": 3,
-      "net_residual": 3
+      "net_residual": 1
     },
     {
       "layer": "t_to_r",
-      "residual": 14,
-      "net_residual": 11
+      "residual": 13,
+      "net_residual": 12
     },
     {
       "layer": "d_to_r",
@@ -27,7 +23,7 @@
     },
     {
       "layer": "git_heatmap",
-      "residual": 508
+      "residual": 6994
     },
     {
       "layer": "git_history",
@@ -39,7 +35,7 @@
     "covered": 0,
     "percentage": "0.0"
   },
-  "focus": "convergence test",
+  "focus": null,
   "capped_layers": [],
   "baseline_drift": {
     "detected": false,

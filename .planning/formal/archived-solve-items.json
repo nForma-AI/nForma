@@ -1,103 +1,80 @@
 {
   "entries": [
     {
-      "key": "bin/build-code-trace.cjs",
+      "key": "bin/error-clusterer.cjs",
       "type": "ctor",
-      "summary": "bin/build-code-trace.cjs",
-      "file": "bin/build-code-trace.cjs",
-      "archived_at": "2026-03-16T15:50:33.670Z",
+      "summary": "bin/error-clusterer.cjs",
+      "file": "bin/error-clusterer.cjs",
+      "archived_at": "2026-03-17T13:00:28.292Z",
       "auto_classified": "fp"
     },
     {
-      "key": "bin/fsm-to-tla.cjs",
+      "key": "bin/proximity-embed.mjs",
       "type": "ctor",
-      "summary": "bin/fsm-to-tla.cjs",
-      "file": "bin/fsm-to-tla.cjs",
-      "archived_at": "2026-03-16T15:50:33.670Z",
+      "summary": "bin/proximity-embed.mjs",
+      "file": "bin/proximity-embed.mjs",
+      "archived_at": "2026-03-17T13:00:28.292Z",
       "auto_classified": "fp"
     },
     {
-      "key": "bin/hypothesis-measure.cjs",
-      "type": "ctor",
-      "summary": "bin/hypothesis-measure.cjs",
-      "file": "bin/hypothesis-measure.cjs",
-      "archived_at": "2026-03-16T15:50:33.670Z",
-      "auto_classified": "fp"
-    },
-    {
-      "key": "bin/hypothesis-measure.test.cjs",
+      "key": "bin/extract-precedents.test.cjs",
       "type": "ttor",
-      "summary": "bin/hypothesis-measure.test.cjs",
-      "file": "bin/hypothesis-measure.test.cjs",
-      "archived_at": "2026-03-16T15:50:33.670Z",
+      "summary": "bin/extract-precedents.test.cjs",
+      "file": "bin/extract-precedents.test.cjs",
+      "archived_at": "2026-03-17T13:00:28.292Z",
       "auto_classified": "fp"
     },
     {
-      "key": "bin/layer-constants.test.cjs",
+      "key": "bin/nf-solve-fp-tuning.test.cjs",
       "type": "ttor",
-      "summary": "bin/layer-constants.test.cjs",
-      "file": "bin/layer-constants.test.cjs",
-      "archived_at": "2026-03-16T15:50:33.670Z",
+      "summary": "bin/nf-solve-fp-tuning.test.cjs",
+      "file": "bin/nf-solve-fp-tuning.test.cjs",
+      "archived_at": "2026-03-17T13:00:28.292Z",
       "auto_classified": "fp"
     },
     {
-      "key": "test/readme-deep-sections.test.cjs",
-      "type": "ttor",
-      "summary": "test/readme-deep-sections.test.cjs",
-      "file": "test/readme-deep-sections.test.cjs",
-      "archived_at": "2026-03-16T15:50:33.670Z",
-      "auto_classified": "fp"
-    },
-    {
-      "key": "test/shell-escape-01.test.cjs",
-      "type": "ttor",
-      "summary": "test/shell-escape-01.test.cjs",
-      "file": "test/shell-escape-01.test.cjs",
-      "archived_at": "2026-03-16T15:50:33.670Z",
-      "auto_classified": "fp"
-    },
-    {
-      "key": "test/user-guide-overhaul.test.cjs",
-      "type": "ttor",
-      "summary": "test/user-guide-overhaul.test.cjs",
-      "file": "test/user-guide-overhaul.test.cjs",
-      "archived_at": "2026-03-16T15:50:33.670Z",
-      "auto_classified": "fp"
-    },
-    {
-      "key": "2966d2b60a61a8c9",
+      "key": "7ab1ed566fb26e59",
       "type": "dtor",
-      "summary": "> **Note:** Formal verification is entirely optional. You don't need Java or any formal tools installed to use nForma. B",
+      "summary": "When something breaks — tests fail, planning state drifts, requirements go stale — the `/nf:solve` pipeline handles it e",
       "doc_file": "README.md",
-      "line": 522,
-      "archived_at": "2026-03-16T15:50:33.670Z",
+      "line": 666,
+      "archived_at": "2026-03-17T13:00:28.292Z",
       "auto_classified": "fp"
     },
     {
-      "key": "1e87ef8638400298",
+      "key": "a9608a0dee182f4a",
       "type": "dtor",
-      "summary": "<summary><strong>Quick Mode</strong> — Ad-hoc tasks with nForma guarantees</summary>",
-      "doc_file": "README.md",
-      "line": 818,
-      "archived_at": "2026-03-16T15:50:33.670Z",
+      "summary": "│ Copilot     │ APPROVE      │ Supports with caveat on test coverage    │",
+      "doc_file": "docs/dev/quorum_interface.md",
+      "line": 20,
+      "archived_at": "2026-03-17T13:00:28.292Z",
       "auto_classified": "fp"
     },
     {
-      "key": "a7656cf5239ef2e9",
+      "key": "b90a725c04197b98",
       "type": "dtor",
-      "summary": "**Requirement:** QGSD's package.json pins GSD version — version lockstep ensures hook compatibility",
-      "doc_file": "docs/dev/requirements-coverage.md",
-      "line": 764,
-      "archived_at": "2026-03-16T15:50:33.670Z",
+      "summary": "REASON: The proposed phases logically address the remaining gaps identified in the audit. Separating the retroactive ver",
+      "doc_file": "docs/dev/quorum_interface.md",
+      "line": 91,
+      "archived_at": "2026-03-17T13:00:28.292Z",
       "auto_classified": "fp"
     },
     {
-      "key": "92be3bfe98ab7f50",
+      "key": "1e4aafa33803d981",
       "type": "dtor",
-      "summary": "**Requirement:** The analyze-assumptions CLI classifies each extracted assumption into priority tiers (Tier 1: directly ",
-      "doc_file": "docs/dev/requirements-coverage.md",
-      "line": 1166,
-      "archived_at": "2026-03-16T15:50:33.670Z",
+      "summary": "⏺ Gemini: APPROVE — \"Logically addresses remaining gaps; separating verification from bug fix ensures clear, focused obj",
+      "doc_file": "docs/dev/quorum_interface.md",
+      "line": 95,
+      "archived_at": "2026-03-17T13:00:28.292Z",
+      "auto_classified": "fp"
+    },
+    {
+      "key": "d88544c5f0f6dd5c",
+      "type": "dtor",
+      "summary": "| `/nf:quick` | Ad-hoc task with nForma guarantees | Bug fixes, small features, config changes |",
+      "doc_file": "docs/USER-GUIDE.md",
+      "line": 337,
+      "archived_at": "2026-03-17T13:00:28.292Z",
       "auto_classified": "fp"
     }
   ]

@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T12:49:35.188Z",
-  "total_proposed": 1486,
+  "generated": "2026-03-17T13:19:23.302Z",
+  "total_proposed": 1493,
   "implemented": 0,
   "partial": 0,
-  "outstanding": 1486,
+  "outstanding": 1493,
   "metrics": [
     {
       "metric_name": "nf_maxdeliberationrounds__tla",
@@ -280,6 +280,30 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:MaxSlots",
       "instrumentation_snippet": "// Prometheus gauge for MaxSlots (tla/assume)\n# HELP nf_maxslots__tla Monitors MaxSlots from tla model\n# TYPE nf_maxslots__tla gauge\nconst nf_maxslots__tla = new Gauge({\n  name: 'nf_maxslots__tla',\n  help: 'Monitors MaxSlots from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxslots__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla' }, 1);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_maxtimems__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla",
+      "assumption_name": "MaxTimeMs",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:MaxTimeMs",
+      "instrumentation_snippet": "// Prometheus gauge for MaxTimeMs (tla/assume)\n# HELP nf_maxtimems__tla Monitors MaxTimeMs from tla model\n# TYPE nf_maxtimems__tla gauge\nconst nf_maxtimems__tla = new Gauge({\n  name: 'nf_maxtimems__tla',\n  help: 'Monitors MaxTimeMs from tla model',\n  labelNames: ['model', 'file']\n});\nnf_maxtimems__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla' }, 1);",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_idletimeoutms__tla",
+      "metric_type": "gauge",
+      "tier": 1,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla",
+      "assumption_name": "IdleTimeoutMs",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:IdleTimeoutMs",
+      "instrumentation_snippet": "// Prometheus gauge for IdleTimeoutMs (tla/assume)\n# HELP nf_idletimeoutms__tla Monitors IdleTimeoutMs from tla model\n# TYPE nf_idletimeoutms__tla gauge\nconst nf_idletimeoutms__tla = new Gauge({\n  name: 'nf_idletimeoutms__tla',\n  help: 'Monitors IdleTimeoutMs from tla model',\n  labelNames: ['model', 'file']\n});\nnf_idletimeoutms__tla.set({ model: 'formal', file: '/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla' }, 1);",
       "status": "proposed"
     },
     {
@@ -1816,6 +1840,18 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla:TypeOK",
       "instrumentation_snippet": "// Observe handler for TypeOK (tla/invariant)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_typeok__tla\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_typeok__tla\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla:TypeOK\",\n    \"description\": \"Counts violations of TypeOK\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_sessionbounded",
+      "metric_type": "counter",
+      "tier": 2,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla",
+      "assumption_name": "SessionBounded",
+      "assumption_type": "invariant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla:SessionBounded",
+      "instrumentation_snippet": "// Observe handler for SessionBounded (tla/invariant)\n// Add to observe config sources:\n{\n  \"type\": \"internal\",\n  \"label\": \"nf_sessionbounded\",\n  \"check\": \"formal-invariant\",\n  \"config\": {\n    \"metric\": \"nf_sessionbounded\",\n    \"type\": \"counter\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/NFSolveConvergence.tla:SessionBounded\",\n    \"description\": \"Counts violations of SessionBounded\"\n  }\n}",
       "status": "proposed"
     },
     {
@@ -17455,6 +17491,18 @@
       "status": "proposed"
     },
     {
+      "metric_name": "nf_hardtimeoutms__tla",
+      "metric_type": "gauge",
+      "tier": 3,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla",
+      "assumption_name": "HardTimeoutMs",
+      "assumption_type": "assume",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:HardTimeoutMs",
+      "instrumentation_snippet": "// Observe handler for HardTimeoutMs (tla/assume)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_hardtimeoutms__tla\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_hardtimeoutms__tla\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:HardTimeoutMs\",\n    \"threshold\": null,\n    \"description\": \"Monitors HardTimeoutMs from tla model\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
       "metric_name": "nf_maxslots__tla",
       "metric_type": "gauge",
       "tier": 3,
@@ -17464,6 +17512,42 @@
       "coverage": "uncovered",
       "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:MaxSlots",
       "instrumentation_snippet": "// Observe handler for MaxSlots (tla/constant)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_maxslots__tla\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_maxslots__tla\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:MaxSlots\",\n    \"threshold\": null,\n    \"description\": \"Monitors MaxSlots from tla model\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_maxtimems__tla",
+      "metric_type": "gauge",
+      "tier": 3,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla",
+      "assumption_name": "MaxTimeMs",
+      "assumption_type": "constant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:MaxTimeMs",
+      "instrumentation_snippet": "// Observe handler for MaxTimeMs (tla/constant)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_maxtimems__tla\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_maxtimems__tla\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:MaxTimeMs\",\n    \"threshold\": null,\n    \"description\": \"Monitors MaxTimeMs from tla model\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_idletimeoutms__tla",
+      "metric_type": "gauge",
+      "tier": 3,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla",
+      "assumption_name": "IdleTimeoutMs",
+      "assumption_type": "constant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:IdleTimeoutMs",
+      "instrumentation_snippet": "// Observe handler for IdleTimeoutMs (tla/constant)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_idletimeoutms__tla\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_idletimeoutms__tla\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:IdleTimeoutMs\",\n    \"threshold\": null,\n    \"description\": \"Monitors IdleTimeoutMs from tla model\"\n  }\n}",
+      "status": "proposed"
+    },
+    {
+      "metric_name": "nf_hardtimeoutms__tla",
+      "metric_type": "gauge",
+      "tier": 3,
+      "source_model": "/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla",
+      "assumption_name": "HardTimeoutMs",
+      "assumption_type": "constant",
+      "coverage": "uncovered",
+      "formal_ref": "spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:HardTimeoutMs",
+      "instrumentation_snippet": "// Observe handler for HardTimeoutMs (tla/constant)\n// Add to observe config sources:\n{\n  \"type\": \"bash\",\n  \"label\": \"nf_hardtimeoutms__tla\",\n  \"command\": \"echo '{\\\"value\\\": 0, \\\"status\\\": \\\"ok\\\"}'\",\n  \"parser\": \"json\",\n  \"config\": {\n    \"metric\": \"nf_hardtimeoutms__tla\",\n    \"type\": \"gauge\",\n    \"formal_ref\": \"spec:/Users/jonathanborduas/code/QGSD/.planning/formal/tla/QGSDDispatchPipeline.tla:HardTimeoutMs\",\n    \"threshold\": null,\n    \"description\": \"Monitors HardTimeoutMs from tla model\"\n  }\n}",
       "status": "proposed"
     },
     {

@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T12:49:44.239Z",
+  "generated": "2026-03-17T13:20:37.736Z",
   "source": {
     "failure_mode_catalog": "reasoning/failure-mode-catalog.json",
     "hazard_model": "reasoning/hazard-model.json",
@@ -352,7 +352,7 @@
       },
       "risk_context": {
         "severity_class": "degraded",
-        "rpn": 160,
+        "rpn": 80,
         "risk_tier": "critical"
       },
       "derived_from": [
@@ -397,7 +397,7 @@
       },
       "risk_context": {
         "severity_class": "model_gap",
-        "rpn": 160,
+        "rpn": 80,
         "risk_tier": "critical"
       },
       "derived_from": [
@@ -578,7 +578,7 @@
       },
       "risk_context": {
         "severity_class": "degraded",
-        "rpn": 160,
+        "rpn": 80,
         "risk_tier": "critical"
       },
       "derived_from": [
@@ -623,7 +623,7 @@
       },
       "risk_context": {
         "severity_class": "model_gap",
-        "rpn": 160,
+        "rpn": 80,
         "risk_tier": "critical"
       },
       "derived_from": [
@@ -668,7 +668,7 @@
       },
       "risk_context": {
         "severity_class": "stalled",
-        "rpn": 192,
+        "rpn": 96,
         "risk_tier": "high"
       },
       "derived_from": [
@@ -714,7 +714,7 @@
       },
       "risk_context": {
         "severity_class": "stalled",
-        "rpn": 192,
+        "rpn": 96,
         "risk_tier": "high"
       },
       "derived_from": [
@@ -759,7 +759,7 @@
       },
       "risk_context": {
         "severity_class": "critical",
-        "rpn": 256,
+        "rpn": 128,
         "risk_tier": "critical"
       },
       "derived_from": [
@@ -805,7 +805,7 @@
       },
       "risk_context": {
         "severity_class": "critical",
-        "rpn": 256,
+        "rpn": 128,
         "risk_tier": "critical"
       },
       "derived_from": [
@@ -850,7 +850,7 @@
       },
       "risk_context": {
         "severity_class": "degraded",
-        "rpn": 32,
+        "rpn": 16,
         "risk_tier": "low"
       },
       "derived_from": [
@@ -895,7 +895,7 @@
       },
       "risk_context": {
         "severity_class": "degraded",
-        "rpn": 64,
+        "rpn": 32,
         "risk_tier": "medium"
       },
       "derived_from": [
@@ -940,7 +940,7 @@
       },
       "risk_context": {
         "severity_class": "model_gap",
-        "rpn": 64,
+        "rpn": 32,
         "risk_tier": "medium"
       },
       "derived_from": [

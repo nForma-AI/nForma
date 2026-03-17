@@ -227,6 +227,13 @@ Next ==
 
 \* ---- Safety invariants -----------------------------------------------------
 
+\* @requirement CONV-03 (capped layers are reported in output)
+\* Any layer escalated to BLOCK must appear in the capped set, ensuring the
+\* solve output JSON includes it in capped_layers for user visibility.
+CappedLayerReported ==
+    \A l \in Layers :
+        escalation[l] = "BLOCK" => l \in capped
+
 \* @requirement CONV-02 (buckets never mixed)
 \* Each bucket is independently tracked -- this is structural by the model
 \* design ([BucketType -> Nat] function space). The invariant verifies that

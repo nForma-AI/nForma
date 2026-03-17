@@ -1974,3 +1974,27 @@
 
 **Source files:** bin/install.js, hooks/dist/, hooks/nf-circuit-breaker.js
 
+## PAIR-04: Rejected pairings cached to avoid re-evaluating in subsequent runs
+
+**Requirement:** Rejected pairings cached to avoid re-evaluating in subsequent runs
+
+**Implementation:** The `bin/resolve-pairings.cjs` module maintains a rejection cache that persists rejected N:N pairing candidates across solve sessions. When `bin/candidate-pairings.cjs` generates pairing proposals, previously rejected pairings are filtered out before evaluation, preventing redundant re-evaluation of user-rejected or auto-rejected matches.
+
+**Source files:** bin/resolve-pairings.cjs, bin/candidate-pairings.cjs
+
+## PROMO-03: Auto-promotion from SOFT_GATE to HARD_GATE
+
+**Requirement:** Models auto-promoted SOFT_GATE -> HARD_GATE when consecutive_clean_sessions >= 3 AND cooldown satisfied (gate-stability.cjs)
+
+**Implementation:** The `bin/promote-gate-maturity.cjs` module implements the auto-promotion logic. When a model accumulates 3 or more consecutive clean sessions (no verification failures) and any active cooldown timer has expired, the model's gate maturity level is automatically promoted from SOFT_GATE to HARD_GATE. The `bin/compute-per-model-gates.cjs` module tracks per-model consecutive clean session counts and integrates with `bin/nf-solve.cjs` to evaluate promotion eligibility during each solve iteration.
+
+**Source files:** bin/promote-gate-maturity.cjs, bin/compute-per-model-gates.cjs, bin/nf-solve.cjs
+
+## PROMO-04: Promotion changelog logging
+
+**Requirement:** All promotions logged to promotion-changelog.json with timestamp, session_id, from_level, to_level
+
+**Implementation:** The `bin/promote-gate-maturity.cjs` module writes every promotion and demotion event to `.planning/formal/promotion-changelog.json`. Each entry records a timestamp, session_id, the originating maturity level (from_level), and the target level (to_level). The `bin/nForma.cjs` orchestrator and `bin/solve-tui.cjs` TUI both read this changelog for display. Entries are deduplicated per session to prevent redundant log writes.
+
+**Source files:** bin/promote-gate-maturity.cjs, bin/nForma.cjs, bin/solve-tui.cjs, .planning/formal/promotion-changelog.json
+

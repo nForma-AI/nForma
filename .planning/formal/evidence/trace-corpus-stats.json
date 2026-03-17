@@ -1,11 +1,11 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T12:50:12.415Z",
+  "generated": "2026-03-17T12:55:47.402Z",
   "session_gap_ms": 300000,
-  "total_events": 79615,
+  "total_events": 79771,
   "date_range": {
     "earliest": "2026-02-24T23:35:59.711Z",
-    "latest": "2026-03-17T12:50:11.062Z"
+    "latest": "2026-03-17T12:55:43.603Z"
   },
   "sessions": [
     {
@@ -6866,20 +6866,20 @@
     {
       "id": "session-611",
       "start": "2026-03-17T12:39:27.348Z",
-      "end": "2026-03-17T12:50:11.062Z",
-      "event_count": 177,
+      "end": "2026-03-17T12:55:43.603Z",
+      "event_count": 333,
       "actions": {
-        "security_sweep": 13,
-        "circuit_break": 35,
-        "quorum_start": 81,
-        "quorum_block": 36,
-        "quorum_complete": 12
+        "security_sweep": 19,
+        "circuit_break": 60,
+        "quorum_start": 158,
+        "quorum_block": 72,
+        "quorum_complete": 24
       }
     }
   ],
   "action_index": {
     "quorum_start": {
-      "total": 32035,
+      "total": 32112,
       "sessions": [
         "session-001",
         "session-002",
@@ -7356,7 +7356,7 @@
       ]
     },
     "circuit_break": {
-      "total": 14887,
+      "total": 14912,
       "sessions": [
         "session-001",
         "session-002",
@@ -7734,7 +7734,7 @@
       ]
     },
     "quorum_block": {
-      "total": 17731,
+      "total": 17767,
       "sessions": [
         "session-001",
         "session-002",
@@ -8109,7 +8109,7 @@
       ]
     },
     "quorum_complete": {
-      "total": 5424,
+      "total": 5436,
       "sessions": [
         "session-001",
         "session-002",
@@ -8784,7 +8784,7 @@
       ]
     },
     "security_sweep": {
-      "total": 538,
+      "total": 544,
       "sessions": [
         "session-357",
         "session-358",
@@ -8900,5 +8900,5 @@
     "unknown": 0,
     "unknown_actions": []
   },
-  "summary": "79615 events across 611 sessions (2026-02-24T23:35:59.711Z to 2026-03-17T12:50:11.062Z). 7 known actions, 0 unknown. 0 distinct transitions."
+  "summary": "79771 events across 611 sessions (2026-02-24T23:35:59.711Z to 2026-03-17T12:55:43.603Z). 7 known actions, 0 unknown. 0 distinct transitions."
 }

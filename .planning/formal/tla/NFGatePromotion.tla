@@ -191,6 +191,12 @@ FlipFlopPreventsPromotion ==
 CooldownEnforced ==
     cooldown_timer > 0 => maturity = "SOFT_GATE"
 
+\* @requirement PROMO-04 (all promotions/demotions logged)
+\* After a promote or demote, the promotion_log is non-empty — every
+\* maturity transition is recorded with timestamp and session_id.
+PromotionAlwaysLogged ==
+    (maturity = "HARD_GATE" \/ done) => Len(promotion_log) > 0
+
 \* @requirement STAB-03 (no duplicate log entries)
 \* Every entry in the promotion log is unique.
 NoDuplicateLogEntries ==

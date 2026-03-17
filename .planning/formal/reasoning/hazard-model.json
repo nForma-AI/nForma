@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T12:49:38.331Z",
+  "generated": "2026-03-17T13:19:41.399Z",
   "methodology": "FMEA (IEC 60812)",
   "scoring_scale": {
     "severity": "1-10: 1=no impact, 2=cosmetic, 4=degraded, 6=stalled/interrupted, 8=incorrect verdict, 10=crash/data loss",
@@ -16,8 +16,8 @@
       "to_state": "DECIDED",
       "severity": 8,
       "occurrence": 8,
-      "detection": 4,
-      "rpn": 256,
+      "detection": 2,
+      "rpn": 128,
       "derived_from": [
         {
           "layer": "L2",
@@ -33,87 +33,6 @@
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
           "ref": "invariants[config=MCdeliberation]"
-        }
-      ]
-    },
-    {
-      "id": "HAZARD-COLLECTING_VOTES-VOTES_COLLECTED",
-      "state": "COLLECTING_VOTES",
-      "event": "VOTES_COLLECTED",
-      "to_state": "DELIBERATING",
-      "severity": 6,
-      "occurrence": 8,
-      "detection": 4,
-      "rpn": 192,
-      "derived_from": [
-        {
-          "layer": "L2",
-          "artifact": "semantics/observed-fsm.json",
-          "ref": "observed_transitions.COLLECTING_VOTES.VOTES_COLLECTED"
-        },
-        {
-          "layer": "L1",
-          "artifact": "evidence/trace-corpus-stats.json",
-          "ref": "sessions[*].actions"
-        },
-        {
-          "layer": "L2",
-          "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQGSDQuorum]"
-        }
-      ]
-    },
-    {
-      "id": "HAZARD-COLLECTING_VOTES-QUORUM_START",
-      "state": "COLLECTING_VOTES",
-      "event": "QUORUM_START",
-      "to_state": "COLLECTING_VOTES",
-      "severity": 4,
-      "occurrence": 10,
-      "detection": 4,
-      "rpn": 160,
-      "derived_from": [
-        {
-          "layer": "L2",
-          "artifact": "semantics/observed-fsm.json",
-          "ref": "observed_transitions.COLLECTING_VOTES.QUORUM_START"
-        },
-        {
-          "layer": "L1",
-          "artifact": "evidence/trace-corpus-stats.json",
-          "ref": "sessions[*].actions"
-        },
-        {
-          "layer": "L2",
-          "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQGSDQuorum]"
-        }
-      ]
-    },
-    {
-      "id": "HAZARD-COLLECTING_VOTES-DECIDE",
-      "state": "COLLECTING_VOTES",
-      "event": "DECIDE",
-      "to_state": "COLLECTING_VOTES",
-      "severity": 4,
-      "occurrence": 10,
-      "detection": 4,
-      "rpn": 160,
-      "derived_from": [
-        {
-          "layer": "L2",
-          "artifact": "semantics/observed-fsm.json",
-          "ref": "observed_transitions.COLLECTING_VOTES.DECIDE"
-        },
-        {
-          "layer": "L1",
-          "artifact": "evidence/trace-corpus-stats.json",
-          "ref": "sessions[*].actions"
-        },
-        {
-          "layer": "L2",
-          "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -158,6 +77,33 @@
           "layer": "L2",
           "artifact": "semantics/observed-fsm.json",
           "ref": "observed_transitions.COLLECTING_VOTES.CIRCUIT_BREAK"
+        },
+        {
+          "layer": "L1",
+          "artifact": "evidence/trace-corpus-stats.json",
+          "ref": "sessions[*].actions"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants[config=MCQGSDQuorum]"
+        }
+      ]
+    },
+    {
+      "id": "HAZARD-COLLECTING_VOTES-VOTES_COLLECTED",
+      "state": "COLLECTING_VOTES",
+      "event": "VOTES_COLLECTED",
+      "to_state": "DELIBERATING",
+      "severity": 6,
+      "occurrence": 8,
+      "detection": 2,
+      "rpn": 96,
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.VOTES_COLLECTED"
         },
         {
           "layer": "L1",
@@ -253,19 +199,19 @@
       ]
     },
     {
-      "id": "HAZARD-DELIBERATING-QUORUM_START",
-      "state": "DELIBERATING",
+      "id": "HAZARD-COLLECTING_VOTES-QUORUM_START",
+      "state": "COLLECTING_VOTES",
       "event": "QUORUM_START",
-      "to_state": "DELIBERATING",
+      "to_state": "COLLECTING_VOTES",
       "severity": 4,
-      "occurrence": 4,
-      "detection": 4,
-      "rpn": 64,
+      "occurrence": 10,
+      "detection": 2,
+      "rpn": 80,
       "derived_from": [
         {
           "layer": "L2",
           "artifact": "semantics/observed-fsm.json",
-          "ref": "observed_transitions.DELIBERATING.QUORUM_START"
+          "ref": "observed_transitions.COLLECTING_VOTES.QUORUM_START"
         },
         {
           "layer": "L1",
@@ -275,7 +221,34 @@
         {
           "layer": "L2",
           "artifact": "semantics/invariant-catalog.json",
-          "ref": "invariants[config=MCdeliberation]"
+          "ref": "invariants[config=MCQGSDQuorum]"
+        }
+      ]
+    },
+    {
+      "id": "HAZARD-COLLECTING_VOTES-DECIDE",
+      "state": "COLLECTING_VOTES",
+      "event": "DECIDE",
+      "to_state": "COLLECTING_VOTES",
+      "severity": 4,
+      "occurrence": 10,
+      "detection": 2,
+      "rpn": 80,
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.COLLECTING_VOTES.DECIDE"
+        },
+        {
+          "layer": "L1",
+          "artifact": "evidence/trace-corpus-stats.json",
+          "ref": "sessions[*].actions"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants[config=MCQGSDQuorum]"
         }
       ]
     },
@@ -415,14 +388,41 @@
       ]
     },
     {
+      "id": "HAZARD-DELIBERATING-QUORUM_START",
+      "state": "DELIBERATING",
+      "event": "QUORUM_START",
+      "to_state": "DELIBERATING",
+      "severity": 4,
+      "occurrence": 4,
+      "detection": 2,
+      "rpn": 32,
+      "derived_from": [
+        {
+          "layer": "L2",
+          "artifact": "semantics/observed-fsm.json",
+          "ref": "observed_transitions.DELIBERATING.QUORUM_START"
+        },
+        {
+          "layer": "L1",
+          "artifact": "evidence/trace-corpus-stats.json",
+          "ref": "sessions[*].actions"
+        },
+        {
+          "layer": "L2",
+          "artifact": "semantics/invariant-catalog.json",
+          "ref": "invariants[config=MCdeliberation]"
+        }
+      ]
+    },
+    {
       "id": "HAZARD-DELIBERATING-VOTES_COLLECTED",
       "state": "DELIBERATING",
       "event": "VOTES_COLLECTED",
       "to_state": "DELIBERATING",
       "severity": 4,
       "occurrence": 2,
-      "detection": 4,
-      "rpn": 32,
+      "detection": 2,
+      "rpn": 16,
       "derived_from": [
         {
           "layer": "L2",
@@ -444,8 +444,8 @@
   ],
   "summary": {
     "total": 16,
-    "max_rpn": 256,
-    "critical_count": 1,
-    "high_count": 5
+    "max_rpn": 128,
+    "critical_count": 0,
+    "high_count": 3
   }
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-17T12:50:45.529Z",
+  "generated": "2026-03-17T13:22:24.447Z",
   "node_key_format": "type::id",
   "sources": {
     "scope.json:account-manager": {
@@ -84,24 +84,24 @@
       "hash": "76910c97"
     },
     "model-registry.json": {
-      "mtime": "2026-03-17T12:50:44.111Z",
-      "hash": "b6f912ee"
+      "mtime": "2026-03-17T13:06:14.590Z",
+      "hash": "461060cd"
     },
     "invariant-catalog.json": {
       "mtime": "2026-03-06T14:00:17.868Z",
       "hash": "e27072db"
     },
     "traceability-matrix.json": {
-      "mtime": "2026-03-17T12:50:43.928Z",
-      "hash": "2196311a"
+      "mtime": "2026-03-17T13:10:12.468Z",
+      "hash": "1707f599"
     },
     "unit-test-coverage.json": {
-      "mtime": "2026-03-17T12:50:27.186Z",
-      "hash": "873a6bd7"
+      "mtime": "2026-03-17T13:17:25.766Z",
+      "hash": "4965cade"
     },
     "instrumentation-map.json": {
-      "mtime": "2026-03-17T12:49:42.440Z",
-      "hash": "c1d3fc76"
+      "mtime": "2026-03-17T12:55:16.257Z",
+      "hash": "c55dfc1e"
     },
     "event-vocabulary.json": {
       "mtime": "2026-03-08T20:28:45.150Z",
@@ -116,18 +116,18 @@
       "hash": "2df5c0d7"
     },
     "git-heatmap.json": {
-      "mtime": "2026-03-17T12:50:00.203Z",
-      "hash": "17c0bbc6"
+      "mtime": "2026-03-17T12:57:02.162Z",
+      "hash": "d654a0a0"
     },
     "debt.json": {
       "mtime": "2026-03-04T13:33:16.983Z",
       "hash": "4f085cf2"
     },
     "source-annotations": {
-      "mtime": "2026-03-17T12:50:44.111Z"
+      "mtime": "2026-03-17T13:10:07.335Z"
     },
     "code-source-annotations": {
-      "mtime": "2026-03-17T12:50:34.905Z"
+      "mtime": "2026-03-17T12:54:03.973Z"
     }
   },
   "nodes": {
@@ -13587,7 +13587,9 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ]
+      ],
+      "source_layer": "L3",
+      "gate_maturity": "SOFT_GATE"
     },
     "formal_model::.planning/formal/alloy/readme-structure.als": {
       "type": "formal_model",
@@ -21013,7 +21015,9 @@
     "formal_model::.planning/formal/prism/quorum.pm": {
       "type": "formal_model",
       "id": ".planning/formal/prism/quorum.pm",
-      "edges": []
+      "edges": [],
+      "source_layer": "L3",
+      "gate_maturity": "SOFT_GATE"
     },
     "formal_model::.planning/formal/tla/NFAccountManager.tla": {
       "type": "formal_model",
@@ -22468,7 +22472,9 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ]
+      ],
+      "source_layer": "L3",
+      "gate_maturity": "SOFT_GATE"
     },
     "formal_model::.planning/formal/tla/NFQuorum_xstate.tla": {
       "type": "formal_model",
@@ -22479,7 +22485,9 @@
           "rel": "models",
           "source": "source-annotation"
         }
-      ]
+      ],
+      "source_layer": "L3",
+      "gate_maturity": "SOFT_GATE"
     },
     "formal_model::.planning/formal/tla/NFReasoning.tla": {
       "type": "formal_model",
@@ -22732,6 +22740,11 @@
           "to": "formal_model::.planning/formal/tla/NFSolveConvergence.tla",
           "rel": "modeled_by",
           "source": "model-registry"
+        },
+        {
+          "to": "invariant::SessionBounded",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
         },
         {
           "to": "formal_model::.planning/formal/tla/NFSolveConvergence.tla",
@@ -24730,6 +24743,16 @@
           "to": "requirement::DISP-05",
           "rel": "models",
           "source": "source-annotation"
+        },
+        {
+          "to": "requirement::DISP-08",
+          "rel": "models",
+          "source": "model-registry"
+        },
+        {
+          "to": "requirement::DISP-08",
+          "rel": "models",
+          "source": "source-annotation"
         }
       ],
       "source_layer": "L3",
@@ -24867,6 +24890,47 @@
           "to": "test_file::.planning/formal/generated-stubs/DISP-05.stub.test.js",
           "rel": "tested_by",
           "source": "unit-test-coverage"
+        },
+        {
+          "to": "formal_model::.planning/formal/tla/QGSDDispatchPipeline.tla",
+          "rel": "modeled_by",
+          "source": "source-annotation"
+        }
+      ]
+    },
+    "requirement::DISP-08": {
+      "type": "requirement",
+      "id": "DISP-08",
+      "edges": [
+        {
+          "to": "formal_model::.planning/formal/tla/QGSDDispatchPipeline.tla",
+          "rel": "modeled_by",
+          "source": "model-registry"
+        },
+        {
+          "to": "invariant::DualTimerTick",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
+        },
+        {
+          "to": "invariant::IdleTimeout",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
+        },
+        {
+          "to": "invariant::HardTimeout",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
+        },
+        {
+          "to": "invariant::IdleNeverExceedsHard",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
+        },
+        {
+          "to": "invariant::TimeoutTerminates",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
         },
         {
           "to": "formal_model::.planning/formal/tla/QGSDDispatchPipeline.tla",
@@ -27287,6 +27351,11 @@
           "source": "model-registry"
         },
         {
+          "to": "invariant::PromotionAlwaysLogged",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
+        },
+        {
           "to": "formal_model::.planning/formal/tla/NFGatePromotion.tla",
           "rel": "modeled_by",
           "source": "source-annotation"
@@ -27722,6 +27791,11 @@
           "to": "formal_model::.planning/formal/tla/NFSolveConvergenceV2.tla",
           "rel": "modeled_by",
           "source": "model-registry"
+        },
+        {
+          "to": "invariant::CappedLayerReported",
+          "rel": "verified_by",
+          "source": "traceability-matrix"
         },
         {
           "to": "formal_model::.planning/formal/tla/NFSolveConvergenceV2.tla",
@@ -43264,6 +43338,17 @@
         }
       ]
     },
+    "invariant::SessionBounded": {
+      "type": "invariant",
+      "id": "SessionBounded",
+      "edges": [
+        {
+          "to": "requirement::FV-01",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
     "invariant::OscillationBounded": {
       "type": "invariant",
       "id": "OscillationBounded",
@@ -43970,6 +44055,61 @@
       "edges": [
         {
           "to": "requirement::DISP-05",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
+    "invariant::DualTimerTick": {
+      "type": "invariant",
+      "id": "DualTimerTick",
+      "edges": [
+        {
+          "to": "requirement::DISP-08",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
+    "invariant::IdleTimeout": {
+      "type": "invariant",
+      "id": "IdleTimeout",
+      "edges": [
+        {
+          "to": "requirement::DISP-08",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
+    "invariant::HardTimeout": {
+      "type": "invariant",
+      "id": "HardTimeout",
+      "edges": [
+        {
+          "to": "requirement::DISP-08",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
+    "invariant::IdleNeverExceedsHard": {
+      "type": "invariant",
+      "id": "IdleNeverExceedsHard",
+      "edges": [
+        {
+          "to": "requirement::DISP-08",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
+    "invariant::TimeoutTerminates": {
+      "type": "invariant",
+      "id": "TimeoutTerminates",
+      "edges": [
+        {
+          "to": "requirement::DISP-08",
           "rel": "verifies",
           "source": "traceability-matrix"
         }
@@ -44919,6 +45059,17 @@
         }
       ]
     },
+    "invariant::PromotionAlwaysLogged": {
+      "type": "invariant",
+      "id": "PromotionAlwaysLogged",
+      "edges": [
+        {
+          "to": "requirement::PROMO-04",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
     "invariant::AppendSnapshot": {
       "type": "invariant",
       "id": "AppendSnapshot",
@@ -45112,6 +45263,17 @@
       "edges": [
         {
           "to": "requirement::OSC-03",
+          "rel": "verifies",
+          "source": "traceability-matrix"
+        }
+      ]
+    },
+    "invariant::CappedLayerReported": {
+      "type": "invariant",
+      "id": "CappedLayerReported",
+      "edges": [
+        {
+          "to": "requirement::CONV-03",
           "rel": "verifies",
           "source": "traceability-matrix"
         }
