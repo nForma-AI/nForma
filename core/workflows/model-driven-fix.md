@@ -17,8 +17,9 @@ Extract from $ARGUMENTS:
 - `--formalism`: override formalism selection — tla, alloy, or prism (optional)
 - `--verbose`: show full checker output throughout all phases (optional, default false)
 - `--skip-fix`: stop after Phase 4 (constraint extraction), skip Phases 5-6 (optional)
+- `--strict`: gate fix completion on ALL neighbor models passing in Phase 5b (optional, default false)
 
-If `BUG_DESC` is empty, error: "Bug description is required. Usage: /nf:model-driven-fix 'description' [--files=...] [--formalism=...] [--verbose] [--skip-fix]"
+If `BUG_DESC` is empty, error: "Bug description is required. Usage: /nf:model-driven-fix 'description' [--files=...] [--formalism=...] [--verbose] [--skip-fix] [--strict]"
 
 Set variables:
 ```bash
@@ -27,6 +28,7 @@ FILES="${--files value or empty}"
 FORMALISM="${--formalism value or empty}"
 VERBOSE="${--verbose present: true, else false}"
 SKIP_FIX="${--skip-fix present: true, else false}"
+STRICT="${--strict present: true, else false}"
 ```
 </step>
 
@@ -180,11 +182,13 @@ If constraint extraction fails or returns empty:
 <step name="constrained_fix">
 ## Phase 5 — Constrained Fix
 
-Apply constraints to guide the code fix.
+Apply constraints to guide the code fix, then verify against neighbor models.
+
+### Phase 5a — Present Constraints
 
 Display banner:
 ```
-Phase 5 — Constrained Fix
+Phase 5a — Constrained Fix
   Applying {N} constraint(s) to guide fix
 ```
 
@@ -208,11 +212,128 @@ The fix may be applied manually by the developer or by another workflow (e.g., /
 
 After presenting constraints, prompt the user:
 ```
-Fix constraints above. After applying the fix, type "done" to proceed to pre-verification.
+Fix constraints above. After applying the fix, type "done" to proceed to neighbor verification.
 ```
 
 When user confirms (or in --auto mode, after fix is applied):
-  Proceed to Phase 6.
+  Proceed to Phase 5b.
+
+### Phase 5b — Cross-Model Regression Check
+
+Display banner:
+```
+Phase 5b — Cross-Model Regression Check
+  Resolving 2-hop proximity neighbors for: {$REPRODUCING_MODEL}
+```
+
+**Step 1: Extract model ID and resolve neighbors**
+
+Extract model ID from `$REPRODUCING_MODEL` path:
+- TLA+ (`.tla`/`.cfg`): config name without extension (e.g., `MCsafety` from `.planning/formal/tla/MCsafety.cfg`)
+- Alloy (`.als`): spec name without extension (e.g., `quorum-votes` from `.planning/formal/alloy/quorum-votes.als`)
+- PRISM (`.pm`): model name without extension
+
+```bash
+MODEL_ID=$(basename "$REPRODUCING_MODEL" | sed 's/\.\(tla\|cfg\|als\|pm\)$//' | tr '[:upper:]' '[:lower:]')
+NEIGHBORS_JSON=$(node bin/resolve-proximity-neighbors.cjs --model="$MODEL_ID" --format=json 2>/dev/null)
+```
+
+Parse JSON output. Extract `neighbors` array and `warnings`.
+
+**If neighbors is empty** (no proximity data or no neighbors found):
+  Display: `No proximity neighbors found for ${MODEL_ID}. Skipping cross-model regression check.`
+  Set `NEIGHBOR_MODELS_PASS=null` (inconclusive).
+  Proceed to Phase 5c.
+
+**If neighbors is non-empty:**
+  Display:
+  ```
+  Found {N} proximity neighbor(s) for {MODEL_ID}:
+    {neighbor_id_1} (hop: {distance})
+    {neighbor_id_2} (hop: {distance})
+    ...
+  ```
+
+**Step 2: Build scope list and run scoped verification**
+
+```bash
+SCOPE=$(node bin/resolve-proximity-neighbors.cjs --model="$MODEL_ID" --format=csv)
+```
+
+Run scoped formal verification on neighbor models:
+```bash
+node bin/run-formal-verify.cjs --scope="$SCOPE" --project-root="$(pwd)" 2>&1
+```
+
+Parse results. For each neighbor model:
+- If checker passed: add to `passed_neighbors` array
+- If checker failed: add to `regressions` array with violation details
+- If checker timed out or errored: add to `regressions` with `result: "error"`
+
+**Step 3: Compute summary**
+
+```bash
+MODEL_PASS=true  # The reproducing model is verified in Phase 6
+NEIGHBOR_MODELS_PASS=$([ ${#REGRESSIONS[@]} -eq 0 ] && echo "true" || echo "false")
+REGRESSION_COUNT=${#REGRESSIONS[@]}
+```
+
+**Step 4: Display summary table**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Cross-Model Regression Check                            │
+├───────────────────────┬─────────────────────────────────┤
+│ Primary model         │ {PASS/FAIL}                     │
+│ Neighbor models       │ {PASS/FAIL/INCONCLUSIVE}        │
+│ Regressions           │ {count}                         │
+└───────────────────────┴─────────────────────────────────┘
+```
+
+**If regressions found:**
+  Display each regression:
+  ```
+  WARNING: Regression in {model_id} ({formalism}): {violation summary}
+  ```
+
+  **If `$STRICT` is true:**
+    Display:
+    ```
+    BLOCKED: --strict mode active. Fix cannot proceed until all neighbor model regressions are resolved.
+    Regressions:
+      - {model_id}: {violation}
+    ```
+    Fix is NOT declared done. User must resolve regressions and re-run.
+    Exit workflow (do not proceed to Phase 6).
+
+  **If `$STRICT` is false (default):**
+    Display:
+    ```
+    Regressions detected but proceeding (fail-open mode).
+    Re-run with --strict to gate fix completion on all neighbor models passing.
+    ```
+    Proceed to Phase 5c.
+
+**If no regressions:**
+  Display: `All {N} neighbor model(s) pass. No cross-model regressions detected.`
+  Proceed to Phase 5c.
+
+### Phase 5c — Persist Post-Fix Verification Results
+
+Write `post_fix_verification` results to the bug-model-gaps.json entry for this bug.
+
+```bash
+node bin/persist-post-fix-verification.cjs \
+  --bug-id="$BUG_ID" \
+  --model-path="$REPRODUCING_MODEL" \
+  --model-pass="$MODEL_PASS" \
+  --neighbor-pass="$NEIGHBOR_MODELS_PASS" \
+  --neighbor-count="$NEIGHBOR_COUNT" \
+  --regressions="$REGRESSIONS_JSON" \
+  --passed="$PASSED_JSON"
+```
+
+Proceed to Phase 6.
 </step>
 
 <step name="pre_verification">
@@ -254,9 +375,8 @@ Parse result:
   - Re-run /nf:model-driven-fix or apply additional changes
   ```
 
-Do NOT run broader regression testing across other models.
-Pre-verification scope is limited to the new/refined model only
-(per user decision: cross-model regression deferred to Phase v0.38-05).
+Cross-model regression testing runs in Phase 5b (neighbor verification).
+This phase verifies only the primary model (the reproducing model from Phase 3).
 
 **Fail-open:** If checker fails to run, warn and report as inconclusive.
 </step>
@@ -264,7 +384,12 @@ Pre-verification scope is limited to the new/refined model only
 </process>
 
 <constraints>
-- Run ONLY the new/refined model during pre-verification (Phase 6) — broader regression deferred
+- Phase 5b runs neighbor verification using resolve-proximity-neighbors.cjs and run-formal-verify.cjs --scope
+- Default behavior is fail-open: regressions warn but do not block the fix
+- --strict flag gates fix completion on all neighbor models passing
+- Neighbor cap at 10 models (config-backed via .planning/config.json cross_model_max_neighbors)
+- post_fix_verification results persisted to bug-model-gaps.json via persist-post-fix-verification.cjs in Phase 5c
+- Run ONLY the primary model during pre-verification (Phase 6) — neighbor verification is Phase 5b
 - Auto-select formalism based on bug type and module characteristics unless --formalism override provided
 - Show summary verdicts by default, full model checker output via --verbose
 - Each phase displays a banner with phase name before executing
@@ -280,8 +405,13 @@ Pre-verification scope is limited to the new/refined model only
 - [ ] Phase 2 attempts reproduction with existing models via --run-checkers
 - [ ] Phase 3 creates/refines model with bug context bias via close-formal-gaps --bug-context
 - [ ] Phase 4 extracts constraints from reproducing model via model-constrained-fix.cjs
-- [ ] Phase 5 presents constraints as fix guidance
-- [ ] Phase 6 re-runs ONLY the new/refined model to verify fix
+- [ ] Phase 5a presents constraints as fix guidance
+- [ ] Phase 5b resolves 2-hop neighbors and runs scoped verification
+- [ ] Phase 5b displays regression summary table
+- [ ] Phase 5c persists post_fix_verification to bug-model-gaps.json
+- [ ] --strict blocks fix when regressions detected
+- [ ] Default mode (no --strict) warns but proceeds
+- [ ] Phase 6 re-runs ONLY the primary model to verify fix
 - [ ] --skip-fix stops after Phase 4
 - [ ] --verbose shows full checker output throughout
 - [ ] Fail-open on all tool errors
