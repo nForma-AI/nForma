@@ -121,6 +121,26 @@ Invoke close-formal-gaps workflow with --bug-context:
 This triggers (via Plan 01 deliverables):
 - Step 5: Spec generation biased by bug context (MRF-01)
 - Step 6: Refinement loop with inverted verification (MRF-02)
+- Step 6+ (Plan 03): Diagnostic feedback generation when model is INCOMPLETE (DX1-03)
+
+**Diagnostic Injection for Refinement Iterations:**
+
+When refinement-loop.cjs runs with diagnostic support:
+- It accepts `--bug-trace-json <path>` pointing to the parsed bug trace ITF JSON from Phase 1
+- On each INCOMPLETE outcome (before maxAttempts exhausted), it generates diagnostic feedback:
+  - Compares model's final states with bug trace's final states
+  - Produces mismatch_diff markdown and correction_proposals with evidence-based reasoning
+  - Exposes diagnostic via onDiagnosticGenerated callback
+- Refinement loop returns result with final_diagnostic field for not_reproduced case
+
+**Quorum Dispatch Integration:**
+
+When dispatching quorum workers for model refinement iterations:
+- If refinement-loop returned diagnostic in iteration.diagnostic:
+  - Stringify the diagnostic object as JSON
+  - Pass to next quorum worker dispatch as: --review-context '<diagnostic-json>'
+  - This ensures quorum workers see the "## Model Diagnostic Feedback" section
+    with mismatch diff and correction proposals in their prompts (DX1-03 satisfied)
 
 Parse the result:
 - If a reproducing model was created (refinement-loop returned "reproduced"):
@@ -130,10 +150,12 @@ Parse the result:
 
 - If refinement exhausted (3 attempts, no reproduction):
   Display: `WARNING: Model remains incomplete after 3 refinement attempts — does not capture the failure`
+  If `$result.final_diagnostic` is present:
+    Display: `\n[Diagnostic Feedback]\n${final_diagnostic.mismatch_diff}\n\nProposals:\n${proposals formatted}`
   Set `$REPRODUCING_MODEL` = path to latest model (best effort).
   Proceed to Phase 4 with caveat.
 
-If `$VERBOSE`, show full refinement iteration details.
+If `$VERBOSE`, show full refinement iteration details including diagnostics.
 Otherwise show summary verdicts only (per user decision).
 </step>
 

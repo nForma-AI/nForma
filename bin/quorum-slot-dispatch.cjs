@@ -428,6 +428,49 @@ function formatRequirementsSection(requirements) {
 // ─── Pure prompt-construction functions ──────────────────────────────────────
 
 /**
+ * formatDiagnosticForPrompt — converts diagnostic JSON to structured markdown section.
+ * Used in both Mode A and Mode B when diagnostic review-context is provided.
+ *
+ * @param {Object|null|undefined} diagnosticJson - Parsed diagnostic object with mismatch_diff, correction_proposals, trace_alignment
+ * @returns {string} Formatted markdown section (empty string if not a diagnostic)
+ */
+function formatDiagnosticForPrompt(diagnosticJson) {
+  if (!diagnosticJson || typeof diagnosticJson !== 'object') {
+    return '';
+  }
+
+  const { mismatch_diff, correction_proposals, trace_alignment } = diagnosticJson;
+
+  // Fail-open: if doesn't look like diagnostic structure, return empty
+  if (!mismatch_diff || !Array.isArray(correction_proposals)) {
+    return '';
+  }
+
+  let section = '\n\n## Model Diagnostic Feedback\n\n';
+  section += 'The model is INCOMPLETE. It does not capture the bug. ';
+  section += 'Here is what the model assumes vs. what the bug trace shows:\n\n';
+  section += mismatch_diff + '\n\n';
+  section += '### Correction Proposals (ranked by priority)\n\n';
+
+  for (let i = 0; i < correction_proposals.length; i++) {
+    const p = correction_proposals[i];
+    section += `${i + 1}. **[${p.type}]** ${p.target}: ${p.reasoning}\n`;
+    section += `   Example: \`${p.example}\`\n`;
+  }
+
+  section += '\n### Trace Alignment\n';
+  if (trace_alignment) {
+    section += `- Model states: ${trace_alignment.model_state_count || '?'}\n`;
+    section += `- Bug trace states: ${trace_alignment.bug_state_count || '?'}\n`;
+    section += `- First divergence: state ${trace_alignment.first_divergence_index ?? '?'}\n`;
+    section += `- Diverged fields: ${(trace_alignment.diverged_fields || []).join(', ')}\n`;
+  }
+  section += '\nUse these proposals to guide your model refinement. Address high-priority proposals first.';
+
+  return section;
+}
+
+/**
  * buildModeAPrompt — constructs the Mode A question prompt.
  *
  * Matches the EXACT template from agents/nf-quorum-slot-worker.md Step 2 Mode A.
@@ -488,7 +531,28 @@ function buildModeAPrompt({ round, repoDir, question, artifactPath, artifactCont
     }
   }
 
-  // Review context (conditional — first occurrence)
+  // Diagnostic context formatter — detect and format diagnostic JSON in review-context
+  let diagnosticSection = '';
+  if (reviewContext) {
+    try {
+      const parsed = JSON.parse(reviewContext);
+      if (parsed.mismatch_diff && parsed.correction_proposals) {
+        diagnosticSection = formatDiagnosticForPrompt(parsed);
+        // Nullify reviewContext so it doesn't double-render
+        reviewContext = null;
+      }
+    } catch (_) {
+      // Not JSON — leave reviewContext as-is for normal string handling
+    }
+  }
+
+  // Insert diagnostic section after requirements/precedents, before regular review context
+  if (diagnosticSection) {
+    lines.push('');
+    lines.push(diagnosticSection);
+  }
+
+  // Review context (conditional — first occurrence, only if not nullified by diagnostic branch)
   if (reviewContext) {
     lines.push('');
     lines.push(`\u26a0 REVIEW CONTEXT: ${reviewContext}`);
@@ -652,7 +716,28 @@ function buildModeBPrompt({ round, repoDir, question, traces, artifactPath, arti
     }
   }
 
-  // Review context (conditional — first occurrence)
+  // Diagnostic context formatter — detect and format diagnostic JSON in review-context
+  let diagnosticSection = '';
+  if (reviewContext) {
+    try {
+      const parsed = JSON.parse(reviewContext);
+      if (parsed.mismatch_diff && parsed.correction_proposals) {
+        diagnosticSection = formatDiagnosticForPrompt(parsed);
+        // Nullify reviewContext so it doesn't double-render
+        reviewContext = null;
+      }
+    } catch (_) {
+      // Not JSON — leave reviewContext as-is for normal string handling
+    }
+  }
+
+  // Insert diagnostic section after requirements/precedents, before regular review context
+  if (diagnosticSection) {
+    lines.push('');
+    lines.push(diagnosticSection);
+  }
+
+  // Review context (conditional — first occurrence, only if not nullified by diagnostic branch)
   if (reviewContext) {
     lines.push('');
     lines.push(`\u26a0 REVIEW CONTEXT: ${reviewContext}`);
@@ -1273,6 +1358,7 @@ async function main() {
 module.exports = {
     buildModeAPrompt,
     buildModeBPrompt,
+    formatDiagnosticForPrompt,
     parseVerdict,
     parseReasoning,
     parseCitations,
