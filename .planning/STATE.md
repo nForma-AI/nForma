@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-18)
 Phase: v0.39-03 (Cycle 2 Solution Simulation) 2 of 3 overall
 Plan: 3 of 3 in current phase (plan 01 COMPLETE, plan 02 COMPLETE, plan 03 COMPLETE)
 Status: Phase v0.39-03 COMPLETE; all 3 plans finished
-Last activity: 2026-03-18 — Completed v0.39-03-03: Solution simulation loop and workflow integration
+Last activity: 2026-03-18 — Completed quick task 324: Route cycle2-simulations session artifacts to tmp
 
 Progress: [██████████] 100% (Phase v0.39-03: 3/3 plans = 100%)
 
@@ -65,6 +65,7 @@ None currently.
 | # | Description | Date | Commit | Status | Directory |
 |---|---|---|---|---|---|
 | 323 | Add CCR auto-install and dynamic path resolution | 2026-03-18 | 5caa148d | Complete | [323-add-ccr-auto-install-and-dynamic-path-re](./quick/323-add-ccr-auto-install-and-dynamic-path-re/) |
+| 324 | Route cycle2-simulations session artifacts to tmp | 2026-03-18 | 74e0a24a | Complete | [324-route-cycle2-simulations-session-artifac](./quick/324-route-cycle2-simulations-session-artifac/) |
 
 ## Session Continuity
 
