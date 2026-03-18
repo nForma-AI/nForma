@@ -10,16 +10,23 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: v0.39 — Dual-Cycle Formal Reasoning
+## Current Milestone: (none — run /nf:new-milestone to start next)
+
+## Shipped: v0.39 — Dual-Cycle Formal Reasoning (2026-03-18)
 
 **Goal:** Make formal models the sandbox for reasoning about both diagnosis and solutions — bugs validate models (Cycle 1), models validate fix ideas (Cycle 2) — so all iteration happens in model space before code is touched.
 
-**Target features:**
-- Cycle 1 diagnostic reframing: when a model fails to reproduce a known bug, generate a targeted diff ("model assumes X but bug shows Y") instead of blind retry
-- Cycle 1 workflow language: reframe "bug not captured" → "model is incomplete/wrong" — the bug is ground truth
-- Cycle 2 solution simulation loop: accept fix ideas (natural language, constraints, or code sketches), normalize to model mutations, generate consequence model, simulate
-- Cycle 2 convergence gate: automated — all original invariants hold + bug no longer triggered + no neighbor regressions
-- Configurable iteration limit (default 3, override via --max-iterations)
+**Shipped:** 11/11 requirements satisfied across 3 phases, 8 plans. Audit: PASSED. Formal check: convergence module 1/1 passed.
+
+**Key features shipped:**
+- Verification mode tagging (diagnostic/validation) for all model checker invocations with four-cell truth table interpretation
+- ITF trace parsing and structured state-by-state diff generation for targeted diagnostic feedback
+- Diagnostic correction proposals with evidence-based reasoning (specific invariants and state variables to add/modify)
+- Quorum diagnostic injection — workers receive structured "Model Diagnostic Feedback" context during refinement
+- Three-channel intent normalization (natural language, constraints, code sketches) to formal model mutations
+- Consequence model generation with per-formalism mutation application (TLA+/Alloy) and session traceability
+- Three-gate convergence verification with formally verified write-once semantics (ResolvedAtWriteOnce) and dependency failure safety (HaikuUnavailableNoCorruption)
+- Solution simulation loop as Phase 4.5 in model-driven-fix workflow with fail-CLOSED gating
 
 ## Shipped: v0.38 — Model-Driven Debugging (2026-03-18)
 

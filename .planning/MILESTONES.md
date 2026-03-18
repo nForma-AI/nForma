@@ -623,3 +623,13 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.39 Dual-Cycle Formal Reasoning (Shipped: 2026-03-18)
+
+**Phases completed:** 46 phases, 83 plans, 27 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
