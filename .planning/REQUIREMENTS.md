@@ -47,23 +47,23 @@ Requirements for Dual-Cycle Formal Reasoning. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FND-01 | — | Pending |
-| FND-02 | — | Pending |
-| FND-03 | — | Pending |
-| DX1-01 | — | Pending |
-| DX1-02 | — | Pending |
-| DX1-03 | — | Pending |
-| DX1-04 | — | Pending |
-| SIM-01 | — | Pending |
-| SIM-02 | — | Pending |
-| SIM-03 | — | Pending |
-| SIM-04 | — | Pending |
+| FND-01 | Phase v0.39-01 | Pending |
+| FND-02 | Phase v0.39-01 | Pending |
+| FND-03 | Phase v0.39-01 | Pending |
+| DX1-01 | Phase v0.39-02 | Pending |
+| DX1-02 | Phase v0.39-02 | Pending |
+| DX1-03 | Phase v0.39-02 | Pending |
+| DX1-04 | Phase v0.39-02 | Pending |
+| SIM-01 | Phase v0.39-03 | Pending |
+| SIM-02 | Phase v0.39-03 | Pending |
+| SIM-03 | Phase v0.39-03 | Pending |
+| SIM-04 | Phase v0.39-03 | Pending |
 
 **Coverage:**
 - v0.39 requirements: 11 total
-- Mapped to phases: 0
-- Unmapped: 11 ⚠️
+- Mapped to phases: 11
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-18*
-*Last updated: 2026-03-18 after initial definition*
+*Last updated: 2026-03-18 after roadmap creation*

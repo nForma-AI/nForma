@@ -5,14 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement
-**Current focus:** v0.39 — Dual-Cycle Formal Reasoning
+**Current focus:** Phase v0.39-01: Foundation & Infrastructure
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-18 — Milestone v0.39 started
+Phase: 1 of 3 (Foundation & Infrastructure)
+Plan: 0 of 2 in current phase
+Status: Ready to plan
+Last activity: 2026-03-18 — Roadmap created for v0.39
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -31,10 +33,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - v0.39 scope: Dual-cycle formal reasoning only (tight scope, no staging area or broader formal evolution)
-- Cycle 1: Full diagnostic — generate "model assumes X but bug shows Y" diffs, not blind retry
-- Cycle 2: Accept all input forms (natural language, constraints, code sketches) — normalize internally
-- Cycle 2 convergence: Automated gate (invariants + bug resolved + no neighbor regressions)
-- Iteration limit: Configurable, default 3, override via --max-iterations
+- Roadmap: 3 phases from 11 requirements (3 Foundation + 4 Cycle 1 + 4 Cycle 2); no Phase 4 — integration/hardening absorbed into each phase
+- Roadmap: Convergence formal invariants (write-once resolution, unavailability corruption protection) sharpened Phase v0.39-03 success criteria
 
 ### Pending Todos
 
@@ -42,10 +42,10 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- Research suggests Phase v0.39-02 and v0.39-03 should each run /nf:research-phase before implementation
 
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Milestone v0.39 started, defining requirements
+Stopped at: Roadmap created, ready to plan Phase v0.39-01
 Resume file: None
