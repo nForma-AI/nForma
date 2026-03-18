@@ -56,31 +56,31 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BML-01 | TBD | Pending |
-| BML-02 | TBD | Pending |
-| BML-03 | TBD | Pending |
-| CEX-01 | TBD | Pending |
-| CEX-02 | TBD | Pending |
-| CEX-03 | TBD | Pending |
-| DBG-01 | TBD | Pending |
-| DBG-02 | TBD | Pending |
-| DBG-03 | TBD | Pending |
-| DBG-04 | TBD | Pending |
-| MRF-01 | TBD | Pending |
-| MRF-02 | TBD | Pending |
-| MRF-03 | TBD | Pending |
-| BTF-01 | TBD | Pending |
-| BTF-02 | TBD | Pending |
-| BTF-03 | TBD | Pending |
-| BTF-04 | TBD | Pending |
-| REG-01 | TBD | Pending |
-| REG-02 | TBD | Pending |
-| REG-03 | TBD | Pending |
+| BML-01 | v0.38-01 | Pending |
+| BML-02 | v0.38-01 | Pending |
+| BML-03 | v0.38-01 | Pending |
+| CEX-01 | v0.38-01 | Pending |
+| CEX-02 | v0.38-01 | Pending |
+| CEX-03 | v0.38-01 | Pending |
+| DBG-01 | v0.38-02 | Pending |
+| DBG-02 | v0.38-02 | Pending |
+| DBG-03 | v0.38-02 | Pending |
+| DBG-04 | v0.38-02 | Pending |
+| MRF-01 | v0.38-03 | Pending |
+| MRF-02 | v0.38-03 | Pending |
+| MRF-03 | v0.38-03 | Pending |
+| BTF-01 | v0.38-04 | Pending |
+| BTF-02 | v0.38-04 | Pending |
+| BTF-03 | v0.38-04 | Pending |
+| BTF-04 | v0.38-04 | Pending |
+| REG-01 | v0.38-05 | Pending |
+| REG-02 | v0.38-05 | Pending |
+| REG-03 | v0.38-05 | Pending |
 
 **Coverage:**
 - v0.38 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20
+- Mapped to phases: 20
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-18*
