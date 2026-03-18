@@ -100,6 +100,6 @@ Note: v0.38-03 and v0.38-04 could potentially execute in parallel (both depend o
 |-------|----------------|--------|-----------|
 | v0.38-01. Bug-to-Model Lookup & Constraint Extraction | 2/3 | Complete    | 2026-03-18 |
 | v0.38-02. Debug Command Integration | 0/2 | Complete    | 2026-03-18 |
-| v0.38-03. Model Refinement Workflow | 0/TBD | Not started | - |
+| v0.38-03. Model Refinement Workflow | 1/2 | In Progress|  |
 | v0.38-04. B-to-F Solve Layer | 0/TBD | Not started | - |
 | v0.38-05. Cross-Model Regression Prevention | 0/TBD | Not started | - |
