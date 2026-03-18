@@ -12,7 +12,7 @@ Transform formal models from descriptive CI gates into prescriptive debugging to
 
 - [x] **Phase v0.38-01: Bug-to-Model Lookup & Constraint Extraction** - Infrastructure to find matching models and extract fix constraints from TLA+/Alloy specs (completed 2026-03-18)
 - [x] **Phase v0.38-02: Debug Command Integration** - Wire model consultation into /nf:debug before quorum dispatch (completed 2026-03-18)
-- [ ] **Phase v0.38-03: Model Refinement Workflow** - Create and refine models that capture failure modes when no model explains a bug
+- [x] **Phase v0.38-03: Model Refinement Workflow** - Create and refine models that capture failure modes when no model explains a bug (completed 2026-03-18)
 - [ ] **Phase v0.38-04: B-to-F Solve Layer** - 20th solve layer tracking bugs formal models should explain but don't
 - [ ] **Phase v0.38-05: Cross-Model Regression Prevention** - Pre-verify fixes against proximity-neighbor models before declaring done
 
@@ -100,6 +100,6 @@ Note: v0.38-03 and v0.38-04 could potentially execute in parallel (both depend o
 |-------|----------------|--------|-----------|
 | v0.38-01. Bug-to-Model Lookup & Constraint Extraction | 2/3 | Complete    | 2026-03-18 |
 | v0.38-02. Debug Command Integration | 0/2 | Complete    | 2026-03-18 |
-| v0.38-03. Model Refinement Workflow | 1/2 | In Progress|  |
+| v0.38-03. Model Refinement Workflow | 2/2 | Complete   | 2026-03-18 |
 | v0.38-04. B-to-F Solve Layer | 0/TBD | Not started | - |
 | v0.38-05. Cross-Model Regression Prevention | 0/TBD | Not started | - |
