@@ -2,7 +2,7 @@
 
 ## What This Is
 
-nForma is a Claude Code plugin extension that moves multi-model quorum enforcement from CLAUDE.md behavioral policy into structural Claude Code hooks. It installs on top of GSD without modifying it, adding a hook-based quorum layer: a UserPromptSubmit hook injects quorum instructions at the right moment, a Stop hook verifies quorum actually happened by parsing the conversation transcript before allowing Claude to deliver planning output, and a PreToolUse circuit breaker hook detects oscillation in git history and blocks Bash execution when repetitive patterns emerge. When the circuit breaker fires, a structured oscillation resolution mode guides quorum diagnosis and unified solution approval. An activity sidecar tracks every workflow stage transition so `resume-work` can recover to the exact interrupted step. An autonomous milestone execution loop (v0.13) closes the end-to-end chain: the last-phase transition detects gap-closure phases and routes to re-audit via IS_GAP_CLOSURE detection, audit-milestone auto-spawns plan-milestone-gaps when gaps are found, and all human confirmation gates are replaced with R3 quorum consensus — enabling zero-AskUserQuestion autonomous operation from new-milestone through complete-milestone. Formal verification (v0.20) is now an active planning gate: TLA+ runs at plan-phase step 8.2 surfacing failures as hypotheses, sensitivity sweeps inject top-3 high-impact parameters into quorum `review_context`, FV results appear in every VERIFICATION.md, and a UPPAAL timed automaton model captures quorum race timing. The FV pipeline is self-calibrating (v0.21): PRISM auto-calibrates from the scoreboard, specs auto-regenerate when XState changes, debug sessions mine invariant candidates, every plan is TLC-verified before quorum sees it, and operational signals (coverage gaps, Petri net dependencies, PRISM failure probabilities, Poisson binomial consensus gate) drive roadmap prioritization. Formal verification is now an enforcing gate (v0.23): plan-phase discovers and injects formal invariants, execute-phase runs TLC/Alloy/PRISM and hard-blocks on counterexamples with traceable user override, the roadmapper reads invariants when designing phases, and a 22-test integration suite proves the full chain fires end-to-end with real tool output. Quorum dispatch is reliability-hardened (v0.24): providers.json maps slots to backing providers, failed calls retry with exponential backoff, pre-dispatch health probes skip dead providers, scoreboard-driven availability windows and success-rate ordering select the most reliable slots first, per-round structured telemetry enables flakiness scoring and deprioritization, early escalation fires when P(consensus) drops below threshold, and the slot worker is a thin JavaScript passthrough (11-12k tokens vs 22-25k). Formal traceability (v0.25) connects human requirements to formal models with bidirectional queryable links: model-registry.json and requirements.json carry cross-referenced requirement arrays, @requirement annotations on all 43 formal model files feed an extraction parser, a traceability matrix generator produces property-level links with 63.8% coverage, a CI coverage guard prevents silent regression, and a state-space analyzer classifies 22 TLA+ models for decomposition risk. Operational completeness (v0.26) closes all remaining agent management gaps: per-slot quorum timeout and update policy configuration with input validation, batch API key rotation with persistent health status across sessions, portable roster export/import with provider presets and slot cloning, SDK bundling elimination with an architecture linter that prevents re-introduction, and cross-model decomposition analysis that recommends TLA+ model merges or flags interface contracts based on shared requirements and source files. Production feedback (v0.27) closes the loop between formal models and production reality: a unified observe skill (`/qgsd:observe`) pulls production signals from GitHub, Sentry, Prometheus, Grafana, and Logstash in parallel; a fingerprint-deduplicating debt ledger tracks issues and drifts with state machine enforcement; and a P->F residual layer in solve compares formal model thresholds against observed production metrics with two-track automatic remediation (parameter updates via `/qgsd:quick`, investigation flags for regressions). Agent harness optimization (v0.28) adds configurable hook profiles (minimal/standard/strict), SHA-256 quorum response caching with git-HEAD invalidation, token budget monitoring with auto-downgrade at 85%, stall detection for timed-out slots, smart compaction suggestions at workflow boundaries, security sweep scanning at verification time, session state reminders on new sessions, and a unified harness diagnostic tool. A three-layer formal verification architecture (v0.29) organizes 92+ formal models and 35K+ conformance traces into Evidence, Semantics, and Reasoning layers connected by three inter-layer gates (Grounding, Abstraction, Validation) with quantitative alignment scores — Gate A grounding 82.2%, Gate C validation 1.0 — and a single-command cross-layer dashboard integrated into nf-solve and run-formal-verify. Model-driven debugging (v0.38) makes formal models prescriptive: `/nf:debug` consults matching formal models before quorum dispatch, injecting fix constraints into worker prompts and showing a FORMAL verdict row in results; when no model explains a bug, a 6-phase refinement cycle creates or improves one that captures the failure mode with inverted verification semantics; a B→F solve layer autonomously identifies uncovered bugs and routes them to model creation or refinement; and cross-model regression prevention verifies fixes against 2-hop proximity-neighbor models before declaring done.
+nForma is a Claude Code plugin extension that moves multi-model quorum enforcement from CLAUDE.md behavioral policy into structural Claude Code hooks. It installs on top of GSD without modifying it, adding a hook-based quorum layer: a UserPromptSubmit hook injects quorum instructions at the right moment, a Stop hook verifies quorum actually happened by parsing the conversation transcript before allowing Claude to deliver planning output, and a PreToolUse circuit breaker hook detects oscillation in git history and blocks Bash execution when repetitive patterns emerge. When the circuit breaker fires, a structured oscillation resolution mode guides quorum diagnosis and unified solution approval. An activity sidecar tracks every workflow stage transition so `resume-work` can recover to the exact interrupted step. An autonomous milestone execution loop (v0.13) closes the end-to-end chain: the last-phase transition detects gap-closure phases and routes to re-audit via IS_GAP_CLOSURE detection, audit-milestone auto-spawns plan-milestone-gaps when gaps are found, and all human confirmation gates are replaced with R3 quorum consensus — enabling zero-AskUserQuestion autonomous operation from new-milestone through complete-milestone. Formal verification (v0.20) is now an active planning gate: TLA+ runs at plan-phase step 8.2 surfacing failures as hypotheses, sensitivity sweeps inject top-3 high-impact parameters into quorum `review_context`, FV results appear in every VERIFICATION.md, and a UPPAAL timed automaton model captures quorum race timing. The FV pipeline is self-calibrating (v0.21): PRISM auto-calibrates from the scoreboard, specs auto-regenerate when XState changes, debug sessions mine invariant candidates, every plan is TLC-verified before quorum sees it, and operational signals (coverage gaps, Petri net dependencies, PRISM failure probabilities, Poisson binomial consensus gate) drive roadmap prioritization. Formal verification is now an enforcing gate (v0.23): plan-phase discovers and injects formal invariants, execute-phase runs TLC/Alloy/PRISM and hard-blocks on counterexamples with traceable user override, the roadmapper reads invariants when designing phases, and a 22-test integration suite proves the full chain fires end-to-end with real tool output. Quorum dispatch is reliability-hardened (v0.24): providers.json maps slots to backing providers, failed calls retry with exponential backoff, pre-dispatch health probes skip dead providers, scoreboard-driven availability windows and success-rate ordering select the most reliable slots first, per-round structured telemetry enables flakiness scoring and deprioritization, early escalation fires when P(consensus) drops below threshold, and the slot worker is a thin JavaScript passthrough (11-12k tokens vs 22-25k). Formal traceability (v0.25) connects human requirements to formal models with bidirectional queryable links: model-registry.json and requirements.json carry cross-referenced requirement arrays, @requirement annotations on all 43 formal model files feed an extraction parser, a traceability matrix generator produces property-level links with 63.8% coverage, a CI coverage guard prevents silent regression, and a state-space analyzer classifies 22 TLA+ models for decomposition risk. Operational completeness (v0.26) closes all remaining agent management gaps: per-slot quorum timeout and update policy configuration with input validation, batch API key rotation with persistent health status across sessions, portable roster export/import with provider presets and slot cloning, SDK bundling elimination with an architecture linter that prevents re-introduction, and cross-model decomposition analysis that recommends TLA+ model merges or flags interface contracts based on shared requirements and source files. Production feedback (v0.27) closes the loop between formal models and production reality: a unified observe skill (`/nf:observe`) pulls production signals from GitHub, Sentry, Prometheus, Grafana, and Logstash in parallel; a fingerprint-deduplicating debt ledger tracks issues and drifts with state machine enforcement; and a P->F residual layer in solve compares formal model thresholds against observed production metrics with two-track automatic remediation (parameter updates via `/nf:quick`, investigation flags for regressions). Agent harness optimization (v0.28) adds configurable hook profiles (minimal/standard/strict), SHA-256 quorum response caching with git-HEAD invalidation, token budget monitoring with auto-downgrade at 85%, stall detection for timed-out slots, smart compaction suggestions at workflow boundaries, security sweep scanning at verification time, session state reminders on new sessions, and a unified harness diagnostic tool. A three-layer formal verification architecture (v0.29) organizes 92+ formal models and 35K+ conformance traces into Evidence, Semantics, and Reasoning layers connected by three inter-layer gates (Grounding, Abstraction, Validation) with quantitative alignment scores — Gate A grounding 82.2%, Gate C validation 1.0 — and a single-command cross-layer dashboard integrated into nf-solve and run-formal-verify. Model-driven debugging (v0.38) makes formal models prescriptive: `/nf:debug` consults matching formal models before quorum dispatch, injecting fix constraints into worker prompts and showing a FORMAL verdict row in results; when no model explains a bug, a 6-phase refinement cycle creates or improves one that captures the failure mode with inverted verification semantics; a B→F solve layer autonomously identifies uncovered bugs and routes them to model creation or refinement; and cross-model regression prevention verifies fixes against 2-hop proximity-neighbor models before declaring done.
 
 Profile: cli
 
@@ -176,9 +176,9 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 **Shipped:** 22/22 requirements satisfied (DEBT-01–06, FP-01–04, OBS-01–08, PF-01–05). 5 phases, 15 plans, 436+ tests, 54 commits. Audit: TECH_DEBT (accepted).
 
 **Key features shipped:**
-- Unified observe skill — `/qgsd:observe` with pluggable source handlers (GitHub, Sentry, Prometheus, Grafana, Logstash, bash), parallel fetch, dual-table output (Issues + Drifts), and config in `.planning/observe-sources.md`
+- Unified observe skill — `/nf:observe` with pluggable source handlers (GitHub, Sentry, Prometheus, Grafana, Logstash, bash), parallel fetch, dual-table output (Issues + Drifts), and config in `.planning/observe-sources.md`
 - Debt ledger — `.formal/debt.json` with JSON Schema validation, fingerprint-based dedup (exact + Levenshtein near-duplicate), state machine (open→acknowledged→resolving→resolved), retention policy, and formal reference auto-linking
-- Solve P→F integration — 8th residual layer reads acknowledged debt, compares against formal thresholds, dispatches remediation via two-track heuristic (parameter updates via `/qgsd:quick`, investigation flags for regressions), freeze semantics prevent observe overwrites during solve
+- Solve P→F integration — 8th residual layer reads acknowledged debt, compares against formal thresholds, dispatches remediation via two-track heuristic (parameter updates via `/nf:quick`, investigation flags for regressions), freeze semantics prevent observe overwrites during solve
 - Fingerprinting engine — hierarchical for issues (exception type→function→message hash), parameter key for drifts, cross-source dedup with configurable similarity threshold
 
 ## Shipped: v0.26 Operational Completeness (2026-03-04)
@@ -284,7 +284,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 **Goal:** Reduce QGSD's per-run token consumption (currently 380k+ tokens per Nyquist-class run) by establishing per-slot token observability, enforcing tiered model sizing, introducing a structured task envelope context handoff, and making quorum fan-out risk-adaptive.
 
 **Target features:**
-- Token observability — `SubagentStop` hook + `agent_transcript_path` transcript parsing writes per-slot usage to `.planning/token-usage.jsonl`; `/qgsd:health` displays token consumption ranked by slot/stage
+- Token observability — `SubagentStop` hook + `agent_transcript_path` transcript parsing writes per-slot usage to `.planning/token-usage.jsonl`; `/nf:health` displays token consumption ranked by slot/stage
 - Tiered model sizing — researcher and plan-checker sub-agents in `plan-phase.md` dispatched with `model="haiku"` (15-20× cost reduction vs sonnet); planner retains sonnet; user-configurable via `model_tier_planner`/`model_tier_worker` flat keys
 - Task envelope — `task-envelope.json` sidecar written by researcher and planner with `objective`, `constraints`, `risk_level`, and `target_files`; passes structured context to quorum; eliminates N × full PLAN.md re-reads per round
 - Adaptive quorum fan-out — `quorum.md` reads `risk_level` from envelope and dispatches 2/3/max workers for routine/medium/high risk; emits `--n N` for Stop hook R3.5 compliance; user `--n N` override preserved
@@ -375,7 +375,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Previous Milestone: v0.8 Fix-Tests ddmin Pipeline
 
-**Goal:** Rewrite `/qgsd:fix-tests` as a principled 4-phase ddmin pipeline to replace the ad-hoc batch loop.
+**Goal:** Rewrite `/nf:fix-tests` as a principled 4-phase ddmin pipeline to replace the ad-hoc batch loop.
 
 **Target features:**
 - 4-phase ddmin pipeline rewrite in `fix-tests.md` (discover → isolate → categorize → fix)
@@ -411,7 +411,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Previous Milestone: v0.6 Agent Slots & Quorum Composition
 
-**Goal:** Rename all quorum agents to slot-based names (claude-1, copilot-1, gemini-cli-1, etc.), ship a `quorum.active` composition config that the orchestrator reads instead of a hardcoded list, and extend `/qgsd:mcp-setup` with a composition screen for managing which slots participate in quorum.
+**Goal:** Rename all quorum agents to slot-based names (claude-1, copilot-1, gemini-cli-1, etc.), ship a `quorum.active` composition config that the orchestrator reads instead of a hardcoded list, and extend `/nf:mcp-setup` with a composition screen for managing which slots participate in quorum.
 
 **Target features:**
 - Slot naming: rename all 10 agents to `<family>-<N>` scheme + migration script for `~/.claude.json`
@@ -431,14 +431,14 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Previous Milestone: v0.5 MCP Setup Wizard
 
-**Goal:** Ship `/qgsd:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (model, provider, API key) without touching config files manually.
+**Goal:** Ship `/nf:mcp-setup` — a hybrid wizard that takes users from zero agents to a fully configured quorum in one command, or lets them reconfigure any existing agent (model, provider, API key) without touching config files manually.
 
 **Target features:**
 - Wizard shell: first-run linear onboarding + re-run navigable agent menu with live status
 - API key management: keytar-backed secure storage, applied to `~/.claude.json` on confirm, auto-restart
 - Provider swap: change base URL (AkashML / Together / Fireworks / custom) on existing agents
 - Agent roster: add new claude-mcp-server instances or remove existing ones with identity verification
-- Install nudge: installer prompts `/qgsd:mcp-setup` when no agents are configured
+- Install nudge: installer prompts `/nf:mcp-setup` when no agents are configured
 
 **Phase range:** 32–36
 
@@ -446,20 +446,20 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Previous Milestone: v0.4 MCP Ecosystem
 
-**Goal:** Standardize the 6 coding-agent MCP server repos to a unified Gen2 architecture, then add QGSD commands to observe, configure, and update connected agents (`/qgsd:mcp-status`, `/qgsd:mcp-set-model`, `/qgsd:mcp-update`, `/qgsd:mcp-restart`).
+**Goal:** Standardize the 6 coding-agent MCP server repos to a unified Gen2 architecture, then add QGSD commands to observe, configure, and update connected agents (`/nf:mcp-status`, `/nf:mcp-set-model`, `/nf:mcp-update`, `/nf:mcp-restart`).
 
 **Target features:**
 - MCP repo standardization: Gen1→Gen2 port for claude/codex/copilot/openhands, identity tool everywhere, constants/Logger ✓ Phase 23 shipped surface fixes
-- Read layer: `/qgsd:mcp-status` showing all agents, models, health, and UNAVAIL counts
+- Read layer: `/nf:mcp-status` showing all agents, models, health, and UNAVAIL counts
 - Write layer: model switching persisted to qgsd.json, auto-detect update commands, process restart
 
 **Phase range:** 23–28
 **Phase 23 complete:** 2026-02-22
 **Phase 24 complete:** 2026-02-22 (Gen1→Gen2 architecture port: claude 62✓, codex 77✓, copilot 58✓, openhands 13✓)
 **Phase 25 complete:** 2026-02-22 (constants.ts + logger.ts + identity tool in all 6 repos; STD-04, STD-08 done)
-**Phase 26 complete:** 2026-02-22 (/qgsd:mcp-status — 10-agent identity polling, scoreboard UNAVAIL counts, health state table; OBS-01..04 done)
-**Phase 27 complete:** 2026-02-22 (/qgsd:mcp-set-model — 6-step slash command with live identity validation + model_preferences persistence + quorum override injection; MGR-01, MGR-02 done)
-**Phase 28 complete:** 2026-02-22 (/qgsd:mcp-update + /qgsd:mcp-restart — update via npm install -g or git pull+build; restart via pkill-f + Claude Code auto-reconnect + identity verification; MGR-03..06 done)
+**Phase 26 complete:** 2026-02-22 (/nf:mcp-status — 10-agent identity polling, scoreboard UNAVAIL counts, health state table; OBS-01..04 done)
+**Phase 27 complete:** 2026-02-22 (/nf:mcp-set-model — 6-step slash command with live identity validation + model_preferences persistence + quorum override injection; MGR-01, MGR-02 done)
+**Phase 28 complete:** 2026-02-22 (/nf:mcp-update + /nf:mcp-restart — update via npm install -g or git pull+build; restart via pkill-f + Claude Code auto-reconnect + identity verification; MGR-03..06 done)
 
 **v0.4 MILESTONE COMPLETE** — All 20 MCP Ecosystem requirements shipped (STD-04/08, OBS-01..04, MGR-01..06; STD-01..03/05..07/09..10 deferred per scope decision).
 
@@ -467,7 +467,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 
 ## Previous Milestone: v0.3 Test Suite Maintenance
 
-**Goal:** Build `/qgsd:fix-tests` — a single autonomous command that discovers, batches, runs, AI-categorizes, and iteratively fixes test failures across large suites (20k+ tests), looping until no failures remain.
+**Goal:** Build `/nf:fix-tests` — a single autonomous command that discovers, batches, runs, AI-categorizes, and iteratively fixes test failures across large suites (20k+ tests), looping until no failures remain.
 
 **Target features:**
 - Test discovery across jest, playwright, and pytest suites in any project
@@ -525,7 +525,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ qgsd@0.2.0 released: package.json bumped, MILESTONES.md archived, git tag v0.2.0 pushed; npm publish deferred — v0.2 (Phase 12)
 - ✓ Activity sidecar `.planning/current-activity.json` tracks every workflow stage boundary; `resume-work` routes to exact interrupted step with 15-row routing table — v0.2 (Phases 14–16)
 - ✓ All qqgsd-* agent name typos corrected to qgsd-* across 12 installed + source files — v0.2 (Phase 17)
-- ✓ User can run `/qgsd:mcp-set-model <agent> <model>` to set the default model for a quorum worker — v0.4 (Phase 27 — MGR-01)
+- ✓ User can run `/nf:mcp-set-model <agent> <model>` to set the default model for a quorum worker — v0.4 (Phase 27 — MGR-01)
 - ✓ Default model preference persists in `qgsd.json` and is injected into subsequent quorum tool calls via "Model overrides" block — v0.4 (Phase 27 — MGR-02)
 - ✓ All 10 quorum agents use slot-based names (`claude-1`..`claude-6`, `codex-cli-1`, `gemini-cli-1`, `opencode-1`, `copilot-1`) in all QGSD output and commands — v0.6 (Phase 39 — SLOT-01)
 - ✓ `bin/migrate-to-slots.cjs` migration script renames existing `~/.claude.json` mcpServers entries to slot names non-destructively and idempotently — v0.6 (Phase 39 — SLOT-02)
@@ -539,7 +539,7 @@ Planning decisions are multi-model verified by structural enforcement, not instr
 - ✓ User can have multiple `claude-*` slots each running a different model or provider — v0.7 (Phase v0.7-02 — MULTI-01)
 - ✓ User can have multiple `copilot-N`, `opencode-N`, `codex-cli-N`, `gemini-cli-N` slots — v0.7 (Phase v0.7-02 — MULTI-02)
 - ✓ Adding a new slot supported by both direct config edit and mcp-setup wizard — v0.7 (Phase v0.7-02 — MULTI-03)
-- ✓ `/qgsd:mcp-setup` re-run includes "Edit Quorum Composition" option — v0.7 (Phase v0.7-03 — WIZ-08)
+- ✓ `/nf:mcp-setup` re-run includes "Edit Quorum Composition" option — v0.7 (Phase v0.7-03 — WIZ-08)
 - ✓ Composition screen shows all slots with on/off toggle for `quorum_active` inclusion — v0.7 (Phase v0.7-03 — WIZ-09)
 - ✓ User can add a new slot for any family from within the wizard — v0.7 (Phase v0.7-03 — WIZ-10)
 - ✓ Health checker versioned phase naming, repair safety guard, legacy dir archive, quorum failure visibility (HLTH-01..03, SAFE-01..02, VIS-01) — v0.15
@@ -628,7 +628,7 @@ nForma v0.32 shipped 2026-03-09 (14/14 requirements, 4 phases). 32 milestones co
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | A+C: UserPromptSubmit injection + Stop hook gate | Three-model quorum consensus; Option B (direct CLI calls) fragile and maintenance-heavy | Implemented — Phase 1 |
-| High-stakes commands as default scope | All /qgsd:* too broad; user-configurable override future-proofs against GSD evolution | Implemented — Phase 1 (6-command allowlist) |
+| High-stakes commands as default scope | All /nf:* too broad; user-configurable override future-proofs against GSD evolution | Implemented — Phase 1 (6-command allowlist) |
 | Fail-open | Matches CLAUDE.md R6; prevents blocking work during quota issues | Implemented — Phase 1 |
 | Plugin extension, not fork | No trade-offs vs fork — hooks are additive; GSD updates don't require QGSD changes | Confirmed — Phase 1 |
 | Global install | Matches GSD's default behavior; quorum applies everywhere without per-project opt-in | Implemented — Phase 1 |
@@ -646,7 +646,7 @@ nForma v0.32 shipped 2026-03-09 (14/14 requirements, 4 phases). 32 milestones co
 | INST-10 fix: two-tier sub-key backfill | Prevents overwriting user-customized values on partial configs | Phase 10 — bug fix |
 | Oscillation resolution mode replaces hard-stop | Hard-stop creates deadlocks; structured quorum diagnosis with user approval gate is recoverable | Phase 13 — ORES-01..05 |
 | Activity sidecar as separate JSON file | No schema pollution of STATE.md; file presence/absence = activity in progress/complete | Phase 14 — ACT-01..07 |
-| /gsd:* namespace excluded from activity tracking | Upstream GSD package boundary — QGSD modifications stay in /qgsd:* namespace | Phase 14 — ACT scope decision |
+| /gsd:* namespace excluded from activity tracking | Upstream GSD package boundary — QGSD modifications stay in /nf:* namespace | Phase 14 — ACT scope decision |
 | RLS-04 npm publish deferred | User decision — publish timing separate from milestone archival | Phase 12 |
 | escapedReqId regex safety in gsd-tools | REQ-IDs with regex-special chars (e.g. from informal labels in ROADMAP) break new RegExp() construction | Phase 17 housekeeping |
 | spawnSync (not execSync) for framework CLIs | Eliminates shell injection risk; `shell:true` in execSync opens command injection surface | Phase 18 — DISC-01/02 |
