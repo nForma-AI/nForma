@@ -66,7 +66,7 @@ None currently.
 |---|---|---|---|---|---|
 | 323 | Add CCR auto-install and dynamic path resolution | 2026-03-18 | 5caa148d | Complete | [323-add-ccr-auto-install-and-dynamic-path-re](./quick/323-add-ccr-auto-install-and-dynamic-path-re/) |
 | 324 | Route cycle2-simulations session artifacts to tmp | 2026-03-18 | 74e0a24a | Complete | [324-route-cycle2-simulations-session-artifac](./quick/324-route-cycle2-simulations-session-artifac/) |
-| 325 | Add Layer 3+4 to formal-scope-scan.cjs | 2026-03-18 | 0a46f354 | Pending | [325-add-layer-3-sentence-transformer-semanti](./quick/325-add-layer-3-sentence-transformer-semanti/) |
+| 325 | Add Layer 3+4 to formal-scope-scan.cjs | 2026-03-18 | 0a46f354 | Needs Review | [325-add-layer-3-sentence-transformer-semanti](./quick/325-add-layer-3-sentence-transformer-semanti/) |
 | 326 | add implicit state machine detection to solve-diagnose and close-formal-gaps | 2026-03-18 | 859cb36e | Verified | [326-add-implicit-state-machine-detection-to-](.planning/quick/326-add-implicit-state-machine-detection-to-/) |
 
 ## Session Continuity
