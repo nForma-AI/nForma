@@ -97,11 +97,11 @@ function extractTlaConstraints(specContent, specPath) {
 
   const constraints = [];
 
-  // 1. Extract VARIABLES
-  const varsMatch = specContent.match(/VARIABLES\s+([^\n]+(?:\n\s*[a-z]\w*(?:\s*,\s*[a-z]\w*)*)*)/);
+  // 1. Extract VARIABLES (single line: VARIABLES name1, name2, ...)
+  const varsMatch = specContent.match(/VARIABLES\s+([^\n]+)/);
   if (varsMatch) {
-    const varsLine = varsMatch[1].replace(/\s+/g, ' ').trim();
-    // Split by commas, clean up
+    const varsLine = varsMatch[1].trim();
+    // Split by commas, extract only valid identifier names
     const varNames = varsLine.split(/\s*,\s*/).map(v => v.trim()).filter(v => v && /^[a-z]\w*$/i.test(v));
     for (const varName of varNames) {
       constraints.push({
