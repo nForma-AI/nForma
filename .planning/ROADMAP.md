@@ -39,12 +39,12 @@ Plans:
   2. All user-facing output uses "model is incomplete/wrong" language instead of "bug not captured" -- the bug is ground truth, the model is the hypothesis
   3. Quorum workers receive diagnostic diff context in their prompts during refinement iterations so they can reason about what the model is missing
   4. Diagnostic diffs produce specific model correction proposals (which invariants to add/modify, which state variables are missing) rather than generic "try again" guidance
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] v0.39-02-01: TBD
-- [ ] v0.39-02-02: TBD
-- [ ] v0.39-02-03: TBD
+- [ ] v0.39-02-01-PLAN.md — Model state extractor and correction proposal generator modules
+- [ ] v0.39-02-02-PLAN.md — Evidence-based language reframing across refinement loop and workflows
+- [ ] v0.39-02-03-PLAN.md — Wire diagnostic pipeline into refinement loop with quorum injection
 
 ### Phase v0.39-03: Cycle 2 Solution Simulation
 **Goal**: Fix ideas iterate entirely in model space -- normalized to mutations, simulated as consequence models, verified through convergence gates -- before any code is touched
