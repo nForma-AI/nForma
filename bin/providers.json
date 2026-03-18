@@ -312,7 +312,7 @@
       "mainTool": "claude",
       "model": "deepseek-ai/DeepSeek-V3.2",
       "display_provider": "AkashML",
-      "cli": "/opt/homebrew/bin/ccr",
+      "cli": "ccr",
       "args_template": [
         "claude-1",
         "-p",
@@ -361,7 +361,7 @@
       "mainTool": "claude",
       "model": "MiniMaxAI/MiniMax-M2.5",
       "display_provider": "AkashML",
-      "cli": "/opt/homebrew/bin/ccr",
+      "cli": "ccr",
       "args_template": [
         "claude-2",
         "-p",
@@ -403,7 +403,7 @@
       "mainTool": "claude",
       "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
       "display_provider": "Together.xyz",
-      "cli": "/opt/homebrew/bin/ccr",
+      "cli": "ccr",
       "args_template": [
         "claude-3",
         "-p",
@@ -445,7 +445,7 @@
       "mainTool": "claude",
       "model": "accounts/fireworks/models/kimi-k2p5",
       "display_provider": "Fireworks",
-      "cli": "/opt/homebrew/bin/ccr",
+      "cli": "ccr",
       "args_template": [
         "claude-4",
         "-p",
@@ -487,7 +487,7 @@
       "mainTool": "claude",
       "model": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
       "display_provider": "Together.xyz",
-      "cli": "/opt/homebrew/bin/ccr",
+      "cli": "ccr",
       "args_template": [
         "claude-5",
         "-p",
@@ -529,7 +529,7 @@
       "mainTool": "claude",
       "model": "accounts/fireworks/models/glm-5",
       "display_provider": "Fireworks",
-      "cli": "/opt/homebrew/bin/ccr",
+      "cli": "ccr",
       "args_template": [
         "claude-6",
         "-p",
