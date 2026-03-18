@@ -188,7 +188,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - **Memory staleness check** — Session-start hook warns about outdated MEMORY.md entries via `bin/validate-memory.cjs`
 - **Invariant validator** — `bin/validate-invariant.cjs` classifies requirements as invariant/non-invariant
-- **Close formal gaps command** — `/qgsd:close-formal-gaps` analyzes and closes formal model coverage gaps
+- **Close formal gaps command** — `/nf:close-formal-gaps` analyzes and closes formal model coverage gaps
 - **Workflow improvements** — Invariant gate in `add-requirement`, `--strict` flag for `map-requirements`
 - **20 new formal verification models** — 8 Alloy (architecture-registry, config-two-layer, mcp-detection, multi-slot, quorum-policy, schema-extensions, traceability-annotations, unified-check), 2 PRISM (deliberation-healing, observability-delivery), 10 TLA+ (activity tracking, agent provisioning, breaker state, config portability, dispatch pipeline, enforcement, installer idempotency, key management, prompt hook, setup wizard)
 - **Publish script** — `scripts/publish.sh` reads NPM_TOKEN from `.env` for local publishing
@@ -224,16 +224,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   the default `circuit_breaker` config block to `~/.claude/nf.json`; reinstall is
   idempotent (existing user values are never overwritten)
 - **QGSD rebranding** — Package renamed to `qgsd`; banner updated to "QGSD: Quorum Gets Shit
-  Done" with salmon Q; all commands use `/qgsd:` prefix; hooks updated to match both
-  `/gsd:` and `/qgsd:` prefixes for backward compatibility (quick tasks 1, 8, 9, 10, 11)
+  Done" with salmon Q; all commands use `/nf:` prefix; hooks updated to match both
+  `/gsd:` and `/nf:` prefixes for backward compatibility (quick tasks 1, 8, 9, 10, 11)
 - **Quorum agent scoring** (`R8`) — TP/TN/FP/FN weighted schema tracks each model's initial
   vote vs final consensus; scoreboard at `.planning/quorum-scoreboard.md`; Improvement
   Accepted/Rejected classifications track proposal quality (quick task 4)
-- **`/qgsd:quorum-test` command** — Pre-flight validation collects artifacts before running
+- **`/nf:quorum-test` command** — Pre-flight validation collects artifacts before running
   quorum models; replaces human checkpoint:human-verify gates in plan templates (quick task 3, 5)
-- **`/qgsd:debug` command** — Auto-proceeds when quorum reaches consensus; Step 7 executes
+- **`/nf:debug` command** — Auto-proceeds when quorum reaches consensus; Step 7 executes
   consensus next step without user-permission gate (quick task 12)
-- **`checkpoint:verify` flow in `/qgsd:execute-phase`** — Executor calls `/qgsd:quorum-test`
+- **`checkpoint:verify` flow in `/nf:execute-phase`** — Executor calls `/nf:quorum-test`
   at checkpoint:verify gates; enters 3-round debug loop on BLOCK/REVIEW-NEEDED; escalates
   to checkpoint:human-verify only after loop exhausts (quick task 6)
 - **R3.6 Iterative Improvement Protocol** — When quorum approves but proposes improvements,
