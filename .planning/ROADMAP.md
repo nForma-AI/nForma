@@ -28,11 +28,12 @@ Transform formal models from descriptive CI gates into prescriptive debugging to
   3. bug-model-gaps.json persists bug-to-model coverage status (no_coverage, no_reproduction, reproduced) across sessions
   4. TLA+ invariant definitions, state variables, and transition predicates are parsed and rendered as plain-English fix constraint summaries
   5. Alloy assertion definitions and signature constraints are parsed and rendered as plain-English fix constraint summaries
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] v0.38-01-01: TBD
-- [ ] v0.38-01-02: TBD
+- [ ] v0.38-01-01-PLAN.md — Bug-mode lookup flag and gap persistence infrastructure
+- [ ] v0.38-01-02-PLAN.md — TLA+/Alloy constraint extraction and English rendering
+- [ ] v0.38-01-03-PLAN.md — Model checker execution with timeout and reproduction status
 
 ### Phase v0.38-02: Debug Command Integration
 **Goal**: /nf:debug consults formal models before quorum dispatch, giving workers model-backed fix constraints and surfacing model verdicts in results
@@ -96,7 +97,7 @@ Note: v0.38-03 and v0.38-04 could potentially execute in parallel (both depend o
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| v0.38-01. Bug-to-Model Lookup & Constraint Extraction | 0/TBD | Not started | - |
+| v0.38-01. Bug-to-Model Lookup & Constraint Extraction | 0/3 | Not started | - |
 | v0.38-02. Debug Command Integration | 0/TBD | Not started | - |
 | v0.38-03. Model Refinement Workflow | 0/TBD | Not started | - |
 | v0.38-04. B-to-F Solve Layer | 0/TBD | Not started | - |
