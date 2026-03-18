@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 const crypto = require('crypto');
 
@@ -23,6 +24,10 @@ Options:
                          formalism type and requirement coverage in output
   --persist-gap          With --bug-mode: persist lookup result to
                          bug-model-gaps.json for cross-session tracking
+  --run-checkers         With --bug-mode: run matched model checkers
+                         (TLC for TLA+, Alloy for .als) with 60s timeout
+                         per model, max 3 models. Reports pass/fail/timeout
+                         with counterexample traces when available.
   --help                 Show this help message
 
 Matching algorithm (layered — proximity index enriches scope.json matching):
@@ -48,11 +53,12 @@ Examples:
   node bin/formal-scope-scan.cjs --files "hooks/nf-stop.js" --description "something"
   node bin/formal-scope-scan.cjs --bug-mode --description "circuit breaker timeout"
   node bin/formal-scope-scan.cjs --bug-mode --persist-gap --description "test bug"
+  node bin/formal-scope-scan.cjs --bug-mode --run-checkers --description "breaker timeout"
 `);
 }
 
 function parseArgs(argv) {
-  const args = { description: '', files: [], format: 'json', help: false, bugMode: false, persistGap: false };
+  const args = { description: '', files: [], format: 'json', help: false, bugMode: false, persistGap: false, runCheckers: false };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--help' || argv[i] === '-h') {
       args.help = true;
@@ -66,6 +72,8 @@ function parseArgs(argv) {
       args.bugMode = true;
     } else if (argv[i] === '--persist-gap') {
       args.persistGap = true;
+    } else if (argv[i] === '--run-checkers') {
+      args.runCheckers = true;
     }
   }
   return args;
@@ -475,6 +483,251 @@ function persistBugGap(description, matches, gapsPath) {
   return data;
 }
 
+/**
+ * Persist a bug-mode lookup result with checker results to bug-model-gaps.json.
+ * Updates status based on checker outcomes:
+ *   - "reproduced" if any checker result is "fail"
+ *   - "no_reproduction" if all checkers pass or timeout
+ *   - "no_coverage" if no models matched
+ */
+function persistBugGapWithCheckers(description, matches, gapsPath) {
+  const data = loadBugModelGaps(gapsPath);
+  const bugId = hashBugId(description);
+  const timestamp = new Date().toISOString();
+  const matchedModels = matches.map(m => m.model || m.path);
+
+  // Determine status from checker results
+  let status;
+  if (matchedModels.length === 0) {
+    status = 'no_coverage';
+  } else {
+    const anyFail = matches.some(m => m.checker_result === 'fail');
+    status = anyFail ? 'reproduced' : 'no_reproduction';
+  }
+
+  // Build checked_models array from enriched matches
+  const checkedModels = matches
+    .filter(m => m.checker_result)
+    .map(m => ({
+      model: m.model,
+      formalism: m.formalism,
+      result: m.checker_result,
+      trace: m.checker_trace || null,
+      runtime_ms: m.checker_runtime_ms || 0
+    }));
+
+  // Dedup by description
+  const existingIdx = data.entries.findIndex(e => e.description === description);
+  if (existingIdx >= 0) {
+    data.entries[existingIdx].timestamp = timestamp;
+    data.entries[existingIdx].matched_models = matchedModels;
+    data.entries[existingIdx].status = status;
+    data.entries[existingIdx].checked_models = checkedModels;
+  } else {
+    data.entries.push({
+      bug_id: bugId,
+      description,
+      timestamp,
+      status,
+      matched_models: matchedModels,
+      checked_models: checkedModels,
+      session_id: null
+    });
+  }
+
+  saveBugModelGaps(data, gapsPath);
+  return data;
+}
+
+// ── Model Checker Execution ─────────────────────────────────────────────────
+
+/**
+ * Find MC config file for a TLA+ spec by scanning .cfg files for module name references.
+ * @param {string} specPath - Model key path (e.g., ".planning/formal/tla/NFCircuitBreaker.tla")
+ * @param {string} [projectRoot] - Project root directory
+ * @returns {string|null} Config name (e.g., "MCsafety") or null if not found
+ */
+function findTlcConfig(specPath, projectRoot) {
+  const root = projectRoot || ROOT;
+  const tlaDir = path.join(root, '.planning', 'formal', 'tla');
+  const specBaseName = path.basename(specPath, '.tla');
+
+  try {
+    if (!fs.existsSync(tlaDir)) return null;
+    const cfgFiles = fs.readdirSync(tlaDir).filter(f => f.startsWith('MC') && f.endsWith('.cfg'));
+
+    for (const cfgFile of cfgFiles) {
+      const cfgContent = fs.readFileSync(path.join(tlaDir, cfgFile), 'utf8');
+      // Check if cfg references this spec module (in header comments or SPECIFICATION line)
+      if (cfgContent.includes(specBaseName)) {
+        return cfgFile.replace('.cfg', '');
+      }
+    }
+
+    // Fallback: try naming convention MC + stripped spec name
+    const stripped = specBaseName.replace(/^NF/, '').replace(/^QGSD/, '');
+    const conventionName = 'MC' + stripped;
+    if (fs.existsSync(path.join(tlaDir, conventionName + '.cfg'))) {
+      return conventionName;
+    }
+
+    return null;
+  } catch (e) {
+    process.stderr.write('Warning: Failed to scan TLC configs: ' + e.message + '\n');
+    return null;
+  }
+}
+
+/**
+ * Run a single model checker and return the result.
+ * @param {object} match - Match object with model, formalism fields
+ * @param {number} timeoutMs - Timeout in milliseconds
+ * @param {string} [projectRoot] - Project root directory
+ * @returns {object} { model, formalism, result, trace, runtime_ms }
+ */
+function runSingleChecker(match, timeoutMs, projectRoot) {
+  const root = projectRoot || ROOT;
+  const startMs = Date.now();
+
+  if (match.formalism === 'tla') {
+    const configName = findTlcConfig(match.model, root);
+    if (!configName) {
+      return {
+        model: match.model,
+        formalism: 'tla',
+        result: 'skipped',
+        trace: null,
+        runtime_ms: Date.now() - startMs,
+        reason: 'No MC config file found for ' + match.model
+      };
+    }
+
+    const result = spawnSync('node', [
+      path.join(root, 'bin', 'run-tlc.cjs'),
+      configName,
+      '--project-root=' + root
+    ], { encoding: 'utf8', timeout: timeoutMs, stdio: 'pipe' });
+
+    const runtimeMs = Date.now() - startMs;
+
+    // Timeout detection
+    if (result.status === null && result.signal === 'SIGTERM') {
+      return { model: match.model, formalism: 'tla', result: 'timeout', trace: null, runtime_ms: runtimeMs };
+    }
+
+    // Check for error/spawn failure (e.g., Java not installed)
+    if (result.error) {
+      return {
+        model: match.model,
+        formalism: 'tla',
+        result: 'skipped',
+        trace: null,
+        runtime_ms: runtimeMs,
+        reason: result.error.message
+      };
+    }
+
+    const combined = (result.stdout || '') + (result.stderr || '');
+
+    // Detect invariant violations or assertion failures
+    if (result.status !== 0 || /Invariant\s+\S+\s+is violated/i.test(combined) || /Assertion\s+\S+\s+may be violated/i.test(combined)) {
+      // Extract counterexample trace
+      let trace = null;
+      const traceMatch = combined.match(/Error:[\s\S]*?(?=Finished|$)/);
+      if (traceMatch) trace = traceMatch[0].trim();
+      return { model: match.model, formalism: 'tla', result: 'fail', trace, runtime_ms: runtimeMs };
+    }
+
+    return { model: match.model, formalism: 'tla', result: 'pass', trace: null, runtime_ms: runtimeMs };
+
+  } else if (match.formalism === 'alloy') {
+    const specBaseName = path.basename(match.model, '.als');
+
+    const result = spawnSync('node', [
+      path.join(root, 'bin', 'run-alloy.cjs'),
+      '--spec=' + specBaseName,
+      '--project-root=' + root
+    ], { encoding: 'utf8', timeout: timeoutMs, stdio: 'pipe' });
+
+    const runtimeMs = Date.now() - startMs;
+
+    // Timeout detection
+    if (result.status === null && result.signal === 'SIGTERM') {
+      return { model: match.model, formalism: 'alloy', result: 'timeout', trace: null, runtime_ms: runtimeMs };
+    }
+
+    // Check for error/spawn failure
+    if (result.error) {
+      return {
+        model: match.model,
+        formalism: 'alloy',
+        result: 'skipped',
+        trace: null,
+        runtime_ms: runtimeMs,
+        reason: result.error.message
+      };
+    }
+
+    const combined = (result.stdout || '') + (result.stderr || '');
+
+    // Alloy counterexample detection
+    if (result.status !== 0 || /Counterexample/i.test(combined)) {
+      let trace = null;
+      const cexMatch = combined.match(/Counterexample[\s\S]*/i);
+      if (cexMatch) trace = cexMatch[0].trim();
+      return { model: match.model, formalism: 'alloy', result: 'fail', trace, runtime_ms: runtimeMs };
+    }
+
+    return { model: match.model, formalism: 'alloy', result: 'pass', trace: null, runtime_ms: runtimeMs };
+
+  } else {
+    return {
+      model: match.model,
+      formalism: match.formalism || 'unknown',
+      result: 'skipped',
+      trace: null,
+      runtime_ms: Date.now() - startMs,
+      reason: 'Unsupported formalism: ' + (match.formalism || 'unknown')
+    };
+  }
+}
+
+/**
+ * Run model checkers on matched models.
+ * @param {Array} matches - Array of bug-mode match objects
+ * @param {number} [maxModels=3] - Maximum number of models to check
+ * @param {number} [timeoutMs=60000] - Timeout per checker in milliseconds
+ * @param {string} [projectRoot] - Project root directory
+ * @returns {Array} Array of checker result objects
+ */
+function runModelCheckers(matches, maxModels, timeoutMs, projectRoot) {
+  const max = maxModels || 3;
+  const timeout = timeoutMs || 60000;
+  const results = [];
+
+  // Sort by bug_relevance_score descending (already sorted, but be defensive)
+  const sorted = [...matches].sort((a, b) => (b.bug_relevance_score || 0) - (a.bug_relevance_score || 0));
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (i >= max) {
+      results.push({
+        model: sorted[i].model,
+        formalism: sorted[i].formalism,
+        result: 'skipped',
+        trace: null,
+        runtime_ms: 0,
+        reason: 'Exceeded max model limit (' + max + ')'
+      });
+      continue;
+    }
+
+    const checkerResult = runSingleChecker(sorted[i], timeout, projectRoot);
+    results.push(checkerResult);
+  }
+
+  return results;
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -490,18 +743,45 @@ function main() {
     process.exit(1);
   }
 
+  // --run-checkers requires --bug-mode
+  if (args.runCheckers && !args.bugMode) {
+    console.error('Error: --run-checkers requires --bug-mode');
+    process.exit(1);
+  }
+
   // Bug-mode: match against model-registry.json
   if (args.bugMode) {
     const bugMatches = runBugModeMatching(args.description, args.files);
     if (bugMatches !== null) {
+      // Run model checkers if requested
+      if (args.runCheckers && bugMatches.length > 0) {
+        const checkerResults = runModelCheckers(bugMatches, 3, 60000);
+        // Enrich matches with checker results
+        for (const cr of checkerResults) {
+          const match = bugMatches.find(m => m.model === cr.model);
+          if (match) {
+            match.checker_result = cr.result;
+            match.checker_trace = cr.trace || null;
+            match.checker_runtime_ms = cr.runtime_ms;
+          }
+        }
+      } else if (args.runCheckers && bugMatches.length === 0) {
+        // No matches to check — nothing to do
+      }
+
       // Persist gap if requested
       if (args.persistGap) {
-        persistBugGap(args.description, bugMatches);
+        if (args.runCheckers) {
+          persistBugGapWithCheckers(args.description, bugMatches);
+        } else {
+          persistBugGap(args.description, bugMatches);
+        }
       }
 
       if (args.format === 'lines') {
         for (const m of bugMatches) {
-          console.log(m.model + '\t' + m.formalism + '\t' + m.bug_relevance_score);
+          const extra = m.checker_result ? '\t' + m.checker_result : '';
+          console.log(m.model + '\t' + m.formalism + '\t' + m.bug_relevance_score + extra);
         }
       } else {
         console.log(JSON.stringify(bugMatches, null, 2));
@@ -593,7 +873,11 @@ if (typeof module !== 'undefined') {
     hashBugId,
     loadBugModelGaps,
     saveBugModelGaps,
-    persistBugGap
+    persistBugGap,
+    persistBugGapWithCheckers,
+    findTlcConfig,
+    runSingleChecker,
+    runModelCheckers
   };
 }
 
