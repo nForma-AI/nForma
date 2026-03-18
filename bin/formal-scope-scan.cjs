@@ -3,7 +3,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { spawnSync, execFileSync } = require('child_process');
+const os = require('os');
 
 const crypto = require('crypto');
 
@@ -29,6 +30,9 @@ Options:
                          per model, max 3 models. Reports pass/fail/timeout
                          with counterexample traces when available.
   --help                 Show this help message
+  --l3-threshold N       Cosine similarity threshold for Layer 3 (default: 0.35)
+  --no-l3                Disable Layer 3 semantic fallback
+  --l4                   Enable Layer 4 agentic fallback (disabled by default; slow/expensive)
 
 Matching algorithm (layered — proximity index enriches scope.json matching):
   Layer 1 (scope.json — always runs):
@@ -38,6 +42,12 @@ Matching algorithm (layered — proximity index enriches scope.json matching):
   Layer 2 (proximity index — when proximity-index.json exists):
     4. Graph walk from --files code_file nodes to formal_module neighbors
     5. Enriches each match with: affected invariants, constants, requirements, proximity score
+Layer 3 (semantic — @huggingface/transformers, runs when layers 1+2 return 0 matches):
+  Computes cosine similarity between query and module concept text.
+  Modules above threshold returned with matched_by: "semantic".
+Layer 4 (agentic — claude CLI sub-agent, runs when layers 1+2+3 return 0 matches):
+  Spawns claude CLI to search spec directories. Requires --l4 flag to enable.
+  Returns matched_by: "agentic". Skips silently if claude CLI unavailable.
 
 Bug-mode matching (--bug-mode):
   Scans model-registry.json entries using semantic/concept scoring:
@@ -58,7 +68,7 @@ Examples:
 }
 
 function parseArgs(argv) {
-  const args = { description: '', files: [], format: 'json', help: false, bugMode: false, persistGap: false, runCheckers: false };
+  const args = { description: '', files: [], format: 'json', help: false, bugMode: false, persistGap: false, runCheckers: false, l3Threshold: 0.35, noL3: false, l4: false };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--help' || argv[i] === '-h') {
       args.help = true;
@@ -74,6 +84,12 @@ function parseArgs(argv) {
       args.persistGap = true;
     } else if (argv[i] === '--run-checkers') {
       args.runCheckers = true;
+    } else if (argv[i] === '--l3-threshold' && argv[i + 1]) {
+      args.l3Threshold = parseFloat(argv[++i]);
+    } else if (argv[i] === '--no-l3') {
+      args.noL3 = true;
+    } else if (argv[i] === '--l4') {
+      args.l4 = true;
     }
   }
   return args;
@@ -728,9 +744,147 @@ function runModelCheckers(matches, maxModels, timeoutMs, projectRoot) {
   return results;
 }
 
+// ── Layer 3: Semantic Similarity ─────────────────────────────────────────────
+
+/**
+ * Cosine similarity — vectors are assumed to already be L2-normalized,
+ * so dot product == cosine similarity.
+ */
+function cosineSim(a, b) {
+  let dot = 0;
+  for (let i = 0; i < a.length; i++) dot += a[i] * b[i];
+  return dot;
+}
+
+/**
+ * Resolve Claude CLI binary — not on PATH, lives at ~/.local/share/claude/versions/X.Y.Z
+ */
+function resolveClaudeCLI() {
+  const versionsDir = path.join(os.homedir(), '.local', 'share', 'claude', 'versions');
+  if (!fs.existsSync(versionsDir)) return 'claude';
+  const versions = fs.readdirSync(versionsDir)
+    .filter(f => /^\d+\.\d+\.\d+$/.test(f) && fs.statSync(path.join(versionsDir, f)).isFile())
+    .sort((a, b) => {
+      const ap = a.split('.').map(Number), bp = b.split('.').map(Number);
+      for (let i = 0; i < 3; i++) { if (ap[i] !== bp[i]) return bp[i] - ap[i]; }
+      return 0;
+    });
+  return versions.length > 0 ? path.join(versionsDir, versions[0]) : 'claude';
+}
+
+/**
+ * Layer 3: Semantic similarity using @huggingface/transformers.
+ * Runs only when layers 1+2 return 0 matches.
+ * Gracefully skips (returns []) if the package is unavailable.
+ * @param {string} query - Search description
+ * @param {Array<{name: string, concepts: string[]}>} modules - Module list with concepts
+ * @param {number} threshold - Cosine similarity threshold (default 0.35)
+ * @returns {Promise<Array>}
+ */
+async function runSemanticLayer(query, modules, threshold) {
+  let pipeline;
+  try {
+    const transformers = await import('@huggingface/transformers');
+    pipeline = transformers.pipeline;
+  } catch (_) {
+    process.stderr.write('Warning: @huggingface/transformers not available, skipping Layer 3\n');
+    return [];
+  }
+
+  const embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+  const queryOutput = await embedder([query], { pooling: 'mean', normalize: true });
+  const dim = queryOutput.dims[1];
+  const queryVec = Array.from(queryOutput.data.slice(0, dim));
+
+  const results = [];
+  for (const mod of modules) {
+    const conceptText = mod.concepts.join(' ');
+    const modOutput = await embedder([conceptText], { pooling: 'mean', normalize: true });
+    const modVec = Array.from(modOutput.data.slice(0, dim));
+    const sim = cosineSim(queryVec, modVec);
+    if (sim >= threshold) {
+      results.push({
+        module: mod.name,
+        path: '.planning/formal/spec/' + mod.name + '/invariants.md',
+        matched_by: 'semantic',
+        similarity_score: Math.round(sim * 1000) / 1000
+      });
+    }
+  }
+
+  results.sort((a, b) => b.similarity_score - a.similarity_score);
+  return results;
+}
+
+/**
+ * Layer 4: Agentic search via claude CLI sub-agent.
+ * Runs only when layers 1+2+3 return 0 matches AND --l4 is set.
+ * @param {string} query - Search description
+ * @param {string} specDir - Path to spec directory
+ * @param {string} [claudeBin] - Optional claude binary override (for test injection)
+ * @returns {Array}
+ */
+function runAgenticLayer(query, specDir, claudeBin) {
+  const bin = claudeBin !== undefined ? claudeBin : resolveClaudeCLI();
+
+  let availableModules;
+  try {
+    availableModules = fs.readdirSync(specDir).filter(f => fs.statSync(path.join(specDir, f)).isDirectory());
+  } catch (_) {
+    process.stderr.write('Warning: Layer 4 specDir not readable, skipping\n');
+    return [];
+  }
+
+  const prompt = 'You are searching for formal specification modules that match a query.\n' +
+    'Available modules: ' + availableModules.join(', ') + '\n\n' +
+    'Query: ' + query + '\n\n' +
+    'Return ONLY a JSON array of module names from the list above that are relevant, e.g. ["breaker", "quorum"].\n' +
+    'If none match, return [].';
+
+  const env = { ...process.env };
+  delete env.CLAUDECODE;
+
+  let stdout;
+  try {
+    stdout = execFileSync(bin, ['-p', prompt, '--output-format', 'json'], {
+      encoding: 'utf8', timeout: 30000, cwd: ROOT, env, stdio: 'pipe'
+    });
+  } catch (e) {
+    const msg = e.code === 'ENOENT'
+      ? 'Warning: claude CLI not available, skipping Layer 4\n'
+      : 'Warning: Layer 4 claude CLI timed out or failed, skipping\n';
+    process.stderr.write(msg);
+    return [];
+  }
+
+  let names = [];
+  try {
+    const outer = JSON.parse(stdout);
+    const text = typeof outer.result === 'string' ? outer.result : stdout;
+    try {
+      names = JSON.parse(text);
+    } catch (_) {
+      const m = text.match(/\[[\s\S]*?\]/);
+      if (m) names = JSON.parse(m[0]);
+    }
+    if (!Array.isArray(names)) names = [];
+  } catch (_) {
+    process.stderr.write('Warning: Layer 4 could not parse claude CLI output, skipping\n');
+    return [];
+  }
+
+  // Hallucination guard: only return modules that exist in availableModules
+  const validNames = names.filter(n => typeof n === 'string' && availableModules.includes(n));
+  return validNames.map(name => ({
+    module: name,
+    path: '.planning/formal/spec/' + name + '/invariants.md',
+    matched_by: 'agentic'
+  }));
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-function main() {
+async function main() {
   const args = parseArgs(process.argv);
 
   if (args.help) {
@@ -851,12 +1005,30 @@ function main() {
   // Layer 2: Proximity index enrichment (fail-open)
   const enriched = enrichWithProximityIndex(matches, args.files, tokens);
 
+  // Layer 3: Semantic similarity fallback (runs only when layers 1+2 return 0 matches)
+  let finalMatches = enriched;
+  if (enriched.length === 0 && !args.noL3) {
+    const modulesForL3 = modules.map(mod => {
+      const scopePath = path.join(SPEC_DIR, mod, 'scope.json');
+      let concepts = [];
+      try { concepts = JSON.parse(fs.readFileSync(scopePath, 'utf8')).concepts || []; } catch (_) {}
+      return { name: mod, concepts };
+    });
+    const threshold = args.l3Threshold !== undefined ? args.l3Threshold : 0.35;
+    finalMatches = await runSemanticLayer(args.description, modulesForL3, threshold);
+  }
+
+  // Layer 4: Agentic fallback (runs only when layers 1+2+3 return 0 matches, and --l4 is set)
+  if (finalMatches.length === 0 && args.l4) {
+    finalMatches = runAgenticLayer(args.description, SPEC_DIR);
+  }
+
   if (args.format === 'lines') {
-    for (const m of enriched) {
+    for (const m of finalMatches) {
       console.log(m.module + '\t' + m.path);
     }
   } else {
-    console.log(JSON.stringify(enriched, null, 2));
+    console.log(JSON.stringify(finalMatches, null, 2));
   }
 
   process.exit(0);
@@ -877,11 +1049,15 @@ if (typeof module !== 'undefined') {
     persistBugGapWithCheckers,
     findTlcConfig,
     runSingleChecker,
-    runModelCheckers
+    runModelCheckers,
+    cosineSim,
+    resolveClaudeCLI,
+    runSemanticLayer,
+    runAgenticLayer
   };
 }
 
 // Only run main when executed directly (not required as module)
 if (require.main === module) {
-  main();
+  main().catch(e => { console.error(e); process.exit(1); });
 }
