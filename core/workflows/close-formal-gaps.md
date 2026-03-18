@@ -247,7 +247,7 @@ Parse the JSON output and route:
   Then re-run Step 6 (up to 2 additional retries, 3 total attempts).
 
 - **`status == "not_reproduced"` AND all attempts exhausted (3 total)**:
-  Display: `Model refinement exhausted (3 attempts). Model does not reproduce the bug.`
+  Display: `Model refinement exhausted (3 attempts). Model remains incomplete — does not capture the failure.`
   Continue to Step 7 with a note that model is unverified for bug reproduction.
 
 **Feedback display:**

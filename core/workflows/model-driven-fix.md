@@ -93,11 +93,11 @@ Parse results for each model:
   Proceed to Phase 4.
 
 - If all models pass (none reproduced):
-  Display: `Existing models do not reproduce this bug. Proceeding to refinement.`
+  Display: `Existing models are incomplete — they do not capture this failure. Proceeding to refinement.`
   Set `$REPRODUCTION_STATUS` = "not_reproduced"
   Proceed to Phase 3.
 
-**Fail-open:** If checker execution fails, treat as "not reproduced" and proceed to Phase 3.
+**Fail-open:** If checker execution fails, treat as "model inconclusive" and proceed to Phase 3.
 </step>
 
 <step name="refinement">
@@ -129,7 +129,7 @@ Parse the result:
   Proceed to Phase 4.
 
 - If refinement exhausted (3 attempts, no reproduction):
-  Display: `WARNING: Model created but does not reproduce the bug after 3 attempts`
+  Display: `WARNING: Model remains incomplete after 3 refinement attempts — does not capture the failure`
   Set `$REPRODUCING_MODEL` = path to latest model (best effort).
   Proceed to Phase 4 with caveat.
 
