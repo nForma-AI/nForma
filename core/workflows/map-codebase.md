@@ -366,5 +366,5 @@ End workflow.
 - All 7 codebase documents exist
 - Quorum validates mapper docs for consistency, completeness, and concern triage before commit
 - Clear completion summary with line counts
-- User offered clear next steps in GSD style
+- User offered clear next steps in nForma style
 </success_criteria>

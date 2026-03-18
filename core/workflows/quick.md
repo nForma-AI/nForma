@@ -1,5 +1,5 @@
 <purpose>
-Execute small, ad-hoc tasks with GSD guarantees (atomic commits, STATE.md tracking). Quick mode spawns nf-planner (quick mode) + nf-executor(s), tracks tasks in `.planning/quick/`, and updates STATE.md's "Quick Tasks Completed" table.
+Execute small, ad-hoc tasks with nForma guarantees (atomic commits, STATE.md tracking). Quick mode spawns nf-planner (quick mode) + nf-executor(s), tracks tasks in `.planning/quick/`, and updates STATE.md's "Quick Tasks Completed" table.
 
 With `--full` flag: enables plan-checking (max 2 iterations) and post-execution verification for quality guarantees without full milestone ceremony.
 </purpose>
@@ -380,7 +380,7 @@ If the signal is absent, the delimiters don't match, or JSON.parse would fail: s
 - **ESCALATED** → Present the escalation to the user. Do not execute until resolved. **Break loop.**
 
 - **APPROVED AND ($QUORUM_IMPROVEMENTS is empty OR improvement_iteration >= 10)**:
-    Include `<!-- GSD_DECISION -->` in your response summarizing quorum results.
+    Include `<!-- nForma_DECISION -->` in your response summarizing quorum results.
     If `improvement_iteration > 0`: note "R3.6: ${improvement_iteration} iteration(s) ran."
     If `improvement_iteration >= 10` AND improvements remained: note
       "R3.6 cap reached — improvements not incorporated."
@@ -437,7 +437,7 @@ If the signal is absent, the delimiters don't match, or JSON.parse would fail: s
     - **If planner returns `## PLANNING INCONCLUSIVE` or fails to update the file:**
       Do NOT loop again on the same improvements. Display:
       > "R3.6: planner could not incorporate improvements in iteration ${improvement_iteration}. Proceeding with current plan."
-      Include `<!-- GSD_DECISION -->` summarizing quorum results. Proceed to Step 6. **Break loop.**
+      Include `<!-- nForma_DECISION -->` summarizing quorum results. Proceed to Step 6. **Break loop.**
 
 **END LOOP**
 
@@ -900,7 +900,7 @@ Ready for next task: /nf:quick
 - [ ] (--full) Plan declares formal_artifacts field in frontmatter
 - [ ] (--full) Plan checker validates plan, revision loop capped at 2
 - [ ] Quorum ran (step 5.7) with `request_improvements: true`
-- [ ] R3.6 loop ran: if improvements proposed, planner revision spawned; if none or planner failed, loop exited; `<!-- GSD_DECISION -->` present in response
+- [ ] R3.6 loop ran: if improvements proposed, planner revision spawned; if none or planner failed, loop exited; `<!-- nForma_DECISION -->` present in response
 - [ ] `${next_num}-SUMMARY.md` created by executor
 - [ ] (--full) Executor includes .planning/formal/ files in atomic commits when formal_artifacts non-empty
 - [ ] (--full) `${next_num}-VERIFICATION.md` created by verifier
@@ -920,7 +920,7 @@ Ready for next task: /nf:quick
 **R3.6 — do NOT:**
 - Do NOT skip the R3.6 loop because the plan "looks good enough" or improvements "seem trivial." The loop is MANDATORY when `$QUORUM_IMPROVEMENTS` is non-empty.
 - Do NOT pre-filter or discard improvements before passing them to the planner. Pass the full array.
-- Do NOT emit `<!-- GSD_DECISION -->` before the loop exits. Only emit it on the final break.
+- Do NOT emit `<!-- nForma_DECISION -->` before the loop exits. Only emit it on the final break.
 - Do NOT run the R3.6 improvement planner as a parallel Task. It is always sequential: quorum → planner → quorum → ...
 - Do NOT loop again after a planner failure (`## PLANNING INCONCLUSIVE`). Break immediately with the failure note.
 </anti_patterns>

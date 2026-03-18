@@ -177,7 +177,7 @@ node ~/.claude/nf/bin/gsd-tools.cjs activity-set \
 
 5. **Handle failures:**
 
-   **Known Claude Code bug (classifyHandoffIfNeeded):** If an agent reports "failed" with error containing `classifyHandoffIfNeeded is not defined`, this is a Claude Code runtime bug — not a GSD or agent issue. The error fires in the completion handler AFTER all tool calls finish. In this case: run the same spot-checks as step 4 (SUMMARY.md exists, git commits present, no Self-Check: FAILED). If spot-checks PASS → treat as **successful**. If spot-checks FAIL → treat as real failure below.
+   **Known Claude Code bug (classifyHandoffIfNeeded):** If an agent reports "failed" with error containing `classifyHandoffIfNeeded is not defined`, this is a Claude Code runtime bug — not a nForma or agent issue. The error fires in the completion handler AFTER all tool calls finish. In this case: run the same spot-checks as step 4 (SUMMARY.md exists, git commits present, no Self-Check: FAILED). If spot-checks PASS → treat as **successful**. If spot-checks FAIL → treat as real failure below.
 
    For real failures: report which plan failed, then check SUMMARY.md for diagnosis markers (same heuristic as step 4: `Root Cause:`, `Diagnosed`, `Bug 1 —`, `Bug 2 —`, `CI Failures`, `Deferred: CI fixes`).
 
@@ -800,7 +800,7 @@ Orchestrator: ~10-15% context. Subagents: fresh 200k each. No polling (Task bloc
 </context_efficiency>
 
 <failure_handling>
-- **classifyHandoffIfNeeded false failure:** Agent reports "failed" but error is `classifyHandoffIfNeeded is not defined` → Claude Code bug, not GSD. Spot-check (SUMMARY exists, commits present) → if pass, treat as success
+- **classifyHandoffIfNeeded false failure:** Agent reports "failed" but error is `classifyHandoffIfNeeded is not defined` → Claude Code bug, not nForma. Spot-check (SUMMARY exists, commits present) → if pass, treat as success
 - **CI failures with diagnosed root causes:** Executor SUMMARY.md contains sections with "Root Cause:", "Diagnosed", "Bug N —", "CI Failures", or "Deferred: CI fixes" → read diagnosis → auto-spawn quick task using init quick + nf-planner + nf-executor sequence (quick.md Steps 2-6 pattern), no user gate → resume phase execution after quick task completes
 - **Agent fails mid-plan:** Missing SUMMARY.md → report, ask user how to proceed
 - **Dependency chain breaks:** Wave 1 fails → Wave 2 dependents likely fail → user chooses attempt or skip

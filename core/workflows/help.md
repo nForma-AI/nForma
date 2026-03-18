@@ -1,11 +1,11 @@
 <purpose>
-Display the complete GSD command reference. Output ONLY the reference content. Do NOT add project-specific analysis, git status, next-step suggestions, or any commentary beyond the reference.
+Display the complete nForma command reference. Output ONLY the reference content. Do NOT add project-specific analysis, git status, next-step suggestions, or any commentary beyond the reference.
 </purpose>
 
 <reference>
-# GSD Command Reference
+# nForma Command Reference
 
-**GSD** (Get Shit Done) creates hierarchical project plans optimized for solo agentic development with Claude Code.
+**nForma** (Get Shit Done) creates hierarchical project plans optimized for solo agentic development with Claude Code.
 
 ## Quick Start
 
@@ -15,7 +15,7 @@ Display the complete GSD command reference. Output ONLY the reference content. D
 
 ## Staying Updated
 
-GSD evolves fast. Update periodically:
+nForma evolves fast. Update periodically:
 
 ```bash
 node bin/install.js --claude --global
@@ -114,7 +114,7 @@ Usage: `/nf:execute-phase 5`
 ### Quick Mode
 
 **`/nf:quick`**
-Execute small, ad-hoc tasks with GSD guarantees but skip optional agents.
+Execute small, ad-hoc tasks with nForma guarantees but skip optional agents.
 
 Quick mode uses the same system with a shorter path:
 - Spawns planner + executor (skips researcher, checker, verifier)
@@ -324,7 +324,7 @@ Usage: `/nf:settings`
 Usage: `/nf:settings --config` (skip hub, jump to workflow settings)
 
 **`/nf:set-profile <profile>`**
-Quick switch model profile for GSD agents.
+Quick switch model profile for nForma agents.
 
 - `quality` — Opus everywhere except verification
 - `balanced` — Opus for planning, Sonnet for execution (default)
@@ -348,7 +348,7 @@ Usage: `/nf:cleanup`
 Show this command reference.
 
 **`/nf:update`**
-Update GSD to latest version with changelog preview.
+Update nForma to latest version with changelog preview.
 
 - Shows installed vs latest version comparison
 - Displays changelog entries for versions you've missed
@@ -359,10 +359,10 @@ Update GSD to latest version with changelog preview.
 Usage: `/nf:update`
 
 **`/nf:join-discord`**
-Join the GSD Discord community.
+Join the nForma Discord community.
 
 - Get help, share what you're building, stay updated
-- Connect with other GSD users
+- Connect with other nForma users
 
 Usage: `/nf:join-discord`
 

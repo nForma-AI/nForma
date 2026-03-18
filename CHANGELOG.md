@@ -6,6 +6,86 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.37.2] - 2026-03-18 — Rebrand Polish & Changelog Backfill
+
+### Fixed
+- **GSD → nForma rename** in 8 workflow files — `/nf:update`, `/nf:help`, `/nf:quick`, `/nf:health`, `/nf:execute-phase`, `/nf:map-codebase`, `/nf:add-todo`, `/nf:set-profile` no longer reference "GSD" in user-facing text
+
+### Added
+- **Changelog backfill** — entries for v0.34.0 through v0.37.1 reconstructed from git history and release notes
+
+## [0.37.1] - 2026-03-17 — Triage Fixes & Auto-Commit Formal Artifacts
+
+### Fixed
+- **#21**: `derived_from` array normalization in gate computation (fixes TypeError crash)
+- **#24**: Formal spec path resolution — no more manual symlink needed
+- **#25**: `code-trace-index.json` preserves user-added entries across regeneration
+- **#28**: `hazard-model.json` preserves user detection overrides across regeneration
+
+### Added
+- **#30**: Stop hook auto-commits dirty `.planning/formal/` files at session end (fail-open, skips protected branches, `[auto]` tag in commit message)
+- **#22**: D→C scanner supports Python, Go, and Rust dependency manifests + configurable `ignore_patterns`
+- **#23**: T→C runner supports `exclude_paths` / `include_paths` in `config.solve.t_to_c`
+- **#26**: Haiku classification retries failed batches with backoff; reports `error_types` and `failed_items`
+- **#27**: R→F residual excludes `Pending` / `Future` requirements; reports `pending_excluded` count
+- 8 new requirements: `GATE-05`, `RSN-06`, `TRACE-06`, `VERF-04`, `DIAG-04`, `DIAG-05`, `DIAG-06`, `CLASS-02` (371 → 379)
+
+## [0.37.0] - 2026-03-17 — Close the Loop: Cross-Layer Feedback Integration
+
+### Added
+- **Embedding-amplified proximity scoring** via sentence-transformers with auto-detect cache
+- **Hypothesis-layer targeting** — `hypothesis-layer-map.cjs` wired into solve remediation wave ordering
+- **Wave-ordered autoClose dispatch** — LAYER_HANDLERS dispatch map with waveOrder parameter
+- **Quorum precedent extraction** — `extract-precedents.cjs` for cross-session learning
+- **D→R scanner tuning** — exclusion list and claim-type filter to reduce false positives
+- **Annotation back-linking** — 19 reverse-discovery gaps resolved (C→R, T→R, D→R)
+
+### Fixed
+- **ALLDOWN-PROMOTE bug** — use pre-filter slot names for promotion exclusion
+- **Quorum failure TTL** — reduced from 30min to 5min for faster self-healing
+- **IVL-02 rebrand gap** — renamed `QGSDMCPEnv.tla` → `NFMCPEnv.tla`
+- 23 pre-existing test failures resolved, 3 hanging test files fixed
+
+### Removed
+- UPPAAL formalism + solve convergence (89.7% reduction in formal spec size)
+
+## [0.36.0] - 2026-03-15 — Solve Loop Convergence & Correctness
+
+### Added
+- **L2 layer collapse** — simplified 3-layer to 2-layer architecture (L1→L3 direct), all consumers updated
+- **Wave-parallel remediation** — `solve-wave-dag.cjs` dependency DAG replaces sequential dispatch with wave-parallel execution, includes speedup ratio reporting
+- **Gate B redesign** — changed from structural check to purpose check (requirement backing)
+- **Gate cap reporting** — capped layers surfaced in solve remediation output (CONV-03)
+- **Baseline drift detection** — drift module integrated into solve report (CONV-04)
+- **Convergence E2E tests** — integration tests for convergence pipeline + cascade effect unit tests
+- **Classification golden set** — test runner with golden set data files for focus filter completeness
+
+### Changed
+- `sweepL1toL2` renamed to `sweepL1toL3`, `sweepL2toL3` removed
+- LAYER_KEYS count reduced from 19 to 18
+
+## [0.35.0] - 2026-03-13 — Install & Setup Hardening
+
+### Added
+- **Auto-rebuild hooks/dist** — `buildHooksIfMissing()` in installer ensures fresh clones work without manual rebuild
+- **MCP setup slot classification** — `auth_type` field in `providers.json` wired into mcp-setup workflow
+- **Cross-platform provider paths** — `resolveCli` wired into `call-quorum-slot.cjs` and `unified-mcp-server.mjs`
+- **TUI CLI Agent MCP entry** — `resolveCli` integrated into TUI CLI Agent form handler with executable validation
+
+### Fixed
+- Fresh-clone install no longer fails when `hooks/dist/` is missing
+
+## [0.34.0] - 2026-03-11 — Semantic Gate Validation & Auto-Promotion
+
+### Added
+- **Semantic scoring pipeline** — wired into promotion gate with schema v3 fields preserved
+- **Auto-promotion state initialization** — explicit `consecutive_clean_sessions` init and `semantic_score` diagnostic logging
+- **E2E integration test** — full semantic scoring + auto-promotion pipeline test
+- **PROMO-04 verification** — session_id tracking for promotion audit trail
+
+### Fixed
+- Quorum consensus enforcement (Quick-269)
+
 ## [0.33.1] - 2026-03-10 — Solve/Resolve Data Disconnect Fix
 
 ### Fixed

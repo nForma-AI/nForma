@@ -1,5 +1,5 @@
 <purpose>
-Check for GSD updates via npm, display changelog for versions between installed and latest, obtain user confirmation, and execute clean installation with cache clearing.
+Check for nForma updates via npm, display changelog for versions between installed and latest, obtain user confirmation, and execute clean installation with cache clearing.
 </purpose>
 
 <required_reading>
@@ -9,7 +9,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 <process>
 
 <step name="get_installed_version">
-Detect whether GSD is installed locally or globally by checking both locations:
+Detect whether nForma is installed locally or globally by checking both locations:
 
 ```bash
 # Check local first (takes priority)
@@ -32,7 +32,7 @@ Parse output:
 
 **If VERSION file missing:**
 ```
-## GSD Update
+## nForma Update
 
 **Installed version:** Unknown
 
@@ -88,7 +88,7 @@ Compare installed vs latest:
 
 **If installed == latest:**
 ```
-## GSD Update
+## nForma Update
 
 **Installed:** X.Y.Z
 **Latest:** X.Y.Z
@@ -100,7 +100,7 @@ Exit.
 
 **If installed > latest (and CHANNEL is "latest"):**
 ```
-## GSD Update
+## nForma Update
 
 **Installed:** X.Y.Z
 **Latest:** A.B.C
@@ -112,7 +112,7 @@ Exit.
 
 **If CHANNEL is "staging" and installed == latest:**
 ```
-## GSD Update (staging channel)
+## nForma Update (staging channel)
 
 **Installed:** X.Y.Z-staging.N
 **Latest staging:** X.Y.Z-staging.N
@@ -131,7 +131,7 @@ Exit.
 3. Display preview and ask for confirmation:
 
 ```
-## GSD Update Available
+## nForma Update Available
 
 **Installed:** 1.5.10
 **Latest${CHANNEL === 'staging' ? ' (staging)' : ''}:** 1.5.15
@@ -151,7 +151,7 @@ Exit.
 
 ────────────────────────────────────────────────────────────
 
-⚠️  **Note:** The installer performs a clean install of GSD folders:
+⚠️  **Note:** The installer performs a clean install of nForma folders:
 - `commands/nf/` will be wiped and replaced
 - `nf/` will be wiped and replaced
 - `agents/nf-*` files will be replaced
@@ -164,7 +164,7 @@ Your custom files in other locations are preserved:
 - Custom hooks ✓
 - Your CLAUDE.md files ✓
 
-If you've modified any GSD files directly, they'll be automatically backed up to `gsd-local-patches/` and can be reapplied with `/nf:reapply-patches` after the update.
+If you've modified any nForma files directly, they'll be automatically backed up to `gsd-local-patches/` and can be reapplied with `/nf:reapply-patches` after the update.
 ```
 
 Use AskUserQuestion:
@@ -239,7 +239,7 @@ Format completion message (changelog was already shown in confirmation step):
 
 ```
 ╔═══════════════════════════════════════════════════════════╗
-║  GSD Updated: v1.5.10 → v1.5.15                           ║
+║  nForma Updated: v1.5.10 → v1.5.15                           ║
 ╚═══════════════════════════════════════════════════════════╝
 
 ⚠️  Restart Claude Code to pick up the new commands.
