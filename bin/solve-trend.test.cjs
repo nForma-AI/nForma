@@ -25,7 +25,7 @@ function cleanUp(dir) {
   try { fs.rmSync(dir, { recursive: true }); } catch (_) { /* ignore */ }
 }
 
-/** Build a minimal mock residual with all 19 layer keys */
+/** Build a minimal mock residual with all 20 layer keys */
 function mockResidual(overrides = {}) {
   const residual = { total: 42 };
   for (const key of LAYER_KEYS) {
@@ -169,7 +169,7 @@ describe('solve-trend-helpers', () => {
       assert.doesNotThrow(() => JSON.parse(lines[1]));
     });
 
-    it('all 19 per_layer keys present', () => {
+    it('all 20 per_layer keys present', () => {
       const { formal } = setupFakeRoot(tmpDir);
       const trendPath = path.join(formal, 'solve-trend.jsonl');
 
@@ -181,7 +181,7 @@ describe('solve-trend-helpers', () => {
 
       const entry = JSON.parse(fs.readFileSync(trendPath, 'utf8').trim());
       const keys = Object.keys(entry.per_layer);
-      assert.strictEqual(keys.length, 19, 'should have exactly 19 per_layer keys');
+      assert.strictEqual(keys.length, 20, 'should have exactly 20 per_layer keys');
       for (const k of LAYER_KEYS) {
         assert.ok(k in entry.per_layer, 'missing key: ' + k);
       }

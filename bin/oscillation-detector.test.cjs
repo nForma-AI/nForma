@@ -344,7 +344,7 @@ describe('updateVerdicts', () => {
     assert.ok(result.layers.r_to_f.oscillation_count >= 2);
   });
 
-  it('has all 19 LAYER_KEYS in verdict output', () => {
+  it('has all 20 LAYER_KEYS in verdict output', () => {
     const entries = [];
     for (let i = 0; i < 6; i++) {
       entries.push(makeTrendEntry(makePerLayer({})));
@@ -352,7 +352,7 @@ describe('updateVerdicts', () => {
     writeJSONL(trendPath, entries);
 
     const result = updateVerdicts({ root: tmpDir, trendPath, verdictsPath, sessionsDir });
-    assert.equal(Object.keys(result.layers).length, 19);
+    assert.equal(Object.keys(result.layers).length, 20);
     for (const key of LAYER_KEYS) {
       assert.ok(result.layers[key], `Missing layer: ${key}`);
     }
@@ -402,8 +402,8 @@ describe('constants', () => {
     assert.equal(Z_THRESHOLD, 1.96);
   });
 
-  it('LAYER_KEYS has 19 entries', () => {
-    assert.equal(LAYER_KEYS.length, 19);
+  it('LAYER_KEYS has 20 entries', () => {
+    assert.equal(LAYER_KEYS.length, 20);
   });
 
   it('LAYER_DEPS has valid upstream references', () => {
