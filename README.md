@@ -20,7 +20,7 @@
 npx @nforma.ai/nforma@latest
 ```
 
-Staging: `npx @nforma.ai/nforma@staging` · Optional: `npm install @huggingface/transformers` ([why?](#getting-started))
+Prerelease: `npx @nforma.ai/nforma@next` · Optional: `npm install @huggingface/transformers` ([why?](#getting-started))
 
 **Requires Node.js 18+. Works on macOS and Linux.**
 
@@ -108,7 +108,7 @@ Unlike single-model coding assistants (GitHub Copilot Chat, Cursor, Cline) or au
 - **Cross-repo support** -- `--repo` flag lets you run nForma commands against any project in your workspace
 - **Formal spec generation** -- `/nf:close-formal-gaps` auto-generates TLA+, Alloy, or PRISM specs from your project requirements
 - **Pre-quorum auth checks** -- Detects unauthenticated agents before dispatch, no more 30s timeouts
-- **Staging channel** -- Follow pre-release updates with `npx @nforma.ai/nforma@staging`
+- **Prerelease channel** -- Follow release candidates with `npx @nforma.ai/nforma@next`
 
 ---
 
@@ -134,10 +134,10 @@ The deeper goal: the first truly autonomous coding agent that only escalates to 
 npx @nforma.ai/nforma@latest
 ```
 
-Want to try unreleased features? Install from the staging channel instead:
+Want to try unreleased features? Install from the prerelease channel instead:
 
 ```bash
-npx @nforma.ai/nforma@staging
+npx @nforma.ai/nforma@next
 ```
 
 **Optional** — install the embedding dependency for ML-powered proximity scoring (auto-detected, no configuration needed):
