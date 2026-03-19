@@ -21,6 +21,11 @@
 
 **Requirements covered:** SESSION-01, SESSION-02, SESSION-03, ROOT-01, ROOT-03, CONST-01, CONST-02
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] v0.40-01-01-PLAN.md — Add three context injection blocks to nf-prompt.js (session state, root cause template, edit constraint) with unit tests
+
 **Files to modify:**
 - `hooks/nf-prompt.js` — three new injection blocks before `cmdPattern.test(prompt)` gate at line 882
 - `hooks/dist/nf-prompt.js` — sync (cp)
