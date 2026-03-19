@@ -75,7 +75,7 @@ None currently.
 | 331 | Add requirement mappings for 4 models | 2026-03-19 | 23cb99ca | Complete | [331-add-requirement-mappings-for-4-models-wi](./quick/331-add-requirement-mappings-for-4-models-wi/) |
 | 332 | Formalize CI/CD pipeline, retire staging | 2026-03-19 | bb85f839 | Complete | [332-formalize-ci-cd-pipeline-retire-staging-](./quick/332-formalize-ci-cd-pipeline-retire-staging-/) |
 | 334 | Close 3 autonomous formal verification gaps: code-fix gate, regression auto-remediation, reverse-flow auto-approval via unanimous quorum consensus | 2026-03-19 | a0243e9b | Verified | [334-close-3-autonomous-formal-verification-g](./quick/334-close-3-autonomous-formal-verification-g/) |
-| 335 | Add FSM candidate detection section to nf-phase-researcher RESEARCH.md output | 2026-03-19 | 9f0aa33e | Complete | [335-add-fsm-candidate-detection-section-to-n](./quick/335-add-fsm-candidate-detection-section-to-n/) |
+| 335 | Add FSM candidate detection section to nf-phase-researcher RESEARCH.md output | 2026-03-19 | 9f0aa33e | Verified | [335-add-fsm-candidate-detection-section-to-n](./quick/335-add-fsm-candidate-detection-section-to-n/) |
 
 ## Session Continuity
 
