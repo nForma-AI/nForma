@@ -59,6 +59,7 @@ Your RESEARCH.md is consumed by `nf-planner`:
 | `## Don't Hand-Roll` | Tasks NEVER build custom solutions for listed problems |
 | `## Common Pitfalls` | Verification steps check for these |
 | `## Code Examples` | Task actions reference these patterns |
+| `## FSM Candidates` | Creates FSM conversion tasks pairing each candidate with its recommended framework; enables formal verification via TLA+ transpilation |
 
 **Be prescriptive, not exploratory.** "Use X" not "Consider X or Y."
 
@@ -289,6 +290,17 @@ Verified patterns from official sources:
 **Deprecated/outdated:**
 - [Thing]: [why, what replaced it]
 
+<!-- Include this section only if FSM candidates were detected in Step 3.5 -->
+## FSM Candidates
+
+Code scanned for implicit state machines per `.claude/rules/state-machine-bias.md` heuristics.
+
+| File | Signal | Approx States | Recommended Framework |
+|------|--------|---------------|----------------------|
+| `path/to/file.ts` | [e.g., `status` var with 5 string assignments + switch/case transitions] | 5 | XState v5 |
+
+**Transpilation note:** All recommended frameworks have adapters in `bin/adapters/` for TLA+ formal verification.
+
 ## Open Questions
 
 1. **[Question]**
@@ -366,6 +378,28 @@ Based on phase description, identify what needs investigating:
 ## Step 3: Execute Research Protocol
 
 For each domain: Context7 first → Official docs → WebSearch → Cross-verify. Document findings with confidence levels as you go.
+
+## Step 3.5: Scan for FSM Candidates
+
+When the phase touches code files (not pure docs/config phases), scan each file listed in the phase description or CONTEXT.md for implicit state machine patterns:
+
+**Detection heuristics** (from `.claude/rules/state-machine-bias.md`):
+1. Variables tracking 3+ distinct state values (e.g., `status`, `state`, `phase`, `step` with string/enum assignments)
+2. Conditional transitions between states (switch/case or if/else chains on a state variable that reassign it)
+3. Repeated "what state am I in?" checks — the same state variable inspected in multiple functions/locations
+
+**How to scan:**
+- Use Grep to search modified files for patterns: `status\s*=\s*['"]`, `state\s*===?\s*['"]`, `switch\s*\(\s*state`, `case\s+['"]`
+- For each hit, read surrounding context to confirm it represents multi-valued state tracking, not a simple boolean
+- Skip files that only have simple boolean toggles, linear pipelines with no branching, or one-off conditional logic
+
+**Framework recommendation:** Match detected language and complexity to the framework table in `.claude/rules/state-machine-bias.md`:
+- JS/TS flat FSM (3-6 states, no nesting) -> `javascript-state-machine`
+- JS/TS statecharts (nested, guards, actions) -> XState v5
+- Python flat FSM -> `transitions`
+- Other languages -> consult the bias rule's framework tables
+
+If NO candidates found, omit the `## FSM Candidates` section from RESEARCH.md entirely (do not include an empty section).
 
 ## Step 4: Quality Check
 
