@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement
-**Current focus:** Phase v0.39-03: Cycle 2 Solution Simulation
+**Current focus:** Milestone v0.40: Session Intelligence & Friction Reduction
 
 ## Current Position
 
-Phase: v0.39-03 (Cycle 2 Solution Simulation) 2 of 3 overall
-Plan: 3 of 3 in current phase (plan 01 COMPLETE, plan 02 COMPLETE, plan 03 COMPLETE)
-Status: Phase v0.39-03 COMPLETE; all 3 plans finished
-Last activity: 2026-03-19 - Completed quick task 332: Formalize CI/CD pipeline, retire staging
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v0.40
+Last activity: 2026-03-19 — Milestone v0.40 started
 
 Progress: [██████████] 100% (Phase v0.39-03: 3/3 plans = 100%)
 

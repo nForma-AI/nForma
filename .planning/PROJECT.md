@@ -10,7 +10,17 @@ Profile: cli
 
 Planning decisions are multi-model verified by structural enforcement, not instruction-following — a Stop hook that reads the transcript makes it impossible for Claude to skip quorum.
 
-## Current Milestone: (none — run /nf:new-milestone to start next)
+## Current Milestone: v0.40 — Session Intelligence & Friction Reduction
+
+**Goal:** Eliminate the top friction patterns identified by session insights analysis — wrong initial approach, project state confusion, and surface fixes instead of root causes — through structural hook-level enforcement rather than CLAUDE.md behavioral policy.
+
+**Target features:**
+- Session state injection in nf-prompt.js (STATE.md compact summary on first message)
+- Approach declaration gate in quick.md (APPROACH / NOT-DOING / SCOPE before planner spawn)
+- Root cause template injection in nf-prompt.js (debug/fix pattern detection)
+- Root cause quorum vote in solve-diagnose.md (vote on root cause before remediation dispatch)
+- Constraint injection for edit/content prompts (edit-in-place default)
+- Branch scope guard hook (PreToolUse:Edit/Write warning for out-of-scope files)
 
 ## Shipped: v0.39 — Dual-Cycle Formal Reasoning (2026-03-18)
 
