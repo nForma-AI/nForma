@@ -89,6 +89,11 @@ Plans:
 
 **Requirements covered:** SCOPE-01, SCOPE-02, SCOPE-03
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] v0.40-03-01-PLAN.md — Create nf-scope-guard PreToolUse hook, wire into install.js and config-loader, sync dist, install globally
+
 **Files to create/modify:**
 - `hooks/nf-scope-guard.js` — new PreToolUse hook, follows `nf-destructive-git-guard.js` pattern
 - `hooks/dist/nf-scope-guard.js` — sync (cp)
