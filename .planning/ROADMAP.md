@@ -53,6 +53,12 @@ Plans:
 
 **Requirements covered:** INTENT-01, INTENT-02, INTENT-03, ROOT-02
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] v0.40-02-01-PLAN.md — Add approach declaration + scope contract to quick.md (INTENT-01/02/03)
+- [ ] v0.40-02-02-PLAN.md — Add root cause quorum vote to solve-diagnose.md (ROOT-02)
+
 **Files to modify:**
 - `core/workflows/quick.md` — new Step 0 (approach declaration + scope contract write) before existing Step 1
 - `~/.claude/nf/workflows/quick.md` — sync from core (or via install)
