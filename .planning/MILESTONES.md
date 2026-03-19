@@ -633,3 +633,13 @@ Archive: `.planning/milestones/v0.15-MILESTONE-AUDIT.md`
 
 ---
 
+
+## v0.40 Structural Enforcement (Shipped: 2026-03-19)
+
+**Phases completed:** 49 phases, 87 plans, 29 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
