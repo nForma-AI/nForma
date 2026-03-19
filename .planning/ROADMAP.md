@@ -21,7 +21,7 @@
 
 **Requirements covered:** SESSION-01, SESSION-02, SESSION-03, ROOT-01, ROOT-03, CONST-01, CONST-02
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [x] v0.40-01-01-PLAN.md — Add three context injection blocks to nf-prompt.js (session state, root cause template, edit constraint) with unit tests (Complete: 2026-03-19, 15 min, 2 tasks)
@@ -112,8 +112,7 @@ Plans:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SESSION-01 | v0.40-01 | Complete |
-| SESSION-02 | v0.40-01 | Complete |
+| SESSION-01 | v0.40-01 | Complete | Complete    | 2026-03-19 | v0.40-01 | Complete |
 | SESSION-03 | v0.40-01 | Complete |
 | ROOT-01 | v0.40-01 | Complete |
 | ROOT-03 | v0.40-01 | Complete |
