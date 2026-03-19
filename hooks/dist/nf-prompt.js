@@ -109,6 +109,68 @@ function consumePendingTask(cwd, sessionId) {
   return null;
 }
 
+// Checks if this is the first message of a session.
+// Uses a sentinel flag file to ensure injection fires exactly once per session.
+// Returns true on first call with a valid sessionId (flag created), false on subsequent calls.
+// Fail-open: missing .claude directory or file write errors return false.
+function isFirstMessageOfSession(cwd, sessionId) {
+  if (!sessionId) return false;
+  try {
+    const claudeDir = path.join(cwd, '.claude');
+    const flagPath = path.join(claudeDir, `nf-session-seen-${sessionId}.flag`);
+    if (fs.existsSync(flagPath)) {
+      return false; // Flag already exists — not the first message
+    }
+    // Ensure .claude directory exists
+    if (!fs.existsSync(claudeDir)) {
+      fs.mkdirSync(claudeDir, { recursive: true });
+    }
+    // Create the flag file with current timestamp
+    fs.writeFileSync(flagPath, new Date().toISOString(), 'utf8');
+    return true; // Flag created — this is the first message
+  } catch (_) {
+    return false; // Fail-open on any error
+  }
+}
+
+// Extracts the "## Current Position" and "### Decisions" sections from STATE.md content.
+// Caps extraction at 20 lines total. Returns trimmed text or empty string on failure.
+function extractStateContext(stateContent) {
+  if (!stateContent) return '';
+  try {
+    const lines = stateContent.split('\n');
+    const result = [];
+    let inTargetSection = false;
+    let lineCount = 0;
+
+    for (const line of lines) {
+      // Check for "## Current Position" or "### Decisions" section headers
+      if (line.startsWith('## Current Position') || line.startsWith('### Decisions')) {
+        inTargetSection = true;
+        result.push(line);
+        lineCount++;
+        continue;
+      }
+
+      if (inTargetSection) {
+        // Stop when we hit another section header (##) or reach 20 lines
+        if (line.startsWith('##') && !line.startsWith('### ')) {
+          break;
+        }
+        if (lineCount >= 20) {
+          break;
+        }
+        result.push(line);
+        lineCount++;
+      }
+    }
+
+    return result.join('\n').trim();
+  } catch (_) {
+    return '';
+  }
+}
+
 // Parses --n N flag from a prompt string.
 // Returns N (integer >= 1) if found, or null if absent/invalid.
 function parseQuorumSizeFlag(prompt) {
@@ -360,6 +422,7 @@ function buildFalloverRule(cappedSlots, t1Unused, t2Slots, maxSize, modelDedupSl
       `PARALLEL DISPATCH: Dispatch ALL needed fallback replacements as parallel sibling Tasks in ONE message turn — not one per UNAVAIL primary.\n` +
       `DEDUP: Each fallback slot is dispatched AT MOST ONCE per round. Never dispatch the same slot twice even if multiple primaries are UNAVAIL.\n` +
       `NO RESUME: slot-worker Task results are final. Never call resume on a completed slot-worker Task.\n` +
+      `CHECKPOINT: After handling UNAVAIL, you MUST emit a <!-- FALLBACK_CHECKPOINT --> block (see quorum.md). The Stop hook will BLOCK if UNAVAIL is detected without this checkpoint.\n` +
       `UNAVAIL slots do not count toward the ${maxSize} required quorum votes.`
     );
   }
@@ -452,6 +515,11 @@ process.stdin.on('end', () => {
     const activeSlots = (config.quorum_active && config.quorum_active.length > 0)
       ? config.quorum_active
       : null; // null = use hardcoded fallback list
+
+    // Regex patterns for context injection (SESSION-01/02/03, ROOT-01/03, CONST-01/02)
+    const DEBUG_FIX_REGEX = /\b(debug|fix\b|broken|failing|investigate|root cause|the bug is|the issue is|why.{0,20}not working|error.{0,10}when)\b/i;
+    const EDIT_CONTENT_REGEX = /\b(rewrite|update the|change the|modify the|edit the|replace.{0,15}with|make it say)\b/i;
+    const NEW_FEATURE_REGEX = /\b(create a new|add a new|build a new|implement a new|new feature|new component|new file)\b/i;
 
     let instructions;
 
@@ -873,6 +941,48 @@ process.stdin.on('end', () => {
         }
       } catch (_) { /* fail-open */ }
     }
+
+    // ── SESSION STATE INJECTION (SESSION-01/02/03) ──
+    // Inject STATE.md summary on first message of each session only.
+    // Fail-open: missing STATE.md or read errors are silently skipped.
+    if (isFirstMessageOfSession(cwd, sessionId)) {
+      try {
+        const statePath = path.join(cwd, '.planning', 'STATE.md');
+        if (fs.existsSync(statePath)) {
+          const stateContent = fs.readFileSync(statePath, 'utf8');
+          const stateContext = extractStateContext(stateContent);
+          if (stateContext && stateContext.length > 0 && stateContext.length <= 500) {
+            instructions += '\n\nSESSION CONTEXT (from STATE.md):\n' + stateContext;
+          }
+        }
+      } catch (_) { /* fail-open: STATE.md read failure is non-fatal */ }
+    }
+
+    // ── ROOT CAUSE TEMPLATE INJECTION (ROOT-01, ROOT-03) ──
+    // On prompts matching debug/fix patterns, inject causal reasoning template.
+    // Fail-open: regex errors silently skip injection.
+    try {
+      if (DEBUG_FIX_REGEX.test(prompt)) {
+        instructions += '\n\nROOT CAUSE ENFORCEMENT: This prompt describes a bug or failure.\n' +
+          'Before proposing any fix, you MUST:\n' +
+          '1. State the root cause hypothesis (what mechanism is failing and why)\n' +
+          '2. Identify the assumption the proposed fix relies on\n' +
+          '3. Confirm the fix addresses the root cause, not just the symptom\n' +
+          'Do NOT patch symptoms without identifying the root cause first.';
+      }
+    } catch (_) { /* fail-open */ }
+
+    // ── EDIT CONSTRAINT INJECTION (CONST-01, CONST-02) ──
+    // On edit/content prompts (that are NOT debug/fix AND NOT new-feature requests),
+    // inject edit-in-place preference. Fail-open on regex errors.
+    try {
+      if (!DEBUG_FIX_REGEX.test(prompt) && EDIT_CONTENT_REGEX.test(prompt) && !NEW_FEATURE_REGEX.test(prompt)) {
+        instructions += '\n\nEDIT CONSTRAINT: This prompt involves editing existing content.\n' +
+          'Prefer in-place edits over creating new files or full rewrites.\n' +
+          'Identify the minimal change that achieves the goal.\n' +
+          'State what you are keeping unchanged before describing what changes.';
+      }
+    } catch (_) { /* fail-open */ }
 
     // Anchored allowlist — requires /nf:, /gsd:, or /qgsd: prefix and word boundary after command name.
     // Strict mode: match ANY /nf: or /gsd: or /qgsd: command, not just quorum_commands list.
