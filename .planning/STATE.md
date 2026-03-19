@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-18)
 Phase: v0.39-03 (Cycle 2 Solution Simulation) 2 of 3 overall
 Plan: 3 of 3 in current phase (plan 01 COMPLETE, plan 02 COMPLETE, plan 03 COMPLETE)
 Status: Phase v0.39-03 COMPLETE; all 3 plans finished
-Last activity: 2026-03-18 - Completed quick task 325: Add Layer 3+4 to formal-scope-scan.cjs
+Last activity: 2026-03-19 - Completed quick task 332: Formalize CI/CD pipeline, retire staging
 
 Progress: [██████████] 100% (Phase v0.39-03: 3/3 plans = 100%)
 
@@ -68,6 +68,12 @@ None currently.
 | 324 | Route cycle2-simulations session artifacts to tmp | 2026-03-18 | 74e0a24a | Complete | [324-route-cycle2-simulations-session-artifac](./quick/324-route-cycle2-simulations-session-artifac/) |
 | 325 | Add Layer 3+4 to formal-scope-scan.cjs | 2026-03-18 | 0a46f354 | Needs Review | [325-add-layer-3-sentence-transformer-semanti](./quick/325-add-layer-3-sentence-transformer-semanti/) |
 | 326 | add implicit state machine detection to solve-diagnose and close-formal-gaps | 2026-03-18 | 859cb36e | Verified | [326-add-implicit-state-machine-detection-to-](.planning/quick/326-add-implicit-state-machine-detection-to-/) |
+| 327 | add FAIRNESS WF(Next) to MCConvergenceTest.cfg | 2026-03-19 | 6836e5d7 | Pending | [327-add-fairness-wf-next-to-mcconvergencetes](./quick/327-add-fairness-wf-next-to-mcconvergencetes/) |
+| 328 | Fix three nForma friction points | 2026-03-19 | b60d798b | Verified | [328-fix-three-nforma-friction-points-quorum-](./quick/328-fix-three-nforma-friction-points-quorum-/) |
+| 329 | Patch solve-report.md Step 7 auto-dispatch | 2026-03-19 | ee21c854 | Verified | [329-patch-solve-report-md-step-7-to-auto-dis](.planning/quick/329-patch-solve-report-md-step-7-to-auto-dis/) |
+| 330 | Fix 11 XState model gaps identified by Gate A | 2026-03-19 | b5f585d6 | Complete | [330-fix-11-xstate-model-gaps-identified-by-g](./quick/330-fix-11-xstate-model-gaps-identified-by-g/) |
+| 331 | Add requirement mappings for 4 models | 2026-03-19 | 23cb99ca | Complete | [331-add-requirement-mappings-for-4-models-wi](./quick/331-add-requirement-mappings-for-4-models-wi/) |
+| 332 | Formalize CI/CD pipeline, retire staging | 2026-03-19 | bb85f839 | Complete | [332-formalize-ci-cd-pipeline-retire-staging-](./quick/332-formalize-ci-cd-pipeline-retire-staging-/) |
 
 ## Session Continuity
 
