@@ -38,8 +38,17 @@ jobs:
 
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             IS_TAG_PUSH="true"
-            # For tag pushes, verify tag matches package.json
             TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+            # Skip prerelease tags (e.g. v0.39.0-rc.1) — they don't produce a release
+            if echo "$TAG_VERSION" | grep -qE '\-'; then
+              echo "Skipping: prerelease tag $GITHUB_REF"
+              echo "should_release=false" >> "$GITHUB_OUTPUT"
+              echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+              echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+              echo "is_tag_push=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            # For stable tag pushes, verify tag matches package.json
             if [ "$TAG_VERSION" != "$VERSION" ]; then
               echo "ERROR: Tag version ($TAG_VERSION) != package.json ($VERSION)"
               exit 1
