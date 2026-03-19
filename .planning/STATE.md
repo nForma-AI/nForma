@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: v0.40-01 (1/2 plans complete)
+Phase: v0.40-02 (1/1 plans complete)
 Plan: 02
-Status: Plan 01 complete — session state injection, root cause reasoning, edit constraints live
-Last activity: 2026-03-19 — Completed v0.40-01 plan 01: Three context injection blocks
+Status: Plan 02 complete — root cause quorum vote step added to solve-diagnose
+Last activity: 2026-03-19 — Completed v0.40-02 plan 02: Root cause quorum vote step
 
-Progress: [█░░░░░░░░░] 50% (Phase v0.40-01: 1/2 plans = 50%)
+Progress: [███████████░░░] Phase v0.40-02 Complete (1/1 plans = 100%)
 
 ## Performance Metrics
 
@@ -91,3 +91,7 @@ Resume file: None
 - v0.40-01-01: All injection blocks append to instructions string (preserve quorum gate, no early exits)
 - v0.40-01-01: Mutual exclusion: debug/fix > edit > new-feature (ordered conditional checks)
 - v0.40-01-01: All injection blocks use fail-open try/catch (missing STATE.md, regex errors are silent)
+- v0.40-02-02: Step 0f mandatory for all diagnoses in v0.40-02 (complexity gate deferred to v2 QRUM-01)
+- v0.40-02-02: BLOCK is absolute per CE-2 - no override rationalization permitted
+- v0.40-02-02: Fail-open when quorum unavailable - proceed without consensus rather than block
+- v0.40-02-02: FAN_OUT_COUNT = 3 (medium risk) for diagnosis gate dispatch
