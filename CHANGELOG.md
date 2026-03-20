@@ -6,6 +6,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.40.1] - 2026-03-20 — Structural Enforcement & TLC Failure Classification
+
+### Added
+- **nf-scope-guard hook** — PreToolUse hook warns on out-of-scope file edits during phase execution
+- **Context injection blocks** — 3 new context blocks in `nf-prompt.js` for richer session intelligence
+- **Root cause quorum vote** — Step 0f added to `solve-diagnose` workflow for consensus-based root cause selection
+- **TLC failure classifier** — 6-class pattern matching engine for TLA+ model checker output (`bin/classify-tlc-failure.cjs`)
+- **F→C remediation dispatch** — classifier wired into `solve-remediate` formal→code layer with schema extension
+- **FSM candidate detection** — phase researcher now identifies implicit finite state machines in target code
+- **21 requirements from triage** — D→R and T→R requirement creation via `/nf:resolve`, linked to `quorum.pm`
+- **CLASS-03 requirement** — formal requirement for TLC failure classification coverage
+
+### Fixed
+- **Prerelease tag handling** — release workflow skips `v*-rc*` / `v*-next*` tags instead of erroring
+- **TLA+ MCConvergenceTest** — resolved inconclusive formal check in convergence model
+
 ## [0.39.0] - 2026-03-19 — Dual-Cycle Formal Reasoning & CI/CD Formalization
 
 ### Added

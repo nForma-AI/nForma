@@ -142,7 +142,7 @@ node "$HOME/.claude/nf-bin/quorum-preflight.cjs" --team
 ```
 
 Store result as `TEAM_JSON`. Also build three lookup maps from `providers.json` for use during dispatch:
-- `$SLOT_TIMEOUTS: { slotName: quorum_timeout_ms }` (fallback: 30000)
+- `$SLOT_TIMEOUTS: { slotName: quorum_timeout_ms }` (fallback: 300000)
 - `$SLOT_MODELS: { slotName: model }` (fallback: `"unknown"`)
 - `$SLOT_CLI: { slotName: display_type }` (fallback: `"cli"`)
 
@@ -323,6 +323,29 @@ Classification is based on runtime `auth_type` from `providers.json` / config �
 **Why this matters:** With `FAN_OUT_COUNT=3`, only 2 external slots are in `$DISPATCH_LIST`. If both primaries are UNAVAIL, any remaining `auth_type=sub` slots should be tried before falling to `auth_type=api` (ccr) slots. The exact slot names in each tier depend on `--n` and the runtime config — they are not fixed.
 
 **Display label:** Use `(T1 fallback)` for `auth_type=sub` replacements, `(T2 fallback)` for `auth_type≠sub` replacements.
+
+#### FALLBACK-01 checkpoint (mandatory before consensus evaluation)
+
+**STOP.** Before evaluating consensus, you MUST complete this checkpoint if ANY primary slot returned UNAVAIL. This is structurally enforced by the Stop hook — skipping it will cause a BLOCK.
+
+Emit the following block verbatim, filling in the values:
+
+```
+<!-- FALLBACK_CHECKPOINT
+  unavail_primaries: [list of primary slots that returned UNAVAIL, or "none"]
+  fallback_dispatched: [true/false — did you dispatch T1 or T2 fallback Tasks?]
+  t1_slots_tried: [list of T1 slots dispatched, or "none" / "empty pool"]
+  t2_slots_tried: [list of T2 slots dispatched, or "none" / "not needed"]
+  all_tiers_exhausted: [true/false — are all tiers exhausted or did a fallback succeed?]
+  proceed_reason: [why it is now safe to evaluate consensus]
+-->
+```
+
+**Rules:**
+- If `unavail_primaries` is not "none" AND `fallback_dispatched` is "false", you MUST go back and dispatch fallback Tasks before continuing. Do NOT proceed to consensus.
+- `all_tiers_exhausted` can only be "true" if every slot in T1 AND T2 was either dispatched and returned UNAVAIL, or the pool was empty.
+- If a T1 fallback succeeded (returned APPROVE/BLOCK), `all_tiers_exhausted` is "false" but `proceed_reason` is valid because you have a replacement vote.
+- The Stop hook scans for this checkpoint when UNAVAIL is present. Missing checkpoint = BLOCK.
 
 ### Evaluate Round 1 — check for consensus
 

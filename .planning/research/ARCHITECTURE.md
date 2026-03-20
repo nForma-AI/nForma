@@ -1,546 +1,542 @@
-# Architecture: Model-Driven Debugging Integration
+# Architecture Research
 
-**Project:** nForma v0.38 — Model-Driven Debugging
-**Researched:** 2026-03-17
-**Confidence:** HIGH
+**Domain:** nForma v0.40 — Hook and workflow pipeline extension (6 friction-reduction features)
+**Researched:** 2026-03-19
+**Confidence:** HIGH (all findings from direct codebase inspection)
 
-## Executive Summary
+## Standard Architecture
 
-Model-driven debugging transforms nForma's formal models from descriptive (CI gate validation) to prescriptive (explaining bugs, constraining fixes, preventing regressions). The architecture extends three existing subsystems:
-
-1. **Model Lookup Layer** — Bug-to-model discovery via extended `formal-scope-scan.cjs` with `--bug-mode`
-2. **Constraint Extraction** — Parse specs to extract fix constraints, integrated into `/nf:debug` quorum dispatch
-3. **Solve Layer B→F** — New 20th layer tracking bugs formal models should explain but don't
-
-The design preserves existing wave-parallel remediation architecture while inserting bug-driven intelligence into the debug→solve→fix loop. Integration points are minimal (5 new/modified components), dependencies are clean (no graph cycles), and the build order respects solve-layer prerequisites.
-
-## System Architecture
-
-### Current State (v0.37)
+### System Overview
 
 ```
-Code/Test/Docs ────────┐
-                       ├──→ (19 layers) ──→ nf-solve ──→ solve-remediate ──→ fix
-Requirements/Models ──┤
-Production Signals ───┘
-
-Per-layer handlers (gas pedal dispatch):
-  wave 0: r_to_f, r_to_d, t_to_c, p_to_f
-  wave 1: f_to_t, c_to_f
-  wave 2: f_to_c, d_to_c
-  wave 3: c_to_r, t_to_r, d_to_r, git_heatmap
-  wave 4: hazard_model
-  wave 5: l1_to_l3
-  wave 6: l3_to_tc, per_model_gates, h_to_m
+┌──────────────────────────────────────────────────────────────────┐
+│                     Claude Code Session                           │
+│                                                                   │
+│  User Message                                                     │
+│       │                                                           │
+│       ▼                                                           │
+│  [UserPromptSubmit hooks]                                         │
+│  ┌─────────────────────────────────────────────────────────────┐  │
+│  │  nf-prompt.js  (Priority 50 — injector)                     │  │
+│  │  ── Priority 1: circuit breaker recovery                    │  │
+│  │  ── Priority 2: pending task injection                      │  │
+│  │  ── NEW P2.5: state injection (first-message guard)         │  │
+│  │  ── NEW P2.7: root cause template (debug/fix detection)     │  │
+│  │  ── NEW P2.8: constraint injection (edit/content prompts)   │  │
+│  │  ── Priority 3: quorum instructions                         │  │
+│  └─────────────────────────────────────────────────────────────┘  │
+│       │                                                           │
+│       ▼                                                           │
+│  Claude executes (reads workflows, spawns subagents)              │
+│  ┌─────────────────────────────────────────────────────────────┐  │
+│  │  core/workflows/quick.md                                    │  │
+│  │  ── NEW: approach gate Step 0 (APPROACH/NOT-DOING/SCOPE)    │  │
+│  │  ── NEW: scope contract write (.claude/scope-contract.json) │  │
+│  │                                                             │  │
+│  │  commands/nf/solve-diagnose.md                              │  │
+│  │  ── NEW: root cause quorum vote Step 0f                     │  │
+│  └─────────────────────────────────────────────────────────────┘  │
+│       │                                                           │
+│       ▼                                                           │
+│  [PreToolUse hooks] — fires before each tool call                 │
+│  ┌─────────────────────────────────────────────────────────────┐  │
+│  │  nf-circuit-breaker.js  (Priority 1000 — oscillation)       │  │
+│  │  nf-destructive-git-guard.js  (warn on git --force etc.)    │  │
+│  │  nf-mcp-dispatch-guard.js  (warn on direct MCP calls)       │  │
+│  │  nf-node-eval-guard.js  (rewrite node -e to heredoc)        │  │
+│  │  NEW: nf-scope-guard.js  (Edit/Write out-of-scope warning)  │  │
+│  └─────────────────────────────────────────────────────────────┘  │
+│       │                                                           │
+│       ▼                                                           │
+│  [Stop hooks] — fires before Claude delivers final response       │
+│  ┌─────────────────────────────────────────────────────────────┐  │
+│  │  nf-stop.js  (quorum gate — reads transcript)               │  │
+│  │  nf-console-guard.js  (warn on leftover console.log)        │  │
+│  └─────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-**Key facts:**
-- 19 layers in LAYER_KEYS (layer-constants.cjs)
-- Dependency DAG in solve-wave-dag.cjs enforces ordering
-- Each wave runs up to 3 layers in parallel (RAM budget)
-- Remediation dispatch uses Agent subprocesses per layer
-- Debug loop (nf:debug) calls quorum workers independently of solve
+### Component Responsibilities
 
-### Proposed State (v0.38 with Model-Driven Debugging)
+| Component | Responsibility | Hook Event | Status |
+|-----------|----------------|------------|--------|
+| `nf-prompt.js` | Inject context into Claude's additionalContext before it processes a user message | UserPromptSubmit | EXISTING — extend |
+| `nf-circuit-breaker.js` | Detect oscillation in git history, deny write tool calls when active | PreToolUse + PostToolUse | EXISTING — pattern reference only |
+| `nf-stop.js` | Verify quorum actually ran before delivering planning output | Stop | EXISTING — no changes |
+| `core/workflows/quick.md` | Orchestrate quick task execution (planner → quorum → executor) | Workflow (not a hook) | EXISTING — insert Step 0 |
+| `commands/nf/solve-diagnose.md` | Run diagnostic phase of nf:solve (Steps 0–1) | Sub-skill document | EXISTING — add quorum vote block |
+| `nf-scope-guard.js` | Warn when Edit/Write targets files outside the current branch's expected scope | PreToolUse | NEW — create |
+
+---
+
+## 6-Feature Integration Map
+
+### Feature 1: Session State Injection
+
+**Integration point:** `nf-prompt.js`, new block between Priority 2 (pending task) and Priority 3 (quorum)
+
+**What to add:** When this is the first user message of the session (detect via a session-scoped flag file), read `.planning/STATE.md`, extract Phase/Status/Last activity, and prepend a compact summary to `additionalContext`.
+
+**Data flow:**
+```
+UserPromptSubmit fired
+    → nf-prompt.js reads .claude/session-<sessionId>-state-injected.flag
+    → flag absent: read .planning/STATE.md, extract ~3 lines
+    → write flag file (atomic, session-scoped)
+    → prepend STATE summary to instructions/additionalContext
+    → normal hook flow continues
+```
+
+**Implementation notes:**
+- Session detection: use `.claude/session-<sessionId>-state-injected.flag`. Pattern matches `consumePendingTask` atomic claim approach already in this file.
+- Cap summary at ~300 chars — same tightness as context stack injection (800-char cap on line 871).
+- Fail-open: any read error skips injection silently.
+- Existing `parseStateForReminder()` in `nf-session-start.js` already does similar parsing — duplicate as a local utility function (avoid cross-hook dependency).
+
+**Files touched:** `hooks/nf-prompt.js` only.
+
+---
+
+### Feature 2: Approach Gate in quick.md
+
+**Integration point:** `core/workflows/quick.md`, new Step 0 inserted before current "Step 1: Parse arguments"
+
+**What to add:** Before parsing arguments, Claude must output a structured APPROACH block:
+```
+APPROACH: [one sentence — what will be done]
+NOT-DOING: [what is explicitly excluded]
+SCOPE: [files/components in scope]
+```
+The orchestrator reads this block, writes `.claude/scope-contract.json` (branch + scope_patterns), then proceeds to Step 1. If `APPROACH` is absent, re-prompt once. If still absent, warn and continue (fail-open).
+
+**Data flow:**
+```
+/nf:quick $DESCRIPTION
+    → Step 0: Claude declares APPROACH / NOT-DOING / SCOPE inline
+    → Step 0 writes .claude/scope-contract.json
+    → Step 1: Parse arguments (unchanged)
+    → Step 5: Planner receives APPROACH block as additional context
+```
+
+**Implementation notes:**
+- This is a workflow-level change, not a hook change.
+- The APPROACH block should be passed to the planner Task's `<planning_context>` so the planner knows the declared scope.
+- No new files created — modify `core/workflows/quick.md` only (then sync to `~/.claude/nf/workflows/quick.md` via install).
+- The install sync requirement from MEMORY.md applies: repo is the durable copy, installer deploys to `~/.claude/nf/workflows/`.
+
+**Files touched:** `core/workflows/quick.md` only (install syncs automatically).
+
+---
+
+### Feature 3: Root Cause Template Injection
+
+**Integration point:** `nf-prompt.js`, new detection block after Priority 2 (pending task) and before Priority 3 (quorum)
+
+**What to add:** Detect debug/fix prompt patterns via regex. When detected, inject a root-cause constraint template into `additionalContext`:
 
 ```
-Bug Report ───────┐
-                 ├──→ Bug-to-Model ──→ Constraint Extraction ──→ /nf:debug ──→ Model-Aware Fix
-Code/Test/Docs ──┤
-Requirements ────┘
-
-New layer: B→F (wave 7, post per_model_gates)
-  "Which bugs does formal model M explain?"
-
-New solve layer in solve cycle (after per_model_gates):
-  wave 7: b_to_f  (bug→formal coverage tracking)
-
-New /nf:debug integration points:
-  1. Inject model-lookup results into debug bundle
-  2. Extract constraints from matched models
-  3. Pre-verify fix against neighbor models
+ROOT CAUSE MODE: This prompt describes a bug or broken behavior.
+Before proposing any fix, you MUST:
+1. State the root cause hypothesis (what mechanism is failing and why)
+2. Identify what assumption the fix relies on
+3. Confirm the fix addresses the root cause, not just the symptom
+Do NOT propose a fix until you have a root cause hypothesis.
 ```
 
-## Component Overview
+**Data flow:**
+```
+UserPromptSubmit fired
+    → nf-prompt.js checks prompt against debug/fix regex
+      (/\b(fix|debug|broken|failing|error|why.*not working)\b/i)
+    → if match: prepend root cause template to additionalContext
+    → quorum instructions follow as normal
+```
 
-| Component | Purpose | Status | Where |
-|-----------|---------|--------|-------|
-| **bug-to-model lookup** | Find models matching bug context | NEW | bin/formal-scope-scan.cjs (extend) |
-| **constraint-extraction** | Parse specs → English constraints | NEW | bin/model-constrained-fix.cjs |
-| **model-aware debug dispatch** | Inject formal intelligence into debug | NEW | core/workflows/model-driven-fix.md |
-| **B→F layer handler** | Track unexplained bugs | NEW | bin/solve-handlers/b_to_f.cjs |
-| **bug-model-gaps.json** | Persistence file for bug→model links | NEW | .planning/formal/bug-model-gaps.json |
-| **formal-scope-scan.cjs** | Extended with `--bug-mode` flag | MODIFIED | bin/formal-scope-scan.cjs |
-| **nf-solve.cjs** | Add B→F layer to cycle, post-h_to_m | MODIFIED | bin/nf-solve.cjs |
-| **solve-remediate.md** | Add 3o. B→F Gaps section | MODIFIED | core/workflows/solve-remediate.md |
-| **solve-wave-dag.cjs** | Add B→F to wave dependencies | MODIFIED | bin/solve-wave-dag.cjs |
-| **/nf:debug** | Inject model context into bundle | MODIFIED | commands/nf/debug.md |
+**Implementation notes:**
+- Pattern detection must be narrow enough to avoid false positives. Use a composite regex requiring 2+ bug-signal words or explicit terms.
+- Fail-open: regex error → skip injection.
+- Template is lightweight (~5 lines) and does not significantly contend with the quorum instructions context budget.
+- This is a context-only injection — it does NOT affect the `cmdPattern.test(prompt)` guard that gates quorum dispatch.
+
+**Files touched:** `hooks/nf-prompt.js` only.
+
+---
+
+### Feature 4: Root Cause Quorum Vote in solve-diagnose.md
+
+**Integration point:** `commands/nf/solve-diagnose.md`, new Step 0f inserted at the end of the Step 0 block (after Step 0e: Hypothesis Measurement), before Step 1: Initial Diagnostic Sweep
+
+**What to add:**
+```markdown
+### Step 0f: Root Cause Quorum Vote
+
+Form a root cause hypothesis from:
+- Open debt entries (Step 0d)
+- Hypothesis violations (Step 0e)
+- Focus phrase (if --focus was passed)
+
+State hypothesis as: "Root cause: [layer] because [mechanism]"
+
+If debt is empty AND hypothesis violations are zero, skip this step.
+
+Run quorum vote (Mode A — pure question):
+- Question: "Is this root cause hypothesis correct? Vote APPROVE if evidence
+  supports it, BLOCK if it is incomplete or points to a different layer."
+- Include hypothesis + top-3 debt entries as context
+- Dispatch $DISPATCH_LIST as sibling nf-quorum-slot-worker Tasks (same
+  YAML format as quick.md Step 5.7)
+- Synthesize votes → $ROOT_CAUSE_VERDICT
+
+Store $ROOT_CAUSE_VERDICT (APPROVED / BLOCKED / INCONCLUSIVE).
+If BLOCKED: prepend blocking rationale to remediation context.
+Fail-open: if all slots UNAVAIL, proceed with hypothesis uncontested.
+```
+
+**Data flow:**
+```
+Step 0e completes → hypothesis_measurements.json written
+    → Step 0f: Claude forms root cause hypothesis
+    → quorum vote dispatched (nf-quorum-slot-worker Tasks)
+    → $ROOT_CAUSE_VERDICT stored
+    → output_contract JSON gains root_cause_verdict field
+    → Step 1: diagnostic sweep runs with hypothesis in context
+    → remediation sub-skills receive contested/uncontested flag
+```
+
+**Implementation notes:**
+- Uses the same quorum dispatch pattern already in `quick.md` Step 5.7 — same YAML format, same `nf-quorum-slot-worker` Task dispatch.
+- The `output_contract` JSON at the end of `solve-diagnose.md` gains a `root_cause_verdict` field. The orchestrator must handle it as optional (fail-open).
+- Fail-open when nothing to vote on (empty debt and no violations).
+
+**Files touched:** `commands/nf/solve-diagnose.md` only.
+
+---
+
+### Feature 5: Constraint Injection for Edit/Content Prompts
+
+**Integration point:** `nf-prompt.js`, detection alongside Feature 3
+
+**What to add:** Detect edit/content-request patterns via regex. When detected (and not already matching debug/fix), inject an edit-in-place default:
+
+```
+EDIT CONSTRAINT: When editing content, prefer in-place edits over rewrites.
+Identify the minimal change that achieves the goal.
+State what you are keeping unchanged before describing what changes.
+```
+
+**Data flow:**
+```
+UserPromptSubmit fired
+    → nf-prompt.js checks prompt against edit/content regex
+      (/\b(rewrite|update the|change the|modify|make it say|replace.*with)\b/i)
+    → if match AND not already in debug/fix mode: prepend constraint
+    → quorum instructions follow as normal
+```
+
+**Implementation notes:**
+- Feature 3 and Feature 5 are mutually exclusive in injection: debug/fix takes priority. Implement as `if (debugMatch) ... else if (editMatch) ...`.
+- Fail-open: regex error → skip.
+- Lightweight injection (~3 lines), no context budget concern.
+
+**Files touched:** `hooks/nf-prompt.js` only.
+
+---
+
+### Feature 6: Branch Scope Guard Hook
+
+**Integration point:** New hook file `hooks/nf-scope-guard.js`, registered as PreToolUse in `bin/install.js`
+
+**What to add:** A PreToolUse hook that fires when `tool_name` is `Edit`, `Write`, or `MultiEdit`. It reads the current git branch name and compares the target file path against a scope contract stored in `.claude/scope-contract.json`. If the file is outside the declared scope, emit a non-blocking advisory warning.
+
+**Pattern derived from `nf-destructive-git-guard.js`:**
+```javascript
+// hooks/nf-scope-guard.js
+// PreToolUse hook — fires on Edit/Write/MultiEdit
+// Reads .claude/scope-contract.json for current branch
+// Emits advisory warning (non-blocking) when file is outside scope
+// Always allows the tool call — fail-open on any error
+'use strict';
+const GUARDED_TOOLS = new Set(['Edit', 'Write', 'MultiEdit']);
+// main(): read stdin JSON, check tool_name, read contract, compare path
+// emit { hookSpecificOutput: { permissionDecision: 'allow', ... } } on warning
+// process.exit(0) always
+```
+
+**Scope contract format** (`.claude/scope-contract.json`, written by quick.md Step 0):
+```json
+{
+  "branch": "nf/quick-NNN-description",
+  "scope_patterns": ["hooks/", "core/workflows/quick.md"],
+  "set_at": "2026-03-19T..."
+}
+```
+
+**Data flow:**
+```
+Edit/Write/MultiEdit tool called
+    → nf-scope-guard.js fires
+    → reads current git branch (spawnSync git rev-parse --abbrev-ref HEAD)
+    → reads .claude/scope-contract.json
+    → checks if target file path starts with any scope_pattern
+    → if out of scope: emit advisory warning in permissionDecisionReason
+    → always allows the tool call
+```
+
+**Registration in bin/install.js** (after existing nf-node-eval-guard block):
+```javascript
+const hasScopeGuardHook = settings.hooks.PreToolUse.some(entry =>
+  entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-scope-guard'))
+);
+if (!hasScopeGuardHook) {
+  settings.hooks.PreToolUse.push({
+    hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-scope-guard.js'), timeout: 10 }]
+  });
+}
+```
+
+**Implementation notes:**
+- If no contract exists for the current branch, the hook is a no-op.
+- This creates a data dependency on Feature 2: the approach gate writes the contract, the scope guard reads it. Build Feature 2 first, or verify the guard is a genuine no-op when contract is absent (it is, by design).
+- Keep guard logic O(1) — no network calls, no git log parsing. Use `spawnSync` for branch name only.
+
+**Files touched:**
+- `hooks/nf-scope-guard.js` — create new
+- `hooks/dist/nf-scope-guard.js` — copy to dist
+- `bin/install.js` — add PreToolUse registration block (uninstall block also needed)
+
+---
+
+## Recommended Project Structure (delta)
+
+```
+hooks/
+├── nf-prompt.js              # MODIFY: add Features 1, 3, 5 (new blocks in priority chain)
+├── nf-scope-guard.js         # CREATE: Feature 6 (new PreToolUse hook)
+hooks/dist/
+├── nf-prompt.js              # COPY from hooks/ after modification
+├── nf-scope-guard.js         # COPY from hooks/ after creation
+bin/
+├── install.js                # MODIFY: register nf-scope-guard.js (install + uninstall paths)
+core/workflows/
+├── quick.md                  # MODIFY: add approach gate Step 0 + scope contract write
+commands/nf/
+├── solve-diagnose.md         # MODIFY: add root cause quorum vote Step 0f
+```
+
+**Install sync (required after any hook or workflow modification):**
+```bash
+cp hooks/nf-prompt.js hooks/dist/nf-prompt.js
+cp hooks/nf-scope-guard.js hooks/dist/nf-scope-guard.js
+node bin/install.js --claude --global
+```
+
+---
+
+## Architectural Patterns
+
+### Pattern 1: additionalContext Injection (nf-prompt.js)
+
+**What:** The UserPromptSubmit hook appends instructions to `hookSpecificOutput.additionalContext`, which Claude receives as prepended context before processing the user message. Multiple features share this single injection point by appending sections to the `instructions` string.
+
+**When to use:** Any feature that needs to inform Claude's thinking before it acts on a user prompt.
+
+**Priority ordering in nf-prompt.js (updated):**
+```
+Priority 1: Circuit breaker recovery       → process.exit(0) immediately if active
+Priority 2: Pending task injection         → process.exit(0) immediately if task queued
+NEW P2.5:   State injection                → first-message of session only, prepend to instructions
+NEW P2.7:   Root cause template injection  → debug/fix regex match, prepend to instructions
+NEW P2.8:   Constraint injection           → edit/content regex match (elif), prepend to instructions
+Priority 3: Quorum instructions            → planning command check + dispatch build
+[exit 0 with final instructions string]
+```
+
+**Trade-offs:** Each additional injection adds file read latency. State injection is the heaviest (STATE.md read + flag write). All must be fail-open. The 800-char hook-level context cap applies to context stack injection but not to the free-form `instructions` string used by quorum and the new injections.
+
+**Critical constraint:** New blocks must go BEFORE the `cmdPattern.test(prompt)` check at line 882. That check gates quorum dispatch but should not suppress the new context injections. The new injections run unconditionally (subject to regex match); quorum instructions run only on planning commands.
+
+### Pattern 2: Workflow Step Insertion
+
+**What:** Add a numbered step to an existing workflow document (`quick.md`, `solve-diagnose.md`). Steps are numbered and sequential; insertion requires renumbering downstream steps and updating `<success_criteria>` checklists.
+
+**When to use:** Features that belong to a specific workflow phase, not global.
+
+**Trade-offs:** Workflow documents are read by Claude as free-form markdown — there is no schema enforcement. The fail-open guarantee must be stated explicitly in the step prose. Downstream step numbers must be updated consistently.
+
+### Pattern 3: PreToolUse Guard Hook
+
+**What:** Create a new hook file following the pattern of `nf-destructive-git-guard.js`:
+1. Read and validate JSON from stdin
+2. Check `tool_name` against a whitelist
+3. Read a lightweight state file to determine guard condition
+4. Emit advisory warning or allow unconditionally
+5. Always `process.exit(0)` — fail-open
+6. Register in `bin/install.js` (install + uninstall paths)
+
+**When to use:** Enforcement that must fire at tool-call time, independent of prompt content.
+
+**Trade-offs:** Every PreToolUse hook adds overhead to every matching tool call. Keep guard logic O(1) — no git log, no network. Read from a pre-written contract file (written once at task-init time).
+
+---
+
+## Data Flow
+
+### Feature 1: State Injection Flow
+
+```
+Session starts → user sends first message
+    → UserPromptSubmit fires
+    → nf-prompt.js: check .claude/session-<sessionId>-state-injected.flag
+    → flag absent: read .planning/STATE.md, extract Phase/Status/Last activity
+    → write flag (atomic rename, session-scoped)
+    → prepend STATE summary (~3 lines) to instructions string
+    → normal hook flow continues (quorum etc.)
+```
+
+### Feature 2 + 6: Approach Gate + Scope Contract Flow
+
+```
+/nf:quick $DESCRIPTION
+    → quick.md Step 0: Claude declares APPROACH/NOT-DOING/SCOPE inline
+    → Step 0 writes .claude/scope-contract.json (branch + scope_patterns)
+    → Step 1: init, branch creation (unchanged)
+    → Step 5: planner receives APPROACH block as context
+    ↓
+    [during execution — any Edit/Write/MultiEdit call]
+    → nf-scope-guard.js fires (PreToolUse)
+    → reads .claude/scope-contract.json
+    → checks file path against scope_patterns
+    → if mismatch: emit advisory warning (non-blocking)
+```
+
+### Features 3 + 5: Prompt Pattern Detection Flow
+
+```
+UserPromptSubmit fired
+    → nf-prompt.js evaluates prompt against two regex sets:
+      debugFixRegex  = /\b(fix|debug|broken|failing|why.*not working)\b/i
+      editContentRegex = /\b(rewrite|update the|change the|modify)\b/i
+    → if debugFixRegex matches: prepend ROOT CAUSE template to instructions
+    → elif editContentRegex matches: prepend EDIT CONSTRAINT template
+    → (mutually exclusive — debug/fix takes priority)
+    → continue to quorum instructions check
+```
+
+### Feature 4: Root Cause Quorum Vote Flow
+
+```
+solve-diagnose.md Step 0d: debt loaded
+solve-diagnose.md Step 0e: hypothesis violations measured
+    → Step 0f: Claude forms root cause hypothesis
+    → if no debt and no violations: skip
+    → quorum preflight: node nf-bin/quorum-preflight.cjs --all
+    → dispatch $DISPATCH_LIST as nf-quorum-slot-worker Tasks
+    → synthesize votes → $ROOT_CAUSE_VERDICT
+    → output_contract JSON includes root_cause_verdict field
+    → Step 1: diagnostic sweep runs with hypothesis validated/contested
+```
+
+---
+
+## Integration Dependencies
+
+```
+Feature 2 (approach gate) → Feature 6 (scope guard)
+    quick.md writes .claude/scope-contract.json
+    nf-scope-guard.js reads it — is a strict no-op if contract absent
+
+Feature 3 (root cause template) — standalone, nf-prompt.js only
+Feature 5 (constraint injection) — standalone, nf-prompt.js only
+Feature 1 (state injection)     — standalone, nf-prompt.js only
+Feature 4 (root cause vote)     — standalone, solve-diagnose.md only
+```
+
+No circular dependencies. Features 1, 3, and 5 are co-located additions to `nf-prompt.js`. Features 2 and 6 are linked but the link is fail-open (guard is no-op without contract).
+
+---
+
+## Suggested Build Order
+
+| Order | Feature | Files Changed | Dependency | Rationale |
+|-------|---------|---------------|------------|-----------|
+| 1 | Feature 3: Root cause template injection | `nf-prompt.js` | None | Standalone, simplest nf-prompt.js addition; validates injection pattern before batching more |
+| 2 | Feature 5: Constraint injection | `nf-prompt.js` | None | Same file as Feature 3; add in same change to minimize install sync ops |
+| 3 | Feature 1: Session state injection | `nf-prompt.js` | None | Slightly heavier (file read + flag write); same file — batch all 3 nf-prompt.js changes into one PR |
+| 4 | Feature 4: Root cause quorum vote | `solve-diagnose.md` | None | Isolated workflow document; no hook involvement; validate quorum vote pattern in simpler context first |
+| 5 | Feature 2: Approach gate | `core/workflows/quick.md` | None (Feature 6 needs this first) | Adds Step 0 + scope contract write; must ship before Feature 6 is testable |
+| 6 | Feature 6: Branch scope guard | `nf-scope-guard.js` + `bin/install.js` | Feature 2 | New hook creation; requires Feature 2 to write contract for non-trivial test coverage |
+
+**Batching recommendation:** Features 1, 3, and 5 all modify only `nf-prompt.js`. Implement them in a single change. One `cp hooks/nf-prompt.js hooks/dist/ && node bin/install.js --claude --global` covers all three. Similarly, Features 2 and 6 are the natural second batch (workflow + new hook).
+
+---
+
+## Anti-Patterns
+
+### Anti-Pattern 1: Early-Exit Priority Collision
+
+**What people do:** Add new injections AFTER the quorum instructions block, thinking they will append cleanly.
+
+**Why it's wrong:** `nf-prompt.js` exits via `process.exit(0)` after writing quorum instructions (line ~933). Any code after that does not run in normal flow. The existing priority chain (circuit breaker, pending task) each call `process.exit(0)` on their own path.
+
+**Do this instead:** Insert new detection blocks BEFORE the `cmdPattern.test(prompt)` check at line 882. Add context by mutating the `instructions` string or prepending to it, not by issuing a separate `process.stdout.write` call.
+
+### Anti-Pattern 2: Blocking Scope Guard
+
+**What people do:** Implement the scope guard as a hard deny (`permissionDecision: "deny"`) to force compliance.
+
+**Why it's wrong:** Out-of-scope writes are sometimes intentional (updating README alongside a hook change). A hard block creates friction that users route around. Advisory warnings preserve intent without breaking valid workflows.
+
+**Do this instead:** Always emit `permissionDecision: "allow"` with a visible advisory in `permissionDecisionReason`. Let Claude decide whether the write is justified.
+
+### Anti-Pattern 3: Skipping Install Sync
+
+**What people do:** Edit `hooks/nf-prompt.js` directly, test locally, and commit without copying to `hooks/dist/`.
+
+**Why it's wrong:** The installer reads from `hooks/dist/`, not `hooks/`. The installed copy at `~/.claude/hooks/` is what actually runs. Without sync, the repo and the running system diverge silently.
+
+**Do this instead:** Every plan that modifies a hook file must include an explicit task: `cp hooks/<name>.js hooks/dist/<name>.js && node bin/install.js --claude --global`.
+
+### Anti-Pattern 4: Approach Gate as Hard Block
+
+**What people do:** Implement the approach gate so `/nf:quick` refuses to proceed until APPROACH/NOT-DOING/SCOPE is present.
+
+**Why it's wrong:** Claude generates the approach declaration inline. If generation fails or the model is context-starved, the entire quick task is blocked. This violates the fail-open principle present throughout all other nForma hooks.
+
+**Do this instead:** The gate re-prompts once if the block is absent; if still absent after re-prompt, log a warning and proceed to Step 1. The approach declaration is informational, not a blocking gate.
+
+---
 
 ## Integration Points
 
-### 1. Bug-to-Model Discovery (Lookup Layer)
-
-**Entry point:** `/nf:debug` failure context → model-lookup
-
-**Mechanism:**
-```bash
-# Existing scope-scan (file/concept matching)
-node bin/formal-scope-scan.cjs \
-  --description "failure description" \
-  --files "affected_code.js"
-
-# NEW: Bug-specific lookup
-node bin/formal-scope-scan.cjs \
-  --description "failure description" \
-  --files "affected_code.js" \
-  --bug-mode              # NEW FLAG
-  --exit-code 1           # NEW: numeric exit code
-  --stack-trace "..."     # NEW: error stack
-```
-
-**Output:** Ordered list of models with:
-- `module` — formal model name
-- `matched_by` — lookup strategy (source_file, concept, bug_pattern, proximity_graph)
-- `proximity_score` — graph-based confidence (0–1.0)
-- `constrain_fields` — which spec sections apply (preconditions, invariants, state bounds)
-
-**Implementation in formal-scope-scan.cjs:**
-1. Load existing scope.json index
-2. NEW: Load optional `bug-patterns.json` (signatures for common failure types)
-3. Match failure description against patterns (Levenshtein distance > 0.75 triggers)
-4. If pattern hits, boost proximity_score by 0.2 and tag `matched_by: 'bug_pattern'`
-5. Return ranked results as before
-
-**Low risk:** Fails open (empty results) if bug-patterns.json missing. Existing scope-scan test suite unaffected.
-
-### 2. Constraint Extraction (Parser Layer)
-
-**Entry point:** Model lookup results → constraint extraction
-
-**New file:** `bin/model-constrained-fix.cjs`
-
-**Algorithm:**
-```
-FOR EACH matched model M:
-  1. Read M's invariants.md (human-readable)
-  2. Parse invariant blocks by structure:
-     - Safety constraints: "X must NOT..."
-     - Liveness constraints: "X must eventually..."
-     - Bounds: "X ∈ [min, max]"
-  3. For matched_by='source_file', extract preconditions from @requirement annotations in spec
-  4. Generate English constraint list with confidence scores
-  5. Return {model, constraints, confidence}
-```
-
-**Output schema:**
-```json
-{
-  "model": "QuorumDeliberation.tla",
-  "source_section": "Invariants",
-  "constraints": [
-    {
-      "type": "safety",
-      "english": "All quorum workers must respond within 30 seconds of dispatch",
-      "formal": "~QuorumDeliberation!2143",
-      "confidence": "HIGH",
-      "applies_to_fix": "timeout handling, worker heartbeat"
-    },
-    {
-      "type": "liveness",
-      "english": "Consensus decision is made once 3/4 workers agree",
-      "formal": "QuorumConsensus!line2091",
-      "confidence": "HIGH",
-      "applies_to_fix": "voting logic, consensus threshold"
-    }
-  ],
-  "fix_scope_check": {
-    "model_affected_by_fix": true,
-    "reason": "Fix modifies timeout constant; model depends on timeout bounds"
-  }
-}
-```
-
-**Implementation details:**
-- Parse `.planning/formal/spec/{module}/invariants.md` line by line
-- Recognize patterns: `SAFETY:`, `LIVENESS:`, `BOUND:`, `PRECONDITION:` headers
-- Extract formal references (filenames, line numbers, variable names)
-- Link to @requirement annotations via proximity-index.cjs graph walk
-- Fail gracefully if spec is unreadable (return empty constraints array)
-
-### 3. Debug Bundle Injection
-
-**Entry point:** `/nf:debug` command → Step A (collect failure context)
-
-**Current flow (v0.37):**
-```
-/nf:debug "test timeout issue"
-  ├─ Collect test output, error trace
-  ├─ Dispatch 4 quorum workers
-  └─ Render NEXT STEP table
-```
-
-**New flow (v0.38):**
-```
-/nf:debug "test timeout issue"
-  ├─ Collect test output, error trace
-  ├─ NEW: Run bug-to-model lookup
-  ├─ NEW: Extract constraints from matched models
-  ├─ Dispatch 4 quorum workers with EXTENDED BUNDLE
-  │   (includes model context + constraints)
-  └─ Render NEXT STEP table + MODEL RECOMMENDATIONS
-```
-
-**Bundle structure (MODIFIED):**
-```
-## Failure Context
-[existing: test output, exit code, stack trace, arguments]
-
-## Formal Model Intelligence  [NEW]
-```
-Matched Models (bug-to-model lookup):
-  1. QuorumDeliberation.tla
-     - Proximity: 0.88
-     - Matched by: source_file (bin/hooks/nf-stop.js)
-     - Key constraints:
-       * Workers must respond within 30s
-       * Consensus requires 3/4 agreement
-       * Dispatch state must not re-enter RUNNING
-```
-
-**Worker prompt injection:**
-```
-You are a debugging advisor for nForma.
-
-<bundle>
-[full bundle with model intelligence]
-</bundle>
-
-Given this failure AND the formal models that may explain it:
-
-root_cause: <one-liner>
-next_step: <specific debugging action>
-model_recommendation: [APPLY | INSPECT | DEFER] — does a model constraint inform this fix?
-confidence: HIGH | MEDIUM | LOW
-```
-
-**Implementation:** Modify `commands/nf/debug.md` Step C:
-1. After Step A (collect failure), insert sub-step: "Run bug-to-model lookup"
-2. Call formal-scope-scan.cjs with `--bug-mode` + failure context
-3. For top 3 matches, call model-constrained-fix.cjs
-4. Fold constraint list into bundle template
-5. Inject into all 4 worker prompts
-
-**No risk to existing debug flow:** If lookup/extraction fails, fall through to existing 4-worker dispatch. Tests unaffected.
-
-### 4. Solve Layer B→F (Bug-to-Formal Gap)
-
-**Purpose:** Track bugs that formal models should explain but don't.
-
-**Layer definition:**
-```javascript
-// bin/layer-constants.cjs — NEW LAYER
-const LAYER_KEYS = [
-  // ... existing 19 layers ...
-  'b_to_f',  // BUG→FORMAL: Bugs not covered by existing models
-];
-```
-
-**Handler:** `bin/solve-handlers/b_to_f.cjs`
-
-**Residual computation:**
-```
-RESIDUAL = count of bugs in production git history
-           not matched by any formal model's assumptions/invariants
-
-Detail:
-  {
-    "unflagged_bugs": [
-      {
-        "git_ref": "fix commit hash",
-        "description": "quorum deliberation timeout",
-        "matched_models": [],  // Empty if no model reproduces bug
-        "fix_sha": "abc123",
-        "blame_layer": "quorum-dispatch"
-      }
-    ]
-  }
-```
-
-**Remediation dispatcher (solve-remediate.md Section 3o):**
-
-```markdown
-### 3o. B→F Gaps
-
-Extract list of unflagged bugs from residual_vector.b_to_f.detail.unflagged_bugs.
-
-For each bug:
-1. Run: node bin/formal-scope-scan.cjs --bug-mode --description "{bug_description}"
-2. If matched models found: call /nf:close-formal-gaps to strengthen existing specs OR create new model
-3. If NO models found: log as "model candidate" for next v0.39 formalization cycle
-
-Log: "B->F: {N} unflagged bugs processed, {M} model candidates identified"
-
-Update .planning/formal/bug-model-gaps.json with:
-  - Bugs now covered by models (move to "covered" array)
-  - New model candidates (add to "candidates" array)
-```
-
-**Data file:** `.planning/formal/bug-model-gaps.json`
-
-```json
-{
-  "schema_version": "1",
-  "last_updated": "2026-03-17T00:00:00Z",
-  "covered_bugs": [
-    {
-      "git_ref": "abc123",
-      "description": "quorum timeout race condition",
-      "model": "QuorumDeliberation.tla",
-      "explanation": "Model reproduces bug via bounded timeout counter + unfair worker scheduling",
-      "discovered_version": "v0.38"
-    }
-  ],
-  "unflagged_bugs": [
-    {
-      "git_ref": "def456",
-      "description": "solver oscillation on gate flip-flop",
-      "matched_models": [],
-      "priority": "high",
-      "candidate_model": "SolveConvergence.tla"
-    }
-  ]
-}
-```
-
-## Data Flow Changes
-
-### Current Flow (v0.37)
-
-```
-residual_vector
-  ├─ r_to_f (requirements without models)
-  ├─ f_to_t (models without tests)
-  ├─ c_to_f (code constants drift)
-  ├─ t_to_c (failing tests)
-  ├─ f_to_c (verification failures)
-  ├─ ... (13 more) ...
-  └─ h_to_m (hypothesis→model gaps)
-      ↓
-  solve-remediate.md routes each to handler
-      ↓
-  fix generated (code, tests, models, docs)
-```
-
-### New Flow (v0.38)
-
-```
-bug_report (from /nf:debug)
-  ├─ bug-to-model lookup (formal-scope-scan.cjs --bug-mode)
-  ├─ constraint extraction (model-constrained-fix.cjs)
-  └─ inject into debug bundle
-        ↓
-    quorum workers see model constraints
-        ↓
-    next_step includes model_recommendation
-        ↓
-        fix applied
-        ↓
-        pre-verify against neighbor models [NEW in solve cycle]
-        ↓
-
-Parallel: solve cycle B→F layer
-  residual_vector.b_to_f
-    ├─ git history scan (find bugs)
-    ├─ bug-to-model lookup for EACH
-    ├─ identify unflagged bugs
-    └─ generate model candidates
-        ↓
-    Route to close-formal-gaps (if models found)
-    or log as v0.39 formalization candidate
-```
-
-## Build Order & Dependencies
-
-**Phase 1: Lookup & Extraction (foundational)**
-1. `bin/formal-scope-scan.cjs` — Add `--bug-mode` flag, bug-patterns.json support
-2. `bin/model-constrained-fix.cjs` — NEW file, constraint parser
-
-**Prerequisite for Phase 1:** None (fail-open design)
-
-**Phase 2: Debug Integration (user-facing)**
-3. `commands/nf/debug.md` — Modify Step A to inject model context
-4. Test: `/nf:debug "timeout failure"` returns model recommendations
-
-**Prerequisite for Phase 2:** Phase 1 complete
-
-**Phase 3: Solve Layer (autonomous fix)**
-5. `bin/layer-constants.cjs` — Add `b_to_f` to LAYER_KEYS (20th layer)
-6. `bin/solve-handlers/b_to_f.cjs` — NEW handler for residual computation
-7. `bin/solve-wave-dag.cjs` — Add B→F dependencies (after h_to_m, pre-cleanup)
-8. `bin/nf-solve.cjs` — Import b_to_f handler, wire into sweep
-9. `.planning/formal/bug-model-gaps.json` — NEW tracking file (init empty)
-10. `core/workflows/solve-remediate.md` — Add Section 3o (B→F remediation)
-
-**Prerequisite for Phase 3:** Phase 2 complete (debug must work first)
-
-**Phase 4: Testing & Validation (quality gates)**
-11. `bin/formal-scope-scan.test.cjs` — Add `--bug-mode` test cases
-12. `bin/model-constrained-fix.test.cjs` — NEW test suite
-13. `bin/solve-handlers/b_to_f.test.cjs` — NEW test suite
-14. E2E: Inject bug via git history, run `nf:solve`, verify B→F layer fires
-
-**Critical path (minimum to ship):**
-- Phase 1 (lookup/extraction) + Phase 2 (debug integration) = user can get model recommendations
-- Phase 3 adds autonomous solve layer (nice-to-have for v0.38, required for v0.39)
-
-## Dependency Graph
-
-```
-formal-scope-scan.cjs (--bug-mode)
-  ↓
-model-constrained-fix.cjs
-  ├─ (reads) .planning/formal/spec/{module}/invariants.md
-  └─ (reads) proximity-index.json
-  ↓
-commands/nf/debug.md (bundle injection)
-  ├─ (calls) formal-scope-scan.cjs --bug-mode
-  └─ (calls) model-constrained-fix.cjs
-  ↓
-bin/nf-solve.cjs (solve cycle)
-  ├─ (imports) solve-handlers/b_to_f.cjs
-  ├─ (calls) formal-scope-scan.cjs --bug-mode (for each bug)
-  ├─ (calls) model-constrained-fix.cjs
-  └─ (updates) .planning/formal/bug-model-gaps.json
-```
-
-**No cycles.** Safe to build in order: Phase 1 → 2 → 3 → 4.
-
-## Interaction with Existing Components
-
-### formal-scope-scan.cjs (2-layer architecture preserved)
-
-**Current:**
-```
-Layer 1: scope.json matching (file overlap, concept, module name)
-Layer 2: proximity-index.json graph walk (BFS from matched modules)
-```
-
-**New:**
-```
-Layer 1: scope.json + NEW bug-patterns.json (Levenshtein matching)
-Layer 2: (unchanged)
-Layer 3: NEW — For bugs, boost proximity_score if pattern match found
-```
-
-**Test impact:** 0. New flag is optional. Existing tests pass unmodified.
-
-### solve-wave-dag.cjs (dependency order)
-
-**Current:**
-```
-LAYER_DEPS = {
-  h_to_m: [],
-  per_model_gates: ['l1_to_l3', 'l3_to_tc'],
-  ... (others)
-}
-```
-
-**New:**
-```
-LAYER_DEPS = {
-  h_to_m: [],
-  b_to_f: ['h_to_m'],  // Bugs tracked AFTER hypothesis measurement
-  per_model_gates: ['l1_to_l3', 'l3_to_tc'],
-  ... (others)
-}
-
-// NEW wave grouping:
-// Wave 7 (sequential): h_to_m → b_to_f → (cleanup if needed)
-```
-
-**Impact:** Wave 6 stays same (h_to_m still dispatches in wave 6 if residual > 0). New b_to_f creates wave 7 if bugs found.
-
-### /nf:debug quorum dispatch
-
-**Current:**
-- Worker sees: test output, exit code, stack trace
-- Worker returns: root_cause, next_step, confidence
-- Table shows: 4 models × 3 columns
-
-**New:**
-- Worker sees: test output + model constraints + fix recommendations
-- Worker returns: root_cause, next_step, model_recommendation (APPLY/INSPECT/DEFER), confidence
-- Table shows: 4 models × 4 columns (added model_recommendation)
-
-**Test impact:** Existing debug tests still pass. New bundle enrichment is optional (graceful degradation if lookup fails).
-
-## Risk Analysis
-
-### Low Risk
-1. **Bug-patterns.json missing** → Lookup degrades to existing scope-scan behavior (no regression)
-2. **Constraint extraction fails** → Bundle stays readable, quorum workers unaffected
-3. **B→F layer disabled** → Solve cycle works as-is, no new gaps introduced
-
-### Medium Risk
-1. **False positives in bug-pattern matching** → Boost proximity_score for wrong model
-   - **Mitigation:** Levenshtein threshold 0.75, manual review of patterns before shipping
-2. **Performance: lookup on every debug call** → Adds ~500ms per debug
-   - **Mitigation:** Cache lookup results in current-session memory; clear on new failure context
-
-### High Risk
-1. (None identified) — Design is fail-open and backward-compatible
-
-## Scalability
-
-**Lookup scalability:**
-- scope.json matching: O(models × concepts) = O(201 × ~10 avg) = O(2K) fast
-- proximity-index BFS: O(nodes + edges) in index, already used by existing scope-scan
-- bug-patterns matching: O(bugs × patterns) = O(50 bugs × ~20 patterns) = O(1K)
-
-**Constraint extraction:**
-- Per-model invariant parsing: O(invariant_count) = O(10–50 per model)
-- Annotation link: O(requirements matched) = already done by proximity-index
-
-**Solve B→F layer:**
-- Iterate git history: O(commits) = handled by existing git heatmap layer
-- Per-bug lookup: O(bugs × scan) = ~O(100) worst case, batched in wave
-- Fits within existing solve iteration cycle
-
-## Testing Strategy
-
-**Unit tests (isolated components):**
-- formal-scope-scan.cjs: Add `--bug-mode` flag test cases (5 new tests)
-- model-constrained-fix.cjs: Parser test suite (10 new tests)
-- b_to_f handler: Residual computation (5 new tests)
-
-**Integration tests:**
-- `/nf:debug` with model injection: Bundle structure validated (3 new tests)
-- solve cycle B→F layer: Wave computation includes B→F, residual flows to handler (2 new tests)
-- E2E: Inject test failure → debug returns model recommendation → solve fires B→F layer (1 E2E test)
-
-**Compatibility:**
-- All existing tests pass unmodified (19 layers still work as-is)
-- New components fail-open (no regressions)
-
-## Migration Path
-
-**v0.38 MVP (minimum viable product):**
-1. Phase 1 + 2: Lookup + debug integration
-2. Users get model recommendations in `/nf:debug` output
-3. Manual routing: User sees "Model suggests: check timeout constant" → applies fix manually
-4. Phase 3 (solve B→F layer) ships in v0.38 but as opt-in (`--enable-b-to-f` flag) or soft gate
-
-**v0.39 (full autonomous):**
-1. B→F layer mandatory in solve cycle
-2. Automatic model refinement: Close-formal-gaps auto-triggers for unflagged bugs
-3. Regression prevention: All fixes pre-verified against neighbor models before merge
+### External Boundaries
+
+| Dependency | Used By | Notes |
+|------------|---------|-------|
+| `.planning/STATE.md` | Feature 1 (state injection) | Parsed for Phase/Status/Last activity; fail-open if missing |
+| `.claude/scope-contract.json` | Feature 2 (write) + Feature 6 (read) | Per-branch; written by quick.md Step 0, read by nf-scope-guard.js; no-op if absent |
+| `nf-bin/quorum-preflight.cjs` | Feature 4 (root cause vote) | Same preflight already used by quick.md Step 5.7 — no new binary dependency |
+| `nf-quorum-slot-worker` subagent | Feature 4 (root cause vote) | Same dispatch pattern as all other quorum votes in the system |
+
+### Internal Boundaries
+
+| Boundary | Communication | Notes |
+|----------|---------------|-------|
+| `quick.md` → `nf-scope-guard.js` | File write → file read (`.claude/scope-contract.json`) | Async-safe: contract written at task-init (Step 0), guard reads per-tool-call during execution |
+| `nf-prompt.js` → `nf-stop.js` | Shared transcript (planning command marker) | Features 1/3/5 must NOT emit `<!-- GSD_DECISION -->` — that marker is exclusively for quorum completion |
+| `solve-diagnose.md` → solve orchestrator | `output_contract` JSON | Feature 4 adds `root_cause_verdict` field — orchestrator must treat it as optional (backward-compatible) |
+
+---
 
 ## Sources
 
-- `/Users/jonathanborduas/code/QGSD/bin/formal-scope-scan.cjs` — Current lookup implementation
-- `/Users/jonathanborduas/code/QGSD/bin/layer-constants.cjs` — Layer definitions
-- `/Users/jonathanborduas/code/QGSD/bin/solve-wave-dag.cjs` — Wave dependency DAG
-- `/Users/jonathanborduas/code/QGSD/commands/nf/debug.md` — Current debug workflow
-- `/Users/jonathanborduas/code/QGSD/.planning/formal/model-registry.json` — 201 models
-- `/Users/jonathanborduas/code/QGSD/.planning/formal/requirements.json` — 371 requirements
-- `.planning/PROJECT.md` — v0.38 milestone charter
+- Direct inspection of `hooks/nf-prompt.js` (lines 1–955): injection priority chain, additionalContext mechanism, priority exit points, cmdPattern guard at line 882
+- Direct inspection of `hooks/nf-circuit-breaker.js` (lines 1–865): PreToolUse hook pattern, fail-open structure, state file conventions
+- Direct inspection of `bin/install.js` (lines 2298–2439): hook registration pattern, uninstall pattern, hook event types (UserPromptSubmit, PreToolUse, PostToolUse, Stop, SubagentStop)
+- Direct inspection of `core/workflows/quick.md` (lines 1–927): workflow step structure, Step 5.7 quorum dispatch pattern, planner context format
+- Direct inspection of `commands/nf/solve-diagnose.md` (lines 1–276): Step 0 block structure, output_contract format, quorum vote opportunity point
+- Direct inspection of `hooks/nf-session-start.js` (lines 1–60): `parseStateForReminder()` function for Feature 1 reference
+- Direct inspection of `.planning/PROJECT.md` (lines 1–23): v0.40 milestone goals confirming 6 features
+
+---
+*Architecture research for: nForma v0.40 hook and workflow pipeline extension*
+*Researched: 2026-03-19*

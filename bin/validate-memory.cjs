@@ -50,7 +50,8 @@ function checkStaleCounts(memoryContent, cwd) {
   const findings = [];
 
   // Check requirements count references
-  const reqCountMatch = memoryContent.match(/(\d+)\s+reqs?/i);
+  // Word-boundary \b prevents false positives like "R3.2 requires" matching "2 reqs"
+  const reqCountMatch = memoryContent.match(/\b(\d+)\s+reqs?\b/i);
   if (reqCountMatch) {
     const claimedCount = parseInt(reqCountMatch[1], 10);
     const envelopePath = path.join(cwd, '.planning', 'formal', 'requirements.json');

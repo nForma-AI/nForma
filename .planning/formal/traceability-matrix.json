@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-03-19T12:03:19.592Z",
+    "generated_at": "2026-03-19T20:04:52.155Z",
     "generator_version": "1.1",
     "data_sources": {
       "annotations": {
@@ -12,11 +12,11 @@
         "used_as_fallback": 6
       },
       "check_results": {
-        "entry_count": 692
+        "entry_count": 495
       },
       "unit_test_coverage": {
         "available": true,
-        "requirements_matched": 377
+        "requirements_matched": 400
       }
     }
   },
@@ -2584,7 +2584,16 @@
           "latest_result": "pass",
           "check_id": "alloy:dispatch-formal-context"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/DISP-06.stub.test.js",
+            "test_name": "DISP-06: matchRequirementsByKeywords is exported as a function"
+          }
+        ]
+      }
     },
     "DOC-01": {
       "id": "DOC-01",
@@ -4074,36 +4083,36 @@
           "model_file": ".planning/formal/alloy/headless-execution.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:headless-execution"
         },
         {
           "model_file": ".planning/formal/alloy/headless-execution.als",
           "property_name": "HeadlessMandatoryForJava",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:headless-execution"
         },
         {
           "model_file": ".planning/formal/alloy/headless-execution.als",
           "property_name": "HeadlessPreventsGUI",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:headless-execution"
         },
         {
           "model_file": ".planning/formal/alloy/headless-execution.als",
           "property_name": "JavaToolsAlwaysHeadless",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:headless-execution"
         },
         {
           "model_file": ".planning/formal/alloy/headless-execution.als",
           "property_name": "NoGUIForJavaTools",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:headless-execution"
         }
       ]
     },
@@ -4114,64 +4123,64 @@
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         },
         {
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "DiagnosticPrefix",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         },
         {
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "DiagnosticCode",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         },
         {
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "Severity",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         },
         {
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "ObserveIssue",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         },
         {
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "ExecutionContext",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         },
         {
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "SeverityMapping",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         },
         {
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "GatedToQGSDRepo",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         },
         {
           "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
           "property_name": "OnlySurfaceInQGSD",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:health-diagnostic-routing"
         }
       ]
     },
@@ -4329,38 +4338,47 @@
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "HookModule",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "ConfigLoader",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "AllModulesExist",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "ConfigLoaderExists",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-19.stub.test.js",
+            "test_name": "SOLVE-19: hooks/config-loader.js exists on disk"
+          }
+        ]
+      }
     },
     "SOLVE-20": {
       "id": "SOLVE-20",
@@ -4369,38 +4387,47 @@
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "HookModule",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "CircuitBreaker",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "AllModulesExist",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "CircuitBreakerExists",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-20.stub.test.js",
+            "test_name": "SOLVE-20: hooks/nf-circuit-breaker.js exists on disk"
+          }
+        ]
+      }
     },
     "SOLVE-21": {
       "id": "SOLVE-21",
@@ -4409,38 +4436,47 @@
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "HookModule",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "PromptHook",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "AllModulesExist",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "PromptHookExists",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-21.stub.test.js",
+            "test_name": "SOLVE-21: hooks/nf-prompt.js exists on disk"
+          }
+        ]
+      }
     },
     "SOLVE-22": {
       "id": "SOLVE-22",
@@ -4449,36 +4485,36 @@
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "HookModule",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "StopHook",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "AllModulesExist",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "StopHookExists",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         }
       ]
     },
@@ -4489,36 +4525,36 @@
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "HookModule",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "MCPDispatchGuard",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "AllModulesExist",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         },
         {
           "model_file": ".planning/formal/alloy/hook-module-existence.als",
           "property_name": "MCPDispatchGuardExists",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-module-existence"
         }
       ]
     },
@@ -4529,36 +4565,36 @@
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         },
         {
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "GitCommand",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         },
         {
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "GitInvocation",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         },
         {
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "DestructiveCommandsDetected",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         },
         {
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "WarnOnlyFailOpen",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         }
       ]
     },
@@ -4569,36 +4605,36 @@
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         },
         {
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "Project",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         },
         {
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "HookBehavior",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         },
         {
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "PortableImprovement",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         },
         {
           "model_file": ".planning/formal/alloy/hook-portability-guard.als",
           "property_name": "NotSourceRepoOnly",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:hook-portability-guard"
         }
       ]
     },
@@ -4609,8 +4645,8 @@
           "model_file": ".planning/formal/alloy/install-scope.als",
           "property_name": "AllEquivalence",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -4630,8 +4666,8 @@
           "model_file": ".planning/formal/alloy/install-scope.als",
           "property_name": "InstallIdempotent",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -4651,8 +4687,8 @@
           "model_file": ".planning/formal/alloy/install-scope.als",
           "property_name": "NoConflict",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -4672,8 +4708,8 @@
           "model_file": ".planning/formal/alloy/install-scope.als",
           "property_name": "RollbackSoundCheck",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -4693,8 +4729,8 @@
           "model_file": ".planning/formal/alloy/install-scope.als",
           "property_name": "ConfigSyncCompleteCheck",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:install-scope"
         }
       ],
       "unit_test_coverage": {
@@ -4920,15 +4956,15 @@
           "model_file": ".planning/formal/alloy/jvm-heap-sequential.als",
           "property_name": "Bool",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:jvm-heap-sequential"
         },
         {
           "model_file": ".planning/formal/alloy/jvm-heap-sequential.als",
           "property_name": "AllRunnersHaveHeapFlags",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "alloy:jvm-heap-sequential"
         }
       ]
     },
@@ -8294,7 +8330,16 @@
           "latest_result": "pass",
           "check_id": "alloy:requirements-aggregation"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-18.stub.test.js",
+            "test_name": "SOLVE-18: aggregate-requirements exports parseRequirements function"
+          }
+        ]
+      }
     },
     "SOLVE-11": {
       "id": "SOLVE-11",
@@ -8362,7 +8407,16 @@
           "latest_result": "pass",
           "check_id": "alloy:solve-result-schema"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-11.stub.test.js",
+            "test_name": "SOLVE-11: VALID_RESULTS includes both "
+          }
+        ]
+      }
     },
     "SCHEMA-01": {
       "id": "SCHEMA-01",
@@ -9214,7 +9268,16 @@
           "latest_result": "pass",
           "check_id": "alloy:solve-automation-features"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-09.stub.test.js",
+            "test_name": "SOLVE-09: nf-solve.cjs parses --fast flag for fast-mode iteration"
+          }
+        ]
+      }
     },
     "SOLVE-01": {
       "id": "SOLVE-01",
@@ -9254,7 +9317,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-01.stub.test.js",
+            "test_name": "SOLVE-01: nf-solve.cjs exists and is loadable"
+          }
+        ]
+      }
     },
     "SOLVE-02": {
       "id": "SOLVE-02",
@@ -9280,7 +9352,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-02.stub.test.js",
+            "test_name": "SOLVE-02: parseAlloyDefaults parses Alloy Defaults sig constraint block"
+          }
+        ]
+      }
     },
     "SOLVE-14": {
       "id": "SOLVE-14",
@@ -9348,7 +9429,16 @@
           "latest_result": "pass",
           "check_id": "alloy:solve-decomposition"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-14.stub.test.js",
+            "test_name": "SOLVE-14 — Bool: structural verification"
+          }
+        ]
+      }
     },
     "SOLVE-15": {
       "id": "SOLVE-15",
@@ -9402,7 +9492,16 @@
           "latest_result": "pass",
           "check_id": "alloy:solve-decomposition"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-15.stub.test.js",
+            "test_name": "SOLVE-15 — Bool: behavioral verification"
+          }
+        ]
+      }
     },
     "SOLVE-24": {
       "id": "SOLVE-24",
@@ -9511,7 +9610,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-08.stub.test.js",
+            "test_name": "SOLVE-08 — HumanGatedLayer: structural verification"
+          }
+        ]
+      }
     },
     "PF-01": {
       "id": "PF-01",
@@ -9726,7 +9834,16 @@
           "latest_result": "pass",
           "check_id": "alloy:solve-result-schema"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-12.stub.test.js",
+            "test_name": "SOLVE-12: autoClosePtoF module exports autoClosePtoF function"
+          }
+        ]
+      }
     },
     "SOLVE-13": {
       "id": "SOLVE-13",
@@ -9752,7 +9869,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-13.stub.test.js",
+            "test_name": "SOLVE-13: persistSessionSummary creates a timestamped .md file"
+          }
+        ]
+      }
     },
     "SOLVE-10": {
       "id": "SOLVE-10",
@@ -9806,7 +9932,16 @@
           "latest_result": "pass",
           "check_id": "alloy:solve-tc-coverage"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-10.stub.test.js",
+            "test_name": "SOLVE-10: nf-solve.cjs exports crossReferenceFormalCoverage function"
+          }
+        ]
+      }
     },
     "SOLVE-07": {
       "id": "SOLVE-07",
@@ -9832,7 +9967,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-07.stub.test.js",
+            "test_name": "SOLVE-07 — Bool: structural verification"
+          }
+        ]
+      }
     },
     "SOLVE-16": {
       "id": "SOLVE-16",
@@ -9886,7 +10030,16 @@
           "latest_result": "pass",
           "check_id": "alloy:solve-tui-features"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-16.stub.test.js",
+            "test_name": "SOLVE-16: TUI source file exists"
+          }
+        ]
+      }
     },
     "SOLVE-17": {
       "id": "SOLVE-17",
@@ -9940,7 +10093,16 @@
           "latest_result": "pass",
           "check_id": "alloy:solve-tui-features"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-17.stub.test.js",
+            "test_name": "SOLVE-17: TUI exports createRequirementFromItem (ReverseDiscoveryActions)"
+          }
+        ]
+      }
     },
     "SOLVE-03": {
       "id": "SOLVE-03",
@@ -10022,7 +10184,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-03.stub.test.js",
+            "test_name": "SOLVE-03: discoverDocFiles is exported from nf-solve.cjs"
+          }
+        ]
+      }
     },
     "SOLVE-04": {
       "id": "SOLVE-04",
@@ -10076,7 +10247,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-04.stub.test.js",
+            "test_name": "SOLVE-04: solver-doc-layers.als defines Requirement sig"
+          }
+        ]
+      }
     },
     "SOLVE-05": {
       "id": "SOLVE-05",
@@ -10193,7 +10373,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-05.stub.test.js",
+            "test_name": "SOLVE-05: run-formal-verify.cjs parses --project-root argument"
+          }
+        ]
+      }
     },
     "SOLVE-06": {
       "id": "SOLVE-06",
@@ -10275,7 +10464,16 @@
           "latest_result": null,
           "check_id": null
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/SOLVE-06.stub.test.js",
+            "test_name": "SOLVE-06: assembleReverseCandidates is exported from nf-solve.cjs"
+          }
+        ]
+      }
     },
     "SPEC-02": {
       "id": "SPEC-02",
@@ -11307,7 +11505,16 @@
           "latest_result": "pass",
           "check_id": "alloy:transcript"
         }
-      ]
+      ],
+      "unit_test_coverage": {
+        "covered": true,
+        "test_cases": [
+          {
+            "test_file": ".planning/formal/generated-stubs/STOP-10.stub.test.js",
+            "test_name": "STOP-10 — NoDuplicateCountingCheck: behavioral verification"
+          }
+        ]
+      }
     },
     "STOP-11": {
       "id": "STOP-11",
@@ -13505,8 +13712,8 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "ci:trace-redaction"
         }
       ],
       "unit_test_coverage": {
@@ -13526,8 +13733,8 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "ci:trace-redaction"
         },
         {
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
@@ -13554,8 +13761,8 @@
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
           "property_name": "CompleteRedaction",
           "source": "annotation",
-          "latest_result": null,
-          "check_id": null
+          "latest_result": "pass",
+          "check_id": "ci:trace-redaction"
         },
         {
           "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
@@ -20133,8 +20340,8 @@
         "VERIFY-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:headless-execution"
     },
     ".planning/formal/alloy/headless-execution.als::HeadlessMandatoryForJava": {
       "model_file": ".planning/formal/alloy/headless-execution.als",
@@ -20143,8 +20350,8 @@
         "VERIFY-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:headless-execution"
     },
     ".planning/formal/alloy/headless-execution.als::HeadlessPreventsGUI": {
       "model_file": ".planning/formal/alloy/headless-execution.als",
@@ -20153,8 +20360,8 @@
         "VERIFY-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:headless-execution"
     },
     ".planning/formal/alloy/headless-execution.als::JavaToolsAlwaysHeadless": {
       "model_file": ".planning/formal/alloy/headless-execution.als",
@@ -20163,8 +20370,8 @@
         "VERIFY-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:headless-execution"
     },
     ".planning/formal/alloy/headless-execution.als::NoGUIForJavaTools": {
       "model_file": ".planning/formal/alloy/headless-execution.als",
@@ -20173,8 +20380,8 @@
         "VERIFY-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:headless-execution"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::Bool": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20183,8 +20390,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::DiagnosticPrefix": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20193,8 +20400,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::DiagnosticCode": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20203,8 +20410,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::Severity": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20213,8 +20420,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::ObserveIssue": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20223,8 +20430,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::ExecutionContext": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20233,8 +20440,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::SeverityMapping": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20243,8 +20450,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::GatedToQGSDRepo": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20253,8 +20460,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-diagnostic-routing.als::OnlySurfaceInQGSD": {
       "model_file": ".planning/formal/alloy/health-diagnostic-routing.als",
@@ -20263,8 +20470,8 @@
         "OBS-16"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:health-diagnostic-routing"
     },
     ".planning/formal/alloy/health-validation.als::Bool": {
       "model_file": ".planning/formal/alloy/health-validation.als",
@@ -20370,8 +20577,8 @@
         "SOLVE-23"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::HookModule": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20384,8 +20591,8 @@
         "SOLVE-23"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::ConfigLoader": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20394,8 +20601,8 @@
         "SOLVE-19"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::CircuitBreaker": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20404,8 +20611,8 @@
         "SOLVE-20"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::PromptHook": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20414,8 +20621,8 @@
         "SOLVE-21"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::StopHook": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20424,8 +20631,8 @@
         "SOLVE-22"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::MCPDispatchGuard": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20434,8 +20641,8 @@
         "SOLVE-23"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::AllModulesExist": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20448,8 +20655,8 @@
         "SOLVE-23"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::ConfigLoaderExists": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20458,8 +20665,8 @@
         "SOLVE-19"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::CircuitBreakerExists": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20468,8 +20675,8 @@
         "SOLVE-20"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::PromptHookExists": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20478,8 +20685,8 @@
         "SOLVE-21"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::StopHookExists": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20488,8 +20695,8 @@
         "SOLVE-22"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-module-existence.als::MCPDispatchGuardExists": {
       "model_file": ".planning/formal/alloy/hook-module-existence.als",
@@ -20498,8 +20705,8 @@
         "SOLVE-23"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-module-existence"
     },
     ".planning/formal/alloy/hook-portability-guard.als::Bool": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20509,8 +20716,8 @@
         "PORT-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/hook-portability-guard.als::GitCommand": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20519,8 +20726,8 @@
         "GUARD-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/hook-portability-guard.als::GitInvocation": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20529,8 +20736,8 @@
         "GUARD-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/hook-portability-guard.als::DestructiveCommandsDetected": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20539,8 +20746,8 @@
         "GUARD-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/hook-portability-guard.als::WarnOnlyFailOpen": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20549,8 +20756,8 @@
         "GUARD-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/hook-portability-guard.als::Project": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20559,8 +20766,8 @@
         "PORT-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/hook-portability-guard.als::HookBehavior": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20569,8 +20776,8 @@
         "PORT-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/hook-portability-guard.als::PortableImprovement": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20579,8 +20786,8 @@
         "PORT-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/hook-portability-guard.als::NotSourceRepoOnly": {
       "model_file": ".planning/formal/alloy/hook-portability-guard.als",
@@ -20589,8 +20796,8 @@
         "PORT-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:hook-portability-guard"
     },
     ".planning/formal/alloy/install-scope.als::AllEquivalence": {
       "model_file": ".planning/formal/alloy/install-scope.als",
@@ -20599,8 +20806,8 @@
         "INST-02"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:install-scope"
     },
     ".planning/formal/alloy/install-scope.als::InstallIdempotent": {
       "model_file": ".planning/formal/alloy/install-scope.als",
@@ -20609,8 +20816,8 @@
         "INST-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:install-scope"
     },
     ".planning/formal/alloy/install-scope.als::NoConflict": {
       "model_file": ".planning/formal/alloy/install-scope.als",
@@ -20619,8 +20826,8 @@
         "INST-01"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:install-scope"
     },
     ".planning/formal/alloy/install-scope.als::RollbackSoundCheck": {
       "model_file": ".planning/formal/alloy/install-scope.als",
@@ -20629,8 +20836,8 @@
         "INST-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:install-scope"
     },
     ".planning/formal/alloy/install-scope.als::ConfigSyncCompleteCheck": {
       "model_file": ".planning/formal/alloy/install-scope.als",
@@ -20639,8 +20846,8 @@
         "INST-05"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:install-scope"
     },
     ".planning/formal/alloy/installer-path-validation.als::Bool": {
       "model_file": ".planning/formal/alloy/installer-path-validation.als",
@@ -20764,8 +20971,8 @@
         "VERIFY-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:jvm-heap-sequential"
     },
     ".planning/formal/alloy/jvm-heap-sequential.als::AllRunnersHaveHeapFlags": {
       "model_file": ".planning/formal/alloy/jvm-heap-sequential.als",
@@ -20774,8 +20981,8 @@
         "VERIFY-04"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "alloy:jvm-heap-sequential"
     },
     ".planning/formal/alloy/mcp-detection.als::MCPServer": {
       "model_file": ".planning/formal/alloy/mcp-detection.als",
@@ -27236,8 +27443,8 @@
         "REDACT-03"
       ],
       "source": "annotation",
-      "latest_result": null,
-      "check_id": null
+      "latest_result": "pass",
+      "check_id": "ci:trace-redaction"
     },
     ".planning/formal/tla/QGSDCIChecks.tla::CompleteLiveness": {
       "model_file": ".planning/formal/tla/QGSDCIChecks.tla",
@@ -30001,10 +30208,11 @@
     }
   },
   "coverage_summary": {
-    "total_requirements": 381,
-    "covered_count": 377,
-    "coverage_percentage": 99,
+    "total_requirements": 406,
+    "covered_count": 401,
+    "coverage_percentage": 98.8,
     "uncovered_requirements": [
+      "AGENT-04",
       "CLASS-02",
       "RSN-06",
       "VERF-04",
@@ -30219,6 +30427,12 @@
         "detail": "model-registry lists DIAG-03 for .planning/formal/alloy/diagnostics.als but requirements.json DIAG-03 does not list .planning/formal/alloy/diagnostics.als in formal_models"
       },
       {
+        "model_file": ".planning/formal/alloy/dispatch-formal-context.als",
+        "requirement_id": "DISP-06",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists DISP-06 for .planning/formal/alloy/dispatch-formal-context.als but requirements.json DISP-06 does not list .planning/formal/alloy/dispatch-formal-context.als in formal_models"
+      },
+      {
         "model_file": ".planning/formal/alloy/event-vocabulary.als",
         "requirement_id": "EVID-05",
         "direction": "model_claims_requirement",
@@ -30421,6 +30635,24 @@
         "requirement_id": "HLTH-03",
         "direction": "model_claims_requirement",
         "detail": "model-registry lists HLTH-03 for .planning/formal/alloy/health-validation.als but requirements.json HLTH-03 does not list .planning/formal/alloy/health-validation.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/hook-module-existence.als",
+        "requirement_id": "SOLVE-19",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-19 for .planning/formal/alloy/hook-module-existence.als but requirements.json SOLVE-19 does not list .planning/formal/alloy/hook-module-existence.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/hook-module-existence.als",
+        "requirement_id": "SOLVE-20",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-20 for .planning/formal/alloy/hook-module-existence.als but requirements.json SOLVE-20 does not list .planning/formal/alloy/hook-module-existence.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/hook-module-existence.als",
+        "requirement_id": "SOLVE-21",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-21 for .planning/formal/alloy/hook-module-existence.als but requirements.json SOLVE-21 does not list .planning/formal/alloy/hook-module-existence.als in formal_models"
       },
       {
         "model_file": ".planning/formal/alloy/integration-layers.als",
@@ -30885,6 +31117,18 @@
         "detail": "model-registry lists REN-04 for .planning/formal/alloy/rename-migration.als but requirements.json REN-04 does not list .planning/formal/alloy/rename-migration.als in formal_models"
       },
       {
+        "model_file": ".planning/formal/alloy/requirements-aggregation.als",
+        "requirement_id": "SOLVE-18",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-18 for .planning/formal/alloy/requirements-aggregation.als but requirements.json SOLVE-18 does not list .planning/formal/alloy/requirements-aggregation.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/result-classification.als",
+        "requirement_id": "SOLVE-11",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-11 for .planning/formal/alloy/result-classification.als but requirements.json SOLVE-11 does not list .planning/formal/alloy/result-classification.als in formal_models"
+      },
+      {
         "model_file": ".planning/formal/alloy/schema-extensions.als",
         "requirement_id": "SCHEMA-02",
         "direction": "model_claims_requirement",
@@ -30945,6 +31189,42 @@
         "detail": "model-registry lists SIG-03 for .planning/formal/alloy/signal-analysis-tools.als but requirements.json SIG-03 does not list .planning/formal/alloy/signal-analysis-tools.als in formal_models"
       },
       {
+        "model_file": ".planning/formal/alloy/solve-automation-features.als",
+        "requirement_id": "SOLVE-09",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-09 for .planning/formal/alloy/solve-automation-features.als but requirements.json SOLVE-09 does not list .planning/formal/alloy/solve-automation-features.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-consistency.als",
+        "requirement_id": "SOLVE-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-01 for .planning/formal/alloy/solve-consistency.als but requirements.json SOLVE-01 does not list .planning/formal/alloy/solve-consistency.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-consistency.als",
+        "requirement_id": "SOLVE-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-02 for .planning/formal/alloy/solve-consistency.als but requirements.json SOLVE-02 does not list .planning/formal/alloy/solve-consistency.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-decomposition.als",
+        "requirement_id": "SOLVE-14",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-14 for .planning/formal/alloy/solve-decomposition.als but requirements.json SOLVE-14 does not list .planning/formal/alloy/solve-decomposition.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-decomposition.als",
+        "requirement_id": "SOLVE-15",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-15 for .planning/formal/alloy/solve-decomposition.als but requirements.json SOLVE-15 does not list .planning/formal/alloy/solve-decomposition.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-net-residual.als",
+        "requirement_id": "SOLVE-08",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-08 for .planning/formal/alloy/solve-net-residual.als but requirements.json SOLVE-08 does not list .planning/formal/alloy/solve-net-residual.als in formal_models"
+      },
+      {
         "model_file": ".planning/formal/alloy/solve-pf-layer.als",
         "requirement_id": "PF-01",
         "direction": "model_claims_requirement",
@@ -30973,6 +31253,72 @@
         "requirement_id": "PF-05",
         "direction": "model_claims_requirement",
         "detail": "model-registry lists PF-05 for .planning/formal/alloy/solve-pf-layer.als but requirements.json PF-05 does not list .planning/formal/alloy/solve-pf-layer.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-result-schema.als",
+        "requirement_id": "SOLVE-11",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-11 for .planning/formal/alloy/solve-result-schema.als but requirements.json SOLVE-11 does not list .planning/formal/alloy/solve-result-schema.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-result-schema.als",
+        "requirement_id": "SOLVE-12",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-12 for .planning/formal/alloy/solve-result-schema.als but requirements.json SOLVE-12 does not list .planning/formal/alloy/solve-result-schema.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-session-persistence.als",
+        "requirement_id": "SOLVE-13",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-13 for .planning/formal/alloy/solve-session-persistence.als but requirements.json SOLVE-13 does not list .planning/formal/alloy/solve-session-persistence.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-tc-coverage.als",
+        "requirement_id": "SOLVE-10",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-10 for .planning/formal/alloy/solve-tc-coverage.als but requirements.json SOLVE-10 does not list .planning/formal/alloy/solve-tc-coverage.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-triage-display.als",
+        "requirement_id": "SOLVE-07",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-07 for .planning/formal/alloy/solve-triage-display.als but requirements.json SOLVE-07 does not list .planning/formal/alloy/solve-triage-display.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-tui-features.als",
+        "requirement_id": "SOLVE-16",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-16 for .planning/formal/alloy/solve-tui-features.als but requirements.json SOLVE-16 does not list .planning/formal/alloy/solve-tui-features.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solve-tui-features.als",
+        "requirement_id": "SOLVE-17",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-17 for .planning/formal/alloy/solve-tui-features.als but requirements.json SOLVE-17 does not list .planning/formal/alloy/solve-tui-features.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solver-doc-layers.als",
+        "requirement_id": "SOLVE-03",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-03 for .planning/formal/alloy/solver-doc-layers.als but requirements.json SOLVE-03 does not list .planning/formal/alloy/solver-doc-layers.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solver-doc-layers.als",
+        "requirement_id": "SOLVE-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-04 for .planning/formal/alloy/solver-doc-layers.als but requirements.json SOLVE-04 does not list .planning/formal/alloy/solver-doc-layers.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solver-portability.als",
+        "requirement_id": "SOLVE-05",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-05 for .planning/formal/alloy/solver-portability.als but requirements.json SOLVE-05 does not list .planning/formal/alloy/solver-portability.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/solver-portability.als",
+        "requirement_id": "SOLVE-06",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-06 for .planning/formal/alloy/solver-portability.als but requirements.json SOLVE-06 does not list .planning/formal/alloy/solver-portability.als in formal_models"
       },
       {
         "model_file": ".planning/formal/alloy/spec-audit.als",
@@ -31111,6 +31457,12 @@
         "requirement_id": "TRACE-03",
         "direction": "model_claims_requirement",
         "detail": "model-registry lists TRACE-03 for .planning/formal/alloy/traceability.als but requirements.json TRACE-03 does not list .planning/formal/alloy/traceability.als in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/alloy/transcript-scan.als",
+        "requirement_id": "STOP-10",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists STOP-10 for .planning/formal/alloy/transcript-scan.als but requirements.json STOP-10 does not list .planning/formal/alloy/transcript-scan.als in formal_models"
       },
       {
         "model_file": ".planning/formal/alloy/unified-check-results.als",
@@ -31455,6 +31807,42 @@
         "detail": "model-registry lists FV-03 for .planning/formal/tla/NFSolveConvergence.tla but requirements.json FV-03 does not list .planning/formal/tla/NFSolveConvergence.tla in formal_models"
       },
       {
+        "model_file": ".planning/formal/tla/NFSolveOrchestrator.tla",
+        "requirement_id": "SOLVE-01",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-01 for .planning/formal/tla/NFSolveOrchestrator.tla but requirements.json SOLVE-01 does not list .planning/formal/tla/NFSolveOrchestrator.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveOrchestrator.tla",
+        "requirement_id": "SOLVE-02",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-02 for .planning/formal/tla/NFSolveOrchestrator.tla but requirements.json SOLVE-02 does not list .planning/formal/tla/NFSolveOrchestrator.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveOrchestrator.tla",
+        "requirement_id": "SOLVE-05",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-05 for .planning/formal/tla/NFSolveOrchestrator.tla but requirements.json SOLVE-05 does not list .planning/formal/tla/NFSolveOrchestrator.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveOrchestrator.tla",
+        "requirement_id": "SOLVE-06",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-06 for .planning/formal/tla/NFSolveOrchestrator.tla but requirements.json SOLVE-06 does not list .planning/formal/tla/NFSolveOrchestrator.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveOrchestrator.tla",
+        "requirement_id": "SOLVE-09",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-09 for .planning/formal/tla/NFSolveOrchestrator.tla but requirements.json SOLVE-09 does not list .planning/formal/tla/NFSolveOrchestrator.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/NFSolveOrchestrator.tla",
+        "requirement_id": "SOLVE-14",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists SOLVE-14 for .planning/formal/tla/NFSolveOrchestrator.tla but requirements.json SOLVE-14 does not list .planning/formal/tla/NFSolveOrchestrator.tla in formal_models"
+      },
+      {
         "model_file": ".planning/formal/tla/NFSolveP2F.tla",
         "requirement_id": "PF-01",
         "direction": "model_claims_requirement",
@@ -31567,6 +31955,12 @@
         "requirement_id": "SAFE-02",
         "direction": "model_claims_requirement",
         "detail": "model-registry lists SAFE-02 for .planning/formal/tla/QGSDQuorum.tla but requirements.json SAFE-02 does not list .planning/formal/tla/QGSDQuorum.tla in formal_models"
+      },
+      {
+        "model_file": ".planning/formal/tla/QGSDQuorum.tla",
+        "requirement_id": "QUORUM-04",
+        "direction": "model_claims_requirement",
+        "detail": "model-registry lists QUORUM-04 for .planning/formal/tla/QGSDQuorum.tla but requirements.json QUORUM-04 does not list .planning/formal/tla/QGSDQuorum.tla in formal_models"
       },
       {
         "model_file": ".planning/formal/tla/TUINavigation.tla",
@@ -32010,11 +32404,6 @@
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "DISP-06",
-        "referenced_by": "model-registry .planning/formal/alloy/dispatch-formal-context.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
         "reference": "DOC-01",
         "referenced_by": "model-registry .planning/formal/alloy/doc-claims-backing.als requirements"
       },
@@ -32052,21 +32441,6 @@
         "type": "unknown_requirement_id",
         "reference": "OBS-16",
         "referenced_by": "model-registry .planning/formal/alloy/health-diagnostic-routing.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-19",
-        "referenced_by": "model-registry .planning/formal/alloy/hook-module-existence.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-20",
-        "referenced_by": "model-registry .planning/formal/alloy/hook-module-existence.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-21",
-        "referenced_by": "model-registry .planning/formal/alloy/hook-module-existence.als requirements"
       },
       {
         "type": "unknown_requirement_id",
@@ -32195,16 +32569,6 @@
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "SOLVE-18",
-        "referenced_by": "model-registry .planning/formal/alloy/requirements-aggregation.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-11",
-        "referenced_by": "model-registry .planning/formal/alloy/result-classification.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
         "reference": "SCBD-04",
         "referenced_by": "model-registry .planning/formal/alloy/scoreboard-recompute.als requirements"
       },
@@ -32240,31 +32604,6 @@
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "SOLVE-09",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-automation-features.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-01",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-consistency.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-02",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-consistency.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-14",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-decomposition.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-15",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-decomposition.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
         "reference": "SOLVE-24",
         "referenced_by": "model-registry .planning/formal/alloy/solve-diagnostics-tui.als requirements"
       },
@@ -32282,66 +32621,6 @@
         "type": "unknown_requirement_id",
         "reference": "SOLVE-8",
         "referenced_by": "model-registry .planning/formal/alloy/solve-legacy-merge.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-08",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-net-residual.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-11",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-result-schema.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-12",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-result-schema.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-13",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-session-persistence.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-10",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-tc-coverage.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-07",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-triage-display.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-16",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-tui-features.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-17",
-        "referenced_by": "model-registry .planning/formal/alloy/solve-tui-features.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-03",
-        "referenced_by": "model-registry .planning/formal/alloy/solver-doc-layers.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-04",
-        "referenced_by": "model-registry .planning/formal/alloy/solver-doc-layers.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-05",
-        "referenced_by": "model-registry .planning/formal/alloy/solver-portability.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-06",
-        "referenced_by": "model-registry .planning/formal/alloy/solver-portability.als requirements"
       },
       {
         "type": "unknown_requirement_id",
@@ -32382,11 +32661,6 @@
         "type": "unknown_requirement_id",
         "reference": "TRACE-07",
         "referenced_by": "model-registry .planning/formal/alloy/traceability-obligations.als requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "STOP-10",
-        "referenced_by": "model-registry .planning/formal/alloy/transcript-scan.als requirements"
       },
       {
         "type": "unknown_requirement_id",
@@ -32475,36 +32749,6 @@
       },
       {
         "type": "unknown_requirement_id",
-        "reference": "SOLVE-01",
-        "referenced_by": "model-registry .planning/formal/tla/NFSolveOrchestrator.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-02",
-        "referenced_by": "model-registry .planning/formal/tla/NFSolveOrchestrator.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-05",
-        "referenced_by": "model-registry .planning/formal/tla/NFSolveOrchestrator.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-06",
-        "referenced_by": "model-registry .planning/formal/tla/NFSolveOrchestrator.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-09",
-        "referenced_by": "model-registry .planning/formal/tla/NFSolveOrchestrator.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "SOLVE-14",
-        "referenced_by": "model-registry .planning/formal/tla/NFSolveOrchestrator.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
         "reference": "AGT-01",
         "referenced_by": "model-registry .planning/formal/tla/QGSDAgentLoop.tla requirements"
       },
@@ -32521,11 +32765,6 @@
       {
         "type": "unknown_requirement_id",
         "reference": "SAFE-03",
-        "referenced_by": "model-registry .planning/formal/tla/QGSDQuorum.tla requirements"
-      },
-      {
-        "type": "unknown_requirement_id",
-        "reference": "QUORUM-04",
         "referenced_by": "model-registry .planning/formal/tla/QGSDQuorum.tla requirements"
       },
       {
@@ -32581,8 +32820,8 @@
     ],
     "summary": {
       "total_checked": 631,
-      "asymmetric_count": 317,
-      "stale_count": 132,
+      "asymmetric_count": 348,
+      "stale_count": 101,
       "clean": false
     }
   },
@@ -33204,7 +33443,7 @@
   },
   "coverage_preservation": {
     "baseline_found": true,
-    "baseline_date": "2026-03-19T12:03:18.061Z",
+    "baseline_date": "2026-03-19T20:03:09.123Z",
     "requirements_checked": 500,
     "regressions": [],
     "summary": {

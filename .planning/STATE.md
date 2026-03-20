@@ -2,26 +2,26 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-18)
+See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Planning decisions are multi-model verified by structural enforcement
-**Current focus:** Phase v0.39-03: Cycle 2 Solution Simulation
+**Current focus:** Milestone v0.40: Session Intelligence & Friction Reduction
 
 ## Current Position
 
-Phase: v0.39-03 (Cycle 2 Solution Simulation) 2 of 3 overall
-Plan: 3 of 3 in current phase (plan 01 COMPLETE, plan 02 COMPLETE, plan 03 COMPLETE)
-Status: Phase v0.39-03 COMPLETE; all 3 plans finished
-Last activity: 2026-03-19 - Completed quick task 332: Formalize CI/CD pipeline, retire staging
+Phase: v0.40-03 (1/1 plans complete)
+Plan: 01
+Status: Phase v0.40-03 complete — nf-scope-guard PreToolUse hook warns on out-of-scope edits
+Last activity: 2026-03-20 — Completed quick task 336: Implement 3 targeted TLA+ failure classifiers in F->C remediation layer
 
-Progress: [██████████] 100% (Phase v0.39-03: 3/3 plans = 100%)
+Progress: [████████████████] Phase v0.40-03 Complete (1/1 plans = 100%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: ~6.83 minutes
-- Total execution time: ~41 minutes
+- Total plans completed: 7
+- Average duration: ~6.75 minutes
+- Total execution time: ~47 minutes
 
 *Updated after each plan completion*
 
@@ -34,7 +34,8 @@ Progress: [██████████] 100% (Phase v0.39-03: 3/3 plans = 100
 | v0.39-02-03 | ~10 min | 2 | 7 (2 created, 5 modified) | 120 | 100% |
 | v0.39-03-02 | ~8 min | 2 | 2 (2 created, 0 modified) | 17 | 100% |
 | v0.39-03-03 | ~3 min | 2 | 4 (2 created, 2 modified) | 10 | 100% |
-| Phase v0.39-03 P03 | 3 | 2 tasks | 4 files |
+| v0.40-01-01 | ~15 min | 2 | 3 (1 created, 2 modified) | 39 | 100% |
+| v0.40-03-01 | ~7 min | 2 | 6 (2 created, 4 modified) | 12 | 100% |
 
 ## Accumulated Context
 
@@ -51,6 +52,9 @@ Recent decisions affecting current work:
 - v0.39-03-03: Solution simulation loop orchestrates three-module pipeline (SIM-01, SIM-02, SIM-03)
 - v0.39-03-03: Phase 4.5 integrated as fail-CLOSED gate (module-not-found prompts, errors block)
 - v0.39-03-03: Iteration history persisted with session IDs for resumability and analysis
+- v0.40-03-01: Scope guard is warn-only (exits 0 always) — non-blocking advisory per SCOPE-02 requirement
+- v0.40-03-01: Scope contract is branch-specific (keyed by git branch) to support concurrent quick tasks per INTENT-01
+- v0.40-03-01: Hook respects hook_profile configuration; not in minimal profile (requires contract reading infrastructure)
 
 ### Pending Todos
 
@@ -74,21 +78,29 @@ None currently.
 | 330 | Fix 11 XState model gaps identified by Gate A | 2026-03-19 | b5f585d6 | Complete | [330-fix-11-xstate-model-gaps-identified-by-g](./quick/330-fix-11-xstate-model-gaps-identified-by-g/) |
 | 331 | Add requirement mappings for 4 models | 2026-03-19 | 23cb99ca | Complete | [331-add-requirement-mappings-for-4-models-wi](./quick/331-add-requirement-mappings-for-4-models-wi/) |
 | 332 | Formalize CI/CD pipeline, retire staging | 2026-03-19 | bb85f839 | Complete | [332-formalize-ci-cd-pipeline-retire-staging-](./quick/332-formalize-ci-cd-pipeline-retire-staging-/) |
+| 334 | Close 3 autonomous formal verification gaps: code-fix gate, regression auto-remediation, reverse-flow auto-approval via unanimous quorum consensus | 2026-03-19 | a0243e9b | Verified | [334-close-3-autonomous-formal-verification-g](./quick/334-close-3-autonomous-formal-verification-g/) |
+| 335 | Add FSM candidate detection section to nf-phase-researcher RESEARCH.md output | 2026-03-19 | 9f0aa33e | Verified | [335-add-fsm-candidate-detection-section-to-n](./quick/335-add-fsm-candidate-detection-section-to-n/) |
+| 336 | Implement 3 targeted TLA+ failure classifiers in F->C remediation layer | 2026-03-20 | fc31f89d | Verified | [336-implement-3-targeted-tla-failure-classif](./quick/336-implement-3-targeted-tla-failure-classif/) |
 
 ## Session Continuity
 
-Last session: 2026-03-18
-Stopped at: Phase v0.39-03 COMPLETE (all 3 plans finished)
+Last session: 2026-03-20
+Stopped at: Phase v0.40-01 plan 01 COMPLETE (session state injection + root cause + edit constraint)
 Resume file: None
 
 ### Key Decisions (This Session)
 
-- Hard error on corrupt verdict log (not fail-open) to enforce write-once semantics
-- Write-once check runs BEFORE persisting verdict (not post-reversion detection)
-- Dependency injection pattern for testability (allows mock checkers)
-- Append-only verdict log with mutable=false field
-- Gate 3 regression detection uses baseline comparison (pre-existing failures excluded)
-- Solution simulation loop uses async/await for proper gate execution
-- Iteration history persisted even on non-convergence (enables refinement analysis)
-- Fail-CLOSED Phase 4.5 in workflow (module-not-found prompts, errors block progression)
-- Explicit --skip-simulation flag for user opt-out (not automatic/silent)
+- v0.40-01-01: Session state context capped at 500 chars to avoid crowding other injections
+- v0.40-01-01: Extraction limited to "## Current Position" + "### Decisions" sections (20 line cap)
+- v0.40-01-01: Sentinel flags session-scoped (nf-session-seen-{sessionId}.flag) to prevent cross-session delivery
+- v0.40-01-01: All injection blocks append to instructions string (preserve quorum gate, no early exits)
+- v0.40-01-01: Mutual exclusion: debug/fix > edit > new-feature (ordered conditional checks)
+- v0.40-01-01: All injection blocks use fail-open try/catch (missing STATE.md, regex errors are silent)
+- v0.40-02-02: Step 0f mandatory for all diagnoses in v0.40-02 (complexity gate deferred to v2 QRUM-01)
+- v0.40-02-02: BLOCK is absolute per CE-2 - no override rationalization permitted
+- v0.40-02-02: Fail-open when quorum unavailable - proceed without consensus rather than block
+- v0.40-02-02: FAN_OUT_COUNT = 3 (medium risk) for diagnosis gate dispatch
+- v0.40-02-01: Step 2.7 positioned between branching (Step 2.5) and directory creation (Step 3) so branch name is known for scope contract keying
+- v0.40-02-01: Scope contract keyed by branch name to prevent concurrent task collision
+- v0.40-02-01: Approach derivation non-modal (automatic via Haiku) per INTENT-03; no user dialog
+- v0.40-02-01: All error paths fail-open (Haiku unavailability, JSON parse errors, file write errors)

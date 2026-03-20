@@ -1,7 +1,6 @@
 {
-  "aggregated_at": "2026-03-19T07:26:13.065Z",
-  "content_hash": "5fb0abada3542f86",
-  "frozen_at": "2026-03-19T07:26:13.065Z",
+  "aggregated_at": "2026-03-20T07:06:35.406Z",
+  "content_hash": "1cb322f39ba87e72",
   "requirements": [
     {
       "id": "ACT-01",
@@ -183,6 +182,18 @@
         "milestone": "unknown"
       },
       "category_raw": "Agent Roster"
+    },
+    {
+      "id": "AGENT-04",
+      "text": "Phase researcher agent detects implicit state machine patterns in code files and surfaces findings in structured FSM Candidates table within RESEARCH.md output",
+      "category": "MCP & Agents",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "State machines represent refactoring opportunities for formal verification via TLA+ transpilation. By enabling the researcher agent to proactively identify implicit FSM candidates during code analysis, the planner can create targeted conversion tasks that unlock formal verification capabilities without requiring manual pattern detection.",
+      "provenance": {
+        "source_file": ".planning/quick/335-add-fsm-candidate-detection-section-to-n/335-PLAN.md",
+        "milestone": "quick-335"
+      }
     },
     {
       "id": "ANNOT-01",
@@ -508,6 +519,18 @@
       },
       "formal_models": [],
       "category_raw": "Classification"
+    },
+    {
+      "id": "CLASS-03",
+      "text": "classifyTlcFailure classifier detects 6 TLC failure patterns (deadlock, sany_semantic, fairness_gap, invariant_violation, syntax_error, unknown) via ordered pattern matching and integrates into solve-remediate.md F->C dispatch to route deadlock/sany_semantic/fairness_gap to deterministic auto-fix templates.",
+      "category": "Classification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "TLC verification failures often follow deterministic patterns that can be fixed autonomously without LLM reasoning. The classifier extracts these patterns from check-results.ndjson entries and enables targeted remediation.",
+      "provenance": {
+        "source_file": ".planning/quick/336-implement-3-targeted-tla-failure-classif/336-PLAN.md",
+        "milestone": "quick-336"
+      }
     },
     {
       "id": "COMP-01",
@@ -1223,6 +1246,18 @@
         ".planning/formal/tla/QGSDDispatchPipeline.tla"
       ],
       "category_raw": "Dispatch Reliability"
+    },
+    {
+      "id": "DISP-06",
+      "text": "Quorum orchestrator emits a FALLBACK_CHECKPOINT HTML comment block before evaluating consensus when any primary slot returned UNAVAIL — checkpoint must declare unavail_primaries, fallback_dispatched, t1/t2_slots_tried, all_tiers_exhausted, and proceed_reason fields",
+      "category": "Quorum & Dispatch",
+      "phase": "v0.39-quick",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.39"
+      },
+      "background": "Chain-of-thought gate in quorum.md — forces LLM to reason through fallback status before consensus. Complementary to STOP-10 which enforces the checkpoint from the consumer side."
     },
     {
       "id": "DISP-08",
@@ -3287,6 +3322,18 @@
       "category_raw": "Quorum Gates"
     },
     {
+      "id": "QUORUM-04",
+      "text": "Autonomous formal verification gates dispatch code-fix approval, regression remediation, and reverse-flow discovery to quorum for unanimous consensus, replacing human pauses",
+      "category": "Quorum & Dispatch",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "Three critical formal verification chokepoints previously required human intervention: code-fix approval (Phase 5a), regression remediation (Phase 5b), and reverse-flow candidate approval (Step 3i). Dispatching these to quorum with unanimous consensus gates makes the formal verification loop fully autonomous while maintaining high-stakes approval through parallel quorum deliberation with debate-on-dissent protocol and last-resort human escalation only after debate exhaustion.",
+      "provenance": {
+        "source_file": ".planning/quick/334-close-3-autonomous-formal-verification-g/334-PLAN.md",
+        "milestone": "quick-334"
+      }
+    },
+    {
       "id": "RDME-01",
       "text": "TUI section promoted from `<details>` to visible section with hero screenshot above the fold",
       "category": "README Structure",
@@ -4159,6 +4206,205 @@
       "category_raw": "Slot-based Naming"
     },
     {
+      "id": "SOLVE-01",
+      "text": "/nf:close-formal-gaps must auto-generate TLA+, Alloy, or PRISM specs from project requirements without manual scaffolding",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-02",
+      "text": "The quorum dispatcher must detect unauthenticated agents before dispatch and skip them rather than waiting for timeout",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-03",
+      "text": "Plan verification must check plans against requirements and repeat the loop until all checks pass or max iterations are reached",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-04",
+      "text": "nForma must generate formal specifications from project requirements and run model checkers to surface bugs before code is written",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-05",
+      "text": "/nf:solve-report must produce a before/after residual summary that includes a full formal verification pass result",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-06",
+      "text": "The circuit breaker must detect ping-pong commit loops (structural coupling) and break them automatically",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-07",
+      "text": "Quick mode must provide atomic commits and state tracking as guaranteed invariants on every task execution",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-08",
+      "text": "The XState-to-TLA+ transpiler must generate VARIABLES, Init, type invariants, action definitions, Next operator, and fairness annotations from the source machine definition",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-09",
+      "text": "nForma must provide commands covering the full project lifecycle from initialization through milestone completion",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "docs/USER-GUIDE.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-10",
+      "text": "B→F remediation routing classifies and dispatches bug-to-formal candidates with priority ordering and cap enforcement",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-11",
+      "text": "b_to_f layer is registered in LAYER_KEYS and wired into the solve-wave DAG",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-12",
+      "text": "normalizeBugContext handles null, undefined, empty string, inline text, and file-path inputs",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-13",
+      "text": "Bug lookup resolves error fingerprints to memory-store entries and NDJSON log records",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-14",
+      "text": "Proximity-neighbor traversal supports cross-model regression detection via 1-hop and 2-hop graph edges",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-15",
+      "text": "Debug verdict classification returns no-model, not-reproduced, or reproduced based on model checker results",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-16",
+      "text": "Model-driven fix orchestrator integrates formal-scope-scan, refinement-loop, and model-constrained-fix into a single pipeline",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-17",
+      "text": "Model reproduction enforces max model limit and --run-checkers flag via CLI argument parsing",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-18",
+      "text": "Refinement loop retries bug reproduction up to maxAttempts with per-iteration callbacks and converges to reproduced or not_reproduced",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-19",
+      "text": "Proximity neighbor resolution supports 1-hop and 2-hop traversal, bidirectional edges, and maxHops constraint",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-20",
+      "text": "Phase verifier checks that the codebase delivers what the phase goal promised, not just that tasks completed or tests pass",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "source_file": "README.md",
+        "milestone": "solver-tui"
+      }
+    },
+    {
+      "id": "SOLVE-21",
+      "text": "PRISM DTMC model verifies quorum convergence probability across vote states (IDLE, COLLECTING_VOTES, DELIBERATING, DECIDED)",
+      "category": "Solver-Discovered",
+      "status": "Proposed",
+      "provenance": {
+        "milestone": "solver-tui"
+      }
+    },
+    {
       "id": "SPEC-01",
       "text": "Stop hook formalized in `QGSDStopHook.tla` + `MCStopHook.cfg`, TLC verifies safety + liveness",
       "category": "Formal Verification",
@@ -4491,6 +4737,18 @@
         ".planning/formal/alloy/transcript-scan.als"
       ],
       "category_raw": "Stop Hook"
+    },
+    {
+      "id": "STOP-10",
+      "text": "Stop hook detects when slot-worker results contain UNAVAIL verdicts without subsequent fallback dispatch rounds or a valid FALLBACK_CHECKPOINT marker, and blocks with fallback_01_block action — enforcing FALLBACK-01 tiered fallback at the structural level",
+      "category": "Hooks & Enforcement",
+      "phase": "v0.39-quick",
+      "status": "Complete",
+      "provenance": {
+        "source_file": "manual",
+        "milestone": "v0.39"
+      },
+      "background": "Belt-and-suspenders enforcement: quorum.md checkpoint (belt) + nf-stop.js detectUnavailWithoutFallback (suspenders)"
     },
     {
       "id": "STRUCT-01",
@@ -5359,5 +5617,6 @@
     }
   ],
   "schema_version": "1",
-  "source": ".planning/REQUIREMENTS.md"
+  "source": ".planning/REQUIREMENTS.md",
+  "frozen_at": "2026-03-20T07:06:35.406Z"
 }

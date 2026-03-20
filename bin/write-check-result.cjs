@@ -32,6 +32,7 @@ const NDJSON_PATH = process.env.CHECK_RESULTS_PATH ||
  * @param {string[]} [entry.triage_tags] - Optional anomaly tags. Defaults to [].
  * @param {object} [entry.observation_window] - Optional stochastic check window metadata (PRISM-critical). Contains { window_start, window_end, n_traces, n_events, window_days }.
  * @param {string[]} [entry.requirement_ids] - Optional array of requirement IDs this check covers. Defaults to [].
+ * @param {string} [entry.failure_class] - Optional TLC failure classification ('deadlock', 'sany_semantic', 'fairness_gap', 'invariant_violation', 'syntax_error', 'unknown').
  * @param {Object} [entry.metadata] - Optional extra fields (spec, config, etc.)
  * @throws {Error} On validation failure
  */
@@ -81,6 +82,14 @@ function writeCheckResult(entry) {
     }
   }
 
+  // failure_class: optional TLC failure classification
+  if (entry.failure_class !== undefined) {
+    const VALID_FAILURE_CLASSES = ['deadlock', 'sany_semantic', 'fairness_gap', 'invariant_violation', 'syntax_error', 'unknown'];
+    if (!VALID_FAILURE_CLASSES.includes(entry.failure_class)) {
+      throw new Error('[write-check-result] failure_class must be one of: ' + VALID_FAILURE_CLASSES.join(', ') + ' (got: ' + entry.failure_class + ')');
+    }
+  }
+
   const record = {
     tool:       entry.tool,
     formalism:  entry.formalism,
@@ -98,6 +107,10 @@ function writeCheckResult(entry) {
 
   if (entry.observation_window !== undefined) {
     record.observation_window = entry.observation_window;
+  }
+
+  if (entry.failure_class !== undefined) {
+    record.failure_class = entry.failure_class;
   }
 
   fs.appendFileSync(NDJSON_PATH, JSON.stringify(record) + '\n', 'utf8');

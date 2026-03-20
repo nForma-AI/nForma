@@ -982,3 +982,381 @@ process.exit(1);
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ── SESSION STATE INJECTION TESTS (SESSION-01, SESSION-02, SESSION-03) ────────
+// ──────────────────────────────────────────────────────────────────────────────
+
+test('SESSION-01: isFirstMessageOfSession creates sentinel flag on first call', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-session-01-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    // Create a minimal STATE.md
+    fs.mkdirSync(path.join(tempDir, '.planning'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tempDir, '.planning', 'STATE.md'),
+      '## Current Position\nPhase: v0.40-01\nStatus: Ready\n',
+      'utf8'
+    );
+
+    const sessionId = 'test-session-123';
+    const { stdout } = runHook({
+      prompt: '/nf:plan-phase',
+      cwd: tempDir,
+      session_id: sessionId,
+    });
+
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    assert.ok(
+      ctx.includes('SESSION CONTEXT'),
+      'SESSION-01: first message should include SESSION CONTEXT'
+    );
+
+    // Verify sentinel flag was created
+    const flagPath = path.join(claudeDir, `nf-session-seen-${sessionId}.flag`);
+    assert.ok(fs.existsSync(flagPath), 'SESSION-01: sentinel flag file must be created');
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('SESSION-02: isFirstMessageOfSession idempotency — second call returns false', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-session-02-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    fs.mkdirSync(path.join(tempDir, '.planning'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tempDir, '.planning', 'STATE.md'),
+      '## Current Position\nPhase: v0.40-01\n',
+      'utf8'
+    );
+
+    const sessionId = 'test-session-idempotent';
+
+    // First call
+    const { stdout: out1 } = runHook({
+      prompt: '/nf:plan-phase',
+      cwd: tempDir,
+      session_id: sessionId,
+    });
+    const ctx1 = JSON.parse(out1).hookSpecificOutput.additionalContext;
+    assert.ok(ctx1.includes('SESSION CONTEXT'), 'First call must include SESSION CONTEXT');
+
+    // Second call with the SAME sessionId
+    const { stdout: out2 } = runHook({
+      prompt: '/nf:plan-phase',
+      cwd: tempDir,
+      session_id: sessionId,
+    });
+    const ctx2 = JSON.parse(out2).hookSpecificOutput.additionalContext;
+    assert.ok(
+      !ctx2.includes('SESSION CONTEXT'),
+      'SESSION-02: second call with same sessionId must NOT include SESSION CONTEXT (idempotency)'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('SESSION-03: session injection fails gracefully when .planning/STATE.md missing', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-session-03-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    // No STATE.md file — fail-open path
+    const sessionId = 'test-session-missing';
+    const { stdout, exitCode } = runHook({
+      prompt: '/nf:plan-phase',
+      cwd: tempDir,
+      session_id: sessionId,
+    });
+
+    assert.strictEqual(exitCode, 0, 'SESSION-03: must not crash on missing STATE.md');
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    assert.ok(
+      !ctx.includes('SESSION CONTEXT'),
+      'SESSION-03: missing STATE.md must not inject SESSION CONTEXT (fail-open)'
+    );
+    assert.ok(
+      ctx.includes('QUORUM REQUIRED'),
+      'SESSION-03: must still continue to quorum injection (fail-open)'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ── ROOT CAUSE TEMPLATE INJECTION TESTS (ROOT-01, ROOT-03) ────────────────────
+// ──────────────────────────────────────────────────────────────────────────────
+
+test('ROOT-01: debug/fix prompts receive ROOT CAUSE ENFORCEMENT template', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-root-01-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    // Test multiple debug/fix patterns
+    const testCases = [
+      'fix the authentication bug',
+      'debug this issue',
+      'why is it not working',
+      'the bug is in the parser',
+      'investigate the failure',
+      'error when running tests',
+    ];
+
+    for (const prompt of testCases) {
+      const { stdout } = runHook({
+        prompt: `/nf:plan-phase ${prompt}`,
+        cwd: tempDir,
+      });
+      const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+      assert.ok(
+        ctx.includes('ROOT CAUSE ENFORCEMENT'),
+        `ROOT-01: prompt "${prompt}" must receive ROOT CAUSE ENFORCEMENT template`
+      );
+    }
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('ROOT-03: non-debug/fix prompts do NOT receive ROOT CAUSE ENFORCEMENT', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-root-03-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    const testCases = [
+      'add a new feature',
+      'create a dashboard',
+      'update the README',
+      '/nf:plan-phase v0.40-02',
+    ];
+
+    for (const prompt of testCases) {
+      const { stdout } = runHook({
+        prompt: `/nf:plan-phase ${prompt}`,
+        cwd: tempDir,
+      });
+      const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+      assert.ok(
+        !ctx.includes('ROOT CAUSE ENFORCEMENT'),
+        `ROOT-03: non-debug prompt "${prompt}" must NOT receive ROOT CAUSE ENFORCEMENT`
+      );
+    }
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ── EDIT CONSTRAINT INJECTION TESTS (CONST-01, CONST-02) ──────────────────────
+// ──────────────────────────────────────────────────────────────────────────────
+
+test('CONST-01: edit prompts (not debug, not new-feature) receive EDIT CONSTRAINT', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-const-01-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    const testCases = [
+      'update the README',
+      'change the color to red',
+      'rewrite the header',
+      'modify the config',
+      'replace foo with bar',
+    ];
+
+    for (const prompt of testCases) {
+      const { stdout } = runHook({
+        prompt: `/nf:plan-phase ${prompt}`,
+        cwd: tempDir,
+      });
+      const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+      assert.ok(
+        ctx.includes('EDIT CONSTRAINT'),
+        `CONST-01: edit prompt "${prompt}" must receive EDIT CONSTRAINT`
+      );
+    }
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('CONST-02: debug/fix prompts do NOT receive EDIT CONSTRAINT (priority)', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-const-02a-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    // Prompt that matches both debug/fix AND edit patterns
+    // Should get ROOT CAUSE, NOT EDIT CONSTRAINT (debug takes priority)
+    const { stdout } = runHook({
+      prompt: '/nf:plan-phase fix the broken link in the README',
+      cwd: tempDir,
+    });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    assert.ok(
+      ctx.includes('ROOT CAUSE ENFORCEMENT'),
+      'CONST-02: prompt matching both debug and edit should get ROOT CAUSE'
+    );
+    assert.ok(
+      !ctx.includes('EDIT CONSTRAINT'),
+      'CONST-02: prompt matching both debug and edit should NOT get EDIT CONSTRAINT (mutual exclusion)'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('CONST-02: new-feature prompts do NOT receive EDIT CONSTRAINT', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-const-02b-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    const testCases = [
+      'create a new component',
+      'add a new endpoint',
+      'build a new feature',
+      'implement a new file',
+    ];
+
+    for (const prompt of testCases) {
+      const { stdout } = runHook({
+        prompt: `/nf:plan-phase ${prompt}`,
+        cwd: tempDir,
+      });
+      const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+      assert.ok(
+        !ctx.includes('EDIT CONSTRAINT'),
+        `CONST-02: new-feature prompt "${prompt}" must NOT receive EDIT CONSTRAINT`
+      );
+    }
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('CONST-02: non-matching prompts receive neither template', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-const-02c-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    const { stdout } = runHook({
+      prompt: '/nf:plan-phase v0.40-02',
+      cwd: tempDir,
+    });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+    assert.ok(
+      !ctx.includes('ROOT CAUSE ENFORCEMENT'),
+      'CONST-02: non-matching prompt must not receive ROOT CAUSE'
+    );
+    assert.ok(
+      !ctx.includes('EDIT CONSTRAINT'),
+      'CONST-02: non-matching prompt must not receive EDIT CONSTRAINT'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ── QUORUM GATE PRESERVATION TEST ────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────────────
+
+test('Quorum gate preservation: ROOT CAUSE injection does NOT suppress GSD_DECISION marker', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nf-quorum-gate-'));
+  try {
+    spawnSync('git', ['init'], { cwd: tempDir, encoding: 'utf8', timeout: 5000 });
+    const claudeDir = path.join(tempDir, '.claude');
+    fs.mkdirSync(claudeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(claudeDir, 'nf.json'),
+      JSON.stringify({ quorum_active: ['codex-1'] }),
+      'utf8'
+    );
+
+    const { stdout } = runHook({
+      prompt: '/nf:plan-phase fix the authentication bug',
+      cwd: tempDir,
+    });
+    const ctx = JSON.parse(stdout).hookSpecificOutput.additionalContext;
+
+    // Both ROOT CAUSE and quorum markers must be present (no early exit)
+    assert.ok(
+      ctx.includes('ROOT CAUSE ENFORCEMENT'),
+      'Quorum gate: ROOT CAUSE must be injected'
+    );
+    // The Stop hook checks for <!-- GSD_DECISION --> — while nf-prompt doesn't emit it,
+    // we verify that quorum instructions (which reference it) are still present.
+    assert.ok(
+      ctx.includes('QUORUM REQUIRED'),
+      'Quorum gate: QUORUM REQUIRED must be present (no early exit suppressed quorum)'
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});

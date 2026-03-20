@@ -313,16 +313,33 @@ Apply a fix that:
 [END FIX CONSTRAINTS]
 ```
 
-This phase presents the constraints and waits for the fix to be applied.
-The fix may be applied manually by the developer or by another workflow (e.g., /nf:debug).
+**Quorum Code-Fix Gate (autonomous):**
 
-After presenting constraints, prompt the user:
+Dispatch the proposed code fix + extracted constraints to quorum for unanimous consensus:
+
+Build quorum question:
 ```
-Fix constraints above. After applying the fix, type "done" to proceed to neighbor verification.
+Review this proposed code fix for bug: {BUG_DESC}
+Constraints from formal model {model_name}:
+{constraint list}
+Simulation status: {converged/not converged/skipped}
+
+Does this fix satisfy ALL extracted constraints without introducing regressions?
+Vote APPROVE if the fix is sound. Vote BLOCK with specific objection if not.
 ```
 
-When user confirms (or in --auto mode, after fix is applied):
-  Proceed to Phase 5b.
+Dispatch as parallel sibling nf-quorum-slot-worker Tasks (per R3.2):
+- Build $DISPATCH_LIST from active slots
+- Each slot gets the question + constraint context + affected file diffs
+- mode: A, timeout per slot config
+
+Synthesize results, deliberate up to 10 rounds per R3.3.
+
+**Unanimous gate: 100% of valid external voters must vote APPROVE.**
+- **APPROVED (unanimous)** -> Auto-apply the fix. Log "Quorum-approved code fix: [summary]". Proceed to Phase 5b.
+- **BLOCKED (any BLOCK vote)** -> Quorum debates per standard protocol (slots see prior positions, iterate). Up to max deliberation rounds.
+  - If consensus reached after debate -> apply outcome (APPROVE = auto-apply, BLOCK = escalate).
+  - If debate exhausted with no consensus -> escalate to human as last resort. Present constraints, dissenting positions, and ask user to decide.
 
 ### Phase 5b — Cross-Model Regression Check
 
@@ -413,12 +430,27 @@ REGRESSION_COUNT=${#REGRESSIONS[@]}
     Exit workflow (do not proceed to Phase 6).
 
   **If `$STRICT` is false (default):**
-    Display:
-    ```
-    Regressions detected but proceeding (fail-open mode).
-    Re-run with --strict to gate fix completion on all neighbor models passing.
-    ```
-    Proceed to Phase 5c.
+
+    **Auto-Remediation via Quorum Consensus:**
+
+    For each regression in $REGRESSIONS:
+      Build quorum question:
+      ```
+      Regression detected in neighbor model {model_id} ({formalism}): {violation summary}
+      Primary fix applied for: {BUG_DESC}
+      Constraints: {constraint list}
+
+      Propose a remediation that resolves this regression without reverting the primary fix.
+      Vote APPROVE with proposed remediation if feasible. Vote BLOCK if regression requires manual investigation.
+      ```
+
+      Dispatch as parallel sibling nf-quorum-slot-worker Tasks.
+      Synthesize with unanimous gate (100% APPROVE required).
+
+      - **APPROVED (unanimous)** -> Auto-apply the proposed remediation. Log "Quorum-approved regression fix: {model_id}".
+      - **BLOCKED or debate exhausted** -> Log warning: "Regression in {model_id} requires manual investigation". Continue to next regression.
+
+    After all regressions processed, proceed to Phase 5c.
 
 **If no regressions:**
   Display: `All {N} neighbor model(s) pass. No cross-model regressions detected.`

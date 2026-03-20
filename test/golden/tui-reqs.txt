@@ -1,22 +1,22 @@
  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
   [38;2;244;149;106m[1mn[38;2;125;207;255mForma[0m [38;2;244;149;106mAI[0m [90mv0.39.0[0m                                                                [90mcwd:[0m [36m/Users/jonathanborduas/code/QGSD[0m  
  ─────── ──────────────────────── ───────────────────────────────────────────────────────────────────────────────────── 
-         [48;2;30;58;58m  [37mBrowse Reqs[0m [37m[1m Requirements[0m  [90m381 total · 8 principles · 50 categories[0m                               
+         [48;2;30;58;58m  [37mBrowse Reqs[0m [37m[1m Requirements[0m  [90m405 total · 8 principles · 51 categories[0m                               
   [90m▄█▄[0m      [90mCoverage[0m       [90m──────────────────────────────────────────────────────────────────────────────────[0m   
   [90m█ █[0m      [90mTraceability[0m                                                                                        
   [90m█▀█[0m      [90mAggregate[0m       [90mPrinciple                      Specs[0m                                                
    [90mF1[0m     [90mCoverage Gaps[0m   [90m────────────────────────────────────────────────────────────────────────────────[0m    
-  [90m─────[0m    [90mGate Scoring[0m    [37mProtocol Integrity            [0m [36m  36[0m                                                 
-                                    [37mQuorum Governance             [0m [36m  28[0m                                                 
-  [36m█▀█[0m                               [37mFormal Rigor                  [0m [36m  41[0m                                                 
+  [90m─────[0m    [90mGate Scoring[0m    [37mProtocol Integrity            [0m [36m  37[0m                                                 
+                                    [37mQuorum Governance             [0m [36m  29[0m                                                 
+  [36m█▀█[0m                               [37mFormal Rigor                  [0m [36m  62[0m                                                 
   [36m██▀[0m                               [37mOperational Visibility        [0m [36m  19[0m                                                 
-  [36m█ █[0m                               [37mAgent Ecosystem               [0m [36m  26[0m                                                 
+  [36m█ █[0m                               [37mAgent Ecosystem               [0m [36m  27[0m                                                 
    [36mF2[0m                              [37mConfiguration Safety          [0m [36m  26[0m                                                 
   [90m─────[0m                             [37mInstallation Reliability      [0m [36m  34[0m                                                 
                                     [37mPlanning Discipline           [0m [36m 171[0m                                                 
   [90m▄▀▀[0m                                                                                                                   
   [90m█  [0m                               [90m────────────────────────────────────────────────────────────────────────────────[0m    
-  [90m▀▄▄[0m                               [32m381[0m [90mtotal requirements across[0m [36m8[0m [90mprinciples[0m                                          
+  [90m▀▄▄[0m                               [32m405[0m [90mtotal requirements across[0m [36m8[0m [90mprinciples[0m                                          
    [90mF3[0m                                                                                                                  
   [90m─────[0m                                                                                                                 
                                                                                                                         

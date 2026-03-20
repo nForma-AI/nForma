@@ -29,7 +29,7 @@ FLAGS=""; [ -n "$ARTIFACT_PATH" ] && FLAGS="$FLAGS --artifact-path $ARTIFACT_PAT
 [ -s "$PRIOR_FILE" ] && FLAGS="$FLAGS --prior-positions-file $PRIOR_FILE"
 [ -s "$TRACES_FILE" ] && FLAGS="$FLAGS --traces-file $TRACES_FILE"
 [ "$REQUEST_IMPROVEMENTS" = "true" ] && FLAGS="$FLAGS --request-improvements"
-BASH_TIMEOUT=$(( TIMEOUT_MS + 30000 > 120000 ? 120000 : TIMEOUT_MS + 30000 ))
+BASH_TIMEOUT=$(( TIMEOUT_MS + 30000 > 600000 ? 600000 : TIMEOUT_MS + 30000 ))
 node "$HOME/.claude/nf-bin/quorum-slot-dispatch.cjs" \
   --slot "$SLOT" --round "$ROUND" --timeout "$TIMEOUT_MS" --cwd "$REPO_DIR" \
   --mode "$MODE" --question "$QUESTION" $FLAGS

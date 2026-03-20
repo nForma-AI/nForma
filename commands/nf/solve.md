@@ -187,6 +187,6 @@ This commit is non-blocking — if staging or committing fails (e.g., no changes
 
 6. **Cascade awareness** -- fixing one layer often creates gaps in the next (e.g., new formal models -> new F->T gaps). The iteration loop handles this naturally. Expect the total to fluctuate between iterations before converging. Reverse discovery candidates that get approved also feed into the forward flow in subsequent iterations.
 
-7. **Reverse flows are discovery-only** -- C->R, T->R, and D->R never auto-remediate. They surface candidates for human approval. Reverse residuals do NOT count toward the automatable total or affect the convergence check.
+7. **Reverse flows use quorum consensus** -- C->R, T->R, and D->R candidates are discovered autonomously then dispatched to quorum for unanimous consensus approval. On unanimous APPROVE, candidates auto-promote to requirements. On debate exhaustion without consensus, candidates are shelved to acknowledged-not-required.json. Reverse residuals do NOT count toward the automatable total or affect the convergence check.
 
 </process>

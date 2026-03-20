@@ -1,5 +1,5 @@
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -65,8 +65,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -132,8 +132,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -199,8 +199,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -266,8 +266,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -333,8 +333,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -400,8 +400,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -467,8 +467,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -534,8 +534,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -601,8 +601,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -668,8 +668,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -735,8 +735,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -802,8 +802,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 
@@ -869,8 +869,8 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-%
 > cd /Users/jonathanborduas/code/QGSD && node bin/nForma.cjs
+
 
 
 

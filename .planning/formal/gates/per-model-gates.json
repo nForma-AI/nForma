@@ -1,6 +1,6 @@
 {
   "schema_version": "3",
-  "generated": "2026-03-19T11:53:15.426Z",
+  "generated": "2026-03-19T20:04:52.851Z",
   "total_models": 201,
   "unstable_models": 0,
   "evidence_readiness": {
@@ -10,8 +10,8 @@
   "models": {
     ".planning/formal/alloy/account-pool-structure.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [CRED-07, CRED-08, CRED-09, CRED-10, CRED-11]"
+        "pass": true,
+        "reason": "passing trace for req CRED-07 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -23,7 +23,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -31,8 +31,8 @@
     },
     ".planning/formal/alloy/agent-context-payload.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [GUARD-01, OBS-11]"
+        "pass": true,
+        "reason": "passing trace for req GUARD-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -44,7 +44,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -65,7 +65,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -86,7 +86,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -107,7 +107,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -116,7 +116,7 @@
     ".planning/formal/alloy/availability-parsing.als": {
       "gate_a": {
         "pass": true,
-        "reason": "all 3 requirement(s) grounded by unit test coverage"
+        "reason": "passing trace for req CALIB-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -128,7 +128,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -136,8 +136,8 @@
     },
     ".planning/formal/alloy/baseline-merge-idempotent.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [INST-12]"
+        "pass": true,
+        "reason": "passing trace for req INST-12 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -149,7 +149,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -157,8 +157,8 @@
     },
     ".planning/formal/alloy/baseline-requirements-filter.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [INIT-01]"
+        "pass": true,
+        "reason": "passing trace for req INIT-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -170,7 +170,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -178,8 +178,8 @@
     },
     ".planning/formal/alloy/bin-path-resolution.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [INST-11]"
+        "pass": true,
+        "reason": "passing trace for req INST-11 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -191,7 +191,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -212,7 +212,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -233,7 +233,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -254,7 +254,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -275,7 +275,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -296,7 +296,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -317,7 +317,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -338,7 +338,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -346,8 +346,8 @@
     },
     ".planning/formal/alloy/code-quality-guardrails.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [GUARD-01]"
+        "pass": true,
+        "reason": "passing trace for req GUARD-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -359,7 +359,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -380,7 +380,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -388,8 +388,8 @@
     },
     ".planning/formal/alloy/config-audit.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [CONF-13]"
+        "pass": true,
+        "reason": "passing trace for req CONF-13 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -401,7 +401,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -422,7 +422,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -443,7 +443,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -464,7 +464,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -485,7 +485,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -506,7 +506,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -527,7 +527,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -548,7 +548,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -556,8 +556,8 @@
     },
     ".planning/formal/alloy/dispatch-formal-context.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [DISP-06]"
+        "pass": true,
+        "reason": "passing trace for req DISP-06 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -569,7 +569,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -577,8 +577,8 @@
     },
     ".planning/formal/alloy/doc-claims-backing.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [DOC-01]"
+        "pass": true,
+        "reason": "passing trace for req DOC-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -590,7 +590,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -598,8 +598,8 @@
     },
     ".planning/formal/alloy/doc-presentation.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [DOC-02, DOC-03]"
+        "pass": true,
+        "reason": "passing trace for req DOC-02 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -611,7 +611,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -619,8 +619,8 @@
     },
     ".planning/formal/alloy/doc-public-boundary.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [DOC-02]"
+        "pass": true,
+        "reason": "passing trace for req DOC-02 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -632,7 +632,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -653,7 +653,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -674,7 +674,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -695,7 +695,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -716,7 +716,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -737,7 +737,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -758,7 +758,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -779,7 +779,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -800,7 +800,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -821,7 +821,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -842,7 +842,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -863,7 +863,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -872,7 +872,7 @@
     ".planning/formal/alloy/gate-scoring-traces.als": {
       "gate_a": {
         "pass": true,
-        "reason": "passing check-result for req GATE-05"
+        "reason": "passing trace for req GATE-05 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -884,7 +884,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -905,7 +905,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -926,7 +926,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -947,7 +947,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -968,7 +968,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -989,7 +989,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1010,7 +1010,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1019,7 +1019,7 @@
     ".planning/formal/alloy/hook-module-existence.als": {
       "gate_a": {
         "pass": true,
-        "reason": "passing check-result for req SOLVE-19"
+        "reason": "passing trace for req SOLVE-19 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1031,7 +1031,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1039,8 +1039,8 @@
     },
     ".planning/formal/alloy/hook-portability-guard.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [GUARD-02, PORT-04]"
+        "pass": true,
+        "reason": "passing trace for req GUARD-02 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1052,7 +1052,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1061,7 +1061,7 @@
     ".planning/formal/alloy/install-scope.als": {
       "gate_a": {
         "pass": true,
-        "reason": "all 5 requirement(s) grounded by unit test coverage"
+        "reason": "passing trace for req INST-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1073,7 +1073,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1094,7 +1094,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1115,7 +1115,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1136,7 +1136,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1144,8 +1144,8 @@
     },
     ".planning/formal/alloy/jvm-heap-sequential.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [VERIFY-04]"
+        "pass": true,
+        "reason": "passing trace for req VERIFY-04 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1157,7 +1157,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1178,7 +1178,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1199,7 +1199,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1220,7 +1220,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1241,7 +1241,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1262,7 +1262,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1283,7 +1283,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1304,7 +1304,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1325,7 +1325,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1333,8 +1333,8 @@
     },
     ".planning/formal/alloy/observability-handler-arch.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [OBS-13, OBS-14, OBS-15]"
+        "pass": true,
+        "reason": "passing trace for req OBS-13 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1346,7 +1346,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1354,8 +1354,8 @@
     },
     ".planning/formal/alloy/observability-handlers.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [OBS-09, OBS-10, OBS-11, OBS-12]"
+        "pass": true,
+        "reason": "passing trace for req OBS-11 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1367,7 +1367,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1388,7 +1388,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1409,7 +1409,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1430,7 +1430,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1439,7 +1439,7 @@
     ".planning/formal/alloy/polyrepo-config.als": {
       "gate_a": {
         "pass": true,
-        "reason": "passing check-result for req CONF-11"
+        "reason": "passing trace for req CONF-11 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1451,7 +1451,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1472,7 +1472,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1493,7 +1493,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1514,7 +1514,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1535,7 +1535,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1543,8 +1543,8 @@
     },
     ".planning/formal/alloy/proximity-index.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [TRACE-09]"
+        "pass": true,
+        "reason": "passing trace for req TRACE-09 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1556,7 +1556,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1577,7 +1577,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1598,7 +1598,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1619,7 +1619,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1640,7 +1640,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1661,7 +1661,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1678,11 +1678,11 @@
       },
       "gate_c": {
         "pass": true,
-        "reason": "passing check-result alloy:quorum-votes"
+        "reason": "passing check-result prism:quorum"
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 2,
+      "consecutive_pass_count": 5,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1703,7 +1703,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1724,7 +1724,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1745,7 +1745,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1766,7 +1766,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1787,7 +1787,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1808,7 +1808,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1816,8 +1816,8 @@
     },
     ".planning/formal/alloy/result-classification.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-11]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-11 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1829,7 +1829,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1850,7 +1850,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1859,7 +1859,7 @@
     ".planning/formal/alloy/scoreboard-recompute.als": {
       "gate_a": {
         "pass": true,
-        "reason": "passing check-result for req SCBD-01"
+        "reason": "passing trace for req SCBD-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1871,7 +1871,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1892,7 +1892,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1913,7 +1913,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1934,7 +1934,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1955,7 +1955,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1964,7 +1964,7 @@
     ".planning/formal/alloy/session-counter-tracking.als": {
       "gate_a": {
         "pass": true,
-        "reason": "passing check-result for req SPEC-07"
+        "reason": "passing trace for req SPEC-07 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1976,7 +1976,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -1985,7 +1985,7 @@
     ".planning/formal/alloy/settings-hub.als": {
       "gate_a": {
         "pass": true,
-        "reason": "passing check-result for req WIZ-11"
+        "reason": "passing trace for req WIZ-11 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -1997,7 +1997,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2018,7 +2018,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2026,8 +2026,8 @@
     },
     ".planning/formal/alloy/solve-automation-features.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-09]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-09 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2039,7 +2039,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2047,8 +2047,8 @@
     },
     ".planning/formal/alloy/solve-consistency.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-01, SOLVE-02]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2060,7 +2060,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2068,8 +2068,8 @@
     },
     ".planning/formal/alloy/solve-decomposition.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-14, SOLVE-15]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-14 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2081,7 +2081,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2102,7 +2102,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2123,7 +2123,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2144,7 +2144,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2152,8 +2152,8 @@
     },
     ".planning/formal/alloy/solve-net-residual.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-08]"
+        "pass": true,
+        "reason": "all 1 requirement(s) grounded by unit test coverage"
       },
       "gate_b": {
         "pass": true,
@@ -2165,7 +2165,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2186,7 +2186,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2194,8 +2194,8 @@
     },
     ".planning/formal/alloy/solve-result-schema.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-11, SOLVE-12]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-11 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2207,7 +2207,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2228,7 +2228,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2236,8 +2236,8 @@
     },
     ".planning/formal/alloy/solve-tc-coverage.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-10]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-10 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2249,7 +2249,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2257,8 +2257,8 @@
     },
     ".planning/formal/alloy/solve-triage-display.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-07]"
+        "pass": true,
+        "reason": "all 1 requirement(s) grounded by unit test coverage"
       },
       "gate_b": {
         "pass": true,
@@ -2270,7 +2270,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2278,8 +2278,8 @@
     },
     ".planning/formal/alloy/solve-tui-features.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-16, SOLVE-17]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-16 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2291,7 +2291,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2299,8 +2299,8 @@
     },
     ".planning/formal/alloy/solver-doc-layers.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-03, SOLVE-04]"
+        "pass": true,
+        "reason": "all 2 requirement(s) grounded by unit test coverage"
       },
       "gate_b": {
         "pass": true,
@@ -2312,7 +2312,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2320,8 +2320,8 @@
     },
     ".planning/formal/alloy/solver-portability.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-05, SOLVE-06]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-05 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2333,7 +2333,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2354,7 +2354,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2362,8 +2362,8 @@
     },
     ".planning/formal/alloy/spec-quality-guardrails.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SPEC-06]"
+        "pass": true,
+        "reason": "passing trace for req SPEC-06 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2375,7 +2375,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2396,7 +2396,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2417,7 +2417,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2438,7 +2438,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2459,7 +2459,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2480,7 +2480,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2501,7 +2501,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2509,8 +2509,8 @@
     },
     ".planning/formal/alloy/trace-event-normalization.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [TRACE-08]"
+        "pass": true,
+        "reason": "passing trace for req TRACE-08 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2522,7 +2522,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2543,7 +2543,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2564,7 +2564,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2585,7 +2585,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2594,7 +2594,7 @@
     ".planning/formal/alloy/transcript-scan.als": {
       "gate_a": {
         "pass": true,
-        "reason": "2/4 requirement(s) grounded by unit test coverage (partial)"
+        "reason": "passing trace for req STOP-08 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2606,7 +2606,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2627,7 +2627,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2648,7 +2648,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2669,7 +2669,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2690,7 +2690,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2711,7 +2711,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2732,7 +2732,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2753,7 +2753,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2761,8 +2761,8 @@
     },
     ".planning/formal/alloy/wiring-awareness.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [VERIFY-05]"
+        "pass": true,
+        "reason": "passing trace for req VERIFY-05 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2774,7 +2774,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2795,7 +2795,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2816,7 +2816,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2837,7 +2837,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2846,7 +2846,7 @@
     ".planning/formal/prism/mcp-availability.pm": {
       "gate_a": {
         "pass": true,
-        "reason": "all 2 requirement(s) grounded by unit test coverage"
+        "reason": "passing trace for req MCPENV-04 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2858,7 +2858,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2867,7 +2867,7 @@
     ".planning/formal/prism/oauth-rotation.pm": {
       "gate_a": {
         "pass": true,
-        "reason": "all 1 requirement(s) grounded by unit test coverage"
+        "reason": "passing trace for req CRED-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -2879,7 +2879,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2900,7 +2900,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2921,7 +2921,7 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 2,
+      "consecutive_pass_count": 5,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2942,7 +2942,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2963,7 +2963,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -2984,7 +2984,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3005,7 +3005,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3026,7 +3026,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3047,7 +3047,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3068,7 +3068,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3089,7 +3089,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3110,7 +3110,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3131,7 +3131,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3152,7 +3152,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3173,7 +3173,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3194,7 +3194,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3215,7 +3215,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3236,7 +3236,7 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 2,
+      "consecutive_pass_count": 5,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3257,7 +3257,7 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 2,
+      "consecutive_pass_count": 5,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3278,7 +3278,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3299,7 +3299,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3320,7 +3320,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3328,8 +3328,8 @@
     },
     ".planning/formal/tla/NFSolveOrchestrator.tla": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [SOLVE-01, SOLVE-02, SOLVE-05, SOLVE-06, SOLVE-09, SOLVE-14]"
+        "pass": true,
+        "reason": "passing trace for req SOLVE-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -3341,7 +3341,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3362,7 +3362,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3383,7 +3383,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3404,7 +3404,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3425,7 +3425,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3446,7 +3446,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3467,7 +3467,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3488,7 +3488,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3509,7 +3509,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3518,7 +3518,7 @@
     ".planning/formal/tla/QGSDCIChecks.tla": {
       "gate_a": {
         "pass": true,
-        "reason": "all 7 requirement(s) grounded by unit test coverage"
+        "reason": "passing trace for req DRIFT-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -3530,7 +3530,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3538,8 +3538,8 @@
     },
     ".planning/formal/tla/QGSDCheckpointGate.tla": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [QUORUM-06]"
+        "pass": true,
+        "reason": "passing trace for req QUORUM-06 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -3551,7 +3551,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3572,7 +3572,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3593,7 +3593,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3614,7 +3614,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3635,7 +3635,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3656,7 +3656,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3677,7 +3677,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3698,7 +3698,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3719,7 +3719,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3740,7 +3740,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3761,7 +3761,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3782,7 +3782,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3803,7 +3803,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3824,7 +3824,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3845,7 +3845,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3866,7 +3866,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3875,7 +3875,7 @@
     ".planning/formal/tla/QGSDTUIModules.tla": {
       "gate_a": {
         "pass": true,
-        "reason": "passing check-result for req NAV-01"
+        "reason": "passing trace for req NAV-01 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -3887,7 +3887,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3895,8 +3895,8 @@
     },
     ".planning/formal/tla/QGSDTUISessions.tla": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [NAV-02]"
+        "pass": true,
+        "reason": "passing trace for req NAV-02 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -3908,7 +3908,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3929,7 +3929,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3937,8 +3937,8 @@
     },
     ".planning/formal/alloy/statusline-context-tiers.als": {
       "gate_a": {
-        "pass": false,
-        "reason": "no passing traces for reqs [DIAG-10]"
+        "pass": true,
+        "reason": "passing trace for req DIAG-10 (property: unnamed)"
       },
       "gate_b": {
         "pass": true,
@@ -3950,7 +3950,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3971,7 +3971,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -3992,7 +3992,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4013,7 +4013,7 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4034,7 +4034,7 @@
       },
       "layer_maturity": 2,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4050,12 +4050,12 @@
         "reason": "model has 7 requirement(s) (purpose check)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [CONV-01, CONV-02, CONV-03, CONV-04, OSC-01, OSC-02, OSC-03], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result tla:convergence"
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4071,12 +4071,12 @@
         "reason": "model has 2 requirement(s) (purpose check)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [CLASS-01, SCHEMA-05], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result alloy:classification-schema"
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4097,7 +4097,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4113,12 +4113,12 @@
         "reason": "model has 5 requirement(s) (purpose check)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [PAIR-01, PAIR-02, PAIR-03, PAIR-04, SEM-05], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result alloy:nn-pairing-lifecycle"
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4139,7 +4139,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4160,7 +4160,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4181,7 +4181,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4202,7 +4202,7 @@
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,
@@ -4218,12 +4218,12 @@
         "reason": "model has 2 requirement(s) (purpose check)"
       },
       "gate_c": {
-        "pass": false,
-        "reason": "no failure-mode with test recipe for reqs [TEST-01, TEST-02], no matching check-results"
+        "pass": true,
+        "reason": "passing check-result tla:convergence"
       },
       "layer_maturity": 3,
       "gate_maturity": "SOFT_GATE",
-      "consecutive_pass_count": 379,
+      "consecutive_pass_count": 497,
       "promoted": false,
       "stability_status": "STABLE",
       "direction_changes": 0,

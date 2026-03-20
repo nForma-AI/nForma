@@ -411,18 +411,29 @@ node ~/.claude/nf-bin/run-formal-verify.cjs --project-root=$(pwd)
 
 If ~/.claude/nf-bin/run-formal-verify.cjs does not exist, fall back to bin/run-formal-verify.cjs (CWD-relative).
 
-Then parse `.planning/formal/check-results.ndjson` and classify each failure:
+Then parse `.planning/formal/check-results.ndjson` and for each entry with `result` of "fail" or "error", classify using `classifyTlcFailure` from `bin/classify-tlc-failure.cjs`:
 
-| Classification | Criteria | Dispatch |
-|---------------|----------|----------|
-| **Syntax error** | Summary contains "Syntax error", "parse error" | `/nf:quick Fix Alloy/TLA+ syntax error in {model_file}: {error_detail}` |
+```bash
+CLASSIFIER="$HOME/.claude/nf-bin/classify-tlc-failure.cjs"
+[ -f "$CLASSIFIER" ] || CLASSIFIER="bin/classify-tlc-failure.cjs"
+FAILURE_CLASS=$(node -e "const {classifyTlcFailure}=require(process.argv[1]); const e=JSON.parse(process.argv[2]); console.log(classifyTlcFailure(e))" "$CLASSIFIER" "$ENTRY_JSON")
+```
+
+Then dispatch based on the classification result:
+
+| Classification | failure_class | Dispatch |
+|---------------|--------------|----------|
+| **Deadlock** | `deadlock` | Auto-fix: Add `Done == phase \in {terminal_states} /\ UNCHANGED vars` stuttering step to the spec. Identify terminal state(s) from the spec's state enum/set. Add `Done` to the `Next` disjunction (`Next == ... \/ Done`). If `Done` already exists, check that it covers all `UNCHANGED vars`. |
+| **SANY semantic error** | `sany_semantic` | Auto-fix: Parse the "multiply-defined symbol 'X'" from summary. Find the second binding of `X` (typically in fairness quantifiers like `\A X \in ...`). Rename it to `X_fair` or `Xd` to avoid collision. Verify the rename does not break other references. |
+| **Fairness gap** | `fairness_gap` | Auto-fix: Parse the violated temporal property name from summary. Identify the action that is enabled but never fires from the counterexample trace (the stuttering action). Add `WF_vars(ActionName)` to the `Spec` definition's fairness conjunction. If the Spec already has fairness, append with `/\`. |
+| **Syntax error** | `syntax_error` | `/nf:quick Fix Alloy/TLA+ syntax error in {model_file}: {error_detail}` |
 | **Scope error** | Summary contains "scope", "sig" | `/nf:quick Fix scope declaration in {model_file}: {error_detail}` |
 | **Conformance divergence** | check_id contains "conformance" | `/nf:quick Fix conformance trace divergences in {model_file}: {error_detail}` |
-| **Verification failure** | Counterexample found | `/nf:quick Fix formal verification counterexample in {check_id}: {summary}` |
-| **Missing tool** | "not found", "not installed" | Log as infrastructure gap, skip |
-| **Inconclusive** | result = "inconclusive" | Skip — not a failure |
+| **Invariant violation** | `invariant_violation` | `/nf:quick Fix formal verification counterexample in {check_id}: {summary}` |
+| **Missing tool** | "not found", "not installed" in summary | Log as infrastructure gap, skip |
+| **Inconclusive** | result = "inconclusive" | Skip -- not a failure |
 
-Dispatch each fixable failure **sequentially** (one at a time) to the appropriate skill. Process syntax/scope errors first (they're usually quick fixes), then conformance/verification failures (require deeper investigation). Wait for each dispatch to complete before starting the next.
+Dispatch each fixable failure **sequentially** (one at a time) to the appropriate skill. **Deadlock, SANY semantic, and fairness gap failures are auto-fixed first** (no LLM dispatch needed), using the specific instructions above. Then process syntax/scope errors via `/nf:quick` (they're usually quick fixes), then conformance/verification failures (require deeper investigation). Wait for each dispatch to complete before starting the next.
 
 Log: `"F->C: {total} checks, {pass} pass, {fail} fail — dispatching {syntax_count} to quick, {debug_count} to debug, {skip_count} skipped"`
 
@@ -554,40 +565,37 @@ The diagnostic engine runs `assembleReverseCandidates()` automatically, which:
 
 If `assembled_candidates.candidates` is empty after dedup + filtering: Log `"Reverse discovery: 0 candidates after dedup/filtering"` and skip Phase 2.
 
-**Phase 2 — Human Approval (interactive):**
+**Phase 2 — Quorum Approval (autonomous):**
 
-Present the deduplicated candidate list to the user:
+For each batch of up to 10 candidates (to keep quorum prompts manageable):
 
-```
-Discovered {N} candidate requirement(s) from reverse traceability:
+  Build quorum question:
+  ```
+  Review these reverse-traceability candidates discovered by the nForma solver.
+  Each candidate is a code module, test, or doc claim that has no requirement backing.
+  For each candidate, determine if it represents a GENUINE requirement that should be added to the requirements envelope.
 
-  #  Source    Evidence                              Candidate
-  ─────────────────────────────────────────────────────────────────
-  1  C->R      bin/check-provider-health.cjs          Provider health probe module
-  2  C->R,T->R  bin/validate-traces.cjs + test/...     Trace validation module
-  3  D->R      README.md:42                            "supports automatic OAuth rotation"
-  ...
+  Candidates:
+  {numbered list with source scanner, evidence, candidate description}
 
-Accept: [a]ll / [n]one / comma-separated numbers (e.g. 1,3,5) / [s]kip this cycle
-```
+  Vote APPROVE with the list of candidate numbers you consider genuine requirements.
+  Vote BLOCK if NONE of the candidates are genuine (all are false positives or noise).
 
-Wait for user input via AskUserQuestion. Route based on response:
-
-- **Numbers or "all"**: For each accepted candidate, dispatch `/nf:add-requirement` with the candidate evidence as context. The add-requirement skill handles ID assignment, duplicate checks, and semantic conflict detection. Approved candidates enter the forward flow (R->F->T->C) in the next iteration.
-
-- **"none"**: Write ALL candidates to `.planning/formal/acknowledged-not-required.json` so they are not resurfaced in future runs. Each entry:
-  ```json
-  {
-    "file_or_claim": "<candidate file or claim text>",
-    "source_scanners": ["C->R", "T->R"],
-    "acknowledged_at": "<ISO timestamp>",
-    "reason": "user-rejected"
-  }
+  Criteria for genuine: The candidate represents a real user-facing or system capability that the project intentionally provides but has no formal requirement backing.
   ```
 
-- **"skip"**: Do nothing — candidates will resurface in the next solve run. This is the default if the user does not respond.
+  Dispatch as parallel sibling nf-quorum-slot-worker Tasks (per R3.2).
+  Synthesize results, deliberate up to 10 rounds per R3.3.
 
-Log: `"Reverse discovery: {N} candidates presented, {M} approved, {K} rejected, {J} skipped"`
+  **Unanimous gate: 100% of valid external voters must APPROVE the same candidate set.**
+  - **APPROVED (unanimous on candidate set)** -> For each approved candidate, dispatch `/nf:add-requirement` with candidate evidence. Write rejected candidates to `.planning/formal/acknowledged-not-required.json`.
+  - **BLOCKED (any BLOCK vote)** -> Quorum debates per standard protocol (slots see prior positions, iterate).
+    - If consensus reached after debate -> apply outcome.
+    - If debate exhausted with no consensus -> Write ALL candidates in this batch to acknowledged-not-required.json with reason "quorum-no-consensus". Log warning: "Reverse discovery batch: quorum could not reach consensus — candidates shelved. Human review recommended."
+
+  Note: Unlike forward-flow auto-remediation, debate exhaustion here does NOT escalate to human interactively. Instead, candidates are shelved (written to acknowledged-not-required.json) and will not resurface. This keeps the solve loop fully autonomous. The user can review acknowledged-not-required.json at leisure.
+
+Log line update: `"Reverse discovery: {N} candidates presented to quorum, {M} approved (unanimous), {K} rejected, {J} shelved (no consensus)"`
 
 ### 3j. Hazard Model Refresh (pre-gate)
 

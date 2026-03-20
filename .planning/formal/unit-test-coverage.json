@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-19T11:52:04.523Z",
+  "generated_at": "2026-03-19T19:55:01.247Z",
   "requirements": {
     "ACT-01": {
       "covered": true,
@@ -766,6 +766,15 @@
         {
           "test_file": ".planning/formal/generated-stubs/DISP-05.stub.test.js",
           "test_name": "DISP-05: parseVerdict extracts APPROVE from Mode B output"
+        }
+      ]
+    },
+    "DISP-06": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/DISP-06.stub.test.js",
+          "test_name": "DISP-06: matchRequirementsByKeywords is exported as a function"
         }
       ]
     },
@@ -2668,6 +2677,195 @@
         }
       ]
     },
+    "SOLVE-01": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-01.stub.test.js",
+          "test_name": "SOLVE-01: nf-solve.cjs exists and is loadable"
+        }
+      ]
+    },
+    "SOLVE-02": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-02.stub.test.js",
+          "test_name": "SOLVE-02: parseAlloyDefaults parses Alloy Defaults sig constraint block"
+        }
+      ]
+    },
+    "SOLVE-03": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-03.stub.test.js",
+          "test_name": "SOLVE-03: discoverDocFiles is exported from nf-solve.cjs"
+        }
+      ]
+    },
+    "SOLVE-04": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-04.stub.test.js",
+          "test_name": "SOLVE-04: solver-doc-layers.als defines Requirement sig"
+        }
+      ]
+    },
+    "SOLVE-05": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-05.stub.test.js",
+          "test_name": "SOLVE-05: run-formal-verify.cjs parses --project-root argument"
+        }
+      ]
+    },
+    "SOLVE-06": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-06.stub.test.js",
+          "test_name": "SOLVE-06: assembleReverseCandidates is exported from nf-solve.cjs"
+        }
+      ]
+    },
+    "SOLVE-07": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-07.stub.test.js",
+          "test_name": "SOLVE-07 — Bool: structural verification"
+        }
+      ]
+    },
+    "SOLVE-08": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-08.stub.test.js",
+          "test_name": "SOLVE-08 — HumanGatedLayer: structural verification"
+        }
+      ]
+    },
+    "SOLVE-09": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-09.stub.test.js",
+          "test_name": "SOLVE-09: nf-solve.cjs parses --fast flag for fast-mode iteration"
+        }
+      ]
+    },
+    "SOLVE-10": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-10.stub.test.js",
+          "test_name": "SOLVE-10: nf-solve.cjs exports crossReferenceFormalCoverage function"
+        }
+      ]
+    },
+    "SOLVE-11": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-11.stub.test.js",
+          "test_name": "SOLVE-11: VALID_RESULTS includes both "
+        }
+      ]
+    },
+    "SOLVE-12": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-12.stub.test.js",
+          "test_name": "SOLVE-12: autoClosePtoF module exports autoClosePtoF function"
+        }
+      ]
+    },
+    "SOLVE-13": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-13.stub.test.js",
+          "test_name": "SOLVE-13: persistSessionSummary creates a timestamped .md file"
+        }
+      ]
+    },
+    "SOLVE-14": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-14.stub.test.js",
+          "test_name": "SOLVE-14 — Bool: structural verification"
+        }
+      ]
+    },
+    "SOLVE-15": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-15.stub.test.js",
+          "test_name": "SOLVE-15 — Bool: behavioral verification"
+        }
+      ]
+    },
+    "SOLVE-16": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-16.stub.test.js",
+          "test_name": "SOLVE-16: TUI source file exists"
+        }
+      ]
+    },
+    "SOLVE-17": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-17.stub.test.js",
+          "test_name": "SOLVE-17: TUI exports createRequirementFromItem (ReverseDiscoveryActions)"
+        }
+      ]
+    },
+    "SOLVE-18": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-18.stub.test.js",
+          "test_name": "SOLVE-18: aggregate-requirements exports parseRequirements function"
+        }
+      ]
+    },
+    "SOLVE-19": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-19.stub.test.js",
+          "test_name": "SOLVE-19: hooks/config-loader.js exists on disk"
+        }
+      ]
+    },
+    "SOLVE-20": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-20.stub.test.js",
+          "test_name": "SOLVE-20: hooks/nf-circuit-breaker.js exists on disk"
+        }
+      ]
+    },
+    "SOLVE-21": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/SOLVE-21.stub.test.js",
+          "test_name": "SOLVE-21: hooks/nf-prompt.js exists on disk"
+        }
+      ]
+    },
     "SPEC-01": {
       "covered": true,
       "test_cases": [
@@ -2863,6 +3061,15 @@
         {
           "test_file": ".planning/formal/generated-stubs/STOP-09.stub.test.js",
           "test_name": "STOP-09: nf-stop.js has pass-through path for quorum evidence found"
+        }
+      ]
+    },
+    "STOP-10": {
+      "covered": true,
+      "test_cases": [
+        {
+          "test_file": ".planning/formal/generated-stubs/STOP-10.stub.test.js",
+          "test_name": "STOP-10 — NoDuplicateCountingCheck: behavioral verification"
         }
       ]
     },
@@ -3405,6 +3612,10 @@
           "test_name": "XPLAT-02 — Bool: structural verification"
         }
       ]
+    },
+    "AGENT-04": {
+      "covered": false,
+      "test_cases": []
     }
   }
 }

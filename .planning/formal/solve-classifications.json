@@ -1,33 +1,9 @@
 {
-  "updated_at": "2026-03-19T11:59:15.300Z",
+  "updated_at": "2026-03-19T14:30:06.692Z",
   "classifications": {
     "dtoc": {},
-    "ctor": {
-      "bin/config-update.cjs": "fp",
-      "bin/consequence-model-generator.cjs": "fp",
-      "bin/debug-formal-context.cjs": "fp",
-      "bin/diagnostic-diff-generator.cjs": "fp",
-      "bin/diagnostic-proposal-generator.cjs": "fp",
-      "bin/intent-normalizer.cjs": "fp",
-      "bin/model-constrained-fix.cjs": "fp",
-      "bin/model-state-extractor.cjs": "fp",
-      "bin/parse-tlc-counterexample.cjs": "fp",
-      "bin/persist-post-fix-verification.cjs": "fp",
-      "bin/refinement-loop.cjs": "fp",
-      "bin/resolve-proximity-neighbors.cjs": "fp",
-      "bin/solution-simulation-loop.cjs": "fp",
-      "bin/verification-mode.cjs": "fp"
-    },
+    "ctor": {},
     "ttor": {
-      "bin/config-update.test.cjs": "fp",
-      "bin/diagnostic-diff-generator.test.cjs": "fp",
-      "bin/diagnostic-injection.test.cjs": "fp",
-      "bin/diagnostic-proposal-generator.test.cjs": "fp",
-      "bin/intent-normalizer.test.cjs": "fp",
-      "bin/model-state-extractor.test.cjs": "fp",
-      "bin/parse-tlc-counterexample.test.cjs": "fp",
-      "bin/refinement-loop-diagnostic.test.cjs": "fp",
-      "bin/solution-simulation-loop.test.cjs": "fp",
       "test/b-to-f-remediate.test.cjs": "review",
       "test/b-to-f-sweep.test.cjs": "review",
       "test/bug-context-normalization.test.cjs": "review",
@@ -40,17 +16,7 @@
       "test/resolve-proximity-neighbors.test.cjs": "review"
     },
     "dtor": {
-      "5d7ff7cc8312db4f": "genuine",
-      "69a61fc1d5803594": "genuine",
-      "af907e7e3d53d06f": "genuine",
-      "e6eca5e6932d066a": "genuine",
-      "194e14bc2c1cf0d8": "genuine",
-      "ed0c79780491f602": "genuine",
-      "111b9ef63d874fb7": "review",
-      "8d5eac608b043139": "genuine",
-      "c2867b71d5a9ba54": "genuine",
-      "3a25d26471d2efe1": "genuine",
-      "1e87ef8638400298": "fp"
+      "7ab1ed566fb26e59": "fp"
     }
   }
 }

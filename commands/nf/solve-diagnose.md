@@ -42,7 +42,8 @@ At the end of execution, emit a compact JSON result to stdout:
 ```json
 {
   "status": "ok" | "bail" | "error",
-  "reason": null | "zero_residual" | "diagnostic_script_failed" | "...",
+  "reason": null | "zero_residual" | "diagnostic_script_failed" | "diagnosis_blocked_by_quorum" | "diagnosis_escalated" | "...",
+  "root_cause_verdict": "APPROVED" | "BLOCKED" | "ESCALATED" | "SKIPPED_NO_HYPOTHESES" | "QUORUM_UNAVAILABLE",
   "baseline_residual": { /* full residual_vector from nf-solve.cjs */ },
   "open_debt": [ /* array from readOpenDebt */ ],
   "heatmap": { "top_files": [ /* top 20 from summary output */ ], "full_path": ".planning/formal/evidence/git-heatmap.json" },
@@ -53,7 +54,7 @@ At the end of execution, emit a compact JSON result to stdout:
 }
 ```
 
-When `status` is `"bail"` (e.g., zero residual -- nothing to remediate), the orchestrator skips remediation and goes straight to reporting. When `status` is `"error"`, the orchestrator logs the reason and exits gracefully.
+When `status` is `"bail"` (e.g., zero residual -- nothing to remediate), the orchestrator skips remediation and goes straight to reporting. When `status` is `"error"`, the orchestrator logs the reason and exits gracefully. When `root_cause_verdict` is `"BLOCKED"` or `"ESCALATED"`, the status is `"bail"` and remediation does not proceed.
 </output_contract>
 
 <process>
@@ -174,6 +175,70 @@ Parse the JSON output:
 Store the measurement result in solve context. The h_to_m residual layer in nf-solve.cjs will pick up `hypothesis-measurements.json` during the diagnostic sweep.
 
 **Important:** This step is fail-open. If the measurement script errors or is not found, log the issue and proceed to Step 1. Hypothesis measurement failure must never block the diagnostic sweep.
+
+### Step 0f: Root Cause Quorum Vote (ROOT-02)
+
+After hypothesis measurement (Step 0e), dispatch a quorum vote on the root cause diagnosis before proceeding to the diagnostic sweep. This prevents incorrect root causes from cascading through remediation layers.
+
+**Skip condition:** If Step 0e produced no hypothesis measurements (hypothesis_measurements is null or empty), skip this step:
+```
+Log: "Step 0f: No hypothesis measurements — skipping quorum vote (nothing to gate)"
+```
+Set `root_cause_verdict = "SKIPPED_NO_HYPOTHESES"` and proceed to Step 1.
+
+**Quorum preflight:**
+
+```bash
+PREFLIGHT=$(node "$HOME/.claude/nf-bin/quorum-preflight.cjs" --all)
+```
+
+Parse PREFLIGHT JSON to get `$MAX_QUORUM_SIZE` and active slot names from `team` keys.
+
+Compute fan-out: `FAN_OUT_COUNT = 3` (medium risk). `$DISPATCH_LIST` = first `FAN_OUT_COUNT - 1` slot names from team keys.
+
+**Build diagnostic context for voters:**
+
+Create a compact diagnostic summary from the hypothesis measurement results (Step 0e output). Include:
+- hypothesis_measurements verdicts (VIOLATED/CONFIRMED/UNMEASURABLE counts)
+- Top violated hypotheses (if any) with their assumption text and measurement data
+- The baseline residual vector summary (if available from a prior run)
+
+Write this context to `.planning/solve/diagnose-hypothesis-log.json` (create directory if needed).
+
+**Dispatch quorum workers:**
+
+For each slot in `$DISPATCH_LIST`, dispatch a parallel `nf-quorum-slot-worker` Task:
+
+```yaml
+slot: <slotName>
+round: 1
+timeout_ms: 30000
+repo_dir: <absolute path to project root>
+mode: A
+question: "Review the hypothesis measurement results and diagnostic context below. Is the root cause diagnosis sound, complete, and ready for the diagnostic sweep and subsequent remediation? Vote APPROVE if the diagnosis is actionable and sufficient. Vote BLOCK if the diagnosis is incomplete, contradictory, or likely to lead remediation astray."
+artifact_path: ".planning/solve/diagnose-hypothesis-log.json"
+review_context: "This is a diagnosis gate (ROOT-02). Evaluate whether the identified root causes from hypothesis measurement are sufficient and accurate. BLOCK is absolute — any BLOCK prevents the diagnostic sweep from running."
+request_improvements: false
+```
+
+Dispatch as parallel sibling `nf-quorum-slot-worker` Tasks with `model="haiku", max_turns=100`.
+
+**Evaluate consensus per CE-1/CE-2/CE-3:**
+- CE-1: Claude's position is advisory only (not counted in vote tally)
+- CE-2: Any BLOCK from a valid (non-UNAVAIL) external voter prevents consensus (BLOCK is absolute)
+- CE-3: Consensus = 100% of valid external voters agree (unanimity)
+
+Deliberate up to 10 rounds per R3.3 if votes are split.
+
+**Route on verdict:**
+
+- **APPROVED:** Log `"Step 0f: Root cause diagnosis APPROVED by quorum — proceeding to diagnostic sweep"`. Set `root_cause_verdict = "APPROVED"`. Proceed to Step 1.
+
+- **BLOCKED:** Log `"Step 0f: Root cause diagnosis BLOCKED by quorum — halting remediation"`. Set `root_cause_verdict = "BLOCKED"`. Set `status = "bail"` and `reason = "diagnosis_blocked_by_quorum"`. Return the output_contract immediately — do NOT proceed to Step 1. The orchestrator will handle the blocked diagnosis (log and exit gracefully).
+
+- **ESCALATED:** Log `"Step 0f: Root cause diagnosis ESCALATED — requires human review"`. Set `root_cause_verdict = "ESCALATED"`. Set `status = "bail"` and `reason = "diagnosis_escalated"`. Return the output_contract immediately.
+
+**Fail-open:** If quorum preflight fails (no slots available), or all slots return UNAVAIL, log: `"Step 0f: Quorum unavailable — proceeding without consensus (fail-open)"`. Set `root_cause_verdict = "QUORUM_UNAVAILABLE"`. Proceed to Step 1.
 
 ## Step 1: Initial Diagnostic Sweep
 

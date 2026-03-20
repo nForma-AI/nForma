@@ -67,6 +67,90 @@ Parse from init JSON: `current_branch`, `is_protected`, `quick_branch_name`, `pr
 
 ---
 
+**Step 2.7: Derive approach and write scope contract (INTENT-01, INTENT-02, INTENT-03)**
+
+This step is automatic (non-modal per INTENT-03). No user dialog or confirmation.
+
+1. **Derive approach via Haiku subagent:**
+
+Spawn a Haiku subagent to analyze the task description and derive a structured approach:
+
+```
+Task(
+  subagent_type="general-purpose",
+  model="haiku",
+  description="Derive approach for quick task",
+  prompt="
+You are deriving a task scope contract from a quick task description.
+
+## Task Description
+${DESCRIPTION}
+
+## Your Task
+Analyze the description and produce a JSON object with:
+{
+  \"approach\": \"[One sentence: what will be done]\",
+  \"out_of_scope\": [\"[item 1]\", \"[item 2]\", ...]
+}
+
+Guidelines:
+- approach: One sentence, imperative voice, specific outcome
+- out_of_scope: Literal items explicitly NOT in scope. Include at least 1-2 items.
+- Be conservative — when uncertain, mark something as out-of-scope
+
+Respond with ONLY the JSON object, no markdown fencing or extra text.
+"
+)
+```
+
+Parse the Haiku response as JSON. Store as `$APPROACH_BLOCK`.
+
+**Fail-open:** If Haiku is unavailable, response is empty, or JSON parsing fails, use fallback:
+```json
+{
+  "approach": "Complete the task as described",
+  "out_of_scope": []
+}
+```
+
+Log: `"Step 2.7: Approach derived — ${APPROACH_BLOCK.approach}"`
+If fallback was used, log: `"Step 2.7: Approach derivation fell back to generic (Haiku unavailable or parse error)"`
+
+2. **Write scope contract to .claude/scope-contract.json (INTENT-02):**
+
+Determine the branch name: use `$CREATED_BRANCH` if set (from Step 2.5), otherwise use `$current_branch`.
+
+Read existing `.claude/scope-contract.json` if it exists. If it does not exist or is not valid JSON, start with an empty object `{}`. This preserves concurrent quick task entries (keyed by branch name).
+
+Add/update the entry for this task's branch:
+
+```json
+{
+  "${branch_name}": {
+    "task_id": ${next_num},
+    "task_description": "${DESCRIPTION}",
+    "approach": "${APPROACH_BLOCK.approach}",
+    "out_of_scope": [${APPROACH_BLOCK.out_of_scope items as JSON array}],
+    "branches_affected": ["${branch_name}"],
+    "created_at": "${timestamp}",
+    "planner_model": "${planner_model}",
+    "created_by": "quick-orchestrator"
+  }
+}
+```
+
+Write the merged object back to `.claude/scope-contract.json`.
+
+**Fail-open:** If the write fails (permission error, disk full), log a warning and proceed. The scope contract is informational in v0.40-02 — the scope guard (v0.40-03) is not yet active.
+
+Log: `"Step 2.7: Scope contract written to .claude/scope-contract.json (key: ${branch_name})"`
+
+3. **Store APPROACH_BLOCK for planner context:**
+
+Store `$APPROACH_BLOCK` for use in Step 5 (planner spawn). The planner prompt in Step 5 must include the approach block so the planner knows the declared scope.
+
+---
+
 **Step 3: Create task directory**
 
 ```bash
@@ -146,6 +230,10 @@ Task(
 **Mode:** ${FULL_MODE ? 'quick-full' : 'quick'}
 **Directory:** ${QUICK_DIR}
 **Description:** ${DESCRIPTION}
+
+**Approach (auto-derived, INTENT-01):**
+- What: ${APPROACH_BLOCK.approach}
+- Out of scope: ${APPROACH_BLOCK.out_of_scope.join(', ')}
 
 <files_to_read>
 - .planning/STATE.md (Project State)

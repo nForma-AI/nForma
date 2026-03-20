@@ -1,88 +1,70 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-19T11:51:47.979Z",
-  "total_failures": 3,
+  "generated": "2026-03-19T19:54:43.171Z",
+  "total_failures": 2,
   "categories": {
-    "crash": [
-      {
-        "tool": "run-transcript-alloy",
-        "formalism": "alloy",
-        "result": "error",
-        "timestamp": "2026-03-19T11:51:46.722Z",
-        "check_id": "alloy:transcript",
-        "surface": "alloy",
-        "property": "Hook transcript scanning — boundary detection, tool_use/tool_result pairing uniqueness, ceiling enforcement",
-        "runtime_ms": 0,
-        "summary": "error: alloy:transcript (invalid spec)",
-        "triage_tags": [],
-        "requirement_ids": [
-          "STOP-08",
-          "STOP-09",
-          "STOP-10",
-          "STOP-11"
-        ],
-        "metadata": {
-          "spec": "bogus"
-        },
-        "category": "crash",
-        "classification_reason": "Error pattern in summary: error: alloy:transcript (invalid spec)"
-      },
-      {
-        "tool": "run-transcript-alloy",
-        "formalism": "alloy",
-        "result": "error",
-        "timestamp": "2026-03-19T11:51:46.811Z",
-        "check_id": "alloy:transcript",
-        "surface": "alloy",
-        "property": "Hook transcript scanning — boundary detection, tool_use/tool_result pairing uniqueness, ceiling enforcement",
-        "runtime_ms": 0,
-        "summary": "error: alloy:transcript (invalid spec)",
-        "triage_tags": [],
-        "requirement_ids": [
-          "STOP-08",
-          "STOP-09",
-          "STOP-10",
-          "STOP-11"
-        ],
-        "metadata": {
-          "spec": "invalid"
-        },
-        "category": "crash",
-        "classification_reason": "Error pattern in summary: error: alloy:transcript (invalid spec)"
-      }
-    ],
+    "crash": [],
     "timeout": [],
     "logic_violation": [
       {
         "tool": "run-tlc",
         "formalism": "tla",
         "result": "fail",
-        "timestamp": "2026-03-19T11:51:47.637Z",
+        "timestamp": "2026-03-19T19:54:39.603Z",
         "check_id": "tla:mcsessiontracking",
         "surface": "tla",
         "property": "MCSessionTracking",
-        "runtime_ms": 9844,
-        "summary": "fail: MCSessionTracking in 9844ms",
+        "runtime_ms": 8115,
+        "summary": "fail: MCSessionTracking in 8115ms",
         "triage_tags": [],
         "requirement_ids": [],
         "metadata": {
           "config": "MCSessionTracking"
         },
         "category": "logic_violation",
-        "classification_reason": "Logic violation: fail: MCSessionTracking in 9844ms"
+        "classification_reason": "Logic violation: fail: MCSessionTracking in 8115ms"
       }
     ],
-    "drift": [],
+    "drift": [
+      {
+        "tool": "validate-traces",
+        "formalism": "trace",
+        "result": "fail",
+        "timestamp": "2026-03-19T19:54:37.731Z",
+        "check_id": "ci:conformance-traces",
+        "surface": "ci",
+        "property": "Conformance event replay through XState machine",
+        "runtime_ms": 36,
+        "summary": "fail: 1 divergence(s) in 1 traces (36ms)",
+        "triage_tags": [
+          "trace-divergence"
+        ],
+        "requirement_ids": [],
+        "metadata": {
+          "divergences": 1,
+          "total": 1
+        },
+        "observation_window": {
+          "window_start": "2026-03-19T19:54:37.698Z",
+          "window_end": "2026-03-19T19:54:37.711Z",
+          "n_traces": 0,
+          "n_events": 1,
+          "window_days": 0
+        },
+        "category": "drift",
+        "classification_reason": "Trace divergence: 1 divergence(s) detected"
+      }
+    ],
     "degradation": []
   },
   "category_counts": {
-    "crash": 2,
+    "crash": 0,
     "timeout": 0,
     "logic_violation": 1,
-    "drift": 0,
+    "drift": 1,
     "degradation": 0
   },
   "degradation_fallback_note": "When no baseline exists, potential degradation entries are classified as logic_violation",
   "unclassified": [],
-  "summary": "3 failures classified: crash=2, timeout=0, logic_violation=1, drift=0, degradation=0. 0 unclassified."
+  "summary": "2 failures classified: crash=0, timeout=0, logic_violation=1, drift=1, degradation=0. 0 unclassified."
 }

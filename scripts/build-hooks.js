@@ -25,6 +25,7 @@ const HOOKS_TO_COPY = [
   'nf-post-edit-format.js',  // nForma: PostToolUse edit formatting
   'nf-console-guard.js',     // nForma: Stop console guard
   'nf-destructive-git-guard.js', // nForma: PreToolUse destructive git ops warning
+  'nf-scope-guard.js',           // nForma: PreToolUse scope contract advisory
   'nf-mcp-dispatch-guard.js',    // nForma: PreToolUse MCP dispatch warning
   'nf-node-eval-guard.js',       // nForma: PreToolUse node -e → heredoc rewriter (zsh safety)
   'nf-session-end.js',       // nForma: SessionEnd learning extraction

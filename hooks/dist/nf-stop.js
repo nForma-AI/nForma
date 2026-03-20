@@ -419,6 +419,106 @@ function hasArtifactCommit(currentTurnLines) {
   return false;
 }
 
+// Detects UNAVAIL in slot-worker results without corresponding fallback dispatch.
+// Returns { violated: true, reason: string } if fallback was skipped, or { violated: false }.
+//
+// Logic:
+// 1. Walk assistant messages for slot-worker Task dispatches; group by dispatch round
+// 2. Walk tool_result blocks for UNAVAIL verdicts in each round's results
+// 3. If UNAVAIL found in round N, check that round N+1 exists (fallback dispatch)
+//    OR that the FALLBACK_CHECKPOINT marker is present with fallback_dispatched: true
+//    OR all_tiers_exhausted: true
+// 4. If neither condition met, fallback was skipped — return violated
+function detectUnavailWithoutFallback(currentTurnLines) {
+  const dispatchRounds = [];    // Array of { messageIdx, taskIds: Set }
+  const taskResults = new Map(); // taskId → result text
+  let hasCheckpoint = false;
+  let checkpointDispatchedTrue = false;
+  let checkpointExhaustedTrue = false;
+
+  for (let i = 0; i < currentTurnLines.length; i++) {
+    try {
+      const entry = JSON.parse(currentTurnLines[i]);
+
+      if (entry.type === 'assistant') {
+        const content = entry.message && entry.message.content;
+        if (!Array.isArray(content)) continue;
+
+        const taskIds = new Set();
+        for (const block of content) {
+          // Check for FALLBACK_CHECKPOINT in text blocks
+          if (block.type === 'text' && typeof block.text === 'string') {
+            if (block.text.includes('<!-- FALLBACK_CHECKPOINT')) {
+              hasCheckpoint = true;
+              if (/fallback_dispatched:\s*true/i.test(block.text)) checkpointDispatchedTrue = true;
+              if (/all_tiers_exhausted:\s*true/i.test(block.text)) checkpointExhaustedTrue = true;
+            }
+          }
+          // Track slot-worker dispatches
+          if (block.type === 'tool_use' && block.name === 'Task') {
+            const inputStr = JSON.stringify(block.input || {});
+            if (inputStr.includes('nf-quorum-slot-worker')) {
+              taskIds.add(block.id);
+            }
+          }
+        }
+        if (taskIds.size > 0) {
+          dispatchRounds.push({ messageIdx: i, taskIds });
+        }
+      }
+
+      // Collect tool_result text keyed by tool_use_id
+      if (entry.type === 'user') {
+        const content = entry.message && entry.message.content;
+        if (!Array.isArray(content)) continue;
+        for (const block of content) {
+          if (block.type === 'tool_result' && block.tool_use_id) {
+            const resultText = Array.isArray(block.content)
+              ? block.content.map(c => c.text || '').join('')
+              : (typeof block.content === 'string' ? block.content : '');
+            taskResults.set(block.tool_use_id, resultText);
+          }
+        }
+      }
+    } catch { /* skip malformed */ }
+  }
+
+  // No dispatch rounds = not a slot-worker quorum flow
+  if (dispatchRounds.length === 0) return { violated: false };
+
+  // Check each round: if any task returned UNAVAIL, was there a next round or valid checkpoint?
+  for (let r = 0; r < dispatchRounds.length; r++) {
+    const round = dispatchRounds[r];
+    let hasUnavail = false;
+
+    for (const taskId of round.taskIds) {
+      const result = taskResults.get(taskId) || '';
+      if (/verdict:\s*UNAVAIL/i.test(result) || /\bUNAVAIL\b/.test(result)) {
+        hasUnavail = true;
+        break;
+      }
+    }
+
+    if (!hasUnavail) continue;
+
+    // UNAVAIL detected in round r — check for fallback evidence
+    const hasNextRound = r + 1 < dispatchRounds.length;
+    const hasValidCheckpoint = hasCheckpoint && (checkpointDispatchedTrue || checkpointExhaustedTrue);
+
+    if (!hasNextRound && !hasValidCheckpoint) {
+      return {
+        violated: true,
+        reason: `FALLBACK-01 VIOLATION: Slot(s) returned UNAVAIL in dispatch round ${r + 1} ` +
+          `but no fallback slots were dispatched and no FALLBACK_CHECKPOINT was emitted. ` +
+          `You must dispatch T1/T2 fallback slots before fail-open. ` +
+          `Re-read FALLBACK-01 in commands/nf/quorum.md and dispatch remaining slots.`
+      };
+    }
+  }
+
+  return { violated: false };
+}
+
 // The exact token Claude must include in its final output to mark a decision turn.
 // Used by hasDecisionMarker (Stop hook) and injected into Claude's context (Prompt hook).
 const DECISION_MARKER = '<!-- GSD_DECISION -->';
@@ -640,6 +740,24 @@ function main() {
 
       // Check if slot-workers handled quorum (inline dispatch counts as full quorum evidence)
       if (wasSlotWorkerUsed(currentTurnLines)) {
+        // Slot-workers were used — but check FALLBACK-01 compliance before passing.
+        // If any slot returned UNAVAIL without fallback dispatch, BLOCK to force retry.
+        const fallbackCheck = detectUnavailWithoutFallback(currentTurnLines);
+        if (fallbackCheck.violated) {
+          appendConformanceEvent({
+            ts:              new Date().toISOString(),
+            phase:           'DECIDING',
+            action:          'fallback_01_block',
+            outcome:         'BLOCK',
+            reason:          fallbackCheck.reason,
+            schema_version,
+          });
+          process.stdout.write(JSON.stringify({
+            decision: 'block',
+            reason: fallbackCheck.reason
+          }));
+          process.exit(0);
+        }
         process.exit(0);
       }
 

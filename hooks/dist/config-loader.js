@@ -56,6 +56,7 @@ const HOOK_PROFILE_MAP = {
     'nf-post-edit-format',
     'nf-console-guard',
     'nf-destructive-git-guard',
+    'nf-scope-guard',
     'nf-mcp-dispatch-guard',
     'nf-node-eval-guard',
     'nf-session-end',
@@ -74,6 +75,7 @@ const HOOK_PROFILE_MAP = {
     'nf-post-edit-format',
     'nf-console-guard',
     'nf-destructive-git-guard',
+    'nf-scope-guard',
     'nf-mcp-dispatch-guard',
     'nf-node-eval-guard',
     'nf-session-end',
@@ -100,6 +102,7 @@ const DEFAULT_HOOK_PRIORITIES = {
   'nf-token-collector':   10,  // Low — token tracking
   'nf-slot-correlator':   10,  // Low — slot correlation
   'nf-destructive-git-guard': 50,  // Normal — destructive ops advisory
+  'nf-scope-guard': 50,             // Normal — scope advisory (warn-only)
   'nf-mcp-dispatch-guard': 50,    // Normal — MCP dispatch advisory
 };
 

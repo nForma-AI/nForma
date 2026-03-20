@@ -11,6 +11,7 @@
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/M8SevJEuZG)
 [![X (Twitter)](https://img.shields.io/badge/X-@JonathanBorduas-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/JonathanBorduas)
 [![GitHub stars](https://img.shields.io/github/stars/nForma-AI/nForma?style=for-the-badge&logo=github&color=181717)](https://github.com/nForma-AI/nForma)
+[![Website](https://img.shields.io/badge/nforma.ai-Visit-4F46E5?style=for-the-badge&logo=globe&logoColor=white)](https://nforma.ai)
 [![Formal Verification](https://img.shields.io/github/actions/workflow/status/nForma-AI/nForma/formal-verify.yml?branch=main&style=for-the-badge&logo=github&label=formal%20verification)](https://github.com/nForma-AI/nForma/actions/workflows/formal-verify.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 

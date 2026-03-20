@@ -1,15 +1,15 @@
 {
   "metadata": {
-    "generated": "2026-03-19T11:51:45.251Z",
-    "proximity_index_hash": "2f6b494f",
+    "generated": "2026-03-19T19:54:39.241Z",
+    "proximity_index_hash": "427dbf08",
     "threshold": 0.7,
     "max_hops": 5,
     "total_pairs_checked": 0,
     "candidates_found": 0,
     "candidates_filtered": 0,
     "orphan_models_count": 1,
-    "orphan_requirements_count": 4,
-    "uncovered_requirements_count": 4,
+    "orphan_requirements_count": 5,
+    "uncovered_requirements_count": 5,
     "non_neighbor_top": 20,
     "fast_path": true
   },
@@ -22,6 +22,10 @@
       }
     ],
     "requirements": [
+      {
+        "id": "AGENT-04",
+        "edges": 0
+      },
       {
         "id": "CLASS-02",
         "edges": 0
@@ -41,6 +45,10 @@
     ]
   },
   "uncovered_requirements": [
+    {
+      "id": "AGENT-04",
+      "text": "Phase researcher agent detects implicit state machine patterns in code files and surfaces findings in structured FSM Candidates table within RESEARCH.md output"
+    },
     {
       "id": "CLASS-02",
       "text": "classifyWithHaiku retries failed batches once with 2s backoff; tracks error_types breakdown (timeout, parse_error, api_error, cli_not_found) and failed_items keys in stats"

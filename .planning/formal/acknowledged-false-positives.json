@@ -375,6 +375,17 @@
       "value": "| `workflow.plan_check` | `true` | Verifies plans achieve phase goals before execution |",
       "reason": "Acknowledged via TUI",
       "acknowledged_at": "2026-03-16T00:09:38.905Z"
+    },
+    {
+      "value": "4. **Verifies against goals** — Checks the codebase delivers what the phase promised",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-19T13:06:28.727Z"
+    },
+    {
+      "source": "D->R",
+      "value": "7ab1ed566fb26e59",
+      "reason": "Acknowledged via TUI",
+      "acknowledged_at": "2026-03-19T13:30:38.605Z"
     }
   ],
   "patterns": [

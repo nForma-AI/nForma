@@ -1144,7 +1144,22 @@ async function main() {
   }
 
   const round   = parseInt(roundArg, 10);
-  const timeout = timeoutArg ? parseInt(timeoutArg, 10) : 30000;
+
+  // Resolve timeout: explicit --timeout > providers.json quorum_timeout_ms > 180s default
+  const DEFAULT_QUORUM_TIMEOUT_MS = 300000;
+  let timeout;
+  if (timeoutArg) {
+    timeout = parseInt(timeoutArg, 10);
+  } else {
+    try {
+      const pPath = path.join(__dirname, 'providers.json');
+      const providers = JSON.parse(fs.readFileSync(pPath, 'utf8')).providers || [];
+      const provider = providers.find(p => p.name === slot);
+      timeout = (provider && provider.quorum_timeout_ms) || DEFAULT_QUORUM_TIMEOUT_MS;
+    } catch {
+      timeout = DEFAULT_QUORUM_TIMEOUT_MS;
+    }
+  }
 
   // Read optional temp files
   let priorPositions = null;

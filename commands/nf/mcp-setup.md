@@ -1062,7 +1062,7 @@ Use AskUserQuestion:
 - question: "Which field?"
 - options:
   - "Model — current: {model or '(not set)'}"
-  - "Timeout — current: {timeout or '30000'}ms"
+  - "Timeout — current: {timeout or '180000'}ms"
   - "Back — return to agent menu"
 
 If "Model": prompt for new model name, update `providers.json` entry's `model` field.

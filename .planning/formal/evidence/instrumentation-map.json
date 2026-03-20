@@ -1,10 +1,10 @@
 {
   "schema_version": "1",
-  "generated": "2026-03-19T11:51:48.190Z",
+  "generated": "2026-03-19T19:54:43.532Z",
   "emission_points": [
     {
       "file": "hooks/nf-prompt.js",
-      "line_number": 645,
+      "line_number": 646,
       "action": "cache_hit",
       "state_variables": [
         "verdict"
@@ -14,7 +14,7 @@
     },
     {
       "file": "hooks/nf-prompt.js",
-      "line_number": 735,
+      "line_number": 736,
       "action": "quorum_fallback_t1_required",
       "state_variables": [],
       "vocabulary_match": true,
@@ -22,7 +22,7 @@
     },
     {
       "file": "hooks/nf-prompt.js",
-      "line_number": 920,
+      "line_number": 921,
       "action": "quorum_start",
       "state_variables": [],
       "vocabulary_match": true,
@@ -30,7 +30,7 @@
     },
     {
       "file": "hooks/nf-stop.js",
-      "line_number": 608,
+      "line_number": 708,
       "action": "quorum_complete",
       "state_variables": [
         "quorum_size"
@@ -40,7 +40,7 @@
     },
     {
       "file": "hooks/nf-stop.js",
-      "line_number": 624,
+      "line_number": 724,
       "action": "quorum_complete",
       "state_variables": [],
       "vocabulary_match": true,
@@ -48,7 +48,17 @@
     },
     {
       "file": "hooks/nf-stop.js",
-      "line_number": 685,
+      "line_number": 750,
+      "action": "fallback_01_block",
+      "state_variables": [
+        "verdict"
+      ],
+      "vocabulary_match": false,
+      "xstate_event": null
+    },
+    {
+      "file": "hooks/nf-stop.js",
+      "line_number": 803,
       "action": "quorum_block",
       "state_variables": [
         "verdict"
@@ -58,7 +68,7 @@
     },
     {
       "file": "hooks/nf-stop.js",
-      "line_number": 724,
+      "line_number": 842,
       "action": "quorum_complete",
       "state_variables": [],
       "vocabulary_match": true,
@@ -86,5 +96,5 @@
     "deliberation_round",
     "security_sweep"
   ],
-  "summary": "Found 8 emission points across 3 hooks and observe handlers. Coverage: 5/9 vocabulary actions mapped (55.6%). Unmapped: quorum_block_r3_2, mcp_call, deliberation_round, security_sweep."
+  "summary": "Found 9 emission points across 3 hooks and observe handlers. Coverage: 5/9 vocabulary actions mapped (55.6%). Unmapped: quorum_block_r3_2, mcp_call, deliberation_round, security_sweep."
 }

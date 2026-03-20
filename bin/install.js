@@ -1416,6 +1416,18 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
       if (settings.hooks.PreToolUse.length === 0) delete settings.hooks.PreToolUse;
     }
+    // Remove nf-scope-guard hook (uninstall path)
+    if (settings.hooks && settings.hooks.PreToolUse) {
+      const before = settings.hooks.PreToolUse.length;
+      settings.hooks.PreToolUse = settings.hooks.PreToolUse.filter(entry =>
+        !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-scope-guard')))
+      );
+      if (settings.hooks.PreToolUse.length < before) {
+        settingsModified = true;
+        console.log(`  ${green}✓${reset} Removed nForma scope guard hook`);
+      }
+      if (settings.hooks.PreToolUse.length === 0) delete settings.hooks.PreToolUse;
+    }
     if (settings.hooks && settings.hooks.PostToolUse) {
       const before = settings.hooks.PostToolUse.length;
       settings.hooks.PostToolUse = settings.hooks.PostToolUse.filter(entry =>
@@ -2352,6 +2364,17 @@ function install(isGlobal, runtime = 'claude') {
         hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-mcp-dispatch-guard.js'), timeout: 10 }]
       });
       console.log(`  ${green}+${reset} Configured nForma MCP dispatch guard hook (PreToolUse)`);
+    }
+
+    // Register nForma scope guard hook (PreToolUse — warn on out-of-scope edits)
+    const hasScopeGuardHook = settings.hooks.PreToolUse.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-scope-guard'))
+    );
+    if (!hasScopeGuardHook) {
+      settings.hooks.PreToolUse.push({
+        hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-scope-guard.js'), timeout: 10 }]
+      });
+      console.log(`  ${green}+${reset} Configured nForma scope guard hook (PreToolUse)`);
     }
 
     // Register nForma node-eval guard hook (PreToolUse — rewrite node -e to heredoc for zsh safety)

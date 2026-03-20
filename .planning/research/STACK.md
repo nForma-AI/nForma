@@ -1,280 +1,378 @@
-# Technology Stack — Model-Driven Debugging
+# Stack Research
 
-**Project:** nForma v0.38 — Model-Driven Debugging
-**Research Date:** 2026-03-17
-**Milestone:** Adding model-driven debugging to formal verification infrastructure (201 models, TLA+, Alloy, PRISM)
-
----
-
-## Recommended Stack Additions
-
-### Core Debugging Framework
-
-| Technology | Version | Purpose | Why | Integration Point |
-|------------|---------|---------|-----|-------------------|
-| **ITF (Informal Trace Format)** | JSON spec | Structured counterexample representation | Native TLC/Apalache output format; tool-neutral; JSON-native for Node.js | Replaces text trace parsing; feeds counterexample extractor |
-| **fast-xml-parser** | ^5.4.1 | Parse Alloy SAT solver XML instances | Alloy 6 outputs SAT results as XML; mature (used by Microsoft, NASA); pure JS | Alloy instance extraction from solver output |
-| **acorn** | ^8.11.0 | JavaScript AST parser for code-file scoping | Dead-simple scope analysis; integrated in ESLint ecosystem; Node.js native | Bug-to-model file resolution (which models affect this file?) |
-
-### TLA+ Counterexample Parsing
-
-| Library | Version | Purpose | When to Use | Notes |
-|---------|---------|---------|-------------|-------|
-| **Custom ITF parser** | — | Parse TLC output to ITF JSON format | When TLC emits traces via `-terse` or ITF backend | Lightweight; TLC natively outputs states + variable bindings |
-| **Custom trace walker** | — | Replay states through formal spec to extract invariants | Counterexample contains 5-100 states; need to know which invariant failed | Reuse existing `xstate-trace-walker.cjs` pattern |
-
-### Constraint Extraction
-
-| Library | Version | Purpose | When to Use | Status |
-|---------|---------|---------|-------------|--------|
-| **Custom invariant parser** | — | Extract conditions from TLA+ ASSUME/INVARIANT/PROPERTY | Per-model; extract `x > 0 /\ y <= maxValue` patterns | Build on existing `formal-core.cjs` foundation |
-| **Custom Alloy constraint extractor** | — | Extract fact/pred/assert constraints from .als specs | Alloy specs define structural invariants (e.g., "no cycles") | Parse Alloy grammar; extract as plain-English rules |
-| **LLM constraint naturalizer** (Haiku) | — | Convert formal constraints to readable English | Use Claude for constraint-to-English translation | Already have quorum + Haiku; minimal new code |
+**Domain:** nForma behavioral enforcement hooks (session state, approach declaration, root cause detection, scope guard)
+**Researched:** 2026-03-19
+**Confidence:** HIGH — all findings derived directly from codebase; no third-party library additions required
 
 ---
 
-## Architecture: Trace → Constraint → Fix
+## Feature 1: SESSION STATE INJECTION in nf-prompt.js
 
-### 1. TLC Counterexample Path
+### How it works today
 
-```
-TLC runs → generates trace.txt (multi-line state sequence)
-  ↓
-itf-to-json.cjs (custom) → convert to ITF JSON format
-  ↓
-trace-parser.cjs (custom) → walk states, extract state diff at failure
-  ↓
-invariant-extractor.cjs (new) → find which invariant failed in formal spec
-  ↓
-constraint-naturalizer.cjs (custom) → format as plain English
-  ↓
-/nf:debug → inject as fix constraints
-```
-
-**No external dependencies needed** — custom parsers are <500 LOC each.
-
-### 2. Alloy Instance Path
+`nf-prompt.js` receives a JSON payload on stdin with these fields (confirmed from code):
 
 ```
-Alloy runs (via run-alloy.cjs) → outputs to stdout
-  ↓
-alloy-scanner.cjs (existing) → detect counterexample in stdout
-  ↓
-alloy-xml-extractor.cjs (new, fast-xml-parser) → parse Alloy XML instance
-  ↓
-scope-resolver.cjs (new, acorn) → map model atoms to code entities
-  ↓
-/nf:debug → propose fix guided by structural invariants
+input.cwd         — working directory (string)
+input.session_id  — session identifier (string | null)
+input.prompt      — raw user prompt (string)
+input.context     — YAML context string (string, may be empty)
 ```
 
-### 3. Bug-to-Model Lookup
-
-```
-User reports bug in file X (e.g., bin/quorum-slot-worker.cjs)
-  ↓
-formal-scope-scan.cjs (existing) → finds models matching X
-  ↓
-model-cache-check.cjs (new) → loads cached model for file + TLA+ spec
-  ↓
-run model checker on those models only
-  ↓
-Extract constraints from passing/failing models
+Output always via:
+```js
+process.stdout.write(JSON.stringify({
+  hookSpecificOutput: {
+    hookEventName: 'UserPromptSubmit',
+    additionalContext: '...',
+  }
+}));
 ```
 
-**Key insight:** Code file → formal model mapping already exists in `@requirement` annotations. Reuse proximity graph.
+### Reading STATE.md from a hook
+
+Pattern already established in `findResolutionWorkflow()` and circuit-breaker state reading:
+
+```js
+const statePath = path.join(cwd, '.planning', 'STATE.md');
+if (fs.existsSync(statePath)) {
+  const stateContent = fs.readFileSync(statePath, 'utf8');
+  // extract relevant sections
+}
+```
+
+No new dependencies. `fs` is already required at the top of `nf-prompt.js`. `cwd` is already in scope at the point where injection decisions are made.
+
+### Detecting "first message of session"
+
+There is no existing "first message of session" detector in the hook. The `input.session_id` is available but Claude Code does not distinguish message-index within a session at the hook API level.
+
+**Recommended approach:** use a session-scoped sentinel file, the same way `consumePendingTask()` already uses `pending-task-<sessionId>.txt`. Pattern:
+
+```js
+function isFirstMessageOfSession(cwd, sessionId) {
+  if (!sessionId) return false;
+  const sentinelDir = path.join(cwd, '.claude');
+  const sentinelPath = path.join(sentinelDir, `nf-session-seen-${sessionId}.flag`);
+  if (fs.existsSync(sentinelPath)) return false;
+  try {
+    fs.mkdirSync(sentinelDir, { recursive: true });
+    fs.writeFileSync(sentinelPath, new Date().toISOString(), 'utf8');
+    return true;
+  } catch {
+    return false; // fail-open
+  }
+}
+```
+
+Sentinel files are in `.claude/` (already gitignored by the project). They self-expire when Claude Code garbage-collects session state.
+
+### Placement in nf-prompt.js priority chain
+
+Current priority chain:
+1. Circuit breaker active -> inject resolution workflow (early exit)
+2. Pending task -> inject queued command (early exit)
+3. Planning command -> inject quorum instructions
+
+Session state injection belongs at **priority 0** (before circuit breaker), because it enriches context for ALL messages, not just planning commands. Alternatively it can be appended to the quorum instructions block (priority 3) — lower implementation risk, no need to restructure early-exit logic.
+
+**Recommended:** append to the `instructions` string at the end of priority-3 (after quorum dispatch is built), gated on `isFirstMessageOfSession()`. Keeps the early-exit structure intact and avoids injecting STATE.md content on circuit-breaker recovery messages where it would clutter the recovery prompt.
+
+### STATE.md parsing
+
+STATE.md is human-readable markdown. A lightweight extract is better than injecting the full file (which grows with the Quick Tasks Completed table). Extract only the sections relevant for session orientation:
+
+```js
+// Extract "Current Position" and "Accumulated Context > Decisions" sections
+function extractStateContext(stateContent) {
+  const lines = stateContent.split('\n');
+  const sections = [];
+  let inSection = false;
+  for (const line of lines) {
+    if (/^## Current Position/.test(line) || /^### Decisions/.test(line)) {
+      inSection = true;
+    }
+    if (inSection) {
+      sections.push(line);
+      if (sections.length > 20) break; // cap at 20 lines
+    }
+    if (inSection && sections.length > 1 && /^## /.test(line) && !line.includes('Current Position')) break;
+  }
+  return sections.join('\n').trim();
+}
+```
+
+Cap injection at ~500 chars to avoid crowding quorum instructions (existing hook-level cap is 800 chars for context-stack, noted in nf-prompt.js line 862).
 
 ---
 
-## New Files to Create
+## Feature 2: APPROACH DECLARATION GATE in quick.md
 
-### bin/itf-trace-parser.cjs
-Parse TLC counterexample into ITF JSON format.
-- **Input:** trace.txt from TLC stderr or file
-- **Output:** `{ meta, params, vars, states, loop }`
-- **Dependencies:** None (pure string parsing)
-- **Reusable by:** Any downstream trace consumer
+### How workflow gates work
 
-### bin/alloy-instance-extractor.cjs
-Extract instances from Alloy SAT solver output via fast-xml-parser.
-- **Input:** Alloy XML instance (or parsed XML object)
-- **Output:** Relational structure: `{ Atom[], Set[], Relation[] }`
-- **Dependencies:** `fast-xml-parser` (v5.4.1+)
-- **Reusable by:** Alloy model visualization, constraint extraction
+`quick.md` is a markdown workflow file with `<process>` sections containing numbered steps. Gates are already implemented as inline conditional blocks, e.g.:
 
-### bin/invariant-constraint-extractor.cjs
-Extract formal constraints from TLA+ or Alloy specs.
-- **Input:** Formal spec file (.tla or .als)
-- **Output:** Parsed constraints: `{ name, condition, type: 'safety'|'liveness'|'structural' }`
-- **Dependencies:** None (regex-based parsing)
-- **Reusable by:** Constraint documentation, verification gates
+- Step 4.5 (formal scope scan): `Skip this step entirely if NOT $FULL_MODE.`
+- Step 5.5 (plan-checker loop): `Skip this step entirely if NOT $FULL_MODE.`
 
-### bin/constraint-naturalizer.cjs
-Convert formal constraints to plain English using Haiku.
-- **Input:** Parsed constraint: `{ name: 'SafetyInvariant', condition: '(x > 0 /\ y <= MAX)' }`
-- **Output:** `"Safety Invariant: x must be greater than zero AND y must not exceed 100."`
-- **Dependencies:** Quorum dispatch (call Haiku)
-- **Reusable by:** Debugging UI, documentation generation, fix guidance
+Gates in quick.md are **not enforced by hooks** — they are enforced by the Claude Code orchestrator reading the workflow instructions. The hook for enforcement of behavioral properties is `nf-stop.js` (Stop hook).
 
-### bin/bug-to-model-resolver.cjs
-Map code files to affected formal models for targeted model checking.
-- **Input:** Bug report (stack trace, file path, function name)
-- **Output:** List of `{ modelFile: 'NFQuorum.tla', relevance: 0.92, reason: '@requirement links' }`
-- **Dependencies:** `acorn` (v8.11.0+) for scope analysis; existing proximity graph
-- **Reusable by:** model selection in `/nf:debug`, regression testing
+### Approach declaration gate options
+
+**Option A: Workflow-only gate (instructions-level)**
+
+Add a Step 3.5 after "Create task directory" that requires the executor to declare an approach before spawning the planner:
+
+```markdown
+**Step 3.5: Approach declaration (required)**
+
+Before spawning the planner, declare your implementation approach:
+
+APPROACH: [one sentence describing how you will solve the task]
+RISKS: [any risks or ambiguities]
+
+This declaration is injected into the planner prompt as <approach_declaration>.
+```
+
+This is zero-code — no hook changes needed. The Stop hook can optionally verify it.
+
+**Option B: Hook-enforced gate via nf-stop.js**
+
+`nf-stop.js` already reads the transcript for `<!-- GSD_DECISION -->`. The same pattern can check for an `APPROACH:` declaration token before allowing the response. This is HIGH friction and not recommended for quick tasks.
+
+**Recommendation: Option A.** Add Step 3.5 to `quick.md` as a structured declaration block. The planner receives it as `<approach_declaration>` context. No hook changes needed for MVP. The gate prevents unconscious scope creep by forcing a one-sentence approach commitment before planning begins.
+
+### Install sync requirement
+
+`core/workflows/quick.md` is the durable source. The installer copies it to `~/.claude/nf/workflows/quick.md`. Any edit to `core/workflows/quick.md` must also update the installed copy or be synced on next `node bin/install.js --claude --global`.
 
 ---
 
-## Installation Commands
+## Feature 3: ROOT CAUSE PATTERN DETECTION in nf-prompt.js
+
+### Detection mechanism
+
+Root cause phrases are injected into prompts by users trying to fix bugs. Detection pattern (same style as the quorum command allowlist check at line 878):
+
+```js
+const ROOT_CAUSE_SIGNAL_REGEX = /\b(root cause|because of|caused by|the bug is|the issue is|fix the underlying)\b/i;
+const isRootCauseTask = ROOT_CAUSE_SIGNAL_REGEX.test(prompt);
+```
+
+### What to inject when detected
+
+When `isRootCauseTask` is true, append to `instructions` (same tail-append pattern used for THINKING BUDGET at line 851):
+
+```js
+if (isRootCauseTask) {
+  instructions += '\n\nROOT CAUSE ENFORCEMENT: This task contains a root cause signal. ' +
+    'Before implementing any fix, you MUST:\n' +
+    '1. State the root cause in one sentence (not the symptom)\n' +
+    '2. Show the minimal reproduction path\n' +
+    '3. Confirm the fix addresses the root cause, not a workaround\n' +
+    'Do NOT patch symptoms. The Stop hook will verify <!-- GSD_DECISION --> includes root cause reasoning.';
+}
+```
+
+### Placement
+
+Append after the THINKING BUDGET directive (line ~856) and before the context stack injection (line ~865). This ensures root cause enforcement appears in the instructions block delivered to Claude regardless of whether quorum is active.
+
+**Critical constraint:** this runs after the `cmdPattern.test(prompt)` check at line 882 — meaning it only fires for `/nf:` commands. Root cause detection on arbitrary prompts would require moving the logic before the command pattern check. For v0.40, restricting to `/nf:` commands is safer and correct.
+
+---
+
+## Feature 4: NEW PreToolUse:Edit/Write SCOPE GUARD HOOK (nf-scope-guard.js)
+
+### Hook registration pattern (from install.js lines 2323-2366)
+
+Every PreToolUse hook follows this exact pattern in install.js:
+
+```js
+// Step 1: Add to DEFAULT_HOOK_PRIORITIES in hooks/config-loader.js
+'nf-scope-guard': 50,
+
+// Step 2: In the install block (~line 2323 in bin/install.js):
+const hasScopeGuardHook = settings.hooks.PreToolUse.some(entry =>
+  entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-scope-guard'))
+);
+if (!hasScopeGuardHook) {
+  settings.hooks.PreToolUse.push({
+    hooks: [{ type: 'command', command: buildHookCommand(targetDir, 'nf-scope-guard.js'), timeout: 10 }]
+  });
+  console.log(`  ${green}+${reset} Configured nForma scope guard hook (PreToolUse)`);
+}
+
+// Step 3: In the uninstall block (~line 1396 in bin/install.js):
+if (settings.hooks && settings.hooks.PreToolUse) {
+  const before = settings.hooks.PreToolUse.length;
+  settings.hooks.PreToolUse = settings.hooks.PreToolUse.filter(entry =>
+    !(entry.hooks && entry.hooks.some(h => h.command && h.command.includes('nf-scope-guard')))
+  );
+  if (settings.hooks.PreToolUse.length < before) {
+    settingsModified = true;
+    console.log(`  ${green}+${reset} Removed nForma scope guard hook`);
+  }
+  if (settings.hooks.PreToolUse.length === 0) delete settings.hooks.PreToolUse;
+}
+```
+
+### Tool name filtering for Edit/Write
+
+The hook input payload for PreToolUse includes:
+- `input.tool_name` or `input.toolName` — the tool being called (string)
+- `input.tool_input` — the arguments to the tool (object)
+
+For Edit: `input.tool_input.path` — the file path being edited
+For Write: `input.tool_input.file_path` — the file path being written
+
+Tool name values (from circuit-breaker line 633 and destructive-git-guard line 89 patterns):
+- `'Bash'` for Bash tool
+- `'Edit'` for Edit tool
+- `'Write'` for Write tool
+- `'MultiEdit'` for MultiEdit tool (check both casings)
+
+Filter pattern (from destructive-git-guard lines 88-92):
+
+```js
+const toolName = input.tool_name || input.toolName || '';
+const EDIT_WRITE_TOOLS = new Set(['edit', 'write', 'multiedit']);
+if (!EDIT_WRITE_TOOLS.has(toolName.toLowerCase())) {
+  process.exit(0);
+}
+
+// Extract target file path
+const filePath = (input.tool_input && (input.tool_input.path || input.tool_input.file_path)) || '';
+```
+
+### Hook output: warn vs. block
+
+**Warn (recommended for v0.40 — same as destructive-git-guard):**
+```js
+process.stdout.write(JSON.stringify({
+  hookSpecificOutput: {
+    hookEventName: 'PreToolUse',
+    additionalContext: `[nf-scope-guard] WARNING: ${filePath} may be outside declared task scope.`,
+  },
+}));
+```
+
+**Block (confirmed working from nf-circuit-breaker.js line 766-773):**
+```js
+process.stdout.write(JSON.stringify({
+  hookSpecificOutput: {
+    hookEventName: 'PreToolUse',
+    permissionDecision: 'deny',
+    permissionDecisionReason: `Scope guard: ${filePath} is outside the declared task scope.`,
+  },
+}));
+```
+
+### Scope source: current-activity.json + task plan
+
+`current-activity.json` is written by `gsd-tools.cjs activity-set` and exists at `.planning/current-activity.json` during active task execution. Format:
+
+```json
+{ "activity": "quick", "sub_activity": "executing" }
+```
+
+The task plan path can be derived from the plan naming convention: `.planning/quick/<num>-<slug>/<num>-PLAN.md`. Plans use YAML frontmatter with a `files:` field listing declared files. The scope guard reads that field and warns when the target file is not in the list.
+
+Fail-open: if `current-activity.json` is absent or the plan cannot be parsed, allow the tool call (no false positives when hook runs outside nForma context).
+
+### Hook file lifecycle
+
+```
+hooks/nf-scope-guard.js         ← development source (write here)
+hooks/dist/nf-scope-guard.js    ← compiled copy (sync manually: cp hooks/nf-scope-guard.js hooks/dist/)
+~/.claude/hooks/nf-scope-guard.js  ← installed copy (synced by: node bin/install.js --claude --global)
+```
+
+The installer reads from `hooks/dist/` only. Development source in `hooks/` is the durable repo copy.
+
+---
+
+## Core Technologies (no new additions)
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Node.js (CommonJS) | existing (18+) | Hook runtime | All hooks are `.js` CJS modules; no transpilation needed |
+| `fs` (stdlib) | built-in | STATE.md reads, sentinel files, activity JSON | Already required in every hook |
+| `path` (stdlib) | built-in | Path construction for `.claude/`, `.planning/` | Already required in every hook |
+
+No npm packages are needed for any of the four features. All patterns use stdlib only.
+
+---
+
+## Supporting Libraries (existing, no changes needed)
+
+| Library | Location | Purpose | When to Use |
+|---------|----------|---------|-------------|
+| `config-loader` | `./config-loader` | `loadConfig`, `shouldRunHook`, `validateHookInput` | Every hook; provides profile guard + input validation |
+| `nf-resolve-bin` | `./nf-resolve-bin` | Resolve bin/ paths across dev vs. installed | Only if reading planning-paths.cjs or other bin scripts |
+| `conformance-schema.cjs` | `./conformance-schema.cjs` | `schema_version` constant | Only if hook writes conformance events |
+
+---
+
+## Installation (no new packages)
 
 ```bash
-# Add trace/constraint parsing and model scoping dependencies
-npm install fast-xml-parser@5.4.1 acorn@8.11.0
+# After writing hooks/nf-scope-guard.js:
+cp hooks/nf-scope-guard.js hooks/dist/nf-scope-guard.js
 
-# Verify installations
-npm list fast-xml-parser acorn
+# Sync quick.md workflow to installed location:
+cp core/workflows/quick.md ~/.claude/nf/workflows/quick.md
 
-# No changes to package.json devDependencies needed for custom parsers
+# Register new hook in settings.json:
+node bin/install.js --claude --global
 ```
 
 ---
 
-## Integration with Existing Infrastructure
+## Alternatives Considered
 
-### 1. TLC/Alloy Runners (Already Exist)
+| Recommended | Alternative | Why Not |
+|-------------|-------------|---------|
+| Sentinel file for first-message detection | Track in `.planning/session-registry.json` | Overkill; sentinel file is atomic, zero-parse, and self-cleaning |
+| Append STATE.md summary to quorum instructions block | Inject before priority-1 (circuit breaker) | Restructures the early-exit chain; higher risk of injecting stale context on circuit-breaker recovery |
+| Workflow-only approach declaration gate | Stop hook `APPROACH:` token check | Stop hook adds friction for ALL quick tasks; opt-in declaration is sufficient for v0.40 |
+| Warn-only scope guard | Hard-block scope guard | Hard block on Edit/Write would halt legitimate lateral edits (e.g., updating CLAUDE.md, STATE.md alongside implementation); warn-only is safer for initial rollout |
+| Append root cause enforcement inside quorum instructions | Separate early-exit path | Early exit would skip quorum injection; appending is consistent with THINKING BUDGET pattern |
 
-**No changes needed** to `bin/run-tlc.cjs` or `bin/run-alloy.cjs`. They already:
-- Invoke TLC/Alloy with proper Java/classpath setup
-- Capture stdio/stderr (or pipe to file)
-- Write check-results.ndjson with pass/fail status
+## What NOT to Use
 
-**New parsers attach downstream:**
-```javascript
-// After run-tlc.cjs completes with counterexample
-const traceFile = path.join(ROOT, '.planning', 'formal', 'tla', 'states', configName, 'trace.txt');
-const parsedTrace = require('./itf-trace-parser.cjs').parse(fs.readFileSync(traceFile, 'utf8'));
-const constraints = require('./invariant-constraint-extractor.cjs').extractFrom(specFile);
-```
-
-### 2. Formal Spec Generation Pipeline
-
-`bin/run-formal-verify.cjs` already:
-- Generates TLA+ from XState
-- Generates Alloy from formal specifications
-- Caches specs in `.planning/formal/{tla,alloy}/`
-
-**New constraint extraction hooks into:**
-```
-run-formal-verify.cjs --only=generate
-  ↓
-[NEW] extract-spec-constraints.cjs (iterate all specs, populate constraint cache)
-  ↓
-.planning/formal/spec-constraints.json (indexed by model name)
-```
-
-### 3. Proximity Graph & Traceability
-
-Existing files we leverage:
-- `bin/formal-proximity.cjs` — model semantic similarity
-- `bin/formal-ref-linker.cjs` — @requirement bidirectional links
-- `.planning/formal/code-trace-index.json` — file → requirement → model mapping
-
-**New integration:**
-```javascript
-// In bug-to-model-resolver.cjs
-const refLinker = require('./formal-ref-linker.cjs');
-const affectedReqs = refLinker.getRequirementsForFile(bugFile);
-const affectedModels = affectedReqs.flatMap(req => refLinker.getModelsForRequirement(req));
-```
-
-### 4. Quorum Dispatch (For Constraint Naturalization)
-
-Existing infrastructure:
-- `bin/call-quorum-slot.cjs` — multi-model consensus
-- `hooks/nf-prompt.js` — injects quorum context
-
-**New usage in constraint-naturalizer:**
-```javascript
-// Call Haiku to translate formal constraint to English
-const english = await quorumSlot('claude-haiku', {
-  task: 'translate_constraint',
-  constraint: '(x > 0 /\ y <= MAX)',
-  context: 'quorum voting protocol'
-});
-```
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| `process.env.SESSION_ID` for session detection | Only set when `SESSION_ID` env var is explicitly passed; not reliable in all Claude Code contexts | `input.session_id` from the hook payload |
+| `systemMessage` output field | Only shows as UI warning, does not go into Claude's context (nf-prompt.js line 17 comment) | `additionalContext` in `hookSpecificOutput` |
+| Writing hook state to `.planning/` | `.planning/` is a planning artifact store; transient hook state belongs in `.claude/` | `.claude/` sentinel files |
+| Direct injection of full STATE.md | The Quick Tasks Completed table grows unboundedly; full injection wastes context budget | Extract only "Current Position" and "Decisions" sections, capped at ~500 chars |
 
 ---
 
-## Alternatives Considered & Rejected
+## Version Compatibility
 
-| Decision | Recommendation | Alternative | Why Not |
-|----------|----------------|-------------|---------|
-| TLC trace format | ITF JSON parser (custom) | XML output from TLC | TLC's native text output is simpler; ITF is newer; custom parser is lightweight |
-| Alloy instance parsing | fast-xml-parser | Java-based Alloy API | Java process overhead; XML parsing is standard; fast-xml-parser is battle-tested |
-| Code-to-model mapping | acorn AST + proximity graph | Custom scope walker | acorn is ESLint standard; proximity graph already exists; minimal new code |
-| Constraint-to-English | Haiku LLM | GPT-4 or Claude Opus | We already have quorum + Haiku; no external API calls; fits harness constraints |
-| Constraint extraction | Regex + parser combinators | Full TLA+/Alloy parser | Formal specs are highly structured; regex covers 95% of cases; parser is over-engineered |
-
----
-
-## Performance Characteristics
-
-| Component | Processing Time | Bottleneck | Mitigation |
-|-----------|-----------------|-----------|-----------|
-| itf-trace-parser | 50–200ms | State count (5–100 states) | Stream parsing; lazy evaluation |
-| alloy-instance-extractor | 100–500ms | XML size (SAT solver output) | fast-xml-parser optimized; pre-validate |
-| invariant-constraint-extractor | 10–50ms | Spec size (~5K lines) | Regex-based; compile once; cache |
-| constraint-naturalizer (Haiku) | 2–5s | LLM latency | Batch constraints; reuse quorum slots |
-| bug-to-model-resolver | 100–300ms | File count + proximity graph | Index models by file; lazy load |
-
-**Total E2E latency (bug reported → constraints extracted):** ~3–10 seconds (dominated by Haiku LLM call).
-
----
-
-## Dependencies: Version Rationale
-
-### fast-xml-parser@5.4.1
-- **Current:** 5.4.1 (2024-12)
-- **Why 5.x:** Stable, widely used (Microsoft, NASA, VMWare)
-- **Why not 4.x:** Missing HTML entity handling; slower
-- **Why not 6.0 beta:** Not stable for production; no compelling features
-- **Lock:** Yes — pin exact version in package.json to avoid breaking changes in XML parsing
-
-### acorn@8.11.0
-- **Current:** 8.11.0 (2024-12)
-- **Why 8.x:** Mature, widely used in ESLint ecosystem
-- **Why not 9.x alpha:** No release yet; stick with stable
-- **Lock:** Yes — pin for consistent AST structure
-- **Alternative:** Babel parser is heavier; acorn is minimal
-
-### No custom parser library needed
-- **Why not add parser combinator library (e.g., Parsimmon, Chevrotain)?** TLA+ and Alloy specs are structured (ASSUME/PROPERTY sections clearly marked). Regex + string split covers 95% of extraction. Parser combinator is over-engineering.
-- **Cost to justify:** Would add 15KB+ dependency for what 200 lines of code handles.
-
----
-
-## Integration Checklist
-
-Before writing model-driven debugging features:
-
-- [ ] Install `npm install fast-xml-parser@5.4.1 acorn@8.11.0`
-- [ ] Create `bin/itf-trace-parser.cjs` (custom, no deps)
-- [ ] Create `bin/alloy-instance-extractor.cjs` (fast-xml-parser)
-- [ ] Create `bin/invariant-constraint-extractor.cjs` (custom, no deps)
-- [ ] Create `bin/constraint-naturalizer.cjs` (quorum dispatch)
-- [ ] Create `bin/bug-to-model-resolver.cjs` (acorn + proximity graph)
-- [ ] Add extraction step to `run-formal-verify.cjs` pipeline
-- [ ] Wire `/nf:debug` to consume constraint cache
-- [ ] Test with 5 real counterexamples from TLC/Alloy
+| API Field | Hook Event | Notes |
+|-----------|-----------|-------|
+| `input.session_id` | UserPromptSubmit | Present in payload; confirmed used in `consumePendingTask()` at line 84 of nf-prompt.js |
+| `hookSpecificOutput.additionalContext` | UserPromptSubmit, PreToolUse | Both events support this field; confirmed in both nf-prompt.js and nf-destructive-git-guard.js |
+| `hookSpecificOutput.permissionDecision: 'deny'` | PreToolUse only | Confirmed in nf-circuit-breaker.js line 769 |
+| `input.tool_name` / `input.toolName` | PreToolUse | Both variants checked for backward compat; confirmed in nf-circuit-breaker.js line 633 |
+| `input.tool_input.path` | PreToolUse (Edit tool) | Edit tool uses `path` field |
+| `input.tool_input.file_path` | PreToolUse (Write tool) | Write tool uses `file_path` field |
 
 ---
 
 ## Sources
 
-- [Apalache ITF Format Documentation](https://apalache-mc.org/docs/adr/015adr-trace.html)
-- [TLC Counterexample Trace Parsing Research](https://github.com/visualzhou/tla-trace-formatter)
-- [fast-xml-parser NPM Package](https://www.npmjs.com/package/fast-xml-parser)
-- [fast-xml-parser GitHub](https://github.com/NaturalIntelligence/fast-xml-parser)
-- [Alloy Tools Documentation](https://alloytools.org/)
-- [Acorn JavaScript Parser](https://github.com/acornjs/acorn)
-- [APISpecGen: Generating API Specifications for Bug Detection](https://github.com/Yuuoniy/APISpecGen)
-- [Natural Language to Formal Specifications (2025-2026 Research)](https://aclanthology.org/2025.acl-long.1310.pdf)
+- `/Users/jonathanborduas/code/QGSD/hooks/nf-prompt.js` — direct read (HIGH confidence): hook input schema, output mechanism, priority chain, `additionalContext`, `session_id` usage, `instructions` append pattern
+- `/Users/jonathanborduas/code/QGSD/hooks/nf-circuit-breaker.js` — direct read (HIGH confidence): PreToolUse input schema, `tool_name`/`toolName` fields, `permissionDecision: 'deny'` output pattern
+- `/Users/jonathanborduas/code/QGSD/hooks/nf-destructive-git-guard.js` — direct read (HIGH confidence): Edit/Write tool_name filtering, warn-only output pattern, `additionalContext` in PreToolUse
+- `/Users/jonathanborduas/code/QGSD/hooks/nf-mcp-dispatch-guard.js` — direct read (HIGH confidence): PreToolUse tool name filtering, fail-open pattern
+- `/Users/jonathanborduas/code/QGSD/bin/install.js` (lines 2298-2410) — direct read (HIGH confidence): hook registration/uninstall pattern, `DEFAULT_HOOK_PRIORITIES`, `buildHookCommand`
+- `/Users/jonathanborduas/code/QGSD/core/workflows/quick.md` — direct read (HIGH confidence): workflow gate pattern, approach declaration insertion point, install sync requirement
+- `/Users/jonathanborduas/code/QGSD/.planning/STATE.md` — direct read (HIGH confidence): STATE.md format, section structure for extraction
+
+---
+*Stack research for: nForma behavioral enforcement hooks (session state injection, approach declaration gate, root cause enforcement, scope guard)*
+*Researched: 2026-03-19*
