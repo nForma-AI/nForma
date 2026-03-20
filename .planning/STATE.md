@@ -80,7 +80,7 @@ None currently.
 | 332 | Formalize CI/CD pipeline, retire staging | 2026-03-19 | bb85f839 | Complete | [332-formalize-ci-cd-pipeline-retire-staging-](./quick/332-formalize-ci-cd-pipeline-retire-staging-/) |
 | 334 | Close 3 autonomous formal verification gaps: code-fix gate, regression auto-remediation, reverse-flow auto-approval via unanimous quorum consensus | 2026-03-19 | a0243e9b | Verified | [334-close-3-autonomous-formal-verification-g](./quick/334-close-3-autonomous-formal-verification-g/) |
 | 335 | Add FSM candidate detection section to nf-phase-researcher RESEARCH.md output | 2026-03-19 | 9f0aa33e | Verified | [335-add-fsm-candidate-detection-section-to-n](./quick/335-add-fsm-candidate-detection-section-to-n/) |
-| 336 | Implement 3 targeted TLA+ failure classifiers in F->C remediation layer | 2026-03-20 | afa9add0 | Pending | [336-implement-3-targeted-tla-failure-classif](./quick/336-implement-3-targeted-tla-failure-classif/) |
+| 336 | Implement 3 targeted TLA+ failure classifiers in F->C remediation layer | 2026-03-20 | fc31f89d | Verified | [336-implement-3-targeted-tla-failure-classif](./quick/336-implement-3-targeted-tla-failure-classif/) |
 
 ## Session Continuity
 
