@@ -1,6 +1,6 @@
 {
-  "aggregated_at": "2026-03-19T19:55:59.317Z",
-  "content_hash": "9935d2ba61ba986c",
+  "aggregated_at": "2026-03-20T07:06:35.406Z",
+  "content_hash": "1cb322f39ba87e72",
   "requirements": [
     {
       "id": "ACT-01",
@@ -519,6 +519,18 @@
       },
       "formal_models": [],
       "category_raw": "Classification"
+    },
+    {
+      "id": "CLASS-03",
+      "text": "classifyTlcFailure classifier detects 6 TLC failure patterns (deadlock, sany_semantic, fairness_gap, invariant_violation, syntax_error, unknown) via ordered pattern matching and integrates into solve-remediate.md F->C dispatch to route deadlock/sany_semantic/fairness_gap to deterministic auto-fix templates.",
+      "category": "Classification",
+      "phase": "unknown",
+      "status": "Complete",
+      "background": "TLC verification failures often follow deterministic patterns that can be fixed autonomously without LLM reasoning. The classifier extracts these patterns from check-results.ndjson entries and enables targeted remediation.",
+      "provenance": {
+        "source_file": ".planning/quick/336-implement-3-targeted-tla-failure-classif/336-PLAN.md",
+        "milestone": "quick-336"
+      }
     },
     {
       "id": "COMP-01",
@@ -5606,5 +5618,5 @@
   ],
   "schema_version": "1",
   "source": ".planning/REQUIREMENTS.md",
-  "frozen_at": "2026-03-19T19:55:59.318Z"
+  "frozen_at": "2026-03-20T07:06:35.406Z"
 }
